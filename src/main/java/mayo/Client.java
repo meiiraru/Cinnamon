@@ -1,5 +1,6 @@
 package mayo;
 
+import mayo.gui.Screen;
 import mayo.render.BatchRenderer;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
@@ -20,6 +21,7 @@ public class Client {
 
     //objects
     private final Camera camera;
+    private Screen screen;
 
     private Client() {
         this.camera = new Camera(windowWidth / (float) windowHeight);
@@ -42,29 +44,39 @@ public class Client {
         int ticksToUpdate = timer.update();
         for (int j = 0; j < Math.min(10, ticksToUpdate); j++)
             tick();
+
+        if (this.screen != null) screen.render(renderer, stack);
     }
 
     private void tick() {
         ticks++;
+
+        if (this.screen != null) screen.tick();
     }
 
     // -- glfw events -- //
 
     public void mousePress(int button, int action, int mods) {
+        if (screen != null) screen.mousePress(button, action, mods);
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
+        if (screen != null) screen.keyPress(key, scancode, action, mods);
     }
 
     public void charTyped(char c, int mods) {
+        if (screen != null) screen.charTyped(c, mods);
     }
 
     public void mouseMove(double x, double y) {
+        if (screen != null) screen.mouseMove(x, y);
     }
 
     public void scroll(double x, double y) {
         guiScale += (float) (Math.signum(y) * 0.1f);
         windowResize(windowWidth, windowHeight);
+
+        if (screen != null) screen.scroll(x, y);
     }
 
     public void windowResize(int width, int height) {
@@ -73,9 +85,12 @@ public class Client {
         this.scaledWidth = (int) (width / guiScale);
         this.scaledHeight = (int) (height / guiScale);
         this.camera.updatePerspective(windowWidth / (float) windowHeight);
+
+        if (screen != null) screen.windowResize(width, height);
     }
 
     public void windowFocused(boolean focused) {
+        if (screen != null) screen.windowFocused(focused);
     }
 
     public Camera camera() {
