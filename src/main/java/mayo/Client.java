@@ -1,8 +1,10 @@
 package mayo;
 
 import mayo.gui.Screen;
+import mayo.gui.TextField;
 import mayo.render.BatchRenderer;
 import mayo.render.Camera;
+import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.utils.Timer;
 
@@ -21,6 +23,7 @@ public class Client {
 
     //objects
     private final Camera camera;
+    private Font font;
     private Screen screen;
 
     private Client() {
@@ -28,9 +31,13 @@ public class Client {
     }
 
     public void init() {
+        this.font = new Font(Client.NAMESPACE, "mayscript", 8);
+        this.screen = new Screen();
+        this.screen.addWidget(new TextField(this.font, "\u25e0\u25de\u25df\u25e0"));
     }
 
     public void close() {
+        this.font.free();
     }
 
     public static Client getInstance() {
@@ -39,6 +46,7 @@ public class Client {
 
     // -- events -- //
 
+    private boolean a = true;
     public void render(BatchRenderer renderer, MatrixStack stack) {
         //tick
         int ticksToUpdate = timer.update();
@@ -46,6 +54,11 @@ public class Client {
             tick();
 
         if (this.screen != null) screen.render(renderer, stack);
+
+        if (a) {
+            Screen.temp(renderer);
+            a = false;
+        }
     }
 
     private void tick() {
