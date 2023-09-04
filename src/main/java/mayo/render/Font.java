@@ -121,25 +121,15 @@ public class Font {
                         u0 = q.s0(), u1 = q.s1(),
                         v0 = q.t0(), v1 = q.t1();
 
-                vertices.add(new Vertex(x0, y0, z, u0, v0, color));
-                vertices.add(new Vertex(x1, y0, z, u1, v0, color));
-                vertices.add(new Vertex(x1, y1, z, u1, v1, color));
-                vertices.add(new Vertex(x0, y1, z, u0, v1, color));
+                vertices.addAll(bakeQuad(x0, x1, y0, y1, z, u0, u1, v0, v1, color));
 
                 if (shadow) {
-                    vertices.add(new Vertex(x0 + 1, y0 + 1, 0f, u0, v0, SHADOW_COLOR));
-                    vertices.add(new Vertex(x1 + 1, y0 + 1, 0f, u1, v0, SHADOW_COLOR));
-                    vertices.add(new Vertex(x1 + 1, y1 + 1, 0f, u1, v1, SHADOW_COLOR));
-                    vertices.add(new Vertex(x0 + 1, y1 + 1, 0f, u0, v1, SHADOW_COLOR));
+                    vertices.addAll(bakeQuad(x0 + 1, x1 + 1, y0 + 1, y1 + 1, 0f, u0, u1, v0, v1, SHADOW_COLOR));
                 } else if (outline) {
                     for (int i = -1; i <= 1; i++) {
                         for (int j = -1; j <= 1; j++) {
-                            if (i == 0 && j == 0)
-                                continue;
-                            vertices.add(new Vertex(x0 + i, y0 + j, 0f, u0, v0, SHADOW_COLOR));
-                            vertices.add(new Vertex(x1 + i, y0 + j, 0f, u1, v0, SHADOW_COLOR));
-                            vertices.add(new Vertex(x1 + i, y1 + j, 0f, u1, v1, SHADOW_COLOR));
-                            vertices.add(new Vertex(x0 + i, y1 + j, 0f, u0, v1, SHADOW_COLOR));
+                            if (i != 0 || j != 0)
+                                vertices.addAll(bakeQuad(x0 + i, x1 + i, y0 + j, y1 + j, 0f, u0, u1, v0, v1, SHADOW_COLOR));
                         }
                     }
                 }
@@ -160,6 +150,15 @@ public class Font {
         }
         cpOut.put(0, c1);
         return 1;
+    }
+
+    private static List<Vertex> bakeQuad(float x0, float x1, float y0, float y1, float z, float u0, float u1, float v0, float v1, int color) {
+        return List.of(
+                new Vertex(x0, y0, z, u0, v0, color),
+                new Vertex(x1, y0, z, u1, v0, color),
+                new Vertex(x1, y1, z, u1, v1, color),
+                new Vertex(x0, y1, z, u0, v1, color)
+        );
     }
 
     public float getWidth(String text) {
