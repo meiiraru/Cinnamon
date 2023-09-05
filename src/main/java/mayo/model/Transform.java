@@ -21,22 +21,7 @@ public class Transform {
     private final Matrix3f
             normalMatrix = new Matrix3f();
 
-    private boolean
-            dirty = true,
-            matrixDirty = true;
-
-    public void dirty() {
-        this.dirty = true;
-        this.matrixDirty = true;
-    }
-
-    public void clean() {
-        this.dirty = false;
-    }
-
-    public boolean isDirty() {
-        return dirty;
-    }
+    private boolean matrixDirty = true;
 
     private void recalculateMatrices() {
         if (!matrixDirty)
@@ -113,34 +98,52 @@ public class Transform {
         return uv;
     }
 
-    public void setPos(Vector3f pos) {
-        this.pos.set(pos);
-        dirty();
+    public void setPos(Vector3f vec) {
+        this.setPos(vec.x, vec.y, vec.z);
     }
 
-    public void setRot(Vector3f rot) {
-        this.rot.set(rot);
-        dirty();
+    public void setPos(float x, float y, float z) {
+        this.pos.set(x, y, z);
     }
 
-    public void setPivot(Vector3f pivot) {
-        this.pivot.set(pivot);
-        dirty();
+    public void setRot(Vector3f vec) {
+        this.setRot(vec.x, vec.y, vec.z);
     }
 
-    public void setScale(Vector3f scale) {
-        this.scale.set(scale);
-        dirty();
+    public void setRot(float x, float y, float z) {
+        this.rot.set(x, y, z);
     }
 
-    public void setColor(Vector3f color) {
-        this.color.set(color);
-        dirty();
+    public void setPivot(Vector3f vec) {
+        this.setPivot(vec.x, vec.y, vec.z);
     }
 
-    public void setUV(Vector2f uv) {
-        this.uv.set(uv);
-        dirty();
+    public void setPivot(float x, float y, float z) {
+        this.pivot.set(x, y, z);
+    }
+
+    public void setScale(Vector3f vec) {
+        this.setScale(vec.x, vec.y, vec.z);
+    }
+
+    public void setScale(float x, float y, float z) {
+        this.scale.set(x, y, z);
+    }
+
+    public void setColor(Vector3f vec) {
+        this.setColor(vec.x, vec.y, vec.z);
+    }
+
+    public void setColor(float x, float y, float z) {
+        this.color.set(x, y, z);
+    }
+
+    public void setUV(Vector2f vec) {
+        this.setUV(vec.x, vec.y);
+    }
+
+    public void setUV(float x, float y) {
+        this.uv.set(x, y);
     }
 
     public void setPositionMatrix(Matrix4f positionMatrix) {

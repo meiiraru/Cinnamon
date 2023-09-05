@@ -14,24 +14,13 @@ public class BatchRenderer {
         List<Batch> batchList = batches.computeIfAbsent(shader, k -> new ArrayList<>());
 
         for (Batch batch : batchList) {
-            if (!batch.isFilled() && (renderable.textureID > -1 || batch.hasTextureSpace() || batch.hasTexture(renderable.textureID))) {
-                batch.addElement(renderable);
+            if (batch.addElement(renderable))
                 return;
-            }
         }
 
         Batch batch = new Batch(shader.getShader());
         batchList.add(batch);
         batch.addElement(renderable);
-    }
-
-    public void removeElement(Renderable renderable) {
-        for (List<Batch> list : batches.values()) {
-            for (Batch batch : list) {
-                if (batch.removeElement(renderable))
-                    return;
-            }
-        }
     }
 
     public void render() {

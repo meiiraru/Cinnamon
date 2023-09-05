@@ -46,7 +46,6 @@ public class Client {
 
     // -- events -- //
 
-    private boolean a = true;
     public void render(BatchRenderer renderer, MatrixStack stack) {
         //tick
         int ticksToUpdate = timer.update();
@@ -55,10 +54,7 @@ public class Client {
 
         if (this.screen != null) screen.render(renderer, stack);
 
-        if (a) {
-            Screen.temp(renderer);
-            a = false;
-        }
+        Screen.temp(renderer);
     }
 
     private void tick() {

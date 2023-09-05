@@ -10,6 +10,7 @@ import mayo.render.Texture;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Screen {
 
@@ -42,9 +43,10 @@ public class Screen {
         int offset = 2;
         Texture texture = new Texture(Client.NAMESPACE, "blocks_new");
 
+        Random r = new Random(42L);
         for (int i = 0; i < len; i++) {
             for (int j = 0; j < len; j++) {
-                Renderable renderable = new Renderable(GeometryHelper.rectangle(i * (size + offset), j * (size + offset), size, size, texture, (int) (Math.random() * 5), (int) (Math.random() * 2), 5, 2, 1, 1));
+                Renderable renderable = new Renderable(GeometryHelper.rectangle(i * (size + offset), j * (size + offset), size, size, texture, r.nextInt(5), r.nextInt(2), 5, 2, 1, 1));
                 renderer.addElement(Shaders.MAIN, renderable);
             }
         }

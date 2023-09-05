@@ -72,7 +72,7 @@ public class Main {
         System.out.println("OpenGL Version: " + glGetString(GL_VERSION));
 
         //vsync
-        glfwSwapInterval(GLFW_TRUE);
+        glfwSwapInterval(GLFW_FALSE);
 
         //window properties
         glfwShowWindow(window);

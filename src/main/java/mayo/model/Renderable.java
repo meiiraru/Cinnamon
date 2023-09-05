@@ -3,6 +3,8 @@ package mayo.model;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import java.nio.FloatBuffer;
+
 public class Renderable {
 
     //properties
@@ -27,28 +29,28 @@ public class Renderable {
         this.textureID = textureID;
     }
 
-    public void pushVertices(float[] target, int offset, int texID) {
+    public void pushVertices(FloatBuffer target, int texID) {
         for (Vertex vertex : this.vertices) {
             pos.set(vertex.getPosition()).mulPosition(transform.getPositionMatrix());
             uv.set(vertex.getUV()).add(transform.getUV());
             color.set(vertex.getColor()).mul(transform.getColor());
             normal.set(vertex.getNormal()).mul(transform.getNormalMatrix());
 
-            target[offset++] = pos.x;
-            target[offset++] = pos.y;
-            target[offset++] = pos.z;
+            target.put(pos.x);
+            target.put(pos.y);
+            target.put(pos.z);
 
-            target[offset++] = texID;
-            target[offset++] = uv.x;
-            target[offset++] = uv.y;
+            target.put(texID);
+            target.put(uv.x);
+            target.put(uv.y);
 
-            target[offset++] = color.x;
-            target[offset++] = color.y;
-            target[offset++] = color.z;
+            target.put(color.x);
+            target.put(color.y);
+            target.put(color.z);
 
-            target[offset++] = normal.x;
-            target[offset++] = normal.y;
-            target[offset++] = normal.z;
+            target.put(normal.x);
+            target.put(normal.y);
+            target.put(normal.z);
         }
     }
 

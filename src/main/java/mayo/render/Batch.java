@@ -2,7 +2,9 @@ package mayo.render;
 
 import mayo.Client;
 import mayo.model.Renderable;
+import org.lwjgl.BufferUtils;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,25 +25,20 @@ public class Batch {
     private static final int VERTEX_ELEMENTS = 5;
     private static final int STRIDE = VERTEX_SIZE * Float.BYTES;
 
-    private final Renderable[] renderables;
-    private final int[] offsets;
     private final List<Integer> textures;
-    private final float[] vertices;
-    private int size = 0;
+    private final FloatBuffer vertices;
     private int faceCount = 0;
-    private boolean isFilled = false;
-    private boolean reupload = false;
+    private boolean isFull = false;
 
     private final Shader shader;
     private final int vaoID, vboID;
 
     public Batch(Shader shader) {
         this.shader = shader;
-        this.renderables = new Renderable[BATCH_SIZE];
-        this.offsets = new int[BATCH_SIZE + 1];
         this.textures = new ArrayList<>();
         //quad = 4 vertices
-        this.vertices = new float[BATCH_SIZE * 4 * VERTEX_SIZE];
+        int capacity = BATCH_SIZE * 4 * VERTEX_SIZE;
+        this.vertices = BufferUtils.createFloatBuffer(capacity);
 
         //generate and bind a Vertex Array Object (VAO)
         this.vaoID = glGenVertexArrays();
@@ -50,7 +47,7 @@ public class Batch {
         //allocate space for vertices, generating the Vertex Buffer Object (VBO)
         this.vboID = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vboID);
-        glBufferData(GL_ARRAY_BUFFER, (long) vertices.length * Float.BYTES, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, (long) capacity * Float.BYTES, GL_DYNAMIC_DRAW);
 
         //create and upload indices buffer
         int eboID = glGenBuffers();
@@ -81,19 +78,9 @@ public class Batch {
     }
 
     public void render() {
-        for (int i = 0; i < this.size; i++) {
-            Renderable renderable = renderables[i];
-            if (renderable.transform.isDirty()) {
-                loadVertexProperties(i);
-                reupload = true;
-            }
-        }
-
-        if (reupload) {
-            glBindBuffer(GL_ARRAY_BUFFER, vboID);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
-            reupload = false;
-        }
+        vertices.rewind();
+        glBindBuffer(GL_ARRAY_BUFFER, vboID);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
 
         //use shader
         shader.use();
@@ -119,74 +106,36 @@ public class Batch {
 
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
+
+        //finish renderer
+        textures.clear();
+        vertices.clear();
+        faceCount = 0;
+        isFull = false;
     }
 
-    public void addElement(Renderable renderable) {
-        //get index and add the mesh
-        int i = this.size;
-        this.renderables[i] = renderable;
-        this.size++;
+    public boolean addElement(Renderable renderable) {
+        if (isFull() || !hasSpace(renderable.faceCount()) || (renderable.textureID > -1 && !hasTextureSpace() && !hasTexture(renderable.textureID)))
+            return false;
 
         //add texture if it doesnt contains yet
         if (renderable.textureID > -1 && !hasTexture(renderable.textureID))
             textures.add(renderable.textureID);
 
         //face counting
-        int faceCount = renderable.faceCount();
-        this.faceCount += faceCount;
-
-        //calculate vertex offset (a quad (4 vertices) per mesh)
-        this.offsets[i + 1] = this.offsets[i] + (faceCount * 4 * VERTEX_SIZE);
+        this.faceCount += renderable.faceCount();
 
         //add properties to local vertices array
-        loadVertexProperties(i);
-
-        //size checking
-        this.isFilled = this.faceCount >= BATCH_SIZE;
-    }
-
-    public boolean removeElement(Renderable renderable) {
-        for (int i = 0; i < this.size; i++) {
-            if (renderables[i] == renderable) {
-                int faceCount = renderable.faceCount();
-                this.faceCount -= faceCount;
-
-                int vertices = faceCount * 4 * VERTEX_SIZE;
-                for (int j = i; j < this.size; j++) {
-                    offsets[j] = offsets[j + 1] - vertices;
-                }
-
-                for (int j = i; j < this.size - 1; j++) {
-                    renderables[j] = renderables[j + 1];
-                    renderables[j].transform.dirty();
-                }
-
-                this.size--;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private void loadVertexProperties(int index) {
-        Renderable renderable = this.renderables[index];
-
         //find textureID
-        int texID = 0;
-        if (renderable.textureID > -1) {
-            for (int i = 0; i < textures.size(); i++) {
-                if (textures.get(i) == renderable.textureID) {
-                    texID = i + 1;
-                    break;
-                }
-            }
-        }
+        int texID = textures.indexOf(renderable.textureID) + 1;
 
         //add vertices
-        renderable.pushVertices(vertices, this.offsets[index], texID);
-        renderable.transform.clean();
-        reupload = true;
+        renderable.pushVertices(vertices, texID);
+
+        //size checking
+        this.isFull = this.faceCount >= BATCH_SIZE;
+
+        return true;
     }
 
     private int[] generateIndices() {
@@ -212,12 +161,16 @@ public class Batch {
         elements[offsetArrayIndex + 5] = offset + 1;
     }
 
-    public boolean isFilled() {
-        return this.isFilled;
+    public boolean isFull() {
+        return this.isFull;
+    }
+
+    public boolean hasSpace(int faceCount) {
+        return this.vertices.remaining() >= faceCount * VERTEX_SIZE;
     }
 
     public boolean hasTextureSpace() {
-        return this.textures.size() < 8;
+        return this.textures.size() < 7;
     }
 
     public boolean hasTexture(int texture) {

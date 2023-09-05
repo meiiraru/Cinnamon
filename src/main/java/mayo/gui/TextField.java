@@ -6,14 +6,12 @@ import mayo.render.BatchRenderer;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Shaders;
-import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
 public class TextField implements Widget {
 
     private final Font font;
     private String currText;
-    private Renderable temp;
 
     public TextField(Font font) {
         this(font, "");
@@ -27,9 +25,7 @@ public class TextField implements Widget {
     @Override
     public void render(BatchRenderer renderer, MatrixStack stack) {
         Renderable aa = font.textOf(currText, -1, false, true);
-        aa.transform.setPos(new Vector3f(Client.getInstance().scaledWidth - font.getWidth(currText), Client.getInstance().scaledHeight - font.getHeight(currText), 1));
-        if (temp != null) renderer.removeElement(temp);
-        temp = aa;
+        aa.transform.setPos(Client.getInstance().scaledWidth - font.getWidth(currText), Client.getInstance().scaledHeight - font.getHeight(currText), 1);
         renderer.addElement(Shaders.FONT, aa);
     }
 
