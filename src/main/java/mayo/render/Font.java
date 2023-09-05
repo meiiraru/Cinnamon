@@ -121,8 +121,6 @@ public class Font {
                         u0 = q.s0(), u1 = q.s1(),
                         v0 = q.t0(), v1 = q.t1();
 
-                vertices.addAll(bakeQuad(x0, x1, y0, y1, z, u0, u1, v0, v1, color));
-
                 if (shadow) {
                     vertices.addAll(bakeQuad(x0 + 1, x1 + 1, y0 + 1, y1 + 1, 0f, u0, u1, v0, v1, SHADOW_COLOR));
                 } else if (outline) {
@@ -133,6 +131,8 @@ public class Font {
                         }
                     }
                 }
+
+                vertices.addAll(bakeQuad(x0, x1, y0, y1, z, u0, u1, v0, v1, color));
             }
         }
 

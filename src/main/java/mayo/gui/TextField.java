@@ -23,10 +23,10 @@ public class TextField implements Widget {
     }
 
     @Override
-    public void render(BatchRenderer renderer, MatrixStack stack) {
-        Renderable aa = font.textOf(currText, -1, false, true);
+    public void render(BatchRenderer renderer, MatrixStack matrices) {
+        Renderable aa = font.textOf(currText, -1, true, false);
         aa.transform.setPos(Client.getInstance().scaledWidth - font.getWidth(currText), Client.getInstance().scaledHeight - font.getHeight(currText), 1);
-        renderer.addElement(Shaders.FONT, aa);
+        renderer.addElement(Shaders.FONT, matrices, aa);
     }
 
     @Override

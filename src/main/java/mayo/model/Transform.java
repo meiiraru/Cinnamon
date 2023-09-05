@@ -104,6 +104,7 @@ public class Transform {
 
     public void setPos(float x, float y, float z) {
         this.pos.set(x, y, z);
+        matrixDirty = true;
     }
 
     public void setRot(Vector3f vec) {
@@ -112,6 +113,7 @@ public class Transform {
 
     public void setRot(float x, float y, float z) {
         this.rot.set(x, y, z);
+        matrixDirty = true;
     }
 
     public void setPivot(Vector3f vec) {
@@ -120,6 +122,7 @@ public class Transform {
 
     public void setPivot(float x, float y, float z) {
         this.pivot.set(x, y, z);
+        matrixDirty = true;
     }
 
     public void setScale(Vector3f vec) {
@@ -128,6 +131,7 @@ public class Transform {
 
     public void setScale(float x, float y, float z) {
         this.scale.set(x, y, z);
+        matrixDirty = true;
     }
 
     public void setColor(Vector3f vec) {

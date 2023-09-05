@@ -10,17 +10,17 @@ import java.util.Map;
 public class BatchRenderer {
     private final Map<Shaders, List<Batch>> batches = new HashMap<>();
 
-    public void addElement(Shaders shader, Renderable renderable) {
+    public void addElement(Shaders shader, MatrixStack matrices, Renderable renderable) {
         List<Batch> batchList = batches.computeIfAbsent(shader, k -> new ArrayList<>());
 
         for (Batch batch : batchList) {
-            if (batch.addElement(renderable))
+            if (batch.addElement(matrices, renderable))
                 return;
         }
 
         Batch batch = new Batch(shader.getShader());
         batchList.add(batch);
-        batch.addElement(renderable);
+        batch.addElement(matrices, renderable);
     }
 
     public void render() {

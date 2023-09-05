@@ -108,7 +108,7 @@ public class Main {
             client.fps++;
 
             if (currentTime - previousTime >= 1) {
-                glfwSetWindowTitle(window, "FPS: " + client.fps);
+                glfwSetWindowTitle(window, "May-o " + client.fps + " fps");
                 client.fps = 0;
                 previousTime = currentTime;
             }

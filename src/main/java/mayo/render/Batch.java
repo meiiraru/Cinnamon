@@ -65,7 +65,7 @@ public class Batch {
         glEnableVertexAttribArray(1);
 
         //uv - 2
-        glVertexAttribPointer(2, 2, GL_FLOAT, false, STRIDE, 4 * Float.BYTES);
+        glVertexAttribPointer(2, 2, GL_FLOAT, true, STRIDE, 4 * Float.BYTES);
         glEnableVertexAttribArray(2);
 
         //color - 3
@@ -114,7 +114,7 @@ public class Batch {
         isFull = false;
     }
 
-    public boolean addElement(Renderable renderable) {
+    public boolean addElement(MatrixStack matrices, Renderable renderable) {
         if (isFull() || !hasSpace(renderable.faceCount()) || (renderable.textureID > -1 && !hasTextureSpace() && !hasTexture(renderable.textureID)))
             return false;
 
@@ -130,7 +130,7 @@ public class Batch {
         int texID = textures.indexOf(renderable.textureID) + 1;
 
         //add vertices
-        renderable.pushVertices(vertices, texID);
+        renderable.pushVertices(matrices, vertices, texID);
 
         //size checking
         this.isFull = this.faceCount >= BATCH_SIZE;

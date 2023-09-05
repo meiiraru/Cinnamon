@@ -1,16 +1,11 @@
 package mayo.gui;
 
-import mayo.Client;
-import mayo.model.GeometryHelper;
-import mayo.model.Renderable;
 import mayo.render.BatchRenderer;
 import mayo.render.MatrixStack;
-import mayo.render.Shaders;
-import mayo.render.Texture;
+import mayo.utils.UIHelper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Screen {
 
@@ -31,26 +26,23 @@ public class Screen {
         }
     }
 
-    public void render(BatchRenderer renderer, MatrixStack stack) {
+    public void render(BatchRenderer renderer, MatrixStack matrices, float delta) {
+        preRender(renderer, matrices, delta);
+        renderChildren(renderer, matrices, delta);
+        postRender(renderer, matrices, delta);
+    }
+
+    protected void preRender(BatchRenderer renderer, MatrixStack matrices, float delta) {
+        UIHelper.renderBackground(renderer, matrices, delta);
+    }
+
+    protected void renderChildren(BatchRenderer renderer, MatrixStack matrices, float delta) {
         for (Widget widget : this.widgets) {
-            widget.render(renderer, stack);
+            widget.render(renderer, matrices);
         }
     }
 
-    public static void temp(BatchRenderer renderer) {
-        int len = 100;
-        int size = 16;
-        int offset = 2;
-        Texture texture = new Texture(Client.NAMESPACE, "blocks_new");
-
-        Random r = new Random(42L);
-        for (int i = 0; i < len; i++) {
-            for (int j = 0; j < len; j++) {
-                Renderable renderable = new Renderable(GeometryHelper.rectangle(i * (size + offset), j * (size + offset), size, size, texture, r.nextInt(5), r.nextInt(2), 5, 2, 1, 1));
-                renderer.addElement(Shaders.MAIN, renderable);
-            }
-        }
-    }
+    protected void postRender(BatchRenderer renderer, MatrixStack matrices, float delta) {}
 
     public void mousePress(int button, int action, int mods) {
         for (Widget widget : this.widgets) {

@@ -1,5 +1,6 @@
 package mayo.model;
 
+import mayo.render.MatrixStack;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -29,9 +30,9 @@ public class Renderable {
         this.textureID = textureID;
     }
 
-    public void pushVertices(FloatBuffer target, int texID) {
+    public void pushVertices(MatrixStack matrices, FloatBuffer target, int texID) {
         for (Vertex vertex : this.vertices) {
-            pos.set(vertex.getPosition()).mulPosition(transform.getPositionMatrix());
+            pos.set(vertex.getPosition()).mulPosition(transform.getPositionMatrix()).mulPosition(matrices.peek());
             uv.set(vertex.getUV()).add(transform.getUV());
             color.set(vertex.getColor()).mul(transform.getColor());
             normal.set(vertex.getNormal()).mul(transform.getNormalMatrix());

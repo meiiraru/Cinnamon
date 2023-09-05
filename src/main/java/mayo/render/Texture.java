@@ -19,19 +19,19 @@ public class Texture {
 
     private final int ID, hFrames, vFrames;
 
-    public Texture(String namespace, String name) {
-        this(namespace, name, 1, 1);
+    public Texture(String namespace, String path) {
+        this(namespace, path, 1, 1);
     }
 
-    public Texture(String namespace, String name, int hFrames, int vFrames) {
-        this.ID = loadTexture(namespace, name);
+    public Texture(String namespace, String path, int hFrames, int vFrames) {
+        this.ID = loadTexture(namespace, path);
         this.hFrames = hFrames;
         this.vFrames = vFrames;
     }
 
-    private static int loadTexture(String namespace, String texture) {
+    private static int loadTexture(String namespace, String path) {
         //returns id of already registered texture, if any
-        Integer saved = ID_MAP.get(texture);
+        Integer saved = ID_MAP.get(path);
         if (saved != null)
             return saved;
 
@@ -41,16 +41,16 @@ public class Texture {
             IntBuffer h = stack.mallocInt(1);
             IntBuffer channels = stack.mallocInt(1);
 
-            ByteBuffer imageBuffer = IOUtils.getResourceBuffer(namespace, "textures/" + texture + ".png");
+            ByteBuffer imageBuffer = IOUtils.getResourceBuffer(namespace, "textures/" + path + ".png");
             ByteBuffer buffer = STBImage.stbi_load_from_memory(imageBuffer, w, h, channels, 4);
             if (buffer == null)
-                throw new Exception("Failed to load image \"" + texture + "\", " + STBImage.stbi_failure_reason());
+                throw new Exception("Failed to load image \"" + path + "\", " + STBImage.stbi_failure_reason());
 
             int width = w.get();
             int height = h.get();
 
             int id = glGenTextures();
-            ID_MAP.put(texture, id);
+            ID_MAP.put(path, id);
             glBindTexture(GL_TEXTURE_2D, id);
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -65,7 +65,7 @@ public class Texture {
             STBImage.stbi_image_free(buffer);
             return id;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load texture \"" + texture + "\"", e);
+            throw new RuntimeException("Failed to load texture \"" + path + "\"", e);
         }
     }
 

@@ -33,7 +33,7 @@ public class Client {
     public void init() {
         this.font = new Font(Client.NAMESPACE, "mayscript", 8);
         this.screen = new Screen();
-        this.screen.addWidget(new TextField(this.font, "\u25e0\u25de\u25df\u25e0"));
+        this.screen.addWidget(new TextField(this.font, "May-o renderer \u25E0\u25DE\u25DF\u25E0"));
     }
 
     public void close() {
@@ -46,15 +46,15 @@ public class Client {
 
     // -- events -- //
 
-    public void render(BatchRenderer renderer, MatrixStack stack) {
+    public void render(BatchRenderer renderer, MatrixStack matrices) {
         //tick
         int ticksToUpdate = timer.update();
         for (int j = 0; j < Math.min(10, ticksToUpdate); j++)
             tick();
 
-        if (this.screen != null) screen.render(renderer, stack);
+        float delta = timer.delta();
 
-        Screen.temp(renderer);
+        if (this.screen != null) screen.render(renderer, matrices, delta);
     }
 
     private void tick() {
