@@ -25,10 +25,11 @@ public class Font {
 
     private static final float SHADOW_OFFSET = 0.001f;
     private static final int SHADOW_COLOR = 0x202020;
+    private static final int ITALIC_OFFSET = 3;
+    private static final int BOLD_OFFSET = 1;
 
     private final ByteBuffer fontData;
     private final STBTTFontinfo info;
-    private final int ascent, descent, lineGap;
     private final float scale;
     private final STBTTBakedChar.Buffer charData;
     private final int textureID;
@@ -53,10 +54,6 @@ public class Font {
             IntBuffer pLineGap = stack.mallocInt(1);
 
             stbtt_GetFontVMetrics(info, pAscent, pDescent, pLineGap);
-
-            this.ascent = pAscent.get(0);
-            this.descent = pDescent.get(0);
-            this.lineGap = pLineGap.get(0);
         }
 
         this.charData = STBTTBakedChar.malloc(0xFFFF);
@@ -106,13 +103,8 @@ public class Font {
                 curIndex += getCP(text, endIndex, curIndex, pCodePoint);
 
                 int cp = pCodePoint.get(0);
-                if (cp == '\n') {
-                    y.put(0, y.get(0) + (ascent - descent + lineGap) * scale);
-                    x.put(0, 0f);
-                    continue;
-                }
-
                 stbtt_GetBakedQuad(charData, TEXTURE_W, TEXTURE_H, cp, x, y, q, true);
+
                 x.put(0, x.get(0));
 
                 float
@@ -133,6 +125,7 @@ public class Font {
                 }
 
                 vertices.addAll(bakeQuad(x0, x1, y0, y1, z, u0, u1, v0, v1, color));
+                vertices.addAll(bakeQuad(x0 + 1, x1 + 1, y0, y1, z, u0, u1, v0, v1, color));
             }
         }
 
@@ -153,16 +146,19 @@ public class Font {
     }
 
     private static List<Vertex> bakeQuad(float x0, float x1, float y0, float y1, float z, float u0, float u1, float v0, float v1, int color) {
+        float f1 = (1 - y0 / 8) * ITALIC_OFFSET;
+        float f2 = (1 - y1 / 8) * ITALIC_OFFSET;
+
         return List.of(
-                new Vertex(x0, y0, z, u0, v0, color),
-                new Vertex(x1, y0, z, u1, v0, color),
-                new Vertex(x1, y1, z, u1, v1, color),
-                new Vertex(x0, y1, z, u0, v1, color)
+                new Vertex(x0 + f1, y0, z, u0, v0, color),
+                new Vertex(x1 + f1, y0, z, u1, v0, color),
+                new Vertex(x1 + f2, y1, z, u1, v1, color),
+                new Vertex(x0 + f2, y1, z, u0, v1, color)
         );
     }
 
     public float getWidth(String text) {
-        int width = 0, curWidth = 0;
+        int width = 0;
 
         try (MemoryStack stack = stackPush()) {
             IntBuffer pCodePoint = stack.mallocInt(1);
@@ -174,22 +170,16 @@ public class Font {
                 curIndex += getCP(text, endIndex, curIndex, pCodePoint);
                 int cp = pCodePoint.get(0);
 
-                if (cp == '\n') {
-                    width = Math.max(width, curWidth);
-                    curWidth = 0;
-                    continue;
-                }
-
                 stbtt_GetCodepointHMetrics(info, cp, pAdvancedWidth, pLeftSideBearing);
-                curWidth += pAdvancedWidth.get(0);
+                width += pAdvancedWidth.get(0);
             }
         }
 
-        return Math.max(width, curWidth) * scale;
+        return width * scale;
     }
 
     public float getHeight(String text) {
         String[] split = text.split("\n", -1);
-        return lineHeight * split.length;
+        return lineHeight * 1;
     }
 }
