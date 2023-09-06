@@ -1,13 +1,10 @@
 #type vertex
 #version 330 core
 
-layout (location = 0) in vec3 aPosition;
+layout (location = 0) in vec4 aPosition;
 layout (location = 1) in float aTexID;
 layout (location = 2) in vec2 aTexCoords;
 layout (location = 3) in vec3 aColor;
-
-uniform mat4 view;
-uniform mat4 projection;
 
 out float texID;
 out vec2 texCoords;
@@ -15,7 +12,7 @@ out vec3 color;
 out vec3 normal;
 
 void main() {
-    gl_Position = vec4(aPosition, 1.0f);
+    gl_Position = aPosition;
     texID = aTexID;
     texCoords = aTexCoords;
     color = aColor;

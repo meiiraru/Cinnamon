@@ -96,6 +96,8 @@ public class Main {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
 
+        //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
         //glLineWidth(5f);
 
         //timer

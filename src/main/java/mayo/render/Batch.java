@@ -18,9 +18,9 @@ public class Batch {
     private static final int[] TEX_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7};
 
     //vertex
-    //pos                    tex id    uv              color      normal
-    //float, float, float    float     float, float    r, g, b    float, float, float
-    private static final int VERTEX_SIZE = 12;
+    //pos     tex id    uv      color    normal
+    //vec4    int       vec2    vec3     vec3
+    private static final int VERTEX_SIZE = 13;
     private static final int VERTEX_ELEMENTS = 5;
     private static final int STRIDE = VERTEX_SIZE * Float.BYTES;
 
@@ -55,24 +55,28 @@ public class Batch {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 
         //enable the buffer attribute pointers
-        //pos - 3
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, STRIDE, 0);
+        //pos - 4
+        glVertexAttribPointer(0, 4, GL_FLOAT, false, STRIDE, 0);
         glEnableVertexAttribArray(0);
+        int p = 4;
 
         //tex id - 1
-        glVertexAttribPointer(1, 1, GL_FLOAT, false, STRIDE, 3 * Float.BYTES);
+        glVertexAttribPointer(1, 1, GL_FLOAT, false, STRIDE, p * Float.BYTES);
         glEnableVertexAttribArray(1);
+        p += 1;
 
         //uv - 2
-        glVertexAttribPointer(2, 2, GL_FLOAT, true, STRIDE, 4 * Float.BYTES);
+        glVertexAttribPointer(2, 2, GL_FLOAT, true, STRIDE, p * Float.BYTES);
         glEnableVertexAttribArray(2);
+        p += 2;
 
         //color - 3
-        glVertexAttribPointer(3, 3, GL_FLOAT, false, STRIDE, 6 * Float.BYTES);
+        glVertexAttribPointer(3, 3, GL_FLOAT, false, STRIDE, p * Float.BYTES);
         glEnableVertexAttribArray(3);
+        p += 3;
 
         //normal - 3
-        glVertexAttribPointer(4, 3, GL_FLOAT, false, STRIDE, 9 * Float.BYTES);
+        glVertexAttribPointer(4, 3, GL_FLOAT, false, STRIDE, p * Float.BYTES);
         glEnableVertexAttribArray(4);
     }
 

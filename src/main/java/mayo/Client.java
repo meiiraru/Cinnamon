@@ -2,12 +2,13 @@ package mayo;
 
 import mayo.gui.Screen;
 import mayo.gui.screens.MainMenu;
+import mayo.input.Movement;
 import mayo.render.BatchRenderer;
 import mayo.render.Camera;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.utils.Timer;
-import org.joml.Matrix4f;
+import mayo.world.World;
 
 public class Client {
 
@@ -26,13 +27,17 @@ public class Client {
     public Camera camera;
     public Font font;
     public Screen screen;
+    private Movement movement;
+    public World world;
 
     private Client() {}
 
     public void init() {
         this.camera = new Camera();
+        this.camera.updateProjMatrix(scaledWidth, scaledHeight);
         this.font = new Font(Client.NAMESPACE, "mayscript", 8);
         this.screen = new MainMenu();
+        this.movement = new Movement();
     }
 
     public void close() {
@@ -54,23 +59,32 @@ public class Client {
         float delta = timer.delta();
 
         //render world
-        matrices.peek().set(camera.getMatrix()).mul(new Matrix4f().perspective((float) Math.toRadians(Camera.FOV), (float) windowWidth / windowHeight, 0.01f, 1000f));
-        //
+        if (world != null) {
+            matrices.peek().set(camera.getPerspectiveMatrix()).mul(camera.getViewMatrix());
+            world.render(renderer, matrices, delta);
+        }
 
         //render hud
-        matrices.peek().set(camera.getMatrix()).mul(new Matrix4f().ortho(0, scaledWidth, scaledHeight, 0, -1000, 1000));
-        //camera.setOrthographic(true);
+        matrices.peek().set(camera.getOrthographicMatrix());
 
-        //
+        if (world != null)
+            world.renderHUD(renderer, matrices, delta);
 
         //render gui
-        if (this.screen != null) screen.render(renderer, matrices, delta);
+        if (this.screen != null)
+            screen.render(renderer, matrices, delta);
     }
 
     private void tick() {
         ticks++;
 
-        if (this.screen != null) screen.tick();
+        movement.tick(camera);
+
+        if (world != null)
+            world.tick();
+
+        if (screen != null)
+            screen.tick();
     }
 
     // -- glfw events -- //
@@ -80,6 +94,7 @@ public class Client {
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
+        movement.keyPress(key, action);
         if (screen != null) screen.keyPress(key, scancode, action, mods);
     }
 
@@ -88,6 +103,7 @@ public class Client {
     }
 
     public void mouseMove(double x, double y) {
+        movement.mouseMove(x, y);
         if (screen != null) screen.mouseMove(x, y);
     }
 
@@ -104,7 +120,11 @@ public class Client {
         this.scaledWidth = (int) (width / guiScale);
         this.scaledHeight = (int) (height / guiScale);
 
-        if (screen != null) screen.windowResize(width, height);
+        if (camera != null)
+            camera.updateProjMatrix(width, height);
+
+        if (screen != null)
+            screen.windowResize(width, height);
     }
 
     public void windowFocused(boolean focused) {

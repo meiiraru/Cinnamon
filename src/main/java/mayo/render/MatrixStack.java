@@ -57,6 +57,10 @@ public class MatrixStack {
         scale(scalar, scalar, scalar);
     }
 
+    public void mul(Matrix4f mat) {
+        stack.peek().mul(mat);
+    }
+
     public void setIdentity() {
         stack.peek().identity();
     }

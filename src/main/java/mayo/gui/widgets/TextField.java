@@ -6,7 +6,8 @@ import mayo.render.BatchRenderer;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Shaders;
-import org.lwjgl.glfw.GLFW;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 public class TextField implements Widget {
 
@@ -31,36 +32,36 @@ public class TextField implements Widget {
 
     @Override
     public boolean keyPress(int key, int scancode, int action, int mods) {
-        if (action == GLFW.GLFW_RELEASE)
+        if (action == GLFW_RELEASE)
             return false;
 
-        boolean ctrl = (mods & GLFW.GLFW_MOD_CONTROL) == 2;
+        boolean ctrl = (mods & GLFW_MOD_CONTROL) == 2;
 
         switch (key) {
-            case GLFW.GLFW_KEY_ENTER, GLFW.GLFW_KEY_KP_ENTER -> {
+            case GLFW_KEY_ENTER, GLFW_KEY_KP_ENTER -> {
                 append("\n");
                 return true;
             }
-            case GLFW.GLFW_KEY_BACKSPACE -> {
+            case GLFW_KEY_BACKSPACE -> {
                 remove(1);
                 return true;
             }
-            case GLFW.GLFW_KEY_V -> {
+            case GLFW_KEY_V -> {
                 if (ctrl) {
-                    String clipboard = GLFW.glfwGetClipboardString(-1);
+                    String clipboard = glfwGetClipboardString(-1);
                     if (clipboard != null) {
                         append(clipboard.replaceAll("\r\n", "\n"));
                         return true;
                     }
                 }
             }
-            case GLFW.GLFW_KEY_Z -> {
+            case GLFW_KEY_Z -> {
                 if (ctrl) {
                     undo();
                     return true;
                 }
             }
-            case GLFW.GLFW_KEY_Y -> {
+            case GLFW_KEY_Y -> {
                 if (ctrl) {
                     redo();
                     return true;

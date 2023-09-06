@@ -9,15 +9,19 @@ public class Camera {
 
     public static final float FOV = 70f;
 
-    private final Vector3f pos = new Vector3f();
-    private final Vector3f forwards = new Vector3f(0f, 0f, -1f);
-    private final Vector3f up = new Vector3f(0f, 1f, 0f);
-    private final Vector3f left = new Vector3f(1f, 0f, 0f);
+    private final Vector3f
+            pos = new Vector3f(),
+            forwards = new Vector3f(0f, 0f, -1f),
+            up = new Vector3f(0f, 1f, 0f),
+            left = new Vector3f(1f, 0f, 0f);
 
     private float xRot, yRot;
     private final Quaternionf rotation = new Quaternionf();
 
-    private final Matrix4f viewMatrix = new Matrix4f();
+    private final Matrix4f
+            viewMatrix = new Matrix4f(),
+            orthoMatrix = new Matrix4f(),
+            perspMatrix = new Matrix4f();
 
     public void move(float x, float y, float z) {
         pos.add(new Vector3f(x, y, z).rotate(new Quaternionf().rotationY((float) Math.toRadians(-yRot))));
@@ -40,6 +44,11 @@ public class Camera {
         viewMatrix.rotate(Rotation.Y.rotationDeg(yRot));
         //matrix.rotate(Rotation.Z.rotationDeg(180f));
         viewMatrix.translate(-pos.x, -pos.y, -pos.z);
+    }
+
+    public void updateProjMatrix(int width, int height) {
+        perspMatrix.set(new Matrix4f().perspective((float) Math.toRadians(Camera.FOV), (float) width / height, 0.01f, 1000f));
+        orthoMatrix.set(new Matrix4f().ortho(0, width, height, 0, -1000, 1000));
     }
 
     public void billboard(Matrix4f matrix) {
@@ -77,7 +86,15 @@ public class Camera {
         return new Vector3f(up);
     }
 
-    public Matrix4f getMatrix() {
+    public Matrix4f getViewMatrix() {
         return viewMatrix;
+    }
+
+    public Matrix4f getPerspectiveMatrix() {
+        return perspMatrix;
+    }
+
+    public Matrix4f getOrthographicMatrix() {
+        return orthoMatrix;
     }
 }
