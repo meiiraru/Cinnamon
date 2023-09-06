@@ -7,16 +7,13 @@ layout (location = 2) in vec2 aTexCoords;
 layout (location = 3) in vec3 aColor;
 layout (location = 4) in vec3 aNormal;
 
-uniform mat4 view;
-uniform mat4 projection;
-
 out float texID;
 out vec2 texCoords;
 out vec3 color;
 out vec3 normal;
 
 void main() {
-    gl_Position = projection * view * vec4(aPosition, 1.0f);
+    gl_Position = vec4(aPosition, 1.0f);
     texID = aTexID;
     texCoords = aTexCoords;
     color = aColor;

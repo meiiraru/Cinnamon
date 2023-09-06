@@ -1,12 +1,13 @@
 package mayo;
 
 import mayo.gui.Screen;
-import mayo.gui.TextField;
+import mayo.gui.screens.MainMenu;
 import mayo.render.BatchRenderer;
 import mayo.render.Camera;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.utils.Timer;
+import org.joml.Matrix4f;
 
 public class Client {
 
@@ -22,18 +23,16 @@ public class Client {
     public int fps;
 
     //objects
-    private final Camera camera;
-    private Font font;
-    private Screen screen;
+    public Camera camera;
+    public Font font;
+    public Screen screen;
 
-    private Client() {
-        this.camera = new Camera(windowWidth / (float) windowHeight);
-    }
+    private Client() {}
 
     public void init() {
+        this.camera = new Camera();
         this.font = new Font(Client.NAMESPACE, "mayscript", 8);
-        this.screen = new Screen();
-        this.screen.addWidget(new TextField(this.font, "May-o renderer \u25E0\u25DE\u25DF\u25E0"));
+        this.screen = new MainMenu();
     }
 
     public void close() {
@@ -54,6 +53,17 @@ public class Client {
 
         float delta = timer.delta();
 
+        //render world
+        matrices.peek().set(camera.getMatrix()).mul(new Matrix4f().perspective((float) Math.toRadians(Camera.FOV), (float) windowWidth / windowHeight, 0.01f, 1000f));
+        //
+
+        //render hud
+        matrices.peek().set(camera.getMatrix()).mul(new Matrix4f().ortho(0, scaledWidth, scaledHeight, 0, -1000, 1000));
+        //camera.setOrthographic(true);
+
+        //
+
+        //render gui
         if (this.screen != null) screen.render(renderer, matrices, delta);
     }
 
@@ -93,16 +103,11 @@ public class Client {
         this.windowHeight = height;
         this.scaledWidth = (int) (width / guiScale);
         this.scaledHeight = (int) (height / guiScale);
-        this.camera.updatePerspective(windowWidth / (float) windowHeight);
 
         if (screen != null) screen.windowResize(width, height);
     }
 
     public void windowFocused(boolean focused) {
         if (screen != null) screen.windowFocused(focused);
-    }
-
-    public Camera camera() {
-        return this.camera;
     }
 }

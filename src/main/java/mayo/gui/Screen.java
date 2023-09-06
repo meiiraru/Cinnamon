@@ -1,5 +1,7 @@
 package mayo.gui;
 
+import mayo.gui.widgets.Tickable;
+import mayo.gui.widgets.Widget;
 import mayo.render.BatchRenderer;
 import mayo.render.MatrixStack;
 import mayo.utils.UIHelper;

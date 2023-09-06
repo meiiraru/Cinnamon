@@ -1,6 +1,5 @@
 package mayo.render;
 
-import mayo.Client;
 import mayo.model.Renderable;
 import org.lwjgl.BufferUtils;
 
@@ -84,8 +83,6 @@ public class Batch {
 
         //use shader
         shader.use();
-        shader.setMat4("projection", Client.getInstance().camera().getProjectionMatrix());
-        shader.setMat4("view", Client.getInstance().camera().getViewMatrix());
 
         //textures
         for (int i = 0; i < textures.size(); i++) {

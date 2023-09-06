@@ -15,7 +15,7 @@ out vec3 color;
 out vec3 normal;
 
 void main() {
-    gl_Position = projection * view * vec4(aPosition, 1.0f);
+    gl_Position = vec4(aPosition, 1.0f);
     texID = aTexID;
     texCoords = aTexCoords;
     color = aColor;

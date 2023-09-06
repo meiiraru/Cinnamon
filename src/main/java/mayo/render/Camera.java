@@ -1,6 +1,5 @@
 package mayo.render;
 
-import mayo.Client;
 import mayo.utils.Rotation;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -19,11 +18,6 @@ public class Camera {
     private final Quaternionf rotation = new Quaternionf();
 
     private final Matrix4f viewMatrix = new Matrix4f();
-    private final Matrix4f projMatrix = new Matrix4f();
-
-    public Camera(float aspectRatio) {
-        //this.updatePerspective(aspectRatio);
-    }
 
     public void move(float x, float y, float z) {
         pos.add(new Vector3f(x, y, z).rotate(new Quaternionf().rotationY((float) Math.toRadians(-yRot))));
@@ -46,12 +40,6 @@ public class Camera {
         viewMatrix.rotate(Rotation.Y.rotationDeg(yRot));
         //matrix.rotate(Rotation.Z.rotationDeg(180f));
         viewMatrix.translate(-pos.x, -pos.y, -pos.z);
-    }
-
-    public void updatePerspective(float aspectRatio) {
-        //projMatrix.set(new Matrix4f().perspective((float) Math.toRadians(Camera.FOV), aspectRatio, 0.01f, 1000f));
-        Client c = Client.getInstance();
-        projMatrix.set(new Matrix4f().ortho(0, c.scaledWidth, c.scaledHeight, 0, -1000, 1000));
     }
 
     public void billboard(Matrix4f matrix) {
@@ -89,11 +77,7 @@ public class Camera {
         return new Vector3f(up);
     }
 
-    public Matrix4f getViewMatrix() {
+    public Matrix4f getMatrix() {
         return viewMatrix;
-    }
-
-    public Matrix4f getProjectionMatrix() {
-        return projMatrix;
     }
 }

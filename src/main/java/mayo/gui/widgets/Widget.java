@@ -1,4 +1,4 @@
-package mayo.gui;
+package mayo.gui.widgets;
 
 import mayo.render.BatchRenderer;
 import mayo.render.MatrixStack;
