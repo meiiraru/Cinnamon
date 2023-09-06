@@ -121,7 +121,7 @@ public class Client {
         this.scaledHeight = (int) (height / guiScale);
 
         if (camera != null)
-            camera.updateProjMatrix(width, height);
+            camera.updateProjMatrix(scaledWidth, scaledHeight);
 
         if (screen != null)
             screen.windowResize(width, height);

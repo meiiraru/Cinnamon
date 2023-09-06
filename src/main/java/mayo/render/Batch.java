@@ -17,13 +17,6 @@ public class Batch {
     public static final int BATCH_SIZE = 2048;
     private static final int[] TEX_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7};
 
-    //vertex
-    //pos     tex id    uv      color    normal
-    //vec4    int       vec2    vec3     vec3
-    private static final int VERTEX_SIZE = 13;
-    private static final int VERTEX_ELEMENTS = 5;
-    private static final int STRIDE = VERTEX_SIZE * Float.BYTES;
-
     private final List<Integer> textures;
     private final FloatBuffer vertices;
     private int faceCount = 0;
@@ -36,7 +29,7 @@ public class Batch {
         this.shader = shader;
         this.textures = new ArrayList<>();
         //quad = 4 vertices
-        int capacity = BATCH_SIZE * 4 * VERTEX_SIZE;
+        int capacity = BATCH_SIZE * 4 * shader.vertexSize;
         this.vertices = BufferUtils.createFloatBuffer(capacity);
 
         //generate and bind a Vertex Array Object (VAO)
@@ -54,30 +47,8 @@ public class Batch {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 
-        //enable the buffer attribute pointers
-        //pos - 4
-        glVertexAttribPointer(0, 4, GL_FLOAT, false, STRIDE, 0);
-        glEnableVertexAttribArray(0);
-        int p = 4;
-
-        //tex id - 1
-        glVertexAttribPointer(1, 1, GL_FLOAT, false, STRIDE, p * Float.BYTES);
-        glEnableVertexAttribArray(1);
-        p += 1;
-
-        //uv - 2
-        glVertexAttribPointer(2, 2, GL_FLOAT, true, STRIDE, p * Float.BYTES);
-        glEnableVertexAttribArray(2);
-        p += 2;
-
-        //color - 3
-        glVertexAttribPointer(3, 3, GL_FLOAT, false, STRIDE, p * Float.BYTES);
-        glEnableVertexAttribArray(3);
-        p += 3;
-
-        //normal - 3
-        glVertexAttribPointer(4, 3, GL_FLOAT, false, STRIDE, p * Float.BYTES);
-        glEnableVertexAttribArray(4);
+        //enable the shader attribute pointers
+        shader.loadAttributes();
     }
 
     public void render() {
@@ -96,13 +67,13 @@ public class Batch {
         shader.setIntArray("textures", TEX_SLOTS);
 
         glBindVertexArray(vaoID);
-        for (int i = 0; i < VERTEX_ELEMENTS; i++)
+        for (int i = 0; i < shader.elements; i++)
             glEnableVertexAttribArray(i);
 
         //pushed vertices * two triangles
         glDrawElements(GL_TRIANGLES, this.faceCount * 6, GL_UNSIGNED_INT, 0);
 
-        for (int i = 0; i < VERTEX_ELEMENTS; i++)
+        for (int i = 0; i < shader.elements; i++)
             glDisableVertexAttribArray(i);
 
         glBindVertexArray(0);
@@ -167,7 +138,7 @@ public class Batch {
     }
 
     public boolean hasSpace(int faceCount) {
-        return this.vertices.remaining() >= faceCount * VERTEX_SIZE;
+        return this.vertices.remaining() >= faceCount * shader.vertexSize;
     }
 
     public boolean hasTextureSpace() {

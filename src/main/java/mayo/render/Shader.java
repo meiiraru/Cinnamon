@@ -1,6 +1,7 @@
 package mayo.render;
 
 import mayo.utils.IOUtils;
+import mayo.utils.Pair;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -12,10 +13,27 @@ import static org.lwjgl.opengl.GL30.*;
 
 public class Shader {
 
-    public final int ID;
+    //vertex
+    //pos     tex id    uv      color    normal
+    //vec4    int       vec2    vec3     vec3
+    public static final int
+            POS        = 0x1,
+            TEXTURE_ID = 0x2,
+            UV         = 0x4,
+            COLOR      = 0x8,
+            NORMAL     = 0x10;
 
-    public Shader(String namespace, String name) {
+    public final int ID;
+    public final int elements;
+    public final int vertexSize;
+    private final int flags;
+
+    public Shader(String namespace, String name, int flags) {
         this.ID = loadShader(namespace, name);
+        Pair<Integer, Integer> result = loadProperties(flags);
+        this.elements = result.first();
+        this.vertexSize = result.second();
+        this.flags = flags;
     }
 
     private static int loadShader(String namespace, String name) {
@@ -75,12 +93,52 @@ public class Shader {
         }
     }
 
+    private static Pair<Integer, Integer> loadProperties(int flags) {
+        int e = 0, verts = 0;
+
+        if ((flags & POS)        == POS)        {e++; verts += 4;}
+        if ((flags & TEXTURE_ID) == TEXTURE_ID) {e++; verts += 1;}
+        if ((flags & UV)         == UV)         {e++; verts += 2;}
+        if ((flags & COLOR)      == COLOR)      {e++; verts += 3;}
+        if ((flags & NORMAL)     == NORMAL)     {e++; verts += 3;}
+
+        return Pair.of(e, verts);
+    }
+
     public void use() {
         glUseProgram(ID);
     }
 
     public void free() {
         glDeleteProgram(ID);
+    }
+
+    public void loadAttributes() {
+        //prepare vars
+        int stride = vertexSize * Float.BYTES;
+        int pointer = 0;
+        int index = 0;
+
+        //create attributes
+        if ((flags & POS) == POS) {
+            glVertexAttribPointer(index++, 4, GL_FLOAT, false, stride, pointer * Float.BYTES);
+            pointer += 4;
+        }
+        if ((flags & TEXTURE_ID) == TEXTURE_ID) {
+            glVertexAttribPointer(index++, 1, GL_FLOAT, false, stride, pointer * Float.BYTES);
+            pointer += 1;
+        }
+        if ((flags & UV) == UV) {
+            glVertexAttribPointer(index++, 2, GL_FLOAT, false, stride, pointer * Float.BYTES);
+            pointer += 2;
+        }
+        if ((flags & COLOR) == COLOR) {
+            glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer * Float.BYTES);
+            pointer += 3;
+        }
+        if ((flags & NORMAL) == NORMAL) {
+            glVertexAttribPointer(index, 3, GL_FLOAT, false, stride, pointer * Float.BYTES);
+        }
     }
 
     private int get(String name) {
