@@ -9,7 +9,6 @@ layout (location = 3) in vec3 aColor;
 out float texID;
 out vec2 texCoords;
 out vec3 color;
-out vec3 normal;
 
 void main() {
     gl_Position = aPosition;
@@ -30,13 +29,10 @@ in vec3 color;
 out vec4 fragColor;
 
 void main() {
-    //color
-    vec4 col = vec4(color, 1.0f);
-
     //texture
     vec4 tex = texture(textures[int(texID)], texCoords);
-    if (tex.r == 0.0f)
+    if (tex.r < 0.01f)
         discard;
 
-    fragColor = vec4(1f, 1f, 1f, tex.r) * col;
+    fragColor = vec4(color.r, color.g, color.b, tex.r);
 }

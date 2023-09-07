@@ -23,7 +23,6 @@ public class Font {
 
     private static final int TEXTURE_W = 2048, TEXTURE_H = 2048;
 
-    private static final float SHADOW_OFFSET = 0.001f;
     private static final int SHADOW_COLOR = 0x202020;
     private static final int ITALIC_OFFSET = 3;
     private static final int BOLD_OFFSET = 1;
@@ -89,8 +88,6 @@ public class Font {
 
     public Renderable textOf(String text, int color, boolean shadow, boolean outline) {
         List<Vertex> vertices = new ArrayList<>();
-        float z = shadow || outline ? SHADOW_OFFSET : 0f;
-
         try (MemoryStack stack = stackPush()) {
             IntBuffer pCodePoint = stack.mallocInt(1);
 
@@ -114,18 +111,18 @@ public class Font {
                         v0 = q.t0(), v1 = q.t1();
 
                 if (shadow) {
-                    vertices.addAll(bakeQuad(x0 + 1, x1 + 1, y0 + 1, y1 + 1, 0f, u0, u1, v0, v1, SHADOW_COLOR));
+                    vertices.addAll(bakeQuad(x0 + 1, x1 + 1, y0 + 1, y1 + 1, u0, u1, v0, v1, SHADOW_COLOR));
                 } else if (outline) {
                     for (int i = -1; i <= 1; i++) {
                         for (int j = -1; j <= 1; j++) {
                             if (i != 0 || j != 0)
-                                vertices.addAll(bakeQuad(x0 + i, x1 + i, y0 + j, y1 + j, 0f, u0, u1, v0, v1, SHADOW_COLOR));
+                                vertices.addAll(bakeQuad(x0 + i, x1 + i, y0 + j, y1 + j, u0, u1, v0, v1, SHADOW_COLOR));
                         }
                     }
                 }
 
-                vertices.addAll(bakeQuad(x0, x1, y0, y1, z, u0, u1, v0, v1, color));
-                vertices.addAll(bakeQuad(x0 + 1, x1 + 1, y0, y1, z, u0, u1, v0, v1, color));
+                vertices.addAll(bakeQuad(x0, x1, y0, y1, u0, u1, v0, v1, color));
+                //vertices.addAll(bakeQuad(x0 + 1, x1 + 1, y0, y1, u0, u1, v0, v1, color));
             }
         }
 
@@ -145,15 +142,15 @@ public class Font {
         return 1;
     }
 
-    private static List<Vertex> bakeQuad(float x0, float x1, float y0, float y1, float z, float u0, float u1, float v0, float v1, int color) {
-        float f1 = (1 - y0 / 8) * ITALIC_OFFSET;
-        float f2 = (1 - y1 / 8) * ITALIC_OFFSET;
+    private static List<Vertex> bakeQuad(float x0, float x1, float y0, float y1, float u0, float u1, float v0, float v1, int color) {
+        float f1 = (1 - y0 / 8) * ITALIC_OFFSET * 0;
+        float f2 = (1 - y1 / 8) * ITALIC_OFFSET * 0;
 
         return List.of(
-                new Vertex(x0 + f1, y0, z, u0, v0, color),
-                new Vertex(x1 + f1, y0, z, u1, v0, color),
-                new Vertex(x1 + f2, y1, z, u1, v1, color),
-                new Vertex(x0 + f2, y1, z, u0, v1, color)
+                new Vertex(x0 + f1, y0, 0f, u0, v0, color),
+                new Vertex(x1 + f1, y0, 0f, u1, v0, color),
+                new Vertex(x1 + f2, y1, 0f, u1, v1, color),
+                new Vertex(x0 + f2, y1, 0f, u0, v1, color)
         );
     }
 

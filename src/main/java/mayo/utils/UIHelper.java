@@ -37,7 +37,7 @@ public class UIHelper {
                     BACKGROUND[i],
                     x, y,
                     width, height,
-                    -999 + i * 0.001f,
+                    -999,
                     0f, u1,
                     0f, v1
             ));

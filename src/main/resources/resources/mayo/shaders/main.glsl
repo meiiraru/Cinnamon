@@ -39,7 +39,7 @@ void main() {
     if (texID > 0.0f) {
         //texture
         vec4 tex = texture(textures[int(texID)], texCoords);
-        if (tex.a == 0.0f)
+        if (tex.a < 0.01f)
             discard;
 
         fragColor = tex * col;
