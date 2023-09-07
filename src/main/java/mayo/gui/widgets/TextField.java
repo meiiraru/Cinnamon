@@ -6,6 +6,8 @@ import mayo.render.BatchRenderer;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Shaders;
+import mayo.text.Style;
+import mayo.text.Text;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -25,8 +27,29 @@ public class TextField implements Widget {
 
     @Override
     public void render(BatchRenderer renderer, MatrixStack matrices) {
-        Renderable aa = font.textOf(currText, -1, false, true);
-        aa.transform.setPos(Client.getInstance().scaledWidth - font.getWidth(currText), Client.getInstance().scaledHeight - font.getHeight(currText), 1);
+        Text t = Text.of(currText).withStyle(
+                Style.EMPTY
+                        .color(-1)
+                        .shadowColor(0xFF7272)
+                        .outlineColor(0xAD72FF)
+                        .italic(false)
+                        .outlined(true)
+                        .shadow(false)
+                        .bold(true)
+                        .strikethrough(true)
+        ).append(Text.of("█TEST█").withStyle(
+                Style.EMPTY
+                        .color(0XFF72AD)
+                        .bold(false)
+                        .italic(false)
+                        .shadow(false)
+                        .outlined(true)
+                        .obfuscated(true)
+                        .underlined(true)
+        ));
+
+        Renderable aa = font.bake(t);
+        aa.transform.setPos(0, Client.getInstance().scaledHeight - font.getHeight(t), 0);
         renderer.addElement(Shaders.FONT, matrices, aa);
     }
 

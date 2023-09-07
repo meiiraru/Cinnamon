@@ -34,10 +34,10 @@ public class GeometryHelper {
         float y1 = y0 + height;
 
         return new Mesh(new Vertex[]{
-                new Vertex(x0, y0, z, u0, v0),
-                new Vertex(x1, y0, z, u1, v0),
-                new Vertex(x1, y1, z, u1, v1),
-                new Vertex(x0, y1, z, u0, v1),
+                Vertex.of(x0, y0, z).uv(u0, v0),
+                Vertex.of(x1, y0, z).uv(u1, v0),
+                Vertex.of(x1, y1, z).uv(u1, v1),
+                Vertex.of(x0, y1, z).uv(u0, v1),
         }, texture);
     }
 }
