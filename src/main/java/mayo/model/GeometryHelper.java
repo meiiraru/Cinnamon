@@ -2,6 +2,8 @@ package mayo.model;
 
 import mayo.render.Texture;
 
+import java.util.List;
+
 public class GeometryHelper {
 
     public static Mesh quad(float x, float y, float width, float height) {
@@ -39,5 +41,23 @@ public class GeometryHelper {
                 Vertex.of(x1, y1, z).uv(u1, v1),
                 Vertex.of(x0, y1, z).uv(u0, v1),
         }, texture);
+    }
+
+    public static List<Vertex> quad(float x0, float y0, float width, float height, int color, int level) {
+        float x1 = x0 + width;
+        float y1 = y0 + height;
+
+        //temp
+        float u0 = 0.6171875f;
+        float u1 = 0.6328125f;
+        float v0 = 0.037109375f;
+        float v1 = 0.052734375f;
+
+        return List.of(
+                Vertex.of(x0, y0, 0f).uv(u0, v0).color(color).index(level),
+                Vertex.of(x1, y0, 0f).uv(u1, v0).color(color).index(level),
+                Vertex.of(x1, y1, 0f).uv(u1, v1).color(color).index(level),
+                Vertex.of(x0, y1, 0f).uv(u0, v1).color(color).index(level)
+        );
     }
 }

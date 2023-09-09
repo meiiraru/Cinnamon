@@ -8,6 +8,7 @@ import mayo.render.MatrixStack;
 import mayo.render.Shaders;
 import mayo.text.Style;
 import mayo.text.Text;
+import mayo.utils.TextUtils;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -32,24 +33,25 @@ public class TextField implements Widget {
                         .color(-1)
                         .shadowColor(0xFF7272)
                         .outlineColor(0xAD72FF)
-                        .italic(false)
-                        .outlined(true)
-                        .shadow(false)
+                        .backgroundColor(0x72ADFF)
+                        .italic(true)
+                        .outlined(false)
+                        .shadow(true)
                         .bold(true)
-                        .strikethrough(true)
-        ).append(Text.of("█TEST█").withStyle(
+                        .obfuscated(false)
+                        .strikethrough(false)
+                        .underlined(false)
+                        .background(true)
+        ).append(Text.of("\u2588TEST\u2588\nowo\nmrrow?\nvida triste >~< aaaaaaaaaa").withStyle(
                 Style.EMPTY
                         .color(0XFF72AD)
-                        .bold(false)
-                        .italic(false)
-                        .shadow(false)
-                        .outlined(true)
-                        .obfuscated(true)
-                        .underlined(true)
-        ));
+                        .shadowColor(0x884157)
+                        .backgroundColor(0xFFFF72)
+                        .italic(true)
+        ).append(Text.of(":3").withStyle(Style.EMPTY.color(0x72FFAD).obfuscated(true))));
 
-        Renderable aa = font.bake(t);
-        aa.transform.setPos(0, Client.getInstance().scaledHeight - font.getHeight(t), 0);
+        Renderable aa = font.bake(t, TextUtils.Alignment.RIGHT);
+        aa.transform.setPos(10, Client.getInstance().scaledHeight - font.height(t) - 10, 0);
         renderer.addElement(Shaders.FONT, matrices, aa);
     }
 

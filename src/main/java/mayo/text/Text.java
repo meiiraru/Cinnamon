@@ -2,6 +2,7 @@ package mayo.text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class Text {
 
@@ -16,6 +17,10 @@ public class Text {
     public Text(String text, Style style) {
         this.text = text;
         this.style = style;
+    }
+
+    public static Text empty() {
+        return of("");
     }
 
     public static Text of(String text) {
@@ -53,5 +58,16 @@ public class Text {
 
     public List<Text> getChildren() {
         return children;
+    }
+
+    public boolean isEmpty() {
+        return text.isEmpty();
+    }
+
+    public void visit(BiConsumer<String, Style> consumer, Style initialStyle) {
+        Style s = style.applyParent(initialStyle);
+        consumer.accept(text, s);
+        for (Text child : children)
+            child.visit(consumer, s);
     }
 }
