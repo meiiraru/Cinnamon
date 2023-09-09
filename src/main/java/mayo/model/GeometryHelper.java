@@ -43,7 +43,7 @@ public class GeometryHelper {
         }, texture);
     }
 
-    public static List<Vertex> quad(float x0, float y0, float width, float height, int color, int level) {
+    public static List<Vertex> quad(float x0, float y0, float z, float width, float height, int color, int level) {
         float x1 = x0 + width;
         float y1 = y0 + height;
 
@@ -54,10 +54,10 @@ public class GeometryHelper {
         float v1 = 0.052734375f;
 
         return List.of(
-                Vertex.of(x0, y0, 0f).uv(u0, v0).color(color).index(level),
-                Vertex.of(x1, y0, 0f).uv(u1, v0).color(color).index(level),
-                Vertex.of(x1, y1, 0f).uv(u1, v1).color(color).index(level),
-                Vertex.of(x0, y1, 0f).uv(u0, v1).color(color).index(level)
+                Vertex.of(x0, y0, z).uv(u0, v0).color(color).index(level),
+                Vertex.of(x1, y0, z).uv(u1, v0).color(color).index(level),
+                Vertex.of(x1, y1, z).uv(u1, v1).color(color).index(level),
+                Vertex.of(x0, y1, z).uv(u0, v1).color(color).index(level)
         );
     }
 }

@@ -28,30 +28,59 @@ public class TextField implements Widget {
 
     @Override
     public void render(BatchRenderer renderer, MatrixStack matrices) {
-        Text t = Text.of(currText).withStyle(
+        Text t = Text.empty().append(Text.of("Lorem ipsum").withStyle(
                 Style.EMPTY
-                        .color(-1)
-                        .shadowColor(0xFF7272)
-                        .outlineColor(0xAD72FF)
                         .backgroundColor(0x72ADFF)
-                        .italic(true)
-                        .outlined(false)
+                        .shadowColor(0xFF7272)
+                        .background(true)
                         .shadow(true)
                         .bold(true)
-                        .obfuscated(false)
-                        .strikethrough(false)
-                        .underlined(false)
-                        .background(true)
-        ).append(Text.of("\u2588TEST\u2588\nowo mrrow?\nvida triste >~< aaaaaaaa").withStyle(
+        ));
+
+        t.append(Text.of(" dolor sit amet.\nSit quae dignissimos non voluptates sunt").withStyle(
                 Style.EMPTY
-                        .color(0XFF72AD)
-                        .shadowColor(0x884157)
-                        .backgroundColor(0xFFFF72)
+                        .color(0x72FFAD)
+        ).append(Text.of("\nut temporibus commodi eum galisum").withStyle(
+                Style.EMPTY
+                        .backgroundColor(0xFF72AD)
+                        .background(true)
+                        .outlined(true)
+        )));
+
+        t.append(Text.of(" alias.").withStyle(
+                Style.EMPTY
+                        .bold(true)
+                        .italic(true)
+                        .underlined(true)
+        ));
+
+        t.append("\n\n");
+
+        t.append(Text.of("Lorem ipsum dolor sit amet,\nconsectetur adipisicing elit.").withStyle(
+                Style.EMPTY
+                        .outlineColor(0x72ADFF)
+                        .outlined(true)
+                        .italic(true)
+        ).append(Text.of("\nAb accusamus ad alias aperiam\n[...]").withStyle(
+                Style.EMPTY
+                        .backgroundColor(0x72FF72)
+                        .color(0x202020)
+                        .bold(true)
+                        .background(true)
                         .italic(false)
-        ).append(Text.of(":3").withStyle(Style.EMPTY.color(0x72FFAD).obfuscated(false))));
+        )));
+
+        t.append(Text.of("\n\niii OBFUSCATED iii").withStyle(
+                Style.EMPTY
+                        .backgroundColor(0xAD72FF)
+                        .background(true)
+                        .obfuscated(true)
+        ));
+
+        t.append("\n\n").append(currText);
 
         Renderable aa = font.bake(t, TextUtils.Alignment.CENTER);
-        aa.transform.setPos(Client.getInstance().scaledWidth / 2f, Client.getInstance().scaledHeight - font.height(t) - 10, 0);
+        aa.transform.setPos((int) (Client.getInstance().scaledWidth / 2f), (int) (Client.getInstance().scaledHeight - font.height(t) - 10f), 0);
         renderer.addElement(Shaders.FONT, matrices, aa);
     }
 

@@ -13,10 +13,7 @@ import org.lwjgl.stb.STBTTPackedchar;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 import static mayo.model.GeometryHelper.quad;
 import static org.lwjgl.opengl.GL11.*;
@@ -34,6 +31,7 @@ public class Font {
     private static final int SHADOW_OFFSET = 1;
     private static final int BOLD_OFFSET = 1;
     private static final int ITALIC_OFFSET = 3;
+    private static final float Z_OFFSET = 0.001f;
 
     public static final Random RANDOM = new Random();
     private static int SEED = 42;
@@ -47,6 +45,11 @@ public class Font {
     private final STBTTPackedchar.Buffer charData;
     private final int textureID;
     public final float lineHeight;
+
+    //other
+    private final Map<Float, List<Character>> charsByWidth = new HashMap<>();
+
+    // -- font initialization -- //
 
     public Font(String namespace, String name, float height) {
         this.ttf = IOUtils.getResourceBuffer(namespace, "fonts/" + name + ".ttf");
@@ -71,11 +74,19 @@ public class Font {
 
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, TEXTURE_W, TEXTURE_H, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap);
         }
+
+        for (int i = 0; i < 0xFFFF; i++) {
+            char c = (char) i;
+            float w = getCharWidth(c);
+            charsByWidth.computeIfAbsent(w, k -> new ArrayList<>()).add(c);
+        }
     }
 
     public void free() {
         charData.free();
     }
+
+    // -- font rendering -- //
 
     public Renderable bake(Text text) {
         return bake(text, TextUtils.Alignment.LEFT);
@@ -104,6 +115,9 @@ public class Font {
 
         //iterate text and children
         text.visit((s, style) -> {
+            if (s.isEmpty())
+                return;
+
             //style flags
             boolean italic  = style.isItalic();
             boolean bold    = style.isBold();
@@ -164,7 +178,7 @@ public class Font {
                 }
 
                 int bgc = Objects.requireNonNullElse(style.getBackgroundColor(), SHADOW_COLOR);
-                list.addAll(quad(x0, y0, w, h, bgc, -3));
+                list.addAll(quad(x0, y0, Z_OFFSET * -3, w, h, bgc, -3));
             }
 
             //restore buffer data
@@ -176,13 +190,14 @@ public class Font {
         //prepare vars
         RANDOM.setSeed(SEED);
         float preX = xb.get(0);
+        float z = Z_OFFSET * level;
 
         //render chars
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            if (obfuscated && c > ' ') //32
-                c = (char) (RANDOM.nextInt(94) + 33); // > 32 && < 127
-            bakeChar(list, c, italic, bold, x, y, color, level);
+            if (obfuscated && c != ' ') //32
+                c = getRandomChar(c);
+            bakeChar(list, c, italic, bold, x, y, z, color, level);
         }
 
         //extra rendering
@@ -191,14 +206,14 @@ public class Font {
 
         //underline
         if (underlined)
-            list.addAll(quad(x0, y0, width, 1f, color, level));
+            list.addAll(quad(x0, y0, z, width, 1f, color, level));
 
         //strikethrough
         if (strikethrough)
-            list.addAll(quad(x0, y0 - (int) (lineHeight / 2 - 1), width, 1f, color, level));
+            list.addAll(quad(x0, y0 - (int) (lineHeight / 2 - 1), z, width, 1f, color, level));
     }
 
-    private void bakeChar(List<Vertex> list, char c, boolean italic, boolean bold, float x, float y, int color, int level) {
+    private void bakeChar(List<Vertex> list, char c, boolean italic, boolean bold, float x, float y, float z, int color, int level) {
         stbtt_GetPackedQuad(charData, TEXTURE_W, TEXTURE_H, c, xb, yb, q, false);
 
         float
@@ -216,20 +231,43 @@ public class Font {
         x0 += x; x1 += x;
         y0 += y; y1 += y;
 
-        bakeQuad(list, x0, x1, i0, i1, y0, y1, u0, u1, v0, v1, color, level);
+        bakeQuad(list, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color, level);
 
         if (bold) {
             xb.put(0, xb.get(0) + BOLD_OFFSET);
             x0 += BOLD_OFFSET; x1 += BOLD_OFFSET;
-            bakeQuad(list, x0, x1, i0, i1, y0, y1, u0, u1, v0, v1, color, level);
+            bakeQuad(list, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color, level);
         }
     }
 
-    private static void bakeQuad(List<Vertex> list, float x0, float x1, float i0, float i1, float y0, float y1, float u0, float u1, float v0, float v1, int color, int level) {
-        list.add(Vertex.of(x0 + i0, y0, 0f).uv(u0, v0).color(color).index(level));
-        list.add(Vertex.of(x1 + i0, y0, 0f).uv(u1, v0).color(color).index(level));
-        list.add(Vertex.of(x1 + i1, y1, 0f).uv(u1, v1).color(color).index(level));
-        list.add(Vertex.of(x0 + i1, y1, 0f).uv(u0, v1).color(color).index(level));
+    private static void bakeQuad(List<Vertex> list, float x0, float x1, float i0, float i1, float y0, float y1, float z, float u0, float u1, float v0, float v1, int color, int level) {
+        list.add(Vertex.of(x0 + i0, y0, z).uv(u0, v0).color(color).index(level));
+        list.add(Vertex.of(x1 + i0, y0, z).uv(u1, v0).color(color).index(level));
+        list.add(Vertex.of(x1 + i1, y1, z).uv(u1, v1).color(color).index(level));
+        list.add(Vertex.of(x0 + i1, y1, z).uv(u0, v1).color(color).index(level));
+    }
+
+    private char getRandomChar(char c) {
+        List<Character> list = charsByWidth.get(getCharWidth(c));
+        return list == null ? c : list.get(RANDOM.nextInt(list.size()));
+    }
+
+    // -- misc functions -- //
+
+    private float getCharWidth(char c) {
+        //backup buffer
+        float x = xb.get(0), y = yb.get(0);
+
+        //fill data
+        stbtt_GetPackedQuad(charData, TEXTURE_W, TEXTURE_H, c, xb, yb, q, false);
+
+        //save return value
+        float w = xb.get(0) - x;
+
+        //restore buffer
+        xb.put(0, x); yb.put(0, y);
+
+        return w;
     }
 
     public float width(Text text) {
