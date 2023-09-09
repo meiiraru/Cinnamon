@@ -42,16 +42,16 @@ public class TextField implements Widget {
                         .strikethrough(false)
                         .underlined(false)
                         .background(true)
-        ).append(Text.of("\u2588TEST\u2588\nowo\nmrrow?\nvida triste >~< aaaaaaaaaa").withStyle(
+        ).append(Text.of("\u2588TEST\u2588\nowo mrrow?\nvida triste >~< aaaaaaaa").withStyle(
                 Style.EMPTY
                         .color(0XFF72AD)
                         .shadowColor(0x884157)
                         .backgroundColor(0xFFFF72)
-                        .italic(true)
-        ).append(Text.of(":3").withStyle(Style.EMPTY.color(0x72FFAD).obfuscated(true))));
+                        .italic(false)
+        ).append(Text.of(":3").withStyle(Style.EMPTY.color(0x72FFAD).obfuscated(false))));
 
-        Renderable aa = font.bake(t, TextUtils.Alignment.RIGHT);
-        aa.transform.setPos(10, Client.getInstance().scaledHeight - font.height(t) - 10, 0);
+        Renderable aa = font.bake(t, TextUtils.Alignment.CENTER);
+        aa.transform.setPos(Client.getInstance().scaledWidth / 2f, Client.getInstance().scaledHeight - font.height(t) - 10, 0);
         renderer.addElement(Shaders.FONT, matrices, aa);
     }
 

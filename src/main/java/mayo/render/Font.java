@@ -87,9 +87,9 @@ public class Font {
 
         for (int i = 0; i < list.size(); i++) {
             Text t = list.get(i);
-            float width = width(t);
-
-            bake(vertices, t, 0f, lineHeight * (i + 1) - 1);
+            int x = (int) alignment.apply(this, t);
+            int y = (int) (lineHeight * (i + 1) - 1);
+            bake(vertices, t, x, y);
         }
 
         vertices.sort(Vertex::compareTo);
@@ -148,8 +148,23 @@ public class Font {
 
             //render background
             if (bg) {
+                float x0 = initialX + x;
+                float y0 = initialY + y - lineHeight + 1;
+                float w  = finalX - initialX;
+                float h  = lineHeight;
+
+                if (italic)
+                    w += ITALIC_OFFSET;
+
+                if (outline) {
+                    x0--; y0--;
+                    w += 2; h += 2;
+                } else if (shadow) {
+                    w++; h++;
+                }
+
                 int bgc = Objects.requireNonNullElse(style.getBackgroundColor(), SHADOW_COLOR);
-                list.addAll(quad(initialX + x, initialY + y - lineHeight + 1, finalX - initialX + (italic ? ITALIC_OFFSET : 0), lineHeight, bgc, -3));
+                list.addAll(quad(x0, y0, w, h, bgc, -3));
             }
 
             //restore buffer data
@@ -217,8 +232,30 @@ public class Font {
         list.add(Vertex.of(x0 + i1, y1, 0f).uv(u0, v1).color(color).index(level));
     }
 
-    public int width(Text text) {
-        return 0;
+    public float width(Text text) {
+        //prepare vars
+        boolean[] prevItalic = {false};
+        xb.put(0, 0f); yb.put(0, 0f);
+
+        //iterate text
+        text.visit((s, style) -> {
+            for (int i = 0; i < s.length(); i++) {
+                //this function will fill the buffers with all necessary data, as we only want the xb (width)
+                stbtt_GetPackedQuad(charData, TEXTURE_W, TEXTURE_H, s.charAt(i), xb, yb, q, false);
+
+                //bold special
+                if (style.isBold())
+                    xb.put(0, xb.get(0) + BOLD_OFFSET);
+
+                //italic special
+                boolean italic = style.isItalic();
+                if (prevItalic[0] && !italic)
+                    xb.put(0, xb.get(0) + ITALIC_OFFSET);
+                prevItalic[0] = italic;
+            }
+        }, Style.EMPTY);
+
+        return xb.get(0);
     }
 
     public float height(Text text) {

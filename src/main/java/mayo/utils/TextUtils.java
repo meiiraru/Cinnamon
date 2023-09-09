@@ -32,17 +32,17 @@ public class TextUtils {
     }
 
     public enum Alignment {
-        LEFT((font, text) -> 0),
-        RIGHT((font, text) -> font.width(text)),
-        CENTER((font, text) -> font.width(text) / 2);
+        LEFT((font, text) -> 0f),
+        RIGHT((font, text) -> -font.width(text)),
+        CENTER((font, text) -> -font.width(text) / 2f);
 
-        private final BiFunction<Font, Text, Integer> textFunction;
+        private final BiFunction<Font, Text, Float> textFunction;
 
-        Alignment(BiFunction<Font, Text, Integer> textFunction) {
+        Alignment(BiFunction<Font, Text, Float> textFunction) {
             this.textFunction = textFunction;
         }
 
-        public int apply(Font font, Text text) {
+        public float apply(Font font, Text text) {
             return textFunction.apply(font, text);
         }
     }
