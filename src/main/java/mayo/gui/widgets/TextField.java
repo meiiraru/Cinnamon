@@ -5,7 +5,7 @@ import mayo.model.Renderable;
 import mayo.render.BatchRenderer;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
-import mayo.render.Shaders;
+import mayo.render.shader.Shaders;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.TextUtils;

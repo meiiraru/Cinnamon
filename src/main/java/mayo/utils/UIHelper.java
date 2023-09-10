@@ -5,7 +5,7 @@ import mayo.model.GeometryHelper;
 import mayo.model.Renderable;
 import mayo.render.BatchRenderer;
 import mayo.render.MatrixStack;
-import mayo.render.Shaders;
+import mayo.render.shader.Shaders;
 import mayo.render.Texture;
 
 public class UIHelper {

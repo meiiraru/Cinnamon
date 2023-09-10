@@ -1,6 +1,7 @@
 package mayo.render;
 
 import mayo.model.Renderable;
+import mayo.render.shader.Shaders;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +21,8 @@ public class BatchRenderer {
 
         Batch batch = new Batch(shader.getShader());
         batchList.add(batch);
-        batch.addElement(matrices, renderable);
+        if (!batch.addElement(matrices, renderable))
+            throw new RuntimeException("Failed to add element to a plain, clear, new buffer");
     }
 
     public void render() {

@@ -3,10 +3,14 @@ package mayo;
 import mayo.gui.Screen;
 import mayo.gui.screens.MainMenu;
 import mayo.input.Movement;
+import mayo.model.obj.Mesh2;
+import mayo.model.obj.ObjLoader;
 import mayo.render.BatchRenderer;
 import mayo.render.Camera;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
+import mayo.render.shader.Shader;
+import mayo.render.shader.Shaders;
 import mayo.utils.Timer;
 import mayo.world.World;
 
@@ -77,7 +81,41 @@ public class Client {
         //    screen.render(renderer, matrices, delta);
 
         matrices.pop();
+
+
+        // -- TEMP -- //
+
+
+        if (a) {
+            a = false;
+            mesh = ObjLoader.load(Client.NAMESPACE, "teapot");
+            mesh.bake();
+            mesh2 = ObjLoader.load(Client.NAMESPACE, "mesa/mesa01");
+            mesh2.bake();
+        }
+
+        Shader s = Shaders.MODEL.getShader();
+        s.use();
+        s.setMat4("projection", camera.getPerspectiveMatrix());
+        s.setMat4("view", camera.getViewMatrix());
+
+        //render mesh 1
+        matrices.push();
+        matrices.translate(0, -mesh.getBBMin().y + (mesh2.getBBMax().y - mesh2.getBBMin().y), 0);
+        matrices.scale(0.5f);
+        s.setMat4("model", matrices.peek());
+        mesh.render();
+        matrices.pop();
+
+        //render mesh 2
+        matrices.push();
+        matrices.translate(0, 0f, 0);
+        s.setMat4("model", matrices.peek());
+        mesh2.render();
+        matrices.pop();
     }
+    private Mesh2 mesh, mesh2;
+    private boolean a = true;
 
     private void tick() {
         ticks++;

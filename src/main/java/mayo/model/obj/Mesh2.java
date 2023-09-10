@@ -1,9 +1,7 @@
-package mayo.model;
+package mayo.model.obj;
 
-import mayo.render.Shader;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -37,13 +35,9 @@ public class Mesh2 {
     // -- loading and drawing -- //
 
 
-    public void bake(Shader shader) {
+    public void bake() {
         for (Group group : groups) {
-            int capacity = group.generateBuffers();
-            shader.loadAttributes();
-
-            //vertices buffer
-            FloatBuffer buffer = BufferUtils.createFloatBuffer(capacity);
+            FloatBuffer buffer = group.generateBuffers();
 
             for (Face face : group.getFaces()) {
                 int[] v = face.getVertices();

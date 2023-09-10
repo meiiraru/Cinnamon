@@ -1,12 +1,16 @@
 package mayo.render;
 
 import mayo.model.Renderable;
+import mayo.render.shader.Attributes;
+import mayo.render.shader.Shader;
+import mayo.utils.Pair;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import static mayo.render.shader.Attributes.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
@@ -16,6 +20,9 @@ public class Batch {
 
     public static final int BATCH_SIZE = 2048;
     private static final int[] TEX_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7};
+
+    private static final int FLAGS = POS | TEXTURE_ID | UV | COLOR | NORMAL;
+    private static final Pair<Integer, Integer> VERTEX_ATTRIBUTES = getAttributes(FLAGS);
 
     private final List<Integer> textures;
     private final FloatBuffer vertices;
@@ -29,7 +36,7 @@ public class Batch {
         this.shader = shader;
         this.textures = new ArrayList<>();
         //quad = 4 vertices
-        int capacity = BATCH_SIZE * 4 * shader.vertexSize;
+        int capacity = BATCH_SIZE * 4 * VERTEX_ATTRIBUTES.second();
         this.vertices = BufferUtils.createFloatBuffer(capacity);
 
         //generate and bind a Vertex Array Object (VAO)
@@ -48,7 +55,7 @@ public class Batch {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 
         //enable the shader attribute pointers
-        shader.loadAttributes();
+        Attributes.load(FLAGS, VERTEX_ATTRIBUTES.second());
     }
 
     public void render() {
@@ -67,13 +74,13 @@ public class Batch {
         shader.setIntArray("textures", TEX_SLOTS);
 
         glBindVertexArray(vaoID);
-        for (int i = 0; i < shader.elements; i++)
+        for (int i = 0; i < VERTEX_ATTRIBUTES.first(); i++)
             glEnableVertexAttribArray(i);
 
         //pushed vertices * two triangles
         glDrawElements(GL_TRIANGLES, this.faceCount * 6, GL_UNSIGNED_INT, 0);
 
-        for (int i = 0; i < shader.elements; i++)
+        for (int i = 0; i < VERTEX_ATTRIBUTES.first(); i++)
             glDisableVertexAttribArray(i);
 
         glBindVertexArray(0);
@@ -138,7 +145,7 @@ public class Batch {
     }
 
     public boolean hasSpace(int faceCount) {
-        return this.vertices.remaining() >= faceCount * shader.vertexSize;
+        return this.vertices.remaining() >= faceCount * VERTEX_ATTRIBUTES.second();
     }
 
     public boolean hasTextureSpace() {

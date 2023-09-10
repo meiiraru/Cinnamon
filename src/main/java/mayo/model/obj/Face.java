@@ -1,4 +1,4 @@
-package mayo.model;
+package mayo.model.obj;
 
 public class Face {
 

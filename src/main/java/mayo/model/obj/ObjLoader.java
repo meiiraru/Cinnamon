@@ -1,4 +1,4 @@
-package mayo.model;
+package mayo.model.obj;
 
 import mayo.utils.IOUtils;
 import org.joml.Vector2f;
