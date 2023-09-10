@@ -54,8 +54,11 @@ public class Batch {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 
-        //enable the shader attribute pointers
+        //enable the shader attributes
         Attributes.load(FLAGS, VERTEX_ATTRIBUTES.second());
+
+        for (int i = 0; i < VERTEX_ATTRIBUTES.first(); i++)
+            glEnableVertexAttribArray(i);
     }
 
     public void render() {
@@ -74,14 +77,8 @@ public class Batch {
         shader.setIntArray("textures", TEX_SLOTS);
 
         glBindVertexArray(vaoID);
-        for (int i = 0; i < VERTEX_ATTRIBUTES.first(); i++)
-            glEnableVertexAttribArray(i);
-
         //pushed vertices * two triangles
         glDrawElements(GL_TRIANGLES, this.faceCount * 6, GL_UNSIGNED_INT, 0);
-
-        for (int i = 0; i < VERTEX_ATTRIBUTES.first(); i++)
-            glDisableVertexAttribArray(i);
 
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);

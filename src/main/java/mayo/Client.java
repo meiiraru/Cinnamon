@@ -96,23 +96,20 @@ public class Client {
 
         Shader s = Shaders.MODEL.getShader();
         s.use();
-        s.setMat4("projection", camera.getPerspectiveMatrix());
-        s.setMat4("view", camera.getViewMatrix());
+        s.setProjectionMatrix(camera.getPerspectiveMatrix());
+        s.setViewMatrix(camera.getViewMatrix());
 
         //render mesh 1
         matrices.push();
         matrices.translate(0, -mesh.getBBMin().y + (mesh2.getBBMax().y - mesh2.getBBMin().y), 0);
         matrices.scale(0.5f);
-        s.setMat4("model", matrices.peek());
+        s.setModelMatrix(matrices.peek());
         mesh.render();
         matrices.pop();
 
         //render mesh 2
-        matrices.push();
-        matrices.translate(0, 0f, 0);
-        s.setMat4("model", matrices.peek());
+        s.setModelMatrix(matrices.peek());
         mesh2.render();
-        matrices.pop();
     }
     private Mesh2 mesh, mesh2;
     private boolean a = true;

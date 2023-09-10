@@ -1,5 +1,6 @@
 package mayo.render.shader;
 
+import mayo.utils.ColorUtils;
 import mayo.utils.IOUtils;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -129,6 +130,32 @@ public class Shader {
 
     public void setIntArray(String name, int[] array) {
         glUniform1iv(get(name), array);
+    }
+
+    // -- common functions -- //
+
+    public void setColor(int color) {
+        this.setColor(ColorUtils.intToRGB(color));
+    }
+
+    public void setColor(Vector3f rgb) {
+        this.setColor(rgb.x, rgb.y, rgb.z);
+    }
+
+    public void setColor(float x, float y, float z) {
+        this.setVec3("color", x, y, z);
+    }
+
+    public void setProjectionMatrix(Matrix4f matrix) {
+        this.setMat4("projection", matrix);
+    }
+
+    public void setViewMatrix(Matrix4f matrix) {
+        this.setMat4("view", matrix);
+    }
+
+    public void setModelMatrix(Matrix4f matrix) {
+        this.setMat4("model", matrix);
     }
 
     @Override

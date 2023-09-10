@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
@@ -25,7 +24,6 @@ public class Group {
 
     //rendering
     private int vao, vertexCount;
-    private Pair<Integer, Integer> vertexAttributes;
 
     public Group(String name) {
         this.name = name;
@@ -48,7 +46,7 @@ public class Group {
         }
 
         int flags = Attributes.POS | Attributes.UV | Attributes.NORMAL;
-        this.vertexAttributes = Attributes.getAttributes(flags);
+        Pair<Integer, Integer> attrib = Attributes.getAttributes(flags);
 
         //vao
         this.vao = glGenVertexArrays();
@@ -60,25 +58,20 @@ public class Group {
         glBufferData(GL_ARRAY_BUFFER, (long) capacity * Float.BYTES, GL_STATIC_DRAW);
 
         //load vertex attributes
-        Attributes.load(flags, vertexAttributes.second());
+        Attributes.load(flags, attrib.second());
+
+        //enable attributes
+        for (int i = 0; i < attrib.first(); i++)
+            glEnableVertexAttribArray(i);
 
         //return the generated buffer
         return BufferUtils.createFloatBuffer(capacity);
     }
 
     public void render() {
-        //enable attributes
-        int len = vertexAttributes.first();
-        for (int i = 0; i < len; i++)
-            glEnableVertexAttribArray(i);
-
         //draw
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-
-        //disable attributes
-        for (int i = 0; i < len; i++)
-            glDisableVertexAttribArray(i);
     }
 
 
