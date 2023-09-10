@@ -71,8 +71,8 @@ public class Client {
             world.renderHUD(renderer, matrices, delta);
 
         //render gui
-        if (this.screen != null)
-            screen.render(renderer, matrices, delta);
+        //if (this.screen != null)
+        //    screen.render(renderer, matrices, delta);
     }
 
     private void tick() {

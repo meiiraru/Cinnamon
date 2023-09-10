@@ -15,7 +15,7 @@ public class Shader {
 
     //vertex
     //pos     tex id    uv      color    normal
-    //vec4    int       vec2    vec3     vec3
+    //vec3    int       vec2    vec3     vec3
     public static final int
             POS        = 0x1,
             TEXTURE_ID = 0x2,
@@ -96,7 +96,7 @@ public class Shader {
     private static Pair<Integer, Integer> loadProperties(int flags) {
         int e = 0, verts = 0;
 
-        if ((flags & POS)        == POS)        {e++; verts += 4;}
+        if ((flags & POS)        == POS)        {e++; verts += 3;}
         if ((flags & TEXTURE_ID) == TEXTURE_ID) {e++; verts += 1;}
         if ((flags & UV)         == UV)         {e++; verts += 2;}
         if ((flags & COLOR)      == COLOR)      {e++; verts += 3;}
@@ -121,8 +121,8 @@ public class Shader {
 
         //create attributes
         if ((flags & POS) == POS) {
-            glVertexAttribPointer(index++, 4, GL_FLOAT, false, stride, pointer * Float.BYTES);
-            pointer += 4;
+            glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer * Float.BYTES);
+            pointer += 3;
         }
         if ((flags & TEXTURE_ID) == TEXTURE_ID) {
             glVertexAttribPointer(index++, 1, GL_FLOAT, false, stride, pointer * Float.BYTES);

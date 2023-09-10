@@ -1,7 +1,11 @@
 package mayo;
 
+import mayo.model.Mesh2;
+import mayo.model.ObjLoader;
 import mayo.render.BatchRenderer;
 import mayo.render.MatrixStack;
+import mayo.render.Shader;
+import mayo.render.Shaders;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
@@ -99,7 +103,9 @@ public class Main {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
 
-        //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+        Mesh2 mesh = ObjLoader.load(Client.NAMESPACE, "teapot");
 
         //glLineWidth(5f);
 
@@ -133,6 +139,18 @@ public class Main {
 
             //render client
             client.render(renderer, matrices);
+
+
+            // -- temp -- //
+
+            Shader s = Shaders.MODEL.getShader();
+            s.use();
+            s.setMat4("projection", Client.getInstance().camera.getPerspectiveMatrix());
+            s.setMat4("view", Client.getInstance().camera.getViewMatrix());
+            mesh.render();
+
+            // -- temp -- //
+
 
             //render batch
             renderer.render();

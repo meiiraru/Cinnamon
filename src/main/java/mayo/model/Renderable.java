@@ -42,7 +42,6 @@ public class Renderable {
             target.put(pos.x);
             target.put(pos.y);
             target.put(pos.z);
-            target.put(pos.w);
 
             target.put(texID);
             target.put(uv.x);

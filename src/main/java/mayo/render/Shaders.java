@@ -6,7 +6,8 @@ import static mayo.render.Shader.*;
 
 public enum Shaders {
     MAIN(POS | TEXTURE_ID | UV | COLOR | NORMAL),
-    FONT(POS | TEXTURE_ID | UV | COLOR | NORMAL);
+    FONT(POS | TEXTURE_ID | UV | COLOR | NORMAL),
+    MODEL(POS | UV | NORMAL);
 
     private final Shader shader;
 
