@@ -1,10 +1,16 @@
 package mayo.model;
 
+import mayo.render.Shader;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.lwjgl.BufferUtils;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.glBufferSubData;
 
 public class Mesh2 {
 
@@ -19,6 +25,11 @@ public class Mesh2 {
     private final List<Group>
             groups = new ArrayList<>();
 
+    //bounding box
+    private final Vector3f
+            bbMin = new Vector3f(),
+            bbMax = new Vector3f();
+
     //other properties
     private String mtllib;
 
@@ -26,12 +37,45 @@ public class Mesh2 {
     // -- loading and drawing -- //
 
 
-    public void bake() {
+    public void bake(Shader shader) {
+        for (Group group : groups) {
+            int capacity = group.generateBuffers();
+            shader.loadAttributes();
 
+            //vertices buffer
+            FloatBuffer buffer = BufferUtils.createFloatBuffer(capacity);
+
+            for (Face face : group.getFaces()) {
+                int[] v = face.getVertices();
+                int[] vt = face.getUVs();
+                int[] vn = face.getNormals();
+
+                for (int i = 0; i < v.length; i++) {
+                    fillBuffer(buffer, vertices.get(v[i]));
+                    fillBuffer(buffer, uvs.get(vt[i]));
+                    fillBuffer(buffer, normals.get(vn[i]));
+                }
+            }
+
+            buffer.rewind();
+            glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
+        }
+    }
+
+    private static void fillBuffer(FloatBuffer buffer, Vector2f vec) {
+        buffer.put(vec.x);
+        buffer.put(vec.y);
+    }
+
+    private static void fillBuffer(FloatBuffer buffer, Vector3f vec) {
+        buffer.put(vec.x);
+        buffer.put(vec.y);
+        buffer.put(vec.z);
     }
 
     public void render() {
-
+        for (Group group : groups)
+            group.render();
     }
 
 
@@ -52,6 +96,14 @@ public class Mesh2 {
 
     public List<Group> getGroups() {
         return groups;
+    }
+
+    public Vector3f getBBMin() {
+        return bbMin;
+    }
+
+    public Vector3f getBBMax() {
+        return bbMax;
     }
 
     public void setMtllib(String mtllib) {

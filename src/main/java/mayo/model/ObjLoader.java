@@ -41,7 +41,12 @@ public class ObjLoader {
                     case "usemtl" -> currentGroup.setMaterial(split[1]);
 
                     //vertex
-                    case "v" -> theMesh.getVertices().add(parseVec3(split[1], split[2], split[3]));
+                    case "v" -> {
+                        Vector3f vertex = parseVec3(split[1], split[2], split[3]);
+                        theMesh.getVertices().add(vertex);
+                        theMesh.getBBMin().min(vertex);
+                        theMesh.getBBMax().max(vertex);
+                    }
 
                     //uv
                     case "vt" -> theMesh.getUVs().add(parseVec2(split[1], split[2]));
@@ -69,9 +74,6 @@ public class ObjLoader {
             if (!currentGroup.isEmpty())
                 theMesh.getGroups().add(currentGroup);
 
-            //bake mesh VAOs and VBOs
-            theMesh.bake();
-
             //return the mesh
             return theMesh;
         } catch (Exception e) {
@@ -89,6 +91,6 @@ public class ObjLoader {
 
     private static int[] parseFace(String vertex) {
         String[] s = vertex.split("/");
-        return new int[]{Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2])};
+        return new int[]{Integer.parseInt(s[0]) - 1, Integer.parseInt(s[1]) - 1, Integer.parseInt(s[2]) - 1};
     }
 }

@@ -58,6 +58,8 @@ public class Client {
 
         float delta = timer.delta();
 
+        matrices.push();
+
         //render world
         if (world != null) {
             matrices.peek().set(camera.getPerspectiveMatrix()).mul(camera.getViewMatrix());
@@ -73,6 +75,8 @@ public class Client {
         //render gui
         //if (this.screen != null)
         //    screen.render(renderer, matrices, delta);
+
+        matrices.pop();
     }
 
     private void tick() {

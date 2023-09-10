@@ -15,6 +15,7 @@ import java.nio.IntBuffer;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -106,6 +107,7 @@ public class Main {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         Mesh2 mesh = ObjLoader.load(Client.NAMESPACE, "teapot");
+        mesh.bake(Shaders.MODEL.getShader());
 
         //glLineWidth(5f);
 
@@ -145,8 +147,13 @@ public class Main {
 
             Shader s = Shaders.MODEL.getShader();
             s.use();
-            s.setMat4("projection", Client.getInstance().camera.getPerspectiveMatrix());
-            s.setMat4("view", Client.getInstance().camera.getViewMatrix());
+            s.setMat4("projection", client.camera.getPerspectiveMatrix());
+            s.setMat4("view", client.camera.getViewMatrix());
+            s.setMat4("model", matrices.peek());
+
+            for (int i = 0; i < s.elements; i++)
+                glEnableVertexAttribArray(i);
+
             mesh.render();
 
             // -- temp -- //

@@ -9,4 +9,24 @@ public class Face {
         this.uvs = uvs;
         this.normals = normals;
     }
+
+    public int getVertexCount() {
+        return vertices.length;
+    }
+
+    public int getLength() {
+        return (vertices.length * 3) + (uvs.length * 2) + (normals.length * 3);
+    }
+
+    public int[] getVertices() {
+        return vertices;
+    }
+
+    public int[] getUVs() {
+        return uvs;
+    }
+
+    public int[] getNormals() {
+        return normals;
+    }
 }
