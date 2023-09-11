@@ -67,15 +67,10 @@ public class Movement {
         if (forward) movement.z -= 1;
         if (backward) movement.z += 1;
 
-        if (!movement.equals(0, 0, 0)) {
-            movement.mul(MOVE_SPEED * (sprint ? SPRINT_MULTIPLIER : 1));
-            camera.move(movement.x, movement.y, movement.z);
-            movement.set(0);
-        }
+        movement.mul(MOVE_SPEED * (sprint ? SPRINT_MULTIPLIER : 1));
+        camera.move(movement.x, movement.y, movement.z);
+        movement.set(0);
 
-        if (!rotation.equals(0, 0)) {
-            camera.rotate(rotation.x, rotation.y);
-            //rotation.set(0);
-        }
+        camera.rotate(rotation.x, rotation.y);
     }
 }

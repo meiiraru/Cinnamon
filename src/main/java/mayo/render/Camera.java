@@ -1,5 +1,6 @@
 package mayo.render;
 
+import mayo.utils.Meth;
 import mayo.utils.Rotation;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -10,12 +11,13 @@ public class Camera {
     public static final float FOV = 70f;
 
     private final Vector3f
+            opos = new Vector3f(),
             pos = new Vector3f(),
             forwards = new Vector3f(0f, 0f, -1f),
             up = new Vector3f(0f, 1f, 0f),
             left = new Vector3f(1f, 0f, 0f);
 
-    private float xRot, yRot;
+    private float oxRot, oyRot, xRot, yRot;
     private final Quaternionf rotation = new Quaternionf();
 
     private final Matrix4f
@@ -24,26 +26,27 @@ public class Camera {
             perspMatrix = new Matrix4f();
 
     public void move(float x, float y, float z) {
+        opos.set(pos);
         pos.add(new Vector3f(x, y, z).rotate(new Quaternionf().rotationY((float) Math.toRadians(-yRot))));
-        calculateMatrix();
     }
 
     public void rotate(float yaw, float pitch) {
+        this.oxRot = xRot;
+        this.oyRot = yRot;
         this.xRot = pitch;
         this.yRot = yaw;
         this.rotation.rotationYXZ((float) Math.toRadians(-yaw), (float) Math.toRadians(-pitch), 0f);
         this.forwards.set(0f, 0f, -1f).rotate(this.rotation);
         this.up.set(0f, 1f, 0f).rotate(this.rotation);
         this.left.set(1f, 0f, 0f).rotate(this.rotation);
-        calculateMatrix();
     }
 
-    private void calculateMatrix() {
+    private void calculateMatrix(float d) {
         viewMatrix.identity();
-        viewMatrix.rotate(Rotation.X.rotationDeg(xRot));
-        viewMatrix.rotate(Rotation.Y.rotationDeg(yRot));
+        viewMatrix.rotate(Rotation.X.rotationDeg(Meth.lerp(oxRot, xRot, d)));
+        viewMatrix.rotate(Rotation.Y.rotationDeg(Meth.lerp(oyRot, yRot, d)));
         //matrix.rotate(Rotation.Z.rotationDeg(180f));
-        viewMatrix.translate(-pos.x, -pos.y, -pos.z);
+        viewMatrix.translate(Meth.lerp(opos, pos, d).mul(-1));
     }
 
     public void updateProjMatrix(int width, int height) {
@@ -86,7 +89,8 @@ public class Camera {
         return new Vector3f(up);
     }
 
-    public Matrix4f getViewMatrix() {
+    public Matrix4f getViewMatrix(float delta) {
+        calculateMatrix(delta);
         return viewMatrix;
     }
 

@@ -66,7 +66,7 @@ public class Client {
 
         //render world
         if (world != null) {
-            matrices.peek().set(camera.getPerspectiveMatrix()).mul(camera.getViewMatrix());
+            matrices.peek().set(camera.getPerspectiveMatrix()).mul(camera.getViewMatrix(delta));
             world.render(renderer, matrices, delta);
         }
 
@@ -97,7 +97,7 @@ public class Client {
         Shader s = Shaders.MODEL.getShader();
         s.use();
         s.setProjectionMatrix(camera.getPerspectiveMatrix());
-        s.setViewMatrix(camera.getViewMatrix());
+        s.setViewMatrix(camera.getViewMatrix(delta));
 
         //render mesh 1
         matrices.push();
