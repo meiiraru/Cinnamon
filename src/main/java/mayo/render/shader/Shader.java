@@ -2,11 +2,13 @@ package mayo.render.shader;
 
 import mayo.utils.ColorUtils;
 import mayo.utils.IOUtils;
+import mayo.utils.Resource;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import static org.lwjgl.opengl.GL30.*;
@@ -15,14 +17,18 @@ public class Shader {
 
     public final int ID;
 
-    public Shader(String namespace, String path) {
-        this.ID = loadShader(namespace, path);
+    public Shader(Resource res) {
+        this.ID = loadShader(res);
     }
 
-    private static int loadShader(String namespace, String path) {
+    private static int loadShader(Resource res) {
         String src, vertexSource, fragmentSource;
         try {
-            src = new String(IOUtils.getResource(namespace, "shaders/" + path).readAllBytes(), StandardCharsets.UTF_8);
+            InputStream resource = IOUtils.getResource(res);
+            if (resource == null)
+                throw new RuntimeException("Resource not found: " + res);
+
+            src = new String(resource.readAllBytes(), StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

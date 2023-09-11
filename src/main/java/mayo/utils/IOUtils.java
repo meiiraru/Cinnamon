@@ -15,17 +15,18 @@ import static org.lwjgl.system.MemoryUtil.memSlice;
 
 public class IOUtils {
 
-    public static InputStream getResource(String namespace, String path) {
-        String resourcePath = "resources/" + namespace + "/" + path;
-        InputStream resource = IOUtils.class.getClassLoader().getResourceAsStream(resourcePath);
-        if (resource == null)
-            throw new RuntimeException("Resource not found: " + resourcePath);
-        return resource;
+    public static InputStream getResource(Resource res) {
+        String resourcePath = "resources/" + res.toString();
+        return IOUtils.class.getClassLoader().getResourceAsStream(resourcePath);
     }
 
-    public static ByteBuffer getResourceBuffer(String namespace, String path) {
+    public static ByteBuffer getResourceBuffer(Resource res) {
         try {
-            InputStream stream = getResource(namespace, path);
+            InputStream stream = getResource(res);
+
+            if (stream == null)
+                throw new RuntimeException("Resource not found: " + res);
+
             ByteBuffer fontBuffer = BufferUtils.createByteBuffer(stream.available() + 1);
             Channels.newChannel(stream).read(fontBuffer);
 

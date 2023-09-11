@@ -8,8 +8,8 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Movement {
 
-    private static final float MOVE_SPEED = 3f;
-    private static final float SPRINT_MULTIPLIER = 5f;
+    private static final float MOVE_SPEED = 1f;
+    private static final float SPRINT_MULTIPLIER = 3f;
     private static final float ROTATION_SPEED = 0.27f;
 
     //pos

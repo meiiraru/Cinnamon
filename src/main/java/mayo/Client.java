@@ -11,13 +11,13 @@ import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
+import mayo.utils.Resource;
 import mayo.utils.Timer;
 import mayo.world.World;
 import org.lwjgl.glfw.GLFW;
 
 public class Client {
 
-    public static final String NAMESPACE = "mayo";
     private static final Client INSTANCE = new Client();
 
     public int windowWidth = 854, windowHeight = 480;
@@ -40,7 +40,7 @@ public class Client {
     public void init() {
         this.camera = new Camera();
         this.camera.updateProjMatrix(scaledWidth, scaledHeight);
-        this.font = new Font(Client.NAMESPACE, "mayscript", 8);
+        this.font = new Font(new Resource("fonts/mayscript.ttf"), 8);
         this.movement = new Movement();
     }
 
@@ -88,9 +88,9 @@ public class Client {
 
         if (a) {
             a = false;
-            mesh = ObjLoader.load(Client.NAMESPACE, "teapot.obj");
+            mesh = ObjLoader.load(new Resource("models/teapot.obj"));
             mesh.bake();
-            mesh2 = ObjLoader.load(Client.NAMESPACE, "mesa/mesa01.obj");
+            mesh2 = ObjLoader.load(new Resource("models/mesa/mesa01.obj"));
             mesh2.bake();
         }
 

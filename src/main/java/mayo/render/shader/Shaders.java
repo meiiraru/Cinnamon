@@ -1,6 +1,6 @@
 package mayo.render.shader;
 
-import mayo.Client;
+import mayo.utils.Resource;
 
 public enum Shaders {
     MAIN,
@@ -10,7 +10,7 @@ public enum Shaders {
     private final Shader shader;
 
     Shaders() {
-        this.shader = new Shader(Client.NAMESPACE, this.name().toLowerCase() + ".glsl");
+        this.shader = new Shader(new Resource("shaders/" + this.name().toLowerCase() + ".glsl"));
     }
 
     public Shader getShader() {

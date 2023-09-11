@@ -19,7 +19,7 @@ public class Group {
     private final String name;
     private final List<Face> faces = new ArrayList<>();
 
-    private String material;
+    private Material material;
     private boolean smooth;
 
     //rendering
@@ -69,8 +69,17 @@ public class Group {
     }
 
     public void render() {
-        //draw
+        //bind vao
         glBindVertexArray(vao);
+
+        //bind material
+        if (material != null) {
+            material.use();
+        } else {
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+
+        //draw
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
     }
 
@@ -86,11 +95,11 @@ public class Group {
         return faces;
     }
 
-    public String getMaterial() {
+    public Material getMaterial() {
         return material;
     }
 
-    public void setMaterial(String material) {
+    public void setMaterial(Material material) {
         this.material = material;
     }
 

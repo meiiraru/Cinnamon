@@ -5,15 +5,15 @@ import mayo.model.GeometryHelper;
 import mayo.model.Renderable;
 import mayo.render.BatchRenderer;
 import mayo.render.MatrixStack;
-import mayo.render.shader.Shaders;
 import mayo.render.Texture;
+import mayo.render.shader.Shaders;
 
 public class UIHelper {
 
     private static final Texture[] BACKGROUND = new Texture[] {
-            new Texture(Client.NAMESPACE, "background/background_0.png"),
-            new Texture(Client.NAMESPACE, "background/background_1.png"),
-            new Texture(Client.NAMESPACE, "background/background_2.png")
+            new Texture(new Resource("textures/background/background_0.png")),
+            new Texture(new Resource("textures/background/background_1.png")),
+            new Texture(new Resource("textures/background/background_2.png"))
     };
 
     public static void renderBackground(BatchRenderer renderer, MatrixStack matrices, float delta) {

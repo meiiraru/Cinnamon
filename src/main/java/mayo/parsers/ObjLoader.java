@@ -4,17 +4,27 @@ import mayo.model.obj.Face;
 import mayo.model.obj.Group;
 import mayo.model.obj.Mesh2;
 import mayo.utils.IOUtils;
-import org.joml.Vector2f;
+import mayo.utils.Resource;
 import org.joml.Vector3f;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import static java.lang.Integer.parseInt;
+import static mayo.parsers.Parser.parseVec2;
+import static mayo.parsers.Parser.parseVec3;
+
 public class ObjLoader {
 
-    public static Mesh2 load(String namespace, String path) {
-        InputStream stream = IOUtils.getResource(namespace, "models/" + path);
+    public static Mesh2 load(Resource res) {
+        InputStream stream = IOUtils.getResource(res);
+        String path = res.getPath();
+        String folder = path.substring(0, path.lastIndexOf("/") + 1);
+
+        if (stream == null)
+            throw new RuntimeException("Resource not found: " + res);
+
         try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
             Mesh2 theMesh = new Mesh2();
             Group currentGroup = new Group("default");
@@ -28,7 +38,7 @@ public class ObjLoader {
                 String[] split = line.split(" ");
                 switch (split[0]) {
                     //material file
-                    case "mtllib" -> theMesh.setMtllib(split[1]);
+                    case "mtllib" -> theMesh.getMaterials().putAll(MtlLoader.load(new Resource(res.getNamespace(), folder + split[1])));
 
                     //group
                     case "g" -> {
@@ -41,7 +51,7 @@ public class ObjLoader {
                     case "s" -> currentGroup.setSmooth(!split[1].contains("off"));
 
                     //group material
-                    case "usemtl" -> currentGroup.setMaterial(split[1]);
+                    case "usemtl" -> currentGroup.setMaterial(theMesh.getMaterials().get(split[1]));
 
                     //vertex
                     case "v" -> {
@@ -84,16 +94,8 @@ public class ObjLoader {
         }
     }
 
-    private static Vector2f parseVec2(String x, String y) {
-        return new Vector2f(Float.parseFloat(x), Float.parseFloat(y));
-    }
-
-    private static Vector3f parseVec3(String x, String y, String z) {
-        return new Vector3f(Float.parseFloat(x), Float.parseFloat(y), Float.parseFloat(z));
-    }
-
     private static int[] parseFace(String vertex) {
         String[] s = vertex.split("/");
-        return new int[]{Integer.parseInt(s[0]) - 1, Integer.parseInt(s[1]) - 1, Integer.parseInt(s[2]) - 1};
+        return new int[]{parseInt(s[0]) - 1, parseInt(s[1]) - 1, parseInt(s[2]) - 1};
     }
 }

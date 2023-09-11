@@ -29,12 +29,13 @@ in vec3 normal;
 out vec4 fragColor;
 
 void main() {
-    fragColor = vec4(normal, 1.0f);
-//    //texture
-//    vec4 tex = texture(textureSampler, texCoords);
-//    if (tex.a <= 0.01f)
-//        discard;
-//
-//    //out color
-//    fragColor = tex;
+    //fragColor = vec4(normal, 1.0f);
+
+    //texture
+    vec4 tex = texture(textureSampler, texCoords);
+    if (tex.a <= 0.01f)
+        discard;
+
+    //out color
+    fragColor = tex;
 }

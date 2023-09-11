@@ -5,6 +5,7 @@ import mayo.model.Vertex;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.IOUtils;
+import mayo.utils.Resource;
 import mayo.utils.TextUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
@@ -51,8 +52,8 @@ public class Font {
 
     // -- font initialization -- //
 
-    public Font(String namespace, String name, float height) {
-        this.ttf = IOUtils.getResourceBuffer(namespace, "fonts/" + name + ".ttf");
+    public Font(Resource res, float height) {
+        this.ttf = IOUtils.getResourceBuffer(res);
         this.lineHeight = height;
         this.charData = STBTTPackedchar.malloc(0xFFFF);
         this.textureID = glGenTextures();

@@ -5,7 +5,9 @@ import org.joml.Vector3f;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.glBufferSubData;
@@ -28,8 +30,9 @@ public class Mesh2 {
             bbMin = new Vector3f(),
             bbMax = new Vector3f();
 
-    //other properties
-    private String mtllib;
+    //materials
+    private final Map<String, Material>
+            materials = new HashMap<>();
 
 
     // -- loading and drawing -- //
@@ -100,11 +103,7 @@ public class Mesh2 {
         return bbMax;
     }
 
-    public void setMtllib(String mtllib) {
-        this.mtllib = mtllib;
-    }
-
-    public String getMtllib() {
-        return mtllib;
+    public Map<String, Material> getMaterials() {
+        return materials;
     }
 }
