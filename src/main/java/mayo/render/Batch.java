@@ -82,6 +82,7 @@ public class Batch {
 
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
+        glActiveTexture(GL_TEXTURE0);
 
         //finish renderer
         textures.clear();

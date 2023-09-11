@@ -124,6 +124,7 @@ public class Client {
         //render mesh 4
         matrices.push();
         matrices.scale(2f);
+        matrices.translate(0, -mesh4.getBBMin().y, 0);
         s.setModelMatrix(matrices.peek());
         mesh4.render();
         matrices.pop();
