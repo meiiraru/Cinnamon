@@ -92,7 +92,7 @@ public class Client {
             mesh = ObjLoader.load(new Resource("models/teapot.obj")).bake();
             mesh2 = ObjLoader.load(new Resource("models/mesa/mesa01.obj")).bake();
             mesh3 = ObjLoader.load(new Resource("models/bunny.obj")).bake();
-            mesh4 = ObjLoader.load(new Resource("models/pyramid/pyramid.obj")).bake();
+            mesh4 = ObjLoader.load(new Resource("models/cube/cube.obj")).bake();
         }
 
         Shader s = Shaders.MODEL.getShader();
@@ -123,7 +123,7 @@ public class Client {
 
         //render mesh 4
         matrices.push();
-        matrices.scale(1f);
+        matrices.scale(2f);
         s.setModelMatrix(matrices.peek());
         mesh4.render();
         matrices.pop();

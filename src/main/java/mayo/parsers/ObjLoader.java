@@ -5,6 +5,7 @@ import mayo.model.obj.Group;
 import mayo.model.obj.Mesh2;
 import mayo.utils.IOUtils;
 import mayo.utils.Resource;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.io.BufferedReader;
@@ -13,9 +14,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Float.parseFloat;
 import static java.lang.Integer.parseInt;
-import static mayo.parsers.Parser.parseVec2;
-import static mayo.parsers.Parser.parseVec3;
+import static mayo.utils.Meth.parseVec3;
 
 public class ObjLoader {
 
@@ -64,7 +65,7 @@ public class ObjLoader {
                     }
 
                     //uv
-                    case "vt" -> theMesh.getUVs().add(parseVec2(split[1], split[2]));
+                    case "vt" -> theMesh.getUVs().add(new Vector2f(parseFloat(split[1]), 1 - parseFloat(split[2])));
 
                     //normal
                     case "vn" -> theMesh.getNormals().add(parseVec3(split[1], split[2], split[3]));

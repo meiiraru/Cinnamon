@@ -13,7 +13,7 @@ import java.util.Map;
 
 import static java.lang.Float.parseFloat;
 import static java.lang.Integer.parseInt;
-import static mayo.parsers.Parser.parseVec3;
+import static mayo.utils.Meth.parseVec3;
 
 public class MtlLoader {
 
