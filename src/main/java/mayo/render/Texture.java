@@ -41,7 +41,7 @@ public class Texture {
             IntBuffer h = stack.mallocInt(1);
             IntBuffer channels = stack.mallocInt(1);
 
-            ByteBuffer imageBuffer = IOUtils.getResourceBuffer(namespace, "textures/" + path + ".png");
+            ByteBuffer imageBuffer = IOUtils.getResourceBuffer(namespace, "textures/" + path);
             ByteBuffer buffer = STBImage.stbi_load_from_memory(imageBuffer, w, h, channels, 4);
             if (buffer == null)
                 throw new Exception("Failed to load image \"" + path + "\", " + STBImage.stbi_failure_reason());

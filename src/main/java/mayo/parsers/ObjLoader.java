@@ -1,5 +1,8 @@
-package mayo.model.obj;
+package mayo.parsers;
 
+import mayo.model.obj.Face;
+import mayo.model.obj.Group;
+import mayo.model.obj.Mesh2;
 import mayo.utils.IOUtils;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -11,7 +14,7 @@ import java.io.InputStreamReader;
 public class ObjLoader {
 
     public static Mesh2 load(String namespace, String path) {
-        InputStream stream = IOUtils.getResource(namespace, "models/" + path + ".obj");
+        InputStream stream = IOUtils.getResource(namespace, "models/" + path);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
             Mesh2 theMesh = new Mesh2();
             Group currentGroup = new Group("default");

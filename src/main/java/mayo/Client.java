@@ -4,7 +4,7 @@ import mayo.gui.Screen;
 import mayo.gui.screens.MainMenu;
 import mayo.input.Movement;
 import mayo.model.obj.Mesh2;
-import mayo.model.obj.ObjLoader;
+import mayo.parsers.ObjLoader;
 import mayo.render.BatchRenderer;
 import mayo.render.Camera;
 import mayo.render.Font;
@@ -13,6 +13,7 @@ import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
 import mayo.utils.Timer;
 import mayo.world.World;
+import org.lwjgl.glfw.GLFW;
 
 public class Client {
 
@@ -40,7 +41,6 @@ public class Client {
         this.camera = new Camera();
         this.camera.updateProjMatrix(scaledWidth, scaledHeight);
         this.font = new Font(Client.NAMESPACE, "mayscript", 8);
-        this.screen = new MainMenu();
         this.movement = new Movement();
     }
 
@@ -77,8 +77,8 @@ public class Client {
             world.renderHUD(renderer, matrices, delta);
 
         //render gui
-        //if (this.screen != null)
-        //    screen.render(renderer, matrices, delta);
+        if (this.screen != null)
+            screen.render(renderer, matrices, delta);
 
         matrices.pop();
 
@@ -88,9 +88,9 @@ public class Client {
 
         if (a) {
             a = false;
-            mesh = ObjLoader.load(Client.NAMESPACE, "teapot");
+            mesh = ObjLoader.load(Client.NAMESPACE, "teapot.obj");
             mesh.bake();
-            mesh2 = ObjLoader.load(Client.NAMESPACE, "mesa/mesa01");
+            mesh2 = ObjLoader.load(Client.NAMESPACE, "mesa/mesa01.obj");
             mesh2.bake();
         }
 
@@ -135,6 +135,9 @@ public class Client {
     public void keyPress(int key, int scancode, int action, int mods) {
         movement.keyPress(key, action);
         if (screen != null) screen.keyPress(key, scancode, action, mods);
+
+        if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_F1)
+            this.screen = this.screen == null ? new MainMenu() : null;
     }
 
     public void charTyped(char c, int mods) {

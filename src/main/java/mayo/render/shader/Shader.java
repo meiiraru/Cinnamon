@@ -15,14 +15,14 @@ public class Shader {
 
     public final int ID;
 
-    public Shader(String namespace, String name) {
-        this.ID = loadShader(namespace, name);
+    public Shader(String namespace, String path) {
+        this.ID = loadShader(namespace, path);
     }
 
-    private static int loadShader(String namespace, String name) {
+    private static int loadShader(String namespace, String path) {
         String src, vertexSource, fragmentSource;
         try {
-            src = new String(IOUtils.getResource(namespace, "shaders/" + name + ".glsl").readAllBytes(), StandardCharsets.UTF_8);
+            src = new String(IOUtils.getResource(namespace, "shaders/" + path).readAllBytes(), StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

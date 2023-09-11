@@ -10,7 +10,7 @@ public enum Shaders {
     private final Shader shader;
 
     Shaders() {
-        this.shader = new Shader(Client.NAMESPACE, this.name().toLowerCase());
+        this.shader = new Shader(Client.NAMESPACE, this.name().toLowerCase() + ".glsl");
     }
 
     public Shader getShader() {

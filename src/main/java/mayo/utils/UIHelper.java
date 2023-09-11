@@ -11,9 +11,9 @@ import mayo.render.Texture;
 public class UIHelper {
 
     private static final Texture[] BACKGROUND = new Texture[] {
-            new Texture(Client.NAMESPACE, "background/background_0"),
-            new Texture(Client.NAMESPACE, "background/background_1"),
-            new Texture(Client.NAMESPACE, "background/background_2")
+            new Texture(Client.NAMESPACE, "background/background_0.png"),
+            new Texture(Client.NAMESPACE, "background/background_1.png"),
+            new Texture(Client.NAMESPACE, "background/background_2.png")
     };
 
     public static void renderBackground(BatchRenderer renderer, MatrixStack matrices, float delta) {
