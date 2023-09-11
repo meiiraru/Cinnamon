@@ -10,6 +10,8 @@ import org.joml.Vector3f;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.Integer.parseInt;
 import static mayo.parsers.Parser.parseVec2;
@@ -68,18 +70,7 @@ public class ObjLoader {
                     case "vn" -> theMesh.getNormals().add(parseVec3(split[1], split[2], split[3]));
 
                     //faces
-                    case "f" -> {
-                        // v/vt/vn v/vt/vn v/vt/vn
-                        int[] v1 = parseFace(split[1]);
-                        int[] v2 = parseFace(split[2]);
-                        int[] v3 = parseFace(split[3]);
-
-                        currentGroup.getFaces().add(new Face(
-                                new int[]{v1[0], v2[0], v3[0]},
-                                new int[]{v1[1], v2[1], v3[1]},
-                                new int[]{v1[2], v2[2], v3[2]}
-                        ));
-                    }
+                    case "f" -> currentGroup.getFaces().add(parseFace(split));
                 }
             }
 
@@ -94,8 +85,35 @@ public class ObjLoader {
         }
     }
 
-    private static int[] parseFace(String vertex) {
-        String[] s = vertex.split("/");
-        return new int[]{parseInt(s[0]) - 1, parseInt(s[1]) - 1, parseInt(s[2]) - 1};
+    private static Face parseFace(String[] split) {
+        //prepare arrays
+        List<Integer>
+                v = new ArrayList<>(),
+                vt = new ArrayList<>(),
+                vn = new ArrayList<>();
+
+        //fill arrays
+        for (int i = 0; i < split.length - 1; i++) {
+            String[] vtx = split[i + 1].split("/");
+
+            //v is always present
+            v.add(parseInt(vtx[0]) - 1);
+
+            //try v/vt/vn
+            if (vtx.length == 3) {
+                //vn present
+                vn.add(parseInt(vtx[2]) - 1);
+
+                //test for vt (v//vn)
+                if (!vtx[1].isBlank())
+                    vt.add(parseInt(vtx[1]) - 1);
+            }
+            //then try v/vt
+            else if (vtx.length == 2) {
+                vt.add(parseInt(vtx[1]) - 1);
+            }
+        }
+
+        return new Face(v, vt, vn);
     }
 }

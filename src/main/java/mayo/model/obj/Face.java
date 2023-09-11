@@ -1,32 +1,48 @@
 package mayo.model.obj;
 
+import mayo.render.shader.Attributes;
+
+import java.util.List;
+
 public class Face {
 
-    private final int[] vertices, uvs, normals;
+    private final List<Integer> vertices, uvs, normals;
 
-    public Face(int[] vertices, int[] uvs, int[] normals) {
+    public Face(List<Integer> vertices, List<Integer> uvs, List<Integer> normals) {
         this.vertices = vertices;
         this.uvs = uvs;
         this.normals = normals;
     }
 
     public int getVertexCount() {
-        return vertices.length;
+        return vertices.size();
     }
 
     public int getLength() {
-        return (vertices.length * 3) + (uvs.length * 2) + (normals.length * 3);
+        return (vertices.size() * 3) + (uvs.size() * 2) + (normals.size() * 3);
     }
 
-    public int[] getVertices() {
+    public int getAttributesFlag() {
+        //always present
+        int flags = Attributes.POS;
+
+        if (!uvs.isEmpty())
+            flags |= Attributes.UV;
+        if (!normals.isEmpty())
+            flags |= Attributes.NORMAL;
+
+        return flags;
+    }
+
+    public List<Integer> getVertices() {
         return vertices;
     }
 
-    public int[] getUVs() {
+    public List<Integer> getUVs() {
         return uvs;
     }
 
-    public int[] getNormals() {
+    public List<Integer> getNormals() {
         return normals;
     }
 }

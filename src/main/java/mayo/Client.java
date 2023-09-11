@@ -12,6 +12,7 @@ import mayo.render.MatrixStack;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
 import mayo.utils.Resource;
+import mayo.utils.Rotation;
 import mayo.utils.Timer;
 import mayo.world.World;
 import org.lwjgl.glfw.GLFW;
@@ -88,10 +89,9 @@ public class Client {
 
         if (a) {
             a = false;
-            mesh = ObjLoader.load(new Resource("models/teapot.obj"));
-            mesh.bake();
-            mesh2 = ObjLoader.load(new Resource("models/mesa/mesa01.obj"));
-            mesh2.bake();
+            mesh = ObjLoader.load(new Resource("models/teapot.obj")).bake();
+            mesh2 = ObjLoader.load(new Resource("models/mesa/mesa01.obj")).bake();
+            mesh3 = ObjLoader.load(new Resource("models/bunny.obj")).bake();
         }
 
         Shader s = Shaders.MODEL.getShader();
@@ -110,8 +110,17 @@ public class Client {
         //render mesh 2
         s.setModelMatrix(matrices.peek());
         mesh2.render();
+
+        //render mesh 3
+        matrices.push();
+        matrices.translate(-3f, (mesh2.getBBMax().y - mesh2.getBBMin().y) - 1f, -4f);
+        matrices.rotate(Rotation.Y.rotationDeg(ticks + delta));
+        matrices.scale(30f);
+        s.setModelMatrix(matrices.peek());
+        mesh3.render();
+        matrices.pop();
     }
-    private Mesh2 mesh, mesh2;
+    private Mesh2 mesh, mesh2, mesh3;
     private boolean a = true;
 
     private void tick() {

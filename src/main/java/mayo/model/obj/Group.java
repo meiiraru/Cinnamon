@@ -45,7 +45,7 @@ public class Group {
             vertexCount += face.getVertexCount();
         }
 
-        int flags = Attributes.POS | Attributes.UV | Attributes.NORMAL;
+        int flags = faces.get(0).getAttributesFlag();
         Pair<Integer, Integer> attrib = Attributes.getAttributes(flags);
 
         //vao

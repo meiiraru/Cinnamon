@@ -38,25 +38,29 @@ public class Mesh2 {
     // -- loading and drawing -- //
 
 
-    public void bake() {
+    public Mesh2 bake() {
         for (Group group : groups) {
             FloatBuffer buffer = group.generateBuffers();
 
             for (Face face : group.getFaces()) {
-                int[] v = face.getVertices();
-                int[] vt = face.getUVs();
-                int[] vn = face.getNormals();
+                List<Integer> v = face.getVertices();
+                List<Integer> vt = face.getUVs();
+                List<Integer> vn = face.getNormals();
 
-                for (int i = 0; i < v.length; i++) {
-                    fillBuffer(buffer, vertices.get(v[i]));
-                    fillBuffer(buffer, uvs.get(vt[i]));
-                    fillBuffer(buffer, normals.get(vn[i]));
+                for (int i = 0; i < v.size(); i++) {
+                    fillBuffer(buffer, vertices.get(v.get(i)));
+                    if (!vt.isEmpty())
+                        fillBuffer(buffer, uvs.get(vt.get(i)));
+                    if (!vn.isEmpty())
+                        fillBuffer(buffer, normals.get(vn.get(i)));
                 }
             }
 
             buffer.rewind();
             glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
         }
+
+        return this;
     }
 
     private static void fillBuffer(FloatBuffer buffer, Vector2f vec) {

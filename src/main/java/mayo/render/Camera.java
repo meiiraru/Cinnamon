@@ -51,7 +51,7 @@ public class Camera {
 
     public void updateProjMatrix(int width, int height) {
         perspMatrix.set(new Matrix4f().perspective((float) Math.toRadians(Camera.FOV), (float) width / height, 0.1f, 1000f));
-        orthoMatrix.set(new Matrix4f().ortho(0, width, height, 0, -1000, 1000));
+        orthoMatrix.set(new Matrix4f().ortho(0, width, height, 0, 0, 1000));
     }
 
     public void billboard(Matrix4f matrix) {
