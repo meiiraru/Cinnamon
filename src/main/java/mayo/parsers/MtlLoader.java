@@ -35,7 +35,7 @@ public class MtlLoader {
                     continue;
 
                 //grab first word on the line
-                String[] split = line.split(" ");
+                String[] split = line.trim().replaceAll(" +", " ").split(" ");
                 switch (split[0]) {
                     //create new material
                     case "newmtl" -> {

@@ -92,6 +92,7 @@ public class Client {
             mesh = ObjLoader.load(new Resource("models/teapot.obj")).bake();
             mesh2 = ObjLoader.load(new Resource("models/mesa/mesa01.obj")).bake();
             mesh3 = ObjLoader.load(new Resource("models/bunny.obj")).bake();
+            mesh4 = ObjLoader.load(new Resource("models/pyramid/pyramid.obj")).bake();
         }
 
         Shader s = Shaders.MODEL.getShader();
@@ -119,8 +120,15 @@ public class Client {
         s.setModelMatrix(matrices.peek());
         mesh3.render();
         matrices.pop();
+
+        //render mesh 4
+        matrices.push();
+        matrices.scale(1f);
+        s.setModelMatrix(matrices.peek());
+        mesh4.render();
+        matrices.pop();
     }
-    private Mesh2 mesh, mesh2, mesh3;
+    private Mesh2 mesh, mesh2, mesh3, mesh4;
     private boolean a = true;
 
     private void tick() {

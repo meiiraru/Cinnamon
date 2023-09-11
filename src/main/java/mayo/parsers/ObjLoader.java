@@ -37,7 +37,7 @@ public class ObjLoader {
                     continue;
 
                 //grab first word on the line
-                String[] split = line.split(" ");
+                String[] split = line.trim().replaceAll(" +", " ").split(" ");
                 switch (split[0]) {
                     //material file
                     case "mtllib" -> theMesh.getMaterials().putAll(MtlLoader.load(new Resource(res.getNamespace(), folder + split[1])));
@@ -114,6 +114,33 @@ public class ObjLoader {
             }
         }
 
-        return new Face(v, vt, vn);
+        //convert quads to tris
+
+        //prepare arrays again
+        List<Integer>
+                vertices = new ArrayList<>(),
+                uvs = new ArrayList<>(),
+                normals = new ArrayList<>();
+
+        //fill arrays
+        for (int i = 1; i <= v.size() - 2; i++) {
+            vertices.add(v.get(0));
+            vertices.add(v.get(i));
+            vertices.add(v.get(i + 1));
+
+            if (!vt.isEmpty()) {
+                uvs.add(vt.get(0));
+                uvs.add(vt.get(i));
+                uvs.add(vt.get(i + 1));
+            }
+
+            if (!vn.isEmpty()) {
+                normals.add(vn.get(0));
+                normals.add(vn.get(i));
+                normals.add(vn.get(i + 1));
+            }
+        }
+
+        return new Face(vertices, uvs, normals);
     }
 }
