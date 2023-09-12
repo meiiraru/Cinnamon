@@ -68,6 +68,10 @@ public class Vertex implements Comparable<Vertex> {
         return this.normal;
     }
 
+    public int getIndex() {
+        return index;
+    }
+
     @Override
     public String toString() {
         return String.format("[Pos]: %s, %s, %s [UV]: %s, %s [Color]: %s, %s, %s [Normal] %s, %s, %s",

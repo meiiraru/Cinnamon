@@ -19,6 +19,9 @@ import mayo.utils.Timer;
 import mayo.world.World;
 import org.lwjgl.glfw.GLFW;
 
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.glClear;
+
 public class Client {
 
     private static final Client INSTANCE = new Client();
@@ -74,14 +77,17 @@ public class Client {
         }
 
         //render hud
+        glClear(GL_DEPTH_BUFFER_BIT);
         matrices.peek().set(camera.getOrthographicMatrix());
 
         if (world != null)
             world.renderHUD(matrices, delta);
 
         //render gui
-        if (this.screen != null)
+        if (this.screen != null) {
+            glClear(GL_DEPTH_BUFFER_BIT);
             screen.render(matrices, delta);
+        }
 
         matrices.pop();
 

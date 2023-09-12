@@ -9,7 +9,7 @@ import org.joml.Vector3f;
 public class FontBatch extends Batch {
 
     public FontBatch() {
-        super(Shaders.FONT, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR);
+        super(Shaders.FONT, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR | Attributes.INDEX);
     }
 
     @Override
@@ -32,5 +32,8 @@ public class FontBatch extends Batch {
         buffer.put(color.x);
         buffer.put(color.y);
         buffer.put(color.z);
+
+        //put index
+        buffer.put(vertex.getIndex());
     }
 }
