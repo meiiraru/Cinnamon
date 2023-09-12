@@ -48,8 +48,8 @@ public class GeometryHelper {
         float y1 = y0 + height;
 
         //temp
-        float u0 = 0.6171875f;
-        float u1 = 0.6328125f;
+        float u0 = 0.8457031f;
+        float u1 = 0.8613281f;
         float v0 = 0.037109375f;
         float v1 = 0.052734375f;
 

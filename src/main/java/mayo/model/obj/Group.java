@@ -73,14 +73,14 @@ public class Group {
         glBindVertexArray(vao);
 
         //bind material
-        if (material != null) {
+        if (material != null)
             material.use();
-        } else {
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
 
         //draw
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+
+        //unbind texture
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
 
