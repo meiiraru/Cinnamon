@@ -1,8 +1,7 @@
 package mayo.model;
 
 import mayo.render.Texture;
-
-import java.util.List;
+import org.joml.Matrix4f;
 
 public class GeometryHelper {
 
@@ -43,21 +42,15 @@ public class GeometryHelper {
         }, texture);
     }
 
-    public static List<Vertex> quad(float x0, float y0, float z, float width, float height, int color, int level) {
+    public static Vertex[] quad(Matrix4f matrix, float x0, float y0, float z, float width, float height, int color) {
         float x1 = x0 + width;
         float y1 = y0 + height;
 
-        //temp
-        float u0 = 0.8457031f;
-        float u1 = 0.8613281f;
-        float v0 = 0.037109375f;
-        float v1 = 0.052734375f;
-
-        return List.of(
-                Vertex.of(x0, y0, z).uv(u0, v0).color(color).index(level),
-                Vertex.of(x1, y0, z).uv(u1, v0).color(color).index(level),
-                Vertex.of(x1, y1, z).uv(u1, v1).color(color).index(level),
-                Vertex.of(x0, y1, z).uv(u0, v1).color(color).index(level)
-        );
+        return new Vertex[]{
+                Vertex.of(x0, y0, z).color(color).mulPosition(matrix),
+                Vertex.of(x1, y0, z).color(color).mulPosition(matrix),
+                Vertex.of(x1, y1, z).color(color).mulPosition(matrix),
+                Vertex.of(x0, y1, z).color(color).mulPosition(matrix)
+        };
     }
 }

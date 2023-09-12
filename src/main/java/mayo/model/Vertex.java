@@ -1,6 +1,7 @@
 package mayo.model;
 
 import mayo.utils.ColorUtils;
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -43,6 +44,11 @@ public class Vertex implements Comparable<Vertex> {
 
     public Vertex index(int index) {
         this.index = index;
+        return this;
+    }
+
+    public Vertex mulPosition(Matrix4f mat) {
+        pos.mulPosition(mat);
         return this;
     }
 

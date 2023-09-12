@@ -37,23 +37,23 @@ public class Attributes {
 
         //create attributes
         if ((flags & POS) == POS) {
-            glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer * Float.BYTES);
-            pointer += 3;
+            glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, 0);
+            pointer += 3 * Float.BYTES;
         }
         if ((flags & TEXTURE_ID) == TEXTURE_ID) {
-            glVertexAttribPointer(index++, 1, GL_FLOAT, false, stride, pointer * Float.BYTES);
-            pointer += 1;
+            glVertexAttribPointer(index++, 1, GL_FLOAT, true, stride, pointer);
+            pointer += Float.BYTES;
         }
         if ((flags & UV) == UV) {
-            glVertexAttribPointer(index++, 2, GL_FLOAT, false, stride, pointer * Float.BYTES);
-            pointer += 2;
+            glVertexAttribPointer(index++, 2, GL_FLOAT, false, stride, pointer);
+            pointer += 2 * Float.BYTES;
         }
         if ((flags & COLOR) == COLOR) {
-            glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer * Float.BYTES);
-            pointer += 3;
+            glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer);
+            pointer += 3 * Float.BYTES;
         }
         if ((flags & NORMAL) == NORMAL) {
-            glVertexAttribPointer(index, 3, GL_FLOAT, false, stride, pointer * Float.BYTES);
+            glVertexAttribPointer(index, 3, GL_FLOAT, false, stride, pointer);
         }
     }
 }

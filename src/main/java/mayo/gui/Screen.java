@@ -28,23 +28,23 @@ public class Screen {
         }
     }
 
-    public void render(BatchRenderer renderer, MatrixStack matrices, float delta) {
-        preRender(renderer, matrices, delta);
-        renderChildren(renderer, matrices, delta);
-        postRender(renderer, matrices, delta);
+    public void render(MatrixStack matrices, float delta) {
+        preRender(matrices, delta);
+        renderChildren(matrices, delta);
+        postRender(matrices, delta);
     }
 
-    protected void preRender(BatchRenderer renderer, MatrixStack matrices, float delta) {
-        UIHelper.renderBackground(renderer, matrices, delta);
+    protected void preRender(MatrixStack matrices, float delta) {
+        UIHelper.renderBackground(matrices, delta);
     }
 
-    protected void renderChildren(BatchRenderer renderer, MatrixStack matrices, float delta) {
+    protected void renderChildren(MatrixStack matrices, float delta) {
         for (Widget widget : this.widgets) {
-            widget.render(renderer, matrices);
+            widget.render(matrices);
         }
     }
 
-    protected void postRender(BatchRenderer renderer, MatrixStack matrices, float delta) {}
+    protected void postRender(MatrixStack matrices, float delta) {}
 
     public void mousePress(int button, int action, int mods) {
         for (Widget widget : this.widgets) {

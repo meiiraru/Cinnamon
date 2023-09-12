@@ -1,11 +1,10 @@
 package mayo.gui.widgets;
 
-import mayo.render.BatchRenderer;
 import mayo.render.MatrixStack;
 
 public interface Widget {
 
-    void render(BatchRenderer renderer, MatrixStack stack);
+    void render(MatrixStack stack);
 
     default boolean mousePress(int button, int action, int mods) {
         return false;

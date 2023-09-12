@@ -1,12 +1,13 @@
 package mayo.render;
 
-import mayo.model.Renderable;
 import mayo.model.Vertex;
+import mayo.render.batch.FontBatch;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.IOUtils;
 import mayo.utils.Resource;
 import mayo.utils.TextUtils;
+import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
 import org.lwjgl.stb.STBTTPackContext;
@@ -40,6 +41,9 @@ public class Font {
     //buffers
     private final STBTTAlignedQuad q = STBTTAlignedQuad.malloc();
     private final FloatBuffer xb = memAllocFloat(1), yb = memAllocFloat(1);
+
+    //rendering
+    private final FontBatch batch = new FontBatch();
 
     //fields
     private final ByteBuffer ttf;
@@ -89,26 +93,26 @@ public class Font {
 
     // -- font rendering -- //
 
-    public Renderable bake(Text text) {
-        return bake(text, TextUtils.Alignment.LEFT);
+    public void finishBatch(Matrix4f proj, Matrix4f view) {
+        batch.render(proj, view);
     }
 
-    public Renderable bake(Text text, TextUtils.Alignment alignment) {
+    public void render(Matrix4f matrix, Text text) {
+        render(matrix, text, TextUtils.Alignment.LEFT);
+    }
+
+    public void render(Matrix4f matrix, Text text, TextUtils.Alignment alignment) {
         List<Text> list = TextUtils.split(text, "\n");
-        List<Vertex> vertices = new ArrayList<>();
 
         for (int i = 0; i < list.size(); i++) {
             Text t = list.get(i);
             int x = (int) alignment.apply(this, t);
             int y = (int) (lineHeight * (i + 1) - 1);
-            bake(vertices, t, x, y);
+            bake(matrix, t, x, y);
         }
-
-        vertices.sort(Vertex::compareTo);
-        return new Renderable(vertices.toArray(new Vertex[0]), textureID);
     }
 
-    private void bake(List<Vertex> list, Text text, float x, float y) {
+    private void bake(Matrix4f matrix, Text text, float x, float y) {
         //prepare vars
         boolean[] prevItalic = {false};
         xb.put(0, 0f); yb.put(0, 0f);
@@ -138,7 +142,7 @@ public class Font {
 
             //main render
             int color = Objects.requireNonNullElse(style.getColor(), -1);
-            bakeString(list, s, italic, bold, obf, under, strike, x, y, color, 0);
+            bakeString(matrix, s, italic, bold, obf, under, strike, x, y, 0f, color);
 
             //backup final buffer
             float finalX = xb.get(0), finalY = yb.get(0);
@@ -147,7 +151,7 @@ public class Font {
             if (shadow) {
                 xb.put(0, initialX + SHADOW_OFFSET); yb.put(0, initialY + SHADOW_OFFSET);
                 int sc = Objects.requireNonNullElse(style.getShadowColor(), SHADOW_COLOR);
-                bakeString(list, s, italic, bold, obf, under, strike, x, y, sc, -1);
+                bakeString(matrix, s, italic, bold, obf, under, strike, x, y, -Z_OFFSET, sc);
             }
 
             //render outline
@@ -156,7 +160,7 @@ public class Font {
                 for (int i = -SHADOW_OFFSET; i <= SHADOW_OFFSET; i += SHADOW_OFFSET) {
                     for (int j = -SHADOW_OFFSET; j <= SHADOW_OFFSET; j += SHADOW_OFFSET) {
                         xb.put(0, initialX + i); yb.put(0, initialY + j);
-                        bakeString(list, s, italic, bold, obf, under, strike, x, y, oc, -2);
+                        bakeString(matrix, s, italic, bold, obf, under, strike, x, y, Z_OFFSET * -2, oc);
                     }
                 }
             }
@@ -179,7 +183,7 @@ public class Font {
                 }
 
                 int bgc = Objects.requireNonNullElse(style.getBackgroundColor(), SHADOW_COLOR);
-                list.addAll(quad(x0, y0, Z_OFFSET * -3, w, h, bgc, -3));
+                batch.pushFace(quad(matrix, x0, y0, Z_OFFSET * -3, w, h, bgc), 0);
             }
 
             //restore buffer data
@@ -187,18 +191,17 @@ public class Font {
         }, Style.EMPTY);
     }
 
-    private void bakeString(List<Vertex> list, String s, boolean italic, boolean bold, boolean obfuscated, boolean underlined, boolean strikethrough, float x, float y, int color, int level) {
+    private void bakeString(Matrix4f matrix, String s, boolean italic, boolean bold, boolean obfuscated, boolean underlined, boolean strikethrough, float x, float y, float z, int color) {
         //prepare vars
         RANDOM.setSeed(SEED);
         float preX = xb.get(0);
-        float z = Z_OFFSET * level;
 
         //render chars
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             if (obfuscated && c != ' ') //32
                 c = getRandomChar(c);
-            bakeChar(list, c, italic, bold, x, y, z, color, level);
+            bakeChar(matrix, c, italic, bold, x, y, z, color);
         }
 
         //extra rendering
@@ -207,14 +210,14 @@ public class Font {
 
         //underline
         if (underlined)
-            list.addAll(quad(x0, y0, z, width, 1f, color, level));
+            batch.pushFace(quad(matrix, x0, y0, z, width, 1f, color), 0);
 
         //strikethrough
         if (strikethrough)
-            list.addAll(quad(x0, y0 - (int) (lineHeight / 2 - 1), z, width, 1f, color, level));
+            batch.pushFace(quad(matrix, x0, y0 - (int) (lineHeight / 2 - 1), z, width, 1f, color), 0);
     }
 
-    private void bakeChar(List<Vertex> list, char c, boolean italic, boolean bold, float x, float y, float z, int color, int level) {
+    private void bakeChar(Matrix4f matrix, char c, boolean italic, boolean bold, float x, float y, float z, int color) {
         stbtt_GetPackedQuad(charData, TEXTURE_W, TEXTURE_H, c, xb, yb, q, false);
 
         float
@@ -222,6 +225,9 @@ public class Font {
                 y0 = q.y0(), y1 = q.y1(),
                 u0 = q.s0(), u1 = q.s1(),
                 v0 = q.t0(), v1 = q.t1();
+
+        if (x0 == x1 || y0 == y1)
+            return;
 
         float i0 = 0f, i1 = 0f;
         if (italic) {
@@ -232,20 +238,22 @@ public class Font {
         x0 += x; x1 += x;
         y0 += y; y1 += y;
 
-        bakeQuad(list, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color, level);
+        batch.pushFace(bakeQuad(matrix, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color), textureID);
 
         if (bold) {
             xb.put(0, xb.get(0) + BOLD_OFFSET);
             x0 += BOLD_OFFSET; x1 += BOLD_OFFSET;
-            bakeQuad(list, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color, level);
+            batch.pushFace(bakeQuad(matrix, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color), textureID);
         }
     }
 
-    private static void bakeQuad(List<Vertex> list, float x0, float x1, float i0, float i1, float y0, float y1, float z, float u0, float u1, float v0, float v1, int color, int level) {
-        list.add(Vertex.of(x0 + i0, y0, z).uv(u0, v0).color(color).index(level));
-        list.add(Vertex.of(x1 + i0, y0, z).uv(u1, v0).color(color).index(level));
-        list.add(Vertex.of(x1 + i1, y1, z).uv(u1, v1).color(color).index(level));
-        list.add(Vertex.of(x0 + i1, y1, z).uv(u0, v1).color(color).index(level));
+    private static Vertex[] bakeQuad(Matrix4f matrix, float x0, float x1, float i0, float i1, float y0, float y1, float z, float u0, float u1, float v0, float v1, int color) {
+        return new Vertex[]{
+                Vertex.of(x0 + i0, y0, z).uv(u0, v0).color(color).mulPosition(matrix),
+                Vertex.of(x1 + i0, y0, z).uv(u1, v0).color(color).mulPosition(matrix),
+                Vertex.of(x1 + i1, y1, z).uv(u1, v1).color(color).mulPosition(matrix),
+                Vertex.of(x0 + i1, y1, z).uv(u0, v1).color(color).mulPosition(matrix)
+        };
     }
 
     private char getRandomChar(char c) {

@@ -16,7 +16,7 @@ public class UIHelper {
             new Texture(new Resource("textures/background/background_2.png"))
     };
 
-    public static void renderBackground(BatchRenderer renderer, MatrixStack matrices, float delta) {
+    public static void renderBackground(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
         float speed = 0.125f;
         int textureSize = 64;
@@ -41,7 +41,7 @@ public class UIHelper {
                     0f, u1,
                     0f, v1
             ));
-            renderer.addElement(Shaders.MAIN, matrices, r);
+            //renderer.addElement(Shaders.MAIN, matrices, r);
 
             speed *= 2f;
         }

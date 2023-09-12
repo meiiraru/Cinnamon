@@ -5,14 +5,16 @@ import mayo.gui.screens.MainMenu;
 import mayo.input.Movement;
 import mayo.model.obj.Mesh2;
 import mayo.parsers.ObjLoader;
-import mayo.render.BatchRenderer;
 import mayo.render.Camera;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
+import mayo.text.Style;
+import mayo.text.Text;
 import mayo.utils.Resource;
 import mayo.utils.Rotation;
+import mayo.utils.TextUtils;
 import mayo.utils.Timer;
 import mayo.world.World;
 import org.lwjgl.glfw.GLFW;
@@ -55,7 +57,7 @@ public class Client {
 
     // -- events -- //
 
-    public void render(BatchRenderer renderer, MatrixStack matrices) {
+    public void render(MatrixStack matrices) {
         //tick
         int ticksToUpdate = timer.update();
         for (int j = 0; j < Math.min(10, ticksToUpdate); j++)
@@ -68,23 +70,80 @@ public class Client {
         //render world
         if (world != null) {
             matrices.peek().set(camera.getPerspectiveMatrix()).mul(camera.getViewMatrix(delta));
-            world.render(renderer, matrices, delta);
+            world.render(matrices, delta);
         }
 
         //render hud
         matrices.peek().set(camera.getOrthographicMatrix());
 
         if (world != null)
-            world.renderHUD(renderer, matrices, delta);
+            world.renderHUD(matrices, delta);
 
         //render gui
         if (this.screen != null)
-            screen.render(renderer, matrices, delta);
+            screen.render(matrices, delta);
 
         matrices.pop();
 
 
         // -- TEMP -- //
+
+
+        Text t = Text.empty().append(Text.of("Lorem ipsum").withStyle(
+                Style.EMPTY
+                        .backgroundColor(0x72ADFF)
+                        .shadowColor(0xFF7272)
+                        .background(true)
+                        .shadow(true)
+                        .bold(true)
+        ));
+
+        t.append(Text.of(" dolor sit amet.\nSit quae dignissimos non voluptates sunt").withStyle(
+                Style.EMPTY
+                        .color(0x72FFAD)
+        ).append(Text.of("\nut temporibus commodi eum galisum").withStyle(
+                Style.EMPTY
+                        .backgroundColor(0xFF72AD)
+                        .background(true)
+                        .outlined(true)
+        )));
+
+        t.append(Text.of(" alias.").withStyle(
+                Style.EMPTY
+                        .bold(true)
+                        .italic(true)
+                        .underlined(true)
+        ));
+
+        t.append("\n\n");
+
+        t.append(Text.of("Lorem ipsum dolor sit amet,\nconsectetur adipisicing elit.").withStyle(
+                Style.EMPTY
+                        .outlineColor(0x72ADFF)
+                        .outlined(true)
+                        .italic(true)
+        ).append(Text.of("\nAb accusamus ad alias aperiam\n[...]").withStyle(
+                Style.EMPTY
+                        .backgroundColor(0x72FF72)
+                        .color(0x202020)
+                        .bold(true)
+                        .background(true)
+                        .italic(false)
+        )));
+
+        t.append(Text.of("\n\niii OBFUSCATED iii").withStyle(
+                Style.EMPTY
+                        .backgroundColor(0xAD72FF)
+                        .background(true)
+                        .obfuscated(true)
+        ));
+
+        matrices.push();
+        float sc = 1/16f;
+        matrices.scale(sc, -sc, sc);
+        font.render(matrices.peek(), t, TextUtils.Alignment.CENTER);
+        font.finishBatch(camera.getPerspectiveMatrix(), camera.getViewMatrix(delta));
+        matrices.pop();
 
 
         if (a) {

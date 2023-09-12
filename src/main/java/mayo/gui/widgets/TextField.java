@@ -1,11 +1,7 @@
 package mayo.gui.widgets;
 
-import mayo.Client;
-import mayo.model.Renderable;
-import mayo.render.BatchRenderer;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
-import mayo.render.shader.Shaders;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.TextUtils;
@@ -27,7 +23,7 @@ public class TextField implements Widget {
     }
 
     @Override
-    public void render(BatchRenderer renderer, MatrixStack matrices) {
+    public void render(MatrixStack matrices) {
         Text t = Text.empty().append(Text.of("Lorem ipsum").withStyle(
                 Style.EMPTY
                         .backgroundColor(0x72ADFF)
@@ -79,9 +75,8 @@ public class TextField implements Widget {
 
         t.append("\n\n").append(currText);
 
-        Renderable aa = font.bake(t, TextUtils.Alignment.CENTER);
-        aa.transform.setPos((int) (Client.getInstance().scaledWidth / 2f), (int) (Client.getInstance().scaledHeight - font.height(t) - 10f), 0);
-        renderer.addElement(Shaders.FONT, matrices, aa);
+        font.render(matrices.peek(), t, TextUtils.Alignment.CENTER);
+        //aa.transform.setPos((int) (Client.getInstance().scaledWidth / 2f), (int) (Client.getInstance().scaledHeight - font.height(t) - 10f), 0);
     }
 
     @Override
