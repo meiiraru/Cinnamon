@@ -47,10 +47,10 @@ public class GeometryHelper {
         float y1 = y0 + height;
 
         return new Vertex[]{
-                Vertex.of(x0, y0, z).color(color).mulPosition(matrix).index(index),
-                Vertex.of(x1, y0, z).color(color).mulPosition(matrix).index(index),
+                Vertex.of(x0, y1, z).color(color).mulPosition(matrix).index(index),
                 Vertex.of(x1, y1, z).color(color).mulPosition(matrix).index(index),
-                Vertex.of(x0, y1, z).color(color).mulPosition(matrix).index(index)
+                Vertex.of(x1, y0, z).color(color).mulPosition(matrix).index(index),
+                Vertex.of(x0, y0, z).color(color).mulPosition(matrix).index(index),
         };
     }
 }
