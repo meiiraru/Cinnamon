@@ -1,13 +1,12 @@
 package mayo.render.batch;
 
 import mayo.model.Vertex;
-import mayo.render.shader.Attributes;
 import mayo.render.shader.Shaders;
 
-public class FontBatch extends Batch {
+public abstract class GenericBatch extends Batch {
 
-    public FontBatch() {
-        super(Shaders.FONT, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.INDEX);
+    public GenericBatch(Shaders shader, int flags) {
+        super(shader, 6, flags);
     }
 
     @Override
@@ -29,8 +28,5 @@ public class FontBatch extends Batch {
         buffer.put(color.y);
         buffer.put(color.z);
         buffer.put(color.w);
-
-        //put index
-        buffer.put(vertex.getIndex());
     }
 }

@@ -6,6 +6,9 @@ import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
 import mayo.utils.Pair;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -35,6 +38,11 @@ public abstract class Batch { //vertex consumer
     //rendering data
     protected final Shader shader;
     protected final int vaoID, vboID;
+
+    //buffers to push
+    protected static final Vector4f color = new Vector4f();
+    protected static final Vector3f pos = new Vector3f();
+    protected static final Vector2f uv = new Vector2f();
 
     public Batch(Shaders shader, int verticesPerFace, int vertexFlags) {
         this.shader = shader.getShader();
@@ -98,6 +106,12 @@ public abstract class Batch { //vertex consumer
         textures.clear();
         buffer.clear();
         faceCount = 0;
+    }
+
+    protected void fillVertexBuffers(Vertex vertex) {
+        color.set(vertex.getColor());
+        pos.set(vertex.getPosition());
+        uv.set(vertex.getUV());
     }
 
     protected abstract void pushVertex(Vertex vertex, int textureID);

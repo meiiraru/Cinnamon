@@ -3,6 +3,7 @@ package mayo.render.shader;
 import mayo.utils.Resource;
 
 public enum Shaders {
+    GUI,
     FONT,
     MODEL;
 

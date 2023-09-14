@@ -6,16 +6,13 @@ import org.joml.Matrix4f;
 import java.util.function.Supplier;
 
 public enum VertexConsumer {
+    GUI(GUIBatch::new),
     FONT(FontBatch::new);
 
     private final BatchRenderer<Batch> renderer;
 
     VertexConsumer(Supplier<Batch> factory) {
         this.renderer = new BatchRenderer<>(factory);
-    }
-
-    public BatchRenderer<Batch> getRenderer() {
-        return renderer;
     }
 
     public void consume(Vertex[] vertices, int texID) {

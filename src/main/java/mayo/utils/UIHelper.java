@@ -2,9 +2,9 @@ package mayo.utils;
 
 import mayo.Client;
 import mayo.model.GeometryHelper;
-import mayo.model.Renderable;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
+import mayo.render.batch.VertexConsumer;
 
 public class UIHelper {
 
@@ -31,15 +31,13 @@ public class UIHelper {
             float u1 = (float) width / textureSize;
             float v1 = (float) height / textureSize;
 
-            Renderable r = new Renderable(GeometryHelper.quad(
-                    BACKGROUND[i],
+            VertexConsumer.GUI.consume(GeometryHelper.quad(
                     x, y,
                     width, height,
                     -999,
                     0f, u1,
                     0f, v1
-            ));
-            //renderer.addElement(Shaders.MAIN, matrices, r);
+            ), BACKGROUND[i].getID());
 
             speed *= 2f;
         }
