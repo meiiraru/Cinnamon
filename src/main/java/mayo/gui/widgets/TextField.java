@@ -75,7 +75,7 @@ public class TextField implements Widget {
 
         t.append("\n\n").append(currText);
 
-        font.render(matrices.peek(), t, TextUtils.Alignment.CENTER);
+        //font.render(matrices.peek(), t, TextUtils.Alignment.CENTER);
         //aa.transform.setPos((int) (Client.getInstance().scaledWidth / 2f), (int) (Client.getInstance().scaledHeight - font.height(t) - 10f), 0);
     }
 

@@ -1,6 +1,5 @@
 package mayo;
 
-import mayo.render.BatchRenderer;
 import mayo.render.MatrixStack;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
@@ -83,9 +82,6 @@ public class Main {
     }
 
     private void loop() {
-        //main rendering
-        BatchRenderer renderer = new BatchRenderer();
-
         //transform matrix
         MatrixStack matrices = new MatrixStack();
 
@@ -133,9 +129,6 @@ public class Main {
 
             //render client
             client.render(matrices);
-
-            //render batch
-            renderer.render();
 
             //end render
             glfwSwapBuffers(window);

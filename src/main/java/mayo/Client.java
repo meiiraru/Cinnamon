@@ -8,6 +8,7 @@ import mayo.parsers.ObjLoader;
 import mayo.render.Camera;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
+import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
 import mayo.text.Style;
@@ -147,8 +148,8 @@ public class Client {
         matrices.push();
         float sc = 1/16f;
         matrices.scale(sc, -sc, sc);
-        font.render(matrices.peek(), t, TextUtils.Alignment.CENTER);
-        font.finishBatch(camera.getPerspectiveMatrix(), camera.getViewMatrix(delta));
+        font.render(VertexConsumer.FONT, matrices.peek(), t, TextUtils.Alignment.CENTER);
+        VertexConsumer.FONT.finishBatch(camera.getPerspectiveMatrix(), camera.getViewMatrix(delta));
         matrices.pop();
 
 

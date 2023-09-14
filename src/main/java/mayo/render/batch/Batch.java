@@ -22,7 +22,7 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 public abstract class Batch { //vertex consumer
 
     //immutable properties
-    protected static final int BUFFER_SIZE = 2048; //faces
+    protected static final int BUFFER_SIZE = 4098; //faces
     protected static final int[] TEXTURE_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7};
 
     //buffer

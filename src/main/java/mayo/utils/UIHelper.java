@@ -3,10 +3,8 @@ package mayo.utils;
 import mayo.Client;
 import mayo.model.GeometryHelper;
 import mayo.model.Renderable;
-import mayo.render.BatchRenderer;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
-import mayo.render.shader.Shaders;
 
 public class UIHelper {
 
