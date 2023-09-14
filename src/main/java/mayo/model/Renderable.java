@@ -16,10 +16,10 @@ public class Renderable {
 
     //transform data
     private static final Vector4f
-            pos = new Vector4f();
+            pos = new Vector4f(),
+            color = new Vector4f();
     private static final Vector3f
-            normal = new Vector3f(),
-            color = new Vector3f();
+            normal = new Vector3f();
     private static final Vector2f
             uv = new Vector2f();
 

@@ -4,12 +4,12 @@
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in float aTexID;
 layout (location = 2) in vec2 aTexCoords;
-layout (location = 3) in vec3 aColor;
+layout (location = 3) in vec4 aColor;
 layout (location = 4) in float aIndex;
 
 flat out int texID;
 out vec2 texCoords;
-out vec3 color;
+out vec4 color;
 
 uniform mat4 projection;
 uniform mat4 view;
@@ -29,7 +29,7 @@ void main() {
 
 flat in int texID;
 in vec2 texCoords;
-in vec3 color;
+in vec4 color;
 
 out vec4 fragColor;
 
@@ -39,7 +39,7 @@ void main() {
     //if (true) {fragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f); return;}
 
     //color
-    vec4 col = vec4(color, 1.0f);
+    vec4 col = color;
 
     if (texID > 0) {
         //texture
@@ -47,8 +47,8 @@ void main() {
         if (tex.r < 0.01f)
             discard;
 
-        fragColor = vec4(color.rgb, tex.r);
+        fragColor = vec4(color.rgb, color.a * tex.r);
     } else {
-        fragColor = col;
+        fragColor = color;
     }
 }

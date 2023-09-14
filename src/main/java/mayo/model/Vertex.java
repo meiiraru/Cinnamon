@@ -4,12 +4,14 @@ import mayo.utils.ColorUtils;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public class Vertex implements Comparable<Vertex> {
 
+    private final Vector4f
+            color = new Vector4f(1f, 1f, 1f, 1f);
     private final Vector3f
             pos = new Vector3f(),
-            color = new Vector3f(1f, 1f, 1f),
             normal = new Vector3f(1f, 1f, 1f);
     private final Vector2f uv = new Vector2f();
     private int index = -1;
@@ -23,12 +25,16 @@ public class Vertex implements Comparable<Vertex> {
     }
 
     public Vertex color(int color) {
-        Vector3f rgb = ColorUtils.intToRGB(color);
-        return color(rgb.x, rgb.y, rgb.z);
+        Vector4f rgba = ColorUtils.argbIntToRGBA(color);
+        return color(rgba.x, rgba.y, rgba.z, rgba.w);
     }
 
     public Vertex color(float r, float g, float b) {
-        this.color.set(r, g, b);
+        return this.color(r, g, b, 1f);
+    }
+
+    public Vertex color(float r, float g, float b, float a) {
+        this.color.set(r, g, b, a);
         return this;
     }
 
@@ -60,7 +66,7 @@ public class Vertex implements Comparable<Vertex> {
         return uv;
     }
 
-    public Vector3f getColor() {
+    public Vector4f getColor() {
         return this.color;
     }
 

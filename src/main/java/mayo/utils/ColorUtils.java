@@ -26,7 +26,12 @@ public class ColorUtils {
         return new Vector3f(rgb[0] / 255f, rgb[1] / 255f, rgb[2] / 255f);
     }
 
-    public static Vector4f intToARGB(int color) {
+    public static Vector4f intToRGBA(int color) {
+        int[] rgba = split(color, 4);
+        return new Vector4f(rgba[0] / 255f, rgba[1] / 255f, rgba[2] / 255f, rgba[3] / 255f);
+    }
+
+    public static Vector4f argbIntToRGBA(int color) {
         int[] argb = split(color, 4);
         return new Vector4f(argb[1] / 255f, argb[2] / 255f, argb[3] / 255f, argb[0] / 255f);
     }

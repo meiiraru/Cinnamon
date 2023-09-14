@@ -98,8 +98,8 @@ public class Client {
 
         Text t = Text.empty().append(Text.of("Lorem ipsum").withStyle(
                 Style.EMPTY
-                        .backgroundColor(0x72ADFF)
-                        .shadowColor(0xFF7272)
+                        .backgroundColor(0xFF72ADFF)
+                        .shadowColor(0xFFFF7272)
                         .background(true)
                         .shadow(true)
                         .bold(true)
@@ -107,10 +107,10 @@ public class Client {
 
         t.append(Text.of(" dolor sit amet.\nSit quae dignissimos non voluptates sunt").withStyle(
                 Style.EMPTY
-                        .color(0x72FFAD)
+                        .color(0xFF72FFAD)
         ).append(Text.of("\nut temporibus commodi eum galisum").withStyle(
                 Style.EMPTY
-                        .backgroundColor(0xFF72AD)
+                        .backgroundColor(0xFFFF72AD)
                         .background(true)
                         .outlined(true)
         )));
@@ -126,13 +126,13 @@ public class Client {
 
         t.append(Text.of("Lorem ipsum dolor sit amet,\nconsectetur adipisicing elit.").withStyle(
                 Style.EMPTY
-                        .outlineColor(0x72ADFF)
+                        .outlineColor(0xFF72ADFF)
                         .outlined(true)
                         .italic(true)
         ).append(Text.of("\nAb accusamus ad alias aperiam\n[...]").withStyle(
                 Style.EMPTY
-                        .backgroundColor(0x72FF72)
-                        .color(0x202020)
+                        .backgroundColor(0xFF72FF72)
+                        .color(0xFF202020)
                         .bold(true)
                         .background(true)
                         .italic(false)
@@ -140,7 +140,7 @@ public class Client {
 
         t.append(Text.of("\n\niii OBFUSCATED iii").withStyle(
                 Style.EMPTY
-                        .backgroundColor(0xAD72FF)
+                        .backgroundColor(0xFFAD72FF)
                         .background(true)
                         .obfuscated(true)
         ));
@@ -149,7 +149,6 @@ public class Client {
         float sc = 1/16f;
         matrices.scale(sc, -sc, sc);
         font.render(VertexConsumer.FONT, matrices.peek(), t, TextUtils.Alignment.CENTER);
-        VertexConsumer.FONT.finishBatch(camera.getPerspectiveMatrix(), camera.getViewMatrix(delta));
         matrices.pop();
 
 
@@ -194,6 +193,8 @@ public class Client {
         s.setModelMatrix(matrices.peek());
         mesh4.render();
         matrices.pop();
+
+        VertexConsumer.finishAllBatches(camera.getPerspectiveMatrix(), camera.getViewMatrix(delta));
     }
     private Mesh2 mesh, mesh2, mesh3, mesh4;
     private boolean a = true;

@@ -5,18 +5,19 @@ import mayo.render.shader.Attributes;
 import mayo.render.shader.Shaders;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public class FontBatch extends Batch {
 
     public FontBatch() {
-        super(Shaders.FONT, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR | Attributes.INDEX);
+        super(Shaders.FONT, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.INDEX);
     }
 
     @Override
     protected void pushVertex(Vertex vertex, int textureID) {
         Vector3f pos = vertex.getPosition();
         Vector2f uv = vertex.getUV();
-        Vector3f color = vertex.getColor();
+        Vector4f color = vertex.getColor();
 
         //push pos
         buffer.put(pos.x);
@@ -32,6 +33,7 @@ public class FontBatch extends Batch {
         buffer.put(color.x);
         buffer.put(color.y);
         buffer.put(color.z);
+        buffer.put(color.w);
 
         //put index
         buffer.put(vertex.getIndex());

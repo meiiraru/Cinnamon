@@ -1,18 +1,18 @@
 package mayo.model;
 
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
+import org.joml.*;
+
+import java.lang.Math;
 
 public class Transform {
 
+    private final Vector4f
+            color = new Vector4f(1f, 1f, 1f, 1f);
     private final Vector3f
             pos = new Vector3f(),
             rot = new Vector3f(),
             pivot = new Vector3f(),
-            scale = new Vector3f(1f, 1f, 1f),
-            color = new Vector3f(1f, 1f, 1f);
+            scale = new Vector3f(1f, 1f, 1f);
     private final Vector2f
             uv = new Vector2f();
 
@@ -90,7 +90,7 @@ public class Transform {
         return scale;
     }
 
-    public Vector3f getColor() {
+    public Vector4f getColor() {
         return color;
     }
 
@@ -138,8 +138,16 @@ public class Transform {
         this.setColor(vec.x, vec.y, vec.z);
     }
 
-    public void setColor(float x, float y, float z) {
-        this.color.set(x, y, z);
+    public void setColor(float r, float g, float b) {
+        this.setColor(r, g, b, 1f);
+    }
+
+    public void setColor(Vector4f vec) {
+        this.setColor(vec.x, vec.y, vec.z, vec.w);
+    }
+
+    public void setColor(float r, float g, float b, float a) {
+        this.color.set(r, g, b, a);
     }
 
     public void setUV(Vector2f vec) {

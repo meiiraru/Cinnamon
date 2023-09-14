@@ -15,8 +15,9 @@ public class Attributes {
             TEXTURE_ID = 0x2,
             UV         = 0x4,
             COLOR      = 0x8,
-            NORMAL     = 0x10,
-            INDEX      = 0x20;
+            COLOR_RGBA = 0x10,
+            NORMAL     = 0x20,
+            INDEX      = 0x40;
 
     public static Pair<Integer, Integer> getAttributes(int flags) {
         int e = 0, verts = 0;
@@ -25,6 +26,7 @@ public class Attributes {
         if ((flags & TEXTURE_ID) == TEXTURE_ID) {e++; verts += 1;}
         if ((flags & UV)         == UV)         {e++; verts += 2;}
         if ((flags & COLOR)      == COLOR)      {e++; verts += 3;}
+        if ((flags & COLOR_RGBA) == COLOR_RGBA) {e++; verts += 4;}
         if ((flags & NORMAL)     == NORMAL)     {e++; verts += 3;}
         if ((flags & INDEX)      == INDEX)      {e++; verts += 1;}
 
@@ -53,6 +55,10 @@ public class Attributes {
         if ((flags & COLOR) == COLOR) {
             glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer);
             pointer += 3 * Float.BYTES;
+        }
+        if ((flags & COLOR_RGBA) == COLOR_RGBA) {
+            glVertexAttribPointer(index++, 4, GL_FLOAT, false, stride, pointer);
+            pointer += 4 * Float.BYTES;
         }
         if ((flags & NORMAL) == NORMAL) {
             glVertexAttribPointer(index, 3, GL_FLOAT, false, stride, pointer);
