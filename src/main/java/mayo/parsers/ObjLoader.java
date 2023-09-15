@@ -2,7 +2,7 @@ package mayo.parsers;
 
 import mayo.model.obj.Face;
 import mayo.model.obj.Group;
-import mayo.model.obj.Mesh2;
+import mayo.model.obj.Mesh;
 import mayo.utils.IOUtils;
 import mayo.utils.Resource;
 import org.joml.Vector2f;
@@ -20,7 +20,7 @@ import static mayo.utils.Meth.parseVec3;
 
 public class ObjLoader {
 
-    public static Mesh2 load(Resource res) {
+    public static Mesh load(Resource res) {
         InputStream stream = IOUtils.getResource(res);
         String path = res.getPath();
         String folder = path.substring(0, path.lastIndexOf("/") + 1);
@@ -29,7 +29,7 @@ public class ObjLoader {
             throw new RuntimeException("Resource not found: " + res);
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
-            Mesh2 theMesh = new Mesh2();
+            Mesh theMesh = new Mesh();
             Group currentGroup = new Group("default");
 
             for (String line; (line = br.readLine()) != null; ) {

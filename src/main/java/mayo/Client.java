@@ -210,6 +210,10 @@ public class Client {
     }
 
     public void windowFocused(boolean focused) {
-        if (screen != null) screen.windowFocused(focused);
+        if (screen != null) {
+            screen.windowFocused(focused);
+        } else if (world != null && !focused) {
+            this.setScreen(new PauseScreen());
+        }
     }
 }

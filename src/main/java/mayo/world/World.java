@@ -1,7 +1,7 @@
 package mayo.world;
 
 import mayo.Client;
-import mayo.model.obj.Mesh2;
+import mayo.model.obj.Mesh;
 import mayo.parsers.ObjLoader;
 import mayo.render.MatrixStack;
 import mayo.render.shader.Shader;
@@ -14,7 +14,7 @@ public class World {
     private final Hud hud = new Hud();
 
     //temp
-    private Mesh2 mesh, mesh2, mesh3, mesh4;
+    private Mesh mesh, mesh2, mesh3, mesh4;
 
     public void init() {
         mesh = ObjLoader.load(new Resource("models/teapot.obj")).bake();

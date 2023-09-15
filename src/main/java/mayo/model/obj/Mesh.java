@@ -12,7 +12,7 @@ import java.util.Map;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.glBufferSubData;
 
-public class Mesh2 {
+public class Mesh {
 
     //vertices data
     private final List<Vector3f>
@@ -38,7 +38,7 @@ public class Mesh2 {
     // -- loading and drawing -- //
 
 
-    public Mesh2 bake() {
+    public Mesh bake() {
         for (Group group : groups) {
             FloatBuffer buffer = group.generateBuffers();
 
