@@ -27,13 +27,16 @@ public class Label extends Widget {
         matrices.pop();
     }
 
-    public void setText(Text text) {
+    public Label setText(Text text) {
         this.text = text;
         setWidth((int) font.width(text));
         setHeight((int) font.height(text));
+
+        return this;
     }
 
-    public void setAlignment(TextUtils.Alignment alignment) {
+    public Label setAlignment(TextUtils.Alignment alignment) {
         this.alignment = alignment;
+        return this;
     }
 }

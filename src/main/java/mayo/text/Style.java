@@ -1,5 +1,7 @@
 package mayo.text;
 
+import mayo.utils.Colors;
+
 public class Style {
 
     public final static Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null, null, null);
@@ -72,6 +74,10 @@ public class Style {
                 shadow          != null ? shadow           : p.shadow,
                 outlined        != null ? outlined         : p.outlined
         );
+    }
+
+    public Style color(Colors color) {
+        return this.color(color.rgb + (0xFF << 24));
     }
 
     public Style color(Integer color) {
