@@ -20,7 +20,7 @@ public class Label extends Widget {
     }
 
     @Override
-    public void render(MatrixStack matrices, float delta) {
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         matrices.push();
         matrices.translate(getX(), getY(), 0f);
         font.render(VertexConsumer.FONT, matrices.peek(), text, alignment);

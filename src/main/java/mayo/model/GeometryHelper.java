@@ -5,14 +5,14 @@ import org.joml.Matrix4f;
 public class GeometryHelper {
 
     public static Vertex[] quad(float x, float y, float width, float height) {
-        return quad(1, 1, x, y, width, height);
+        return quad(x, y, width, height, 1, 1);
     }
 
-    public static Vertex[] quad(int hFrames, int vFrames, float x, float y, float width, float height) {
-        return quad(x, y, width, height, 0, 0, 1, 1, hFrames, vFrames);
+    public static Vertex[] quad(float x, float y, float width, float height, int hFrames, int vFrames) {
+        return quad(x, y, width, height, 0, 0, 1f, 1f, hFrames, vFrames);
     }
 
-    public static Vertex[] quad(float x, float y, float width, float height, float u, float v, int regionW, int regionH, int textureW, int textureH) {
+    public static Vertex[] quad(float x, float y, float width, float height, float u, float v, float regionW, float regionH, int textureW, int textureH) {
         float u0 = u / textureW;
         float v0 = v / textureH;
         float u1 = (u + regionW) / (float) textureW;

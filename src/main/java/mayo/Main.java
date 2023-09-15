@@ -78,7 +78,7 @@ public class Main {
         glfwMaximizeWindow(window);
 
         //init client
-        client.init();
+        client.init(window);
     }
 
     private void loop() {
@@ -94,8 +94,6 @@ public class Main {
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
-
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         //glLineWidth(5f);
 

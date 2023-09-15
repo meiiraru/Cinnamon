@@ -13,6 +13,8 @@ import mayo.world.World;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_NORMAL;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;
 
@@ -23,10 +25,12 @@ public class Client {
     public int windowWidth = 854, windowHeight = 480;
     public int scaledWidth = windowWidth, scaledHeight = windowHeight;
     public float guiScale = 3f;
+    private long window;
 
     private final Timer timer = new Timer(20);
     public int ticks;
     public int fps;
+    public int mouseX, mouseY;
 
     //objects
     public Camera camera;
@@ -37,11 +41,13 @@ public class Client {
 
     private Client() {}
 
-    public void init() {
+    public void init(long window) {
+        this.window = window;
         this.camera = new Camera();
         this.camera.updateProjMatrix(scaledWidth, scaledHeight);
         this.font = new Font(new Resource("fonts/mayscript.ttf"), 8);
         this.movement = new Movement();
+        this.setScreen(null);
 
         //todo - temp
         this.world = new World();
@@ -113,9 +119,19 @@ public class Client {
         //set the screen
         this.screen = s;
 
-        //init the new screen
-        if (s != null)
+        if (s != null) {
+            //init the new screen
             s.init(this, scaledWidth, scaledHeight);
+
+            //unlock cursor
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+            //move cursor to the window's center
+            glfwSetCursorPos(window, windowWidth / 2f, windowHeight / 2f);
+        } else {
+            //lock cursor
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
     }
 
     // -- glfw events -- //
@@ -138,6 +154,9 @@ public class Client {
 
     public void mouseMove(double x, double y) {
         movement.mouseMove(x, y);
+        mouseX = (int) (x / guiScale);
+        mouseY = (int) (y / guiScale);
+
         if (screen != null) screen.mouseMove(x, y);
     }
 

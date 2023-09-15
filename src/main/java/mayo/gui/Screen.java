@@ -81,7 +81,7 @@ public abstract class Screen {
 
     public void render(MatrixStack matrices, float delta) {
         preRender(matrices, delta);
-        renderChildren(matrices, delta);
+        renderChildren(matrices, client.mouseX, client.mouseY, delta);
         postRender(matrices, delta);
     }
 
@@ -89,9 +89,9 @@ public abstract class Screen {
         UIHelper.renderBackground(matrices, delta);
     }
 
-    protected void renderChildren(MatrixStack matrices, float delta) {
+    protected void renderChildren(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         for (Widget widget : this.widgets) {
-            widget.render(matrices, delta);
+            widget.render(matrices, mouseX, mouseY, delta);
         }
     }
 

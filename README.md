@@ -1,3 +1,5 @@
+# Repo
+* https://github.com/sheep-may/Mayo
 # Controls
 * Escape: exit
 * Left-Alt: release mouse controls

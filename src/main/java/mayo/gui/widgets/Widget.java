@@ -14,7 +14,12 @@ public abstract class Widget {
         this.height = height;
     }
 
-    public abstract void render(MatrixStack matrices, float delta);
+    public abstract void render(MatrixStack matrices, int mouseX, int mouseY, float delta);
+
+    public void setPos(int x, int y) {
+        this.setX(x);
+        this.setY(y);
+    }
 
     public void setX(int x) {
         this.x = x;
