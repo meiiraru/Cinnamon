@@ -1,5 +1,6 @@
 package mayo.render;
 
+import mayo.utils.Pair;
 import org.lwjgl.glfw.GLFWVidMode;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -85,13 +86,14 @@ public class Window {
             this.windowedWidth = this.width;
             this.windowedHeight = this.height;
 
-            GLFWVidMode vidMode = getMonitorProperties();
+            Pair<Long, GLFWVidMode> monitor = getMonitorProperties();
+            GLFWVidMode vidMode = monitor.second();
 
             this.x = this.y = 0;
             this.width = vidMode.width();
             this.height = vidMode.height();
 
-            glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), x, y, width, height, -1);
+            glfwSetWindowMonitor(window, monitor.first(), x, y, width, height, vidMode.refreshRate());
         }
         //set windowed
         else {
@@ -104,13 +106,13 @@ public class Window {
         }
     }
 
-    private GLFWVidMode getMonitorProperties() {
+    private Pair<Long, GLFWVidMode> getMonitorProperties() {
         //grab monitor
         long monitor = glfwGetWindowMonitor(window);
         if (monitor == NULL)
             monitor = glfwGetPrimaryMonitor();
 
-        return glfwGetVideoMode(monitor);
+        return Pair.of(monitor, glfwGetVideoMode(monitor));
     }
 
     public void mouseMove(double x, double y) {
