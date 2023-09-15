@@ -14,13 +14,14 @@ public class World {
     private final Hud hud = new Hud();
 
     //temp
-    private Mesh mesh, mesh2, mesh3, mesh4;
+    private Mesh mesh, mesh2, mesh3, mesh4, mesh5;
 
     public void init() {
         mesh = ObjLoader.load(new Resource("models/teapot.obj")).bake();
         mesh2 = ObjLoader.load(new Resource("models/mesa/mesa01.obj")).bake();
         mesh3 = ObjLoader.load(new Resource("models/bunny.obj")).bake();
         mesh4 = ObjLoader.load(new Resource("models/cube/cube.obj")).bake();
+        mesh5 = ObjLoader.load(new Resource("models/suzanne.obj")).bake();
     }
 
     public void tick() {
@@ -62,6 +63,15 @@ public class World {
         matrices.translate(0, -mesh4.getBBMin().y, 0);
         s.setModelMatrix(matrices.peek());
         mesh4.render();
+        matrices.pop();
+
+        //render mesh 5
+        matrices.push();
+        matrices.translate(3f, (mesh2.getBBMax().y - mesh2.getBBMin().y) + 0.3f, 3f);
+        matrices.rotate(Rotation.Y.rotationDeg(30f));
+        matrices.rotate(Rotation.X.rotationDeg(-50f));
+        s.setModelMatrix(matrices.peek());
+        mesh5.render();
         matrices.pop();
     }
 

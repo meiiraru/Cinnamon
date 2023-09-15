@@ -18,7 +18,7 @@ public class Hud {
         //render fps
         Client c = Client.getInstance();
         matrices.push();
-        matrices.translate(c.window.scaledWidth - c.font.width(fps), 0f, 0f);
+        matrices.translate(c.window.scaledWidth - c.font.width(fps) - 4f, 4f, 0f);
         c.font.render(VertexConsumer.FONT, matrices.peek(), fps);
         matrices.pop();
     }

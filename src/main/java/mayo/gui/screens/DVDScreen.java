@@ -41,7 +41,7 @@ public class DVDScreen extends Screen {
 
         //fullscreen
         Text fs = Text.of("Press [F11] to toggle fullscreen").withStyle(Style.EMPTY.color(Colors.LIGHT_BLACK));
-        this.addWidget(new Label(fs, client.font, width / 2, (int) (height - client.font.height(fs) - 4)).setAlignment(TextUtils.Alignment.CENTER));
+        this.addWidget(new Label(fs, client.font, width / 2, 4).setAlignment(TextUtils.Alignment.CENTER));
     }
 
     @Override

@@ -17,7 +17,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Main {
 
     public static void main(String[] args) {
-        System.load("D:\\apps\\RenderDoc_1.28_64\\renderdoc.dll");
+        //System.load("D:\\apps\\RenderDoc_1.28_64\\renderdoc.dll");
         new Main().run();
     }
 
