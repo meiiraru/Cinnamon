@@ -31,7 +31,7 @@ public class Client {
     //objects
     public Camera camera;
     public Font font;
-    public Screen screen;
+    private Screen screen;
     private Movement movement;
     public World world;
 
@@ -105,6 +105,19 @@ public class Client {
             screen.tick();
     }
 
+    public void setScreen(Screen s) {
+        //close previous screen
+        if (screen != null)
+            screen.close();
+
+        //set the screen
+        this.screen = s;
+
+        //init the new screen
+        if (s != null)
+            s.init(this, scaledWidth, scaledHeight);
+    }
+
     // -- glfw events -- //
 
     public void mousePress(int button, int action, int mods) {
@@ -116,7 +129,7 @@ public class Client {
         if (screen != null) screen.keyPress(key, scancode, action, mods);
 
         if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_F1)
-            this.screen = this.screen == null ? new MainMenu() : null;
+            this.setScreen(this.screen == null ? new MainMenu() : null);
     }
 
     public void charTyped(char c, int mods) {
@@ -145,7 +158,7 @@ public class Client {
             camera.updateProjMatrix(scaledWidth, scaledHeight);
 
         if (screen != null)
-            screen.windowResize(width, height);
+            screen.resize(scaledWidth, scaledHeight);
     }
 
     public void windowFocused(boolean focused) {

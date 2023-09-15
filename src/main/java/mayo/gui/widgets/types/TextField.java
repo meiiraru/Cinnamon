@@ -1,14 +1,15 @@
-package mayo.gui.widgets;
+package mayo.gui.widgets.types;
 
+import mayo.gui.widgets.GUIListener;
+import mayo.gui.widgets.Widget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.text.Style;
 import mayo.text.Text;
-import mayo.utils.TextUtils;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class TextField implements Widget {
+public class TextField {//extends Widget implements GUIListener {
 
     private final Font font;
     private String currText;
@@ -22,7 +23,6 @@ public class TextField implements Widget {
         currText = text;
     }
 
-    @Override
     public void render(MatrixStack matrices) {
         Text t = Text.empty().append(Text.of("Lorem ipsum").withStyle(
                 Style.EMPTY
@@ -79,7 +79,6 @@ public class TextField implements Widget {
         //aa.transform.setPos((int) (Client.getInstance().scaledWidth / 2f), (int) (Client.getInstance().scaledHeight - font.height(t) - 10f), 0);
     }
 
-    @Override
     public boolean keyPress(int key, int scancode, int action, int mods) {
         if (action == GLFW_RELEASE)
             return false;
@@ -121,7 +120,6 @@ public class TextField implements Widget {
         return false;
     }
 
-    @Override
     public boolean charTyped(char c, int mods) {
         append(String.valueOf(c));
         return true;

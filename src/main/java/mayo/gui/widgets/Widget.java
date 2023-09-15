@@ -2,35 +2,49 @@ package mayo.gui.widgets;
 
 import mayo.render.MatrixStack;
 
-public interface Widget {
+public abstract class Widget {
 
-    void render(MatrixStack stack);
+    private int x, y;
+    private int width, height;
 
-    default boolean mousePress(int button, int action, int mods) {
-        return false;
+    public Widget(int x, int y, int width, int height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
     }
 
-    default boolean keyPress(int key, int scancode, int action, int mods) {
-        return false;
+    public abstract void render(MatrixStack matrices, float delta);
+
+    public void setX(int x) {
+        this.x = x;
     }
 
-    default boolean charTyped(char c, int mods) {
-        return false;
+    public int getX() {
+        return x;
     }
 
-    default boolean mouseMove(double x, double y) {
-        return false;
+    public void setY(int y) {
+        this.y = y;
     }
 
-    default boolean scroll(double x, double y) {
-        return false;
+    public int getY() {
+        return y;
     }
 
-    default boolean windowResize(int width, int height) {
-        return false;
+    protected void setWidth(int width) {
+        this.width = width;
     }
 
-    default boolean windowFocused(boolean focused) {
-        return false;
+    public int getWidth() {
+        return width;
+    }
+
+    protected void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }
