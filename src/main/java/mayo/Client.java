@@ -108,9 +108,9 @@ public class Client {
     }
 
     public void setScreen(Screen s) {
-        //close previous screen
+        //remove previous screen
         if (screen != null)
-            screen.close();
+            screen.removed();
 
         //set the screen
         this.screen = s;

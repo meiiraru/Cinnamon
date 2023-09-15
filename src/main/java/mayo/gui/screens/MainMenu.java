@@ -11,16 +11,20 @@ public class MainMenu extends Screen {
     public void init() {
         super.init();
 
-        Button worldButton = new Button(0, 0, 160, 20, Text.of("Open world"), () -> {
+        //open world
+        Button worldButton = new Button((width - 160) / 2, (height - 20) / 2 - 20 - 16, 160, 20, Text.of("Open world"), () -> {
             client.world = new World();
             client.world.init();
             client.setScreen(null);
         });
-        worldButton.setPos((width - worldButton.getWidth()) / 2, (height - worldButton.getHeight()) / 2);
         this.addWidget(worldButton);
 
-        Button exitButton = new Button(0, 0, 160, 20, Text.of("Exit"), () -> client.exit());
-        exitButton.setPos(worldButton.getX(), worldButton.getY() + worldButton.getHeight() + 16);
+        //dvd screen
+        Button dvd = new Button(worldButton.getX(), worldButton.getY() + worldButton.getHeight() + 16, 160, 20, Text.of("DVD"), () -> client.setScreen(new DVDScreen(this)));
+        this.addWidget(dvd);
+
+        //close application
+        Button exitButton = new Button(dvd.getX(), dvd.getY() + dvd.getHeight() + 16, 160, 20, Text.of("Exit"), () -> client.exit());
         this.addWidget(exitButton);
     }
 }

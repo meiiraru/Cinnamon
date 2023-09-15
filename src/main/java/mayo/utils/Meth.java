@@ -19,4 +19,8 @@ public class Meth {
     public static Vector3f parseVec3(String x, String y, String z) {
         return new Vector3f(Float.parseFloat(x), Float.parseFloat(y), Float.parseFloat(z));
     }
+
+    public static float clamp(float val, float min, float max) {
+        return Math.min(Math.max(val, min), max);
+    }
 }

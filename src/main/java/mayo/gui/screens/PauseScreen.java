@@ -14,15 +14,13 @@ public class PauseScreen extends Screen {
     public void init() {
         super.init();
 
-        Button resume = new Button(0, 0, 160, 20, Text.of("Resume game"), () -> client.setScreen(null));
-        resume.setPos((width - resume.getWidth()) / 2, (height - resume.getHeight()) / 2);
+        Button resume = new Button((width - 160) / 2, (height - 20) / 2, 160, 20, Text.of("Resume game"), () -> client.setScreen(null));
         this.addWidget(resume);
 
-        Button menu = new Button(0, 0, 160, 20, Text.of("Main menu"), () -> {
+        Button menu = new Button(resume.getX(), resume.getY() + resume.getHeight() + 16, 160, 20, Text.of("Main menu"), () -> {
             client.setScreen(new MainMenu());
             client.world = null;
         });
-        menu.setPos(resume.getX(), resume.getY() + resume.getHeight() + 16);
         this.addWidget(menu);
     }
 

@@ -41,10 +41,17 @@ public abstract class Screen {
     //children-based init
     public void init() {}
 
-    public void close() {}
+    //screen is removed from client, ie saving changes
+    public void removed() {}
 
+    //if screen should be closed from GLFW_KEY_ESCAPE PRESS
     public boolean closeOnEsc() {
         return false;
+    }
+
+    //when closing the screen (not removing), call this
+    public void close() {
+        this.client.setScreen(null);
     }
 
 
@@ -130,7 +137,7 @@ public abstract class Screen {
         }
 
         if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE && closeOnEsc())
-            client.setScreen(null);
+            this.close();
     }
 
     public void charTyped(char c, int mods) {
