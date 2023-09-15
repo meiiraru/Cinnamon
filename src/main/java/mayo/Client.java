@@ -2,6 +2,7 @@ package mayo;
 
 import mayo.gui.Screen;
 import mayo.gui.screens.MainMenu;
+import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
 import mayo.render.Camera;
 import mayo.render.Font;
@@ -11,10 +12,8 @@ import mayo.utils.Resource;
 import mayo.utils.Timer;
 import mayo.world.World;
 import org.joml.Matrix4f;
-import org.lwjgl.glfw.GLFW;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_NORMAL;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;
 
@@ -31,6 +30,7 @@ public class Client {
     public int ticks;
     public int fps;
     public int mouseX, mouseY;
+    private boolean mouseLocked;
 
     //objects
     public Camera camera;
@@ -47,11 +47,7 @@ public class Client {
         this.camera.updateProjMatrix(scaledWidth, scaledHeight);
         this.font = new Font(new Resource("fonts/mayscript.ttf"), 8);
         this.movement = new Movement();
-        this.setScreen(null);
-
-        //todo - temp
-        this.world = new World();
-        world.init();
+        this.setScreen(new MainMenu());
     }
 
     public void close() {
@@ -123,15 +119,44 @@ public class Client {
             //init the new screen
             s.init(this, scaledWidth, scaledHeight);
 
-            //unlock cursor
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-            //move cursor to the window's center
-            glfwSetCursorPos(window, windowWidth / 2f, windowHeight / 2f);
+            //unlock mouse
+            unlockMouse();
         } else {
-            //lock cursor
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            //no screen, then lock the mouse
+            lockMouse();
         }
+    }
+
+    public void unlockMouse() {
+        if (!mouseLocked)
+            return;
+
+        //unlock cursor
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+        //move cursor to the window's center
+        glfwSetCursorPos(window, windowWidth / 2f, windowHeight / 2f);
+
+        //save state
+        this.mouseLocked = false;
+    }
+
+    public void lockMouse() {
+        if (mouseLocked)
+            return;
+
+        //lock cursor
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+        //save state
+        this.mouseLocked = true;
+
+        //reset movement
+        movement.firstMouse = true;
+    }
+
+    public void exit() {
+        glfwSetWindowShouldClose(window, true);
     }
 
     // -- glfw events -- //
@@ -141,11 +166,14 @@ public class Client {
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
-        movement.keyPress(key, action);
-        if (screen != null) screen.keyPress(key, scancode, action, mods);
-
-        if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_F1)
-            this.setScreen(this.screen == null ? new MainMenu() : null);
+        if (screen != null) {
+            screen.keyPress(key, scancode, action, mods);
+        } else {
+            if (world != null)
+                movement.keyPress(key, action);
+            if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE)
+                this.setScreen(new PauseScreen());
+        }
     }
 
     public void charTyped(char c, int mods) {
@@ -153,17 +181,18 @@ public class Client {
     }
 
     public void mouseMove(double x, double y) {
-        movement.mouseMove(x, y);
         mouseX = (int) (x / guiScale);
         mouseY = (int) (y / guiScale);
 
-        if (screen != null) screen.mouseMove(x, y);
+        if (screen != null) {
+            screen.mouseMove(x, y);
+        } else {
+            if (world != null)
+                movement.mouseMove(x, y);
+        }
     }
 
     public void scroll(double x, double y) {
-        guiScale += (float) (Math.signum(y) * 0.1f);
-        windowResize(windowWidth, windowHeight);
-
         if (screen != null) screen.scroll(x, y);
     }
 

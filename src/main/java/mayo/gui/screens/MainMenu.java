@@ -2,8 +2,8 @@ package mayo.gui.screens;
 
 import mayo.gui.Screen;
 import mayo.gui.widgets.types.Button;
-import mayo.gui.widgets.types.Label;
 import mayo.text.Text;
+import mayo.world.World;
 
 public class MainMenu extends Screen {
 
@@ -11,15 +11,16 @@ public class MainMenu extends Screen {
     public void init() {
         super.init();
 
-        Label l = new Label(Text.of("TEST"), client.font, 20, 20);
-        l.setX(width - l.getWidth());
-        this.addWidget(l);
-
-        Button butt = new Button(0, 0, 60, 20, Text.of("BUTTON"), () -> {
-            l.setText(Text.of("THE BUTTON HAS BEEN PRESSED!!!"));
-            l.setX(width - l.getWidth());
+        Button worldButton = new Button(0, 0, 160, 20, Text.of("Open world"), () -> {
+            client.world = new World();
+            client.world.init();
+            client.setScreen(null);
         });
-        butt.setPos((width - butt.getWidth()) / 2, (height - butt.getHeight()) / 2);
-        this.addWidget(butt);
+        worldButton.setPos((width - worldButton.getWidth()) / 2, (height - worldButton.getHeight()) / 2);
+        this.addWidget(worldButton);
+
+        Button exitButton = new Button(0, 0, 160, 20, Text.of("Exit"), () -> client.exit());
+        exitButton.setPos(worldButton.getX(), worldButton.getY() + worldButton.getHeight() + 16);
+        this.addWidget(exitButton);
     }
 }

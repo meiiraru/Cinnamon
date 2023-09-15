@@ -37,8 +37,11 @@ public class Button extends Widget implements GUIListener {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.hovered = UIHelper.isMouseOver(this, mouseX, mouseY);
+
         renderBackground(matrices, mouseX, mouseY, delta);
-        renderText(matrices, mouseX, mouseY, delta);
+
+        if (message != null)
+            renderText(matrices, mouseX, mouseY, delta);
     }
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {

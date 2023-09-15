@@ -97,18 +97,19 @@ public class Main {
 
         //glLineWidth(5f);
 
-        //timer
+        //fps count
         double previousTime = glfwGetTime();
+        int fps = 0;
 
         //render loop
         while (!glfwWindowShouldClose(window)) {
             //fps counter
             double currentTime = glfwGetTime();
-            client.fps++;
+            fps++;
 
             if (currentTime - previousTime >= 1) {
-                glfwSetWindowTitle(window, "May-o " + client.fps + " fps");
-                client.fps = 0;
+                client.fps = fps;
+                fps = 0;
                 previousTime = currentTime;
             }
 

@@ -11,6 +11,9 @@ import mayo.utils.UIHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+
 public abstract class Screen {
 
     //widget lists
@@ -23,7 +26,7 @@ public abstract class Screen {
     protected int width, height;
 
 
-    // -- widgets management -- //
+    // -- screen functions -- //
 
 
     //init from client
@@ -39,6 +42,14 @@ public abstract class Screen {
     public void init() {}
 
     public void close() {}
+
+    public boolean closeOnEsc() {
+        return false;
+    }
+
+
+    // -- widgets management -- //
+
 
     public void rebuild() {
         this.widgets.clear();
@@ -85,8 +96,12 @@ public abstract class Screen {
         postRender(matrices, delta);
     }
 
-    protected void preRender(MatrixStack matrices, float delta) {
+    protected void renderBackground(MatrixStack matrices, float delta) {
         UIHelper.renderBackground(matrices, delta);
+    }
+
+    protected void preRender(MatrixStack matrices, float delta) {
+        this.renderBackground(matrices, delta);
     }
 
     protected void renderChildren(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -113,6 +128,9 @@ public abstract class Screen {
             if (listener.keyPress(key, scancode, action, mods))
                 break;
         }
+
+        if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE && closeOnEsc())
+            client.setScreen(null);
     }
 
     public void charTyped(char c, int mods) {

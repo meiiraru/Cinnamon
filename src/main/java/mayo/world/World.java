@@ -4,16 +4,14 @@ import mayo.Client;
 import mayo.model.obj.Mesh2;
 import mayo.parsers.ObjLoader;
 import mayo.render.MatrixStack;
-import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
-import mayo.text.Style;
-import mayo.text.Text;
 import mayo.utils.Resource;
 import mayo.utils.Rotation;
-import mayo.utils.TextUtils;
 
 public class World {
+
+    private final Hud hud = new Hud();
 
     //temp
     private Mesh2 mesh, mesh2, mesh3, mesh4;
@@ -26,6 +24,7 @@ public class World {
     }
 
     public void tick() {
+        this.hud.tick();
     }
 
     public void render(MatrixStack matrices, float delta) {
@@ -67,61 +66,6 @@ public class World {
     }
 
     public void renderHUD(MatrixStack matrices, float delta) {
-        //render text demo
-        Text t = Text.empty().append(Text.of("Lorem ipsum").withStyle(
-                Style.EMPTY
-                        .backgroundColor(0xFF72ADFF)
-                        .shadowColor(0xFFFF7272)
-                        .background(true)
-                        .shadow(true)
-                        .bold(true)
-        ));
-
-        t.append(Text.of(" dolor sit amet.\nSit quae dignissimos non voluptates sunt").withStyle(
-                Style.EMPTY
-                        .color(0xFF72FFAD)
-        ).append(Text.of("\nut temporibus commodi eum galisum").withStyle(
-                Style.EMPTY
-                        .backgroundColor(0xFFFF72AD)
-                        .background(true)
-                        .outlined(true)
-        )));
-
-        t.append(Text.of(" alias.").withStyle(
-                Style.EMPTY
-                        .bold(true)
-                        .italic(true)
-                        .underlined(true)
-        ));
-
-        t.append("\n\n");
-
-        t.append(Text.of("Lorem ipsum dolor sit amet,\nconsectetur adipisicing elit.").withStyle(
-                Style.EMPTY
-                        .outlineColor(0xFF72ADFF)
-                        .outlined(true)
-                        .italic(true)
-        ).append(Text.of("\nAb accusamus ad alias aperiam\n[...]").withStyle(
-                Style.EMPTY
-                        .backgroundColor(0xFF72FF72)
-                        .color(0xFF202020)
-                        .bold(true)
-                        .background(true)
-                        .italic(false)
-        )));
-
-        t.append(Text.of("\n\niii OBFUSCATED iii").withStyle(
-                Style.EMPTY
-                        .backgroundColor(0xFFAD72FF)
-                        .background(true)
-                        .obfuscated(true)
-        ));
-
-        Client c = Client.getInstance();
-
-        matrices.push();
-        matrices.translate(c.scaledWidth / 2f, c.scaledHeight - c.font.height(t), 0f);
-        c.font.render(VertexConsumer.FONT, matrices.peek(), t, TextUtils.Alignment.CENTER);
-        matrices.pop();
+        hud.render(matrices, delta);
     }
 }
