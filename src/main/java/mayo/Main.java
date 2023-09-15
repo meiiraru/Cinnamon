@@ -1,6 +1,7 @@
 package mayo;
 
 import mayo.render.MatrixStack;
+import mayo.render.Window;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
@@ -45,9 +46,10 @@ public class Main {
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
         //create window
-        window = glfwCreateWindow(client.windowWidth, client.windowHeight, "May-o", NULL, NULL);
+        window = glfwCreateWindow(854, 480, "May-o", NULL, NULL);
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
+        client.window = new Window(window, 854, 480);
 
         //input callbacks
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> client.keyPress(key, scancode, action, mods));
@@ -55,6 +57,7 @@ public class Main {
         glfwSetMouseButtonCallback(window, (window, button, action, mods) -> client.mousePress(button, action, mods));
         glfwSetCursorPosCallback(window, (window, x, y) -> client.mouseMove(x, y));
         glfwSetScrollCallback(window, (window, x, y) -> client.scroll(x, y));
+        glfwSetWindowPosCallback(window, (window, x, y) -> client.windowMove(x, y));
         glfwSetWindowSizeCallback(window, (window, width, height) -> client.windowResize(width, height));
         glfwSetWindowFocusCallback(window, (window, focused) -> client.windowFocused(focused));
 
@@ -78,7 +81,7 @@ public class Main {
         glfwMaximizeWindow(window);
 
         //init client
-        client.init(window);
+        client.init();
     }
 
     private void loop() {

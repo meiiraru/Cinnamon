@@ -7,6 +7,7 @@ import mayo.input.Movement;
 import mayo.render.Camera;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
+import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.utils.Resource;
 import mayo.utils.Timer;
@@ -21,18 +22,12 @@ public class Client {
 
     private static final Client INSTANCE = new Client();
 
-    public int windowWidth = 854, windowHeight = 480;
-    public int scaledWidth = windowWidth, scaledHeight = windowHeight;
-    public float guiScale = 3f;
-    private long window;
-
     private final Timer timer = new Timer(20);
     public int ticks;
     public int fps;
-    public int mouseX, mouseY;
-    private boolean mouseLocked;
 
     //objects
+    public Window window;
     public Camera camera;
     public Font font;
     private Screen screen;
@@ -41,10 +36,9 @@ public class Client {
 
     private Client() {}
 
-    public void init(long window) {
-        this.window = window;
+    public void init() {
         this.camera = new Camera();
-        this.camera.updateProjMatrix(scaledWidth, scaledHeight);
+        this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight);
         this.font = new Font(new Resource("fonts/mayscript.ttf"), 8);
         this.movement = new Movement();
         this.setScreen(new MainMenu());
@@ -87,7 +81,7 @@ public class Client {
         //render gui
         if (this.screen != null) {
             glClear(GL_DEPTH_BUFFER_BIT); //top of hud
-            screen.render(matrices, delta);
+            screen.render(matrices, window.mouseX, window.mouseY, delta);
             VertexConsumer.finishAllBatches(camera.getOrthographicMatrix(), new Matrix4f());
         }
 
@@ -117,46 +111,17 @@ public class Client {
 
         if (s != null) {
             //init the new screen
-            s.init(this, scaledWidth, scaledHeight);
+            s.init(this, window.scaledWidth, window.scaledHeight);
 
             //unlock mouse
-            unlockMouse();
+            window.unlockMouse();
         } else {
             //no screen, then lock the mouse
-            lockMouse();
+            if (window.lockMouse()) {
+                //reset movement
+                movement.firstMouse = true;
+            }
         }
-    }
-
-    public void unlockMouse() {
-        if (!mouseLocked)
-            return;
-
-        //unlock cursor
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-        //move cursor to the window's center
-        glfwSetCursorPos(window, windowWidth / 2f, windowHeight / 2f);
-
-        //save state
-        this.mouseLocked = false;
-    }
-
-    public void lockMouse() {
-        if (mouseLocked)
-            return;
-
-        //lock cursor
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-        //save state
-        this.mouseLocked = true;
-
-        //reset movement
-        movement.firstMouse = true;
-    }
-
-    public void exit() {
-        glfwSetWindowShouldClose(window, true);
     }
 
     // -- glfw events -- //
@@ -166,6 +131,9 @@ public class Client {
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
+        if (action == GLFW_PRESS && key == GLFW_KEY_F11)
+            window.toggleFullScreen();
+
         if (screen != null) {
             screen.keyPress(key, scancode, action, mods);
         } else {
@@ -181,8 +149,7 @@ public class Client {
     }
 
     public void mouseMove(double x, double y) {
-        mouseX = (int) (x / guiScale);
-        mouseY = (int) (y / guiScale);
+        window.mouseMove(x, y);
 
         if (screen != null) {
             screen.mouseMove(x, y);
@@ -196,17 +163,18 @@ public class Client {
         if (screen != null) screen.scroll(x, y);
     }
 
+    public void windowMove(int x, int y) {
+        window.windowMove(x, y);
+    }
+
     public void windowResize(int width, int height) {
-        this.windowWidth = width;
-        this.windowHeight = height;
-        this.scaledWidth = (int) (width / guiScale);
-        this.scaledHeight = (int) (height / guiScale);
+        window.windowResize(width, height);
 
         if (camera != null)
-            camera.updateProjMatrix(scaledWidth, scaledHeight);
+            camera.updateProjMatrix(window.scaledWidth, window.scaledHeight);
 
         if (screen != null)
-            screen.resize(scaledWidth, scaledHeight);
+            screen.resize(window.scaledWidth, window.scaledHeight);
     }
 
     public void windowFocused(boolean focused) {

@@ -24,7 +24,7 @@ public class MainMenu extends Screen {
         this.addWidget(dvd);
 
         //close application
-        Button exitButton = new Button(dvd.getX(), dvd.getY() + dvd.getHeight() + 16, 160, 20, Text.of("Exit"), () -> client.exit());
+        Button exitButton = new Button(dvd.getX(), dvd.getY() + dvd.getHeight() + 16, 160, 20, Text.of("Exit"), () -> client.window.exit());
         this.addWidget(exitButton);
     }
 }

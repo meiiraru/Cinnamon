@@ -55,14 +55,13 @@ public class DVDScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrices, float delta) {
-
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         Vertex[] vertices = GeometryHelper.quad(pos.x + dir.x * delta, pos.y + dir.y * delta, w, h);
         for (Vertex vertex : vertices)
             vertex.color(color);
         VertexConsumer.GUI.consume(vertices, DVD_TEX.getID());
 
-        super.render(matrices, delta);
+        super.render(matrices, mouseX, mouseY, delta);
     }
 
     private void changeColor() {

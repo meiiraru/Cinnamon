@@ -16,12 +16,12 @@ public class UIHelper {
             new Texture(new Resource("textures/background/background_2.png"))
     };
 
-    public static void renderBackground(MatrixStack matrices, float delta) {
+    public static void renderBackground(MatrixStack matrices, int width, int height, float delta) {
         Client c = Client.getInstance();
         float speed = 0.125f;
         int textureSize = 64;
-        int width = c.scaledWidth + textureSize;
-        int height = c.scaledHeight + textureSize;
+        width += textureSize;
+        height += textureSize;
 
         for (int i = 0; i < BACKGROUND.length; i++) {
             float x = 0, y = 0;

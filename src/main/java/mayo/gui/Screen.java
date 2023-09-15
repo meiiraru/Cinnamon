@@ -97,14 +97,14 @@ public abstract class Screen {
     // -- render -- //
 
 
-    public void render(MatrixStack matrices, float delta) {
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         preRender(matrices, delta);
-        renderChildren(matrices, client.mouseX, client.mouseY, delta);
+        renderChildren(matrices, mouseX, mouseY, delta);
         postRender(matrices, delta);
     }
 
     protected void renderBackground(MatrixStack matrices, float delta) {
-        UIHelper.renderBackground(matrices, delta);
+        UIHelper.renderBackground(matrices, width, height, delta);
     }
 
     protected void preRender(MatrixStack matrices, float delta) {
