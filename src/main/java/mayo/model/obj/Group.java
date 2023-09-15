@@ -1,5 +1,6 @@
 package mayo.model.obj;
 
+import mayo.render.Texture;
 import mayo.render.shader.Attributes;
 import mayo.utils.Pair;
 import org.lwjgl.BufferUtils;
@@ -73,8 +74,11 @@ public class Group {
         glBindVertexArray(vao);
 
         //bind material
-        if (material != null)
+        if (material != null) {
             material.use();
+        } else {
+            Texture.MISSING.bind();
+        }
 
         //draw
         glDrawArrays(GL_TRIANGLES, 0, vertexCount);

@@ -27,4 +27,9 @@ public class Resource {
     public String toString() {
         return namespace + "/" + path;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof Resource r && r.namespace.equals(namespace) && r.path.equals(path);
+    }
 }

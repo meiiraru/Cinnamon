@@ -4,6 +4,7 @@ import mayo.utils.IOUtils;
 import mayo.utils.Resource;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -11,12 +12,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 
 public class Texture {
 
     //a map containing the registered ids of all textures
-    private static final Map<String, Integer> ID_MAP = new HashMap<>();
+    private static final Map<Resource, Integer> ID_MAP = new HashMap<>();
+    //the missing texture
+    public static final Texture MISSING = generateMissingTex();
 
     private final int ID, hFrames, vFrames;
 
@@ -32,7 +34,7 @@ public class Texture {
 
     private static int loadTexture(Resource res) {
         //returns id of already registered texture, if any
-        Integer saved = ID_MAP.get(res.toString());
+        Integer saved = ID_MAP.get(res);
         if (saved != null)
             return saved;
 
@@ -51,23 +53,58 @@ public class Texture {
             int height = h.get();
 
             int id = glGenTextures();
-            ID_MAP.put(res.toString(), id);
+            ID_MAP.put(res, id);
             glBindTexture(GL_TEXTURE_2D, id);
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-            glGenerateMipmap(GL_TEXTURE_2D);
 
             STBImage.stbi_image_free(buffer);
+            glBindTexture(GL_TEXTURE_2D, 0);
+
             return id;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load texture \"" + res + "\"", e);
+            System.err.println("Failed to load texture \"" + res + "\"");
+            e.printStackTrace();
+            return MISSING.ID;
         }
+    }
+
+    private static Texture generateMissingTex() {
+        //put texture on the map, so we fetch from there from so on
+        int id = glGenTextures();
+        Resource res = new Resource("generated/missing.png");
+        ID_MAP.put(res, id);
+
+        //w * h * rgba
+        long pixels = MemoryUtil.nmemAlloc(16 * 16 * 4);
+
+        //paint texture
+        //  Pink Black
+        //  Black Pink
+        for (int y = 0; y < 16; y++) {
+            for (int x = 0; x < 16; x++) {
+                //x + y * w * rgba
+                long i = (x + y * 16) * 4;
+                boolean b = (x < 8 && y < 8) || (y >= 8 && x >= 8);
+                MemoryUtil.memPutInt(pixels + i, b ? 0xFFAD72FF : 0xFF << 24); //A B G R
+            }
+        }
+
+        //open gl stuff
+        glBindTexture(GL_TEXTURE_2D, id);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 16, 16, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        //return a new texture
+        return new Texture(res);
     }
 
     public int gethFrames() {

@@ -75,6 +75,8 @@ public class Font {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, TEXTURE_W, TEXTURE_H, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap);
+
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
 
         for (int i = 0; i < 0xFFFF; i++) {
