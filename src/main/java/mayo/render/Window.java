@@ -115,6 +115,10 @@ public class Window {
         return Pair.of(monitor, glfwGetVideoMode(monitor));
     }
 
+    public void setTitle(String title) {
+        glfwSetWindowTitle(window, title);
+    }
+
     public void mouseMove(double x, double y) {
         this.mouseX = (int) (x / guiScale);
         this.mouseY = (int) (y / guiScale);

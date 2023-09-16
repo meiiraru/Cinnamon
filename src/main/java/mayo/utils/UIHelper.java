@@ -8,6 +8,7 @@ import mayo.render.Texture;
 import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
+import org.joml.Matrix4f;
 
 import static mayo.model.GeometryHelper.quad;
 
@@ -27,7 +28,7 @@ public class UIHelper {
         width += textureSize;
         height += textureSize;
 
-        for (int i = 0; i < BACKGROUND.length; i++) {
+        for (Texture texture : BACKGROUND) {
             float x = 0, y = 0;
             float d = (c.ticks + delta) * speed;
 
@@ -38,12 +39,13 @@ public class UIHelper {
             float v1 = (float) height / textureSize;
 
             VertexConsumer.GUI.consume(quad(
+                    matrices.peek(),
                     x, y,
                     width, height,
                     -999,
                     0f, u1,
                     0f, v1
-            ), BACKGROUND[i].getID());
+            ), texture.getID());
 
             speed *= 2f;
         }
@@ -57,34 +59,34 @@ public class UIHelper {
         return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
     }
 
-    public static void nineQuad(VertexConsumer vertexConsumer, int textureID, float x, float y, float width, float height) {
-        nineQuad(vertexConsumer, textureID, x, y, width, height, 0f, 0f, 15, 15, 15, 15);
+    public static void nineQuad(VertexConsumer vertexConsumer, Matrix4f matrix, int textureID, float x, float y, float width, float height) {
+        nineQuad(vertexConsumer, matrix, textureID, x, y, width, height, 0f, 0f, 15, 15, 15, 15);
     }
 
-    public static void nineQuad(VertexConsumer consumer, int textureID, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
+    public static void nineQuad(VertexConsumer consumer, Matrix4f matrix, int textureID, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
         float rWidthThird = regionWidth / 3f;
         float rHeightThird = regionHeight / 3f;
 
         //top left
-        consumer.consume(quad(x, y, rWidthThird, rHeightThird, u, v, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
+        consumer.consume(quad(matrix, x, y, rWidthThird, rHeightThird, u, v, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
         //top middle
-        consumer.consume(quad(x + rWidthThird, y, width - rWidthThird * 2, rHeightThird, u + rWidthThird, v, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
+        consumer.consume(quad(matrix, x + rWidthThird, y, width - rWidthThird * 2, rHeightThird, u + rWidthThird, v, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
         //top right
-        consumer.consume(quad(x + width - rWidthThird, y, rWidthThird, rHeightThird, u + rWidthThird * 2, v, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
+        consumer.consume(quad(matrix, x + width - rWidthThird, y, rWidthThird, rHeightThird, u + rWidthThird * 2, v, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
 
         //middle left
-        consumer.consume(quad(x, y + rHeightThird, rWidthThird, height - rHeightThird * 2, u, v + rHeightThird, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
+        consumer.consume(quad(matrix, x, y + rHeightThird, rWidthThird, height - rHeightThird * 2, u, v + rHeightThird, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
         //middle middle
-        consumer.consume(quad(x + rWidthThird, y + rHeightThird, width - rWidthThird * 2, height - rHeightThird * 2, u + rWidthThird, v + rHeightThird, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
+        consumer.consume(quad(matrix, x + rWidthThird, y + rHeightThird, width - rWidthThird * 2, height - rHeightThird * 2, u + rWidthThird, v + rHeightThird, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
         //middle right
-        consumer.consume(quad(x + width - rWidthThird, y + rHeightThird, rWidthThird, height - rHeightThird * 2, u + rWidthThird * 2, v + rHeightThird, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
+        consumer.consume(quad(matrix, x + width - rWidthThird, y + rHeightThird, rWidthThird, height - rHeightThird * 2, u + rWidthThird * 2, v + rHeightThird, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
 
         //bottom left
-        consumer.consume(quad(x, y + height - rHeightThird, rWidthThird, rHeightThird, u, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
+        consumer.consume(quad(matrix, x, y + height - rHeightThird, rWidthThird, rHeightThird, u, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
         //bottom middle
-        consumer.consume(quad(x + rWidthThird, y + height - rHeightThird, width - rWidthThird * 2, rHeightThird, u + rWidthThird, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
+        consumer.consume(quad(matrix, x + rWidthThird, y + height - rHeightThird, width - rWidthThird * 2, rHeightThird, u + rWidthThird, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
         //bottom right
-        consumer.consume(quad(x + width - rWidthThird, y + height - rHeightThird, rWidthThird, rHeightThird, u + rWidthThird * 2, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
+        consumer.consume(quad(matrix, x + width - rWidthThird, y + height - rHeightThird, rWidthThird, rHeightThird, u + rWidthThird * 2, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
     }
 
     public static void renderTooltip(MatrixStack matrices, Text tooltip, Font f, int mouseX, int mouseY) {
@@ -108,13 +110,14 @@ public class UIHelper {
         y = (int) Meth.clamp(y, -2f, screenH - h - 2);
 
         matrices.push();
-        matrices.translate(x + 2, y + 2, 999f);
+        matrices.translate(x, y, 999f);
+        Matrix4f matrix = matrices.peek();
 
         //draw background
-        nineQuad(VertexConsumer.GUI, TOOLTIP.getID(), x, y, w + 4, h + 4);
+        nineQuad(VertexConsumer.GUI, matrix, TOOLTIP.getID(), 0, 0, w + 4, h + 4);
 
         //draw text
-        f.render(VertexConsumer.FONT, matrices.peek(), tooltip);
+        f.render(VertexConsumer.FONT, matrix, 2, 2, tooltip);
 
         matrices.pop();
     }

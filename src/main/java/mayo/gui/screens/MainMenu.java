@@ -2,7 +2,10 @@ package mayo.gui.screens;
 
 import mayo.gui.Screen;
 import mayo.gui.widgets.types.Button;
+import mayo.gui.widgets.types.Label;
+import mayo.text.Style;
 import mayo.text.Text;
+import mayo.utils.Colors;
 import mayo.world.World;
 
 public class MainMenu extends Screen {
@@ -20,12 +23,16 @@ public class MainMenu extends Screen {
         this.addWidget(worldButton);
 
         //dvd screen
-        Button dvd = new Button(worldButton.getX(), worldButton.getY() + worldButton.getHeight() + 16, 160, 20, Text.of("DVD"), () -> client.setScreen(new DVDScreen(this)));
+        Button dvd = new Button(worldButton.getX(), worldButton.getY() + worldButton.getHeight() + 16, 160, 20, Text.of("DVD screensaver"), () -> client.setScreen(new DVDScreen(this)));
         this.addWidget(dvd);
 
         //close application
         Button exitButton = new Button(dvd.getX(), dvd.getY() + dvd.getHeight() + 16, 160, 20, Text.of("Exit"), () -> client.window.exit());
         exitButton.setTooltip(Text.of("bye~"));
         this.addWidget(exitButton);
+
+        //may~o
+        Text may = Text.of("May~o Renderer v0.1").withStyle(Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK));
+        this.addWidget(new Label(may, font, 4, (int) (height - font.height(may) - 4)));
     }
 }

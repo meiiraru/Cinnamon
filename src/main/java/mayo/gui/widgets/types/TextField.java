@@ -4,12 +4,14 @@ import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.Widget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
+import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
+import mayo.utils.TextUtils;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class TextField {//extends Widget implements GUIListener {
+public class TextField extends Widget implements GUIListener {
 
     private final Font font;
     private String currText;
@@ -19,15 +21,17 @@ public class TextField {//extends Widget implements GUIListener {
     }
 
     public TextField(Font font, String text) {
+        super(50, 50, 50, 50);
         this.font = font;
         currText = text;
     }
 
-    public void render(MatrixStack matrices) {
+    @Override
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         Text t = Text.empty().append(Text.of("Lorem ipsum").withStyle(
                 Style.EMPTY
-                        .backgroundColor(0x72ADFF)
-                        .shadowColor(0xFF7272)
+                        .backgroundColor(0xFF72ADFF)
+                        .shadowColor(0xFFFF7272)
                         .background(true)
                         .shadow(true)
                         .bold(true)
@@ -35,10 +39,10 @@ public class TextField {//extends Widget implements GUIListener {
 
         t.append(Text.of(" dolor sit amet.\nSit quae dignissimos non voluptates sunt").withStyle(
                 Style.EMPTY
-                        .color(0x72FFAD)
+                        .color(0xFF72FFAD)
         ).append(Text.of("\nut temporibus commodi eum galisum").withStyle(
                 Style.EMPTY
-                        .backgroundColor(0xFF72AD)
+                        .backgroundColor(0xFFFF72AD)
                         .background(true)
                         .outlined(true)
         )));
@@ -54,13 +58,13 @@ public class TextField {//extends Widget implements GUIListener {
 
         t.append(Text.of("Lorem ipsum dolor sit amet,\nconsectetur adipisicing elit.").withStyle(
                 Style.EMPTY
-                        .outlineColor(0x72ADFF)
+                        .outlineColor(0xFF72ADFF)
                         .outlined(true)
                         .italic(true)
         ).append(Text.of("\nAb accusamus ad alias aperiam\n[...]").withStyle(
                 Style.EMPTY
-                        .backgroundColor(0x72FF72)
-                        .color(0x202020)
+                        .backgroundColor(0xFF72FF72)
+                        .color(0xFF202020)
                         .bold(true)
                         .background(true)
                         .italic(false)
@@ -68,17 +72,22 @@ public class TextField {//extends Widget implements GUIListener {
 
         t.append(Text.of("\n\niii OBFUSCATED iii").withStyle(
                 Style.EMPTY
-                        .backgroundColor(0xAD72FF)
+                        .backgroundColor(0xFFAD72FF)
                         .background(true)
                         .obfuscated(true)
         ));
 
+        t.append(Text.of("\n\n\u306F\u3058\u3081\u307E\u3057\u3066\u3000\u308F\u305F\u3057\u306F\u3000\u3081\u3044\u3067\u3059\u3000\u3088\u308D\u3057\u304F\u3000\u304A\u306D\u304C\u3044\u3000\u3057\u307E\u3059~~").withStyle(
+                Style.EMPTY
+                        .strikethrough(false)
+        ));
+
         t.append("\n\n").append(currText);
 
-        //font.render(matrices.peek(), t, TextUtils.Alignment.CENTER);
-        //aa.transform.setPos((int) (Client.getInstance().scaledWidth / 2f), (int) (Client.getInstance().scaledHeight - font.height(t) - 10f), 0);
+        font.render(VertexConsumer.FONT, matrices.peek(), getX(), getY(), t, TextUtils.Alignment.CENTER);
     }
 
+    @Override
     public boolean keyPress(int key, int scancode, int action, int mods) {
         if (action == GLFW_RELEASE)
             return false;

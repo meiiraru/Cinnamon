@@ -9,6 +9,7 @@ import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
+import mayo.utils.Colors;
 import mayo.utils.Meth;
 import mayo.utils.Resource;
 import org.joml.Vector2f;
@@ -22,8 +23,8 @@ public class DVDScreen extends Screen {
     private final Screen parentScreen;
     private final Vector2f
             pos = new Vector2f(),
-            dir = new Vector2f(speed, speed);
-    private int color = -1;
+            dir = new Vector2f();
+    private Colors color;
 
     public DVDScreen(Screen parentScreen) {
         this.parentScreen = parentScreen;
@@ -35,9 +36,17 @@ public class DVDScreen extends Screen {
 
         //go back
         this.addWidget(new Button(width - 60 - 4, height - 20 - 4, 60, 20 , Text.of("Back"), this::close));
+    }
 
+    @Override
+    public void added() {
         //fullscreen toast
         Toast.addToast(Text.of("Press [F11] to toggle fullscreen"), font);
+
+        //set color and position
+        this.changeColor();
+        pos.set((int) ((width - w) / 2f), (int) ((height - h) / 2f));
+        dir.set(Math.random() < 0.5f ? speed : -speed, Math.random() < 0.5f ? speed : -speed);
     }
 
     @Override
@@ -60,16 +69,16 @@ public class DVDScreen extends Screen {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        Vertex[] vertices = GeometryHelper.quad(pos.x + dir.x * delta, pos.y + dir.y * delta, w, h);
+        Vertex[] vertices = GeometryHelper.quad(matrices.peek(), pos.x + dir.x * delta, pos.y + dir.y * delta, w, h);
         for (Vertex vertex : vertices)
-            vertex.color(color);
+            vertex.color(color.rgba);
         VertexConsumer.GUI.consume(vertices, DVD_TEX.getID());
 
         super.render(matrices, mouseX, mouseY, delta);
     }
 
     private void changeColor() {
-        color = (int) (Math.random() * 0x888888) + 0xFF777777;
+        color = Colors.randomRainbow();
     }
 
     @Override

@@ -42,8 +42,11 @@ public abstract class Screen {
         this.rebuild();
     }
 
-    //children-based init
+    //children-based init, also happens when the window is modified
     public void init() {}
+
+    //screen is added into the client, ie one-time init
+    public void added() {}
 
     //screen is removed from client, ie saving changes
     public void removed() {}

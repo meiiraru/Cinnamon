@@ -116,6 +116,9 @@ public class Client {
             //init the new screen
             s.init(this, window.scaledWidth, window.scaledHeight);
 
+            //screen has been added
+            screen.added();
+
             //unlock mouse
             window.unlockMouse();
         } else {

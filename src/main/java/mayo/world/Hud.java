@@ -26,12 +26,9 @@ public class Hud {
         int h = c.window.scaledHeight;
 
         //render fps
-        matrices.push();
-        matrices.translate(w - c.font.width(fps) - 4f, 4f, 0f);
-        c.font.render(VertexConsumer.FONT, matrices.peek(), fps);
-        matrices.pop();
+        c.font.render(VertexConsumer.FONT, matrices.peek(), 4, 4, fps);
 
         //draw crosshair
-        VertexConsumer.GUI.consume(GeometryHelper.quad((int) (w / 2f - 8), (int) (h / 2f - 8), 16, 16), CROSSHAIR.getID());
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices.peek(), (int) (w / 2f - 8), (int) (h / 2f - 8), 16, 16), CROSSHAIR.getID());
     }
 }

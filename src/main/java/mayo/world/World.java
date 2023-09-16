@@ -14,7 +14,7 @@ public class World {
     private final Hud hud = new Hud();
 
     //temp
-    private Mesh mesh, mesh2, mesh3, mesh4, mesh5;
+    private Mesh mesh, mesh2, mesh3, mesh4, mesh5, mesh6;
 
     public void init() {
         mesh = ObjLoader.load(new Resource("models/teapot.obj")).bake();
@@ -22,6 +22,7 @@ public class World {
         mesh3 = ObjLoader.load(new Resource("models/bunny.obj")).bake();
         mesh4 = ObjLoader.load(new Resource("models/cube/cube.obj")).bake();
         mesh5 = ObjLoader.load(new Resource("models/suzanne.obj")).bake();
+        mesh6 = ObjLoader.load(new Resource("models/bullet/bullet.obj")).bake();
     }
 
     public void tick() {
@@ -73,6 +74,10 @@ public class World {
         s.setModelMatrix(matrices.peek());
         mesh5.render();
         matrices.pop();
+
+        //render mesh 6
+        s.setModelMatrix(matrices.peek());
+        mesh6.render();
     }
 
     public void renderHUD(MatrixStack matrices, float delta) {

@@ -33,4 +33,14 @@ public enum Colors {
         this.rgba = rgb + (0xFF << 24);
         this.vec = ColorUtils.intToRGB(rgb);
     }
+
+    public static Colors randomRainbow() {
+        Colors[] colors = values();
+        return colors[(int) (Math.random() * 10)];
+    }
+
+    public static Colors random() {
+        Colors[] colors = values();
+        return colors[(int) (Math.random() * colors.length)];
+    }
 }

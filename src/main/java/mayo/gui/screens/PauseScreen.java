@@ -31,7 +31,7 @@ public class PauseScreen extends Screen {
 
     @Override
     protected void renderBackground(MatrixStack matrices, float delta) {
-        Vertex[] vertices = GeometryHelper.quad(0, 0, width, height);
+        Vertex[] vertices = GeometryHelper.quad(matrices.peek(), 0, 0, width, height);
         for (Vertex vertex : vertices)
             vertex.color(0x88 << 24);
         VertexConsumer.GUI.consume(vertices, 0);

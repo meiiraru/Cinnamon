@@ -92,18 +92,18 @@ public class Font {
 
     // -- font rendering -- //
 
-    public void render(VertexConsumer consumer, Matrix4f matrix, Text text) {
-        render(consumer, matrix, text, TextUtils.Alignment.LEFT);
+    public void render(VertexConsumer consumer, Matrix4f matrix, float x, float y, Text text) {
+        render(consumer, matrix, x, y, text, TextUtils.Alignment.LEFT);
     }
 
-    public void render(VertexConsumer consumer, Matrix4f matrix, Text text, TextUtils.Alignment alignment) {
+    public void render(VertexConsumer consumer, Matrix4f matrix, float x, float y, Text text, TextUtils.Alignment alignment) {
         List<Text> list = TextUtils.split(text, "\n");
 
         for (int i = 0; i < list.size(); i++) {
             Text t = list.get(i);
-            int x = (int) alignment.apply(this, t);
-            int y = (int) (lineHeight * (i + 1) - 1);
-            bake(consumer, matrix, t, x, y);
+            int x2 = (int) alignment.apply(this, t);
+            int y2 = (int) (lineHeight * (i + 1) - 1);
+            bake(consumer, matrix, t, x + x2, y + y2);
         }
     }
 

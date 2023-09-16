@@ -8,8 +8,8 @@ import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
 import mayo.utils.Meth;
 import mayo.utils.Resource;
-import mayo.utils.TextUtils;
 import mayo.utils.UIHelper;
+import org.joml.Matrix4f;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -94,15 +94,17 @@ public class Toast {
             y = 4f;
         }
 
+        matrices.push();
+        matrices.translate((width - tWidth - PADDING) / 2, y, 999f);
+        Matrix4f matrix = matrices.peek();
+
         //render background
-        UIHelper.nineQuad(VertexConsumer.GUI, TEXTURE.getID(), (width - tWidth - PADDING) / 2, y, tWidth + PADDING, tHeight + PADDING);
+        UIHelper.nineQuad(VertexConsumer.GUI, matrix, TEXTURE.getID(), 0f, 0f, tWidth + PADDING, tHeight + PADDING);
 
         //render text
-        matrices.push();
-        matrices.translate(width / 2f, y + PADDING / 2f, 0f);
-        font.render(VertexConsumer.FONT, matrices.peek(), text, TextUtils.Alignment.CENTER);
-        matrices.pop();
+        font.render(VertexConsumer.FONT, matrices.peek(), PADDING / 2f, PADDING / 2f, text);
 
+        matrices.pop();
         return false;
     }
 }

@@ -46,7 +46,7 @@ public class Main {
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
         //create window
-        window = glfwCreateWindow(854, 480, "May-o", NULL, NULL);
+        window = glfwCreateWindow(854, 480, "May~o", NULL, NULL);
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
         client.window = new Window(window, 854, 480);
