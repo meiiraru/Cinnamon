@@ -16,13 +16,20 @@ import java.util.Queue;
 
 public class Toast {
 
-    private static final int
+    // -- properties -- //
+
+    protected static final int
             LENGTH = 100,
-            ANIM = 5;
+            ANIM = 5,
+            PADDING = 12;
     private static final Texture TEXTURE = new Texture(new Resource("textures/gui/toast.png"));
     private static final Queue<Toast> TOASTS = new LinkedList<>();
 
-    public static void render(MatrixStack matrices, int width, int height, float delta) {
+
+    // -- toast functions -- //
+
+
+    public static void renderToasts(MatrixStack matrices, int width, int height, float delta) {
         if (TOASTS.isEmpty())
             return;
 
@@ -30,28 +37,44 @@ public class Toast {
         if (toast.addedTime < 0)
             toast.addedTime = Client.getInstance().ticks;
 
-        if (toast._render(matrices, width, height, delta))
+        if (toast.render(matrices, width, height, delta))
             TOASTS.remove();
     }
 
     public static void addToast(Text text, Font font) {
+        String str = text.asString();
+        for (Toast toast : TOASTS) {
+            //update toast if it already exists
+            if (toast.text.asString().equals(str)) {
+                toast.text = text;
+                toast.font = font;
+                toast.addedTime = Client.getInstance().ticks - ANIM;
+                return;
+            }
+        }
+
+        //otherwise queue a new toast
         TOASTS.add(new Toast(text, font));
+    }
+
+    public static void clearAll() {
+        TOASTS.clear();
     }
 
 
     // -- the toast -- //
 
 
-    private final Text text;
-    private final Font font;
+    private Text text;
+    private Font font;
     private int addedTime = -1;
 
-    private Toast(Text text, Font font) {
+    protected Toast(Text text, Font font) {
         this.text = text;
         this.font = font;
     }
 
-    private boolean _render(MatrixStack matrices, int width, int height, float delta) {
+    protected boolean render(MatrixStack matrices, int width, int height, float delta) {
         //calculate life
         float life = Client.getInstance().ticks - addedTime + delta;
         if (life > LENGTH)
@@ -64,19 +87,19 @@ public class Toast {
         //set y animation offset
         float y;
         if (life <= ANIM) {
-            y = Meth.lerp(-tHeight - 4f, 4f, life / ANIM);
+            y = Meth.lerp(-tHeight - PADDING, 4f, life / ANIM);
         } else if (life >= LENGTH - ANIM) {
-            y = Meth.lerp(4f, -tHeight - 4f, (life - (LENGTH - ANIM)) / ANIM);
+            y = Meth.lerp(4f, -tHeight - PADDING, (life - (LENGTH - ANIM)) / ANIM);
         } else {
             y = 4f;
         }
 
         //render background
-        UIHelper.nineQuad(VertexConsumer.GUI, TEXTURE.getID(), (width - tWidth) / 2 - 2, y, tWidth + 4, tHeight + 4);
+        UIHelper.nineQuad(VertexConsumer.GUI, TEXTURE.getID(), (width - tWidth - PADDING) / 2, y, tWidth + PADDING, tHeight + PADDING);
 
         //render text
         matrices.push();
-        matrices.translate(width / 2f, y + 2f, 0f);
+        matrices.translate(width / 2f, y + PADDING / 2f, 0f);
         font.render(VertexConsumer.FONT, matrices.peek(), text, TextUtils.Alignment.CENTER);
         matrices.pop();
 

@@ -84,7 +84,7 @@ public class Client {
             screen.render(matrices, window.mouseX, window.mouseY, delta);
 
         //toasts
-        Toast.render(matrices, window.scaledWidth, window.scaledHeight, delta);
+        Toast.renderToasts(matrices, window.scaledWidth, window.scaledHeight, delta);
 
         VertexConsumer.finishAllBatches(camera.getOrthographicMatrix(), new Matrix4f());
 
