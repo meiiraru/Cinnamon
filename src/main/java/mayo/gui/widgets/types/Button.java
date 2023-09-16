@@ -1,6 +1,7 @@
 package mayo.gui.widgets.types;
 
 import mayo.Client;
+import mayo.gui.Screen;
 import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.Widget;
 import mayo.render.MatrixStack;
@@ -20,6 +21,7 @@ public class Button extends Widget implements GUIListener {
 
     private final Label message;
     private final Runnable toRun;
+    private Text tooltip;
 
     private boolean
             active = true,
@@ -37,6 +39,11 @@ public class Button extends Widget implements GUIListener {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.hovered = UIHelper.isMouseOver(this, mouseX, mouseY);
+        if (this.hovered) {
+            Screen s = Client.getInstance().screen;
+            if (s != null)
+                s.tooltip = tooltip;
+        }
 
         renderBackground(matrices, mouseX, mouseY, delta);
 
@@ -80,5 +87,9 @@ public class Button extends Widget implements GUIListener {
             return true;
         }
         return GUIListener.super.mousePress(button, action, mods);
+    }
+
+    public void setTooltip(Text tooltip) {
+        this.tooltip = tooltip;
     }
 }

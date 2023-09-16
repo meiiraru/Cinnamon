@@ -25,6 +25,7 @@ public class MainMenu extends Screen {
 
         //close application
         Button exitButton = new Button(dvd.getX(), dvd.getY() + dvd.getHeight() + 16, 160, 20, Text.of("Exit"), () -> client.window.exit());
+        exitButton.setTooltip(Text.of("bye~"));
         this.addWidget(exitButton);
     }
 }

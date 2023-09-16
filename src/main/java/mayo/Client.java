@@ -31,7 +31,7 @@ public class Client {
     public Window window;
     public Camera camera;
     public Font font;
-    private Screen screen;
+    public Screen screen;
     private Movement movement;
     public World world;
 

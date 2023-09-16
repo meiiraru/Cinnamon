@@ -5,6 +5,7 @@ import mayo.gui.widgets.Widget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
+import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
 
@@ -13,10 +14,11 @@ import static mayo.model.GeometryHelper.quad;
 public class UIHelper {
 
     private static final Texture[] BACKGROUND = new Texture[]{
-            new Texture(new Resource("textures/background/background_0.png")),
-            new Texture(new Resource("textures/background/background_1.png")),
-            new Texture(new Resource("textures/background/background_2.png"))
+            new Texture(new Resource("textures/gui/background/background_0.png")),
+            new Texture(new Resource("textures/gui/background/background_1.png")),
+            new Texture(new Resource("textures/gui/background/background_2.png"))
     };
+    private static final Texture TOOLTIP = new Texture(new Resource("textures/gui/tooltip.png"));
 
     public static void renderBackground(MatrixStack matrices, int width, int height, float delta) {
         Client c = Client.getInstance();
@@ -86,6 +88,34 @@ public class UIHelper {
     }
 
     public static void renderTooltip(MatrixStack matrices, Text tooltip, Font f, int mouseX, int mouseY) {
+        //variables
+        int x = mouseX + 4;
+        int y = mouseY - 12;
+        float w = f.width(tooltip);
+        float h = f.height(tooltip);
 
+        //screen size
+        Window window = Client.getInstance().window;
+        int screenW = window.scaledWidth;
+        int screenH = window.scaledHeight;
+
+        //check if the tooltip could be rendered on the left side
+        if (x + w > screenW && mouseX > screenW / 2)
+            x -= (int) (12 + w);
+
+        //fit tooltip in the screen boundaries
+        x = (int) Meth.clamp(x, -2f, screenW - w - 2);
+        y = (int) Meth.clamp(y, -2f, screenH - h - 2);
+
+        matrices.push();
+        matrices.translate(x + 2, y + 2, 999f);
+
+        //draw background
+        nineQuad(VertexConsumer.GUI, TOOLTIP.getID(), x, y, w + 4, h + 4);
+
+        //draw text
+        f.render(VertexConsumer.FONT, matrices.peek(), tooltip);
+
+        matrices.pop();
     }
 }

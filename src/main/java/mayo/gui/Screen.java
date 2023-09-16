@@ -27,7 +27,7 @@ public abstract class Screen {
     protected int width, height;
 
     //other things
-    protected Text tooltip;
+    public Text tooltip;
 
 
     // -- screen functions -- //
