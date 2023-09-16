@@ -6,6 +6,7 @@ import mayo.gui.widgets.Tickable;
 import mayo.gui.widgets.Widget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
+import mayo.text.Text;
 import mayo.utils.UIHelper;
 
 import java.util.ArrayList;
@@ -24,6 +25,9 @@ public abstract class Screen {
     protected Client client;
     protected Font font;
     protected int width, height;
+
+    //other things
+    protected Text tooltip;
 
 
     // -- screen functions -- //
@@ -98,16 +102,16 @@ public abstract class Screen {
 
 
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        preRender(matrices, delta);
+        preRender(matrices, mouseX, mouseY, delta);
         renderChildren(matrices, mouseX, mouseY, delta);
-        postRender(matrices, delta);
+        postRender(matrices, mouseX, mouseY, delta);
     }
 
     protected void renderBackground(MatrixStack matrices, float delta) {
         UIHelper.renderBackground(matrices, width, height, delta);
     }
 
-    protected void preRender(MatrixStack matrices, float delta) {
+    protected void preRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices, delta);
     }
 
@@ -117,7 +121,14 @@ public abstract class Screen {
         }
     }
 
-    protected void postRender(MatrixStack matrices, float delta) {}
+    protected void postRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        //render tooltip
+        if (tooltip != null) {
+            if (!tooltip.isEmpty())
+                UIHelper.renderTooltip(matrices, tooltip, client.font, mouseX, mouseY);
+            tooltip = null;
+        }
+    }
 
 
     // -- listeners -- //

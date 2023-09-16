@@ -3,6 +3,7 @@ package mayo.text;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 public class Text {
 
@@ -69,5 +70,19 @@ public class Text {
         consumer.accept(text, s);
         for (Text child : children)
             child.visit(consumer, s);
+    }
+
+    public boolean visit(BiFunction<String, Style, Boolean> function, Style initialStyle) {
+        Style s = style.applyParent(initialStyle);
+
+        Boolean bool = function.apply(text, s);
+        if (bool != null && bool)
+            return true;
+
+        for (Text child : children)
+            if (child.visit(function, s))
+                return true;
+
+        return false;
     }
 }

@@ -5,12 +5,12 @@ layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec2 aTexCoords;
 layout (location = 2) in vec3 aNormal;
 
+out vec2 texCoords;
+out vec3 normal;
+
 uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
-
-out vec2 texCoords;
-out vec3 normal;
 
 void main() {
     gl_Position = projection * view * model * vec4(aPosition, 1.0f);
@@ -21,12 +21,12 @@ void main() {
 #type fragment
 #version 330 core
 
-uniform sampler2D textureSampler;
-
 in vec2 texCoords;
 in vec3 normal;
 
 out vec4 fragColor;
+
+uniform sampler2D textureSampler;
 
 void main() {
     //if (true) {fragColor = vec4(normal, 1.0f); return;}

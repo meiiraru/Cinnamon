@@ -1,19 +1,16 @@
 package mayo.gui.screens;
 
 import mayo.gui.Screen;
+import mayo.gui.Toast;
 import mayo.gui.widgets.types.Button;
-import mayo.gui.widgets.types.Label;
 import mayo.model.GeometryHelper;
 import mayo.model.Vertex;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
-import mayo.text.Style;
 import mayo.text.Text;
-import mayo.utils.Colors;
 import mayo.utils.Meth;
 import mayo.utils.Resource;
-import mayo.utils.TextUtils;
 import org.joml.Vector2f;
 
 public class DVDScreen extends Screen {
@@ -39,9 +36,8 @@ public class DVDScreen extends Screen {
         //go back
         this.addWidget(new Button(width - 60 - 4, height - 20 - 4, 60, 20 , Text.of("Back"), this::close));
 
-        //fullscreen
-        Text fs = Text.of("Press [F11] to toggle fullscreen").withStyle(Style.EMPTY.color(Colors.LIGHT_BLACK));
-        this.addWidget(new Label(fs, client.font, width / 2, 4).setAlignment(TextUtils.Alignment.CENTER));
+        //fullscreen toast
+        Toast.addToast(Text.of("Press [F11] to toggle fullscreen"), font);
     }
 
     @Override

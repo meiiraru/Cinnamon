@@ -77,19 +77,31 @@ public class Style {
     }
 
     public Style color(Colors color) {
-        return this.color(color.rgb + (0xFF << 24));
+        return this.color(color.rgba);
     }
 
     public Style color(Integer color) {
         return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
     }
 
+    public Style backgroundColor(Colors color) {
+        return this.backgroundColor(color.rgba);
+    }
+
     public Style backgroundColor(Integer backgroundColor) {
         return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
     }
 
+    public Style shadowColor(Colors color) {
+        return this.shadowColor(color.rgba);
+    }
+
     public Style shadowColor(Integer shadowColor) {
         return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
+    }
+
+    public Style outlineColor(Colors color) {
+        return this.outlineColor(color.rgba);
     }
 
     public Style outlineColor(Integer outlineColor) {

@@ -2,9 +2,11 @@ package mayo.utils;
 
 import mayo.Client;
 import mayo.gui.widgets.Widget;
+import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
+import mayo.text.Text;
 
 import static mayo.model.GeometryHelper.quad;
 
@@ -81,5 +83,9 @@ public class UIHelper {
         consumer.consume(quad(x + rWidthThird, y + height - rHeightThird, width - rWidthThird * 2, rHeightThird, u + rWidthThird, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
         //bottom right
         consumer.consume(quad(x + width - rWidthThird, y + height - rHeightThird, rWidthThird, rHeightThird, u + rWidthThird * 2, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
+    }
+
+    public static void renderTooltip(MatrixStack matrices, Text tooltip, Font f, int mouseX, int mouseY) {
+
     }
 }

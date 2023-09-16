@@ -1,6 +1,7 @@
 package mayo;
 
 import mayo.gui.Screen;
+import mayo.gui.Toast;
 import mayo.gui.screens.MainMenu;
 import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
@@ -64,26 +65,28 @@ public class Client {
 
         matrices.push();
 
-        //render world
         if (world != null) {
+            //render world
             world.render(matrices, delta);
             //finish world rendering
             VertexConsumer.finishAllBatches(camera.getPerspectiveMatrix(), camera.getViewMatrix(delta));
-        }
 
-        //render hud
-        if (world != null) {
+            //render hud
             glClear(GL_DEPTH_BUFFER_BIT); //top of world
             world.renderHUD(matrices, delta);
             VertexConsumer.finishAllBatches(camera.getOrthographicMatrix(), new Matrix4f());
         }
 
         //render gui
-        if (this.screen != null) {
-            glClear(GL_DEPTH_BUFFER_BIT); //top of hud
+        glClear(GL_DEPTH_BUFFER_BIT); //top of hud
+
+        if (this.screen != null)
             screen.render(matrices, window.mouseX, window.mouseY, delta);
-            VertexConsumer.finishAllBatches(camera.getOrthographicMatrix(), new Matrix4f());
-        }
+
+        //toasts
+        Toast.render(matrices, window.scaledWidth, window.scaledHeight, delta);
+
+        VertexConsumer.finishAllBatches(camera.getOrthographicMatrix(), new Matrix4f());
 
         //finish rendering
         matrices.pop();
