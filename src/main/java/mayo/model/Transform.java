@@ -125,6 +125,10 @@ public class Transform {
         matrixDirty = true;
     }
 
+    public void setScale(float scalar) {
+        this.setScale(scalar, scalar, scalar);
+    }
+
     public void setScale(Vector3f vec) {
         this.setScale(vec.x, vec.y, vec.z);
     }

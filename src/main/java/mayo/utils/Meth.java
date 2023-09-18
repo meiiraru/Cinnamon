@@ -16,6 +16,17 @@ public class Meth {
         );
     }
 
+    public static float lerpRot(float a, float b, float t) {
+        return a + wrapDegrees(b - a) * t;
+    }
+
+    public static float wrapDegrees(float angle) {
+        float f = angle % 360;
+        if (f >= 180f) f -= 360f;
+        if (f < -180f) f += 360f;
+        return f;
+    }
+
     public static Vector3f parseVec3(String x, String y, String z) {
         return new Vector3f(Float.parseFloat(x), Float.parseFloat(y), Float.parseFloat(z));
     }

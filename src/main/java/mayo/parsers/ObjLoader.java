@@ -44,7 +44,7 @@ public class ObjLoader {
                     case "mtllib" -> theMesh.getMaterials().putAll(MtlLoader.load(new Resource(res.getNamespace(), folder + split[1])));
 
                     //group
-                    case "g" -> {
+                    case "g", "o" -> {
                         if (!currentGroup.isEmpty())
                             theMesh.getGroups().add(currentGroup);
                         currentGroup = new Group(split[1]);

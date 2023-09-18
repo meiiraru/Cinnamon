@@ -18,7 +18,7 @@ public class ModelManager {
             return mesh;
 
         //load mesh :)
-        Mesh m = ObjLoader.load(new Resource("models/bullet/bullet.obj")).bake();
+        Mesh m = ObjLoader.load(resource).bake();
         MESH_MAP.put(resource, m);
         return m;
     }

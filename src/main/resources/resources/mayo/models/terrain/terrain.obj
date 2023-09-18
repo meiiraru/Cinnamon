@@ -1,0 +1,15 @@
+# Made in Blockbench 4.8.3
+mtllib terrain.mtl
+
+o mesh
+v 64 0 64
+v -64 0 64
+v 64 0 -64
+v -64 0 -64
+vt 128 -127
+vt 128 1
+vt 0 1
+vt 0 -127
+vn 0 1 0
+usemtl m_455a6640-46a4-4a64-300c-22cf2377a666
+f 1/1/1 3/2/1 4/3/1 2/4/1

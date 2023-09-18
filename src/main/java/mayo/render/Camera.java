@@ -4,6 +4,7 @@ import mayo.utils.Meth;
 import mayo.utils.Rotation;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class Camera {
@@ -50,7 +51,7 @@ public class Camera {
     }
 
     public void updateProjMatrix(int width, int height) {
-        perspMatrix.set(new Matrix4f().perspective((float) Math.toRadians(Camera.FOV), (float) width / height, 0.1f, 1000f));
+        perspMatrix.set(new Matrix4f().perspective((float) Math.toRadians(Camera.FOV), (float) width / height, 0.001f, 1000f));
         orthoMatrix.set(new Matrix4f().ortho(0, width, height, 0, -1000, 1000));
     }
 
@@ -75,6 +76,10 @@ public class Camera {
 
     public Vector3f getPos() {
         return new Vector3f(pos);
+    }
+
+    public Vector2f getRot() {
+        return new Vector2f(xRot, yRot);
     }
 
     public Vector3f getForwards() {

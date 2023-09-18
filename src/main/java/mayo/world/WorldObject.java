@@ -5,10 +5,10 @@ import mayo.model.obj.Mesh;
 import mayo.render.MatrixStack;
 import mayo.render.shader.Shader;
 
-public class WorldObject {
+public abstract class WorldObject {
 
-    private final Transform transform = new Transform();
-    private final Mesh mesh;
+    public final Transform transform = new Transform();
+    protected final Mesh mesh;
 
     public WorldObject(Mesh mesh) {
         this.mesh = mesh;

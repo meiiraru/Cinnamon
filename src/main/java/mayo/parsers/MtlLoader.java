@@ -39,7 +39,7 @@ public class MtlLoader {
                 switch (split[0]) {
                     //create new material
                     case "newmtl" -> {
-                        if (!material.getName().isBlank())
+                        if (!material.getName().isBlank() && !material.getName().equals("none"))
                             map.put(material.getName(), material);
                         material = new Material(split[1]);
                     }

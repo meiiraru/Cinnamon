@@ -133,7 +133,11 @@ public class Client {
     // -- glfw events -- //
 
     public void mousePress(int button, int action, int mods) {
-        if (screen != null) screen.mousePress(button, action, mods);
+        if (screen != null)
+            screen.mousePress(button, action, mods);
+
+        if (world != null)
+            world.mousePress(button, action, mods);
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
@@ -148,6 +152,9 @@ public class Client {
             if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE)
                 this.setScreen(new PauseScreen());
         }
+
+        if (world != null)
+            world.keyPress(key, scancode, action, mods);
     }
 
     public void charTyped(char c, int mods) {
