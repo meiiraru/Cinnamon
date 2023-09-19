@@ -1,5 +1,6 @@
 package mayo.utils;
 
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class Meth {
@@ -13,6 +14,13 @@ public class Meth {
                 lerp(a.x, b.x, t),
                 lerp(a.y, b.y, t),
                 lerp(a.z, b.z, t)
+        );
+    }
+
+    public static Vector2f lerp(Vector2f a, Vector2f b, float t) {
+        return new Vector2f(
+                lerp(a.x, b.x, t),
+                lerp(a.y, b.y, t)
         );
     }
 

@@ -1,4 +1,4 @@
-package mayo.world.Objects;
+package mayo.world.objects;
 
 import mayo.model.ModelManager;
 import mayo.utils.Resource;

@@ -1,14 +1,20 @@
 package mayo.world;
 
 import mayo.Client;
+import mayo.world.items.Item;
 import mayo.model.GeometryHelper;
+import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
+import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.Colors;
 import mayo.utils.Resource;
+import mayo.utils.Rotation;
+import mayo.utils.TextUtils;
+import mayo.world.entity.Player;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -28,6 +34,48 @@ public class Hud {
 
         //draw crosshair
         VertexConsumer.GUI.consume(GeometryHelper.quad(matrices.peek(), (int) (w / 2f - 8), (int) (h / 2f - 8), 16, 16), CROSSHAIR.getID());
+
+        //draw player stats
+        drawPlayerStats(matrices, c.world.player, delta);
+    }
+
+    private void drawPlayerStats(MatrixStack matrices, Player player, float delta) {
+        if (player == null)
+            return;
+
+        //draw hp and other stuff
+
+        //draw item stats
+        drawItemStats(matrices, player.getHoldingItem(), delta);
+    }
+
+    private void drawItemStats(MatrixStack matrices, Item item, float delta) {
+        if (item == null)
+            return;
+
+        Window window = Client.getInstance().window;
+        Font font = Client.getInstance().font;
+
+        //item name
+        Text text = Text.of(item.getId()).withStyle(Style.EMPTY.outlined(true));
+
+        //item count
+        Style style = Style.EMPTY.color(Colors.RED);
+        text
+                .append("\n")
+                .append(Text.of( item.getCount() + "").withStyle(style))
+                .append(" / ")
+                .append(Text.of( item.getStackCount() + "").withStyle(style));
+
+        //draw texts
+        matrices.push();
+        matrices.translate(window.scaledWidth - 12, window.scaledHeight - font.height(text) - 12, 0f);
+        matrices.push();
+        matrices.rotate(Rotation.Y.rotationDeg(-20f));
+        matrices.rotate(Rotation.Z.rotationDeg(10f));
+        font.render(VertexConsumer.FONT, matrices.peek(), 0f, 0f, text, TextUtils.Alignment.RIGHT);
+        matrices.pop();
+        matrices.pop();
     }
 
     private static String getDebugText() {

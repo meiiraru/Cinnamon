@@ -1,4 +1,4 @@
-package mayo.world.Objects;
+package mayo.world.objects;
 
 import mayo.model.ModelManager;
 import mayo.utils.Resource;
@@ -11,7 +11,7 @@ public class Teapot extends WorldObject {
 
     public Teapot(Vector3f position) {
         super(ModelManager.load(RESOURCE));
-        this.transform.setScale(1 / 8f);
-        this.transform.setPos(position.mul(8f));
+        this.transform.setScale(1 / 10f);
+        this.transform.setPos(position.mul(10f));
     }
 }

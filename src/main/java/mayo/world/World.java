@@ -1,14 +1,18 @@
 package mayo.world;
 
 import mayo.Client;
+import mayo.world.items.weapons.Firearm;
 import mayo.model.ModelManager;
 import mayo.model.obj.Mesh;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
+import mayo.utils.AABB;
 import mayo.utils.Resource;
-import mayo.world.Objects.Teapot;
+import mayo.world.entity.Player;
+import mayo.world.objects.Pillar;
+import mayo.world.objects.Teapot;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -23,9 +27,16 @@ public class World {
     private final List<WorldObject> objects = new ArrayList<>();
 
     private final Mesh terrain = ModelManager.load(new Resource("models/terrain/terrain.obj"));
+    public Player player;
 
     public void init() {
-        addObject(new Teapot(new Vector3f()));
+        player = new Player(this, new AABB(0.875f, 1.8f, 0.875f));
+        player.setHoldingItem(new Firearm("Gun", 8));
+
+        Pillar pillar = new Pillar(new Vector3f(0, 0, 3));
+        addObject(pillar);
+        Teapot teapot = new Teapot(new Vector3f(0, pillar.getDimensions().y, 3));
+        addObject(teapot);
     }
 
     public void tick() {
