@@ -55,17 +55,17 @@ public class Camera {
         orthoMatrix.set(new Matrix4f().ortho(0, width, height, 0, -1000, 1000));
     }
 
-    public void billboard(Matrix4f matrix) {
-        verticalBillboard(matrix);
-        horizontalBillboard(matrix);
+    public void billboard(Matrix4f matrix, float delta) {
+        verticalBillboard(matrix, delta);
+        horizontalBillboard(matrix, delta);
     }
 
-    public void horizontalBillboard(Matrix4f matrix) {
-        matrix.rotate(Rotation.X.rotationDeg(xRot));
+    public void horizontalBillboard(Matrix4f matrix, float delta) {
+        matrix.rotate(Rotation.X.rotationDeg(Meth.lerp(oxRot, xRot, delta)));
     }
 
-    public void verticalBillboard(Matrix4f matrix) {
-        matrix.rotate(Rotation.Y.rotationDeg(180f - yRot));
+    public void verticalBillboard(Matrix4f matrix, float delta) {
+        matrix.rotate(Rotation.Y.rotationDeg(180f - Meth.lerp(oyRot, yRot, delta)));
     }
 
     public boolean isInsideFrustum(float x, float y, float z) {

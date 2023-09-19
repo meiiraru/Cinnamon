@@ -97,17 +97,21 @@ public class Font {
     }
 
     public void render(VertexConsumer consumer, Matrix4f matrix, float x, float y, Text text, TextUtils.Alignment alignment) {
+        this.render(consumer, matrix, x, y, text, alignment, 1);
+    }
+
+    public void render(VertexConsumer consumer, Matrix4f matrix, float x, float y, Text text, TextUtils.Alignment alignment, int indexScaling) {
         List<Text> list = TextUtils.split(text, "\n");
 
         for (int i = 0; i < list.size(); i++) {
             Text t = list.get(i);
             int x2 = (int) alignment.apply(this, t);
             int y2 = (int) (lineHeight * (i + 1) - 1);
-            bake(consumer, matrix, t, x + x2, y + y2);
+            bake(consumer, matrix, t, x + x2, y + y2, indexScaling);
         }
     }
 
-    private void bake(VertexConsumer consumer, Matrix4f matrix, Text text, float x, float y) {
+    private void bake(VertexConsumer consumer, Matrix4f matrix, Text text, float x, float y, int indexScaling) {
         //prepare vars
         boolean[] prevItalic = {false};
         xb.put(0, 0f); yb.put(0, 0f);
@@ -146,7 +150,7 @@ public class Font {
             if (shadow) {
                 xb.put(0, initialX + SHADOW_OFFSET); yb.put(0, initialY + SHADOW_OFFSET);
                 int sc = Objects.requireNonNullElse(style.getShadowColor(), SHADOW_COLOR);
-                bakeString(consumer, matrix, s, italic, bold, obf, under, strike, x, y, sc, -1);
+                bakeString(consumer, matrix, s, italic, bold, obf, under, strike, x, y, sc, -1 * indexScaling);
             }
 
             //render outline
@@ -155,7 +159,7 @@ public class Font {
                 for (int i = -SHADOW_OFFSET; i <= SHADOW_OFFSET; i += SHADOW_OFFSET) {
                     for (int j = -SHADOW_OFFSET; j <= SHADOW_OFFSET; j += SHADOW_OFFSET) {
                         xb.put(0, initialX + i); yb.put(0, initialY + j);
-                        bakeString(consumer, matrix, s, italic, bold, obf, under, strike, x, y, oc, -2);
+                        bakeString(consumer, matrix, s, italic, bold, obf, under, strike, x, y, oc, -2 * indexScaling);
                     }
                 }
             }
@@ -178,7 +182,7 @@ public class Font {
                 }
 
                 int bgc = Objects.requireNonNullElse(style.getBackgroundColor(), BG_COLOR);
-                consumer.consume(quad(matrix, x0, y0, 0, w, h, bgc, -3), 0);
+                consumer.consume(quad(matrix, x0, y0, 0, w, h, bgc, -3 * indexScaling), 0);
             }
 
             //restore buffer data

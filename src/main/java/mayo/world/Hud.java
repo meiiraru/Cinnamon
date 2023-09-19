@@ -44,9 +44,29 @@ public class Hud {
             return;
 
         //draw hp and other stuff
+        drawHealth(matrices, player, delta);
 
         //draw item stats
         drawItemStats(matrices, player.getHoldingItem(), delta);
+    }
+
+    private void drawHealth(MatrixStack matrices, Player player, float delta) {
+        Window window = Client.getInstance().window;
+        Font font = Client.getInstance().font;
+
+        //item name
+        Text text = Text.of(player.getHealth() + " ").withStyle(Style.EMPTY.outlined(true))
+                .append(Text.of("\u2795").withStyle(Style.EMPTY.color(Colors.RED)));
+
+        //draw text
+        matrices.push();
+        matrices.translate(12, window.scaledHeight - font.height(text) - 12, 0f);
+        matrices.push();
+        matrices.rotate(Rotation.Y.rotationDeg(-20f));
+        matrices.rotate(Rotation.Z.rotationDeg(-10f));
+        font.render(VertexConsumer.FONT, matrices.peek(), 0f, 0f, text);
+        matrices.pop();
+        matrices.pop();
     }
 
     private void drawItemStats(MatrixStack matrices, Item item, float delta) {

@@ -17,10 +17,10 @@ public abstract class WorldObject {
         this.dimensions = mesh.getBBMax().sub(mesh.getBBMin(), new Vector3f());
     }
 
-    public void render(Shader shader, MatrixStack matrices, float delta) {
+    public void render(MatrixStack matrices, float delta) {
         matrices.push();
 
-        shader.setModelMatrix(matrices.peek().mul(transform.getPositionMatrix()));
+        Shader.activeShader.setModelMatrix(matrices.peek().mul(transform.getPositionMatrix()));
         mesh.render();
 
         matrices.pop();

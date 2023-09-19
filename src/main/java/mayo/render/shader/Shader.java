@@ -15,6 +15,8 @@ import static org.lwjgl.opengl.GL30.*;
 
 public class Shader {
 
+    public static Shader activeShader;
+
     public final int ID;
 
     public Shader(Resource res) {
@@ -83,6 +85,7 @@ public class Shader {
     }
 
     public void use() {
+        activeShader = this;
         glUseProgram(ID);
     }
 

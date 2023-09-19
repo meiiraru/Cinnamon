@@ -17,8 +17,9 @@ uniform mat4 view;
 const float Z_OFFSET = 0.001f;
 
 void main() {
-    float z = aPosition.z + Z_OFFSET * int(aIndex);
-    gl_Position = projection * view * vec4(aPosition.xy, z, 1.0f);
+    mat4 viewMat = view;
+    viewMat[3][2] = viewMat[3][2] + Z_OFFSET * int(aIndex);
+    gl_Position = projection * viewMat * vec4(aPosition, 1.0f);
     texID = int(aTexID);
     texCoords = aTexCoords;
     color = aColor;
