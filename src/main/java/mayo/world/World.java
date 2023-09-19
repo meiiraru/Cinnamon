@@ -27,6 +27,7 @@ public class World {
     private final List<WorldObject> objects = new ArrayList<>();
 
     private final Mesh terrain = ModelManager.load(new Resource("models/terrain/terrain.obj"));
+    private final Mesh pp = ModelManager.load(new Resource("models/player/player.obj"));
     public Player player;
 
     public void init() {
@@ -54,6 +55,7 @@ public class World {
         //render terrain
         s.setModelMatrix(matrices.peek());
         terrain.render();
+        pp.render();
 
         //render objects
         for (WorldObject object : objects)

@@ -30,7 +30,7 @@ public class Hud {
         int h = c.window.scaledHeight;
 
         //render debug text
-        c.font.render(VertexConsumer.FONT, matrices.peek(), 4, 4, Text.of(getDebugText()).withStyle(Style.EMPTY.shadow(true).shadowColor(Colors.RED)));
+        c.font.render(VertexConsumer.FONT, matrices.peek(), 4, 4, Text.of(getDebugText()).withStyle(Style.EMPTY.shadow(true).shadowColor(Colors.DARK_GRAY)));
 
         //draw crosshair
         VertexConsumer.GUI.consume(GeometryHelper.quad(matrices.peek(), (int) (w / 2f - 8), (int) (h / 2f - 8), 16, 16), CROSSHAIR.getID());

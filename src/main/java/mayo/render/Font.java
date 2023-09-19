@@ -29,7 +29,7 @@ public class Font {
     private static final int TEXTURE_W = 512, TEXTURE_H = 512;
 
     //properties
-    private static final int SHADOW_COLOR = 0xFF202020;
+    private static final int SHADOW_COLOR = 0xFF161616;
     private static final int BG_COLOR = 0x44 << 24;
     private static final int SHADOW_OFFSET = 1;
     private static final int BOLD_OFFSET = 1;
