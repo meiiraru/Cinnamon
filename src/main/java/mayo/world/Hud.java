@@ -100,18 +100,34 @@ public class Hud {
 
     private static String getDebugText() {
         Client c = Client.getInstance();
-        Vector3f pos = c.camera.getPos();
-        Vector2f rot = c.camera.getRot();
+        Vector3f cpos = c.camera.getPos();
+        Vector2f crot = c.camera.getRot();
+        Vector3f epos = c.world.player.getPos(1f);
+        Vector2f erot = c.world.player.getRot(1f);
 
         return String.format("""
                         %s fps
+
+                        [world]
+                        %s entities %s objects
+
+                        [entity]
                         xyz %.3f %.3f %.3f
-                        pitch %.3f
-                        yaw %.3f
+                        pitch %.3f yaw %.3f
+
+                        [camera]
+                        xyz %.3f %.3f %.3f
+                        pitch %.3f yaw %.3f
                         """,
                 c.fps,
-                pos.x, pos.y, pos.z,
-                rot.x,
-                rot.y);
+
+                c.world.entityCount(), c.world.objectCount(),
+
+                epos.x, epos.y, epos.z,
+                erot.y, erot.x,
+
+                cpos.x, cpos.y, cpos.z,
+                crot.x, crot.y
+        );
     }
 }

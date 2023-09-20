@@ -34,7 +34,7 @@ public abstract class LivingEntity extends Entity {
 
         Matrix4f mat = matrices.peek();
         mat.translate(0f, getDimensions().y + 0.15f, 0f);
-        c.camera.billboard(mat, delta);
+        c.camera.billboard(mat);
         mat.scale(-s, -s, s);
         mat.translate(0f, -c.font.height(text), 0f);
 

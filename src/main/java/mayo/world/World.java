@@ -1,6 +1,7 @@
 package mayo.world;
 
 import mayo.Client;
+import mayo.input.Movement;
 import mayo.model.ModelManager;
 import mayo.model.obj.Mesh;
 import mayo.render.Camera;
@@ -30,18 +31,17 @@ public class World {
 
     private final Mesh terrain = ModelManager.load(new Resource("models/terrain/terrain.obj"));
 
+    private final Movement movement = new Movement();
     public Player player;
 
     public void init() {
-        Client.getInstance().camera.move(0f, 1.8f, 0f);
-
         player = new Player(this);
-        player.setHoldingItem(new Firearm("Gun", 8));
-        player.setPosition(-2, 0, 2);
+        player.setHoldingItem(new Firearm("The Gun", 8));
+        player.setPos(-2, 0, 2);
         addEntity(player);
 
         Enemy enemy = new Enemy(this);
-        enemy.setPosition(2, 0, 2);
+        enemy.setPos(2, 0, 2);
         addEntity(enemy);
 
         Pillar pillar = new Pillar(new Vector3f(0, 0, 3));
@@ -51,16 +51,21 @@ public class World {
     }
 
     public void tick() {
+        this.movement.apply(player);
         this.hud.tick();
     }
 
     public void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
 
+        //set camera
+        c.camera.setup(player, true, delta);
+
+        //set shader
         Shader s = Shaders.MODEL.getShader();
         s.use();
         s.setProjectionMatrix(c.camera.getPerspectiveMatrix());
-        s.setViewMatrix(c.camera.getViewMatrix(delta));
+        s.setViewMatrix(c.camera.getViewMatrix());
 
         //render terrain
         s.setModelMatrix(matrices.peek());
@@ -98,7 +103,23 @@ public class World {
         }
     }
 
+    public void mouseMove(double x, double y) {
+        movement.mouseMove(x, y);
+    }
+
     public void keyPress(int key, int scancode, int action, int mods) {
-        //do nothing for now
+        movement.keyPress(key, action);
+    }
+
+    public void resetMovement() {
+        movement.firstMouse = true;
+    }
+
+    public int entityCount() {
+        return entities.size();
+    }
+
+    public int objectCount() {
+        return objects.size();
     }
 }

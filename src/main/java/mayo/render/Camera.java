@@ -1,7 +1,7 @@
 package mayo.render;
 
-import mayo.utils.Meth;
 import mayo.utils.Rotation;
+import mayo.world.entity.Entity;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
@@ -12,13 +12,12 @@ public class Camera {
     public static final float FOV = 70f;
 
     private final Vector3f
-            opos = new Vector3f(),
             pos = new Vector3f(),
             forwards = new Vector3f(0f, 0f, -1f),
             up = new Vector3f(0f, 1f, 0f),
             left = new Vector3f(1f, 0f, 0f);
 
-    private float oxRot, oyRot, xRot, yRot;
+    private float xRot, yRot;
     private final Quaternionf rotation = new Quaternionf();
 
     private final Matrix4f
@@ -26,14 +25,27 @@ public class Camera {
             orthoMatrix = new Matrix4f(),
             perspMatrix = new Matrix4f();
 
-    public void move(float x, float y, float z) {
-        opos.set(pos);
-        pos.add(new Vector3f(x, y, z).rotate(new Quaternionf().rotationY((float) Math.toRadians(-yRot))));
+    private Entity entity;
+
+    public void setup(Entity entity, boolean thirdPerson, float delta) {
+        //rotation
+        Vector2f rot = entity.getRot(delta);
+        setRot(rot.y, rot.x);
+
+        //position
+        Vector3f pos = entity.getPos(delta);
+        setPos(pos.x, pos.y + entity.getEyeHeight(), pos.z);
+
+        //third person
+        if (thirdPerson)
+            move(1f, 0.25f, 3f);
     }
 
-    public void rotate(float yaw, float pitch) {
-        this.oxRot = xRot;
-        this.oyRot = yRot;
+    protected void setPos(float x, float y, float z) {
+        pos.set(x, y, z);
+    }
+
+    protected void setRot(float pitch, float yaw) {
         this.xRot = pitch;
         this.yRot = yaw;
         this.rotation.rotationYXZ((float) Math.toRadians(-yaw), (float) Math.toRadians(-pitch), 0f);
@@ -42,12 +54,16 @@ public class Camera {
         this.left.set(1f, 0f, 0f).rotate(this.rotation);
     }
 
-    private void calculateMatrix(float d) {
+    protected void move(float x, float y, float z) {
+        pos.add(new Vector3f(x, y, z).rotate(rotation));
+    }
+
+    public Matrix4f getViewMatrix() {
         viewMatrix.identity();
-        viewMatrix.rotate(Rotation.X.rotationDeg(Meth.lerp(oxRot, xRot, d)));
-        viewMatrix.rotate(Rotation.Y.rotationDeg(Meth.lerp(oyRot, yRot, d)));
-        //matrix.rotate(Rotation.Z.rotationDeg(180f));
-        viewMatrix.translate(Meth.lerp(opos, pos, d).mul(-1));
+        viewMatrix.rotate(Rotation.X.rotationDeg(xRot));
+        viewMatrix.rotate(Rotation.Y.rotationDeg(yRot));
+        viewMatrix.translate(-pos.x, -pos.y, -pos.z);
+        return viewMatrix;
     }
 
     public void updateProjMatrix(int width, int height) {
@@ -55,17 +71,17 @@ public class Camera {
         orthoMatrix.set(new Matrix4f().ortho(0, width, height, 0, -1000, 1000));
     }
 
-    public void billboard(Matrix4f matrix, float delta) {
-        verticalBillboard(matrix, delta);
-        horizontalBillboard(matrix, delta);
+    public void billboard(Matrix4f matrix) {
+        verticalBillboard(matrix);
+        horizontalBillboard(matrix);
     }
 
-    public void horizontalBillboard(Matrix4f matrix, float delta) {
-        matrix.rotate(Rotation.X.rotationDeg(Meth.lerp(oxRot, xRot, delta)));
+    public void horizontalBillboard(Matrix4f matrix) {
+        matrix.rotate(Rotation.X.rotationDeg(xRot));
     }
 
-    public void verticalBillboard(Matrix4f matrix, float delta) {
-        matrix.rotate(Rotation.Y.rotationDeg(180f - Meth.lerp(oyRot, yRot, delta)));
+    public void verticalBillboard(Matrix4f matrix) {
+        matrix.rotate(Rotation.Y.rotationDeg(180f - yRot));
     }
 
     public boolean isInsideFrustum(float x, float y, float z) {
@@ -92,11 +108,6 @@ public class Camera {
 
     public Vector3f getUp() {
         return new Vector3f(up);
-    }
-
-    public Matrix4f getViewMatrix(float delta) {
-        calculateMatrix(delta);
-        return viewMatrix;
     }
 
     public Matrix4f getPerspectiveMatrix() {

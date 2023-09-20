@@ -4,7 +4,6 @@ import mayo.gui.Screen;
 import mayo.gui.Toast;
 import mayo.gui.screens.MainMenu;
 import mayo.gui.screens.PauseScreen;
-import mayo.input.Movement;
 import mayo.render.Camera;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
@@ -32,7 +31,6 @@ public class Client {
     public Camera camera;
     public Font font;
     public Screen screen;
-    private Movement movement;
     public World world;
 
     private Client() {}
@@ -41,7 +39,6 @@ public class Client {
         this.camera = new Camera();
         this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight);
         this.font = new Font(new Resource("fonts/mayscript.ttf"), 8);
-        this.movement = new Movement();
         this.setScreen(new MainMenu());
     }
 
@@ -69,7 +66,7 @@ public class Client {
             //render world
             world.render(matrices, delta);
             //finish world rendering
-            VertexConsumer.finishAllBatches(camera.getPerspectiveMatrix(), camera.getViewMatrix(delta));
+            VertexConsumer.finishAllBatches(camera.getPerspectiveMatrix(), camera.getViewMatrix());
 
             //render hud
             glClear(GL_DEPTH_BUFFER_BIT); //top of world
@@ -95,8 +92,6 @@ public class Client {
     private void tick() {
         ticks++;
 
-        movement.tick(camera);
-
         if (world != null)
             world.tick();
 
@@ -121,12 +116,10 @@ public class Client {
 
             //unlock mouse
             window.unlockMouse();
-        } else {
+        } else if (window.lockMouse() && world != null) {
             //no screen, then lock the mouse
-            if (window.lockMouse()) {
-                //reset movement
-                movement.firstMouse = true;
-            }
+            //reset movement
+            world.resetMovement();
         }
     }
 
@@ -146,15 +139,11 @@ public class Client {
 
         if (screen != null) {
             screen.keyPress(key, scancode, action, mods);
-        } else {
-            if (world != null)
-                movement.keyPress(key, action);
-            if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE)
-                this.setScreen(new PauseScreen());
-        }
-
-        if (world != null)
+        } else if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
+            this.setScreen(new PauseScreen());
+        } else if (world != null) {
             world.keyPress(key, scancode, action, mods);
+        }
     }
 
     public void charTyped(char c, int mods) {
@@ -166,9 +155,8 @@ public class Client {
 
         if (screen != null) {
             screen.mouseMove(x, y);
-        } else {
-            if (world != null)
-                movement.mouseMove(x, y);
+        } else if (world != null) {
+            world.mouseMove(x, y);
         }
     }
 

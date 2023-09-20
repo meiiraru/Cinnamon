@@ -4,7 +4,10 @@ import mayo.Client;
 import mayo.model.obj.Mesh;
 import mayo.render.MatrixStack;
 import mayo.render.shader.Shader;
+import mayo.utils.Meth;
+import mayo.utils.Rotation;
 import mayo.world.World;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public abstract class Entity {
@@ -12,7 +15,12 @@ public abstract class Entity {
     private final Mesh model;
     private final World world;
     private final Vector3f dimensions;
-    private final Vector3f pos = new Vector3f();
+    private final Vector3f
+            oPos = new Vector3f(),
+            pos = new Vector3f();
+    private final Vector2f
+            oRot = new Vector2f(),
+            rot = new Vector2f();
 
     public Entity(Mesh model, World world, Vector3f dimensions) {
         this.model = model;
@@ -25,10 +33,21 @@ public abstract class Entity {
     public void render(MatrixStack matrices, float delta) {
         matrices.push();
 
-        matrices.translate(pos);
+        //apply pos
+        matrices.translate(Meth.lerp(oPos, pos, delta));
+
+        matrices.push();
+
+        //apply rot
+        matrices.rotate(Rotation.Y.rotationDeg(-Meth.lerp(oRot.x, rot.x, delta)));
+
+        //render model
         Shader.activeShader.setModelMatrix(matrices.peek());
         model.render();
 
+        matrices.pop();
+
+        //render head text
         if (shouldRenderText())
             renderTexts(matrices, delta);
 
@@ -42,11 +61,60 @@ public abstract class Entity {
         return cam.distanceSquared(pos) < 256;
     }
 
-    public void setPosition(float x, float y, float z) {
+    public void move(float left, float up, float forwards) {
+        Vector3f vec = new Vector3f(left, up, forwards);
+        if (vec.lengthSquared() > 1f)
+            vec.normalize();
+
+        double rad = Math.toRadians(rot.x);
+        double sin = Math.sin(rad);
+        double cos = Math.cos(rad);
+
+        this.moveTo(
+                pos.x + (float) (vec.x * cos - vec.z * sin),
+                pos.y + vec.y,
+                pos.z + (float) (vec.z * cos + vec.x * sin)
+        );
+    }
+
+    public void moveTo(float x, float y, float z) {
+        this.oPos.set(pos);
         this.pos.set(x, y, z);
+    }
+
+    public void rotate(float pitch, float yaw) {
+        this.oRot.set(rot);
+        this.rot.set(pitch, yaw);
+    }
+
+    public Vector3f getPos(float delta) {
+        return Meth.lerp(oPos, pos, delta);
+    }
+
+    public void setPos(float x, float y, float z) {
+        this.oPos.set(this.pos.set(x, y, z));
+    }
+
+    public Vector2f getRot(float delta) {
+        return Meth.lerp(oRot, rot, delta);
+    }
+
+    public void setRot(float pitch, float yaw) {
+        this.oRot.set(this.rot.set(pitch, yaw));
+    }
+
+    public float getEyeHeight() {
+        return 1f;
     }
 
     public Vector3f getDimensions() {
         return dimensions;
+    }
+
+    protected Vector3f getLookDir() {
+        double p = Math.toRadians(rot.x);
+        double y = Math.toRadians(-rot.y);
+        double cosP = Math.cos(p);
+        return new Vector3f((float) (Math.sin(y) * cosP), (float) Math.sin(-p), (float) (Math.cos(y) * cosP));
     }
 }

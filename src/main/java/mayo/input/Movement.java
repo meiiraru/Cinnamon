@@ -1,6 +1,6 @@
 package mayo.input;
 
-import mayo.render.Camera;
+import mayo.world.entity.Entity;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -61,7 +61,7 @@ public class Movement {
         offsetY = 0;
     }
 
-    public void tick(Camera camera) {
+    public void apply(Entity entity) {
         if (up) movement.y += 1;
         if (down) movement.y -= 1;
         if (left) movement.x -= 1;
@@ -74,9 +74,9 @@ public class Movement {
         if (slow) speed *= PRECISION_MULTIPLIER;
 
         movement.mul(speed);
-        camera.move(movement.x, movement.y, movement.z);
+        entity.move(movement.x, movement.y, movement.z);
         movement.set(0);
 
-        camera.rotate(rotation.x, rotation.y);
+        entity.rotate(rotation.x, rotation.y);
     }
 }
