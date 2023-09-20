@@ -124,7 +124,7 @@ public class Hud {
                 c.world.entityCount(), c.world.objectCount(),
 
                 epos.x, epos.y, epos.z,
-                erot.y, erot.x,
+                erot.x, erot.y,
 
                 cpos.x, cpos.y, cpos.z,
                 crot.x, crot.y

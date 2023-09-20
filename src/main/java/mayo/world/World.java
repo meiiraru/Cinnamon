@@ -4,7 +4,6 @@ import mayo.Client;
 import mayo.input.Movement;
 import mayo.model.ModelManager;
 import mayo.model.obj.Mesh;
-import mayo.render.Camera;
 import mayo.render.MatrixStack;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
@@ -20,7 +19,6 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_2;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public class World {
@@ -44,15 +42,16 @@ public class World {
         enemy.setPos(2, 0, 2);
         addEntity(enemy);
 
-        Pillar pillar = new Pillar(new Vector3f(0, 0, 3));
+        Pillar pillar = new Pillar(new Vector3f(0, 0, 0));
         addObject(pillar);
-        Teapot teapot = new Teapot(new Vector3f(0, pillar.getDimensions().y, 3));
+        Teapot teapot = new Teapot(new Vector3f(0, pillar.getDimensions().y, 0));
         addObject(teapot);
     }
 
     public void tick() {
         this.movement.apply(player);
         this.hud.tick();
+        entities.get(1).move(0, 0, 0.1f);
     }
 
     public void render(MatrixStack matrices, float delta) {
@@ -78,6 +77,12 @@ public class World {
         //render entities
         for (Entity entity : entities)
             entity.render(matrices, delta);
+
+        Vector3f pos = player.getEyePos(delta);
+        //Vector3f dest = pos.add(player.getLookDir().mul(5f), new Vector3f());
+        //entities.get(1).setPos(dest.x, dest.y, dest.z);
+
+        entities.get(1).lookAt(pos.x, pos.y, pos.z);
     }
 
     public void renderHUD(MatrixStack matrices, float delta) {
@@ -95,12 +100,6 @@ public class World {
     public void mousePress(int button, int action, int mods) {
         if (action != GLFW_PRESS)
             return;
-
-        if (button == GLFW_MOUSE_BUTTON_2) {
-            Camera c = Client.getInstance().camera;
-            Vector3f vec = c.getForwards().mul(5f);
-            addObject(new Teapot(c.getPos().add(vec)));
-        }
     }
 
     public void mouseMove(double x, double y) {

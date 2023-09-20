@@ -66,8 +66,8 @@ public class Movement {
         if (down) movement.y -= 1;
         if (left) movement.x -= 1;
         if (right) movement.x += 1;
-        if (forward) movement.z -= 1;
-        if (backward) movement.z += 1;
+        if (forward) movement.z += 1;
+        if (backward) movement.z -= 1;
 
         float speed = MOVE_SPEED;
         if (sprint) speed *= SPRINT_MULTIPLIER;
@@ -77,6 +77,6 @@ public class Movement {
         entity.move(movement.x, movement.y, movement.z);
         movement.set(0);
 
-        entity.rotate(rotation.x, rotation.y);
+        entity.rotate(rotation.y, rotation.x);
     }
 }

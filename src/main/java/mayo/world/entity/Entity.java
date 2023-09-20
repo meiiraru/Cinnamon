@@ -39,7 +39,8 @@ public abstract class Entity {
         matrices.push();
 
         //apply rot
-        matrices.rotate(Rotation.Y.rotationDeg(-Meth.lerp(oRot.x, rot.x, delta)));
+        matrices.rotate(Rotation.Y.rotationDeg(-Meth.lerp(oRot.y, rot.y, delta)));
+        //matrices.rotate(Rotation.X.rotationDeg(-Meth.lerp(oRot.x, rot.x, delta)));
 
         //render model
         Shader.activeShader.setModelMatrix(matrices.peek());
@@ -62,11 +63,11 @@ public abstract class Entity {
     }
 
     public void move(float left, float up, float forwards) {
-        Vector3f vec = new Vector3f(left, up, forwards);
+        Vector3f vec = new Vector3f(left, up, -forwards);
         if (vec.lengthSquared() > 1f)
             vec.normalize();
 
-        double rad = Math.toRadians(rot.x);
+        double rad = Math.toRadians(rot.y);
         double sin = Math.sin(rad);
         double cos = Math.cos(rad);
 
@@ -87,8 +88,21 @@ public abstract class Entity {
         this.rot.set(pitch, yaw);
     }
 
+    public void lookAt(float x, float y, float z) {
+        //get difference
+        Vector3f v = new Vector3f(x, y, z).sub(getEyePos(1f));
+        v.normalize();
+
+        //set rot
+        this.setRot(Meth.dirToRot(v));
+    }
+
     public Vector3f getPos(float delta) {
         return Meth.lerp(oPos, pos, delta);
+    }
+
+    public void setPos(Vector3f pos) {
+        this.setPos(pos.x, pos.y, pos.z);
     }
 
     public void setPos(float x, float y, float z) {
@@ -99,6 +113,10 @@ public abstract class Entity {
         return Meth.lerp(oRot, rot, delta);
     }
 
+    public void setRot(Vector2f rot) {
+        this.setRot(rot.x, rot.y);
+    }
+
     public void setRot(float pitch, float yaw) {
         this.oRot.set(this.rot.set(pitch, yaw));
     }
@@ -107,14 +125,15 @@ public abstract class Entity {
         return 1f;
     }
 
+    public Vector3f getEyePos(float delta) {
+        return getPos(delta).add(0f, getEyeHeight(), 0f, new Vector3f());
+    }
+
     public Vector3f getDimensions() {
         return dimensions;
     }
 
-    protected Vector3f getLookDir() {
-        double p = Math.toRadians(rot.x);
-        double y = Math.toRadians(-rot.y);
-        double cosP = Math.cos(p);
-        return new Vector3f((float) (Math.sin(y) * cosP), (float) Math.sin(-p), (float) (Math.cos(y) * cosP));
+    public Vector3f getLookDir() {
+        return Meth.rotToDir(rot.x, rot.y);
     }
 }

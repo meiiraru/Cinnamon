@@ -30,11 +30,11 @@ public class Camera {
     public void setup(Entity entity, boolean thirdPerson, float delta) {
         //rotation
         Vector2f rot = entity.getRot(delta);
-        setRot(rot.y, rot.x);
+        setRot(rot.x, rot.y);
 
         //position
-        Vector3f pos = entity.getPos(delta);
-        setPos(pos.x, pos.y + entity.getEyeHeight(), pos.z);
+        Vector3f pos = entity.getEyePos(delta);
+        setPos(pos.x, pos.y, pos.z);
 
         //third person
         if (thirdPerson)

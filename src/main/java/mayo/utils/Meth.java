@@ -42,4 +42,17 @@ public class Meth {
     public static float clamp(float val, float min, float max) {
         return Math.min(Math.max(val, min), max);
     }
+
+    public static Vector3f rotToDir(float pitch, float yaw) {
+        double p = Math.toRadians(pitch + 180f);
+        double y = Math.toRadians(-yaw);
+        double cosP = Math.cos(p);
+        return new Vector3f((float) (Math.sin(y) * cosP), (float) Math.sin(p), (float) (Math.cos(y) * cosP));
+    }
+
+    public static Vector2f dirToRot(Vector3f dir) {
+        float pitch = (float) Math.toDegrees(Math.asin(-dir.y));
+        float yaw = (float) Math.toDegrees(Math.atan2(dir.z, dir.x));
+        return new Vector2f(pitch, yaw + 90f);
+    }
 }
