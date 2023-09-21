@@ -1,5 +1,6 @@
 package mayo.model;
 
+import mayo.render.batch.VertexConsumer;
 import org.joml.Matrix4f;
 
 public class GeometryHelper {
@@ -43,5 +44,62 @@ public class GeometryHelper {
                 Vertex.of(x1, y0, z).color(color).mulPosition(matrix).index(index),
                 Vertex.of(x0, y0, z).color(color).mulPosition(matrix).index(index),
         };
+    }
+
+    public static void pushCube(VertexConsumer consumer, Matrix4f matrix, float x0, float y0, float z0, float x1, float y1, float z1, int color) {
+        //north
+        consumer.consume(
+                new Vertex[]{
+                        Vertex.of(x0, y1, z0).color(color).normal(0, 0, -1).mulPosition(matrix),
+                        Vertex.of(x1, y1, z0).color(color).normal(0, 0, -1).mulPosition(matrix),
+                        Vertex.of(x1, y0, z0).color(color).normal(0, 0, -1).mulPosition(matrix),
+                        Vertex.of(x0, y0, z0).color(color).normal(0, 0, -1).mulPosition(matrix),
+                }, 0
+        );
+        //west
+        consumer.consume(
+                new Vertex[]{
+                        Vertex.of(x0, y1, z0).color(color).normal(-1, 0, 0).mulPosition(matrix),
+                        Vertex.of(x0, y0, z0).color(color).normal(-1, 0, 0).mulPosition(matrix),
+                        Vertex.of(x0, y0, z1).color(color).normal(-1, 0, 0).mulPosition(matrix),
+                        Vertex.of(x0, y1, z1).color(color).normal(-1, 0, 0).mulPosition(matrix),
+                }, 0
+        );
+        //south
+        consumer.consume(
+                new Vertex[]{
+                        Vertex.of(x1, y1, z1).color(color).normal(0, 0, 1).mulPosition(matrix),
+                        Vertex.of(x0, y1, z1).color(color).normal(0, 0, 1).mulPosition(matrix),
+                        Vertex.of(x0, y0, z1).color(color).normal(0, 0, 1).mulPosition(matrix),
+                        Vertex.of(x1, y0, z1).color(color).normal(0, 0, 1).mulPosition(matrix),
+                }, 0
+        );
+        //east
+        consumer.consume(
+                new Vertex[]{
+                        Vertex.of(x1, y1, z0).color(color).normal(1, 0, 0).mulPosition(matrix),
+                        Vertex.of(x1, y1, z1).color(color).normal(1, 0, 0).mulPosition(matrix),
+                        Vertex.of(x1, y0, z1).color(color).normal(1, 0, 0).mulPosition(matrix),
+                        Vertex.of(x1, y0, z0).color(color).normal(1, 0, 0).mulPosition(matrix),
+                }, 0
+        );
+        //up
+        consumer.consume(
+                new Vertex[]{
+                        Vertex.of(x1, y1, z0).color(color).normal(0, 1, 0).mulPosition(matrix),
+                        Vertex.of(x0, y1, z0).color(color).normal(0, 1, 0).mulPosition(matrix),
+                        Vertex.of(x0, y1, z1).color(color).normal(0, 1, 0).mulPosition(matrix),
+                        Vertex.of(x1, y1, z1).color(color).normal(0, 1, 0).mulPosition(matrix),
+                }, 0
+        );
+        //down
+        consumer.consume(
+                new Vertex[]{
+                        Vertex.of(x0, y0, z0).color(color).normal(0, -1, 0).mulPosition(matrix),
+                        Vertex.of(x1, y0, z0).color(color).normal(0, -1, 0).mulPosition(matrix),
+                        Vertex.of(x1, y0, z1).color(color).normal(0, -1, 0).mulPosition(matrix),
+                        Vertex.of(x0, y0, z1).color(color).normal(0, -1, 0).mulPosition(matrix),
+                }, 0
+        );
     }
 }

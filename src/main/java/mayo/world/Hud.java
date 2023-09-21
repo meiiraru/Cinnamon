@@ -1,7 +1,6 @@
 package mayo.world;
 
 import mayo.Client;
-import mayo.world.items.Item;
 import mayo.model.GeometryHelper;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
@@ -10,11 +9,9 @@ import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
-import mayo.utils.Colors;
-import mayo.utils.Resource;
-import mayo.utils.Rotation;
-import mayo.utils.TextUtils;
+import mayo.utils.*;
 import mayo.world.entity.Player;
+import mayo.world.items.Item;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -100,10 +97,26 @@ public class Hud {
 
     private static String getDebugText() {
         Client c = Client.getInstance();
-        Vector3f cpos = c.camera.getPos();
-        Vector2f crot = c.camera.getRot();
+
+        if (!c.world.isDebugRendering())
+            return c.fps + " fps";
+
         Vector3f epos = c.world.player.getPos(1f);
         Vector2f erot = c.world.player.getRot(1f);
+        Vector3f cpos = c.camera.getPos();
+        Vector2f crot = c.camera.getRot();
+
+        String face;
+        float yaw = Meth.modulo(crot.y, 360);
+        if (yaw >= 45 && yaw < 135) {
+            face = "East X+";
+        } else if (yaw >= 135 && yaw < 225) {
+            face = "South Z+";
+        } else if (yaw >= 225 && yaw < 315) {
+            face = "West X-";
+        } else {
+            face = "North Z-";
+        }
 
         return String.format("""
                         %s fps
@@ -111,13 +124,14 @@ public class Hud {
                         [world]
                         %s entities %s objects
 
-                        [entity]
+                        [player]
                         xyz %.3f %.3f %.3f
                         pitch %.3f yaw %.3f
 
                         [camera]
                         xyz %.3f %.3f %.3f
                         pitch %.3f yaw %.3f
+                        facing %s
                         """,
                 c.fps,
 
@@ -127,7 +141,8 @@ public class Hud {
                 erot.x, erot.y,
 
                 cpos.x, cpos.y, cpos.z,
-                crot.x, crot.y
+                crot.x, crot.y,
+                face
         );
     }
 }

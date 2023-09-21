@@ -55,4 +55,8 @@ public class Meth {
         float yaw = (float) Math.toDegrees(Math.atan2(dir.z, dir.x));
         return new Vector2f(pitch, yaw + 90f);
     }
+
+    public static float modulo(float a, float n) {
+        return (a % n + n) % n;
+    }
 }

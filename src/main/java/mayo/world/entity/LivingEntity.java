@@ -18,6 +18,7 @@ public abstract class LivingEntity extends Entity {
     private Item holdingItem;
     private int health;
     private int maxHealth;
+    private boolean isDead;
 
     public LivingEntity(Mesh model, World world, Vector3f dimensions, int maxHealth) {
         super(model, world, dimensions);
@@ -43,6 +44,15 @@ public abstract class LivingEntity extends Entity {
         matrices.pop();
     }
 
+    public void damage(int amount) {
+        this.health -= amount;
+
+        if (health <= 0) {
+            health = 0;
+            isDead = true;
+        }
+    }
+
     public void setHoldingItem(Item holdingItem) {
         this.holdingItem = holdingItem;
     }
@@ -65,5 +75,9 @@ public abstract class LivingEntity extends Entity {
 
     public void setHealth(int health) {
         this.health = health;
+    }
+
+    public boolean isDead() {
+        return isDead;
     }
 }

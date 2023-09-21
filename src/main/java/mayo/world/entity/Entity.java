@@ -1,9 +1,12 @@
 package mayo.world.entity;
 
 import mayo.Client;
+import mayo.model.GeometryHelper;
 import mayo.model.obj.Mesh;
 import mayo.render.MatrixStack;
+import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
+import mayo.utils.AABB;
 import mayo.utils.Meth;
 import mayo.utils.Rotation;
 import mayo.world.World;
@@ -14,7 +17,7 @@ public abstract class Entity {
 
     private final Mesh model;
     private final World world;
-    private final Vector3f dimensions;
+    private final Vector3f dimensions = new Vector3f();
     private final Vector3f
             oPos = new Vector3f(),
             pos = new Vector3f();
@@ -22,13 +25,22 @@ public abstract class Entity {
             oRot = new Vector2f(),
             rot = new Vector2f();
 
+    private AABB aabb;
+
     public Entity(Mesh model, World world, Vector3f dimensions) {
         this.model = model;
         this.world = world;
-        this.dimensions = dimensions;
+        this.dimensions.set(dimensions);
+        this.updateAABB();
     }
 
-    public void tick() {}
+    public void tick() {
+        this.updateAABB();
+
+        for (Entity entity : world.getEntities(getAABB()))
+            if (entity != this)
+                collide(entity);
+    }
 
     public void render(MatrixStack matrices, float delta) {
         matrices.push();
@@ -53,6 +65,13 @@ public abstract class Entity {
             renderTexts(matrices, delta);
 
         matrices.pop();
+
+        //render debug hitbox
+        if (world.isDebugRendering()) {
+            Vector3f min = aabb.getMin();
+            Vector3f max = aabb.getMax();
+            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices.peek(), min.x, min.y, min.z, max.x, max.y, max.z, 0x88FFFFFF);
+        }
     }
 
     protected void renderTexts(MatrixStack matrices, float delta) {}
@@ -97,6 +116,16 @@ public abstract class Entity {
         this.setRot(Meth.dirToRot(v));
     }
 
+    protected void updateAABB() {
+        Vector3f dim = new Vector3f(dimensions).mul(0.5f, 1f, 0.5f);
+        this.aabb = new AABB(
+                pos.x - dim.x, pos.y, pos.z - dim.z,
+                pos.x + dim.x, pos.y + dim.y, pos.z + dim.z
+        );
+    }
+
+    protected void collide(Entity entity) {}
+
     public Vector3f getPos(float delta) {
         return Meth.lerp(oPos, pos, delta);
     }
@@ -135,5 +164,9 @@ public abstract class Entity {
 
     public Vector3f getLookDir() {
         return Meth.rotToDir(rot.x, rot.y);
+    }
+
+    public AABB getAABB() {
+        return aabb;
     }
 }

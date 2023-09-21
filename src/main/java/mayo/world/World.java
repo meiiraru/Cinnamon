@@ -7,6 +7,7 @@ import mayo.model.obj.Mesh;
 import mayo.render.MatrixStack;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
+import mayo.utils.AABB;
 import mayo.utils.Resource;
 import mayo.world.entity.Enemy;
 import mayo.world.entity.Entity;
@@ -19,6 +20,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_F3;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public class World {
@@ -31,6 +33,8 @@ public class World {
 
     private final Movement movement = new Movement();
     public Player player;
+
+    private boolean debugRendering;
 
     public void init() {
         player = new Player(this);
@@ -51,7 +55,9 @@ public class World {
     public void tick() {
         this.movement.apply(player);
         this.hud.tick();
-        entities.get(1).move(0, 0, 0.1f);
+
+        for (Entity entity : entities)
+            entity.tick();
     }
 
     public void render(MatrixStack matrices, float delta) {
@@ -108,6 +114,9 @@ public class World {
 
     public void keyPress(int key, int scancode, int action, int mods) {
         movement.keyPress(key, action);
+
+        if (action == GLFW_PRESS && key == GLFW_KEY_F3)
+            this.debugRendering = !this.debugRendering;
     }
 
     public void resetMovement() {
@@ -120,5 +129,18 @@ public class World {
 
     public int objectCount() {
         return objects.size();
+    }
+
+    public List<Entity> getEntities(AABB region) {
+        List<Entity> list = new ArrayList<>();
+        for (Entity entity : entities) {
+            if (region.intersects(entity.getAABB()))
+                list.add(entity);
+        }
+        return list;
+    }
+
+    public boolean isDebugRendering() {
+        return this.debugRendering;
     }
 }

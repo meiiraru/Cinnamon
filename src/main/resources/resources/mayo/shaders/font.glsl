@@ -37,8 +37,6 @@ out vec4 fragColor;
 uniform sampler2D textures[16];
 
 void main() {
-    //if (true) {fragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f); return;}
-
     //color
     vec4 col = color;
 

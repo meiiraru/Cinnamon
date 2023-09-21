@@ -11,6 +11,13 @@ public class FontBatch extends Batch {
     }
 
     @Override
+    protected void fillVertexBuffers(Vertex vertex) {
+        pos.set(vertex.getPosition());
+        uv.set(vertex.getUV());
+        color.set(vertex.getColor());
+    }
+
+    @Override
     protected void pushVertex(Vertex vertex, int textureID) {
         fillVertexBuffers(vertex);
 
