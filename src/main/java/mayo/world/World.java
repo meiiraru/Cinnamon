@@ -20,8 +20,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_F3;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class World {
 
@@ -37,8 +36,10 @@ public class World {
     private boolean debugRendering;
 
     public void init() {
+        hud.init();
+
         player = new Player(this);
-        player.setHoldingItem(new Firearm("The Gun", 8));
+        player.setHoldingItem(new Firearm("The Gun", 8, 20));
         player.setPos(-2, 0, 2);
         addEntity(player);
 
@@ -106,6 +107,11 @@ public class World {
     public void mousePress(int button, int action, int mods) {
         if (action != GLFW_PRESS)
             return;
+
+        switch (button) {
+            case GLFW_MOUSE_BUTTON_1 -> player.attack();
+            case GLFW_MOUSE_BUTTON_2 -> player.use();
+        }
     }
 
     public void mouseMove(double x, double y) {

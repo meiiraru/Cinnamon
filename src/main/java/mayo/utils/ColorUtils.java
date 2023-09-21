@@ -35,6 +35,14 @@ public class ColorUtils {
         return hex;
     }
 
+    public static int rgbaToIntARGB(Vector4f rgba) {
+        int hex = (int) (rgba.w * 0xFF);
+        hex = (hex << 8) + (int) (rgba.x * 0xFF);
+        hex = (hex << 8) + (int) (rgba.y * 0xFF);
+        hex = (hex << 8) + (int) (rgba.z * 0xFF);
+        return hex;
+    }
+
     public static Vector4f intToRGBA(int color) {
         int[] rgba = split(color, 4);
         return new Vector4f(rgba[0] / 255f, rgba[1] / 255f, rgba[2] / 255f, rgba[3] / 255f);
@@ -83,5 +91,12 @@ public class ColorUtils {
         } catch (Exception ignored) {
             return new Vector3f();
         }
+    }
+
+    public static int lerpColor(int a, int b, float t) {
+        Vector4f cA = argbIntToRGBA(a);
+        Vector4f cB = argbIntToRGBA(b);
+        Vector4f lerped = Meth.lerp(cA, cB, t);
+        return rgbaToIntARGB(lerped);
     }
 }

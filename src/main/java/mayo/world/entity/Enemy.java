@@ -20,6 +20,8 @@ public class Enemy extends LivingEntity {
     @Override
     public void tick() {
         super.tick();
+
+        //todo - lol
         this.move(0, 0, 0.1f);
     }
 

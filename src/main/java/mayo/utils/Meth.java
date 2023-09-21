@@ -2,11 +2,21 @@ package mayo.utils;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public class Meth {
 
     public static float lerp(float a, float b, float t) {
         return a + (b - a) * t;
+    }
+
+    public static Vector4f lerp(Vector4f a, Vector4f b, float t) {
+        return new Vector4f(
+                lerp(a.x, b.x, t),
+                lerp(a.y, b.y, t),
+                lerp(a.z, b.z, t),
+                lerp(a.w, b.w, t)
+        );
     }
 
     public static Vector3f lerp(Vector3f a, Vector3f b, float t) {

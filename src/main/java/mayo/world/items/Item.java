@@ -11,6 +11,12 @@ public abstract class Item {
         this.stackCount = stackCount;
     }
 
+    public void tick() {}
+
+    public void attack() {}
+
+    public void use() {}
+
     public String getId() {
         return id;
     }
@@ -21,5 +27,9 @@ public abstract class Item {
 
     public int getCount() {
         return count;
+    }
+
+    public boolean hasAttack() {
+        return false;
     }
 }

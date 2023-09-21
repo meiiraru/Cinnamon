@@ -128,8 +128,7 @@ public class Client {
     public void mousePress(int button, int action, int mods) {
         if (screen != null)
             screen.mousePress(button, action, mods);
-
-        if (world != null)
+        else if (world != null)
             world.mousePress(button, action, mods);
     }
 

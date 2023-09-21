@@ -26,6 +26,14 @@ public abstract class LivingEntity extends Entity {
     }
 
     @Override
+    public void tick() {
+        super.tick();
+
+        if (getHoldingItem() != null)
+            getHoldingItem().tick();
+    }
+
+    @Override
     protected void renderTexts(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
         matrices.push();
@@ -44,6 +52,12 @@ public abstract class LivingEntity extends Entity {
         matrices.pop();
     }
 
+    @Override
+    protected void collide(Entity entity) {
+        super.collide(entity);
+        //todo - push back both entities based on the side they are colliding
+    }
+
     public void damage(int amount) {
         this.health -= amount;
 
@@ -51,6 +65,24 @@ public abstract class LivingEntity extends Entity {
             health = 0;
             isDead = true;
         }
+    }
+
+    public void attack() {
+        //todo - get entity in front and attack it
+
+        //attack using holding item
+        Item item = getHoldingItem();
+        if (item != null && item.hasAttack())
+            item.attack();
+    }
+
+    public void use() {
+        //todo - try to use current object
+        //todo - try to use facing entity
+
+        //use holding item
+        if (getHoldingItem() != null)
+            getHoldingItem().use();
     }
 
     public void setHoldingItem(Item holdingItem) {
@@ -71,6 +103,10 @@ public abstract class LivingEntity extends Entity {
 
     public int getHealth() {
         return health;
+    }
+
+    public float getHealthProgress() {
+        return (float) getHealth() / getMaxHealth();
     }
 
     public void setHealth(int health) {

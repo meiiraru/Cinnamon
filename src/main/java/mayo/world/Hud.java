@@ -1,6 +1,7 @@
 package mayo.world;
 
 import mayo.Client;
+import mayo.gui.widgets.types.ProgressBar;
 import mayo.model.GeometryHelper;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
@@ -11,6 +12,7 @@ import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.*;
 import mayo.world.entity.Player;
+import mayo.world.items.CooldownItem;
 import mayo.world.items.Item;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -18,6 +20,15 @@ import org.joml.Vector3f;
 public class Hud {
 
     private final Texture CROSSHAIR = new Texture(new Resource("textures/crosshair.png"));
+
+    private ProgressBar health, itemCooldown;
+
+    public void init() {
+        health = new ProgressBar(1f, 0, 0, 60, 8);
+        health.setColor(Colors.RED);
+
+        itemCooldown = new ProgressBar(1f, 0, 0, 60, 8);
+    }
 
     public void tick() {}
 
@@ -51,17 +62,26 @@ public class Hud {
         Window window = Client.getInstance().window;
         Font font = Client.getInstance().font;
 
-        //item name
+        //health text
         Text text = Text.of(player.getHealth() + " ").withStyle(Style.EMPTY.outlined(true))
                 .append(Text.of("\u2795").withStyle(Style.EMPTY.color(Colors.RED)));
 
-        //draw text
+        //transform matrices
         matrices.push();
         matrices.translate(12, window.scaledHeight - font.height(text) - 12, 0f);
         matrices.push();
+
         matrices.rotate(Rotation.Y.rotationDeg(-20f));
         matrices.rotate(Rotation.Z.rotationDeg(-10f));
+
+        //draw text
         font.render(VertexConsumer.FONT, matrices.peek(), 0f, 0f, text);
+
+        //health progress bar
+        health.setProgress(player.getHealthProgress());
+        health.setY((int) font.height(text));
+        health.render(matrices, 0, 0, delta);
+
         matrices.pop();
         matrices.pop();
     }
@@ -72,25 +92,39 @@ public class Hud {
 
         Window window = Client.getInstance().window;
         Font font = Client.getInstance().font;
+        boolean onCooldown = item instanceof CooldownItem ci && ci.isOnCooldown();
 
         //item name
         Text text = Text.of(item.getId()).withStyle(Style.EMPTY.outlined(true));
+        float y = font.height(text);
 
         //item count
-        Style style = Style.EMPTY.color(Colors.RED);
-        text
-                .append("\n")
-                .append(Text.of( item.getCount() + "").withStyle(style))
-                .append(" / ")
-                .append(Text.of( item.getStackCount() + "").withStyle(style));
+        if (!onCooldown) {
+            Style style = Style.EMPTY.color(Colors.RED);
+            text
+                    .append("\n")
+                    .append(Text.of(item.getCount() + "").withStyle(style))
+                    .append(" / ")
+                    .append(Text.of(item.getStackCount() + "").withStyle(style));
+        }
 
-        //draw texts
+        //transform matrices
         matrices.push();
-        matrices.translate(window.scaledWidth - 12, window.scaledHeight - font.height(text) - 12, 0f);
+        matrices.translate(window.scaledWidth - 12, window.scaledHeight - y - 12, 0f);
         matrices.push();
         matrices.rotate(Rotation.Y.rotationDeg(-20f));
         matrices.rotate(Rotation.Z.rotationDeg(10f));
+
+        //draw text
         font.render(VertexConsumer.FONT, matrices.peek(), 0f, 0f, text, TextUtils.Alignment.RIGHT);
+
+        //draw progressbar
+        if (onCooldown) {
+            itemCooldown.setProgress(((CooldownItem) item).getCooldownProgress());
+            itemCooldown.setPos(-itemCooldown.getWidth(), (int) y);
+            itemCooldown.render(matrices, 0, 0, delta);
+        }
+
         matrices.pop();
         matrices.pop();
     }
