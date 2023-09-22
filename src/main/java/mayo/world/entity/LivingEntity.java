@@ -1,6 +1,7 @@
 package mayo.world.entity;
 
 import mayo.Client;
+import mayo.model.LivingEntityModels;
 import mayo.model.obj.Mesh;
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
@@ -15,14 +16,21 @@ import org.joml.Vector3f;
 
 public abstract class LivingEntity extends Entity {
 
+    private final float eyeHeight;
+
     private Item holdingItem;
     private int health;
     private int maxHealth;
     private boolean isDead;
 
-    public LivingEntity(Mesh model, World world, Vector3f dimensions, int maxHealth) {
+    public LivingEntity(Mesh model, World world, Vector3f dimensions, int maxHealth, float eyeHeight) {
         super(model, world, dimensions);
         this.health = this.maxHealth = maxHealth;
+        this.eyeHeight = eyeHeight;
+    }
+
+    public LivingEntity(LivingEntityModels entityModel, World world, int maxHealth) {
+        this(entityModel.mesh, world, entityModel.dimensions, maxHealth, entityModel.eyeHeight);
     }
 
     @Override
@@ -83,6 +91,11 @@ public abstract class LivingEntity extends Entity {
         //use holding item
         if (getHoldingItem() != null)
             getHoldingItem().use();
+    }
+
+    @Override
+    public float getEyeHeight() {
+        return this.eyeHeight;
     }
 
     public void setHoldingItem(Item holdingItem) {

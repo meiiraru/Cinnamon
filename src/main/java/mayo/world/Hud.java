@@ -27,7 +27,7 @@ public class Hud {
         health = new ProgressBar(1f, 0, 0, 60, 8);
         health.setColor(Colors.RED);
 
-        itemCooldown = new ProgressBar(1f, 0, 0, 60, 8);
+        itemCooldown = new ProgressBar(0f, 0, 0, 60, 8);
     }
 
     public void tick() {}

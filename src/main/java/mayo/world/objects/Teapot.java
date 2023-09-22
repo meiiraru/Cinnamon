@@ -7,7 +7,7 @@ import org.joml.Vector3f;
 
 public class Teapot extends WorldObject {
 
-    private static final Resource RESOURCE = new Resource("models/teapot/teapot.obj");
+    private static final Resource RESOURCE = new Resource("models/objects/teapot/teapot.obj");
 
     public Teapot(Vector3f position) {
         super(ModelManager.load(RESOURCE));

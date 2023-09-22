@@ -38,7 +38,7 @@ public class Camera {
 
         //third person
         if (thirdPerson)
-            move(1f, 0.25f, 3f);
+            move(1f, 0f, 3f);
     }
 
     protected void setPos(float x, float y, float z) {

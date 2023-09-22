@@ -35,8 +35,6 @@ public abstract class Entity {
     }
 
     public void tick() {
-        this.updateAABB();
-
         for (Entity entity : world.getEntities(getAABB()))
             if (entity != this)
                 collide(entity);
@@ -100,6 +98,7 @@ public abstract class Entity {
     public void moveTo(float x, float y, float z) {
         this.oPos.set(pos);
         this.pos.set(x, y, z);
+        this.updateAABB();
     }
 
     public void rotate(float pitch, float yaw) {
@@ -136,6 +135,7 @@ public abstract class Entity {
 
     public void setPos(float x, float y, float z) {
         this.oPos.set(this.pos.set(x, y, z));
+        this.updateAABB();
     }
 
     public Vector2f getRot(float delta) {
@@ -151,7 +151,7 @@ public abstract class Entity {
     }
 
     public float getEyeHeight() {
-        return 1f;
+        return 0f;
     }
 
     public Vector3f getEyePos(float delta) {

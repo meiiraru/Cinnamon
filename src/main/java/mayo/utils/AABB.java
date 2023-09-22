@@ -70,4 +70,28 @@ public class AABB {
     public Vector3f getMax() {
         return new Vector3f(maxX, maxY, maxZ);
     }
+
+    public float getWidth() {
+        return maxX - minX;
+    }
+
+    public float getHeight() {
+        return maxY - minY;
+    }
+
+    public float getDepth() {
+        return maxZ - minZ;
+    }
+
+    public Vector3f getDimensions() {
+        return new Vector3f(getWidth(), getHeight(), getDepth());
+    }
+
+    public Vector3f getCenter() {
+        return new Vector3f(
+            (minX + maxX) * 0.5f,
+            (minY + maxY) * 0.5f,
+            (minZ + maxZ) * 0.5f
+        );
+    }
 }

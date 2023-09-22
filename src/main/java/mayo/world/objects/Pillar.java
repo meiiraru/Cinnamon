@@ -7,7 +7,7 @@ import org.joml.Vector3f;
 
 public class Pillar extends WorldObject {
 
-    private static final Resource RESOURCE = new Resource("models/pillar/pillar.obj");
+    private static final Resource RESOURCE = new Resource("models/objects/pillar/pillar.obj");
 
     public Pillar(Vector3f position) {
         super(ModelManager.load(RESOURCE));
