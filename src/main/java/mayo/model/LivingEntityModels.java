@@ -7,7 +7,8 @@ import org.joml.Vector3f;
 public enum LivingEntityModels {
     PICKLE(1.5f),
     STRAWBERRY(0.625f),
-    TOMATO(0.75f);
+    TOMATO(0.75f),
+    CHERRY(0.625f);
 
     private static final String MODELS_PATH = "models/entities/";
 
