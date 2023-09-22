@@ -15,17 +15,19 @@ import org.joml.Vector3f;
 
 public abstract class Entity {
 
-    private final Mesh model;
-    private final World world;
-    private final Vector3f dimensions = new Vector3f();
-    private final Vector3f
+    protected final Mesh model;
+    protected final World world;
+    protected final Vector3f dimensions = new Vector3f();
+    protected final Vector3f
             oPos = new Vector3f(),
             pos = new Vector3f();
-    private final Vector2f
+    protected final Vector2f
             oRot = new Vector2f(),
             rot = new Vector2f();
 
-    private AABB aabb;
+    protected AABB aabb;
+
+    protected boolean removed;
 
     public Entity(Mesh model, World world, Vector3f dimensions) {
         this.model = model;
@@ -46,17 +48,8 @@ public abstract class Entity {
         //apply pos
         matrices.translate(Meth.lerp(oPos, pos, delta));
 
-        matrices.push();
-
-        //apply rot
-        matrices.rotate(Rotation.Y.rotationDeg(-Meth.lerp(oRot.y, rot.y, delta)));
-        //matrices.rotate(Rotation.X.rotationDeg(-Meth.lerp(oRot.x, rot.x, delta)));
-
         //render model
-        Shader.activeShader.setModelMatrix(matrices.peek());
-        model.render();
-
-        matrices.pop();
+        renderModel(matrices, delta);
 
         //render head text
         if (shouldRenderText())
@@ -72,6 +65,20 @@ public abstract class Entity {
         }
     }
 
+    protected void renderModel(MatrixStack matrices, float delta) {
+        matrices.push();
+
+        //apply rot
+        matrices.rotate(Rotation.Y.rotationDeg(-Meth.lerp(oRot.y, rot.y, delta)));
+        matrices.rotate(Rotation.X.rotationDeg(-Meth.lerp(oRot.x, rot.x, delta)));
+
+        //render model
+        Shader.activeShader.setModelMatrix(matrices.peek());
+        model.render();
+
+        matrices.pop();
+    }
+
     protected void renderTexts(MatrixStack matrices, float delta) {}
 
     public boolean shouldRenderText() {
@@ -80,18 +87,15 @@ public abstract class Entity {
     }
 
     public void move(float left, float up, float forwards) {
-        Vector3f vec = new Vector3f(left, up, -forwards);
-        if (vec.lengthSquared() > 1f)
-            vec.normalize();
+        Vector3f move = new Vector3f(-left, up, -forwards);
 
-        double rad = Math.toRadians(rot.y);
-        double sin = Math.sin(rad);
-        double cos = Math.cos(rad);
+        move.rotateX((float) Math.toRadians(-rot.x));
+        move.rotateY((float) Math.toRadians(-rot.y));
 
         this.moveTo(
-                pos.x + (float) (vec.x * cos - vec.z * sin),
-                pos.y + vec.y,
-                pos.z + (float) (vec.z * cos + vec.x * sin)
+                pos.x + move.x,
+                pos.y + move.y,
+                pos.z + move.z
         );
     }
 
@@ -117,9 +121,10 @@ public abstract class Entity {
 
     protected void updateAABB() {
         Vector3f dim = new Vector3f(dimensions).mul(0.5f, 1f, 0.5f);
+        float widthAndDepth = Math.max(dim.x, dim.z);
         this.aabb = new AABB(
-                pos.x - dim.x, pos.y, pos.z - dim.z,
-                pos.x + dim.x, pos.y + dim.y, pos.z + dim.z
+                pos.x - widthAndDepth, pos.y, pos.z - widthAndDepth,
+                pos.x + widthAndDepth, pos.y + dim.y, pos.z + widthAndDepth
         );
     }
 
@@ -168,5 +173,13 @@ public abstract class Entity {
 
     public AABB getAABB() {
         return aabb;
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    public boolean isRemoved() {
+        return removed;
     }
 }

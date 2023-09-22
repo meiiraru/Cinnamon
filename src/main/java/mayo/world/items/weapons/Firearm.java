@@ -1,5 +1,8 @@
 package mayo.world.items.weapons;
 
+import mayo.world.World;
+import mayo.world.entity.Entity;
+import mayo.world.entity.projectile.Bullet;
 import mayo.world.items.CooldownItem;
 
 public class Firearm extends CooldownItem {
@@ -10,13 +13,13 @@ public class Firearm extends CooldownItem {
     }
 
     @Override
-    public void attack() {
-        super.attack();
+    public void attack(Entity source) {
+        super.attack(source);
 
         if (isOnCooldown())
             return;
 
-        if (!shoot())
+        if (!shoot(source))
             this.resetCooldown();
     }
 
@@ -31,10 +34,21 @@ public class Firearm extends CooldownItem {
         reload();
     }
 
-    private boolean shoot() {
-        if (count > 0)
-            count--;
+    private boolean shoot(Entity entity) {
+        if (count <= 0)
+            return false;
 
+        //spawn new bullet
+        World world = entity.getWorld();
+        Bullet bullet = new Bullet(world, entity);
+
+        bullet.setPos(entity.getEyePos(1f));
+        bullet.setRot(entity.getRot(1f));
+
+        world.addEntity(bullet);
+
+        //use ammo
+        count--;
         return count > 0;
     }
 

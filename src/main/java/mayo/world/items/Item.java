@@ -1,5 +1,7 @@
 package mayo.world.items;
 
+import mayo.world.entity.Entity;
+
 public abstract class Item {
 
     private final String id;
@@ -13,9 +15,9 @@ public abstract class Item {
 
     public void tick() {}
 
-    public void attack() {}
+    public void attack(Entity source) {}
 
-    public void use() {}
+    public void use(Entity source) {}
 
     public String getId() {
         return id;

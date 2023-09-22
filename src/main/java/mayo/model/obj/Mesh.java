@@ -107,6 +107,10 @@ public class Mesh {
         return bbMax;
     }
 
+    public Vector3f getBoundingBox() {
+        return getBBMax().sub(getBBMin(), new Vector3f());
+    }
+
     public Map<String, Material> getMaterials() {
         return materials;
     }

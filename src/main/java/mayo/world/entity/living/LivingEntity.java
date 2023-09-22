@@ -1,15 +1,19 @@
-package mayo.world.entity;
+package mayo.world.entity.living;
 
 import mayo.Client;
 import mayo.model.LivingEntityModels;
 import mayo.model.obj.Mesh;
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
+import mayo.render.shader.Shader;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.Colors;
+import mayo.utils.Meth;
+import mayo.utils.Rotation;
 import mayo.utils.TextUtils;
 import mayo.world.World;
+import mayo.world.entity.Entity;
 import mayo.world.items.Item;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -21,7 +25,6 @@ public abstract class LivingEntity extends Entity {
     private Item holdingItem;
     private int health;
     private int maxHealth;
-    private boolean isDead;
 
     public LivingEntity(Mesh model, World world, Vector3f dimensions, int maxHealth, float eyeHeight) {
         super(model, world, dimensions);
@@ -39,6 +42,20 @@ public abstract class LivingEntity extends Entity {
 
         if (getHoldingItem() != null)
             getHoldingItem().tick();
+    }
+
+    @Override
+    protected void renderModel(MatrixStack matrices, float delta) {
+        matrices.push();
+
+        //apply rot
+        matrices.rotate(Rotation.Y.rotationDeg(-Meth.lerp(oRot.y, rot.y, delta)));
+
+        //render model
+        Shader.activeShader.setModelMatrix(matrices.peek());
+        model.render();
+
+        matrices.pop();
     }
 
     @Override
@@ -61,6 +78,21 @@ public abstract class LivingEntity extends Entity {
     }
 
     @Override
+    public void move(float left, float up, float forwards) {
+        Vector3f move = new Vector3f(left, up, -forwards);
+        if (move.lengthSquared() > 1f)
+            move.normalize();
+
+        move.rotateY((float) Math.toRadians(-rot.y));
+
+        this.moveTo(
+                pos.x + move.x,
+                pos.y + move.y,
+                pos.z + move.z
+        );
+    }
+
+    @Override
     protected void collide(Entity entity) {
         super.collide(entity);
         //todo - push back both entities based on the side they are colliding
@@ -71,7 +103,7 @@ public abstract class LivingEntity extends Entity {
 
         if (health <= 0) {
             health = 0;
-            isDead = true;
+            removed = true;
         }
     }
 
@@ -81,7 +113,7 @@ public abstract class LivingEntity extends Entity {
         //attack using holding item
         Item item = getHoldingItem();
         if (item != null && item.hasAttack())
-            item.attack();
+            item.attack(this);
     }
 
     public void use() {
@@ -90,7 +122,7 @@ public abstract class LivingEntity extends Entity {
 
         //use holding item
         if (getHoldingItem() != null)
-            getHoldingItem().use();
+            getHoldingItem().use(this);
     }
 
     @Override
@@ -124,9 +156,5 @@ public abstract class LivingEntity extends Entity {
 
     public void setHealth(int health) {
         this.health = health;
-    }
-
-    public boolean isDead() {
-        return isDead;
     }
 }

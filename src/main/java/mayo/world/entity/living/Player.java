@@ -1,4 +1,4 @@
-package mayo.world.entity;
+package mayo.world.entity.living;
 
 import mayo.model.LivingEntityModels;
 import mayo.world.World;
@@ -6,12 +6,12 @@ import mayo.world.World;
 public class Player extends LivingEntity {
 
     private static final int MAX_HEALTH = 100;
-    private static final int INVULNERABILITY_TIME = 20;
+    private static final int INVULNERABILITY_TIME = 10;
 
     private int invulnerability = 0;
 
     public Player(World world) {
-        super(LivingEntityModels.PICKLE, world, MAX_HEALTH);
+        super(LivingEntityModels.STRAWBERRY, world, MAX_HEALTH);
     }
 
     @Override
@@ -34,5 +34,10 @@ public class Player extends LivingEntity {
 
         super.damage(amount);
         this.invulnerability = INVULNERABILITY_TIME;
+    }
+
+    @Override
+    public boolean isRemoved() {
+        return false;
     }
 }

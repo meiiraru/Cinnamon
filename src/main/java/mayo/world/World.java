@@ -9,9 +9,9 @@ import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
 import mayo.utils.AABB;
 import mayo.utils.Resource;
-import mayo.world.entity.Enemy;
 import mayo.world.entity.Entity;
-import mayo.world.entity.Player;
+import mayo.world.entity.living.Enemy;
+import mayo.world.entity.living.Player;
 import mayo.world.items.weapons.Firearm;
 import mayo.world.objects.Pillar;
 import mayo.world.objects.Teapot;
@@ -32,21 +32,21 @@ public class World {
 
     private final Movement movement = new Movement();
     public Player player;
+    private boolean thirdPerson;
 
     private boolean debugRendering;
 
     public void init() {
+        //init hud
         hud.init();
 
+        //add player
         player = new Player(this);
         player.setHoldingItem(new Firearm("The Gun", 8, 20));
-        player.setPos(-2, 0, 2);
+        player.setPos(0, 0, 2);
         addEntity(player);
 
-        Enemy enemy = new Enemy(this);
-        enemy.setPos(2, 0, 2);
-        addEntity(enemy);
-
+        //temp
         Pillar pillar = new Pillar(new Vector3f(0, 0, 0));
         addObject(pillar);
         Teapot teapot = new Teapot(new Vector3f(0, pillar.getDimensions().y, 0));
@@ -59,13 +59,22 @@ public class World {
 
         for (Entity entity : entities)
             entity.tick();
+
+        entities.removeIf(Entity::isRemoved);
+
+        //every 3 seconds
+        if (Client.getInstance().ticks % 60 == 0) {
+            Enemy enemy = new Enemy(this);
+            enemy.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
+            addEntity(enemy);
+        }
     }
 
     public void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
 
         //set camera
-        c.camera.setup(player, true, delta);
+        c.camera.setup(player, thirdPerson, delta);
 
         //set shader
         Shader s = Shaders.MODEL.getShader();
@@ -84,12 +93,6 @@ public class World {
         //render entities
         for (Entity entity : entities)
             entity.render(matrices, delta);
-
-        Vector3f pos = player.getEyePos(delta);
-        //Vector3f dest = pos.add(player.getLookDir().mul(5f), new Vector3f());
-        //entities.get(1).setPos(dest.x, dest.y, dest.z);
-
-        entities.get(1).lookAt(pos.x, pos.y, pos.z);
     }
 
     public void renderHUD(MatrixStack matrices, float delta) {
@@ -121,8 +124,13 @@ public class World {
     public void keyPress(int key, int scancode, int action, int mods) {
         movement.keyPress(key, action);
 
-        if (action == GLFW_PRESS && key == GLFW_KEY_F3)
-            this.debugRendering = !this.debugRendering;
+        if (action != GLFW_PRESS)
+            return;
+
+        switch (key) {
+            case GLFW_KEY_F3 -> this.debugRendering = !this.debugRendering;
+            case GLFW_KEY_F5 -> this.thirdPerson = !this.thirdPerson;
+        }
     }
 
     public void resetMovement() {

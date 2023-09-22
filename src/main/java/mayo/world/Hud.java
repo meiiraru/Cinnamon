@@ -11,7 +11,7 @@ import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.*;
-import mayo.world.entity.Player;
+import mayo.world.entity.living.Player;
 import mayo.world.items.CooldownItem;
 import mayo.world.items.Item;
 import org.joml.Vector2f;

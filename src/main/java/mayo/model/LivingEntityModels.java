@@ -22,7 +22,7 @@ public enum LivingEntityModels {
         this.eyeHeight = eyeHeight;
 
         this.mesh = ModelManager.load(this.resource);
-        this.dimensions = mesh.getBBMax().sub(mesh.getBBMin(), new Vector3f());
+        this.dimensions = mesh.getBoundingBox();
     }
 
     public static LivingEntityModels random() {
