@@ -14,7 +14,7 @@ public class Label extends Widget {
     private TextUtils.Alignment alignment = TextUtils.Alignment.LEFT;
 
     public Label(Text text, Font font, int x, int y) {
-        super(x, y, (int) font.width(text), (int) font.height(text));
+        super(x, y, TextUtils.getWidth(text, font), TextUtils.getHeight(text, font));
         this.text = text;
         this.font = font;
     }
@@ -26,8 +26,8 @@ public class Label extends Widget {
 
     public Label setText(Text text) {
         this.text = text;
-        setWidth((int) font.width(text));
-        setHeight((int) font.height(text));
+        setWidth(TextUtils.getWidth(text, font));
+        setHeight(TextUtils.getHeight(text, font));
 
         return this;
     }

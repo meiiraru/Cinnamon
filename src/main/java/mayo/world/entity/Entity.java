@@ -38,7 +38,7 @@ public abstract class Entity {
 
     public void tick() {
         for (Entity entity : world.getEntities(getAABB()))
-            if (entity != this)
+            if (entity != this && !entity.isRemoved())
                 collide(entity);
     }
 

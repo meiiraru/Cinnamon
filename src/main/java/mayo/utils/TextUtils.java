@@ -89,4 +89,18 @@ public class TextUtils {
             return textFunction.apply(font, text);
         }
     }
+
+    public static int getWidth(Text text, Font font) {
+        List<Text> split = split(text, "\n");
+        float width = 0f;
+        for (Text t : split)
+            width = Math.max(width, font.width(t));
+
+        return (int) width;
+    }
+
+    public static int getHeight(Text text, Font font) {
+        String[] split = text.asString().split("\n", -1);
+        return (int) (font.lineHeight * split.length);
+    }
 }

@@ -303,9 +303,4 @@ public class Font {
 
         return xb.get(0);
     }
-
-    public float height(Text text) {
-        String[] split = text.asString().split("\n", -1);
-        return lineHeight * split.length;
-    }
 }

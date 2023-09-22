@@ -1,12 +1,14 @@
 package mayo.world;
 
 import mayo.Client;
+import mayo.gui.Toast;
 import mayo.input.Movement;
 import mayo.model.ModelManager;
 import mayo.model.obj.Mesh;
 import mayo.render.MatrixStack;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
+import mayo.text.Text;
 import mayo.utils.AABB;
 import mayo.utils.Resource;
 import mayo.world.entity.Entity;
@@ -45,6 +47,9 @@ public class World {
         player.setHoldingItem(new Firearm("The Gun", 8, 20));
         player.setPos(0, 0, 2);
         addEntity(player);
+
+        //tutorial toast
+        Toast.addToast(Text.of("WASD - move\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), Client.getInstance().font);
 
         //temp
         Pillar pillar = new Pillar(new Vector3f(0, 0, 0));
@@ -91,8 +96,10 @@ public class World {
             object.render(matrices, delta);
 
         //render entities
-        for (Entity entity : entities)
-            entity.render(matrices, delta);
+        for (Entity entity : entities) {
+            if (entity != player || thirdPerson)
+                entity.render(matrices, delta);
+        }
     }
 
     public void renderHUD(MatrixStack matrices, float delta) {

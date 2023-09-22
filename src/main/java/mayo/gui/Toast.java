@@ -8,6 +8,7 @@ import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
 import mayo.utils.Meth;
 import mayo.utils.Resource;
+import mayo.utils.TextUtils;
 import mayo.utils.UIHelper;
 import org.joml.Matrix4f;
 
@@ -81,8 +82,8 @@ public class Toast {
             return true;
 
         //grab text dimensions
-        float tWidth = font.width(text);
-        float tHeight = font.height(text);
+        int tWidth = TextUtils.getWidth(text, font);
+        int tHeight = TextUtils.getHeight(text, font);
 
         //set y animation offset
         float y;
@@ -95,14 +96,14 @@ public class Toast {
         }
 
         matrices.push();
-        matrices.translate((width - tWidth - PADDING) / 2, y, 999f);
+        matrices.translate((width - tWidth - PADDING) / 2f, y, 999f);
         Matrix4f matrix = matrices.peek();
 
         //render background
         UIHelper.nineQuad(VertexConsumer.GUI, matrix, TEXTURE.getID(), 0f, 0f, tWidth + PADDING, tHeight + PADDING);
 
         //render text
-        font.render(VertexConsumer.FONT, matrices.peek(), PADDING / 2f, PADDING / 2f, text);
+        font.render(VertexConsumer.FONT, matrices.peek(), (tWidth + PADDING) / 2f, PADDING / 2f, text, TextUtils.Alignment.CENTER);
 
         matrices.pop();
         return false;

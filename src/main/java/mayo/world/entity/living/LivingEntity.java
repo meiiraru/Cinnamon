@@ -70,7 +70,7 @@ public abstract class LivingEntity extends Entity {
         mat.translate(0f, getDimensions().y + 0.15f, 0f);
         c.camera.billboard(mat);
         mat.scale(-s, -s, s);
-        mat.translate(0f, -c.font.height(text), 0f);
+        mat.translate(0f, -TextUtils.getHeight(text, c.font), 0f);
 
         c.font.render(VertexConsumer.FONT, mat, 0, 0, text, TextUtils.Alignment.CENTER, 10);
 

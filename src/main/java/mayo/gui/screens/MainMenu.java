@@ -6,6 +6,7 @@ import mayo.gui.widgets.types.Label;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.Colors;
+import mayo.utils.TextUtils;
 import mayo.world.World;
 
 public class MainMenu extends Screen {
@@ -33,6 +34,6 @@ public class MainMenu extends Screen {
 
         //may~o
         Text may = Text.of("May~o Renderer v0.1").withStyle(Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK));
-        this.addWidget(new Label(may, font, 4, (int) (height - font.height(may) - 4)));
+        this.addWidget(new Label(may, font, 4, height - TextUtils.getHeight(may, font) - 4));
     }
 }

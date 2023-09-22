@@ -68,7 +68,7 @@ public class Hud {
 
         //transform matrices
         matrices.push();
-        matrices.translate(12, window.scaledHeight - font.height(text) - 12, 0f);
+        matrices.translate(12, window.scaledHeight - TextUtils.getHeight(text, font) - 12, 0f);
         matrices.push();
 
         matrices.rotate(Rotation.Y.rotationDeg(-20f));
@@ -79,7 +79,7 @@ public class Hud {
 
         //health progress bar
         health.setProgress(player.getHealthProgress());
-        health.setY((int) font.height(text));
+        health.setY(TextUtils.getHeight(text, font));
         health.render(matrices, 0, 0, delta);
 
         matrices.pop();
@@ -96,7 +96,7 @@ public class Hud {
 
         //item name
         Text text = Text.of(item.getId()).withStyle(Style.EMPTY.outlined(true));
-        float y = font.height(text);
+        int y = TextUtils.getHeight(text, font);
 
         //item count
         if (!onCooldown) {
@@ -121,7 +121,7 @@ public class Hud {
         //draw progressbar
         if (onCooldown) {
             itemCooldown.setProgress(((CooldownItem) item).getCooldownProgress());
-            itemCooldown.setPos(-itemCooldown.getWidth(), (int) y);
+            itemCooldown.setPos(-itemCooldown.getWidth(), y);
             itemCooldown.render(matrices, 0, 0, delta);
         }
 

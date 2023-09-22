@@ -93,8 +93,8 @@ public class UIHelper {
         //variables
         int x = mouseX + 4;
         int y = mouseY - 12;
-        float w = f.width(tooltip);
-        float h = f.height(tooltip);
+        int w = TextUtils.getWidth(tooltip, f);
+        int h = TextUtils.getHeight(tooltip, f);
 
         //screen size
         Window window = Client.getInstance().window;
@@ -103,7 +103,7 @@ public class UIHelper {
 
         //check if the tooltip could be rendered on the left side
         if (x + w > screenW && mouseX > screenW / 2)
-            x -= (int) (12 + w);
+            x -= 12 + w;
 
         //fit tooltip in the screen boundaries
         x = (int) Meth.clamp(x, -2f, screenW - w - 2);
