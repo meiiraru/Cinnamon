@@ -1,27 +1,27 @@
 package mayo.world;
 
 import mayo.model.Transform;
-import mayo.model.obj.Mesh;
 import mayo.render.MatrixStack;
+import mayo.render.Model;
 import mayo.render.shader.Shader;
 import org.joml.Vector3f;
 
 public abstract class WorldObject {
 
     public final Transform transform = new Transform();
-    protected final Mesh mesh;
+    protected final Model model;
     private final Vector3f dimensions;
 
-    public WorldObject(Mesh mesh) {
-        this.mesh = mesh;
-        this.dimensions = mesh.getBBMax().sub(mesh.getBBMin(), new Vector3f());
+    public WorldObject(Model model) {
+        this.model = model;
+        this.dimensions = model.getMesh().getBoundingBox();
     }
 
     public void render(MatrixStack matrices, float delta) {
         matrices.push();
 
         Shader.activeShader.setModelMatrix(matrices.peek().mul(transform.getPositionMatrix()));
-        mesh.render();
+        model.render();
 
         matrices.pop();
     }

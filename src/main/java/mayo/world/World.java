@@ -6,8 +6,8 @@ import mayo.gui.screens.DeathScreen;
 import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
 import mayo.model.ModelManager;
-import mayo.model.obj.Mesh;
 import mayo.render.MatrixStack;
+import mayo.render.Model;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
 import mayo.text.Text;
@@ -35,7 +35,7 @@ public class World {
     private final List<Entity> entities = new ArrayList<>();
     private final List<Particle> particles = new ArrayList<>();
 
-    private final Mesh terrain = ModelManager.load(new Resource("models/terrain/terrain.obj"));
+    private final Model terrain = ModelManager.load(new Resource("models/terrain/terrain.obj"));
 
     private final Movement movement = new Movement();
     public Player player;
@@ -106,10 +106,13 @@ public class World {
         c.camera.setup(player, thirdPerson, delta);
 
         //set shader
-        Shader s = Shaders.MODEL.getShader();
-        s.use();
+        Shader s = Shaders.MODEL.getShader().use();
+
         s.setProjectionMatrix(c.camera.getPerspectiveMatrix());
         s.setViewMatrix(c.camera.getViewMatrix());
+
+        //s.setVec3("ambientLight", ColorUtils.intToRGB(0xFFBBBB));
+        //s.setVec3("lightPos", 16f, 2f, 16f);
 
         //render terrain
         s.setModelMatrix(matrices.peek());
@@ -210,7 +213,7 @@ public class World {
     public void respawn() {
         entities.clear();
         player = new Player(this);
-        player.setHoldingItem(new Firearm("The Gun", 8, 20, 3));
+        player.setHoldingItem(new Firearm("The Gun", 16, 20, 3));
         player.setPos(0, 0, 2);
         addEntity(player);
     }

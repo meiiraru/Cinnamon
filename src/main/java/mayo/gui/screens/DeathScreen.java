@@ -6,12 +6,13 @@ import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
+import mayo.utils.ColorUtils;
 import mayo.utils.Colors;
 import mayo.utils.TextUtils;
 
 public class DeathScreen extends Screen {
 
-    private static final Text YOU_DIED = Text.of("YOU DIED").withStyle(Style.EMPTY.color(Colors.RED).shadow(true).shadowColor(0xFF440000).underlined(true));
+    private static final Text YOU_DIED = Text.of("YOU DIED").withStyle(Style.EMPTY.shadow(true).shadowColor(0xFF440000).underlined(true));
 
     private Button respawn;
 
@@ -40,7 +41,9 @@ public class DeathScreen extends Screen {
         matrices.translate(width / 2f, respawn.getY() - TextUtils.getHeight(YOU_DIED, font) * 5f - 16f, 0f);
         matrices.scale(5f);
 
-        font.render(VertexConsumer.FONT, matrices.peek(), 0f, 0f, YOU_DIED, TextUtils.Alignment.CENTER);
+        float dc = (float) (Math.sin((client.ticks + delta) * 0.1f) + 1) * 0.5f;
+        int color = ColorUtils.lerpColor(Colors.RED.rgba, 0xFF880000, dc);
+        font.render(VertexConsumer.FONT, matrices.peek(), 0f, 0f, YOU_DIED.withStyle(Style.EMPTY.color(color)), TextUtils.Alignment.CENTER);
 
         matrices.pop();
     }

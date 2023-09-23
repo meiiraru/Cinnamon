@@ -17,6 +17,8 @@ import mayo.world.items.Item;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import static org.lwjgl.opengl.GL11.*;
+
 public class Hud {
 
     private final Texture CROSSHAIR = new Texture(new Resource("textures/crosshair.png"));
@@ -38,7 +40,13 @@ public class Hud {
         int h = c.window.scaledHeight;
 
         //render debug text
-        c.font.render(VertexConsumer.FONT, matrices.peek(), 4, 4, Text.of(getDebugText()).withStyle(Style.EMPTY.shadow(true).shadowColor(Colors.DARK_GRAY)));
+        Style style = Style.EMPTY.shadow(true).shadowColor(Colors.DARK_GRAY);
+        if (c.world.isDebugRendering()) {
+            c.font.render(VertexConsumer.FONT, matrices.peek(), 4, 4, Text.of(debugLeftText()).withStyle(style));
+            c.font.render(VertexConsumer.FONT, matrices.peek(), w - 4, 4, Text.of(debugRightText()).withStyle(style), TextUtils.Alignment.RIGHT);
+        } else {
+            c.font.render(VertexConsumer.FONT, matrices.peek(), 4, 4, Text.of(c.fps + " fps").withStyle(style));
+        }
 
         //draw crosshair
         VertexConsumer.GUI.consume(GeometryHelper.quad(matrices.peek(), (int) (w / 2f - 8), (int) (h / 2f - 8), 16, 16), CROSSHAIR.getID());
@@ -129,14 +137,12 @@ public class Hud {
         matrices.pop();
     }
 
-    private static String getDebugText() {
+    private static String debugLeftText() {
         Client c = Client.getInstance();
 
-        if (!c.world.isDebugRendering())
-            return c.fps + " fps";
-
-        Vector3f epos = c.world.player.getPos(1f);
-        Vector2f erot = c.world.player.getRot(1f);
+        World w = c.world;
+        Vector3f epos = w.player.getPos(1f);
+        Vector2f erot = w.player.getRot(1f);
         Vector3f cpos = c.camera.getPos();
         Vector2f crot = c.camera.getRot();
 
@@ -156,7 +162,7 @@ public class Hud {
                         %s fps
 
                         [world]
-                        %s e %s o %s p
+                        %s entities %s particles %s geometry
 
                         [player]
                         xyz %.3f %.3f %.3f
@@ -169,7 +175,7 @@ public class Hud {
                         """,
                 c.fps,
 
-                c.world.entityCount(), c.world.objectCount(), c.world.particleCount(),
+                w.entityCount(), w.particleCount(), w.objectCount(),
 
                 epos.x, epos.y, epos.z,
                 erot.x, erot.y,
@@ -177,6 +183,41 @@ public class Hud {
                 cpos.x, cpos.y, cpos.z,
                 crot.x, crot.y,
                 face
+        );
+    }
+
+    private static String debugRightText() {
+        Runtime r = Runtime.getRuntime();
+        long max = r.maxMemory();
+        long total = r.totalMemory();
+        long free = r.freeMemory();
+        long used = total - free;
+
+        Window w = Client.getInstance().window;
+
+        return String.format("""
+                [java]
+                version %s
+                mem %s%% %s/%s
+                allocated %s%% %s
+
+                [renderer]
+                %s
+                OpenGL %s
+
+                [window]
+                %s x %s
+                scale %s
+                """,
+                System.getProperty("java.version"),
+                used * 100 / max, Meth.prettyByteSize(used), Meth.prettyByteSize(max),
+                total * 100 / max, Meth.prettyByteSize(total),
+
+                glGetString(GL_RENDERER),
+                glGetString(GL_VERSION),
+
+                w.width, w.height,
+                w.guiScale
         );
     }
 }

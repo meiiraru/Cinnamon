@@ -2,8 +2,8 @@ package mayo.world.entity.living;
 
 import mayo.Client;
 import mayo.model.LivingEntityModels;
-import mayo.model.obj.Mesh;
 import mayo.render.MatrixStack;
+import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
 import mayo.text.Style;
@@ -27,14 +27,14 @@ public abstract class LivingEntity extends Entity {
     private int health;
     private int maxHealth;
 
-    public LivingEntity(Mesh model, World world, Vector3f dimensions, int maxHealth, float eyeHeight) {
+    public LivingEntity(Model model, World world, Vector3f dimensions, int maxHealth, float eyeHeight) {
         super(model, world, dimensions);
         this.health = this.maxHealth = maxHealth;
         this.eyeHeight = eyeHeight;
     }
 
     public LivingEntity(LivingEntityModels entityModel, World world, int maxHealth) {
-        this(entityModel.mesh, world, entityModel.dimensions, maxHealth, entityModel.eyeHeight);
+        this(entityModel.model, world, entityModel.dimensions, maxHealth, entityModel.eyeHeight);
     }
 
     @Override
@@ -99,24 +99,24 @@ public abstract class LivingEntity extends Entity {
         //todo - push back both entities based on the side they are colliding
     }
 
-    public void damage(int amount) {
+    public void damage(int amount, boolean crit) {
         int prevHealth = this.health;
-        this.health -= amount;
+        this.health -= amount * (crit ? 2 : 1);
+
+        spawnDamageParticle(health - prevHealth, crit);
 
         if (health <= 0) {
             health = 0;
             removed = true;
         }
-
-        spawnDamageParticle(health - prevHealth);
     }
 
-    protected void spawnDamageParticle(int diff) {
+    protected void spawnDamageParticle(int diff, boolean crit) {
         if (diff == 0)
             return;
 
         Colors color = diff > 0 ? Colors.GREEN : Colors.RED;
-        world.addParticle(new TextParticle(Text.of( diff + "").withStyle(Style.EMPTY.color(color).outlined(true)), 20, getAABB().getRandomPoint()));
+        world.addParticle(new TextParticle(Text.of( diff + (crit ? " \u2728" : "")).withStyle(Style.EMPTY.color(color).outlined(true)), 20, getAABB().getRandomPoint()));
     }
 
     public void attack() {

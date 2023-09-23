@@ -1,6 +1,6 @@
 package mayo.world.entity.projectile;
 
-import mayo.model.obj.Mesh;
+import mayo.render.Model;
 import mayo.world.World;
 import mayo.world.entity.Entity;
 import mayo.world.entity.living.LivingEntity;
@@ -10,14 +10,16 @@ public abstract class Projectile extends Entity {
 
     private final int damage;
     private final float speed;
+    private final boolean crit;
     private int lifetime;
     private Entity owner;
 
-    public Projectile(Mesh model, World world, Vector3f dimensions, int damage, int lifetime, float speed) {
+    public Projectile(Model model, World world, Vector3f dimensions, int damage, int lifetime, float speed, boolean crit) {
         super(model, world, dimensions);
         this.damage = damage;
         this.lifetime = lifetime;
         this.speed = speed;
+        this.crit = crit;
     }
 
     @Override
@@ -39,7 +41,7 @@ public abstract class Projectile extends Entity {
             return;
 
         if (entity instanceof LivingEntity le) {
-            le.damage(getDamage());
+            le.damage(getDamage(), this.crit);
             removed = true;
         }
     }

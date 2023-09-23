@@ -1,7 +1,8 @@
 package mayo.model;
 
-import mayo.model.obj.Mesh;
 import mayo.parsers.ObjLoader;
+import mayo.render.Model;
+import mayo.render.OpenGLObj;
 import mayo.utils.Resource;
 
 import java.util.HashMap;
@@ -9,17 +10,17 @@ import java.util.Map;
 
 public class ModelManager {
 
-    private static final Map<Resource, Mesh> MESH_MAP = new HashMap<>();
+    private static final Map<Resource, Model> MODEL_MAP = new HashMap<>();
 
-    public static Mesh load(Resource resource) {
+    public static Model load(Resource resource) {
         //already loaded, return it
-        Mesh mesh = MESH_MAP.get(resource);
-        if (mesh != null)
-            return mesh;
+        Model model = MODEL_MAP.get(resource);
+        if (model != null)
+            return model;
 
         //load mesh :)
-        Mesh m = ObjLoader.load(resource).bake();
-        MESH_MAP.put(resource, m);
-        return m;
+        Model newModel = new OpenGLObj(ObjLoader.load(resource));
+        MODEL_MAP.put(resource, newModel);
+        return newModel;
     }
 }

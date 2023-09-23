@@ -2,8 +2,8 @@ package mayo.world.entity;
 
 import mayo.Client;
 import mayo.model.GeometryHelper;
-import mayo.model.obj.Mesh;
 import mayo.render.MatrixStack;
+import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
 import mayo.utils.AABB;
@@ -15,7 +15,7 @@ import org.joml.Vector3f;
 
 public abstract class Entity {
 
-    protected final Mesh model;
+    protected final Model model;
     protected final World world;
     protected final Vector3f dimensions = new Vector3f();
     protected final Vector3f
@@ -29,7 +29,7 @@ public abstract class Entity {
 
     protected boolean removed;
 
-    public Entity(Mesh model, World world, Vector3f dimensions) {
+    public Entity(Model model, World world, Vector3f dimensions) {
         this.model = model;
         this.world = world;
         this.dimensions.set(dimensions);

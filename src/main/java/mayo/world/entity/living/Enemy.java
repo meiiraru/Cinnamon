@@ -33,6 +33,6 @@ public class Enemy extends LivingEntity {
     protected void collide(Entity entity) {
         super.collide(entity);
         if (entity instanceof Player p)
-            p.damage(MELEE_DAMAGE);
+            p.damage(MELEE_DAMAGE, false);
     }
 }

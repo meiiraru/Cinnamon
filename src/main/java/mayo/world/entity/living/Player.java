@@ -28,18 +28,18 @@ public class Player extends LivingEntity {
     }
 
     @Override
-    public void damage(int amount) {
+    public void damage(int amount, boolean crit) {
         if (invulnerability > 0)
             return;
 
-        super.damage(amount);
+        super.damage(amount, crit);
         this.invulnerability = INVULNERABILITY_TIME;
     }
 
     @Override
-    protected void spawnDamageParticle(int diff) {
+    protected void spawnDamageParticle(int diff, boolean crit) {
         if (world.isThirdPerson())
-            super.spawnDamageParticle(diff);
+            super.spawnDamageParticle(diff, crit);
     }
 
     @Override

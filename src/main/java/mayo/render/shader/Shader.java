@@ -84,9 +84,10 @@ public class Shader {
         }
     }
 
-    public void use() {
+    public Shader use() {
         activeShader = this;
         glUseProgram(ID);
+        return this;
     }
 
     public void free() {
