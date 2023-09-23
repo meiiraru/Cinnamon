@@ -117,10 +117,14 @@ public class Client {
 
             //unlock mouse
             window.unlockMouse();
+
+            //pause world
+            if (world != null)
+                world.setPaused(true);
         } else if (window.lockMouse() && world != null) {
             //no screen, then lock the mouse
-            //reset movement
-            world.resetMovement();
+            //also unpause world
+            world.setPaused(false);
         }
     }
 

@@ -2,43 +2,59 @@ package mayo.world.items;
 
 public abstract class CooldownItem extends Item {
 
-    private final int cooldownTime;
-    private int cooldown;
+    private final int depleatCooldown, useCooldown;
+    private int depleat, use;
 
-    public CooldownItem(String id, int stackCount, int cooldownTime) {
+    public CooldownItem(String id, int stackCount, int depleatCooldown, int useCooldown) {
         super(id, stackCount);
-        this.cooldownTime = cooldownTime;
+        this.depleatCooldown = depleatCooldown;
+        this.useCooldown = useCooldown;
     }
 
     @Override
     public void tick() {
         super.tick();
         if (isOnCooldown()) {
-            cooldown--;
+            depleat--;
             if (!isOnCooldown())
                 onCooldownEnd();
         }
+
+        if (!canUse())
+            use--;
     }
 
     public void onCooldownEnd() {}
 
     public int getCooldown() {
-        return cooldown;
+        return depleat;
     }
 
     public int getCooldownTime() {
-        return cooldownTime;
+        return depleatCooldown;
     }
 
-    protected void resetCooldown() {
-        this.cooldown = cooldownTime;
+    public void setOnCooldown() {
+        this.depleat = depleatCooldown;
     }
 
     public boolean isOnCooldown() {
-        return this.cooldown > 0;
+        return this.depleat > 0;
     }
 
     public float getCooldownProgress() {
         return 1 - (float) getCooldown() / getCooldownTime();
+    }
+
+    public int getUseCooldown() {
+        return this.useCooldown;
+    }
+
+    public boolean canUse() {
+        return this.use <= 0;
+    }
+
+    public void setUseCooldown() {
+        this.use = this.useCooldown;
     }
 }

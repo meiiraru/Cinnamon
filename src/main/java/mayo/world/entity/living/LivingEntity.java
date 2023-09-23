@@ -73,7 +73,7 @@ public abstract class LivingEntity extends Entity {
         mat.scale(-s);
         mat.translate(0f, -TextUtils.getHeight(text, c.font), 0f);
 
-        c.font.render(VertexConsumer.FONT, mat, 0, 0, text, TextUtils.Alignment.CENTER, 500);
+        c.font.render(VertexConsumer.FONT, mat, 0, 0, text, TextUtils.Alignment.CENTER, 50);
 
         matrices.pop();
     }
@@ -108,7 +108,10 @@ public abstract class LivingEntity extends Entity {
             removed = true;
         }
 
-        int diff = health - prevHealth;
+        spawnDamageParticle(health - prevHealth);
+    }
+
+    protected void spawnDamageParticle(int diff) {
         if (diff == 0)
             return;
 

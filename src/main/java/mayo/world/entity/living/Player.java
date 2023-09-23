@@ -37,6 +37,12 @@ public class Player extends LivingEntity {
     }
 
     @Override
+    protected void spawnDamageParticle(int diff) {
+        if (world.isThirdPerson())
+            super.spawnDamageParticle(diff);
+    }
+
+    @Override
     public boolean isRemoved() {
         return false;
     }

@@ -7,8 +7,8 @@ import mayo.world.items.CooldownItem;
 
 public class Firearm extends CooldownItem {
 
-    public Firearm(String id, int maxRounds, int reloadTime) {
-        super(id, maxRounds, reloadTime);
+    public Firearm(String id, int maxRounds, int reloadTime, int useCooldown) {
+        super(id, maxRounds, reloadTime, useCooldown);
         reload();
     }
 
@@ -20,7 +20,7 @@ public class Firearm extends CooldownItem {
             return;
 
         if (!shoot(source))
-            this.resetCooldown();
+            this.setOnCooldown();
     }
 
     @Override
@@ -37,6 +37,11 @@ public class Firearm extends CooldownItem {
     private boolean shoot(Entity entity) {
         if (count <= 0)
             return false;
+
+        if (!canUse())
+            return true;
+
+        setUseCooldown();
 
         //spawn new bullet
         World world = entity.getWorld();

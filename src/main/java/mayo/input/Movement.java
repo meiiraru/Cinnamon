@@ -83,5 +83,6 @@ public class Movement {
     public void reset() {
         this.firstMouse = true;
         this.movement.set(0);
+        up = down = left = right = forward = backward = sprint = slow = false;
     }
 }

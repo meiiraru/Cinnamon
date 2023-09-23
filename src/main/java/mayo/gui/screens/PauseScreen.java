@@ -3,9 +3,14 @@ package mayo.gui.screens;
 import mayo.gui.Screen;
 import mayo.gui.widgets.types.Button;
 import mayo.render.MatrixStack;
+import mayo.render.batch.VertexConsumer;
+import mayo.text.Style;
 import mayo.text.Text;
+import mayo.utils.TextUtils;
 
 public class PauseScreen extends Screen {
+
+    private static final Text PAUSE_TEXT = Text.of("Game Paused...").withStyle(Style.EMPTY.italic(true));
 
     @Override
     public void init() {
@@ -19,6 +24,12 @@ public class PauseScreen extends Screen {
             client.world = null;
         });
         this.addWidget(menu);
+    }
+
+    @Override
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        super.render(matrices, mouseX, mouseY, delta);
+        font.render(VertexConsumer.FONT, matrices.peek(), width / 2f, 4f, PAUSE_TEXT, TextUtils.Alignment.CENTER);
     }
 
     @Override

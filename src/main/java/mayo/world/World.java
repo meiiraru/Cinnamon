@@ -16,11 +16,11 @@ import mayo.utils.Resource;
 import mayo.world.entity.Entity;
 import mayo.world.entity.living.Enemy;
 import mayo.world.entity.living.Player;
+import mayo.world.items.Item;
 import mayo.world.items.weapons.Firearm;
 import mayo.world.objects.Pillar;
 import mayo.world.objects.Teapot;
 import mayo.world.particle.Particle;
-import mayo.world.particle.TextParticle;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -42,6 +42,7 @@ public class World {
     private boolean thirdPerson;
 
     private boolean debugRendering;
+    private boolean isPaused;
 
     public void init() {
         //init hud
@@ -51,7 +52,7 @@ public class World {
         respawn();
 
         //tutorial toast
-        Toast.addToast(Text.of("WASD - move\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), Client.getInstance().font);
+        Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), Client.getInstance().font);
 
         //temp
         Pillar pillar = new Pillar(new Vector3f(0, 0, 0));
@@ -61,6 +62,9 @@ public class World {
     }
 
     public void tick() {
+        if (isPaused)
+            return;
+
         //tick movement
         this.movement.apply(player);
         //hud
@@ -84,6 +88,7 @@ public class World {
         if (player.isDead())
             Client.getInstance().setScreen(new DeathScreen());
 
+        //temp
         //every 3 seconds, spawn a new enemy
         if (Client.getInstance().ticks % 60 == 0) {
             Enemy enemy = new Enemy(this);
@@ -94,6 +99,8 @@ public class World {
 
     public void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
+        if (isPaused)
+            delta = 1f;
 
         //set camera
         c.camera.setup(player, thirdPerson, delta);
@@ -150,24 +157,29 @@ public class World {
     }
 
     public void mouseMove(double x, double y) {
-        movement.mouseMove(x, y);
+        if (!isPaused)
+            movement.mouseMove(x, y);
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
+        if (isPaused)
+            return;
+
         movement.keyPress(key, action);
 
         if (action != GLFW_PRESS)
             return;
 
         switch (key) {
+            case GLFW_KEY_R -> {
+                Item i = player.getHoldingItem();
+                if (i instanceof Firearm firearm && !firearm.isOnCooldown() && i.getCount() < i.getStackCount())
+                    firearm.setOnCooldown();
+            }
             case GLFW_KEY_ESCAPE -> Client.getInstance().setScreen(new PauseScreen());
             case GLFW_KEY_F3 -> this.debugRendering = !this.debugRendering;
             case GLFW_KEY_F5 -> this.thirdPerson = !this.thirdPerson;
         }
-    }
-
-    public void resetMovement() {
-        movement.reset();
     }
 
     public int entityCount() {
@@ -198,8 +210,17 @@ public class World {
     public void respawn() {
         entities.clear();
         player = new Player(this);
-        player.setHoldingItem(new Firearm("The Gun", 8, 20));
+        player.setHoldingItem(new Firearm("The Gun", 8, 20, 3));
         player.setPos(0, 0, 2);
         addEntity(player);
+    }
+
+    public void setPaused(boolean pause) {
+        this.isPaused = pause;
+        this.movement.reset();
+    }
+
+    public boolean isThirdPerson() {
+        return thirdPerson;
     }
 }

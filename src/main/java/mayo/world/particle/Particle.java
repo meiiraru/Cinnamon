@@ -31,6 +31,9 @@ public abstract class Particle {
     }
 
     public void render(MatrixStack matrices, float delta) {
+        if (!shouldRender())
+            return;
+
         matrices.push();
 
         //apply pos
@@ -43,6 +46,11 @@ public abstract class Particle {
         renderParticle(matrices, delta);
 
         matrices.pop();
+    }
+
+    protected boolean shouldRender() {
+        Vector3f cam = Client.getInstance().camera.getPos();
+        return cam.distanceSquared(pos) < 256;
     }
 
     protected abstract void renderParticle(MatrixStack matrices, float delta);
