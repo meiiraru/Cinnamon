@@ -2,6 +2,8 @@ package mayo.world;
 
 import mayo.Client;
 import mayo.gui.Toast;
+import mayo.gui.screens.DeathScreen;
+import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
 import mayo.model.ModelManager;
 import mayo.model.obj.Mesh;
@@ -43,10 +45,7 @@ public class World {
         hud.init();
 
         //add player
-        player = new Player(this);
-        player.setHoldingItem(new Firearm("The Gun", 8, 20));
-        player.setPos(0, 0, 2);
-        addEntity(player);
+        respawn();
 
         //tutorial toast
         Toast.addToast(Text.of("WASD - move\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), Client.getInstance().font);
@@ -66,6 +65,9 @@ public class World {
             entity.tick();
 
         entities.removeIf(Entity::isRemoved);
+
+        if (player.isDead())
+            Client.getInstance().setScreen(new DeathScreen());
 
         //every 3 seconds
         if (Client.getInstance().ticks % 60 == 0) {
@@ -135,13 +137,14 @@ public class World {
             return;
 
         switch (key) {
+            case GLFW_KEY_ESCAPE -> Client.getInstance().setScreen(new PauseScreen());
             case GLFW_KEY_F3 -> this.debugRendering = !this.debugRendering;
             case GLFW_KEY_F5 -> this.thirdPerson = !this.thirdPerson;
         }
     }
 
     public void resetMovement() {
-        movement.firstMouse = true;
+        movement.reset();
     }
 
     public int entityCount() {
@@ -163,5 +166,13 @@ public class World {
 
     public boolean isDebugRendering() {
         return this.debugRendering;
+    }
+
+    public void respawn() {
+        entities.clear();
+        player = new Player(this);
+        player.setHoldingItem(new Firearm("The Gun", 8, 20));
+        player.setPos(0, 0, 2);
+        addEntity(player);
     }
 }

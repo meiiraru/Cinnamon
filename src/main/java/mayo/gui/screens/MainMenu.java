@@ -16,7 +16,7 @@ public class MainMenu extends Screen {
         super.init();
 
         //open world
-        Button worldButton = new Button((width - 160) / 2, (height - 20) / 2 - 20 - 16, 160, 20, Text.of("Open world"), () -> {
+        Button worldButton = new Button((width - 180) / 2, (height - 20) / 2 - 20 - 16, 180, 20, Text.of("Open world"), () -> {
             client.world = new World();
             client.world.init();
             client.setScreen(null);
@@ -24,11 +24,11 @@ public class MainMenu extends Screen {
         this.addWidget(worldButton);
 
         //dvd screen
-        Button dvd = new Button(worldButton.getX(), worldButton.getY() + worldButton.getHeight() + 16, 160, 20, Text.of("DVD screensaver"), () -> client.setScreen(new DVDScreen(this)));
+        Button dvd = new Button(worldButton.getX(), worldButton.getY() + worldButton.getHeight() + 16, 180, 20, Text.of("DVD screensaver"), () -> client.setScreen(new DVDScreen(this)));
         this.addWidget(dvd);
 
         //close application
-        Button exitButton = new Button(dvd.getX(), dvd.getY() + dvd.getHeight() + 16, 160, 20, Text.of("Exit"), () -> client.window.exit());
+        Button exitButton = new Button(dvd.getX(), dvd.getY() + dvd.getHeight() + 16, 180, 20, Text.of("Exit"), () -> client.window.exit());
         exitButton.setTooltip(Text.of("bye~"));
         this.addWidget(exitButton);
 

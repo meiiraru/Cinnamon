@@ -157,4 +157,8 @@ public abstract class LivingEntity extends Entity {
     public void setHealth(int health) {
         this.health = health;
     }
+
+    public boolean isDead() {
+        return getHealth() <= 0;
+    }
 }

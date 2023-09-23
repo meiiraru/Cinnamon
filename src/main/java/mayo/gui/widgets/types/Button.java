@@ -30,8 +30,12 @@ public class Button extends Widget implements GUIListener {
     public Button(int x, int y, int width, int height, Text message, Runnable toRun) {
         super(x, y, width, height);
 
-        this.message = new Label(message, Client.getInstance().font, 0, 0);
-        this.message.setAlignment(TextUtils.Alignment.CENTER);
+        if (message != null) {
+            this.message = new Label(message, Client.getInstance().font, 0, 0);
+            this.message.setAlignment(TextUtils.Alignment.CENTER);
+        } else {
+            this.message = null;
+        }
 
         this.toRun = toRun;
     }

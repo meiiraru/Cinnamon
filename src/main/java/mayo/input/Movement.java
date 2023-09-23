@@ -20,7 +20,7 @@ public class Movement {
     //rot
     private final Vector2f rotation = new Vector2f();
     private double mouseX, mouseY, offsetX, offsetY;
-    public boolean firstMouse = true;
+    private boolean firstMouse = true;
 
     public void keyPress(int key, int action) {
         boolean pressed = action != GLFW_RELEASE;
@@ -78,5 +78,10 @@ public class Movement {
         movement.set(0);
 
         entity.rotate(rotation.y, rotation.x);
+    }
+
+    public void reset() {
+        this.firstMouse = true;
+        this.movement.set(0);
     }
 }

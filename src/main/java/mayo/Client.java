@@ -14,7 +14,8 @@ import mayo.utils.Timer;
 import mayo.world.World;
 import org.joml.Matrix4f;
 
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_F11;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;
 
@@ -138,8 +139,6 @@ public class Client {
 
         if (screen != null) {
             screen.keyPress(key, scancode, action, mods);
-        } else if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
-            this.setScreen(new PauseScreen());
         } else if (world != null) {
             world.keyPress(key, scancode, action, mods);
         }

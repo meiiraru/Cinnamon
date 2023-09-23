@@ -4,8 +4,11 @@ import mayo.Client;
 import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.Tickable;
 import mayo.gui.widgets.Widget;
+import mayo.model.GeometryHelper;
+import mayo.model.Vertex;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
+import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
 import mayo.utils.UIHelper;
 
@@ -112,6 +115,18 @@ public abstract class Screen {
 
     protected void renderBackground(MatrixStack matrices, float delta) {
         UIHelper.renderBackground(matrices, width, height, delta);
+    }
+
+    protected void renderTranslucentBackground(MatrixStack matrices, float delta) {
+        matrices.push();
+        matrices.translate(0f, 0f, -999f);
+
+        Vertex[] vertices = GeometryHelper.quad(matrices.peek(), 0, 0, width, height);
+        for (Vertex vertex : vertices)
+            vertex.color(0x88 << 24);
+        VertexConsumer.GUI.consume(vertices, 0);
+
+        matrices.pop();
     }
 
     protected void preRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
