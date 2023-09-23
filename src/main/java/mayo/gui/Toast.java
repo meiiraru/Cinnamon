@@ -10,7 +10,6 @@ import mayo.utils.Meth;
 import mayo.utils.Resource;
 import mayo.utils.TextUtils;
 import mayo.utils.UIHelper;
-import org.joml.Matrix4f;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -97,13 +96,12 @@ public class Toast {
 
         matrices.push();
         matrices.translate((width - tWidth - PADDING) / 2f, y, 999f);
-        Matrix4f matrix = matrices.peek();
 
         //render background
-        UIHelper.nineQuad(VertexConsumer.GUI, matrix, TEXTURE.getID(), 0f, 0f, tWidth + PADDING, tHeight + PADDING);
+        UIHelper.nineQuad(VertexConsumer.GUI, matrices, TEXTURE.getID(), 0f, 0f, tWidth + PADDING, tHeight + PADDING);
 
         //render text
-        font.render(VertexConsumer.FONT, matrices.peek(), (tWidth + PADDING) / 2f, PADDING / 2f, text, TextUtils.Alignment.CENTER);
+        font.render(VertexConsumer.FONT, matrices, (tWidth + PADDING) / 2f, PADDING / 2f, text, TextUtils.Alignment.CENTER);
 
         matrices.pop();
         return false;

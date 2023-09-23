@@ -1,10 +1,8 @@
 package mayo.model;
 
+import mayo.render.MatrixStack;
 import mayo.utils.ColorUtils;
-import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import org.joml.*;
 
 public class Vertex implements Comparable<Vertex> {
 
@@ -53,8 +51,18 @@ public class Vertex implements Comparable<Vertex> {
         return this;
     }
 
+    public Vertex mul(MatrixStack matrices) {
+        MatrixStack.Matrices mat = matrices.peek();
+        return mulPosition(mat.pos()).mulNormal(mat.normal());
+    }
+
     public Vertex mulPosition(Matrix4f mat) {
         pos.mulPosition(mat);
+        return this;
+    }
+
+    public Vertex mulNormal(Matrix3f mat) {
+        normal.mul(mat);
         return this;
     }
 

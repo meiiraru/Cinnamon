@@ -42,14 +42,14 @@ public class Hud {
         //render debug text
         Style style = Style.EMPTY.shadow(true).shadowColor(Colors.DARK_GRAY);
         if (c.world.isDebugRendering()) {
-            c.font.render(VertexConsumer.FONT, matrices.peek(), 4, 4, Text.of(debugLeftText()).withStyle(style));
-            c.font.render(VertexConsumer.FONT, matrices.peek(), w - 4, 4, Text.of(debugRightText()).withStyle(style), TextUtils.Alignment.RIGHT);
+            c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(debugLeftText()).withStyle(style));
+            c.font.render(VertexConsumer.FONT, matrices, w - 4, 4, Text.of(debugRightText()).withStyle(style), TextUtils.Alignment.RIGHT);
         } else {
-            c.font.render(VertexConsumer.FONT, matrices.peek(), 4, 4, Text.of(c.fps + " fps").withStyle(style));
+            c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps").withStyle(style));
         }
 
         //draw crosshair
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices.peek(), (int) (w / 2f - 8), (int) (h / 2f - 8), 16, 16), CROSSHAIR.getID());
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, (int) (w / 2f - 8), (int) (h / 2f - 8), 16, 16), CROSSHAIR.getID());
 
         //draw player stats
         drawPlayerStats(matrices, c.world.player, delta);
@@ -83,7 +83,7 @@ public class Hud {
         matrices.rotate(Rotation.Z.rotationDeg(-10f));
 
         //draw text
-        font.render(VertexConsumer.FONT, matrices.peek(), 0f, 0f, text);
+        font.render(VertexConsumer.FONT, matrices, 0f, 0f, text);
 
         //health progress bar
         health.setProgress(player.getHealthProgress());
@@ -124,7 +124,7 @@ public class Hud {
         matrices.rotate(Rotation.Z.rotationDeg(10f));
 
         //draw text
-        font.render(VertexConsumer.FONT, matrices.peek(), 0f, 0f, text, TextUtils.Alignment.RIGHT);
+        font.render(VertexConsumer.FONT, matrices, 0f, 0f, text, TextUtils.Alignment.RIGHT);
 
         //draw progressbar
         if (onCooldown) {

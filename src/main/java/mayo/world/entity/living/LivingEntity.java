@@ -16,7 +16,6 @@ import mayo.world.World;
 import mayo.world.entity.Entity;
 import mayo.world.items.Item;
 import mayo.world.particle.TextParticle;
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public abstract class LivingEntity extends Entity {
@@ -53,7 +52,7 @@ public abstract class LivingEntity extends Entity {
         matrices.rotate(Rotation.Y.rotationDeg(-Meth.lerp(oRot.y, rot.y, delta)));
 
         //render model
-        Shader.activeShader.setModelMatrix(matrices.peek());
+        Shader.activeShader.setMatrixStack(matrices);
         model.render();
 
         matrices.pop();
@@ -67,13 +66,12 @@ public abstract class LivingEntity extends Entity {
 
         Text text = Text.of(getHealth() + " ").withStyle(Style.EMPTY.outlined(true)).append(Text.of("\u2795").withStyle(Style.EMPTY.color(Colors.RED)));
 
-        Matrix4f mat = matrices.peek();
-        mat.translate(0f, getDimensions().y + 0.15f, 0f);
-        c.camera.billboard(mat);
-        mat.scale(-s);
-        mat.translate(0f, -TextUtils.getHeight(text, c.font), 0f);
+        matrices.translate(0f, getDimensions().y + 0.15f, 0f);
+        c.camera.billboard(matrices);
+        matrices.scale(-s);
+        matrices.translate(0f, -TextUtils.getHeight(text, c.font), 0f);
 
-        c.font.render(VertexConsumer.FONT, mat, 0, 0, text, TextUtils.Alignment.CENTER, 50);
+        c.font.render(VertexConsumer.FONT, matrices, 0, 0, text, TextUtils.Alignment.CENTER, 50);
 
         matrices.pop();
     }

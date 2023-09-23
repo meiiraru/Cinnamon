@@ -84,7 +84,7 @@ public class TextField extends Widget implements GUIListener {
 
         t.append("\n\n").append(currText);
 
-        font.render(VertexConsumer.FONT, matrices.peek(), getX(), getY(), t, TextUtils.Alignment.CENTER);
+        font.render(VertexConsumer.FONT, matrices, getX(), getY(), t, TextUtils.Alignment.CENTER);
     }
 
     @Override

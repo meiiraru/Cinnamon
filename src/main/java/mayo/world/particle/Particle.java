@@ -40,7 +40,7 @@ public abstract class Particle {
         matrices.translate(Meth.lerp(oPos, pos, delta));
 
         //apply billboard
-        Client.getInstance().camera.billboard(matrices.peek());
+        Client.getInstance().camera.billboard(matrices);
 
         //actual render
         renderParticle(matrices, delta);

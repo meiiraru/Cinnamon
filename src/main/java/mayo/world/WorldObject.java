@@ -19,8 +19,9 @@ public abstract class WorldObject {
 
     public void render(MatrixStack matrices, float delta) {
         matrices.push();
+        matrices.mulPos(transform.getPositionMatrix());
 
-        Shader.activeShader.setModelMatrix(matrices.peek().mul(transform.getPositionMatrix()));
+        Shader.activeShader.setMatrixStack(matrices);
         model.render();
 
         matrices.pop();

@@ -61,7 +61,7 @@ public abstract class Entity {
         if (world.isDebugRendering()) {
             Vector3f min = aabb.getMin();
             Vector3f max = aabb.getMax();
-            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices.peek(), min.x, min.y, min.z, max.x, max.y, max.z, 0x88FFFFFF);
+            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0x88FFFFFF);
         }
     }
 
@@ -73,7 +73,7 @@ public abstract class Entity {
         matrices.rotate(Rotation.X.rotationDeg(-Meth.lerp(oRot.x, rot.x, delta)));
 
         //render model
-        Shader.activeShader.setModelMatrix(matrices.peek());
+        Shader.activeShader.setMatrixStack(matrices);
         model.render();
 
         matrices.pop();

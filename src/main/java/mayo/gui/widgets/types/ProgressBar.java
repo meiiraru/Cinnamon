@@ -27,7 +27,7 @@ public class ProgressBar extends Widget {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //draw background
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices.peek(), TEXTURE.getID(),
+                VertexConsumer.GUI, matrices, TEXTURE.getID(),
                 getX(), getY(),
                 getWidth(), getHeight(),
                 0f, 0f,
@@ -40,7 +40,7 @@ public class ProgressBar extends Widget {
 
         //draw progress
         Vertex[] vertices = GeometryHelper.quad(
-                matrices.peek(),
+                matrices,
                 getX() + 1, getY() + 1,
                 (getWidth() - 2) * progress, getHeight() - 2,
                 16f, 0f,

@@ -1,12 +1,10 @@
 package mayo.render.shader;
 
+import mayo.render.MatrixStack;
 import mayo.utils.ColorUtils;
 import mayo.utils.IOUtils;
 import mayo.utils.Resource;
-import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import org.joml.*;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -134,6 +132,10 @@ public class Shader {
         setVec4(name, vec.x, vec.y, vec.z, vec.w);
     }
 
+    public void setMat3(String name, Matrix3f matrix3f) {
+        glUniformMatrix3fv(get(name), false, matrix3f.get(new float[3 * 3]));
+    }
+
     public void setMat4(String name, Matrix4f matrix4f) {
         glUniformMatrix4fv(get(name), false, matrix4f.get(new float[4 * 4]));
     }
@@ -166,6 +168,16 @@ public class Shader {
 
     public void setModelMatrix(Matrix4f matrix) {
         this.setMat4("model", matrix);
+    }
+
+    public void setInvertedNormalMatrix(Matrix3f matrix) {
+        this.setMat3("normalMat", matrix);
+    }
+
+    public void setMatrixStack(MatrixStack matrices) {
+        MatrixStack.Matrices mat = matrices.peek();
+        setModelMatrix(mat.pos());
+        setInvertedNormalMatrix(mat.normal().invert());
     }
 
     @Override

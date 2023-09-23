@@ -1,19 +1,18 @@
 package mayo.render;
 
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
-import org.joml.Vector3i;
+import mayo.utils.Meth;
+import org.joml.*;
 
 import java.util.Stack;
 
 public class MatrixStack {
-    private final Stack<Matrix4f> stack = new Stack<>() {{
-        add(new Matrix4f());
+    private final Stack<Matrices> stack = new Stack<>() {{
+        add(new Matrices(new Matrix4f(), new Matrix3f()));
     }};
 
     public void push() {
-        stack.push(new Matrix4f(stack.peek()));
+        Matrices mat = stack.peek();
+        stack.push(new Matrices(new Matrix4f(mat.pos), new Matrix3f(mat.normal)));
     }
 
     public void pop() {
@@ -25,7 +24,7 @@ public class MatrixStack {
         push();
     }
 
-    public Matrix4f peek() {
+    public Matrices peek() {
         return stack.peek();
     }
 
@@ -34,7 +33,7 @@ public class MatrixStack {
     }
 
     public void translate(float x, float y, float z) {
-        stack.peek().translate(x, y, z);
+        stack.peek().pos.translate(x, y, z);
     }
 
     public void translate(Vector3f vector) {
@@ -46,22 +45,39 @@ public class MatrixStack {
     }
 
     public void rotate(Quaternionf quaternion) {
-        stack.peek().rotate(quaternion);
+        Matrices mat = stack.peek();
+        mat.pos.rotate(quaternion);
+        mat.normal.rotate(quaternion);
     }
 
     public void scale(float x, float y, float z) {
-        stack.peek().scale(x, y, z);
+        Matrices mat = stack.peek();
+        mat.pos.scale(x, y, z);
+        if (x == y && y == z) {
+            if (x > 0f)
+                return;
+
+            mat.normal.scale(-1f);
+        }
+
+        float rX = 1f / x, rY = 1f / y, rZ = 1f / z;
+        float i = Meth.fastInvCubeRoot(rX * rY * rZ);
+        mat.normal.scale(i * rX, i * rY, i * rZ);
     }
 
     public void scale(float scalar) {
         scale(scalar, scalar, scalar);
     }
 
-    public void mul(Matrix4f mat) {
-        stack.peek().mul(mat);
+    public void identity() {
+        Matrices mat = stack.peek();
+        mat.pos.identity();
+        mat.normal.identity();
     }
 
-    public void setIdentity() {
-        stack.peek().identity();
+    public void mulPos(Matrix4f matrix) {
+        stack.peek().pos.mul(matrix);
     }
+
+    public record Matrices(Matrix4f pos, Matrix3f normal) {}
 }

@@ -92,4 +92,22 @@ public class Meth {
     public static float magicDelta(float speed, float delta) {
         return (float) (1f - Math.pow(speed, delta));
     }
+
+    public static float fastInvCubeRoot(float x) {
+        //convert float to its bit representation
+        int i = Float.floatToIntBits(x);
+
+        //magic number operation to approximate the inverse cube root
+        i = 0x54A2FA8C - i / 3;
+
+        //convert the bit representation back to a float
+        float approxRoot = Float.intBitsToFloat(i);
+
+        //improve the approximation with two iterations of Newton's method
+        for (int j = 0; j < 2; j++)
+            approxRoot = 0.6666667f * approxRoot + 1f / (3f * approxRoot * approxRoot * x);
+
+        //return
+        return approxRoot;
+    }
 }

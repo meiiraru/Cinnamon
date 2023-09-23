@@ -12,6 +12,7 @@ import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
 import mayo.text.Text;
 import mayo.utils.AABB;
+import mayo.utils.ColorUtils;
 import mayo.utils.Resource;
 import mayo.world.entity.Entity;
 import mayo.world.entity.living.Enemy;
@@ -111,11 +112,11 @@ public class World {
         s.setProjectionMatrix(c.camera.getPerspectiveMatrix());
         s.setViewMatrix(c.camera.getViewMatrix());
 
-        //s.setVec3("ambientLight", ColorUtils.intToRGB(0xFFBBBB));
-        //s.setVec3("lightPos", 16f, 2f, 16f);
+        s.setVec3("ambientLight", ColorUtils.intToRGB(0x050511));
+        s.setVec3("lightPos", 16f, 2f, 16f);
 
         //render terrain
-        s.setModelMatrix(matrices.peek());
+        s.setMatrixStack(matrices);
         terrain.render();
 
         //render objects

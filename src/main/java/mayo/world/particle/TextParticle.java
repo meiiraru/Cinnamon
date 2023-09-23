@@ -29,6 +29,6 @@ public class TextParticle extends Particle {
     protected void renderParticle(MatrixStack matrices, float delta) {
         float s = 1/48f;
         matrices.scale(-s);
-        font.render(VertexConsumer.FONT, matrices.peek(), 0, 0, text, TextUtils.Alignment.CENTER);
+        font.render(VertexConsumer.FONT, matrices, 0, 0, text, TextUtils.Alignment.CENTER);
     }
 }

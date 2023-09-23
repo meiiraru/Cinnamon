@@ -7,7 +7,6 @@ import mayo.text.Text;
 import mayo.utils.IOUtils;
 import mayo.utils.Resource;
 import mayo.utils.TextUtils;
-import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
 import org.lwjgl.stb.STBTTPackContext;
@@ -93,26 +92,26 @@ public class Font {
 
     // -- font rendering -- //
 
-    public void render(VertexConsumer consumer, Matrix4f matrix, float x, float y, Text text) {
-        render(consumer, matrix, x, y, text, TextUtils.Alignment.LEFT);
+    public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Text text) {
+        render(consumer, matrices, x, y, text, TextUtils.Alignment.LEFT);
     }
 
-    public void render(VertexConsumer consumer, Matrix4f matrix, float x, float y, Text text, TextUtils.Alignment alignment) {
-        this.render(consumer, matrix, x, y, text, alignment, 1);
+    public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Text text, TextUtils.Alignment alignment) {
+        this.render(consumer, matrices, x, y, text, alignment, 1);
     }
 
-    public void render(VertexConsumer consumer, Matrix4f matrix, float x, float y, Text text, TextUtils.Alignment alignment, int indexScaling) {
+    public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Text text, TextUtils.Alignment alignment, int indexScaling) {
         List<Text> list = TextUtils.split(text, "\n");
 
         for (int i = 0; i < list.size(); i++) {
             Text t = list.get(i);
             int x2 = (int) alignment.apply(this, t);
             int y2 = (int) (lineHeight * (i + 1) - 1);
-            bake(consumer, matrix, t, x + x2, y + y2, indexScaling * Z_OFFSET);
+            bake(consumer, matrices, t, x + x2, y + y2, indexScaling * Z_OFFSET);
         }
     }
 
-    private void bake(VertexConsumer consumer, Matrix4f matrix, Text text, float x, float y, float zOffset) {
+    private void bake(VertexConsumer consumer, MatrixStack matrices, Text text, float x, float y, float zOffset) {
         //prepare vars
         boolean[] prevItalic = {false};
         xb.put(0, 0f); yb.put(0, 0f);
@@ -142,7 +141,7 @@ public class Font {
 
             //main render
             int color = Objects.requireNonNullElse(style.getColor(), -1);
-            bakeString(consumer, matrix, s, italic, bold, obf, under, strike, x, y, 0, color);
+            bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, 0, color);
 
             //backup final buffer
             float finalX = xb.get(0), finalY = yb.get(0);
@@ -151,7 +150,7 @@ public class Font {
             if (shadow) {
                 xb.put(0, initialX + SHADOW_OFFSET); yb.put(0, initialY + SHADOW_OFFSET);
                 int sc = Objects.requireNonNullElse(style.getShadowColor(), SHADOW_COLOR);
-                bakeString(consumer, matrix, s, italic, bold, obf, under, strike, x, y, zOffset * -1, sc);
+                bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * -1, sc);
             }
 
             //render outline
@@ -160,7 +159,7 @@ public class Font {
                 for (int i = -SHADOW_OFFSET; i <= SHADOW_OFFSET; i += SHADOW_OFFSET) {
                     for (int j = -SHADOW_OFFSET; j <= SHADOW_OFFSET; j += SHADOW_OFFSET) {
                         xb.put(0, initialX + i); yb.put(0, initialY + j);
-                        bakeString(consumer, matrix, s, italic, bold, obf, under, strike, x, y, zOffset * -2, oc);
+                        bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * -2, oc);
                     }
                 }
             }
@@ -183,7 +182,7 @@ public class Font {
                 }
 
                 int bgc = Objects.requireNonNullElse(style.getBackgroundColor(), BG_COLOR);
-                consumer.consume(quad(matrix, x0, y0, zOffset * -3, w, h, bgc), 0);
+                consumer.consume(quad(matrices, x0, y0, zOffset * -3, w, h, bgc), 0);
             }
 
             //restore buffer data
@@ -191,7 +190,7 @@ public class Font {
         }, Style.EMPTY);
     }
 
-    private void bakeString(VertexConsumer consumer, Matrix4f matrix, String s, boolean italic, boolean bold, boolean obfuscated, boolean underlined, boolean strikethrough, float x, float y, float z, int color) {
+    private void bakeString(VertexConsumer consumer, MatrixStack matrices, String s, boolean italic, boolean bold, boolean obfuscated, boolean underlined, boolean strikethrough, float x, float y, float z, int color) {
         //prepare vars
         RANDOM.setSeed(SEED);
         float preX = xb.get(0);
@@ -201,7 +200,7 @@ public class Font {
             char c = s.charAt(i);
             if (obfuscated && c != ' ') //32
                 c = getRandomChar(c);
-            bakeChar(consumer, matrix, c, italic, bold, x, y, z, color);
+            bakeChar(consumer, matrices, c, italic, bold, x, y, z, color);
         }
 
         //extra rendering
@@ -210,14 +209,14 @@ public class Font {
 
         //underline
         if (underlined)
-            consumer.consume(quad(matrix, x0, y0, z, width, 1f, color), 0);
+            consumer.consume(quad(matrices, x0, y0, z, width, 1f, color), 0);
 
         //strikethrough
         if (strikethrough)
-            consumer.consume(quad(matrix, x0, y0 - (int) (lineHeight / 2 - 1), z, width, 1f, color), 0);
+            consumer.consume(quad(matrices, x0, y0 - (int) (lineHeight / 2 - 1), z, width, 1f, color), 0);
     }
 
-    private void bakeChar(VertexConsumer consumer, Matrix4f matrix, char c, boolean italic, boolean bold, float x, float y, float z, int color) {
+    private void bakeChar(VertexConsumer consumer, MatrixStack matrices, char c, boolean italic, boolean bold, float x, float y, float z, int color) {
         stbtt_GetPackedQuad(charData, TEXTURE_W, TEXTURE_H, c, xb, yb, q, false);
 
         float
@@ -238,21 +237,21 @@ public class Font {
         x0 += x; x1 += x;
         y0 += y; y1 += y;
 
-        consumer.consume(bakeQuad(matrix, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color), textureID);
+        consumer.consume(bakeQuad(matrices, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color), textureID);
 
         if (bold) {
             xb.put(0, xb.get(0) + BOLD_OFFSET);
             x0 += BOLD_OFFSET; x1 += BOLD_OFFSET;
-            consumer.consume(bakeQuad(matrix, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color), textureID);
+            consumer.consume(bakeQuad(matrices, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color), textureID);
         }
     }
 
-    private static Vertex[] bakeQuad(Matrix4f matrix, float x0, float x1, float i0, float i1, float y0, float y1, float z, float u0, float u1, float v0, float v1, int color) {
+    private static Vertex[] bakeQuad(MatrixStack matrices, float x0, float x1, float i0, float i1, float y0, float y1, float z, float u0, float u1, float v0, float v1, int color) {
         return new Vertex[]{
-                Vertex.of(x0 + i1, y1, z).uv(u0, v1).color(color).mulPosition(matrix),
-                Vertex.of(x1 + i1, y1, z).uv(u1, v1).color(color).mulPosition(matrix),
-                Vertex.of(x1 + i0, y0, z).uv(u1, v0).color(color).mulPosition(matrix),
-                Vertex.of(x0 + i0, y0, z).uv(u0, v0).color(color).mulPosition(matrix),
+                Vertex.of(x0 + i1, y1, z).uv(u0, v1).color(color).mul(matrices),
+                Vertex.of(x1 + i1, y1, z).uv(u1, v1).color(color).mul(matrices),
+                Vertex.of(x1 + i0, y0, z).uv(u1, v0).color(color).mul(matrices),
+                Vertex.of(x0 + i0, y0, z).uv(u0, v0).color(color).mul(matrices),
         };
     }
 
