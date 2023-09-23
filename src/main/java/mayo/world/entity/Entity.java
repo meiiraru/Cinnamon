@@ -46,7 +46,7 @@ public abstract class Entity {
         matrices.push();
 
         //apply pos
-        matrices.translate(Meth.lerp(oPos, pos, delta));
+        matrices.translate(getPos(delta));
 
         //render model
         renderModel(matrices, delta);

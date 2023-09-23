@@ -94,4 +94,13 @@ public class AABB {
             (minZ + maxZ) * 0.5f
         );
     }
+
+    public Vector3f getRandomPoint() {
+        Vector3f dimensions = getDimensions();
+        return new Vector3f(
+                minX + (float) (Math.random() * dimensions.x),
+                minY + (float) (Math.random() * dimensions.y),
+                minZ + (float) (Math.random() * dimensions.z)
+        );
+    }
 }

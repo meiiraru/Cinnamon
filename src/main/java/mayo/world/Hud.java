@@ -156,7 +156,7 @@ public class Hud {
                         %s fps
 
                         [world]
-                        %s entities %s objects
+                        %s e %s o %s p
 
                         [player]
                         xyz %.3f %.3f %.3f
@@ -169,7 +169,7 @@ public class Hud {
                         """,
                 c.fps,
 
-                c.world.entityCount(), c.world.objectCount(),
+                c.world.entityCount(), c.world.objectCount(), c.world.particleCount(),
 
                 epos.x, epos.y, epos.z,
                 erot.x, erot.y,

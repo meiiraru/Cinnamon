@@ -19,6 +19,8 @@ import mayo.world.entity.living.Player;
 import mayo.world.items.weapons.Firearm;
 import mayo.world.objects.Pillar;
 import mayo.world.objects.Teapot;
+import mayo.world.particle.Particle;
+import mayo.world.particle.TextParticle;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ public class World {
     private final Hud hud = new Hud();
     private final List<WorldObject> objects = new ArrayList<>();
     private final List<Entity> entities = new ArrayList<>();
+    private final List<Particle> particles = new ArrayList<>();
 
     private final Mesh terrain = ModelManager.load(new Resource("models/terrain/terrain.obj"));
 
@@ -58,18 +61,30 @@ public class World {
     }
 
     public void tick() {
+        //tick movement
         this.movement.apply(player);
+        //hud
         this.hud.tick();
 
+        //entities
         for (Entity entity : entities)
             entity.tick();
 
+        //remove entities flagged to be removed
         entities.removeIf(Entity::isRemoved);
 
+        //particles
+        for (Particle particle : particles)
+            particle.tick();
+
+        //remove dead particles
+        particles.removeIf(Particle::isRemoved);
+
+        //if the player is dead, show death screen
         if (player.isDead())
             Client.getInstance().setScreen(new DeathScreen());
 
-        //every 3 seconds
+        //every 3 seconds, spawn a new enemy
         if (Client.getInstance().ticks % 60 == 0) {
             Enemy enemy = new Enemy(this);
             enemy.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
@@ -102,6 +117,10 @@ public class World {
             if (entity != player || thirdPerson)
                 entity.render(matrices, delta);
         }
+
+        //render particles
+        for (Particle particle : particles)
+            particle.render(matrices, delta);
     }
 
     public void renderHUD(MatrixStack matrices, float delta) {
@@ -114,6 +133,10 @@ public class World {
 
     public void addEntity(Entity entity) {
         this.entities.add(entity);
+    }
+
+    public void addParticle(Particle particle) {
+        this.particles.add(particle);
     }
 
     public void mousePress(int button, int action, int mods) {
@@ -153,6 +176,10 @@ public class World {
 
     public int objectCount() {
         return objects.size();
+    }
+
+    public int particleCount() {
+        return particles.size();
     }
 
     public List<Entity> getEntities(AABB region) {

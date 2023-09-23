@@ -6,11 +6,12 @@ import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
+import mayo.utils.Colors;
 import mayo.utils.TextUtils;
 
 public class DeathScreen extends Screen {
 
-    private static final Text YOU_DIED = Text.of("YOU DIED").withStyle(Style.EMPTY.color(0xFFFF0000).shadow(true).shadowColor(0xFF880000).underlined(true));
+    private static final Text YOU_DIED = Text.of("YOU DIED").withStyle(Style.EMPTY.color(Colors.RED).shadow(true).shadowColor(0xFF440000).underlined(true));
 
     private Button respawn;
 

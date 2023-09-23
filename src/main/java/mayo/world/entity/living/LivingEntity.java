@@ -15,6 +15,7 @@ import mayo.utils.TextUtils;
 import mayo.world.World;
 import mayo.world.entity.Entity;
 import mayo.world.items.Item;
+import mayo.world.particle.TextParticle;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -99,12 +100,20 @@ public abstract class LivingEntity extends Entity {
     }
 
     public void damage(int amount) {
+        int prevHealth = this.health;
         this.health -= amount;
 
         if (health <= 0) {
             health = 0;
             removed = true;
         }
+
+        int diff = health - prevHealth;
+        if (diff == 0)
+            return;
+
+        Colors color = diff > 0 ? Colors.GREEN : Colors.RED;
+        world.addParticle(new TextParticle(Text.of( diff + "").withStyle(Style.EMPTY.color(color).outlined(true)), 20, getAABB().getRandomPoint()));
     }
 
     public void attack() {
