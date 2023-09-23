@@ -70,10 +70,10 @@ public abstract class LivingEntity extends Entity {
         Matrix4f mat = matrices.peek();
         mat.translate(0f, getDimensions().y + 0.15f, 0f);
         c.camera.billboard(mat);
-        mat.scale(-s, -s, s);
+        mat.scale(-s);
         mat.translate(0f, -TextUtils.getHeight(text, c.font), 0f);
 
-        c.font.render(VertexConsumer.FONT, mat, 0, 0, text, TextUtils.Alignment.CENTER, 10);
+        c.font.render(VertexConsumer.FONT, mat, 0, 0, text, TextUtils.Alignment.CENTER, 500);
 
         matrices.pop();
     }

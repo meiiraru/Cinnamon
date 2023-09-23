@@ -7,7 +7,7 @@ import mayo.render.shader.Shaders;
 public class FontBatch extends Batch {
 
     public FontBatch() {
-        super(Shaders.FONT, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.INDEX);
+        super(Shaders.FONT, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA);
     }
 
     @Override
@@ -36,8 +36,5 @@ public class FontBatch extends Batch {
         buffer.put(color.y);
         buffer.put(color.z);
         buffer.put(color.w);
-
-        //put index
-        buffer.put(vertex.getIndex());
     }
 }

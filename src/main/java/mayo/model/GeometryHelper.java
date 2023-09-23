@@ -34,15 +34,15 @@ public class GeometryHelper {
         };
     }
 
-    public static Vertex[] quad(Matrix4f matrix, float x0, float y0, float z, float width, float height, int color, int index) {
+    public static Vertex[] quad(Matrix4f matrix, float x0, float y0, float z, float width, float height, int color) {
         float x1 = x0 + width;
         float y1 = y0 + height;
 
         return new Vertex[]{
-                Vertex.of(x0, y1, z).color(color).mulPosition(matrix).index(index),
-                Vertex.of(x1, y1, z).color(color).mulPosition(matrix).index(index),
-                Vertex.of(x1, y0, z).color(color).mulPosition(matrix).index(index),
-                Vertex.of(x0, y0, z).color(color).mulPosition(matrix).index(index),
+                Vertex.of(x0, y1, z).color(color).mulPosition(matrix),
+                Vertex.of(x1, y1, z).color(color).mulPosition(matrix),
+                Vertex.of(x1, y0, z).color(color).mulPosition(matrix),
+                Vertex.of(x0, y0, z).color(color).mulPosition(matrix),
         };
     }
 
