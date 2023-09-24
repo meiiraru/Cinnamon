@@ -29,10 +29,10 @@ public abstract class Entity {
 
     protected boolean removed;
 
-    public Entity(Model model, World world, Vector3f dimensions) {
+    public Entity(Model model, World world) {
         this.model = model;
         this.world = world;
-        this.dimensions.set(dimensions);
+        this.dimensions.set(model.getMesh().getBoundingBox());
         this.updateAABB();
     }
 
@@ -58,11 +58,7 @@ public abstract class Entity {
         matrices.pop();
 
         //render debug hitbox
-        if (world.isDebugRendering()) {
-            Vector3f min = aabb.getMin();
-            Vector3f max = aabb.getMax();
-            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0x88FFFFFF);
-        }
+        renderDebugHitbox(matrices, delta);
     }
 
     protected void renderModel(MatrixStack matrices, float delta) {
@@ -84,6 +80,14 @@ public abstract class Entity {
     public boolean shouldRenderText() {
         Vector3f cam = Client.getInstance().camera.getPos();
         return cam.distanceSquared(pos) < 256;
+    }
+
+    protected void renderDebugHitbox(MatrixStack matrices, float delta) {
+        if (world.isDebugRendering()) {
+            Vector3f min = aabb.getMin();
+            Vector3f max = aabb.getMax();
+            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0x88FFFFFF);
+        }
     }
 
     public void move(float left, float up, float forwards) {

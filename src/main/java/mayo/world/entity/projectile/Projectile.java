@@ -14,8 +14,8 @@ public abstract class Projectile extends Entity {
     private int lifetime;
     private Entity owner;
 
-    public Projectile(Model model, World world, Vector3f dimensions, int damage, int lifetime, float speed, boolean crit) {
-        super(model, world, dimensions);
+    public Projectile(Model model, World world, int damage, int lifetime, float speed, boolean crit) {
+        super(model, world);
         this.damage = damage;
         this.lifetime = lifetime;
         this.speed = speed;

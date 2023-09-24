@@ -37,9 +37,9 @@ public class Player extends LivingEntity {
     }
 
     @Override
-    protected void spawnDamageParticle(int diff, boolean crit) {
+    protected void spawnHealthChangeParticle(int amount, boolean crit) {
         if (world.isThirdPerson())
-            super.spawnDamageParticle(diff, crit);
+            super.spawnHealthChangeParticle(amount, crit);
     }
 
     @Override

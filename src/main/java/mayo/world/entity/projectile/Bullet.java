@@ -15,7 +15,7 @@ public class Bullet extends Projectile {
     private static final float CRIT_CHANCE = 0.15f;
 
     public Bullet(World world, Entity owner) {
-        super(MODEL, world, MODEL.getMesh().getBoundingBox(), DAMAGE, LIFETIME, SPEED, Math.random() < CRIT_CHANCE);
+        super(MODEL, world, DAMAGE, LIFETIME, SPEED, Math.random() < CRIT_CHANCE);
         this.setOwner(owner);
     }
 }

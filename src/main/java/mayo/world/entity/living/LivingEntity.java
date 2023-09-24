@@ -26,14 +26,14 @@ public abstract class LivingEntity extends Entity {
     private int health;
     private int maxHealth;
 
-    public LivingEntity(Model model, World world, Vector3f dimensions, int maxHealth, float eyeHeight) {
-        super(model, world, dimensions);
+    public LivingEntity(Model model, World world, int maxHealth, float eyeHeight) {
+        super(model, world);
         this.health = this.maxHealth = maxHealth;
         this.eyeHeight = eyeHeight;
     }
 
     public LivingEntity(LivingEntityModels entityModel, World world, int maxHealth) {
-        this(entityModel.model, world, entityModel.dimensions, maxHealth, entityModel.eyeHeight);
+        this(entityModel.model, world, maxHealth, entityModel.eyeHeight);
     }
 
     @Override
@@ -97,24 +97,63 @@ public abstract class LivingEntity extends Entity {
         //todo - push back both entities based on the side they are colliding
     }
 
-    public void damage(int amount, boolean crit) {
-        int prevHealth = this.health;
-        this.health -= amount * (crit ? 2 : 1);
+    public boolean heal(int amount) {
+        //cannot heal when full life
+        if (this.health == this.maxHealth)
+            return false;
 
-        spawnDamageParticle(health - prevHealth, crit);
+        //heal
+        this.health = Math.min(this.health + amount, this.maxHealth);
 
-        if (health <= 0) {
-            health = 0;
-            removed = true;
-        }
+        //spawn particle
+        spawnHealthChangeParticle(amount, false);
+
+        //return that we did heal
+        return true;
     }
 
-    protected void spawnDamageParticle(int diff, boolean crit) {
-        if (diff == 0)
-            return;
+    public void damage(int amount, boolean crit) {
+        //apply critical
+        amount *= crit ? 2 : 1;
 
-        Colors color = diff > 0 ? Colors.GREEN : Colors.RED;
-        world.addParticle(new TextParticle(Text.of( diff + (crit ? " \u2728" : "")).withStyle(Style.EMPTY.color(color).outlined(true)), 20, getAABB().getRandomPoint()));
+        //damage
+        this.health -= amount;
+
+        //on kill, clamp health to 0, and flag it as removed
+        if (health <= 0) {
+            this.health = 0;
+            this.removed = true;
+        }
+
+        //spawn particle
+        spawnHealthChangeParticle(-amount, crit);
+    }
+
+    protected void spawnHealthChangeParticle(int amount, boolean crit) {
+        Colors color;
+        String text = "";
+
+        //healing
+        if (amount > 0) {
+            text += "+"; //add signal
+            color = Colors.GREEN;
+        }
+        //no change
+        else if (amount == 0)
+            color = Colors.LIGHT_GRAY;
+        //damage
+        else
+            color = Colors.RED;
+
+        //add health difference
+        text += amount;
+
+        //add crit text
+        if (crit)
+            text += " \u2728";
+
+        //spawn particle
+        world.addParticle(new TextParticle(Text.of( text).withStyle(Style.EMPTY.color(color).outlined(true)), 20, getAABB().getRandomPoint()));
     }
 
     public void attack() {

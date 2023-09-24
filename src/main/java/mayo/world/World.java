@@ -15,6 +15,7 @@ import mayo.utils.AABB;
 import mayo.utils.ColorUtils;
 import mayo.utils.Resource;
 import mayo.world.entity.Entity;
+import mayo.world.entity.collectable.HealthPack;
 import mayo.world.entity.living.Enemy;
 import mayo.world.entity.living.Player;
 import mayo.world.items.Item;
@@ -37,8 +38,6 @@ public class World {
     private final List<Particle> particles = new ArrayList<>();
 
     private final Model terrain = ModelManager.load(new Resource("models/terrain/terrain.obj"));
-
-    private final Model ramen = ModelManager.load(new Resource("models/entities/ramen/ramen.obj"));
 
     private final Movement movement = new Movement();
     public Player player;
@@ -98,6 +97,13 @@ public class World {
             enemy.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
             addEntity(enemy);
         }
+
+        //every 15 seconds, spawn a new health pack
+        if (Client.getInstance().ticks % 300 == 0) {
+            HealthPack health = new HealthPack(this);
+            health.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
+            addEntity(health);
+        }
     }
 
     public void render(MatrixStack matrices, float delta) {
@@ -120,13 +126,6 @@ public class World {
         //render terrain
         s.setMatrixStack(matrices);
         terrain.render();
-
-        //temp
-        matrices.push();
-        matrices.translate(10, 2, 0);
-        s.setMatrixStack(matrices);
-        ramen.render();
-        matrices.pop();
 
         //render objects
         for (WorldObject object : objects)
