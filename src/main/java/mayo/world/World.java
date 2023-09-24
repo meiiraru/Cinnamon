@@ -38,6 +38,8 @@ public class World {
 
     private final Model terrain = ModelManager.load(new Resource("models/terrain/terrain.obj"));
 
+    private final Model ramen = ModelManager.load(new Resource("models/entities/ramen/ramen.obj"));
+
     private final Movement movement = new Movement();
     public Player player;
     private boolean thirdPerson;
@@ -118,6 +120,13 @@ public class World {
         //render terrain
         s.setMatrixStack(matrices);
         terrain.render();
+
+        //temp
+        matrices.push();
+        matrices.translate(10, 2, 0);
+        s.setMatrixStack(matrices);
+        ramen.render();
+        matrices.pop();
 
         //render objects
         for (WorldObject object : objects)

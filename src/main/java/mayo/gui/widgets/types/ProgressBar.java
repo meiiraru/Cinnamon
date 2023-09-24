@@ -13,7 +13,7 @@ import mayo.utils.UIHelper;
 
 public class ProgressBar extends Widget {
 
-    private static final Texture TEXTURE = new Texture(new Resource("textures/gui/progress_bar.png"));
+    private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/progress_bar.png"));
 
     private float progress, newProgress;
     private int color = Colors.WHITE.rgba;

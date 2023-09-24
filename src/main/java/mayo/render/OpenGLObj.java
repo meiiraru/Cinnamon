@@ -6,6 +6,7 @@ import mayo.model.obj.Material;
 import mayo.model.obj.Mesh;
 import mayo.render.shader.Attributes;
 import mayo.utils.Pair;
+import mayo.utils.Resource;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
@@ -75,7 +76,7 @@ public class OpenGLObj extends Model {
 
     private static class GroupData {
         private final int vao, capacity, vertexCount;
-        private final Material material;
+        private final MaterialData material;
 
         private GroupData(Group group) {
             //vertices data
@@ -89,7 +90,7 @@ public class OpenGLObj extends Model {
 
             this.capacity = capacity;
             this.vertexCount = vertexCount;
-            this.material = group.getMaterial();
+            this.material = new MaterialData(group.getMaterial());
 
             int flags = group.getFaces().get(0).getAttributesFlag();
             Pair<Integer, Integer> attrib = Attributes.getAttributes(flags);
@@ -131,6 +132,14 @@ public class OpenGLObj extends Model {
 
         public int getCapacity() {
             return capacity;
+        }
+    }
+
+    private record MaterialData(Material material) {
+        public void use() {
+            Texture diffuseTex = Texture.of(material.getDiffuseTex());
+            if (diffuseTex != null)
+                diffuseTex.bind();
         }
     }
 }

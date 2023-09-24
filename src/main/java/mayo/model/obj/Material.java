@@ -1,6 +1,6 @@
 package mayo.model.obj;
 
-import mayo.render.Texture;
+import mayo.utils.Resource;
 import org.joml.Vector3f;
 
 public class Material {
@@ -17,20 +17,18 @@ public class Material {
             refraction; //Ni
     private int
             illumination; //illum
-    private Texture
-            diffuseTex; //map_Kd
+    private Resource
+            ambientTex, //map_Ka
+            diffuseTex, //map_Kd
+            spColorTex, //map_Ks
+            spHighlightTex, //map_Ns
+            alphaTex, //map_d
+            bumpTex, //map_bump
+            displacementTex, //disp
+            stencilDecalTex; //decal
 
     public Material(String name) {
         this.name = name;
-    }
-
-
-    // -- rendering -- //
-
-
-    public void use() {
-        if (diffuseTex != null)
-            diffuseTex.bind();
     }
 
 
@@ -81,11 +79,67 @@ public class Material {
         this.illumination = i;
     }
 
-    public Texture getDiffuseTex() {
+    public Resource getAmbientTex() {
+        return ambientTex;
+    }
+
+    public void setAmbientTex(Resource ambientTex) {
+        this.ambientTex = ambientTex;
+    }
+
+    public Resource getDiffuseTex() {
         return diffuseTex;
     }
 
-    public void setDiffuseTex(Texture tex) {
-        this.diffuseTex = tex;
+    public void setDiffuseTex(Resource diffuseTex) {
+        this.diffuseTex = diffuseTex;
+    }
+
+    public Resource getSpColorTex() {
+        return spColorTex;
+    }
+
+    public void setSpColorTex(Resource spColorTex) {
+        this.spColorTex = spColorTex;
+    }
+
+    public Resource getSpHighlightTex() {
+        return spHighlightTex;
+    }
+
+    public void setSpHighlightTex(Resource spHighlightTex) {
+        this.spHighlightTex = spHighlightTex;
+    }
+
+    public Resource getAlphaTex() {
+        return alphaTex;
+    }
+
+    public void setAlphaTex(Resource alphaTex) {
+        this.alphaTex = alphaTex;
+    }
+
+    public Resource getBumpTex() {
+        return bumpTex;
+    }
+
+    public void setBumpTex(Resource bumpTex) {
+        this.bumpTex = bumpTex;
+    }
+
+    public Resource getDisplacementTex() {
+        return displacementTex;
+    }
+
+    public void setDisplacementTex(Resource displacementTex) {
+        this.displacementTex = displacementTex;
+    }
+
+    public Resource getStencilDecalTex() {
+        return stencilDecalTex;
+    }
+
+    public void setStencilDecalTex(Resource stencilDecalTex) {
+        this.stencilDecalTex = stencilDecalTex;
     }
 }

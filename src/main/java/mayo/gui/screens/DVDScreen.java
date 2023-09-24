@@ -16,7 +16,7 @@ import org.joml.Vector2f;
 
 public class DVDScreen extends Screen {
 
-    private static final Texture DVD_TEX = new Texture(new Resource("textures/dvd.png"));
+    private static final Texture DVD_TEX = Texture.of(new Resource("textures/dvd.png"));
     private static final int w = 58, h = 40;
     private static final float speed = 2f;
 

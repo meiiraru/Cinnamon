@@ -15,29 +15,43 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Texture {
 
-    //a map containing the registered ids of all textures
-    private static final Map<Resource, Integer> ID_MAP = new HashMap<>();
+    //a map containing all registered textures
+    private static final Map<Resource, Texture> TEXTURE_MAP = new HashMap<>();
     //the missing texture
     public static final Texture MISSING = generateMissingTex();
 
     private final int ID, hFrames, vFrames;
 
-    public Texture(Resource res) {
-        this(res, 1, 1);
-    }
 
-    public Texture(Resource res, int hFrames, int vFrames) {
-        this.ID = loadTexture(res);
+    // -- texture loading -- //
+
+
+    private Texture(int id, int hFrames, int vFrames) {
+        this.ID = id;
         this.hFrames = hFrames;
         this.vFrames = vFrames;
     }
 
-    private static int loadTexture(Resource res) {
-        //returns id of already registered texture, if any
-        Integer saved = ID_MAP.get(res);
+    public static Texture of(Resource res) {
+        return of(res, 1, 1);
+    }
+
+    public static Texture of(Resource res, int hFrames, int vFrames) {
+        //returns an already registered texture, if any
+        Texture saved = TEXTURE_MAP.get(res);
         if (saved != null)
             return saved;
 
+        //otherwise load a new texture and cache it
+        return cacheTexture(res, new Texture(loadTexture(res), hFrames, vFrames));
+    }
+
+    private static Texture cacheTexture(Resource res, Texture tex) {
+        TEXTURE_MAP.put(res, tex);
+        return tex;
+    }
+
+    private static int loadTexture(Resource res) {
         //read texture
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer w = stack.mallocInt(1);
@@ -53,7 +67,6 @@ public class Texture {
             int height = h.get();
 
             int id = glGenTextures();
-            ID_MAP.put(res, id);
             glBindTexture(GL_TEXTURE_2D, id);
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -73,10 +86,9 @@ public class Texture {
     }
 
     private static Texture generateMissingTex() {
-        //put texture on the map, so we fetch from there from so on
+        //generate texture properties
         int id = glGenTextures();
         Resource res = new Resource("generated/missing.png");
-        ID_MAP.put(res, id);
 
         //w * h * rgba
         long pixels = MemoryUtil.nmemAlloc(16 * 16 * 4);
@@ -104,8 +116,12 @@ public class Texture {
         glBindTexture(GL_TEXTURE_2D, 0);
 
         //return a new texture
-        return new Texture(res);
+        return cacheTexture(res, new Texture(id, 1, 1));
     }
+
+
+    // -- getters -- //
+
 
     public int gethFrames() {
         return hFrames;

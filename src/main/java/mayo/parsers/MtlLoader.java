@@ -1,7 +1,6 @@
 package mayo.parsers;
 
 import mayo.model.obj.Material;
-import mayo.render.Texture;
 import mayo.utils.IOUtils;
 import mayo.utils.Resource;
 
@@ -66,7 +65,14 @@ public class MtlLoader {
                     case "illum" -> material.setIllumModel(parseInt(split[1]));
 
                     //textures
-                    case "map_Kd" -> material.setDiffuseTex(new Texture(new Resource(res.getNamespace(), folder + split[1])));
+                    case "map_Ka" -> material.setAmbientTex(new Resource(res.getNamespace(), folder + split[1]));
+                    case "map_Kd" -> material.setDiffuseTex(new Resource(res.getNamespace(), folder + split[1]));
+                    case "map_Ks" -> material.setSpColorTex(new Resource(res.getNamespace(), folder + split[1]));
+                    case "map_Ns" -> material.setSpHighlightTex(new Resource(res.getNamespace(), folder + split[1]));
+                    case "map_d" -> material.setAlphaTex(new Resource(res.getNamespace(), folder + split[1]));
+                    case "map_bump", "bump" -> material.setBumpTex(new Resource(res.getNamespace(), folder + split[1]));
+                    case "disp" -> material.setDisplacementTex(new Resource(res.getNamespace(), folder + split[1]));
+                    case "decal" -> material.setStencilDecalTex(new Resource(res.getNamespace(), folder + split[1]));
                 }
             }
 

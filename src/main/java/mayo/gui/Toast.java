@@ -22,7 +22,7 @@ public class Toast {
             LENGTH = 100,
             ANIM = 5,
             PADDING = 12;
-    private static final Texture TEXTURE = new Texture(new Resource("textures/gui/toast.png"));
+    private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/toast.png"));
     private static final Queue<Toast> TOASTS = new LinkedList<>();
 
 

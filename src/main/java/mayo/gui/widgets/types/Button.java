@@ -17,7 +17,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public class Button extends Widget implements GUIListener {
 
-    private static final Texture TEXTURE = new Texture(new Resource("textures/gui/button.png"));
+    private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/button.png"));
 
     private final Label message;
     private final Runnable toRun;

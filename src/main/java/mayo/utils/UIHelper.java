@@ -14,11 +14,11 @@ import static mayo.model.GeometryHelper.quad;
 public class UIHelper {
 
     private static final Texture[] BACKGROUND = new Texture[]{
-            new Texture(new Resource("textures/gui/background/background_0.png")),
-            new Texture(new Resource("textures/gui/background/background_1.png")),
-            new Texture(new Resource("textures/gui/background/background_2.png"))
+            Texture.of(new Resource("textures/gui/background/background_0.png")),
+            Texture.of(new Resource("textures/gui/background/background_1.png")),
+            Texture.of(new Resource("textures/gui/background/background_2.png"))
     };
-    private static final Texture TOOLTIP = new Texture(new Resource("textures/gui/tooltip.png"));
+    private static final Texture TOOLTIP = Texture.of(new Resource("textures/gui/tooltip.png"));
 
     public static void renderBackground(MatrixStack matrices, int width, int height, float delta) {
         Client c = Client.getInstance();

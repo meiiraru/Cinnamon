@@ -21,7 +21,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Hud {
 
-    private final Texture CROSSHAIR = new Texture(new Resource("textures/crosshair.png"));
+    private final Texture CROSSHAIR = Texture.of(new Resource("textures/crosshair.png"));
 
     private ProgressBar health, itemCooldown;
 
