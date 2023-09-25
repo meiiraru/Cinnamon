@@ -1,5 +1,5 @@
 # Made in Blockbench 4.8.3
-mtllib terrain.mtl
+mtllib grass.mtl
 
 o mesh
 v 64 0 64

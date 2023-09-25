@@ -159,7 +159,7 @@ public class Hud {
 
         return String.format("""
                         [world]
-                        %s entities %s particles %s geometry
+                        %s entities %s particles %s terrain
 
                         [player]
                         xyz %.3f %.3f %.3f
@@ -170,7 +170,7 @@ public class Hud {
                         pitch %.3f yaw %.3f
                         facing %s
                         """,
-                w.entityCount(), w.particleCount(), w.objectCount(),
+                w.entityCount(), w.particleCount(), w.terrainCount(),
 
                 epos.x, epos.y, epos.z,
                 erot.x, erot.y,

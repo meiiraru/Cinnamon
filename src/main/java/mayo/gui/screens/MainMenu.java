@@ -33,7 +33,7 @@ public class MainMenu extends Screen {
         this.addWidget(exitButton);
 
         //may~o
-        Text may = Text.of("May~o Renderer v0.1").withStyle(Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK));
+        Text may = Text.of("May~o Renderer v0.1 \u25E0\u25DE\u25DF\u25E0").withStyle(Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK));
         this.addWidget(new Label(may, font, 4, height - TextUtils.getHeight(may, font) - 4));
     }
 }

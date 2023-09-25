@@ -5,25 +5,23 @@ import mayo.gui.Toast;
 import mayo.gui.screens.DeathScreen;
 import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
-import mayo.model.ModelManager;
 import mayo.render.MatrixStack;
-import mayo.render.Model;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
 import mayo.text.Text;
 import mayo.utils.AABB;
 import mayo.utils.ColorUtils;
-import mayo.utils.Resource;
 import mayo.world.entity.Entity;
 import mayo.world.entity.collectable.HealthPack;
 import mayo.world.entity.living.Enemy;
 import mayo.world.entity.living.Player;
 import mayo.world.items.Item;
 import mayo.world.items.weapons.Firearm;
-import mayo.world.objects.Pillar;
-import mayo.world.objects.Teapot;
 import mayo.world.particle.Particle;
-import org.joml.Vector3f;
+import mayo.world.terrain.GrassSquare;
+import mayo.world.terrain.Pillar;
+import mayo.world.terrain.Teapot;
+import mayo.world.terrain.TerrainObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +31,9 @@ import static org.lwjgl.glfw.GLFW.*;
 public class World {
 
     private final Hud hud = new Hud();
-    private final List<WorldObject> objects = new ArrayList<>();
+    private final List<TerrainObject> terrainObjects = new ArrayList<>();
     private final List<Entity> entities = new ArrayList<>();
     private final List<Particle> particles = new ArrayList<>();
-
-    private final Model terrain = ModelManager.load(new Resource("models/terrain/terrain.obj"));
 
     private final Movement movement = new Movement();
     public Player player;
@@ -57,10 +53,15 @@ public class World {
         Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), Client.getInstance().font);
 
         //temp
-        Pillar pillar = new Pillar(new Vector3f(0, 0, 0));
-        addObject(pillar);
-        Teapot teapot = new Teapot(new Vector3f(0, pillar.getDimensions().y, 0));
-        addObject(teapot);
+        TerrainObject grass = new GrassSquare(this);
+        addTerrainObject(grass);
+
+        TerrainObject pillar = new Pillar(this);
+        addTerrainObject(pillar);
+
+        TerrainObject teapot = new Teapot(this);
+        teapot.setPos(0, pillar.getDimensions().y, 0);
+        addTerrainObject(teapot);
     }
 
     public void tick() {
@@ -124,11 +125,7 @@ public class World {
         uploadLightUniforms(s);
 
         //render terrain
-        s.setMatrixStack(matrices);
-        terrain.render();
-
-        //render objects
-        for (WorldObject object : objects)
+        for (TerrainObject object : terrainObjects)
             object.render(matrices, delta);
 
         //render entities
@@ -151,8 +148,8 @@ public class World {
         s.setVec3("lightPos", 0f, 3f, 2f);
     }
 
-    public void addObject(WorldObject obj) {
-        this.objects.add(obj);
+    public void addTerrainObject(TerrainObject object) {
+        this.terrainObjects.add(object);
     }
 
     public void addEntity(Entity entity) {
@@ -203,8 +200,8 @@ public class World {
         return entities.size();
     }
 
-    public int objectCount() {
-        return objects.size();
+    public int terrainCount() {
+        return terrainObjects.size();
     }
 
     public int particleCount() {
