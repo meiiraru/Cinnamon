@@ -71,7 +71,7 @@ public abstract class LivingEntity extends Entity {
         matrices.scale(-s);
         matrices.translate(0f, -TextUtils.getHeight(text, c.font), 0f);
 
-        c.font.render(VertexConsumer.FONT, matrices, 0, 0, text, TextUtils.Alignment.CENTER, 50);
+        c.font.render(VertexConsumer.FONT_WORLD, matrices, 0, 0, text, TextUtils.Alignment.CENTER, 50);
 
         matrices.pop();
     }

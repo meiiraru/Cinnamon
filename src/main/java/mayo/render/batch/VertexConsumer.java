@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 public enum VertexConsumer {
     GUI(GUIBatch::new),
     FONT(FontBatch::new),
+    FONT_WORLD(FontWorldBatch::new),
     MAIN(MainBatch::new);
 
     private final BatchRenderer<Batch> renderer;

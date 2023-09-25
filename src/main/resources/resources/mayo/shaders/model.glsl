@@ -15,8 +15,9 @@ uniform mat4 model;
 uniform mat3 normalMat;
 
 void main() {
-    gl_Position = projection * view * model * vec4(aPosition, 1.0f);
-    pos = vec3(model * vec4(aPosition, 1.0f));
+    vec4 posVec = vec4(aPosition, 1.0f);
+    gl_Position = projection * view * model * posVec;
+    pos = (model * posVec).xyz;
     texCoords = aTexCoords;
     normal = aNormal * normalMat;
 }

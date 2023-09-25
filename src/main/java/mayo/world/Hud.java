@@ -41,11 +41,10 @@ public class Hud {
 
         //render debug text
         Style style = Style.EMPTY.shadow(true).shadowColor(Colors.DARK_GRAY);
+        c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps").withStyle(style));
         if (c.world.isDebugRendering()) {
-            c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(debugLeftText()).withStyle(style));
+            c.font.render(VertexConsumer.FONT, matrices, 4, 4 + c.font.lineHeight * 2, Text.of(debugLeftText()).withStyle(style));
             c.font.render(VertexConsumer.FONT, matrices, w - 4, 4, Text.of(debugRightText()).withStyle(style), TextUtils.Alignment.RIGHT);
-        } else {
-            c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps").withStyle(style));
         }
 
         //draw crosshair
@@ -159,8 +158,6 @@ public class Hud {
         }
 
         return String.format("""
-                        %s fps
-
                         [world]
                         %s entities %s particles %s geometry
 
@@ -173,8 +170,6 @@ public class Hud {
                         pitch %.3f yaw %.3f
                         facing %s
                         """,
-                c.fps,
-
                 w.entityCount(), w.particleCount(), w.objectCount(),
 
                 epos.x, epos.y, epos.z,
@@ -207,7 +202,7 @@ public class Hud {
 
                 [window]
                 %s x %s
-                scale %s
+                gui scale %s
                 """,
                 System.getProperty("java.version"),
                 used * 100 / max, Meth.prettyByteSize(used), Meth.prettyByteSize(max),

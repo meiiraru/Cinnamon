@@ -10,7 +10,7 @@ public class Vertex implements Comparable<Vertex> {
             color = new Vector4f(1f, 1f, 1f, 1f);
     private final Vector3f
             pos = new Vector3f(),
-            normal = new Vector3f(1f, 1f, 1f);
+            normal = new Vector3f(0f, 0f, -1f);
     private final Vector2f uv = new Vector2f();
     private int index = -1;
 

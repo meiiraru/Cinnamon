@@ -120,8 +120,8 @@ public class World {
         s.setProjectionMatrix(c.camera.getPerspectiveMatrix());
         s.setViewMatrix(c.camera.getViewMatrix());
 
-        s.setVec3("ambientLight", ColorUtils.intToRGB(0x050511));
-        s.setVec3("lightPos", 16f, 2f, 16f);
+        //apply lighting
+        uploadLightUniforms(s);
 
         //render terrain
         s.setMatrixStack(matrices);
@@ -144,6 +144,11 @@ public class World {
 
     public void renderHUD(MatrixStack matrices, float delta) {
         hud.render(matrices, delta);
+    }
+
+    public void uploadLightUniforms(Shader s) {
+        s.setVec3("ambientLight", ColorUtils.intToRGB(0x050511));
+        s.setVec3("lightPos", 0f, 3f, 2f);
     }
 
     public void addObject(WorldObject obj) {

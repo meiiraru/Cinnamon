@@ -6,18 +6,13 @@ import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
 import mayo.utils.Pair;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static mayo.render.shader.Attributes.getAttributes;
 import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL15.GL_DYNAMIC_DRAW;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
@@ -33,24 +28,20 @@ public abstract class Batch { //vertex consumer
     protected final FloatBuffer buffer;
     protected final int vertexSize;
     protected final int verticesPerFace;
+    protected final int vertexFlags;
     protected int faceCount = 0;
 
     //rendering data
     protected final Shader shader;
     protected final int vaoID, vboID;
 
-    //buffers to push
-    protected static final Vector3f pos = new Vector3f();
-    protected static final Vector2f uv = new Vector2f();
-    protected static final Vector4f color = new Vector4f();
-    protected static final Vector3f normal = new Vector3f();
-
     public Batch(Shaders shader, int verticesPerFace, int vertexFlags) {
         this.shader = shader.getShader();
         this.textures = new ArrayList<>();
         this.verticesPerFace = verticesPerFace;
+        this.vertexFlags = vertexFlags;
 
-        Pair<Integer, Integer> attributes = getAttributes(vertexFlags);
+        Pair<Integer, Integer> attributes = Attributes.getAttributes(vertexFlags);
         this.vertexSize = attributes.second();
         //each face have 6 vertices, times the amount of vertex data
         int capacity = BUFFER_SIZE * verticesPerFace * vertexSize;
@@ -87,6 +78,9 @@ public abstract class Batch { //vertex consumer
         shader.setProjectionMatrix(proj);
         shader.setViewMatrix(view);
 
+        //function to run before drawing the vao
+        preRender();
+
         //textures
         for (int i = 0; i < textures.size(); i++) {
             glActiveTexture(GL_TEXTURE0 + i + 1);
@@ -109,9 +103,7 @@ public abstract class Batch { //vertex consumer
         faceCount = 0;
     }
 
-    protected abstract void fillVertexBuffers(Vertex vertex);
-
-    protected abstract void pushVertex(Vertex vertex, int textureID);
+    protected void preRender() {}
 
     public boolean pushFace(Vertex[] vertices, int textureID) {
         //cant add
@@ -125,9 +117,9 @@ public abstract class Batch { //vertex consumer
 
         //push the vertices
         for (int i = 1; i <= vertices.length - 2; i++) {
-            pushVertex(vertices[0], texID);
-            pushVertex(vertices[i], texID);
-            pushVertex(vertices[i + 1], texID);
+            Attributes.pushVertex(buffer, vertices[0], texID, vertexFlags);
+            Attributes.pushVertex(buffer, vertices[i], texID, vertexFlags);
+            Attributes.pushVertex(buffer, vertices[i + 1], texID, vertexFlags);
         }
 
         faceCount++;

@@ -1,6 +1,12 @@
 package mayo.render.shader;
 
+import mayo.model.Vertex;
 import mayo.utils.Pair;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+
+import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
@@ -66,6 +72,58 @@ public class Attributes {
         }
         if ((flags & INDEX) == INDEX) {
             glVertexAttribPointer(index, 1, GL_FLOAT, true, stride, pointer);
+        }
+    }
+
+    public static void pushVertex(FloatBuffer buffer, Vertex vertex, int textureID, int flags) {
+        //push pos
+        if ((flags & POS) == POS) {
+            Vector3f pos = vertex.getPosition();
+            buffer.put(pos.x);
+            buffer.put(pos.y);
+            buffer.put(pos.z);
+        }
+
+        //push texture id
+        if ((flags & TEXTURE_ID) == TEXTURE_ID) {
+            buffer.put(textureID);
+        }
+
+        //push uv
+        if ((flags & UV) == UV) {
+            Vector2f uv = vertex.getUV();
+            buffer.put(uv.x);
+            buffer.put(uv.y);
+        }
+
+        //push color RGB
+        if ((flags & COLOR) == COLOR) {
+            Vector4f color = vertex.getColor();
+            buffer.put(color.x);
+            buffer.put(color.y);
+            buffer.put(color.z);
+        }
+
+        //push color RGBA
+        if ((flags & COLOR_RGBA) == COLOR_RGBA) {
+            Vector4f color = vertex.getColor();
+            buffer.put(color.x);
+            buffer.put(color.y);
+            buffer.put(color.z);
+            buffer.put(color.w);
+        }
+
+        //push normal
+        if ((flags & NORMAL) == NORMAL) {
+            Vector3f normal = vertex.getNormal();
+            buffer.put(normal.x);
+            buffer.put(normal.y);
+            buffer.put(normal.z);
+        }
+
+        //push index
+        if ((flags & INDEX) == INDEX) {
+            buffer.put(vertex.getIndex());
         }
     }
 }
