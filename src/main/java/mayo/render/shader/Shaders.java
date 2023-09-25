@@ -7,7 +7,8 @@ public enum Shaders {
     FONT,
     MODEL,
     GENERIC,
-    FONT_WORLD;
+    FONT_WORLD,
+    LINES;
 
     private final Shader shader;
 

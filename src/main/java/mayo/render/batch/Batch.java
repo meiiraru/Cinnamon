@@ -1,5 +1,6 @@
 package mayo.render.batch;
 
+import mayo.Client;
 import mayo.model.Vertex;
 import mayo.render.shader.Attributes;
 import mayo.render.shader.Shader;
@@ -90,7 +91,7 @@ public abstract class Batch { //vertex consumer
 
         //render
         glBindVertexArray(vaoID);
-        glDrawArrays(GL_TRIANGLES, 0, count);
+        glDrawArrays(primitive(), 0, count);
 
         //clear gl flags
         glBindVertexArray(0);
@@ -105,6 +106,10 @@ public abstract class Batch { //vertex consumer
 
     protected void preRender() {}
 
+    protected int primitive() {
+        return GL_TRIANGLES;
+    }
+
     public boolean pushFace(Vertex[] vertices, int textureID) {
         //cant add
         if (isFull())
@@ -115,19 +120,83 @@ public abstract class Batch { //vertex consumer
             textures.add(textureID);
         int texID = textures.indexOf(textureID) + 1;
 
-        //push the vertices
-        for (int i = 1; i <= vertices.length - 2; i++) {
-            Attributes.pushVertex(buffer, vertices[0], texID, vertexFlags);
-            Attributes.pushVertex(buffer, vertices[i], texID, vertexFlags);
-            Attributes.pushVertex(buffer, vertices[i + 1], texID, vertexFlags);
-        }
+        //unwrap and push the vertices
+        unwrapVertices(vertices, texID);
 
         faceCount++;
         return true;
     }
 
+    protected void unwrapVertices(Vertex[] vertices, int texID) {
+        for (int i = 1; i <= vertices.length - 2; i++) {
+            Attributes.pushVertex(buffer, vertices[0], texID, vertexFlags);
+            Attributes.pushVertex(buffer, vertices[i], texID, vertexFlags);
+            Attributes.pushVertex(buffer, vertices[i + 1], texID, vertexFlags);
+        }
+    }
+
     public boolean isFull() {
         //at least 1 face must be is free to push
         return buffer.remaining() < (vertexSize * verticesPerFace);
+    }
+
+
+    // -- children types -- //
+
+
+    public static class FontBatch extends Batch {
+        public FontBatch() {
+            super(Shaders.FONT, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA);
+        }
+    }
+
+    public static class FontWorldBatch extends Batch {
+        public FontWorldBatch() {
+            super(Shaders.FONT_WORLD, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.NORMAL);
+        }
+
+        @Override
+        protected void preRender() {
+            super.preRender();
+            Client.getInstance().world.uploadLightUniforms(this.shader);
+        }
+    }
+
+    public static class GUIBatch extends Batch {
+        public GUIBatch() {
+            super(Shaders.GUI, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA);
+        }
+    }
+
+    public static class MainBatch extends Batch {
+        public MainBatch() {
+            super(Shaders.GENERIC, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.NORMAL);
+        }
+    }
+
+    public static class LinesBatch extends Batch {
+        public LinesBatch() {
+            super(Shaders.LINES, 8, Attributes.POS | Attributes.COLOR_RGBA);
+        }
+
+        @Override
+        protected int primitive() {
+            return GL_LINES;
+        }
+
+        @Override
+        protected void unwrapVertices(Vertex[] vertices, int texID) {
+            int len = vertices.length;
+
+            //loop through vertices
+            for (int i = 1; i < len; i++) {
+                Attributes.pushVertex(buffer, vertices[i - 1], texID, vertexFlags);
+                Attributes.pushVertex(buffer, vertices[i], texID, vertexFlags);
+            }
+
+            //last pair
+            Attributes.pushVertex(buffer, vertices[0], texID, vertexFlags);
+            Attributes.pushVertex(buffer, vertices[len - 1], texID, vertexFlags);
+        }
     }
 }

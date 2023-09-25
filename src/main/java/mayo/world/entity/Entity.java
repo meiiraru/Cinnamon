@@ -10,6 +10,7 @@ import mayo.utils.AABB;
 import mayo.utils.Meth;
 import mayo.utils.Rotation;
 import mayo.world.World;
+import mayo.world.entity.living.LivingEntity;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -84,9 +85,33 @@ public abstract class Entity {
 
     protected void renderDebugHitbox(MatrixStack matrices, float delta) {
         if (world.isDebugRendering()) {
+            //bouding box
             Vector3f min = aabb.getMin();
             Vector3f max = aabb.getMax();
-            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0x88FFFFFF);
+            GeometryHelper.pushCube(VertexConsumer.LINES, matrices, min.x, min.y, min.z, max.x, max.y, max.z, -1);
+
+            //eye pos
+            Vector3f eye = getEyePos(1f);
+            if (this instanceof LivingEntity) {
+                float f = 0.01f;
+                GeometryHelper.pushCube(VertexConsumer.LINES, matrices, min.x, eye.y - f, min.z, max.x, eye.y + f, max.z, 0xFFFF0000);
+            }
+
+            //looking dir
+            matrices.push();
+            matrices.translate(eye);
+            matrices.rotate(Rotation.Y.rotationDeg(-rot.y + 90));
+            matrices.rotate(Rotation.Z.rotationDeg(-rot.x));
+
+            VertexConsumer.LINES.consume(GeometryHelper.quad(
+                    matrices,
+                    0f, 0f, 0f,
+                    dimensions.x + 1f, 0f,
+                    0xFF0000FF
+
+            ), 0);
+
+            matrices.pop();
         }
     }
 
@@ -160,7 +185,7 @@ public abstract class Entity {
     }
 
     public float getEyeHeight() {
-        return 0f;
+        return dimensions.y / 2f;
     }
 
     public Vector3f getEyePos(float delta) {

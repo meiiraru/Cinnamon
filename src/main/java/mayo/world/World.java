@@ -18,10 +18,7 @@ import mayo.world.entity.living.Player;
 import mayo.world.items.Item;
 import mayo.world.items.weapons.Firearm;
 import mayo.world.particle.Particle;
-import mayo.world.terrain.GrassSquare;
-import mayo.world.terrain.Pillar;
-import mayo.world.terrain.Teapot;
-import mayo.world.terrain.TerrainObject;
+import mayo.world.terrain.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +34,7 @@ public class World {
 
     private final Movement movement = new Movement();
     public Player player;
-    private boolean thirdPerson;
+    private int cameraMode = 0;
 
     private boolean debugRendering;
     private boolean isPaused;
@@ -62,6 +59,9 @@ public class World {
         TerrainObject teapot = new Teapot(this);
         teapot.setPos(0, pillar.getDimensions().y, 0);
         addTerrainObject(teapot);
+
+        TerrainObject torii = new Torii(this);
+        addTerrainObject(torii);
     }
 
     public void tick() {
@@ -113,7 +113,7 @@ public class World {
             delta = 1f;
 
         //set camera
-        c.camera.setup(player, thirdPerson, delta);
+        c.camera.setup(player, cameraMode, delta);
 
         //set shader
         Shader s = Shaders.MODEL.getShader().use();
@@ -130,7 +130,7 @@ public class World {
 
         //render entities
         for (Entity entity : entities) {
-            if (entity != player || thirdPerson)
+            if (entity != player || isThirdPerson())
                 entity.render(matrices, delta);
         }
 
@@ -192,7 +192,7 @@ public class World {
             }
             case GLFW_KEY_ESCAPE -> Client.getInstance().setScreen(new PauseScreen());
             case GLFW_KEY_F3 -> this.debugRendering = !this.debugRendering;
-            case GLFW_KEY_F5 -> this.thirdPerson = !this.thirdPerson;
+            case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
         }
     }
 
@@ -235,6 +235,6 @@ public class World {
     }
 
     public boolean isThirdPerson() {
-        return thirdPerson;
+        return cameraMode > 0;
     }
 }

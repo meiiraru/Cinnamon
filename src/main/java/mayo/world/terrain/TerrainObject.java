@@ -1,6 +1,7 @@
 package mayo.world.terrain;
 
 import mayo.model.GeometryHelper;
+import mayo.model.obj.Group;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;
@@ -9,6 +10,9 @@ import mayo.utils.AABB;
 import mayo.world.World;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class TerrainObject {
 
     protected final Model model;
@@ -16,7 +20,8 @@ public abstract class TerrainObject {
     protected final Vector3f dimensions = new Vector3f();
     protected final Vector3f pos = new Vector3f();
 
-    protected AABB aabb;
+    protected AABB aabb; //the entire model's AABB
+    protected final List<AABB> groupsAABB = new ArrayList<>(); //group's AABB
 
     protected TerrainObject(Model model, World world) {
         this.model = model;
@@ -34,7 +39,7 @@ public abstract class TerrainObject {
 
         matrices.pop();
 
-        //renderDebugHitbox(matrices, delta);
+        renderDebugHitbox(matrices, delta);
     }
 
     protected void renderModel(MatrixStack matrices, float delta) {
@@ -45,16 +50,28 @@ public abstract class TerrainObject {
 
     protected void renderDebugHitbox(MatrixStack matrices, float delta) {
         if (world.isDebugRendering()) {
-            Vector3f min = aabb.getMin();
-            Vector3f max = aabb.getMax();
-            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0x88FFFFFF);
+            renderAABB(matrices, aabb, -1);
+
+            for (AABB aabb : groupsAABB)
+                renderAABB(matrices, aabb, 0xFFFF00FF);
         }
     }
 
+    private static void renderAABB(MatrixStack matrices, AABB aabb, int color) {
+        Vector3f min = aabb.getMin(); Vector3f max = aabb.getMax();
+        GeometryHelper.pushCube(VertexConsumer.LINES, matrices, min.x, min.y, min.z, max.x, max.y, max.z, color);
+    }
+
     protected void updateAABB() {
-        Vector3f min = this.model.getMesh().getBBMin();
-        Vector3f max = this.model.getMesh().getBBMax();
-        this.aabb = new AABB(
+        this.aabb = getAABB(this.model.getMesh().getBBMin(), this.model.getMesh().getBBMax());
+
+        this.groupsAABB.clear();
+        for (Group group : this.model.getMesh().getGroups())
+            groupsAABB.add(getAABB(group.getBBMin(), group.getBBMax()));
+    }
+
+    private AABB getAABB(Vector3f min, Vector3f max) {
+        return new AABB(
                 pos.x + min.x, pos.y + min.y, pos.z + min.z,
                 pos.x + max.x, pos.y + max.y, pos.z + max.z
         );

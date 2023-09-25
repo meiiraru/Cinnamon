@@ -98,7 +98,7 @@ public class Main {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
 
-        //glLineWidth(5f);
+        glLineWidth(10f);
 
         //fps count
         double previousTime = glfwGetTime();

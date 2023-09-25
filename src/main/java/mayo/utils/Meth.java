@@ -79,8 +79,8 @@ public class Meth {
     public static String prettyByteSize(double size) {
         int i = 0;
         while (i < SIZE_UNITS.length) {
-            if (size < 1000) break;
-            size /= 1000;
+            if (size < 1024) break;
+            size /= 1024;
             i++;
         }
 

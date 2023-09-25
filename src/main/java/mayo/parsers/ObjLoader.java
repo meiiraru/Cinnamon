@@ -62,6 +62,8 @@ public class ObjLoader {
                         theMesh.getVertices().add(vertex);
                         theMesh.getBBMin().min(vertex);
                         theMesh.getBBMax().max(vertex);
+                        currentGroup.getBBMin().min(vertex);
+                        currentGroup.getBBMax().max(vertex);
                     }
 
                     //uv

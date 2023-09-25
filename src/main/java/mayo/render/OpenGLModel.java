@@ -6,7 +6,6 @@ import mayo.model.obj.Material;
 import mayo.model.obj.Mesh;
 import mayo.render.shader.Attributes;
 import mayo.utils.Pair;
-import mayo.utils.Resource;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
@@ -21,11 +20,11 @@ import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
-public class OpenGLObj extends Model {
+public class OpenGLModel extends Model {
 
     private final List<GroupData> groups = new ArrayList<>();
 
-    public OpenGLObj(Mesh mesh) {
+    public OpenGLModel(Mesh mesh) {
         super(mesh);
 
         List<Vector3f> vertices = mesh.getVertices();

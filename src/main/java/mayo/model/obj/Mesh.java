@@ -23,8 +23,8 @@ public class Mesh {
 
     //bounding box
     private final Vector3f
-            bbMin = new Vector3f(),
-            bbMax = new Vector3f();
+            bbMin = new Vector3f(Integer.MAX_VALUE),
+            bbMax = new Vector3f(Integer.MIN_VALUE);
 
     //materials
     private final Map<String, Material>

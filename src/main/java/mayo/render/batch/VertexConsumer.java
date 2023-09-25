@@ -1,6 +1,7 @@
 package mayo.render.batch;
 
 import mayo.model.Vertex;
+import mayo.render.batch.Batch.*;
 import org.joml.Matrix4f;
 
 import java.util.function.Supplier;
@@ -9,7 +10,8 @@ public enum VertexConsumer {
     GUI(GUIBatch::new),
     FONT(FontBatch::new),
     FONT_WORLD(FontWorldBatch::new),
-    MAIN(MainBatch::new);
+    MAIN(MainBatch::new),
+    LINES(LinesBatch::new);
 
     private final BatchRenderer<Batch> renderer;
 
