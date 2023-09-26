@@ -9,12 +9,12 @@ import mayo.render.shader.Shader;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.Colors;
-import mayo.utils.Meth;
 import mayo.utils.Rotation;
 import mayo.utils.TextUtils;
 import mayo.world.World;
 import mayo.world.entity.Entity;
 import mayo.world.items.Item;
+import mayo.world.particle.CloudParticle;
 import mayo.world.particle.TextParticle;
 import org.joml.Vector3f;
 
@@ -49,7 +49,7 @@ public abstract class LivingEntity extends Entity {
         matrices.push();
 
         //apply rot
-        matrices.rotate(Rotation.Y.rotationDeg(-Meth.lerp(oRot.y, rot.y, delta)));
+        matrices.rotate(Rotation.Y.rotationDeg(-getRot(delta).y));
 
         //render model
         Shader.activeShader.setMatrixStack(matrices);
@@ -82,13 +82,10 @@ public abstract class LivingEntity extends Entity {
         if (move.lengthSquared() > 1f)
             move.normalize();
 
-        move.rotateY((float) Math.toRadians(-rot.y));
+        move.rotateY((float) Math.toRadians(-getRot(1f).y));
 
-        this.moveTo(
-                pos.x + move.x,
-                pos.y + move.y,
-                pos.z + move.z
-        );
+        Vector3f pos = getPos(1f).add(move);
+        this.moveTo(pos);
     }
 
     @Override
@@ -123,10 +120,19 @@ public abstract class LivingEntity extends Entity {
         if (health <= 0) {
             this.health = 0;
             this.removed = true;
+            spawnDeathParticles();
         }
 
         //spawn particle
         spawnHealthChangeParticle(-amount, crit);
+    }
+
+    protected void spawnDeathParticles() {
+        for (int i = 0; i < 20; i++) {
+            CloudParticle particle = new CloudParticle((int) (Math.random() * 15) + 10, -1);
+            particle.setPos(getAABB().getRandomPoint());
+            world.addParticle(particle);
+        }
     }
 
     protected void spawnHealthChangeParticle(int amount, boolean crit) {
@@ -153,7 +159,7 @@ public abstract class LivingEntity extends Entity {
             text += " \u2728";
 
         //spawn particle
-        world.addParticle(new TextParticle(Text.of( text).withStyle(Style.EMPTY.color(color).outlined(true)), 20, getAABB().getRandomPoint()));
+        world.addParticle(new TextParticle(Text.of(text).withStyle(Style.EMPTY.color(color).outlined(true)), 20, getAABB().getRandomPoint()));
     }
 
     public void attack() {

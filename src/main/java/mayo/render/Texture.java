@@ -20,7 +20,7 @@ public class Texture {
     //the missing texture
     public static final Texture MISSING = generateMissingTex();
 
-    private final int ID, hFrames, vFrames;
+    private final int ID, uFrames, vFrames;
 
 
     // -- texture loading -- //
@@ -28,7 +28,7 @@ public class Texture {
 
     private Texture(int id, int hFrames, int vFrames) {
         this.ID = id;
-        this.hFrames = hFrames;
+        this.uFrames = hFrames;
         this.vFrames = vFrames;
     }
 
@@ -123,8 +123,8 @@ public class Texture {
     // -- getters -- //
 
 
-    public int gethFrames() {
-        return hFrames;
+    public int getuFrames() {
+        return uFrames;
     }
 
     public int getvFrames() {
@@ -132,7 +132,7 @@ public class Texture {
     }
 
     public float getSpriteWidth() {
-        return 1f / gethFrames();
+        return 1f / getuFrames();
     }
 
     public float getSpriteHeight() {

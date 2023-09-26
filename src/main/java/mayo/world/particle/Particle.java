@@ -7,11 +7,14 @@ import org.joml.Vector3f;
 
 public abstract class Particle {
 
+    protected static final float PARTICLE_SCALING = 1 / 48f;
+
     private final Vector3f
             oPos = new Vector3f(),
             pos = new Vector3f(),
             motion = new Vector3f();
-    private int lifetime;
+    private final int lifetime;
+    private int age;
     private boolean removed = false;
 
     public Particle(int lifetime) {
@@ -23,11 +26,8 @@ public abstract class Particle {
         move(motion);
 
         //tick time
-        lifetime--;
-        if (lifetime <= 0) {
-            lifetime = 0;
-            removed = true;
-        }
+        age++;
+        removed = age > lifetime;
     }
 
     public void render(MatrixStack matrices, float delta) {
@@ -80,11 +80,23 @@ public abstract class Particle {
         return removed;
     }
 
+    public Vector3f getMotion() {
+        return motion;
+    }
+
     public void setMotion(Vector3f motion) {
         this.setMotion(motion.x, motion.y, motion.z);
     }
 
     public void setMotion(float x, float y, float z) {
         this.motion.set(x, y, z);
+    }
+
+    public int getLifetime() {
+        return lifetime;
+    }
+
+    public int getAge() {
+        return age;
     }
 }

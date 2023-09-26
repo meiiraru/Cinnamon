@@ -13,7 +13,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class TerrainObject {
+public class TerrainObject {
 
     protected final Model model;
     protected final World world;

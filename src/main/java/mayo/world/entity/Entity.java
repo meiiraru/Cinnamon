@@ -18,15 +18,15 @@ public abstract class Entity {
 
     protected final Model model;
     protected final World world;
-    protected final Vector3f dimensions = new Vector3f();
-    protected final Vector3f
+    private final Vector3f dimensions = new Vector3f();
+    private final Vector3f
             oPos = new Vector3f(),
             pos = new Vector3f();
-    protected final Vector2f
+    private final Vector2f
             oRot = new Vector2f(),
             rot = new Vector2f();
 
-    protected AABB aabb;
+    private AABB aabb;
 
     protected boolean removed;
 
@@ -128,6 +128,10 @@ public abstract class Entity {
         );
     }
 
+    public void moveTo(Vector3f vec) {
+        this.moveTo(vec.x, vec.y, vec.z);
+    }
+
     public void moveTo(float x, float y, float z) {
         this.oPos.set(pos);
         this.pos.set(x, y, z);
@@ -189,7 +193,7 @@ public abstract class Entity {
     }
 
     public Vector3f getEyePos(float delta) {
-        return getPos(delta).add(0f, getEyeHeight(), 0f, new Vector3f());
+        return getPos(delta).add(0, getEyeHeight(), 0);
     }
 
     public Vector3f getDimensions() {

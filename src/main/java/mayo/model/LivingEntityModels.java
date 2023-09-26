@@ -10,7 +10,8 @@ public enum LivingEntityModels {
     TOMATO(0.75f),
     CHERRY(0.625f),
     ICE_CREAM_SANDWICH(1.375f),
-    DONUT(1.875f);
+    DONUT(1.875f),
+    ICE_CREAM(0.75f);
 
     private static final String MODELS_PATH = "models/entities/";
 

@@ -47,7 +47,7 @@ public class Firearm extends CooldownItem {
         World world = entity.getWorld();
         Bullet bullet = new Bullet(world, entity);
 
-        bullet.setPos(entity.getEyePos(1f));
+        bullet.setPos(entity.getEyePos(1f).sub(0, bullet.getDimensions().y / 2f, 0));
         bullet.setRot(entity.getRot(1f));
 
         world.addEntity(bullet);

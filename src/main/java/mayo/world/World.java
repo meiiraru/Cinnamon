@@ -17,8 +17,10 @@ import mayo.world.entity.living.Enemy;
 import mayo.world.entity.living.Player;
 import mayo.world.items.Item;
 import mayo.world.items.weapons.Firearm;
+import mayo.world.particle.LightParticle;
 import mayo.world.particle.Particle;
-import mayo.world.terrain.*;
+import mayo.world.terrain.TerrainObject;
+import mayo.world.terrain.TerrainRegister;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,18 +52,22 @@ public class World {
         Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), Client.getInstance().font);
 
         //temp
-        TerrainObject grass = new GrassSquare(this);
+        TerrainObject grass = TerrainRegister.GRASS.create(this);
         addTerrainObject(grass);
 
-        TerrainObject pillar = new Pillar(this);
+        TerrainObject pillar = TerrainRegister.PILLAR.create(this);
         addTerrainObject(pillar);
 
-        TerrainObject teapot = new Teapot(this);
+        TerrainObject teapot = TerrainRegister.TEAPOT.create(this);
         teapot.setPos(0, pillar.getDimensions().y, 0);
         addTerrainObject(teapot);
 
-        TerrainObject torii = new Torii(this);
+        TerrainObject torii = TerrainRegister.TORII.create(this);
         addTerrainObject(torii);
+
+        TerrainObject pole = TerrainRegister.POLE.create(this);
+        pole.setPos(0, 0, 5);
+        addTerrainObject(pole);
     }
 
     public void tick() {
@@ -88,22 +94,31 @@ public class World {
         particles.removeIf(Particle::isRemoved);
 
         //if the player is dead, show death screen
+        Client c = Client.getInstance();
         if (player.isDead())
-            Client.getInstance().setScreen(new DeathScreen());
+            c.setScreen(new DeathScreen());
 
         //temp
         //every 3 seconds, spawn a new enemy
-        if (Client.getInstance().ticks % 60 == 0) {
+        if (c.ticks % 60 == 0) {
             Enemy enemy = new Enemy(this);
             enemy.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
             addEntity(enemy);
         }
 
         //every 15 seconds, spawn a new health pack
-        if (Client.getInstance().ticks % 300 == 0) {
+        if (c.ticks % 300 == 0) {
             HealthPack health = new HealthPack(this);
             health.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
             addEntity(health);
+        }
+
+        //every half second, spawn a new light particle
+        if (c.ticks % 5 == 0) {
+            LightParticle light = new LightParticle(20, 0xFFFFFF00);
+            light.setPos(0, 2, 0);
+            light.setMotion(0.075f, 0f, 0f);
+            addParticle(light);
         }
     }
 
