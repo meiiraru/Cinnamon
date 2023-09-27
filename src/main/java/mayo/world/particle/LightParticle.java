@@ -20,6 +20,6 @@ public class LightParticle extends SpriteParticle {
         if (Math.random() < 0.5f)
             motion.mul(-1);
 
-        this.setMotion(motion.y, motion.x, motion.z);
+        this.setMotion(motion.z, motion.x, motion.y);
     }
 }

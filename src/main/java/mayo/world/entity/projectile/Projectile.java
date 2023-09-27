@@ -4,22 +4,22 @@ import mayo.render.Model;
 import mayo.world.World;
 import mayo.world.entity.Entity;
 import mayo.world.entity.living.LivingEntity;
-import org.joml.Vector3f;
 
 public abstract class Projectile extends Entity {
 
     private final int damage;
     private final float speed;
     private final boolean crit;
+    private final Entity owner;
     private int lifetime;
-    private Entity owner;
 
-    public Projectile(Model model, World world, int damage, int lifetime, float speed, boolean crit) {
+    public Projectile(Model model, World world, int damage, int lifetime, float speed, boolean crit, Entity owner) {
         super(model, world);
         this.damage = damage;
         this.lifetime = lifetime;
         this.speed = speed;
         this.crit = crit;
+        this.owner = owner;
     }
 
     @Override
@@ -52,9 +52,5 @@ public abstract class Projectile extends Entity {
 
     public Entity getOwner() {
         return owner;
-    }
-
-    public void setOwner(Entity owner) {
-        this.owner = owner;
     }
 }

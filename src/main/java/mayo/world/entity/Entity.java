@@ -37,6 +37,8 @@ public abstract class Entity {
         this.updateAABB();
     }
 
+    public void onAdd() {}
+
     public void tick() {
         for (Entity entity : world.getEntities(getAABB()))
             if (entity != this && !entity.isRemoved())
@@ -114,6 +116,8 @@ public abstract class Entity {
             matrices.pop();
         }
     }
+
+    public void onRemove() {}
 
     public void move(float left, float up, float forwards) {
         Vector3f move = new Vector3f(-left, up, -forwards);

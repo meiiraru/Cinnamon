@@ -11,6 +11,7 @@ import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.*;
+import mayo.world.effects.Effect;
 import mayo.world.entity.living.Player;
 import mayo.world.items.CooldownItem;
 import mayo.world.items.Item;
@@ -91,6 +92,42 @@ public class Hud {
 
         matrices.pop();
         matrices.pop();
+
+        //transform matrices
+        matrices.push();
+        matrices.translate(window.scaledWidth - 12, 12, 0f);
+
+        //effects
+        renderEffects(matrices, player);
+
+        matrices.pop();
+    }
+
+    private void renderEffects(MatrixStack matrices, Player player) {
+        Font font = Client.getInstance().font;
+        Text text = Text.empty().withStyle(Style.EMPTY.outlined(true));
+
+        for (Effect effect : player.getActiveEffects()) {
+            //name
+            text.append(effect.getType().name());
+
+            //amplitude
+            int amplitude = effect.getAmplitude();
+            if (amplitude != 1)
+                text.append(" " + amplitude);
+
+            //divider
+            text.append(" - ");
+
+            //remaining time
+            text.append(Text.of(((effect.getRemainingTime()) / 20) + "").withStyle(Style.EMPTY.color(Colors.RED)));
+
+            text.append("\n");
+        }
+
+        //render
+        if (!text.asString().equals("\n"))
+            font.render(VertexConsumer.FONT, matrices, 0f, 0f, text, TextUtils.Alignment.RIGHT);
     }
 
     private void drawItemStats(MatrixStack matrices, Item item, float delta) {

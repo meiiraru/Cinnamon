@@ -12,6 +12,7 @@ import mayo.text.Text;
 import mayo.utils.AABB;
 import mayo.utils.ColorUtils;
 import mayo.world.entity.Entity;
+import mayo.world.entity.collectable.EffectBox;
 import mayo.world.entity.collectable.HealthPack;
 import mayo.world.entity.living.Enemy;
 import mayo.world.entity.living.Player;
@@ -84,7 +85,13 @@ public class World {
             entity.tick();
 
         //remove entities flagged to be removed
-        entities.removeIf(Entity::isRemoved);
+        entities.removeIf(entity -> {
+            if (entity.isRemoved()) {
+                entity.onRemove();
+                return true;
+            }
+            return false;
+        });
 
         //particles
         for (Particle particle : particles)
@@ -106,18 +113,21 @@ public class World {
             addEntity(enemy);
         }
 
-        //every 15 seconds, spawn a new health pack
+        //every 15 seconds, spawn a new health pack and a mystery effect box
         if (c.ticks % 300 == 0) {
             HealthPack health = new HealthPack(this);
             health.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
             addEntity(health);
+            EffectBox box = new EffectBox(this);
+            box.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
+            addEntity(box);
         }
 
-        //every half second, spawn a new light particle
+        //every quarter second, spawn a new light particle
         if (c.ticks % 5 == 0) {
-            LightParticle light = new LightParticle(20, 0xFFFFFF00);
-            light.setPos(0, 2, 0);
-            light.setMotion(0.075f, 0f, 0f);
+            LightParticle light = new LightParticle(20, 0xFFFFFFAA);
+            light.setPos(0, 3, 5);
+            light.setMotion(0.15f, 0f, 0f);
             addParticle(light);
         }
     }
@@ -160,7 +170,7 @@ public class World {
 
     public void uploadLightUniforms(Shader s) {
         s.setVec3("ambientLight", ColorUtils.intToRGB(0x050511));
-        s.setVec3("lightPos", 0f, 3f, 2f);
+        s.setVec3("lightPos", 0f, 3f, 5f);
     }
 
     public void addTerrainObject(TerrainObject object) {
@@ -169,10 +179,12 @@ public class World {
 
     public void addEntity(Entity entity) {
         this.entities.add(entity);
+        entity.onAdd();
     }
 
     public void addParticle(Particle particle) {
-        this.particles.add(particle);
+        if (particle.shouldRender())
+            this.particles.add(particle);
     }
 
     public void mousePress(int button, int action, int mods) {

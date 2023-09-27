@@ -12,14 +12,20 @@ import mayo.utils.Colors;
 import mayo.utils.Rotation;
 import mayo.utils.TextUtils;
 import mayo.world.World;
+import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
 import mayo.world.items.Item;
 import mayo.world.particle.CloudParticle;
 import mayo.world.particle.TextParticle;
 import org.joml.Vector3f;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 public abstract class LivingEntity extends Entity {
 
+    private final Map<Effect.Type, Effect> activeEffects = new HashMap<>();
     private final float eyeHeight;
 
     private Item holdingItem;
@@ -40,8 +46,16 @@ public abstract class LivingEntity extends Entity {
     public void tick() {
         super.tick();
 
+        for (Effect effect : activeEffects.values())
+            effect.tick();
+        activeEffects.entrySet().removeIf(entry -> entry.getValue().isDone());
+
         if (getHoldingItem() != null)
             getHoldingItem().tick();
+
+        Effect heal = getEffect(Effect.Type.HEAL);
+        if (heal != null && (int) (Client.getInstance().ticks % (20f / heal.getAmplitude())) == 0)
+            heal(1);
     }
 
     @Override
@@ -62,7 +76,7 @@ public abstract class LivingEntity extends Entity {
     protected void renderTexts(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
         matrices.push();
-        float s = 1/48f;
+        float s = 1 / 48f;
 
         Text text = Text.of(getHealth() + " ").withStyle(Style.EMPTY.outlined(true)).append(Text.of("\u2795").withStyle(Style.EMPTY.color(Colors.RED)));
 
@@ -74,6 +88,12 @@ public abstract class LivingEntity extends Entity {
         c.font.render(VertexConsumer.FONT_WORLD, matrices, 0, 0, text, TextUtils.Alignment.CENTER, 50);
 
         matrices.pop();
+    }
+
+    @Override
+    public void onRemove() {
+        super.onRemove();
+        this.spawnDeathParticles();
     }
 
     @Override
@@ -120,7 +140,6 @@ public abstract class LivingEntity extends Entity {
         if (health <= 0) {
             this.health = 0;
             this.removed = true;
-            spawnDeathParticles();
         }
 
         //spawn particle
@@ -147,7 +166,7 @@ public abstract class LivingEntity extends Entity {
         //no change
         else if (amount == 0)
             color = Colors.LIGHT_GRAY;
-        //damage
+            //damage
         else
             color = Colors.RED;
 
@@ -215,5 +234,44 @@ public abstract class LivingEntity extends Entity {
 
     public boolean isDead() {
         return getHealth() <= 0;
+    }
+
+    public void giveEffect(Effect effect) {
+        Effect old = activeEffects.get(effect.getType());
+        //add effect if there was not an effect with the same id
+        if (old == null) {
+            activeEffects.put(effect.getType(), effect);
+            return;
+        }
+
+        //if the new amplitude is greater, override old effect
+        if (effect.getAmplitude() > old.getAmplitude()) {
+            activeEffects.put(effect.getType(), effect);
+            return;
+        }
+
+        //if amplitude is below, do nothing
+        if (effect.getAmplitude() < old.getAmplitude())
+            return;
+
+        //amplitude is now guaranteed to be equals
+
+        //if duration is greater, override old effect
+        if (effect.getRemainingTime() > old.getRemainingTime())
+            activeEffects.put(effect.getType(), effect);
+
+        //at this point the duration is either below or equals, so nothing needs to be changed
+    }
+
+    public boolean hasEffect(Effect.Type type) {
+        return activeEffects.containsKey(type);
+    }
+
+    public Effect getEffect(Effect.Type type) {
+        return activeEffects.get(type);
+    }
+
+    public Collection<Effect> getActiveEffects() {
+        return activeEffects.values();
     }
 }

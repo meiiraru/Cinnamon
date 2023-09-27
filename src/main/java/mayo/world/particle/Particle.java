@@ -27,7 +27,7 @@ public abstract class Particle {
 
         //tick time
         age++;
-        removed = age > lifetime;
+        removed = age >= lifetime;
     }
 
     public void render(MatrixStack matrices, float delta) {
@@ -48,7 +48,7 @@ public abstract class Particle {
         matrices.pop();
     }
 
-    protected boolean shouldRender() {
+    public boolean shouldRender() {
         Vector3f cam = Client.getInstance().camera.getPos();
         return cam.distanceSquared(pos) < 256;
     }
