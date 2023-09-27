@@ -2,6 +2,7 @@ package mayo.world.entity.collectable;
 
 import mayo.model.ModelManager;
 import mayo.render.Model;
+import mayo.utils.AABB;
 import mayo.utils.Resource;
 import mayo.world.World;
 import mayo.world.entity.Entity;
@@ -26,7 +27,9 @@ public class HealthPack extends Collectable {
         if (Math.random() < SMOKE_CHANCE) {
             SmokeParticle p = new SmokeParticle((int) (Math.random() * 5) + 15, 0xFFDDDDDD);
 
-            Vector3f pos = getAABB().getRandomPoint();
+            AABB aabb = new AABB(getAABB());
+            aabb.inflate(-0.3f, 0, -0.3f);
+            Vector3f pos = aabb.getRandomPoint();
             pos.y = this.getPos(1f).y + this.getDimensions().y;
 
             p.setPos(pos);

@@ -22,6 +22,7 @@ public abstract class Particle {
     }
 
     public void tick() {
+        oPos.set(pos);
         //change pos
         move(motion);
 
@@ -72,7 +73,6 @@ public abstract class Particle {
     }
 
     public void move(float x, float y, float z) {
-        this.oPos.set(pos);
         this.pos.add(x, y, z);
     }
 

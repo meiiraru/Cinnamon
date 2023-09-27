@@ -18,6 +18,7 @@ import mayo.world.entity.living.Enemy;
 import mayo.world.entity.living.Player;
 import mayo.world.items.Item;
 import mayo.world.items.weapons.Firearm;
+import mayo.world.particle.ElectroParticle;
 import mayo.world.particle.LightParticle;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.TerrainObject;
@@ -123,12 +124,15 @@ public class World {
             addEntity(box);
         }
 
-        //every quarter second, spawn a new light particle
-        if (c.ticks % 5 == 0) {
-            LightParticle light = new LightParticle(20, 0xFFFFFFAA);
-            light.setPos(0, 3, 5);
-            light.setMotion(0.15f, 0f, 0f);
+        //every half second, spawn a new light particle
+        if (c.ticks % 10 == 0) {
+            LightParticle light = new LightParticle(60, 0xFFFFFFAA);
+            light.setPos((float) Math.random() - 0.5f, (float) Math.random() * 0.5f + 2.75f, (float) Math.random() - 0.5f + 5f);
             addParticle(light);
+
+            ElectroParticle e = new ElectroParticle(5, 0xFFCCFFFF);
+            e.setPos((float) Math.random() - 0.5f, (float) Math.random() + 0.5f, (float) Math.random() - 0.5f);
+            addParticle(e);
         }
     }
 

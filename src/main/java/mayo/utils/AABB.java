@@ -25,6 +25,15 @@ public class AABB {
         this.maxZ = maxZ;
     }
 
+    public AABB(AABB aabb) {
+        this.minX = aabb.minX;
+        this.minY = aabb.minY;
+        this.minZ = aabb.minZ;
+        this.maxX = aabb.maxX;
+        this.maxY = aabb.maxY;
+        this.maxZ = aabb.maxZ;
+    }
+
     public boolean intersects(AABB other) {
         return maxX >= other.minX && minX <= other.maxX &&
                 maxY >= other.minY && minY <= other.maxY &&
@@ -58,13 +67,21 @@ public class AABB {
         this.inflate(vec.x, vec.y, vec.z);
     }
 
+    public void inflate(float amount) {
+        this.inflate(amount, amount, amount);
+    }
+
     public void inflate(float width, float height, float depth) {
-        minX -= width;
-        minY -= height;
-        minZ -= depth;
-        maxX += width;
-        maxY += height;
-        maxZ += depth;
+        inflate(-width, -height, -depth, width, height, depth);
+    }
+
+    public void inflate(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
+        this.minX += minX;
+        this.minY += minY;
+        this.minZ += minZ;
+        this.maxX += maxX;
+        this.maxY += maxY;
+        this.maxZ += maxZ;
     }
 
     public Vector3f getMin() {
