@@ -25,7 +25,7 @@ public class Enemy extends LivingEntity {
         //todo - lol
         this.move(0, 0, 0.1f);
 
-        Vector3f pos = getWorld().player.getEyePos(1f);
+        Vector3f pos = getWorld().player.getEyePos();
         this.lookAt(pos.x, pos.y, pos.z);
     }
 

@@ -1,5 +1,5 @@
 # Made in Blockbench 4.8.3
-mtllib pole.mtl
+mtllib light_pole.mtl
 
 o cylinder
 v 0.05861388584430807 0 0.21875

@@ -177,8 +177,8 @@ public class Hud {
         Client c = Client.getInstance();
 
         World w = c.world;
-        Vector3f epos = w.player.getPos(1f);
-        Vector2f erot = w.player.getRot(1f);
+        Vector3f epos = w.player.getPos();
+        Vector2f erot = w.player.getRot();
         Vector3f cpos = c.camera.getPos();
         Vector2f crot = c.camera.getRot();
 

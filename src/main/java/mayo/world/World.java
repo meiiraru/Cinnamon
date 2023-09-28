@@ -18,11 +18,8 @@ import mayo.world.entity.living.Enemy;
 import mayo.world.entity.living.Player;
 import mayo.world.items.Item;
 import mayo.world.items.weapons.Firearm;
-import mayo.world.particle.ElectroParticle;
-import mayo.world.particle.LightParticle;
 import mayo.world.particle.Particle;
-import mayo.world.terrain.TerrainObject;
-import mayo.world.terrain.TerrainRegister;
+import mayo.world.terrain.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +29,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class World {
 
     private final Hud hud = new Hud();
-    private final List<TerrainObject> terrainObjects = new ArrayList<>();
+    private final List<Terrain> terrain = new ArrayList<>();
     private final List<Entity> entities = new ArrayList<>();
     private final List<Particle> particles = new ArrayList<>();
 
@@ -54,32 +51,31 @@ public class World {
         Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), Client.getInstance().font);
 
         //temp
-        TerrainObject grass = TerrainRegister.GRASS.create(this);
-        addTerrainObject(grass);
+        Terrain grass = new Grass(this);
+        addTerrain(grass);
 
-        TerrainObject pillar = TerrainRegister.PILLAR.create(this);
-        addTerrainObject(pillar);
+        Terrain pillar = new Pillar(this);
+        addTerrain(pillar);
 
-        TerrainObject teapot = TerrainRegister.TEAPOT.create(this);
+        Terrain teapot = new Teapot(this);
         teapot.setPos(0, pillar.getDimensions().y, 0);
-        addTerrainObject(teapot);
+        addTerrain(teapot);
 
-        TerrainObject torii = TerrainRegister.TORII.create(this);
-        addTerrainObject(torii);
+        Terrain torii = new ToriiGate(this);
+        addTerrain(torii);
 
-        TerrainObject pole = TerrainRegister.POLE.create(this);
+        Terrain pole = new LightPole(this);
         pole.setPos(0, 0, 5);
-        addTerrainObject(pole);
+        addTerrain(pole);
     }
 
     public void tick() {
         if (isPaused)
             return;
 
-        //tick movement
-        this.movement.apply(player);
-        //hud
-        this.hud.tick();
+        //terrain
+        for (Terrain terrain : terrain)
+            terrain.tick();
 
         //entities
         for (Entity entity : entities)
@@ -106,6 +102,12 @@ public class World {
         if (player.isDead())
             c.setScreen(new DeathScreen());
 
+        //tick movement
+        this.movement.apply(player);
+
+        //hud
+        this.hud.tick();
+
         //temp
         //every 3 seconds, spawn a new enemy
         if (c.ticks % 60 == 0) {
@@ -122,17 +124,6 @@ public class World {
             EffectBox box = new EffectBox(this);
             box.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
             addEntity(box);
-        }
-
-        //every half second, spawn a new light particle
-        if (c.ticks % 10 == 0) {
-            LightParticle light = new LightParticle(60, 0xFFFFFFAA);
-            light.setPos((float) Math.random() - 0.5f, (float) Math.random() * 0.5f + 2.75f, (float) Math.random() - 0.5f + 5f);
-            addParticle(light);
-
-            ElectroParticle e = new ElectroParticle(5, 0xFFCCFFFF);
-            e.setPos((float) Math.random() - 0.5f, (float) Math.random() + 0.5f, (float) Math.random() - 0.5f);
-            addParticle(e);
         }
     }
 
@@ -154,8 +145,8 @@ public class World {
         uploadLightUniforms(s);
 
         //render terrain
-        for (TerrainObject object : terrainObjects)
-            object.render(matrices, delta);
+        for (Terrain terrain : terrain)
+            terrain.render(matrices, delta);
 
         //render entities
         for (Entity entity : entities) {
@@ -177,8 +168,8 @@ public class World {
         s.setVec3("lightPos", 0f, 3f, 5f);
     }
 
-    public void addTerrainObject(TerrainObject object) {
-        this.terrainObjects.add(object);
+    public void addTerrain(Terrain terrain) {
+        this.terrain.add(terrain);
     }
 
     public void addEntity(Entity entity) {
@@ -232,7 +223,7 @@ public class World {
     }
 
     public int terrainCount() {
-        return terrainObjects.size();
+        return terrain.size();
     }
 
     public int particleCount() {

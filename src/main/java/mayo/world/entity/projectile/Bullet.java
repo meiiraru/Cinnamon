@@ -29,7 +29,7 @@ public class Bullet extends Projectile {
                 return 0;
             Effect boost = le.getEffect(Effect.Type.DAMAGE_BOOST);
             if (boost != null)
-                return DAMAGE * (boost.getAmplitude() + 1);
+                return DAMAGE + boost.getAmplitude();
         }
 
         return DAMAGE;
@@ -55,7 +55,7 @@ public class Bullet extends Projectile {
     public void confetti() {
         for (int i = 0; i < 20; i++) {
             DustParticle particle = new DustParticle((int) (Math.random() * 40) + 20, Colors.randomRainbow().rgba);
-            particle.setPos(this.getPos(1f));
+            particle.setPos(this.getPos());
             particle.setMotion(Meth.rotToDir((float) Math.random() * 360, (float) Math.random() * 360).mul((float) Math.random() * 0.075f + 0.075f));
             particle.setScale(1.5f);
             world.addParticle(particle);

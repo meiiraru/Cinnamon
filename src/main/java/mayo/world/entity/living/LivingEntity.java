@@ -102,10 +102,10 @@ public abstract class LivingEntity extends Entity {
         if (move.lengthSquared() > 1f)
             move.normalize();
 
-        move.rotateY((float) Math.toRadians(-getRot(1f).y));
+        move.rotateY((float) Math.toRadians(-getRot().y));
 
-        Vector3f pos = getPos(1f).add(move);
-        this.moveTo(pos);
+        Vector3f pos = getPos();
+        this.moveTo(pos.x + move.x, pos.y + move.y, pos.z + move.z);
     }
 
     @Override
@@ -131,7 +131,7 @@ public abstract class LivingEntity extends Entity {
 
     public void damage(int amount, boolean crit) {
         //apply critical
-        amount *= crit ? 2 : 1;
+        amount = (int) (amount * (crit ? 1.5f : 1f));
 
         //damage
         this.health -= amount;

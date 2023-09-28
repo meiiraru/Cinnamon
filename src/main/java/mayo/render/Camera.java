@@ -25,8 +25,6 @@ public class Camera {
             orthoMatrix = new Matrix4f(),
             perspMatrix = new Matrix4f();
 
-    private Entity entity;
-
     public void setup(Entity entity, int mode, float delta) {
         //rotation
         Vector2f rot = entity.getRot(delta);

@@ -20,8 +20,8 @@ public class EffectBox extends Collectable {
             () -> Effect.Type.NEVER_CRIT.create(200),
             () -> Effect.Type.ALWAYS_CRIT.create(300),
             () -> Effect.Type.PACIFIST.create(100),
-            () -> Effect.Type.DAMAGE_BOOST.create(100, 2),
-            () -> Effect.Type.DAMAGE_BOOST.create(150, 1),
+            () -> Effect.Type.DAMAGE_BOOST.create(150, 2),
+            () -> Effect.Type.DAMAGE_BOOST.create(200, 1),
             () -> Effect.Type.HEAL.create(200, 2)
     );
 

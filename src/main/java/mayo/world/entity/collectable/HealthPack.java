@@ -30,7 +30,7 @@ public class HealthPack extends Collectable {
             AABB aabb = new AABB(getAABB());
             aabb.inflate(-0.3f, 0, -0.3f);
             Vector3f pos = aabb.getRandomPoint();
-            pos.y = this.getPos(1f).y + this.getDimensions().y;
+            pos.y = this.getPos().y + this.getDimensions().y;
 
             p.setPos(pos);
             p.setScale(2f);

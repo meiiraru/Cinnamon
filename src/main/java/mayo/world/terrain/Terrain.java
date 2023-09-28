@@ -13,22 +13,24 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TerrainObject {
+public abstract class Terrain {
 
     protected final Model model;
-    protected final World world;
-    protected final Vector3f dimensions = new Vector3f();
-    protected final Vector3f pos = new Vector3f();
+    private final World world;
+    private final Vector3f dimensions = new Vector3f();
+    private final Vector3f pos = new Vector3f();
 
-    protected AABB aabb; //the entire model's AABB
-    protected final List<AABB> groupsAABB = new ArrayList<>(); //group's AABB
+    private AABB aabb; //the entire model's AABB
+    private final List<AABB> groupsAABB = new ArrayList<>(); //group's AABB
 
-    protected TerrainObject(Model model, World world) {
+    public Terrain(Model model, World world) {
         this.model = model;
         this.world = world;
         this.dimensions.set(model.getMesh().getBoundingBox());
         this.updateAABB();
     }
+
+    public void tick() {}
 
     public void render(MatrixStack matrices, float delta) {
         matrices.push();
@@ -92,5 +94,13 @@ public class TerrainObject {
 
     public Vector3f getDimensions() {
         return dimensions;
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    public AABB getAABB() {
+        return aabb;
     }
 }

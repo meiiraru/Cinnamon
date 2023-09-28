@@ -40,6 +40,9 @@ public abstract class Entity {
     public void onAdd() {}
 
     public void tick() {
+        this.oPos.set(pos);
+        this.oRot.set(rot);
+
         for (Entity entity : world.getEntities(getAABB()))
             if (entity != this && !entity.isRemoved())
                 collide(entity);
@@ -93,7 +96,7 @@ public abstract class Entity {
             GeometryHelper.pushCube(VertexConsumer.LINES, matrices, min.x, min.y, min.z, max.x, max.y, max.z, -1);
 
             //eye pos
-            Vector3f eye = getEyePos(1f);
+            Vector3f eye = getEyePos();
             if (this instanceof LivingEntity) {
                 float f = 0.01f;
                 GeometryHelper.pushCube(VertexConsumer.LINES, matrices, min.x, eye.y - f, min.z, max.x, eye.y + f, max.z, 0xFFFF0000);
@@ -137,19 +140,17 @@ public abstract class Entity {
     }
 
     public void moveTo(float x, float y, float z) {
-        this.oPos.set(pos);
         this.pos.set(x, y, z);
         this.updateAABB();
     }
 
     public void rotate(float pitch, float yaw) {
-        this.oRot.set(rot);
         this.rot.set(pitch, yaw);
     }
 
     public void lookAt(float x, float y, float z) {
         //get difference
-        Vector3f v = new Vector3f(x, y, z).sub(getEyePos(1f));
+        Vector3f v = new Vector3f(x, y, z).sub(getEyePos());
         v.normalize();
 
         //set rot
@@ -171,6 +172,10 @@ public abstract class Entity {
         return Meth.lerp(oPos, pos, delta);
     }
 
+    public Vector3f getPos() {
+        return pos;
+    }
+
     public void setPos(Vector3f pos) {
         this.setPos(pos.x, pos.y, pos.z);
     }
@@ -182,6 +187,10 @@ public abstract class Entity {
 
     public Vector2f getRot(float delta) {
         return Meth.lerp(oRot, rot, delta);
+    }
+
+    public Vector2f getRot() {
+        return rot;
     }
 
     public void setRot(Vector2f rot) {
@@ -198,6 +207,10 @@ public abstract class Entity {
 
     public Vector3f getEyePos(float delta) {
         return getPos(delta).add(0, getEyeHeight(), 0);
+    }
+
+    public Vector3f getEyePos() {
+        return new Vector3f(pos.x, pos.y + getEyeHeight(), pos.z);
     }
 
     public Vector3f getDimensions() {
