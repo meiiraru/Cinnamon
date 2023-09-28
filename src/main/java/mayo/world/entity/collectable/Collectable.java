@@ -36,7 +36,7 @@ public abstract class Collectable extends Entity {
     @Override
     protected void updateAABB() {
         super.updateAABB();
-        this.getAABB().inflate(-0.25f, 0f, -0.25f, 0.25f, 0.5f, 0.25f);
+        this.aabb.inflate(-0.25f, 0f, -0.25f, 0.25f, 0.5f, 0.25f);
     }
 
     protected abstract boolean onPickUp(Entity entity);

@@ -1,12 +1,14 @@
 package mayo.world.items;
 
+import mayo.render.Model;
+
 public abstract class CooldownItem extends Item {
 
     private final int depleatCooldown, useCooldown;
     private int depleat, use;
 
-    public CooldownItem(String id, int stackCount, int depleatCooldown, int useCooldown) {
-        super(id, stackCount);
+    public CooldownItem(String id, int stackCount, Model model, int depleatCooldown, int useCooldown) {
+        super(id, stackCount, model);
         this.depleatCooldown = depleatCooldown;
         this.useCooldown = useCooldown;
     }

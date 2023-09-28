@@ -18,15 +18,15 @@ public abstract class Entity {
 
     protected final Model model;
     protected final World world;
-    private final Vector3f dimensions = new Vector3f();
-    private final Vector3f
+    protected final Vector3f dimensions = new Vector3f();
+    protected final Vector3f
             oPos = new Vector3f(),
             pos = new Vector3f();
-    private final Vector2f
+    protected final Vector2f
             oRot = new Vector2f(),
             rot = new Vector2f();
 
-    private AABB aabb;
+    protected AABB aabb;
 
     protected boolean removed;
 
@@ -40,10 +40,9 @@ public abstract class Entity {
     public void onAdd() {}
 
     public void tick() {
-        this.oPos.set(pos);
-        this.oRot.set(rot);
+        tickPhysics();
 
-        for (Entity entity : world.getEntities(getAABB()))
+        for (Entity entity : world.getEntities(aabb))
             if (entity != this && !entity.isRemoved())
                 collide(entity);
     }
@@ -67,6 +66,11 @@ public abstract class Entity {
         renderDebugHitbox(matrices, delta);
     }
 
+    protected void tickPhysics() {
+        this.oPos.set(pos);
+        this.oRot.set(rot);
+    }
+
     protected void renderModel(MatrixStack matrices, float delta) {
         matrices.push();
 
@@ -78,8 +82,13 @@ public abstract class Entity {
         Shader.activeShader.setMatrixStack(matrices);
         model.render();
 
+        //render features
+        renderFeatures(matrices, delta);
+
         matrices.pop();
     }
+
+    protected void renderFeatures(MatrixStack matrices, float delta) {}
 
     protected void renderTexts(MatrixStack matrices, float delta) {}
 
@@ -142,6 +151,10 @@ public abstract class Entity {
     public void moveTo(float x, float y, float z) {
         this.pos.set(x, y, z);
         this.updateAABB();
+    }
+
+    public void rotate(Vector2f rot) {
+        this.rotate(rot.x, rot.y);
     }
 
     public void rotate(float pitch, float yaw) {

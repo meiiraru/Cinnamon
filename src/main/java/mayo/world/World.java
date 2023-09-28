@@ -11,15 +11,19 @@ import mayo.render.shader.Shaders;
 import mayo.text.Text;
 import mayo.utils.AABB;
 import mayo.utils.ColorUtils;
+import mayo.utils.Rotation;
 import mayo.world.entity.Entity;
 import mayo.world.entity.collectable.EffectBox;
 import mayo.world.entity.collectable.HealthPack;
 import mayo.world.entity.living.Enemy;
 import mayo.world.entity.living.Player;
 import mayo.world.items.Item;
+import mayo.world.items.weapons.CoilGun;
 import mayo.world.items.weapons.Firearm;
+import mayo.world.items.weapons.PotatoCannon;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.*;
+import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +44,8 @@ public class World {
 
     private boolean debugRendering;
     private boolean isPaused;
+
+    public final float gravity = -0.98f * 0.03f;
 
     public void init() {
         //init hud
@@ -161,6 +167,31 @@ public class World {
             particle.render(matrices, delta);
     }
 
+    public void renderHand(MatrixStack matrices, float delta) {
+        Item item = player.getHoldingItem();
+        if (item == null)
+            return;
+
+        Client c = Client.getInstance();
+
+        //set shader
+        Shader s = Shaders.MODEL.getShader().use();
+
+        s.setProjectionMatrix(c.camera.getPerspectiveMatrix());
+        s.setViewMatrix(new Matrix4f());
+
+        //render model
+        matrices.push();
+
+        matrices.scale(-1, 1, -1);
+        matrices.translate(-0.75f, -0.5f, 1f);
+        matrices.rotate(Rotation.Y.rotationDeg(170));
+
+        item.render(matrices, delta);
+
+        matrices.pop();
+    }
+
     public void renderHUD(MatrixStack matrices, float delta) {
         hud.render(matrices, delta);
     }
@@ -256,7 +287,8 @@ public class World {
     public void respawn() {
         entities.clear();
         player = new Player(this);
-        player.setHoldingItem(new Firearm("The Gun", 18, 40, 5));
+        player.setHoldingItem(new CoilGun(1, 5, 0));
+        player.setHoldingItem(new PotatoCannon(3, 40, 40));
         player.setPos(0, 0, 2);
         addEntity(player);
     }

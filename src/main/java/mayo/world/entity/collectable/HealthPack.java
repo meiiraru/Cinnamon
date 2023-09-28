@@ -27,10 +27,10 @@ public class HealthPack extends Collectable {
         if (Math.random() < SMOKE_CHANCE) {
             SmokeParticle p = new SmokeParticle((int) (Math.random() * 5) + 15, 0xFFDDDDDD);
 
-            AABB aabb = new AABB(getAABB());
+            AABB aabb = new AABB(this.aabb);
             aabb.inflate(-0.3f, 0, -0.3f);
             Vector3f pos = aabb.getRandomPoint();
-            pos.y = this.getPos().y + this.getDimensions().y;
+            pos.y = this.pos.y + this.dimensions.y;
 
             p.setPos(pos);
             p.setScale(2f);

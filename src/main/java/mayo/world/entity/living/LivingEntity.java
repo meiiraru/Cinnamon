@@ -69,6 +69,25 @@ public abstract class LivingEntity extends Entity {
         Shader.activeShader.setMatrixStack(matrices);
         model.render();
 
+        //render features
+        renderFeatures(matrices, delta);
+
+        matrices.pop();
+    }
+
+    @Override
+    protected void renderFeatures(MatrixStack matrices, float delta) {
+        //holding item
+        Item item = getHoldingItem();
+        if (item == null)
+            return;
+
+        matrices.push();
+        matrices.translate(dimensions.x * 0.5f + 0.1f, getEyeHeight() - 0.25f, -0.25f);
+        matrices.scale(0.75f);
+
+        item.render(matrices, delta);
+
         matrices.pop();
     }
 
@@ -80,7 +99,7 @@ public abstract class LivingEntity extends Entity {
 
         Text text = Text.of(getHealth() + " ").withStyle(Style.EMPTY.outlined(true)).append(Text.of("\u2795").withStyle(Style.EMPTY.color(Colors.RED)));
 
-        matrices.translate(0f, getDimensions().y + 0.15f, 0f);
+        matrices.translate(0f, dimensions.y + 0.15f, 0f);
         c.camera.billboard(matrices);
         matrices.scale(-s);
         matrices.translate(0f, -TextUtils.getHeight(text, c.font), 0f);
@@ -102,9 +121,8 @@ public abstract class LivingEntity extends Entity {
         if (move.lengthSquared() > 1f)
             move.normalize();
 
-        move.rotateY((float) Math.toRadians(-getRot().y));
+        move.rotateY((float) Math.toRadians(-rot.y));
 
-        Vector3f pos = getPos();
         this.moveTo(pos.x + move.x, pos.y + move.y, pos.z + move.z);
     }
 
@@ -149,7 +167,7 @@ public abstract class LivingEntity extends Entity {
     protected void spawnDeathParticles() {
         for (int i = 0; i < 20; i++) {
             CloudParticle particle = new CloudParticle((int) (Math.random() * 15) + 10, -1);
-            particle.setPos(getAABB().getRandomPoint());
+            particle.setPos(aabb.getRandomPoint());
             world.addParticle(particle);
         }
     }
@@ -178,7 +196,7 @@ public abstract class LivingEntity extends Entity {
             text += " \u2728";
 
         //spawn particle
-        world.addParticle(new TextParticle(Text.of(text).withStyle(Style.EMPTY.color(color).outlined(true)), 20, getAABB().getRandomPoint()));
+        world.addParticle(new TextParticle(Text.of(text).withStyle(Style.EMPTY.color(color).outlined(true)), 20, aabb.getRandomPoint()));
     }
 
     public void attack() {
