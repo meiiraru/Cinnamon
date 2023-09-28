@@ -18,13 +18,14 @@ public abstract class CooldownItem extends Item {
             depleat--;
             if (!isOnCooldown())
                 onCooldownEnd();
-        }
-
-        if (!canUse())
+        } else if (!canUse()) {
             use--;
+        }
     }
 
-    public void onCooldownEnd() {}
+    public void onCooldownEnd() {
+        use = 0;
+    }
 
     public int getCooldown() {
         return depleat;

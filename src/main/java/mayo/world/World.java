@@ -36,6 +36,7 @@ public class World {
     private final Movement movement = new Movement();
     public Player player;
     private int cameraMode = 0;
+    private boolean attackPress, usePress;
 
     private boolean debugRendering;
     private boolean isPaused;
@@ -102,8 +103,9 @@ public class World {
         if (player.isDead())
             c.setScreen(new DeathScreen());
 
-        //tick movement
+        //process input
         this.movement.apply(player);
+        processMouseInput();
 
         //hud
         this.hud.tick();
@@ -183,13 +185,21 @@ public class World {
     }
 
     public void mousePress(int button, int action, int mods) {
-        if (action != GLFW_PRESS)
-            return;
+        boolean press = action == GLFW_PRESS;
 
         switch (button) {
-            case GLFW_MOUSE_BUTTON_1 -> player.attack();
-            case GLFW_MOUSE_BUTTON_2 -> player.use();
+            case GLFW_MOUSE_BUTTON_1 -> attackPress = press;
+            case GLFW_MOUSE_BUTTON_2 -> usePress = press;
         }
+
+        processMouseInput();
+    }
+
+    private void processMouseInput() {
+        if (attackPress)
+            player.attack();
+        if (usePress)
+            player.use();
     }
 
     public void mouseMove(double x, double y) {
@@ -246,7 +256,7 @@ public class World {
     public void respawn() {
         entities.clear();
         player = new Player(this);
-        player.setHoldingItem(new Firearm("The Gun", 16, 20, 3));
+        player.setHoldingItem(new Firearm("The Gun", 18, 40, 5));
         player.setPos(0, 0, 2);
         addEntity(player);
     }

@@ -16,7 +16,7 @@ public class Firearm extends CooldownItem {
     public void attack(Entity source) {
         super.attack(source);
 
-        if (isOnCooldown())
+        if (isOnCooldown() || !canUse())
             return;
 
         if (!shoot(source))
@@ -38,9 +38,6 @@ public class Firearm extends CooldownItem {
         if (count <= 0)
             return false;
 
-        if (!canUse())
-            return true;
-
         setUseCooldown();
 
         //spawn new bullet
@@ -54,7 +51,7 @@ public class Firearm extends CooldownItem {
 
         //use ammo
         count--;
-        return count > 0;
+        return true;
     }
 
     private void reload() {

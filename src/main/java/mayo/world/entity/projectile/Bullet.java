@@ -16,7 +16,7 @@ public class Bullet extends Projectile {
     public static final Model MODEL = ModelManager.load(new Resource("models/entities/bullet/bullet.obj"));
     public static final int DAMAGE = 3;
     public static final int LIFETIME = 30;
-    public static final float SPEED = 0.5f;
+    public static final float SPEED = 0.75f;
     public static final float CRIT_CHANCE = 0.15f;
 
     public Bullet(World world, Entity owner) {
