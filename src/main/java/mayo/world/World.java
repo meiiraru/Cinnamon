@@ -32,7 +32,9 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class World {
 
-    private final Hud hud = new Hud();
+    public final Hud hud = new Hud();
+    private final List<Runnable> scheduledTicks = new ArrayList<>();
+
     private final List<Terrain> terrain = new ArrayList<>();
     private final List<Entity> entities = new ArrayList<>();
     private final List<Particle> particles = new ArrayList<>();
@@ -80,6 +82,11 @@ public class World {
         if (isPaused)
             return;
 
+        //run scheduled ticks
+        for (Runnable tick : scheduledTicks)
+            tick.run();
+        scheduledTicks.clear();
+
         //terrain
         for (Terrain terrain : terrain)
             terrain.tick();
@@ -121,6 +128,7 @@ public class World {
         if (c.ticks % 60 == 0) {
             Enemy enemy = new Enemy(this);
             enemy.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
+            //enemy.pickItem(new CoilGun(1, 20, 0));
             addEntity(enemy);
         }
 
@@ -189,27 +197,25 @@ public class World {
         matrices.pop();
     }
 
-    public void renderHUD(MatrixStack matrices, float delta) {
-        hud.render(matrices, delta);
-    }
-
     public void uploadLightUniforms(Shader s) {
         s.setVec3("ambientLight", ColorUtils.intToRGB(0x050511));
         s.setVec3("lightPos", 0f, 3f, 5f);
     }
 
     public void addTerrain(Terrain terrain) {
-        this.terrain.add(terrain);
+        scheduledTicks.add(() -> this.terrain.add(terrain));
     }
 
     public void addEntity(Entity entity) {
-        this.entities.add(entity);
-        entity.onAdd();
+        scheduledTicks.add(() -> {
+            this.entities.add(entity);
+            entity.onAdd();
+        });
     }
 
     public void addParticle(Particle particle) {
         if (particle.shouldRender())
-            this.particles.add(particle);
+            scheduledTicks.add(() -> this.particles.add(particle));
     }
 
     public void mousePress(int button, int action, int mods) {
@@ -284,6 +290,15 @@ public class World {
         for (Entity entity : entities) {
             if (region.intersects(entity.getAABB()))
                 list.add(entity);
+        }
+        return list;
+    }
+
+    public List<Terrain> getTerrain(AABB region) {
+        List<Terrain> list = new ArrayList<>();
+        for (Terrain terrain : this.terrain) {
+            if (region.intersects(terrain.getAABB()))
+                list.add(terrain);
         }
         return list;
     }

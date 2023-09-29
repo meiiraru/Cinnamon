@@ -77,6 +77,8 @@ public abstract class LivingEntity extends Entity {
         matrices.translate(dimensions.x * 0.5f + 0.1f, getEyeHeight() - 0.25f, -0.25f);
         matrices.scale(0.75f);
 
+        matrices.peek().normal().rotate(Rotation.Y.rotationDeg(-rot.y * 2f));
+
         item.render(matrices, delta);
 
         matrices.pop();

@@ -78,7 +78,7 @@ public class Client {
 
             //render hud
             glClear(GL_DEPTH_BUFFER_BIT); //top of hand
-            world.renderHUD(matrices, delta);
+            world.hud.render(matrices, delta);
             VertexConsumer.finishAllBatches(camera.getOrthographicMatrix(), new Matrix4f());
         }
 

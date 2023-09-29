@@ -3,7 +3,6 @@ package mayo.world.entity.living;
 import mayo.model.LivingEntityModels;
 import mayo.world.World;
 import mayo.world.entity.Entity;
-import org.joml.Vector3f;
 
 public class Enemy extends LivingEntity {
 
@@ -26,6 +25,7 @@ public class Enemy extends LivingEntity {
         //todo - lol
         this.move(0, 0, 0.1f);
         this.lookAt(getWorld().player.getEyePos());
+        //this.attack();
     }
 
     @Override

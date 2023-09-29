@@ -8,13 +8,12 @@ import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
 import mayo.world.entity.living.Player;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
 public class EffectBox extends Collectable {
 
-    private static final Model MODEL = ModelManager.load(new Resource("models/entities/mystery_box/mystery_box.obj"));
+    private static final Model MODEL = ModelManager.load(new Resource("models/entities/milkshake/milkshake.obj"));
 
     private static final List<Supplier<Effect>> EFFECT_LIST = List.of(
             () -> Effect.Type.NEVER_CRIT.create(200),
