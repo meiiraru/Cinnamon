@@ -66,8 +66,12 @@ public class Meth {
     }
 
     public static Vector2f dirToRot(Vector3f dir) {
-        float pitch = (float) Math.toDegrees(Math.asin(-dir.y));
-        float yaw = (float) Math.toDegrees(Math.atan2(dir.z, dir.x));
+        return dirToRot(dir.x, dir.y, dir.z);
+    }
+
+    public static Vector2f dirToRot(float x, float y, float z) {
+        float pitch = (float) Math.toDegrees(Math.asin(-y));
+        float yaw = (float) Math.toDegrees(Math.atan2(z, x));
         return new Vector2f(pitch, yaw + 90f);
     }
 

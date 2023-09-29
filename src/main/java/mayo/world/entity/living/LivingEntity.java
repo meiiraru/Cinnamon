@@ -5,7 +5,6 @@ import mayo.model.LivingEntityModels;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;
-import mayo.render.shader.Shader;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.Colors;
@@ -48,6 +47,8 @@ public abstract class LivingEntity extends Entity {
     public void tick() {
         super.tick();
 
+        inventory.tick();
+
         for (Effect effect : activeEffects.values())
             effect.tick();
         activeEffects.entrySet().removeIf(entry -> entry.getValue().isDone());
@@ -61,20 +62,8 @@ public abstract class LivingEntity extends Entity {
     }
 
     @Override
-    protected void renderModel(MatrixStack matrices, float delta) {
-        matrices.push();
-
-        //apply rot
+    protected void applyModelPose(MatrixStack matrices, float delta) {
         matrices.rotate(Rotation.Y.rotationDeg(-getRot(delta).y));
-
-        //render model
-        Shader.activeShader.setMatrixStack(matrices);
-        model.render();
-
-        //render features
-        renderFeatures(matrices, delta);
-
-        matrices.pop();
     }
 
     @Override

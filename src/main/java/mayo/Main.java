@@ -90,7 +90,7 @@ public class Main {
 
         //flags
         glClearColor(0.39f, 0.76f, 0.91f, 1f);
-        glEnable(GL_CULL_FACE);
+        //glEnable(GL_CULL_FACE);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

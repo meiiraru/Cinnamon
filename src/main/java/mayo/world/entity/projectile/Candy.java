@@ -17,4 +17,10 @@ public class Candy extends Projectile {
     public Candy(World world, Entity owner) {
         super(MODEL, world, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
     }
+
+    @Override
+    public void tick() {
+        super.tick();
+        this.rotate(0, rot.y + 20);
+    }
 }

@@ -74,12 +74,6 @@ public abstract class Projectile extends PhysEntity {
     }
 
     @Override
-    protected void tickPhysics() {
-        super.tickPhysics();
-        this.rotate(Meth.dirToRot(velocity.normalize(new Vector3f())));
-    }
-
-    @Override
     protected void collide(Entity entity) {
         super.collide(entity);
 

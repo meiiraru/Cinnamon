@@ -2,9 +2,11 @@ package mayo.world.entity.projectile;
 
 import mayo.model.ModelManager;
 import mayo.render.Model;
+import mayo.utils.Meth;
 import mayo.utils.Resource;
 import mayo.world.World;
 import mayo.world.entity.Entity;
+import org.joml.Vector3f;
 
 public class Potato extends Projectile {
 
@@ -16,6 +18,17 @@ public class Potato extends Projectile {
 
     public Potato(World world, Entity owner) {
         super(MODEL, world, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        Vector3f vec = new Vector3f(velocity);
+        if (vec.lengthSquared() > 0f)
+            vec.normalize();
+
+        this.rotate(Meth.dirToRot(vec));
     }
 
     @Override

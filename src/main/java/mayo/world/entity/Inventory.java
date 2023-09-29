@@ -13,6 +13,13 @@ public class Inventory {
         this.items = new Item[slots];
     }
 
+    public void tick() {
+        for (Item item : items) {
+            if (item != null)
+                item.tick();
+        }
+    }
+
     public boolean putItem(Item item) {
         int i = getFreeIndex();
         if (i == -1)

@@ -19,11 +19,9 @@ public abstract class Collectable extends Entity {
     }
 
     @Override
-    protected void renderModel(MatrixStack matrices, float delta) {
-        matrices.push();
+    protected void applyModelPose(MatrixStack matrices, float delta) {
         matrices.translate(0, ((float) Math.sin((Client.getInstance().ticks + delta) * 0.05f) + 1) * 0.15f, 0);
-        super.renderModel(matrices, delta);
-        matrices.pop();
+        super.applyModelPose(matrices, delta);
     }
 
     @Override
@@ -36,7 +34,7 @@ public abstract class Collectable extends Entity {
     @Override
     protected void updateAABB() {
         super.updateAABB();
-        this.aabb.inflate(-0.25f, 0f, -0.25f, 0.25f, 0.5f, 0.25f);
+        this.aabb.inflate(0.25f, 0f, 0.25f, 0.25f, 0.5f, 0.25f);
     }
 
     protected abstract boolean onPickUp(Entity entity);

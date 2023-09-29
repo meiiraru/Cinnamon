@@ -17,21 +17,24 @@ public class AABB {
     }
 
     public AABB(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
+        this.set(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
+    public AABB(AABB aabb) {
+        this.set(aabb);
+    }
+
+    public void set(AABB aabb) {
+        this.set(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
+    }
+
+    public void set(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
         this.minX = minX;
         this.minY = minY;
         this.minZ = minZ;
         this.maxX = maxX;
         this.maxY = maxY;
         this.maxZ = maxZ;
-    }
-
-    public AABB(AABB aabb) {
-        this.minX = aabb.minX;
-        this.minY = aabb.minY;
-        this.minZ = aabb.minZ;
-        this.maxX = aabb.maxX;
-        this.maxY = aabb.maxY;
-        this.maxZ = aabb.maxZ;
     }
 
     public boolean intersects(AABB other) {
@@ -72,13 +75,13 @@ public class AABB {
     }
 
     public void inflate(float width, float height, float depth) {
-        inflate(-width, -height, -depth, width, height, depth);
+        inflate(width, height, depth, width, height, depth);
     }
 
     public void inflate(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
-        this.minX += minX;
-        this.minY += minY;
-        this.minZ += minZ;
+        this.minX -= minX;
+        this.minY -= minY;
+        this.minZ -= minZ;
         this.maxX += maxX;
         this.maxY += maxY;
         this.maxZ += maxZ;

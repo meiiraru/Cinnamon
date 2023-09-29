@@ -47,14 +47,14 @@ public abstract class Firearm extends CooldownItem {
         World world = entity.getWorld();
         Projectile projectile = newProjectile(world, entity);
 
-        projectile.setPos(entity.getEyePos());
+        projectile.setPos(entity.getEyePos().add(entity.getLookDir().mul(0.5f)));
         projectile.setRot(entity.getRot());
 
         world.addEntity(projectile);
 
         //use ammo
         count--;
-        return true;
+        return count > 0;
     }
 
     private void reload() {

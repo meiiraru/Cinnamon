@@ -1,7 +1,6 @@
 package mayo.world.entity;
 
 import mayo.render.Model;
-import mayo.utils.Meth;
 import mayo.world.World;
 import org.joml.Vector3f;
 
@@ -39,7 +38,7 @@ public abstract class PhysEntity extends Entity {
         vec.rotateX((float) Math.toRadians(-rot.x));
         vec.rotateY((float) Math.toRadians(-rot.y));
 
-        setAcceleration(vec);
+        this.acceleration.add(vec);
     }
 
     public void setAcceleration(Vector3f vec) {

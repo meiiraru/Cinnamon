@@ -75,8 +75,7 @@ public abstract class Entity {
         matrices.push();
 
         //apply rot
-        matrices.rotate(Rotation.Y.rotationDeg(-Meth.lerp(oRot.y, rot.y, delta)));
-        matrices.rotate(Rotation.X.rotationDeg(-Meth.lerp(oRot.x, rot.x, delta)));
+        applyModelPose(matrices, delta);
 
         //render model
         Shader.activeShader.setMatrixStack(matrices);
@@ -86,6 +85,12 @@ public abstract class Entity {
         renderFeatures(matrices, delta);
 
         matrices.pop();
+    }
+
+    protected void applyModelPose(MatrixStack matrices, float delta) {
+        Vector2f rot = getRot(delta);
+        matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
+        matrices.rotate(Rotation.X.rotationDeg(-rot.x));
     }
 
     protected void renderFeatures(MatrixStack matrices, float delta) {}
@@ -161,6 +166,10 @@ public abstract class Entity {
         this.rot.set(pitch, yaw);
     }
 
+    public void lookAt(Vector3f pos) {
+        this.lookAt(pos.x, pos.y, pos.z);
+    }
+
     public void lookAt(float x, float y, float z) {
         //get difference
         Vector3f v = new Vector3f(x, y, z).sub(getEyePos());
@@ -171,11 +180,14 @@ public abstract class Entity {
     }
 
     protected void updateAABB() {
-        Vector3f dim = new Vector3f(dimensions).mul(0.5f, 1f, 0.5f);
-        float widthAndDepth = Math.max(dim.x, dim.z);
+        Vector3f min = this.model.getMesh().getBBMin();
+        Vector3f max = this.model.getMesh().getBBMax();
+
+        float xz = Math.max(dimensions.x, dimensions.z) * 0.5f;
+
         this.aabb = new AABB(
-                pos.x - widthAndDepth, pos.y, pos.z - widthAndDepth,
-                pos.x + widthAndDepth, pos.y + dim.y, pos.z + widthAndDepth
+                pos.x - xz, pos.y + min.y, pos.z - xz,
+                pos.x + xz, pos.y + max.y, pos.z + xz
         );
     }
 
