@@ -170,7 +170,10 @@ public class Client {
     }
 
     public void scroll(double x, double y) {
-        if (screen != null) screen.scroll(x, y);
+        if (screen != null)
+            screen.scroll(x, y);
+        else if (world != null)
+            world.scroll(x, y);
     }
 
     public void windowMove(int x, int y) {

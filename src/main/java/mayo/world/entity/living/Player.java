@@ -7,11 +7,12 @@ public class Player extends LivingEntity {
 
     private static final int MAX_HEALTH = 100;
     private static final int INVULNERABILITY_TIME = 10;
+    private static final int INVENTORY_SIZE = 9;
 
     private int invulnerability = 0;
 
     public Player(World world) {
-        super(LivingEntityModels.STRAWBERRY, world, MAX_HEALTH);
+        super(LivingEntityModels.STRAWBERRY, world, MAX_HEALTH, INVENTORY_SIZE);
     }
 
     @Override

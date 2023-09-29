@@ -9,13 +9,14 @@ public class Enemy extends LivingEntity {
 
     private static final int MAX_HEALTH = 20;
     private static final int MELEE_DAMAGE = 5;
+    private static final int INVENTORY_SIZE = 1;
 
     public Enemy(World world) {
         this(world, LivingEntityModels.random());
     }
 
     private Enemy(World world, LivingEntityModels entityModel) {
-        super(entityModel, world, MAX_HEALTH);
+        super(entityModel, world, MAX_HEALTH, INVENTORY_SIZE);
     }
 
     @Override

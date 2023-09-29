@@ -172,12 +172,9 @@ public class World {
         if (item == null)
             return;
 
-        Client c = Client.getInstance();
-
         //set shader
         Shader s = Shaders.MODEL.getShader().use();
-
-        s.setProjectionMatrix(c.camera.getPerspectiveMatrix());
+        s.setProjectionMatrix(Client.getInstance().camera.getPerspectiveMatrix());
         s.setViewMatrix(new Matrix4f());
 
         //render model
@@ -238,6 +235,14 @@ public class World {
             movement.mouseMove(x, y);
     }
 
+    public void scroll(double x, double y) {
+        double dir = Math.signum(y);
+        if (dir > 0)
+            player.getInventory().selectPrev();
+        else if (dir < 0)
+            player.getInventory().selectNext();
+    }
+
     public void keyPress(int key, int scancode, int action, int mods) {
         if (isPaused)
             return;
@@ -246,6 +251,9 @@ public class World {
 
         if (action != GLFW_PRESS)
             return;
+
+        if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9)
+            player.getInventory().setSelectedIndex(key - GLFW_KEY_1);
 
         switch (key) {
             case GLFW_KEY_R -> {
@@ -287,8 +295,8 @@ public class World {
     public void respawn() {
         entities.clear();
         player = new Player(this);
-        player.setHoldingItem(new CoilGun(1, 5, 0));
-        player.setHoldingItem(new PotatoCannon(3, 40, 40));
+        player.pickItem(new PotatoCannon(3, 40, 30));
+        player.pickItem(new CoilGun(1, 5, 0));
         player.setPos(0, 0, 2);
         addEntity(player);
     }

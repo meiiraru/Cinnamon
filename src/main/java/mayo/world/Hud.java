@@ -8,13 +8,17 @@ import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
+import mayo.render.shader.Shader;
+import mayo.render.shader.Shaders;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.*;
 import mayo.world.effects.Effect;
+import mayo.world.entity.Inventory;
 import mayo.world.entity.living.Player;
 import mayo.world.items.CooldownItem;
 import mayo.world.items.Item;
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -22,7 +26,8 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Hud {
 
-    private final Texture CROSSHAIR = Texture.of(new Resource("textures/crosshair.png"));
+    private final Texture CROSSHAIR = Texture.of(new Resource("textures/gui/crosshair.png"));
+    private final Texture HOTBAR = Texture.of(new Resource("textures/gui/hotbar.png"));
 
     private ProgressBar health, itemCooldown;
 
@@ -64,6 +69,12 @@ public class Hud {
 
         //draw item stats
         drawItemStats(matrices, player.getHoldingItem(), delta);
+
+        //effects
+        drawEffects(matrices, player, delta);
+
+        //hotbar
+        drawHotbar(matrices, player, delta);
     }
 
     private void drawHealth(MatrixStack matrices, Player player, float delta) {
@@ -92,42 +103,6 @@ public class Hud {
 
         matrices.pop();
         matrices.pop();
-
-        //transform matrices
-        matrices.push();
-        matrices.translate(window.scaledWidth - 12, 12, 0f);
-
-        //effects
-        renderEffects(matrices, player);
-
-        matrices.pop();
-    }
-
-    private void renderEffects(MatrixStack matrices, Player player) {
-        Font font = Client.getInstance().font;
-        Text text = Text.empty().withStyle(Style.EMPTY.outlined(true));
-
-        for (Effect effect : player.getActiveEffects()) {
-            //name
-            text.append(effect.getType().name());
-
-            //amplitude
-            int amplitude = effect.getAmplitude();
-            if (amplitude != 1)
-                text.append(" " + amplitude);
-
-            //divider
-            text.append(" - ");
-
-            //remaining time
-            text.append(Text.of(((effect.getRemainingTime()) / 20) + "").withStyle(Style.EMPTY.color(Colors.RED)));
-
-            text.append("\n");
-        }
-
-        //render
-        if (!text.asString().equals("\n"))
-            font.render(VertexConsumer.FONT, matrices, 0f, 0f, text, TextUtils.Alignment.RIGHT);
     }
 
     private void drawItemStats(MatrixStack matrices, Item item, float delta) {
@@ -171,6 +146,82 @@ public class Hud {
 
         matrices.pop();
         matrices.pop();
+    }
+
+    private void drawEffects(MatrixStack matrices, Player player, float delta) {
+        //transform matrices
+        matrices.push();
+        matrices.translate(Client.getInstance().window.scaledWidth - 12, 12, 0f);
+
+        Font font = Client.getInstance().font;
+        Text text = Text.empty().withStyle(Style.EMPTY.outlined(true));
+
+        for (Effect effect : player.getActiveEffects()) {
+            //name
+            text.append(effect.getType().name());
+
+            //amplitude
+            int amplitude = effect.getAmplitude();
+            if (amplitude != 1)
+                text.append(" " + amplitude);
+
+            //divider
+            text.append(" - ");
+
+            //remaining time
+            text.append(Text.of(((effect.getRemainingTime()) / 20) + "").withStyle(Style.EMPTY.color(Colors.RED)));
+
+            text.append("\n");
+        }
+
+        //render
+        if (!text.asString().equals("\n"))
+            font.render(VertexConsumer.FONT, matrices, 0f, 0f, text, TextUtils.Alignment.RIGHT);
+
+        matrices.pop();
+    }
+
+    private void drawHotbar(MatrixStack matrices, Player player, float delta) {
+        //set shader
+        Shader sh = Shaders.MODEL.getShader().use();
+        sh.setProjectionMatrix(Client.getInstance().camera.getOrthographicMatrix());
+        sh.setViewMatrix(new Matrix4f());
+
+        //prepare variables
+        Window window = Client.getInstance().window;
+        Inventory inventory = player.getInventory();
+        int count = inventory.getSize();
+        int selected = inventory.getSelectedIndex();
+
+        float x = (window.scaledWidth - 16 * count) / 2f;
+        float y = window.scaledHeight - 16 - 4f;
+
+        //render items
+        for (int i = 0; i < count; i++, x += 16) {
+            //render slot
+            VertexConsumer.GUI.consume(GeometryHelper.quad(
+                            matrices,
+                            x, y, 16, 16,
+                            i == selected ? 16f : 0f, 0f,
+                            16, 16,
+                            32, 16
+                    ), HOTBAR.getID()
+            );
+
+            //render item model
+            Item item = inventory.getItem(i);
+            if (item != null) {
+                matrices.push();
+                matrices.translate(x + 8, y + 8, 500);
+                matrices.rotate(Rotation.Y.rotationDeg(-90));
+                matrices.rotate(Rotation.X.rotationDeg(35));
+                matrices.scale(-8);
+
+                item.render(matrices, delta);
+
+                matrices.pop();
+            }
+        }
     }
 
     private static String debugLeftText() {

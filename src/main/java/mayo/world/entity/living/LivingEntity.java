@@ -14,6 +14,7 @@ import mayo.utils.TextUtils;
 import mayo.world.World;
 import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
+import mayo.world.entity.Inventory;
 import mayo.world.items.Item;
 import mayo.world.particle.CloudParticle;
 import mayo.world.particle.TextParticle;
@@ -27,19 +28,20 @@ public abstract class LivingEntity extends Entity {
 
     private final Map<Effect.Type, Effect> activeEffects = new HashMap<>();
     private final float eyeHeight;
+    private final Inventory inventory;
 
-    private Item holdingItem;
     private int health;
     private int maxHealth;
 
-    public LivingEntity(Model model, World world, int maxHealth, float eyeHeight) {
+    public LivingEntity(Model model, World world, int maxHealth, float eyeHeight, int inventorySize) {
         super(model, world);
         this.health = this.maxHealth = maxHealth;
         this.eyeHeight = eyeHeight;
+        this.inventory = new Inventory(inventorySize);
     }
 
-    public LivingEntity(LivingEntityModels entityModel, World world, int maxHealth) {
-        this(entityModel.model, world, maxHealth, entityModel.eyeHeight);
+    public LivingEntity(LivingEntityModels entityModel, World world, int maxHealth, int inventorySize) {
+        this(entityModel.model, world, maxHealth, entityModel.eyeHeight, inventorySize);
     }
 
     @Override
@@ -217,17 +219,21 @@ public abstract class LivingEntity extends Entity {
             getHoldingItem().use(this);
     }
 
+    public boolean pickItem(Item item) {
+        return inventory.putItem(item);
+    }
+
     @Override
     public float getEyeHeight() {
         return this.eyeHeight;
     }
 
-    public void setHoldingItem(Item holdingItem) {
-        this.holdingItem = holdingItem;
+    public Inventory getInventory() {
+        return inventory;
     }
 
     public Item getHoldingItem() {
-        return holdingItem;
+        return inventory.getSelectedItem();
     }
 
     public void setMaxHealth(int maxHealth) {
