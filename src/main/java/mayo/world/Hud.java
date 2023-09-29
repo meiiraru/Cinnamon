@@ -3,6 +3,7 @@ package mayo.world;
 import mayo.Client;
 import mayo.gui.widgets.types.ProgressBar;
 import mayo.model.GeometryHelper;
+import mayo.model.Vertex;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
@@ -28,6 +29,7 @@ public class Hud {
 
     private final Texture CROSSHAIR = Texture.of(new Resource("textures/gui/crosshair.png"));
     private final Texture HOTBAR = Texture.of(new Resource("textures/gui/hotbar.png"));
+    private final Texture VIGNETTE = Texture.of(new Resource("textures/gui/vignette.png"));
 
     private ProgressBar health, itemCooldown;
 
@@ -97,12 +99,30 @@ public class Hud {
         font.render(VertexConsumer.FONT, matrices, 0f, 0f, text);
 
         //health progress bar
-        health.setProgress(player.getHealthProgress());
+        float hp = player.getHealthProgress();
+        health.setProgress(hp);
         health.setY(TextUtils.getHeight(text, font));
         health.render(matrices, 0, 0, delta);
 
         matrices.pop();
         matrices.pop();
+
+        //vignette
+        Vertex[] vertices = GeometryHelper.quad(
+                matrices,
+                0, 0,
+                window.scaledWidth, window.scaledHeight
+        );
+
+        float vignette = 1 - Math.min(hp, 0.3f) / 0.3f;
+        int color = ((int) (vignette * 0xFF) << 24) + 0xFF0000;
+
+        for (Vertex vertex : vertices) {
+            vertex.color(color);
+            vertex.getPosition().z = -999;
+        }
+
+        VertexConsumer.GUI.consume(vertices, VIGNETTE.getID());
     }
 
     private void drawItemStats(MatrixStack matrices, Item item, float delta) {
