@@ -89,7 +89,7 @@ public class Main {
         MatrixStack matrices = new MatrixStack();
 
         //flags
-        glClearColor(0.39f, 0.76f, 0.91f, 1f);
+        glClearColor(0.5f, 0.8f, 1f, 0f);
         //glEnable(GL_CULL_FACE);
 
         glEnable(GL_BLEND);

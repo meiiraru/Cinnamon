@@ -104,7 +104,7 @@ public abstract class Entity {
 
     protected void renderDebugHitbox(MatrixStack matrices, float delta) {
         if (world.isDebugRendering()) {
-            //bouding box
+            //bounding box
             Vector3f min = aabb.getMin();
             Vector3f max = aabb.getMax();
             GeometryHelper.pushCube(VertexConsumer.LINES, matrices, min.x, min.y, min.z, max.x, max.y, max.z, -1);
@@ -135,19 +135,6 @@ public abstract class Entity {
     }
 
     public void onRemove() {}
-
-    public void move(float left, float up, float forwards) {
-        Vector3f move = new Vector3f(-left, up, -forwards);
-
-        move.rotateX((float) Math.toRadians(-rot.x));
-        move.rotateY((float) Math.toRadians(-rot.y));
-
-        this.moveTo(
-                pos.x + move.x,
-                pos.y + move.y,
-                pos.z + move.z
-        );
-    }
 
     public void moveTo(Vector3f vec) {
         this.moveTo(vec.x, vec.y, vec.z);

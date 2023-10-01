@@ -14,6 +14,7 @@ import mayo.world.World;
 import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
 import mayo.world.entity.Inventory;
+import mayo.world.entity.PhysEntity;
 import mayo.world.items.Item;
 import mayo.world.particle.CloudParticle;
 import mayo.world.particle.TextParticle;
@@ -23,7 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class LivingEntity extends Entity {
+public abstract class LivingEntity extends PhysEntity {
 
     private final Map<Effect.Type, Effect> activeEffects = new HashMap<>();
     private final float eyeHeight;
@@ -106,17 +107,6 @@ public abstract class LivingEntity extends Entity {
     public void onRemove() {
         super.onRemove();
         this.spawnDeathParticles();
-    }
-
-    @Override
-    public void move(float left, float up, float forwards) {
-        Vector3f move = new Vector3f(left, up, -forwards);
-        if (move.lengthSquared() > 1f)
-            move.normalize();
-
-        move.rotateY((float) Math.toRadians(-rot.y));
-
-        this.moveTo(pos.x + move.x, pos.y + move.y, pos.z + move.z);
     }
 
     @Override

@@ -270,11 +270,11 @@ public class Hud {
                         %s entities %s particles %s terrain
 
                         [player]
-                        xyz %.3f %.3f %.3f
+                        xyz %.9f %.9f %.9f
                         pitch %.3f yaw %.3f
 
                         [camera]
-                        xyz %.3f %.3f %.3f
+                        xyz %.9f %.9f %.9f
                         pitch %.3f yaw %.3f
                         facing %s
                         """,

@@ -23,7 +23,7 @@ public class Enemy extends LivingEntity {
         super.tick();
 
         //todo - lol
-        this.move(0, 0, 0.1f);
+        this.moveRelative(0, 0, 0.1f);
         this.lookAt(getWorld().player.getEyePos());
         //this.attack();
     }

@@ -55,7 +55,7 @@ public abstract class Projectile extends PhysEntity {
     @Override
     public void onAdd() {
         super.onAdd();
-        this.accelerate(0, 0, speed);
+        this.moveRelative(0, 0, speed);
     }
 
     @Override

@@ -103,4 +103,8 @@ public abstract class Terrain {
     public AABB getAABB() {
         return aabb;
     }
+
+    public List<AABB> getGroupsAABB() {
+        return groupsAABB;
+    }
 }

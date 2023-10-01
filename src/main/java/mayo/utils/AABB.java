@@ -24,17 +24,19 @@ public class AABB {
         this.set(aabb);
     }
 
-    public void set(AABB aabb) {
+    public AABB set(AABB aabb) {
         this.set(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
+        return this;
     }
 
-    public void set(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
+    public AABB set(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
         this.minX = minX;
         this.minY = minY;
         this.minZ = minZ;
         this.maxX = maxX;
         this.maxY = maxY;
         this.maxZ = maxZ;
+        return this;
     }
 
     public boolean intersects(AABB other) {
@@ -53,38 +55,53 @@ public class AABB {
                 z >= minZ && z <= maxZ;
     }
 
-    public void translate(Vector3f vec) {
-        this.translate(vec.x, vec.y, vec.z);
+    public AABB translate(Vector3f vec) {
+        return this.translate(vec.x, vec.y, vec.z);
     }
 
-    public void translate(float x, float y, float z) {
+    public AABB translate(float x, float y, float z) {
         minX += x;
         minY += y;
         minZ += z;
         maxX += x;
         maxY += y;
         maxZ += z;
+        return this;
     }
 
-    public void inflate(Vector3f vec) {
-        this.inflate(vec.x, vec.y, vec.z);
+    public AABB inflate(Vector3f vec) {
+        return this.inflate(vec.x, vec.y, vec.z);
     }
 
-    public void inflate(float amount) {
-        this.inflate(amount, amount, amount);
+    public AABB inflate(float amount) {
+        return this.inflate(amount, amount, amount);
     }
 
-    public void inflate(float width, float height, float depth) {
-        inflate(width, height, depth, width, height, depth);
+    public AABB inflate(float width, float height, float depth) {
+        return this.inflate(width, height, depth, width, height, depth);
     }
 
-    public void inflate(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
+    public AABB inflate(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
         this.minX -= minX;
         this.minY -= minY;
         this.minZ -= minZ;
         this.maxX += maxX;
         this.maxY += maxY;
         this.maxZ += maxZ;
+        return this;
+    }
+
+    public AABB expand(float x, float y, float z) {
+        if (x < 0f) minX += x;
+        else maxX += x;
+
+        if (y < 0f) minY += y;
+        else maxY += y;
+
+        if (z < 0f) minZ += z;
+        else maxZ += z;
+
+        return this;
     }
 
     public Vector3f getMin() {
@@ -126,5 +143,83 @@ public class AABB {
                 minY + (float) (Math.random() * dimensions.y),
                 minZ + (float) (Math.random() * dimensions.z)
         );
+    }
+
+    public float clipXCollide(AABB other, float x) {
+        //check if there is collision on the Y axis
+        if (other.maxY <= this.minY || other.minY >= this.maxY)
+            return x;
+
+        //check if there is collision on the Z axis
+        if (other.maxZ <= this.minZ || other.minZ >= this.maxZ)
+            return x;
+
+        //check for collision if the X axis of the current box is bigger
+        if (x > 0f && other.maxX <= this.minX) {
+            float max = this.minX - other.maxX;
+            if (max < x)
+                x = max;
+        }
+
+        //check for collision if the X axis of the current box is smaller
+        if (x < 0f && other.minX >= this.maxX) {
+            float max = this.maxX - other.minX;
+            if (max > x)
+                x = max;
+        }
+
+        return x;
+    }
+
+    public float clipYCollide(AABB other, float y) {
+        //check if there is collision on the X axis
+        if (other.maxX <= this.minX || other.minX >= this.maxX)
+            return y;
+
+        //check if there is collision on the Z axis
+        if (other.maxZ <= this.minZ || other.minZ >= this.maxZ)
+            return y;
+
+        //check for collision if the Y axis of the current box is bigger
+        if (y > 0f && other.maxY <= this.minY) {
+            float max = this.minY - other.maxY;
+            if (max < y)
+                y = max;
+        }
+
+        //check for collision if the Y axis of the current box is bigger
+        if (y < 0f && other.minY >= this.maxY) {
+            float max = this.maxY - other.minY;
+            if (max > y)
+                y = max;
+        }
+
+        return y;
+    }
+
+    public float clipZCollide(AABB other, float z) {
+        //check if there is collision on the X axis
+        if (other.maxX <= this.minX || other.minX >= this.maxX)
+            return z;
+
+        //check if there is collision on the Y axis
+        if (other.maxY <= this.minY || other.minY >= this.maxY)
+            return z;
+
+        //check for collision if the Z axis of the current box is bigger
+        if (z > 0f && other.maxZ <= this.minZ) {
+            float max = this.minZ - other.maxZ;
+            if (max < z)
+                z = max;
+        }
+
+        //check for collision if the Z axis of the current box is bigger
+        if (z < 0f && other.minZ >= this.maxZ) {
+            float max = this.maxZ - other.minZ;
+            if (max > z)
+                z = max;
+        }
+
+        return z;
     }
 }

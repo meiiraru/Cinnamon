@@ -47,7 +47,7 @@ public class World {
     private boolean debugRendering;
     private boolean isPaused;
 
-    public final float gravity = -0.98f * 0.03f;
+    public final float gravity = 0.98f / 20f;
 
     public void init() {
         //init hud
@@ -64,10 +64,19 @@ public class World {
         addTerrain(grass);
 
         Terrain pillar = new Pillar(this);
+        pillar.setPos(0, 0, -5);
         addTerrain(pillar);
 
+        Terrain pillar2 = new Pillar(this);
+        pillar2.setPos(1, 0, -5);
+        addTerrain(pillar2);
+
+        Terrain pillar3 = new Pillar(this);
+        pillar3.setPos(-1, 0, -5);
+        addTerrain(pillar3);
+
         Terrain teapot = new Teapot(this);
-        teapot.setPos(0, pillar.getDimensions().y, 0);
+        teapot.setPos(0, pillar.getDimensions().y, -5);
         addTerrain(teapot);
 
         Terrain torii = new ToriiGate(this);
@@ -129,7 +138,7 @@ public class World {
             Enemy enemy = new Enemy(this);
             enemy.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
             //enemy.pickItem(new CoilGun(1, 20, 0));
-            addEntity(enemy);
+            //addEntity(enemy);
         }
 
         //every 15 seconds, spawn a new health pack and a mystery effect box
@@ -303,6 +312,15 @@ public class World {
         return list;
     }
 
+    public List<AABB> getTerrainCollisions(AABB region) {
+        List<AABB> list = new ArrayList<>();
+        for (Terrain terrain : this.terrain) {
+            if (region.intersects(terrain.getAABB()))
+                list.addAll(terrain.getGroupsAABB());
+        }
+        return list;
+    }
+
     public boolean isDebugRendering() {
         return this.debugRendering;
     }
@@ -312,7 +330,7 @@ public class World {
         player = new Player(this);
         player.pickItem(new PotatoCannon(3, 40, 30));
         player.pickItem(new CoilGun(1, 5, 0));
-        player.setPos(0, 0, 2);
+        player.setPos(0, 3, 8);
         addEntity(player);
     }
 
