@@ -3,6 +3,7 @@ package mayo.world.entity.projectile;
 import mayo.render.Model;
 import mayo.utils.Colors;
 import mayo.utils.Meth;
+import mayo.world.DamageType;
 import mayo.world.World;
 import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
@@ -53,24 +54,24 @@ public abstract class Projectile extends PhysEntity {
     }
 
     @Override
+    public void tick() {
+        super.tick();
+        lifetime--;
+
+        if (lifetime <= 0)
+            remove();
+    }
+
+    @Override
     public void onAdd() {
         super.onAdd();
         this.move(0, 0, 1);
     }
 
     @Override
-    public void onRemove() {
-        super.onRemove();
+    public void remove() {
+        super.remove();
         if (getDamage() == 0) confetti(world, pos);
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-        lifetime--;
-
-        if (lifetime <= 0)
-            removed = true;
     }
 
     @Override
@@ -80,10 +81,8 @@ public abstract class Projectile extends PhysEntity {
         if (isRemoved() || entity == getOwner())
             return;
 
-        if (entity instanceof LivingEntity le) {
-            le.damage(this.owner, getDamage(), this.crit);
-            removed = true;
-        }
+        if (entity.damage(this.owner, DamageType.PROJECTILE, getDamage(), this.crit))
+            remove();
     }
 
     @Override

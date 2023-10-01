@@ -16,14 +16,17 @@ import mayo.world.entity.Entity;
 import mayo.world.entity.collectable.EffectBox;
 import mayo.world.entity.collectable.HealthPack;
 import mayo.world.entity.living.Enemy;
+import mayo.world.entity.living.LivingEntity;
 import mayo.world.entity.living.Player;
 import mayo.world.items.Item;
 import mayo.world.items.weapons.CoilGun;
 import mayo.world.items.weapons.Firearm;
 import mayo.world.items.weapons.PotatoCannon;
+import mayo.world.particle.ExplosionParticle;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.*;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,13 +108,7 @@ public class World {
             entity.tick();
 
         //remove entities flagged to be removed
-        entities.removeIf(entity -> {
-            if (entity.isRemoved()) {
-                entity.onRemove();
-                return true;
-            }
-            return false;
-        });
+        entities.removeIf(Entity::isRemoved);
 
         //particles
         for (Particle particle : particles)
@@ -137,7 +134,7 @@ public class World {
         if (c.ticks % 60 == 0) {
             Enemy enemy = new Enemy(this);
             enemy.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
-            enemy.giveItem(new CoilGun(1, 20, 0));
+            //enemy.giveItem(new CoilGun(1, 20, 0));
             addEntity(enemy);
         }
 
@@ -162,9 +159,9 @@ public class World {
 
         //set shader
         Shader s = Shaders.MODEL.getShader().use();
-
         s.setProjectionMatrix(c.camera.getPerspectiveMatrix());
         s.setViewMatrix(c.camera.getViewMatrix());
+        s.setColor(-1);
 
         //apply lighting
         uploadLightUniforms(s);
@@ -193,6 +190,7 @@ public class World {
         Shader s = Shaders.MODEL.getShader().use();
         s.setProjectionMatrix(Client.getInstance().camera.getPerspectiveMatrix());
         s.setViewMatrix(new Matrix4f());
+        s.setColor(-1);
 
         //render model
         matrices.push();
@@ -329,8 +327,8 @@ public class World {
         entities.clear();
         scheduledTicks.clear();
         player = new Player(this);
-        player.giveItem(new PotatoCannon(3, 40, 30));
         player.giveItem(new CoilGun(1, 5, 0));
+        player.giveItem(new PotatoCannon(3, 40, 30));
         player.setPos(0, 3, 8);
         addEntity(player);
     }
@@ -342,5 +340,32 @@ public class World {
 
     public boolean isThirdPerson() {
         return cameraMode > 0;
+    }
+
+    public void explode(Vector3f pos, float range, float strength, Entity source) {
+        AABB explosionBB = new AABB().inflate(range).translate(pos);
+        int damage = (int) (4 * strength);
+
+        for (Entity entity : getEntities(explosionBB)) {
+            if (entity == source || entity.isRemoved())
+                continue;
+
+            //damage entities
+            entity.damage(source, DamageType.EXPLOSION, damage, false);
+
+            //knock back
+            if (entity instanceof LivingEntity le) {
+                Vector3f dir = explosionBB.getCenter().sub(le.getAABB().getCenter(), new Vector3f()).normalize().mul(-0.5f * strength);
+                le.getMotion().add(dir);
+            }
+        }
+
+        //particles
+        for (int i = 0; i < 30 * range; i++) {
+            ExplosionParticle particle = new ExplosionParticle((int) (Math.random() * 10) + 10);
+            particle.setPos(explosionBB.getRandomPoint());
+            particle.setScale(5f);
+            addParticle(particle);
+        }
     }
 }

@@ -9,6 +9,7 @@ import mayo.render.shader.Shader;
 import mayo.utils.AABB;
 import mayo.utils.Meth;
 import mayo.utils.Rotation;
+import mayo.world.DamageType;
 import mayo.world.World;
 import mayo.world.entity.living.LivingEntity;
 import org.joml.Vector2f;
@@ -28,7 +29,7 @@ public abstract class Entity {
 
     protected AABB aabb;
 
-    protected boolean removed;
+    private boolean removed;
 
     public Entity(Model model, World world) {
         this.model = model;
@@ -36,8 +37,6 @@ public abstract class Entity {
         this.dimensions.set(model.getMesh().getBoundingBox());
         this.updateAABB();
     }
-
-    public void onAdd() {}
 
     public void tick() {
         this.oPos.set(pos);
@@ -126,7 +125,15 @@ public abstract class Entity {
         }
     }
 
-    public void onRemove() {}
+    public void onAdd() {}
+
+    public void remove() {
+        this.removed = true;
+    }
+
+    public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
+        return false;
+    }
 
     public void move(float left, float up, float forwards) {
         Vector3f move = new Vector3f(-left, up, -forwards);

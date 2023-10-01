@@ -9,6 +9,10 @@ public class AABB {
             minX, minY, minZ,
             maxX, maxY, maxZ;
 
+    public AABB() {
+        this(0, 0, 0, 0, 0, 0);
+    }
+
     public AABB(Vector3f dimensions) {
         this(0, 0, 0, dimensions.x, dimensions.y, dimensions.z);
     }

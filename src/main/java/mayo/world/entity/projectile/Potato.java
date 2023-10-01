@@ -1,9 +1,13 @@
 package mayo.world.entity.projectile;
 
 import mayo.model.ModelManager;
+import mayo.render.MatrixStack;
 import mayo.render.Model;
+import mayo.render.shader.Shader;
+import mayo.utils.ColorUtils;
 import mayo.utils.Meth;
 import mayo.utils.Resource;
+import mayo.world.DamageType;
 import mayo.world.World;
 import mayo.world.entity.Entity;
 import org.joml.Vector3f;
@@ -12,6 +16,8 @@ public class Potato extends Projectile {
 
     public static final Model MODEL = ModelManager.load(new Resource("models/entities/projectile/potato/potato.obj"));
     public static final int DAMAGE = 8;
+    public static final float EXPLOSION_RANGE = 3f;
+    public static final float EXPLOSION_STRENGTH = 1f;
     public static final int LIFETIME = 100;
     public static final float SPEED = 1.25f;
     public static final float CRIT_CHANCE = 0.15f;
@@ -37,5 +43,28 @@ public class Potato extends Projectile {
         if (x) this.motion.x *= -0.25f;
         if (y) this.motion.y = 0f;
         if (z) this.motion.z *= -0.25f;
+    }
+
+    @Override
+    public void render(MatrixStack matrices, float delta) {
+        Shader.activeShader.setColor(ColorUtils.lerpRGBColor(0xFF8888, -1, Math.min(lifetime / 30f, 1f)));
+        super.render(matrices, delta);
+        Shader.activeShader.setColor(-1);
+    }
+
+    @Override
+    public void remove() {
+        super.remove();
+        world.explode(pos, EXPLOSION_RANGE, EXPLOSION_STRENGTH, this);
+    }
+
+    @Override
+    public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
+        if (type == DamageType.EXPLOSION) {
+            remove();
+            return true;
+        }
+
+        return super.damage(source, type, amount, crit);
     }
 }

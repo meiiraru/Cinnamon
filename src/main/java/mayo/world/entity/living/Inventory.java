@@ -1,4 +1,4 @@
-package mayo.world.entity;
+package mayo.world.entity.living;
 
 import mayo.world.items.Item;
 

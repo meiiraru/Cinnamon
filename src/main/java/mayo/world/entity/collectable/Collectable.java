@@ -29,7 +29,7 @@ public abstract class Collectable extends PhysEntity {
     protected void collide(Entity entity) {
         super.collide(entity);
         if (!isRemoved() && onPickUp(entity))
-            this.removed = true;
+            this.remove();
     }
 
     @Override

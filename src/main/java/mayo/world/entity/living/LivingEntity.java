@@ -10,10 +10,10 @@ import mayo.text.Text;
 import mayo.utils.Colors;
 import mayo.utils.Rotation;
 import mayo.utils.TextUtils;
+import mayo.world.DamageType;
 import mayo.world.World;
 import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
-import mayo.world.entity.Inventory;
 import mayo.world.entity.PhysEntity;
 import mayo.world.items.Item;
 import mayo.world.particle.CloudParticle;
@@ -103,8 +103,8 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     @Override
-    public void onRemove() {
-        super.onRemove();
+    public void remove() {
+        super.remove();
         this.spawnDeathParticles();
     }
 
@@ -153,7 +153,8 @@ public abstract class LivingEntity extends PhysEntity {
         return true;
     }
 
-    public void damage(Entity source, int amount, boolean crit) {
+    @Override
+    public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
         //apply critical
         amount = (int) (amount * (crit ? 1.5f : 1f));
 
@@ -163,11 +164,13 @@ public abstract class LivingEntity extends PhysEntity {
         //on kill, clamp health to 0, and flag it as removed
         if (health <= 0) {
             this.health = 0;
-            this.removed = true;
+            this.remove();
         }
 
         //spawn particle
         spawnHealthChangeParticle(-amount, crit);
+
+        return true;
     }
 
     protected void spawnDeathParticles() {

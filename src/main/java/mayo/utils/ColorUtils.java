@@ -93,10 +93,17 @@ public class ColorUtils {
         }
     }
 
-    public static int lerpColor(int a, int b, float t) {
+    public static int lerpARGBColor(int a, int b, float t) {
         Vector4f cA = argbIntToRGBA(a);
         Vector4f cB = argbIntToRGBA(b);
         Vector4f lerped = Meth.lerp(cA, cB, t);
         return rgbaToIntARGB(lerped);
+    }
+
+    public static int lerpRGBColor(int a, int b, float t) {
+        Vector3f cA = intToRGB(a);
+        Vector3f cB = intToRGB(b);
+        Vector3f lerped = Meth.lerp(cA, cB, t);
+        return rgbToInt(lerped);
     }
 }

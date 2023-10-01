@@ -1,6 +1,7 @@
 package mayo.world.entity.living;
 
 import mayo.model.LivingEntityModels;
+import mayo.world.DamageType;
 import mayo.world.World;
 import mayo.world.entity.Entity;
 
@@ -32,7 +33,7 @@ public class Enemy extends LivingEntity {
     protected void collide(Entity entity) {
         super.collide(entity);
         if (entity instanceof Player p)
-            p.damage(this, MELEE_DAMAGE, false);
+            p.damage(this, DamageType.MELEE, MELEE_DAMAGE, false);
     }
 
     @Override

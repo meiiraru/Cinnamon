@@ -2,6 +2,7 @@ package mayo.world.entity.living;
 
 import mayo.model.LivingEntityModels;
 import mayo.utils.Meth;
+import mayo.world.DamageType;
 import mayo.world.World;
 import mayo.world.entity.Entity;
 import org.joml.Vector3f;
@@ -36,13 +37,16 @@ public class Player extends LivingEntity {
     }
 
     @Override
-    public void damage(Entity source, int amount, boolean crit) {
-        if (invulnerability > 0)
-            return;
+    public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
+        if (type == DamageType.MELEE) {
+            if (invulnerability > 0)
+                return false;
 
-        super.damage(source, amount, crit);
-        this.invulnerability = INVULNERABILITY_TIME;
-        this.damageSource = source;
+            this.invulnerability = INVULNERABILITY_TIME;
+            this.damageSource = source;
+        }
+
+        return super.damage(source, type, amount, crit);
     }
 
     @Override

@@ -15,7 +15,7 @@ import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.*;
 import mayo.world.effects.Effect;
-import mayo.world.entity.Inventory;
+import mayo.world.entity.living.Inventory;
 import mayo.world.entity.living.Player;
 import mayo.world.items.CooldownItem;
 import mayo.world.items.Item;
@@ -210,6 +210,7 @@ public class Hud {
         Shader sh = Shaders.MODEL.getShader().use();
         sh.setProjectionMatrix(Client.getInstance().camera.getOrthographicMatrix());
         sh.setViewMatrix(new Matrix4f());
+        sh.setColor(-1);
 
         //prepare variables
         Window window = Client.getInstance().window;

@@ -32,11 +32,15 @@ in vec3 normal;
 out vec4 fragColor;
 
 uniform sampler2D textureSampler;
+uniform vec3 color;
 uniform vec3 ambientLight;
 uniform vec3 lightPos;
 
 void main() {
     //if (true) {fragColor = vec4(normal, 1.0f); return;}
+
+    //color
+    vec4 col = vec4(color, 1.0f);
 
     //texture
     vec4 tex = texture(textureSampler, texCoords);
@@ -44,7 +48,7 @@ void main() {
         discard;
 
     //out color
-    fragColor = tex;
+    fragColor = tex * col;
 
     /*
     //light
@@ -61,6 +65,6 @@ void main() {
     vec4 light = vec4(ambient + diffuse, 1.0f);
 
     //out color
-    fragColor = light * tex;
+    fragColor = light * tex * col;
     */
 }
