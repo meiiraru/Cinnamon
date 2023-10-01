@@ -13,11 +13,11 @@ import org.joml.Vector3f;
 
 public abstract class Projectile extends PhysEntity {
 
-    private final int damage;
-    private final float speed;
-    private final boolean crit;
-    private final Entity owner;
-    private int lifetime;
+    protected final int damage;
+    protected final float speed;
+    protected final boolean crit;
+    protected final Entity owner;
+    protected int lifetime;
 
     public Projectile(Model model, World world, int damage, int lifetime, float speed, float critChance, Entity owner) {
         super(model, world);
@@ -81,7 +81,7 @@ public abstract class Projectile extends PhysEntity {
             return;
 
         if (entity instanceof LivingEntity le) {
-            le.damage(getDamage(), this.crit);
+            le.damage(this.owner, getDamage(), this.crit);
             removed = true;
         }
     }

@@ -144,10 +144,10 @@ public class World {
         //every 15 seconds, spawn a new health pack and a mystery effect box
         if (c.ticks % 300 == 0) {
             HealthPack health = new HealthPack(this);
-            health.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
+            health.setPos((int) (Math.random() * 128) - 64, 3, (int) (Math.random() * 128) - 64);
             addEntity(health);
             EffectBox box = new EffectBox(this);
-            box.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
+            box.setPos((int) (Math.random() * 128) - 64, 3, (int) (Math.random() * 128) - 64);
             addEntity(box);
         }
     }

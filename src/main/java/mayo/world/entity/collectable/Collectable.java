@@ -5,8 +5,9 @@ import mayo.render.MatrixStack;
 import mayo.render.Model;
 import mayo.world.World;
 import mayo.world.entity.Entity;
+import mayo.world.entity.PhysEntity;
 
-public abstract class Collectable extends Entity {
+public abstract class Collectable extends PhysEntity {
 
     public Collectable(Model model, World world) {
         super(model, world);
@@ -35,6 +36,14 @@ public abstract class Collectable extends Entity {
     protected void updateAABB() {
         super.updateAABB();
         this.aabb.inflate(0.25f, 0f, 0.25f, 0.25f, 0.5f, 0.25f);
+    }
+
+    @Override
+    protected void resolveCollision(boolean x, boolean y, boolean z) {
+        //bounce
+        if (x) this.motion.x *= -0.5f;
+        if (y) this.motion.y *= -0.5f;
+        if (z) this.motion.z *= -0.5f;
     }
 
     protected abstract boolean onPickUp(Entity entity);

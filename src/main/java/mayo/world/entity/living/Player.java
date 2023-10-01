@@ -1,7 +1,10 @@
 package mayo.world.entity.living;
 
 import mayo.model.LivingEntityModels;
+import mayo.utils.Meth;
 import mayo.world.World;
+import mayo.world.entity.Entity;
+import org.joml.Vector3f;
 
 public class Player extends LivingEntity {
 
@@ -10,6 +13,7 @@ public class Player extends LivingEntity {
     private static final int INVENTORY_SIZE = 9;
 
     private int invulnerability = 0;
+    private Entity damageSource;
 
     public Player(World world) {
         super(LivingEntityModels.STRAWBERRY, world, MAX_HEALTH, INVENTORY_SIZE);
@@ -19,8 +23,11 @@ public class Player extends LivingEntity {
     public void tick() {
         super.tick();
 
-        if (invulnerability > 0)
+        if (invulnerability > 0) {
             invulnerability--;
+            if (invulnerability == 0)
+                damageSource = null;
+        }
     }
 
     @Override
@@ -29,12 +36,13 @@ public class Player extends LivingEntity {
     }
 
     @Override
-    public void damage(int amount, boolean crit) {
+    public void damage(Entity source, int amount, boolean crit) {
         if (invulnerability > 0)
             return;
 
-        super.damage(amount, crit);
+        super.damage(source, amount, crit);
         this.invulnerability = INVULNERABILITY_TIME;
+        this.damageSource = source;
     }
 
     @Override
@@ -52,5 +60,13 @@ public class Player extends LivingEntity {
     @Override
     public boolean isRemoved() {
         return false;
+    }
+
+    public Float getDamageAngle() {
+        if (damageSource == null)
+            return null;
+
+        Vector3f diff = damageSource.getPos().sub(pos, new Vector3f()).normalize();
+        return Meth.dirToRot(diff).y - rot.y;
     }
 }

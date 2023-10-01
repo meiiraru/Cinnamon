@@ -17,9 +17,8 @@ public abstract class PhysEntity extends Entity {
         super(model, world);
     }
 
-    @Override
-    protected void tickPhysics() {
-        super.tickPhysics();
+    public void tick() {
+        super.tick();
 
         //apply forces like gravity:tm:
         applyForces();
@@ -38,6 +37,11 @@ public abstract class PhysEntity extends Entity {
 
         //decrease motion
         motionFallout();
+
+        //collide entities
+        for (Entity entity : world.getEntities(aabb))
+            if (entity != this && !entity.isRemoved())
+                collide(entity);
     }
 
     protected void applyForces() {
@@ -96,23 +100,25 @@ public abstract class PhysEntity extends Entity {
         AABB tempBB = new AABB(aabb);
         List<AABB> collisions = world.getTerrainCollisions(new AABB(aabb).expand(x, y, z));
 
-        //check for Y collision
-        for (AABB aabb : collisions)
-            y = aabb.clipYCollide(tempBB, y);
-        tempBB.translate(0f, y, 0f);
-
         //check for X collision
         for (AABB aabb : collisions)
             x = aabb.clipXCollide(tempBB, x);
         tempBB.translate(x, 0f, 0f);
 
+        //check for Y collision
+        for (AABB aabb : collisions)
+            y = aabb.clipYCollide(tempBB, y);
+        tempBB.translate(0f, y, 0f);
+
         //check for Z collision
         for (AABB aabb : collisions)
             z = aabb.clipZCollide(tempBB, z);
-        //tempBB.translate(0f, 0f, z);
+        tempBB.translate(0f, 0f, z);
 
         return new Vector3f(x, y, z);
     }
+
+    protected void collide(Entity entity) {}
 
     public void setMotiom(Vector3f vec) {
         this.setMotion(vec.x, vec.y, vec.z);

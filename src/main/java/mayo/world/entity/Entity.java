@@ -40,11 +40,8 @@ public abstract class Entity {
     public void onAdd() {}
 
     public void tick() {
-        tickPhysics();
-
-        for (Entity entity : world.getEntities(aabb))
-            if (entity != this && !entity.isRemoved())
-                collide(entity);
+        this.oPos.set(pos);
+        this.oRot.set(rot);
     }
 
     public void render(MatrixStack matrices, float delta) {
@@ -64,11 +61,6 @@ public abstract class Entity {
 
         //render debug hitbox
         renderDebugHitbox(matrices, delta);
-    }
-
-    protected void tickPhysics() {
-        this.oPos.set(pos);
-        this.oRot.set(rot);
     }
 
     protected void renderModel(MatrixStack matrices, float delta) {
@@ -190,8 +182,6 @@ public abstract class Entity {
                 pos.x + xz, pos.y + max.y, pos.z + xz
         );
     }
-
-    protected void collide(Entity entity) {}
 
     public Vector3f getPos(float delta) {
         return Meth.lerp(oPos, pos, delta);

@@ -4,6 +4,7 @@ import org.joml.Vector3f;
 
 public class AABB {
 
+    private final float epsilon = 0.001f;
     private float
             minX, minY, minZ,
             maxX, maxY, maxZ;
@@ -156,14 +157,14 @@ public class AABB {
 
         //check for collision if the X axis of the current box is bigger
         if (x > 0f && other.maxX <= this.minX) {
-            float max = this.minX - other.maxX;
+            float max = this.minX - other.maxX - this.epsilon;
             if (max < x)
                 x = max;
         }
 
-        //check for collision if the X axis of the current box is smaller
+        //check for collision if the X axis of the other box is smaller
         if (x < 0f && other.minX >= this.maxX) {
-            float max = this.maxX - other.minX;
+            float max = this.maxX - other.minX + this.epsilon;
             if (max > x)
                 x = max;
         }
@@ -182,14 +183,14 @@ public class AABB {
 
         //check for collision if the Y axis of the current box is bigger
         if (y > 0f && other.maxY <= this.minY) {
-            float max = this.minY - other.maxY;
+            float max = this.minY - other.maxY - this.epsilon;
             if (max < y)
                 y = max;
         }
 
-        //check for collision if the Y axis of the current box is bigger
+        //check for collision if the Y axis of the other box is bigger
         if (y < 0f && other.minY >= this.maxY) {
-            float max = this.maxY - other.minY;
+            float max = this.maxY - other.minY + this.epsilon;
             if (max > y)
                 y = max;
         }
@@ -208,14 +209,14 @@ public class AABB {
 
         //check for collision if the Z axis of the current box is bigger
         if (z > 0f && other.maxZ <= this.minZ) {
-            float max = this.minZ - other.maxZ;
+            float max = this.minZ - other.maxZ - this.epsilon;
             if (max < z)
                 z = max;
         }
 
-        //check for collision if the Z axis of the current box is bigger
+        //check for collision if the Z axis of the other box is bigger
         if (z < 0f && other.minZ >= this.maxZ) {
-            float max = this.maxZ - other.minZ;
+            float max = this.maxZ - other.minZ + this.epsilon;
             if (max > z)
                 z = max;
         }

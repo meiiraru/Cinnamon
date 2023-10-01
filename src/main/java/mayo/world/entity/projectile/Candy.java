@@ -1,7 +1,9 @@
 package mayo.world.entity.projectile;
 
 import mayo.model.ModelManager;
+import mayo.render.MatrixStack;
 import mayo.render.Model;
+import mayo.utils.Meth;
 import mayo.utils.Resource;
 import mayo.world.World;
 import mayo.world.entity.Entity;
@@ -42,5 +44,11 @@ public class Candy extends Projectile {
     protected void motionFallout() {
         //dont decrease motion
         //super.motionFallout();
+    }
+
+    @Override
+    protected void applyModelPose(MatrixStack matrices, float delta) {
+        super.applyModelPose(matrices, delta);
+        matrices.scale(Meth.clamp((this.lifetime - delta) / 5f, 0, 1));
     }
 }

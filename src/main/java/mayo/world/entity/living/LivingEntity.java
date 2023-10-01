@@ -153,7 +153,7 @@ public abstract class LivingEntity extends PhysEntity {
         return true;
     }
 
-    public void damage(int amount, boolean crit) {
+    public void damage(Entity source, int amount, boolean crit) {
         //apply critical
         amount = (int) (amount * (crit ? 1.5f : 1f));
 
@@ -230,6 +230,14 @@ public abstract class LivingEntity extends PhysEntity {
     @Override
     public float getEyeHeight() {
         return this.eyeHeight;
+    }
+
+    @Override
+    protected float getMoveSpeed() {
+        float speed = super.getMoveSpeed();
+        if (hasEffect(Effect.Type.SPEED))
+            speed += 0.1f * (getEffect(Effect.Type.SPEED).getAmplitude() + 1);
+        return speed;
     }
 
     public Inventory getInventory() {

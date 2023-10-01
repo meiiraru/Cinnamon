@@ -30,6 +30,7 @@ public class Hud {
     private final Texture CROSSHAIR = Texture.of(new Resource("textures/gui/crosshair.png"));
     private final Texture HOTBAR = Texture.of(new Resource("textures/gui/hotbar.png"));
     private final Texture VIGNETTE = Texture.of(new Resource("textures/gui/vignette.png"));
+    private final Texture HIT_DIRECTION = Texture.of(new Resource("textures/gui/hit_direction.png"));
 
     private ProgressBar health, itemCooldown;
 
@@ -55,11 +56,11 @@ public class Hud {
             c.font.render(VertexConsumer.FONT, matrices, w - 4, 4, Text.of(debugRightText()).withStyle(style), TextUtils.Alignment.RIGHT);
         }
 
-        //draw crosshair
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, (int) (w / 2f - 8), (int) (h / 2f - 8), 16, 16), CROSSHAIR.getID());
-
         //draw player stats
         drawPlayerStats(matrices, c.world.player, delta);
+
+        //draw crosshair
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, (int) (w / 2f - 8), (int) (h / 2f - 8), 16, 16), CROSSHAIR.getID());
     }
 
     private void drawPlayerStats(MatrixStack matrices, Player player, float delta) {
@@ -77,6 +78,9 @@ public class Hud {
 
         //hotbar
         drawHotbar(matrices, player, delta);
+
+        //hit direction
+        drawHitDirection(matrices, player, delta);
     }
 
     private void drawHealth(MatrixStack matrices, Player player, float delta) {
@@ -242,6 +246,27 @@ public class Hud {
                 matrices.pop();
             }
         }
+    }
+
+    private void drawHitDirection(MatrixStack matrices, Player player, float delta) {
+        Float angle = player.getDamageAngle();
+        if (angle == null)
+            return;
+
+        //window
+        Client c = Client.getInstance();
+        int w = c.window.scaledWidth;
+        int h = c.window.scaledHeight;
+
+        //rotate
+        matrices.push();
+        matrices.translate((int) (w / 2f), (int) (h / 2f), 0f);
+        matrices.rotate(Rotation.Z.rotationDeg(angle));
+
+        //draw
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, -16f, -16f, 32, 32), HIT_DIRECTION.getID());
+
+        matrices.pop();
     }
 
     private static String debugLeftText() {
