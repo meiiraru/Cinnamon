@@ -137,8 +137,8 @@ public class World {
         if (c.ticks % 60 == 0) {
             Enemy enemy = new Enemy(this);
             enemy.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
-            //enemy.pickItem(new CoilGun(1, 20, 0));
-            //addEntity(enemy);
+            enemy.giveItem(new CoilGun(1, 20, 0));
+            addEntity(enemy);
         }
 
         //every 15 seconds, spawn a new health pack and a mystery effect box
@@ -327,9 +327,10 @@ public class World {
 
     public void respawn() {
         entities.clear();
+        scheduledTicks.clear();
         player = new Player(this);
-        player.pickItem(new PotatoCannon(3, 40, 30));
-        player.pickItem(new CoilGun(1, 5, 0));
+        player.giveItem(new PotatoCannon(3, 40, 30));
+        player.giveItem(new CoilGun(1, 5, 0));
         player.setPos(0, 3, 8);
         addEntity(player);
     }

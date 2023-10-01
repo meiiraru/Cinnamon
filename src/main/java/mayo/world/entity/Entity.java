@@ -136,6 +136,19 @@ public abstract class Entity {
 
     public void onRemove() {}
 
+    public void move(float left, float up, float forwards) {
+        Vector3f move = new Vector3f(-left, up, -forwards);
+
+        move.rotateX((float) Math.toRadians(-rot.x));
+        move.rotateY((float) Math.toRadians(-rot.y));
+
+        this.moveTo(
+                pos.x + move.x,
+                pos.y + move.y,
+                pos.z + move.z
+        );
+    }
+
     public void moveTo(Vector3f vec) {
         this.moveTo(vec.x, vec.y, vec.z);
     }

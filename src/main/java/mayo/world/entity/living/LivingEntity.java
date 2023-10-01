@@ -18,7 +18,6 @@ import mayo.world.entity.PhysEntity;
 import mayo.world.items.Item;
 import mayo.world.particle.CloudParticle;
 import mayo.world.particle.TextParticle;
-import org.joml.Vector3f;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -115,6 +114,30 @@ public abstract class LivingEntity extends PhysEntity {
         //todo - push back both entities based on the side they are colliding
     }
 
+    @Override
+    public void move(float left, float up, float forwards) {
+        if (this.onGround && up > 0)
+            this.motion.y = getJumpStrength();
+
+        float distance = left * left + forwards * forwards;
+        //stop moving if too slow
+        if (distance < 0.01f)
+            return;
+
+        //apply speed to relative movement
+        distance = getMoveSpeed() / (float) Math.sqrt(distance);
+        left *= distance;
+        forwards *= distance;
+
+        //move the entity in facing direction
+        this.motion.set(left, motion.y, -forwards);
+        this.motion.rotateY((float) Math.toRadians(-rot.y));
+    }
+
+    protected float getJumpStrength() {
+        return 0.4f;
+    }
+
     public boolean heal(int amount) {
         //cannot heal when full life
         if (this.health == this.maxHealth)
@@ -200,7 +223,7 @@ public abstract class LivingEntity extends PhysEntity {
             getHoldingItem().use(this);
     }
 
-    public boolean pickItem(Item item) {
+    public boolean giveItem(Item item) {
         return inventory.putItem(item);
     }
 

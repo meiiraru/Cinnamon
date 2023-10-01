@@ -55,7 +55,7 @@ public abstract class Projectile extends PhysEntity {
     @Override
     public void onAdd() {
         super.onAdd();
-        this.moveRelative(0, 0, speed);
+        this.move(0, 0, 1);
     }
 
     @Override
@@ -84,6 +84,11 @@ public abstract class Projectile extends PhysEntity {
             le.damage(getDamage(), this.crit);
             removed = true;
         }
+    }
+
+    @Override
+    protected float getMoveSpeed() {
+        return speed;
     }
 
     public static void confetti(World world, Vector3f pos) {

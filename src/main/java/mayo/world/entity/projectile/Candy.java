@@ -10,8 +10,8 @@ public class Candy extends Projectile {
 
     public static final Model MODEL = ModelManager.load(new Resource("models/entities/candy/candy.obj"));
     public static final int DAMAGE = 2;
-    public static final int LIFETIME = 30;
-    public static final float SPEED = 1.75f;
+    public static final int LIFETIME = 50;
+    public static final float SPEED = 1.5f;
     public static final float CRIT_CHANCE = 0.15f;
 
     public Candy(World world, Entity owner) {
@@ -22,5 +22,25 @@ public class Candy extends Projectile {
     public void tick() {
         super.tick();
         this.rotate(0, rot.y + 20);
+    }
+
+    @Override
+    protected void applyForces() {
+        //less gravity
+        this.motion.y -= world.gravity * 0.5f;
+    }
+
+    @Override
+    protected void resolveCollision(boolean x, boolean y, boolean z) {
+        //bounce
+        if (x) this.motion.x *= -0.7f;
+        if (y) this.motion.y *= -0.7f;
+        if (z) this.motion.z *= -0.7f;
+    }
+
+    @Override
+    protected void motionFallout() {
+        //dont decrease motion
+        //super.motionFallout();
     }
 }

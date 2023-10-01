@@ -13,7 +13,7 @@ public class Potato extends Projectile {
     public static final Model MODEL = ModelManager.load(new Resource("models/entities/potato/potato.obj"));
     public static final int DAMAGE = 8;
     public static final int LIFETIME = 100;
-    public static final float SPEED = 0.75f;
+    public static final float SPEED = 1.25f;
     public static final float CRIT_CHANCE = 0.15f;
 
     public Potato(World world, Entity owner) {
@@ -24,7 +24,7 @@ public class Potato extends Projectile {
     public void tick() {
         super.tick();
 
-        Vector3f vec = new Vector3f(velocity);
+        Vector3f vec = new Vector3f(motion);
         if (vec.lengthSquared() > 0f)
             vec.normalize();
 
@@ -32,8 +32,10 @@ public class Potato extends Projectile {
     }
 
     @Override
-    protected void applyForces() {
-        super.applyForces();
-        acceleration.add(0, world.gravity, 0);
+    protected void resolveCollision(boolean x, boolean y, boolean z) {
+        //bounce sides and stop on y
+        if (x) this.motion.x *= -0.25f;
+        if (y) this.motion.y = 0f;
+        if (z) this.motion.z *= -0.25f;
     }
 }

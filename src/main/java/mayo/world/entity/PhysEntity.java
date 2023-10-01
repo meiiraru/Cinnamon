@@ -9,9 +9,7 @@ import java.util.List;
 
 public abstract class PhysEntity extends Entity {
 
-    protected final Vector3f
-            velocity = new Vector3f(),
-            acceleration = new Vector3f();
+    protected final Vector3f motion = new Vector3f();
 
     protected boolean onGround;
 
@@ -21,56 +19,72 @@ public abstract class PhysEntity extends Entity {
 
     @Override
     protected void tickPhysics() {
-        this.oRot.set(rot);
-        this.velocity.set(pos).sub(oPos);
-        this.oPos.set(pos);
+        super.tickPhysics();
 
+        //apply forces like gravity:tm:
         applyForces();
 
         //move the entity using the motion
-        Vector3f collision = checkCollisions(acceleration);
+        Vector3f allowedMotion = checkCollisions(motion);
 
         //update on ground state
-        this.onGround = acceleration.y != collision.y && acceleration.y < 0f;
+        this.onGround = motion.y != allowedMotion.y && motion.y < 0f;
 
-        //stop the motion on collision - or bounce :)
-        if (acceleration.x != collision.x) this.acceleration.x *= -1f;
-        if (acceleration.y != collision.y) this.acceleration.y *= -1f;
-        if (acceleration.z != collision.z) this.acceleration.z *= -1f;
+        //resolve the collision
+        resolveCollision(motion.x != allowedMotion.x, motion.y != allowedMotion.y, motion.z != allowedMotion.z);
 
         //move position
-        moveTo(pos.x + collision.x, pos.y + collision.y, pos.z + collision.z);
+        moveTo(pos.x + allowedMotion.x, pos.y + allowedMotion.y, pos.z + allowedMotion.z);
 
         //decrease motion
-        this.acceleration.mul(0.98f, 0.98f, 0.98f);
-
-        //decrease motion on ground
-        if (this.onGround)
-            this.acceleration.mul(0.85f, 0.98f, 0.85f);
+        motionFallout();
     }
 
     protected void applyForces() {
-        //thats gravity and stuff:tm:
-        this.acceleration.y -= world.gravity;
+        //that's gravity and stuff:tm:
+        this.motion.y -= world.gravity;
     }
 
-    public void moveRelative(float left, float up, float forwards) {
-        if (up > 0)
-            this.acceleration.y = this.onGround ? 0.64f : 0.4f;
+    protected void resolveCollision(boolean x, boolean y, boolean z) {
+        //stop the motion
+        if (x) this.motion.x = 0f;
+        if (y) this.motion.y = 0f;
+        if (z) this.motion.z = 0f;
+    }
 
-        float distance = left * left + forwards * forwards;
+    protected void motionFallout() {
+        //decrease motion (fake friction/resistance)
+
+        //air
+        this.motion.mul(0.91f, 0.98f, 0.91f);
+
+        //ground
+        if (this.onGround)
+            this.motion.mul(0.5f, 1f, 0.5f);
+    }
+
+    @Override
+    public void move(float left, float up, float forwards) {
+        float distance = left * left + up * up + forwards * forwards;
+
         //stop moving if too slow
         if (distance < 0.01f)
             return;
 
         //apply speed to relative movement
-        distance = 0.15f / (float) Math.sqrt(distance);
+        distance = getMoveSpeed() / (float) Math.sqrt(distance);
         left *= distance;
+        up *= distance;
         forwards *= distance;
 
         //move the entity in facing direction
-        this.acceleration.set(left, this.acceleration.y, -forwards);
-        this.acceleration.rotateY((float) Math.toRadians(-rot.y));
+        this.motion.set(left, up, -forwards);
+        this.motion.rotateX((float) Math.toRadians(-rot.x));
+        this.motion.rotateY((float) Math.toRadians(-rot.y));
+    }
+
+    protected float getMoveSpeed() {
+        return 0.2f;
     }
 
     protected Vector3f checkCollisions(Vector3f vec) {
@@ -95,25 +109,21 @@ public abstract class PhysEntity extends Entity {
         //check for Z collision
         for (AABB aabb : collisions)
             z = aabb.clipZCollide(tempBB, z);
-        tempBB.translate(0f, 0f, z);
+        //tempBB.translate(0f, 0f, z);
 
         return new Vector3f(x, y, z);
     }
 
-    public void setAcceleration(Vector3f vec) {
-        setAcceleration(vec.x, vec.y, vec.z);
+    public void setMotiom(Vector3f vec) {
+        this.setMotion(vec.x, vec.y, vec.z);
     }
 
-    public void setAcceleration(float x, float y, float z) {
-        this.acceleration.set(x, y, z);
+    public void setMotion(float x, float y, float z) {
+        this.motion.set(x, y, z);
     }
 
-    public Vector3f getAcceleration() {
-        return acceleration;
-    }
-
-    public Vector3f getVelocity() {
-        return velocity;
+    public Vector3f getMotion() {
+        return motion;
     }
 
     public boolean isOnGround() {

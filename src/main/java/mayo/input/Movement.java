@@ -1,6 +1,6 @@
 package mayo.input;
 
-import mayo.world.entity.PhysEntity;
+import mayo.world.entity.Entity;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -61,7 +61,7 @@ public class Movement {
         offsetY = 0;
     }
 
-    public void apply(PhysEntity entity) {
+    public void apply(Entity entity) {
         if (up) movement.y += 1;
         if (down) movement.y -= 1;
         if (left) movement.x -= 1;
@@ -74,7 +74,7 @@ public class Movement {
         if (slow) speed *= PRECISION_MULTIPLIER;
 
         movement.mul(speed);
-        entity.moveRelative(movement.x, movement.y, movement.z);
+        entity.move(movement.x, movement.y, movement.z);
         movement.set(0);
 
         entity.rotate(rotation.y, rotation.x);

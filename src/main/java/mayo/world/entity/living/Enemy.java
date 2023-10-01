@@ -23,9 +23,9 @@ public class Enemy extends LivingEntity {
         super.tick();
 
         //todo - lol
-        this.moveRelative(0, 0, 0.1f);
+        this.move(0, 0, 1);
         this.lookAt(getWorld().player.getEyePos());
-        //this.attack();
+        this.attack();
     }
 
     @Override
@@ -33,5 +33,10 @@ public class Enemy extends LivingEntity {
         super.collide(entity);
         if (entity instanceof Player p)
             p.damage(MELEE_DAMAGE, false);
+    }
+
+    @Override
+    protected float getMoveSpeed() {
+        return 0.1f;
     }
 }
