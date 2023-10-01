@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 public class EffectBox extends Collectable {
 
-    private static final Model MODEL = ModelManager.load(new Resource("models/entities/milkshake/milkshake.obj"));
+    private static final Model MODEL = ModelManager.load(new Resource("models/entities/collectable/milkshake/milkshake.obj"));
 
     private static final List<Supplier<Effect>> EFFECT_LIST = List.of(
             () -> Effect.Type.NEVER_CRIT.create(200),

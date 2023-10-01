@@ -13,7 +13,7 @@ public enum LivingEntityModels {
     DONUT(1.875f),
     ICE_CREAM(0.75f);
 
-    private static final String MODELS_PATH = "models/entities/";
+    private static final String MODELS_PATH = "models/entities/living/";
 
     public final Resource resource;
     public final float eyeHeight;

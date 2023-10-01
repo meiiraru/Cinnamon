@@ -16,8 +16,9 @@ repositories {
 }
 
 dependencies {
-    implementation(Lwjgl.Preset.everything)
+    implementation(Lwjgl.Preset.minimalOpenGL)
     implementation("org.joml:joml:1.10.5")
+    implementation("com.google.code.gson:gson:2.10.1")
 }
 
 tasks.jar {

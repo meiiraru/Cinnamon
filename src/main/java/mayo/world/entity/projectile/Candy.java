@@ -10,7 +10,7 @@ import mayo.world.entity.Entity;
 
 public class Candy extends Projectile {
 
-    public static final Model MODEL = ModelManager.load(new Resource("models/entities/candy/candy.obj"));
+    public static final Model MODEL = ModelManager.load(new Resource("models/entities/projectile/candy/candy.obj"));
     public static final int DAMAGE = 2;
     public static final int LIFETIME = 50;
     public static final float SPEED = 1.5f;

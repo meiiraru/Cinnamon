@@ -10,7 +10,7 @@ import org.joml.Vector3f;
 
 public class Potato extends Projectile {
 
-    public static final Model MODEL = ModelManager.load(new Resource("models/entities/potato/potato.obj"));
+    public static final Model MODEL = ModelManager.load(new Resource("models/entities/projectile/potato/potato.obj"));
     public static final int DAMAGE = 8;
     public static final int LIFETIME = 100;
     public static final float SPEED = 1.25f;

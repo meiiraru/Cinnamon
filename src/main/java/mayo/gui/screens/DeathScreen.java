@@ -12,7 +12,7 @@ import mayo.utils.TextUtils;
 
 public class DeathScreen extends Screen {
 
-    private static final Text YOU_DIED = Text.of("YOU DIED").withStyle(Style.EMPTY.shadow(true).shadowColor(0xFF440000).underlined(true));
+    private static final Text YOU_DIED = Text.of("YOU DIED").withStyle(Style.EMPTY.outlined(true).outlineColor(0xFF440000).underlined(true));
 
     private Button respawn;
 
