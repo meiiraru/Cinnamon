@@ -79,6 +79,17 @@ public class Meth {
         return (a % n + n) % n;
     }
 
+    public static void reflect(Vector3f dir, Vector3f normal) {
+        //r = d − 2 * (d dot n) * n
+        float dot = dir.dot(normal) * 2;
+        dir.sub(normal.x * dot, normal.y * dot, normal.z * dot);
+    }
+
+    public static void reflect(Vector2f dir, Vector2f normal) {
+        float dot = dir.dot(normal) * 2;
+        dir.sub(normal.x * dot, normal.y * dot);
+    }
+
     private static final String[] SIZE_UNITS = {"b", "kb", "mb", "gb"};
     public static String prettyByteSize(double size) {
         int i = 0;

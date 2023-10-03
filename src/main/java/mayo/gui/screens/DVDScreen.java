@@ -20,6 +20,13 @@ public class DVDScreen extends Screen {
     private static final int w = 58, h = 40;
     private static final float speed = 2f;
 
+    //normals
+    private static final Vector2f
+            UP = new Vector2f(0f, 1f),
+            DOWN = new Vector2f(0f, -1f),
+            LEFT = new Vector2f(-1f, 0f),
+            RIGHT = new Vector2f(1f, 0f);
+
     private final Screen parentScreen;
     private final Vector2f
             pos = new Vector2f(),
@@ -55,15 +62,29 @@ public class DVDScreen extends Screen {
 
         pos.add(dir);
 
-        if (pos.x + w >= width || pos.x <= 0f) {
+        //up
+        if (pos.y <= 0f) {
+            Meth.reflect(dir, UP);
             changeColor();
-            dir.x *= -1;
-            pos.x = Meth.clamp(pos.x, 0, width - w);
+            pos.y = 0f;
         }
-        if (pos.y + h >= height || pos.y <= 0f) {
+        //down
+        if (pos.y + h >= height) {
+            Meth.reflect(dir, DOWN);
             changeColor();
-            dir.y *= -1;
-            pos.y = Meth.clamp(pos.y, 0, height - h);
+            pos.y = height - h;
+        }
+        //left
+        if (pos.x <= 0f) {
+            Meth.reflect(dir, LEFT);
+            changeColor();
+            pos.x = 0f;
+        }
+        //right
+        if (pos.x + w >= width) {
+            Meth.reflect(dir, RIGHT);
+            changeColor();
+            pos.x = width - w;
         }
     }
 
@@ -78,7 +99,10 @@ public class DVDScreen extends Screen {
     }
 
     private void changeColor() {
-        color = Colors.randomRainbow();
+        Colors temp = color;
+        while (temp == color)
+            temp = Colors.randomRainbow();
+        this.color = temp;
     }
 
     @Override
