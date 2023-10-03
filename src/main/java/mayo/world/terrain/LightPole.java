@@ -1,19 +1,15 @@
 package mayo.world.terrain;
 
 import mayo.Client;
-import mayo.model.ModelManager;
-import mayo.render.Model;
-import mayo.utils.Resource;
+import mayo.model.ModelRegistry;
 import mayo.world.World;
 import mayo.world.particle.LightParticle;
 import org.joml.Vector3f;
 
 public class LightPole extends Terrain {
 
-    private static final Model MODEL = ModelManager.load(new Resource("models/terrain/light_pole/light_pole.obj"));
-
     public LightPole(World world) {
-        super(MODEL, world);
+        super(ModelRegistry.Terrain.LIGHT_POLE.model, world);
     }
 
     @Override

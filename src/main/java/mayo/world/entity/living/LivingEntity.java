@@ -1,7 +1,7 @@
 package mayo.world.entity.living;
 
 import mayo.Client;
-import mayo.model.LivingEntityModels;
+import mayo.model.ModelRegistry;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;
@@ -39,7 +39,7 @@ public abstract class LivingEntity extends PhysEntity {
         this.inventory = new Inventory(inventorySize);
     }
 
-    public LivingEntity(LivingEntityModels entityModel, World world, int maxHealth, int inventorySize) {
+    public LivingEntity(ModelRegistry.Living entityModel, World world, int maxHealth, int inventorySize) {
         this(entityModel.model, world, maxHealth, entityModel.eyeHeight, inventorySize);
     }
 

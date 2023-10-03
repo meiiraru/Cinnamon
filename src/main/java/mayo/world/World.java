@@ -24,7 +24,9 @@ import mayo.world.items.weapons.Firearm;
 import mayo.world.items.weapons.PotatoCannon;
 import mayo.world.particle.ExplosionParticle;
 import mayo.world.particle.Particle;
-import mayo.world.terrain.*;
+import mayo.world.terrain.Grass;
+import mayo.world.terrain.Terrain;
+import mayo.world.terrain.Tree;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -66,28 +68,17 @@ public class World {
         Terrain grass = new Grass(this);
         addTerrain(grass);
 
-        Terrain pillar = new Pillar(this);
-        pillar.setPos(0, 0, -5);
-        addTerrain(pillar);
+        for (int i = -64; i <= 64; i += 128) {
+            for (int j = -64; j <= 64; j += 2) {
+                Terrain tree = new Tree(this);
+                tree.setPos(i, 0, j);
+                addTerrain(tree);
 
-        Terrain pillar2 = new Pillar(this);
-        pillar2.setPos(1, 0, -5);
-        addTerrain(pillar2);
-
-        Terrain pillar3 = new Pillar(this);
-        pillar3.setPos(-1, 0, -5);
-        addTerrain(pillar3);
-
-        Terrain teapot = new Teapot(this);
-        teapot.setPos(0, pillar.getDimensions().y, -5);
-        addTerrain(teapot);
-
-        Terrain torii = new ToriiGate(this);
-        addTerrain(torii);
-
-        Terrain pole = new LightPole(this);
-        pole.setPos(0, 0, 5);
-        addTerrain(pole);
+                Terrain tree2 = new Tree(this);
+                tree2.setPos(j, 0, i);
+                addTerrain(tree2);
+            }
+        }
     }
 
     public void tick() {
@@ -130,19 +121,23 @@ public class World {
         this.hud.tick();
 
         //temp
-        //every 3 seconds, spawn a new enemy
-        if (c.ticks % 60 == 0) {
-            Enemy enemy = new Enemy(this);
+        //enemy spawn
+        if (c.options.enemySpawn > 0 && c.ticks % c.options.enemySpawn == 0) {
+            Enemy enemy = new Enemy(this, c.options.enemyBehaviour);
             enemy.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
-            //enemy.giveItem(new CoilGun(1, 20, 0));
+            enemy.giveItem(new CoilGun(1, 20, 0));
             addEntity(enemy);
         }
 
-        //every 15 seconds, spawn a new health pack and a mystery effect box
-        if (c.ticks % 300 == 0) {
+        //health spawn
+        if (c.options.healthSpawn > 0 && c.ticks % c.options.healthSpawn == 0) {
             HealthPack health = new HealthPack(this);
             health.setPos((int) (Math.random() * 128) - 64, 3, (int) (Math.random() * 128) - 64);
             addEntity(health);
+        }
+
+        //effect spawn
+        if (c.options.boostSpawn > 0 && c.ticks % c.options.boostSpawn == 0) {
             EffectBox box = new EffectBox(this);
             box.setPos((int) (Math.random() * 128) - 64, 3, (int) (Math.random() * 128) - 64);
             addEntity(box);
@@ -326,7 +321,7 @@ public class World {
     public void respawn() {
         entities.clear();
         scheduledTicks.clear();
-        player = new Player(this);
+        player = new Player(this, Client.getInstance().options.player);
         player.giveItem(new CoilGun(1, 5, 0));
         player.giveItem(new PotatoCannon(3, 40, 30));
         player.setPos(0, 3, 8);

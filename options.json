@@ -1,0 +1,9 @@
+{
+  "fov" : 70,
+  "sensibility" : 0.27,
+  "player" : "STRAWBERRY",
+  "enemySpawn" : 60,
+  "healthSpawn" : 300,
+  "boostSpawn" : 300,
+  "enemyBehaviour" : [ "WALK" ]
+}

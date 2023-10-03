@@ -20,7 +20,7 @@ public class DeathScreen extends Screen {
     public void init() {
         super.init();
 
-        this.addWidget(respawn = new Button((width - 180) / 2, (height - 20) / 2, 180, 20, Text.of("Respawn"), () -> {
+        this.addWidget(respawn = new Button((width - 180) / 2, height / 2 + 8, 180, 20, Text.of("Respawn"), () -> {
             client.world.respawn();
             client.setScreen(null);
         }));
@@ -38,7 +38,8 @@ public class DeathScreen extends Screen {
 
         matrices.push();
 
-        matrices.translate(width / 2f, respawn.getY() - TextUtils.getHeight(YOU_DIED, font) * 5f - 16f, 0f);
+        float textSize = TextUtils.getHeight(YOU_DIED, font) * 5f;
+        matrices.translate(width / 2f, (respawn.getY() - textSize) / 2f, 0f);
         matrices.scale(5f);
 
         float dc = (float) (Math.sin((client.ticks + delta) * 0.1f) + 1) * 0.5f;

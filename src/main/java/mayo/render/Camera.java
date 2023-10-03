@@ -9,8 +9,6 @@ import org.joml.Vector3f;
 
 public class Camera {
 
-    public static final float FOV = 70f;
-
     private final Vector3f
             pos = new Vector3f(),
             forwards = new Vector3f(0f, 0f, -1f),
@@ -69,8 +67,8 @@ public class Camera {
         return viewMatrix;
     }
 
-    public void updateProjMatrix(int width, int height) {
-        perspMatrix.set(new Matrix4f().perspective((float) Math.toRadians(Camera.FOV), (float) width / height, 0.1f, 1000f));
+    public void updateProjMatrix(int width, int height, float fov) {
+        perspMatrix.set(new Matrix4f().perspective((float) Math.toRadians(fov), (float) width / height, 0.1f, 1000f));
         orthoMatrix.set(new Matrix4f().ortho(0, width, height, 0, -1000, 1000));
     }
 
@@ -87,10 +85,10 @@ public class Camera {
         matrices.rotate(Rotation.Y.rotationDeg(180f - yRot));
     }
 
-    public boolean isInsideFrustum(float x, float y, float z) {
+    public boolean isInsideFrustum(float x, float y, float z, float fov) {
         Vector3f facing = getForwards();
         Vector3f target = new Vector3f(x, y, z).sub(pos).normalize();
-        return facing.dot(target) > Math.cos(Math.toRadians(FOV));
+        return facing.dot(target) > Math.cos(Math.toRadians(fov));
     }
 
     public Vector3f getPos() {

@@ -4,6 +4,7 @@ import mayo.gui.Screen;
 import mayo.gui.Toast;
 import mayo.gui.screens.MainMenu;
 import mayo.gui.screens.PauseScreen;
+import mayo.options.Options;
 import mayo.render.Camera;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
@@ -29,6 +30,7 @@ public class Client {
 
     //objects
     public Window window;
+    public Options options;
     public Camera camera;
     public Font font;
     public Screen screen;
@@ -37,8 +39,9 @@ public class Client {
     private Client() {}
 
     public void init() {
+        this.options = Options.load();
         this.camera = new Camera();
-        this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight);
+        this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight, this.options.fov);
         this.font = new Font(new Resource("fonts/mayscript.ttf"), 8);
         this.setScreen(new MainMenu());
     }
@@ -184,7 +187,7 @@ public class Client {
         window.windowResize(width, height);
 
         if (camera != null)
-            camera.updateProjMatrix(window.scaledWidth, window.scaledHeight);
+            camera.updateProjMatrix(window.scaledWidth, window.scaledHeight, this.options.fov);
 
         if (screen != null)
             screen.resize(window.scaledWidth, window.scaledHeight);

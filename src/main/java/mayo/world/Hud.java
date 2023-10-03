@@ -250,6 +250,10 @@ public class Hud {
     }
 
     private void drawHitDirection(MatrixStack matrices, Player player, float delta) {
+        int ticks = player.getDamageSourceTicks();
+        if (ticks == 0)
+            return;
+
         Float angle = player.getDamageAngle();
         if (angle == null)
             return;
@@ -265,7 +269,13 @@ public class Hud {
         matrices.rotate(Rotation.Z.rotationDeg(angle));
 
         //draw
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, -16f, -16f, 32, 32), HIT_DIRECTION.getID());
+        Vertex[] vertices = GeometryHelper.quad(matrices, -16f, -16f, 32, 32);
+        int color = ColorUtils.lerpARGBColor(0x00FFFFFF, -1, Math.min(ticks - delta, 5) / 5f);
+
+        for (Vertex vertex : vertices)
+            vertex.color(color);
+
+        VertexConsumer.GUI.consume(vertices, HIT_DIRECTION.getID());
 
         matrices.pop();
     }

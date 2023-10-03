@@ -1,6 +1,6 @@
 package mayo.world.entity.living;
 
-import mayo.model.LivingEntityModels;
+import mayo.model.ModelRegistry;
 import mayo.utils.Meth;
 import mayo.world.DamageType;
 import mayo.world.World;
@@ -15,20 +15,21 @@ public class Player extends LivingEntity {
 
     private int invulnerability = 0;
     private Entity damageSource;
+    private int damageSourceTicks = 0;
 
-    public Player(World world) {
-        super(LivingEntityModels.STRAWBERRY, world, MAX_HEALTH, INVENTORY_SIZE);
+    public Player(World world, ModelRegistry.Living model) {
+        super(model == null ? ModelRegistry.Living.random() : model, world, MAX_HEALTH, INVENTORY_SIZE);
     }
 
     @Override
     public void tick() {
         super.tick();
 
-        if (invulnerability > 0) {
+        if (invulnerability > 0)
             invulnerability--;
-            if (invulnerability == 0)
-                damageSource = null;
-        }
+
+        if (damageSourceTicks > 0)
+            damageSourceTicks--;
     }
 
     @Override
@@ -43,9 +44,10 @@ public class Player extends LivingEntity {
                 return false;
 
             this.invulnerability = INVULNERABILITY_TIME;
-            this.damageSource = source;
         }
 
+        this.damageSource = source;
+        this.damageSourceTicks = 30;
         return super.damage(source, type, amount, crit);
     }
 
@@ -72,5 +74,9 @@ public class Player extends LivingEntity {
 
         Vector3f diff = damageSource.getPos().sub(pos, new Vector3f()).normalize();
         return Meth.dirToRot(diff).y - rot.y;
+    }
+
+    public int getDamageSourceTicks() {
+        return damageSourceTicks;
     }
 }

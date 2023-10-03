@@ -30,4 +30,9 @@ public class TextParticle extends Particle {
         matrices.scale(-PARTICLE_SCALING);
         font.render(VertexConsumer.FONT_WORLD, matrices, 0, 0, text, TextUtils.Alignment.CENTER);
     }
+
+    public boolean shouldRender() {
+        Vector3f cam = Client.getInstance().camera.getPos();
+        return cam.distanceSquared(getPos()) < 256;
+    }
 }

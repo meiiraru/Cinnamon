@@ -1,5 +1,6 @@
 package mayo.input;
 
+import mayo.Client;
 import mayo.world.entity.Entity;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -8,14 +9,9 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Movement {
 
-    private static final float MOVE_SPEED = 0.15f; //units per tick
-    private static final float SPRINT_MULTIPLIER = 3f;
-    private static final float PRECISION_MULTIPLIER = 0.1f;
-    private static final float ROTATION_SPEED = 0.27f;
-
     //pos
     private final Vector3f movement = new Vector3f();
-    private boolean up, down, left, right, forward, backward, sprint, slow;
+    private boolean up, down, left, right, forward, backward, sprint, sneak;
 
     //rot
     private final Vector2f rotation = new Vector2f();
@@ -33,7 +29,7 @@ public class Movement {
             case GLFW_KEY_SPACE -> up = pressed;
             case GLFW_KEY_LEFT_SHIFT -> down = pressed;
             case GLFW_KEY_TAB -> sprint = pressed;
-            case GLFW_KEY_LEFT_CONTROL -> slow = pressed;
+            case GLFW_KEY_LEFT_CONTROL -> sneak = pressed;
         }
     }
 
@@ -49,7 +45,7 @@ public class Movement {
         mouseX = x;
         mouseY = y;
 
-        double sensi = ROTATION_SPEED * 0.6f + 0.2f;
+        double sensi = Client.getInstance().options.sensibility * 0.6f + 0.2f;
         double spd = sensi * sensi * sensi * 8;
         double dx = offsetX * spd;
         double dy = offsetY * spd;
@@ -69,11 +65,6 @@ public class Movement {
         if (forward) movement.z += 1;
         if (backward) movement.z -= 1;
 
-        float speed = MOVE_SPEED;
-        if (sprint) speed *= SPRINT_MULTIPLIER;
-        if (slow) speed *= PRECISION_MULTIPLIER;
-
-        movement.mul(speed);
         entity.move(movement.x, movement.y, movement.z);
         movement.set(0);
 
@@ -83,6 +74,6 @@ public class Movement {
     public void reset() {
         this.firstMouse = true;
         this.movement.set(0);
-        up = down = left = right = forward = backward = sprint = slow = false;
+        up = down = left = right = forward = backward = sprint = sneak = false;
     }
 }
