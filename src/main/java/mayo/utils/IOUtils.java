@@ -15,6 +15,8 @@ import static org.lwjgl.system.MemoryUtil.memSlice;
 
 public class IOUtils {
 
+    public static final Path ROOT_FOLDER = Path.of("./" + Resource.NAMESPACE);
+
     public static InputStream getResource(Resource res) {
         String resourcePath = "resources/" + res.toString();
         return IOUtils.class.getClassLoader().getResourceAsStream(resourcePath);
@@ -37,11 +39,11 @@ public class IOUtils {
         }
     }
 
-    public static byte[] readFileBytes(Path file) {
-        if (!Files.exists(file))
+    public static byte[] readFileBytes(Path path) {
+        if (!Files.exists(path))
             return null;
 
-        try (InputStream stream = Files.newInputStream(file)) {
+        try (InputStream stream = Files.newInputStream(path)) {
             //read bytes from file
             return stream.readAllBytes();
         } catch (IOException e) {
@@ -49,17 +51,13 @@ public class IOUtils {
         }
     }
 
-    public static void writeFile(Path file, byte[] bytes) {
+    public static void writeFile(Path path, byte[] bytes) {
         try {
-            //ensure dir exists
-            ensureParentExists(file);
-
-            //create file if non-existent
-            if (!Files.exists(file))
-                Files.createFile(file);
+            //ensure path exists
+            createOrGetPath(path);
 
             //write bytes to file
-            OutputStream fs = Files.newOutputStream(file);
+            OutputStream fs = Files.newOutputStream(path);
             fs.write(bytes);
 
             //close file
@@ -76,6 +74,19 @@ public class IOUtils {
                 Files.createDirectories(parent);
         } catch (FileAlreadyExistsException ignored) {
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void createOrGetPath(Path path) {
+        try {
+            //ensure dir exists
+            ensureParentExists(path);
+
+            //create file if non-existent
+            if (!Files.exists(path))
+                Files.createFile(path);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

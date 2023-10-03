@@ -33,7 +33,7 @@ public class Options {
             AIBehaviour.WALK
     };
 
-    private static final Path OPTIONS_FILE = Path.of("./options.json");
+    private static final Path OPTIONS_FILE = IOUtils.ROOT_FOLDER.resolve("./options.json");
     private static final ObjectMapper MAPPER = JsonMapper
             .builder()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)

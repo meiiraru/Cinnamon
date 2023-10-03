@@ -2,7 +2,7 @@ package mayo.utils;
 
 public class Resource {
 
-    private static final String NAMESPACE = "mayo";
+    public static final String NAMESPACE = "mayo";
 
     private final String namespace, path;
 
