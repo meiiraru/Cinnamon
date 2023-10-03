@@ -51,7 +51,7 @@ public abstract class Particle {
 
     public boolean shouldRender() {
         Vector3f cam = Client.getInstance().camera.getPos();
-        return cam.distanceSquared(pos) < 4098;
+        return cam.distanceSquared(pos) <= 4098;
     }
 
     protected abstract void renderParticle(MatrixStack matrices, float delta);

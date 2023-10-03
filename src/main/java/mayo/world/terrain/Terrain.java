@@ -1,5 +1,6 @@
 package mayo.world.terrain;
 
+import mayo.Client;
 import mayo.model.GeometryHelper;
 import mayo.model.obj.Group;
 import mayo.render.MatrixStack;
@@ -51,12 +52,17 @@ public abstract class Terrain {
     }
 
     protected void renderDebugHitbox(MatrixStack matrices, float delta) {
-        if (world.isDebugRendering()) {
-            renderAABB(matrices, aabb, -1);
+        if (!world.isDebugRendering())
+            return;
 
-            for (AABB aabb : groupsAABB)
-                renderAABB(matrices, aabb, 0xFFFF00FF);
-        }
+        Vector3f cam = Client.getInstance().camera.getPos();
+        if (cam.distanceSquared(pos) > 256)
+            return;
+
+        renderAABB(matrices, aabb, -1);
+
+        for (AABB aabb : groupsAABB)
+            renderAABB(matrices, aabb, 0xFFFF00FF);
     }
 
     private static void renderAABB(MatrixStack matrices, AABB aabb, int color) {

@@ -33,6 +33,6 @@ public class TextParticle extends Particle {
 
     public boolean shouldRender() {
         Vector3f cam = Client.getInstance().camera.getPos();
-        return cam.distanceSquared(getPos()) < 256;
+        return cam.distanceSquared(getPos()) <= 256;
     }
 }

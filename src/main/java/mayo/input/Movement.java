@@ -2,6 +2,7 @@ package mayo.input;
 
 import mayo.Client;
 import mayo.world.entity.Entity;
+import mayo.world.entity.living.Player;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -69,6 +70,9 @@ public class Movement {
         movement.set(0);
 
         entity.rotate(rotation.y, rotation.x);
+
+        if (entity instanceof Player p)
+            p.updateMovementFlags(sneak, sprint);
     }
 
     public void reset() {

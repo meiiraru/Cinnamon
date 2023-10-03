@@ -1,26 +1,32 @@
 # Repo
 * https://github.com/sheep-may/Mayo
 # Controls
-* Escape: exit
-* Left-Alt: release mouse controls
+* Escape: pause menu
 #
 * WASD: move
-* Space: move up
-* Left-Shift: move down
+* Space: jump
 * TAB: sprint
+* Left-Control: sneak
 #
 * Mouse: rotate camera
-* Left-Click: break
-* Right-Click: place
-* Middle-Click: pick block
+* Left-Click: shoot
 * Scroll: change hotbar slot
+* R: reload
 #
 * 1-9: select hotbar slot
 #
-* Z: toggle light rotation
-* X: move light to camera (must not be rotating)
+* F3: toggle debug menu
+* F5: toggle third person view
+# Options
+* fov: field of view (default `70`)
+* sensibility: mouse movement (default `0.27`)
 #
-* F1-F4: load save slot
+* player: player model (default `"STRAWBERRY"`)
+* `PICKLE`, `STRAWBERRY`, `TOMATO`, `CHERRY`, `ICE_CREAM_SANDWICH`, `DONUT`, `ICE_CREAM`, `PANCAKE`, `COXINHA`
 #
-* F5: filled renderer
-* F6: lines renderer
+* enemySpawn: ticks to wait between enemy spawns (default `60`)
+* healthSpawn: ticks to wait between health pack spawns (default `300`)
+* boostSpawn: ticks to wait between boost spawns (default `300`)
+#
+* enemyBehaviour: actions for enemies to execute (default `["WALK"]`)
+* `WALK`, `SHOOT`

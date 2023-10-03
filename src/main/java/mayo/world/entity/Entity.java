@@ -90,39 +90,44 @@ public abstract class Entity {
 
     public boolean shouldRenderText() {
         Vector3f cam = Client.getInstance().camera.getPos();
-        return cam.distanceSquared(pos) < 256;
+        return cam.distanceSquared(pos) <= 256;
     }
 
     protected void renderDebugHitbox(MatrixStack matrices, float delta) {
-        if (world.isDebugRendering()) {
-            //bounding box
-            Vector3f min = aabb.getMin();
-            Vector3f max = aabb.getMax();
-            GeometryHelper.pushCube(VertexConsumer.LINES, matrices, min.x, min.y, min.z, max.x, max.y, max.z, -1);
+        if (!world.isDebugRendering())
+            return;
 
-            //eye pos
-            Vector3f eye = getEyePos();
-            if (this instanceof LivingEntity) {
-                float f = 0.01f;
-                GeometryHelper.pushCube(VertexConsumer.LINES, matrices, min.x, eye.y - f, min.z, max.x, eye.y + f, max.z, 0xFFFF0000);
-            }
+        Vector3f cam = Client.getInstance().camera.getPos();
+        if (cam.distanceSquared(pos) > 256)
+            return;
 
-            //looking dir
-            matrices.push();
-            matrices.translate(eye);
-            matrices.rotate(Rotation.Y.rotationDeg(-rot.y + 90));
-            matrices.rotate(Rotation.Z.rotationDeg(-rot.x));
+        //bounding box
+        Vector3f min = aabb.getMin();
+        Vector3f max = aabb.getMax();
+        GeometryHelper.pushCube(VertexConsumer.LINES, matrices, min.x, min.y, min.z, max.x, max.y, max.z, -1);
 
-            VertexConsumer.LINES.consume(GeometryHelper.quad(
-                    matrices,
-                    0f, 0f, 0f,
-                    dimensions.x + 1f, 0f,
-                    0xFF0000FF
-
-            ), 0);
-
-            matrices.pop();
+        //eye pos
+        Vector3f eye = getEyePos();
+        if (this instanceof LivingEntity) {
+            float f = 0.01f;
+            GeometryHelper.pushCube(VertexConsumer.LINES, matrices, min.x, eye.y - f, min.z, max.x, eye.y + f, max.z, 0xFFFF0000);
         }
+
+        //looking dir
+        matrices.push();
+        matrices.translate(eye);
+        matrices.rotate(Rotation.Y.rotationDeg(-rot.y + 90));
+        matrices.rotate(Rotation.Z.rotationDeg(-rot.x));
+
+        VertexConsumer.LINES.consume(GeometryHelper.quad(
+                matrices,
+                0f, 0f, 0f,
+                dimensions.x + 1f, 0f,
+                0xFF0000FF
+
+        ), 0);
+
+        matrices.pop();
     }
 
     public void onAdd() {}

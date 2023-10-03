@@ -125,7 +125,12 @@ public class World {
         if (c.options.enemySpawn > 0 && c.ticks % c.options.enemySpawn == 0) {
             Enemy enemy = new Enemy(this, c.options.enemyBehaviour);
             enemy.setPos((int) (Math.random() * 128) - 64, 0, (int) (Math.random() * 128) - 64);
-            enemy.giveItem(new CoilGun(1, 20, 0));
+            for (AIBehaviour behaviour : c.options.enemyBehaviour) {
+                if (behaviour == AIBehaviour.SHOOT) {
+                    enemy.giveItem(new CoilGun(1, 20, 0));
+                    break;
+                }
+            }
             addEntity(enemy);
         }
 

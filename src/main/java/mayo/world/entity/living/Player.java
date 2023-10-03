@@ -17,6 +17,8 @@ public class Player extends LivingEntity {
     private Entity damageSource;
     private int damageSourceTicks = 0;
 
+    private boolean sprinting, sneaking;
+
     public Player(World world, ModelRegistry.Living model) {
         super(model == null ? ModelRegistry.Living.random() : model, world, MAX_HEALTH, INVENTORY_SIZE);
     }
@@ -78,5 +80,15 @@ public class Player extends LivingEntity {
 
     public int getDamageSourceTicks() {
         return damageSourceTicks;
+    }
+
+    public void updateMovementFlags(boolean sneaking, boolean sprinting) {
+        this.sneaking = sneaking;
+        this.sprinting = sprinting;
+    }
+
+    @Override
+    protected float getMoveSpeed() {
+        return super.getMoveSpeed() * (sneaking ? 0.5f : sprinting ? 2f : 1f);
     }
 }
