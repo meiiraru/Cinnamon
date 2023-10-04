@@ -84,11 +84,18 @@ public class Player extends LivingEntity {
 
     public void updateMovementFlags(boolean sneaking, boolean sprinting) {
         this.sneaking = sneaking;
-        this.sprinting = sprinting;
+        this.sprinting = !sneaking && (this.sprinting || sprinting);
+    }
+
+    @Override
+    public void move(float left, float up, float forwards) {
+        super.move(left, up, forwards);
+        if (forwards <= 0f)
+            sprinting = false;
     }
 
     @Override
     protected float getMoveSpeed() {
-        return super.getMoveSpeed() * (sneaking ? 0.5f : sprinting ? 2f : 1f);
+        return super.getMoveSpeed() * (sneaking ? 0.5f : sprinting ? 1.3f : 1f);
     }
 }

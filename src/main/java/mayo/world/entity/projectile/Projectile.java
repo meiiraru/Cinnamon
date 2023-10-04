@@ -63,6 +63,11 @@ public abstract class Projectile extends PhysEntity {
     }
 
     @Override
+    protected void applyMovement() {
+        this.motion.add(move);
+    }
+
+    @Override
     public void onAdd() {
         super.onAdd();
         this.move(0, 0, 1);

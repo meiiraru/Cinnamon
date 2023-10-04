@@ -117,7 +117,7 @@ public abstract class LivingEntity extends PhysEntity {
     @Override
     public void move(float left, float up, float forwards) {
         if (this.onGround && up > 0)
-            this.motion.y = getJumpStrength();
+            this.move.y = getJumpStrength();
 
         float distance = left * left + forwards * forwards;
         //stop moving if too slow
@@ -130,8 +130,8 @@ public abstract class LivingEntity extends PhysEntity {
         forwards *= distance;
 
         //move the entity in facing direction
-        this.motion.set(left, motion.y, -forwards);
-        this.motion.rotateY((float) Math.toRadians(-rot.y));
+        this.move.set(left, move.y, -forwards);
+        this.move.rotateY((float) Math.toRadians(-rot.y));
     }
 
     protected float getJumpStrength() {
@@ -239,7 +239,7 @@ public abstract class LivingEntity extends PhysEntity {
     protected float getMoveSpeed() {
         float speed = super.getMoveSpeed();
         if (hasEffect(Effect.Type.SPEED))
-            speed += 0.1f * (getEffect(Effect.Type.SPEED).getAmplitude() + 1);
+            speed += 0.02f * (getEffect(Effect.Type.SPEED).getAmplitude() + 1);
         return speed;
     }
 

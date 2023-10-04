@@ -41,6 +41,6 @@ public class Enemy extends LivingEntity {
 
     @Override
     protected float getMoveSpeed() {
-        return 0.1f;
+        return super.getMoveSpeed() * 0.5f;
     }
 }

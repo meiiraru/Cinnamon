@@ -13,10 +13,10 @@ import mayo.utils.AABB;
 import mayo.utils.ColorUtils;
 import mayo.utils.Rotation;
 import mayo.world.entity.Entity;
+import mayo.world.entity.PhysEntity;
 import mayo.world.entity.collectable.EffectBox;
 import mayo.world.entity.collectable.HealthPack;
 import mayo.world.entity.living.Enemy;
-import mayo.world.entity.living.LivingEntity;
 import mayo.world.entity.living.Player;
 import mayo.world.items.Item;
 import mayo.world.items.weapons.CoilGun;
@@ -354,9 +354,9 @@ public class World {
             entity.damage(source, DamageType.EXPLOSION, damage, false);
 
             //knock back
-            if (entity instanceof LivingEntity le) {
-                Vector3f dir = explosionBB.getCenter().sub(le.getAABB().getCenter(), new Vector3f()).normalize().mul(-0.5f * strength);
-                le.getMotion().add(dir);
+            if (entity instanceof PhysEntity e) {
+                Vector3f dir = explosionBB.getCenter().sub(e.getAABB().getCenter(), new Vector3f()).normalize().mul(-1);
+                e.knockback(dir, 0.5f * strength);
             }
         }
 

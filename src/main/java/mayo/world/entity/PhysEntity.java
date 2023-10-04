@@ -9,7 +9,9 @@ import java.util.List;
 
 public abstract class PhysEntity extends Entity {
 
-    protected final Vector3f motion = new Vector3f();
+    protected final Vector3f
+            motion = new Vector3f(),
+            move = new Vector3f();
 
     protected boolean onGround;
 
@@ -22,6 +24,9 @@ public abstract class PhysEntity extends Entity {
 
         //apply forces like gravity:tm:
         applyForces();
+
+        //apply my current desired movement into my motion
+        applyMovement();
 
         //move the entity using the motion
         Vector3f allowedMotion = checkCollisions(motion);
@@ -38,10 +43,17 @@ public abstract class PhysEntity extends Entity {
         //decrease motion
         motionFallout();
 
+        //clear input
+        move.set(0);
+
         //collide entities
         for (Entity entity : world.getEntities(aabb))
             if (entity != this && !entity.isRemoved())
                 collide(entity);
+    }
+
+    protected void applyMovement() {
+        this.motion.add(move.mul(onGround ? 1 : 0.125f));
     }
 
     protected void applyForces() {
@@ -82,13 +94,13 @@ public abstract class PhysEntity extends Entity {
         forwards *= distance;
 
         //move the entity in facing direction
-        this.motion.set(left, up, -forwards);
-        this.motion.rotateX((float) Math.toRadians(-rot.x));
-        this.motion.rotateY((float) Math.toRadians(-rot.y));
+        this.move.set(left, up, -forwards);
+        this.move.rotateX((float) Math.toRadians(-rot.x));
+        this.move.rotateY((float) Math.toRadians(-rot.y));
     }
 
     protected float getMoveSpeed() {
-        return 0.2f;
+        return 0.15f;
     }
 
     protected Vector3f checkCollisions(Vector3f vec) {
@@ -120,7 +132,7 @@ public abstract class PhysEntity extends Entity {
 
     protected void collide(Entity entity) {}
 
-    public void setMotiom(Vector3f vec) {
+    public void setMotion(Vector3f vec) {
         this.setMotion(vec.x, vec.y, vec.z);
     }
 
@@ -134,5 +146,9 @@ public abstract class PhysEntity extends Entity {
 
     public boolean isOnGround() {
         return onGround;
+    }
+
+    public void knockback(Vector3f dir, float force) {
+        this.motion.add(dir.x * force, dir.y * force, dir.z * force);
     }
 }
