@@ -65,6 +65,11 @@ public class Meth {
         return new Vector3f((float) (Math.sin(y) * cosP), (float) Math.sin(p), (float) (Math.cos(y) * cosP));
     }
 
+    public static Vector2f rotToDir(float degrees) {
+        double angle = Math.toRadians(degrees);
+        return new Vector2f((float) Math.cos(angle), (float) Math.sin(angle));
+    }
+
     public static Vector2f dirToRot(Vector3f dir) {
         return dirToRot(dir.x, dir.y, dir.z);
     }
@@ -75,19 +80,27 @@ public class Meth {
         return new Vector2f(pitch, yaw + 90f);
     }
 
+    public static float dirToRot(Vector2f dir) {
+        return dirToRot(dir.x, dir.y);
+    }
+
+    public static float dirToRot(float x, float y) {
+        return (float) Math.toDegrees(Math.atan2(y, x));
+    }
+
     public static float modulo(float a, float n) {
         return (a % n + n) % n;
     }
 
-    public static void reflect(Vector3f dir, Vector3f normal) {
+    public static Vector3f reflect(Vector3f dir, Vector3f normal) {
         //r = d − 2 * (d dot n) * n
         float dot = dir.dot(normal) * 2;
-        dir.sub(normal.x * dot, normal.y * dot, normal.z * dot);
+        return dir.sub(normal.x * dot, normal.y * dot, normal.z * dot, new Vector3f());
     }
 
-    public static void reflect(Vector2f dir, Vector2f normal) {
+    public static Vector2f reflect(Vector2f dir, Vector2f normal) {
         float dot = dir.dot(normal) * 2;
-        dir.sub(normal.x * dot, normal.y * dot);
+        return dir.sub(normal.x * dot, normal.y * dot, new Vector2f());
     }
 
     private static final String[] SIZE_UNITS = {"b", "kb", "mb", "gb"};

@@ -29,8 +29,9 @@ public class DVDScreen extends Screen {
 
     private final Screen parentScreen;
     private final Vector2f
-            pos = new Vector2f(),
-            dir = new Vector2f();
+            oPos = new Vector2f(),
+            pos = new Vector2f();
+    private float rot = 0;
     private Colors color;
 
     public DVDScreen(Screen parentScreen) {
@@ -53,48 +54,59 @@ public class DVDScreen extends Screen {
         //set color and position
         this.changeColor();
         pos.set((int) ((width - w) / 2f), (int) ((height - h) / 2f));
-        dir.set(Math.random() < 0.5f ? speed : -speed, Math.random() < 0.5f ? speed : -speed);
+
+        //get a random 45 degrees angle
+        rot = (int) (Math.random() * 4) * 90 + 45;
     }
 
     @Override
     public void tick() {
         super.tick();
 
+        //update position
+        oPos.set(pos);
+
+        Vector2f dir = Meth.rotToDir(rot).mul(speed);
         pos.add(dir);
 
         //up
         if (pos.y <= 0f) {
-            Meth.reflect(dir, UP);
+            dir.set(Meth.reflect(dir, UP));
             changeColor();
             pos.y = 0f;
         }
         //down
         if (pos.y + h >= height) {
-            Meth.reflect(dir, DOWN);
+            dir.set(Meth.reflect(dir, DOWN));
             changeColor();
             pos.y = height - h;
         }
         //left
         if (pos.x <= 0f) {
-            Meth.reflect(dir, LEFT);
+            dir.set(Meth.reflect(dir, LEFT));
             changeColor();
             pos.x = 0f;
         }
         //right
         if (pos.x + w >= width) {
-            Meth.reflect(dir, RIGHT);
+            dir.set(Meth.reflect(dir, RIGHT));
             changeColor();
             pos.x = width - w;
         }
+
+        //update rotation
+        rot = Meth.dirToRot(dir);
     }
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        Vertex[] vertices = GeometryHelper.quad(matrices, pos.x + dir.x * delta, pos.y + dir.y * delta, w, h);
+        Vector2f p = Meth.lerp(oPos, pos, delta);
+        Vertex[] vertices = GeometryHelper.quad(matrices, p.x, p.y, w, h);
         for (Vertex vertex : vertices)
             vertex.color(color.rgba);
         VertexConsumer.GUI.consume(vertices, DVD_TEX.getID());
 
+        //render children on top
         super.render(matrices, mouseX, mouseY, delta);
     }
 
