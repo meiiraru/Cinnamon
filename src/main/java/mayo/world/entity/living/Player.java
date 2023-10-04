@@ -48,9 +48,14 @@ public class Player extends LivingEntity {
             this.invulnerability = INVULNERABILITY_TIME;
         }
 
-        this.damageSource = source;
-        this.damageSourceTicks = 30;
-        return super.damage(source, type, amount, crit);
+        boolean result = super.damage(source, type, amount, crit);
+
+        if (result) {
+            this.damageSource = source;
+            this.damageSourceTicks = 30;
+        }
+
+        return result;
     }
 
     @Override

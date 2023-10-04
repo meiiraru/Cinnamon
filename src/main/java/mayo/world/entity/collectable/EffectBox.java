@@ -22,7 +22,8 @@ public class EffectBox extends Collectable {
             () -> Effect.Type.DAMAGE_BOOST.create(150, 2),
             () -> Effect.Type.DAMAGE_BOOST.create(200, 1),
             () -> Effect.Type.HEAL.create(200, 2),
-            () -> Effect.Type.SPEED.create(300)
+            () -> Effect.Type.SPEED.create(300),
+            () -> Effect.Type.EXPLOSION_IMMUNITY.create(200)
     );
 
     public EffectBox(World world) {

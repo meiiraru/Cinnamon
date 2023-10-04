@@ -362,7 +362,7 @@ public class World {
 
         //particles
         for (int i = 0; i < 30 * range; i++) {
-            ExplosionParticle particle = new ExplosionParticle((int) (Math.random() * 10) + 10);
+            ExplosionParticle particle = new ExplosionParticle((int) (Math.random() * 10) + 15);
             particle.setPos(explosionBB.getRandomPoint());
             particle.setScale(5f);
             addParticle(particle);

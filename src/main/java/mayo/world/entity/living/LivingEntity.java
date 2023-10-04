@@ -162,6 +162,9 @@ public abstract class LivingEntity extends PhysEntity {
 
     @Override
     public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
+        if (type == DamageType.EXPLOSION && this.hasEffect(Effect.Type.EXPLOSION_IMMUNITY))
+            return false;
+
         //apply critical
         amount = (int) (amount * (crit ? 1.5f : 1f));
 
@@ -246,7 +249,7 @@ public abstract class LivingEntity extends PhysEntity {
     protected float getMoveSpeed() {
         float speed = super.getMoveSpeed();
         if (hasEffect(Effect.Type.SPEED))
-            speed += 0.02f * (getEffect(Effect.Type.SPEED).getAmplitude() + 1);
+            speed += 0.03f * (getEffect(Effect.Type.SPEED).getAmplitude() + 1);
         return speed;
     }
 

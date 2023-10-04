@@ -22,7 +22,7 @@ public class Effect {
             return;
 
         time++;
-        isDone = time >= duration;
+        isDone = time > duration;
     }
 
     public Type getType() {
@@ -55,7 +55,8 @@ public class Effect {
         NEVER_CRIT,
         DAMAGE_BOOST,
         HEAL,
-        SPEED;
+        SPEED,
+        EXPLOSION_IMMUNITY;
 
         private final BiFunction<Integer, Integer, Effect> function = (i, ii) -> new Effect(this, i, ii);
 

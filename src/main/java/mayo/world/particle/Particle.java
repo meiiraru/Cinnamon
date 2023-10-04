@@ -28,7 +28,7 @@ public abstract class Particle {
 
         //tick time
         age++;
-        removed = age >= lifetime;
+        removed = age > lifetime;
     }
 
     public void render(MatrixStack matrices, float delta) {
