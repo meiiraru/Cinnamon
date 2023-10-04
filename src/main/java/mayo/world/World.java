@@ -90,6 +90,11 @@ public class World {
             tick.run();
         scheduledTicks.clear();
 
+        //if the player is dead, show death screen
+        Client c = Client.getInstance();
+        if (player.isDead())
+            c.setScreen(new DeathScreen());
+
         //terrain
         for (Terrain terrain : terrain)
             terrain.tick();
@@ -107,11 +112,6 @@ public class World {
 
         //remove dead particles
         particles.removeIf(Particle::isRemoved);
-
-        //if the player is dead, show death screen
-        Client c = Client.getInstance();
-        if (player.isDead())
-            c.setScreen(new DeathScreen());
 
         //process input
         this.movement.apply(player);

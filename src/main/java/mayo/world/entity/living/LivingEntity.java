@@ -18,6 +18,7 @@ import mayo.world.entity.PhysEntity;
 import mayo.world.items.Item;
 import mayo.world.particle.CloudParticle;
 import mayo.world.particle.TextParticle;
+import org.joml.Vector3f;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -111,7 +112,13 @@ public abstract class LivingEntity extends PhysEntity {
     @Override
     protected void collide(Entity entity) {
         super.collide(entity);
-        //todo - push back both entities based on the side they are colliding
+
+        if (!(entity instanceof LivingEntity l))
+            return;
+
+        //entity push
+        Vector3f collision = checkEntityCollision(entity).mul(l.getPushForce());
+        this.motion.add(collision.x, 0, collision.z);
     }
 
     @Override

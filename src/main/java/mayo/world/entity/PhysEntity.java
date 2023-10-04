@@ -130,6 +130,22 @@ public abstract class PhysEntity extends Entity {
         return new Vector3f(x, y, z);
     }
 
+    protected Vector3f checkEntityCollision(Entity entity) {
+        //get AABB
+        AABB other = entity.getAABB();
+
+        //calculate collision
+        return new Vector3f(
+                aabb.getXOverlap(other),
+                aabb.getYOverlap(other),
+                aabb.getZOverlap(other)
+        );
+    }
+
+    protected float getPushForce() {
+        return 0.015f;
+    }
+
     protected void collide(Entity entity) {}
 
     public void setMotion(Vector3f vec) {

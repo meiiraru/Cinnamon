@@ -96,6 +96,10 @@ public class AABB {
         return this;
     }
 
+    public AABB expand(Vector3f vec) {
+        return this.expand(vec.x, vec.y, vec.z);
+    }
+
     public AABB expand(float x, float y, float z) {
         if (x < 0f) minX += x;
         else maxX += x;
@@ -226,5 +230,50 @@ public class AABB {
         }
 
         return z;
+    }
+
+    public float getXOverlap(AABB other) {
+        //check if there is collision on the Y axis
+        if (other.maxY <= this.minY || other.minY >= this.maxY)
+            return 0;
+
+        //check if there is collision on the Z axis
+        if (other.maxZ <= this.minZ || other.minZ >= this.maxZ)
+            return 0;
+
+        if (this.minX <= other.minX)
+            return this.minX - other.maxX - this.epsilon;
+
+        return this.maxX - other.minX + this.epsilon;
+    }
+
+    public float getYOverlap(AABB other) {
+        //check if there is collision on the X axis
+        if (other.maxX <= this.minX || other.minX >= this.maxX)
+            return 0;
+
+        //check if there is collision on the Z axis
+        if (other.maxZ <= this.minZ || other.minZ >= this.maxZ)
+            return 0;
+
+        if (this.minY <= other.minY)
+            return this.minY - other.maxY - this.epsilon;
+
+        return this.maxY - other.minY + this.epsilon;
+    }
+
+    public float getZOverlap(AABB other) {
+        //check if there is collision on the X axis
+        if (other.maxX <= this.minX || other.minX >= this.maxX)
+            return 0;
+
+        //check if there is collision on the Y axis
+        if (other.maxY <= this.minY || other.minY >= this.maxY)
+            return 0;
+
+        if (this.minZ <= other.minZ)
+            return this.minZ - other.maxZ - this.epsilon;
+
+        return this.maxZ - other.minZ + this.epsilon;
     }
 }
