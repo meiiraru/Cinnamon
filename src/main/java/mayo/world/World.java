@@ -19,6 +19,8 @@ import mayo.world.entity.collectable.HealthPack;
 import mayo.world.entity.living.Enemy;
 import mayo.world.entity.living.Player;
 import mayo.world.items.Item;
+import mayo.world.items.ItemRenderContext;
+import mayo.world.items.MagicWand;
 import mayo.world.items.weapons.CoilGun;
 import mayo.world.items.weapons.Firearm;
 import mayo.world.items.weapons.PotatoCannon;
@@ -199,7 +201,7 @@ public class World {
         matrices.translate(-0.75f, -0.5f, 1f);
         matrices.rotate(Rotation.Y.rotationDeg(170));
 
-        item.render(matrices, delta);
+        item.render(ItemRenderContext.FIRST_PERSON, matrices, delta);
 
         matrices.pop();
     }
@@ -229,8 +231,16 @@ public class World {
         boolean press = action == GLFW_PRESS;
 
         switch (button) {
-            case GLFW_MOUSE_BUTTON_1 -> attackPress = press;
-            case GLFW_MOUSE_BUTTON_2 -> usePress = press;
+            case GLFW_MOUSE_BUTTON_1 -> {
+                if (attackPress && !press)
+                    player.stopAttacking();
+                attackPress = press;
+            }
+            case GLFW_MOUSE_BUTTON_2 -> {
+                if (usePress && !press)
+                    player.stopUsing();
+                usePress = press;
+            }
         }
 
         processMouseInput();
@@ -329,6 +339,7 @@ public class World {
         player = new Player(this, Client.getInstance().options.player);
         player.giveItem(new CoilGun(1, 5, 0));
         player.giveItem(new PotatoCannon(3, 40, 30));
+        player.giveItem(new MagicWand(1));
         player.setPos(0, 3, 8);
         addEntity(player);
     }

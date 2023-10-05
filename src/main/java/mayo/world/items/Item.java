@@ -20,7 +20,7 @@ public abstract class Item {
 
     public void tick() {}
 
-    public void render(MatrixStack matrices, float delta) {
+    public void render(ItemRenderContext context, MatrixStack matrices, float delta) {
         //render model
         Shader.activeShader.setMatrixStack(matrices);
         model.render();
@@ -28,7 +28,11 @@ public abstract class Item {
 
     public void attack(Entity source) {}
 
+    public void stopAttacking() {}
+
     public void use(Entity source) {}
+
+    public void stopUsing() {}
 
     public String getId() {
         return id;

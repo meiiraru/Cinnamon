@@ -19,6 +19,7 @@ import mayo.world.entity.living.Inventory;
 import mayo.world.entity.living.Player;
 import mayo.world.items.CooldownItem;
 import mayo.world.items.Item;
+import mayo.world.items.ItemRenderContext;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -242,7 +243,7 @@ public class Hud {
                 matrices.rotate(Rotation.X.rotationDeg(35));
                 matrices.scale(-8);
 
-                item.render(matrices, delta);
+                item.render(ItemRenderContext.HUD, matrices, delta);
 
                 matrices.pop();
             }

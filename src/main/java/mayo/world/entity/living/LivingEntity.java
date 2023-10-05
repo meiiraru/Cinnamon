@@ -16,6 +16,7 @@ import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
 import mayo.world.items.Item;
+import mayo.world.items.ItemRenderContext;
 import mayo.world.particle.CloudParticle;
 import mayo.world.particle.TextParticle;
 import org.joml.Vector3f;
@@ -80,7 +81,7 @@ public abstract class LivingEntity extends PhysEntity {
 
         matrices.peek().normal().rotate(Rotation.Y.rotationDeg(-rot.y * 2f));
 
-        item.render(matrices, delta);
+        item.render(ItemRenderContext.THIRD_PERSON, matrices, delta);
 
         matrices.pop();
     }
@@ -227,6 +228,12 @@ public abstract class LivingEntity extends PhysEntity {
             item.attack(this);
     }
 
+    public void stopAttacking() {
+        Item item = getHoldingItem();
+        if (item != null && item.hasAttack())
+            item.stopAttacking();
+    }
+
     public void use() {
         //todo - try to use current object
         //todo - try to use facing entity
@@ -234,6 +241,11 @@ public abstract class LivingEntity extends PhysEntity {
         //use holding item
         if (getHoldingItem() != null)
             getHoldingItem().use(this);
+    }
+
+    public void stopUsing() {
+        if (getHoldingItem() != null)
+            getHoldingItem().stopUsing();
     }
 
     public boolean giveItem(Item item) {
