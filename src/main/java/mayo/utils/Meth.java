@@ -103,6 +103,36 @@ public class Meth {
         return dir.sub(normal.x * dot, normal.y * dot, new Vector2f());
     }
 
+    public static Vector3f toRadians(Vector3f vec) {
+        return new Vector3f(
+                (float) Math.toRadians(vec.x),
+                (float) Math.toRadians(vec.y),
+                (float) Math.toRadians(vec.z)
+        );
+    }
+
+    public static Vector2f toRadians(Vector2f vec) {
+        return new Vector2f(
+                (float) Math.toRadians(vec.x),
+                (float) Math.toRadians(vec.y)
+        );
+    }
+
+    public static Vector3f toDegrees(Vector3f vec) {
+        return new Vector3f(
+                (float) Math.toDegrees(vec.x),
+                (float) Math.toDegrees(vec.y),
+                (float) Math.toDegrees(vec.z)
+        );
+    }
+
+    public static Vector2f toDegrees(Vector2f vec) {
+        return new Vector2f(
+                (float) Math.toDegrees(vec.x),
+                (float) Math.toDegrees(vec.y)
+        );
+    }
+
     private static final String[] SIZE_UNITS = {"b", "kb", "mb", "gb"};
     public static String prettyByteSize(double size) {
         int i = 0;
