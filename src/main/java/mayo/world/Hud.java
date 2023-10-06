@@ -303,6 +303,12 @@ public class Hud {
             face = "North Z-";
         }
 
+        Vector3f chunk = new Vector3f(
+                (int) Math.floor(epos.x / 32f),
+                (int) Math.floor(epos.y / 32f),
+                (int) Math.floor(epos.z / 32f)
+        );
+
         return String.format("""
                         [world]
                         %s entities %s particles %s terrain
@@ -311,6 +317,7 @@ public class Hud {
                         xyz %.3f %.3f %.3f
                         pitch %.3f yaw %.3f
                         motion %.3f %.3f %.3f
+                        chunk %.0f %.0f %.0f
 
                         [camera]
                         xyz %.3f %.3f %.3f
@@ -322,6 +329,7 @@ public class Hud {
                 epos.x, epos.y, epos.z,
                 erot.x, erot.y,
                 emot.x, emot.y, emot.z,
+                chunk.x, chunk.y, chunk.z,
 
                 cpos.x, cpos.y, cpos.z,
                 crot.x, crot.y,

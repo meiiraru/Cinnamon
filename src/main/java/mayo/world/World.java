@@ -11,6 +11,7 @@ import mayo.render.shader.Shaders;
 import mayo.text.Text;
 import mayo.utils.AABB;
 import mayo.utils.ColorUtils;
+import mayo.utils.Resource;
 import mayo.utils.Rotation;
 import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
@@ -27,10 +28,7 @@ import mayo.world.items.weapons.PotatoCannon;
 import mayo.world.items.weapons.RiceGun;
 import mayo.world.particle.ExplosionParticle;
 import mayo.world.particle.Particle;
-import mayo.world.terrain.Grass;
-import mayo.world.terrain.LightPole;
 import mayo.world.terrain.Terrain;
-import mayo.world.terrain.Tree;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -70,24 +68,8 @@ public class World {
         //tutorial toast
         Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), Client.getInstance().font);
 
-        //temp
-        Terrain grass = new Grass(this);
-        addTerrain(grass);
-
-        Terrain lamp = new LightPole(this);
-        addTerrain(lamp);
-
-        for (int i = -64; i <= 64; i += 128) {
-            for (int j = -64; j <= 64; j += 2) {
-                Terrain tree = new Tree(this);
-                tree.setPos(i, 0, j);
-                addTerrain(tree);
-
-                Terrain tree2 = new Tree(this);
-                tree2.setPos(j, 0, i);
-                addTerrain(tree2);
-            }
-        }
+        //load level
+        LevelLoad.load(this, new Resource("data/levels/level0.json"));
     }
 
     public void tick() {
