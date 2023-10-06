@@ -9,6 +9,10 @@ import org.joml.Vector3f;
 
 public class Camera {
 
+    public static final float
+            NEAR_PLANE = 0.1f,
+            FAR_PLANE = 1000f;
+
     private final Vector3f
             pos = new Vector3f(),
             forwards = new Vector3f(0f, 0f, -1f),
@@ -68,7 +72,7 @@ public class Camera {
     }
 
     public void updateProjMatrix(int width, int height, float fov) {
-        perspMatrix.set(new Matrix4f().perspective((float) Math.toRadians(fov), (float) width / height, 0.1f, 1000f));
+        perspMatrix.set(new Matrix4f().perspective((float) Math.toRadians(fov), (float) width / height, NEAR_PLANE, FAR_PLANE));
         orthoMatrix.set(new Matrix4f().ortho(0, width, height, 0, -1000, 1000));
     }
 

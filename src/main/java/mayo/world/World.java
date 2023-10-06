@@ -28,6 +28,7 @@ import mayo.world.items.weapons.RiceGun;
 import mayo.world.particle.ExplosionParticle;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.Grass;
+import mayo.world.terrain.LightPole;
 import mayo.world.terrain.Terrain;
 import mayo.world.terrain.Tree;
 import org.joml.Matrix4f;
@@ -46,6 +47,8 @@ public class World {
     private final List<Terrain> terrain = new ArrayList<>();
     private final List<Entity> entities = new ArrayList<>();
     private final List<Particle> particles = new ArrayList<>();
+
+    private final SkyBox skyBox = new SkyBox();
 
     private final Movement movement = new Movement();
     public Player player;
@@ -70,6 +73,9 @@ public class World {
         //temp
         Terrain grass = new Grass(this);
         addTerrain(grass);
+
+        Terrain lamp = new LightPole(this);
+        addTerrain(lamp);
 
         for (int i = -64; i <= 64; i += 128) {
             for (int j = -64; j <= 64; j += 2) {
@@ -168,6 +174,9 @@ public class World {
 
         //apply lighting
         uploadLightUniforms(s);
+
+        //render skybox
+        skyBox.render(c.camera, matrices);
 
         //render terrain
         for (Terrain terrain : terrain)
