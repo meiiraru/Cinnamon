@@ -2,12 +2,15 @@ package mayo.world.entity.projectile;
 
 import mayo.model.ModelManager;
 import mayo.render.Model;
+import mayo.utils.Meth;
 import mayo.utils.Resource;
 import mayo.world.World;
 import mayo.world.entity.Entity;
 import mayo.world.particle.CloudParticle;
 import mayo.world.particle.Particle;
+import org.joml.Quaternionf;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 public class RiceBall extends Projectile {
 
@@ -18,7 +21,7 @@ public class RiceBall extends Projectile {
     public static final float CRIT_CHANCE = 0.15f;
     public static final float SPREAD_ANGLE = 20;
     public static final int SPLIT_LIFE = 15;
-    public static final int SPLIT_AMOUNT = 1000;
+    public static final int SPLIT_AMOUNT = 10;
 
     public RiceBall(World world, Entity owner) {
         super(MODEL, world, DAMAGE, LIFETIME, SPEED, 0f, owner);
@@ -52,7 +55,12 @@ public class RiceBall extends Projectile {
         particle.setPos(this.getPos());
         world.addParticle(particle);
 
-        float half = SPREAD_ANGLE * 0.5f;
+        Vector2f rot = this.getRot();
+        Quaternionf rotation = new Quaternionf().rotationYXZ((float) Math.toRadians(-rot.y), (float) Math.toRadians(-rot.x), 0f);
+        Vector3f forwards = new Vector3f(0f, 0f, -1f).rotate(rotation);
+        Vector3f up = new Vector3f(0f, 1f, 0f).rotate(rotation);
+        Vector3f left = new Vector3f(-1f, 0f, 0f).rotate(rotation);
+
         for (int i = 0; i < SPLIT_AMOUNT; i++) {
             Projectile proj = new Rice(world, owner, SPLIT_LIFE, this.speed, CRIT_CHANCE);
 
@@ -60,11 +68,21 @@ public class RiceBall extends Projectile {
             proj.setPos(this.getPos());
 
             //rot
-            Vector2f rot = this.getRot();
-            proj.setRot(
-                    rot.x + (float) Math.random() * SPREAD_ANGLE - half,
-                    rot.y + (float) Math.random() * SPREAD_ANGLE - half
-            );
+            float randomX = (float) Math.toRadians(Math.random() * 2 - 1);
+            float randomY = (float) Math.toRadians(Math.random() * 2 - 1);
+            float randomPitch = randomX * SPREAD_ANGLE;
+            float randomYaw = randomY * SPREAD_ANGLE;
+
+            float transformX = (float)(Math.cos(randomPitch) * Math.cos(randomYaw));
+            float transformY = (float)Math.sin(randomYaw);
+            float transformZ = (float)(Math.sin(randomPitch) * Math.cos(randomYaw));
+
+            Vector3f f = forwards.mul(transformX, new Vector3f());
+            Vector3f u = up.mul(transformY, new Vector3f());
+            Vector3f l = left.mul(transformZ, new Vector3f());
+            Vector3f finalDir = new Vector3f().add(f).add(u).add(l).normalize();
+
+            proj.setRot(Meth.dirToRot(finalDir));
 
             //add
             world.addEntity(proj);
