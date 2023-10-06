@@ -66,8 +66,8 @@ public class DVDScreen extends Screen {
         //update position
         oPos.set(pos);
 
-        Vector2f dir = Meth.rotToDir(rot).mul(speed);
-        pos.add(dir);
+        Vector2f dir = Meth.rotToDir(rot); //already normalized
+        pos.add(dir.x * speed, dir.y * speed);
 
         //up
         if (pos.y <= 0f) {

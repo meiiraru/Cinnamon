@@ -24,6 +24,7 @@ import mayo.world.items.MagicWand;
 import mayo.world.items.weapons.CoilGun;
 import mayo.world.items.weapons.Firearm;
 import mayo.world.items.weapons.PotatoCannon;
+import mayo.world.items.weapons.RiceGun;
 import mayo.world.particle.ExplosionParticle;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.Grass;
@@ -339,7 +340,8 @@ public class World {
         player = new Player(this, Client.getInstance().options.player);
         player.giveItem(new CoilGun(1, 5, 0));
         player.giveItem(new PotatoCannon(3, 40, 30));
-        player.giveItem(new MagicWand(1));
+        player.giveItem(new RiceGun(8, 80, 60));
+        player.getInventory().setItem(player.getInventory().getSize() - 1, new MagicWand(1));
         player.setPos(0, 3, 8);
         addEntity(player);
     }

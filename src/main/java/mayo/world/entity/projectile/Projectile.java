@@ -58,7 +58,7 @@ public abstract class Projectile extends PhysEntity {
         super.tick();
         lifetime--;
 
-        if (lifetime <= 0)
+        if (lifetime <= 0 && !isRemoved())
             remove();
     }
 
