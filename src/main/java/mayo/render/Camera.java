@@ -2,10 +2,9 @@ package mayo.render;
 
 import mayo.utils.Rotation;
 import mayo.world.entity.Entity;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
+import org.joml.*;
+
+import java.lang.Math;
 
 public class Camera {
 
@@ -93,6 +92,20 @@ public class Camera {
         Vector3f facing = getForwards();
         Vector3f target = new Vector3f(x, y, z).sub(pos).normalize();
         return facing.dot(target) > Math.cos(Math.toRadians(fov));
+    }
+
+    public Vector4f worldToScreenSpace(float x, float y, float z) {
+        Matrix3f transformMatrix = new Matrix3f().rotation(rotation);
+        transformMatrix.invert();
+
+        Vector3f posDiff = new Vector3f(x, y, z).sub(pos);
+        transformMatrix.transform(posDiff);
+
+        Vector4f projectiveCamSpace = new Vector4f(posDiff, 1f);
+        perspMatrix.transform(projectiveCamSpace);
+
+        float w = projectiveCamSpace.w();
+        return new Vector4f(projectiveCamSpace.x() / w, projectiveCamSpace.y() / w, projectiveCamSpace.z() / w, (float) Math.sqrt(posDiff.dot(posDiff)));
     }
 
     public Vector3f getPos() {
