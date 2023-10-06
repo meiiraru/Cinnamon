@@ -15,6 +15,7 @@
 #
 * 1-9: select hotbar slot
 #
+* F1: toggle hud
 * F3: toggle debug menu
 * F5: toggle third person view
 # Options

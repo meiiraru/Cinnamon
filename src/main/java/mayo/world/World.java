@@ -55,6 +55,7 @@ public class World {
 
     private boolean debugRendering;
     private boolean isPaused;
+    private boolean hideHUD;
 
     public final float gravity = 0.98f / 20f;
 
@@ -277,6 +278,7 @@ public class World {
                     firearm.setOnCooldown();
             }
             case GLFW_KEY_ESCAPE -> Client.getInstance().setScreen(new PauseScreen());
+            case GLFW_KEY_F1 -> this.hideHUD = !this.hideHUD;
             case GLFW_KEY_F3 -> this.debugRendering = !this.debugRendering;
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
         }
@@ -344,6 +346,10 @@ public class World {
 
     public boolean isThirdPerson() {
         return cameraMode > 0;
+    }
+
+    public boolean hideHUD() {
+        return hideHUD;
     }
 
     public void explode(Vector3f pos, float range, float strength, Entity source) {

@@ -19,7 +19,7 @@ public class LightPole extends Terrain {
         //every half second, spawn a new light particle
         if (Client.getInstance().ticks % 10 == 0) {
             LightParticle light = new LightParticle(60, 0xFFFFFFAA);
-            Vector3f pos = new Vector3f((float) Math.random() - 0.5f, (float) Math.random() * 0.5f + 2.75f, (float) Math.random() - 0.5f);
+            Vector3f pos = new Vector3f((float) Math.random(), (float) Math.random() * 0.5f + 2.75f, (float) Math.random());
             pos.add(getPos());
             light.setPos(pos);
             getWorld().addParticle(light);

@@ -72,17 +72,19 @@ public class Client {
             //finish world rendering
             VertexConsumer.finishAllBatches(camera.getPerspectiveMatrix(), camera.getViewMatrix());
 
-            //render first person hand
-            if (!world.isThirdPerson()) {
-                glClear(GL_DEPTH_BUFFER_BIT); //top of world
-                world.renderHand(matrices, delta);
-                VertexConsumer.finishAllBatches(camera.getPerspectiveMatrix(), new Matrix4f());
-            }
+            if (!world.hideHUD()) {
+                //render first person hand
+                if (!world.isThirdPerson()) {
+                    glClear(GL_DEPTH_BUFFER_BIT); //top of world
+                    world.renderHand(matrices, delta);
+                    VertexConsumer.finishAllBatches(camera.getPerspectiveMatrix(), new Matrix4f());
+                }
 
-            //render hud
-            glClear(GL_DEPTH_BUFFER_BIT); //top of hand
-            world.hud.render(matrices, delta);
-            VertexConsumer.finishAllBatches(camera.getOrthographicMatrix(), new Matrix4f());
+                //render hud
+                glClear(GL_DEPTH_BUFFER_BIT); //top of hand
+                world.hud.render(matrices, delta);
+                VertexConsumer.finishAllBatches(camera.getOrthographicMatrix(), new Matrix4f());
+            }
         }
 
         //render gui
