@@ -45,8 +45,4 @@ public abstract class Item {
     public int getCount() {
         return count;
     }
-
-    public boolean hasAttack() {
-        return false;
-    }
 }

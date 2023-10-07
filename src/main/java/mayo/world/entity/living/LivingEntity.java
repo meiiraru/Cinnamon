@@ -223,15 +223,13 @@ public abstract class LivingEntity extends PhysEntity {
         //todo - get entity in front and attack it
 
         //attack using holding item
-        Item item = getHoldingItem();
-        if (item != null && item.hasAttack())
-            item.attack(this);
+        if (getHoldingItem() != null)
+            getHoldingItem().attack(this);
     }
 
     public void stopAttacking() {
-        Item item = getHoldingItem();
-        if (item != null && item.hasAttack())
-            item.stopAttacking();
+        if (getHoldingItem() != null)
+            getHoldingItem().stopAttacking();
     }
 
     public void use() {

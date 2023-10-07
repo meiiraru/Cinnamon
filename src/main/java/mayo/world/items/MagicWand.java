@@ -4,12 +4,10 @@ import mayo.Client;
 import mayo.model.ModelManager;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
-import mayo.utils.ColorUtils;
-import mayo.utils.Maths;
-import mayo.utils.Resource;
-import mayo.utils.Rotation;
+import mayo.utils.*;
 import mayo.world.World;
 import mayo.world.entity.Entity;
+import mayo.world.particle.Particle;
 import mayo.world.particle.SquareParticle;
 import org.joml.Vector3f;
 
@@ -21,7 +19,8 @@ public class MagicWand extends Item {
     //properties :D
     private static final float DISTANCE = 3f;
     private static final float STEP = 1 / 4f;
-    private static final int LIFETIME = 300;
+    private static final int LIFETIME = Integer.MAX_VALUE;
+    private static final float ERASER_RANGE = 0.25f;
 
     private Vector3f lastPos;
 
@@ -49,7 +48,7 @@ public class MagicWand extends Item {
         super.attack(source);
 
         //calculate new pos
-        Vector3f pos = source.getLookDir().mul(DISTANCE).add(source.getEyePos());
+        Vector3f pos = spawnPos(source);
 
         //catch
         if (lastPos == null)
@@ -71,8 +70,21 @@ public class MagicWand extends Item {
     }
 
     @Override
-    public boolean hasAttack() {
-        return true;
+    public void use(Entity source) {
+        super.use(source);
+
+        //get area
+        AABB aabb = new AABB().inflate(ERASER_RANGE).translate(spawnPos(source));
+
+        //remove particles in range
+        for (Particle particle : source.getWorld().getParticles(aabb)) {
+            if (particle instanceof SquareParticle)
+                particle.remove();
+        }
+    }
+
+    private static Vector3f spawnPos(Entity source) {
+        return source.getLookDir().mul(DISTANCE).add(source.getEyePos());
     }
 
     private static void drawLine(Vector3f a, Vector3f b, World world) {

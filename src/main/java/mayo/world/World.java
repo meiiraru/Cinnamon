@@ -314,6 +314,15 @@ public class World {
         return list;
     }
 
+    public List<Particle> getParticles(AABB region) {
+        List<Particle> list = new ArrayList<>();
+        for (Particle particle : this.particles) {
+            if (region.isInside(particle.getPos()))
+                list.add(particle);
+        }
+        return list;
+    }
+
     public List<AABB> getTerrainCollisions(AABB region) {
         List<AABB> list = new ArrayList<>();
         for (Terrain terrain : this.terrain) {

@@ -25,11 +25,6 @@ public abstract class Firearm extends CooldownItem {
     }
 
     @Override
-    public boolean hasAttack() {
-        return true;
-    }
-
-    @Override
     public void onCooldownEnd() {
         super.onCooldownEnd();
         reload();
