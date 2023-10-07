@@ -7,7 +7,7 @@ import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
 import mayo.utils.AABB;
-import mayo.utils.Meth;
+import mayo.utils.Maths;
 import mayo.utils.Rotation;
 import mayo.world.DamageType;
 import mayo.world.World;
@@ -180,7 +180,7 @@ public abstract class Entity {
         v.normalize();
 
         //set rot
-        this.setRot(Meth.dirToRot(v));
+        this.setRot(Maths.dirToRot(v));
     }
 
     protected void updateAABB() {
@@ -196,7 +196,7 @@ public abstract class Entity {
     }
 
     public Vector3f getPos(float delta) {
-        return Meth.lerp(oPos, pos, delta);
+        return Maths.lerp(oPos, pos, delta);
     }
 
     public Vector3f getPos() {
@@ -213,7 +213,7 @@ public abstract class Entity {
     }
 
     public Vector2f getRot(float delta) {
-        return Meth.lerp(oRot, rot, delta);
+        return Maths.lerp(oRot, rot, delta);
     }
 
     public Vector2f getRot() {
@@ -245,7 +245,7 @@ public abstract class Entity {
     }
 
     public Vector3f getLookDir() {
-        return Meth.rotToDir(rot.x, rot.y);
+        return Maths.rotToDir(rot.x, rot.y);
     }
 
     public AABB getAABB() {

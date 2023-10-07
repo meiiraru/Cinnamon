@@ -1,7 +1,7 @@
 package mayo.world.entity.living;
 
 import mayo.model.ModelRegistry;
-import mayo.utils.Meth;
+import mayo.utils.Maths;
 import mayo.world.DamageType;
 import mayo.world.World;
 import mayo.world.entity.Entity;
@@ -80,7 +80,7 @@ public class Player extends LivingEntity {
             return null;
 
         Vector3f diff = damageSource.getPos().sub(pos, new Vector3f()).normalize();
-        return Meth.dirToRot(diff).y - rot.y;
+        return Maths.dirToRot(diff).y - rot.y;
     }
 
     public int getDamageSourceTicks() {

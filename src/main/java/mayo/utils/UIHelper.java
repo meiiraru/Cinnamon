@@ -105,8 +105,8 @@ public class UIHelper {
             x -= 12 + w;
 
         //fit tooltip in the screen boundaries
-        x = (int) Meth.clamp(x, -2f, screenW - w - 2);
-        y = (int) Meth.clamp(y, -2f, screenH - h - 2);
+        x = (int) Maths.clamp(x, -2f, screenW - w - 2);
+        y = (int) Maths.clamp(y, -2f, screenH - h - 2);
 
         matrices.push();
         matrices.translate(x, y, 999f);

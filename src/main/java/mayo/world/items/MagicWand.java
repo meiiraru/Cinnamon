@@ -5,7 +5,7 @@ import mayo.model.ModelManager;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
 import mayo.utils.ColorUtils;
-import mayo.utils.Meth;
+import mayo.utils.Maths;
 import mayo.utils.Resource;
 import mayo.utils.Rotation;
 import mayo.world.World;
@@ -85,7 +85,7 @@ public class MagicWand extends Item {
             float d = i / len;
             //spawn particle
             SquareParticle particle = new SquareParticle(LIFETIME, color);
-            particle.setPos(Meth.lerp(a, b, d));
+            particle.setPos(Maths.lerp(a, b, d));
             world.addParticle(particle);
         }
     }

@@ -16,7 +16,7 @@ import java.util.List;
 
 import static java.lang.Float.parseFloat;
 import static java.lang.Integer.parseInt;
-import static mayo.utils.Meth.parseVec3;
+import static mayo.utils.Maths.parseVec3;
 
 public class ObjLoader {
 

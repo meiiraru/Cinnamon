@@ -37,6 +37,6 @@ public class PerlinNoise {
         int X = (int) Math.floor(x) & 255;
         x -= (float) Math.floor(x);
         float u = fade(x);
-        return Meth.lerp(u, grad(permutation[X], x), grad(permutation[X + 1], x - 1)) * 2;
+        return Maths.lerp(u, grad(permutation[X], x), grad(permutation[X + 1], x - 1)) * 2;
     }
 }

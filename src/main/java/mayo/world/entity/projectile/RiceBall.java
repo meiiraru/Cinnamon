@@ -2,7 +2,7 @@ package mayo.world.entity.projectile;
 
 import mayo.model.ModelManager;
 import mayo.render.Model;
-import mayo.utils.Meth;
+import mayo.utils.Maths;
 import mayo.utils.Resource;
 import mayo.world.World;
 import mayo.world.entity.Entity;
@@ -60,7 +60,7 @@ public class RiceBall extends Projectile {
         if (vec.lengthSquared() > 0f)
             vec.normalize();
 
-        Vector2f rot = Meth.toRadians(Meth.dirToRot(vec));
+        Vector2f rot = Maths.toRadians(Maths.dirToRot(vec));
         Quaternionf rotation = new Quaternionf().rotationYXZ(-rot.y, -rot.x, 0f);
 
         Vector3f left = new Vector3f(1f, 0f, 0f).rotate(rotation);
@@ -81,7 +81,7 @@ public class RiceBall extends Projectile {
             float transformU = (float) Math.sin(r2);
             float transformF = (float) (Math.cos(r1) * Math.cos(r2));
 
-            proj.setRot(Meth.dirToRot(
+            proj.setRot(Maths.dirToRot(
                     left.x * transformL + up.x * transformU + forwards.x * transformF,
                     left.y * transformL + up.y * transformU + forwards.y * transformF,
                     left.z * transformL + up.z * transformU + forwards.z * transformF

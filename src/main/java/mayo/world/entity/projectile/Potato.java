@@ -5,7 +5,7 @@ import mayo.render.MatrixStack;
 import mayo.render.Model;
 import mayo.render.shader.Shader;
 import mayo.utils.ColorUtils;
-import mayo.utils.Meth;
+import mayo.utils.Maths;
 import mayo.utils.Resource;
 import mayo.world.DamageType;
 import mayo.world.World;
@@ -34,7 +34,7 @@ public class Potato extends Projectile {
         if (vec.lengthSquared() > 0f)
             vec.normalize();
 
-        this.rotate(Meth.dirToRot(vec));
+        this.rotate(Maths.dirToRot(vec));
     }
 
     @Override

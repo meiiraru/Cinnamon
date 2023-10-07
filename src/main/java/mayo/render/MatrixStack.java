@@ -1,6 +1,6 @@
 package mayo.render;
 
-import mayo.utils.Meth;
+import mayo.utils.Maths;
 import org.joml.*;
 
 import java.util.Stack;
@@ -61,7 +61,7 @@ public class MatrixStack {
         }
 
         float rX = 1f / x, rY = 1f / y, rZ = 1f / z;
-        float i = Meth.fastInvCubeRoot(rX * rY * rZ);
+        float i = Maths.fastInvCubeRoot(rX * rY * rZ);
         mat.normal.scale(i * rX, i * rY, i * rZ);
     }
 

@@ -5,7 +5,7 @@ import mayo.model.Vertex;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
-import mayo.utils.Meth;
+import mayo.utils.Maths;
 
 public abstract class SpriteParticle extends Particle {
 
@@ -43,7 +43,7 @@ public abstract class SpriteParticle extends Particle {
     }
 
     public int getCurrentFrame() {
-        return Math.round(Meth.lerp(0, this.texture.getuFrames() - 1, (float) getAge() / getLifetime()));
+        return Math.round(Maths.lerp(0, this.texture.getuFrames() - 1, (float) getAge() / getLifetime()));
     }
 
     public void setColor(int color) {

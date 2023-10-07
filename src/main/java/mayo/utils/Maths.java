@@ -9,7 +9,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
-public class Meth {
+public class Maths {
 
     public static float lerp(float a, float b, float t) {
         return a + (b - a) * t;
@@ -142,10 +142,10 @@ public class Meth {
 
     public static boolean isPointInTriangle(Vector3f a, Vector3f b, Vector3f c, Vector3f point) {
         //calculate the normals of the triangle and our point
-        Vector3f normalABC = Meth.normal(a, b, c);
-        Vector3f normalPAB = Meth.normal(point, a, b);
-        Vector3f normalPBC = Meth.normal(point, b, c);
-        Vector3f normalPCA = Meth.normal(point, c, a);
+        Vector3f normalABC = normal(a, b, c);
+        Vector3f normalPAB = normal(point, a, b);
+        Vector3f normalPBC = normal(point, b, c);
+        Vector3f normalPCA = normal(point, c, a);
 
         //check if the point is inside the triangle
         return normalABC.dot(normalPAB) >= 0 && normalABC.dot(normalPBC) >= 0 && normalABC.dot(normalPCA) >= 0;

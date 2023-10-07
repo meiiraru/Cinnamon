@@ -7,7 +7,7 @@ import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.utils.Colors;
-import mayo.utils.Meth;
+import mayo.utils.Maths;
 import mayo.utils.Resource;
 import mayo.utils.UIHelper;
 
@@ -36,7 +36,7 @@ public class ProgressBar extends Widget {
         );
 
         //smooth out progress changes
-        this.progress = Meth.lerp(this.progress, this.newProgress, delta);
+        this.progress = Maths.lerp(this.progress, this.newProgress, delta);
 
         //draw progress
         Vertex[] vertices = GeometryHelper.quad(

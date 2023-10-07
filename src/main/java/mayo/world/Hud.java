@@ -292,7 +292,7 @@ public class Hud {
         Vector2f crot = c.camera.getRot();
 
         String face;
-        float yaw = Meth.modulo(crot.y, 360);
+        float yaw = Maths.modulo(crot.y, 360);
         if (yaw >= 45 && yaw < 135) {
             face = "East X+";
         } else if (yaw >= 135 && yaw < 225) {
@@ -361,8 +361,8 @@ public class Hud {
                 gui scale %s
                 """,
                 System.getProperty("java.version"),
-                used * 100 / max, Meth.prettyByteSize(used), Meth.prettyByteSize(max),
-                total * 100 / max, Meth.prettyByteSize(total),
+                used * 100 / max, Maths.prettyByteSize(used), Maths.prettyByteSize(max),
+                total * 100 / max, Maths.prettyByteSize(total),
 
                 glGetString(GL_RENDERER),
                 glGetString(GL_VERSION),

@@ -5,7 +5,7 @@ import mayo.model.obj.Group;
 import mayo.model.obj.Material;
 import mayo.model.obj.Mesh;
 import mayo.render.shader.Attributes;
-import mayo.utils.Meth;
+import mayo.utils.Maths;
 import mayo.utils.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -168,7 +168,7 @@ public class OpenGLModel extends Model {
                     continue;
 
                 //check if out point is inside the triangle
-                if (Meth.isPointInTriangle(a, b, c, point))
+                if (Maths.isPointInTriangle(a, b, c, point))
                     return false;
             }
 

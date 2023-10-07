@@ -2,7 +2,7 @@ package mayo.world.particle;
 
 import mayo.Client;
 import mayo.render.Texture;
-import mayo.utils.Meth;
+import mayo.utils.Maths;
 import mayo.utils.PerlinNoise;
 import mayo.utils.Resource;
 
@@ -23,7 +23,7 @@ public class LightParticle extends SpriteParticle {
     public void tick() {
         super.tick();
         float x = getAge() * 0.001f + seed;
-        this.move(Meth.rotToDir(NOISE.noise(x) * 360, NOISE.noise(x + 42) * 360).mul(0.01f * speed));
+        this.move(Maths.rotToDir(NOISE.noise(x) * 360, NOISE.noise(x + 42) * 360).mul(0.01f * speed));
     }
 
     public void setSpeed(float speed) {

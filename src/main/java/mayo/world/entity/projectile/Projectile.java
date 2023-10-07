@@ -2,7 +2,7 @@ package mayo.world.entity.projectile;
 
 import mayo.render.Model;
 import mayo.utils.Colors;
-import mayo.utils.Meth;
+import mayo.utils.Maths;
 import mayo.world.DamageType;
 import mayo.world.World;
 import mayo.world.effects.Effect;
@@ -99,7 +99,7 @@ public abstract class Projectile extends PhysEntity {
         for (int i = 0; i < 20; i++) {
             DustParticle particle = new DustParticle((int) (Math.random() * 40) + 20, Colors.randomRainbow().rgba);
             particle.setPos(pos);
-            particle.setMotion(Meth.rotToDir((float) Math.random() * 360, (float) Math.random() * 360).mul((float) Math.random() * 0.075f + 0.075f));
+            particle.setMotion(Maths.rotToDir((float) Math.random() * 360, (float) Math.random() * 360).mul((float) Math.random() * 0.075f + 0.075f));
             particle.setScale(1.5f);
             world.addParticle(particle);
         }

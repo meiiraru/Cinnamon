@@ -10,7 +10,7 @@ import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
 import mayo.utils.Colors;
-import mayo.utils.Meth;
+import mayo.utils.Maths;
 import mayo.utils.Resource;
 import org.joml.Vector2f;
 
@@ -66,41 +66,41 @@ public class DVDScreen extends Screen {
         //update position
         oPos.set(pos);
 
-        Vector2f dir = Meth.rotToDir(rot); //already normalized
+        Vector2f dir = Maths.rotToDir(rot); //already normalized
         pos.add(dir.x * speed, dir.y * speed);
 
         //up
         if (pos.y <= 0f) {
-            dir.set(Meth.reflect(dir, UP));
+            dir.set(Maths.reflect(dir, UP));
             changeColor();
             pos.y = 0f;
         }
         //down
         if (pos.y + h >= height) {
-            dir.set(Meth.reflect(dir, DOWN));
+            dir.set(Maths.reflect(dir, DOWN));
             changeColor();
             pos.y = height - h;
         }
         //left
         if (pos.x <= 0f) {
-            dir.set(Meth.reflect(dir, LEFT));
+            dir.set(Maths.reflect(dir, LEFT));
             changeColor();
             pos.x = 0f;
         }
         //right
         if (pos.x + w >= width) {
-            dir.set(Meth.reflect(dir, RIGHT));
+            dir.set(Maths.reflect(dir, RIGHT));
             changeColor();
             pos.x = width - w;
         }
 
         //update rotation
-        rot = Meth.dirToRot(dir);
+        rot = Maths.dirToRot(dir);
     }
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        Vector2f p = Meth.lerp(oPos, pos, delta);
+        Vector2f p = Maths.lerp(oPos, pos, delta);
         Vertex[] vertices = GeometryHelper.quad(matrices, p.x, p.y, w, h);
         for (Vertex vertex : vertices)
             vertex.color(color.rgba);

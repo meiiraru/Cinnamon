@@ -2,7 +2,7 @@ package mayo.world.particle;
 
 import mayo.Client;
 import mayo.render.MatrixStack;
-import mayo.utils.Meth;
+import mayo.utils.Maths;
 import org.joml.Vector3f;
 
 public abstract class Particle {
@@ -38,7 +38,7 @@ public abstract class Particle {
         matrices.push();
 
         //apply pos
-        matrices.translate(Meth.lerp(oPos, pos, delta));
+        matrices.translate(Maths.lerp(oPos, pos, delta));
 
         //apply billboard
         Client.getInstance().camera.billboard(matrices);
@@ -57,7 +57,7 @@ public abstract class Particle {
     protected abstract void renderParticle(MatrixStack matrices, float delta);
 
     public Vector3f getPos(float delta) {
-        return Meth.lerp(oPos, pos, delta);
+        return Maths.lerp(oPos, pos, delta);
     }
 
     public Vector3f getPos() {

@@ -6,7 +6,7 @@ import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
-import mayo.utils.Meth;
+import mayo.utils.Maths;
 import mayo.utils.Resource;
 import mayo.utils.TextUtils;
 import mayo.utils.UIHelper;
@@ -87,9 +87,9 @@ public class Toast {
         //set y animation offset
         float y;
         if (life <= ANIM) {
-            y = Meth.lerp(-tHeight - PADDING, 4f, life / ANIM);
+            y = Maths.lerp(-tHeight - PADDING, 4f, life / ANIM);
         } else if (life >= LENGTH - ANIM) {
-            y = Meth.lerp(4f, -tHeight - PADDING, (life - (LENGTH - ANIM)) / ANIM);
+            y = Maths.lerp(4f, -tHeight - PADDING, (life - (LENGTH - ANIM)) / ANIM);
         } else {
             y = 4f;
         }
