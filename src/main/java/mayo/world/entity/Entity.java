@@ -182,7 +182,18 @@ public abstract class Entity {
     }
 
     protected void updateAABB() {
-        this.aabb = this.model.getMesh().getAABB().translate(pos);
+        //set AABB
+        this.aabb = this.model.getMeshAABB();
+
+        //make it square
+        float diff = (aabb.getWidth() - aabb.getDepth()) * 0.5f;
+        if (diff > 0)
+            aabb.inflate(0, 0, diff);
+        else
+            aabb.inflate(-diff, 0, 0);
+
+        //add pos
+        aabb.translate(pos);
     }
 
     public Vector3f getPos(float delta) {

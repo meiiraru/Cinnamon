@@ -6,7 +6,6 @@ import mayo.model.obj.Material;
 import mayo.model.obj.Mesh;
 import mayo.utils.IOUtils;
 import mayo.utils.Resource;
-import org.joml.Vector3f;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -79,14 +78,7 @@ public class ObjLoader {
                     }
 
                     //vertex
-                    case "v" -> {
-                        Vector3f vertex = parseVec3(split[1], split[2], split[3]);
-                        theMesh.getVertices().add(vertex);
-
-                        //mesh min max
-                        theMesh.getBBMin().min(vertex);
-                        theMesh.getBBMax().max(vertex);
-                    }
+                    case "v" -> theMesh.getVertices().add(parseVec3(split[1], split[2], split[3]));
 
                     //uv
                     case "vt" -> theMesh.getUVs().add(parseVec2(split[1], split[2]));
@@ -95,17 +87,7 @@ public class ObjLoader {
                     case "vn" -> theMesh.getNormals().add(parseVec3(split[1], split[2], split[3]));
 
                     //faces
-                    case "f" -> {
-                        Face face = parseFace(split);
-                        currentGroup.getFaces().add(face);
-
-                        //group min max
-                        for (Integer index : face.getVertices()) {
-                            Vector3f vertex = theMesh.getVertices().get(index);
-                            currentGroup.getBBMin().min(vertex);
-                            currentGroup.getBBMax().max(vertex);
-                        }
-                    }
+                    case "f" -> currentGroup.getFaces().add(parseFace(split));
                 }
             }
 

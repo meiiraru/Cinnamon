@@ -1,8 +1,5 @@
 package mayo.model.obj;
 
-import mayo.utils.AABB;
-import org.joml.Vector3f;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,11 +10,6 @@ public class Group {
 
     private Material material;
     private boolean smooth;
-
-    //bounding box
-    private final Vector3f
-            bbMin = new Vector3f(Integer.MAX_VALUE),
-            bbMax = new Vector3f(Integer.MIN_VALUE);
 
     public Group(String name) {
         this.name = name;
@@ -49,17 +41,5 @@ public class Group {
 
     public void setSmooth(boolean smooth) {
         this.smooth = smooth;
-    }
-
-    public Vector3f getBBMin() {
-        return bbMin;
-    }
-
-    public Vector3f getBBMax() {
-        return bbMax;
-    }
-
-    public AABB getAABB() {
-        return new AABB(bbMin, bbMax);
     }
 }

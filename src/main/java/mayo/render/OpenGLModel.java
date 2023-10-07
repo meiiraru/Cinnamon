@@ -5,6 +5,7 @@ import mayo.model.obj.Group;
 import mayo.model.obj.Material;
 import mayo.model.obj.Mesh;
 import mayo.render.shader.Attributes;
+import mayo.utils.AABB;
 import mayo.utils.Maths;
 import mayo.utils.Pair;
 import org.joml.Vector2f;
@@ -24,6 +25,9 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 public class OpenGLModel extends Model {
 
     private final List<GroupData> groups = new ArrayList<>();
+    private final Vector3f
+            bbMin = new Vector3f(Integer.MAX_VALUE),
+            bbMax = new Vector3f(Integer.MIN_VALUE);
 
     public OpenGLModel(Mesh mesh) {
         super(mesh);
@@ -38,6 +42,10 @@ public class OpenGLModel extends Model {
             //vertex list and capacity
             List<VertexData> sortedVertices = new ArrayList<>();
             int capacity = 0;
+
+            //group min and max
+            Vector3f groupMin = new Vector3f(Integer.MAX_VALUE);
+            Vector3f groupMax = new Vector3f(Integer.MIN_VALUE);
 
             //iterate faces
             for (Face face : group.getFaces()) {
@@ -54,6 +62,12 @@ public class OpenGLModel extends Model {
                     Vector3f a = vertices.get(v.get(i));
                     Vector2f b = null;
                     Vector3f c = null;
+
+                    //calculate min and max
+                    this.bbMin.min(a);
+                    this.bbMax.max(a);
+                    groupMin.min(a);
+                    groupMax.max(a);
 
                     if (!vt.isEmpty())
                         b = uvs.get(vt.get(i));
@@ -75,7 +89,7 @@ public class OpenGLModel extends Model {
             }
 
             //create a new group - the group contains the OpenGL attributes
-            GroupData groupData = new GroupData(group, sortedVertices.size(), capacity);
+            GroupData groupData = new GroupData(group, sortedVertices.size(), capacity, groupMin, groupMax);
             this.groups.add(groupData);
 
             //different buffer per group
@@ -95,6 +109,19 @@ public class OpenGLModel extends Model {
     public void render() {
         for (GroupData group : groups)
             group.render();
+    }
+
+    @Override
+    public AABB getMeshAABB() {
+        return new AABB(bbMin, bbMax);
+    }
+
+    @Override
+    public List<AABB> getGroupsAABB() {
+        List<AABB> list = new ArrayList<>();
+        for (GroupData data : groups)
+            list.add(new AABB(data.bbMin, data.bbMax));
+        return list;
     }
 
     private record VertexData(Vector3f pos, Vector2f uv, Vector3f norm) {
@@ -179,10 +206,13 @@ public class OpenGLModel extends Model {
     private static class GroupData {
         private final int vao, vertexCount;
         private final MaterialData material;
+        private final Vector3f bbMin, bbMax;
 
-        private GroupData(Group group, int vertexCount, int capacity) {
+        private GroupData(Group group, int vertexCount, int capacity, Vector3f bbMin, Vector3f bbMax) {
             this.vertexCount = vertexCount;
             this.material = new MaterialData(group.getMaterial());
+            this.bbMin = bbMin;
+            this.bbMax = bbMax;
 
             //parse attributes
             int flags = group.getFaces().get(0).getAttributesFlag();

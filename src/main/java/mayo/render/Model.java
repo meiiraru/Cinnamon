@@ -1,6 +1,9 @@
 package mayo.render;
 
 import mayo.model.obj.Mesh;
+import mayo.utils.AABB;
+
+import java.util.List;
 
 public abstract class Model {
 
@@ -11,6 +14,10 @@ public abstract class Model {
     }
 
     public abstract void render();
+
+    public abstract AABB getMeshAABB();
+
+    public abstract List<AABB> getGroupsAABB();
 
     public Mesh getMesh() {
         return mesh;

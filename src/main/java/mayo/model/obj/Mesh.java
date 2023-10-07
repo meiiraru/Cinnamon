@@ -1,6 +1,5 @@
 package mayo.model.obj;
 
-import mayo.utils.AABB;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -22,11 +21,6 @@ public class Mesh {
     private final List<Group>
             groups = new ArrayList<>();
 
-    //bounding box
-    private final Vector3f
-            bbMin = new Vector3f(Integer.MAX_VALUE),
-            bbMax = new Vector3f(Integer.MIN_VALUE);
-
     //materials
     private final Map<String, Material>
             materials = new HashMap<>();
@@ -45,18 +39,6 @@ public class Mesh {
 
     public List<Group> getGroups() {
         return groups;
-    }
-
-    public Vector3f getBBMin() {
-        return bbMin;
-    }
-
-    public Vector3f getBBMax() {
-        return bbMax;
-    }
-
-    public AABB getAABB() {
-        return new AABB(bbMin, bbMax);
     }
 
     public Map<String, Material> getMaterials() {

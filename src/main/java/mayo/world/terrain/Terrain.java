@@ -69,11 +69,11 @@ public abstract class Terrain {
     }
 
     protected void updateAABB() {
-        this.aabb = this.model.getMesh().getAABB().translate(pos);
+        this.aabb = this.model.getMeshAABB().translate(pos);
 
         this.groupsAABB.clear();
-        for (Group group : this.model.getMesh().getGroups())
-            groupsAABB.add(group.getAABB().translate(pos));
+        for (AABB group : this.model.getGroupsAABB())
+            groupsAABB.add(group.translate(pos));
     }
 
     public void setPos(Vector3f pos) {
