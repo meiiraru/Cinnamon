@@ -54,6 +54,10 @@ public class Maths {
         return new Vector3f(Float.parseFloat(x), Float.parseFloat(y), Float.parseFloat(z));
     }
 
+    public static Vector2f parseVec2(String x, String y) {
+        return new Vector2f(Float.parseFloat(x), Float.parseFloat(y));
+    }
+
     public static float clamp(float val, float min, float max) {
         return Math.min(Math.max(val, min), max);
     }

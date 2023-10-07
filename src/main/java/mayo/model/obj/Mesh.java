@@ -1,5 +1,6 @@
 package mayo.model.obj;
 
+import mayo.utils.AABB;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -54,8 +55,8 @@ public class Mesh {
         return bbMax;
     }
 
-    public Vector3f getBoundingBox() {
-        return getBBMax().sub(getBBMin(), new Vector3f());
+    public AABB getAABB() {
+        return new AABB(bbMin, bbMax);
     }
 
     public Map<String, Material> getMaterials() {

@@ -77,7 +77,7 @@ public class MagicWand extends Item {
 
     private static void drawLine(Vector3f a, Vector3f b, World world) {
         //rainbow color
-        int color = ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f((Client.getInstance().ticks % 360) / 360f, 1, 1))) + (0xFF << 24);
+        int color = ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f(((Client.getInstance().ticks * 3) % 360) / 360f, 0.7f, 1))) + (0xFF << 24);
         //draw line
         float len = b.sub(a, new Vector3f()).length();
         for (float i = 0; i < len; i += STEP) {

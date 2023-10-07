@@ -107,7 +107,7 @@ public class OpenGLModel extends Model {
             //push uv
             if (uv != null) {
                 buffer.put(uv.x);
-                buffer.put(uv.y);
+                buffer.put(1 - uv.y); //invert Y
             }
 
             //push normal
@@ -210,11 +210,8 @@ public class OpenGLModel extends Model {
             glBindVertexArray(vao);
 
             //bind material
-            if (material != null) {
-                material.use();
-            } else {
+            if (material == null || !material.use())
                 Texture.MISSING.bind();
-            }
 
             //draw
             glDrawArrays(GL_TRIANGLES, 0, vertexCount);
@@ -225,10 +222,15 @@ public class OpenGLModel extends Model {
     }
 
     private record MaterialData(Material material) {
-        public void use() {
+        public boolean use() {
+            if (material == null)
+                return false;
+
             Texture diffuseTex = Texture.of(material.getDiffuseTex());
             if (diffuseTex != null)
                 diffuseTex.bind();
+
+            return true;
         }
     }
 }

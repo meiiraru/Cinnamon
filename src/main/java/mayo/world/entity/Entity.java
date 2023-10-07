@@ -19,7 +19,6 @@ public abstract class Entity {
 
     protected final Model model;
     protected final World world;
-    protected final Vector3f dimensions = new Vector3f();
     protected final Vector3f
             oPos = new Vector3f(),
             pos = new Vector3f();
@@ -34,7 +33,6 @@ public abstract class Entity {
     public Entity(Model model, World world) {
         this.model = model;
         this.world = world;
-        this.dimensions.set(model.getMesh().getBoundingBox());
         this.updateAABB();
     }
 
@@ -122,7 +120,7 @@ public abstract class Entity {
         VertexConsumer.LINES.consume(GeometryHelper.quad(
                 matrices,
                 0f, 0f, 0f,
-                dimensions.x + 1f, 0f,
+                aabb.getWidth() + 1f, 0f,
                 0xFF0000FF
 
         ), 0);
@@ -184,15 +182,7 @@ public abstract class Entity {
     }
 
     protected void updateAABB() {
-        Vector3f min = this.model.getMesh().getBBMin();
-        Vector3f max = this.model.getMesh().getBBMax();
-
-        float xz = Math.max(dimensions.x, dimensions.z) * 0.5f;
-
-        this.aabb = new AABB(
-                pos.x - xz, pos.y + min.y, pos.z - xz,
-                pos.x + xz, pos.y + max.y, pos.z + xz
-        );
+        this.aabb = this.model.getMesh().getAABB().translate(pos);
     }
 
     public Vector3f getPos(float delta) {
@@ -229,7 +219,7 @@ public abstract class Entity {
     }
 
     public float getEyeHeight() {
-        return dimensions.y / 2f;
+        return aabb.getHeight() * 0.5f;
     }
 
     public Vector3f getEyePos(float delta) {
@@ -238,10 +228,6 @@ public abstract class Entity {
 
     public Vector3f getEyePos() {
         return new Vector3f(pos.x, pos.y + getEyeHeight(), pos.z);
-    }
-
-    public Vector3f getDimensions() {
-        return dimensions;
     }
 
     public Vector3f getLookDir() {

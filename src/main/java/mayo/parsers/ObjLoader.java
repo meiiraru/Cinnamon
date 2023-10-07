@@ -2,10 +2,10 @@ package mayo.parsers;
 
 import mayo.model.obj.Face;
 import mayo.model.obj.Group;
+import mayo.model.obj.Material;
 import mayo.model.obj.Mesh;
 import mayo.utils.IOUtils;
 import mayo.utils.Resource;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.io.BufferedReader;
@@ -14,8 +14,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.Float.parseFloat;
 import static java.lang.Integer.parseInt;
+import static mayo.utils.Maths.parseVec2;
 import static mayo.utils.Maths.parseVec3;
 
 public class ObjLoader {
@@ -31,6 +31,7 @@ public class ObjLoader {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
             Mesh theMesh = new Mesh();
             Group currentGroup = new Group("default");
+            Material currentMaterial = null;
 
             for (String line; (line = br.readLine()) != null; ) {
                 //skip comments and empty lines
@@ -45,41 +46,74 @@ public class ObjLoader {
 
                     //group
                     case "g", "o" -> {
-                        if (!currentGroup.isEmpty())
+                        //add current group
+                        if (!currentGroup.isEmpty()) {
+                            currentGroup.setMaterial(currentMaterial);
                             theMesh.getGroups().add(currentGroup);
-                        currentGroup = new Group(split[1]);
+                        }
+
+                        //parse name
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 1; i < split.length; i++)
+                            sb.append(split[i]).append(" ");
+
+                        //create new group
+                        currentGroup = new Group(sb.toString().trim());
                     }
 
                     //smooth shading
                     case "s" -> currentGroup.setSmooth(!split[1].contains("off"));
 
                     //group material
-                    case "usemtl" -> currentGroup.setMaterial(theMesh.getMaterials().get(split[1]));
+                    case "usemtl" -> {
+                        //add current group
+                        if (!currentGroup.isEmpty()) {
+                            currentGroup.setMaterial(currentMaterial);
+                            theMesh.getGroups().add(currentGroup);
+                        }
+
+                        //new material
+                        currentMaterial = theMesh.getMaterials().get(split[1]);
+                        //create a new group with same name
+                        currentGroup = new Group(currentGroup.getName());
+                    }
 
                     //vertex
                     case "v" -> {
                         Vector3f vertex = parseVec3(split[1], split[2], split[3]);
                         theMesh.getVertices().add(vertex);
+
+                        //mesh min max
                         theMesh.getBBMin().min(vertex);
                         theMesh.getBBMax().max(vertex);
-                        currentGroup.getBBMin().min(vertex);
-                        currentGroup.getBBMax().max(vertex);
                     }
 
                     //uv
-                    case "vt" -> theMesh.getUVs().add(new Vector2f(parseFloat(split[1]), 1 - parseFloat(split[2])));
+                    case "vt" -> theMesh.getUVs().add(parseVec2(split[1], split[2]));
 
                     //normal
                     case "vn" -> theMesh.getNormals().add(parseVec3(split[1], split[2], split[3]));
 
                     //faces
-                    case "f" -> currentGroup.getFaces().add(parseFace(split));
+                    case "f" -> {
+                        Face face = parseFace(split);
+                        currentGroup.getFaces().add(face);
+
+                        //group min max
+                        for (Integer index : face.getVertices()) {
+                            Vector3f vertex = theMesh.getVertices().get(index);
+                            currentGroup.getBBMin().min(vertex);
+                            currentGroup.getBBMax().max(vertex);
+                        }
+                    }
                 }
             }
 
-            //add group to the mesh
-            if (!currentGroup.isEmpty())
+            //add last group to the mesh
+            if (!currentGroup.isEmpty()) {
+                currentGroup.setMaterial(currentMaterial);
                 theMesh.getGroups().add(currentGroup);
+            }
 
             //return the mesh
             return theMesh;

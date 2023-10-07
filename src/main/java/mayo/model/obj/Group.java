@@ -1,5 +1,6 @@
 package mayo.model.obj;
 
+import mayo.utils.AABB;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -56,5 +57,9 @@ public class Group {
 
     public Vector3f getBBMax() {
         return bbMax;
+    }
+
+    public AABB getAABB() {
+        return new AABB(bbMin, bbMax);
     }
 }

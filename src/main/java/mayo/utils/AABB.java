@@ -66,10 +66,10 @@ public class AABB {
 
     public AABB translate(float x, float y, float z) {
         minX += x;
-        minY += y;
-        minZ += z;
         maxX += x;
+        minY += y;
         maxY += y;
+        minZ += z;
         maxZ += z;
         return this;
     }

@@ -4,7 +4,6 @@ import mayo.render.Model;
 import mayo.utils.Resource;
 import mayo.world.World;
 import mayo.world.terrain.*;
-import org.joml.Vector3f;
 
 import java.util.function.Function;
 
@@ -26,15 +25,12 @@ public class ModelRegistry {
         public final Resource resource;
         public final float eyeHeight;
         public final Model model;
-        public final Vector3f dimensions;
 
         Living(float eyeHeight) {
             String name = name().toLowerCase();
             this.resource = new Resource(MODELS_PATH + name + "/" + name + ".obj");
             this.eyeHeight = eyeHeight;
-
             this.model = ModelManager.load(this.resource);
-            this.dimensions = model.getMesh().getBoundingBox();
         }
 
         public static Living random() {

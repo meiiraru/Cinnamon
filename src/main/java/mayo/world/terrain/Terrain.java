@@ -18,7 +18,6 @@ public abstract class Terrain {
 
     protected final Model model;
     private final World world;
-    private final Vector3f dimensions = new Vector3f();
     private final Vector3f pos = new Vector3f();
 
     private AABB aabb; //the entire model's AABB
@@ -27,7 +26,6 @@ public abstract class Terrain {
     public Terrain(Model model, World world) {
         this.model = model;
         this.world = world;
-        this.dimensions.set(model.getMesh().getBoundingBox());
         this.updateAABB();
     }
 
@@ -71,18 +69,11 @@ public abstract class Terrain {
     }
 
     protected void updateAABB() {
-        this.aabb = getAABB(this.model.getMesh().getBBMin(), this.model.getMesh().getBBMax());
+        this.aabb = this.model.getMesh().getAABB().translate(pos);
 
         this.groupsAABB.clear();
         for (Group group : this.model.getMesh().getGroups())
-            groupsAABB.add(getAABB(group.getBBMin(), group.getBBMax()));
-    }
-
-    private AABB getAABB(Vector3f min, Vector3f max) {
-        return new AABB(
-                pos.x + min.x, pos.y + min.y, pos.z + min.z,
-                pos.x + max.x, pos.y + max.y, pos.z + max.z
-        );
+            groupsAABB.add(group.getAABB().translate(pos));
     }
 
     public void setPos(Vector3f pos) {
@@ -96,10 +87,6 @@ public abstract class Terrain {
 
     public Vector3f getPos() {
         return pos;
-    }
-
-    public Vector3f getDimensions() {
-        return dimensions;
     }
 
     public World getWorld() {

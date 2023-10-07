@@ -40,7 +40,12 @@ public class MtlLoader {
                     case "newmtl" -> {
                         if (!material.getName().isBlank() && !material.getName().equals("none"))
                             map.put(material.getName(), material);
-                        material = new Material(split[1]);
+
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 1; i < split.length; i++)
+                            sb.append(split[i]).append(" ");
+
+                        material = new Material(sb.toString().trim());
                     }
 
                     //ambient color
