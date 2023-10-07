@@ -5,6 +5,7 @@ import mayo.model.obj.Group;
 import mayo.model.obj.Material;
 import mayo.model.obj.Mesh;
 import mayo.render.shader.Attributes;
+import mayo.utils.Meth;
 import mayo.utils.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -27,44 +28,67 @@ public class OpenGLModel extends Model {
     public OpenGLModel(Mesh mesh) {
         super(mesh);
 
+        //grab mesh data
         List<Vector3f> vertices = mesh.getVertices();
         List<Vector2f> uvs = mesh.getUVs();
         List<Vector3f> normals = mesh.getNormals();
 
+        //iterate groups
         for (Group group : mesh.getGroups()) {
-            GroupData groupData = new GroupData(group);
-            this.groups.add(groupData);
+            //vertex list and capacity
+            List<VertexData> sortedVertices = new ArrayList<>();
+            int capacity = 0;
 
-            FloatBuffer buffer = BufferUtils.createFloatBuffer(groupData.getCapacity());
-
+            //iterate faces
             for (Face face : group.getFaces()) {
+                //indexes
                 List<Integer> v = face.getVertices();
                 List<Integer> vt = face.getUVs();
                 List<Integer> vn = face.getNormals();
 
+                //vertex list
+                List<VertexData> data = new ArrayList<>();
+
                 for (int i = 0; i < v.size(); i++) {
-                    fillBuffer(buffer, vertices.get(v.get(i)));
+                    //parse indexes to their actual values
+                    Vector3f a = vertices.get(v.get(i));
+                    Vector2f b = null;
+                    Vector3f c = null;
+
                     if (!vt.isEmpty())
-                        fillBuffer(buffer, uvs.get(vt.get(i)));
+                        b = uvs.get(vt.get(i));
                     if (!vn.isEmpty())
-                        fillBuffer(buffer, normals.get(vn.get(i)));
+                        c = normals.get(vn.get(i));
+
+                    //add to vertex list
+                    data.add(new VertexData(a, b, c));
                 }
+
+                //triangulate the faces using ear clipping
+                List<VertexData> sorted = VertexData.triangulate(data);
+
+                //increase needed capacity
+                capacity += sorted.size() * 3 * (vt.isEmpty() ? 1 : 2) * (vn.isEmpty() ? 1 : 3);
+
+                //add data to the vertex list
+                sortedVertices.addAll(sorted);
             }
 
+            //create a new group - the group contains the OpenGL attributes
+            GroupData groupData = new GroupData(group, sortedVertices.size(), capacity);
+            this.groups.add(groupData);
+
+            //different buffer per group
+            FloatBuffer buffer = BufferUtils.createFloatBuffer(capacity);
+
+            //push vertices to buffer
+            for (VertexData data : sortedVertices)
+                data.pushToBuffer(buffer);
+
+            //bind buffer to the current VBO
             buffer.rewind();
             glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
         }
-    }
-
-    private static void fillBuffer(FloatBuffer buffer, Vector2f vec) {
-        buffer.put(vec.x);
-        buffer.put(vec.y);
-    }
-
-    private static void fillBuffer(FloatBuffer buffer, Vector3f vec) {
-        buffer.put(vec.x);
-        buffer.put(vec.y);
-        buffer.put(vec.z);
     }
 
     @Override
@@ -73,24 +97,94 @@ public class OpenGLModel extends Model {
             group.render();
     }
 
-    private static class GroupData {
-        private final int vao, capacity, vertexCount;
-        private final MaterialData material;
+    private record VertexData(Vector3f pos, Vector2f uv, Vector3f norm) {
+        private void pushToBuffer(FloatBuffer buffer) {
+            //push pos
+            buffer.put(pos.x);
+            buffer.put(pos.y);
+            buffer.put(pos.z);
 
-        private GroupData(Group group) {
-            //vertices data
-            int capacity = 0;
-            int vertexCount = 0;
-
-            for (Face face : group.getFaces()) {
-                capacity += face.getLength();
-                vertexCount += face.getVertexCount();
+            //push uv
+            if (uv != null) {
+                buffer.put(uv.x);
+                buffer.put(uv.y);
             }
 
-            this.capacity = capacity;
+            //push normal
+            if (norm != null) {
+                buffer.put(norm.x);
+                buffer.put(norm.y);
+                buffer.put(norm.z);
+            }
+        }
+
+        private static List<VertexData> triangulate(List<VertexData> data) {
+            //list to return
+            List<VertexData> triangles = new ArrayList<>();
+
+            while (data.size() >= 3) {
+                int n = data.size();
+                boolean earFound = false;
+
+                //iterate through all the vertices to find an ear
+                for (int i = 0; i < n; i++) {
+                    int prev = (i - 1 + n) % n;
+                    int next = (i + 1) % n;
+
+                    //triangle
+                    VertexData a = data.get(prev);
+                    VertexData b = data.get(i);
+                    VertexData c = data.get(next);
+
+                    //check if the current triangle is an ear
+                    if (isEar(a.pos, b.pos, c.pos, data)) {
+                        //if so, add the ear to the return list
+                        triangles.add(a);
+                        triangles.add(b);
+                        triangles.add(c);
+
+                        //and remove our anchor vertex from the list
+                        data.remove(i);
+                        earFound = true;
+                        break;
+                    }
+                }
+
+                //if the polygon is self-intersecting or has holes, stop the triangulation
+                if (!earFound)
+                    break;
+            }
+
+            //return the new list of triangles
+            return triangles;
+        }
+
+        private static boolean isEar(Vector3f a, Vector3f b, Vector3f c, List<VertexData> list) {
+            for (VertexData d : list) {
+                Vector3f point = d.pos;
+
+                //continue if the point is one of the triangle vertices
+                if (point.equals(a) || point.equals(b) || point.equals(c))
+                    continue;
+
+                //check if out point is inside the triangle
+                if (Meth.isPointInTriangle(a, b, c, point))
+                    return false;
+            }
+
+            return true;
+        }
+    }
+
+    private static class GroupData {
+        private final int vao, vertexCount;
+        private final MaterialData material;
+
+        private GroupData(Group group, int vertexCount, int capacity) {
             this.vertexCount = vertexCount;
             this.material = new MaterialData(group.getMaterial());
 
+            //parse attributes
             int flags = group.getFaces().get(0).getAttributesFlag();
             Pair<Integer, Integer> attrib = Attributes.getAttributes(flags);
 
@@ -101,7 +195,7 @@ public class OpenGLModel extends Model {
             //vbo
             int vbo = glGenBuffers();
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glBufferData(GL_ARRAY_BUFFER, (long) this.capacity * Float.BYTES, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, (long) capacity * Float.BYTES, GL_STATIC_DRAW);
 
             //load vertex attributes
             Attributes.load(flags, attrib.second());
@@ -127,10 +221,6 @@ public class OpenGLModel extends Model {
 
             //unbind texture
             glBindTexture(GL_TEXTURE_2D, 0);
-        }
-
-        public int getCapacity() {
-            return capacity;
         }
     }
 

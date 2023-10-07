@@ -133,6 +133,24 @@ public class Meth {
         );
     }
 
+    public static Vector3f normal(Vector3f p1, Vector3f p2, Vector3f p3) {
+        //calculate the cross product of two vectors to get the normal
+        Vector3f edge1 = p2.sub(p1, new Vector3f());
+        Vector3f edge2 = p3.sub(p1, new Vector3f());
+        return edge1.cross(edge2);
+    }
+
+    public static boolean isPointInTriangle(Vector3f a, Vector3f b, Vector3f c, Vector3f point) {
+        //calculate the normals of the triangle and our point
+        Vector3f normalABC = Meth.normal(a, b, c);
+        Vector3f normalPAB = Meth.normal(point, a, b);
+        Vector3f normalPBC = Meth.normal(point, b, c);
+        Vector3f normalPCA = Meth.normal(point, c, a);
+
+        //check if the point is inside the triangle
+        return normalABC.dot(normalPAB) >= 0 && normalABC.dot(normalPBC) >= 0 && normalABC.dot(normalPCA) >= 0;
+    }
+
     private static final String[] SIZE_UNITS = {"b", "kb", "mb", "gb"};
     public static String prettyByteSize(double size) {
         int i = 0;

@@ -14,14 +14,6 @@ public class Face {
         this.normals = normals;
     }
 
-    public int getVertexCount() {
-        return vertices.size();
-    }
-
-    public int getLength() {
-        return (vertices.size() * 3) + (uvs.size() * 2) + (normals.size() * 3);
-    }
-
     public int getAttributesFlag() {
         //always present
         int flags = Attributes.POS;
