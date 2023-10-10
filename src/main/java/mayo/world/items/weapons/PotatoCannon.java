@@ -8,7 +8,7 @@ import mayo.world.entity.Entity;
 import mayo.world.entity.projectile.Potato;
 import mayo.world.entity.projectile.Projectile;
 
-public class PotatoCannon extends Firearm {
+public class PotatoCannon extends Weapon {
 
     private static final String ID = "Potato Cannon";
     private static final Model MODEL = ModelManager.load(new Resource("models/items/potato_cannon/potato_cannon.obj"));

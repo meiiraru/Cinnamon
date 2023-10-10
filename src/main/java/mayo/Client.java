@@ -10,6 +10,7 @@ import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
+import mayo.sound.SoundManager;
 import mayo.utils.Resource;
 import mayo.utils.Timer;
 import mayo.world.World;
@@ -29,6 +30,7 @@ public class Client {
     public int fps;
 
     //objects
+    public SoundManager soundManager;
     public Window window;
     public Options options;
     public Camera camera;
@@ -40,6 +42,8 @@ public class Client {
 
     public void init() {
         this.options = Options.load();
+        this.soundManager = new SoundManager();
+        this.soundManager.init();
         this.camera = new Camera();
         this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight, this.options.fov);
         this.font = new Font(new Resource("fonts/mayscript.ttf"), 8);
@@ -48,6 +52,7 @@ public class Client {
 
     public void close() {
         this.font.free();
+        this.soundManager.free();
     }
 
     public static Client getInstance() {
@@ -104,6 +109,8 @@ public class Client {
 
     private void tick() {
         ticks++;
+
+        soundManager.tick(camera);
 
         if (world != null)
             world.tick();

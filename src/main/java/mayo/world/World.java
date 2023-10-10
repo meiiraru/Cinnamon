@@ -8,6 +8,7 @@ import mayo.input.Movement;
 import mayo.render.MatrixStack;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
+import mayo.sound.SoundSource;
 import mayo.text.Text;
 import mayo.utils.AABB;
 import mayo.utils.ColorUtils;
@@ -23,9 +24,9 @@ import mayo.world.items.Item;
 import mayo.world.items.ItemRenderContext;
 import mayo.world.items.MagicWand;
 import mayo.world.items.weapons.CoilGun;
-import mayo.world.items.weapons.Firearm;
 import mayo.world.items.weapons.PotatoCannon;
 import mayo.world.items.weapons.RiceGun;
+import mayo.world.items.weapons.Weapon;
 import mayo.world.particle.ExplosionParticle;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.Terrain;
@@ -220,6 +221,10 @@ public class World {
             scheduledTicks.add(() -> this.particles.add(particle));
     }
 
+    public SoundSource playSound(Resource sound, Vector3f position) {
+        return Client.getInstance().soundManager.playSound(sound, position);
+    }
+
     public void mousePress(int button, int action, int mods) {
         boolean press = action == GLFW_PRESS;
 
@@ -274,8 +279,8 @@ public class World {
         switch (key) {
             case GLFW_KEY_R -> {
                 Item i = player.getHoldingItem();
-                if (i instanceof Firearm firearm && !firearm.isOnCooldown() && i.getCount() < i.getStackCount())
-                    firearm.setOnCooldown();
+                if (i instanceof Weapon weapon && !weapon.isOnCooldown() && i.getCount() < i.getStackCount())
+                    weapon.setOnCooldown();
             }
             case GLFW_KEY_ESCAPE -> Client.getInstance().setScreen(new PauseScreen());
             case GLFW_KEY_F1 -> this.hideHUD = !this.hideHUD;

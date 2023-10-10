@@ -155,6 +155,10 @@ public class Maths {
         return normalABC.dot(normalPAB) >= 0 && normalABC.dot(normalPBC) >= 0 && normalABC.dot(normalPCA) >= 0;
     }
 
+    public static float range(float min, float max) {
+        return (float) Math.random() * (max - min) + min;
+    }
+
     private static final String[] SIZE_UNITS = {"b", "kb", "mb", "gb"};
     public static String prettyByteSize(double size) {
         int i = 0;

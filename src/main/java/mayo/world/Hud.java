@@ -284,6 +284,8 @@ public class Hud {
     private static String debugLeftText() {
         Client c = Client.getInstance();
 
+        int soundCount = c.soundManager.getSoundCount();
+
         World w = c.world;
         Vector3f epos = w.player.getPos();
         Vector2f erot = w.player.getRot();
@@ -311,8 +313,9 @@ public class Hud {
 
         return String.format("""
                         [world]
-                        %s entities %s particles %s terrain
-
+                        %s entities %s terrain
+                        %s particles %s sounds
+ 
                         [player]
                         xyz %.3f %.3f %.3f
                         pitch %.3f yaw %.3f
@@ -324,7 +327,8 @@ public class Hud {
                         pitch %.3f yaw %.3f
                         facing %s
                         """,
-                w.entityCount(), w.particleCount(), w.terrainCount(),
+                w.entityCount(), w.terrainCount(),
+                w.particleCount(), soundCount,
 
                 epos.x, epos.y, epos.z,
                 erot.x, erot.y,

@@ -18,6 +18,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 public class Button extends Widget implements GUIListener {
 
     private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/button.png"));
+    private static final Resource CLICK_SOUND = new Resource("sounds/pop.ogg");
 
     private final Label message;
     private final Runnable toRun;
@@ -87,6 +88,7 @@ public class Button extends Widget implements GUIListener {
     @Override
     public boolean mousePress(int button, int action, int mods) {
         if (hovered && action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1) {
+            playClickSound();
             toRun.run();
             return true;
         }
@@ -95,5 +97,9 @@ public class Button extends Widget implements GUIListener {
 
     public void setTooltip(Text tooltip) {
         this.tooltip = tooltip;
+    }
+
+    public void playClickSound() {
+        Client.getInstance().soundManager.playSound(CLICK_SOUND);
     }
 }

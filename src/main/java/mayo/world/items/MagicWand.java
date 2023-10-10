@@ -19,8 +19,8 @@ public class MagicWand extends Item {
     //properties :D
     private static final float DISTANCE = 3f;
     private static final float STEP = 1 / 4f;
-    private static final int LIFETIME = Integer.MAX_VALUE;
-    private static final float ERASER_RANGE = 0.25f;
+    private static final int LIFETIME = 6000;
+    private static final float ERASER_RANGE = 0.5f;
 
     private Vector3f lastPos;
 

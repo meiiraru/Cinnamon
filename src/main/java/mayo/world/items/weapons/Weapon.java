@@ -6,9 +6,9 @@ import mayo.world.entity.Entity;
 import mayo.world.entity.projectile.Projectile;
 import mayo.world.items.CooldownItem;
 
-public abstract class Firearm extends CooldownItem {
+public abstract class Weapon extends CooldownItem {
 
-    public Firearm(String id, Model model, int maxRounds, int reloadTime, int useCooldown) {
+    public Weapon(String id, Model model, int maxRounds, int reloadTime, int useCooldown) {
         super(id, maxRounds, model, reloadTime, useCooldown);
         reload();
     }
@@ -32,20 +32,24 @@ public abstract class Firearm extends CooldownItem {
 
     protected abstract Projectile newProjectile(World world, Entity entity);
 
-    private boolean shoot(Entity entity) {
+    protected void spawnBullet(Entity source) {
+        World world = source.getWorld();
+        Projectile projectile = newProjectile(world, source);
+
+        projectile.setPos(source.getEyePos().add(source.getLookDir().mul(0.5f)));
+        projectile.setRot(source.getRot());
+
+        world.addEntity(projectile);
+    }
+
+    private boolean shoot(Entity source) {
         if (count <= 0)
             return false;
 
         setUseCooldown();
 
         //spawn new bullet
-        World world = entity.getWorld();
-        Projectile projectile = newProjectile(world, entity);
-
-        projectile.setPos(entity.getEyePos().add(entity.getLookDir().mul(0.5f)));
-        projectile.setRot(entity.getRot());
-
-        world.addEntity(projectile);
+        spawnBullet(source);
 
         //use ammo
         count--;
