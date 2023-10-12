@@ -17,9 +17,8 @@ public class MainMenu extends Screen {
 
         //open world
         Button worldButton = new Button((width - 180) / 2, (height - 20) / 2 - 20 - 16, 180, 20, Text.of("Open world"), () -> {
-            client.world = new World();
-            client.world.init();
-            client.setScreen(null);
+            World world = new World();
+            world.init();
         });
         this.addWidget(worldButton);
 
@@ -27,8 +26,12 @@ public class MainMenu extends Screen {
         Button dvd = new Button(worldButton.getX(), worldButton.getY() + worldButton.getHeight() + 16, 180, 20, Text.of("DVD screensaver"), () -> client.setScreen(new DVDScreen(this)));
         this.addWidget(dvd);
 
+        //collision screen
+        Button coll = new Button(dvd.getX(), dvd.getY() + dvd.getHeight() + 16, 180, 20, Text.of("Collision Test"), () -> client.setScreen(new CollisionScreen(this)));
+        this.addWidget(coll);
+
         //close application
-        Button exitButton = new Button(dvd.getX(), dvd.getY() + dvd.getHeight() + 16, 180, 20, Text.of("Exit"), () -> client.window.exit());
+        Button exitButton = new Button(coll.getX(), coll.getY() + coll.getHeight() + 16, 180, 20, Text.of("Exit"), () -> client.window.exit());
         exitButton.setTooltip(Text.of("bye~"));
         this.addWidget(exitButton);
 

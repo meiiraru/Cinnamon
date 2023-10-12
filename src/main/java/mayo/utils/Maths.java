@@ -159,6 +159,38 @@ public class Maths {
         return (float) Math.random() * (max - min) + min;
     }
 
+    public static float min(Vector3f vec) {
+        return Math.min(vec.x, Math.min(vec.y, vec.z));
+    }
+
+    public static float max(Vector3f vec) {
+        return Math.max(vec.x, Math.max(vec.y, vec.z));
+    }
+
+    public static int maxIndex(Vector3f vec) {
+        if (vec.x >= vec.y && vec.x >= vec.z) {
+            return 0;
+        } else if (vec.y >= vec.z) {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
+
+    public static int minIndex(Vector3f vec) {
+        if (vec.x < vec.y && vec.x < vec.z) {
+            return 0;
+        } else if (vec.y < vec.z) {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
+
+    public static boolean isNaN(Vector3f vec) {
+        return Float.isNaN(vec.x) || Float.isNaN(vec.y) || Float.isNaN(vec.z);
+    }
+
     private static final String[] SIZE_UNITS = {"b", "kb", "mb", "gb"};
     public static String prettyByteSize(double size) {
         int i = 0;

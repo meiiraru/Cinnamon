@@ -101,6 +101,16 @@ public class SoundManager {
             sound.stop();
     }
 
+    public void pauseAll() {
+        for (SoundSource sound : sounds)
+            sound.pause();
+    }
+
+    public void resumeAll() {
+        for (SoundSource sound : sounds)
+            sound.play();
+    }
+
     public int getSoundCount() {
         return sounds.size();
     }

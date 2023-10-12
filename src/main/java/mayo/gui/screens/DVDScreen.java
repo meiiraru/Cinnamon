@@ -1,8 +1,8 @@
 package mayo.gui.screens;
 
+import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
 import mayo.gui.Toast;
-import mayo.gui.widgets.types.Button;
 import mayo.model.GeometryHelper;
 import mayo.model.Vertex;
 import mayo.render.MatrixStack;
@@ -14,7 +14,7 @@ import mayo.utils.Maths;
 import mayo.utils.Resource;
 import org.joml.Vector2f;
 
-public class DVDScreen extends Screen {
+public class DVDScreen extends ParentedScreen {
 
     private static final Texture DVD_TEX = Texture.of(new Resource("textures/gui/dvd.png"));
     private static final int w = 58, h = 40;
@@ -27,7 +27,6 @@ public class DVDScreen extends Screen {
             LEFT = new Vector2f(-1f, 0f),
             RIGHT = new Vector2f(1f, 0f);
 
-    private final Screen parentScreen;
     private final Vector2f
             oPos = new Vector2f(),
             pos = new Vector2f();
@@ -35,15 +34,7 @@ public class DVDScreen extends Screen {
     private Colors color;
 
     public DVDScreen(Screen parentScreen) {
-        this.parentScreen = parentScreen;
-    }
-
-    @Override
-    public void init() {
-        super.init();
-
-        //go back
-        this.addWidget(new Button(width - 60 - 4, height - 20 - 4, 60, 20 , Text.of("Back"), this::close));
+        super(parentScreen);
     }
 
     @Override
@@ -115,15 +106,5 @@ public class DVDScreen extends Screen {
         while (temp == color)
             temp = Colors.randomRainbow();
         this.color = temp;
-    }
-
-    @Override
-    public boolean closeOnEsc() {
-        return true;
-    }
-
-    @Override
-    public void close() {
-        client.setScreen(parentScreen);
     }
 }

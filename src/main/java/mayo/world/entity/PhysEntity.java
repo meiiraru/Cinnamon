@@ -5,6 +5,7 @@ import mayo.utils.AABB;
 import mayo.world.World;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class PhysEntity extends Entity {
@@ -29,16 +30,16 @@ public abstract class PhysEntity extends Entity {
         applyMovement();
 
         //move the entity using the motion
-        Vector3f allowedMotion = checkCollisions(motion);
+        List<AABB.CollisionResult> collisionResult = checkCollisions(motion);
 
-        //update on ground state
-        this.onGround = motion.y != allowedMotion.y && motion.y < 0f;
+        //collision
+        if (!collisionResult.isEmpty()) {
+            resolveCollision(collisionResult);
+        } else {
+            onGround = false;
+        }
 
-        //resolve the collision
-        resolveCollision(motion.x != allowedMotion.x, motion.y != allowedMotion.y, motion.z != allowedMotion.z);
-
-        //move position
-        moveTo(pos.x + allowedMotion.x, pos.y + allowedMotion.y, pos.z + allowedMotion.z);
+        moveTo(pos.x + motion.x, pos.y + motion.y, pos.z + motion.z);
 
         //decrease motion
         motionFallout();
@@ -61,11 +62,18 @@ public abstract class PhysEntity extends Entity {
         this.motion.y -= world.gravity;
     }
 
-    protected void resolveCollision(boolean x, boolean y, boolean z) {
-        //stop the motion
-        if (x) this.motion.x = 0f;
-        if (y) this.motion.y = 0f;
-        if (z) this.motion.z = 0f;
+    protected void resolveCollision(List<AABB.CollisionResult> collisions) {
+        for (AABB.CollisionResult collision : collisions) {
+            Vector3f n = collision.normal();
+            if (n.y > 0)
+                this.onGround = true;
+
+            this.motion.set(
+                    n.x != 0 ? 0 : motion.x,
+                    n.y != 0 ? 0 : motion.y,
+                    n.z != 0 ? 0 : motion.z
+            );
+        }
     }
 
     protected void motionFallout() {
@@ -103,31 +111,24 @@ public abstract class PhysEntity extends Entity {
         return 0.15f;
     }
 
-    protected Vector3f checkCollisions(Vector3f vec) {
-        return checkCollisions(vec.x, vec.y, vec.z);
-    }
+    protected List<AABB.CollisionResult> checkCollisions(Vector3f vec) {
+        List<AABB.CollisionResult> collisions = new ArrayList<>();
 
-    protected Vector3f checkCollisions(float x, float y, float z) {
+        Vector3f pos = aabb.getCenter();
+        Vector3f inflation = aabb.getDimensions().mul(0.5f);
+
         //get terrain collisions
-        AABB tempBB = new AABB(aabb);
-        List<AABB> collisions = world.getTerrainCollisions(new AABB(aabb).expand(x, y, z));
+        AABB area = new AABB(aabb).expand(vec);
+        List<AABB> terrain = world.getTerrainCollisions(area);
 
-        //check for X collision
-        for (AABB aabb : collisions)
-            x = aabb.clipXCollide(tempBB, x);
-        tempBB.translate(x, 0f, 0f);
+        for (AABB terrainBB : terrain) {
+            AABB.CollisionResult result = new AABB(terrainBB).inflate(inflation).collisionRay(pos, vec);
+            if (result != null)
+                collisions.add(result);
+        }
 
-        //check for Y collision
-        for (AABB aabb : collisions)
-            y = aabb.clipYCollide(tempBB, y);
-        tempBB.translate(0f, y, 0f);
-
-        //check for Z collision
-        for (AABB aabb : collisions)
-            z = aabb.clipZCollide(tempBB, z);
-        tempBB.translate(0f, 0f, z);
-
-        return new Vector3f(x, y, z);
+        collisions.sort((o1, o2) -> Float.compare(o1.delta(), o2.delta()));
+        return collisions;
     }
 
     protected Vector3f checkEntityCollision(Entity entity) {

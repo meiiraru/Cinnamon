@@ -8,6 +8,7 @@ import mayo.input.Movement;
 import mayo.render.MatrixStack;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
+import mayo.sound.SoundManager;
 import mayo.sound.SoundSource;
 import mayo.text.Text;
 import mayo.utils.AABB;
@@ -61,6 +62,11 @@ public class World {
     public final float gravity = 0.98f / 20f;
 
     public void init() {
+        //set client
+        Client client = Client.getInstance();
+        client.setScreen(null);
+        client.world = this;
+
         //init hud
         hud.init();
 
@@ -72,6 +78,14 @@ public class World {
 
         //load level
         LevelLoad.load(this, new Resource("data/levels/level0.json"));
+
+        //playSound(new Resource("sounds/song.ogg"), new Vector3f(0, 0, 0)).loop(true);
+    }
+
+    public void exit() {
+        Client client = Client.getInstance();
+        client.soundManager.stopAll();
+        client.world = null;
     }
 
     public void tick() {
@@ -356,6 +370,14 @@ public class World {
     public void setPaused(boolean pause) {
         this.isPaused = pause;
         this.movement.reset();
+
+        SoundManager soundManager = Client.getInstance().soundManager;
+        if (pause) soundManager.pauseAll();
+        else soundManager.resumeAll();
+    }
+
+    public int getCameraMode() {
+        return cameraMode;
     }
 
     public boolean isThirdPerson() {

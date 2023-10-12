@@ -46,6 +46,17 @@ public class GeometryHelper {
         };
     }
 
+    public static void rectangle(VertexConsumer consumer, MatrixStack matrices, float x0, float y0, float x1, float y1, int color) {
+        consumer.consume(
+                new Vertex[]{
+                        Vertex.of(x0, y1, 0).color(color).mul(matrices),
+                        Vertex.of(x1, y1, 0).color(color).mul(matrices),
+                        Vertex.of(x1, y0, 0).color(color).mul(matrices),
+                        Vertex.of(x0, y0, 0).color(color).mul(matrices),
+                }, 0
+        );
+    }
+
     public static void pushCube(VertexConsumer consumer, MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, int color) {
         //north
         consumer.consume(

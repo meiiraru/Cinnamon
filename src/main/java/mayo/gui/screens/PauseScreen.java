@@ -21,7 +21,7 @@ public class PauseScreen extends Screen {
 
         Button menu = new Button(resume.getX(), resume.getY() + resume.getHeight() + 16, 180, 20, Text.of("Main menu"), () -> {
             client.setScreen(new MainMenu());
-            client.world = null;
+            client.world.exit();
         });
         this.addWidget(menu);
     }

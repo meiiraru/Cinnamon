@@ -293,6 +293,12 @@ public class Hud {
         Vector3f cpos = c.camera.getPos();
         Vector2f crot = c.camera.getRot();
 
+        Vector3f chunk = new Vector3f(
+                (int) Math.floor(epos.x / 32f),
+                (int) Math.floor(epos.y / 32f),
+                (int) Math.floor(epos.z / 32f)
+        );
+
         String face;
         float yaw = Maths.modulo(crot.y, 360);
         if (yaw >= 45 && yaw < 135) {
@@ -305,11 +311,13 @@ public class Hud {
             face = "North Z-";
         }
 
-        Vector3f chunk = new Vector3f(
-                (int) Math.floor(epos.x / 32f),
-                (int) Math.floor(epos.y / 32f),
-                (int) Math.floor(epos.z / 32f)
-        );
+        String camera;
+        camera = switch (w.getCameraMode()) {
+            case 0 -> "First Person";
+            case 1 -> "Third Person (back)";
+            case 2 -> "Third Person (front)";
+            default -> "unknown";
+        };
 
         return String.format("""
                         [world]
@@ -326,6 +334,7 @@ public class Hud {
                         xyz %.3f %.3f %.3f
                         pitch %.3f yaw %.3f
                         facing %s
+                        mode %s
                         """,
                 w.entityCount(), w.terrainCount(),
                 w.particleCount(), soundCount,
@@ -337,7 +346,8 @@ public class Hud {
 
                 cpos.x, cpos.y, cpos.z,
                 crot.x, crot.y,
-                face
+                face,
+                camera
         );
     }
 

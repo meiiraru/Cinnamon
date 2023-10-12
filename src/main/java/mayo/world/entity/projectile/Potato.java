@@ -4,6 +4,7 @@ import mayo.model.ModelManager;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
 import mayo.render.shader.Shader;
+import mayo.utils.AABB;
 import mayo.utils.ColorUtils;
 import mayo.utils.Maths;
 import mayo.utils.Resource;
@@ -11,6 +12,8 @@ import mayo.world.DamageType;
 import mayo.world.World;
 import mayo.world.entity.Entity;
 import org.joml.Vector3f;
+
+import java.util.List;
 
 public class Potato extends Projectile {
 
@@ -38,11 +41,11 @@ public class Potato extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(boolean x, boolean y, boolean z) {
+    protected void resolveCollision(List<AABB.CollisionResult> collisions) {
         //bounce sides and stop on y
-        if (x) this.motion.x *= -0.25f;
-        if (y) this.motion.y = 0f;
-        if (z) this.motion.z *= -0.25f;
+        //if (x) this.motion.x *= -0.25f;
+        //if (y) this.motion.y = 0f;
+        //if (z) this.motion.z *= -0.25f;
     }
 
     @Override

@@ -3,9 +3,12 @@ package mayo.world.entity.collectable;
 import mayo.Client;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
+import mayo.utils.AABB;
 import mayo.world.World;
 import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
+
+import java.util.List;
 
 public abstract class Collectable extends PhysEntity {
 
@@ -39,11 +42,11 @@ public abstract class Collectable extends PhysEntity {
     }
 
     @Override
-    protected void resolveCollision(boolean x, boolean y, boolean z) {
+    protected void resolveCollision(List<AABB.CollisionResult> collisions) {
         //bounce
-        if (x) this.motion.x *= -0.5f;
-        if (y) this.motion.y *= -0.5f;
-        if (z) this.motion.z *= -0.5f;
+        //if (x) this.motion.x *= -0.5f;
+        //if (y) this.motion.y *= -0.5f;
+        //if (z) this.motion.z *= -0.5f;
     }
 
     protected abstract boolean onPickUp(Entity entity);

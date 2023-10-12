@@ -45,9 +45,19 @@ public class AABB {
     }
 
     public boolean intersects(AABB other) {
-        return maxX >= other.minX && minX <= other.maxX &&
-                maxY >= other.minY && minY <= other.maxY &&
-                maxZ >= other.minZ && minZ <= other.maxZ;
+        return intersectsX(other) && intersectsY(other) && intersectsZ(other);
+    }
+
+    public boolean intersectsX(AABB other) {
+        return maxX >= other.minX && minX <= other.maxX;
+    }
+
+    public boolean intersectsY(AABB other) {
+        return maxY >= other.minY && minY <= other.maxY;
+    }
+
+    public boolean intersectsZ(AABB other) {
+        return maxZ >= other.minZ && minZ <= other.maxZ;
     }
 
     public boolean isInside(Vector3f point) {
@@ -113,6 +123,30 @@ public class AABB {
         return this;
     }
 
+    public float minX() {
+        return minX;
+    }
+
+    public float minY() {
+        return minY;
+    }
+
+    public float minZ() {
+        return minZ;
+    }
+
+    public float maxX() {
+        return maxX;
+    }
+
+    public float maxY() {
+        return maxY;
+    }
+
+    public float maxZ() {
+        return maxZ;
+    }
+
     public Vector3f getMin() {
         return new Vector3f(minX, minY, minZ);
     }
@@ -154,91 +188,9 @@ public class AABB {
         );
     }
 
-    public float clipXCollide(AABB other, float x) {
-        //check if there is collision on the Y axis
-        if (other.maxY <= this.minY || other.minY >= this.maxY)
-            return x;
-
-        //check if there is collision on the Z axis
-        if (other.maxZ <= this.minZ || other.minZ >= this.maxZ)
-            return x;
-
-        //check for collision if the X axis of the current box is bigger
-        if (x > 0f && other.maxX <= this.minX) {
-            float max = this.minX - other.maxX - this.epsilon;
-            if (max < x)
-                x = max;
-        }
-
-        //check for collision if the X axis of the other box is smaller
-        if (x < 0f && other.minX >= this.maxX) {
-            float max = this.maxX - other.minX + this.epsilon;
-            if (max > x)
-                x = max;
-        }
-
-        return x;
-    }
-
-    public float clipYCollide(AABB other, float y) {
-        //check if there is collision on the X axis
-        if (other.maxX <= this.minX || other.minX >= this.maxX)
-            return y;
-
-        //check if there is collision on the Z axis
-        if (other.maxZ <= this.minZ || other.minZ >= this.maxZ)
-            return y;
-
-        //check for collision if the Y axis of the current box is bigger
-        if (y > 0f && other.maxY <= this.minY) {
-            float max = this.minY - other.maxY - this.epsilon;
-            if (max < y)
-                y = max;
-        }
-
-        //check for collision if the Y axis of the other box is bigger
-        if (y < 0f && other.minY >= this.maxY) {
-            float max = this.maxY - other.minY + this.epsilon;
-            if (max > y)
-                y = max;
-        }
-
-        return y;
-    }
-
-    public float clipZCollide(AABB other, float z) {
-        //check if there is collision on the X axis
-        if (other.maxX <= this.minX || other.minX >= this.maxX)
-            return z;
-
-        //check if there is collision on the Y axis
-        if (other.maxY <= this.minY || other.minY >= this.maxY)
-            return z;
-
-        //check for collision if the Z axis of the current box is bigger
-        if (z > 0f && other.maxZ <= this.minZ) {
-            float max = this.minZ - other.maxZ - this.epsilon;
-            if (max < z)
-                z = max;
-        }
-
-        //check for collision if the Z axis of the other box is bigger
-        if (z < 0f && other.minZ >= this.maxZ) {
-            float max = this.maxZ - other.minZ + this.epsilon;
-            if (max > z)
-                z = max;
-        }
-
-        return z;
-    }
-
     public float getXOverlap(AABB other) {
-        //check if there is collision on the Y axis
-        if (other.maxY <= this.minY || other.minY >= this.maxY)
-            return 0;
-
-        //check if there is collision on the Z axis
-        if (other.maxZ <= this.minZ || other.minZ >= this.maxZ)
+        //check if there is no collision on the other axis
+        if (!intersectsY(other) || !intersectsZ(other))
             return 0;
 
         if (this.minX <= other.minX)
@@ -248,12 +200,8 @@ public class AABB {
     }
 
     public float getYOverlap(AABB other) {
-        //check if there is collision on the X axis
-        if (other.maxX <= this.minX || other.minX >= this.maxX)
-            return 0;
-
-        //check if there is collision on the Z axis
-        if (other.maxZ <= this.minZ || other.minZ >= this.maxZ)
+        //check if there is no collision on the other axis
+        if (!intersectsX(other) || !intersectsZ(other))
             return 0;
 
         if (this.minY <= other.minY)
@@ -263,12 +211,8 @@ public class AABB {
     }
 
     public float getZOverlap(AABB other) {
-        //check if there is collision on the X axis
-        if (other.maxX <= this.minX || other.minX >= this.maxX)
-            return 0;
-
-        //check if there is collision on the Y axis
-        if (other.maxY <= this.minY || other.minY >= this.maxY)
+        //check if there is no collision on the other axis
+        if (!intersectsX(other) || !intersectsY(other))
             return 0;
 
         if (this.minZ <= other.minZ)
@@ -276,4 +220,53 @@ public class AABB {
 
         return this.maxZ - other.minZ + this.epsilon;
     }
+
+    public CollisionResult collisionRay(Vector3f rayOrigin, Vector3f rayDir) {
+        //grab delta point of intersections
+        Vector3f tNear = getMin().sub(rayOrigin).div(rayDir);
+        Vector3f tFar = getMax().sub(rayOrigin).div(rayDir);
+
+        //check for NaN meaning that no collisions have happened
+        if (Maths.isNaN(tNear) || Maths.isNaN(tFar))
+            return null;
+
+        //swap near and far, if the ray comes from the opposite direction
+        if (tNear.x > tFar.x) {
+            float temp = tNear.x; tNear.x = tFar.x; tFar.x = temp;
+        }
+        if (tNear.y > tFar.y) {
+            float temp = tNear.y; tNear.y = tFar.y; tFar.y = temp;
+        }
+        if (tNear.z > tFar.z) {
+            float temp = tNear.z; tNear.z = tFar.z; tFar.z = temp;
+        }
+
+        //return if there is no collision
+        if (tNear.x > tFar.y || tNear.x > tFar.z ||
+            tNear.y > tFar.x || tNear.y > tFar.z ||
+            tNear.z > tFar.x || tNear.z > tFar.y)
+            return null;
+
+        //grab intersection point
+        float near = Maths.max(tNear);
+        float far = Maths.min(tFar);
+
+        //collision is either behind the initial point or after the end point
+        if (far < 0 || near > 1) return null;
+
+        //calculate and return the result
+        Vector3f pos = new Vector3f(
+                rayOrigin.x + rayDir.x * near,
+                rayOrigin.y + rayDir.y * near,
+                rayOrigin.z + rayDir.z * near
+        );
+
+        Vector3f normal = new Vector3f();
+        int index = Maths.maxIndex(tNear);
+        normal.setComponent(index, rayDir.get(index) < 0 ? 1 : -1);
+
+        return new CollisionResult(pos, normal, near);
+    }
+
+    public record CollisionResult(Vector3f pos, Vector3f normal, float delta) {}
 }
