@@ -128,6 +128,10 @@ public class Camera {
         return new Vector3f(up);
     }
 
+    public Quaternionf getRotation() {
+        return new Quaternionf(rotation);
+    }
+
     public Matrix4f getPerspectiveMatrix() {
         return perspMatrix;
     }

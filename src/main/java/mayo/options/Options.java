@@ -18,6 +18,7 @@ public class Options {
     //actual options
     public int fov = 70;
     public float sensibility = 0.27f;
+    public float guiScale = 3f;
 
     //player model
     public ModelRegistry.Living player = ModelRegistry.Living.STRAWBERRY;

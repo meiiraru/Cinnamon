@@ -73,6 +73,8 @@ public abstract class PhysEntity extends Entity {
                     n.y != 0 ? 0 : motion.y,
                     n.z != 0 ? 0 : motion.z
             );
+
+            break;
         }
     }
 

@@ -22,7 +22,7 @@ public class Window {
 
     //gui properties
     public int scaledWidth = width, scaledHeight = height;
-    public float guiScale = 3f;
+    public float guiScale = 1f;
 
     //mouse properties
     public int mouseX, mouseY;
@@ -134,5 +134,11 @@ public class Window {
         this.height = height;
         this.scaledWidth = (int) (width / guiScale);
         this.scaledHeight = (int) (height / guiScale);
+    }
+
+    public void setGuiScale(float scale) {
+        this.guiScale = scale;
+        this.scaledWidth = (int) (width / scale);
+        this.scaledHeight = (int) (height / scale);
     }
 }

@@ -46,22 +46,20 @@ public class Hud {
 
     public void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
-        int w = c.window.scaledWidth;
-        int h = c.window.scaledHeight;
 
         //render debug text
         Style style = Style.EMPTY.shadow(true).shadowColor(Colors.DARK_GRAY);
         c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps").withStyle(style));
         if (c.world.isDebugRendering()) {
             c.font.render(VertexConsumer.FONT, matrices, 4, 4 + c.font.lineHeight * 2, Text.of(debugLeftText()).withStyle(style));
-            c.font.render(VertexConsumer.FONT, matrices, w - 4, 4, Text.of(debugRightText()).withStyle(style), TextUtils.Alignment.RIGHT);
+            c.font.render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, Text.of(debugRightText()).withStyle(style), TextUtils.Alignment.RIGHT);
         }
+
+        //draw crosshair
+        drawCrosshair(matrices, delta);
 
         //draw player stats
         drawPlayerStats(matrices, c.world.player, delta);
-
-        //draw crosshair
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, (int) (w / 2f - 8), (int) (h / 2f - 8), 16, 16), CROSSHAIR.getID());
     }
 
     private void drawPlayerStats(MatrixStack matrices, Player player, float delta) {
@@ -279,6 +277,30 @@ public class Hud {
         VertexConsumer.GUI.consume(vertices, HIT_DIRECTION.getID());
 
         matrices.pop();
+    }
+
+    private void drawCrosshair(MatrixStack matrices, float delta) {
+        Client c = Client.getInstance();
+        int w = c.window.scaledWidth;
+        int h = c.window.scaledHeight;
+
+        if (c.world.isDebugRendering()) {
+            matrices.push();
+            matrices.translate(w / 2f, h / 2f, 0);
+            matrices.scale(1, 1, -1);
+
+            matrices.rotate(Rotation.X.rotationDeg(c.camera.getRot().x));
+            matrices.rotate(Rotation.Y.rotationDeg(-c.camera.getRot().y));
+
+            float len = 10;
+            GeometryHelper.pushCube(VertexConsumer.GUI, matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000);
+            GeometryHelper.pushCube(VertexConsumer.GUI, matrices, 0, 0, 0, 1, -len, 1, 0xFF00FF00);
+            GeometryHelper.pushCube(VertexConsumer.GUI, matrices, 0, 0, 0, 1, 1, -len, 0xFF0000FF);
+
+            matrices.pop();
+        } else {
+            VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, (int) (w / 2f - 8), (int) (h / 2f - 8), 16, 16), CROSSHAIR.getID());
+        }
     }
 
     private static String debugLeftText() {

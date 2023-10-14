@@ -42,6 +42,7 @@ public class Client {
 
     public void init() {
         this.options = Options.load();
+        this.window.setGuiScale(options.guiScale);
         this.soundManager = new SoundManager();
         this.soundManager.init();
         this.camera = new Camera();
