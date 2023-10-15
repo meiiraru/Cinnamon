@@ -49,6 +49,12 @@ public class CollisionScreen extends ParentedScreen {
 
         //draw line
         UIHelper.drawLine(VertexConsumer.GUI, matrices, pos.x, pos.y, mouseX, mouseY, 1, hasCollision ? 0xFFFFFF00 : -1);
+
+        //fully unrelated lol
+        int i = (client.ticks / 20) % 12 + 1;
+        GeometryHelper.circle(VertexConsumer.LINES, matrices, width / 2f, height / 2f, 22f, i, 0xFF323232);
+        float f = ((client.ticks + delta) % 20f) / 20f;
+        GeometryHelper.circle(VertexConsumer.LINES, matrices, width / 2f, height / 2f, 20f, f, i, -1);
     }
 
     @Override

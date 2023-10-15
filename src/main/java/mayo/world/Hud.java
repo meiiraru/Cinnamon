@@ -289,8 +289,9 @@ public class Hud {
             matrices.translate(w / 2f, h / 2f, 0);
             matrices.scale(1, 1, -1);
 
-            matrices.rotate(Rotation.X.rotationDeg(c.camera.getRot().x));
-            matrices.rotate(Rotation.Y.rotationDeg(-c.camera.getRot().y));
+            Vector2f rot = c.camera.getRot();
+            matrices.rotate(Rotation.X.rotationDeg(rot.x));
+            matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
 
             float len = 10;
             GeometryHelper.pushCube(VertexConsumer.GUI, matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000);

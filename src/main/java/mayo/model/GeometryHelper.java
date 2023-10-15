@@ -46,6 +46,49 @@ public class GeometryHelper {
         };
     }
 
+    public static void circle(VertexConsumer consumer, MatrixStack matrices, float x, float y, float radius, int sides, int color) {
+        circle(consumer, matrices, x, y, radius, 1, sides, color);
+    }
+
+    public static void circle(VertexConsumer consumer, MatrixStack matrices, float x, float y, float radius, float completeness, int sides, int color) {
+        //number of faces
+        int faceCount = (int) Math.ceil(sides * completeness);
+        if (faceCount <= 0)
+            return;
+
+        //maximum allowed angle
+        float max = (float) Math.toRadians(360 * completeness);
+
+        //90 degrees offset
+        float f = (float) Math.toRadians(-90f);
+        //angle per step
+        float aStep = (float) Math.toRadians(360f / sides);
+
+        //first circle position
+        float x1 = x + (float) Math.cos(f) * radius;
+        float y1 = y + (float) Math.sin(f) * radius;
+
+        Vertex[] vertices = new Vertex[faceCount * 3];
+        for (int i = 0; i < faceCount; i++) {
+            //vertex index
+            int j = i * 3;
+
+            //center vertex
+            vertices[j] = Vertex.of(x, y, 0).color(color).mul(matrices);
+            //first pos
+            vertices[j + 1] = Vertex.of(x1, y1, 0).color(color).mul(matrices);
+
+            //second pos
+            float a = Math.min(aStep * (i + 1), max) + f;
+            x1 = x + (float) Math.cos(a) * radius;
+            y1 = y + (float) Math.sin(a) * radius;
+            vertices[j + 2] = Vertex.of(x1, y1, 0).color(color).mul(matrices);
+        }
+
+        //push to consumer
+        consumer.consume(vertices, 0);
+    }
+
     public static void rectangle(VertexConsumer consumer, MatrixStack matrices, float x0, float y0, float x1, float y1, int color) {
         consumer.consume(
                 new Vertex[]{
