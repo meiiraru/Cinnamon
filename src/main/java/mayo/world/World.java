@@ -59,7 +59,8 @@ public class World {
     private boolean isPaused;
     private boolean hideHUD;
 
-    public final float gravity = 0.98f / 20f;
+    public final float updateTime = 0.05f; // 1/20
+    public final float gravity = 0.98f * updateTime;
 
     public void init() {
         //set client

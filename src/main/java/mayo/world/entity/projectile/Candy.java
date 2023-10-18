@@ -3,13 +3,13 @@ package mayo.world.entity.projectile;
 import mayo.model.ModelManager;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
-import mayo.utils.AABB;
 import mayo.utils.Maths;
 import mayo.utils.Resource;
 import mayo.world.World;
+import mayo.world.collisions.CollisionResolver;
+import mayo.world.collisions.CollisionResult;
 import mayo.world.entity.Entity;
-
-import java.util.List;
+import org.joml.Vector3f;
 
 public class Candy extends Projectile {
 
@@ -18,6 +18,7 @@ public class Candy extends Projectile {
     public static final int LIFETIME = 50;
     public static final float SPEED = 1.5f;
     public static final float CRIT_CHANCE = 0.15f;
+    private static final Vector3f BOUNCINESS = new Vector3f(0.7f, 0.7f, 0.7f);
 
     public Candy(World world, Entity owner) {
         super(MODEL, world, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
@@ -36,11 +37,8 @@ public class Candy extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(List<AABB.CollisionResult> collisions) {
-        //bounce
-        //if (x) this.motion.x *= -0.7f;
-        //if (y) this.motion.y *= -0.7f;
-        //if (z) this.motion.z *= -0.7f;
+    protected void resolveCollision(CollisionResult collision, Vector3f motion, Vector3f move) {
+        CollisionResolver.bounce(collision, motion, move, BOUNCINESS);
     }
 
     @Override

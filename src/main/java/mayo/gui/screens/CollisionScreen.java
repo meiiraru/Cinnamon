@@ -8,53 +8,92 @@ import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
 import mayo.utils.AABB;
 import mayo.utils.UIHelper;
+import mayo.world.collisions.CollisionDetector;
+import mayo.world.collisions.CollisionResolver;
+import mayo.world.collisions.CollisionResult;
 import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public class CollisionScreen extends ParentedScreen {
 
-    private final AABB aabb;
-    private final Vector3f pos;
+    private final AABB aabb, player;
+    private final Vector3f pos, motion;
+    private final float size = 10;
+    private boolean l, r, u, d;
+    private CollisionResult collision;
 
     public CollisionScreen(Screen parentScreen) {
         super(parentScreen);
-        this.aabb = new AABB(100, 100, 0, 120, 120, 1);
+        this.aabb = new AABB(100 - size, 100 - size, -size, 100 + size, 100 + size, size);
+        this.player = new AABB(150 - size, 150 - size, -size, 150 + size, 150 + size, size);
         this.pos = new Vector3f();
+        this.motion = new Vector3f();
+    }
+
+    @Override
+    public void tick() {
+        float sp = 3;
+        if (l) motion.x -= sp;
+        if (r) motion.x += sp;
+        if (u) motion.y -= sp;
+        if (d) motion.y += sp;
+
+        Vector3f pos = player.getCenter();
+        AABB temp = new AABB(aabb).inflate(player.getDimensions().mul(0.5f));
+        Vector3f move = new Vector3f();
+
+        collision = CollisionDetector.collisionRay(temp, pos, motion);
+        if (collision != null)
+            CollisionResolver.push(collision, motion, move);
+
+        player.translate(motion);
+        aabb.translate(move);
+        motion.set(0);
     }
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
+        aabbVsAABB(matrices);
+        aabbVsRay(matrices, mouseX, mouseY);
+    }
 
-        //direction
-        Vector3f dir = new Vector3f(mouseX - pos.x, mouseY - pos.y, 0.5f);
+    private void aabbVsRay(MatrixStack matrices, int mouseX, int mouseY) {
+        //length
+        Vector3f len = new Vector3f(mouseX - pos.x, mouseY - pos.y, 0);
 
         //collision
-        AABB.CollisionResult collision = aabb.collisionRay(pos, dir);
-        boolean hasCollision = collision != null;
+        CollisionResult collision = CollisionDetector.collisionRay(aabb, pos, len);
+        boolean collided = collision != null;
 
         //draw box
-        GeometryHelper.rectangle(VertexConsumer.GUI, matrices, aabb.minX(), aabb.minY(), aabb.maxX(), aabb.maxY(), hasCollision ? 0xFFAD72FF : 0xFFFF72AD);
+        GeometryHelper.rectangle(VertexConsumer.GUI, matrices, aabb.minX(), aabb.minY(), aabb.maxX(), aabb.maxY(), collided ? 0xFFFF72AD : 0xFFAD72FF);
 
-        if (hasCollision) {
-            //draw collision cube
-            Vector3f pos = collision.pos();
-            GeometryHelper.rectangle(VertexConsumer.GUI, matrices, pos.x - 3, pos.y - 3, pos.x + 3, pos.y + 3, 0xFF72ADFF);
+        if (collided) {
+            float n = collision.near();
+            Vector3f near = new Vector3f(pos).add(len.x * n, len.y * n, len.z * n);
+            GeometryHelper.rectangle(VertexConsumer.GUI, matrices, near.x - 3, near.y - 3, near.x + 3, near.y + 3, 0xFF72ADFF);
 
-            //draw collision normal
+            float f = collision.far();
+            Vector3f far = new Vector3f(pos).add(len.x * f, len.y * f, len.z * f);
+            GeometryHelper.rectangle(VertexConsumer.GUI, matrices, far.x - 3, far.y - 3, far.x + 3, far.y + 3, 0xFFFFAD72);
+
             Vector3f normal = collision.normal();
-            UIHelper.drawLine(VertexConsumer.GUI, matrices, pos.x, pos.y, pos.x + normal.x * 10, pos.y + normal.y * 10, 1, 0xFFFF7272);
+            UIHelper.drawLine(VertexConsumer.GUI, matrices, near.x, near.y, near.x + normal.x * 10, near.y + normal.y * 10, 1, 0xFF72FF72);
         }
 
         //draw line
-        UIHelper.drawLine(VertexConsumer.GUI, matrices, pos.x, pos.y, mouseX, mouseY, 1, hasCollision ? 0xFFFFFF00 : -1);
+        UIHelper.drawLine(VertexConsumer.GUI, matrices, pos.x, pos.y, mouseX, mouseY, 1, collided ? 0xFFFFFF00 : -1);
+    }
 
-        //fully unrelated lol
-        int i = (client.ticks / 20) % 12 + 1;
-        GeometryHelper.circle(VertexConsumer.LINES, matrices, width / 2f, height / 2f, 22f, i, 0xFF323232);
-        float f = ((client.ticks + delta) % 20f) / 20f;
-        GeometryHelper.circle(VertexConsumer.LINES, matrices, width / 2f, height / 2f, 20f, f, i, -1);
+    private void aabbVsAABB(MatrixStack matrices) {
+        //draw box
+        if (collision != null)
+            GeometryHelper.rectangle(VertexConsumer.LINES, matrices, aabb.minX(), aabb.minY(), aabb.maxX(), aabb.maxY(), 0xFFFFFF00);
+
+        //draw player
+        GeometryHelper.rectangle(VertexConsumer.GUI, matrices, player.minX(), player.minY(), player.maxX(), player.maxY(), 0xFFFF72AD);
     }
 
     @Override
@@ -65,10 +104,23 @@ public class CollisionScreen extends ParentedScreen {
 
             switch (button) {
                 case GLFW_MOUSE_BUTTON_1 -> pos.set(mouseX, mouseY, 0);
-                case GLFW_MOUSE_BUTTON_2 -> aabb.set(mouseX - 10, mouseY - 10, 0, mouseX + 10, mouseY + 10, 1);
+                case GLFW_MOUSE_BUTTON_2 -> aabb.set(mouseX - size, mouseY - size, -size, mouseX + size, mouseY + size, size);
             }
         }
 
         super.mousePress(button, action, mods);
+    }
+
+    @Override
+    public void keyPress(int key, int scancode, int action, int mods) {
+        super.keyPress(key, scancode, action, mods);
+
+        boolean press = action != GLFW_RELEASE;
+        switch (key) {
+            case GLFW_KEY_LEFT  -> l = press;
+            case GLFW_KEY_RIGHT -> r = press;
+            case GLFW_KEY_UP    -> u = press;
+            case GLFW_KEY_DOWN  -> d = press;
+        }
     }
 }

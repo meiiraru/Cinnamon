@@ -2,6 +2,7 @@ package mayo.model;
 
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
+import mayo.utils.Maths;
 
 public class GeometryHelper {
 
@@ -56,11 +57,10 @@ public class GeometryHelper {
         if (faceCount <= 0)
             return;
 
-        //maximum allowed angle
-        float max = (float) Math.toRadians(360 * completeness);
-
         //90 degrees offset
         float f = (float) Math.toRadians(-90f);
+        //maximum allowed angle
+        float max = (float) Math.toRadians(360 * completeness) + f;
         //angle per step
         float aStep = (float) Math.toRadians(360f / sides);
 
@@ -79,9 +79,19 @@ public class GeometryHelper {
             vertices[j + 1] = Vertex.of(x1, y1, 0).color(color).mul(matrices);
 
             //second pos
-            float a = Math.min(aStep * (i + 1), max) + f;
-            x1 = x + (float) Math.cos(a) * radius;
-            y1 = y + (float) Math.sin(a) * radius;
+            float a = aStep * (i + 1) + f;
+            float x2 = x + (float) Math.cos(a) * radius;
+            float y2 = y + (float) Math.sin(a) * radius;
+
+            if (a > max) {
+                //linear interpolation between positions
+                float aOld = a - aStep;
+                float t = (max - aOld) / (a - aOld);
+                x2 = Maths.lerp(x1, x2, t);
+                y2 = Maths.lerp(y1, y2, t);
+            }
+
+            x1 = x2; y1 = y2;
             vertices[j + 2] = Vertex.of(x1, y1, 0).color(color).mul(matrices);
         }
 

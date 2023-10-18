@@ -2,7 +2,6 @@ package mayo.world.terrain;
 
 import mayo.Client;
 import mayo.model.GeometryHelper;
-import mayo.model.obj.Group;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;

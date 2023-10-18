@@ -17,7 +17,7 @@ import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
 import mayo.world.items.Item;
 import mayo.world.items.ItemRenderContext;
-import mayo.world.particle.CloudParticle;
+import mayo.world.particle.SmokeParticle;
 import mayo.world.particle.TextParticle;
 import org.joml.Vector3f;
 
@@ -124,21 +124,19 @@ public abstract class LivingEntity extends PhysEntity {
 
     @Override
     public void move(float left, float up, float forwards) {
-        if (this.onGround && up > 0)
-            this.move.y = getJumpStrength();
+        float l = Math.signum(left);
+        float u = this.onGround && up > 0 ? getJumpStrength() : 0f;
+        float f = Math.signum(forwards);
 
-        float distance = left * left + forwards * forwards;
-        //stop moving if too slow
-        if (distance < 0.01f)
-            return;
+        this.move.set(l, 0, -f);
 
-        //apply speed to relative movement
-        distance = getMoveSpeed() / (float) Math.sqrt(distance);
-        left *= distance;
-        forwards *= distance;
+        if (move.lengthSquared() > 1)
+            move.normalize();
+        move.mul(getMoveSpeed());
+
+        move.y = u;
 
         //move the entity in facing direction
-        this.move.set(left, move.y, -forwards);
         this.move.rotateY((float) Math.toRadians(-rot.y));
     }
 
@@ -186,7 +184,7 @@ public abstract class LivingEntity extends PhysEntity {
 
     protected void spawnDeathParticles() {
         for (int i = 0; i < 20; i++) {
-            CloudParticle particle = new CloudParticle((int) (Math.random() * 15) + 10, -1);
+            SmokeParticle particle = new SmokeParticle((int) (Math.random() * 15) + 10, -1);
             particle.setPos(aabb.getRandomPoint());
             world.addParticle(particle);
         }

@@ -2,18 +2,16 @@ package mayo.world.entity.projectile;
 
 import mayo.model.ModelManager;
 import mayo.render.Model;
-import mayo.utils.AABB;
 import mayo.utils.Maths;
 import mayo.utils.Resource;
 import mayo.world.World;
+import mayo.world.collisions.CollisionResult;
 import mayo.world.entity.Entity;
-import mayo.world.particle.CloudParticle;
+import mayo.world.particle.SmokeParticle;
 import mayo.world.particle.Particle;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-
-import java.util.List;
 
 public class RiceBall extends Projectile {
 
@@ -41,7 +39,7 @@ public class RiceBall extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(List<AABB.CollisionResult> collisions) {
+    protected void resolveCollision(CollisionResult collision, Vector3f motion, Vector3f move) {
         remove();
     }
 
@@ -53,7 +51,7 @@ public class RiceBall extends Projectile {
             return;
 
         //poof particle
-        Particle particle = new CloudParticle(10, -1);
+        Particle particle = new SmokeParticle(10, -1);
         particle.setPos(this.getPos());
         world.addParticle(particle);
 

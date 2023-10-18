@@ -4,7 +4,7 @@ import org.joml.Vector3f;
 
 public class AABB {
 
-    private final float epsilon = 0.001f;
+    public static final float epsilon = 0.001f;
     private float
             minX, minY, minZ,
             maxX, maxY, maxZ;
@@ -194,9 +194,9 @@ public class AABB {
             return 0;
 
         if (this.minX <= other.minX)
-            return this.minX - other.maxX - this.epsilon;
+            return this.minX - other.maxX - epsilon;
 
-        return this.maxX - other.minX + this.epsilon;
+        return this.maxX - other.minX + epsilon;
     }
 
     public float getYOverlap(AABB other) {
@@ -205,9 +205,9 @@ public class AABB {
             return 0;
 
         if (this.minY <= other.minY)
-            return this.minY - other.maxY - this.epsilon;
+            return this.minY - other.maxY - epsilon;
 
-        return this.maxY - other.minY + this.epsilon;
+        return this.maxY - other.minY + epsilon;
     }
 
     public float getZOverlap(AABB other) {
@@ -216,57 +216,8 @@ public class AABB {
             return 0;
 
         if (this.minZ <= other.minZ)
-            return this.minZ - other.maxZ - this.epsilon;
+            return this.minZ - other.maxZ - epsilon;
 
-        return this.maxZ - other.minZ + this.epsilon;
+        return this.maxZ - other.minZ + epsilon;
     }
-
-    public CollisionResult collisionRay(Vector3f rayOrigin, Vector3f rayDir) {
-        //grab delta point of intersections
-        Vector3f tNear = getMin().sub(rayOrigin).div(rayDir);
-        Vector3f tFar = getMax().sub(rayOrigin).div(rayDir);
-
-        //check for NaN meaning that no collisions have happened
-        if (Maths.isNaN(tNear) || Maths.isNaN(tFar))
-            return null;
-
-        //swap near and far, if the ray comes from the opposite direction
-        if (tNear.x > tFar.x) {
-            float temp = tNear.x; tNear.x = tFar.x; tFar.x = temp;
-        }
-        if (tNear.y > tFar.y) {
-            float temp = tNear.y; tNear.y = tFar.y; tFar.y = temp;
-        }
-        if (tNear.z > tFar.z) {
-            float temp = tNear.z; tNear.z = tFar.z; tFar.z = temp;
-        }
-
-        //return if there is no collision
-        if (tNear.x > tFar.y || tNear.x > tFar.z ||
-            tNear.y > tFar.x || tNear.y > tFar.z ||
-            tNear.z > tFar.x || tNear.z > tFar.y)
-            return null;
-
-        //grab intersection point
-        float near = Maths.max(tNear);
-        float far = Maths.min(tFar);
-
-        //collision is either behind the initial point or after the end point
-        if (far < 0 || near > 1) return null;
-
-        //calculate and return the result
-        Vector3f pos = new Vector3f(
-                rayOrigin.x + rayDir.x * near,
-                rayOrigin.y + rayDir.y * near,
-                rayOrigin.z + rayDir.z * near
-        );
-
-        Vector3f normal = new Vector3f();
-        int index = Maths.maxIndex(tNear);
-        normal.setComponent(index, rayDir.get(index) < 0 ? 1 : -1);
-
-        return new CollisionResult(pos, normal, near);
-    }
-
-    public record CollisionResult(Vector3f pos, Vector3f normal, float delta) {}
 }

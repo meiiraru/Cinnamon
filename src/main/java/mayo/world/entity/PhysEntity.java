@@ -3,6 +3,9 @@ package mayo.world.entity;
 import mayo.render.Model;
 import mayo.utils.AABB;
 import mayo.world.World;
+import mayo.world.collisions.CollisionDetector;
+import mayo.world.collisions.CollisionResolver;
+import mayo.world.collisions.CollisionResult;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -23,31 +26,24 @@ public abstract class PhysEntity extends Entity {
     public void tick() {
         super.tick();
 
-        //apply forces like gravity:tm:
+        //apply ambient forces
         applyForces();
 
         //apply my current desired movement into my motion
         applyMovement();
+        move.set(0);
+        onGround = false;
 
-        //move the entity using the motion
-        List<AABB.CollisionResult> collisionResult = checkCollisions(motion);
+        //check for terrain collisions
+        Vector3f toMove = tickCollisions();
 
-        //collision
-        if (!collisionResult.isEmpty()) {
-            resolveCollision(collisionResult);
-        } else {
-            onGround = false;
-        }
-
-        moveTo(pos.x + motion.x, pos.y + motion.y, pos.z + motion.z);
+        //move entity
+        moveTo(pos.x + toMove.x, pos.y + toMove.y, pos.z + toMove.z);
 
         //decrease motion
         motionFallout();
 
-        //clear input
-        move.set(0);
-
-        //collide entities
+        //entity collisions
         for (Entity entity : world.getEntities(aabb))
             if (entity != this && !entity.isRemoved())
                 collide(entity);
@@ -58,24 +54,60 @@ public abstract class PhysEntity extends Entity {
     }
 
     protected void applyForces() {
-        //that's gravity and stuff:tm:
+        //gravity
         this.motion.y -= world.gravity;
     }
 
-    protected void resolveCollision(List<AABB.CollisionResult> collisions) {
-        for (AABB.CollisionResult collision : collisions) {
-            Vector3f n = collision.normal();
-            if (n.y > 0)
-                this.onGround = true;
+    protected Vector3f tickCollisions() {
+        //prepare variables
+        Vector3f pos = aabb.getCenter();
+        Vector3f inflate = aabb.getDimensions().mul(0.5f);
+        Vector3f toMove = new Vector3f(motion);
 
-            this.motion.set(
-                    n.x != 0 ? 0 : motion.x,
-                    n.y != 0 ? 0 : motion.y,
-                    n.z != 0 ? 0 : motion.z
-            );
+        //get terrain collisions
+        List<AABB> collisions = world.getTerrainCollisions(new AABB(aabb).expand(toMove));
 
-            break;
+        //try to resolve collisions in max 3 steps
+        for (int i = 0; i < 3; i++) {
+            boolean hasCollisions = false;
+            List<CollisionResult> results = new ArrayList<>();
+
+            for (AABB collision : collisions) {
+                //update bb to include this source's bb
+                AABB temp = new AABB(collision).inflate(inflate);
+
+                //check collision
+                CollisionResult result = CollisionDetector.collisionRay(temp, pos, toMove);
+                if (result != null) {
+                    results.add(result);
+                    hasCollisions = true;
+                }
+            }
+
+            //sort collisions based on distance
+            results.sort((o1, o2) -> Float.compare(o1.near(), o2.near()));
+
+            //resolve first collision
+            if (hasCollisions) {
+                var result = results.get(0);
+
+                //set ground state
+                if (result.normal().y > 0)
+                    this.onGround = true;
+
+                //resolve collision
+                resolveCollision(result, motion, toMove);
+            } else {
+                //no more collisions detected
+                break;
+            }
         }
+
+        return toMove;
+    }
+
+    protected void resolveCollision(CollisionResult collision, Vector3f motion, Vector3f move) {
+        CollisionResolver.slide(collision, motion, move);
     }
 
     protected void motionFallout() {
@@ -91,46 +123,23 @@ public abstract class PhysEntity extends Entity {
 
     @Override
     public void move(float left, float up, float forwards) {
-        float distance = left * left + up * up + forwards * forwards;
+        float l = Math.signum(left);
+        float u = Math.signum(up);
+        float f = Math.signum(forwards);
 
-        //stop moving if too slow
-        if (distance < 0.01f)
-            return;
+        this.move.set(l, u, -f);
+        if (move.lengthSquared() > 1)
+            move.normalize();
 
-        //apply speed to relative movement
-        distance = getMoveSpeed() / (float) Math.sqrt(distance);
-        left *= distance;
-        up *= distance;
-        forwards *= distance;
+        move.mul(getMoveSpeed());
 
         //move the entity in facing direction
-        this.move.set(left, up, -forwards);
         this.move.rotateX((float) Math.toRadians(-rot.x));
         this.move.rotateY((float) Math.toRadians(-rot.y));
     }
 
     protected float getMoveSpeed() {
         return 0.15f;
-    }
-
-    protected List<AABB.CollisionResult> checkCollisions(Vector3f vec) {
-        List<AABB.CollisionResult> collisions = new ArrayList<>();
-
-        Vector3f pos = aabb.getCenter();
-        Vector3f inflation = aabb.getDimensions().mul(0.5f);
-
-        //get terrain collisions
-        AABB area = new AABB(aabb).expand(vec);
-        List<AABB> terrain = world.getTerrainCollisions(area);
-
-        for (AABB terrainBB : terrain) {
-            AABB.CollisionResult result = new AABB(terrainBB).inflate(inflation).collisionRay(pos, vec);
-            if (result != null)
-                collisions.add(result);
-        }
-
-        collisions.sort((o1, o2) -> Float.compare(o1.delta(), o2.delta()));
-        return collisions;
     }
 
     protected Vector3f checkEntityCollision(Entity entity) {

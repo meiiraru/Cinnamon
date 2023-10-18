@@ -3,14 +3,16 @@ package mayo.world.entity.collectable;
 import mayo.Client;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
-import mayo.utils.AABB;
 import mayo.world.World;
+import mayo.world.collisions.CollisionResolver;
+import mayo.world.collisions.CollisionResult;
 import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
-
-import java.util.List;
+import org.joml.Vector3f;
 
 public abstract class Collectable extends PhysEntity {
+
+    private static final Vector3f BOUNCINESS = new Vector3f(0.5f, 0.5f, 0.5f);
 
     public Collectable(Model model, World world) {
         super(model, world);
@@ -42,11 +44,8 @@ public abstract class Collectable extends PhysEntity {
     }
 
     @Override
-    protected void resolveCollision(List<AABB.CollisionResult> collisions) {
-        //bounce
-        //if (x) this.motion.x *= -0.5f;
-        //if (y) this.motion.y *= -0.5f;
-        //if (z) this.motion.z *= -0.5f;
+    protected void resolveCollision(CollisionResult collision, Vector3f motion, Vector3f move) {
+        CollisionResolver.bounce(collision, motion, move, BOUNCINESS);
     }
 
     protected abstract boolean onPickUp(Entity entity);

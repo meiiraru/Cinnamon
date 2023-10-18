@@ -3,13 +3,12 @@ package mayo.world.entity.projectile;
 import mayo.model.ModelManager;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
-import mayo.utils.AABB;
 import mayo.utils.Maths;
 import mayo.utils.Resource;
 import mayo.world.World;
+import mayo.world.collisions.CollisionResult;
 import mayo.world.entity.Entity;
-
-import java.util.List;
+import org.joml.Vector3f;
 
 public class Rice extends Projectile {
 
@@ -31,7 +30,7 @@ public class Rice extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(List<AABB.CollisionResult> collisions) {
+    protected void resolveCollision(CollisionResult collision, Vector3f motion, Vector3f move) {
         remove();
     }
 

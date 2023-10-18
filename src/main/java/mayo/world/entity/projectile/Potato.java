@@ -4,16 +4,15 @@ import mayo.model.ModelManager;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
 import mayo.render.shader.Shader;
-import mayo.utils.AABB;
 import mayo.utils.ColorUtils;
 import mayo.utils.Maths;
 import mayo.utils.Resource;
 import mayo.world.DamageType;
 import mayo.world.World;
+import mayo.world.collisions.CollisionResolver;
+import mayo.world.collisions.CollisionResult;
 import mayo.world.entity.Entity;
 import org.joml.Vector3f;
-
-import java.util.List;
 
 public class Potato extends Projectile {
 
@@ -24,6 +23,7 @@ public class Potato extends Projectile {
     public static final int LIFETIME = 100;
     public static final float SPEED = 1.25f;
     public static final float CRIT_CHANCE = 0.15f;
+    private static final Vector3f BOUNCINESS = new Vector3f(0.25f, 0, 0.25f);
 
     public Potato(World world, Entity owner) {
         super(MODEL, world, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
@@ -41,11 +41,8 @@ public class Potato extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(List<AABB.CollisionResult> collisions) {
-        //bounce sides and stop on y
-        //if (x) this.motion.x *= -0.25f;
-        //if (y) this.motion.y = 0f;
-        //if (z) this.motion.z *= -0.25f;
+    protected void resolveCollision(CollisionResult collision, Vector3f motion, Vector3f move) {
+        CollisionResolver.bounce(collision, motion, move, BOUNCINESS);
     }
 
     @Override

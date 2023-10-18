@@ -7,7 +7,7 @@ import mayo.utils.Resource;
 import mayo.world.World;
 import mayo.world.entity.Entity;
 import mayo.world.entity.living.Player;
-import mayo.world.particle.SmokeParticle;
+import mayo.world.particle.SteamParticle;
 import org.joml.Vector3f;
 
 public class HealthPack extends Collectable {
@@ -25,7 +25,7 @@ public class HealthPack extends Collectable {
         super.tick();
 
         if (Math.random() < SMOKE_CHANCE) {
-            SmokeParticle p = new SmokeParticle((int) (Math.random() * 5) + 15, 0xFFDDDDDD);
+            SteamParticle p = new SteamParticle((int) (Math.random() * 5) + 15, 0xFFDDDDDD);
 
             AABB aabb = new AABB(this.aabb);
             aabb.inflate(-0.3f, 0, -0.3f);
