@@ -8,7 +8,6 @@ import mayo.world.collisions.CollisionResolver;
 import mayo.world.collisions.CollisionResult;
 import org.joml.Vector3f;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class PhysEntity extends Entity {
@@ -59,46 +58,43 @@ public abstract class PhysEntity extends Entity {
     }
 
     protected Vector3f tickCollisions() {
+        //early exit
+        if (motion.lengthSquared() < 0.001f)
+            return motion.mul(0);
+
         //prepare variables
         Vector3f pos = aabb.getCenter();
         Vector3f inflate = aabb.getDimensions().mul(0.5f);
         Vector3f toMove = new Vector3f(motion);
 
         //get terrain collisions
-        List<AABB> collisions = world.getTerrainCollisions(new AABB(aabb).expand(toMove));
+        List<AABB> terrain = world.getTerrainCollisions(new AABB(aabb).expand(toMove));
 
         //try to resolve collisions in max 3 steps
         for (int i = 0; i < 3; i++) {
-            boolean hasCollisions = false;
-            List<CollisionResult> results = new ArrayList<>();
+            CollisionResult collision = null;
 
-            for (AABB collision : collisions) {
+            for (AABB terrainBB : terrain) {
                 //update bb to include this source's bb
-                AABB temp = new AABB(collision).inflate(inflate);
+                AABB temp = new AABB(terrainBB).inflate(inflate);
 
                 //check collision
                 CollisionResult result = CollisionDetector.collisionRay(temp, pos, toMove);
-                if (result != null) {
-                    results.add(result);
-                    hasCollisions = true;
+                if (result != null && (collision == null || collision.near() > result.near())) {
+                    collision = result;
                 }
             }
 
-            //sort collisions based on distance
-            results.sort((o1, o2) -> Float.compare(o1.near(), o2.near()));
-
-            //resolve first collision
-            if (hasCollisions) {
-                var result = results.get(0);
-
+            //resolve collision
+            if (collision != null) {
                 //set ground state
-                if (result.normal().y > 0)
+                if (collision.normal().y > 0)
                     this.onGround = true;
 
                 //resolve collision
-                resolveCollision(result, motion, toMove);
+                resolveCollision(collision, motion, toMove);
             } else {
-                //no more collisions detected
+                //no collision detected
                 break;
             }
         }

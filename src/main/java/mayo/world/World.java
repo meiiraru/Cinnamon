@@ -80,7 +80,7 @@ public class World {
         //load level
         LevelLoad.load(this, new Resource("data/levels/level0.json"));
 
-        //playSound(new Resource("sounds/song.ogg"), new Vector3f(0, 0, 0)).loop(true);
+        playSound(new Resource("sounds/song.ogg"), new Vector3f(0, 0, 0)).loop(true);
     }
 
     public void exit() {
