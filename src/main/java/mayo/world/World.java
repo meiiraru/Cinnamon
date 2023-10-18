@@ -5,7 +5,9 @@ import mayo.gui.Toast;
 import mayo.gui.screens.DeathScreen;
 import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
+import mayo.model.GeometryHelper;
 import mayo.render.MatrixStack;
+import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
 import mayo.sound.SoundManager;
@@ -15,6 +17,7 @@ import mayo.utils.AABB;
 import mayo.utils.ColorUtils;
 import mayo.utils.Resource;
 import mayo.utils.Rotation;
+import mayo.world.collisions.Hit;
 import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
 import mayo.world.entity.collectable.EffectBox;
@@ -190,6 +193,12 @@ public class World {
         //render particles
         for (Particle particle : particles)
             particle.render(matrices, delta);
+
+        //render debug hitboxes
+        if (debugRendering && !hideHUD) {
+            renderHitboxes(matrices, delta);
+            renderHitResults(matrices);
+        }
     }
 
     public void renderHand(MatrixStack matrices, float delta) {
@@ -213,6 +222,41 @@ public class World {
         item.render(ItemRenderContext.FIRST_PERSON, matrices, delta);
 
         matrices.pop();
+    }
+
+    private void renderHitboxes(MatrixStack matrices, float delta) {
+        AABB area = new AABB();
+        area.translate(player.getPos());
+        area.inflate(8f);
+
+        for (Terrain t : getTerrain(area))
+            t.renderDebugHitbox(matrices, delta);
+        for (Entity e : getEntities(area)) {
+            if (e != player || isThirdPerson())
+                e.renderDebugHitbox(matrices, delta);
+        }
+    }
+
+    private void renderHitResults(MatrixStack matrices) {
+        float f = 0.025f;
+
+        Hit<Terrain> terrain = player.getTargetedTerrain();
+        if (terrain != null) {
+            for (AABB aabb : terrain.obj().getGroupsAABB())
+                GeometryHelper.pushCube(VertexConsumer.LINES, matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00);
+
+            Vector3f pos = terrain.pos();
+            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF);
+        }
+
+        Hit<Entity> entity = player.getTargetedEntity();
+        if (entity != null) {
+            AABB aabb = entity.obj().getAABB();
+            GeometryHelper.pushCube(VertexConsumer.LINES, matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00);
+
+            Vector3f pos = entity.pos();
+            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF);
+        }
     }
 
     public void uploadLightUniforms(Shader s) {

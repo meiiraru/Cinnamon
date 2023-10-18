@@ -1,6 +1,5 @@
 package mayo.world.terrain;
 
-import mayo.Client;
 import mayo.model.GeometryHelper;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
@@ -38,8 +37,6 @@ public abstract class Terrain {
         renderModel(matrices, delta);
 
         matrices.pop();
-
-        renderDebugHitbox(matrices, delta);
     }
 
     protected void renderModel(MatrixStack matrices, float delta) {
@@ -48,14 +45,7 @@ public abstract class Terrain {
         model.render();
     }
 
-    protected void renderDebugHitbox(MatrixStack matrices, float delta) {
-        if (!world.isDebugRendering())
-            return;
-
-        Vector3f cam = Client.getInstance().camera.getPos();
-        if (cam.distanceSquared(pos) > 256)
-            return;
-
+    public void renderDebugHitbox(MatrixStack matrices, float delta) {
         renderAABB(matrices, aabb, -1);
 
         for (AABB aabb : groupsAABB)

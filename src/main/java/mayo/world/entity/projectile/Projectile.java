@@ -112,4 +112,9 @@ public abstract class Projectile extends PhysEntity {
     public Entity getOwner() {
         return owner;
     }
+
+    @Override
+    public boolean isTargetable() {
+        return false;
+    }
 }

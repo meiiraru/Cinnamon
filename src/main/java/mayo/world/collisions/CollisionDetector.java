@@ -26,7 +26,7 @@ public class CollisionDetector {
         }
 
         //early rejection if the ray will not collide
-        if (tNear.x > tFar.y || tNear.y > tFar.x || tNear.z > tFar.x || tNear.x > tFar.z)
+        if (tNear.x > tFar.y || tNear.x > tFar.z || tNear.y > tFar.x || tNear.y > tFar.z || tNear.z > tFar.x || tNear.z > tFar.y)
             return null;
 
         //grab intersection points time

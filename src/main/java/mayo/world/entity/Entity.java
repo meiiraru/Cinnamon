@@ -55,9 +55,6 @@ public abstract class Entity {
             renderTexts(matrices, delta);
 
         matrices.pop();
-
-        //render debug hitbox
-        renderDebugHitbox(matrices, delta);
     }
 
     protected void renderModel(MatrixStack matrices, float delta) {
@@ -91,14 +88,7 @@ public abstract class Entity {
         return cam.distanceSquared(pos) <= 256;
     }
 
-    protected void renderDebugHitbox(MatrixStack matrices, float delta) {
-        if (!world.isDebugRendering())
-            return;
-
-        Vector3f cam = Client.getInstance().camera.getPos();
-        if (cam.distanceSquared(pos) > 256)
-            return;
-
+    public void renderDebugHitbox(MatrixStack matrices, float delta) {
         //bounding box
         Vector3f min = aabb.getMin();
         Vector3f max = aabb.getMax();
@@ -255,5 +245,9 @@ public abstract class Entity {
 
     public boolean isRemoved() {
         return removed;
+    }
+
+    public boolean isTargetable() {
+        return true;
     }
 }
