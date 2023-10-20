@@ -86,8 +86,16 @@ public class SoundSource {
     }
 
     public SoundSource volume(float volume) {
+        //save original volume
         this.volume = volume;
-        alSourcef(source, AL_GAIN, volume * category.getVolume() * SoundCategory.MASTER.getVolume());
+
+        //calculate new volume
+        float vol = volume * category.getVolume();
+        if (category != SoundCategory.MASTER)
+            vol *= SoundCategory.MASTER.getVolume();
+
+        //apply volume
+        alSourcef(source, AL_GAIN, vol);
         return this;
     }
 
