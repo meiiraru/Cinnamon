@@ -7,6 +7,7 @@ import mayo.gui.widgets.Widget;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
+import mayo.sound.SoundCategory;
 import mayo.text.Text;
 import mayo.utils.Resource;
 import mayo.utils.TextUtils;
@@ -100,6 +101,6 @@ public class Button extends Widget implements GUIListener {
     }
 
     public void playClickSound() {
-        Client.getInstance().soundManager.playSound(CLICK_SOUND);
+        Client.getInstance().soundManager.playSound(CLICK_SOUND, SoundCategory.GUI);
     }
 }

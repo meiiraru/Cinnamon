@@ -10,6 +10,7 @@ import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
+import mayo.sound.SoundCategory;
 import mayo.sound.SoundManager;
 import mayo.sound.SoundSource;
 import mayo.text.Text;
@@ -88,7 +89,7 @@ public class World {
         //load level
         LevelLoad.load(this, new Resource("data/levels/level0.json"));
 
-        playSound(new Resource("sounds/song.ogg"), new Vector3f(0, 0, 0)).loop(true);
+        playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
     }
 
     public void exit() {
@@ -286,8 +287,8 @@ public class World {
             scheduledTicks.add(() -> this.particles.add(particle));
     }
 
-    public SoundSource playSound(Resource sound, Vector3f position) {
-        return Client.getInstance().soundManager.playSound(sound, position);
+    public SoundSource playSound(Resource sound, SoundCategory category, Vector3f position) {
+        return Client.getInstance().soundManager.playSound(sound, category, position);
     }
 
     public void mousePress(int button, int action, int mods) {
@@ -466,7 +467,7 @@ public class World {
         }
 
         //sound
-        playSound(EXPLOSION_SOUND, pos).maxDistance(64f).volume(0.5f);
+        playSound(EXPLOSION_SOUND, SoundCategory.ENTITY, pos).maxDistance(64f).volume(0.5f);
     }
 
     public Hit<Terrain> raycastTerrain(AABB area, Vector3f pos, Vector3f dirLen) {

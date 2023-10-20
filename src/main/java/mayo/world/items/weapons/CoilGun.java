@@ -2,6 +2,7 @@ package mayo.world.items.weapons;
 
 import mayo.model.ModelManager;
 import mayo.render.Model;
+import mayo.sound.SoundCategory;
 import mayo.utils.Maths;
 import mayo.utils.Resource;
 import mayo.world.World;
@@ -27,6 +28,6 @@ public class CoilGun extends Weapon {
     @Override
     protected void spawnBullet(Entity source) {
         super.spawnBullet(source);
-        source.getWorld().playSound(SHOOT_SOUND, source.getPos()).pitch(Maths.range(0.8f, 1.2f));
+        source.getWorld().playSound(SHOOT_SOUND, SoundCategory.ENTITY, source.getPos()).pitch(Maths.range(0.8f, 1.2f));
     }
 }

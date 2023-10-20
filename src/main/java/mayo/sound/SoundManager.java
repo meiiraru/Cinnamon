@@ -80,17 +80,17 @@ public class SoundManager {
         });
     }
 
-    public SoundSource playSound(Resource resource) {
+    public SoundSource playSound(Resource resource, SoundCategory category) {
         Sound sound = Sound.of(resource);
-        SoundSource source = new SoundSource(sound);
+        SoundSource source = new SoundSource(sound, category);
         sounds.add(source);
         source.play();
         return source;
     }
 
-    public SoundSource playSound(Resource resource, Vector3f position) {
+    public SoundSource playSound(Resource resource, SoundCategory category, Vector3f position) {
         Sound sound = Sound.of(resource);
-        SoundSource source = new SoundSource(sound, position);
+        SoundSource source = new SoundSource(sound, category, position);
         sounds.add(source);
         source.play();
         return source;
@@ -113,5 +113,13 @@ public class SoundManager {
 
     public int getSoundCount() {
         return sounds.size();
+    }
+
+    public void updateVolumes(SoundCategory category) {
+        //update the sounds volume
+        for (SoundSource sound : sounds) {
+            if (category == SoundCategory.MASTER || sound.getCategory() == category)
+                sound.volume(sound.getVolume());
+        }
     }
 }

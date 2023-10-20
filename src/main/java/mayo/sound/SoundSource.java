@@ -7,24 +7,27 @@ import static org.lwjgl.openal.AL10.*;
 public class SoundSource {
 
     private final int source;
+    private final SoundCategory category;
     private boolean removed;
+    private float volume = 1f;
 
     //sound creation
-    private SoundSource(int buffer) {
+    private SoundSource(int buffer, SoundCategory category) {
         this.source = alGenSources();
+        this.category = category;
         alSourcei(source, AL_BUFFER, buffer);
         SoundManager.checkALError();
     }
 
     //global position sound
-    public SoundSource(Sound sound) {
-        this(sound.getId());
+    public SoundSource(Sound sound, SoundCategory category) {
+        this(sound.getId(), category);
         alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
     }
 
     //world constructor
-    public SoundSource(Sound sound, Vector3f pos) {
-        this(sound.getId());
+    public SoundSource(Sound sound, SoundCategory category, Vector3f pos) {
+        this(sound.getId(), category);
         //default attenuation properties
         distance(0f).maxDistance(32f).volume(0.1f);
         //position
@@ -83,7 +86,8 @@ public class SoundSource {
     }
 
     public SoundSource volume(float volume) {
-        alSourcef(source, AL_GAIN, volume);
+        this.volume = volume;
+        alSourcef(source, AL_GAIN, volume * category.getVolume() * SoundCategory.MASTER.getVolume());
         return this;
     }
 
@@ -97,4 +101,11 @@ public class SoundSource {
         return this;
     }
 
+    public SoundCategory getCategory() {
+        return category;
+    }
+
+    public float getVolume() {
+        return volume;
+    }
 }
