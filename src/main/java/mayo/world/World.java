@@ -17,6 +17,8 @@ import mayo.utils.AABB;
 import mayo.utils.ColorUtils;
 import mayo.utils.Resource;
 import mayo.utils.Rotation;
+import mayo.world.collisions.CollisionDetector;
+import mayo.world.collisions.CollisionResult;
 import mayo.world.collisions.Hit;
 import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
@@ -39,6 +41,7 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -241,8 +244,9 @@ public class World {
 
     private void renderHitResults(MatrixStack matrices) {
         float f = 0.025f;
+        float r = player.getPickRange();
 
-        Hit<Terrain> terrain = player.getTargetedTerrain();
+        Hit<Terrain> terrain = player.getLookingTerrain(r);
         if (terrain != null) {
             for (AABB aabb : terrain.obj().getGroupsAABB())
                 GeometryHelper.pushCube(VertexConsumer.LINES, matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00);
@@ -251,7 +255,7 @@ public class World {
             GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF);
         }
 
-        Hit<Entity> entity = player.getTargetedEntity();
+        Hit<Entity> entity = player.getLookingEntity(r);
         if (entity != null) {
             AABB aabb = entity.obj().getAABB();
             GeometryHelper.pushCube(VertexConsumer.LINES, matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00);
@@ -463,5 +467,61 @@ public class World {
 
         //sound
         playSound(EXPLOSION_SOUND, pos).maxDistance(64f).volume(0.5f);
+    }
+
+    public Hit<Terrain> raycastTerrain(AABB area, Vector3f pos, Vector3f dirLen) {
+        //prepare variables
+        CollisionResult terrainColl = null;
+        Terrain tempTerrain = null;
+
+        //loop through terrain in area
+        for (Terrain t : getTerrain(area)) {
+            //loop through its groups AABBs
+            for (AABB aabb : t.getGroupsAABB()) {
+                //check for collision
+                CollisionResult result = CollisionDetector.collisionRay(aabb, pos, dirLen);
+                //store collision if it is closer than previous collision
+                if (result != null && (terrainColl == null || result.near() < terrainColl.near())) {
+                    terrainColl = result;
+                    tempTerrain = t;
+                }
+            }
+        }
+
+        //no collisions
+        if (terrainColl == null)
+            return null;
+
+        //return terrain collision data
+        float d = terrainColl.near();
+        return new Hit<>(terrainColl, tempTerrain, new Vector3f(pos).add(dirLen.x * d, dirLen.y * d, dirLen.z * d));
+    }
+
+    public Hit<Entity> raycastEntity(AABB area, Vector3f pos, Vector3f dirLen, Predicate<Entity> predicate) {
+        //prepare variables
+        CollisionResult entityColl = null;
+        Entity tempEntity = null;
+
+        //loop through entities in area
+        for (Entity e : getEntities(area)) {
+            //check for the predicate if the entity is valid
+            if (predicate.test(e)) {
+                //check for collision
+                CollisionResult result = CollisionDetector.collisionRay(e.getAABB(), pos, dirLen);
+                //store collision if it is closer than previous collision
+                if (result != null && (entityColl == null || result.near() < entityColl.near())) {
+                    entityColl = result;
+                    tempEntity = e;
+                }
+            }
+        }
+
+        //no collisions
+        if (entityColl == null)
+            return null;
+
+        //return entity collision data
+        float d = entityColl.near();
+        return new Hit<>(entityColl, tempEntity, new Vector3f(pos).add(dirLen.x * d, dirLen.y * d, dirLen.z * d));
     }
 }

@@ -11,7 +11,9 @@ import mayo.utils.Maths;
 import mayo.utils.Rotation;
 import mayo.world.DamageType;
 import mayo.world.World;
+import mayo.world.collisions.Hit;
 import mayo.world.entity.living.LivingEntity;
+import mayo.world.terrain.Terrain;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -249,5 +251,29 @@ public abstract class Entity {
 
     public boolean isTargetable() {
         return true;
+    }
+
+    public float getPickRange() {
+        return 1f;
+    }
+
+    public Hit<Terrain> getLookingTerrain(float distance) {
+        //prepare positions
+        Vector3f pos = getEyePos();
+        Vector3f range = getLookDir().mul(distance);
+        AABB area = new AABB(aabb).expand(range);
+
+        //return hit
+        return world.raycastTerrain(area, pos, range);
+    }
+
+    public Hit<Entity> getLookingEntity(float distance) {
+        //prepare positions
+        Vector3f pos = getEyePos();
+        Vector3f range = getLookDir().mul(distance);
+        AABB area = new AABB(aabb).expand(range);
+
+        //return hit
+        return world.raycastEntity(area, pos, range, e -> e != this && e.isTargetable());
     }
 }

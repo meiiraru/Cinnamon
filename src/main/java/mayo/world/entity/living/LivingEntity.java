@@ -7,15 +7,11 @@ import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
-import mayo.utils.AABB;
 import mayo.utils.Colors;
 import mayo.utils.Rotation;
 import mayo.utils.TextUtils;
 import mayo.world.DamageType;
 import mayo.world.World;
-import mayo.world.collisions.CollisionDetector;
-import mayo.world.collisions.CollisionResult;
-import mayo.world.collisions.Hit;
 import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
@@ -23,7 +19,6 @@ import mayo.world.items.Item;
 import mayo.world.items.ItemRenderContext;
 import mayo.world.particle.SmokeParticle;
 import mayo.world.particle.TextParticle;
-import mayo.world.terrain.Terrain;
 import org.joml.Vector3f;
 
 import java.util.Collection;
@@ -38,9 +33,6 @@ public abstract class LivingEntity extends PhysEntity {
 
     private int health;
     private int maxHealth;
-
-    private Hit<Terrain> lookingTerrain;
-    private Hit<Entity> lookingEntity;
 
     public LivingEntity(Model model, World world, int maxHealth, float eyeHeight, int inventorySize) {
         super(model, world);
@@ -69,57 +61,9 @@ public abstract class LivingEntity extends PhysEntity {
         Effect heal = getEffect(Effect.Type.HEAL);
         if (heal != null && (int) (Client.getInstance().ticks % (20f / heal.getAmplitude())) == 0)
             heal(1);
-
-        this.tickPick();
     }
 
-    protected void tickPick() {
-        //reset looking
-        lookingTerrain = null;
-        lookingEntity = null;
-
-        //prepare positions
-        Vector3f pos = getEyePos();
-        Vector3f range = getLookDir().mul(getPickRange());
-        AABB area = new AABB(aabb).expand(range);
-
-        //terrain check
-        CollisionResult terrainColl = null;
-        Terrain tempTerrain = null;
-        for (Terrain t : world.getTerrain(area)) {
-            for (AABB aabb : t.getGroupsAABB()) {
-                CollisionResult result = CollisionDetector.collisionRay(aabb, pos, range);
-                if (result != null && (terrainColl == null || result.near() < terrainColl.near())) {
-                    terrainColl = result;
-                    tempTerrain = t;
-                }
-            }
-        }
-
-        if (terrainColl != null) {
-            float d = terrainColl.near();
-            lookingTerrain = new Hit<>(terrainColl, tempTerrain, getEyePos().add(range.x * d, range.y * d, range.z * d));
-        }
-
-        //entity check
-        CollisionResult entityColl = null;
-        Entity tempEntity = null;
-        for (Entity e : world.getEntities(area)) {
-            if (e != this && e.isTargetable()) {
-                CollisionResult result = CollisionDetector.collisionRay(e.getAABB(), pos, range);
-                if (result != null && (entityColl == null || result.near() < entityColl.near())) {
-                    entityColl = result;
-                    tempEntity = e;
-                }
-            }
-        }
-
-        if (entityColl != null) {
-            float d = entityColl.near();
-            lookingEntity = new Hit<>(entityColl, tempEntity, getEyePos().add(range.x * d, range.y * d, range.z * d));
-        }
-    }
-
+    @Override
     public float getPickRange() {
         return 5.5f;
     }
@@ -391,13 +335,5 @@ public abstract class LivingEntity extends PhysEntity {
 
     public Collection<Effect> getActiveEffects() {
         return activeEffects.values();
-    }
-
-    public Hit<Terrain> getTargetedTerrain() {
-        return lookingTerrain;
-    }
-
-    public Hit<Entity> getTargetedEntity() {
-        return lookingEntity;
     }
 }

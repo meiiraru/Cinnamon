@@ -6,9 +6,11 @@ import mayo.render.MatrixStack;
 import mayo.render.Model;
 import mayo.utils.*;
 import mayo.world.World;
+import mayo.world.collisions.Hit;
 import mayo.world.entity.Entity;
 import mayo.world.particle.Particle;
 import mayo.world.particle.SquareParticle;
+import mayo.world.terrain.Terrain;
 import org.joml.Vector3f;
 
 public class MagicWand extends Item {
@@ -84,6 +86,10 @@ public class MagicWand extends Item {
     }
 
     private static Vector3f spawnPos(Entity source) {
+        Hit<Terrain> terrain = source.getLookingTerrain(DISTANCE);
+        if (terrain != null)
+            return terrain.pos();
+
         return source.getLookDir().mul(DISTANCE).add(source.getEyePos());
     }
 
