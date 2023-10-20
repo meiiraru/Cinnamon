@@ -44,6 +44,8 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class World {
 
+    private static final Resource EXPLOSION_SOUND = new Resource("sounds/explosion.ogg");
+
     public final Hud hud = new Hud();
     private final List<Runnable> scheduledTicks = new ArrayList<>();
 
@@ -458,5 +460,8 @@ public class World {
             particle.setScale(5f);
             addParticle(particle);
         }
+
+        //sound
+        playSound(EXPLOSION_SOUND, pos).maxDistance(64f).volume(0.5f);
     }
 }

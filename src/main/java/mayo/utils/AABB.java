@@ -26,7 +26,12 @@ public class AABB {
     }
 
     public AABB(AABB aabb) {
-        this.set(aabb);
+        this.minX = aabb.minX;
+        this.minY = aabb.minY;
+        this.minZ = aabb.minZ;
+        this.maxX = aabb.maxX;
+        this.maxY = aabb.maxY;
+        this.maxZ = aabb.maxZ;
     }
 
     public AABB set(AABB aabb) {
@@ -34,13 +39,29 @@ public class AABB {
         return this;
     }
 
+    public AABB set(Vector3f min, Vector3f max) {
+        this.set(min.x, min.y, min.z, max.x, max.y, max.z);
+        return this;
+    }
+
     public AABB set(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
+        if (maxX < minX) {
+            float temp = minX; minX = maxX; maxX = temp;
+        }
+        if (maxY < minY) {
+            float temp = minY; minY = maxY; maxY = temp;
+        }
+        if (maxZ < minZ) {
+            float temp = minZ; minZ = maxZ; maxZ = temp;
+        }
+
         this.minX = minX;
         this.minY = minY;
         this.minZ = minZ;
         this.maxX = maxX;
         this.maxY = maxY;
         this.maxZ = maxZ;
+
         return this;
     }
 
@@ -219,5 +240,35 @@ public class AABB {
             return this.minZ - other.maxZ - epsilon;
 
         return this.maxZ - other.minZ + epsilon;
+    }
+
+    public AABB rotateX(float angle) {
+        Vector3f min = getMin();
+        Vector3f max = getMax();
+
+        min.rotateX(angle);
+        max.rotateX(angle);
+
+        return this.set(min, max);
+    }
+
+    public AABB rotateY(float angle) {
+        Vector3f min = getMin();
+        Vector3f max = getMax();
+
+        min.rotateY(angle);
+        max.rotateY(angle);
+
+        return this.set(min, max);
+    }
+
+    public AABB rotateZ(float angle) {
+        Vector3f min = getMin();
+        Vector3f max = getMax();
+
+        min.rotateZ(angle);
+        max.rotateZ(angle);
+
+        return this.set(min, max);
     }
 }

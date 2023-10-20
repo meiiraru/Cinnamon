@@ -6,6 +6,7 @@ import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
 import mayo.utils.AABB;
+import mayo.utils.Rotation;
 import mayo.world.World;
 import org.joml.Vector3f;
 
@@ -21,6 +22,8 @@ public abstract class Terrain {
     private AABB aabb; //the entire model's AABB
     private final List<AABB> groupsAABB = new ArrayList<>(); //group's AABB
 
+    private int rotation = 0;
+
     public Terrain(Model model, World world) {
         this.model = model;
         this.world = world;
@@ -33,6 +36,7 @@ public abstract class Terrain {
         matrices.push();
 
         matrices.translate(pos);
+        matrices.rotate(Rotation.Y.rotationDeg(getRotationAngle()));
 
         renderModel(matrices, delta);
 
@@ -58,11 +62,12 @@ public abstract class Terrain {
     }
 
     protected void updateAABB() {
-        this.aabb = this.model.getMeshAABB().translate(pos);
+        float r = (float) Math.toRadians(getRotationAngle());
+        this.aabb = this.model.getMeshAABB().rotateY(r).translate(pos);
 
         this.groupsAABB.clear();
         for (AABB group : this.model.getGroupsAABB())
-            groupsAABB.add(group.translate(pos));
+            groupsAABB.add(group.rotateY(r).translate(pos));
     }
 
     public void setPos(Vector3f pos) {
@@ -88,5 +93,13 @@ public abstract class Terrain {
 
     public List<AABB> getGroupsAABB() {
         return groupsAABB;
+    }
+
+    public void setRotation(int rotation) {
+        this.rotation = rotation;
+    }
+
+    public float getRotationAngle() {
+        return 90f * rotation;
     }
 }

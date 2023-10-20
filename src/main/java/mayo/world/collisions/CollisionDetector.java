@@ -34,7 +34,7 @@ public class CollisionDetector {
         float far = Maths.min(tFar);
 
         //reject if the collision time is over the ray length or behind the ray
-        if (far < 0 || near > 1)
+        if (far <= 0 || near >= 1)
             return null;
 
         //calculate normal
@@ -43,6 +43,6 @@ public class CollisionDetector {
         normal.setComponent(index, rayLen.get(index) <= 0 ? 1 : -1);
 
         //return the collision result
-        return new CollisionResult(near - AABB.epsilon, far - AABB.epsilon, normal);
+        return new CollisionResult(near - AABB.epsilon, far + AABB.epsilon, normal);
     }
 }

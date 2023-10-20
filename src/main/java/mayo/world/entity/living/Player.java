@@ -17,7 +17,7 @@ public class Player extends LivingEntity {
     private Entity damageSource;
     private int damageSourceTicks = 0;
 
-    private boolean sprinting, sneaking;
+    private boolean sprinting, sneaking, flying;
 
     public Player(World world, ModelRegistry.Living model) {
         super(model == null ? ModelRegistry.Living.random() : model, world, MAX_HEALTH, INVENTORY_SIZE);
@@ -32,6 +32,29 @@ public class Player extends LivingEntity {
 
         if (damageSourceTicks > 0)
             damageSourceTicks--;
+    }
+
+    @Override
+    protected void applyForces() {
+        if (!flying) super.applyForces();
+    }
+
+    @Override
+    protected void applyMovement() {
+        if (flying) {
+            this.motion.add(move);
+        } else {
+            super.applyMovement();
+        }
+    }
+
+    @Override
+    protected void motionFallout() {
+        if (flying) {
+            this.motion.mul(0.6f, 0.6f, 0.6f);
+        } else {
+            super.motionFallout();
+        }
     }
 
     @Override
@@ -87,20 +110,32 @@ public class Player extends LivingEntity {
         return damageSourceTicks;
     }
 
-    public void updateMovementFlags(boolean sneaking, boolean sprinting) {
+    public void updateMovementFlags(boolean sneaking, boolean sprinting, boolean flying) {
         this.sneaking = sneaking;
         this.sprinting = !sneaking && (this.sprinting || sprinting);
+        this.flying = flying;
     }
 
     @Override
     public void move(float left, float up, float forwards) {
         super.move(left, up, forwards);
+
         if (forwards <= 0f)
             sprinting = false;
+
+        if (flying)
+            move.y = Math.signum(up) * 0.15f;
     }
 
     @Override
     protected float getMoveSpeed() {
-        return super.getMoveSpeed() * (sneaking ? 0.5f : sprinting ? 1.3f : 1f);
+        float speed = super.getMoveSpeed();
+
+        if (sneaking)
+            speed *= 0.5f;
+        if (sprinting)
+            speed *= flying ? 2.3f : 1.3f;
+
+        return speed;
     }
 }

@@ -72,7 +72,7 @@ public class Movement {
         entity.rotate(rotation.y, rotation.x);
 
         if (entity instanceof Player p)
-            p.updateMovementFlags(sneak, sprint);
+            p.updateMovementFlags(sneak, sprint, false);
     }
 
     public void reset() {

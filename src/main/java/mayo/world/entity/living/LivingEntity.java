@@ -120,7 +120,7 @@ public abstract class LivingEntity extends PhysEntity {
         }
     }
 
-    protected float getPickRange() {
+    public float getPickRange() {
         return 5.5f;
     }
 
