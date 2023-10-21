@@ -115,7 +115,7 @@ public abstract class Entity {
                 aabb.getWidth() + 1f, 0f,
                 0xFF0000FF
 
-        ), 0);
+        ), -1);
 
         matrices.pop();
     }

@@ -182,7 +182,7 @@ public class Font {
                 }
 
                 int bgc = Objects.requireNonNullElse(style.getBackgroundColor(), BG_COLOR);
-                consumer.consume(quad(matrices, x0, y0, zOffset * -3, w, h, bgc), 0);
+                consumer.consume(quad(matrices, x0, y0, zOffset * -3, w, h, bgc), -1);
             }
 
             //restore buffer data
@@ -209,11 +209,11 @@ public class Font {
 
         //underline
         if (underlined)
-            consumer.consume(quad(matrices, x0, y0, z, width, 1f, color), 0);
+            consumer.consume(quad(matrices, x0, y0, z, width, 1f, color), -1);
 
         //strikethrough
         if (strikethrough)
-            consumer.consume(quad(matrices, x0, y0 - (int) (lineHeight / 2 - 1), z, width, 1f, color), 0);
+            consumer.consume(quad(matrices, x0, y0 - (int) (lineHeight / 2 - 1), z, width, 1f, color), -1);
     }
 
     private void bakeChar(VertexConsumer consumer, MatrixStack matrices, char c, boolean italic, boolean bold, float x, float y, float z, int color) {

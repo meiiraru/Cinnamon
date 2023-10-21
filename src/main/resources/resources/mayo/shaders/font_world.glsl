@@ -46,7 +46,7 @@ void main() {
     //color
     vec4 col = color;
 
-    if (texID > 0) {
+    if (texID >= 0) {
         //texture
         vec4 tex = texture(textures[texID], texCoords);
         if (tex.r < 0.01f)

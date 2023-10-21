@@ -84,7 +84,7 @@ public abstract class Batch { //vertex consumer
 
         //textures
         for (int i = 0; i < textures.size(); i++) {
-            glActiveTexture(GL_TEXTURE0 + i + 1);
+            glActiveTexture(GL_TEXTURE0 + i);
             glBindTexture(GL_TEXTURE_2D, textures.get(i));
         }
         shader.setIntArray("textures", TEXTURE_SLOTS);
@@ -116,9 +116,9 @@ public abstract class Batch { //vertex consumer
             return false;
 
         //add texture
-        if (textureID > 0 && !textures.contains(textureID))
+        if (textureID != -1 && !textures.contains(textureID))
             textures.add(textureID);
-        int texID = textures.indexOf(textureID) + 1;
+        int texID = textures.indexOf(textureID);
 
         //unwrap and push the vertices
         unwrapVertices(vertices, texID);

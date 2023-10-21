@@ -36,14 +36,15 @@ out vec4 fragColor;
 uniform sampler2D textures[16];
 
 void main() {
-    if (texID > 0) {
-        //texture
-        vec4 tex = texture(textures[texID], texCoords);
-        if (tex.a < 0.01f)
-            discard;
-
-        fragColor = tex * color;
-    } else {
+    if (texID < 0) {
         fragColor = color;
+        return;
     }
+
+    //texture
+    vec4 tex = texture(textures[texID], texCoords);
+    if (tex.a < 0.01f)
+        discard;
+
+    fragColor = tex * color;
 }

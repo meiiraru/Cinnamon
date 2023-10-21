@@ -124,7 +124,7 @@ public abstract class Screen {
         Vertex[] vertices = GeometryHelper.quad(matrices, 0, 0, width, height);
         for (Vertex vertex : vertices)
             vertex.color(0x88 << 24);
-        VertexConsumer.GUI.consume(vertices, 0);
+        VertexConsumer.GUI.consume(vertices, -1);
 
         matrices.pop();
     }

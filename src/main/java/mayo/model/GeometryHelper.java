@@ -96,7 +96,7 @@ public class GeometryHelper {
         }
 
         //push to consumer
-        consumer.consume(vertices, 0);
+        consumer.consume(vertices, -1);
     }
 
     public static void rectangle(VertexConsumer consumer, MatrixStack matrices, float x0, float y0, float x1, float y1, int color) {
@@ -106,7 +106,7 @@ public class GeometryHelper {
                         Vertex.of(x1, y1, 0).color(color).mul(matrices),
                         Vertex.of(x1, y0, 0).color(color).mul(matrices),
                         Vertex.of(x0, y0, 0).color(color).mul(matrices),
-                }, 0
+                }, -1
         );
     }
 
@@ -118,7 +118,7 @@ public class GeometryHelper {
                         Vertex.of(x1, y1, z0).color(color).normal(0, 0, -1).mul(matrices),
                         Vertex.of(x1, y0, z0).color(color).normal(0, 0, -1).mul(matrices),
                         Vertex.of(x0, y0, z0).color(color).normal(0, 0, -1).mul(matrices),
-                }, 0
+                }, -1
         );
         //west
         consumer.consume(
@@ -127,7 +127,7 @@ public class GeometryHelper {
                         Vertex.of(x0, y0, z0).color(color).normal(-1, 0, 0).mul(matrices),
                         Vertex.of(x0, y0, z1).color(color).normal(-1, 0, 0).mul(matrices),
                         Vertex.of(x0, y1, z1).color(color).normal(-1, 0, 0).mul(matrices),
-                }, 0
+                }, -1
         );
         //south
         consumer.consume(
@@ -136,7 +136,7 @@ public class GeometryHelper {
                         Vertex.of(x0, y1, z1).color(color).normal(0, 0, 1).mul(matrices),
                         Vertex.of(x0, y0, z1).color(color).normal(0, 0, 1).mul(matrices),
                         Vertex.of(x1, y0, z1).color(color).normal(0, 0, 1).mul(matrices),
-                }, 0
+                }, -1
         );
         //east
         consumer.consume(
@@ -145,7 +145,7 @@ public class GeometryHelper {
                         Vertex.of(x1, y1, z1).color(color).normal(1, 0, 0).mul(matrices),
                         Vertex.of(x1, y0, z1).color(color).normal(1, 0, 0).mul(matrices),
                         Vertex.of(x1, y0, z0).color(color).normal(1, 0, 0).mul(matrices),
-                }, 0
+                }, -1
         );
         //up
         consumer.consume(
@@ -154,7 +154,7 @@ public class GeometryHelper {
                         Vertex.of(x0, y1, z0).color(color).normal(0, 1, 0).mul(matrices),
                         Vertex.of(x0, y1, z1).color(color).normal(0, 1, 0).mul(matrices),
                         Vertex.of(x1, y1, z1).color(color).normal(0, 1, 0).mul(matrices),
-                }, 0
+                }, -1
         );
         //down
         consumer.consume(
@@ -163,7 +163,7 @@ public class GeometryHelper {
                         Vertex.of(x1, y0, z0).color(color).normal(0, -1, 0).mul(matrices),
                         Vertex.of(x1, y0, z1).color(color).normal(0, -1, 0).mul(matrices),
                         Vertex.of(x0, y0, z1).color(color).normal(0, -1, 0).mul(matrices),
-                }, 0
+                }, -1
         );
     }
 }
