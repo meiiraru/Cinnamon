@@ -22,7 +22,7 @@ public abstract class Item {
 
     public void render(ItemRenderContext context, MatrixStack matrices, float delta) {
         //render model
-        Shader.activeShader.setMatrixStack(matrices);
+        Shader.activeShader.applyMatrixStack(matrices);
         model.render();
     }
 

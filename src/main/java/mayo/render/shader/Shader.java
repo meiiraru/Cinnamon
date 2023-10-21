@@ -144,40 +144,54 @@ public class Shader {
         glUniform1iv(get(name), array);
     }
 
+    public void setColor(String name, int color) {
+        this.setVec3(name, ColorUtils.intToRGB(color));
+    }
+
+    public void setColorRGBA(String name, int color) {
+        this.setVec4(name, ColorUtils.intToRGBA(color));
+    }
+
     // -- common functions -- //
 
-    public void setColor(int color) {
-        this.setColor(ColorUtils.intToRGB(color));
+    public void setup(Matrix4f proj, Matrix4f view) {
+        applyProjectionMatrix(proj);
+        applyViewMatrix(view);
+        applyColor(-1);
     }
 
-    public void setColor(Vector3f rgb) {
-        this.setColor(rgb.x, rgb.y, rgb.z);
+    public void applyColor(int color) {
+        this.setColor("color", color);
     }
 
-    public void setColor(float x, float y, float z) {
+    public void applyColor(Vector3f rgb) {
+        this.applyColor(rgb.x, rgb.y, rgb.z);
+    }
+
+    public void applyColor(float x, float y, float z) {
         this.setVec3("color", x, y, z);
     }
 
-    public void setProjectionMatrix(Matrix4f matrix) {
+    public void applyProjectionMatrix(Matrix4f matrix) {
         this.setMat4("projection", matrix);
     }
 
-    public void setViewMatrix(Matrix4f matrix) {
+    public void applyViewMatrix(Matrix4f matrix) {
         this.setMat4("view", matrix);
     }
 
-    public void setModelMatrix(Matrix4f matrix) {
+    public void applyModelMatrix(Matrix4f matrix) {
         this.setMat4("model", matrix);
     }
 
-    public void setInvertedNormalMatrix(Matrix3f matrix) {
+    public void applyInvertedNormalMatrix(Matrix3f matrix) {
         this.setMat3("normalMat", matrix);
     }
 
-    public void setMatrixStack(MatrixStack matrices) {
+    public void applyMatrixStack(MatrixStack matrices) {
         MatrixStack.Matrices mat = matrices.peek();
-        setModelMatrix(mat.pos());
-        setInvertedNormalMatrix(mat.normal().invert());
+        applyModelMatrix(mat.pos());
+        applyInvertedNormalMatrix(mat.normal().invert());
     }
 
     @Override

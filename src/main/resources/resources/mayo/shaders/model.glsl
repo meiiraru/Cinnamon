@@ -15,7 +15,7 @@ uniform mat4 model;
 uniform mat3 normalMat;
 
 void main() {
-    vec4 posVec = vec4(aPosition, 1.0f);
+    vec4 posVec = vec4(aPosition, 1);
     gl_Position = projection * view * model * posVec;
     pos = (model * posVec).xyz;
     texCoords = aTexCoords;
@@ -33,22 +33,32 @@ out vec4 fragColor;
 
 uniform sampler2D textureSampler;
 uniform vec3 color;
+uniform vec3 camPos;
+
+uniform vec3 fogColor;
+uniform float fogStart;
+uniform float fogEnd;
+
 uniform vec3 ambientLight;
 uniform vec3 lightPos;
 
 void main() {
-    //if (true) {fragColor = vec4(normal, 1.0f); return;}
-
-    //color
-    vec4 col = vec4(color, 1.0f);
-
     //texture
     vec4 tex = texture(textureSampler, texCoords);
     if (tex.a <= 0.01f)
         discard;
 
-    //out color
-    fragColor = tex * col;
+    //color
+    vec4 col = vec4(color, 1) * tex;
+
+    // >> lighting here <<
+
+    //fog
+    float fogDistance = length(pos - camPos);
+    float fogDelta = smoothstep(fogStart, fogEnd, fogDistance);
+
+    //final color
+    fragColor = vec4(mix(col.rgb, fogColor, fogDelta), col.a);
 
     /*
     //light

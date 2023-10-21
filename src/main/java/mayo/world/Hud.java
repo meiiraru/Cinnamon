@@ -9,7 +9,6 @@ import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
-import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
 import mayo.text.Style;
 import mayo.text.Text;
@@ -206,10 +205,10 @@ public class Hud {
 
     private void drawHotbar(MatrixStack matrices, Player player, float delta) {
         //set shader
-        Shader sh = Shaders.MODEL.getShader().use();
-        sh.setProjectionMatrix(Client.getInstance().camera.getOrthographicMatrix());
-        sh.setViewMatrix(new Matrix4f());
-        sh.setColor(-1);
+        Shaders.GENERIC_MODEL.getShader().use().setup(
+                Client.getInstance().camera.getOrthographicMatrix(),
+                new Matrix4f()
+        );
 
         //prepare variables
         Window window = Client.getInstance().window;

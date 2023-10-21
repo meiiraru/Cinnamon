@@ -75,9 +75,7 @@ public abstract class Batch { //vertex consumer
         glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
 
         //shader properties
-        shader.use();
-        shader.setProjectionMatrix(proj);
-        shader.setViewMatrix(view);
+        shader.use().setup(proj, view);
 
         //function to run before drawing the vao
         preRender();
@@ -158,7 +156,7 @@ public abstract class Batch { //vertex consumer
         @Override
         protected void preRender() {
             super.preRender();
-            Client.getInstance().world.uploadLightUniforms(this.shader);
+            Client.getInstance().world.applyWorldUniforms(this.shader);
         }
     }
 

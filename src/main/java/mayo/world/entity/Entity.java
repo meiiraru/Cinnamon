@@ -66,7 +66,7 @@ public abstract class Entity {
         applyModelPose(matrices, delta);
 
         //render model
-        Shader.activeShader.setMatrixStack(matrices);
+        Shader.activeShader.applyMatrixStack(matrices);
         model.render();
 
         //render features

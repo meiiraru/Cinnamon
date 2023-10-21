@@ -174,25 +174,28 @@ public class World {
         //set camera
         c.camera.setup(player, cameraMode, delta);
 
-        //set shader
+        //render skybox
+        Shaders.GENERIC_MODEL.getShader().use().setup(
+                c.camera.getPerspectiveMatrix(),
+                c.camera.getViewMatrix()
+        );
+        skyBox.render(c.camera, matrices);
+
+        //set world shader
         Shader s = Shaders.MODEL.getShader().use();
-        s.setProjectionMatrix(c.camera.getPerspectiveMatrix());
-        s.setViewMatrix(c.camera.getViewMatrix());
-        s.setColor(-1);
+        s.setup(c.camera.getPerspectiveMatrix(), c.camera.getViewMatrix());
 
         //apply lighting
-        uploadLightUniforms(s);
-
-        //render skybox
-        skyBox.render(c.camera, matrices);
+        applyWorldUniforms(s);
 
         //render terrain
         for (Terrain terrain : terrain)
             terrain.render(matrices, delta);
 
         //render entities
+        Entity camEntity = c.camera.getEntity();
         for (Entity entity : entities) {
-            if (entity != player || isThirdPerson())
+            if (camEntity != entity || isThirdPerson())
                 entity.render(matrices, delta);
         }
 
@@ -213,10 +216,10 @@ public class World {
             return;
 
         //set shader
-        Shader s = Shaders.MODEL.getShader().use();
-        s.setProjectionMatrix(Client.getInstance().camera.getPerspectiveMatrix());
-        s.setViewMatrix(new Matrix4f());
-        s.setColor(-1);
+        Shaders.GENERIC_MODEL.getShader().use().setup(
+            Client.getInstance().camera.getPerspectiveMatrix(),
+            new Matrix4f()
+        );
 
         //render model
         matrices.push();
@@ -266,7 +269,13 @@ public class World {
         }
     }
 
-    public void uploadLightUniforms(Shader s) {
+    public void applyWorldUniforms(Shader s) {
+        s.setVec3("camPos", Client.getInstance().camera.getPos());
+
+        s.setFloat("fogStart", 32 * 3);
+        s.setFloat("fogEnd", 32 * 5);
+        s.setColor("fogColor", 0xC1E7FF);
+
         s.setVec3("ambientLight", ColorUtils.intToRGB(0x050511));
         s.setVec3("lightPos", 0f, 3f, 5f);
     }

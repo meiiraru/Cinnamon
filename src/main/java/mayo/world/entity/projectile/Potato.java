@@ -47,9 +47,9 @@ public class Potato extends Projectile {
 
     @Override
     public void render(MatrixStack matrices, float delta) {
-        Shader.activeShader.setColor(ColorUtils.lerpRGBColor(0xFF8888, -1, Math.min(lifetime / 30f, 1f)));
+        Shader.activeShader.applyColor(ColorUtils.lerpRGBColor(0xFF8888, -1, Math.min(lifetime / 30f, 1f)));
         super.render(matrices, delta);
-        Shader.activeShader.setColor(-1);
+        Shader.activeShader.applyColor(-1);
     }
 
     @Override

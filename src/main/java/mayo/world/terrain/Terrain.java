@@ -45,7 +45,7 @@ public abstract class Terrain {
 
     protected void renderModel(MatrixStack matrices, float delta) {
         //render model
-        Shader.activeShader.setMatrixStack(matrices);
+        Shader.activeShader.applyMatrixStack(matrices);
         model.render();
     }
 

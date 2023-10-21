@@ -18,7 +18,7 @@ public class SkyBox {
         matrices.scale((float) (Camera.FAR_PLANE / 2f / Math.sqrt(2)));
 
         //render model
-        Shader.activeShader.setMatrixStack(matrices);
+        Shader.activeShader.applyMatrixStack(matrices);
         MODEL.render();
 
         matrices.pop();

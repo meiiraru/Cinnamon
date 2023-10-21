@@ -26,7 +26,11 @@ public class Camera {
             orthoMatrix = new Matrix4f(),
             perspMatrix = new Matrix4f();
 
+    private Entity entity;
+
     public void setup(Entity entity, int mode, float delta) {
+        this.entity = entity;
+
         //rotation
         Vector2f rot = entity.getRot(delta);
         setRot(rot.x, rot.y);
@@ -138,5 +142,9 @@ public class Camera {
 
     public Matrix4f getOrthographicMatrix() {
         return orthoMatrix;
+    }
+
+    public Entity getEntity() {
+        return entity;
     }
 }
