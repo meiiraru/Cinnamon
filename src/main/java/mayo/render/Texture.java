@@ -119,6 +119,15 @@ public class Texture {
         return cacheTexture(res, new Texture(id, 1, 1));
     }
 
+    public static void freeAll() {
+        for (Texture texture : TEXTURE_MAP.values())
+            texture.free();
+    }
+
+    public void free() {
+        glDeleteTextures(this.ID);
+    }
+
 
     // -- getters -- //
 

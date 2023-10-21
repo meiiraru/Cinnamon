@@ -1,7 +1,9 @@
 package mayo;
 
 import mayo.render.MatrixStack;
+import mayo.render.Texture;
 import mayo.render.Window;
+import mayo.render.shader.Shaders;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
@@ -143,6 +145,10 @@ public class Main {
     private void close() {
         //close client
         client.close();
+
+        //free textures and shaders
+        Texture.freeAll();
+        Shaders.freeAll();
 
         //free the window callbacks and destroy the window
         glfwFreeCallbacks(window);

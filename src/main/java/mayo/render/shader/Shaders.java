@@ -20,4 +20,9 @@ public enum Shaders {
     public Shader getShader() {
         return shader;
     }
+
+    public static void freeAll() {
+        for (Shaders shader : values())
+            shader.getShader().free();
+    }
 }

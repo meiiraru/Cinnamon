@@ -51,17 +51,7 @@ void main() {
     //color
     vec4 col = vec4(color, 1) * tex;
 
-    // >> lighting here <<
-
-    //fog
-    float fogDistance = length(pos - camPos);
-    float fogDelta = smoothstep(fogStart, fogEnd, fogDistance);
-
-    //final color
-    fragColor = vec4(mix(col.rgb, fogColor, fogDelta), col.a);
-
     /*
-    //light
 
     //ambient
     vec3 ambient = ambientLight;
@@ -70,11 +60,17 @@ void main() {
     vec3 norm = normalize(normal);
     vec3 lightDir = normalize(lightPos - pos);
 
-    float diffuse = max(dot(norm, lightDir), 0.0f);
+    float diffuse = max(dot(norm, lightDir), 0);
 
-    vec4 light = vec4(ambient + diffuse, 1.0f);
+    //apply lighting
+    col *= vec4(ambient + diffuse, 1);
 
-    //out color
-    fragColor = light * tex * col;
     */
+
+    //fog
+    float fogDistance = length(pos - camPos);
+    float fogDelta = smoothstep(fogStart, fogEnd, fogDistance);
+
+    //final color
+    fragColor = vec4(mix(col.rgb, fogColor, fogDelta), col.a);
 }

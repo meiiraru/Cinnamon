@@ -15,9 +15,9 @@ import mayo.sound.SoundManager;
 import mayo.sound.SoundSource;
 import mayo.text.Text;
 import mayo.utils.AABB;
-import mayo.utils.ColorUtils;
 import mayo.utils.Resource;
 import mayo.utils.Rotation;
+import mayo.world.chunk.Chunk;
 import mayo.world.collisions.CollisionDetector;
 import mayo.world.collisions.CollisionResult;
 import mayo.world.collisions.Hit;
@@ -70,6 +70,8 @@ public class World {
 
     public final float updateTime = 0.05f; // 1/20
     public final float gravity = 0.98f * updateTime;
+
+    public final float renderDistance = 3;
 
     public void init() {
         //set client
@@ -272,11 +274,11 @@ public class World {
     public void applyWorldUniforms(Shader s) {
         s.setVec3("camPos", Client.getInstance().camera.getPos());
 
-        s.setFloat("fogStart", 32 * 3);
-        s.setFloat("fogEnd", 32 * 5);
-        s.setColor("fogColor", 0xC1E7FF);
+        s.setFloat("fogStart", Chunk.getFogStart(this));
+        s.setFloat("fogEnd", Chunk.getFogEnd(this));
+        s.setColor("fogColor", Chunk.fogColor);
 
-        s.setVec3("ambientLight", ColorUtils.intToRGB(0x050511));
+        s.setColor("ambientLight", Chunk.ambientLight);
         s.setVec3("lightPos", 0f, 3f, 5f);
     }
 
