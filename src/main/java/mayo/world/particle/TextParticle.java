@@ -28,7 +28,7 @@ public class TextParticle extends Particle {
     @Override
     protected void renderParticle(MatrixStack matrices, float delta) {
         matrices.scale(-PARTICLE_SCALING);
-        font.render(VertexConsumer.FONT_WORLD, matrices, 0, 0, text, TextUtils.Alignment.CENTER);
+        font.render(VertexConsumer.FONT, matrices, 0, 0, text, TextUtils.Alignment.CENTER);
     }
 
     public boolean shouldRender() {

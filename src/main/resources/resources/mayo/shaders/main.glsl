@@ -17,10 +17,10 @@ uniform mat4 projection;
 uniform mat4 view;
 
 void main() {
-    gl_Position = projection * view * vec4(aPosition, 1.0f);
-    pos = aPosition;
+    gl_Position = projection * view * vec4(aPosition, 1);
     texID = int(aTexID);
     texCoords = aTexCoords;
+    pos = aPosition;
     color = aColor;
     normal = aNormal;
 }
@@ -30,49 +30,45 @@ void main() {
 
 flat in int texID;
 in vec2 texCoords;
-in vec4 color;
 in vec3 pos;
+in vec4 color;
 in vec3 normal;
 
 out vec4 fragColor;
 
 uniform sampler2D textures[16];
+uniform vec3 camPos;
+
+uniform vec3 fogColor;
+uniform float fogStart;
+uniform float fogEnd;
+
 uniform vec3 ambientLight;
 uniform vec3 lightPos;
 
 void main() {
-    //if (true) {fragColor = vec4(normal, 1.0f); return;}
-
     //color
     vec4 col = color;
 
     if (texID >= 0) {
         //texture
         vec4 tex = texture(textures[texID], texCoords);
-        if (tex.r < 0.01f)
-        discard;
+        if (tex.a < 0.01f)
+            discard;
 
-        col = vec4(col.rgb, col.a * tex.r);
+        col *= tex;
     }
-
-    //out color
-    fragColor = col;
-
-    /*
-    //light
 
     //ambient
     vec3 ambient = ambientLight;
 
-    //diffuse
-    vec3 norm = normalize(normal);
-    vec3 lightDir = normalize(lightPos - pos);
+    //apply lighting
+    col *= vec4(ambient, 1);
 
-    float diffuse = max(dot(norm, lightDir), 0.0f);
+    //fog
+    float fogDistance = length(pos - camPos);
+    float fogDelta = smoothstep(fogStart, fogEnd, fogDistance);
 
-    vec4 light = vec4(ambient + diffuse, 1.0f);
-
-    //out color
-    fragColor = light * col;
-    */
+    //final color
+    fragColor = vec4(mix(col.rgb, fogColor, fogDelta), col.a);
 }

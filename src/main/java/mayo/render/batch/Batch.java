@@ -142,15 +142,15 @@ public abstract class Batch { //vertex consumer
     // -- children types -- //
 
 
-    public static class FontBatch extends Batch {
-        public FontBatch() {
-            super(Shaders.FONT, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA);
+    public static class FontFlatBatch extends Batch {
+        public FontFlatBatch() {
+            super(Shaders.FONT_FLAT, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA);
         }
     }
 
-    public static class FontWorldBatch extends Batch {
-        public FontWorldBatch() {
-            super(Shaders.FONT_WORLD, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.NORMAL);
+    public static class FontBatch extends Batch {
+        public FontBatch() {
+            super(Shaders.FONT, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.NORMAL);
         }
 
         @Override
@@ -168,7 +168,7 @@ public abstract class Batch { //vertex consumer
 
     public static class MainBatch extends Batch {
         public MainBatch() {
-            super(Shaders.GENERIC, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.NORMAL);
+            super(Shaders.MAIN, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.NORMAL);
         }
     }
 

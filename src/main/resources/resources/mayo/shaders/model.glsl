@@ -51,21 +51,17 @@ void main() {
     //color
     vec4 col = vec4(color, 1) * tex;
 
-    /*
-
     //ambient
     vec3 ambient = ambientLight;
 
     //diffuse
-    vec3 norm = normalize(normal);
-    vec3 lightDir = normalize(lightPos - pos);
+    //vec3 norm = normalize(normal);
+    //vec3 lightDir = normalize(lightPos - pos);
 
-    float diffuse = max(dot(norm, lightDir), 0);
+    //float diffuse = max(dot(norm, lightDir), 0);
 
     //apply lighting
-    col *= vec4(ambient + diffuse, 1);
-
-    */
+    col *= vec4(ambient, 1);
 
     //fog
     float fogDistance = length(pos - camPos);

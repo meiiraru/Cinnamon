@@ -5,10 +5,10 @@ import mayo.utils.Resource;
 public enum Shaders {
     GUI,
     FONT,
+    FONT_FLAT,
     MODEL,
-    GENERIC_MODEL,
-    GENERIC,
-    FONT_WORLD,
+    MODEL_FLAT,
+    MAIN,
     LINES;
 
     private final Shader shader;

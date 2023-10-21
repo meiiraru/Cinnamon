@@ -101,7 +101,7 @@ public class Toast {
         UIHelper.nineQuad(VertexConsumer.GUI, matrices, TEXTURE.getID(), 0f, 0f, tWidth + PADDING, tHeight + PADDING);
 
         //render text
-        font.render(VertexConsumer.FONT, matrices, (tWidth + PADDING) / 2f, PADDING / 2f, text, TextUtils.Alignment.CENTER);
+        font.render(VertexConsumer.FONT_FLAT, matrices, (tWidth + PADDING) / 2f, PADDING / 2f, text, TextUtils.Alignment.CENTER);
 
         matrices.pop();
         return false;

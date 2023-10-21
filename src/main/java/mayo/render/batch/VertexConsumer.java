@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 public enum VertexConsumer {
     GUI(GUIBatch::new),
     FONT(FontBatch::new),
-    FONT_WORLD(FontWorldBatch::new),
+    FONT_FLAT(FontFlatBatch::new),
     MAIN(MainBatch::new),
     LINES(LinesBatch::new);
 

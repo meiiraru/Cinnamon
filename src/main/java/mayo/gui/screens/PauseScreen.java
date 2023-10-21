@@ -29,7 +29,7 @@ public class PauseScreen extends Screen {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
-        font.render(VertexConsumer.FONT, matrices, width / 2f, 4f, PAUSE_TEXT, TextUtils.Alignment.CENTER);
+        font.render(VertexConsumer.FONT_FLAT, matrices, width / 2f, 4f, PAUSE_TEXT, TextUtils.Alignment.CENTER);
     }
 
     @Override

@@ -134,7 +134,7 @@ public class UIHelper {
         nineQuad(VertexConsumer.GUI, matrices, TOOLTIP.getID(), 0, 0, w + 4, h + 4);
 
         //draw text
-        f.render(VertexConsumer.FONT, matrices, 2, 2, tooltip);
+        f.render(VertexConsumer.FONT_FLAT, matrices, 2, 2, tooltip);
 
         matrices.pop();
     }

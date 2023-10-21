@@ -176,8 +176,11 @@ public class World {
         //set camera
         c.camera.setup(player, cameraMode, delta);
 
+        //prepare main shader
+        applyWorldUniforms(Shaders.MAIN.getShader().use());
+
         //render skybox
-        Shaders.GENERIC_MODEL.getShader().use().setup(
+        Shaders.MODEL_FLAT.getShader().use().setup(
                 c.camera.getPerspectiveMatrix(),
                 c.camera.getViewMatrix()
         );
@@ -218,7 +221,7 @@ public class World {
             return;
 
         //set shader
-        Shaders.GENERIC_MODEL.getShader().use().setup(
+        Shaders.MODEL_FLAT.getShader().use().setup(
             Client.getInstance().camera.getPerspectiveMatrix(),
             new Matrix4f()
         );

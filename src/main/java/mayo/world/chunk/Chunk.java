@@ -11,7 +11,7 @@ public class Chunk {
     public static final float fogDensity = 0.5f;
 
     public static final int fogColor = 0xC1E7FF;
-    public static final int ambientLight = 0x050511;
+    public static final int ambientLight = 0xFFFFFF;
 
     public static float getFogStart(World world) {
         return CHUNK_SIZE * world.renderDistance;
