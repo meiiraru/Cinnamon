@@ -18,12 +18,13 @@ public class MtlLoader {
 
     public static Map<String, Material> load(Resource res) {
         InputStream stream = IOUtils.getResource(res);
-        String path = res.getPath();
-        String folder = path.substring(0, path.lastIndexOf("/") + 1);
         Map<String, Material> map = new HashMap<>();
 
         if (stream == null)
             return map;
+
+        String path = res.getPath();
+        String folder = path.substring(0, path.lastIndexOf("/") + 1);
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
             Material material = new Material("");

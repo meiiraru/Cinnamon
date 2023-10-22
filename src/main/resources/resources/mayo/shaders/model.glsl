@@ -24,6 +24,8 @@ void main() {
 
 #type fragment
 #version 330 core
+#include shaders/libs/fog.glsl
+#include shaders/libs/light.glsl
 
 in vec2 texCoords;
 in vec3 pos;
@@ -35,13 +37,6 @@ uniform sampler2D textureSampler;
 uniform vec3 color;
 uniform vec3 camPos;
 
-uniform vec3 fogColor;
-uniform float fogStart;
-uniform float fogEnd;
-
-uniform vec3 ambientLight;
-uniform vec3 lightPos;
-
 void main() {
     //texture
     vec4 tex = texture(textureSampler, texCoords);
@@ -51,22 +46,12 @@ void main() {
     //color
     vec4 col = vec4(color, 1) * tex;
 
-    //ambient
-    vec3 ambient = ambientLight;
-
-    //diffuse
-    //vec3 norm = normalize(normal);
-    //vec3 lightDir = normalize(lightPos - pos);
-
-    //float diffuse = max(dot(norm, lightDir), 0);
-
-    //apply lighting
-    col *= vec4(ambient, 1);
+    //lighting
+    col = calculateLighting(col);
 
     //fog
-    float fogDistance = length(pos - camPos);
-    float fogDelta = smoothstep(fogStart, fogEnd, fogDistance);
+    col = calculateFog(pos, camPos, col);
 
     //final color
-    fragColor = vec4(mix(col.rgb, fogColor, fogDelta), col.a);
+    fragColor = col;
 }

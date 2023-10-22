@@ -176,8 +176,9 @@ public class World {
         //set camera
         c.camera.setup(player, cameraMode, delta);
 
-        //prepare main shader
+        //prepare world shaders
         applyWorldUniforms(Shaders.MAIN.getShader().use());
+        applyWorldUniforms(Shaders.FONT.getShader().use());
 
         //render skybox
         Shaders.MODEL_FLAT.getShader().use().setup(

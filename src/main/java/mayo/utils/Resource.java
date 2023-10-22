@@ -7,7 +7,14 @@ public class Resource {
     private final String namespace, path;
 
     public Resource(String path) {
-        this(NAMESPACE, path);
+        int index = path.indexOf(":");
+        if (index > 0) {
+            this.namespace = path.substring(0, index);
+            this.path = path.substring(index + 1);
+        } else {
+            this.namespace = NAMESPACE;
+            this.path = path;
+        }
     }
 
     public Resource(String namespace, String path) {
@@ -25,7 +32,7 @@ public class Resource {
 
     @Override
     public String toString() {
-        return namespace + "/" + path;
+        return namespace + ":" + path;
     }
 
     @Override

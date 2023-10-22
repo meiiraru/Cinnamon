@@ -21,11 +21,11 @@ public class ObjLoader {
 
     public static Mesh load(Resource res) {
         InputStream stream = IOUtils.getResource(res);
-        String path = res.getPath();
-        String folder = path.substring(0, path.lastIndexOf("/") + 1);
-
         if (stream == null)
             throw new RuntimeException("Resource not found: " + res);
+
+        String path = res.getPath();
+        String folder = path.substring(0, path.lastIndexOf("/") + 1);
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
             Mesh theMesh = new Mesh();

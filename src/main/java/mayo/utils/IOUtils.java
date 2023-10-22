@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,7 +19,7 @@ public class IOUtils {
     public static final Path ROOT_FOLDER = Path.of("./" + Resource.NAMESPACE);
 
     public static InputStream getResource(Resource res) {
-        String resourcePath = "resources/" + res.toString();
+        String resourcePath = "resources/" + res.getNamespace() + "/" + res.getPath();
         return IOUtils.class.getClassLoader().getResourceAsStream(resourcePath);
     }
 
@@ -35,6 +36,18 @@ public class IOUtils {
             fontBuffer.flip();
             return memSlice(fontBuffer);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String readString(Resource res) {
+        try {
+            InputStream stream = IOUtils.getResource(res);
+            if (stream == null)
+                throw new RuntimeException("Resource not found: " + res);
+
+            return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

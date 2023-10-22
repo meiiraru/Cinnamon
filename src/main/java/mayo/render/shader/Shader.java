@@ -6,12 +6,14 @@ import mayo.utils.IOUtils;
 import mayo.utils.Resource;
 import org.joml.*;
 
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL30.*;
 
 public class Shader {
+
+    private static final Map<String, String> INCLUDE_CACHE = new HashMap<>();
 
     public static Shader activeShader;
 
@@ -22,17 +24,7 @@ public class Shader {
     }
 
     private static int loadShader(Resource res) {
-        String src, vertexSource, fragmentSource;
-        try {
-            InputStream resource = IOUtils.getResource(res);
-            if (resource == null)
-                throw new RuntimeException("Resource not found: " + res);
-
-            src = new String(resource.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
+        String src = IOUtils.readString(res);
         String[] split = src.split("#type ");
         //[0] = empty string
         //[1] = first type (frag/vertex)
@@ -40,10 +32,22 @@ public class Shader {
         if (split.length != 3 || (!split[1].startsWith("vertex") && !split[1].startsWith("fragment")) || (!split[2].startsWith("vertex") && !split[2].startsWith("fragment")))
             throw new RuntimeException("Invalid shader type");
 
+        String vertexSource, fragmentSource;
+
         int i = split[1].startsWith("vertex") ? 1 : 2;
         vertexSource = split[i].substring("vertex".length());
         fragmentSource = split[i % 2 + 1].substring("fragment".length());
 
+        //process includes
+        String[] vInclude = vertexSource.split("#include ");
+        if (vInclude.length > 1)
+            vertexSource = processInclude(vInclude);
+
+        String[] fInclude = fragmentSource.split("#include ");
+        if (fInclude.length > 1)
+            fragmentSource = processInclude(fInclude);
+
+        //create shaders
         int vertexShader = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShader, vertexSource);
         glCompileShader(vertexShader);
@@ -54,16 +58,39 @@ public class Shader {
         glCompileShader(fragmentShader);
         checkCompileErrors(fragmentShader);
 
+        //create program
         int program = glCreateProgram();
         glAttachShader(program, vertexShader);
         glAttachShader(program, fragmentShader);
         glLinkProgram(program);
         checkProgramErrors(program);
 
+        //delete shaders
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
 
         return program;
+    }
+
+    private static String processInclude(String[] vInclude) {
+        StringBuilder finalShader = new StringBuilder();
+
+        for (String s : vInclude) {
+            //separate include from the shader
+            int index = s.indexOf("\n");
+            String toInclude = s.substring(0, index).trim();
+
+            //check for cache and append to the final shader
+            if (!toInclude.isBlank()) {
+                String cache = INCLUDE_CACHE.computeIfAbsent(toInclude, string -> IOUtils.readString(new Resource(string)));
+                finalShader.append(cache);
+            }
+
+            //append the shader itself
+            finalShader.append(s.substring(index));
+        }
+
+        return finalShader.toString();
     }
 
     private static void checkCompileErrors(int id) {

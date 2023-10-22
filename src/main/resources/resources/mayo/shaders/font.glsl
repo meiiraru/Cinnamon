@@ -17,16 +17,17 @@ uniform mat4 projection;
 uniform mat4 view;
 
 void main() {
-    gl_Position = projection * view * vec4(aPosition, 1.0f);
-    pos = aPosition;
+    gl_Position = projection * view * vec4(aPosition, 1);
     texID = int(aTexID);
     texCoords = aTexCoords;
+    pos = aPosition;
     color = aColor;
     normal = aNormal;
 }
 
 #type fragment
 #version 330 core
+#include shaders/libs/fog.glsl
 
 flat in int texID;
 in vec2 texCoords;
@@ -37,12 +38,10 @@ in vec3 normal;
 out vec4 fragColor;
 
 uniform sampler2D textures[16];
+uniform vec3 camPos;
 uniform vec3 ambientLight;
-uniform vec3 lightPos;
 
 void main() {
-    //if (true) {fragColor = vec4(normal, 1.0f); return;}
-
     //color
     vec4 col = color;
 
@@ -55,24 +54,12 @@ void main() {
         col = vec4(col.rgb, col.a * tex.r);
     }
 
-    //out color
+    //ambient light (only)
+    col *= vec4(ambientLight, 1);
+
+    //fog
+    col = calculateFog(pos, camPos, col);
+
+    //final color
     fragColor = col;
-
-    /*
-    //light
-
-    //ambient
-    vec3 ambient = ambientLight;
-
-    //diffuse
-    vec3 norm = normalize(normal);
-    vec3 lightDir = normalize(lightPos - pos);
-
-    float diffuse = max(dot(norm, lightDir), 0.0f);
-
-    vec4 light = vec4(ambient + diffuse, 1.0f);
-
-    //out color
-    fragColor = light * col;
-    */
 }
