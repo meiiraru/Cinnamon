@@ -73,6 +73,10 @@ public class World {
 
     public final float renderDistance = 3;
 
+    //temp
+    private final Vector3f lightPos = new Vector3f(0f, 3f, 5f);
+    private int timeOfTheDay = 0;
+
     public void init() {
         //set client
         Client client = Client.getInstance();
@@ -176,10 +180,6 @@ public class World {
         //set camera
         c.camera.setup(player, cameraMode, delta);
 
-        //prepare world shaders
-        applyWorldUniforms(Shaders.MAIN.getShader().use());
-        applyWorldUniforms(Shaders.FONT.getShader().use());
-
         //render skybox
         Shaders.MODEL_FLAT.getShader().use().setup(
                 c.camera.getPerspectiveMatrix(),
@@ -282,8 +282,16 @@ public class World {
         s.setFloat("fogEnd", Chunk.getFogEnd(this));
         s.setColor("fogColor", Chunk.fogColor);
 
-        s.setColor("ambientLight", Chunk.ambientLight);
-        s.setVec3("lightPos", 0f, 3f, 5f);
+        s.setColor("ambient", Chunk.ambientLight);
+
+        int lightCount = 3;
+        s.setInt("lightCount", lightCount);
+
+        for (int i = 0; i < lightCount; i++) {
+            s.setVec3("lights[" + i + "].pos", lightPos.x + 5 * i, lightPos.y, lightPos.z);
+            s.setColor("lights[" + i + "].diffuse", -1);
+            s.setColor("lights[" + i + "].specular", -1);
+        }
     }
 
     public void addTerrain(Terrain terrain) {
@@ -351,7 +359,7 @@ public class World {
 
         movement.keyPress(key, action);
 
-        if (action != GLFW_PRESS)
+        if (action == GLFW_RELEASE)
             return;
 
         if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9)
@@ -365,8 +373,11 @@ public class World {
             }
             case GLFW_KEY_ESCAPE -> Client.getInstance().setScreen(new PauseScreen());
             case GLFW_KEY_F1 -> this.hideHUD = !this.hideHUD;
+            case GLFW_KEY_F2 -> this.lightPos.set(player.getEyePos());
             case GLFW_KEY_F3 -> this.debugRendering = !this.debugRendering;
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
+            case GLFW_KEY_F7 -> this.timeOfTheDay += 100;
+            case GLFW_KEY_F8 -> this.timeOfTheDay -= 100;
         }
     }
 

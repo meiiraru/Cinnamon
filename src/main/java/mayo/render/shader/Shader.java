@@ -159,6 +159,10 @@ public class Shader {
         setVec4(name, vec.x, vec.y, vec.z, vec.w);
     }
 
+    public void setVec4(String name, Vector3f vec, float w) {
+        setVec4(name, vec.x, vec.y, vec.z, w);
+    }
+
     public void setMat3(String name, Matrix3f matrix3f) {
         glUniformMatrix3fv(get(name), false, matrix3f.get(new float[3 * 3]));
     }

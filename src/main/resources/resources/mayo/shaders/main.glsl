@@ -27,8 +27,8 @@ void main() {
 
 #type fragment
 #version 330 core
-#include shaders/libs/fog.glsl
 #include shaders/libs/light.glsl
+#include shaders/libs/fog.glsl
 
 flat in int texID;
 in vec2 texCoords;
@@ -54,8 +54,8 @@ void main() {
         col *= tex;
     }
 
-    //lighting
-    col = calculateLighting(col);
+    //ambient light
+    col *= calculateLight(pos, normal);
 
     //fog
     col = calculateFog(pos, camPos, col);

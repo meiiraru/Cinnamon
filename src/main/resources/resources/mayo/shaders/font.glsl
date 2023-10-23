@@ -27,19 +27,19 @@ void main() {
 
 #type fragment
 #version 330 core
+#include shaders/libs/light.glsl
 #include shaders/libs/fog.glsl
 
 flat in int texID;
 in vec2 texCoords;
-in vec4 color;
 in vec3 pos;
+in vec4 color;
 in vec3 normal;
 
 out vec4 fragColor;
 
 uniform sampler2D textures[16];
 uniform vec3 camPos;
-uniform vec3 ambientLight;
 
 void main() {
     //color
@@ -49,13 +49,13 @@ void main() {
         //texture
         vec4 tex = texture(textures[texID], texCoords);
         if (tex.r < 0.01f)
-        discard;
+            discard;
 
         col = vec4(col.rgb, col.a * tex.r);
     }
 
-    //ambient light (only)
-    col *= vec4(ambientLight, 1);
+    //light
+    col *= calculateLight(pos, normal);
 
     //fog
     col = calculateFog(pos, camPos, col);

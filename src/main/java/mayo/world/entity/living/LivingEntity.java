@@ -101,7 +101,7 @@ public abstract class LivingEntity extends PhysEntity {
 
         matrices.translate(0f, aabb.getHeight() + 0.15f, 0f);
         c.camera.billboard(matrices);
-        matrices.scale(-s);
+        matrices.peek().pos().scale(-s);
         matrices.translate(0f, -TextUtils.getHeight(text, c.font), 0f);
 
         c.font.render(VertexConsumer.FONT, matrices, 0, 0, text, TextUtils.Alignment.CENTER, 50);

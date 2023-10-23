@@ -220,8 +220,8 @@ public class Maths {
         float approxRoot = Float.intBitsToFloat(i);
 
         //improve the approximation with two iterations of Newton's method
-        for (int j = 0; j < 2; j++)
-            approxRoot = 0.6666667f * approxRoot + 1f / (3f * approxRoot * approxRoot * x);
+        approxRoot = 0.6666667f * approxRoot + 1f / (3f * approxRoot * approxRoot * x);
+        approxRoot = 0.6666667f * approxRoot + 1f / (3f * approxRoot * approxRoot * x);
 
         //return
         return approxRoot;

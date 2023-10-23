@@ -8,12 +8,12 @@ public class Material {
     private final String name;
 
     private final Vector3f
-            ambient = new Vector3f(), //Ka
-            diffuse = new Vector3f(), //Kd
-            specular = new Vector3f(), //Ks
+            ambient = new Vector3f(1, 1, 1), //Ka
+            diffuse = new Vector3f(1, 1, 1), //Kd
+            specular = new Vector3f(1, 1, 1), //Ks
             filter = new Vector3f(); //Tf
     private float
-            specularExponent, //Ns
+            specularExponent = 1, //Ns
             refraction; //Ni
     private int
             illumination; //illum
@@ -22,6 +22,7 @@ public class Material {
             diffuseTex, //map_Kd
             spColorTex, //map_Ks
             spHighlightTex, //map_Ns
+            emissiveTex, //map_Ke
             alphaTex, //map_d
             bumpTex, //map_bump
             displacementTex, //disp
@@ -109,6 +110,14 @@ public class Material {
 
     public void setSpHighlightTex(Resource spHighlightTex) {
         this.spHighlightTex = spHighlightTex;
+    }
+
+    public Resource getEmissiveTex() {
+        return emissiveTex;
+    }
+
+    public void setEmissiveTex(Resource emissiveTex) {
+        this.emissiveTex = emissiveTex;
     }
 
     public Resource getAlphaTex() {

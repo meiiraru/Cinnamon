@@ -75,6 +75,7 @@ public class MtlLoader {
                     case "map_Kd" -> material.setDiffuseTex(new Resource(res.getNamespace(), folder + split[1]));
                     case "map_Ks" -> material.setSpColorTex(new Resource(res.getNamespace(), folder + split[1]));
                     case "map_Ns" -> material.setSpHighlightTex(new Resource(res.getNamespace(), folder + split[1]));
+                    case "map_Ke" -> material.setEmissiveTex(new Resource(res.getNamespace(), folder + split[1]));
                     case "map_d" -> material.setAlphaTex(new Resource(res.getNamespace(), folder + split[1]));
                     case "map_bump", "bump" -> material.setBumpTex(new Resource(res.getNamespace(), folder + split[1]));
                     case "disp" -> material.setDisplacementTex(new Resource(res.getNamespace(), folder + split[1]));

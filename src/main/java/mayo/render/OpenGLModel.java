@@ -5,9 +5,11 @@ import mayo.model.obj.Group;
 import mayo.model.obj.Material;
 import mayo.model.obj.Mesh;
 import mayo.render.shader.Attributes;
+import mayo.render.shader.Shader;
 import mayo.utils.AABB;
 import mayo.utils.Maths;
 import mayo.utils.Pair;
+import mayo.utils.Resource;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
@@ -275,20 +277,43 @@ public class OpenGLModel extends Model {
             glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
             //unbind texture
-            glBindTexture(GL_TEXTURE_2D, 0);
+            for (int i = 0; i < MaterialData.TEX_COUNT; i++) {
+                glActiveTexture(GL_TEXTURE0 + i);
+                glBindTexture(GL_TEXTURE_2D, 0);
+            }
         }
     }
 
     private record MaterialData(Material material) {
+        public static final int TEX_COUNT = 3;
+
         public boolean use() {
             if (material == null)
                 return false;
 
-            Texture diffuseTex = Texture.of(material.getDiffuseTex());
-            if (diffuseTex != null)
-                diffuseTex.bind();
+            Shader s = Shader.activeShader;
+
+            s.setVec3("material.ambient", material.getAmbientColor());
+            s.setVec3("material.diffuse", material.getDiffuseColor());
+            s.setVec3("material.specular", material.getSpecularColor());
+            s.setFloat("material.shininess", material.getSpecularExponent());
+
+            bindTex(s, material.getDiffuseTex(), 0, "material.diffuseTex");
+            bindTex(s, material.getSpColorTex(), 1, "material.specularTex");
+            bindTex(s, material.getEmissiveTex(), 2, "material.emissiveTex");
 
             return true;
+        }
+
+        private static void bindTex(Shader s, Resource res, int index, String name) {
+            if (res != null) {
+                Texture tex = Texture.of(res);
+                if (tex != null) {
+                    s.setInt(name, index);
+                    glActiveTexture(GL_TEXTURE0 + index);
+                    tex.bind();
+                }
+            }
         }
     }
 }

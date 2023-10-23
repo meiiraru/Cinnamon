@@ -170,6 +170,12 @@ public abstract class Batch { //vertex consumer
         public MainBatch() {
             super(Shaders.MAIN, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.NORMAL);
         }
+
+        @Override
+        protected void preRender() {
+            super.preRender();
+            Client.getInstance().world.applyWorldUniforms(this.shader);
+        }
     }
 
     public static class LinesBatch extends Batch {

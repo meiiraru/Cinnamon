@@ -1,0 +1,6 @@
+# Made in Blockbench 4.8.3
+newmtl m_a589b805-2860-ca30-467e-d5b8033178f1
+map_Kd kd.png
+map_Ks ks.png
+Ns 128
+newmtl none
