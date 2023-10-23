@@ -38,9 +38,13 @@ public abstract class SpriteParticle extends Particle {
         for (Vertex vertex : vertices)
             vertex.color(getColor());
 
-        VertexConsumer.MAIN.consume(vertices, texture.getID());
+        vertexConsumer().consume(vertices, texture.getID());
 
         matrices.pop();
+    }
+
+    protected VertexConsumer vertexConsumer() {
+        return VertexConsumer.MAIN;
     }
 
     public int getCurrentFrame() {
