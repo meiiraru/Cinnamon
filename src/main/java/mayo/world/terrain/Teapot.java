@@ -16,7 +16,7 @@ public class Teapot extends Terrain {
         super.tick();
 
         if (Client.getInstance().ticks % 3 == 0) {
-            ElectroParticle e = new ElectroParticle(5, 0xFFCCFFFF);
+            ElectroParticle e = new ElectroParticle(world, 5, 0xFFCCFFFF);
             e.setPos(getAABB().getRandomPoint());
             getWorld().addParticle(e);
         }

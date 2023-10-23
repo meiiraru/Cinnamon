@@ -16,9 +16,7 @@ import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
@@ -95,10 +93,6 @@ public class OpenGLModel extends Model {
             //create a new group - the group contains the OpenGL attributes
             GroupData groupData = new GroupData(group, sortedVertices.size(), capacity, groupMin, groupMax);
             this.groups.add(groupData);
-
-            //smooth normals
-            if (group.isSmooth())
-                VertexData.smoothNormals(sortedVertices);
 
             //different buffer per group
             FloatBuffer buffer = BufferUtils.createFloatBuffer(capacity);
@@ -208,28 +202,6 @@ public class OpenGLModel extends Model {
             }
 
             return true;
-        }
-
-        private static void smoothNormals(List<VertexData> data) {
-            //separate vertices
-            Map<Vector3f, List<VertexData>> verticesByPos = new HashMap<>();
-            for (VertexData vertex : data) {
-                List<VertexData> list = verticesByPos.computeIfAbsent(vertex.pos, str -> new ArrayList<>());
-                list.add(vertex);
-            }
-
-            //for all separated vertices
-            for (List<VertexData> vertices : verticesByPos.values()) {
-                //sum their normals
-                Vector3f sum = new Vector3f();
-                for (VertexData vertex : vertices)
-                    sum.add(vertex.norm);
-                //normalize the normal
-                sum.normalize();
-                //apply new normal
-                for (VertexData vertex : vertices)
-                    vertex.norm.set(sum);
-            }
         }
     }
 

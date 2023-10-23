@@ -70,14 +70,6 @@ public class Inventory {
         return selected;
     }
 
-    public void selectNext() {
-        setSelectedIndex(this.selected + 1);
-    }
-
-    public void selectPrev() {
-        setSelectedIndex(this.selected - 1);
-    }
-
     public int getSize() {
         return size;
     }

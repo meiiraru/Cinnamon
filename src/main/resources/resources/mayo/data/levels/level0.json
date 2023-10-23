@@ -7,7 +7,8 @@
     "T": "TORII_GATE",
     "#": "FENCE",
     "!": "TREE",
-    "B": "BOX"
+    "B": "BOX",
+    "S": "SPHERE"
   },
   "chunkData": [
     {
@@ -213,7 +214,8 @@
       "mapData": [
         {"x": 0, "y": 0, "z": 0, "tile": "_"},
         {"x": 0, "y": 0, "z": 0, "tile": "L"},
-        {"x": 3, "y": 0, "z": 0, "tile": "B"}
+        {"x": 3, "y": 0, "z": 0, "tile": "B"},
+        {"x": 6, "y": 0, "z": 0, "tile": "S"}
       ]
     },
     {

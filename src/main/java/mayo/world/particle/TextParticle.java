@@ -6,6 +6,7 @@ import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
 import mayo.utils.TextUtils;
+import mayo.world.World;
 import org.joml.Vector3f;
 
 public class TextParticle extends Particle {
@@ -15,8 +16,8 @@ public class TextParticle extends Particle {
     private final Text text;
     private final Font font;
 
-    public TextParticle(Text text, int lifetime, Vector3f position) {
-        super(lifetime);
+    public TextParticle(World world, Text text, int lifetime, Vector3f position) {
+        super(world, lifetime);
 
         this.text = text;
         this.font = Client.getInstance().font;
@@ -31,6 +32,7 @@ public class TextParticle extends Particle {
         font.render(VertexConsumer.FONT, matrices, 0, 0, text, TextUtils.Alignment.CENTER);
     }
 
+    @Override
     public boolean shouldRender() {
         Vector3f cam = Client.getInstance().camera.getPos();
         return cam.distanceSquared(getPos()) <= 256;

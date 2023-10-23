@@ -315,7 +315,7 @@ public class World {
     }
 
     public void mousePress(int button, int action, int mods) {
-        boolean press = action == GLFW_PRESS;
+        boolean press = action != GLFW_RELEASE;
 
         switch (button) {
             case GLFW_MOUSE_BUTTON_1 -> {
@@ -346,11 +346,7 @@ public class World {
     }
 
     public void scroll(double x, double y) {
-        double dir = Math.signum(y);
-        if (dir > 0)
-            player.getInventory().selectPrev();
-        else if (dir < 0)
-            player.getInventory().selectNext();
+        player.setSelectedItem(player.getInventory().getSelectedIndex() - (int) Math.signum(y));
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
@@ -363,7 +359,7 @@ public class World {
             return;
 
         if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9)
-            player.getInventory().setSelectedIndex(key - GLFW_KEY_1);
+            player.setSelectedItem(key - GLFW_KEY_1);
 
         switch (key) {
             case GLFW_KEY_R -> {
@@ -486,7 +482,7 @@ public class World {
 
         //particles
         for (int i = 0; i < 30 * range; i++) {
-            ExplosionParticle particle = new ExplosionParticle((int) (Math.random() * 10) + 15);
+            ExplosionParticle particle = new ExplosionParticle(this, (int) (Math.random() * 10) + 15);
             particle.setPos(explosionBB.getRandomPoint());
             particle.setScale(5f);
             addParticle(particle);

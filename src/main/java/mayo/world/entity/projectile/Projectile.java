@@ -97,7 +97,7 @@ public abstract class Projectile extends PhysEntity {
 
     public static void confetti(World world, Vector3f pos) {
         for (int i = 0; i < 20; i++) {
-            DustParticle particle = new DustParticle((int) (Math.random() * 40) + 20, Colors.randomRainbow().rgba);
+            DustParticle particle = new DustParticle(world, (int) (Math.random() * 40) + 20, Colors.randomRainbow().rgba);
             particle.setPos(pos);
             particle.setMotion(Maths.rotToDir((float) Math.random() * 360, (float) Math.random() * 360).mul((float) Math.random() * 0.075f + 0.075f));
             particle.setScale(1.5f);

@@ -5,6 +5,7 @@ import mayo.render.Texture;
 import mayo.utils.Maths;
 import mayo.utils.PerlinNoise;
 import mayo.utils.Resource;
+import mayo.world.World;
 
 public class LightParticle extends SpriteParticle {
 
@@ -14,8 +15,8 @@ public class LightParticle extends SpriteParticle {
     private final int seed;
     private float speed = 1f;
 
-    public LightParticle(int lifetime, int color) {
-        super(TEXTURE, lifetime, color);
+    public LightParticle(World world, int lifetime, int color) {
+        super(TEXTURE, world, lifetime, color);
         this.seed = Client.getInstance().ticks;
     }
 

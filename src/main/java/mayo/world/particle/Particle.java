@@ -3,21 +3,23 @@ package mayo.world.particle;
 import mayo.Client;
 import mayo.render.MatrixStack;
 import mayo.utils.Maths;
+import mayo.world.World;
+import mayo.world.WorldObject;
 import org.joml.Vector3f;
 
-public abstract class Particle {
+public abstract class Particle extends WorldObject {
 
     protected static final float PARTICLE_SCALING = 1 / 48f;
 
     private final Vector3f
             oPos = new Vector3f(),
-            pos = new Vector3f(),
             motion = new Vector3f();
     private final int lifetime;
     private int age;
     private boolean removed = false;
 
-    public Particle(int lifetime) {
+    public Particle(World world, int lifetime) {
+        super(world);
         this.lifetime = lifetime;
     }
 
@@ -60,16 +62,10 @@ public abstract class Particle {
         return Maths.lerp(oPos, pos, delta);
     }
 
-    public Vector3f getPos() {
-        return pos;
-    }
-
-    public void setPos(Vector3f pos) {
-        this.setPos(pos.x, pos.y, pos.z);
-    }
-
+    @Override
     public void setPos(float x, float y, float z) {
-        this.oPos.set(this.pos.set(x, y, z));
+        super.setPos(x, y, z);
+        this.oPos.set(x, y, z);
     }
 
     public void move(Vector3f vec) {

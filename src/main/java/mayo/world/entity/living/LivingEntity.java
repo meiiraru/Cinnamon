@@ -189,7 +189,7 @@ public abstract class LivingEntity extends PhysEntity {
 
     protected void spawnDeathParticles() {
         for (int i = 0; i < 20; i++) {
-            SmokeParticle particle = new SmokeParticle((int) (Math.random() * 15) + 10, -1);
+            SmokeParticle particle = new SmokeParticle(world, (int) (Math.random() * 15) + 10, -1);
             particle.setPos(aabb.getRandomPoint());
             world.addParticle(particle);
         }
@@ -219,7 +219,7 @@ public abstract class LivingEntity extends PhysEntity {
             text += " \u2728";
 
         //spawn particle
-        world.addParticle(new TextParticle(Text.of(text).withStyle(Style.EMPTY.color(color).outlined(true)), 20, aabb.getRandomPoint()));
+        world.addParticle(new TextParticle(world, Text.of(text).withStyle(Style.EMPTY.color(color).outlined(true)), 20, aabb.getRandomPoint()));
     }
 
     public void attack() {
@@ -231,8 +231,9 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     public void stopAttacking() {
-        if (getHoldingItem() != null)
-            getHoldingItem().stopAttacking();
+        Item i = getHoldingItem();
+        if (i != null && i.isAttacking())
+            i.stopAttacking();
     }
 
     public void use() {
@@ -245,8 +246,9 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     public void stopUsing() {
-        if (getHoldingItem() != null)
-            getHoldingItem().stopUsing();
+        Item i = getHoldingItem();
+        if (i != null && i.isUsing())
+            i.stopUsing();
     }
 
     public boolean giveItem(Item item) {
@@ -268,6 +270,12 @@ public abstract class LivingEntity extends PhysEntity {
 
     public Inventory getInventory() {
         return inventory;
+    }
+
+    public void setSelectedItem(int index) {
+        stopAttacking();
+        stopUsing();
+        inventory.setSelectedIndex(index);
     }
 
     public Item getHoldingItem() {

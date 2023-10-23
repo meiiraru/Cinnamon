@@ -47,7 +47,8 @@ public class ModelRegistry {
         TORII_GATE(ToriiGate::new),
         FENCE(Fence::new),
         TREE(Tree::new),
-        BOX(Box::new);
+        BOX(Box::new),
+        SPHERE(Sphere::new);
 
         private static final String MODELS_PATH = "models/terrain/";
 
