@@ -13,6 +13,7 @@ import mayo.render.shader.Shaders;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.*;
+import mayo.world.collisions.Hit;
 import mayo.world.effects.Effect;
 import mayo.world.entity.living.Inventory;
 import mayo.world.entity.living.Player;
@@ -341,6 +342,11 @@ public class Hud {
             default -> "unknown";
         };
 
+        Player p = c.world.player;
+        float range = p.getPickRange();
+        String entity = getTargetedObjString(p.getLookingEntity(range), range);
+        String terrain = getTargetedObjString(p.getLookingTerrain(range), range);
+
         return String.format("""
                         [world]
                         %s entities %s terrain
@@ -357,6 +363,12 @@ public class Hud {
                         pitch %.3f yaw %.3f
                         facing %s
                         mode %s
+
+                        [targeted entity]
+                        %s
+
+                        [targeted terrain]
+                        %s
                         """,
                 w.entityCount(), w.terrainCount(),
                 w.particleCount(), soundCount,
@@ -369,7 +381,10 @@ public class Hud {
                 cpos.x, cpos.y, cpos.z,
                 crot.x, crot.y,
                 face,
-                camera
+                camera,
+
+                entity,
+                terrain
         );
     }
 
@@ -405,6 +420,27 @@ public class Hud {
 
                 w.width, w.height,
                 w.guiScale
+        );
+    }
+
+    private static String getTargetedObjString(Hit<? extends WorldObject> hit, float range) {
+        if (hit == null)
+            return "---";
+
+        Vector3f pos = hit.obj().getPos();
+        Vector3f hPos = hit.pos();
+        Vector3f normal = hit.collision().normal();
+        float distance = range * hit.collision().near();
+        return String.format("""
+                pos %.3f %.3f %.3f
+                hit pos %.3f %.3f %.3f
+                hit normal %.3f %.3f %.3f
+                hit distance %.3fm
+                """,
+                pos.x, pos.y, pos.z,
+                hPos.x, hPos.y, hPos.z,
+                normal.x, normal.y, normal.z,
+                distance
         );
     }
 }

@@ -262,7 +262,7 @@ public class World {
                 GeometryHelper.pushCube(VertexConsumer.LINES, matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00);
 
             Vector3f pos = terrain.pos();
-            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF);
+            GeometryHelper.pushCube(VertexConsumer.MAIN_FLAT, matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF);
         }
 
         Hit<Entity> entity = player.getLookingEntity(r);
@@ -271,7 +271,7 @@ public class World {
             GeometryHelper.pushCube(VertexConsumer.LINES, matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00);
 
             Vector3f pos = entity.pos();
-            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF);
+            GeometryHelper.pushCube(VertexConsumer.MAIN_FLAT, matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF);
         }
     }
 

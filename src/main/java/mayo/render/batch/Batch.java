@@ -166,6 +166,12 @@ public abstract class Batch { //vertex consumer
         }
     }
 
+    public static class MainFlatBatch extends Batch {
+        public MainFlatBatch() {
+            super(Shaders.MAIN_FLAT, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA);
+        }
+    }
+
     public static class MainBatch extends Batch {
         public MainBatch() {
             super(Shaders.MAIN, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.NORMAL);

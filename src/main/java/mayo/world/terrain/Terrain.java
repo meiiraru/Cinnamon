@@ -8,16 +8,15 @@ import mayo.render.shader.Shader;
 import mayo.utils.AABB;
 import mayo.utils.Rotation;
 import mayo.world.World;
+import mayo.world.WorldObject;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Terrain {
+public abstract class Terrain extends WorldObject {
 
     protected final Model model;
-    private final World world;
-    private final Vector3f pos = new Vector3f();
 
     private AABB aabb; //the entire model's AABB
     private final List<AABB> groupsAABB = new ArrayList<>(); //group's AABB
@@ -25,8 +24,8 @@ public abstract class Terrain {
     private int rotation = 0;
 
     public Terrain(Model model, World world) {
+        super(world);
         this.model = model;
-        this.world = world;
         this.updateAABB();
     }
 
@@ -70,17 +69,10 @@ public abstract class Terrain {
             groupsAABB.add(group.rotateY(r).translate(pos));
     }
 
-    public void setPos(Vector3f pos) {
-        this.setPos(pos.x, pos.y, pos.z);
-    }
-
+    @Override
     public void setPos(float x, float y, float z) {
-        this.pos.set(x, y, z);
+        super.setPos(x, y, z);
         this.updateAABB();
-    }
-
-    public Vector3f getPos() {
-        return pos;
     }
 
     public World getWorld() {

@@ -11,19 +11,18 @@ import mayo.utils.Maths;
 import mayo.utils.Rotation;
 import mayo.world.DamageType;
 import mayo.world.World;
+import mayo.world.WorldObject;
 import mayo.world.collisions.Hit;
 import mayo.world.entity.living.LivingEntity;
 import mayo.world.terrain.Terrain;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-public abstract class Entity {
+public abstract class Entity extends WorldObject {
 
     protected final Model model;
-    protected final World world;
     protected final Vector3f
-            oPos = new Vector3f(),
-            pos = new Vector3f();
+            oPos = new Vector3f();
     protected final Vector2f
             oRot = new Vector2f(),
             rot = new Vector2f();
@@ -33,8 +32,8 @@ public abstract class Entity {
     private boolean removed;
 
     public Entity(Model model, World world) {
+        super(world);
         this.model = model;
-        this.world = world;
         this.updateAABB();
     }
 
@@ -192,16 +191,9 @@ public abstract class Entity {
         return Maths.lerp(oPos, pos, delta);
     }
 
-    public Vector3f getPos() {
-        return pos;
-    }
-
-    public void setPos(Vector3f pos) {
-        this.setPos(pos.x, pos.y, pos.z);
-    }
-
     public void setPos(float x, float y, float z) {
-        this.oPos.set(this.pos.set(x, y, z));
+        super.setPos(x, y, z);
+        this.oPos.set(x, y, z);
         this.updateAABB();
     }
 

@@ -11,6 +11,7 @@ public enum VertexConsumer {
     FONT(FontBatch::new),
     FONT_FLAT(FontFlatBatch::new),
     MAIN(MainBatch::new),
+    MAIN_FLAT(MainFlatBatch::new),
     LINES(LinesBatch::new);
 
     private final BatchRenderer<Batch> renderer;

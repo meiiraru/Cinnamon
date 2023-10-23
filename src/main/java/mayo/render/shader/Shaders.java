@@ -9,6 +9,7 @@ public enum Shaders {
     MODEL,
     MODEL_FLAT,
     MAIN,
+    MAIN_FLAT,
     LINES;
 
     private final Shader shader;
