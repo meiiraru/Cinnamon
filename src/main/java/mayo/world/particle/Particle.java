@@ -17,6 +17,7 @@ public abstract class Particle extends WorldObject {
     private final int lifetime;
     private int age;
     private boolean removed = false;
+    private boolean emissive;
 
     public Particle(World world, int lifetime) {
         super(world);
@@ -102,5 +103,13 @@ public abstract class Particle extends WorldObject {
 
     public void remove() {
         this.removed = true;
+    }
+
+    public void setEmissive(boolean emissive) {
+        this.emissive = emissive;
+    }
+
+    public boolean isEmissive() {
+        return emissive;
     }
 }

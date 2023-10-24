@@ -17,6 +17,7 @@ public class LightParticle extends SpriteParticle {
 
     public LightParticle(World world, int lifetime, int color) {
         super(TEXTURE, world, lifetime, color);
+        this.setEmissive(true);
         this.seed = Client.getInstance().ticks;
     }
 

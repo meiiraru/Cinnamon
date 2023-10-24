@@ -102,8 +102,9 @@ public class MagicWand extends Item {
             //delta
             float d = i / len;
             //spawn particle
-            SquareParticle particle = new SquareParticle(world, LIFETIME, color, true);
+            SquareParticle particle = new SquareParticle(world, LIFETIME, color);
             particle.setPos(Maths.lerp(a, b, d));
+            particle.setEmissive(true);
             world.addParticle(particle);
         }
     }

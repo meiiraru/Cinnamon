@@ -1,7 +1,6 @@
 package mayo.world.particle;
 
 import mayo.render.Texture;
-import mayo.render.batch.VertexConsumer;
 import mayo.utils.Resource;
 import mayo.world.World;
 import org.joml.Vector3f;
@@ -13,11 +12,7 @@ public class ExplosionParticle extends SpriteParticle {
 
     public ExplosionParticle(World world, int lifetime) {
         super(TEXTURE, world, lifetime, -1);
+        setEmissive(true);
         setMotion(DEFAULT_MOTION);
-    }
-
-    @Override
-    protected VertexConsumer vertexConsumer() {
-        return VertexConsumer.MAIN_FLAT;
     }
 }
