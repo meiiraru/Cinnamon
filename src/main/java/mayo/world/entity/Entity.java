@@ -85,6 +85,9 @@ public abstract class Entity extends WorldObject {
     protected void renderTexts(MatrixStack matrices, float delta) {}
 
     public boolean shouldRenderText() {
+        if (world.hideHUD())
+            return false;
+
         Vector3f cam = Client.getInstance().camera.getPos();
         return cam.distanceSquared(pos) <= 256;
     }

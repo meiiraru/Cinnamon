@@ -38,8 +38,8 @@ struct Material {
 
 struct Light {
     vec3 pos;
-    vec3 diffuse;
-    vec3 specular;
+    vec3 color;
+    float range;
 };
 
 in vec2 texCoords;
@@ -57,16 +57,22 @@ uniform vec3 ambient;
 uniform int lightCount;
 uniform Light lights[4];
 
+float calculateAttenuation(float range, float distance) {
+    float linear = 4.5f / range;
+    float quadratic = 75 / (range * range);
+    return 1 / (1 + linear * distance + quadratic * (distance * distance));
+}
+
 vec3 calculateDiffuse(Light light, vec3 normal, float attenuation, vec3 lightDir) {
     //minimum of 0 otherwise it will override the ambient lgiht
     float diff = max(dot(normal, lightDir), 0);
-    return attenuation * light.diffuse * material.diffuse * diff;
+    return attenuation * light.color * material.diffuse * diff;
 }
 
 vec3 calculateSpecular(Light light, vec3 normal, vec3 viewDir, float attenuation, vec3 lightDir) {
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0), material.shininess);
-    return attenuation * light.specular * material.specular * spec;
+    return attenuation * light.color * material.specular * spec;
 }
 
 vec4 applyLighting(vec4 diffTex) {
@@ -86,9 +92,11 @@ vec4 applyLighting(vec4 diffTex) {
         Light l = lights[i];
 
         vec3 diffDist = l.pos - pos;
-        float attenuation = 1 / length(diffDist);
-        vec3 lightDir = normalize(diffDist);
+        float attenuation = calculateAttenuation(l.range, length(diffDist));
+        if (attenuation <= 0.01f)
+            continue;
 
+        vec3 lightDir = normalize(diffDist);
         diffuse += calculateDiffuse(l, norm, attenuation, lightDir);
         specular += calculateSpecular(l, norm, viewDir, attenuation, lightDir);
     }

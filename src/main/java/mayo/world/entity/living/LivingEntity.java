@@ -219,7 +219,9 @@ public abstract class LivingEntity extends PhysEntity {
             text += " \u2728";
 
         //spawn particle
-        world.addParticle(new TextParticle(world, Text.of(text).withStyle(Style.EMPTY.color(color).outlined(true)), 20, aabb.getRandomPoint()));
+        TextParticle p = new TextParticle(world, Text.of(text).withStyle(Style.EMPTY.color(color).outlined(true)), 20, aabb.getRandomPoint());
+        p.setEmissive(true);
+        world.addParticle(p);
     }
 
     public void attack() {

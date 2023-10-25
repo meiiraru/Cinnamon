@@ -29,11 +29,14 @@ public class TextParticle extends Particle {
     @Override
     protected void renderParticle(MatrixStack matrices, float delta) {
         matrices.peek().pos().scale(-PARTICLE_SCALING);
-        font.render(VertexConsumer.FONT, matrices, 0, 0, text, TextUtils.Alignment.CENTER);
+        font.render(isEmissive() ? VertexConsumer.FONT_FLAT : VertexConsumer.FONT, matrices, 0, 0, text, TextUtils.Alignment.CENTER);
     }
 
     @Override
     public boolean shouldRender() {
+        if (world.hideHUD())
+            return false;
+
         Vector3f cam = Client.getInstance().camera.getPos();
         return cam.distanceSquared(getPos()) <= 256;
     }

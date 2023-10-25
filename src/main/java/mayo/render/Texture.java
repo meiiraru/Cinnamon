@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 
 public class Texture {
 
@@ -117,6 +119,11 @@ public class Texture {
 
         //return a new texture
         return cacheTexture(res, new Texture(id, 1, 1));
+    }
+
+    public static void unbindTex(int index) {
+        glActiveTexture(GL_TEXTURE0 + index);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     public static void freeAll() {

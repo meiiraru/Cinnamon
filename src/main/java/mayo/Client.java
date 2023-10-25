@@ -83,7 +83,7 @@ public class Client {
                 if (!world.isThirdPerson()) {
                     glClear(GL_DEPTH_BUFFER_BIT); //top of world
                     world.renderHand(matrices, delta);
-                    VertexConsumer.finishAllBatches(camera.getPerspectiveMatrix(), new Matrix4f());
+                    VertexConsumer.finishAllBatches(camera.getPerspectiveMatrix(), camera.getViewMatrix());
                 }
 
                 //render hud

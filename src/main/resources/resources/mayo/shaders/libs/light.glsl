@@ -1,12 +1,19 @@
 
 struct Light {
     vec3 pos;
-    vec3 diffuse;
+    vec3 color;
+    float range;
 };
 
 uniform vec3 ambient;
 uniform int lightCount;
 uniform Light lights[4];
+
+float calculateAttenuation(float range, float distance) {
+    float linear = 4.5f / range;
+    float quadratic = 75 / (range * range);
+    return 1 / (1 + linear * distance + quadratic * (distance * distance));
+}
 
 vec4 calculateLight(vec3 pos, vec3 normal) {
     vec3 norm = normalize(normal);
@@ -16,12 +23,13 @@ vec4 calculateLight(vec3 pos, vec3 normal) {
         Light l = lights[i];
 
         vec3 diffDist = l.pos - pos;
-        float attenuation = 1 / length(diffDist);
-        vec3 lightDir = normalize(diffDist);
+        float attenuation = calculateAttenuation(l.range, length(diffDist));
+        if (attenuation <= 0.01f)
+            continue;
 
         // diffuse
-        float diff = max(dot(norm, lightDir), 0);
-        diffuse += attenuation * l.diffuse * diff;
+        float diff = max(dot(norm, normalize(diffDist)), 0);
+        diffuse += attenuation * l.color * diff;
     }
 
     //return the light

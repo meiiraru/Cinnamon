@@ -249,10 +249,8 @@ public class OpenGLModel extends Model {
             glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
             //unbind texture
-            for (int i = 0; i < MaterialData.TEX_COUNT; i++) {
-                glActiveTexture(GL_TEXTURE0 + i);
-                glBindTexture(GL_TEXTURE_2D, 0);
-            }
+            for (int i = 0; i < MaterialData.TEX_COUNT; i++)
+                Texture.unbindTex(i);
         }
     }
 
@@ -278,14 +276,20 @@ public class OpenGLModel extends Model {
         }
 
         private static void bindTex(Shader s, Resource res, int index, String name) {
-            if (res != null) {
-                Texture tex = Texture.of(res);
-                if (tex != null) {
-                    s.setInt(name, index);
-                    glActiveTexture(GL_TEXTURE0 + index);
-                    tex.bind();
-                }
+            if (res == null) {
+                Texture.unbindTex(index);
+                return;
             }
+
+            Texture tex = Texture.of(res);
+            if (tex == null) {
+                Texture.unbindTex(index);
+                return;
+            }
+
+            s.setInt(name, index);
+            glActiveTexture(GL_TEXTURE0 + index);
+            tex.bind();
         }
     }
 }

@@ -16,7 +16,6 @@ import mayo.sound.SoundSource;
 import mayo.text.Text;
 import mayo.utils.AABB;
 import mayo.utils.Resource;
-import mayo.utils.Rotation;
 import mayo.world.chunk.Chunk;
 import mayo.world.collisions.CollisionDetector;
 import mayo.world.collisions.CollisionResult;
@@ -37,7 +36,6 @@ import mayo.world.items.weapons.Weapon;
 import mayo.world.particle.ExplosionParticle;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.Terrain;
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -56,6 +54,7 @@ public class World {
     private final List<Terrain> terrain = new ArrayList<>();
     private final List<Entity> entities = new ArrayList<>();
     private final List<Particle> particles = new ArrayList<>();
+    private final List<Light> lights = new ArrayList<>();
 
     private final SkyBox skyBox = new SkyBox();
 
@@ -72,9 +71,6 @@ public class World {
     public final float gravity = 0.98f * updateTime;
 
     public final float renderDistance = 3;
-
-    //temp
-    private final Vector3f lightPos = new Vector3f(0f, 3f, 5f);
     private int timeOfTheDay = 0;
 
     public void init() {
@@ -96,6 +92,9 @@ public class World {
         LevelLoad.load(this, new Resource("data/levels/level0.json"));
 
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
+        addLight(new Light().pos(0f, 3f, 5f));
+        addLight(new Light().pos(3f, 3f, 5f));
+        addLight(new Light().pos(6f, 3f, 5f));
     }
 
     public void exit() {
@@ -221,19 +220,25 @@ public class World {
         if (item == null)
             return;
 
-        //set shader
-        Shaders.MODEL_FLAT.getShader().use().setup(
-            Client.getInstance().camera.getPerspectiveMatrix(),
-            new Matrix4f()
-        );
+        Client c = Client.getInstance();
 
-        //render model
+        //set world shader
+        Shader s = Shaders.MODEL.getShader().use();
+        s.setup(c.camera.getPerspectiveMatrix(), c.camera.getViewMatrix());
+
+        //apply lighting
+        applyWorldUniforms(s);
+
         matrices.push();
 
-        matrices.scale(-1, 1, -1);
-        matrices.translate(-0.75f, -0.5f, 1f);
-        matrices.rotate(Rotation.Y.rotationDeg(170));
+        //camera transforms
+        matrices.translate(c.camera.getPos());
+        matrices.rotate(c.camera.getRotation());
 
+        //screen transform
+        matrices.translate(0.75f, -0.5f, -1);
+
+        //render item
         item.render(ItemRenderContext.FIRST_PERSON, matrices, delta);
 
         matrices.pop();
@@ -276,21 +281,20 @@ public class World {
     }
 
     public void applyWorldUniforms(Shader s) {
+        //camera
         s.setVec3("camPos", Client.getInstance().camera.getPos());
 
+        //fog
         s.setFloat("fogStart", Chunk.getFogStart(this));
         s.setFloat("fogEnd", Chunk.getFogEnd(this));
         s.setColor("fogColor", Chunk.fogColor);
 
-        s.setColor("ambient", Chunk.ambientLight);
+        //lighting
+        s.setColor("ambient", 0x202020);//Chunk.ambientLight);
 
-        int lightCount = 3;
-        s.setInt("lightCount", lightCount);
-
-        for (int i = 0; i < lightCount; i++) {
-            s.setVec3("lights[" + i + "].pos", lightPos.x + 5 * i, lightPos.y, lightPos.z);
-            s.setColor("lights[" + i + "].diffuse", -1);
-            s.setColor("lights[" + i + "].specular", -1);
+        s.setInt("lightCount", lights.size());
+        for (int i = 0; i < lights.size(); i++) {
+            lights.get(i).pushToShader(s, i);
         }
     }
 
@@ -308,6 +312,10 @@ public class World {
     public void addParticle(Particle particle) {
         if (particle.shouldRender())
             scheduledTicks.add(() -> this.particles.add(particle));
+    }
+
+    public void addLight(Light light) {
+        scheduledTicks.add(() -> this.lights.add(light));
     }
 
     public SoundSource playSound(Resource sound, SoundCategory category, Vector3f position) {
@@ -369,7 +377,14 @@ public class World {
             }
             case GLFW_KEY_ESCAPE -> Client.getInstance().setScreen(new PauseScreen());
             case GLFW_KEY_F1 -> this.hideHUD = !this.hideHUD;
-            case GLFW_KEY_F2 -> this.lightPos.set(player.getEyePos());
+            //-- temp
+            case GLFW_KEY_F2 -> {
+                for (int i = 0; i < lights.size(); i++) {
+                    Vector3f pos = player.getEyePos();
+                    lights.get(i).pos(pos.x + 3 * i, pos.y, pos.z);
+                }
+            }
+            //-- temp
             case GLFW_KEY_F3 -> this.debugRendering = !this.debugRendering;
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
             case GLFW_KEY_F7 -> this.timeOfTheDay += 100;
