@@ -60,7 +60,7 @@ public abstract class PhysEntity extends Entity {
     protected Vector3f tickCollisions() {
         //early exit
         if (motion.lengthSquared() < 0.001f)
-            return motion.mul(0);
+            return motion.mul(0, new Vector3f());
 
         //prepare variables
         Vector3f pos = aabb.getCenter();

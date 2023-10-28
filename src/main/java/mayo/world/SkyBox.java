@@ -7,6 +7,8 @@ import mayo.render.Model;
 import mayo.render.shader.Shader;
 import mayo.utils.Resource;
 
+import static org.lwjgl.opengl.GL11.glDepthMask;
+
 public class SkyBox {
 
     private static final Model MODEL = ModelManager.load(new Resource("models/skybox/skybox.obj"));
@@ -15,12 +17,14 @@ public class SkyBox {
         matrices.push();
         matrices.translate(camera.getPos());
 
-        matrices.scale((float) (Camera.FAR_PLANE / 2f / Math.sqrt(2)));
+        //disable depth
+        glDepthMask(false);
 
         //render model
         Shader.activeShader.applyMatrixStack(matrices);
         MODEL.render();
 
+        glDepthMask(true);
         matrices.pop();
     }
 }

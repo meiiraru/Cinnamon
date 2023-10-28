@@ -39,7 +39,7 @@ struct Material {
 struct Light {
     vec3 pos;
     vec3 color;
-    float range;
+    vec3 attenuation;
 };
 
 in vec2 texCoords;
@@ -55,12 +55,10 @@ uniform Material material;
 
 uniform vec3 ambient;
 uniform int lightCount;
-uniform Light lights[4];
+uniform Light lights[16];
 
-float calculateAttenuation(float range, float distance) {
-    float linear = 4.5f / range;
-    float quadratic = 75 / (range * range);
-    return 1 / (1 + linear * distance + quadratic * (distance * distance));
+float calculateAttenuation(vec3 attenuation, float distance) {
+    return 1 / (attenuation.x + attenuation.y * distance + attenuation.z * (distance * distance));
 }
 
 vec3 calculateDiffuse(Light light, vec3 normal, float attenuation, vec3 lightDir) {
@@ -70,8 +68,9 @@ vec3 calculateDiffuse(Light light, vec3 normal, float attenuation, vec3 lightDir
 }
 
 vec3 calculateSpecular(Light light, vec3 normal, vec3 viewDir, float attenuation, vec3 lightDir) {
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0), material.shininess);
+    //blinn-phong
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfwayDir), 0), material.shininess);
     return attenuation * light.color * material.specular * spec;
 }
 
@@ -88,11 +87,11 @@ vec4 applyLighting(vec4 diffTex) {
     vec3 diffuse = vec3(0);
     vec3 specular = vec3(0);
 
-    for (int i = 0; i < lightCount; i++) {
+    for (int i = 0; i < min(lightCount, 16); i++) {
         Light l = lights[i];
 
         vec3 diffDist = l.pos - pos;
-        float attenuation = calculateAttenuation(l.range, length(diffDist));
+        float attenuation = calculateAttenuation(l.attenuation, length(diffDist));
         if (attenuation <= 0.01f)
             continue;
 

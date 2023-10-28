@@ -5,14 +5,16 @@ import org.joml.Vector3f;
 
 public class Light {
 
-    private final Vector3f pos = new Vector3f();
-    private float brightness = 32f;
+    private final Vector3f
+            pos = new Vector3f(),
+            attenuation = new Vector3f(1f, 4.5f / 16f, 75 / (16f * 16f));
+    private float brightness = 16f;
     private int color = -1;
 
     public void pushToShader(Shader shader, int index) {
         shader.setVec3("lights[" + index + "].pos", pos);
         shader.setColor("lights[" + index + "].color", color);
-        shader.setFloat("lights[" + index + "].range", brightness);
+        shader.setVec3("lights[" + index + "].attenuation", attenuation);
     }
 
     public Vector3f getPos() {
@@ -34,6 +36,11 @@ public class Light {
 
     public Light brightness(float brightness) {
         this.brightness = brightness;
+        this.attenuation.set(
+                1f, //constant
+                4.5f / brightness, //linear
+                75 / (brightness * brightness) //quadratic
+        );
         return this;
     }
 

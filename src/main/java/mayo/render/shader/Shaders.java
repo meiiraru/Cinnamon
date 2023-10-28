@@ -15,7 +15,7 @@ public enum Shaders {
     private final Shader shader;
 
     Shaders() {
-        this.shader = new Shader(new Resource("shaders/" + this.name().toLowerCase() + ".glsl"));
+        this.shader = new Shader(new Resource("shaders/core/" + this.name().toLowerCase() + ".glsl"));
     }
 
     public Shader getShader() {

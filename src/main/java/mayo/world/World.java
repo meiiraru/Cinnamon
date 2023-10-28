@@ -92,9 +92,15 @@ public class World {
         LevelLoad.load(this, new Resource("data/levels/level0.json"));
 
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
-        addLight(new Light().pos(0f, 3f, 5f));
-        addLight(new Light().pos(3f, 3f, 5f));
-        addLight(new Light().pos(6f, 3f, 5f));
+        //rip for loop
+        addLight(new Light().pos(0.5f, 0.5f, 2f).color(0x000000));
+        addLight(new Light().pos(1.5f, 0.5f, 2f).color(0xFF0000));
+        addLight(new Light().pos(2.5f, 0.5f, 2f).color(0x00FF00));
+        addLight(new Light().pos(3.5f, 0.5f, 2f).color(0x0000FF));
+        addLight(new Light().pos(4.5f, 0.5f, 2f).color(0x00FFFF));
+        addLight(new Light().pos(5.5f, 0.5f, 2f).color(0xFF00FF));
+        addLight(new Light().pos(6.5f, 0.5f, 2f).color(0xFFFF00));
+        addLight(new Light().pos(7.5f, 0.5f, 2f).color(0xFFFFFF));
     }
 
     public void exit() {
@@ -254,6 +260,12 @@ public class World {
         for (Entity e : getEntities(area)) {
             if (e != player || isThirdPerson())
                 e.renderDebugHitbox(matrices, delta);
+        }
+
+        float l = 0.125f;
+        for (Light light : lights) {
+            Vector3f pos = light.getPos();
+            GeometryHelper.pushCube(VertexConsumer.MAIN_FLAT, matrices, pos.x - l, pos.y - l, pos.z - l, pos.x + l, pos.y + l, pos.z + l, light.getColor() + (0xFF << 24));
         }
     }
 
