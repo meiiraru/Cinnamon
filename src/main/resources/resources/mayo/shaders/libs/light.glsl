@@ -4,7 +4,7 @@ struct Light {
     vec3 color;
     vec3 attenuation;
 
-    bool directional;
+    bool spotlight;
     vec3 dir;
     float cutOff;
     float outerCutOff;
@@ -43,7 +43,7 @@ vec4 calculateLight(vec3 pos, vec3 normal) {
         vec3 diff = attenuation * l.color * d;
 
         //spotlight
-        if (l.directional) {
+        if (l.spotlight) {
             float intensity = spotlightIntensity(l, lightDir);
             diff *= intensity;
         }

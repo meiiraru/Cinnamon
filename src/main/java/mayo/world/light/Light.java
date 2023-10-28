@@ -21,7 +21,7 @@ public class Light {
         shader.setColor(prefix + "color", color);
         shader.setVec3(prefix + "attenuation", attenuation);
 
-        shader.setBool(prefix + "directional", this instanceof DirectionalLight);
+        shader.setBool(prefix + "spotlight", this instanceof Spotlight);
     }
 
     public Vector3f getPos() {

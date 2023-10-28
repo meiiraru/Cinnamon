@@ -41,7 +41,7 @@ struct Light {
     vec3 color;
     vec3 attenuation;
 
-    bool directional;
+    bool spotlight;
     vec3 dir;
     float cutOff;
     float outerCutOff;
@@ -111,7 +111,7 @@ vec4 applyLighting(vec4 diffTex) {
         vec3 spec = calculateSpecular(l, norm, viewDir, attenuation, lightDir);
 
         //spotlight
-        if (l.directional) {
+        if (l.spotlight) {
             float intensity = spotlightIntensity(l, lightDir);
             diff *= intensity;
             spec *= intensity;

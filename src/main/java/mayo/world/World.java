@@ -33,7 +33,7 @@ import mayo.world.items.weapons.CoilGun;
 import mayo.world.items.weapons.PotatoCannon;
 import mayo.world.items.weapons.RiceGun;
 import mayo.world.items.weapons.Weapon;
-import mayo.world.light.DirectionalLight;
+import mayo.world.light.Spotlight;
 import mayo.world.light.Light;
 import mayo.world.particle.ExplosionParticle;
 import mayo.world.particle.Particle;
@@ -76,7 +76,7 @@ public class World {
     private int timeOfTheDay = 0;
 
     //temp
-    DirectionalLight flashlight = (DirectionalLight) new DirectionalLight().cutOff(25f, 45f).brightness(64);
+    Spotlight flashlight = (Spotlight) new Spotlight().cutOff(25f, 45f).brightness(64);
 
     public void init() {
         //set client

@@ -3,7 +3,7 @@ package mayo.world.light;
 import mayo.render.shader.Shader;
 import org.joml.Vector3f;
 
-public class DirectionalLight extends Light {
+public class Spotlight extends Light {
 
     private final Vector3f dir = new Vector3f(0, -1, 0);
     private float cutOff = 15f;
@@ -21,11 +21,11 @@ public class DirectionalLight extends Light {
         return dir;
     }
 
-    public DirectionalLight direction(Vector3f direction) {
+    public Spotlight direction(Vector3f direction) {
         return direction(direction.x, direction.y, direction.z);
     }
 
-    public DirectionalLight direction(float x, float y, float z) {
+    public Spotlight direction(float x, float y, float z) {
         this.dir.set(x, y, z);
         return this;
     }
@@ -34,11 +34,11 @@ public class DirectionalLight extends Light {
         return cutOff;
     }
 
-    public DirectionalLight cutOff(float cutOff) {
+    public Spotlight cutOff(float cutOff) {
         return cutOff(cutOff, cutOff + 5f);
     }
 
-    public DirectionalLight cutOff(float cutOff, float outerCutOff) {
+    public Spotlight cutOff(float cutOff, float outerCutOff) {
         this.cutOff = cutOff;
         this.outerCutOff = outerCutOff;
         return this;
