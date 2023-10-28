@@ -33,6 +33,8 @@ import mayo.world.items.weapons.CoilGun;
 import mayo.world.items.weapons.PotatoCannon;
 import mayo.world.items.weapons.RiceGun;
 import mayo.world.items.weapons.Weapon;
+import mayo.world.light.DirectionalLight;
+import mayo.world.light.Light;
 import mayo.world.particle.ExplosionParticle;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.Terrain;
@@ -73,6 +75,9 @@ public class World {
     public final float renderDistance = 3;
     private int timeOfTheDay = 0;
 
+    //temp
+    DirectionalLight flashlight = (DirectionalLight) new DirectionalLight().cutOff(25f, 45f).brightness(64);
+
     public void init() {
         //set client
         Client client = Client.getInstance();
@@ -93,14 +98,15 @@ public class World {
 
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
         //rip for loop
-        addLight(new Light().pos(0.5f, 0.5f, 2f).color(0x000000));
-        addLight(new Light().pos(1.5f, 0.5f, 2f).color(0xFF0000));
-        addLight(new Light().pos(2.5f, 0.5f, 2f).color(0x00FF00));
-        addLight(new Light().pos(3.5f, 0.5f, 2f).color(0x0000FF));
-        addLight(new Light().pos(4.5f, 0.5f, 2f).color(0x00FFFF));
-        addLight(new Light().pos(5.5f, 0.5f, 2f).color(0xFF00FF));
+        addLight(new Light().pos(-5.5f, 0.5f, 2f).color(0x000000));
+        addLight(new Light().pos(-3.5f, 0.5f, 2f).color(0xFF0000));
+        addLight(new Light().pos(-1.5f, 0.5f, 2f).color(0x00FF00));
+        addLight(new Light().pos(0.5f, 0.5f, 2f).color(0x0000FF));
+        addLight(new Light().pos(2.5f, 0.5f, 2f).color(0x00FFFF));
+        addLight(new Light().pos(4.5f, 0.5f, 2f).color(0xFF00FF));
         addLight(new Light().pos(6.5f, 0.5f, 2f).color(0xFFFF00));
-        addLight(new Light().pos(7.5f, 0.5f, 2f).color(0xFFFFFF));
+        addLight(new Light().pos(8.5f, 0.5f, 2f).color(0xFFFFFF));
+        addLight(flashlight);
     }
 
     public void exit() {
@@ -197,6 +203,8 @@ public class World {
         s.setup(c.camera.getPerspectiveMatrix(), c.camera.getViewMatrix());
 
         //apply lighting
+        flashlight.direction(player.getLookDir(delta));
+        flashlight.pos(player.getEyePos(delta));
         applyWorldUniforms(s);
 
         //render terrain
@@ -251,21 +259,27 @@ public class World {
     }
 
     private void renderHitboxes(MatrixStack matrices, float delta) {
+        Vector3f cameraPos = Client.getInstance().camera.getPos();
         AABB area = new AABB();
         area.translate(player.getPos());
         area.inflate(8f);
 
         for (Terrain t : getTerrain(area))
             t.renderDebugHitbox(matrices, delta);
+
         for (Entity e : getEntities(area)) {
             if (e != player || isThirdPerson())
                 e.renderDebugHitbox(matrices, delta);
         }
 
-        float l = 0.125f;
-        for (Light light : lights) {
-            Vector3f pos = light.getPos();
-            GeometryHelper.pushCube(VertexConsumer.MAIN_FLAT, matrices, pos.x - l, pos.y - l, pos.z - l, pos.x + l, pos.y + l, pos.z + l, light.getColor() + (0xFF << 24));
+        for (Light l : getLights(area)) {
+            Vector3f pos = l.getPos();
+            if (cameraPos.distanceSquared(pos) <= 0.1f)
+                continue;
+
+            float r = 0.125f;
+            int color = l.getColor() + (0xFF << 24);
+            GeometryHelper.pushCube(VertexConsumer.MAIN_FLAT, matrices, pos.x - r, pos.y - r, pos.z - r, pos.x + r, pos.y + r, pos.z + r, color);
         }
     }
 
@@ -389,14 +403,6 @@ public class World {
             }
             case GLFW_KEY_ESCAPE -> Client.getInstance().setScreen(new PauseScreen());
             case GLFW_KEY_F1 -> this.hideHUD = !this.hideHUD;
-            //-- temp
-            case GLFW_KEY_F2 -> {
-                for (int i = 0; i < lights.size(); i++) {
-                    Vector3f pos = player.getEyePos();
-                    lights.get(i).pos(pos.x + 3 * i, pos.y, pos.z);
-                }
-            }
-            //-- temp
             case GLFW_KEY_F3 -> this.debugRendering = !this.debugRendering;
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
             case GLFW_KEY_F7 -> this.timeOfTheDay += 100;
@@ -414,6 +420,10 @@ public class World {
 
     public int particleCount() {
         return particles.size();
+    }
+
+    public int lightCount() {
+        return lights.size();
     }
 
     public List<Entity> getEntities(AABB region) {
@@ -439,6 +449,15 @@ public class World {
         for (Particle particle : this.particles) {
             if (region.isInside(particle.getPos()))
                 list.add(particle);
+        }
+        return list;
+    }
+
+    public List<Light> getLights(AABB region) {
+        List<Light> list = new ArrayList<>();
+        for (Light light : this.lights) {
+            if (region.isInside(light.getPos()))
+                list.add(light);
         }
         return list;
     }

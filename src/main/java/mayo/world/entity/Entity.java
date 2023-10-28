@@ -232,6 +232,11 @@ public abstract class Entity extends WorldObject {
         return Maths.rotToDir(rot.x, rot.y);
     }
 
+    public Vector3f getLookDir(float delta) {
+        Vector2f rot = getRot(delta);
+        return Maths.rotToDir(rot.x, rot.y);
+    }
+
     public AABB getAABB() {
         return aabb;
     }

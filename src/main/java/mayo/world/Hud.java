@@ -351,6 +351,7 @@ public class Hud {
                         [world]
                         %s entities %s terrain
                         %s particles %s sounds
+                        %s light sources
  
                         [player]
                         xyz %.3f %.3f %.3f
@@ -372,6 +373,7 @@ public class Hud {
                         """,
                 w.entityCount(), w.terrainCount(),
                 w.particleCount(), soundCount,
+                w.lightCount(),
 
                 epos.x, epos.y, epos.z,
                 erot.x, erot.y,

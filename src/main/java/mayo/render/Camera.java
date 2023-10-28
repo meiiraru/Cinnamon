@@ -18,7 +18,7 @@ public class Camera {
             up = new Vector3f(0f, 1f, 0f),
             left = new Vector3f(1f, 0f, 0f);
 
-    private float xRot, yRot;
+    private final Vector2f rot = new Vector2f();
     private final Quaternionf rotation = new Quaternionf();
 
     private final Matrix4f
@@ -54,8 +54,7 @@ public class Camera {
     }
 
     protected void setRot(float pitch, float yaw) {
-        this.xRot = pitch;
-        this.yRot = yaw;
+        this.rot.set(pitch, yaw);
         this.rotation.rotationYXZ((float) Math.toRadians(-yaw), (float) Math.toRadians(-pitch), 0f);
         this.forwards.set(0f, 0f, -1f).rotate(this.rotation);
         this.up.set(0f, 1f, 0f).rotate(this.rotation);
@@ -68,8 +67,8 @@ public class Camera {
 
     public Matrix4f getViewMatrix() {
         viewMatrix.identity();
-        viewMatrix.rotate(Rotation.X.rotationDeg(xRot));
-        viewMatrix.rotate(Rotation.Y.rotationDeg(yRot));
+        viewMatrix.rotate(Rotation.X.rotationDeg(rot.x));
+        viewMatrix.rotate(Rotation.Y.rotationDeg(rot.y));
         viewMatrix.translate(-pos.x, -pos.y, -pos.z);
         return viewMatrix;
     }
@@ -85,11 +84,11 @@ public class Camera {
     }
 
     public void horizontalBillboard(MatrixStack matrices) {
-        matrices.rotate(Rotation.X.rotationDeg(xRot));
+        matrices.rotate(Rotation.X.rotationDeg(rot.x));
     }
 
     public void verticalBillboard(MatrixStack matrices) {
-        matrices.rotate(Rotation.Y.rotationDeg(180f - yRot));
+        matrices.rotate(Rotation.Y.rotationDeg(180f - rot.y));
     }
 
     public boolean isInsideFrustum(float x, float y, float z, float fov) {
@@ -113,27 +112,27 @@ public class Camera {
     }
 
     public Vector3f getPos() {
-        return new Vector3f(pos);
+        return pos;
     }
 
     public Vector2f getRot() {
-        return new Vector2f(xRot, yRot);
+        return rot;
     }
 
     public Vector3f getForwards() {
-        return new Vector3f(forwards);
+        return forwards;
     }
 
     public Vector3f getLeft() {
-        return new Vector3f(left);
+        return left;
     }
 
     public Vector3f getUp() {
-        return new Vector3f(up);
+        return up;
     }
 
     public Quaternionf getRotation() {
-        return new Quaternionf(rotation);
+        return rotation;
     }
 
     public Matrix4f getPerspectiveMatrix() {

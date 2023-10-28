@@ -40,6 +40,11 @@ struct Light {
     vec3 pos;
     vec3 color;
     vec3 attenuation;
+
+    bool directional;
+    vec3 dir;
+    float cutOff;
+    float outerCutOff;
 };
 
 in vec2 texCoords;
@@ -74,6 +79,12 @@ vec3 calculateSpecular(Light light, vec3 normal, vec3 viewDir, float attenuation
     return attenuation * light.color * material.specular * spec;
 }
 
+float spotlightIntensity(Light light, vec3 lightDir) {
+    float theta = dot(lightDir, normalize(-light.dir));
+    float epsilon = (light.cutOff - light.outerCutOff);
+    return clamp((theta - light.outerCutOff) / epsilon, 0, 1);
+}
+
 vec4 applyLighting(vec4 diffTex) {
     // ambient //
 
@@ -96,8 +107,18 @@ vec4 applyLighting(vec4 diffTex) {
             continue;
 
         vec3 lightDir = normalize(diffDist);
-        diffuse += calculateDiffuse(l, norm, attenuation, lightDir);
-        specular += calculateSpecular(l, norm, viewDir, attenuation, lightDir);
+        vec3 diff = calculateDiffuse(l, norm, attenuation, lightDir);
+        vec3 spec = calculateSpecular(l, norm, viewDir, attenuation, lightDir);
+
+        //spotlight
+        if (l.directional) {
+            float intensity = spotlightIntensity(l, lightDir);
+            diff *= intensity;
+            spec *= intensity;
+        }
+
+        diffuse += diff;
+        specular += spec;
     }
 
     diffuse *= diffTex.rgb;

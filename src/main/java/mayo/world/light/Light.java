@@ -1,4 +1,4 @@
-package mayo.world;
+package mayo.world.light;
 
 import mayo.render.shader.Shader;
 import org.joml.Vector3f;
@@ -12,9 +12,16 @@ public class Light {
     private int color = -1;
 
     public void pushToShader(Shader shader, int index) {
-        shader.setVec3("lights[" + index + "].pos", pos);
-        shader.setColor("lights[" + index + "].color", color);
-        shader.setVec3("lights[" + index + "].attenuation", attenuation);
+        String prefix = "lights[" + index + "].";
+        pushToShader(shader, prefix);
+    }
+
+    protected void pushToShader(Shader shader, String prefix) {
+        shader.setVec3(prefix + "pos", pos);
+        shader.setColor(prefix + "color", color);
+        shader.setVec3(prefix + "attenuation", attenuation);
+
+        shader.setBool(prefix + "directional", this instanceof DirectionalLight);
     }
 
     public Vector3f getPos() {
