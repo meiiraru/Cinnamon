@@ -32,7 +32,7 @@ public abstract class Item {
         this.isAttacking = true;
     }
 
-    public void stopAttacking() {
+    public void stopAttacking(Entity source) {
         this.isAttacking = false;
     }
 
@@ -40,7 +40,7 @@ public abstract class Item {
         this.isUsing = true;
     }
 
-    public void stopUsing() {
+    public void stopUsing(Entity source) {
         this.isUsing = false;
     }
 

@@ -1,6 +1,8 @@
 package mayo.render;
 
+import mayo.utils.AABB;
 import mayo.utils.Rotation;
+import mayo.world.collisions.Hit;
 import mayo.world.entity.Entity;
 import org.joml.*;
 
@@ -62,7 +64,16 @@ public class Camera {
     }
 
     protected void move(float x, float y, float z) {
-        pos.add(new Vector3f(x, y, z).rotate(rotation));
+        Vector3f move = new Vector3f(x, y, z).rotate(rotation);
+        AABB area = new AABB();
+        area.translate(pos);
+        area.expand(move);
+
+        Hit<?> hit = entity.getWorld().raycastTerrain(area, pos, move);
+        if (hit != null)
+            move.mul(hit.collision().near());
+
+        pos.add(move);
     }
 
     public Matrix4f getViewMatrix() {

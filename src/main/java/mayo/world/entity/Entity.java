@@ -2,6 +2,7 @@ package mayo.world.entity;
 
 import mayo.Client;
 import mayo.model.GeometryHelper;
+import mayo.render.Camera;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;
@@ -88,8 +89,8 @@ public abstract class Entity extends WorldObject {
         if (world.hideHUD())
             return false;
 
-        Vector3f cam = Client.getInstance().camera.getPos();
-        return cam.distanceSquared(pos) <= 256;
+        Camera c = Client.getInstance().camera;
+        return c.getEntity() != this && c.getPos().distanceSquared(pos) <= 256;
     }
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {

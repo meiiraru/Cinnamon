@@ -235,7 +235,7 @@ public abstract class LivingEntity extends PhysEntity {
     public void stopAttacking() {
         Item i = getHoldingItem();
         if (i != null && i.isAttacking())
-            i.stopAttacking();
+            i.stopAttacking(this);
     }
 
     public void use() {
@@ -250,7 +250,7 @@ public abstract class LivingEntity extends PhysEntity {
     public void stopUsing() {
         Item i = getHoldingItem();
         if (i != null && i.isUsing())
-            i.stopUsing();
+            i.stopUsing(this);
     }
 
     public boolean giveItem(Item item) {

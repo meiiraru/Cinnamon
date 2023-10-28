@@ -58,11 +58,6 @@ public class Player extends LivingEntity {
     }
 
     @Override
-    public boolean shouldRenderText() {
-        return false;
-    }
-
-    @Override
     public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
         if (type == DamageType.MELEE) {
             if (invulnerability > 0)

@@ -25,6 +25,7 @@ public class MagicWand extends Item {
     private static final float ERASER_RANGE = 0.5f;
 
     private Vector3f lastPos;
+    private boolean drawing;
 
     public MagicWand(int stackCount) {
         super(ID, stackCount, MODEL);
@@ -52,23 +53,29 @@ public class MagicWand extends Item {
         //calculate new pos
         Vector3f pos = spawnPos(source);
 
-        //catch
-        if (lastPos == null)
+        //first use
+        if (lastPos == null) {
             lastPos = pos;
+            return;
+        }
 
         //draw line
-        drawLine(lastPos, pos, source.getWorld());
-
+        drawing |= drawLine(lastPos, pos, source.getWorld());
         //save pos
         lastPos.set(pos);
     }
 
     @Override
-    public void stopAttacking() {
-        super.stopAttacking();
+    public void stopAttacking(Entity source) {
+        super.stopAttacking(source);
 
-        //clear last pos
+        //draw a point if it was not drawing
+        if (!drawing)
+            drawParticle(lastPos, getColor(), source.getWorld());
+
+        //reset
         lastPos = null;
+        drawing = false;
     }
 
     @Override
@@ -93,19 +100,31 @@ public class MagicWand extends Item {
         return source.getLookDir().mul(DISTANCE).add(source.getEyePos());
     }
 
-    private static void drawLine(Vector3f a, Vector3f b, World world) {
+    private static int getColor() {
+        return ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f(((Client.getInstance().ticks * 3) % 360) / 360f, 0.7f, 1))) + (0xFF << 24);
+    }
+
+    private static boolean drawLine(Vector3f a, Vector3f b, World world) {
+        boolean ret = false;
         //rainbow color
-        int color = ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f(((Client.getInstance().ticks * 3) % 360) / 360f, 0.7f, 1))) + (0xFF << 24);
+        int color = getColor();
         //draw line
-        float len = b.sub(a, new Vector3f()).length();
+        float len = (int) (b.distance(a) * 1000) / 1000f;
         for (float i = 0; i < len; i += STEP) {
-            //delta
+            ret = true;
+            //pos
             float d = i / len;
-            //spawn particle
-            SquareParticle particle = new SquareParticle(world, LIFETIME, color);
-            particle.setPos(Maths.lerp(a, b, d));
-            particle.setEmissive(true);
-            world.addParticle(particle);
+            Vector3f pos = Maths.lerp(a, b, d);
+            //draw particle
+            drawParticle(pos, color, world);
         }
+        return ret;
+    }
+
+    private static void drawParticle(Vector3f pos, int color, World world) {
+        SquareParticle particle = new SquareParticle(world, LIFETIME, color);
+        particle.setPos(pos);
+        particle.setEmissive(true);
+        world.addParticle(particle);
     }
 }
