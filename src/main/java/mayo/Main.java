@@ -1,6 +1,7 @@
 package mayo;
 
 import mayo.render.MatrixStack;
+import mayo.render.PostProcess;
 import mayo.render.Texture;
 import mayo.render.Window;
 import mayo.render.shader.Shaders;
@@ -121,7 +122,7 @@ public class Main {
             glfwPollEvents();
 
             //clear the framebuffer
-            glClear(/* GL_COLOR_BUFFER_BIT |*/ GL_DEPTH_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT /*| GL_STENCIL_BUFFER_BIT */);
 
             //update viewport
             try (MemoryStack stack = stackPush()) {
@@ -149,6 +150,7 @@ public class Main {
         //free textures and shaders
         Texture.freeAll();
         Shaders.freeAll();
+        PostProcess.free();
 
         //free the window callbacks and destroy the window
         glfwFreeCallbacks(window);

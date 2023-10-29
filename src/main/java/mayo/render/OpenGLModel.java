@@ -249,7 +249,8 @@ public class OpenGLModel extends Model {
             glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
             //unbind texture
-            for (int i = 0; i < MaterialData.TEX_COUNT; i++)
+            //inverted so the last active texture is GL_TEXTURE0
+            for (int i = MaterialData.TEX_COUNT - 1; i >= 0; i--)
                 Texture.unbindTex(i);
         }
     }

@@ -5,10 +5,7 @@ import mayo.gui.Toast;
 import mayo.gui.screens.MainMenu;
 import mayo.gui.screens.PauseScreen;
 import mayo.options.Options;
-import mayo.render.Camera;
-import mayo.render.Font;
-import mayo.render.MatrixStack;
-import mayo.render.Window;
+import mayo.render.*;
 import mayo.render.batch.VertexConsumer;
 import mayo.sound.SoundManager;
 import mayo.utils.Resource;
@@ -195,6 +192,7 @@ public class Client {
 
     public void windowResize(int width, int height) {
         window.windowResize(width, height);
+        PostProcess.resize(width, height);
 
         if (camera != null)
             camera.updateProjMatrix(window.scaledWidth, window.scaledHeight, this.options.fov);
