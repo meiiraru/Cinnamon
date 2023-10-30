@@ -1,7 +1,7 @@
 package mayo.render.batch;
 
 import mayo.model.Vertex;
-import org.joml.Matrix4f;
+import mayo.render.shader.Shader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +28,8 @@ public class BatchRenderer<T extends Batch> {
             throw new RuntimeException("Failed to push vertices to a plain new batch");
     }
 
-    public void render(Matrix4f proj, Matrix4f view) {
+    public void render(Shader shader) {
         for (Batch batch : batches)
-            batch.render(proj, view);
+            batch.render(shader);
     }
 }

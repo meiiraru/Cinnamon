@@ -5,8 +5,12 @@ import mayo.gui.Toast;
 import mayo.gui.screens.MainMenu;
 import mayo.gui.screens.PauseScreen;
 import mayo.options.Options;
-import mayo.render.*;
+import mayo.render.Camera;
+import mayo.render.Font;
+import mayo.render.MatrixStack;
+import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
+import mayo.render.framebuffer.PostProcess;
 import mayo.sound.SoundManager;
 import mayo.utils.Resource;
 import mayo.utils.Timer;
@@ -72,21 +76,17 @@ public class Client {
         if (world != null) {
             //render world
             world.render(matrices, delta);
-            //finish world rendering
-            VertexConsumer.finishAllBatches(camera.getPerspectiveMatrix(), camera.getViewMatrix());
 
             if (!world.hideHUD()) {
                 //render first person hand
                 if (!world.isThirdPerson()) {
                     glClear(GL_DEPTH_BUFFER_BIT); //top of world
-                    world.renderHand(matrices, delta);
-                    VertexConsumer.finishAllBatches(camera.getPerspectiveMatrix(), camera.getViewMatrix());
+                    world.renderHand(camera, matrices, delta);
                 }
 
                 //render hud
                 glClear(GL_DEPTH_BUFFER_BIT); //top of hand
                 world.hud.render(matrices, delta);
-                VertexConsumer.finishAllBatches(camera.getOrthographicMatrix(), new Matrix4f());
             }
         }
 

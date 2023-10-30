@@ -1,4 +1,6 @@
-package mayo.render;
+package mayo.render.framebuffer;
+
+import mayo.Client;
 
 import java.nio.ByteBuffer;
 
@@ -6,25 +8,42 @@ import static org.lwjgl.opengl.GL30.*;
 
 public class Framebuffer {
 
-    private final int fbo;
-    private int color, depthStencil;
-    private int width, height;
+    public static final int
+            COLOR_BUFFER = 0x1,
+            DEPTH_BUFFER = 0x2;
 
-    public Framebuffer(int width, int height) {
+    private final int flags;
+    private final int fbo;
+    private int color, depth;
+    private int width, height;
+    public static Framebuffer activeFramebuffer;
+
+    public Framebuffer(int width, int height, int flags) {
         //generate and use a new framebuffer
         this.fbo = glGenFramebuffers();
         this.width = width;
         this.height = height;
+        this.flags = flags;
         genBuffers();
     }
 
     private void genBuffers() {
         use();
 
+        boolean hasColorBuffer = (flags & COLOR_BUFFER) == COLOR_BUFFER;
+        boolean hasDepthBuffer = (flags & DEPTH_BUFFER) == DEPTH_BUFFER;
+
         //color buffer
-        this.color = genTexture(width, height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_COLOR_ATTACHMENT0);
-        //depth/stencil buffer
-        this.depthStencil = genTexture(width, height, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_DEPTH_STENCIL_ATTACHMENT);
+        if (hasColorBuffer) {
+            this.color = genTexture(width, height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_COLOR_ATTACHMENT0);
+        } else {
+            glDrawBuffer(GL_NONE);
+            glReadBuffer(GL_NONE);
+        }
+
+        //depth buffer
+        if (hasDepthBuffer)
+            this.depth = genTexture(width, height, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, GL_DEPTH_ATTACHMENT);
 
         //check for completeness
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -50,33 +69,48 @@ public class Framebuffer {
         return texture;
     }
 
+    public static void useDefault() {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        Client c = Client.getInstance();
+        glViewport(0, 0, c.window.width, c.window.height);
+        activeFramebuffer = null;
+    }
+
     public void use() {
         glBindFramebuffer(GL_FRAMEBUFFER, this.fbo);
+        glViewport(0, 0, width, height);
+        activeFramebuffer = this;
+    }
+
+    public void clear() {
+        glClearColor(0f, 0f, 0f, 0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT /* | GL_STENCIL_BUFFER_BIT */);
+    }
+
+    private void freeTextures() {
+        if (color > 0)
+            glDeleteTextures(this.color);
+        if (depth > 0)
+            glDeleteTextures(this.depth);
     }
 
     public void free() {
         glDeleteFramebuffers(this.fbo);
-        glDeleteTextures(this.color);
-        glDeleteRenderbuffers(this.depthStencil);
-    }
-
-    public static void useDefault() {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        freeTextures();
     }
 
     public int getColorBuffer() {
         return color;
     }
 
-    public int getDepthStencilBuffer() {
-        return depthStencil;
+    public int getDepthBuffer() {
+        return depth;
     }
 
     public void resize(int width, int height) {
         this.width = width;
         this.height = height;
-        glDeleteTextures(this.color);
-        glDeleteRenderbuffers(this.depthStencil);
+        freeTextures();
         genBuffers();
     }
 

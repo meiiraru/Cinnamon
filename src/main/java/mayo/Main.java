@@ -1,20 +1,16 @@
 package mayo;
 
 import mayo.render.MatrixStack;
-import mayo.render.PostProcess;
 import mayo.render.Texture;
 import mayo.render.Window;
+import mayo.render.framebuffer.PostProcess;
 import mayo.render.shader.Shaders;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.system.MemoryStack;
-
-import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Main {
@@ -124,13 +120,8 @@ public class Main {
             //clear the framebuffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT /*| GL_STENCIL_BUFFER_BIT */);
 
-            //update viewport
-            try (MemoryStack stack = stackPush()) {
-                IntBuffer w = stack.mallocInt(1);
-                IntBuffer h = stack.mallocInt(1);
-                glfwGetFramebufferSize(window, w, h);
-                glViewport(0, 0, w.get(0), h.get(0));
-            }
+            //set viewport
+            glViewport(0, 0, client.window.width, client.window.height);
 
             //render client
             client.render(matrices);

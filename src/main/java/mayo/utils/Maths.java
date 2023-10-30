@@ -96,6 +96,14 @@ public class Maths {
         return (a % n + n) % n;
     }
 
+    public static float ratio(float x, float min, float max) {
+        return (x - min) / (max - min);
+    }
+
+    public static float map(float x, float min1, float max1, float min2, float max2) {
+        return lerp(min2, max2, ratio(x, min1, max1));
+    }
+
     public static Vector3f reflect(Vector3f dir, Vector3f normal) {
         //r = d − 2 * (d dot n) * n
         float dot = dir.dot(normal) * 2;

@@ -60,6 +60,8 @@ public class Hud {
 
         //draw player stats
         drawPlayerStats(matrices, c.world.player, delta);
+
+        VertexConsumer.finishAllBatches(c.camera.getOrthographicMatrix(), new Matrix4f());
     }
 
     private void drawPlayerStats(MatrixStack matrices, Player player, float delta) {

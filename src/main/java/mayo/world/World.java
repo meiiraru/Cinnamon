@@ -6,6 +6,7 @@ import mayo.gui.screens.DeathScreen;
 import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
 import mayo.model.GeometryHelper;
+import mayo.render.Camera;
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
@@ -15,6 +16,7 @@ import mayo.sound.SoundManager;
 import mayo.sound.SoundSource;
 import mayo.text.Text;
 import mayo.utils.AABB;
+import mayo.utils.Maths;
 import mayo.utils.Resource;
 import mayo.world.chunk.Chunk;
 import mayo.world.collisions.CollisionDetector;
@@ -33,8 +35,8 @@ import mayo.world.items.weapons.CoilGun;
 import mayo.world.items.weapons.PotatoCannon;
 import mayo.world.items.weapons.RiceGun;
 import mayo.world.items.weapons.Weapon;
-import mayo.world.light.Spotlight;
 import mayo.world.light.Light;
+import mayo.world.light.Spotlight;
 import mayo.world.particle.ExplosionParticle;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.Terrain;
@@ -76,7 +78,7 @@ public class World {
     private int timeOfTheDay = 0;
 
     //temp
-    Spotlight flashlight = (Spotlight) new Spotlight().cutOff(25f, 45f).brightness(64);
+    private final Spotlight flashlight = (Spotlight) new Spotlight().cutOff(25f, 45f).brightness(64);
 
     public void init() {
         //set client
@@ -97,7 +99,7 @@ public class World {
         LevelLoad.load(this, new Resource("data/levels/level0.json"));
 
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
-        //rip for loop
+        //rip for-loop
         addLight(new Light().pos(-5.5f, 0.5f, 2f).color(0x000000));
         addLight(new Light().pos(-3.5f, 0.5f, 2f).color(0xFF0000));
         addLight(new Light().pos(-1.5f, 0.5f, 2f).color(0x00FF00));
@@ -118,6 +120,8 @@ public class World {
     public void tick() {
         if (isPaused)
             return;
+
+        timeOfTheDay++;
 
         //run scheduled ticks
         for (Runnable tick : scheduledTicks)
@@ -196,6 +200,7 @@ public class World {
                 c.camera.getPerspectiveMatrix(),
                 c.camera.getViewMatrix()
         );
+        skyBox.setSunAngle(Maths.map((timeOfTheDay + delta) % 24000, 0, 24000, 0, 360));
         skyBox.render(c.camera, matrices);
 
         //set world shader
@@ -207,12 +212,26 @@ public class World {
         flashlight.pos(player.getEyePos(delta));
         applyWorldUniforms(s);
 
+        //render world
+        renderWorld(c.camera, matrices, delta);
+
+        //render debug hitboxes
+        if (debugRendering && !hideHUD) {
+            renderHitboxes(c.camera, matrices, delta);
+            renderHitResults(matrices);
+        }
+
+        //finish rendering
+        VertexConsumer.finishAllBatches(c.camera.getPerspectiveMatrix(), c.camera.getViewMatrix());
+    }
+
+    private void renderWorld(Camera camera, MatrixStack matrices, float delta) {
         //render terrain
         for (Terrain terrain : terrain)
             terrain.render(matrices, delta);
 
         //render entities
-        Entity camEntity = c.camera.getEntity();
+        Entity camEntity = camera.getEntity();
         for (Entity entity : entities) {
             if (camEntity != entity || isThirdPerson())
                 entity.render(matrices, delta);
@@ -221,24 +240,16 @@ public class World {
         //render particles
         for (Particle particle : particles)
             particle.render(matrices, delta);
-
-        //render debug hitboxes
-        if (debugRendering && !hideHUD) {
-            renderHitboxes(matrices, delta);
-            renderHitResults(matrices);
-        }
     }
 
-    public void renderHand(MatrixStack matrices, float delta) {
+    public void renderHand(Camera camera, MatrixStack matrices, float delta) {
         Item item = player.getHoldingItem();
         if (item == null)
             return;
 
-        Client c = Client.getInstance();
-
         //set world shader
         Shader s = Shaders.MODEL.getShader().use();
-        s.setup(c.camera.getPerspectiveMatrix(), c.camera.getViewMatrix());
+        s.setup(camera.getPerspectiveMatrix(), camera.getViewMatrix());
 
         //apply lighting
         applyWorldUniforms(s);
@@ -246,8 +257,8 @@ public class World {
         matrices.push();
 
         //camera transforms
-        matrices.translate(c.camera.getPos());
-        matrices.rotate(c.camera.getRotation());
+        matrices.translate(camera.getPos());
+        matrices.rotate(camera.getRotation());
 
         //screen transform
         matrices.translate(0.75f, -0.5f, -1);
@@ -258,8 +269,8 @@ public class World {
         matrices.pop();
     }
 
-    private void renderHitboxes(MatrixStack matrices, float delta) {
-        Vector3f cameraPos = Client.getInstance().camera.getPos();
+    private void renderHitboxes(Camera camera, MatrixStack matrices, float delta) {
+        Vector3f cameraPos = camera.getPos();
         AABB area = new AABB();
         area.translate(player.getPos());
         area.inflate(8f);
@@ -405,8 +416,8 @@ public class World {
             case GLFW_KEY_F1 -> this.hideHUD = !this.hideHUD;
             case GLFW_KEY_F3 -> this.debugRendering = !this.debugRendering;
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
-            case GLFW_KEY_F7 -> this.timeOfTheDay += 100;
-            case GLFW_KEY_F8 -> this.timeOfTheDay -= 100;
+            case GLFW_KEY_F7 -> this.timeOfTheDay -= 100;
+            case GLFW_KEY_F8 -> this.timeOfTheDay += 100;
         }
     }
 

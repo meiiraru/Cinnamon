@@ -32,31 +32,14 @@ void main() {
     if (texture(depthTexture, texCoords).x == 1)
         discard;
 
-    vec2[] offsets = vec2[](
-        //top
-        vec2(-textelSize.x, textelSize.y),
-        vec2(0,             textelSize.y),
-        vec2(textelSize.x,  textelSize.y),
-
-        //center
-        vec2(-textelSize.x, 0),
-        vec2(0,             0),
-        vec2(textelSize.x,  0),
-
-        //bottom
-        vec2(-textelSize.x, -textelSize.y),
-        vec2(0,             -textelSize.y),
-        vec2(textelSize.x,  -textelSize.y)
-    );
-
-    vec4 sampleTex[9];
-    for (int i = 0; i < 9; i++) {
-        sampleTex[i] = texture(screenTexture, texCoords.xy + offsets[i]);
-    }
-
     vec4 col = vec4(0, 0, 0, 1);
-    for (int i = 0; i < 9; i++)
-        col += sampleTex[i] * kernel[i];
+
+    for (int y = -1, i = 0; y <= 1; y++) {
+        for (int x = -1; x <= 1; x++, i++) {
+            vec4 tex = texture(screenTexture, texCoords.xy + vec2(textelSize.x * x, textelSize.y * y));
+            col += tex * kernel[i];
+        }
+    }
 
     fragColor = col;
 }

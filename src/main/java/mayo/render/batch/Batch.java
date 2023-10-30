@@ -4,9 +4,7 @@ import mayo.Client;
 import mayo.model.Vertex;
 import mayo.render.shader.Attributes;
 import mayo.render.shader.Shader;
-import mayo.render.shader.Shaders;
 import mayo.utils.Pair;
-import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -33,11 +31,9 @@ public abstract class Batch { //vertex consumer
     protected int faceCount = 0;
 
     //rendering data
-    protected final Shader shader;
     protected final int vaoID, vboID;
 
-    public Batch(Shaders shader, int verticesPerFace, int vertexFlags) {
-        this.shader = shader.getShader();
+    public Batch(int verticesPerFace, int vertexFlags) {
         this.textures = new ArrayList<>();
         this.verticesPerFace = verticesPerFace;
         this.vertexFlags = vertexFlags;
@@ -63,7 +59,7 @@ public abstract class Batch { //vertex consumer
             glEnableVertexAttribArray(i);
     }
 
-    public void render(Matrix4f proj, Matrix4f view) {
+    public void render(Shader shader) {
         if (faceCount == 0)
             return;
 
@@ -74,11 +70,8 @@ public abstract class Batch { //vertex consumer
         glBindBuffer(GL_ARRAY_BUFFER, vboID);
         glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
 
-        //shader properties
-        shader.use().setup(proj, view);
-
         //function to run before drawing the vao
-        preRender();
+        preRender(shader);
 
         //textures
         for (int i = 0; i < textures.size(); i++) {
@@ -104,7 +97,7 @@ public abstract class Batch { //vertex consumer
         faceCount = 0;
     }
 
-    protected void preRender() {}
+    protected void preRender(Shader shader) {}
 
     protected int primitive() {
         return GL_TRIANGLES;
@@ -140,55 +133,54 @@ public abstract class Batch { //vertex consumer
         return buffer.remaining() < (vertexSize * verticesPerFace);
     }
 
-
     // -- children types -- //
 
 
     public static class FontFlatBatch extends Batch {
         public FontFlatBatch() {
-            super(Shaders.FONT_FLAT, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA);
+            super(6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA);
         }
     }
 
     public static class FontBatch extends Batch {
         public FontBatch() {
-            super(Shaders.FONT, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.NORMAL);
+            super(6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.NORMAL);
         }
 
         @Override
-        protected void preRender() {
-            super.preRender();
-            Client.getInstance().world.applyWorldUniforms(this.shader);
+        protected void preRender(Shader shader) {
+            super.preRender(shader);
+            Client.getInstance().world.applyWorldUniforms(shader);
         }
     }
 
     public static class GUIBatch extends Batch {
         public GUIBatch() {
-            super(Shaders.GUI, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA);
+            super(6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA);
         }
     }
 
     public static class MainFlatBatch extends Batch {
         public MainFlatBatch() {
-            super(Shaders.MAIN_FLAT, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA);
+            super(6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA);
         }
     }
 
     public static class MainBatch extends Batch {
         public MainBatch() {
-            super(Shaders.MAIN, 6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.NORMAL);
+            super(6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.NORMAL);
         }
 
         @Override
-        protected void preRender() {
-            super.preRender();
-            Client.getInstance().world.applyWorldUniforms(this.shader);
+        protected void preRender(Shader shader) {
+            super.preRender(shader);
+            Client.getInstance().world.applyWorldUniforms(shader);
         }
     }
 
     public static class LinesBatch extends Batch {
         public LinesBatch() {
-            super(Shaders.LINES, 8, Attributes.POS | Attributes.COLOR_RGBA);
+            super(8, Attributes.POS | Attributes.COLOR_RGBA);
         }
 
         @Override

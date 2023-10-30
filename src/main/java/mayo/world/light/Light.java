@@ -41,12 +41,20 @@ public class Light {
         return brightness;
     }
 
+    public Vector3f getAttenuation() {
+        return attenuation;
+    }
+
     public Light brightness(float brightness) {
+        return this.brightness(brightness, 1f, 4.5f, 75f);
+    }
+
+    public Light brightness(float brightness, float constant, float linear, float quadratic) {
         this.brightness = brightness;
         this.attenuation.set(
-                1f, //constant
-                4.5f / brightness, //linear
-                75 / (brightness * brightness) //quadratic
+                constant,
+                linear / brightness,
+                quadratic / (brightness * brightness)
         );
         return this;
     }

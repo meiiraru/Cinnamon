@@ -34,31 +34,14 @@ void main() {
         discard;
 
     vec2 offset = textelSize * intensity;
-    vec2[] offsets = vec2[](
-        //top
-        vec2(-offset.x, offset.y),
-        vec2(0,         offset.y),
-        vec2(offset.x,  offset.y),
+    vec4 col = vec4(0, 0, 0, 0);
 
-        //center
-        vec2(-offset.x, 0),
-        vec2(0,         0),
-        vec2(offset.x,  0),
-
-        //bottom
-        vec2(-offset.x, -offset.y),
-        vec2(0,         -offset.y),
-        vec2(offset.x,  -offset.y)
-    );
-
-    vec4 sampleTex[9];
-    for (int i = 0; i < 9; i++) {
-        sampleTex[i] = texture(screenTexture, texCoords.xy + offsets[i]);
+    for (int y = -1, i = 0; y <= 1; y++) {
+        for (int x = -1; x <= 1; x++, i++) {
+            vec4 tex = texture(screenTexture, texCoords.xy + vec2(offset.x * x, offset.y * y));
+            col += tex * kernel[i];
+        }
     }
-
-    vec4 col = vec4(0, 0, 0, 1);
-    for (int i = 0; i < 9; i++)
-        col += sampleTex[i] * kernel[i];
 
     fragColor = col;
 }
