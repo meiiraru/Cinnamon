@@ -25,6 +25,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 
 public class Hud {
 
@@ -55,13 +56,16 @@ public class Hud {
             c.font.render(VertexConsumer.FONT_FLAT, matrices, c.window.scaledWidth - 4, 4, Text.of(debugRightText()).withStyle(style), TextUtils.Alignment.RIGHT);
         }
 
-        //draw crosshair
-        drawCrosshair(matrices, delta);
-
         //draw player stats
         drawPlayerStats(matrices, c.world.player, delta);
 
-        VertexConsumer.finishAllBatches(c.camera.getOrthographicMatrix(), new Matrix4f());
+        //finish rendering
+        Matrix4f projMat = c.camera.getOrthographicMatrix();
+        Matrix4f viewMat = new Matrix4f();
+        VertexConsumer.finishAllBatches(projMat, viewMat);
+
+        //draw crosshair separated
+        drawCrosshair(matrices, projMat, viewMat);
     }
 
     private void drawPlayerStats(MatrixStack matrices, Player player, float delta) {
@@ -281,7 +285,7 @@ public class Hud {
         matrices.pop();
     }
 
-    private void drawCrosshair(MatrixStack matrices, float delta) {
+    private void drawCrosshair(MatrixStack matrices, Matrix4f projMat, Matrix4f viewMat) {
         Client c = Client.getInstance();
         int w = c.window.scaledWidth;
         int h = c.window.scaledHeight;
@@ -302,7 +306,12 @@ public class Hud {
 
             matrices.pop();
         } else {
+            glBlendFuncSeparate(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_ONE, GL_ZERO);
+
             VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, (int) (w / 2f - 8), (int) (h / 2f - 8), 16, 16), CROSSHAIR.getID());
+            VertexConsumer.GUI.finishBatch(projMat, viewMat);
+
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         }
     }
 

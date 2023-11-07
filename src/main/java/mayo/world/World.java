@@ -9,6 +9,8 @@ import mayo.model.GeometryHelper;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
+import mayo.render.framebuffer.Blit;
+import mayo.render.framebuffer.Framebuffer;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
 import mayo.sound.SoundCategory;
@@ -35,11 +37,14 @@ import mayo.world.items.weapons.CoilGun;
 import mayo.world.items.weapons.PotatoCannon;
 import mayo.world.items.weapons.RiceGun;
 import mayo.world.items.weapons.Weapon;
+import mayo.world.light.DirectionalLight;
 import mayo.world.light.Light;
 import mayo.world.light.Spotlight;
 import mayo.world.particle.ExplosionParticle;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.Terrain;
+import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -47,6 +52,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL13.*;
 
 public class World {
 
@@ -67,7 +73,7 @@ public class World {
     private int cameraMode = 0;
     private boolean attackPress, usePress;
 
-    private boolean debugRendering;
+    private boolean debugRendering, renderShadowMap;
     private boolean isPaused;
     private boolean hideHUD;
 
@@ -79,6 +85,9 @@ public class World {
 
     //temp
     private final Spotlight flashlight = (Spotlight) new Spotlight().cutOff(25f, 45f).brightness(64);
+    private final Framebuffer shadowBuffer = new Framebuffer(2048, 2048, Framebuffer.DEPTH_BUFFER);
+    private final Matrix4f lightSpaceMatrix = new Matrix4f();
+    private final DirectionalLight sunLight = new DirectionalLight();
 
     public void init() {
         //set client
@@ -100,6 +109,7 @@ public class World {
 
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
         //rip for-loop
+        addLight(sunLight);
         addLight(new Light().pos(-5.5f, 0.5f, 2f).color(0x000000));
         addLight(new Light().pos(-3.5f, 0.5f, 2f).color(0xFF0000));
         addLight(new Light().pos(-1.5f, 0.5f, 2f).color(0x00FF00));
@@ -195,6 +205,9 @@ public class World {
         //set camera
         c.camera.setup(player, cameraMode, delta);
 
+        //render shadows
+        renderShadows(c.camera, matrices, delta);
+
         //render skybox
         Shaders.MODEL_FLAT.getShader().use().setup(
                 c.camera.getPerspectiveMatrix(),
@@ -202,6 +215,7 @@ public class World {
         );
         skyBox.setSunAngle(Maths.map((timeOfTheDay + delta) % 24000, 0, 24000, 0, 360));
         skyBox.render(c.camera, matrices);
+        sunLight.direction(skyBox.getSunDirection());
 
         //set world shader
         Shader s = Shaders.MODEL.getShader().use();
@@ -211,11 +225,12 @@ public class World {
         flashlight.direction(player.getLookDir(delta));
         flashlight.pos(player.getEyePos(delta));
         applyWorldUniforms(s);
+        applyShadowUniforms(s);
 
         //render world
-        renderWorld(c.camera, matrices, delta);
+        renderWorld(c.camera.getEntity(), matrices, delta);
 
-        //render debug hitboxes
+        //render debug
         if (debugRendering && !hideHUD) {
             renderHitboxes(c.camera, matrices, delta);
             renderHitResults(matrices);
@@ -223,15 +238,67 @@ public class World {
 
         //finish rendering
         VertexConsumer.finishAllBatches(c.camera.getPerspectiveMatrix(), c.camera.getViewMatrix());
+
+        //debug shadows
+        if (renderShadowMap) {
+            renderShadowBuffer(c.window.width, c.window.height, 500);
+        }
     }
 
-    private void renderWorld(Camera camera, MatrixStack matrices, float delta) {
+    private void renderShadows(Camera camera, MatrixStack matrices, float delta) {
+        //prepare matrix
+        float r = Chunk.CHUNK_SIZE * 2 * 0.5f;
+        Matrix4f lightProjection = new Matrix4f().ortho(-r, r, -r, r, -r, r);
+
+        //setup camera
+        Vector3f dir = skyBox.getSunDirection();
+        Vector3f pos = new Vector3f(camera.getPos());
+        Vector2f rot = new Vector2f(camera.getRot());
+
+        camera.setPos(pos.x + dir.x, pos.y + dir.y, pos.z + dir.z);
+        camera.lookAt(pos.x, pos.y, pos.z);
+
+        //finish matrix
+        lightSpaceMatrix.set(lightProjection).mul(camera.getViewMatrix());
+
+        //shader
+        Shader s = Shaders.DEPTH.getShader().use();
+        s.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+        //framebuffer
+        Framebuffer prev = Framebuffer.activeFramebuffer;
+        shadowBuffer.use();
+        shadowBuffer.clear();
+
+        //render world
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
+
+        //null so the camera entity shadows renders even in first person
+        renderWorld(null, matrices, delta);
+
+        glDisable(GL_CULL_FACE);
+
+        matrices.push();
+        matrices.identity();
+        s.applyMatrixStack(matrices);
+        VertexConsumer.finishAllBatches(s);
+        matrices.pop();
+
+        if (prev != null) prev.use();
+        else Framebuffer.useDefault();
+
+        //restore camera
+        camera.setPos(pos.x, pos.y, pos.z);
+        camera.setRot(rot.x, rot.y);
+    }
+
+    private void renderWorld(Entity camEntity, MatrixStack matrices, float delta) {
         //render terrain
         for (Terrain terrain : terrain)
             terrain.render(matrices, delta);
 
         //render entities
-        Entity camEntity = camera.getEntity();
         for (Entity entity : entities) {
             if (camEntity != entity || isThirdPerson())
                 entity.render(matrices, delta);
@@ -267,6 +334,12 @@ public class World {
         item.render(ItemRenderContext.FIRST_PERSON, matrices, delta);
 
         matrices.pop();
+    }
+
+    private void renderShadowBuffer(int width, int height, int size) {
+        glViewport(width - size, height - size, size, size);
+        Blit.copy(shadowBuffer, 0, Shaders.DEPTH_BLIT.getShader());
+        glViewport(0, 0, width, height);
     }
 
     private void renderHitboxes(Camera camera, MatrixStack matrices, float delta) {
@@ -333,6 +406,17 @@ public class World {
         for (int i = 0; i < lights.size(); i++) {
             lights.get(i).pushToShader(s, i);
         }
+    }
+
+    public void applyShadowUniforms(Shader s) {
+        s.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        s.setInt("shadowMap", 3);
+        s.setVec3("shadowDir", skyBox.getSunDirection());
+
+        glActiveTexture(GL_TEXTURE3); //0-1-2 used by the material
+        glBindTexture(GL_TEXTURE_2D, shadowBuffer.getDepthBuffer());
+
+        glActiveTexture(GL_TEXTURE0);
     }
 
     public void addTerrain(Terrain terrain) {
@@ -415,6 +499,7 @@ public class World {
             case GLFW_KEY_ESCAPE -> Client.getInstance().setScreen(new PauseScreen());
             case GLFW_KEY_F1 -> this.hideHUD = !this.hideHUD;
             case GLFW_KEY_F3 -> this.debugRendering = !this.debugRendering;
+            case GLFW_KEY_F4 -> this.renderShadowMap = !this.renderShadowMap;
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
             case GLFW_KEY_F7 -> this.timeOfTheDay -= 100;
             case GLFW_KEY_F8 -> this.timeOfTheDay += 100;

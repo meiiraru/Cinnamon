@@ -1,6 +1,7 @@
 package mayo.render;
 
 import mayo.utils.AABB;
+import mayo.utils.Maths;
 import mayo.utils.Rotation;
 import mayo.world.collisions.Hit;
 import mayo.world.entity.Entity;
@@ -51,11 +52,11 @@ public class Camera {
         }
     }
 
-    protected void setPos(float x, float y, float z) {
+    public void setPos(float x, float y, float z) {
         pos.set(x, y, z);
     }
 
-    protected void setRot(float pitch, float yaw) {
+    public void setRot(float pitch, float yaw) {
         this.rot.set(pitch, yaw);
         this.rotation.rotationYXZ((float) Math.toRadians(-yaw), (float) Math.toRadians(-pitch), 0f);
         this.forwards.set(0f, 0f, -1f).rotate(this.rotation);
@@ -63,7 +64,7 @@ public class Camera {
         this.left.set(1f, 0f, 0f).rotate(this.rotation);
     }
 
-    protected void move(float x, float y, float z) {
+    public void move(float x, float y, float z) {
         Vector3f move = new Vector3f(x, y, z).rotate(rotation);
         AABB area = new AABB();
         area.translate(pos);
@@ -120,6 +121,12 @@ public class Camera {
 
         float w = projectiveCamSpace.w();
         return new Vector4f(projectiveCamSpace.x() / w, projectiveCamSpace.y() / w, projectiveCamSpace.z() / w, (float) Math.sqrt(posDiff.dot(posDiff)));
+    }
+
+    public void lookAt(float x, float y, float z) {
+        Vector3f direction = new Vector3f(x, y, z).sub(pos).normalize();
+        Vector2f rot = Maths.dirToRot(direction);
+        setRot(rot.x, rot.y);
     }
 
     public Vector3f getPos() {

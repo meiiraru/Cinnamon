@@ -8,18 +8,21 @@ layout (location = 2) in vec3 aNormal;
 out vec2 texCoords;
 out vec3 pos;
 out vec3 normal;
+out vec4 shadowPos;
 
 uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
 uniform mat3 normalMat;
+uniform mat4 lightSpaceMatrix;
 
 void main() {
-    vec4 posVec = vec4(aPosition, 1);
-    gl_Position = projection * view * model * posVec;
-    pos = (model * posVec).xyz;
+    vec4 posVec = model * vec4(aPosition, 1);
+    gl_Position = projection * view * posVec;
+    pos = posVec.xyz;
     texCoords = aTexCoords;
     normal = aNormal * normalMat;
+    shadowPos = lightSpaceMatrix * posVec;
 }
 
 #type fragment
@@ -41,8 +44,10 @@ struct Light {
     vec3 color;
     vec3 attenuation;
 
-    bool spotlight;
+    bool directional;
     vec3 dir;
+
+    bool spotlight;
     float cutOff;
     float outerCutOff;
 };
@@ -50,6 +55,7 @@ struct Light {
 in vec2 texCoords;
 in vec3 pos;
 in vec3 normal;
+in vec4 shadowPos;
 
 out vec4 fragColor;
 
@@ -61,6 +67,9 @@ uniform Material material;
 uniform vec3 ambient;
 uniform int lightCount;
 uniform Light lights[16];
+
+uniform sampler2D shadowMap;
+uniform vec3 shadowDir;
 
 float calculateAttenuation(vec3 attenuation, float distance) {
     return 1 / (attenuation.x + attenuation.y * distance + attenuation.z * (distance * distance));
@@ -85,6 +94,35 @@ float spotlightIntensity(Light light, vec3 lightDir) {
     return clamp((theta - light.outerCutOff) / epsilon, 0, 1);
 }
 
+float calculateShadow(vec3 normal, vec3 shadowDir) {
+    //convert to range [-1,1]
+    vec3 lightCoords = shadowPos.xyz / shadowPos.w;
+
+    //outside shadowmap range
+    if (lightCoords.z > 1)
+        return 0;
+
+    //range [0,1]
+    lightCoords = lightCoords * 0.5f + 0.5f;
+
+    float shadow = 0;
+
+    float currentDepth = lightCoords.z;
+    float dir = max(dot(normal, shadowDir), 0);
+
+    int sampleRadius = 1;
+    vec2 pixelSize = 1.0f / textureSize(shadowMap, 0);
+    for (int y = -sampleRadius; y <= sampleRadius; y++) {
+        for (int x = -sampleRadius; x <= sampleRadius; x++) {
+            float closestDepth = texture(shadowMap, lightCoords.xy + vec2(x, y) * pixelSize).r;
+            if (currentDepth > closestDepth)
+                shadow += 1 * dir;
+        }
+    }
+
+    return shadow /= pow(sampleRadius * 2 + 1, 2);
+}
+
 vec4 applyLighting(vec4 diffTex) {
     // ambient //
 
@@ -102,11 +140,11 @@ vec4 applyLighting(vec4 diffTex) {
         Light l = lights[i];
 
         vec3 diffDist = l.pos - pos;
-        float attenuation = calculateAttenuation(l.attenuation, length(diffDist));
+        float attenuation = l.directional ? 1 : calculateAttenuation(l.attenuation, length(diffDist));
         if (attenuation <= 0.01f)
             continue;
 
-        vec3 lightDir = normalize(diffDist);
+        vec3 lightDir = l.directional ? normalize(l.dir) : normalize(diffDist);
         vec3 diff = calculateDiffuse(l, norm, attenuation, lightDir);
         vec3 spec = calculateSpecular(l, norm, viewDir, attenuation, lightDir);
 
@@ -127,6 +165,12 @@ vec4 applyLighting(vec4 diffTex) {
     // emissive //
 
     vec3 emissive = texture(material.emissiveTex, texCoords).rgb;
+
+    // shadow //
+
+    float shadow = 1 - calculateShadow(norm, normalize(shadowDir));
+    diffuse *= shadow;
+    specular *= shadow;
 
     //return light
     return vec4(ambient + diffuse + specular + emissive, diffTex.a);

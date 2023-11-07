@@ -35,37 +35,42 @@ public class Framebuffer {
 
         //color buffer
         if (hasColorBuffer) {
-            this.color = genTexture(width, height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_COLOR_ATTACHMENT0);
+            this.color = genTexture(width, height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_COLOR_ATTACHMENT0);
         } else {
             glDrawBuffer(GL_NONE);
             glReadBuffer(GL_NONE);
         }
 
         //depth buffer
-        if (hasDepthBuffer)
-            this.depth = genTexture(width, height, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, GL_DEPTH_ATTACHMENT);
+        if (hasDepthBuffer) {
+            this.depth = genTexture(width, height, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_DEPTH_ATTACHMENT);
+            glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, new float[]{1, 1, 1, 1});
+        }
+
+        //unbind textures
+        glBindTexture(GL_TEXTURE_2D, 0);
 
         //check for completeness
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            throw new RuntimeException("Framebuffer is not complete!");
+        int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        if (status != GL_FRAMEBUFFER_COMPLETE)
+            throw new RuntimeException("Framebuffer is not complete! " + status);
 
         //unbind this
         useDefault();
     }
 
-    private static int genTexture(int width, int height, int internalFormat, int format, int type, int attachment) {
+    private static int genTexture(int width, int height, int internalFormat, int format, int type, int filter, int warp, int attachment) {
         int texture = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, texture);
         glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, (ByteBuffer) null);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, warp);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, warp);
 
         glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture, 0);
 
-        glBindTexture(GL_TEXTURE_2D, 0);
         return texture;
     }
 
