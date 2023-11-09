@@ -28,6 +28,7 @@ void main() {
 #type fragment
 #version 330 core
 #include shaders/libs/fog.glsl
+#include shaders/libs/shadow.glsl
 
 struct Material {
     vec3 ambient;
@@ -55,7 +56,6 @@ struct Light {
 in vec2 texCoords;
 in vec3 pos;
 in vec3 normal;
-in vec4 shadowPos;
 
 out vec4 fragColor;
 
@@ -67,9 +67,6 @@ uniform Material material;
 uniform vec3 ambient;
 uniform int lightCount;
 uniform Light lights[16];
-
-uniform sampler2D shadowMap;
-uniform vec3 shadowDir;
 
 float calculateAttenuation(vec3 attenuation, float distance) {
     return 1 / (attenuation.x + attenuation.y * distance + attenuation.z * (distance * distance));
@@ -92,35 +89,6 @@ float spotlightIntensity(Light light, vec3 lightDir) {
     float theta = dot(lightDir, normalize(-light.dir));
     float epsilon = (light.cutOff - light.outerCutOff);
     return clamp((theta - light.outerCutOff) / epsilon, 0, 1);
-}
-
-float calculateShadow(vec3 normal, vec3 shadowDir) {
-    //convert to range [-1,1]
-    vec3 lightCoords = shadowPos.xyz / shadowPos.w;
-
-    //outside shadowmap range
-    if (lightCoords.z > 1)
-        return 0;
-
-    //range [0,1]
-    lightCoords = lightCoords * 0.5f + 0.5f;
-
-    float shadow = 0;
-
-    float currentDepth = lightCoords.z;
-    float dir = max(dot(normal, shadowDir), 0);
-
-    int sampleRadius = 1;
-    vec2 pixelSize = 1.0f / textureSize(shadowMap, 0);
-    for (int y = -sampleRadius; y <= sampleRadius; y++) {
-        for (int x = -sampleRadius; x <= sampleRadius; x++) {
-            float closestDepth = texture(shadowMap, lightCoords.xy + vec2(x, y) * pixelSize).r;
-            if (currentDepth > closestDepth)
-                shadow += 1 * dir;
-        }
-    }
-
-    return shadow /= pow(sampleRadius * 2 + 1, 2);
 }
 
 vec4 applyLighting(vec4 diffTex) {
