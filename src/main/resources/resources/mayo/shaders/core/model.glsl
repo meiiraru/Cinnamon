@@ -92,14 +92,18 @@ float spotlightIntensity(Light light, vec3 lightDir) {
 }
 
 vec4 applyLighting(vec4 diffTex) {
+    vec3 norm = normalize(normal);
+    vec3 viewDir = normalize(camPos - pos);
+
     // ambient //
 
     vec3 ambient = ambient * material.ambient * diffTex.rgb;
 
-    // diffuse and specular //
+    // shadow //
 
-    vec3 norm = normalize(normal);
-    vec3 viewDir = normalize(camPos - pos);
+    float shadow = 1 - calculateShadow(norm, normalize(shadowDir));
+
+    // diffuse and specular //
 
     vec3 diffuse = vec3(0);
     vec3 specular = vec3(0);
@@ -123,6 +127,12 @@ vec4 applyLighting(vec4 diffTex) {
             spec *= intensity;
         }
 
+        //directional
+        if (l.directional) {
+            diff *= shadow;
+            spec *= shadow;
+        }
+
         diffuse += diff;
         specular += spec;
     }
@@ -133,12 +143,6 @@ vec4 applyLighting(vec4 diffTex) {
     // emissive //
 
     vec3 emissive = texture(material.emissiveTex, texCoords).rgb;
-
-    // shadow //
-
-    float shadow = 1 - calculateShadow(norm, normalize(shadowDir));
-    diffuse *= shadow;
-    specular *= shadow;
 
     //return light
     return vec4(ambient + diffuse + specular + emissive, diffTex.a);

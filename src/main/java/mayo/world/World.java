@@ -205,9 +205,6 @@ public class World {
         //set camera
         c.camera.setup(player, cameraMode, delta);
 
-        //render shadows
-        renderShadows(c.camera, matrices, delta);
-
         //render skybox
         Shaders.MODEL_FLAT.getShader().use().setup(
                 c.camera.getPerspectiveMatrix(),
@@ -216,6 +213,9 @@ public class World {
         skyBox.setSunAngle(Maths.map((timeOfTheDay + delta) % 24000, 0, 24000, 0, 360));
         skyBox.render(c.camera, matrices);
         sunLight.direction(skyBox.getSunDirection());
+
+        //render shadows
+        renderShadows(c.camera, matrices, delta);
 
         //set world shader
         Shader s = Shaders.MODEL.getShader().use();
@@ -270,14 +270,8 @@ public class World {
         shadowBuffer.use();
         shadowBuffer.clear();
 
-        //render world
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_FRONT);
-
         //null so the camera entity shadows renders even in first person
         renderWorld(null, matrices, delta);
-
-        glDisable(GL_CULL_FACE);
 
         matrices.push();
         matrices.identity();
