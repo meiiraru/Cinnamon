@@ -191,8 +191,10 @@ public class Client {
     }
 
     public void windowResize(int width, int height) {
-        window.windowResize(width, height);
-        PostProcess.resize(width, height);
+        if (width > 0 && height > 0) {
+            window.windowResize(width, height);
+            PostProcess.resize(width, height);
+        }
 
         if (camera != null)
             camera.updateProjMatrix(window.scaledWidth, window.scaledHeight, this.options.fov);

@@ -1,8 +1,7 @@
 package mayo.gui;
 
 import mayo.Client;
-import mayo.gui.widgets.GUIListener;
-import mayo.gui.widgets.Tickable;
+import mayo.gui.widgets.Container;
 import mayo.gui.widgets.Widget;
 import mayo.model.GeometryHelper;
 import mayo.model.Vertex;
@@ -12,17 +11,13 @@ import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
 import mayo.utils.UIHelper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public abstract class Screen {
 
-    //widget lists
-    private final List<Widget> widgets = new ArrayList<>();
-    private final List<GUIListener> listeners = new ArrayList<>();
+    //main container
+    protected final Container mainContainer = new Container(0, 0);
 
     //screen-wise fields
     protected Client client;
@@ -69,8 +64,7 @@ public abstract class Screen {
 
 
     public void rebuild() {
-        this.widgets.clear();
-        this.listeners.clear();
+        this.mainContainer.clear();
         this.init();
     }
 
@@ -81,15 +75,11 @@ public abstract class Screen {
     }
 
     public void addWidget(Widget widget) {
-        this.widgets.add(widget);
-        if (widget instanceof GUIListener el)
-            this.listeners.add(el);
+        this.mainContainer.addWidget(widget);
     }
 
     public void removeWidget(Widget widget) {
-        this.widgets.remove(widget);
-        if (widget instanceof GUIListener el)
-            this.listeners.remove(el);
+        this.mainContainer.removeWidget(widget);
     }
 
 
@@ -97,10 +87,7 @@ public abstract class Screen {
 
 
     public void tick() {
-        for (Widget widget : this.widgets) {
-            if (widget instanceof Tickable t)
-                t.tick();
-        }
+        this.mainContainer.tick();
     }
 
 
@@ -134,9 +121,7 @@ public abstract class Screen {
     }
 
     protected void renderChildren(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        for (Widget widget : this.widgets) {
-            widget.render(matrices, mouseX, mouseY, delta);
-        }
+        this.mainContainer.render(matrices, mouseX, mouseY, delta);
     }
 
     protected void postRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -153,47 +138,27 @@ public abstract class Screen {
 
 
     public void mousePress(int button, int action, int mods) {
-        for (GUIListener listener : this.listeners) {
-            if (listener.mousePress(button, action, mods))
-                break;
-        }
+        this.mainContainer.mousePress(button, action, mods);
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
-        for (GUIListener listener : this.listeners) {
-            if (listener.keyPress(key, scancode, action, mods))
-                break;
-        }
-
-        if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE && closeOnEsc())
+        if (!this.mainContainer.keyPress(key, scancode, action, mods) && action == GLFW_PRESS && key == GLFW_KEY_ESCAPE && closeOnEsc())
             this.close();
     }
 
     public void charTyped(char c, int mods) {
-        for (GUIListener listener : this.listeners) {
-            if (listener.charTyped(c, mods))
-                break;
-        }
+        this.mainContainer.charTyped(c, mods);
     }
 
     public void mouseMove(double x, double y) {
-        for (GUIListener listener : this.listeners) {
-            if (listener.mouseMove(x, y))
-                break;
-        }
+        this.mainContainer.mouseMove(x, y);
     }
 
     public void scroll(double x, double y) {
-        for (GUIListener listener : this.listeners) {
-            if (listener.scroll(x, y))
-                break;
-        }
+        this.mainContainer.scroll(x, y);
     }
 
     public void windowFocused(boolean focused) {
-        for (GUIListener listener : this.listeners) {
-            if (listener.windowFocused(focused))
-                break;
-        }
+        this.mainContainer.windowFocused(focused);
     }
 }

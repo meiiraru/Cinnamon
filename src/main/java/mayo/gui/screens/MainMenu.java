@@ -3,6 +3,7 @@ package mayo.gui.screens;
 import mayo.gui.Screen;
 import mayo.gui.widgets.types.Button;
 import mayo.gui.widgets.types.Label;
+import mayo.gui.widgets.types.WidgetList;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.Colors;
@@ -15,28 +16,39 @@ public class MainMenu extends Screen {
     public void init() {
         super.init();
 
+        //may~o
+        Text may = Text.of("May~o Renderer v0.1 \u25E0\u25DE\u25DF\u25E0").withStyle(Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK).shadow(true));
+        this.addWidget(new Label(may, font, 4, height - TextUtils.getHeight(may, font) - 4));
+
+        //buttons
+        WidgetList list = new WidgetList(0, 0, 4);
+
         //open world
-        Button worldButton = new Button((width - 180) / 2, (height - 20) / 2 - 20 - 16, 180, 20, Text.of("Open world"), () -> {
+        Button worldButton = new Button(0, 0, 180, 20, Text.of("Open world"), () -> {
             World world = new World();
             world.init();
         });
-        this.addWidget(worldButton);
+        list.addWidget(worldButton);
 
         //dvd screen
-        Button dvd = new Button(worldButton.getX(), worldButton.getY() + worldButton.getHeight() + 16, 180, 20, Text.of("DVD screensaver"), () -> client.setScreen(new DVDScreen(this)));
-        this.addWidget(dvd);
+        Button dvd = new Button(0, 0, 180, 20, Text.of("DVD screensaver"), () -> client.setScreen(new DVDScreen(this)));
+        list.addWidget(dvd);
 
         //collision screen
-        Button coll = new Button(dvd.getX(), dvd.getY() + dvd.getHeight() + 16, 180, 20, Text.of("Collision Test"), () -> client.setScreen(new CollisionScreen(this)));
-        this.addWidget(coll);
+        Button coll = new Button(0, 0, 180, 20, Text.of("Collision Test"), () -> client.setScreen(new CollisionScreen(this)));
+        list.addWidget(coll);
+
+        //curves screen
+        Button curve = new Button(0, 0, 180, 20, Text.of("Curves!"), () -> client.setScreen(new Curves(this)));
+        list.addWidget(curve);
 
         //close application
-        Button exitButton = new Button(coll.getX(), coll.getY() + coll.getHeight() + 16, 180, 20, Text.of("Exit"), () -> client.window.exit());
+        Button exitButton = new Button(0, 0, 180, 20, Text.of("Exit"), () -> client.window.exit());
         exitButton.setTooltip(Text.of("bye~"));
-        this.addWidget(exitButton);
+        list.addWidget(exitButton);
 
-        //may~o
-        Text may = Text.of("May~o Renderer v0.1 \u25E0\u25DE\u25DF\u25E0").withStyle(Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK));
-        this.addWidget(new Label(may, font, 4, height - TextUtils.getHeight(may, font) - 4));
+        //add list to screen
+        list.setPos((width - list.getWidth()) / 2, (height - list.getHeight()) / 2);
+        this.addWidget(list);
     }
 }
