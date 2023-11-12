@@ -2,8 +2,7 @@ package mayo.gui.widgets.types;
 
 import mayo.Client;
 import mayo.gui.Screen;
-import mayo.gui.widgets.GUIListener;
-import mayo.gui.widgets.Widget;
+import mayo.gui.widgets.SelectableWidget;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
@@ -16,7 +15,7 @@ import mayo.utils.UIHelper;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_1;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
-public class Button extends Widget implements GUIListener {
+public class Button extends SelectableWidget {
 
     private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/button.png"));
     private static final Resource CLICK_SOUND = new Resource("sounds/pop.ogg");
@@ -24,10 +23,6 @@ public class Button extends Widget implements GUIListener {
     private final Label message;
     private final Runnable toRun;
     private Text tooltip;
-
-    private boolean
-            active = true,
-            hovered = false;
 
     public Button(int x, int y, int width, int height, Text message, Runnable toRun) {
         super(x, y, width, height);
@@ -44,8 +39,7 @@ public class Button extends Widget implements GUIListener {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        this.hovered = UIHelper.isMouseOver(this, mouseX, mouseY);
-        if (this.hovered) {
+        if (this.isHovered()) {
             Screen s = Client.getInstance().screen;
             if (s != null)
                 s.tooltip = tooltip;
@@ -69,31 +63,31 @@ public class Button extends Widget implements GUIListener {
     }
 
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        message.setPos(getX() + getWidth() / 2, getY() + (int) ((getHeight() - Client.getInstance().font.lineHeight) / 2));
+        message.setPos(getCenterX(), getY() + (int) ((getHeight() - Client.getInstance().font.lineHeight) / 2));
         message.render(matrices, mouseX, mouseY, delta);
     }
 
     public int getState() {
-        if (!this.active)
+        if (!this.isActive())
             return 0;
-        else if (this.hovered)
+        else if (this.isHovered())
             return 2;
         else
             return 1;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
     @Override
     public boolean mousePress(int button, int action, int mods) {
-        if (hovered && action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1) {
-            playClickSound();
-            toRun.run();
+        if (isHovered() && action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1) {
+            press();
             return true;
         }
-        return GUIListener.super.mousePress(button, action, mods);
+        return super.mousePress(button, action, mods);
+    }
+
+    public void press() {
+        playClickSound();
+        toRun.run();
     }
 
     public void setTooltip(Text tooltip) {

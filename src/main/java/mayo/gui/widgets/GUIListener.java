@@ -14,7 +14,7 @@ public interface GUIListener {
         return false;
     }
 
-    default boolean mouseMove(double x, double y) {
+    default boolean mouseMove(int x, int y) {
         return false;
     }
 

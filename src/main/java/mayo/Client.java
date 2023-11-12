@@ -148,6 +148,8 @@ public class Client {
     // -- glfw events -- //
 
     public void mousePress(int button, int action, int mods) {
+        window.mousePress(button, action, mods);
+
         if (screen != null)
             screen.mousePress(button, action, mods);
         else if (world != null)
@@ -173,7 +175,7 @@ public class Client {
         window.mouseMove(x, y);
 
         if (screen != null) {
-            screen.mouseMove(x, y);
+            screen.mouseMove(window.mouseX, window.mouseY);
         } else if (world != null) {
             world.mouseMove(x, y);
         }

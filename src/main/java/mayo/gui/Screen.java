@@ -150,7 +150,7 @@ public abstract class Screen {
         this.mainContainer.charTyped(c, mods);
     }
 
-    public void mouseMove(double x, double y) {
+    public void mouseMove(int x, int y) {
         this.mainContainer.mouseMove(x, y);
     }
 

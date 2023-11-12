@@ -57,4 +57,12 @@ public abstract class Widget {
     public int getHeight() {
         return height;
     }
+
+    public int getCenterX() {
+        return getX() + getWidth() / 2;
+    }
+
+    public int getCenterY() {
+        return getY() + getHeight() / 2;
+    }
 }

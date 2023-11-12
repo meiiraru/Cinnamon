@@ -8,6 +8,7 @@ import mayo.input.Movement;
 import mayo.model.GeometryHelper;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
+import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.framebuffer.Blit;
 import mayo.render.framebuffer.Framebuffer;
@@ -71,7 +72,6 @@ public class World {
     private final Movement movement = new Movement();
     public Player player;
     private int cameraMode = 0;
-    private boolean attackPress, usePress;
 
     private boolean debugRendering, renderShadowMap;
     private boolean isPaused;
@@ -442,14 +442,10 @@ public class World {
 
         switch (button) {
             case GLFW_MOUSE_BUTTON_1 -> {
-                if (attackPress && !press)
-                    player.stopAttacking();
-                attackPress = press;
+                if (!press) player.stopAttacking();
             }
             case GLFW_MOUSE_BUTTON_2 -> {
-                if (usePress && !press)
-                    player.stopUsing();
-                usePress = press;
+                if (!press) player.stopUsing();
             }
         }
 
@@ -457,9 +453,10 @@ public class World {
     }
 
     private void processMouseInput() {
-        if (attackPress)
+        Window w = Client.getInstance().window;
+        if (w.mouse1Press)
             player.attack();
-        if (usePress)
+        if (w.mouse2Press)
             player.use();
     }
 

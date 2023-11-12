@@ -7,12 +7,13 @@ import org.joml.Vector4f;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Arrays;
 import java.util.Locale;
 
 public class Maths {
 
     public static float lerp(float a, float b, float t) {
-        return a + (b - a) * t;
+        return a * (1f - t) + b * t;
     }
 
     public static Vector4f lerp(Vector4f a, Vector4f b, float t) {
@@ -233,5 +234,36 @@ public class Maths {
 
         //return
         return approxRoot;
+    }
+
+    public static float hermite(float p0, float p3, float r0, float r3, float weight, float t) {
+        float t2 = t * t;
+        float t3 = t2 * t;
+        return (2 * t3 - 3 * t2 + 1) * p0 +
+                (-2 * t3 + 3 * t2) * p3 +
+                (t3 - 2 * t2 + t) * weight * r0 +
+                (t3 - t2) * weight * r3;
+    }
+
+    public static float bezier(float p0, float p1, float p2, float p3, float t) {
+        float t2 = t * t;
+        float t3 = t2 * t;
+        return (-1 * t3 + 3 * t2 - 3 * t + 1) * p0 +
+                (3 * t3 - 6 * t2 + 3 * t) * p1 +
+                (-3 * t3 + 3 * t2) * p2 +
+                t3 * p3;
+    }
+
+    public static float bezierDeCasteljau(float t, float... controlPoints) {
+        float[] points = Arrays.copyOf(controlPoints, controlPoints.length);
+        int n = points.length - 1;
+
+        while (n > 0) {
+            for (int i = 0; i < n; i++)
+                points[i] = lerp(points[i], points[i + 1], t);
+            n--;
+        }
+
+        return points[0];
     }
 }

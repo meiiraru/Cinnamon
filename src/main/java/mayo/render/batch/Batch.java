@@ -105,7 +105,7 @@ public abstract class Batch { //vertex consumer
 
     public boolean pushFace(Vertex[] vertices, int textureID) {
         //cant add
-        if (isFull())
+        if (isFull(vertices.length))
             return false;
 
         //add texture
@@ -128,9 +128,8 @@ public abstract class Batch { //vertex consumer
         }
     }
 
-    public boolean isFull() {
-        //at least 1 face must be is free to push
-        return buffer.remaining() < (vertexSize * verticesPerFace);
+    public boolean isFull(int size) {
+        return buffer.remaining() < (vertexSize * size);
     }
 
     // -- children types -- //

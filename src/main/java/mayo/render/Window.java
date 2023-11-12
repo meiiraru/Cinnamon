@@ -26,6 +26,7 @@ public class Window {
 
     //mouse properties
     public int mouseX, mouseY;
+    public boolean mouse1Press, mouse2Press, mouse3Press;
     private boolean mouseLocked;
 
     public Window(long window, int width, int height) {
@@ -117,6 +118,15 @@ public class Window {
 
     public void setTitle(String title) {
         glfwSetWindowTitle(window, title);
+    }
+
+    public void mousePress(int button, int action, int mods) {
+        boolean press = action == GLFW_PRESS;
+        switch (button) {
+            case GLFW_MOUSE_BUTTON_1 -> mouse1Press = press;
+            case GLFW_MOUSE_BUTTON_2 -> mouse2Press = press;
+            case GLFW_MOUSE_BUTTON_3 -> mouse3Press = press;
+        }
     }
 
     public void mouseMove(double x, double y) {

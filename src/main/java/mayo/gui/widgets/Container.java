@@ -113,7 +113,7 @@ public class Container extends Widget implements Tickable, GUIListener {
     }
 
     @Override
-    public boolean mouseMove(double x, double y) {
+    public boolean mouseMove(int x, int y) {
         for (GUIListener listener : this.listeners) {
             if (listener.mouseMove(x, y))
                 return true;
