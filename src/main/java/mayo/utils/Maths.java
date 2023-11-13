@@ -236,6 +236,10 @@ public class Maths {
         return approxRoot;
     }
 
+    public static float factorial(int n) {
+        return n <= 1 ? 1f : n * factorial(n - 1);
+    }
+
     public static float hermite(float p0, float p3, float r0, float r3, float weight, float t) {
         float t2 = t * t;
         float t3 = t2 * t;
@@ -248,10 +252,19 @@ public class Maths {
     public static float bezier(float p0, float p1, float p2, float p3, float t) {
         float t2 = t * t;
         float t3 = t2 * t;
-        return (-1 * t3 + 3 * t2 - 3 * t + 1) * p0 +
+        return (-t3 + 3 * t2 - 3 * t + 1) * p0 +
                 (3 * t3 - 6 * t2 + 3 * t) * p1 +
                 (-3 * t3 + 3 * t2) * p2 +
                 t3 * p3;
+    }
+
+    public static float bSpline(float p0, float p1, float p2, float p3, float t) {
+        float t2 = t * t;
+        float t3 = t2 * t;
+        return ((-t3 + 3 * t2 - 3 * t + 1) * p0 +
+                (3 * t3 - 6 * t2 + 4) * p1 +
+                (-3 * t3 + 3 * t2 + 3 * t + 1) * p2 +
+                t3 * p3) / 6f;
     }
 
     public static float bezierDeCasteljau(float t, float... controlPoints) {

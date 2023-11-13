@@ -1,9 +1,10 @@
 package mayo.gui.screens;
 
-import mayo.Client;
 import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
 import mayo.gui.widgets.SelectableWidget;
+import mayo.gui.widgets.types.ComboBox;
+import mayo.gui.widgets.types.Label;
 import mayo.model.GeometryHelper;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
@@ -30,16 +31,55 @@ public class Curves extends ParentedScreen {
     private final List<Vector2f> curve = new ArrayList<>();
     private int steps = 30;
 
+    private int anchorX, anchorY;
+
+    private int curveType = 0;
+
     public Curves(Screen parentScreen) {
         super(parentScreen);
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        super.render(matrices, mouseX, mouseY, delta);
+    public void init() {
+        super.init();
 
+        Label help = new Label(Text.of("\u2753"), client.font, 4, 4);
+        help.setTooltip(Text.of("""
+                Mouse 1
+                    Add control point
+
+                Mouse 1 (select and drag)
+                    Move control point
+
+                Mouse 2
+                    Remove control point
+
+                Mouse 3 (drag)
+                    Move all points
+
+                Scroll
+                    Change curve quality"""));
+        addWidget(help);
+
+        ComboBox box = new ComboBox(width - 64, 4, 60, 12)
+                .closeOnSelect(true)
+                .setChangeListener(i -> {
+                    this.curveType = i;
+                    updateCurve();
+                })
+                .addEntry(Text.of("Hermite"))
+                .addEntry(Text.of("Bezier"))
+                .addEntry(Text.of("B-Spline"))
+                .addEntry(Text.of("Bezier De Casteljau"));
+
+        box.select(curveType); //widget recreation
+        addWidget(box);
+    }
+
+    @Override
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         int size = points.size();
-        Font f = Client.getInstance().font;
+        Font f = client.font;
 
         //draw text
         for (int i = 0; i < size; i++) {
@@ -56,7 +96,6 @@ public class Curves extends ParentedScreen {
         }
 
         //draw curve
-        updateCurve();
         for (int i = 0; i < curve.size() - 1; i++) {
             int colorA = 0x7272FF;
             int colorB = 0x72FF72;
@@ -74,6 +113,8 @@ public class Curves extends ParentedScreen {
             Text t = Text.of("x" + selected.getX() + " y" + selected.getY());
             f.render(VertexConsumer.FONT_FLAT, matrices, 4, height - 4 - TextUtils.getHeight(t, f), t);
         }
+
+        super.render(matrices, mouseX, mouseY, delta);
     }
 
     @Override
@@ -84,9 +125,12 @@ public class Curves extends ParentedScreen {
     }
 
     @Override
-    public void mousePress(int button, int action, int mods) {
+    public boolean mousePress(int button, int action, int mods) {
+        boolean child = super.mousePress(button, action, mods);
+        if (child) return true;
+
         if (action == GLFW.GLFW_PRESS) {
-            Window w = Client.getInstance().window;
+            Window w = client.window;
             switch (button) {
                 case GLFW.GLFW_MOUSE_BUTTON_1 -> {
                     Point p = getHovered();
@@ -97,17 +141,21 @@ public class Curves extends ParentedScreen {
                     }
                 }
                 case GLFW.GLFW_MOUSE_BUTTON_2 -> removePoint();
+                case GLFW.GLFW_MOUSE_BUTTON_3 -> {
+                    anchorX = w.mouseX;
+                    anchorY = w.mouseY;
+                }
             }
         } else if (button == GLFW.GLFW_MOUSE_BUTTON_1) {
             selected = null;
         }
 
-        super.mousePress(button, action, mods);
+        return false;
     }
 
     @Override
-    public void mouseMove(int x, int y) {
-        Window w = Client.getInstance().window;
+    public boolean mouseMove(int x, int y) {
+        Window w = client.window;
 
         if (w.mouse1Press) {
             if (selected != null) {
@@ -116,16 +164,30 @@ public class Curves extends ParentedScreen {
             }
         } else if (w.mouse2Press) {
             removePoint();
+        } else if (w.mouse3Press) {
+            int dx = x - anchorX;
+            int dy = y - anchorY;
+            anchorX = x;
+            anchorY = y;
+
+            for (Point point : points)
+                point.setPos(point.getX() + dx, point.getY() + dy);
+
+            updateCurve();
         }
 
-        super.mouseMove(x, y);
+        return super.mouseMove(x, y);
     }
 
     @Override
-    public void scroll(double x, double y) {
+    public boolean scroll(double x, double y) {
+        boolean child = super.scroll(x, y);
+        if (child) return true;
+
         steps = Math.max(steps + (int) Math.signum(y), 1);
         updateCurve();
-        super.scroll(x, y);
+
+        return false;
     }
 
     private Point getHovered() {
@@ -156,48 +218,74 @@ public class Curves extends ParentedScreen {
 
     private void updateCurve() {
         curve.clear();
-
-        //hermite();
-        //bezier();
-        bezierDeCasteljau();
+        switch (curveType) {
+            case 0 -> hermite();
+            case 1 -> bezier();
+            case 2 -> bSpline();
+            case 3 -> bezierDeCasteljau();
+        }
     }
 
     private void hermite() {
-        int size = points.size() - 1;
-        if (size < 3)
+        int size = points.size();
+        if (size < 4)
             return;
 
-        Vector2f p0 = points.get(0).getCenter();
-        Vector2f p3 = points.get(2).getCenter();
+        for (int i = 0; i <= size - 2; i += 2) {
+            Vector2f p0 = points.get(i).getCenter();
+            Vector2f r0 = points.get((i + 1) % size).getCenter().sub(p0);
+            Vector2f p3 = points.get((i + 2) % size).getCenter();
+            Vector2f r3 = points.get((i + 3) % size).getCenter().sub(p3);
 
-        Vector2f r0 = points.get(1).getCenter().sub(p0);
-        Vector2f r3 = points.get(3).getCenter().sub(p3);
-
-        for (float j = 0; j <= steps; j++) {
-            float t = j / steps;
-            curve.add(new Vector2f(
-                    Maths.hermite(p0.x, p3.x, r0.x, r3.x, 10f, t),
-                    Maths.hermite(p0.y, p3.y, r0.y, r3.y, 10f, t)
-            ));
+            for (float j = 0; j <= steps; j++) {
+                float t = j / steps;
+                curve.add(new Vector2f(
+                        Maths.hermite(p0.x, p3.x, r0.x, r3.x, 10f, t),
+                        Maths.hermite(p0.y, p3.y, r0.y, r3.y, 10f, t)
+                ));
+            }
         }
     }
 
     private void bezier() {
         int size = points.size() - 1;
-        if (size < 3)
+        if (size < 2)
             return;
 
-        Vector2f p0 = points.get(0).getCenter();
-        Vector2f p1 = points.get(1).getCenter();
-        Vector2f p2 = points.get(2).getCenter();
-        Vector2f p3 = points.get(3).getCenter();
+        for (int i = 0; i <= size - 3; i += 3) {
+            Vector2f p0 = points.get(i).getCenter();
+            Vector2f p1 = points.get(i + 1).getCenter();
+            Vector2f p2 = points.get(i + 2).getCenter();
+            Vector2f p3 = points.get(i + 3).getCenter();
 
-        for (float j = 0; j <= steps; j++) {
-            float t = j / steps;
-            curve.add(new Vector2f(
-                    Maths.bezier(p0.x, p1.x, p2.x, p3.x, t),
-                    Maths.bezier(p0.y, p1.y, p2.y, p3.y, t)
-            ));
+            for (float j = 0; j <= steps; j++) {
+                float t = j / steps;
+                curve.add(new Vector2f(
+                        Maths.bezier(p0.x, p1.x, p2.x, p3.x, t),
+                        Maths.bezier(p0.y, p1.y, p2.y, p3.y, t)
+                ));
+            }
+        }
+    }
+
+    private void bSpline() {
+        int size = points.size();
+        if (size < 2)
+            return;
+
+        for (int i = 0; i < size; i++) {
+            Vector2f p0 = points.get(i).getCenter();
+            Vector2f p1 = points.get((i + 1) % size).getCenter();
+            Vector2f p2 = points.get((i + 2) % size).getCenter();
+            Vector2f p3 = points.get((i + 3) % size).getCenter();
+
+            for (float j = 0; j <= steps; j++) {
+                float t = j / steps;
+                curve.add(new Vector2f(
+                        Maths.bSpline(p0.x, p1.x, p2.x, p3.x, t),
+                        Maths.bSpline(p0.y, p1.y, p2.y, p3.y, t)
+                ));
+            }
         }
     }
 
@@ -206,11 +294,11 @@ public class Curves extends ParentedScreen {
         if (size < 1)
             return;
 
-        float[] pointsX = new float[size];
-        float[] pointsY = new float[size];
+        float[] pointsX = new float[size + 1];
+        float[] pointsY = new float[size + 1];
 
-        for (int i = 0; i < size; i++) {
-            Vector2f pos = points.get(i).getCenter();
+        for (int i = 0; i <= size; i++) {
+            Vector2f pos = points.get(i % size).getCenter();
             pointsX[i] = pos.x;
             pointsY[i] = pos.y;
         }
@@ -233,7 +321,7 @@ public class Curves extends ParentedScreen {
         }
 
         @Override
-        public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
             float d = Maths.magicDelta(0.6f, delta);
             alpha = (int) Maths.lerp(alpha, this.isHovered() ? 0xFF : 0x88, d);
             GeometryHelper.circle(VertexConsumer.GUI, matrices, getX() + R, getY() + R, R, 12, 0xAD72FF + (alpha << 24));

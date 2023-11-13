@@ -1,7 +1,9 @@
 package mayo.utils;
 
 import mayo.Client;
+import mayo.gui.Screen;
 import mayo.gui.widgets.Widget;
+import mayo.gui.widgets.types.ContextMenu;
 import mayo.model.GeometryHelper;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
@@ -19,7 +21,8 @@ public class UIHelper {
             Texture.of(new Resource("textures/gui/background/background_1.png")),
             Texture.of(new Resource("textures/gui/background/background_2.png"))
     };
-    private static final Texture TOOLTIP = Texture.of(new Resource("textures/gui/tooltip.png"));
+    private static final Texture TOOLTIP = Texture.of(new Resource("textures/gui/widgets/tooltip.png"));
+    public static final Colors ACCENT = Colors.PURPLE;
 
     public static void renderBackground(MatrixStack matrices, int width, int height, float delta) {
         Client c = Client.getInstance();
@@ -137,5 +140,43 @@ public class UIHelper {
         f.render(VertexConsumer.FONT_FLAT, matrices, 2, 2, tooltip);
 
         matrices.pop();
+    }
+
+    public static void setTooltip(Text text) {
+        Screen s = Client.getInstance().screen;
+        if (s != null) s.tooltip = text;
+    }
+
+    public static void setContextMenu(int x, int y, ContextMenu context) {
+        Screen s = Client.getInstance().screen;
+        if (s == null)
+            return;
+
+        ContextMenu sContext = s.contextMenu;
+        if (sContext != null) {
+            s.removeWidget(sContext);
+            sContext.close();
+        }
+
+        if (context == null)
+            return;
+
+        context.setPos(x, y);
+        fitToScreen(context);
+
+        s.contextMenu = context;
+        s.addWidgetOnTop(context);
+    }
+
+    public static void fitToScreen(Widget w) {
+        //screen size
+        Window window = Client.getInstance().window;
+        int screenW = window.scaledWidth;
+        int screenH = window.scaledHeight;
+
+        //fix widget pos
+        int x = (int) Maths.clamp(w.getX(), 0, screenW - w.getWidth());
+        int y = (int) Maths.clamp(w.getY(), 0, screenH - w.getHeight());
+        w.setPos(x, y);
     }
 }

@@ -25,7 +25,7 @@ public class Window {
     public float guiScale = 1f;
 
     //mouse properties
-    public int mouseX, mouseY;
+    public int mouseX = -1, mouseY = -1;
     public boolean mouse1Press, mouse2Press, mouse3Press;
     private boolean mouseLocked;
 

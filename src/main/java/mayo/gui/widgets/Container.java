@@ -21,6 +21,13 @@ public class Container extends Widget implements Tickable, GUIListener {
         updateDimensions();
     }
 
+    public void addWidgetOnTop(Widget widget) {
+        this.widgets.add(0, widget);
+        if (widget instanceof GUIListener el)
+            this.listeners.add(0, el);
+        updateDimensions();
+    }
+
     public void removeWidget(Widget widget) {
         this.widgets.remove(widget);
         if (widget instanceof GUIListener el)

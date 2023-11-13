@@ -97,7 +97,10 @@ public class CollisionScreen extends ParentedScreen {
     }
 
     @Override
-    public void mousePress(int button, int action, int mods) {
+    public boolean mousePress(int button, int action, int mods) {
+        boolean child = super.mousePress(button, action, mods);
+        if (child) return true;
+
         if (action == GLFW_PRESS) {
             int mouseX = Client.getInstance().window.mouseX;
             int mouseY = Client.getInstance().window.mouseY;
@@ -108,12 +111,13 @@ public class CollisionScreen extends ParentedScreen {
             }
         }
 
-        super.mousePress(button, action, mods);
+        return false;
     }
 
     @Override
-    public void keyPress(int key, int scancode, int action, int mods) {
-        super.keyPress(key, scancode, action, mods);
+    public boolean keyPress(int key, int scancode, int action, int mods) {
+        boolean child = super.keyPress(key, scancode, action, mods);
+        if (child) return true;
 
         boolean press = action != GLFW_RELEASE;
         switch (key) {
@@ -122,5 +126,7 @@ public class CollisionScreen extends ParentedScreen {
             case GLFW_KEY_UP    -> u = press;
             case GLFW_KEY_DOWN  -> d = press;
         }
+
+        return false;
     }
 }

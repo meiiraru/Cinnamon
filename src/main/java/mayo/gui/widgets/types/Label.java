@@ -1,13 +1,13 @@
 package mayo.gui.widgets.types;
 
-import mayo.gui.widgets.Widget;
+import mayo.gui.widgets.SelectableWidget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
 import mayo.utils.TextUtils;
 
-public class Label extends Widget {
+public class Label extends SelectableWidget {
 
     private final Font font;
     private Text text;
@@ -20,7 +20,7 @@ public class Label extends Widget {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         font.render(VertexConsumer.FONT_FLAT, matrices, getX(), getY(), text, alignment);
     }
 

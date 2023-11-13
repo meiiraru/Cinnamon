@@ -281,26 +281,76 @@ public class Font {
     public float width(Text text) {
         //prepare vars
         boolean[] prevItalic = {false};
-        xb.put(0, 0f); yb.put(0, 0f);
+        xb.put(0, 0f);
 
         //iterate text
         text.visit((s, style) -> {
-            for (int i = 0; i < s.length(); i++) {
-                //this function will fill the buffers with all necessary data, as we only want the xb (width)
+            int length = s.length();
+            boolean bold = style.isBold();
+            boolean italic = style.isItalic();
+
+            //bold special
+            if (bold)
+                xb.put(0, xb.get(0) + (BOLD_OFFSET * length));
+
+            //italic special
+            if (prevItalic[0] && !italic)
+                xb.put(0, xb.get(0) + ITALIC_OFFSET);
+            prevItalic[0] = italic;
+
+            //this function will fill the buffers with all necessary data, as we only want the xb (width)
+            for (int i = 0; i < length; i++)
                 stbtt_GetPackedQuad(charData, TEXTURE_W, TEXTURE_H, s.charAt(i), xb, yb, q, false);
-
-                //bold special
-                if (style.isBold())
-                    xb.put(0, xb.get(0) + BOLD_OFFSET);
-
-                //italic special
-                boolean italic = style.isItalic();
-                if (prevItalic[0] && !italic)
-                    xb.put(0, xb.get(0) + ITALIC_OFFSET);
-                prevItalic[0] = italic;
-            }
         }, Style.EMPTY);
 
         return xb.get(0);
+    }
+
+    public Text clampToWidth(Text text, int width) {
+        //prepare vars
+        Text builder = Text.empty();
+        boolean[] prevItalic = {false};
+        xb.put(0, 0f);
+
+        //iterate text
+        text.visit((s, style) -> {
+            boolean bold = style.isBold();
+            boolean italic = style.isItalic();
+
+            //italic
+            if (!prevItalic[0] && italic)
+                xb.put(0, xb.get(0) + ITALIC_OFFSET);
+            prevItalic[0] = italic;
+
+            //text allowed to add
+            StringBuilder current = new StringBuilder();
+            boolean stop = false;
+
+            //iterate over the text
+            for (int i = 0; i < s.length(); i++) {
+                char c = s.charAt(i);
+                //fill buffers
+                stbtt_GetPackedQuad(charData, TEXTURE_W, TEXTURE_H, c, xb, yb, q, false);
+
+                //bold special
+                if (bold)
+                    xb.put(0, xb.get(0) + BOLD_OFFSET);
+
+                //check width
+                if (xb.get(0) <= width) {
+                    current.append(c);
+                } else {
+                    stop = true;
+                    break;
+                }
+            }
+
+            //append allowed text
+            builder.append(Text.of(current.toString()).withStyle(style));
+            return stop;
+        }, Style.EMPTY);
+
+        //return
+        return builder;
     }
 }

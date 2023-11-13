@@ -1,8 +1,8 @@
 package mayo.gui.widgets.types;
 
 import mayo.Client;
-import mayo.gui.Screen;
 import mayo.gui.widgets.SelectableWidget;
+import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
@@ -12,41 +12,28 @@ import mayo.utils.Resource;
 import mayo.utils.TextUtils;
 import mayo.utils.UIHelper;
 
+import java.util.function.Consumer;
+
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_1;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public class Button extends SelectableWidget {
 
-    private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/button.png"));
+    private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/button.png"));
     private static final Resource CLICK_SOUND = new Resource("sounds/pop.ogg");
 
-    private final Label message;
-    private final Runnable toRun;
-    private Text tooltip;
+    protected Text message;
+    protected Consumer<Button> action;
 
-    public Button(int x, int y, int width, int height, Text message, Runnable toRun) {
+    public Button(int x, int y, int width, int height, Text message, Consumer<Button> action) {
         super(x, y, width, height);
-
-        if (message != null) {
-            this.message = new Label(message, Client.getInstance().font, 0, 0);
-            this.message.setAlignment(TextUtils.Alignment.CENTER);
-        } else {
-            this.message = null;
-        }
-
-        this.toRun = toRun;
+        this.message = message;
+        this.action = action;
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        if (this.isHovered()) {
-            Screen s = Client.getInstance().screen;
-            if (s != null)
-                s.tooltip = tooltip;
-        }
-
+    public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         renderBackground(matrices, mouseX, mouseY, delta);
-
         if (message != null)
             renderText(matrices, mouseX, mouseY, delta);
     }
@@ -63,8 +50,10 @@ public class Button extends SelectableWidget {
     }
 
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        message.setPos(getCenterX(), getY() + (int) ((getHeight() - Client.getInstance().font.lineHeight) / 2));
-        message.render(matrices, mouseX, mouseY, delta);
+        Font f = Client.getInstance().font;
+        int x = getCenterX();
+        int y = getCenterY() - TextUtils.getHeight(message, f) / 2;
+        f.render(VertexConsumer.FONT_FLAT, matrices, x, y, message, TextUtils.Alignment.CENTER);
     }
 
     public int getState() {
@@ -87,14 +76,23 @@ public class Button extends SelectableWidget {
 
     public void press() {
         playClickSound();
-        toRun.run();
-    }
-
-    public void setTooltip(Text tooltip) {
-        this.tooltip = tooltip;
+        if (action != null)
+            action.accept(this);
     }
 
     public void playClickSound() {
         Client.getInstance().soundManager.playSound(CLICK_SOUND, SoundCategory.GUI);
+    }
+
+    public Text getMessage() {
+        return message;
+    }
+
+    public void setMessage(Text message) {
+        this.message = message;
+    }
+
+    public void setAction(Consumer<Button> action) {
+        this.action = action;
     }
 }

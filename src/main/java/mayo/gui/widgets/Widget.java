@@ -37,12 +37,12 @@ public abstract class Widget {
         return y;
     }
 
-    protected void setDimensions(int width, int height) {
+    public void setDimensions(int width, int height) {
         this.setWidth(width);
         this.setHeight(height);
     }
 
-    protected void setWidth(int width) {
+    public void setWidth(int width) {
         this.width = width;
     }
 
@@ -50,7 +50,7 @@ public abstract class Widget {
         return width;
     }
 
-    protected void setHeight(int height) {
+    public void setHeight(int height) {
         this.height = height;
     }
 

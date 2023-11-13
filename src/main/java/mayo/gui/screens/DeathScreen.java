@@ -20,12 +20,12 @@ public class DeathScreen extends Screen {
     public void init() {
         super.init();
 
-        this.addWidget(respawn = new Button((width - 180) / 2, height / 2 + 8, 180, 20, Text.of("Respawn"), () -> {
+        this.addWidget(respawn = new Button((width - 180) / 2, height / 2 + 8, 180, 20, Text.of("Respawn"), button -> {
             client.world.respawn();
             client.setScreen(null);
         }));
 
-        Button menu = new Button(respawn.getX(), respawn.getY() + respawn.getHeight() + 16, 180, 20, Text.of("Main menu"), () -> {
+        Button menu = new Button(respawn.getX(), respawn.getY() + respawn.getHeight() + 16, 180, 20, Text.of("Main menu"), button -> {
             client.setScreen(new MainMenu());
             client.world.exit();
         });

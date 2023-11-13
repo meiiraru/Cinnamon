@@ -3,6 +3,7 @@ package mayo.gui;
 import mayo.Client;
 import mayo.gui.widgets.Container;
 import mayo.gui.widgets.Widget;
+import mayo.gui.widgets.types.ContextMenu;
 import mayo.model.GeometryHelper;
 import mayo.model.Vertex;
 import mayo.render.Font;
@@ -24,8 +25,9 @@ public abstract class Screen {
     protected Font font;
     protected int width, height;
 
-    //other things
+    //overlays
     public Text tooltip;
+    public ContextMenu contextMenu;
 
 
     // -- screen functions -- //
@@ -76,6 +78,10 @@ public abstract class Screen {
 
     public void addWidget(Widget widget) {
         this.mainContainer.addWidget(widget);
+    }
+
+    public void addWidgetOnTop(Widget widget) {
+        this.mainContainer.addWidgetOnTop(widget);
     }
 
     public void removeWidget(Widget widget) {
@@ -137,28 +143,33 @@ public abstract class Screen {
     // -- listeners -- //
 
 
-    public void mousePress(int button, int action, int mods) {
-        this.mainContainer.mousePress(button, action, mods);
+    public boolean mousePress(int button, int action, int mods) {
+        return this.mainContainer.mousePress(button, action, mods);
     }
 
-    public void keyPress(int key, int scancode, int action, int mods) {
-        if (!this.mainContainer.keyPress(key, scancode, action, mods) && action == GLFW_PRESS && key == GLFW_KEY_ESCAPE && closeOnEsc())
+    public boolean keyPress(int key, int scancode, int action, int mods) {
+        boolean child = this.mainContainer.keyPress(key, scancode, action, mods);
+        if (child) return true;
+
+        if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE && closeOnEsc())
             this.close();
+
+        return false;
     }
 
-    public void charTyped(char c, int mods) {
-        this.mainContainer.charTyped(c, mods);
+    public boolean charTyped(char c, int mods) {
+        return this.mainContainer.charTyped(c, mods);
     }
 
-    public void mouseMove(int x, int y) {
-        this.mainContainer.mouseMove(x, y);
+    public boolean mouseMove(int x, int y) {
+        return this.mainContainer.mouseMove(x, y);
     }
 
-    public void scroll(double x, double y) {
-        this.mainContainer.scroll(x, y);
+    public boolean scroll(double x, double y) {
+        return this.mainContainer.scroll(x, y);
     }
 
-    public void windowFocused(boolean focused) {
-        this.mainContainer.windowFocused(focused);
+    public boolean windowFocused(boolean focused) {
+        return this.mainContainer.windowFocused(focused);
     }
 }

@@ -18,7 +18,7 @@ public abstract class ParentedScreen extends Screen {
     }
 
     protected void addBackButton() {
-        this.addWidget(new Button(width - 60 - 4, height - 20 - 4, 60, 20 , Text.of("Back"), this::close));
+        this.addWidget(new Button(width - 60 - 4, height - 20 - 4, 60, 20 , Text.of("Back"), button -> close()));
     }
 
     @Override

@@ -29,10 +29,10 @@ import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 
 public class Hud {
 
-    private final Texture CROSSHAIR = Texture.of(new Resource("textures/gui/crosshair.png"));
-    private final Texture HOTBAR = Texture.of(new Resource("textures/gui/hotbar.png"));
-    private final Texture VIGNETTE = Texture.of(new Resource("textures/gui/vignette.png"));
-    private final Texture HIT_DIRECTION = Texture.of(new Resource("textures/gui/hit_direction.png"));
+    private final Texture CROSSHAIR = Texture.of(new Resource("textures/gui/hud/crosshair.png"));
+    private final Texture HOTBAR = Texture.of(new Resource("textures/gui/hud/hotbar.png"));
+    private final Texture VIGNETTE = Texture.of(new Resource("textures/gui/hud/vignette.png"));
+    private final Texture HIT_DIRECTION = Texture.of(new Resource("textures/gui/hud/hit_direction.png"));
 
     private ProgressBar health, itemCooldown;
 

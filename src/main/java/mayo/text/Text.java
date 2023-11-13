@@ -28,6 +28,13 @@ public class Text {
         return new Text(text);
     }
 
+    public Text copy() {
+        Text t = new Text(text, style);
+        for (Text child : children)
+            t.children.add(child.copy());
+        return t;
+    }
+
     public Text withStyle(Style style) {
         this.style = style.applyParent(this.style);
         return this;

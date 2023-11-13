@@ -24,26 +24,26 @@ public class MainMenu extends Screen {
         WidgetList list = new WidgetList(0, 0, 4);
 
         //open world
-        Button worldButton = new Button(0, 0, 180, 20, Text.of("Open world"), () -> {
+        Button worldButton = new Button(0, 0, 180, 20, Text.of("Open world"), button -> {
             World world = new World();
             world.init();
         });
         list.addWidget(worldButton);
 
         //dvd screen
-        Button dvd = new Button(0, 0, 180, 20, Text.of("DVD screensaver"), () -> client.setScreen(new DVDScreen(this)));
+        Button dvd = new Button(0, 0, 180, 20, Text.of("DVD screensaver"), button -> client.setScreen(new DVDScreen(this)));
         list.addWidget(dvd);
 
         //collision screen
-        Button coll = new Button(0, 0, 180, 20, Text.of("Collision Test"), () -> client.setScreen(new CollisionScreen(this)));
+        Button coll = new Button(0, 0, 180, 20, Text.of("Collision Test"), button -> client.setScreen(new CollisionScreen(this)));
         list.addWidget(coll);
 
         //curves screen
-        Button curve = new Button(0, 0, 180, 20, Text.of("Curves!"), () -> client.setScreen(new Curves(this)));
+        Button curve = new Button(0, 0, 180, 20, Text.of("Curves!"), button -> client.setScreen(new Curves(this)));
         list.addWidget(curve);
 
         //close application
-        Button exitButton = new Button(0, 0, 180, 20, Text.of("Exit"), () -> client.window.exit());
+        Button exitButton = new Button(0, 0, 180, 20, Text.of("Exit"), button -> client.window.exit());
         exitButton.setTooltip(Text.of("bye~"));
         list.addWidget(exitButton);
 
