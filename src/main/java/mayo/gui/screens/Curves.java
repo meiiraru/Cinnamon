@@ -5,6 +5,8 @@ import mayo.gui.Screen;
 import mayo.gui.widgets.SelectableWidget;
 import mayo.gui.widgets.types.ComboBox;
 import mayo.gui.widgets.types.Label;
+import mayo.gui.widgets.types.ToggleButton;
+import mayo.gui.widgets.types.WidgetList;
 import mayo.model.GeometryHelper;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
@@ -33,7 +35,8 @@ public class Curves extends ParentedScreen {
 
     private int anchorX, anchorY;
 
-    private int curveType = 0;
+    private int curveType = 2;
+    private boolean renderPointsText = true, renderLines = true;
 
     public Curves(Screen parentScreen) {
         super(parentScreen);
@@ -43,7 +46,9 @@ public class Curves extends ParentedScreen {
     public void init() {
         super.init();
 
-        Label help = new Label(Text.of("\u2753"), client.font, 4, 4);
+        WidgetList list = new WidgetList(4, 4, 4);
+
+        Label help = new Label(Text.of("\u2753 Help"), client.font, 0, 0);
         help.setTooltip(Text.of("""
                 Mouse 1
                     Add control point
@@ -59,9 +64,9 @@ public class Curves extends ParentedScreen {
 
                 Scroll
                     Change curve quality"""));
-        addWidget(help);
+        list.addWidget(help);
 
-        ComboBox box = new ComboBox(width - 64, 4, 60, 12)
+        ComboBox box = new ComboBox(0, 0, 60, 12)
                 .closeOnSelect(true)
                 .setChangeListener(i -> {
                     this.curveType = i;
@@ -73,7 +78,19 @@ public class Curves extends ParentedScreen {
                 .addEntry(Text.of("Bezier De Casteljau"));
 
         box.select(curveType); //widget recreation
-        addWidget(box);
+        list.addWidget(box);
+
+        ToggleButton pointsButton = new ToggleButton(0, 0, 12, Text.of("Render points index"));
+        pointsButton.setAction(button -> renderPointsText = pointsButton.isToggled());
+        pointsButton.setToggled(renderPointsText);
+        list.addWidget(pointsButton);
+
+        ToggleButton linesButton = new ToggleButton(0, 0, 12, Text.of("Render lines"));
+        linesButton.setAction(button -> renderLines = linesButton.isToggled());
+        linesButton.setToggled(renderLines);
+        list.addWidget(linesButton);
+
+        this.addWidget(list);
     }
 
     @Override
@@ -82,17 +99,21 @@ public class Curves extends ParentedScreen {
         Font f = client.font;
 
         //draw text
-        for (int i = 0; i < size; i++) {
-            Point p = points.get(i);
-            f.render(VertexConsumer.FONT_FLAT, matrices, p.getX() + POINT_SIZE, p.getY() + POINT_SIZE, Text.of("p" + i));
+        if (renderPointsText) {
+            for (int i = 0; i < size; i++) {
+                Point p = points.get(i);
+                f.render(VertexConsumer.FONT_FLAT, matrices, p.getX() + POINT_SIZE, p.getY() + POINT_SIZE, Text.of("p" + i));
+            }
         }
 
         //draw lines
-        for (int i = 0; i < size; i++) {
-            Point a = points.get(i);
-            Point b = points.get((i + 1) % size);
+        if (renderLines) {
+            for (int i = 0; i < size; i++) {
+                Point a = points.get(i);
+                Point b = points.get((i + 1) % size);
 
-            UIHelper.drawLine(VertexConsumer.GUI, matrices, a.getX() + R, a.getY() + R, b.getX() + R, b.getY() + R, 2, 0x88FF72AD);
+                UIHelper.drawLine(VertexConsumer.GUI, matrices, a.getX() + R, a.getY() + R, b.getX() + R, b.getY() + R, 2, 0x88FF72AD);
+            }
         }
 
         //draw curve
@@ -115,6 +136,8 @@ public class Curves extends ParentedScreen {
         }
 
         super.render(matrices, mouseX, mouseY, delta);
+
+        f.render(VertexConsumer.FONT_FLAT, matrices, width - 4, 4, Text.of(client.fps + " fps"), TextUtils.Alignment.RIGHT);
     }
 
     @Override

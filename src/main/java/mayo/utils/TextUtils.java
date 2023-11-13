@@ -10,6 +10,8 @@ import java.util.function.BiFunction;
 
 public class TextUtils {
 
+    private static final Text ELLIPSIS = Text.of("...");
+
     public static List<Text> split(Text text, String regex) {
         List<Text> list = new ArrayList<>();
         Text[] currentText = {Text.empty()};
@@ -72,6 +74,18 @@ public class TextUtils {
 
         //apply trim
         return substring(text, start, end);
+    }
+
+    public static Text addEllipsis(Text text, Font font, int width) {
+        if (getWidth(text, font) <= width)
+            return text;
+
+        int ellipsisWidth = getWidth(ELLIPSIS, font);
+
+        Text clamped = font.clampToWidth(text, width - ellipsisWidth);
+        clamped.append(ELLIPSIS);
+
+        return clamped;
     }
 
     public enum Alignment {

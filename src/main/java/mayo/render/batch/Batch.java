@@ -105,7 +105,7 @@ public abstract class Batch { //vertex consumer
 
     public boolean pushFace(Vertex[] vertices, int textureID) {
         //cant add
-        if (isFull(vertices.length))
+        if (isFull(getUnwrappedVertexCount(vertices)))
             return false;
 
         //add texture
@@ -126,6 +126,10 @@ public abstract class Batch { //vertex consumer
             Attributes.pushVertex(buffer, vertices[i], texID, vertexFlags);
             Attributes.pushVertex(buffer, vertices[i + 1], texID, vertexFlags);
         }
+    }
+
+    protected int getUnwrappedVertexCount(Vertex[] vertices) {
+        return (vertices.length - 2) * 3;
     }
 
     public boolean isFull(int size) {
@@ -200,6 +204,11 @@ public abstract class Batch { //vertex consumer
             //last pair
             Attributes.pushVertex(buffer, vertices[0], texID, vertexFlags);
             Attributes.pushVertex(buffer, vertices[len - 1], texID, vertexFlags);
+        }
+
+        @Override
+        protected int getUnwrappedVertexCount(Vertex[] vertices) {
+            return (vertices.length - 1) * 2 + 2;
         }
     }
 }

@@ -24,7 +24,7 @@ public class MainMenu extends Screen {
         WidgetList list = new WidgetList(0, 0, 4);
 
         //open world
-        Button worldButton = new Button(0, 0, 180, 20, Text.of("Open world"), button -> {
+        Button worldButton = new Button(0, 0, 180, 20, Text.of("Open world").withStyle(Style.EMPTY.color(Colors.YELLOW)), button -> {
             World world = new World();
             world.init();
         });
@@ -39,7 +39,7 @@ public class MainMenu extends Screen {
         list.addWidget(coll);
 
         //curves screen
-        Button curve = new Button(0, 0, 180, 20, Text.of("Curves!"), button -> client.setScreen(new Curves(this)));
+        Button curve = new Button(0, 0, 180, 20, Text.of("Curves").withStyle(Style.EMPTY.color(Colors.YELLOW)), button -> client.setScreen(new Curves(this)));
         list.addWidget(curve);
 
         //close application

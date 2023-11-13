@@ -1,7 +1,6 @@
 package mayo.gui.widgets.types;
 
 import mayo.Client;
-import mayo.gui.widgets.SelectableWidget;
 import mayo.gui.widgets.Widget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
@@ -54,7 +53,7 @@ public class ContextMenu extends WidgetList {
         int y = widgets.isEmpty() ? 0 : getHeight();
         int width = Math.max(TextUtils.getWidth(name, Client.getInstance().font) + 4, minWidth - 2);
 
-        ContextButton button = new ContextButton(getX(), y, name, action, this, widgets.size());
+        ContextButton button = new ContextButton(getX(), y, name, action, widgets.size());
         button.setTooltip(tooltip);
         button.setDimensions(width, elementHeight);
 
@@ -139,13 +138,11 @@ public class ContextMenu extends WidgetList {
         return super.keyPress(key, scancode, action, mods);
     }
 
-    private static class ContextButton extends Button {
-        private final Widget parent;
+    public static class ContextButton extends Button {
         private final int index;
 
-        public ContextButton(int x, int y, Text message, Consumer<Button> action, Widget parent, int index) {
+        public ContextButton(int x, int y, Text message, Consumer<Button> action, int index) {
             super(x, y, 0, 0, message, action);
-            this.parent = parent;
             this.index = index;
         }
 
@@ -167,13 +164,6 @@ public class ContextMenu extends WidgetList {
             int x = getX() + 2;
             int y = getCenterY() - TextUtils.getHeight(message, f) / 2;
             f.render(VertexConsumer.FONT_FLAT, matrices, x, y, message);
-        }
-
-        @Override
-        protected void updateHover(int x, int y) {
-            super.updateHover(x, y);
-            if (this.isHovered() && parent instanceof SelectableWidget sw)
-                sw.setHovered(true);
         }
     }
 }

@@ -168,6 +168,11 @@ public class UIHelper {
         s.addWidgetOnTop(context);
     }
 
+    public static boolean hasActiveContextMenu() {
+        Screen s = Client.getInstance().screen;
+        return s != null && s.contextMenu != null && s.contextMenu.isOpen();
+    }
+
     public static void fitToScreen(Widget w) {
         //screen size
         Window window = Client.getInstance().window;

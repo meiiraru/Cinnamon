@@ -1,6 +1,7 @@
 package mayo.gui.widgets;
 
 import mayo.Client;
+import mayo.gui.widgets.types.ContextMenu;
 import mayo.render.MatrixStack;
 import mayo.render.Window;
 import mayo.text.Text;
@@ -28,11 +29,7 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
     }
 
     public boolean isHovered() {
-        return hovered;
-    }
-
-    public void setHovered(boolean hovered) {
-        this.hovered = hovered;
+        return hovered && (this instanceof ContextMenu.ContextButton || !UIHelper.hasActiveContextMenu());
     }
 
     protected void updateHover(int x, int y) {

@@ -33,7 +33,7 @@ public class ComboBox extends Container {
             if (context.isOpen()) {
                 context.close();
             } else {
-                UIHelper.setContextMenu(x, y + height, context);
+                UIHelper.setContextMenu(getX(), getY() + getHeight(), context);
                 context.open();
             }
         }) {
@@ -49,10 +49,15 @@ public class ComboBox extends Container {
                 f.render(VertexConsumer.FONT_FLAT, matrices, x, y, text);
 
                 //render selected text
-                text = f.clampToWidth(selectedText, getWidth() - width - 4);
+                text = TextUtils.addEllipsis(selectedText, f, getWidth() - width - 4);
                 x = getX() + 2;
                 y = getCenterY() - TextUtils.getHeight(text, f) / 2;
                 f.render(VertexConsumer.FONT_FLAT, matrices, x, y, text);
+            }
+
+            @Override
+            public boolean isHovered() {
+                return context.isOpen() || super.isHovered();
             }
         });
 
