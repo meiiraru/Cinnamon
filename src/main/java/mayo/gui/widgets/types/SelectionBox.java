@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class ComboBox extends Container {
+public class SelectionBox extends Container {
 
     private final List<Text> indexes = new ArrayList<>();
     protected ContextMenu context;
@@ -27,7 +27,7 @@ public class ComboBox extends Container {
 
     protected boolean closeOnSelect;
 
-    public ComboBox(int x, int y, int width, int height) {
+    public SelectionBox(int x, int y, int width, int height) {
         super(x, y);
         addWidget(new Button(x, y, width, height, Text.of(""), button -> {
             if (context.isOpen()) {
@@ -82,25 +82,25 @@ public class ComboBox extends Container {
         updateTexts();
     }
 
-    public ComboBox setChangeListener(Consumer<Integer> action) {
+    public SelectionBox setChangeListener(Consumer<Integer> action) {
         this.changeListener = action;
         return this;
     }
 
-    public ComboBox closeOnSelect(boolean bool) {
+    public SelectionBox closeOnSelect(boolean bool) {
         this.closeOnSelect = bool;
         return this;
     }
 
-    public ComboBox addEntry(Text name) {
+    public SelectionBox addEntry(Text name) {
         return addEntry(name, null);
     }
 
-    public ComboBox addEntry(Text name, Text tooltip) {
+    public SelectionBox addEntry(Text name, Text tooltip) {
         return addEntry(name, tooltip, null);
     }
 
-    public ComboBox addEntry(Text name, Text tooltip, Consumer<Button> action) {
+    public SelectionBox addEntry(Text name, Text tooltip, Consumer<Button> action) {
         int index = indexes.size();
         indexes.add(name);
 

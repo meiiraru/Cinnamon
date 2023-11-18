@@ -39,7 +39,7 @@ public class MainMenu extends Screen {
         list.addWidget(coll);
 
         //curves screen
-        Button curve = new Button(0, 0, 180, 20, Text.of("Curves").withStyle(Style.EMPTY.color(Colors.YELLOW)), button -> client.setScreen(new Curves(this)));
+        Button curve = new Button(0, 0, 180, 20, Text.of("Curves").withStyle(Style.EMPTY.color(Colors.YELLOW)), button -> client.setScreen(new CurvesScreen(this)));
         list.addWidget(curve);
 
         //close application
