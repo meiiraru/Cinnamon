@@ -27,7 +27,7 @@ public class Candy extends Projectile {
     @Override
     public void tick() {
         super.tick();
-        this.rotate(0, rot.y + 20);
+        this.rotate(0, 20);
     }
 
     @Override

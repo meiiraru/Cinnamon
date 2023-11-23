@@ -37,7 +37,7 @@ public class Potato extends Projectile {
         if (vec.lengthSquared() > 0f)
             vec.normalize();
 
-        this.rotate(Maths.dirToRot(vec));
+        this.rotateTo(Maths.dirToRot(vec));
     }
 
     @Override

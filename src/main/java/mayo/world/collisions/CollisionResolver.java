@@ -11,7 +11,7 @@ public class CollisionResolver {
 
     public static void slide(CollisionResult collision, Vector3f motion, Vector3f move) {
         float near = collision.near();
-        Vector3f nor = collision.normal().absolute();
+        Vector3f nor = collision.normal();
 
         if (Math.abs(nor.x) > 0) {
             move.x *= near;
@@ -29,7 +29,7 @@ public class CollisionResolver {
 
     public static void bounce(CollisionResult collision, Vector3f motion, Vector3f move, Vector3f bounce) {
         float near = collision.near();
-        Vector3f nor = collision.normal().absolute();
+        Vector3f nor = collision.normal();
 
         if (Math.abs(nor.x) > 0) {
             move.x *= near;
@@ -47,7 +47,7 @@ public class CollisionResolver {
 
     public static void push(CollisionResult collision, Vector3f motion, Vector3f otherMotion) {
         float near = collision.near();
-        Vector3f nor = collision.normal().absolute();
+        Vector3f nor = collision.normal();
 
         if (Math.abs(nor.x) > 0) {
             otherMotion.x = motion.x - motion.x * near;

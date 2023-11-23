@@ -109,6 +109,9 @@ public class Player extends LivingEntity {
         this.sneaking = sneaking;
         this.sprinting = !sneaking && (this.sprinting || sprinting);
         this.flying = flying;
+
+        if (this.isRiding() && sneaking)
+            this.rideEntity(null);
     }
 
     @Override
@@ -132,5 +135,19 @@ public class Player extends LivingEntity {
             speed *= flying ? 2.3f : 1.3f;
 
         return speed;
+    }
+
+    private float clampPitch(float pitch) {
+        return Math.max(Math.min(pitch, 90), -90);
+    }
+
+    @Override
+    public void rotateTo(float pitch, float yaw) {
+        super.rotateTo(clampPitch(pitch), yaw);
+    }
+
+    @Override
+    public void setRot(float pitch, float yaw) {
+        super.setRot(clampPitch(pitch), yaw);
     }
 }

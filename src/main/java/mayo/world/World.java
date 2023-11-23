@@ -31,6 +31,7 @@ import mayo.world.entity.collectable.EffectBox;
 import mayo.world.entity.collectable.HealthPack;
 import mayo.world.entity.living.Enemy;
 import mayo.world.entity.living.Player;
+import mayo.world.entity.vehicle.Cart;
 import mayo.world.items.Item;
 import mayo.world.items.ItemRenderContext;
 import mayo.world.items.MagicWand;
@@ -119,6 +120,19 @@ public class World {
         addLight(new Light().pos(6.5f, 0.5f, 2f).color(0xFFFF00));
         addLight(new Light().pos(8.5f, 0.5f, 2f).color(0xFFFFFF));
         addLight(flashlight);
+
+        Cart c = new Cart(this);
+        c.setPos(10, 2, 10);
+        this.addEntity(c);
+
+        Cart c2 = new Cart(this);
+        c2.setPos(15, 2, 10);
+        this.addEntity(c2);
+
+        HealthPack health = new HealthPack(this);
+        health.setPos((int) (Math.random() * 128) - 64, 3, (int) (Math.random() * 128) - 64);
+        addEntity(health);
+        health.rideEntity(c);
     }
 
     public void exit() {
@@ -455,9 +469,9 @@ public class World {
     private void processMouseInput() {
         Window w = Client.getInstance().window;
         if (w.mouse1Press)
-            player.attack();
+            player.attackAction();
         if (w.mouse2Press)
-            player.use();
+            player.useAction();
     }
 
     public void mouseMove(double x, double y) {

@@ -19,6 +19,9 @@ import mayo.world.terrain.Terrain;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class Entity extends WorldObject {
 
     protected final Model model;
@@ -29,6 +32,9 @@ public abstract class Entity extends WorldObject {
             rot = new Vector2f();
 
     protected AABB aabb;
+
+    protected final List<Entity> riders = new ArrayList<>();
+    protected Entity riding;
 
     private boolean removed;
 
@@ -127,6 +133,7 @@ public abstract class Entity extends WorldObject {
 
     public void remove() {
         this.removed = true;
+        this.rideEntity(null);
     }
 
     public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
@@ -134,6 +141,11 @@ public abstract class Entity extends WorldObject {
     }
 
     public void move(float left, float up, float forwards) {
+        if (riding != null) {
+            riding.move(left, up, forwards);
+            return;
+        }
+
         Vector3f move = new Vector3f(-left, up, -forwards);
 
         move.rotateX((float) Math.toRadians(-rot.x));
@@ -152,14 +164,22 @@ public abstract class Entity extends WorldObject {
 
     public void moveTo(float x, float y, float z) {
         this.pos.set(x, y, z);
+        this.updateRiders();
         this.updateAABB();
     }
 
-    public void rotate(Vector2f rot) {
-        this.rotate(rot.x, rot.y);
+    public void rotate(float pitch, float yaw) {
+        if (riding != null)
+            riding.rotate(pitch, yaw);
+
+        rotateTo(rot.x + pitch, rot.y + yaw);
     }
 
-    public void rotate(float pitch, float yaw) {
+    public void rotateTo(Vector2f vec) {
+        this.rotateTo(vec.x, vec.y);
+    }
+
+    public void rotateTo(float pitch, float yaw) {
         this.rot.set(pitch, yaw);
     }
 
@@ -198,6 +218,7 @@ public abstract class Entity extends WorldObject {
     public void setPos(float x, float y, float z) {
         super.setPos(x, y, z);
         this.oPos.set(x, y, z);
+        this.updateRiders();
         this.updateAABB();
     }
 
@@ -275,6 +296,45 @@ public abstract class Entity extends WorldObject {
         AABB area = new AABB(aabb).expand(range);
 
         //return hit
-        return world.raycastEntity(area, pos, range, e -> e != this && e.isTargetable());
+        return world.raycastEntity(area, pos, range, e -> e != this && e != this.riding && e.isTargetable());
     }
+
+    public Entity getRidingEntity() {
+        return riding;
+    }
+
+    public List<Entity> getRiders() {
+        return riders;
+    }
+
+    public Entity getControllingEntity() {
+        return riders.isEmpty() ? null : riders.get(0);
+    }
+
+    protected void updateRiders() {
+        if (riders.isEmpty())
+            return;
+
+        Vector3f riderPos = new Vector3f(pos.x, pos.y + aabb.getHeight(), pos.z);
+
+        for (Entity rider : riders)
+            rider.moveTo(riderPos);
+    }
+
+    public void rideEntity(Entity e) {
+        if (this.riding != null)
+            this.riding.riders.remove(this);
+
+        this.riding = e;
+        if (e != null)
+            this.riding.riders.add(this);
+    }
+
+    public boolean isRiding() {
+        return this.riding != null;
+    }
+
+    public void onUse(LivingEntity source) {}
+
+    public void onAttacked(LivingEntity source) {}
 }

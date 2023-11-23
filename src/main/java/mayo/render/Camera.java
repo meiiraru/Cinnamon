@@ -65,7 +65,8 @@ public class Camera {
     }
 
     public void move(float x, float y, float z) {
-        Vector3f move = new Vector3f(x, y, z).rotate(rotation);
+        float epsilon = 1 - NEAR_PLANE;
+        Vector3f move = new Vector3f(x, y, z).mul(1f / epsilon).rotate(rotation);
         AABB area = new AABB();
         area.translate(pos);
         area.expand(move);
@@ -74,7 +75,7 @@ public class Camera {
         if (hit != null)
             move.mul(hit.collision().near());
 
-        pos.add(move);
+        pos.add(move.mul(epsilon));
     }
 
     public Matrix4f getViewMatrix() {

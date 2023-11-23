@@ -9,7 +9,7 @@ public enum AIBehaviour {
         entity.move(0, 0, 1);
         entity.lookAt(entity.getWorld().player.getEyePos());
     }),
-    SHOOT(LivingEntity::attack);
+    SHOOT(LivingEntity::attackAction);
 
     private final Consumer<LivingEntity> consumer;
 

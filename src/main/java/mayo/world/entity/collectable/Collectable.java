@@ -21,7 +21,7 @@ public abstract class Collectable extends PhysEntity {
     @Override
     public void tick() {
         super.tick();
-        this.rotate(0, Client.getInstance().ticks);
+        this.rotate(0, 1);
     }
 
     @Override

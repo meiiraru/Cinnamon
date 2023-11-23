@@ -12,6 +12,7 @@ import mayo.utils.Rotation;
 import mayo.utils.TextUtils;
 import mayo.world.DamageType;
 import mayo.world.World;
+import mayo.world.collisions.Hit;
 import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
@@ -129,6 +130,11 @@ public abstract class LivingEntity extends PhysEntity {
 
     @Override
     public void move(float left, float up, float forwards) {
+        if (riding != null) {
+            riding.move(left, up, forwards);
+            return;
+        }
+
         float l = Math.signum(left);
         float u = this.onGround && up > 0 ? getJumpStrength() : 0f;
         float f = Math.signum(forwards);
@@ -224,12 +230,15 @@ public abstract class LivingEntity extends PhysEntity {
         world.addParticle(p);
     }
 
-    public void attack() {
-        //todo - get entity in front and attack it
-
+    public void attackAction() {
         //attack using holding item
         if (getHoldingItem() != null)
             getHoldingItem().attack(this);
+
+        //attack entity
+        Hit<Entity> facingEntity = getLookingEntity(getPickRange());
+        if (facingEntity != null)
+            facingEntity.get().onAttacked(this);
     }
 
     public void stopAttacking() {
@@ -238,13 +247,17 @@ public abstract class LivingEntity extends PhysEntity {
             i.stopAttacking(this);
     }
 
-    public void use() {
-        //todo - try to use current object
-        //todo - try to use facing entity
-
+    public void useAction() {
         //use holding item
-        if (getHoldingItem() != null)
+        if (getHoldingItem() != null) {
             getHoldingItem().use(this);
+            return;
+        }
+
+        //use entity
+        Hit<Entity> facingEntity = getLookingEntity(getPickRange());
+        if (facingEntity != null)
+            facingEntity.get().onUse(this);
     }
 
     public void stopUsing() {

@@ -52,7 +52,6 @@ public class Movement {
         double dy = offsetY * spd;
 
         rotation.add((float) dx * 0.15f, (float) dy * 0.15f);
-        rotation.y = Math.max(Math.min(rotation.y, 90), -90);
 
         offsetX = 0;
         offsetY = 0;
@@ -70,6 +69,7 @@ public class Movement {
         movement.set(0);
 
         entity.rotate(rotation.y, rotation.x);
+        rotation.set(0);
 
         if (entity instanceof Player p)
             p.updateMovementFlags(sneak, sprint, false);

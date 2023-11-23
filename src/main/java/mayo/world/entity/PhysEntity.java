@@ -25,6 +25,17 @@ public abstract class PhysEntity extends Entity {
     public void tick() {
         super.tick();
 
+        //tick physics only when not riding
+        if (this.riding == null)
+            tickPhysics();
+
+        //entity collisions
+        for (Entity entity : world.getEntities(aabb))
+            if (entity != this && !entity.isRemoved())
+                collide(entity);
+    }
+
+    protected void tickPhysics() {
         //apply ambient forces
         applyForces();
 
@@ -41,11 +52,6 @@ public abstract class PhysEntity extends Entity {
 
         //decrease motion
         motionFallout();
-
-        //entity collisions
-        for (Entity entity : world.getEntities(aabb))
-            if (entity != this && !entity.isRemoved())
-                collide(entity);
     }
 
     protected void applyMovement() {
@@ -119,6 +125,11 @@ public abstract class PhysEntity extends Entity {
 
     @Override
     public void move(float left, float up, float forwards) {
+        if (riding != null) {
+            riding.move(left, up, forwards);
+            return;
+        }
+
         float l = Math.signum(left);
         float u = Math.signum(up);
         float f = Math.signum(forwards);
