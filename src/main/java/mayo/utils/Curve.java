@@ -51,9 +51,61 @@ public abstract class Curve {
 
     protected abstract List<Vector3f> calculateCurve(List<Vector3f> controlPoints);
 
-    //TODO
-    private List<Vector3f> sideControlPoints(boolean external) {
-        return new ArrayList<>();
+    private static Vector3f rotatePoint(Vector3f a, Vector3f b, float len, float angle) {
+        Vector3f temp = b.sub(a, new Vector3f());
+        temp.normalize(len);
+        temp.rotateY(angle);
+        temp.add(a);
+        return temp;
+    }
+
+    private static Vector3f rotatePoint(Vector3f a, Vector3f b, Vector3f c, float len, float angle) {
+        Vector3f ab = b.sub(a, new Vector3f()).normalize();
+        Vector3f bc = c.sub(b, new Vector3f()).normalize();
+
+        ab.add(bc);
+        ab.normalize(len);
+        ab.rotateY(angle);
+        ab.add(b);
+        return ab;
+    }
+
+    private List<Vector3f> sideCurve(float distance, float angle) {
+        int size = curve.size();
+        List<Vector3f> list = new ArrayList<>();
+
+        if (size < 2)
+            return list;
+
+        //first instance
+        Vector3f f1 = curve.get(0);
+        Vector3f f2 = curve.get(1);
+        if (loop) {
+            Vector3f f0 = curve.get(size - 2); //index -1 should be the same as f1
+            list.add(rotatePoint(f0, f1, f2, distance, angle));
+        } else {
+            list.add(rotatePoint(f1, f2, distance, angle));
+        }
+
+        //main curve
+        for (int i = 1; i < size - 1; i++) {
+            Vector3f a = curve.get(i - 1);
+            Vector3f b = curve.get(i);
+            Vector3f c = curve.get(i + 1);
+            list.add(rotatePoint(a, b, c, distance, angle));
+        }
+
+        //calculate last instance
+        Vector3f l1 = curve.get(size - 1);
+        Vector3f l2 = curve.get(size - 2);
+        if (loop) {
+            Vector3f l0 = curve.get(1); //index 0 should be the same as l1
+            list.add(rotatePoint(l0, l1, l2, distance, -angle));
+        } else {
+            list.add(rotatePoint(l1, l2, distance, -angle));
+        }
+
+        return list;
     }
 
     private void recalculate() {
@@ -64,13 +116,17 @@ public abstract class Curve {
         curve.clear();
         curve.addAll(calculateCurve(controlPoints));
 
+        //get distance from main curve
+        float distance = width * 0.5f;
+        float angle = (float) Math.toRadians(90);
+
         //internal
         internalCurve.clear();
-        internalCurve.addAll(sideControlPoints(false));
+        internalCurve.addAll(sideCurve(distance, -angle));
 
         //external
         externalCurve.clear();
-        externalCurve.addAll(sideControlPoints(true));
+        externalCurve.addAll(sideCurve(distance, angle));
 
         dirty = false;
     }
@@ -128,6 +184,32 @@ public abstract class Curve {
     // -- types -- //
 
 
+    public static class Linear extends Curve {
+        public Linear() {
+            super();
+        }
+
+        public Linear(Curve other) {
+            super(other);
+        }
+
+        @Override
+        protected List<Vector3f> calculateCurve(List<Vector3f> controlPoints) {
+            int size = controlPoints.size();
+            List<Vector3f> curve = new ArrayList<>();
+
+            if (size < 2)
+                return curve;
+
+            curve.addAll(controlPoints);
+
+            if (loop)
+                curve.add(controlPoints.get(0));
+
+            return curve;
+        }
+    }
+
     public static class Hermite extends Curve {
         protected float weight = 5f;
 
@@ -160,6 +242,7 @@ public abstract class Curve {
                 return curve;
 
             int max = loop ? size - 1 : size - 3;
+            Vector3f last = null;
 
             for (int i = 0; i < max; i += 2) {
                 Vector3f p0 = controlPoints.get(i);
@@ -169,11 +252,14 @@ public abstract class Curve {
 
                 for (float j = 0; j <= steps; j++) {
                     float t = j / steps;
-                    curve.add(new Vector3f(
+                    Vector3f vec = new Vector3f(
                             Maths.hermite(p0.x, p3.x, r0.x, r3.x, weight, t),
                             Maths.hermite(p0.y, p3.y, r0.y, r3.y, weight, t),
                             Maths.hermite(p0.z, p3.z, r0.z, r3.z, weight, t)
-                    ));
+                    );
+                    if (last == null || !last.equals(vec))
+                        curve.add(vec);
+                    last = vec;
                 }
             }
 
@@ -198,6 +284,8 @@ public abstract class Curve {
             if (size < 3)
                 return curve;
 
+            Vector3f last = null;
+
             //never loops
             for (int i = 0; i < size - 3; i += 3) {
                 Vector3f p0 = controlPoints.get(i);
@@ -207,11 +295,14 @@ public abstract class Curve {
 
                 for (float j = 0; j <= steps; j++) {
                     float t = j / steps;
-                    curve.add(new Vector3f(
+                    Vector3f vec = new Vector3f(
                             Maths.bezier(p0.x, p1.x, p2.x, p3.x, t),
                             Maths.bezier(p0.y, p1.y, p2.y, p3.y, t),
                             Maths.bezier(p0.z, p1.z, p2.z, p3.z, t)
-                    ));
+                    );
+                    if (last == null || !last.equals(vec))
+                        curve.add(vec);
+                    last = vec;
                 }
             }
 
@@ -233,10 +324,12 @@ public abstract class Curve {
             int size = controlPoints.size();
             List<Vector3f> curve = new ArrayList<>();
 
-            if (size == 0)
+            if (size < 2)
                 return curve;
 
-            for (int i = -1; i < size; i++) {
+            Vector3f last = null;
+
+            for (int i = loop ? 0 : -1; i < size; i++) {
                 int pprev, prev, next, nnext;
 
                 if (loop) {
@@ -258,11 +351,14 @@ public abstract class Curve {
 
                 for (float j = 0; j <= steps; j++) {
                     float t = j / steps;
-                    curve.add(new Vector3f(
+                    Vector3f vec = new Vector3f(
                             Maths.bSpline(p0.x, p1.x, p2.x, p3.x, t),
                             Maths.bSpline(p0.y, p1.y, p2.y, p3.y, t),
                             Maths.bSpline(p0.z, p1.z, p2.z, p3.z, t)
-                    ));
+                    );
+                    if (last == null || !last.equals(vec))
+                        curve.add(vec);
+                    last = vec;
                 }
             }
 
@@ -299,13 +395,18 @@ public abstract class Curve {
                 pointsZ[i] = pos.z;
             }
 
+            Vector3f last = null;
+
             for (float j = 0; j <= steps; j++) {
                 float t = j / steps;
-                curve.add(new Vector3f(
+                Vector3f vec = new Vector3f(
                         Maths.bezierDeCasteljau(t, pointsX),
                         Maths.bezierDeCasteljau(t, pointsY),
                         Maths.bezierDeCasteljau(t, pointsZ)
-                ));
+                );
+                if (last == null || !last.equals(vec))
+                    curve.add(vec);
+                last = vec;
             }
 
             return curve;

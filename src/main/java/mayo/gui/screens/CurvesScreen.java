@@ -27,11 +27,12 @@ public class CurvesScreen extends ParentedScreen {
     private final List<Point> points = new ArrayList<>();
     private Point selected;
 
-    private Curve curve = new Curve.BSpline().steps(30).loop(true);
+    private Curve curve = new Curve.BSpline().steps(30).loop(true).width(20f);
 
     private int anchorX, anchorY;
 
     private boolean renderPointsText = true, renderLines = true;
+    private int lastSelected = 3;
 
     public CurvesScreen(Screen parentScreen) {
         super(parentScreen);
@@ -67,19 +68,22 @@ public class CurvesScreen extends ParentedScreen {
         SelectionBox box = new SelectionBox(0, 0, 60, 12)
                 .closeOnSelect(true)
                 .setChangeListener(i -> {
+                    lastSelected = i;
                     switch (i) {
-                        case 0 -> curve = new Curve.Hermite(curve);
-                        case 1 -> curve = new Curve.Bezier(curve);
-                        case 2 -> curve = new Curve.BSpline(curve);
-                        case 3 -> curve = new Curve.BezierDeCasteljau(curve);
+                        case 0 -> curve = new Curve.Linear(curve);
+                        case 1 -> curve = new Curve.Hermite(curve);
+                        case 2 -> curve = new Curve.Bezier(curve);
+                        case 3 -> curve = new Curve.BSpline(curve);
+                        case 4 -> curve = new Curve.BezierDeCasteljau(curve);
                     }
                 })
+                .addEntry(Text.of("Linear"))
                 .addEntry(Text.of("Hermite"))
                 .addEntry(Text.of("Bezier"))
                 .addEntry(Text.of("B-Spline"))
                 .addEntry(Text.of("Bezier De Casteljau"));
 
-        box.select(2); //widget recreation
+        box.select(lastSelected); //widget recreation
         list.addWidget(box);
 
         //points button
@@ -128,29 +132,36 @@ public class CurvesScreen extends ParentedScreen {
             }
         }
 
-        //draw curve
-        List<Vector3f> curve = this.curve.getCurve();
-        for (int i = 0; i < curve.size() - 1; i++) {
-            int colorA = 0x7272FF;
-            int colorB = 0x72FF72;
-            float t = (float) i / (curve.size() - 1);
-            int color = ColorUtils.lerpRGBColor(colorA, colorB, t);
+        //draw curves
+        renderCurve(matrices, curve.getCurve(), 0x7272FF, 0x72FF72);
+        renderCurve(matrices, curve.getExternalCurve(), 0x72FFAD, 0xFF72AD);
+        renderCurve(matrices, curve.getInternalCurve(), 0xFF7272, 0xFFFF72);
 
-            Vector3f a = curve.get(i);
-            Vector3f b = curve.get(i + 1);
-            UIHelper.drawLine(VertexConsumer.GUI, matrices, a.x, a.z, b.x, b.z, 4, color + (0xFF << 24));
-        }
-
-        f.render(VertexConsumer.FONT_FLAT, matrices, width / 2f, 4, Text.of("Curve quality: " + this.curve.getSteps()), TextUtils.Alignment.CENTER);
+        //draw texts
+        f.render(VertexConsumer.FONT_FLAT, matrices, width / 2f, 4, Text.of("Curve quality: " + this.curve.getSteps() + "\nCurve Size: " + this.curve.getCurve().size()), TextUtils.Alignment.CENTER);
 
         if (selected != null) {
             Text t = Text.of("x" + selected.getX() + " y" + selected.getY());
             f.render(VertexConsumer.FONT_FLAT, matrices, 4, height - 4 - TextUtils.getHeight(t, f), t);
         }
 
+        //draw children
         super.render(matrices, mouseX, mouseY, delta);
 
+        //draw FPS
         f.render(VertexConsumer.FONT_FLAT, matrices, width - 4, 4, Text.of(client.fps + " fps"), TextUtils.Alignment.RIGHT);
+    }
+
+    private static void renderCurve(MatrixStack matrices, List<Vector3f> curve, int colorA, int colorB) {
+        int size = curve.size();
+        for (int i = 0; i < size - 1; i++) {
+            float t = (float) i / (size - 1);
+            int color = ColorUtils.lerpRGBColor(colorA, colorB, t);
+
+            Vector3f a = curve.get(i);
+            Vector3f b = curve.get(i + 1);
+            UIHelper.drawLine(VertexConsumer.GUI, matrices, a.x, a.z, b.x, b.z, 1, color + (0xFF << 24));
+        }
     }
 
     @Override
@@ -197,7 +208,8 @@ public class CurvesScreen extends ParentedScreen {
             if (selected != null) {
                 selected.setPos(x - R, y - R);
                 int i = points.indexOf(selected);
-                curve.setPoint(i, x, 0, y);
+                if (i != -1)
+                    curve.setPoint(i, x, 0, y);
             }
         } else if (w.mouse2Press) {
             removePoint();
