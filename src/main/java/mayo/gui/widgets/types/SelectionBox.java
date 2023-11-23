@@ -46,13 +46,13 @@ public class SelectionBox extends Container {
                 int width = TextUtils.getWidth(text, f);
                 int x = getX() + getWidth() - width - 2;
                 int y = getCenterY() - TextUtils.getHeight(text, f) / 2;
-                f.render(VertexConsumer.FONT_FLAT, matrices, x, y, text);
+                f.render(VertexConsumer.FONT, matrices, x, y, text);
 
                 //render selected text
                 text = TextUtils.addEllipsis(selectedText, f, getWidth() - width - 4);
                 x = getX() + 2;
                 y = getCenterY() - TextUtils.getHeight(text, f) / 2;
-                f.render(VertexConsumer.FONT_FLAT, matrices, x, y, text);
+                f.render(VertexConsumer.FONT, matrices, x, y, text);
             }
 
             @Override

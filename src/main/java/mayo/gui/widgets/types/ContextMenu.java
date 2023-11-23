@@ -163,7 +163,7 @@ public class ContextMenu extends WidgetList {
             Font f = Client.getInstance().font;
             int x = getX() + 2;
             int y = getCenterY() - TextUtils.getHeight(message, f) / 2;
-            f.render(VertexConsumer.FONT_FLAT, matrices, x, y, message);
+            f.render(VertexConsumer.FONT, matrices, x, y, message);
         }
     }
 }

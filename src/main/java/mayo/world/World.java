@@ -206,7 +206,7 @@ public class World {
         c.camera.setup(player, cameraMode, delta);
 
         //render skybox
-        Shaders.MODEL_FLAT.getShader().use().setup(
+        Shaders.MODEL.getShader().use().setup(
                 c.camera.getPerspectiveMatrix(),
                 c.camera.getViewMatrix()
         );
@@ -218,7 +218,7 @@ public class World {
         renderShadows(c.camera, matrices, delta);
 
         //set world shader
-        Shader s = Shaders.MODEL.getShader().use();
+        Shader s = Shaders.WORLD_MODEL.getShader().use();
         s.setup(c.camera.getPerspectiveMatrix(), c.camera.getViewMatrix());
 
         //apply lighting
@@ -309,7 +309,7 @@ public class World {
             return;
 
         //set world shader
-        Shader s = Shaders.MODEL.getShader().use();
+        Shader s = Shaders.WORLD_MODEL.getShader().use();
         s.setup(camera.getPerspectiveMatrix(), camera.getViewMatrix());
 
         //apply lighting
@@ -357,7 +357,7 @@ public class World {
 
             float r = 0.125f;
             int color = l.getColor() + (0xFF << 24);
-            GeometryHelper.pushCube(VertexConsumer.MAIN_FLAT, matrices, pos.x - r, pos.y - r, pos.z - r, pos.x + r, pos.y + r, pos.z + r, color);
+            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, pos.x - r, pos.y - r, pos.z - r, pos.x + r, pos.y + r, pos.z + r, color);
         }
     }
 
@@ -371,7 +371,7 @@ public class World {
                 GeometryHelper.pushCube(VertexConsumer.LINES, matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00);
 
             Vector3f pos = terrain.pos();
-            GeometryHelper.pushCube(VertexConsumer.MAIN_FLAT, matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF);
+            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF);
         }
 
         Hit<Entity> entity = player.getLookingEntity(r);
@@ -380,7 +380,7 @@ public class World {
             GeometryHelper.pushCube(VertexConsumer.LINES, matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00);
 
             Vector3f pos = entity.pos();
-            GeometryHelper.pushCube(VertexConsumer.MAIN_FLAT, matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF);
+            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF);
         }
     }
 

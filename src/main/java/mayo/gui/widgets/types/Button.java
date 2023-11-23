@@ -53,7 +53,7 @@ public class Button extends SelectableWidget {
         Font f = Client.getInstance().font;
         int x = getCenterX();
         int y = getCenterY() - TextUtils.getHeight(message, f) / 2;
-        f.render(VertexConsumer.FONT_FLAT, matrices, x, y, message, TextUtils.Alignment.CENTER);
+        f.render(VertexConsumer.FONT, matrices, x, y, message, TextUtils.Alignment.CENTER);
     }
 
     public int getState() {

@@ -11,10 +11,10 @@ import java.util.function.Supplier;
 public enum VertexConsumer {
     GUI(GUIBatch::new, Shaders.GUI),
     LINES(LinesBatch::new, Shaders.LINES),
-    FONT(FontBatch::new, Shaders.FONT),
-    FONT_FLAT(FontFlatBatch::new, Shaders.FONT_FLAT),
-    MAIN(MainBatch::new, Shaders.MAIN),
-    MAIN_FLAT(MainFlatBatch::new, Shaders.MAIN_FLAT);
+    WORLD_FONT(FontBatch::new, Shaders.WORLD_FONT),
+    FONT(FontFlatBatch::new, Shaders.FONT),
+    WORLD_MAIN(MainBatch::new, Shaders.WORLD_MAIN),
+    MAIN(MainFlatBatch::new, Shaders.MAIN);
 
     private final BatchRenderer<Batch> renderer;
     private final Shaders shader;

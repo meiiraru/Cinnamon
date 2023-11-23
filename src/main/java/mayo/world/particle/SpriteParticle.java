@@ -38,7 +38,7 @@ public abstract class SpriteParticle extends Particle {
         for (Vertex vertex : vertices)
             vertex.color(getColor());
 
-        VertexConsumer consumer = isEmissive() ? VertexConsumer.MAIN_FLAT : VertexConsumer.MAIN;
+        VertexConsumer consumer = isEmissive() ? VertexConsumer.MAIN : VertexConsumer.WORLD_MAIN;
         consumer.consume(vertices, texture.getID());
 
         matrices.pop();

@@ -50,10 +50,10 @@ public class Hud {
 
         //render debug text
         Style style = Style.EMPTY.shadow(true).shadowColor(Colors.DARK_GRAY);
-        c.font.render(VertexConsumer.FONT_FLAT, matrices, 4, 4, Text.of(c.fps + " fps").withStyle(style));
+        c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps").withStyle(style));
         if (c.world.isDebugRendering()) {
-            c.font.render(VertexConsumer.FONT_FLAT, matrices, 4, 4 + c.font.lineHeight * 2, Text.of(debugLeftText()).withStyle(style));
-            c.font.render(VertexConsumer.FONT_FLAT, matrices, c.window.scaledWidth - 4, 4, Text.of(debugRightText()).withStyle(style), TextUtils.Alignment.RIGHT);
+            c.font.render(VertexConsumer.FONT, matrices, 4, 4 + c.font.lineHeight * 2, Text.of(debugLeftText()).withStyle(style));
+            c.font.render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, Text.of(debugRightText()).withStyle(style), TextUtils.Alignment.RIGHT);
         }
 
         //draw player stats
@@ -105,7 +105,7 @@ public class Hud {
         matrices.rotate(Rotation.Z.rotationDeg(-10f));
 
         //draw text
-        font.render(VertexConsumer.FONT_FLAT, matrices, 0f, 0f, text);
+        font.render(VertexConsumer.FONT, matrices, 0f, 0f, text);
 
         //health progress bar
         float hp = player.getHealthProgress();
@@ -164,7 +164,7 @@ public class Hud {
         matrices.rotate(Rotation.Z.rotationDeg(10f));
 
         //draw text
-        font.render(VertexConsumer.FONT_FLAT, matrices, 0f, 0f, text, TextUtils.Alignment.RIGHT);
+        font.render(VertexConsumer.FONT, matrices, 0f, 0f, text, TextUtils.Alignment.RIGHT);
 
         //draw progressbar
         if (onCooldown) {
@@ -205,14 +205,14 @@ public class Hud {
 
         //render
         if (!text.asString().equals("\n"))
-            font.render(VertexConsumer.FONT_FLAT, matrices, 0f, 0f, text, TextUtils.Alignment.RIGHT);
+            font.render(VertexConsumer.FONT, matrices, 0f, 0f, text, TextUtils.Alignment.RIGHT);
 
         matrices.pop();
     }
 
     private void drawHotbar(MatrixStack matrices, Player player, float delta) {
         //set shader
-        Shaders.MODEL_FLAT.getShader().use().setup(
+        Shaders.MODEL.getShader().use().setup(
                 Client.getInstance().camera.getOrthographicMatrix(),
                 new Matrix4f()
         );

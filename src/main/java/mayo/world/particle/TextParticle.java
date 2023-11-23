@@ -29,7 +29,7 @@ public class TextParticle extends Particle {
     @Override
     protected void renderParticle(MatrixStack matrices, float delta) {
         matrices.peek().pos().scale(-PARTICLE_SCALING);
-        font.render(isEmissive() ? VertexConsumer.FONT_FLAT : VertexConsumer.FONT, matrices, 0, 0, text, TextUtils.Alignment.CENTER);
+        font.render(isEmissive() ? VertexConsumer.FONT : VertexConsumer.WORLD_FONT, matrices, 0, 0, text, TextUtils.Alignment.CENTER);
     }
 
     @Override

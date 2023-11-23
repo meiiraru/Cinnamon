@@ -117,7 +117,7 @@ public class CurvesScreen extends ParentedScreen {
         if (renderPointsText) {
             for (int i = 0; i < size; i++) {
                 Point p = points.get(i);
-                f.render(VertexConsumer.FONT_FLAT, matrices, p.getX() + POINT_SIZE, p.getY() + POINT_SIZE, Text.of("p" + i));
+                f.render(VertexConsumer.FONT, matrices, p.getX() + POINT_SIZE, p.getY() + POINT_SIZE, Text.of("p" + i));
             }
         }
 
@@ -138,18 +138,18 @@ public class CurvesScreen extends ParentedScreen {
         renderCurve(matrices, curve.getInternalCurve(), 0xFF7272, 0xFFFF72);
 
         //draw texts
-        f.render(VertexConsumer.FONT_FLAT, matrices, width / 2f, 4, Text.of("Curve quality: " + this.curve.getSteps() + "\nCurve Size: " + this.curve.getCurve().size()), TextUtils.Alignment.CENTER);
+        f.render(VertexConsumer.FONT, matrices, width / 2f, 4, Text.of("Curve quality: " + this.curve.getSteps() + "\nCurve Size: " + this.curve.getCurve().size()), TextUtils.Alignment.CENTER);
 
         if (selected != null) {
             Text t = Text.of("x" + selected.getX() + " y" + selected.getY());
-            f.render(VertexConsumer.FONT_FLAT, matrices, 4, height - 4 - TextUtils.getHeight(t, f), t);
+            f.render(VertexConsumer.FONT, matrices, 4, height - 4 - TextUtils.getHeight(t, f), t);
         }
 
         //draw children
         super.render(matrices, mouseX, mouseY, delta);
 
         //draw FPS
-        f.render(VertexConsumer.FONT_FLAT, matrices, width - 4, 4, Text.of(client.fps + " fps"), TextUtils.Alignment.RIGHT);
+        f.render(VertexConsumer.FONT, matrices, width - 4, 4, Text.of(client.fps + " fps"), TextUtils.Alignment.RIGHT);
     }
 
     private static void renderCurve(MatrixStack matrices, List<Vector3f> curve, int colorA, int colorB) {

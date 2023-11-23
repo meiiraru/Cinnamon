@@ -41,8 +41,8 @@ public class SkyBox {
         matrices.translate(0, 0, 512);
 
         //render sun
-        VertexConsumer.MAIN_FLAT.consume(GeometryHelper.quad(matrices, -32, -32, 64, 64), SUN.getID());
-        VertexConsumer.MAIN_FLAT.finishBatch(camera.getPerspectiveMatrix(), camera.getViewMatrix());
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, -32, -32, 64, 64), SUN.getID());
+        VertexConsumer.MAIN.finishBatch(camera.getPerspectiveMatrix(), camera.getViewMatrix());
 
         //cleanup rendering
         glDepthMask(true);

@@ -4,12 +4,12 @@ import mayo.utils.Resource;
 
 public enum Shaders {
     GUI,
+    WORLD_FONT,
     FONT,
-    FONT_FLAT,
+    WORLD_MODEL,
     MODEL,
-    MODEL_FLAT,
+    WORLD_MAIN,
     MAIN,
-    MAIN_FLAT,
     LINES,
     DEPTH,
     DEPTH_BLIT;

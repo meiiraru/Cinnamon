@@ -21,7 +21,7 @@ public class Label extends SelectableWidget {
 
     @Override
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        font.render(VertexConsumer.FONT_FLAT, matrices, getX(), getY(), text, alignment);
+        font.render(VertexConsumer.FONT, matrices, getX(), getY(), text, alignment);
     }
 
     public Label setText(Text text) {
