@@ -25,9 +25,12 @@ public abstract class PhysEntity extends Entity {
     public void tick() {
         super.tick();
 
-        //tick physics only when not riding
-        if (this.riding == null)
+        //calculate physics only when not riding
+        if (!this.isRiding()) {
             tickPhysics();
+        } else {
+            motion.set(0);
+        }
 
         //entity collisions
         for (Entity entity : world.getEntities(aabb))
@@ -54,14 +57,29 @@ public abstract class PhysEntity extends Entity {
         motionFallout();
     }
 
-    protected void applyMovement() {
-        this.motion.add(move.mul(onGround ? 1 : 0.125f));
-    }
+    // -- movement -- //
 
     protected void applyForces() {
         //gravity
         this.motion.y -= world.gravity;
     }
+
+    protected void applyMovement() {
+        this.motion.add(move.mul(onGround ? 1 : 0.125f));
+    }
+
+    protected void motionFallout() {
+        //decrease motion (fake friction/resistance)
+
+        //air
+        this.motion.mul(0.91f, 0.98f, 0.91f);
+
+        //ground
+        if (this.onGround)
+            this.motion.mul(0.5f, 1f, 0.5f);
+    }
+
+    // -- terrain collisions -- //
 
     protected Vector3f tickCollisions() {
         //early exit
@@ -112,16 +130,23 @@ public abstract class PhysEntity extends Entity {
         CollisionResolver.slide(collision, motion, move);
     }
 
-    protected void motionFallout() {
-        //decrease motion (fake friction/resistance)
+    // -- entity collisions -- //
 
-        //air
-        this.motion.mul(0.91f, 0.98f, 0.91f);
+    protected Vector3f checkEntityCollision(Entity entity) {
+        //get AABB
+        AABB other = entity.getAABB();
 
-        //ground
-        if (this.onGround)
-            this.motion.mul(0.5f, 1f, 0.5f);
+        //calculate collision
+        return new Vector3f(
+                aabb.getXOverlap(other),
+                aabb.getYOverlap(other),
+                aabb.getZOverlap(other)
+        );
     }
+
+    protected void collide(Entity entity) {}
+
+    // -- movement logic -- //
 
     @Override
     public void move(float left, float up, float forwards) {
@@ -149,23 +174,9 @@ public abstract class PhysEntity extends Entity {
         return 0.15f;
     }
 
-    protected Vector3f checkEntityCollision(Entity entity) {
-        //get AABB
-        AABB other = entity.getAABB();
-
-        //calculate collision
-        return new Vector3f(
-                aabb.getXOverlap(other),
-                aabb.getYOverlap(other),
-                aabb.getZOverlap(other)
-        );
-    }
-
     protected float getPushForce() {
         return 0.015f;
     }
-
-    protected void collide(Entity entity) {}
 
     public void setMotion(Vector3f vec) {
         this.setMotion(vec.x, vec.y, vec.z);

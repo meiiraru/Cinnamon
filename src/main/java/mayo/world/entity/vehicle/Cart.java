@@ -4,6 +4,8 @@ import mayo.model.ModelManager;
 import mayo.render.Model;
 import mayo.utils.Resource;
 import mayo.world.World;
+import mayo.world.entity.Entity;
+import org.joml.Vector3f;
 
 public class Cart extends Vehicle {
 
@@ -14,8 +16,8 @@ public class Cart extends Vehicle {
     }
 
     @Override
-    public float getSeatHeight() {
-        return 0.4f;
+    public Vector3f getRiderOffset(Entity rider) {
+        return new Vector3f(0, 0.4f, 0);
     }
 
     @Override

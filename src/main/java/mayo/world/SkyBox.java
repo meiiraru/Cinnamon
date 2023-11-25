@@ -19,6 +19,7 @@ public class SkyBox {
     private static final Model MODEL = ModelManager.load(new Resource("models/skybox/skybox.obj"));
     private static final Texture SUN = Texture.of(new Resource("textures/environment/sun.png"));
     private static final float SUN_ROLL = (float) Math.toRadians(30f);
+    private static final float CLOUD_SPEED = (float) Math.PI / 2f;
 
     private final Vector3f sunDir = new Vector3f(1, 0, 0);
     private float sunAngle;
@@ -31,8 +32,13 @@ public class SkyBox {
         glDepthMask(false);
 
         //render model
+        matrices.push();
+        matrices.rotate(Rotation.Y.rotationDeg(sunAngle * CLOUD_SPEED));
+
         Shader.activeShader.applyMatrixStack(matrices);
         MODEL.render();
+
+        matrices.pop();
 
         //translate sun
         matrices.rotate(Rotation.Y.rotationDeg(90f));

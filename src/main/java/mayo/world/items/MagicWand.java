@@ -92,6 +92,11 @@ public class MagicWand extends Item {
         }
     }
 
+    @Override
+    public boolean hasUse() {
+        return true;
+    }
+
     private static Vector3f spawnPos(Entity source) {
         Hit<Terrain> terrain = source.getLookingTerrain(DISTANCE);
         if (terrain != null)

@@ -6,6 +6,7 @@ import mayo.gui.screens.DeathScreen;
 import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
 import mayo.model.GeometryHelper;
+import mayo.model.ModelRegistry;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
 import mayo.render.Window;
@@ -49,8 +50,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -64,7 +64,7 @@ public class World {
     private final List<Runnable> scheduledTicks = new ArrayList<>();
 
     private final List<Terrain> terrain = new ArrayList<>();
-    private final List<Entity> entities = new ArrayList<>();
+    private final Map<UUID, Entity> entities = new HashMap<>();
     private final List<Particle> particles = new ArrayList<>();
     private final List<Light> lights = new ArrayList<>();
 
@@ -121,6 +121,7 @@ public class World {
         addLight(new Light().pos(8.5f, 0.5f, 2f).color(0xFFFFFF));
         addLight(flashlight);
 
+        //riding test
         Cart c = new Cart(this);
         c.setPos(10, 2, 10);
         this.addEntity(c);
@@ -129,10 +130,17 @@ public class World {
         c2.setPos(15, 2, 10);
         this.addEntity(c2);
 
-        HealthPack health = new HealthPack(this);
-        health.setPos((int) (Math.random() * 128) - 64, 3, (int) (Math.random() * 128) - 64);
-        addEntity(health);
-        health.rideEntity(c);
+        Player p = new Player(this, ModelRegistry.Living.TOMATO);
+        addEntity(p);
+
+        HealthPack h = new HealthPack(this);
+        addEntity(h);
+
+        p.addRider(h);
+        h.addRider(player);
+
+        //player.addRider(p);
+        c2.addRider(p);
     }
 
     public void exit() {
@@ -162,18 +170,21 @@ public class World {
             terrain.tick();
 
         //entities
-        for (Entity entity : entities)
-            entity.tick();
-
-        //remove entities flagged to be removed
-        entities.removeIf(Entity::isRemoved);
+        for (Iterator<Map.Entry<UUID, Entity>> iterator = entities.entrySet().iterator(); iterator.hasNext(); ) {
+            Map.Entry<UUID, Entity> entry = iterator.next();
+            Entity e = entry.getValue();
+            e.tick();
+            if (e.isRemoved())
+                iterator.remove();
+        }
 
         //particles
-        for (Particle particle : particles)
-            particle.tick();
-
-        //remove dead particles
-        particles.removeIf(Particle::isRemoved);
+        for (Iterator<Particle> iterator = particles.iterator(); iterator.hasNext(); ) {
+            Particle p = iterator.next();
+            p.tick();
+            if (p.isRemoved())
+                iterator.remove();
+        }
 
         //process input
         this.movement.apply(player);
@@ -224,7 +235,7 @@ public class World {
                 c.camera.getPerspectiveMatrix(),
                 c.camera.getViewMatrix()
         );
-        skyBox.setSunAngle(Maths.map((timeOfTheDay + delta) % 24000, 0, 24000, 0, 360));
+        skyBox.setSunAngle(Maths.map(timeOfTheDay + delta, 0, 24000, 0, 360));
         skyBox.render(c.camera, matrices);
         sunLight.direction(skyBox.getSunDirection());
 
@@ -307,7 +318,7 @@ public class World {
             terrain.render(matrices, delta);
 
         //render entities
-        for (Entity entity : entities) {
+        for (Entity entity : entities.values()) {
             if (camEntity != entity || isThirdPerson())
                 entity.render(matrices, delta);
         }
@@ -433,7 +444,8 @@ public class World {
 
     public void addEntity(Entity entity) {
         scheduledTicks.add(() -> {
-            this.entities.add(entity);
+            UUID id = UUID.randomUUID();
+            this.entities.put(id, entity);
             entity.onAdd();
         });
     }
@@ -529,7 +541,7 @@ public class World {
 
     public List<Entity> getEntities(AABB region) {
         List<Entity> list = new ArrayList<>();
-        for (Entity entity : entities) {
+        for (Entity entity : entities.values()) {
             if (region.intersects(entity.getAABB()))
                 list.add(entity);
         }

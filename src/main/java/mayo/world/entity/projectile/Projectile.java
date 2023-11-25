@@ -10,7 +10,6 @@ import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
 import mayo.world.entity.living.LivingEntity;
 import mayo.world.particle.DustParticle;
-import org.joml.Vector3f;
 
 public abstract class Projectile extends PhysEntity {
 
@@ -76,7 +75,7 @@ public abstract class Projectile extends PhysEntity {
     @Override
     public void remove() {
         super.remove();
-        if (getDamage() == 0) confetti(world, pos);
+        if (getDamage() == 0) confetti();
     }
 
     @Override
@@ -95,7 +94,7 @@ public abstract class Projectile extends PhysEntity {
         return speed;
     }
 
-    public static void confetti(World world, Vector3f pos) {
+    protected void confetti() {
         for (int i = 0; i < 20; i++) {
             DustParticle particle = new DustParticle(world, (int) (Math.random() * 40) + 20, Colors.randomRainbow().rgba);
             particle.setPos(pos);

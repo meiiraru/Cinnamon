@@ -65,11 +65,15 @@ public class Movement {
         if (forward) movement.z += 1;
         if (backward) movement.z -= 1;
 
-        entity.move(movement.x, movement.y, movement.z);
-        movement.set(0);
+        if (movement.lengthSquared() > 0) {
+            entity.move(movement.x, movement.y, movement.z);
+            movement.set(0);
+        }
 
-        entity.rotate(rotation.y, rotation.x);
-        rotation.set(0);
+        if (rotation.lengthSquared() > 0) {
+            entity.rotate(rotation.y, rotation.x);
+            rotation.set(0);
+        }
 
         if (entity instanceof Player p)
             p.updateMovementFlags(sneak, sprint, false);

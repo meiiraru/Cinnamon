@@ -63,4 +63,8 @@ public abstract class Item {
     public boolean isAttacking() {
         return isAttacking;
     }
+
+    public boolean hasUse() {
+        return false;
+    }
 }

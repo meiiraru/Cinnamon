@@ -48,5 +48,10 @@ public abstract class Collectable extends PhysEntity {
         CollisionResolver.bounce(collision, motion, move, BOUNCINESS);
     }
 
+    @Override
+    public void rotateTo(float pitch, float yaw) {
+        super.rotateTo(0, yaw);
+    }
+
     protected abstract boolean onPickUp(Entity entity);
 }

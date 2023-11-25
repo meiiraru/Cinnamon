@@ -90,7 +90,7 @@ public class Player extends LivingEntity {
 
     @Override
     public boolean isRemoved() {
-        return false;
+        return super.isRemoved() && this != world.player;
     }
 
     public Float getDamageAngle() {
@@ -111,7 +111,7 @@ public class Player extends LivingEntity {
         this.flying = flying;
 
         if (this.isRiding() && sneaking)
-            this.rideEntity(null);
+            this.stopRiding();
     }
 
     @Override

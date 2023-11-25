@@ -16,6 +16,7 @@ import mayo.world.collisions.Hit;
 import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
+import mayo.world.entity.vehicle.Vehicle;
 import mayo.world.items.Item;
 import mayo.world.items.ItemRenderContext;
 import mayo.world.particle.SmokeParticle;
@@ -120,7 +121,12 @@ public abstract class LivingEntity extends PhysEntity {
     protected void collide(Entity entity) {
         super.collide(entity);
 
-        if (!(entity instanceof LivingEntity l))
+        if (!(this instanceof Player) && entity instanceof Vehicle v && !this.isRiding()) {
+            v.addRider(this);
+            return;
+        }
+
+        if (!(entity instanceof LivingEntity l) || this.isRiding() || entity.isRiding())
             return;
 
         //entity push
@@ -249,8 +255,9 @@ public abstract class LivingEntity extends PhysEntity {
 
     public void useAction() {
         //use holding item
-        if (getHoldingItem() != null) {
-            getHoldingItem().use(this);
+        Item i = getHoldingItem();
+        if (i != null && i.hasUse()) {
+            i.use(this);
             return;
         }
 
@@ -262,7 +269,7 @@ public abstract class LivingEntity extends PhysEntity {
 
     public void stopUsing() {
         Item i = getHoldingItem();
-        if (i != null && i.isUsing())
+        if (i != null && i.hasUse() && i.isUsing())
             i.stopUsing(this);
     }
 

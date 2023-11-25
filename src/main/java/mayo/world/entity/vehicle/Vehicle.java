@@ -5,7 +5,6 @@ import mayo.world.World;
 import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
 import mayo.world.entity.living.LivingEntity;
-import org.joml.Vector3f;
 
 public abstract class Vehicle extends PhysEntity {
 
@@ -42,27 +41,16 @@ public abstract class Vehicle extends PhysEntity {
     }
 
     @Override
-    protected void updateRiders() {
-        if (riders.isEmpty())
-            return;
-
-        Vector3f riderPos = new Vector3f(pos.x, pos.y + getSeatHeight(), pos.z);
-
-        for (Entity rider : riders)
-            rider.moveTo(riderPos);
-    }
-
-    @Override
     public void onUse(LivingEntity source) {
-        if (this.riders.size() < maxRiders) {
-            source.rideEntity(this);
-            source.rotateTo(this.getRot());
-        }
-
+        this.addRider(source);
         super.onUse(source);
     }
 
-    public float getSeatHeight() {
-        return aabb.getHeight();
+    @Override
+    public void addRider(Entity e) {
+        if (this.riders.size() < maxRiders) {
+            super.addRider(e);
+            e.rotateTo(this.getRot());
+        }
     }
 }

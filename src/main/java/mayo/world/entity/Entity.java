@@ -45,8 +45,9 @@ public abstract class Entity extends WorldObject {
     }
 
     public void tick() {
-        this.oPos.set(pos);
         this.oRot.set(rot);
+        if (!isRiding())
+            this.oPos.set(pos);
     }
 
     public void render(MatrixStack matrices, float delta) {
@@ -133,7 +134,9 @@ public abstract class Entity extends WorldObject {
 
     public void remove() {
         this.removed = true;
-        this.rideEntity(null);
+        this.stopRiding();
+        for (Entity rider : new ArrayList<>(riders))
+            rider.stopRiding();
     }
 
     public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
@@ -164,8 +167,8 @@ public abstract class Entity extends WorldObject {
 
     public void moveTo(float x, float y, float z) {
         this.pos.set(x, y, z);
-        this.updateRiders();
         this.updateAABB();
+        this.updateRiders();
     }
 
     public void rotate(float pitch, float yaw) {
@@ -218,8 +221,8 @@ public abstract class Entity extends WorldObject {
     public void setPos(float x, float y, float z) {
         super.setPos(x, y, z);
         this.oPos.set(x, y, z);
-        this.updateRiders();
         this.updateAABB();
+        this.updateRiders();
     }
 
     public Vector2f getRot(float delta) {
@@ -312,22 +315,27 @@ public abstract class Entity extends WorldObject {
     }
 
     protected void updateRiders() {
-        if (riders.isEmpty())
-            return;
-
-        Vector3f riderPos = new Vector3f(pos.x, pos.y + aabb.getHeight(), pos.z);
-
-        for (Entity rider : riders)
-            rider.moveTo(riderPos);
+        for (Entity rider : riders) {
+            rider.oPos.set(rider.pos);
+            rider.moveTo(getRiderOffset(rider).add(this.pos));
+        }
     }
 
-    public void rideEntity(Entity e) {
-        if (this.riding != null)
-            this.riding.riders.remove(this);
+    public Vector3f getRiderOffset(Entity rider) {
+        return new Vector3f(0, aabb.getHeight(), 0);
+    }
 
-        this.riding = e;
-        if (e != null)
-            this.riding.riders.add(this);
+    public void addRider(Entity e) {
+        e.stopRiding();
+        this.riders.add(e);
+        e.riding = this;
+    }
+
+    public void stopRiding() {
+        if (isRiding()) {
+            this.riding.riders.remove(this);
+            this.riding = null;
+        }
     }
 
     public boolean isRiding() {
