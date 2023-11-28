@@ -1,14 +1,18 @@
 package mayo.gui.screens;
 
+import mayo.Client;
 import mayo.gui.Screen;
 import mayo.gui.widgets.types.Button;
 import mayo.gui.widgets.types.Label;
 import mayo.gui.widgets.types.WidgetList;
+import mayo.networking.NetworkConstants;
+import mayo.networking.ClientConnection;
+import mayo.networking.ServerConnection;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.Colors;
 import mayo.utils.TextUtils;
-import mayo.world.World;
+import mayo.world.WorldClient;
 
 public class MainMenu extends Screen {
 
@@ -17,7 +21,7 @@ public class MainMenu extends Screen {
         super.init();
 
         //may~o
-        Text may = Text.of("May~o Renderer v0.1 \u25E0\u25DE\u25DF\u25E0").withStyle(Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK).shadow(true));
+        Text may = Text.of("May~o Renderer v%s \u25E0\u25DE\u25DF\u25E0".formatted(Client.VERSION)).withStyle(Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK).shadow(true));
         this.addWidget(new Label(may, font, 4, height - TextUtils.getHeight(may, font) - 4));
 
         //buttons
@@ -25,10 +29,20 @@ public class MainMenu extends Screen {
 
         //open world
         Button worldButton = new Button(0, 0, 180, 20, Text.of("Open world").withStyle(Style.EMPTY.color(Colors.YELLOW)), button -> {
-            World world = new World();
+            //init client
+            WorldClient world = new WorldClient();
+            ServerConnection.open();
             world.init();
         });
         list.addWidget(worldButton);
+
+        //join world
+        Button joinWorld = new Button(0, 0, 180, 20, Text.of("Join world (mp)").withStyle(Style.EMPTY.color(Colors.BLUE)), button -> {
+            WorldClient world = new WorldClient();
+            world.init();
+            ClientConnection.connectToServer(NetworkConstants.LOCAL_IP, NetworkConstants.TCP_PORT, NetworkConstants.UDP_PORT, 5000);
+        });
+        list.addWidget(joinWorld);
 
         //dvd screen
         Button dvd = new Button(0, 0, 180, 20, Text.of("DVD screensaver"), button -> client.setScreen(new DVDScreen(this)));

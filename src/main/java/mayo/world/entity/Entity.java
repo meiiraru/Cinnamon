@@ -12,6 +12,7 @@ import mayo.utils.Maths;
 import mayo.utils.Rotation;
 import mayo.world.DamageType;
 import mayo.world.World;
+import mayo.world.WorldClient;
 import mayo.world.WorldObject;
 import mayo.world.collisions.Hit;
 import mayo.world.entity.living.LivingEntity;
@@ -93,7 +94,7 @@ public abstract class Entity extends WorldObject {
     protected void renderTexts(MatrixStack matrices, float delta) {}
 
     public boolean shouldRenderText() {
-        if (world.hideHUD())
+        if (((WorldClient) world).hideHUD())
             return false;
 
         Camera c = Client.getInstance().camera;

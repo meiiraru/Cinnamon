@@ -4,6 +4,7 @@ import mayo.gui.Screen;
 import mayo.gui.Toast;
 import mayo.gui.screens.MainMenu;
 import mayo.gui.screens.PauseScreen;
+import mayo.networking.ClientConnection;
 import mayo.options.Options;
 import mayo.render.Camera;
 import mayo.render.Font;
@@ -14,7 +15,7 @@ import mayo.render.framebuffer.PostProcess;
 import mayo.sound.SoundManager;
 import mayo.utils.Resource;
 import mayo.utils.Timer;
-import mayo.world.World;
+import mayo.world.WorldClient;
 import org.joml.Matrix4f;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_F11;
@@ -25,6 +26,8 @@ import static org.lwjgl.opengl.GL11.glClear;
 public class Client {
 
     private static final Client INSTANCE = new Client();
+    public static final String VERSION = "0.1";
+    public static final String PLAYERNAME = String.valueOf(System.currentTimeMillis());
 
     private final Timer timer = new Timer(20);
     public int ticks;
@@ -37,7 +40,7 @@ public class Client {
     public Camera camera;
     public Font font;
     public Screen screen;
-    public World world;
+    public WorldClient world;
 
     private Client() {}
 
@@ -53,6 +56,7 @@ public class Client {
     }
 
     public void close() {
+        disconnect();
         this.font.free();
         this.soundManager.free();
     }
@@ -134,14 +138,9 @@ public class Client {
 
             //unlock mouse
             window.unlockMouse();
-
-            //pause world
-            if (world != null)
-                world.setPaused(true);
         } else if (window.lockMouse() && world != null) {
-            //no screen, then lock the mouse
-            //also unpause world
-            world.setPaused(false);
+            //no screen, then lock the mouse and reset player movement
+            world.resetMovement();
         }
     }
 
@@ -211,5 +210,16 @@ public class Client {
         } else if (world != null && !focused) {
             this.setScreen(new PauseScreen());
         }
+    }
+
+    public void disconnect() {
+        ClientConnection.disconnect();
+
+        if (this.world != null) {
+            this.world.close();
+            this.world = null;
+        }
+
+        this.setScreen(new MainMenu());
     }
 }

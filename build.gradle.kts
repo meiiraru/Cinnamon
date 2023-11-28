@@ -13,12 +13,14 @@ version = "1.0"
 repositories {
     mavenCentral()
     sonatype()
+    maven("https://jitpack.io")
 }
 
 dependencies {
     implementation(Lwjgl.Preset.minimalOpenGL)
     implementation("org.joml:joml:1.10.5")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
+    implementation("com.github.crykn:kryonet:2.22.9")
 }
 
 tasks.jar {

@@ -7,6 +7,7 @@ import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
 import mayo.utils.TextUtils;
 import mayo.world.World;
+import mayo.world.WorldClient;
 import org.joml.Vector3f;
 
 public class TextParticle extends Particle {
@@ -34,7 +35,7 @@ public class TextParticle extends Particle {
 
     @Override
     public boolean shouldRender() {
-        if (world.hideHUD())
+        if (((WorldClient) world).hideHUD())
             return false;
 
         Vector3f cam = Client.getInstance().camera.getPos();

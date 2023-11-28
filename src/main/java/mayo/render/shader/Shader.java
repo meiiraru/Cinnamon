@@ -66,6 +66,9 @@ public class Shader {
         checkProgramErrors(program);
 
         //delete shaders
+        glDetachShader(program, vertexShader);
+        glDetachShader(program, fragmentShader);
+
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
 

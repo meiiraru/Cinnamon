@@ -150,5 +150,8 @@ public class Main {
         //terminate GLFW and free the error callback
         glfwTerminate();
         glfwSetErrorCallback(null).free();
+
+        //close program
+        System.exit(0);
     }
 }

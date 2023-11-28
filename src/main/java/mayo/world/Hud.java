@@ -320,7 +320,7 @@ public class Hud {
 
         int soundCount = c.soundManager.getSoundCount();
 
-        World w = c.world;
+        WorldClient w = c.world;
         Vector3f epos = w.player.getPos();
         Vector2f erot = w.player.getRot();
         Vector3f emot = w.player.getMotion();

@@ -4,6 +4,7 @@ import mayo.model.ModelRegistry;
 import mayo.utils.Maths;
 import mayo.world.DamageType;
 import mayo.world.World;
+import mayo.world.WorldClient;
 import mayo.world.entity.Entity;
 import org.joml.Vector3f;
 
@@ -78,19 +79,14 @@ public class Player extends LivingEntity {
 
     @Override
     protected void spawnDeathParticles() {
-        if (world.isThirdPerson())
+        if (((WorldClient) world).isThirdPerson())
             super.spawnDeathParticles();
     }
 
     @Override
     protected void spawnHealthChangeParticle(int amount, boolean crit) {
-        if (world.isThirdPerson())
+        if (((WorldClient) world).isThirdPerson())
             super.spawnHealthChangeParticle(amount, crit);
-    }
-
-    @Override
-    public boolean isRemoved() {
-        return super.isRemoved() && this != world.player;
     }
 
     public Float getDamageAngle() {

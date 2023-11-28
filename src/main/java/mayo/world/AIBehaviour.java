@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 public enum AIBehaviour {
     WALK(entity -> {
         entity.move(0, 0, 1);
-        entity.lookAt(entity.getWorld().player.getEyePos());
+        entity.rotate(0, 0.1f);
     }),
     SHOOT(LivingEntity::attackAction);
 
