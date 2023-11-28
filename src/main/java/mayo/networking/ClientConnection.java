@@ -9,7 +9,7 @@ public class ClientConnection {
 
     public static Client connection;
 
-    public static void connectToServer(String ip, int tcpPort, int udpPort, int timeout) {
+    public static boolean connectToServer(String ip, int tcpPort, int udpPort, int timeout) {
         disconnect();
 
         try {
@@ -33,8 +33,11 @@ public class ClientConnection {
 
             connection = client;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            return false;
         }
+
+        return true;
     }
 
     public static void disconnect() {

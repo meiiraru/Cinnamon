@@ -1,30 +1,67 @@
 package mayo.networking;
 
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Listener;
+import com.esotericsoftware.kryonet.Server;
+import mayo.networking.packet.Packet;
 import mayo.world.WorldServer;
 
 public class ServerConnection {
 
-    public static WorldServer internalServer;
+    public static WorldServer world;
+    private static Server connection;
 
-    public static void open() {
+    public static boolean open() {
         close();
 
+        //open server
+        try {
+            Server server = new Server();
+            PacketRegistry.register(server.getKryo());
+            server.start();
+            server.bind(NetworkConstants.TCP_PORT, NetworkConstants.UDP_PORT);
+
+            server.addListener(new Listener() {
+                public void received (Connection connection, Object object) {
+                    if (object instanceof Packet p)
+                        p.serverReceived(server, connection);
+                }
+            });
+
+            connection = server;
+        } catch (Exception e) {
+            System.out.println("Unable to create local server");
+            e.printStackTrace();
+            close();
+            return false;
+        }
+
         //server world
-        WorldServer server = new WorldServer();
-        server.init();
-
-        //open to lan
-        server.openToLAN();
-
-        //then connect to localhost
-        ClientConnection.connectToServer(NetworkConstants.LOCAL_IP, NetworkConstants.TCP_PORT, NetworkConstants.UDP_PORT, 5000);
+        WorldServer worldServer = new WorldServer();
+        worldServer.init();
 
         //save server
-        internalServer = server;
+        world = worldServer;
+
+        //then connect to localhost
+        if (!ClientConnection.connectToServer(NetworkConstants.LOCAL_IP, NetworkConstants.TCP_PORT, NetworkConstants.UDP_PORT, 30_000)) {
+            System.out.println("Failed to connect to local server");
+            close();
+            return false;
+        }
+
+        return true;
     }
 
     public static void close() {
-        if (internalServer != null)
-            internalServer.close();
+        if (world != null) {
+            world.close();
+            world = null;
+        }
+
+        if (connection != null) {
+            connection.close();
+            connection = null;
+        }
     }
 }

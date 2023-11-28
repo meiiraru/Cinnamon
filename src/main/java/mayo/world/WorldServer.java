@@ -1,11 +1,5 @@
 package mayo.world;
 
-import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.Listener;
-import com.esotericsoftware.kryonet.Server;
-import mayo.networking.NetworkConstants;
-import mayo.networking.PacketRegistry;
-import mayo.networking.packet.Packet;
 import mayo.utils.Resource;
 import mayo.world.entity.vehicle.Cart;
 import mayo.world.light.Light;
@@ -14,7 +8,6 @@ import mayo.world.light.Spotlight;
 public class WorldServer extends World {
 
     private final Spotlight flashlight = (Spotlight) new Spotlight().cutOff(25f, 45f).brightness(64);
-    private Server server;
 
     @Override
     public void init() {
@@ -43,27 +36,5 @@ public class WorldServer extends World {
     }
 
     @Override
-    public void close() {
-        if (server != null)
-            server.close();
-    }
-
-    public void openToLAN() {
-        try {
-            Server server = new Server();
-            PacketRegistry.register(server.getKryo());
-            server.start();
-            server.bind(NetworkConstants.TCP_PORT, NetworkConstants.UDP_PORT);
-            this.server = server;
-
-            server.addListener(new Listener() {
-                public void received (Connection connection, Object object) {
-                    if (object instanceof Packet p)
-                        p.serverReceived(server, connection);
-                }
-            });
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+    public void close() {}
 }

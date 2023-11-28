@@ -2,6 +2,7 @@ package mayo.gui.screens;
 
 import mayo.Client;
 import mayo.gui.Screen;
+import mayo.gui.Toast;
 import mayo.gui.widgets.types.Button;
 import mayo.gui.widgets.types.Label;
 import mayo.gui.widgets.types.WidgetList;
@@ -30,17 +31,23 @@ public class MainMenu extends Screen {
         //open world
         Button worldButton = new Button(0, 0, 180, 20, Text.of("Open world").withStyle(Style.EMPTY.color(Colors.YELLOW)), button -> {
             //init client
-            WorldClient world = new WorldClient();
-            ServerConnection.open();
-            world.init();
+            if (ServerConnection.open()) {
+                WorldClient world = new WorldClient();
+                world.init();
+            } else {
+                Toast.addToast(Text.of("Unable to create the internal server"), client.font);
+            }
         });
         list.addWidget(worldButton);
 
         //join world
         Button joinWorld = new Button(0, 0, 180, 20, Text.of("Join world (mp)").withStyle(Style.EMPTY.color(Colors.BLUE)), button -> {
-            WorldClient world = new WorldClient();
-            world.init();
-            ClientConnection.connectToServer(NetworkConstants.LOCAL_IP, NetworkConstants.TCP_PORT, NetworkConstants.UDP_PORT, 5000);
+            if (ClientConnection.connectToServer(NetworkConstants.LOCAL_IP, NetworkConstants.TCP_PORT, NetworkConstants.UDP_PORT, 10_000)) {
+                WorldClient world = new WorldClient();
+                world.init();
+            } else {
+                Toast.addToast(Text.of("Unable to connect to server"), client.font);
+            }
         });
         list.addWidget(joinWorld);
 
