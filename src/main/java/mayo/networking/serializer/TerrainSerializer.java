@@ -4,7 +4,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import mayo.model.ModelRegistry;
+import mayo.registry.TerrainRegistry;
 import mayo.world.terrain.Terrain;
 import org.joml.Vector3f;
 
@@ -28,8 +28,8 @@ public class TerrainSerializer extends Serializer<Terrain> {
     @Override
     public Terrain read(Kryo kryo, Input input, Class<? extends Terrain> type) {
         //type
-        ModelRegistry.Terrain terrainType = kryo.readObject(input, ModelRegistry.Terrain.class);
-        Terrain terrain = terrainType.get();
+        TerrainRegistry terrainType = kryo.readObject(input, TerrainRegistry.class);
+        Terrain terrain = terrainType.getFactory().get();
 
         //pos
         terrain.setPos(input.readFloat(), input.readFloat(), input.readFloat());

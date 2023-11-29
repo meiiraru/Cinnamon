@@ -6,11 +6,11 @@ import mayo.gui.screens.DeathScreen;
 import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
 import mayo.model.GeometryHelper;
-import mayo.model.ModelRegistry;
 import mayo.networking.ServerConnection;
 import mayo.networking.packet.Handshake;
 import mayo.networking.packet.Login;
 import mayo.networking.packet.Message;
+import mayo.registry.LivingModelRegistry;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
 import mayo.render.Window;
@@ -444,7 +444,7 @@ public class WorldClient extends World {
     }
 
     public void respawn() {
-        player = new Player(ModelRegistry.Living.STRAWBERRY);
+        player = new Player(LivingModelRegistry.STRAWBERRY);
         this.addEntity(player);
     }
 }

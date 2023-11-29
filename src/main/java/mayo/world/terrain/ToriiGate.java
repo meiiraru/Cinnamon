@@ -1,10 +1,10 @@
 package mayo.world.terrain;
 
-import mayo.model.ModelRegistry;
+import mayo.registry.TerrainRegistry;
 
 public class ToriiGate extends Terrain {
     @Override
-    public ModelRegistry.Terrain getType() {
-        return ModelRegistry.Terrain.TORII_GATE;
+    public TerrainRegistry getType() {
+        return TerrainRegistry.TORII_GATE;
     }
 }

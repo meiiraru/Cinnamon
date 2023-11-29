@@ -1,6 +1,6 @@
 package mayo.world.entity.living;
 
-import mayo.model.ModelRegistry;
+import mayo.registry.LivingModelRegistry;
 import mayo.world.AIBehaviour;
 import mayo.world.DamageType;
 import mayo.world.entity.Entity;
@@ -13,10 +13,10 @@ public class Enemy extends LivingEntity {
     private final AIBehaviour[] behaviours;
 
     public Enemy(AIBehaviour... behaviours) {
-        this(ModelRegistry.Living.random(), behaviours);
+        this(LivingModelRegistry.random(), behaviours);
     }
 
-    private Enemy(ModelRegistry.Living entityModel, AIBehaviour... behaviours) {
+    private Enemy(LivingModelRegistry entityModel, AIBehaviour... behaviours) {
         super(entityModel, MAX_HEALTH, INVENTORY_SIZE);
         this.behaviours = behaviours;
     }

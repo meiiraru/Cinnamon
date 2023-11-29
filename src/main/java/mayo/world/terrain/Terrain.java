@@ -1,7 +1,7 @@
 package mayo.world.terrain;
 
 import mayo.model.GeometryHelper;
-import mayo.model.ModelRegistry;
+import mayo.registry.TerrainRegistry;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;
@@ -99,5 +99,5 @@ public abstract class Terrain extends WorldObject {
         return 90f * rotation;
     }
 
-    public abstract ModelRegistry.Terrain getType();
+    public abstract TerrainRegistry getType();
 }

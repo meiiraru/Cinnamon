@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import mayo.model.ModelRegistry;
+import mayo.registry.LivingModelRegistry;
 import mayo.utils.IOUtils;
 import mayo.world.AIBehaviour;
 
@@ -21,7 +21,7 @@ public class Options {
     public float guiScale = 3f;
 
     //player model
-    public ModelRegistry.Living player = ModelRegistry.Living.STRAWBERRY;
+    public LivingModelRegistry player = LivingModelRegistry.STRAWBERRY;
 
     //spawn rates
     public int enemySpawn = 60;

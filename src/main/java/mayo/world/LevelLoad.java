@@ -3,7 +3,7 @@ package mayo.world;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import mayo.model.ModelRegistry;
+import mayo.registry.TerrainRegistry;
 import mayo.utils.IOUtils;
 import mayo.utils.Resource;
 import mayo.world.terrain.Terrain;
@@ -52,9 +52,9 @@ public class LevelLoad {
                     continue;
 
                 char c = tile.tile;
-                ModelRegistry.Terrain terrain = level.terrainMap.get(c);
+                TerrainRegistry terrain = level.terrainMap.get(c);
                 if (terrain != null) {
-                    Terrain t = terrain.get();
+                    Terrain t = terrain.getFactory().get();
                     t.setPos(tile.x + x0, tile.y + y0, tile.z + z0);
                     world.addTerrain(t);
                 }
@@ -64,7 +64,7 @@ public class LevelLoad {
 
     private static class LevelData {
         public ArrayList<ChunkData> chunkData;
-        public HashMap<Character, ModelRegistry.Terrain> terrainMap;
+        public HashMap<Character, TerrainRegistry> terrainMap;
     }
 
     private static class ChunkData {

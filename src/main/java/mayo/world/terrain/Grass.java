@@ -1,10 +1,10 @@
 package mayo.world.terrain;
 
-import mayo.model.ModelRegistry;
+import mayo.registry.TerrainRegistry;
 
 public class Grass extends Terrain {
     @Override
-    public ModelRegistry.Terrain getType() {
-        return ModelRegistry.Terrain.GRASS;
+    public TerrainRegistry getType() {
+        return TerrainRegistry.GRASS;
     }
 }

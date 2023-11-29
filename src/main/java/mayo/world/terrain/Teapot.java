@@ -1,7 +1,7 @@
 package mayo.world.terrain;
 
 import mayo.Client;
-import mayo.model.ModelRegistry;
+import mayo.registry.TerrainRegistry;
 import mayo.world.particle.ElectroParticle;
 
 public class Teapot extends Terrain {
@@ -17,7 +17,7 @@ public class Teapot extends Terrain {
     }
 
     @Override
-    public ModelRegistry.Terrain getType() {
-        return ModelRegistry.Terrain.TEAPOT;
+    public TerrainRegistry getType() {
+        return TerrainRegistry.TEAPOT;
     }
 }

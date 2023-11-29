@@ -1,6 +1,6 @@
 package mayo.world.entity.living;
 
-import mayo.model.ModelRegistry;
+import mayo.registry.LivingModelRegistry;
 import mayo.utils.Maths;
 import mayo.world.DamageType;
 import mayo.world.WorldClient;
@@ -19,8 +19,12 @@ public class Player extends LivingEntity {
 
     private boolean sprinting, sneaking, flying;
 
-    public Player(ModelRegistry.Living model) {
-        super(model == null ? ModelRegistry.Living.random() : model, MAX_HEALTH, INVENTORY_SIZE);
+    public Player() {
+        this(null);
+    }
+
+    public Player(LivingModelRegistry model) {
+        super(model == null ? LivingModelRegistry.random() : model, MAX_HEALTH, INVENTORY_SIZE);
     }
 
     @Override

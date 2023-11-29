@@ -1,7 +1,7 @@
 package mayo.world.terrain;
 
 import mayo.Client;
-import mayo.model.ModelRegistry;
+import mayo.registry.TerrainRegistry;
 import mayo.world.particle.LightParticle;
 import org.joml.Vector3f;
 
@@ -21,7 +21,7 @@ public class LightPole extends Terrain {
     }
 
     @Override
-    public ModelRegistry.Terrain getType() {
-        return ModelRegistry.Terrain.LIGHT_POLE;
+    public TerrainRegistry getType() {
+        return TerrainRegistry.LIGHT_POLE;
     }
 }
