@@ -10,7 +10,6 @@ import mayo.world.collisions.CollisionResult;
 import mayo.world.collisions.Hit;
 import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
-import mayo.world.light.Light;
 import mayo.world.particle.ExplosionParticle;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.Terrain;
@@ -28,7 +27,6 @@ public abstract class World {
     protected final List<Terrain> terrain = new ArrayList<>();
     protected final Map<UUID, Entity> entities = new HashMap<>();
     protected final List<Particle> particles = new ArrayList<>();
-    protected final List<Light> lights = new ArrayList<>();
 
     public final float updateTime = 0.05f; // 1/20
     public final float gravity = 0.98f * updateTime;
@@ -97,10 +95,6 @@ public abstract class World {
             });
     }
 
-    public void addLight(Light light) {
-        scheduledTicks.add(() -> this.lights.add(light));
-    }
-
     public SoundSource playSound(Resource sound, SoundCategory category, Vector3f position) {
         return Client.getInstance().soundManager.playSound(sound, category, position);
     }
@@ -115,10 +109,6 @@ public abstract class World {
 
     public int particleCount() {
         return particles.size();
-    }
-
-    public int lightCount() {
-        return lights.size();
     }
 
     public List<Entity> getEntities(AABB region) {
@@ -144,15 +134,6 @@ public abstract class World {
         for (Particle particle : this.particles) {
             if (region.isInside(particle.getPos()))
                 list.add(particle);
-        }
-        return list;
-    }
-
-    public List<Light> getLights(AABB region) {
-        List<Light> list = new ArrayList<>();
-        for (Light light : this.lights) {
-            if (region.isInside(light.getPos()))
-                list.add(light);
         }
         return list;
     }

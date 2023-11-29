@@ -38,6 +38,9 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static mayo.networking.ClientConnection.connection;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -56,16 +59,17 @@ public class WorldClient extends World {
     private boolean debugRendering, renderShadowMap;
     private boolean hideHUD;
 
+    //lights
+    protected final List<Light> lights = new ArrayList<>();
+    private final DirectionalLight sunLight = new DirectionalLight();
+    private final Spotlight flashlight = (Spotlight) new Spotlight().cutOff(25f, 45f).brightness(64);
+
     //skybox
     private final SkyBox skyBox = new SkyBox();
-    private final DirectionalLight sunLight = new DirectionalLight();
 
     //shadows
     private final Framebuffer shadowBuffer = new Framebuffer(2048, 2048, Framebuffer.DEPTH_BUFFER);
     private final Matrix4f lightSpaceMatrix = new Matrix4f();
-
-    //extra lights
-    private final Spotlight flashlight = (Spotlight) new Spotlight().cutOff(25f, 45f).brightness(64);
 
     @Override
     public void init() {
@@ -80,9 +84,19 @@ public class WorldClient extends World {
         //tutorial toast
         Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), Client.getInstance().font);
 
-        //sunlight
+        //lights
         addLight(sunLight);
         addLight(flashlight);
+
+        //rip for-loop
+        addLight(new Light().pos(-5.5f, 0.5f, 2f).color(0x000000));
+        addLight(new Light().pos(-3.5f, 0.5f, 2f).color(0xFF0000));
+        addLight(new Light().pos(-1.5f, 0.5f, 2f).color(0x00FF00));
+        addLight(new Light().pos(0.5f, 0.5f, 2f).color(0x0000FF));
+        addLight(new Light().pos(2.5f, 0.5f, 2f).color(0x00FFFF));
+        addLight(new Light().pos(4.5f, 0.5f, 2f).color(0xFF00FF));
+        addLight(new Light().pos(6.5f, 0.5f, 2f).color(0xFFFF00));
+        addLight(new Light().pos(8.5f, 0.5f, 2f).color(0xFFFFFF));
 
         //create player
         respawn();
@@ -331,6 +345,23 @@ public class WorldClient extends World {
         glBindTexture(GL_TEXTURE_2D, shadowBuffer.getDepthBuffer());
 
         glActiveTexture(GL_TEXTURE0);
+    }
+
+    public void addLight(Light light) {
+        scheduledTicks.add(() -> this.lights.add(light));
+    }
+
+    public int lightCount() {
+        return lights.size();
+    }
+
+    public List<Light> getLights(AABB region) {
+        List<Light> list = new ArrayList<>();
+        for (Light light : this.lights) {
+            if (region.isInside(light.getPos()))
+                list.add(light);
+        }
+        return list;
     }
 
     public void mousePress(int button, int action, int mods) {
