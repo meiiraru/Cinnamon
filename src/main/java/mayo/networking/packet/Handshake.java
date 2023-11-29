@@ -14,10 +14,13 @@ public class Handshake implements Packet {
     }
 
     @Override
-    public void clientReceived(Client client, Connection connection) {}
+    public void clientReceived(Client client, Connection connection) {
+        System.out.println("Handshake received!");
+    }
 
     @Override
     public void serverReceived(Server server, Connection connection) {
-        System.out.printf("[Server] %s (Client %s) handshaked with version: v%s\n", name, connection.getID(), version);
+        System.out.printf("[Server] %s (id %s) handshaked with version: v%s\n", name, connection.getID(), version);
+        connection.sendTCP(new Handshake());
     }
 }

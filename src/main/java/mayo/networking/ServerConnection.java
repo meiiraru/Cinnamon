@@ -4,6 +4,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import mayo.networking.packet.Packet;
+import mayo.networking.registry.PacketRegistry;
 import mayo.world.WorldServer;
 
 public class ServerConnection {
@@ -16,15 +17,20 @@ public class ServerConnection {
 
         //open server
         try {
-            Server server = new Server();
+            Server server = new Server(Server.DEFAULT_WRITE_BUFFER_SIZE, 8192); //TODO - Change to default value once chunks are implemented
             PacketRegistry.register(server.getKryo());
             server.start();
             server.bind(NetworkConstants.TCP_PORT, NetworkConstants.UDP_PORT);
 
             server.addListener(new Listener() {
                 public void received (Connection connection, Object object) {
-                    if (object instanceof Packet p)
-                        p.serverReceived(server, connection);
+                    try {
+                        if (object instanceof Packet p)
+                            p.serverReceived(server, connection);
+                    } catch (Exception e) {
+                        System.out.println("Failed to parse packet " + object);
+                        e.printStackTrace();
+                    }
                 }
             });
 

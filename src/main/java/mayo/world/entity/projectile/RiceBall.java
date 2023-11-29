@@ -4,11 +4,10 @@ import mayo.model.ModelManager;
 import mayo.render.Model;
 import mayo.utils.Maths;
 import mayo.utils.Resource;
-import mayo.world.World;
 import mayo.world.collisions.CollisionResult;
 import mayo.world.entity.Entity;
-import mayo.world.particle.SmokeParticle;
 import mayo.world.particle.Particle;
+import mayo.world.particle.SmokeParticle;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -24,8 +23,8 @@ public class RiceBall extends Projectile {
     public static final int SPLIT_LIFE = 15;
     public static final int SPLIT_AMOUNT = 15;
 
-    public RiceBall(World world, Entity owner) {
-        super(MODEL, world, DAMAGE, LIFETIME, SPEED, 0f, owner);
+    public RiceBall(Entity owner) {
+        super(MODEL, DAMAGE, LIFETIME, SPEED, 0f, owner);
     }
 
     @Override
@@ -51,7 +50,7 @@ public class RiceBall extends Projectile {
             return;
 
         //poof particle
-        Particle particle = new SmokeParticle(world, 10, -1);
+        Particle particle = new SmokeParticle(10, -1);
         particle.setPos(this.getPos());
         world.addParticle(particle);
 
@@ -68,7 +67,7 @@ public class RiceBall extends Projectile {
         Vector3f forwards = new Vector3f(0f, 0f, -1f).rotate(rotation);
 
         for (int i = 0; i < SPLIT_AMOUNT; i++) {
-            Projectile proj = new Rice(world, owner, SPLIT_LIFE, this.speed, CRIT_CHANCE);
+            Projectile proj = new Rice(owner, SPLIT_LIFE, this.speed, CRIT_CHANCE);
 
             //pos
             proj.setPos(this.getPos());

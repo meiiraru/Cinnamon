@@ -19,8 +19,7 @@ public abstract class Particle extends WorldObject {
     private boolean removed = false;
     private boolean emissive;
 
-    public Particle(World world, int lifetime) {
-        super(world);
+    public Particle(int lifetime) {
         this.lifetime = lifetime;
     }
 

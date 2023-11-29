@@ -1,6 +1,4 @@
-package mayo.world.entity.living;
-
-import mayo.world.items.Item;
+package mayo.world.items;
 
 public class Inventory {
 

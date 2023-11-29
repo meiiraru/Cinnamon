@@ -9,6 +9,7 @@ import mayo.model.GeometryHelper;
 import mayo.model.ModelRegistry;
 import mayo.networking.ServerConnection;
 import mayo.networking.packet.Handshake;
+import mayo.networking.packet.Login;
 import mayo.networking.packet.Message;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
@@ -30,6 +31,7 @@ import mayo.world.items.ItemRenderContext;
 import mayo.world.items.weapons.Weapon;
 import mayo.world.light.DirectionalLight;
 import mayo.world.light.Light;
+import mayo.world.light.Spotlight;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.Terrain;
 import org.joml.Matrix4f;
@@ -62,6 +64,9 @@ public class WorldClient extends World {
     private final Framebuffer shadowBuffer = new Framebuffer(2048, 2048, Framebuffer.DEPTH_BUFFER);
     private final Matrix4f lightSpaceMatrix = new Matrix4f();
 
+    //extra lights
+    private final Spotlight flashlight = (Spotlight) new Spotlight().cutOff(25f, 45f).brightness(64);
+
     @Override
     public void init() {
         //set client
@@ -77,9 +82,15 @@ public class WorldClient extends World {
 
         //sunlight
         addLight(sunLight);
+        addLight(flashlight);
 
         //create player
         respawn();
+
+        runScheduledTicks();
+
+        //request world data
+        connection.sendTCP(new Login());
     }
 
     @Override
@@ -120,6 +131,10 @@ public class WorldClient extends World {
         skyBox.setSunAngle(Maths.map(timeOfTheDay + delta, 0, 24000, 0, 360));
         skyBox.render(c.camera, matrices);
         sunLight.direction(skyBox.getSunDirection());
+
+        //flashlight
+        flashlight.pos(player.getEyePos(delta));
+        flashlight.direction(player.getLookDir(delta));
 
         //render shadows
         renderShadows(c.camera, matrices, delta);
@@ -398,7 +413,7 @@ public class WorldClient extends World {
     }
 
     public void respawn() {
-        player = new Player(this, ModelRegistry.Living.STRAWBERRY);
+        player = new Player(ModelRegistry.Living.STRAWBERRY);
         this.addEntity(player);
     }
 }

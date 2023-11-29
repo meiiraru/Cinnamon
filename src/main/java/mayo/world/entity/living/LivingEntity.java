@@ -11,12 +11,12 @@ import mayo.utils.Colors;
 import mayo.utils.Rotation;
 import mayo.utils.TextUtils;
 import mayo.world.DamageType;
-import mayo.world.World;
 import mayo.world.collisions.Hit;
 import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
 import mayo.world.entity.vehicle.Vehicle;
+import mayo.world.items.Inventory;
 import mayo.world.items.Item;
 import mayo.world.items.ItemRenderContext;
 import mayo.world.particle.SmokeParticle;
@@ -36,15 +36,15 @@ public abstract class LivingEntity extends PhysEntity {
     private int health;
     private int maxHealth;
 
-    public LivingEntity(Model model, World world, int maxHealth, float eyeHeight, int inventorySize) {
-        super(model, world);
+    public LivingEntity(Model model, int maxHealth, float eyeHeight, int inventorySize) {
+        super(model);
         this.health = this.maxHealth = maxHealth;
         this.eyeHeight = eyeHeight;
         this.inventory = new Inventory(inventorySize);
     }
 
-    public LivingEntity(ModelRegistry.Living entityModel, World world, int maxHealth, int inventorySize) {
-        this(entityModel.model, world, maxHealth, entityModel.eyeHeight, inventorySize);
+    public LivingEntity(ModelRegistry.Living entityModel, int maxHealth, int inventorySize) {
+        this(entityModel.model, maxHealth, entityModel.eyeHeight, inventorySize);
     }
 
     @Override
@@ -201,7 +201,7 @@ public abstract class LivingEntity extends PhysEntity {
 
     protected void spawnDeathParticles() {
         for (int i = 0; i < 20; i++) {
-            SmokeParticle particle = new SmokeParticle(world, (int) (Math.random() * 15) + 10, -1);
+            SmokeParticle particle = new SmokeParticle((int) (Math.random() * 15) + 10, -1);
             particle.setPos(aabb.getRandomPoint());
             world.addParticle(particle);
         }
@@ -231,7 +231,7 @@ public abstract class LivingEntity extends PhysEntity {
             text += " \u2728";
 
         //spawn particle
-        TextParticle p = new TextParticle(world, Text.of(text).withStyle(Style.EMPTY.color(color).outlined(true)), 20, aabb.getRandomPoint());
+        TextParticle p = new TextParticle(Text.of(text).withStyle(Style.EMPTY.color(color).outlined(true)), 20, aabb.getRandomPoint());
         p.setEmissive(true);
         world.addParticle(p);
     }

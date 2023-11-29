@@ -5,7 +5,6 @@ import mayo.render.Model;
 import mayo.sound.SoundCategory;
 import mayo.utils.Maths;
 import mayo.utils.Resource;
-import mayo.world.World;
 import mayo.world.entity.Entity;
 import mayo.world.entity.projectile.Potato;
 import mayo.world.entity.projectile.Projectile;
@@ -21,8 +20,8 @@ public class PotatoCannon extends Weapon {
     }
 
     @Override
-    protected Projectile newProjectile(World world, Entity entity) {
-        return new Potato(world, entity);
+    protected Projectile newProjectile(Entity entity) {
+        return new Potato(entity);
     }
 
     @Override

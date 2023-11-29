@@ -4,7 +4,6 @@ import mayo.model.ModelManager;
 import mayo.render.Model;
 import mayo.utils.AABB;
 import mayo.utils.Resource;
-import mayo.world.World;
 import mayo.world.entity.Entity;
 import mayo.world.entity.living.Player;
 import mayo.world.particle.SteamParticle;
@@ -16,8 +15,8 @@ public class HealthPack extends Collectable {
     private static final int HEAL = 10;
     private static final float SMOKE_CHANCE = 0.05f;
 
-    public HealthPack(World world) {
-        super(MODEL, world);
+    public HealthPack() {
+        super(MODEL);
     }
 
     @Override
@@ -25,7 +24,7 @@ public class HealthPack extends Collectable {
         super.tick();
 
         if (Math.random() < SMOKE_CHANCE) {
-            SteamParticle p = new SteamParticle(world, (int) (Math.random() * 5) + 15, 0xFFDDDDDD);
+            SteamParticle p = new SteamParticle((int) (Math.random() * 5) + 15, 0xFFDDDDDD);
 
             AABB aabb = new AABB(this.aabb);
             aabb.inflate(-0.3f, 0, -0.3f);

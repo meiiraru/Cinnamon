@@ -30,11 +30,11 @@ public abstract class Weapon extends CooldownItem {
         reload();
     }
 
-    protected abstract Projectile newProjectile(World world, Entity entity);
+    protected abstract Projectile newProjectile(Entity entity);
 
     protected void spawnBullet(Entity source) {
         World world = source.getWorld();
-        Projectile projectile = newProjectile(world, source);
+        Projectile projectile = newProjectile(source);
 
         projectile.setPos(source.getEyePos().add(source.getLookDir().mul(0.5f)));
         projectile.setRot(source.getRot());

@@ -4,10 +4,10 @@ import org.joml.Vector3f;
 
 public abstract class WorldObject {
 
-    protected final World world;
     protected final Vector3f pos = new Vector3f();
+    protected World world;
 
-    protected WorldObject(World world) {
+    public void onAdded(World world) {
         this.world = world;
     }
 

@@ -54,7 +54,7 @@ public class LevelLoad {
                 char c = tile.tile;
                 ModelRegistry.Terrain terrain = level.terrainMap.get(c);
                 if (terrain != null) {
-                    Terrain t = terrain.get(world);
+                    Terrain t = terrain.get();
                     t.setPos(tile.x + x0, tile.y + y0, tile.z + z0);
                     world.addTerrain(t);
                 }

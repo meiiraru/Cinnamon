@@ -1,6 +1,7 @@
 package mayo.world.terrain;
 
 import mayo.model.GeometryHelper;
+import mayo.model.ModelRegistry;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;
@@ -21,11 +22,10 @@ public abstract class Terrain extends WorldObject {
     private AABB aabb; //the entire model's AABB
     private final List<AABB> groupsAABB = new ArrayList<>(); //group's AABB
 
-    private int rotation = 0;
+    private byte rotation = 0;
 
-    public Terrain(Model model, World world) {
-        super(world);
-        this.model = model;
+    public Terrain() {
+        this.model = getType().model;
         this.updateAABB();
     }
 
@@ -87,11 +87,17 @@ public abstract class Terrain extends WorldObject {
         return groupsAABB;
     }
 
-    public void setRotation(int rotation) {
+    public void setRotation(byte rotation) {
         this.rotation = rotation;
+    }
+
+    public int getRotation() {
+        return rotation;
     }
 
     public float getRotationAngle() {
         return 90f * rotation;
     }
+
+    public abstract ModelRegistry.Terrain getType();
 }

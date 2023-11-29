@@ -3,11 +3,11 @@ package mayo.world;
 import mayo.utils.Resource;
 import mayo.world.entity.vehicle.Cart;
 import mayo.world.light.Light;
-import mayo.world.light.Spotlight;
+import mayo.world.terrain.Terrain;
+
+import java.util.List;
 
 public class WorldServer extends World {
-
-    private final Spotlight flashlight = (Spotlight) new Spotlight().cutOff(25f, 45f).brightness(64);
 
     @Override
     public void init() {
@@ -24,17 +24,22 @@ public class WorldServer extends World {
         addLight(new Light().pos(4.5f, 0.5f, 2f).color(0xFF00FF));
         addLight(new Light().pos(6.5f, 0.5f, 2f).color(0xFFFF00));
         addLight(new Light().pos(8.5f, 0.5f, 2f).color(0xFFFFFF));
-        addLight(flashlight);
 
-        Cart c = new Cart(this);
+        Cart c = new Cart();
         c.setPos(10, 2, 10);
         this.addEntity(c);
 
-        Cart c2 = new Cart(this);
+        Cart c2 = new Cart();
         c2.setPos(15, 2, 10);
         this.addEntity(c2);
+
+        runScheduledTicks();
     }
 
     @Override
     public void close() {}
+
+    public List<Terrain> getTerrain() {
+        return this.terrain;
+    }
 }

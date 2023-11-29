@@ -3,7 +3,6 @@ package mayo.world.entity.collectable;
 import mayo.Client;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
-import mayo.world.World;
 import mayo.world.collisions.CollisionResolver;
 import mayo.world.collisions.CollisionResult;
 import mayo.world.entity.Entity;
@@ -14,8 +13,8 @@ public abstract class Collectable extends PhysEntity {
 
     private static final Vector3f BOUNCINESS = new Vector3f(0.5f, 0.5f, 0.5f);
 
-    public Collectable(Model model, World world) {
-        super(model, world);
+    public Collectable(Model model) {
+        super(model);
     }
 
     @Override

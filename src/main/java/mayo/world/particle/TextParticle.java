@@ -6,7 +6,6 @@ import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
 import mayo.utils.TextUtils;
-import mayo.world.World;
 import mayo.world.WorldClient;
 import org.joml.Vector3f;
 
@@ -17,8 +16,8 @@ public class TextParticle extends Particle {
     private final Text text;
     private final Font font;
 
-    public TextParticle(World world, Text text, int lifetime, Vector3f position) {
-        super(world, lifetime);
+    public TextParticle(Text text, int lifetime, Vector3f position) {
+        super(lifetime);
 
         this.text = text;
         this.font = Client.getInstance().font;

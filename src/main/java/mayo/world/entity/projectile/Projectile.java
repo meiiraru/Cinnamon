@@ -19,8 +19,8 @@ public abstract class Projectile extends PhysEntity {
     protected final Entity owner;
     protected int lifetime;
 
-    public Projectile(Model model, World world, int damage, int lifetime, float speed, float critChance, Entity owner) {
-        super(model, world);
+    public Projectile(Model model, int damage, int lifetime, float speed, float critChance, Entity owner) {
+        super(model);
         this.lifetime = lifetime;
         this.speed = speed;
         this.owner = owner;
@@ -67,8 +67,8 @@ public abstract class Projectile extends PhysEntity {
     }
 
     @Override
-    public void onAdd() {
-        super.onAdd();
+    public void onAdded(World world) {
+        super.onAdded(world);
         this.move(0, 0, 1);
     }
 
@@ -96,7 +96,7 @@ public abstract class Projectile extends PhysEntity {
 
     protected void confetti() {
         for (int i = 0; i < 20; i++) {
-            DustParticle particle = new DustParticle(world, (int) (Math.random() * 40) + 20, Colors.randomRainbow().rgba);
+            DustParticle particle = new DustParticle((int) (Math.random() * 40) + 20, Colors.randomRainbow().rgba);
             particle.setPos(pos);
             particle.setMotion(Maths.rotToDir((float) Math.random() * 360, (float) Math.random() * 360).mul((float) Math.random() * 0.075f + 0.075f));
             particle.setScale(1.5f);

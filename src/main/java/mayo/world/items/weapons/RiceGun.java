@@ -3,7 +3,6 @@ package mayo.world.items.weapons;
 import mayo.model.ModelManager;
 import mayo.render.Model;
 import mayo.utils.Resource;
-import mayo.world.World;
 import mayo.world.entity.Entity;
 import mayo.world.entity.projectile.Projectile;
 import mayo.world.entity.projectile.RiceBall;
@@ -18,7 +17,7 @@ public class RiceGun extends Weapon {
     }
 
     @Override
-    protected Projectile newProjectile(World world, Entity entity) {
-        return new RiceBall(world, entity);
+    protected Projectile newProjectile(Entity entity) {
+        return new RiceBall(entity);
     }
 }

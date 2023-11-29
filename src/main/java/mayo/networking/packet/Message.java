@@ -20,12 +20,13 @@ public class Message implements Packet {
 
     @Override
     public void clientReceived(Client client, Connection connection) {
-        System.out.printf("<%s> %s\n", owner, msg);
+        System.out.println(msg);
     }
 
     @Override
     public void serverReceived(Server server, Connection connection) {
-        System.out.printf("[Server] <%s> %s\n", owner, msg);
-        server.sendToAllExceptTCP(connection.getID(), this);
+        String s = "<%s> %s".formatted(owner, msg);
+        System.out.println("[Server] " + s);
+        server.sendToAllTCP(new Message().msg(s));
     }
 }

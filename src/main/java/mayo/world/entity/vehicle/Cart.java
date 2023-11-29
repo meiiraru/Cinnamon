@@ -3,7 +3,6 @@ package mayo.world.entity.vehicle;
 import mayo.model.ModelManager;
 import mayo.render.Model;
 import mayo.utils.Resource;
-import mayo.world.World;
 import mayo.world.entity.Entity;
 import org.joml.Vector3f;
 
@@ -11,8 +10,8 @@ public class Cart extends Vehicle {
 
     private static final Model MODEL = ModelManager.load(new Resource("models/entities/vehicle/cart/cart.obj"));
 
-    public Cart(World world) {
-        super(MODEL, world, 1);
+    public Cart() {
+        super(MODEL, 1);
     }
 
     @Override

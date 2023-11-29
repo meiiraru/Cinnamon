@@ -6,7 +6,6 @@ import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.utils.Maths;
-import mayo.world.World;
 
 public abstract class SpriteParticle extends Particle {
 
@@ -14,8 +13,8 @@ public abstract class SpriteParticle extends Particle {
     private int color;
     private float scale = 1f;
 
-    public SpriteParticle(Texture texture, World world, int lifetime, int color) {
-        super(world, lifetime);
+    public SpriteParticle(Texture texture, int lifetime, int color) {
+        super(lifetime);
         this.texture = texture;
         this.color = color;
     }

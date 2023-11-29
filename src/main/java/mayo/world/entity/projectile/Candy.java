@@ -20,8 +20,8 @@ public class Candy extends Projectile {
     public static final float CRIT_CHANCE = 0.15f;
     private static final Vector3f BOUNCINESS = new Vector3f(0.7f, 0.7f, 0.7f);
 
-    public Candy(World world, Entity owner) {
-        super(MODEL, world, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
+    public Candy(Entity owner) {
+        super(MODEL, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
     }
 
     @Override

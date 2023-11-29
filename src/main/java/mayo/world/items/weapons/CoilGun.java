@@ -5,7 +5,6 @@ import mayo.render.Model;
 import mayo.sound.SoundCategory;
 import mayo.utils.Maths;
 import mayo.utils.Resource;
-import mayo.world.World;
 import mayo.world.entity.Entity;
 import mayo.world.entity.projectile.Candy;
 import mayo.world.entity.projectile.Projectile;
@@ -21,8 +20,8 @@ public class CoilGun extends Weapon {
     }
 
     @Override
-    protected Projectile newProjectile(World world, Entity entity) {
-        return new Candy(world, entity);
+    protected Projectile newProjectile(Entity entity) {
+        return new Candy(entity);
     }
 
     @Override

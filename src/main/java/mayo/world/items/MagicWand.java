@@ -127,7 +127,7 @@ public class MagicWand extends Item {
     }
 
     private static void drawParticle(Vector3f pos, int color, World world) {
-        SquareParticle particle = new SquareParticle(world, LIFETIME, color);
+        SquareParticle particle = new SquareParticle(LIFETIME, color);
         particle.setPos(pos);
         particle.setEmissive(true);
         world.addParticle(particle);

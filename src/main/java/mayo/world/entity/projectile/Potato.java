@@ -8,7 +8,6 @@ import mayo.utils.ColorUtils;
 import mayo.utils.Maths;
 import mayo.utils.Resource;
 import mayo.world.DamageType;
-import mayo.world.World;
 import mayo.world.collisions.CollisionResolver;
 import mayo.world.collisions.CollisionResult;
 import mayo.world.entity.Entity;
@@ -25,8 +24,8 @@ public class Potato extends Projectile {
     public static final float CRIT_CHANCE = 0.15f;
     private static final Vector3f BOUNCINESS = new Vector3f(0.25f, 0, 0.25f);
 
-    public Potato(World world, Entity owner) {
-        super(MODEL, world, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
+    public Potato(Entity owner) {
+        super(MODEL, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
     }
 
     @Override

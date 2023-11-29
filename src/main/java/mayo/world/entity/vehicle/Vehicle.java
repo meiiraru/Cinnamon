@@ -1,7 +1,6 @@
 package mayo.world.entity.vehicle;
 
 import mayo.render.Model;
-import mayo.world.World;
 import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
 import mayo.world.entity.living.LivingEntity;
@@ -10,8 +9,8 @@ public abstract class Vehicle extends PhysEntity {
 
     private final int maxRiders;
 
-    public Vehicle(Model model, World world, int maxRiders) {
-        super(model, world);
+    public Vehicle(Model model, int maxRiders) {
+        super(model);
         this.maxRiders = maxRiders;
     }
 

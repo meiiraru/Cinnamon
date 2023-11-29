@@ -4,6 +4,7 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import mayo.networking.packet.Packet;
+import mayo.networking.registry.PacketRegistry;
 
 public class ClientConnection {
 
@@ -13,7 +14,7 @@ public class ClientConnection {
         disconnect();
 
         try {
-            Client client = new Client();
+            Client client = new Client(Client.DEFAULT_WRITE_BUFFER_SIZE, 8192); //TODO - Change to default value once chunks are implemented
             PacketRegistry.register(client.getKryo());
             client.start();
             client.connect(timeout, ip, tcpPort, udpPort);
@@ -26,8 +27,13 @@ public class ClientConnection {
 
                 @Override
                 public void received(Connection connection, Object object) {
-                    if (object instanceof Packet p)
-                        p.clientReceived(client, connection);
+                    try {
+                        if (object instanceof Packet p)
+                            p.clientReceived(client, connection);
+                    } catch (Exception e) {
+                        System.out.println("Failed to parse packet " + object);
+                        e.printStackTrace();
+                    }
                 }
             });
 

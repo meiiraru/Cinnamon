@@ -2,10 +2,9 @@ package mayo.model;
 
 import mayo.render.Model;
 import mayo.utils.Resource;
-import mayo.world.World;
 import mayo.world.terrain.*;
 
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ModelRegistry {
 
@@ -54,17 +53,17 @@ public class ModelRegistry {
 
         public final Resource resource;
         public final Model model;
-        private final Function<World, mayo.world.terrain.Terrain> function;
+        private final Supplier<mayo.world.terrain.Terrain> supplier;
 
-        Terrain(Function<World, mayo.world.terrain.Terrain> function) {
+        Terrain(Supplier<mayo.world.terrain.Terrain> supplier) {
             String name = name().toLowerCase();
             this.resource = new Resource(MODELS_PATH + name + "/" + name + ".obj");
             this.model = ModelManager.load(this.resource);
-            this.function = function;
+            this.supplier = supplier;
         }
 
-        public mayo.world.terrain.Terrain get(World world) {
-            return this.function.apply(world);
+        public mayo.world.terrain.Terrain get() {
+            return this.supplier.get();
         }
     }
 }

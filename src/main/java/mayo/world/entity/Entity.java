@@ -39,8 +39,7 @@ public abstract class Entity extends WorldObject {
 
     private boolean removed;
 
-    public Entity(Model model, World world) {
-        super(world);
+    public Entity(Model model) {
         this.model = model;
         this.updateAABB();
     }
@@ -131,7 +130,9 @@ public abstract class Entity extends WorldObject {
         matrices.pop();
     }
 
-    public void onAdd() {}
+    public void onAdded(World world) {
+        super.onAdded(world);
+    }
 
     public void remove() {
         this.removed = true;

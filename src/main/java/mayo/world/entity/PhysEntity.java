@@ -2,7 +2,6 @@ package mayo.world.entity;
 
 import mayo.render.Model;
 import mayo.utils.AABB;
-import mayo.world.World;
 import mayo.world.collisions.CollisionDetector;
 import mayo.world.collisions.CollisionResolver;
 import mayo.world.collisions.CollisionResult;
@@ -18,8 +17,8 @@ public abstract class PhysEntity extends Entity {
 
     protected boolean onGround;
 
-    public PhysEntity(Model model, World world) {
-        super(model, world);
+    public PhysEntity(Model model) {
+        super(model);
     }
 
     public void tick() {

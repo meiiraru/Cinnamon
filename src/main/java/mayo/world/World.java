@@ -44,9 +44,7 @@ public abstract class World {
         timeOfTheDay++;
 
         //run scheduled ticks
-        for (Runnable tick : scheduledTicks)
-            tick.run();
-        scheduledTicks.clear();
+        runScheduledTicks();
 
         //terrain
         for (Terrain terrain : terrain)
@@ -70,21 +68,33 @@ public abstract class World {
         }
     }
 
+    protected void runScheduledTicks() {
+        for (Runnable tick : scheduledTicks)
+            tick.run();
+        scheduledTicks.clear();
+    }
+
     public void addTerrain(Terrain terrain) {
-        scheduledTicks.add(() -> this.terrain.add(terrain));
+        scheduledTicks.add(() -> {
+            this.terrain.add(terrain);
+            terrain.onAdded(this);
+        });
     }
 
     public void addEntity(Entity entity) {
         scheduledTicks.add(() -> {
             UUID id = UUID.randomUUID();
             this.entities.put(id, entity);
-            entity.onAdd();
+            entity.onAdded(this);
         });
     }
 
     public void addParticle(Particle particle) {
         if (particle.shouldRender())
-            scheduledTicks.add(() -> this.particles.add(particle));
+            scheduledTicks.add(() -> {
+                this.particles.add(particle);
+                particle.onAdded(this);
+            });
     }
 
     public void addLight(Light light) {
@@ -180,7 +190,7 @@ public abstract class World {
 
         //particles
         for (int i = 0; i < 30 * range; i++) {
-            ExplosionParticle particle = new ExplosionParticle(this, (int) (Math.random() * 10) + 15);
+            ExplosionParticle particle = new ExplosionParticle((int) (Math.random() * 10) + 15);
             particle.setPos(explosionBB.getRandomPoint());
             particle.setScale(5f);
             addParticle(particle);

@@ -15,7 +15,7 @@ import mayo.text.Text;
 import mayo.utils.*;
 import mayo.world.collisions.Hit;
 import mayo.world.effects.Effect;
-import mayo.world.entity.living.Inventory;
+import mayo.world.items.Inventory;
 import mayo.world.entity.living.Player;
 import mayo.world.items.CooldownItem;
 import mayo.world.items.Item;

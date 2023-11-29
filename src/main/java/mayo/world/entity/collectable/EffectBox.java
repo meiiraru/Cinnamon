@@ -3,7 +3,6 @@ package mayo.world.entity.collectable;
 import mayo.model.ModelManager;
 import mayo.render.Model;
 import mayo.utils.Resource;
-import mayo.world.World;
 import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
 import mayo.world.entity.living.Player;
@@ -26,8 +25,8 @@ public class EffectBox extends Collectable {
             () -> Effect.Type.EXPLOSION_IMMUNITY.create(200)
     );
 
-    public EffectBox(World world) {
-        super(MODEL, world);
+    public EffectBox() {
+        super(MODEL);
     }
 
     @Override
