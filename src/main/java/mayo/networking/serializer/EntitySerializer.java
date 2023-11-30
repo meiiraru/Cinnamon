@@ -9,9 +9,14 @@ import mayo.world.entity.Entity;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import java.util.UUID;
+
 public class EntitySerializer extends Serializer<Entity> {
     @Override
     public void write(Kryo kryo, Output output, Entity entity) {
+        //uuid
+        kryo.writeObject(output, entity.getUUID());
+
         //type
         kryo.writeObject(output, entity.getType());
 
@@ -29,9 +34,12 @@ public class EntitySerializer extends Serializer<Entity> {
 
     @Override
     public Entity read(Kryo kryo, Input input, Class<? extends Entity> type) {
+        //uuid
+        UUID uuid = kryo.readObject(input, UUID.class);
+
         //type
         EntityRegistry entityType = kryo.readObject(input, EntityRegistry.class);
-        Entity entity = entityType.getFactory().get();
+        Entity entity = entityType.getFactory().apply(uuid);
 
         //pos
         entity.setPos(input.readFloat(), input.readFloat(), input.readFloat());

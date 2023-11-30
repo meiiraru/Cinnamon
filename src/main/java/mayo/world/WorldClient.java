@@ -10,7 +10,6 @@ import mayo.networking.ServerConnection;
 import mayo.networking.packet.Handshake;
 import mayo.networking.packet.Login;
 import mayo.networking.packet.Message;
-import mayo.registry.LivingModelRegistry;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
 import mayo.render.Window;
@@ -109,8 +108,6 @@ public class WorldClient extends World {
 
     @Override
     public void close() {
-        client.soundManager.stopAll();
-        client.world = null;
         ServerConnection.close();
         client.disconnect();
     }
@@ -444,7 +441,7 @@ public class WorldClient extends World {
     }
 
     public void respawn() {
-        player = new Player(LivingModelRegistry.STRAWBERRY);
+        player = new Player(Client.PLAYER_UUID);
         this.addEntity(player);
     }
 }

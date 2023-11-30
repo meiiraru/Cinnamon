@@ -22,7 +22,7 @@ public abstract class World {
 
     protected static final Resource EXPLOSION_SOUND = new Resource("sounds/explosion.ogg");
 
-    protected final List<Runnable> scheduledTicks = new ArrayList<>();
+    protected final Queue<Runnable> scheduledTicks = new LinkedList<>();
 
     protected final List<Terrain> terrain = new ArrayList<>();
     protected final Map<UUID, Entity> entities = new HashMap<>();
@@ -53,8 +53,10 @@ public abstract class World {
             Map.Entry<UUID, Entity> entry = iterator.next();
             Entity e = entry.getValue();
             e.tick();
-            if (e.isRemoved())
+            if (e.isRemoved()) {
                 iterator.remove();
+                entityRemoved(e.getUUID());
+            }
         }
 
         //particles
@@ -67,9 +69,9 @@ public abstract class World {
     }
 
     protected void runScheduledTicks() {
-        for (Runnable tick : scheduledTicks)
-            tick.run();
-        scheduledTicks.clear();
+        Runnable toRun;
+        while ((toRun = scheduledTicks.poll()) != null)
+            toRun.run();
     }
 
     public void addTerrain(Terrain terrain) {
@@ -81,8 +83,7 @@ public abstract class World {
 
     public void addEntity(Entity entity) {
         scheduledTicks.add(() -> {
-            UUID id = UUID.randomUUID();
-            this.entities.put(id, entity);
+            this.entities.put(entity.getUUID(), entity);
             entity.onAdded(this);
         });
     }
@@ -98,6 +99,8 @@ public abstract class World {
     public SoundSource playSound(Resource sound, SoundCategory category, Vector3f position) {
         return Client.getInstance().soundManager.playSound(sound, category, position);
     }
+
+    public void entityRemoved(UUID uuid) {}
 
     public int entityCount() {
         return entities.size();

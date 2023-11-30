@@ -26,6 +26,7 @@ import org.joml.Vector3f;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public abstract class LivingEntity extends PhysEntity {
 
@@ -36,15 +37,15 @@ public abstract class LivingEntity extends PhysEntity {
     private int health;
     private int maxHealth;
 
-    public LivingEntity(Model model, int maxHealth, float eyeHeight, int inventorySize) {
-        super(model);
+    public LivingEntity(UUID uuid, Model model, int maxHealth, float eyeHeight, int inventorySize) {
+        super(uuid, model);
         this.health = this.maxHealth = maxHealth;
         this.eyeHeight = eyeHeight;
         this.inventory = new Inventory(inventorySize);
     }
 
-    public LivingEntity(LivingModelRegistry entityModel, int maxHealth, int inventorySize) {
-        this(entityModel.model, maxHealth, entityModel.eyeHeight, inventorySize);
+    public LivingEntity(UUID uuid, LivingModelRegistry entityModel, int maxHealth, int inventorySize) {
+        this(uuid, entityModel.model, maxHealth, entityModel.eyeHeight, inventorySize);
     }
 
     @Override
@@ -109,12 +110,6 @@ public abstract class LivingEntity extends PhysEntity {
         c.font.render(VertexConsumer.WORLD_FONT, matrices, 0, 0, text, TextUtils.Alignment.CENTER, 50);
 
         matrices.pop();
-    }
-
-    @Override
-    public void remove() {
-        super.remove();
-        this.spawnDeathParticles();
     }
 
     @Override
@@ -190,13 +185,18 @@ public abstract class LivingEntity extends PhysEntity {
         //on kill, clamp health to 0, and flag it as removed
         if (health <= 0) {
             this.health = 0;
-            this.remove();
+            this.onDeath();
         }
 
         //spawn particle
         spawnHealthChangeParticle(-amount, crit);
 
         return true;
+    }
+
+    protected void onDeath() {
+        this.remove();
+        this.spawnDeathParticles();
     }
 
     protected void spawnDeathParticles() {

@@ -23,9 +23,11 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public abstract class Entity extends WorldObject {
 
+    protected final UUID uuid;
     protected final Model model;
     protected final Vector3f
             oPos = new Vector3f();
@@ -40,8 +42,9 @@ public abstract class Entity extends WorldObject {
 
     private boolean removed;
 
-    public Entity(Model model) {
+    public Entity(UUID uuid, Model model) {
         this.model = model;
+        this.uuid = uuid;
         this.updateAABB();
     }
 
@@ -129,6 +132,10 @@ public abstract class Entity extends WorldObject {
         ), -1);
 
         matrices.pop();
+    }
+
+    public UUID getUUID() {
+        return uuid;
     }
 
     public void onAdded(World world) {

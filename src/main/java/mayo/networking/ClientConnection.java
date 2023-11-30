@@ -2,6 +2,7 @@ package mayo.networking;
 
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
 import mayo.networking.packet.Packet;
 
@@ -29,6 +30,8 @@ public class ClientConnection {
                     try {
                         if (object instanceof Packet p)
                             p.clientReceived(client, connection);
+                        else if (!(object instanceof FrameworkMessage))
+                            System.out.println("Unknown packet " + object);
                     } catch (Exception e) {
                         System.out.println("Failed to parse packet " + object);
                         e.printStackTrace();

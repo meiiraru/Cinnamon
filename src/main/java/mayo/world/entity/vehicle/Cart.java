@@ -5,10 +5,12 @@ import mayo.registry.EntityRegistry;
 import mayo.world.entity.Entity;
 import org.joml.Vector3f;
 
+import java.util.UUID;
+
 public class Cart extends Vehicle {
 
-    public Cart() {
-        super(EntityModelRegistry.CART.model, 1);
+    public Cart(UUID uuid) {
+        super(uuid, EntityModelRegistry.CART.model, 1);
     }
 
     @Override

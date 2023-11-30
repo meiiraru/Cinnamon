@@ -8,6 +8,8 @@ import mayo.world.WorldClient;
 import mayo.world.entity.Entity;
 import org.joml.Vector3f;
 
+import java.util.UUID;
+
 public class Player extends LivingEntity {
 
     private static final int MAX_HEALTH = 100;
@@ -20,12 +22,12 @@ public class Player extends LivingEntity {
 
     private boolean sprinting, sneaking, flying;
 
-    public Player() {
-        this(null);
+    public Player(UUID uuid) {
+        this(uuid, LivingModelRegistry.STRAWBERRY);
     }
 
-    public Player(LivingModelRegistry model) {
-        super(model == null ? LivingModelRegistry.random() : model, MAX_HEALTH, INVENTORY_SIZE);
+    public Player(UUID uuid, LivingModelRegistry model) {
+        super(uuid, model == null ? LivingModelRegistry.random() : model, MAX_HEALTH, INVENTORY_SIZE);
     }
 
     @Override

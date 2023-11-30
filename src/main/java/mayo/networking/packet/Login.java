@@ -4,13 +4,18 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Server;
 import mayo.networking.ServerConnection;
+import mayo.world.entity.Entity;
+
+import java.util.UUID;
 
 public class Login implements Packet {
 
     private final String name;
+    private final UUID uuid;
 
     public Login() {
         this.name = mayo.Client.PLAYERNAME;
+        this.uuid = mayo.Client.PLAYER_UUID;
     }
 
     @Override
@@ -25,9 +30,13 @@ public class Login implements Packet {
         server.sendToAllExceptTCP(id, new Message().msg(name + " joined the server"));
 
         //send terrain
-        server.sendToUDP(id, new SendTerrain().terrain(ServerConnection.world.getTerrain()));
+        server.sendToTCP(id, new SendTerrain().terrain(ServerConnection.world.getTerrain()));
 
         //send entities
-        server.sendToUDP(id, new SendEntities().entity(ServerConnection.world.getEntities().values()));
+        server.sendToTCP(id, new SendEntities().entity(ServerConnection.world.getEntities().values()));
+
+        //add player
+        Entity e = ServerConnection.world.addPlayer(id, uuid);
+        server.sendToAllExceptTCP(id, new AddEntity().entity(e));
     }
 }

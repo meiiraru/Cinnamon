@@ -7,6 +7,7 @@ import mayo.world.entity.Entity;
 import mayo.world.entity.living.Player;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public class EffectBox extends Collectable {
@@ -22,8 +23,8 @@ public class EffectBox extends Collectable {
             () -> Effect.Type.EXPLOSION_IMMUNITY.create(200)
     );
 
-    public EffectBox() {
-        super(EntityModelRegistry.EFFECT_BOX.model);
+    public EffectBox(UUID uuid) {
+        super(uuid, EntityModelRegistry.EFFECT_BOX.model);
     }
 
     @Override

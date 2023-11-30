@@ -1,15 +1,22 @@
 package mayo.world;
 
+import mayo.networking.ServerConnection;
+import mayo.networking.packet.RemoveEntity;
+import mayo.registry.LivingModelRegistry;
 import mayo.utils.Resource;
 import mayo.world.entity.Entity;
+import mayo.world.entity.living.Player;
 import mayo.world.entity.vehicle.Cart;
 import mayo.world.terrain.Terrain;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public class WorldServer extends World {
+
+    private final Map<Integer, Player> players = new HashMap<>();
 
     @Override
     public void init() {
@@ -18,11 +25,11 @@ public class WorldServer extends World {
 
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
 
-        Cart c = new Cart();
+        Cart c = new Cart(UUID.randomUUID());
         c.setPos(10, 2, 10);
         this.addEntity(c);
 
-        Cart c2 = new Cart();
+        Cart c2 = new Cart(UUID.randomUUID());
         c2.setPos(15, 2, 10);
         this.addEntity(c2);
 
@@ -33,11 +40,30 @@ public class WorldServer extends World {
     public void close() {
     }
 
+    @Override
+    public void entityRemoved(UUID uuid) {
+        ServerConnection.connection.sendToAllTCP(new RemoveEntity().uuid(uuid));
+    }
+
     public List<Terrain> getTerrain() {
         return this.terrain;
     }
 
     public Map<UUID, Entity> getEntities() {
         return this.entities;
+    }
+
+    public Player addPlayer(int internalID, UUID uuid) {
+        Player player = new Player(uuid, LivingModelRegistry.STRAWBERRY);
+
+        this.addEntity(player);
+        players.put(internalID, player);
+
+        return player;
+    }
+
+    public void removePlayer(int internalID) {
+        Player player = players.remove(internalID);
+        if (player != null) player.remove();
     }
 }

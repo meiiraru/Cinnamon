@@ -9,12 +9,14 @@ import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
 import org.joml.Vector3f;
 
+import java.util.UUID;
+
 public abstract class Collectable extends PhysEntity {
 
     private static final Vector3f BOUNCINESS = new Vector3f(0.5f, 0.5f, 0.5f);
 
-    public Collectable(Model model) {
-        super(model);
+    public Collectable(UUID uuid, Model model) {
+        super(uuid, model);
     }
 
     @Override

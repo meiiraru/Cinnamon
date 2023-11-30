@@ -9,6 +9,8 @@ import mayo.world.entity.Entity;
 import mayo.world.entity.projectile.Potato;
 import mayo.world.entity.projectile.Projectile;
 
+import java.util.UUID;
+
 public class PotatoCannon extends Weapon {
 
     private static final String ID = "Potato Cannon";
@@ -20,8 +22,8 @@ public class PotatoCannon extends Weapon {
     }
 
     @Override
-    protected Projectile newProjectile(Entity entity) {
-        return new Potato(entity);
+    protected Projectile newProjectile(UUID entity) {
+        return new Potato(UUID.randomUUID(), entity);
     }
 
     @Override

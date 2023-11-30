@@ -6,6 +6,8 @@ import mayo.world.entity.Entity;
 import mayo.world.entity.projectile.Projectile;
 import mayo.world.items.CooldownItem;
 
+import java.util.UUID;
+
 public abstract class Weapon extends CooldownItem {
 
     public Weapon(String id, Model model, int maxRounds, int reloadTime, int useCooldown) {
@@ -30,11 +32,11 @@ public abstract class Weapon extends CooldownItem {
         reload();
     }
 
-    protected abstract Projectile newProjectile(Entity entity);
+    protected abstract Projectile newProjectile(UUID entity);
 
     protected void spawnBullet(Entity source) {
         World world = source.getWorld();
-        Projectile projectile = newProjectile(source);
+        Projectile projectile = newProjectile(source.getUUID());
 
         projectile.setPos(source.getEyePos().add(source.getLookDir().mul(0.5f)));
         projectile.setRot(source.getRot());

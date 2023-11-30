@@ -5,12 +5,14 @@ import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
 import mayo.world.entity.living.LivingEntity;
 
+import java.util.UUID;
+
 public abstract class Vehicle extends PhysEntity {
 
     private final int maxRiders;
 
-    public Vehicle(Model model, int maxRiders) {
-        super(model);
+    public Vehicle(UUID uuid, Model model, int maxRiders) {
+        super(uuid, model);
         this.maxRiders = maxRiders;
     }
 

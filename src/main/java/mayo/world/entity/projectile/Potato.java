@@ -12,6 +12,8 @@ import mayo.world.collisions.CollisionResult;
 import mayo.world.entity.Entity;
 import org.joml.Vector3f;
 
+import java.util.UUID;
+
 public class Potato extends Projectile {
 
     public static final int DAMAGE = 8;
@@ -22,8 +24,8 @@ public class Potato extends Projectile {
     public static final float CRIT_CHANCE = 0.15f;
     private static final Vector3f BOUNCINESS = new Vector3f(0.25f, 0, 0.25f);
 
-    public Potato(Entity owner) {
-        super(EntityModelRegistry.POTATO.model, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
+    public Potato(UUID uuid, UUID owner) {
+        super(uuid, EntityModelRegistry.POTATO.model, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
     }
 
     @Override

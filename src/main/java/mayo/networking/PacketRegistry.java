@@ -8,17 +8,19 @@ import mayo.world.entity.Entity;
 import mayo.world.terrain.Terrain;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public final class PacketRegistry {
 
     public static void register(Kryo kryo) {
-        kryo.setRegistrationRequired(false);
-        kryo.setWarnUnregisteredClasses(true);
+        //kryo.setRegistrationRequired(false);
+        //kryo.setWarnUnregisteredClasses(true);
 
         // -- types -- //
 
         //misc
         kryo.register(ArrayList.class);
+        kryo.register(UUID.class, new UUIDSerializer());
 
         //terrain
         kryo.addDefaultSerializer(Terrain.class, TerrainSerializer.class);
@@ -35,5 +37,7 @@ public final class PacketRegistry {
         kryo.register(Login.class);
         kryo.register(SendTerrain.class);
         kryo.register(SendEntities.class);
+        kryo.register(AddEntity.class);
+        kryo.register(RemoveEntity.class);
     }
 }

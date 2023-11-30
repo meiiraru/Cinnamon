@@ -8,6 +8,7 @@ import mayo.world.collisions.CollisionResult;
 import org.joml.Vector3f;
 
 import java.util.List;
+import java.util.UUID;
 
 public abstract class PhysEntity extends Entity {
 
@@ -17,8 +18,8 @@ public abstract class PhysEntity extends Entity {
 
     protected boolean onGround;
 
-    public PhysEntity(Model model) {
-        super(model);
+    public PhysEntity(UUID uuid, Model model) {
+        super(uuid, model);
     }
 
     public void tick() {

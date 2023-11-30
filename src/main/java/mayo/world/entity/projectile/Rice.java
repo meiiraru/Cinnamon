@@ -5,19 +5,20 @@ import mayo.registry.EntityRegistry;
 import mayo.render.MatrixStack;
 import mayo.utils.Maths;
 import mayo.world.collisions.CollisionResult;
-import mayo.world.entity.Entity;
 import org.joml.Vector3f;
+
+import java.util.UUID;
 
 public class Rice extends Projectile {
 
     public static final int DAMAGE = 2;
 
-    public Rice(Entity owner, int lifetime, float speed, float critChance) {
-        super(EntityModelRegistry.RICE.model, DAMAGE, lifetime, speed, critChance, owner);
+    public Rice(UUID uuid, UUID owner, int lifetime, float speed, float critChance) {
+        super(uuid, EntityModelRegistry.RICE.model, DAMAGE, lifetime, speed, critChance, owner);
     }
 
-    public Rice(Entity owner) {
-        this(owner, 1, 1, 0);
+    public Rice(UUID uuid, UUID owner) {
+        this(uuid, owner, 1, 1, 0);
     }
 
     @Override

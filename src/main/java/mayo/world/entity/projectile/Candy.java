@@ -6,8 +6,9 @@ import mayo.render.MatrixStack;
 import mayo.utils.Maths;
 import mayo.world.collisions.CollisionResolver;
 import mayo.world.collisions.CollisionResult;
-import mayo.world.entity.Entity;
 import org.joml.Vector3f;
+
+import java.util.UUID;
 
 public class Candy extends Projectile {
 
@@ -17,8 +18,8 @@ public class Candy extends Projectile {
     public static final float CRIT_CHANCE = 0.15f;
     private static final Vector3f BOUNCINESS = new Vector3f(0.7f, 0.7f, 0.7f);
 
-    public Candy(Entity owner) {
-        super(EntityModelRegistry.CANDY.model, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
+    public Candy(UUID uuid, UUID owner) {
+        super(uuid, EntityModelRegistry.CANDY.model, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
     }
 
     @Override

@@ -11,22 +11,25 @@ import mayo.world.entity.PhysEntity;
 import mayo.world.entity.living.LivingEntity;
 import mayo.world.particle.DustParticle;
 
+import java.util.UUID;
+
 public abstract class Projectile extends PhysEntity {
 
-    protected final int damage;
+    protected UUID owner;
     protected final float speed;
-    protected final boolean crit;
-    protected final Entity owner;
+    protected final float critChance;
+    protected int damage;
+    protected boolean crit;
+
     protected int lifetime;
 
-    public Projectile(Model model, int damage, int lifetime, float speed, float critChance, Entity owner) {
-        super(model);
+    public Projectile(UUID uuid, Model model, int damage, int lifetime, float speed, float critChance, UUID owner) {
+        super(uuid, model);
         this.lifetime = lifetime;
         this.speed = speed;
+        this.damage = damage;
+        this.critChance = critChance;
         this.owner = owner;
-
-        this.damage = calculateDamage(owner, damage);
-        this.crit = checkCrit(owner, critChance);
     }
 
     private static int calculateDamage(Entity owner, int baseDamage) {
@@ -69,6 +72,13 @@ public abstract class Projectile extends PhysEntity {
     @Override
     public void onAdded(World world) {
         super.onAdded(world);
+
+        //calculate damage
+        Entity owner = world.getEntityByUUID(this.owner);
+        this.damage = calculateDamage(owner, damage);
+        this.crit = checkCrit(owner, critChance);
+
+        //apply move
         this.move(0, 0, 1);
     }
 
@@ -82,10 +92,10 @@ public abstract class Projectile extends PhysEntity {
     protected void collide(Entity entity) {
         super.collide(entity);
 
-        if (isRemoved() || entity == getOwner())
+        if (isRemoved() || entity.getUUID().equals(getOwner()))
             return;
 
-        if (entity.damage(this.owner, DamageType.PROJECTILE, getDamage(), this.crit))
+        if (entity.damage(getWorld().getEntityByUUID(this.owner), DamageType.PROJECTILE, getDamage(), this.crit))
             remove();
     }
 
@@ -108,8 +118,12 @@ public abstract class Projectile extends PhysEntity {
         return damage;
     }
 
-    public Entity getOwner() {
+    public UUID getOwner() {
         return owner;
+    }
+
+    public void setOwner(UUID uuid) {
+        this.owner = uuid;
     }
 
     @Override

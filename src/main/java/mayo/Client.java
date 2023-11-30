@@ -5,6 +5,7 @@ import mayo.gui.Toast;
 import mayo.gui.screens.MainMenu;
 import mayo.gui.screens.PauseScreen;
 import mayo.networking.ClientConnection;
+import mayo.networking.ServerConnection;
 import mayo.options.Options;
 import mayo.render.Camera;
 import mayo.render.Font;
@@ -19,6 +20,10 @@ import mayo.utils.Timer;
 import mayo.world.WorldClient;
 import org.joml.Matrix4f;
 
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.UUID;
+
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_F11;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
@@ -29,6 +34,9 @@ public class Client {
     private static final Client INSTANCE = new Client();
     public static final String VERSION = "0.1";
     public static final String PLAYERNAME = String.valueOf(System.currentTimeMillis());
+    public static final UUID PLAYER_UUID = UUID.nameUUIDFromBytes(PLAYERNAME.getBytes());
+
+    private final Queue<Runnable> scheduledTicks = new LinkedList<>();
 
     private final Timer timer = new Timer(20);
     public int ticks;
@@ -85,7 +93,7 @@ public class Client {
             //render world
             world.render(matrices, delta);
 
-            if (world != null && !world.hideHUD()) {
+            if (!world.hideHUD()) {
                 //render first person hand
                 if (!world.isThirdPerson()) {
                     glClear(GL_DEPTH_BUFFER_BIT); //top of world
@@ -116,6 +124,8 @@ public class Client {
     private void tick() {
         ticks++;
 
+        runScheduledTicks();
+
         soundManager.tick(camera);
 
         if (world != null)
@@ -123,6 +133,18 @@ public class Client {
 
         if (screen != null)
             screen.tick();
+
+        ServerConnection.tick();
+    }
+
+    private void runScheduledTicks() {
+        Runnable toRun;
+        while ((toRun = scheduledTicks.poll()) != null)
+            toRun.run();
+    }
+
+    public void queueTick(Runnable toRun) {
+        scheduledTicks.add(toRun);
     }
 
     public void setScreen(Screen s) {
@@ -151,10 +173,12 @@ public class Client {
     public void disconnect() {
         ClientConnection.disconnect();
 
-        if (this.world != null) {
-            this.world.close();
-            this.world = null;
-        }
+        queueTick(() -> {
+            if (this.world != null) {
+                this.world.close();
+                this.world = null;
+            }
+        });
 
         this.setScreen(new MainMenu());
     }

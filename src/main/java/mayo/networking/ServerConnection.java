@@ -1,6 +1,7 @@
 package mayo.networking;
 
 import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import mayo.networking.packet.Packet;
@@ -9,7 +10,7 @@ import mayo.world.WorldServer;
 public class ServerConnection {
 
     public static WorldServer world;
-    private static Server connection;
+    public static Server connection;
 
     public static boolean open() {
         close();
@@ -22,10 +23,19 @@ public class ServerConnection {
             server.bind(NetworkConstants.TCP_PORT, NetworkConstants.UDP_PORT);
 
             server.addListener(new Listener() {
+                @Override
+                public void disconnected(Connection connection) {
+                    if (world != null)
+                        world.removePlayer(connection.getID());
+                }
+
+                @Override
                 public void received (Connection connection, Object object) {
                     try {
                         if (object instanceof Packet p)
                             p.serverReceived(server, connection);
+                        else if (!(object instanceof FrameworkMessage))
+                            System.out.println("Unknown packet " + object);
                     } catch (Exception e) {
                         System.out.println("Failed to parse packet " + object);
                         e.printStackTrace();
@@ -68,5 +78,10 @@ public class ServerConnection {
             connection.close();
             connection = null;
         }
+    }
+
+    public static void tick() {
+        if (world != null)
+            world.tick();
     }
 }

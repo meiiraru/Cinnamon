@@ -8,13 +8,15 @@ import mayo.world.entity.living.Player;
 import mayo.world.particle.SteamParticle;
 import org.joml.Vector3f;
 
+import java.util.UUID;
+
 public class HealthPack extends Collectable {
 
     private static final int HEAL = 10;
     private static final float SMOKE_CHANCE = 0.05f;
 
-    public HealthPack() {
-        super(EntityModelRegistry.HEALTH_PACK.model);
+    public HealthPack(UUID uuid) {
+        super(uuid, EntityModelRegistry.HEALTH_PACK.model);
     }
 
     @Override

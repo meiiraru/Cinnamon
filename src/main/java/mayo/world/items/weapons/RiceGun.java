@@ -3,9 +3,10 @@ package mayo.world.items.weapons;
 import mayo.model.ModelManager;
 import mayo.render.Model;
 import mayo.utils.Resource;
-import mayo.world.entity.Entity;
 import mayo.world.entity.projectile.Projectile;
 import mayo.world.entity.projectile.RiceBall;
+
+import java.util.UUID;
 
 public class RiceGun extends Weapon {
 
@@ -17,7 +18,7 @@ public class RiceGun extends Weapon {
     }
 
     @Override
-    protected Projectile newProjectile(Entity entity) {
-        return new RiceBall(entity);
+    protected Projectile newProjectile(UUID entity) {
+        return new RiceBall(UUID.randomUUID(), entity);
     }
 }

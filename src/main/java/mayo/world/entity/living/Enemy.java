@@ -6,6 +6,8 @@ import mayo.world.AIBehaviour;
 import mayo.world.DamageType;
 import mayo.world.entity.Entity;
 
+import java.util.UUID;
+
 public class Enemy extends LivingEntity {
 
     private static final int MAX_HEALTH = 20;
@@ -13,12 +15,12 @@ public class Enemy extends LivingEntity {
     private static final int INVENTORY_SIZE = 1;
     private final AIBehaviour[] behaviours;
 
-    public Enemy(AIBehaviour... behaviours) {
-        this(LivingModelRegistry.random(), behaviours);
+    public Enemy(UUID uuid, AIBehaviour... behaviours) {
+        this(uuid, LivingModelRegistry.random(), behaviours);
     }
 
-    private Enemy(LivingModelRegistry entityModel, AIBehaviour... behaviours) {
-        super(entityModel, MAX_HEALTH, INVENTORY_SIZE);
+    private Enemy(UUID uuid, LivingModelRegistry entityModel, AIBehaviour... behaviours) {
+        super(uuid, entityModel, MAX_HEALTH, INVENTORY_SIZE);
         this.behaviours = behaviours;
     }
 
