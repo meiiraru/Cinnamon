@@ -24,7 +24,10 @@ public class Login implements Packet {
         //join message
         server.sendToAllExceptTCP(id, new Message().msg(name + " joined the server"));
 
-        //send world
+        //send terrain
         server.sendToUDP(id, new SendTerrain().terrain(ServerConnection.world.getTerrain()));
+
+        //send entities
+        server.sendToUDP(id, new SendEntities().entity(ServerConnection.world.getEntities().values()));
     }
 }

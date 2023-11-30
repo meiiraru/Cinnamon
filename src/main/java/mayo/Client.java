@@ -12,6 +12,7 @@ import mayo.render.MatrixStack;
 import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.framebuffer.PostProcess;
+import mayo.resource.ResourceManager;
 import mayo.sound.SoundManager;
 import mayo.utils.Resource;
 import mayo.utils.Timer;
@@ -52,6 +53,8 @@ public class Client {
         this.camera = new Camera();
         this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight, this.options.fov);
         this.font = new Font(new Resource("fonts/mayscript.ttf"), 8);
+        ResourceManager.register();
+        ResourceManager.init();
         this.setScreen(new MainMenu());
     }
 
@@ -59,6 +62,7 @@ public class Client {
         disconnect();
         this.font.free();
         this.soundManager.free();
+        ResourceManager.free();
     }
 
     public static Client getInstance() {
@@ -81,7 +85,7 @@ public class Client {
             //render world
             world.render(matrices, delta);
 
-            if (!world.hideHUD()) {
+            if (world != null && !world.hideHUD()) {
                 //render first person hand
                 if (!world.isThirdPerson()) {
                     glClear(GL_DEPTH_BUFFER_BIT); //top of world
@@ -142,6 +146,17 @@ public class Client {
             //no screen, then lock the mouse and reset player movement
             world.resetMovement();
         }
+    }
+
+    public void disconnect() {
+        ClientConnection.disconnect();
+
+        if (this.world != null) {
+            this.world.close();
+            this.world = null;
+        }
+
+        this.setScreen(new MainMenu());
     }
 
     // -- glfw events -- //
@@ -210,16 +225,5 @@ public class Client {
         } else if (world != null && !focused) {
             this.setScreen(new PauseScreen());
         }
-    }
-
-    public void disconnect() {
-        ClientConnection.disconnect();
-
-        if (this.world != null) {
-            this.world.close();
-            this.world = null;
-        }
-
-        this.setScreen(new MainMenu());
     }
 }

@@ -14,10 +14,15 @@ public enum Shaders {
     DEPTH,
     DEPTH_BLIT;
 
-    private final Shader shader;
+    private final Resource resource;
+    private Shader shader;
 
     Shaders() {
-        this.shader = new Shader(new Resource("shaders/core/" + this.name().toLowerCase() + ".glsl"));
+        this.resource = new Resource("shaders/core/" + this.name().toLowerCase() + ".glsl");
+    }
+
+    private void loadShader() {
+        this.shader = new Shader(this.resource);
     }
 
     public Shader getShader() {
@@ -27,5 +32,10 @@ public enum Shaders {
     public static void freeAll() {
         for (Shaders shader : values())
             shader.getShader().free();
+    }
+
+    public static void loadAll() {
+        for (Shaders shader : values())
+            shader.loadShader();
     }
 }

@@ -1,11 +1,9 @@
 package mayo.world.entity.projectile;
 
-import mayo.model.ModelManager;
+import mayo.registry.EntityModelRegistry;
+import mayo.registry.EntityRegistry;
 import mayo.render.MatrixStack;
-import mayo.render.Model;
 import mayo.utils.Maths;
-import mayo.utils.Resource;
-import mayo.world.World;
 import mayo.world.collisions.CollisionResolver;
 import mayo.world.collisions.CollisionResult;
 import mayo.world.entity.Entity;
@@ -13,7 +11,6 @@ import org.joml.Vector3f;
 
 public class Candy extends Projectile {
 
-    public static final Model MODEL = ModelManager.load(new Resource("models/entities/projectile/candy/candy.obj"));
     public static final int DAMAGE = 2;
     public static final int LIFETIME = 50;
     public static final float SPEED = 1.5f;
@@ -21,7 +18,7 @@ public class Candy extends Projectile {
     private static final Vector3f BOUNCINESS = new Vector3f(0.7f, 0.7f, 0.7f);
 
     public Candy(Entity owner) {
-        super(MODEL, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
+        super(EntityModelRegistry.CANDY.model, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
     }
 
     @Override
@@ -51,5 +48,10 @@ public class Candy extends Projectile {
     protected void applyModelPose(MatrixStack matrices, float delta) {
         super.applyModelPose(matrices, delta);
         matrices.scale(Maths.clamp((this.lifetime - delta) / 5f, 0, 1));
+    }
+
+    @Override
+    public EntityRegistry getType() {
+        return EntityRegistry.CANDY;
     }
 }

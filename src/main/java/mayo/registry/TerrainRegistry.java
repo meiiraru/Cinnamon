@@ -8,7 +8,7 @@ import mayo.world.terrain.*;
 
 import java.util.function.Supplier;
 
-public enum TerrainRegistry implements Registry<Terrain> {
+public enum TerrainRegistry implements Registry {
     GRASS(Grass.class, Grass::new),
     PILLAR(Pillar.class, Pillar::new),
     TEAPOT(Teapot.class, Teapot::new),
@@ -22,7 +22,7 @@ public enum TerrainRegistry implements Registry<Terrain> {
     private static final String MODELS_PATH = "models/terrain/";
 
     public final Resource resource;
-    public final Model model;
+    public Model model;
 
     private final Class<? extends Terrain> clazz;
     private final Supplier<Terrain> factory;
@@ -35,16 +35,23 @@ public enum TerrainRegistry implements Registry<Terrain> {
         //model
         String name = name().toLowerCase();
         this.resource = new Resource(MODELS_PATH + name + "/" + name + ".obj");
-        this.model = ModelManager.load(this.resource);
-    }
-
-    @Override
-    public Supplier<Terrain> getFactory() {
-        return factory;
     }
 
     @Override
     public void register(Kryo kryo) {
         kryo.register(clazz);
+    }
+
+    public Supplier<Terrain> getFactory() {
+        return factory;
+    }
+
+    private void loadModel() {
+        this.model = ModelManager.load(this.resource);
+    }
+
+    public static void loadAllModels() {
+        for (TerrainRegistry terrain : values())
+            terrain.loadModel();
     }
 }

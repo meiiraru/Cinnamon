@@ -4,25 +4,25 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Server;
 import mayo.world.WorldClient;
-import mayo.world.terrain.Terrain;
+import mayo.world.entity.Entity;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class SendTerrain implements Packet {
+public class SendEntities implements Packet {
 
-    private Collection<Terrain> terrain;
+    private Collection<Entity> entities;
 
-    public SendTerrain terrain(Collection<Terrain> terrain) {
-        this.terrain = new ArrayList<>(terrain);
+    public SendEntities entity(Collection<Entity> entities) {
+        this.entities = new ArrayList<>(entities);
         return this;
     }
 
     @Override
     public void clientReceived(Client client, Connection connection) {
         WorldClient world = mayo.Client.getInstance().world;
-        for (Terrain t : terrain)
-            world.addTerrain(t);
+        for (Entity e : entities)
+            world.addEntity(e);
     }
 
     @Override

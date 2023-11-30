@@ -1,9 +1,8 @@
 package mayo.world.entity.projectile;
 
-import mayo.model.ModelManager;
-import mayo.render.Model;
+import mayo.registry.EntityModelRegistry;
+import mayo.registry.EntityRegistry;
 import mayo.utils.Maths;
-import mayo.utils.Resource;
 import mayo.world.collisions.CollisionResult;
 import mayo.world.entity.Entity;
 import mayo.world.particle.Particle;
@@ -14,7 +13,6 @@ import org.joml.Vector3f;
 
 public class RiceBall extends Projectile {
 
-    public static final Model MODEL = ModelManager.load(new Resource("models/entities/projectile/rice_ball/rice_ball.obj"));
     public static final int DAMAGE = 15;
     public static final int LIFETIME = 2;
     public static final float SPEED = 1.25f;
@@ -24,7 +22,7 @@ public class RiceBall extends Projectile {
     public static final int SPLIT_AMOUNT = 15;
 
     public RiceBall(Entity owner) {
-        super(MODEL, DAMAGE, LIFETIME, SPEED, 0f, owner);
+        super(EntityModelRegistry.RICE_BALL.model, DAMAGE, LIFETIME, SPEED, 0f, owner);
     }
 
     @Override
@@ -89,5 +87,10 @@ public class RiceBall extends Projectile {
             //add
             world.addEntity(proj);
         }
+    }
+
+    @Override
+    public EntityRegistry getType() {
+        return EntityRegistry.RICE_BALL;
     }
 }

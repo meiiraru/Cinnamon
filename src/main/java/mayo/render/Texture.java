@@ -129,6 +129,7 @@ public class Texture {
     public static void freeAll() {
         for (Texture texture : TEXTURE_MAP.values())
             texture.free();
+        TEXTURE_MAP.clear();
     }
 
     public void free() {

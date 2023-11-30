@@ -22,4 +22,6 @@ public abstract class Model {
     public Mesh getMesh() {
         return mesh;
     }
+
+    public abstract void free();
 }

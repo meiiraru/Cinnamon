@@ -19,17 +19,25 @@ public enum LivingModelRegistry {
 
     public final Resource resource;
     public final float eyeHeight;
-    public final Model model;
+    public Model model;
 
     LivingModelRegistry(float eyeHeight) {
         String name = name().toLowerCase();
         this.resource = new Resource(MODELS_PATH + name + "/" + name + ".obj");
         this.eyeHeight = eyeHeight;
+    }
+
+    private void loadModel() {
         this.model = ModelManager.load(this.resource);
     }
 
     public static LivingModelRegistry random() {
         LivingModelRegistry[] models = values();
         return models[(int) (Math.random() * models.length)];
+    }
+
+    public static void loadAllModels() {
+        for (LivingModelRegistry livingModelRegistry : values())
+            livingModelRegistry.loadModel();
     }
 }

@@ -1,12 +1,11 @@
 package mayo.world.entity.projectile;
 
-import mayo.model.ModelManager;
+import mayo.registry.EntityModelRegistry;
+import mayo.registry.EntityRegistry;
 import mayo.render.MatrixStack;
-import mayo.render.Model;
 import mayo.render.shader.Shader;
 import mayo.utils.ColorUtils;
 import mayo.utils.Maths;
-import mayo.utils.Resource;
 import mayo.world.DamageType;
 import mayo.world.collisions.CollisionResolver;
 import mayo.world.collisions.CollisionResult;
@@ -15,7 +14,6 @@ import org.joml.Vector3f;
 
 public class Potato extends Projectile {
 
-    public static final Model MODEL = ModelManager.load(new Resource("models/entities/projectile/potato/potato.obj"));
     public static final int DAMAGE = 8;
     public static final float EXPLOSION_RANGE = 3f;
     public static final float EXPLOSION_STRENGTH = 1f;
@@ -25,7 +23,7 @@ public class Potato extends Projectile {
     private static final Vector3f BOUNCINESS = new Vector3f(0.25f, 0, 0.25f);
 
     public Potato(Entity owner) {
-        super(MODEL, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
+        super(EntityModelRegistry.POTATO.model, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
     }
 
     @Override
@@ -65,5 +63,10 @@ public class Potato extends Projectile {
         }
 
         return super.damage(source, type, amount, crit);
+    }
+
+    @Override
+    public EntityRegistry getType() {
+        return EntityRegistry.POTATO;
     }
 }

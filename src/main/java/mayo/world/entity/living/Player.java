@@ -1,5 +1,6 @@
 package mayo.world.entity.living;
 
+import mayo.registry.EntityRegistry;
 import mayo.registry.LivingModelRegistry;
 import mayo.utils.Maths;
 import mayo.world.DamageType;
@@ -148,5 +149,10 @@ public class Player extends LivingEntity {
     @Override
     public void setRot(float pitch, float yaw) {
         super.setRot(clampPitch(pitch), yaw);
+    }
+
+    @Override
+    public EntityRegistry getType() {
+        return EntityRegistry.PLAYER;
     }
 }

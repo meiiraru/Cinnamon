@@ -1,17 +1,14 @@
 package mayo.world.entity.vehicle;
 
-import mayo.model.ModelManager;
-import mayo.render.Model;
-import mayo.utils.Resource;
+import mayo.registry.EntityModelRegistry;
+import mayo.registry.EntityRegistry;
 import mayo.world.entity.Entity;
 import org.joml.Vector3f;
 
 public class Cart extends Vehicle {
 
-    private static final Model MODEL = ModelManager.load(new Resource("models/entities/vehicle/cart/cart.obj"));
-
     public Cart() {
-        super(MODEL, 1);
+        super(EntityModelRegistry.CART.model, 1);
     }
 
     @Override
@@ -27,5 +24,10 @@ public class Cart extends Vehicle {
     @Override
     protected void motionFallout() {
         this.motion.mul(0.9f, 1f, 0.9f);
+    }
+
+    @Override
+    public EntityRegistry getType() {
+        return EntityRegistry.CART;
     }
 }

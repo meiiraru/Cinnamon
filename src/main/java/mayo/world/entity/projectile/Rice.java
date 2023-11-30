@@ -1,21 +1,23 @@
 package mayo.world.entity.projectile;
 
-import mayo.model.ModelManager;
+import mayo.registry.EntityModelRegistry;
+import mayo.registry.EntityRegistry;
 import mayo.render.MatrixStack;
-import mayo.render.Model;
 import mayo.utils.Maths;
-import mayo.utils.Resource;
 import mayo.world.collisions.CollisionResult;
 import mayo.world.entity.Entity;
 import org.joml.Vector3f;
 
 public class Rice extends Projectile {
 
-    public static final Model MODEL = ModelManager.load(new Resource("models/entities/projectile/rice/rice.obj"));
     public static final int DAMAGE = 2;
 
     public Rice(Entity owner, int lifetime, float speed, float critChance) {
-        super(MODEL, DAMAGE, lifetime, speed, critChance, owner);
+        super(EntityModelRegistry.RICE.model, DAMAGE, lifetime, speed, critChance, owner);
+    }
+
+    public Rice(Entity owner) {
+        this(owner, 1, 1, 0);
     }
 
     @Override
@@ -37,5 +39,10 @@ public class Rice extends Projectile {
     protected void applyModelPose(MatrixStack matrices, float delta) {
         super.applyModelPose(matrices, delta);
         matrices.scale(Maths.clamp((this.lifetime - delta) / 5f, 0, 1));
+    }
+
+    @Override
+    public EntityRegistry getType() {
+        return EntityRegistry.RICE;
     }
 }

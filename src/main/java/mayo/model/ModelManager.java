@@ -23,4 +23,10 @@ public class ModelManager {
         MODEL_MAP.put(resource, newModel);
         return newModel;
     }
+
+    public static void free() {
+        for (Model value : MODEL_MAP.values())
+            value.free();
+        MODEL_MAP.clear();
+    }
 }

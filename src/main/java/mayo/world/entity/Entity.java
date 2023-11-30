@@ -2,6 +2,7 @@ package mayo.world.entity;
 
 import mayo.Client;
 import mayo.model.GeometryHelper;
+import mayo.registry.EntityRegistry;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
@@ -347,4 +348,6 @@ public abstract class Entity extends WorldObject {
     public void onUse(LivingEntity source) {}
 
     public void onAttacked(LivingEntity source) {}
+
+    public abstract EntityRegistry getType();
 }

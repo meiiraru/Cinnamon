@@ -112,6 +112,10 @@ public class Shader {
         }
     }
 
+    public static void freeCache() {
+        INCLUDE_CACHE.clear();
+    }
+
     public Shader use() {
         activeShader = this;
         glUseProgram(ID);

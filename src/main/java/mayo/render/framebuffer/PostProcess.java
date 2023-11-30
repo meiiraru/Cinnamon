@@ -16,10 +16,20 @@ public enum PostProcess {
     CHROMATIC_ABERRATION,
     PIXELATE;
 
-    private final Shader shader;
+    private final Resource resource;
+    private Shader shader;
 
     PostProcess() {
-        this.shader = new Shader(new Resource("shaders/post/" + this.name().toLowerCase() + ".glsl"));
+        this.resource = new Resource("shaders/post/" + this.name().toLowerCase() + ".glsl");
+    }
+
+    private void loadShader() {
+        this.shader = new Shader(this.resource);
+    }
+
+    public static void loadAllShaders() {
+        for (PostProcess postProcess : values())
+            postProcess.loadShader();
     }
 
     // -- static framebuffer stuff -- //

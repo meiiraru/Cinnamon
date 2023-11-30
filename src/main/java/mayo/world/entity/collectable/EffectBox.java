@@ -1,8 +1,7 @@
 package mayo.world.entity.collectable;
 
-import mayo.model.ModelManager;
-import mayo.render.Model;
-import mayo.utils.Resource;
+import mayo.registry.EntityModelRegistry;
+import mayo.registry.EntityRegistry;
 import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
 import mayo.world.entity.living.Player;
@@ -11,8 +10,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class EffectBox extends Collectable {
-
-    private static final Model MODEL = ModelManager.load(new Resource("models/entities/collectable/milkshake/milkshake.obj"));
 
     private static final List<Supplier<Effect>> EFFECT_LIST = List.of(
             () -> Effect.Type.NEVER_CRIT.create(200),
@@ -26,7 +23,7 @@ public class EffectBox extends Collectable {
     );
 
     public EffectBox() {
-        super(MODEL);
+        super(EntityModelRegistry.EFFECT_BOX.model);
     }
 
     @Override
@@ -37,5 +34,10 @@ public class EffectBox extends Collectable {
         }
 
         return false;
+    }
+
+    @Override
+    public EntityRegistry getType() {
+        return EntityRegistry.EFFECT_BOX;
     }
 }

@@ -75,6 +75,7 @@ public class Sound {
     public static void freeAllSounds() {
         for (Sound s : SOUNDS_MAP.values())
             s.free();
+        SOUNDS_MAP.clear();
     }
 
     public int getId() {

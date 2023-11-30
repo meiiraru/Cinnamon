@@ -1,9 +1,8 @@
 package mayo.world.entity.collectable;
 
-import mayo.model.ModelManager;
-import mayo.render.Model;
+import mayo.registry.EntityModelRegistry;
+import mayo.registry.EntityRegistry;
 import mayo.utils.AABB;
-import mayo.utils.Resource;
 import mayo.world.entity.Entity;
 import mayo.world.entity.living.Player;
 import mayo.world.particle.SteamParticle;
@@ -11,12 +10,11 @@ import org.joml.Vector3f;
 
 public class HealthPack extends Collectable {
 
-    private static final Model MODEL = ModelManager.load(new Resource("models/entities/collectable/ramen/ramen.obj"));
     private static final int HEAL = 10;
     private static final float SMOKE_CHANCE = 0.05f;
 
     public HealthPack() {
-        super(MODEL);
+        super(EntityModelRegistry.HEALTH_PACK.model);
     }
 
     @Override
@@ -42,5 +40,10 @@ public class HealthPack extends Collectable {
     @Override
     protected boolean onPickUp(Entity entity) {
         return entity instanceof Player p && p.heal(HEAL);
+    }
+
+    @Override
+    public EntityRegistry getType() {
+        return EntityRegistry.HEALTH_PACK;
     }
 }

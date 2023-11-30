@@ -4,7 +4,6 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import mayo.networking.packet.Packet;
-import mayo.networking.registry.PacketRegistry;
 import mayo.world.WorldServer;
 
 public class ServerConnection {

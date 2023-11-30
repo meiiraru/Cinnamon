@@ -1,5 +1,6 @@
 package mayo.world.entity.living;
 
+import mayo.registry.EntityRegistry;
 import mayo.registry.LivingModelRegistry;
 import mayo.world.AIBehaviour;
 import mayo.world.DamageType;
@@ -41,5 +42,10 @@ public class Enemy extends LivingEntity {
     @Override
     protected float getMoveSpeed() {
         return super.getMoveSpeed() * 0.5f;
+    }
+
+    @Override
+    public EntityRegistry getType() {
+        return EntityRegistry.ENEMY;
     }
 }

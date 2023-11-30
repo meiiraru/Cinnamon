@@ -126,6 +126,12 @@ public class OpenGLModel extends Model {
         return list;
     }
 
+    @Override
+    public void free() {
+        for (GroupData group : groups)
+            group.free();
+    }
+
     private record VertexData(Vector3f pos, Vector2f uv, Vector3f norm) {
         private void pushToBuffer(FloatBuffer buffer) {
             //push pos
@@ -206,7 +212,7 @@ public class OpenGLModel extends Model {
     }
 
     private static class GroupData {
-        private final int vao, vertexCount;
+        private final int vao, vbo, vertexCount;
         private final MaterialData material;
         private final Vector3f bbMin, bbMax;
 
@@ -225,7 +231,7 @@ public class OpenGLModel extends Model {
             glBindVertexArray(vao);
 
             //vbo
-            int vbo = glGenBuffers();
+            this.vbo = glGenBuffers();
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferData(GL_ARRAY_BUFFER, (long) capacity * Float.BYTES, GL_STATIC_DRAW);
 
@@ -252,6 +258,11 @@ public class OpenGLModel extends Model {
             //inverted so the last active texture is GL_TEXTURE0
             for (int i = MaterialData.TEX_COUNT - 1; i >= 0; i--)
                 Texture.unbindTex(i);
+        }
+
+        private void free() {
+            glDeleteBuffers(vao);
+            glDeleteBuffers(vbo);
         }
     }
 
