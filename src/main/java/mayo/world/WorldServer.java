@@ -66,4 +66,8 @@ public class WorldServer extends World {
         Player player = players.remove(internalID);
         if (player != null) player.remove();
     }
+
+    public Player getPlayerByID(int internalID) {
+        return players.get(internalID);
+    }
 }

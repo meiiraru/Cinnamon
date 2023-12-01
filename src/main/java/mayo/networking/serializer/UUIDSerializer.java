@@ -8,6 +8,11 @@ import com.esotericsoftware.kryo.io.Output;
 import java.util.UUID;
 
 public class UUIDSerializer extends Serializer<UUID> {
+
+    public UUIDSerializer() {
+        super(true);
+    }
+
     @Override
     public void write(Kryo kryo, Output output, UUID uuid) {
         output.writeLong(uuid.getMostSignificantBits());

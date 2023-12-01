@@ -6,6 +6,8 @@ import mayo.networking.serializer.*;
 import mayo.registry.*;
 import mayo.world.entity.Entity;
 import mayo.world.terrain.Terrain;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -21,6 +23,8 @@ public final class PacketRegistry {
         //misc
         kryo.register(ArrayList.class);
         kryo.register(UUID.class, new UUIDSerializer());
+        kryo.register(Vector2f.class, new Vector2fSerializer());
+        kryo.register(Vector3f.class, new Vector3fSerializer());
 
         //terrain
         kryo.addDefaultSerializer(Terrain.class, TerrainSerializer.class);
@@ -39,5 +43,7 @@ public final class PacketRegistry {
         kryo.register(SendEntities.class);
         kryo.register(AddEntity.class);
         kryo.register(RemoveEntity.class);
+        kryo.register(ClientMovement.class);
+        kryo.register(EntitySync.class);
     }
 }

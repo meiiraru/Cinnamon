@@ -2,6 +2,8 @@ package mayo.world.entity;
 
 import mayo.Client;
 import mayo.model.GeometryHelper;
+import mayo.networking.ServerConnection;
+import mayo.networking.packet.EntitySync;
 import mayo.registry.EntityRegistry;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
@@ -11,10 +13,7 @@ import mayo.render.shader.Shader;
 import mayo.utils.AABB;
 import mayo.utils.Maths;
 import mayo.utils.Rotation;
-import mayo.world.DamageType;
-import mayo.world.World;
-import mayo.world.WorldClient;
-import mayo.world.WorldObject;
+import mayo.world.*;
 import mayo.world.collisions.Hit;
 import mayo.world.entity.living.LivingEntity;
 import mayo.world.terrain.Terrain;
@@ -179,6 +178,7 @@ public abstract class Entity extends WorldObject {
         this.pos.set(x, y, z);
         this.updateAABB();
         this.updateRiders();
+        sendServerUpdate();
     }
 
     public void rotate(float pitch, float yaw) {
@@ -194,6 +194,7 @@ public abstract class Entity extends WorldObject {
 
     public void rotateTo(float pitch, float yaw) {
         this.rot.set(pitch, yaw);
+        sendServerUpdate();
     }
 
     public void lookAt(Vector3f pos) {
@@ -357,4 +358,9 @@ public abstract class Entity extends WorldObject {
     public void onAttacked(LivingEntity source) {}
 
     public abstract EntityRegistry getType();
+
+    public void sendServerUpdate() {
+        if (getWorld() instanceof WorldServer)
+            ServerConnection.connection.sendToAllUDP(new EntitySync().entity(this));
+    }
 }

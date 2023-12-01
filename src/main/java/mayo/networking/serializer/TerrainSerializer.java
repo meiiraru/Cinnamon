@@ -10,6 +10,10 @@ import org.joml.Vector3f;
 
 public class TerrainSerializer extends Serializer<Terrain> {
 
+    public TerrainSerializer() {
+        super(true);
+    }
+
     @Override
     public void write(Kryo kryo, Output output, Terrain terrain) {
         //type

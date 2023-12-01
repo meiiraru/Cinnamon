@@ -12,6 +12,11 @@ import org.joml.Vector3f;
 import java.util.UUID;
 
 public class EntitySerializer extends Serializer<Entity> {
+
+    public EntitySerializer() {
+        super(true);
+    }
+
     @Override
     public void write(Kryo kryo, Output output, Entity entity) {
         //uuid
