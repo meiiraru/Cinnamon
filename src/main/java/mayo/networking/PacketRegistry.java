@@ -52,5 +52,6 @@ public final class PacketRegistry {
         kryo.register(ClientEntityAction.class);
         kryo.register(Respawn.class);
         kryo.register(SelectItem.class);
+        kryo.register(SyncHealth.class);
     }
 }

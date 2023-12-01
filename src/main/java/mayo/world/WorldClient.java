@@ -83,7 +83,7 @@ public class WorldClient extends World {
         hud.init();
 
         //tutorial toast
-        Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), Client.getInstance().font);
+        Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), client.font);
 
         //lights
         addLight(sunLight);
@@ -131,18 +131,19 @@ public class WorldClient extends World {
     }
 
     public void render(MatrixStack matrices, float delta) {
-        Client c = Client.getInstance();
+        if (player.getWorld() == null)
+            return;
 
         //set camera
-        c.camera.setup(player, cameraMode, delta);
+        client.camera.setup(player, cameraMode, delta);
 
         //render skybox
         Shaders.MODEL.getShader().use().setup(
-                c.camera.getPerspectiveMatrix(),
-                c.camera.getViewMatrix()
+                client.camera.getPerspectiveMatrix(),
+                client.camera.getViewMatrix()
         );
         skyBox.setSunAngle(Maths.map(timeOfTheDay + delta, 0, 24000, 0, 360));
-        skyBox.render(c.camera, matrices);
+        skyBox.render(client.camera, matrices);
         sunLight.direction(skyBox.getSunDirection());
 
         //flashlight
@@ -150,31 +151,31 @@ public class WorldClient extends World {
         flashlight.direction(player.getLookDir(delta));
 
         //render shadows
-        renderShadows(c.camera, matrices, delta);
+        renderShadows(client.camera, matrices, delta);
 
         //set world shader
         Shader s = Shaders.WORLD_MODEL.getShader().use();
-        s.setup(c.camera.getPerspectiveMatrix(), c.camera.getViewMatrix());
+        s.setup(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
 
         //apply lighting
         applyWorldUniforms(s);
         applyShadowUniforms(s);
 
         //render world
-        renderWorld(c.camera.getEntity(), matrices, delta);
+        renderWorld(client.camera.getEntity(), matrices, delta);
 
         //render debug
         if (debugRendering && !hideHUD) {
-            renderHitboxes(c.camera, matrices, delta);
+            renderHitboxes(client.camera, matrices, delta);
             renderHitResults(matrices);
         }
 
         //finish rendering
-        VertexConsumer.finishAllBatches(c.camera.getPerspectiveMatrix(), c.camera.getViewMatrix());
+        VertexConsumer.finishAllBatches(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
 
         //debug shadows
         if (renderShadowMap) {
-            renderShadowBuffer(c.window.width, c.window.height, 500);
+            renderShadowBuffer(client.window.width, client.window.height, 500);
         }
     }
 
@@ -319,7 +320,7 @@ public class WorldClient extends World {
 
     public void applyWorldUniforms(Shader s) {
         //camera
-        s.setVec3("camPos", Client.getInstance().camera.getPos());
+        s.setVec3("camPos", client.camera.getPos());
 
         //fog
         s.setFloat("fogStart", Chunk.getFogStart(this));
@@ -390,7 +391,10 @@ public class WorldClient extends World {
     }
 
     private void processMouseInput() {
-        Window w = Client.getInstance().window;
+        Window w = client.window;
+        if (!w.isMouseLocked())
+            return;
+
         ClientEntityAction action = new ClientEntityAction();
         boolean used = false;
 
@@ -434,7 +438,7 @@ public class WorldClient extends World {
                 if (i instanceof Weapon weapon && !weapon.isOnCooldown() && i.getCount() < i.getStackCount())
                     weapon.setOnCooldown();
             }
-            case GLFW_KEY_ESCAPE -> Client.getInstance().setScreen(new PauseScreen());
+            case GLFW_KEY_ESCAPE -> client.setScreen(new PauseScreen());
             case GLFW_KEY_F1 -> this.hideHUD = !this.hideHUD;
             case GLFW_KEY_F3 -> this.debugRendering = !this.debugRendering;
             case GLFW_KEY_F4 -> this.renderShadowMap = !this.renderShadowMap;

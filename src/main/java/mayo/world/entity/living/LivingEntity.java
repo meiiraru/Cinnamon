@@ -1,6 +1,8 @@
 package mayo.world.entity.living;
 
 import mayo.Client;
+import mayo.networking.ServerConnection;
+import mayo.networking.packet.SyncHealth;
 import mayo.registry.LivingModelRegistry;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
@@ -11,6 +13,7 @@ import mayo.utils.Colors;
 import mayo.utils.Rotation;
 import mayo.utils.TextUtils;
 import mayo.world.DamageType;
+import mayo.world.WorldServer;
 import mayo.world.collisions.Hit;
 import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
@@ -167,6 +170,9 @@ public abstract class LivingEntity extends PhysEntity {
         //spawn particle
         spawnHealthChangeParticle(amount, false);
 
+        //sync health
+        syncHealth();
+
         //return that we did heal
         return true;
     }
@@ -190,6 +196,9 @@ public abstract class LivingEntity extends PhysEntity {
 
         //spawn particle
         spawnHealthChangeParticle(-amount, crit);
+
+        //sync health
+        syncHealth();
 
         return true;
     }
@@ -234,6 +243,11 @@ public abstract class LivingEntity extends PhysEntity {
         TextParticle p = new TextParticle(Text.of(text).withStyle(Style.EMPTY.color(color).outlined(true)), 20, aabb.getRandomPoint());
         p.setEmissive(true);
         world.addParticle(p);
+    }
+
+    private void syncHealth() {
+        if (getWorld() instanceof WorldServer)
+            ServerConnection.connection.sendToAllUDP(new SyncHealth().entity(getUUID()).health(health));
     }
 
     public void attackAction() {

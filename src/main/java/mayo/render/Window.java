@@ -77,6 +77,10 @@ public class Window {
         return true;
     }
 
+    public boolean isMouseLocked() {
+        return mouseLocked;
+    }
+
     public void toggleFullScreen() {
         fullscreen = !fullscreen;
 

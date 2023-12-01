@@ -190,7 +190,7 @@ public class Client {
 
         if (screen != null)
             screen.mousePress(button, action, mods);
-        else if (world != null)
+        else if (world != null && window.isMouseLocked())
             world.mousePress(button, action, mods);
     }
 
@@ -200,7 +200,7 @@ public class Client {
 
         if (screen != null) {
             screen.keyPress(key, scancode, action, mods);
-        } else if (world != null) {
+        } else if (world != null && window.isMouseLocked()) {
             world.keyPress(key, scancode, action, mods);
         }
     }
@@ -214,7 +214,7 @@ public class Client {
 
         if (screen != null) {
             screen.mouseMove(window.mouseX, window.mouseY);
-        } else if (world != null) {
+        } else if (world != null && window.isMouseLocked()) {
             world.mouseMove(x, y);
         }
     }
@@ -222,7 +222,7 @@ public class Client {
     public void scroll(double x, double y) {
         if (screen != null)
             screen.scroll(x, y);
-        else if (world != null)
+        else if (world != null && window.isMouseLocked())
             world.scroll(x, y);
     }
 
