@@ -1,9 +1,9 @@
 package mayo.world.particle;
 
 import mayo.Client;
+import mayo.registry.ParticlesRegistry;
 import mayo.render.MatrixStack;
 import mayo.utils.Maths;
-import mayo.world.World;
 import mayo.world.WorldObject;
 import org.joml.Vector3f;
 
@@ -111,4 +111,6 @@ public abstract class Particle extends WorldObject {
     public boolean isEmissive() {
         return emissive;
     }
+
+    public abstract ParticlesRegistry getType();
 }

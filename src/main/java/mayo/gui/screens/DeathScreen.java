@@ -21,7 +21,7 @@ public class DeathScreen extends Screen {
         super.init();
 
         this.addWidget(respawn = new Button((width - 180) / 2, height / 2 + 8, 180, 20, Text.of("Respawn"), button -> {
-            client.world.respawn();
+            client.world.respawn(false);
             client.setScreen(null);
         }));
 

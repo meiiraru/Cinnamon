@@ -5,6 +5,8 @@ import mayo.networking.packet.*;
 import mayo.networking.serializer.*;
 import mayo.registry.*;
 import mayo.world.entity.Entity;
+import mayo.world.entity.living.LivingEntity;
+import mayo.world.entity.projectile.Projectile;
 import mayo.world.terrain.Terrain;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -32,6 +34,8 @@ public final class PacketRegistry {
 
         //entity
         kryo.addDefaultSerializer(Entity.class, EntitySerializer.class);
+        kryo.addDefaultSerializer(Projectile.class, ProjectileSerializer.class);
+        kryo.addDefaultSerializer(LivingEntity.class, LivingEntitySerializer.class);
         Registry.registerType(kryo, EntityRegistry.class);
 
         // -- packets -- //
@@ -45,5 +49,8 @@ public final class PacketRegistry {
         kryo.register(RemoveEntity.class);
         kryo.register(ClientMovement.class);
         kryo.register(EntitySync.class);
+        kryo.register(ClientEntityAction.class);
+        kryo.register(Respawn.class);
+        kryo.register(SelectItem.class);
     }
 }

@@ -1,6 +1,7 @@
 package mayo.registry;
 
 import com.esotericsoftware.kryo.Kryo;
+import mayo.world.WorldClient;
 import mayo.world.entity.Entity;
 import mayo.world.entity.collectable.EffectBox;
 import mayo.world.entity.collectable.HealthPack;
@@ -22,7 +23,11 @@ public enum EntityRegistry implements Registry {
 
     //living
     ENEMY(Enemy.class, Enemy::new),
-    PLAYER(Player.class, Player::new),
+    PLAYER(Player.class, uuid -> {
+        Player p = new Player(uuid);
+        WorldClient.givePlayerItems(p); //TODO
+        return p;
+    }),
 
     //projectiles
     CANDY(Candy.class, uuid -> new Candy(uuid, null)),

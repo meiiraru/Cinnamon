@@ -1,21 +1,19 @@
 package mayo.world.particle;
 
 import mayo.Client;
-import mayo.render.Texture;
+import mayo.registry.ParticlesRegistry;
 import mayo.utils.Maths;
 import mayo.utils.PerlinNoise;
-import mayo.utils.Resource;
 
 public class LightParticle extends SpriteParticle {
 
-    private static final Texture TEXTURE = Texture.of(new Resource("textures/particles/light.png"), 4, 1);
     private static final PerlinNoise NOISE = new PerlinNoise();
 
     private final int seed;
     private float speed = 1f;
 
     public LightParticle(int lifetime, int color) {
-        super(TEXTURE, lifetime, color);
+        super(lifetime, color);
         this.setEmissive(true);
         this.seed = Client.getInstance().ticks;
     }
@@ -33,5 +31,10 @@ public class LightParticle extends SpriteParticle {
 
     public float getSpeed() {
         return speed;
+    }
+
+    @Override
+    public ParticlesRegistry getType() {
+        return ParticlesRegistry.LIGHT;
     }
 }

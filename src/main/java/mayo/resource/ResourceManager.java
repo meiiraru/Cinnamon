@@ -3,6 +3,7 @@ package mayo.resource;
 import mayo.model.ModelManager;
 import mayo.registry.EntityModelRegistry;
 import mayo.registry.LivingModelRegistry;
+import mayo.registry.ParticlesRegistry;
 import mayo.registry.TerrainRegistry;
 import mayo.render.Texture;
 import mayo.render.framebuffer.PostProcess;
@@ -25,6 +26,7 @@ public class ResourceManager {
         INIT_EVENTS.add(TerrainRegistry::loadAllModels);
         INIT_EVENTS.add(LivingModelRegistry::loadAllModels);
         INIT_EVENTS.add(EntityModelRegistry::loadAllModels);
+        INIT_EVENTS.add(ParticlesRegistry::loadAllTextures);
 
         FREE_EVENTS.add(Texture::freeAll);
         FREE_EVENTS.add(Sound::freeAllSounds);

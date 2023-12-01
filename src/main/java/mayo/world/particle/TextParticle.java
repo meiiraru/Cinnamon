@@ -1,6 +1,7 @@
 package mayo.world.particle;
 
 import mayo.Client;
+import mayo.registry.ParticlesRegistry;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
@@ -39,5 +40,10 @@ public class TextParticle extends Particle {
 
         Vector3f cam = Client.getInstance().camera.getPos();
         return cam.distanceSquared(getPos()) <= 256;
+    }
+
+    @Override
+    public ParticlesRegistry getType() {
+        return ParticlesRegistry.TEXT;
     }
 }

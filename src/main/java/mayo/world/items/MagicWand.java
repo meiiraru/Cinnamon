@@ -1,6 +1,5 @@
 package mayo.world.items;
 
-import mayo.Client;
 import mayo.model.ModelManager;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
@@ -71,7 +70,7 @@ public class MagicWand extends Item {
 
         //draw a point if it was not drawing
         if (!drawing)
-            drawParticle(lastPos, getColor(), source.getWorld());
+            drawParticle(lastPos, getColor(source.getWorld().getTime()), source.getWorld());
 
         //reset
         lastPos = null;
@@ -105,14 +104,14 @@ public class MagicWand extends Item {
         return source.getLookDir().mul(DISTANCE).add(source.getEyePos());
     }
 
-    private static int getColor() {
-        return ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f(((Client.getInstance().ticks * 3) % 360) / 360f, 0.7f, 1))) + (0xFF << 24);
+    private static int getColor(int time) {
+        return ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f(((time * 3) % 360) / 360f, 0.7f, 1))) + (0xFF << 24);
     }
 
     private static boolean drawLine(Vector3f a, Vector3f b, World world) {
         boolean ret = false;
         //rainbow color
-        int color = getColor();
+        int color = getColor(world.getTime());
         //draw line
         float len = (int) (b.distance(a) * 1000) / 1000f;
         for (float i = 0; i < len; i += STEP) {

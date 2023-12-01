@@ -7,9 +7,7 @@ import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
 import mayo.model.GeometryHelper;
 import mayo.networking.ServerConnection;
-import mayo.networking.packet.Handshake;
-import mayo.networking.packet.Login;
-import mayo.networking.packet.Message;
+import mayo.networking.packet.*;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
 import mayo.render.Window;
@@ -27,6 +25,10 @@ import mayo.world.entity.Entity;
 import mayo.world.entity.living.Player;
 import mayo.world.items.Item;
 import mayo.world.items.ItemRenderContext;
+import mayo.world.items.MagicWand;
+import mayo.world.items.weapons.CoilGun;
+import mayo.world.items.weapons.PotatoCannon;
+import mayo.world.items.weapons.RiceGun;
 import mayo.world.items.weapons.Weapon;
 import mayo.world.light.DirectionalLight;
 import mayo.world.light.Light;
@@ -98,7 +100,7 @@ public class WorldClient extends World {
         addLight(new Light().pos(8.5f, 0.5f, 2f).color(0xFFFFFF));
 
         //create player
-        respawn();
+        respawn(true);
 
         runScheduledTicks();
 
@@ -364,24 +366,44 @@ public class WorldClient extends World {
     public void mousePress(int button, int action, int mods) {
         boolean press = action != GLFW_RELEASE;
 
+        ClientEntityAction mouseAction = new ClientEntityAction();
+        boolean used = false;
+
         switch (button) {
             case GLFW_MOUSE_BUTTON_1 -> {
-                if (!press) player.stopAttacking();
+                if (!press) {
+                    mouseAction.attack(false);
+                    used = true;
+                }
             }
             case GLFW_MOUSE_BUTTON_2 -> {
-                if (!press) player.stopUsing();
+                if (!press) {
+                    mouseAction.use(false);
+                    used = true;
+                }
             }
         }
+
+        if (used) connection.sendUDP(mouseAction);
 
         processMouseInput();
     }
 
     private void processMouseInput() {
         Window w = Client.getInstance().window;
-        if (w.mouse1Press)
-            player.attackAction();
-        if (w.mouse2Press)
-            player.useAction();
+        ClientEntityAction action = new ClientEntityAction();
+        boolean used = false;
+
+        if (w.mouse1Press) {
+            action.attack(true);
+            used = true;
+        }
+        if (w.mouse2Press) {
+            action.use(true);
+            used = true;
+        }
+
+        if (used) connection.sendUDP(action);
     }
 
     public void mouseMove(double x, double y) {
@@ -389,7 +411,9 @@ public class WorldClient extends World {
     }
 
     public void scroll(double x, double y) {
-        player.setSelectedItem(player.getInventory().getSelectedIndex() - (int) Math.signum(y));
+        int i = player.getInventory().getSelectedIndex() - (int) Math.signum(y);
+        player.setSelectedItem(i);
+        connection.sendUDP(new SelectItem().index(i));
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
@@ -398,8 +422,11 @@ public class WorldClient extends World {
         if (action == GLFW_RELEASE)
             return;
 
-        if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9)
-            player.setSelectedItem(key - GLFW_KEY_1);
+        if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9) {
+            int i = key - GLFW_KEY_1;
+            player.setSelectedItem(i);
+            connection.sendUDP(new SelectItem().index(i));
+        }
 
         switch (key) {
             case GLFW_KEY_R -> {
@@ -440,8 +467,19 @@ public class WorldClient extends World {
         return hideHUD;
     }
 
-    public void respawn() {
+    public void respawn(boolean init) {
         player = new Player(Client.PLAYER_UUID);
+        givePlayerItems(player);
         this.addEntity(player);
+
+        if (!init)
+            connection.sendTCP(new Respawn());
+    }
+
+    public static void givePlayerItems(Player player) {
+        player.giveItem(new CoilGun(1, 5, 0));
+        player.giveItem(new PotatoCannon(3, 40, 30));
+        player.giveItem(new RiceGun(8, 80, 60));
+        player.getInventory().setItem(player.getInventory().getSize() - 1, new MagicWand(1));
     }
 }

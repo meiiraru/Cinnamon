@@ -39,6 +39,9 @@ public class Texture {
     }
 
     public static Texture of(Resource res, int hFrames, int vFrames) {
+        if (res == null)
+            return MISSING;
+
         //returns an already registered texture, if any
         Texture saved = TEXTURE_MAP.get(res);
         if (saved != null)

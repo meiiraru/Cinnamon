@@ -95,7 +95,7 @@ public abstract class Projectile extends PhysEntity {
         if (isRemoved() || entity.getUUID().equals(getOwner()))
             return;
 
-        if (entity.damage(getWorld().getEntityByUUID(this.owner), DamageType.PROJECTILE, getDamage(), this.crit))
+        if (entity.damage(getWorld().getEntityByUUID(getOwner()), DamageType.PROJECTILE, getDamage(), this.crit))
             remove();
     }
 
@@ -116,6 +116,26 @@ public abstract class Projectile extends PhysEntity {
 
     public int getDamage() {
         return damage;
+    }
+
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
+
+    public boolean isCrit() {
+        return crit;
+    }
+
+    public void setCrit(boolean crit) {
+        this.crit = crit;
+    }
+
+    public int getLifetime() {
+        return lifetime;
+    }
+
+    public void setLifetime(int lifetime) {
+        this.lifetime = lifetime;
     }
 
     public UUID getOwner() {

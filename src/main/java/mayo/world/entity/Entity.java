@@ -322,11 +322,11 @@ public abstract class Entity extends WorldObject {
     }
 
     public Entity getControllingEntity() {
-        return riders.isEmpty() ? null : riders.get(0);
+        return riders.isEmpty() ? this : riders.get(0).getControllingEntity();
     }
 
     protected void updateRiders() {
-        for (Entity rider : riders) {
+        for (Entity rider : new ArrayList<>(riders)) {
             rider.oPos.set(rider.pos);
             rider.moveTo(getRiderOffset(rider).add(this.pos));
         }

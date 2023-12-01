@@ -6,25 +6,13 @@ import com.esotericsoftware.kryonet.Server;
 import mayo.networking.ServerConnection;
 import mayo.world.entity.Entity;
 
-import java.util.UUID;
-
-public class Login extends PacketWithOwner {
+public class Respawn extends PacketWithOwner {
     @Override
     public void clientReceived(Client client, Connection connection) {}
 
     @Override
     public void serverReceived(Server server, Connection connection) {
         int id = connection.getID();
-        System.out.printf("[Server] %s (id %s) logged!\n", name, id);
-
-        //join message
-        server.sendToAllExceptTCP(id, new Message().msg(name + " joined the server"));
-
-        //send terrain
-        server.sendToTCP(id, new SendTerrain().terrain(ServerConnection.world.getTerrain()));
-
-        //send entities
-        server.sendToTCP(id, new SendEntities().entity(ServerConnection.world.getEntities().values()));
 
         //add player
         Entity e = ServerConnection.world.addPlayer(id, uuid);

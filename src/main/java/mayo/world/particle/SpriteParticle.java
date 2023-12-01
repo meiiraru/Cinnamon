@@ -13,9 +13,9 @@ public abstract class SpriteParticle extends Particle {
     private int color;
     private float scale = 1f;
 
-    public SpriteParticle(Texture texture, int lifetime, int color) {
+    public SpriteParticle(int lifetime, int color) {
         super(lifetime);
-        this.texture = texture;
+        this.texture = getType().getTexture();
         this.color = color;
     }
 

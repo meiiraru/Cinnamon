@@ -55,6 +55,8 @@ public class Toast {
 
         //otherwise queue a new toast
         TOASTS.add(new Toast(text, font));
+
+        System.out.println("[Toast] " + str);
     }
 
     public static void clearAll() {

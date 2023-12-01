@@ -89,11 +89,10 @@ public abstract class World {
     }
 
     public void addParticle(Particle particle) {
-        if (particle.shouldRender())
-            scheduledTicks.add(() -> {
-                this.particles.add(particle);
-                particle.onAdded(this);
-            });
+        scheduledTicks.add(() -> {
+            this.particles.add(particle);
+            particle.onAdded(this);
+        });
     }
 
     public SoundSource playSound(Resource sound, SoundCategory category, Vector3f position) {

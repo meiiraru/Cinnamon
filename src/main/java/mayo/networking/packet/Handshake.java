@@ -4,13 +4,13 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Server;
 
-public class Handshake implements Packet {
+public class Handshake extends PacketWithOwner {
 
-    private final String version, name;
+    private final String version;
 
     public Handshake() {
+        super();
         this.version = mayo.Client.VERSION;
-        this.name = mayo.Client.PLAYERNAME;
     }
 
     @Override
