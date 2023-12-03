@@ -2,6 +2,7 @@ package mayo.utils;
 
 import org.lwjgl.BufferUtils;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -99,6 +100,14 @@ public class IOUtils {
             //create file if non-existent
             if (!Files.exists(path))
                 Files.createFile(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void openFileInExplorer(Path path) {
+        try {
+            Desktop.getDesktop().open(path.toFile().isDirectory() ? path.getParent().toFile() : path.toFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

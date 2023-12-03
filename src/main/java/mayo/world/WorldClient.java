@@ -22,6 +22,7 @@ import mayo.utils.Maths;
 import mayo.world.chunk.Chunk;
 import mayo.world.collisions.Hit;
 import mayo.world.entity.Entity;
+import mayo.world.entity.living.LocalPlayer;
 import mayo.world.entity.living.Player;
 import mayo.world.items.Item;
 import mayo.world.items.ItemRenderContext;
@@ -53,7 +54,7 @@ public class WorldClient extends World {
     private final Movement movement = new Movement();
 
     private Client client;
-    public Player player;
+    public LocalPlayer player;
 
     private int cameraMode = 0;
 
@@ -472,7 +473,7 @@ public class WorldClient extends World {
     }
 
     public void respawn(boolean init) {
-        player = new Player(Client.PLAYER_UUID);
+        player = new LocalPlayer();
         givePlayerItems(player);
         this.addEntity(player);
 
@@ -485,5 +486,10 @@ public class WorldClient extends World {
         player.giveItem(new PotatoCannon(3, 40, 30));
         player.giveItem(new RiceGun(8, 80, 60));
         player.getInventory().setItem(player.getInventory().getSize() - 1, new MagicWand(1));
+    }
+
+    @Override
+    public boolean isClientside() {
+        return true;
     }
 }

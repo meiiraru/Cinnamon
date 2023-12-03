@@ -24,8 +24,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.UUID;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_F11;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;
 
@@ -183,6 +182,12 @@ public class Client {
         this.setScreen(new MainMenu());
     }
 
+    public void reloadAssets() {
+        //ResourceManager.free();
+        //ResourceManager.init();
+        //Toast.addToast(Text.of("Reloaded assets"), font);
+    }
+
     // -- glfw events -- //
 
     public void mousePress(int button, int action, int mods) {
@@ -195,8 +200,12 @@ public class Client {
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
-        if (action == GLFW_PRESS && key == GLFW_KEY_F11)
-            window.toggleFullScreen();
+        if (action == GLFW_PRESS) {
+            switch (key) {
+                case GLFW_KEY_F11 -> window.toggleFullScreen();
+                case GLFW_KEY_F12 -> reloadAssets();
+            }
+        }
 
         if (screen != null) {
             screen.keyPress(key, scancode, action, mods);

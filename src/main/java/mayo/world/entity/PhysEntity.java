@@ -29,7 +29,7 @@ public abstract class PhysEntity extends Entity {
         if (!this.isRiding()) {
             tickPhysics();
         } else {
-            motion.set(0);
+            setMotion(0, 0, 0);
         }
 
         //entity collisions
@@ -195,6 +195,6 @@ public abstract class PhysEntity extends Entity {
     }
 
     public void knockback(Vector3f dir, float force) {
-        this.motion.add(dir.x * force, dir.y * force, dir.z * force);
+        setMotion(motion.x + dir.x * force, motion.y + dir.y * force, motion.z + dir.z * force);
     }
 }

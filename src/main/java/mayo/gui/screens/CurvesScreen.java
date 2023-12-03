@@ -2,12 +2,11 @@ package mayo.gui.screens;
 
 import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
+import mayo.gui.Toast;
 import mayo.gui.widgets.SelectableWidget;
-import mayo.gui.widgets.types.Label;
-import mayo.gui.widgets.types.SelectionBox;
-import mayo.gui.widgets.types.ToggleButton;
-import mayo.gui.widgets.types.WidgetList;
+import mayo.gui.widgets.types.*;
 import mayo.model.GeometryHelper;
+import mayo.parsers.CurveExporter;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Window;
@@ -103,6 +102,18 @@ public class CurvesScreen extends ParentedScreen {
         loopButton.setAction(button -> curve.loop(!curve.isLooping()));
         loopButton.setToggled(curve.isLooping());
         list.addWidget(loopButton);
+
+        //export button
+        Button exportCurve = new Button(0, 0, 60, 12, Text.of("Export"), button -> {
+            try {
+                CurveExporter.exportCurve(curve);
+                Toast.addToast(Text.of("Curve exported!"), client.font);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.addToast(Text.of(e.getMessage()), client.font);
+            }
+        });
+        list.addWidget(exportCurve);
 
         //add list to screen
         this.addWidget(list);
@@ -209,7 +220,7 @@ public class CurvesScreen extends ParentedScreen {
                 selected.setPos(x - R, y - R);
                 int i = points.indexOf(selected);
                 if (i != -1)
-                    curve.setPoint(i, x, 0, y);
+                    curve.setPoint(i, x, (int) (Math.random() * 11) * 10, y);
             }
         } else if (w.mouse2Press) {
             removePoint();
@@ -219,14 +230,9 @@ public class CurvesScreen extends ParentedScreen {
             anchorX = x;
             anchorY = y;
 
-            for (int i = 0; i < points.size(); i++) {
-                Point point = points.get(i);
+            for (Point point : points)
                 point.setPos(point.getX() + dx, point.getY() + dy);
-
-                Vector3f vec = curve.getPoint(i);
-                vec.add(dx, 0, dy);
-                curve.setPoint(i, vec.x, vec.y, vec.z);
-            }
+            curve.offset(dx, 0, dy);
         }
 
         return super.mouseMove(x, y);
@@ -257,7 +263,7 @@ public class CurvesScreen extends ParentedScreen {
         addWidget(p);
         selected = p;
 
-        curve.addPoint(x, 0, y);
+        curve.addPoint(x, (int) (Math.random() * 11) * 10, y);
     }
 
     private void removePoint() {

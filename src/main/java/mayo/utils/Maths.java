@@ -200,6 +200,16 @@ public class Maths {
         return Float.isNaN(vec.x) || Float.isNaN(vec.y) || Float.isNaN(vec.z);
     }
 
+    public static Vector2f rotate(Vector2f vec, float angle) {
+        float rad = (float) Math.toRadians(angle);
+        float cos = (float) (Math.cos(rad));
+        float sin = (float) (Math.sin(rad));
+        return vec.set(
+                cos * vec.x - sin * vec.y,
+                sin * vec.x + cos * vec.y
+        );
+    }
+
     private static final String[] SIZE_UNITS = {"b", "kb", "mb", "gb"};
     public static String prettyByteSize(double size) {
         int i = 0;

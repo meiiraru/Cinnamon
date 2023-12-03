@@ -1,5 +1,6 @@
 package mayo.utils;
 
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -39,12 +40,15 @@ public abstract class Curve {
         return this;
     }
 
-    public Vector3f getPoint(int index) {
-        return new Vector3f(controlPoints.get(index));
-    }
-
     public Curve removePoint(int index) {
         controlPoints.remove(index);
+        dirty = true;
+        return this;
+    }
+
+    public Curve offset(float x, float y, float z) {
+        for (Vector3f vec : controlPoints)
+            vec.add(x, y, z);
         dirty = true;
         return this;
     }
@@ -52,22 +56,22 @@ public abstract class Curve {
     protected abstract List<Vector3f> calculateCurve(List<Vector3f> controlPoints);
 
     private static Vector3f rotatePoint(Vector3f a, Vector3f b, float len, float angle) {
-        Vector3f temp = b.sub(a, new Vector3f());
+        Vector2f temp = new Vector2f(b.x, b.z).sub(a.x, a.z);
         temp.normalize(len);
-        temp.rotateY(angle);
-        temp.add(a);
-        return temp;
+        Maths.rotate(temp, angle);
+
+        return new Vector3f(a.x + temp.x, a.y, a.z + temp.y);
     }
 
     private static Vector3f rotatePoint(Vector3f a, Vector3f b, Vector3f c, float len, float angle) {
-        Vector3f ab = b.sub(a, new Vector3f()).normalize();
-        Vector3f bc = c.sub(b, new Vector3f()).normalize();
+        Vector2f ab = new Vector2f(b.x, b.z).sub(a.x, a.z).normalize();
+        Vector2f bc = new Vector2f(c.x, c.z).sub(b.x, b.z).normalize();
 
         ab.add(bc);
         ab.normalize(len);
-        ab.rotateY(angle);
-        ab.add(b);
-        return ab;
+        Maths.rotate(ab, angle);
+
+        return new Vector3f(b.x + ab.x, b.y, b.z + ab.y);
     }
 
     private List<Vector3f> sideCurve(float distance, float angle) {
@@ -96,7 +100,7 @@ public abstract class Curve {
         }
 
         //calculate last instance
-        Vector3f l1 = curve.get(size - 1);
+        Vector3f l1 = curve.get(0);
         Vector3f l2 = curve.get(size - 2);
         if (loop) {
             Vector3f l0 = curve.get(1); //index 0 should be the same as l1
@@ -118,17 +122,31 @@ public abstract class Curve {
 
         //get distance from main curve
         float distance = width * 0.5f;
-        float angle = (float) Math.toRadians(90);
 
         //internal
         internalCurve.clear();
-        internalCurve.addAll(sideCurve(distance, -angle));
+        internalCurve.addAll(sideCurve(distance, 90));
 
         //external
         externalCurve.clear();
-        externalCurve.addAll(sideCurve(distance, angle));
+        externalCurve.addAll(sideCurve(distance, -90));
 
         dirty = false;
+    }
+
+    public Vector3f getCenter() {
+        //min-max vectors
+        Vector3f min = new Vector3f(Integer.MAX_VALUE);
+        Vector3f max = new Vector3f(Integer.MIN_VALUE);
+
+        //grab min and max
+        for (Vector3f vec : controlPoints) {
+            min.min(vec);
+            max.max(vec);
+        }
+
+        //grab offset
+        return min.add(max).mul(0.5f);
     }
 
 

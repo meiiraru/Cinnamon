@@ -13,7 +13,10 @@ import mayo.render.shader.Shader;
 import mayo.utils.AABB;
 import mayo.utils.Maths;
 import mayo.utils.Rotation;
-import mayo.world.*;
+import mayo.world.DamageType;
+import mayo.world.World;
+import mayo.world.WorldClient;
+import mayo.world.WorldObject;
 import mayo.world.collisions.Hit;
 import mayo.world.entity.living.LivingEntity;
 import mayo.world.terrain.Terrain;
@@ -360,7 +363,7 @@ public abstract class Entity extends WorldObject {
     public abstract EntityRegistry getType();
 
     public void sendServerUpdate() {
-        if (getWorld() instanceof WorldServer)
+        if (!getWorld().isClientside())
             ServerConnection.connection.sendToAllUDP(new EntitySync().entity(this));
     }
 }

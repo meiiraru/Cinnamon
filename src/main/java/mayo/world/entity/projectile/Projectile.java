@@ -5,7 +5,6 @@ import mayo.utils.Colors;
 import mayo.utils.Maths;
 import mayo.world.DamageType;
 import mayo.world.World;
-import mayo.world.WorldServer;
 import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
 import mayo.world.entity.PhysEntity;
@@ -75,7 +74,7 @@ public abstract class Projectile extends PhysEntity {
         super.onAdded(world);
 
         //calculate damage - only on server
-        if (world instanceof WorldServer) {
+        if (!world.isClientside()) {
             Entity owner = world.getEntityByUUID(this.owner);
             this.damage = calculateDamage(owner, damage);
             this.crit = checkCrit(owner, critChance);

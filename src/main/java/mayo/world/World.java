@@ -242,4 +242,8 @@ public abstract class World {
     public int getTime() {
         return timeOfTheDay;
     }
+
+    public boolean isClientside() {
+        return false;
+    }
 }

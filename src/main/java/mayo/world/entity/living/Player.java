@@ -4,7 +4,6 @@ import mayo.registry.EntityRegistry;
 import mayo.registry.LivingModelRegistry;
 import mayo.utils.Maths;
 import mayo.world.DamageType;
-import mayo.world.WorldClient;
 import mayo.world.entity.Entity;
 import org.joml.Vector3f;
 
@@ -32,9 +31,6 @@ public class Player extends LivingEntity {
 
     @Override
     public void tick() {
-        if (getWorld() instanceof WorldClient wc && wc.player == this && super.isRemoved())
-            return;
-
         super.tick();
 
         if (invulnerability > 0)
@@ -84,18 +80,6 @@ public class Player extends LivingEntity {
         }
 
         return result;
-    }
-
-    @Override
-    protected void spawnDeathParticles() {
-        if (!(getWorld() instanceof WorldClient wc) || wc.player != this || wc.isThirdPerson())
-            super.spawnDeathParticles();
-    }
-
-    @Override
-    protected void spawnHealthChangeParticle(int amount, boolean crit) {
-        if (!(getWorld() instanceof WorldClient wc) || wc.player != this || wc.isThirdPerson())
-            super.spawnHealthChangeParticle(amount, crit);
     }
 
     public Float getDamageAngle() {
@@ -159,10 +143,5 @@ public class Player extends LivingEntity {
     @Override
     public EntityRegistry getType() {
         return EntityRegistry.PLAYER;
-    }
-
-    @Override
-    public boolean isRemoved() {
-        return super.isRemoved() && !(getWorld() instanceof WorldClient wc && wc.player == this);
     }
 }

@@ -13,7 +13,6 @@ import mayo.utils.Colors;
 import mayo.utils.Rotation;
 import mayo.utils.TextUtils;
 import mayo.world.DamageType;
-import mayo.world.WorldServer;
 import mayo.world.collisions.Hit;
 import mayo.world.effects.Effect;
 import mayo.world.entity.Entity;
@@ -246,7 +245,7 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     private void syncHealth() {
-        if (getWorld() instanceof WorldServer)
+        if (!getWorld().isClientside())
             ServerConnection.connection.sendToAllUDP(new SyncHealth().entity(getUUID()).health(health));
     }
 
