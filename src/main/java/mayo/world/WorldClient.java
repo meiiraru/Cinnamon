@@ -22,8 +22,10 @@ import mayo.utils.Maths;
 import mayo.world.chunk.Chunk;
 import mayo.world.collisions.Hit;
 import mayo.world.entity.Entity;
+import mayo.world.entity.living.LivingEntity;
 import mayo.world.entity.living.LocalPlayer;
 import mayo.world.entity.living.Player;
+import mayo.world.items.CurveMaker;
 import mayo.world.items.Item;
 import mayo.world.items.ItemRenderContext;
 import mayo.world.items.MagicWand;
@@ -162,8 +164,13 @@ public class WorldClient extends World {
         applyWorldUniforms(s);
         applyShadowUniforms(s);
 
+        Entity cameraEntity = client.camera.getEntity();
+
         //render world
-        renderWorld(client.camera.getEntity(), matrices, delta);
+        renderWorld(cameraEntity, matrices, delta);
+
+        //render local player item effects
+        renderItemExtra(cameraEntity, matrices, delta);
 
         //render debug
         if (debugRendering && !hideHUD) {
@@ -236,6 +243,17 @@ public class WorldClient extends World {
         //render particles
         for (Particle particle : particles)
             particle.render(matrices, delta);
+    }
+
+    private void renderItemExtra(Entity entity, MatrixStack matrices, float delta) {
+        if (!(entity instanceof LivingEntity le))
+            return;
+
+        Item item = le.getHoldingItem();
+        if (item == null)
+            return;
+
+        item.worldRender(matrices, delta);
     }
 
     public void renderHand(Camera camera, MatrixStack matrices, float delta) {
@@ -485,6 +503,7 @@ public class WorldClient extends World {
         player.giveItem(new CoilGun(1, 5, 0));
         player.giveItem(new PotatoCannon(3, 40, 30));
         player.giveItem(new RiceGun(8, 80, 60));
+        player.getInventory().setItem(player.getInventory().getFreeIndex() + 1, new CurveMaker(1));
         player.getInventory().setItem(player.getInventory().getSize() - 1, new MagicWand(1));
     }
 

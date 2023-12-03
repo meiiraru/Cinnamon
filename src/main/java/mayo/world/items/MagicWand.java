@@ -69,7 +69,7 @@ public class MagicWand extends Item {
         super.stopAttacking(source);
 
         //draw a point if it was not drawing
-        if (!drawing)
+        if (!drawing && lastPos != null)
             drawParticle(lastPos, getColor(source.getWorld().getTime()), source.getWorld());
 
         //reset

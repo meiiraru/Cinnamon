@@ -99,5 +99,6 @@ public abstract class Terrain extends WorldObject {
         return 90f * rotation;
     }
 
+    @Override
     public abstract TerrainRegistry getType();
 }

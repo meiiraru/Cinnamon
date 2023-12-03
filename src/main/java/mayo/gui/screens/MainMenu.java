@@ -22,7 +22,7 @@ public class MainMenu extends Screen {
         super.init();
 
         //may~o
-        Text may = Text.of("May~o Renderer v%s \u25E0\u25DE\u25DF\u25E0".formatted(Client.VERSION)).withStyle(Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK).shadow(true));
+        Text may = Text.of("May~o v%s \u25E0\u25DE\u25DF\u25E0".formatted(Client.VERSION)).withStyle(Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK).shadow(true));
         this.addWidget(new Label(may, font, 4, height - TextUtils.getHeight(may, font) - 4));
 
         //buttons

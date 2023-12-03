@@ -7,7 +7,6 @@ import mayo.model.GeometryHelper;
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
 import mayo.utils.AABB;
-import mayo.utils.UIHelper;
 import mayo.world.collisions.CollisionDetector;
 import mayo.world.collisions.CollisionResolver;
 import mayo.world.collisions.CollisionResult;
@@ -80,11 +79,11 @@ public class CollisionScreen extends ParentedScreen {
             GeometryHelper.rectangle(VertexConsumer.GUI, matrices, far.x - 3, far.y - 3, far.x + 3, far.y + 3, 0xFFFFAD72);
 
             Vector3f normal = collision.normal();
-            UIHelper.drawLine(VertexConsumer.GUI, matrices, near.x, near.y, near.x + normal.x * 10, near.y + normal.y * 10, 1, 0xFF72FF72);
+            GeometryHelper.drawLine(VertexConsumer.GUI, matrices, near.x, near.y, near.x + normal.x * 10, near.y + normal.y * 10, 1, 0xFF72FF72);
         }
 
         //draw line
-        UIHelper.drawLine(VertexConsumer.GUI, matrices, pos.x, pos.y, mouseX, mouseY, 1, collided ? 0xFFFFFF00 : -1);
+        GeometryHelper.drawLine(VertexConsumer.GUI, matrices, pos.x, pos.y, mouseX, mouseY, 1, collided ? 0xFFFFFF00 : -1);
     }
 
     private void aabbVsAABB(MatrixStack matrices) {

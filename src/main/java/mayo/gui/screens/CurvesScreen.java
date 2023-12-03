@@ -12,7 +12,10 @@ import mayo.render.MatrixStack;
 import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
-import mayo.utils.*;
+import mayo.utils.ColorUtils;
+import mayo.utils.Curve;
+import mayo.utils.Maths;
+import mayo.utils.TextUtils;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
@@ -139,7 +142,7 @@ public class CurvesScreen extends ParentedScreen {
                 Point a = points.get(i);
                 Point b = points.get((i + 1) % size);
 
-                UIHelper.drawLine(VertexConsumer.GUI, matrices, a.getX() + R, a.getY() + R, b.getX() + R, b.getY() + R, 2, 0x88FF72AD);
+                GeometryHelper.drawLine(VertexConsumer.GUI, matrices, a.getX() + R, a.getY() + R, b.getX() + R, b.getY() + R, 2, 0x88FF72AD);
             }
         }
 
@@ -171,7 +174,7 @@ public class CurvesScreen extends ParentedScreen {
 
             Vector3f a = curve.get(i);
             Vector3f b = curve.get(i + 1);
-            UIHelper.drawLine(VertexConsumer.GUI, matrices, a.x, a.z, b.x, b.z, 1, color + (0xFF << 24));
+            GeometryHelper.drawLine(VertexConsumer.GUI, matrices, a.x, a.z, b.x, b.z, 1, color + (0xFF << 24));
         }
     }
 

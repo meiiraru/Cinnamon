@@ -53,6 +53,12 @@ public abstract class Curve {
         return this;
     }
 
+    public Curve clear() {
+        controlPoints.clear();
+        dirty = true;
+        return this;
+    }
+
     protected abstract List<Vector3f> calculateCurve(List<Vector3f> controlPoints);
 
     private static Vector3f rotatePoint(Vector3f a, Vector3f b, float len, float angle) {
@@ -100,7 +106,7 @@ public abstract class Curve {
         }
 
         //calculate last instance
-        Vector3f l1 = curve.get(0);
+        Vector3f l1 = curve.get(size - 1);
         Vector3f l2 = curve.get(size - 2);
         if (loop) {
             Vector3f l0 = curve.get(1); //index 0 should be the same as l1

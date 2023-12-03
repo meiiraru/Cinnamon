@@ -449,11 +449,13 @@ public class Hud {
                 hit pos %.3f %.3f %.3f
                 hit normal %.3f %.3f %.3f
                 hit distance %.3fm
+                type %s
                 """,
                 pos.x, pos.y, pos.z,
                 hPos.x, hPos.y, hPos.z,
                 normal.x, normal.y, normal.z,
-                distance
+                distance,
+                hit.obj().getType().name()
         );
     }
 }

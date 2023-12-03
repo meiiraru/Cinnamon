@@ -28,6 +28,8 @@ public abstract class Item {
         model.render();
     }
 
+    public void worldRender(MatrixStack matrices, float delta) {}
+
     public void attack(Entity source) {
         this.isAttacking = true;
     }
@@ -42,6 +44,11 @@ public abstract class Item {
 
     public void stopUsing(Entity source) {
         this.isUsing = false;
+    }
+
+    public void unselect(Entity source) {
+        stopAttacking(source);
+        stopUsing(source);
     }
 
     public String getId() {

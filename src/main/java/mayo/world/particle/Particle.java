@@ -112,5 +112,6 @@ public abstract class Particle extends WorldObject {
         return emissive;
     }
 
+    @Override
     public abstract ParticlesRegistry getType();
 }

@@ -360,6 +360,7 @@ public abstract class Entity extends WorldObject {
 
     public void onAttacked(LivingEntity source) {}
 
+    @Override
     public abstract EntityRegistry getType();
 
     public void sendServerUpdate() {

@@ -4,7 +4,6 @@ import mayo.Client;
 import mayo.gui.Screen;
 import mayo.gui.widgets.Widget;
 import mayo.gui.widgets.types.ContextMenu;
-import mayo.model.GeometryHelper;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
@@ -90,24 +89,6 @@ public class UIHelper {
         consumer.consume(quad(matrices, x + rWidthThird, y + height - rHeightThird, width - rWidthThird * 2, rHeightThird, u + rWidthThird, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
         //bottom right
         consumer.consume(quad(matrices, x + width - rWidthThird, y + height - rHeightThird, rWidthThird, rHeightThird, u + rWidthThird * 2, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight), textureID);
-    }
-
-    public static void drawLine(VertexConsumer consumer, MatrixStack matrices, float x0, float y0, float x1, float y1, float size, int color) {
-        matrices.push();
-
-        matrices.translate(x0, y0, 0);
-
-        float rot = Maths.dirToRot(x1 - x0, y1 - y0);
-        matrices.rotate(Rotation.Z.rotationDeg(rot));
-
-        float w = x1 - x0;
-        float h = y1 - y0;
-        float len = (float) Math.sqrt(w * w + h * h);
-
-        size *= 0.5f;
-        GeometryHelper.rectangle(consumer, matrices, 0, -size, len, size, color);
-
-        matrices.pop();
     }
 
     public static void renderTooltip(MatrixStack matrices, Text tooltip, Font f, int mouseX, int mouseY) {

@@ -22,4 +22,6 @@ public abstract class WorldObject {
     public Vector3f getPos() {
         return pos;
     }
+
+    public abstract Enum<?> getType();
 }

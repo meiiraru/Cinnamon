@@ -308,8 +308,8 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     public void setSelectedItem(int index) {
-        stopAttacking();
-        stopUsing();
+        if (index != inventory.getSelectedIndex() && getHoldingItem() != null)
+            getHoldingItem().unselect(this);
         inventory.setSelectedIndex(index);
     }
 
