@@ -5,6 +5,7 @@ import mayo.model.Vertex;
 import mayo.render.shader.Attributes;
 import mayo.render.shader.Shader;
 import mayo.utils.Pair;
+import mayo.world.WorldClient;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -153,7 +154,9 @@ public abstract class Batch { //vertex consumer
         @Override
         protected void preRender(Shader shader) {
             super.preRender(shader);
-            Client.getInstance().world.applyWorldUniforms(shader);
+            WorldClient wc = Client.getInstance().world;
+            if (wc != null)
+                wc.applyWorldUniforms(shader);
         }
     }
 
@@ -177,7 +180,9 @@ public abstract class Batch { //vertex consumer
         @Override
         protected void preRender(Shader shader) {
             super.preRender(shader);
-            Client.getInstance().world.applyWorldUniforms(shader);
+            WorldClient wc = Client.getInstance().world;
+            if (wc != null)
+                wc.applyWorldUniforms(shader);
         }
     }
 

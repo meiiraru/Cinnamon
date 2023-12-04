@@ -24,7 +24,7 @@ public enum EntityRegistry implements Registry {
     //living
     ENEMY(Enemy.class, Enemy::new),
     PLAYER(Player.class, uuid -> {
-        Player p = new Player(uuid);
+        Player p = new Player("", uuid);
         WorldClient.givePlayerItems(p); //TODO
         return p;
     }),

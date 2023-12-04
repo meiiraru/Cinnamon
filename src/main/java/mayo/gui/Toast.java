@@ -58,7 +58,7 @@ public class Toast {
         }
 
         //otherwise queue a new toast
-        TOASTS.add(new Toast(text, font, length));
+        TOASTS.add(new Toast(text, font, length, ToastType.DEFAULT));
 
         System.out.println("[Toast] " + str);
     }
@@ -67,17 +67,25 @@ public class Toast {
         TOASTS.clear();
     }
 
+    public enum ToastType {
+        DEFAULT,
+        WARN,
+        ERROR;
+    }
+
 
     // -- the toast -- //
 
 
     private final int length;
+    private final ToastType type;
     private Text text;
     private Font font;
     private int addedTime = -1;
 
-    protected Toast(Text text, Font font, int length) {
+    protected Toast(Text text, Font font, int length, ToastType type) {
         this.length = length;
+        this.type = type;
         this.text = text;
         this.font = font;
     }
@@ -106,7 +114,14 @@ public class Toast {
         matrices.translate((width - tWidth - PADDING) / 2f, y, 999f);
 
         //render background
-        UIHelper.nineQuad(VertexConsumer.GUI, matrices, TEXTURE.getID(), 0f, 0f, tWidth + PADDING, tHeight + PADDING);
+        UIHelper.nineQuad(
+                VertexConsumer.GUI, matrices, TEXTURE.getID(),
+                0f, 0f,
+                tWidth + PADDING, tHeight + PADDING,
+                type.ordinal() * 16f, 0f,
+                16, 16,
+                48, 16
+        );
 
         //render text
         font.render(VertexConsumer.FONT, matrices, (tWidth + PADDING) / 2f, PADDING / 2f, text, TextUtils.Alignment.CENTER);

@@ -102,7 +102,7 @@ public abstract class LivingEntity extends PhysEntity {
         matrices.push();
         float s = 1 / 48f;
 
-        Text text = Text.of(getHealth() + " ").withStyle(Style.EMPTY.outlined(true)).append(Text.of("\u2795").withStyle(Style.EMPTY.color(Colors.RED)));
+        Text text = getHeadText();
 
         matrices.translate(0f, aabb.getHeight() + 0.15f, 0f);
         c.camera.billboard(matrices);
@@ -112,6 +112,10 @@ public abstract class LivingEntity extends PhysEntity {
         c.font.render(VertexConsumer.WORLD_FONT, matrices, 0, 0, text, TextUtils.Alignment.CENTER, 50);
 
         matrices.pop();
+    }
+
+    protected Text getHeadText() {
+        return Text.of(getHealth() + " ").withStyle(Style.EMPTY.outlined(true)).append(Text.of("\u2795").withStyle(Style.EMPTY.color(Colors.RED)));
     }
 
     @Override

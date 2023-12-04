@@ -15,7 +15,7 @@ public class Respawn extends PacketWithOwner {
         int id = connection.getID();
 
         //add player
-        Entity e = ServerConnection.world.addPlayer(id, uuid);
+        Entity e = ServerConnection.world.addPlayer(id, name, uuid);
         server.sendToAllExceptTCP(id, new AddEntity().entity(e));
     }
 }

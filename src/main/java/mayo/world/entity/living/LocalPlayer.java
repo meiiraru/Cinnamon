@@ -11,7 +11,7 @@ public class LocalPlayer extends Player {
     }
 
     public LocalPlayer(LivingModelRegistry model) {
-        super(Client.PLAYER_UUID, model);
+        super(Client.getInstance().name, Client.getInstance().playerUUID, model);
     }
 
     @Override

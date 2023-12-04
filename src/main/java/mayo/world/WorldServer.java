@@ -53,8 +53,8 @@ public class WorldServer extends World {
         return this.entities;
     }
 
-    public Player addPlayer(int internalID, UUID uuid) {
-        Player player = new Player(uuid, LivingModelRegistry.STRAWBERRY);
+    public Player addPlayer(int internalID, String name, UUID uuid) {
+        Player player = new Player(name, uuid, LivingModelRegistry.STRAWBERRY);
 
         this.addEntity(player);
         players.put(internalID, player);

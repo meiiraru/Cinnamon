@@ -6,8 +6,6 @@ import com.esotericsoftware.kryonet.Server;
 import mayo.networking.ServerConnection;
 import mayo.world.entity.Entity;
 
-import java.util.UUID;
-
 public class Login extends PacketWithOwner {
     @Override
     public void clientReceived(Client client, Connection connection) {}
@@ -27,7 +25,7 @@ public class Login extends PacketWithOwner {
         server.sendToTCP(id, new SendEntities().entity(ServerConnection.world.getEntities().values()));
 
         //add player
-        Entity e = ServerConnection.world.addPlayer(id, uuid);
+        Entity e = ServerConnection.world.addPlayer(id, name, uuid);
         server.sendToAllExceptTCP(id, new AddEntity().entity(e));
     }
 }

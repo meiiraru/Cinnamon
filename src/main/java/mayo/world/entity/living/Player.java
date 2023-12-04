@@ -2,6 +2,7 @@ package mayo.world.entity.living;
 
 import mayo.registry.EntityRegistry;
 import mayo.registry.LivingModelRegistry;
+import mayo.text.Text;
 import mayo.utils.Maths;
 import mayo.world.DamageType;
 import mayo.world.entity.Entity;
@@ -15,18 +16,21 @@ public class Player extends LivingEntity {
     private static final int INVULNERABILITY_TIME = 10;
     private static final int INVENTORY_SIZE = 9;
 
+    private String name;
+
     private int invulnerability = 0;
     private Entity damageSource;
     private int damageSourceTicks = 0;
 
     private boolean sprinting, sneaking, flying;
 
-    public Player(UUID uuid) {
-        this(uuid, LivingModelRegistry.STRAWBERRY);
+    public Player(String name, UUID uuid) {
+        this(name, uuid, LivingModelRegistry.STRAWBERRY);
     }
 
-    public Player(UUID uuid, LivingModelRegistry model) {
+    public Player(String name, UUID uuid, LivingModelRegistry model) {
         super(uuid, model == null ? LivingModelRegistry.random() : model, MAX_HEALTH, INVENTORY_SIZE);
+        this.name = name;
     }
 
     @Override
@@ -143,5 +147,19 @@ public class Player extends LivingEntity {
     @Override
     public EntityRegistry getType() {
         return EntityRegistry.PLAYER;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    protected Text getHeadText() {
+        Text supr = super.getHeadText();
+        return Text.of(getName()).withStyle(supr.getStyle()).append("\n").append(supr);
     }
 }

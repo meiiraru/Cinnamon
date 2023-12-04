@@ -32,14 +32,15 @@ public class Client {
 
     private static final Client INSTANCE = new Client();
     public static final String VERSION = "0.1";
-    public static final String PLAYERNAME = String.valueOf(System.currentTimeMillis());
-    public static final UUID PLAYER_UUID = UUID.nameUUIDFromBytes(PLAYERNAME.getBytes());
 
     private final Queue<Runnable> scheduledTicks = new LinkedList<>();
 
     private final Timer timer = new Timer(20);
     public int ticks;
     public int fps;
+
+    public String name = "May";
+    public UUID playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
 
     //objects
     public SoundManager soundManager;
@@ -186,6 +187,11 @@ public class Client {
         //ResourceManager.free();
         //ResourceManager.init();
         //Toast.addToast(Text.of("Reloaded assets"), font);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        this.playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
     }
 
     // -- glfw events -- //

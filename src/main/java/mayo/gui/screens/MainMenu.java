@@ -6,8 +6,6 @@ import mayo.gui.Toast;
 import mayo.gui.widgets.types.Button;
 import mayo.gui.widgets.types.Label;
 import mayo.gui.widgets.types.WidgetList;
-import mayo.networking.NetworkConstants;
-import mayo.networking.ClientConnection;
 import mayo.networking.ServerConnection;
 import mayo.text.Style;
 import mayo.text.Text;
@@ -41,14 +39,7 @@ public class MainMenu extends Screen {
         list.addWidget(worldButton);
 
         //join world
-        Button joinWorld = new Button(0, 0, 180, 20, Text.of("Join world (mp)").withStyle(Style.EMPTY.color(Colors.BLUE)), button -> {
-            if (ClientConnection.connectToServer(NetworkConstants.LOCAL_IP, NetworkConstants.TCP_PORT, NetworkConstants.UDP_PORT, 10_000)) {
-                WorldClient world = new WorldClient();
-                world.init();
-            } else {
-                Toast.addToast(Text.of("Unable to connect to server"), client.font);
-            }
-        });
+        Button joinWorld = new Button(0, 0, 180, 20, Text.of("Join world (mp)").withStyle(Style.EMPTY.color(Colors.BLUE)), button -> client.setScreen(new MultiplayerJoinScreen(this)));
         list.addWidget(joinWorld);
 
         //dvd screen
