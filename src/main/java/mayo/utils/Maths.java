@@ -51,6 +51,32 @@ public class Maths {
         return f;
     }
 
+    public static float lerpArray(float[] array, float t) {
+        int len = array.length;
+        if (len == 0)
+            return 0;
+
+        float index = t * (len - 1);
+        int prev = (int) modulo((float) Math.floor(index), len);
+        int next = (int) modulo((float) Math.ceil(index), len);
+
+        float indexDelta = index - prev;
+        return lerp(array[prev], array[next], indexDelta);
+    }
+
+    public static Vector3f lerpArray(Vector3f[] array, float t) {
+        int len = array.length;
+        if (len == 0)
+            return new Vector3f();
+
+        float index = t * (len - 1);
+        int prev = (int) modulo((float) Math.floor(index), len);
+        int next = (int) modulo((float) Math.ceil(index), len);
+
+        float indexDelta = index - prev;
+        return lerp(array[prev], array[next], indexDelta);
+    }
+
     public static Vector3f parseVec3(String x, String y, String z) {
         return new Vector3f(Float.parseFloat(x), Float.parseFloat(y), Float.parseFloat(z));
     }

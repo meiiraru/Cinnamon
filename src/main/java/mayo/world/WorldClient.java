@@ -25,7 +25,6 @@ import mayo.world.entity.Entity;
 import mayo.world.entity.living.LivingEntity;
 import mayo.world.entity.living.LocalPlayer;
 import mayo.world.entity.living.Player;
-import mayo.world.items.CurveMaker;
 import mayo.world.items.Item;
 import mayo.world.items.ItemRenderContext;
 import mayo.world.items.MagicWand;
@@ -392,12 +391,14 @@ public class WorldClient extends World {
         switch (button) {
             case GLFW_MOUSE_BUTTON_1 -> {
                 if (!press) {
+                    //player.stopAttacking();
                     mouseAction.attack(false);
                     used = true;
                 }
             }
             case GLFW_MOUSE_BUTTON_2 -> {
                 if (!press) {
+                    //player.stopUsing();
                     mouseAction.use(false);
                     used = true;
                 }
@@ -418,10 +419,12 @@ public class WorldClient extends World {
         boolean used = false;
 
         if (w.mouse1Press) {
+            //player.attackAction();
             action.attack(true);
             used = true;
         }
         if (w.mouse2Press) {
+            //player.useAction();
             action.use(true);
             used = true;
         }
@@ -503,7 +506,7 @@ public class WorldClient extends World {
         player.giveItem(new CoilGun(1, 5, 0));
         player.giveItem(new PotatoCannon(3, 40, 30));
         player.giveItem(new RiceGun(8, 80, 60));
-        player.getInventory().setItem(player.getInventory().getFreeIndex() + 1, new CurveMaker(1));
+        //player.getInventory().setItem(player.getInventory().getFreeIndex() + 1, new CurveMaker(1, 0, 5));
         player.getInventory().setItem(player.getInventory().getSize() - 1, new MagicWand(1));
     }
 

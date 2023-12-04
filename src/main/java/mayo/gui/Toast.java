@@ -42,6 +42,10 @@ public class Toast {
     }
 
     public static void addToast(Text text, Font font) {
+        addToast(text, font, LENGTH);
+    }
+
+    public static void addToast(Text text, Font font, int length) {
         String str = text.asString();
         for (Toast toast : TOASTS) {
             //update toast if it already exists
@@ -54,7 +58,7 @@ public class Toast {
         }
 
         //otherwise queue a new toast
-        TOASTS.add(new Toast(text, font));
+        TOASTS.add(new Toast(text, font, length));
 
         System.out.println("[Toast] " + str);
     }
@@ -67,11 +71,13 @@ public class Toast {
     // -- the toast -- //
 
 
+    private final int length;
     private Text text;
     private Font font;
     private int addedTime = -1;
 
-    protected Toast(Text text, Font font) {
+    protected Toast(Text text, Font font, int length) {
+        this.length = length;
         this.text = text;
         this.font = font;
     }
@@ -79,7 +85,7 @@ public class Toast {
     protected boolean render(MatrixStack matrices, int width, int height, float delta) {
         //calculate life
         float life = Client.getInstance().ticks - addedTime + delta;
-        if (life > LENGTH)
+        if (life > length)
             return true;
 
         //grab text dimensions
@@ -90,8 +96,8 @@ public class Toast {
         float y;
         if (life <= ANIM) {
             y = Maths.lerp(-tHeight - PADDING, 4f, life / ANIM);
-        } else if (life >= LENGTH - ANIM) {
-            y = Maths.lerp(4f, -tHeight - PADDING, (life - (LENGTH - ANIM)) / ANIM);
+        } else if (life >= length - ANIM) {
+            y = Maths.lerp(4f, -tHeight - PADDING, (life - (length - ANIM)) / ANIM);
         } else {
             y = 4f;
         }

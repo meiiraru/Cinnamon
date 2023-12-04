@@ -210,7 +210,7 @@ public abstract class Entity extends WorldObject {
         v.normalize();
 
         //set rot
-        this.setRot(Maths.dirToRot(v));
+        this.rotateTo(Maths.dirToRot(v));
     }
 
     protected void updateAABB() {

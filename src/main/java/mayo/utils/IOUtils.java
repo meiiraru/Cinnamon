@@ -41,6 +41,10 @@ public class IOUtils {
         }
     }
 
+    public static boolean hasResource(Resource res) {
+        return getResource(res) != null;
+    }
+
     public static String readString(Resource res) {
         try {
             InputStream stream = IOUtils.getResource(res);

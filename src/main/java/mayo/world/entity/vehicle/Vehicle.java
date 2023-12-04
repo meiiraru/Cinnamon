@@ -37,11 +37,6 @@ public abstract class Vehicle extends PhysEntity {
     }
 
     @Override
-    public void rotateTo(float pitch, float yaw) {
-        super.rotateTo(0, yaw);
-    }
-
-    @Override
     public void onUse(LivingEntity source) {
         this.addRider(source);
         super.onUse(source);

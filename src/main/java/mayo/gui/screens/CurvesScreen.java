@@ -6,7 +6,8 @@ import mayo.gui.Toast;
 import mayo.gui.widgets.SelectableWidget;
 import mayo.gui.widgets.types.*;
 import mayo.model.GeometryHelper;
-import mayo.parsers.CurveExporter;
+import mayo.parsers.CurveToMesh;
+import mayo.parsers.ObjExporter;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Window;
@@ -109,7 +110,7 @@ public class CurvesScreen extends ParentedScreen {
         //export button
         Button exportCurve = new Button(0, 0, 60, 12, Text.of("Export"), button -> {
             try {
-                CurveExporter.exportCurve(curve);
+                ObjExporter.export("curve", CurveToMesh.generateMesh(curve, true));
                 Toast.addToast(Text.of("Curve exported!"), client.font);
             } catch (Exception e) {
                 e.printStackTrace();

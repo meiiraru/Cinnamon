@@ -204,6 +204,10 @@ public abstract class Curve {
         return externalCurve;
     }
 
+    public List<Vector3f> getControlPoints() {
+        return controlPoints;
+    }
+
 
     // -- types -- //
 

@@ -269,7 +269,7 @@ public abstract class LivingEntity extends PhysEntity {
     public void useAction() {
         //use holding item
         Item i = getHoldingItem();
-        if (i != null && i.hasUse()) {
+        if (i != null) {
             i.use(this);
             return;
         }
@@ -282,7 +282,7 @@ public abstract class LivingEntity extends PhysEntity {
 
     public void stopUsing() {
         Item i = getHoldingItem();
-        if (i != null && i.hasUse() && i.isUsing())
+        if (i != null && i.isUsing())
             i.stopUsing(this);
     }
 

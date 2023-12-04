@@ -4,7 +4,6 @@ import mayo.Client;
 import mayo.gui.Toast;
 import mayo.model.GeometryHelper;
 import mayo.model.ModelManager;
-import mayo.parsers.CurveExporter;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;
@@ -19,15 +18,15 @@ import org.joml.Vector3f;
 
 import java.util.List;
 
-public class CurveMaker extends Item {
+public class CurveMaker extends CooldownItem {
 
     private static final String ID = "Curve Maker";
     private static final Model MODEL = ModelManager.load(new Resource("models/items/curve_maker/curve_maker.obj"));
 
     private final Curve curve = new Curve.BSpline().loop(true).steps(10);
 
-    public CurveMaker(int stackCount) {
-        super(ID, stackCount, MODEL);
+    public CurveMaker(int stackCount, int depleatCooldown, int useCooldown) {
+        super(ID, stackCount, MODEL, depleatCooldown, useCooldown);
     }
 
     @Override
@@ -50,6 +49,12 @@ public class CurveMaker extends Item {
     public void worldRender(MatrixStack matrices, float delta) {
         super.worldRender(matrices, delta);
 
+        //control points
+        float s = 0.25f;
+        for (Vector3f vec : curve.getControlPoints())
+            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, vec.x - s, vec.y - s, vec.z - s, vec.x + s, vec.y + s, vec.z + s, -1);
+
+        //curves
         renderCurve(matrices, curve.getInternalCurve(), 0x8888FF);
         renderCurve(matrices, curve.getExternalCurve(), 0x8888FF);
         renderCurve(matrices, curve.getCurve(), 0xFFFFFF);
@@ -76,22 +81,36 @@ public class CurveMaker extends Item {
     public void attack(Entity source) {
         super.attack(source);
 
+        if (!canUse())
+            return;
+
         Vector3f pos = getPos(source);
         curve.addPoint(pos.x, pos.y, pos.z);
+        setUseCooldown();
     }
 
     @Override
     public void use(Entity source) {
         super.use(source);
 
-        if (!source.getWorld().isClientside())
+        if (!canUse() || !source.getWorld().isClientside())
             return;
 
         try {
-            CurveExporter.exportCurve(curve);
+            //WorldClient world = ((WorldClient) source.getWorld());
+            //world.curve = new OpenGLModel(CurveToMesh.generateMesh(this.curve, false));
+            //world.curvePath = this.curve.getCurve().toArray(new Vector3f[0]);
+            //world.cart = new Cart(UUID.randomUUID());
+            //world.cart.setRailed(true);
+            //world.addEntity(world.cart);
+
+            curve.clear();
         } catch (Exception e) {
             Toast.addToast(Text.of(e.getMessage()), Client.getInstance().font);
+            e.printStackTrace();
         }
+
+        setUseCooldown();
     }
 
     @Override

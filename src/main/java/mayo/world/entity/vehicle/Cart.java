@@ -29,6 +29,11 @@ public class Cart extends Vehicle {
     }
 
     @Override
+    public void rotateTo(float pitch, float yaw) {
+        super.rotateTo(0, yaw);
+    }
+
+    @Override
     public EntityRegistry getType() {
         return EntityRegistry.CART;
     }
