@@ -8,14 +8,22 @@ import mayo.model.GeometryHelper;
 import mayo.model.Vertex;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
+import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
+import mayo.utils.Resource;
 import mayo.utils.UIHelper;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public abstract class Screen {
+
+    protected static final Texture[] BACKGROUND = new Texture[]{
+            Texture.of(new Resource("textures/gui/background/background_0.png")),
+            Texture.of(new Resource("textures/gui/background/background_1.png")),
+            Texture.of(new Resource("textures/gui/background/background_2.png"))
+    };
 
     //main container
     protected final Container mainContainer = new Container(0, 0);
@@ -107,7 +115,7 @@ public abstract class Screen {
     }
 
     protected void renderBackground(MatrixStack matrices, float delta) {
-        UIHelper.renderBackground(matrices, width, height, delta);
+        UIHelper.renderBackground(matrices, width, height, delta, BACKGROUND);
     }
 
     protected void renderTranslucentBackground(MatrixStack matrices, float delta) {

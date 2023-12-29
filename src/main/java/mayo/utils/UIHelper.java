@@ -16,22 +16,17 @@ import static mayo.model.GeometryHelper.quad;
 
 public class UIHelper {
 
-    private static final Texture[] BACKGROUND = new Texture[]{
-            Texture.of(new Resource("textures/gui/background/background_0.png")),
-            Texture.of(new Resource("textures/gui/background/background_1.png")),
-            Texture.of(new Resource("textures/gui/background/background_2.png"))
-    };
     private static final Texture TOOLTIP = Texture.of(new Resource("textures/gui/widgets/tooltip.png"));
     public static final Colors ACCENT = Colors.PURPLE;
 
-    public static void renderBackground(MatrixStack matrices, int width, int height, float delta) {
+    public static void renderBackground(MatrixStack matrices, int width, int height, float delta, Texture... background) {
         Client c = Client.getInstance();
         float speed = 0.125f;
         int textureSize = 64;
         width += textureSize;
         height += textureSize;
 
-        for (Texture texture : BACKGROUND) {
+        for (Texture texture : background) {
             float x = 0, y = 0;
             float d = (c.ticks + delta) * speed;
 

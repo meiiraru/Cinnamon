@@ -102,12 +102,20 @@ public class GeometryHelper {
     }
 
     public static void rectangle(VertexConsumer consumer, MatrixStack matrices, float x0, float y0, float x1, float y1, int color) {
+        rectangle(consumer, matrices, x0, y0, x1, y1, 0, color);
+    }
+
+    public static void rectangle(VertexConsumer consumer, MatrixStack matrices, float x0, float y0, float x1, float y1, float z, int color) {
+        rectangle(consumer, matrices, x0, y0, x1, y1, z, color, color, color, color);
+    }
+
+    public static void rectangle(VertexConsumer consumer, MatrixStack matrices, float x0, float y0, float x1, float y1, float z, int topLeftColor, int topRightColor, int bottomLeftColor, int bottomRightColor) {
         consumer.consume(
                 new Vertex[]{
-                        Vertex.of(x0, y1, 0).color(color).mul(matrices),
-                        Vertex.of(x1, y1, 0).color(color).mul(matrices),
-                        Vertex.of(x1, y0, 0).color(color).mul(matrices),
-                        Vertex.of(x0, y0, 0).color(color).mul(matrices),
+                        Vertex.of(x0, y1, z).color(bottomLeftColor).mul(matrices),
+                        Vertex.of(x1, y1, z).color(bottomRightColor).mul(matrices),
+                        Vertex.of(x1, y0, z).color(topRightColor).mul(matrices),
+                        Vertex.of(x0, y0, z).color(topLeftColor).mul(matrices),
                 }, -1
         );
     }

@@ -6,12 +6,20 @@ import mayo.gui.Toast;
 import mayo.gui.widgets.types.Button;
 import mayo.gui.widgets.types.Label;
 import mayo.gui.widgets.types.WidgetList;
+import mayo.model.GeometryHelper;
 import mayo.networking.ServerConnection;
+import mayo.render.MatrixStack;
+import mayo.render.Texture;
+import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.Colors;
+import mayo.utils.Maths;
+import mayo.utils.Resource;
 import mayo.utils.TextUtils;
 import mayo.world.WorldClient;
+
+import java.util.function.Consumer;
 
 public class MainMenu extends Screen {
 
@@ -20,14 +28,14 @@ public class MainMenu extends Screen {
         super.init();
 
         //may~o
-        Text may = Text.of("May~o v%s \u25E0\u25DE\u25DF\u25E0".formatted(Client.VERSION)).withStyle(Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK).shadow(true));
-        this.addWidget(new Label(may, font, 4, height - TextUtils.getHeight(may, font) - 4));
+        Text may = Text.of("May~o v%s \u25E0\u25DE\u25DF\u25E0".formatted(Client.VERSION)).withStyle(Style.EMPTY.italic(true).color(0x66FFFFFF).shadow(true).shadowColor(0x66161616));
+        this.addWidget(new Label(may, font, width - TextUtils.getWidth(may, font) - 4, height - TextUtils.getHeight(may, font) - 4));
 
         //buttons
         WidgetList list = new WidgetList(0, 0, 4);
 
         //open world
-        Button worldButton = new Button(0, 0, 180, 20, Text.of("Open world").withStyle(Style.EMPTY.color(Colors.YELLOW)), button -> {
+        Button worldButton = new MainButton(Text.of("Singleplayer").withStyle(Style.EMPTY.color(Colors.YELLOW)), button -> {
             //init client
             if (ServerConnection.open()) {
                 WorldClient world = new WorldClient();
@@ -38,29 +46,64 @@ public class MainMenu extends Screen {
         });
         list.addWidget(worldButton);
 
-        //join world
-        Button joinWorld = new Button(0, 0, 180, 20, Text.of("Join world (mp)").withStyle(Style.EMPTY.color(Colors.BLUE)), button -> client.setScreen(new MultiplayerJoinScreen(this)));
+        //multiplayer
+        Button joinWorld = new MainButton(Text.of("Multiplayer").withStyle(Style.EMPTY.color(Colors.BLUE)), button -> client.setScreen(new MultiplayerJoinScreen(this)));
         list.addWidget(joinWorld);
 
-        //dvd screen
-        Button dvd = new Button(0, 0, 180, 20, Text.of("DVD screensaver"), button -> client.setScreen(new DVDScreen(this)));
-        list.addWidget(dvd);
+        //extra stuff
+        Button extras = new MainButton(Text.of("Extras"), button -> client.setScreen(new ExtrasScreen(this)));
+        list.addWidget(extras);
 
-        //collision screen
-        Button coll = new Button(0, 0, 180, 20, Text.of("Collision Test"), button -> client.setScreen(new CollisionScreen(this)));
-        list.addWidget(coll);
-
-        //curves screen
-        Button curve = new Button(0, 0, 180, 20, Text.of("Curves").withStyle(Style.EMPTY.color(Colors.YELLOW)), button -> client.setScreen(new CurvesScreen(this)));
-        list.addWidget(curve);
-
-        //close application
-        Button exitButton = new Button(0, 0, 180, 20, Text.of("Exit"), button -> client.window.exit());
+        //exit
+        Button exitButton = new MainButton(Text.of("Exit"), button -> client.window.exit());
         exitButton.setTooltip(Text.of("bye~"));
         list.addWidget(exitButton);
 
         //add list to screen
-        list.setPos((width - list.getWidth()) / 2, (height - list.getHeight()) / 2);
+        list.setPos(12, (height - list.getHeight()) / 2);
         this.addWidget(list);
+    }
+
+    @Override
+    protected void renderBackground(MatrixStack matrices, float delta) {
+        GeometryHelper.rectangle(VertexConsumer.GUI, matrices, 0, 0, width, height, -999, 0xFF29224B, 0xFF2E2557, 0xFF553C89, 0xFFDBA8DC);
+    }
+
+    private static class MainButton extends Button {
+
+        protected static final Texture
+                STAR = Texture.of(new Resource("textures/gui/widgets/main_menu/star.png")),
+                LINE = Texture.of(new Resource("textures/gui/widgets/main_menu/line.png"));
+
+        private float hoverX = 0f;
+
+        public MainButton(Text message, Consumer<Button> action) {
+            super(0, 0, 128, 20, message, action);
+            message.withStyle(Style.EMPTY.shadow(true));
+        }
+
+        @Override
+        public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+            matrices.push();
+
+            float d = Maths.magicDelta(0.99f, delta);
+            hoverX = Maths.lerp(hoverX, isHovered() ? 20 : 0, d);
+            matrices.translate(hoverX, 0, 0);
+
+            super.renderWidget(matrices, mouseX, mouseY, delta);
+
+            matrices.pop();
+        }
+
+        @Override
+        protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+            if (!this.isHovered())
+                return;
+
+            VertexConsumer.GUI.consume(GeometryHelper.quad(
+                    matrices, getCenterX() - 64, getY(),
+                    128, 32
+            ), LINE.getID());
+        }
     }
 }
