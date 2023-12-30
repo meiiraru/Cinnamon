@@ -13,10 +13,7 @@ import mayo.render.MatrixStack;
 import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
-import mayo.utils.ColorUtils;
-import mayo.utils.Curve;
-import mayo.utils.Maths;
-import mayo.utils.TextUtils;
+import mayo.utils.*;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
@@ -284,7 +281,7 @@ public class CurvesScreen extends ParentedScreen {
 
     private static class Point extends SelectableWidget {
 
-        private int alpha = 0x88;
+        private float alpha = 0.5f;
 
         public Point(int x, int y) {
             super(x, y, POINT_SIZE, POINT_SIZE);
@@ -292,9 +289,9 @@ public class CurvesScreen extends ParentedScreen {
 
         @Override
         public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            float d = Maths.magicDelta(0.6f, delta);
-            alpha = (int) Maths.lerp(alpha, this.isHovered() ? 0xFF : 0x88, d);
-            GeometryHelper.circle(VertexConsumer.GUI, matrices, getX() + R, getY() + R, R, 12, 0xAD72FF + (alpha << 24));
+            float d = UIHelper.tickDelta(0.6f);
+            alpha = Maths.lerp(alpha, this.isHovered() ? 1f : 0.5f, d);
+            GeometryHelper.circle(VertexConsumer.GUI, matrices, getX() + R, getY() + R, R, 12, 0xAD72FF + ((int) (alpha * 255) << 24));
         }
     }
 }

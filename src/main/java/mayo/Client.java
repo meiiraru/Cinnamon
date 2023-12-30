@@ -35,7 +35,8 @@ public class Client {
 
     private final Queue<Runnable> scheduledTicks = new LinkedList<>();
 
-    private final Timer timer = new Timer(20);
+    public static final int TPS = 20;
+    public final Timer timer = new Timer(TPS);
     public int ticks;
     public int fps;
 
@@ -82,10 +83,10 @@ public class Client {
     public void render(MatrixStack matrices) {
         //tick
         int ticksToUpdate = timer.update();
-        for (int j = 0; j < Math.min(10, ticksToUpdate); j++)
+        for (int j = 0; j < Math.min(20, ticksToUpdate); j++)
             tick();
 
-        float delta = timer.delta();
+        float delta = timer.partialTick;
 
         matrices.push();
 

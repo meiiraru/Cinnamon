@@ -152,7 +152,9 @@ public class UIHelper {
             return;
 
         context.setPos(x, y);
-        fitToScreen(context);
+
+        Window window = Client.getInstance().window;
+        fitInsideBoundaries(context, 0, 0, window.scaledWidth, window.scaledHeight);
 
         s.contextMenu = context;
         s.addWidgetOnTop(context);
@@ -163,15 +165,14 @@ public class UIHelper {
         return s != null && s.contextMenu != null && s.contextMenu.isOpen();
     }
 
-    public static void fitToScreen(Widget w) {
-        //screen size
-        Window window = Client.getInstance().window;
-        int screenW = window.scaledWidth;
-        int screenH = window.scaledHeight;
-
+    public static void fitInsideBoundaries(Widget w, int x0, int y0, int x1, int y1) {
         //fix widget pos
-        int x = (int) Maths.clamp(w.getX(), 0, screenW - w.getWidth());
-        int y = (int) Maths.clamp(w.getY(), 0, screenH - w.getHeight());
+        int x = (int) Maths.clamp(w.getX(), x0, x1 - w.getWidth());
+        int y = (int) Maths.clamp(w.getY(), y0, y1 - w.getHeight());
         w.setPos(x, y);
+    }
+
+    public static float tickDelta(float speed) {
+        return (float) (1f - Math.pow(speed, Client.getInstance().timer.tickDelta));
     }
 }

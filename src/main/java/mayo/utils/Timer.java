@@ -2,25 +2,31 @@ package mayo.utils;
 
 public class Timer {
 
-    private final int ups;
-    private long lastTime = System.nanoTime();
-    private float delta;
+    private final float tickMs;
+    private long lastMs;
+    public float tickDelta;
+    public float partialTick;
 
-    public Timer(int ups) {
-        this.ups = 1_000_000_000 / ups;
+    public Timer(int tps) {
+        this.tickMs = 1000.0f / tps;
+        this.lastMs = getTime();
     }
 
     public int update() {
-        long currTime = System.nanoTime();
-        long diff = currTime - lastTime;
-        lastTime = currTime;
-        this.delta += (float) diff / ups;
-        int i = (int) delta;
-        this.delta -= i;
+        long CurrMs = getTime();
+        float diffMs = (float) (CurrMs - lastMs);
+
+        tickDelta = diffMs / tickMs;
+        lastMs = CurrMs;
+
+        partialTick += tickDelta;
+        int i = (int) partialTick;
+        partialTick -= i;
+
         return i;
     }
 
-    public float delta() {
-        return delta;
+    private static long getTime() {
+        return System.nanoTime() / 1_000_000L;
     }
 }

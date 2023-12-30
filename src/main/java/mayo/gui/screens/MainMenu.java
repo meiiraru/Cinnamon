@@ -13,10 +13,7 @@ import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
-import mayo.utils.Colors;
-import mayo.utils.Maths;
-import mayo.utils.Resource;
-import mayo.utils.TextUtils;
+import mayo.utils.*;
 import mayo.world.WorldClient;
 
 import java.util.function.Consumer;
@@ -75,10 +72,10 @@ public class MainMenu extends Screen {
                 STAR = Texture.of(new Resource("textures/gui/widgets/main_menu/star.png")),
                 LINE = Texture.of(new Resource("textures/gui/widgets/main_menu/line.png"));
 
-        private float hoverX = 0f;
+        private float hoverX = -40f;
 
         public MainButton(Text message, Consumer<Button> action) {
-            super(0, 0, 128, 20, message, action);
+            super(0, 0, 148, 20, message, action);
             message.withStyle(Style.EMPTY.shadow(true));
         }
 
@@ -86,8 +83,8 @@ public class MainMenu extends Screen {
         public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
             matrices.push();
 
-            float d = Maths.magicDelta(0.99f, delta);
-            hoverX = Maths.lerp(hoverX, isHovered() ? 20 : 0, d);
+            float d = UIHelper.tickDelta(0.6f);
+            hoverX = Maths.lerp(hoverX, isHovered() ? 0 : -20, d);
             matrices.translate(hoverX, 0, 0);
 
             super.renderWidget(matrices, mouseX, mouseY, delta);

@@ -250,10 +250,6 @@ public class Maths {
         return df.format(size) + SIZE_UNITS[i];
     }
 
-    public static float magicDelta(float speed, float delta) {
-        return (float) (1f - Math.pow(speed, delta));
-    }
-
     public static float fastInvCubeRoot(float x) {
         //convert float to its bit representation
         int i = Float.floatToIntBits(x);
