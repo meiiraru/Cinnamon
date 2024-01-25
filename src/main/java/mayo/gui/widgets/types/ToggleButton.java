@@ -42,9 +42,10 @@ public class ToggleButton extends Button {
 
     @Override
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        Text text = getFormattedMessage();
         Font f = Client.getInstance().font;
-        int y = getCenterY() - TextUtils.getHeight(message, f) / 2;
-        f.render(VertexConsumer.FONT, matrices, getX() + 8 + 2, y, message);
+        int y = getCenterY() - TextUtils.getHeight(text, f) / 2;
+        f.render(VertexConsumer.FONT, matrices, getX() + 8 + 2, y, text);
     }
 
     @Override

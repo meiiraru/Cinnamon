@@ -3,6 +3,7 @@ package mayo.gui.screens;
 import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
 import mayo.gui.Toast;
+import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.SelectableWidget;
 import mayo.gui.widgets.types.*;
 import mayo.model.GeometryHelper;
@@ -19,6 +20,8 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 public class CurvesScreen extends ParentedScreen {
 
@@ -62,6 +65,7 @@ public class CurvesScreen extends ParentedScreen {
 
                 Scroll
                     Change curve quality"""));
+        help.setSelectable(true);
         list.addWidget(help);
 
         //selection box
@@ -221,7 +225,7 @@ public class CurvesScreen extends ParentedScreen {
                 selected.setPos(x - R, y - R);
                 int i = points.indexOf(selected);
                 if (i != -1)
-                    curve.setPoint(i, x, (int) (Math.random() * 11) * 10, y);
+                    curve.setPoint(i, x, hetHeight(), y);
             }
         } else if (w.mouse2Press) {
             removePoint();
@@ -264,7 +268,7 @@ public class CurvesScreen extends ParentedScreen {
         addWidget(p);
         selected = p;
 
-        curve.addPoint(x, (int) (Math.random() * 11) * 10, y);
+        curve.addPoint(x, hetHeight(), y);
     }
 
     private void removePoint() {
@@ -279,6 +283,10 @@ public class CurvesScreen extends ParentedScreen {
         }
     }
 
+    private int hetHeight() {
+        return (int) (Math.random() * 11) * 10;
+    }
+
     private static class Point extends SelectableWidget {
 
         private float alpha = 0.5f;
@@ -290,8 +298,28 @@ public class CurvesScreen extends ParentedScreen {
         @Override
         public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
             float d = UIHelper.tickDelta(0.6f);
-            alpha = Maths.lerp(alpha, this.isHovered() ? 1f : 0.5f, d);
+            alpha = Maths.lerp(alpha, this.isHoveredOrFocused() ? 1f : 0.5f, d);
             GeometryHelper.circle(VertexConsumer.GUI, matrices, getX() + R, getY() + R, R, 12, 0xAD72FF + ((int) (alpha * 255) << 24));
+        }
+
+        @Override
+        public GUIListener keyPress(int key, int scancode, int action, int mods) {
+            if (isFocused() && action != GLFW_RELEASE) {
+                int x = getX();
+                int y = getY();
+
+                switch (key) {
+                    case GLFW_KEY_LEFT  -> setPos(x - 1, y);
+                    case GLFW_KEY_RIGHT -> setPos(x + 1, y);
+                    case GLFW_KEY_UP    -> setPos(x, y - 1);
+                    case GLFW_KEY_DOWN  -> setPos(x, y + 1);
+                    default -> {return null;}
+                }
+
+                return this;
+            }
+
+            return super.keyPress(key, scancode, action, mods);
         }
     }
 }

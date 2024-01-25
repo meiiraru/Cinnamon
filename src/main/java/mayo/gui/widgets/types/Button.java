@@ -1,21 +1,23 @@
 package mayo.gui.widgets.types;
 
 import mayo.Client;
+import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.SelectableWidget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.sound.SoundCategory;
+import mayo.text.Style;
 import mayo.text.Text;
+import mayo.utils.Colors;
 import mayo.utils.Resource;
 import mayo.utils.TextUtils;
 import mayo.utils.UIHelper;
 
 import java.util.function.Consumer;
 
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_1;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class Button extends SelectableWidget {
 
@@ -50,31 +52,53 @@ public class Button extends SelectableWidget {
     }
 
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        Text text = getFormattedMessage();
         Font f = Client.getInstance().font;
         int x = getCenterX();
-        int y = getCenterY() - TextUtils.getHeight(message, f) / 2;
-        f.render(VertexConsumer.FONT, matrices, x, y, message, TextUtils.Alignment.CENTER);
+        int y = getCenterY() - TextUtils.getHeight(text, f) / 2;
+        f.render(VertexConsumer.FONT, matrices, x, y, text, TextUtils.Alignment.CENTER);
     }
 
     public int getState() {
         if (!this.isActive())
             return 0;
-        else if (this.isHovered())
+        else if (this.isHoveredOrFocused())
             return 2;
         else
             return 1;
     }
 
     @Override
-    public boolean mousePress(int button, int action, int mods) {
+    public GUIListener mousePress(int button, int action, int mods) {
+        if (!isActive())
+            return null;
+
         if (isHovered() && action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1) {
-            press();
-            return true;
+            onRun();
+            return this;
         }
+
         return super.mousePress(button, action, mods);
     }
 
-    public void press() {
+    @Override
+    public GUIListener keyPress(int key, int scancode, int action, int mods) {
+        if (!isActive())
+            return null;
+
+        if (isFocused() && action == GLFW_PRESS) {
+            switch (key) {
+                case GLFW_KEY_SPACE, GLFW_KEY_ENTER, GLFW_KEY_KP_ENTER -> {
+                    onRun();
+                    return this;
+                }
+            }
+        }
+
+        return super.keyPress(key, scancode, action, mods);
+    }
+
+    public void onRun() {
         playClickSound();
         if (action != null)
             action.accept(this);
@@ -86,6 +110,16 @@ public class Button extends SelectableWidget {
 
     public Text getMessage() {
         return message;
+    }
+
+    public Text getFormattedMessage() {
+        if (message == null)
+            return null;
+
+        if (getState() != 0)
+            return message;
+
+        return Text.empty().withStyle(Style.EMPTY.color(Colors.DARK_GRAY)).append(message);
     }
 
     public void setMessage(Text message) {

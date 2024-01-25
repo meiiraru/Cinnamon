@@ -2,6 +2,7 @@ package mayo.gui.widgets.types;
 
 import mayo.Client;
 import mayo.gui.widgets.Container;
+import mayo.gui.widgets.GUIListener;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Window;
@@ -128,13 +129,13 @@ public class SelectionBox extends Container {
     }
 
     @Override
-    public boolean scroll(double x, double y) {
+    public GUIListener scroll(double x, double y) {
         Window w = Client.getInstance().window;
         if (UIHelper.isMouseOver(this, w.mouseX, w.mouseY)) {
             int i = selected;
             i += (int) Math.signum(-y);
             select((int) Maths.modulo(i, indexes.size()));
-            return true;
+            return this;
         }
 
         return super.scroll(x, y);

@@ -44,7 +44,9 @@ public class MainMenu extends Screen {
         list.addWidget(worldButton);
 
         //multiplayer
-        Button joinWorld = new MainButton(Text.of("Multiplayer").withStyle(Style.EMPTY.color(Colors.BLUE)), button -> client.setScreen(new MultiplayerJoinScreen(this)));
+        Button joinWorld = new MainButton(Text.of("Multiplayer"), button -> client.setScreen(new MultiplayerJoinScreen(this)));
+        joinWorld.setTooltip(Text.of("Sorry, not available yet! ").append(Text.of("\u2764").withStyle(Style.EMPTY.color(Colors.PINK))));
+        joinWorld.setActive(false);
         list.addWidget(joinWorld);
 
         //extra stuff
@@ -84,7 +86,7 @@ public class MainMenu extends Screen {
             matrices.push();
 
             float d = UIHelper.tickDelta(0.6f);
-            hoverX = Maths.lerp(hoverX, isHovered() ? 0 : -20, d);
+            hoverX = Maths.lerp(hoverX, isHoveredOrFocused() ? 0 : -20, d);
             matrices.translate(hoverX, 0, 0);
 
             super.renderWidget(matrices, mouseX, mouseY, delta);
@@ -94,7 +96,7 @@ public class MainMenu extends Screen {
 
         @Override
         protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            if (!this.isHovered())
+            if (!this.isHoveredOrFocused())
                 return;
 
             VertexConsumer.GUI.consume(GeometryHelper.quad(

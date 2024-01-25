@@ -28,7 +28,7 @@ public abstract class World {
     protected final Map<UUID, Entity> entities = new HashMap<>();
     protected final List<Particle> particles = new ArrayList<>();
 
-    public final float updateTime = 0.05f; // 1/20
+    public final float updateTime = 1f / Client.TPS;
     public final float gravity = 0.98f * updateTime;
 
     public final float renderDistance = 3;

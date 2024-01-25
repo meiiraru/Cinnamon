@@ -2,6 +2,7 @@ package mayo.utils;
 
 import mayo.Client;
 import mayo.gui.Screen;
+import mayo.gui.widgets.SelectableWidget;
 import mayo.gui.widgets.Widget;
 import mayo.gui.widgets.types.ContextMenu;
 import mayo.model.Vertex;
@@ -100,41 +101,65 @@ public class UIHelper {
         return vertices;
     }
 
-    public static void renderTooltip(MatrixStack matrices, Text tooltip, Font f, int mouseX, int mouseY) {
-        //variables
-        int x = mouseX + 4;
-        int y = mouseY - 12;
-        int w = TextUtils.getWidth(tooltip, f);
-        int h = TextUtils.getHeight(tooltip, f);
+    public static void renderTooltip(MatrixStack matrices, SelectableWidget widget, Font font) {
+        //grab text
+        Text tooltip = widget.getTooltip();
+        if (tooltip == null || tooltip.isEmpty())
+            return;
 
-        //screen size
+        //dimensions
+        int w = TextUtils.getWidth(tooltip, font);
+        int h = TextUtils.getHeight(tooltip, font);
+        boolean lefty = false;
+
         Window window = Client.getInstance().window;
         int screenW = window.scaledWidth;
         int screenH = window.scaledHeight;
 
-        //check if the tooltip could be rendered on the left side
-        if (x + w > screenW && mouseX > screenW / 2)
-            x -= 12 + w;
+        int ww = widget.getWidth();
 
-        //fit tooltip in the screen boundaries
+        //position
+        int wcy = widget.getCenterY();
+
+        int x = widget.getX() + ww + 1 + 2; //spacing + arrow
+        int y = h > widget.getHeight() ? widget.getY() - 1 : widget.getCenterY() - h / 2 - 2;
+
+        //check if the tooltip could be rendered on the left side
+        if (x + w > screenW && widget.getCenterX() > screenW / 2) {
+            x -= w + ww + 4 + 2 + 4; //(background + spacing + arrow) * 2
+            lefty = true;
+        }
+
+        //then fit in the screen boundaries
         x = (int) Maths.clamp(x, -2f, screenW - w - 2);
         y = (int) Maths.clamp(y, -2f, screenH - h - 2);
 
+        //render background
+
+        //move matrices on x and z
         matrices.push();
-        matrices.translate(x, y, 999f);
+        matrices.translate(x, 0, 999f);
 
-        //draw background
-        nineQuad(VertexConsumer.GUI, matrices, TOOLTIP.getID(), 0f, 0f, w + 4f, h + 4f, 0f, 0f, 16, 16, 16, 16);
+        int texID = TOOLTIP.getID();
 
-        //draw text
-        f.render(VertexConsumer.FONT, matrices, 2, 2, tooltip);
+        //render arrow
+        VertexConsumer.GUI.consume(quad(matrices, lefty ? w + 4f : -2, wcy - 8, 2, 16, lefty ? 18f : 16f, 0f, 2, 16, 20, 16), texID);
+
+        //move matrices on y
+        matrices.translate(0, y, 0);
+
+        //render background
+        nineQuad(VertexConsumer.GUI, matrices, texID, 0f, 0f, w + 4f, h + 4f, 0f, 0f, 16, 16, 20, 16);
+
+        //render text
+        font.render(VertexConsumer.FONT, matrices, 2, 2, tooltip);
 
         matrices.pop();
     }
 
-    public static void setTooltip(Text text) {
+    public static void setTooltip(SelectableWidget tooltip) {
         Screen s = Client.getInstance().screen;
-        if (s != null) s.tooltip = text;
+        if (s != null) s.tooltip = tooltip;
     }
 
     public static void setContextMenu(int x, int y, ContextMenu context) {

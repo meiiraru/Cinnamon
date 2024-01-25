@@ -1,6 +1,7 @@
 package mayo.gui.widgets;
 
 import mayo.render.MatrixStack;
+import mayo.utils.Maths;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,56 +94,99 @@ public class Container extends Widget implements Tickable, GUIListener {
     // -- INPUT LISTENER -- //
 
     @Override
-    public boolean mousePress(int button, int action, int mods) {
+    public GUIListener mousePress(int button, int action, int mods) {
         for (GUIListener listener : this.listeners) {
-            if (listener.mousePress(button, action, mods))
-                return true;
+            GUIListener result = listener.mousePress(button, action, mods);
+            if (result != null)
+                return result;
         }
-        return false;
+        return null;
     }
 
     @Override
-    public boolean keyPress(int key, int scancode, int action, int mods) {
+    public GUIListener keyPress(int key, int scancode, int action, int mods) {
         for (GUIListener listener : this.listeners) {
-            if (listener.keyPress(key, scancode, action, mods))
-                return true;
+            GUIListener result =  listener.keyPress(key, scancode, action, mods);
+            if (result != null)
+                return result;
         }
-        return false;
+        return null;
     }
 
     @Override
-    public boolean charTyped(char c, int mods) {
+    public GUIListener charTyped(char c, int mods) {
         for (GUIListener listener : this.listeners) {
-            if (listener.charTyped(c, mods))
-                return true;
+            GUIListener result = listener.charTyped(c, mods);
+            if (result != null)
+                return result;
         }
-        return false;
+        return null;
     }
 
     @Override
-    public boolean mouseMove(int x, int y) {
+    public GUIListener mouseMove(int x, int y) {
         for (GUIListener listener : this.listeners) {
-            if (listener.mouseMove(x, y))
-                return true;
+            GUIListener result = listener.mouseMove(x, y);
+            if (result != null)
+                return result;
         }
-        return false;
+        return null;
     }
 
     @Override
-    public boolean scroll(double x, double y) {
+    public GUIListener scroll(double x, double y) {
         for (GUIListener listener : this.listeners) {
-            if (listener.scroll(x, y))
-                return true;
+            GUIListener result = listener.scroll(x, y);
+            if (result != null)
+                return result;
         }
-        return false;
+        return null;
     }
 
     @Override
-    public boolean windowFocused(boolean focused) {
+    public GUIListener windowFocused(boolean focused) {
         for (GUIListener listener : this.listeners) {
-            if (listener.windowFocused(focused))
-                return true;
+            GUIListener result = listener.windowFocused(focused);
+            if (result != null)
+                return result;
         }
-        return false;
+        return null;
+    }
+
+    public SelectableWidget selectNext(SelectableWidget current, boolean backwards) {
+        List<SelectableWidget> list = getSelectableWidgets();
+
+        //no widget found, return null
+        if (list.isEmpty())
+            return null;
+
+        //no widget is selected yet, return first
+        if (current == null)
+            return list.get(0);
+
+        //did not find selected widget, return first
+        int i = list.indexOf(current);
+        if (i == -1)
+            return list.get(0);
+
+        //change selected index
+        i = backwards ? i - 1 : i + 1;
+        i = (int) Maths.modulo(i, list.size());
+
+        //return new selected widget
+        return list.get(i);
+    }
+
+    protected List<SelectableWidget> getSelectableWidgets() {
+        List<SelectableWidget> list = new ArrayList<>();
+
+        for (Widget widget : widgets) {
+            if (widget instanceof SelectableWidget w && w.isSelectable())
+                list.add(w);
+            else if (widget instanceof Container c)
+                list.addAll(c.getSelectableWidgets());
+        }
+
+        return list;
     }
 }

@@ -1,6 +1,7 @@
 package mayo.gui.widgets.types;
 
 import mayo.Client;
+import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.Widget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
@@ -106,33 +107,33 @@ public class ContextMenu extends WidgetList {
     }
 
     @Override
-    public boolean mousePress(int button, int action, int mods) {
+    public GUIListener mousePress(int button, int action, int mods) {
         if (!isOpen())
-            return false;
+            return null;
 
         Window w = Client.getInstance().window;
         if (action == GLFW_PRESS) {
             if (UIHelper.isMouseOver(parent, w.mouseX, w.mouseY))
-                return false; //void this when clicking on the parent widget
+                return null; //void this when clicking on the parent widget
 
             if (!UIHelper.isMouseOver(this, w.mouseX, w.mouseY)) {
                 this.close();
-                return false; //do not void mouse click, however do not allow for children click
+                return null; //do not void mouse click, however do not allow for children click
             }
         }
 
         super.mousePress(button, action, mods);
-        return true; //always void mouse click for other widgets
+        return this; //always void mouse click for other widgets
     }
 
     @Override
-    public boolean keyPress(int key, int scancode, int action, int mods) {
+    public GUIListener keyPress(int key, int scancode, int action, int mods) {
         if (!isOpen())
-            return false;
+            return null;
 
         if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
             this.close();
-            return true;
+            return this;
         }
 
         return super.keyPress(key, scancode, action, mods);
@@ -148,11 +149,12 @@ public class ContextMenu extends WidgetList {
 
         @Override
         protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+            boolean hover = isHoveredOrFocused();
             UIHelper.nineQuad(
                     VertexConsumer.GUI, matrices, TEXTURE.getID(),
                     getX(), getY(),
                     getWidth(), getHeight(),
-                    isHovered() ? 16f : (index % 2) * 16f, isHovered() ? 0f : 16f,
+                    hover ? 16f : (index % 2) * 16f, hover ? 0f : 16f,
                     16, 16,
                     32, 32
             );
@@ -160,10 +162,11 @@ public class ContextMenu extends WidgetList {
 
         @Override
         protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+            Text text = getFormattedMessage();
             Font f = Client.getInstance().font;
             int x = getX() + 2;
-            int y = getCenterY() - TextUtils.getHeight(message, f) / 2;
-            f.render(VertexConsumer.FONT, matrices, x, y, message);
+            int y = getCenterY() - TextUtils.getHeight(text, f) / 2;
+            f.render(VertexConsumer.FONT, matrices, x, y, text);
         }
     }
 }

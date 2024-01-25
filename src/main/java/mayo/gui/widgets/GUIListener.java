@@ -2,27 +2,27 @@ package mayo.gui.widgets;
 
 public interface GUIListener {
 
-    default boolean mousePress(int button, int action, int mods) {
-        return false;
+    default GUIListener mousePress(int button, int action, int mods) {
+        return null;
     }
 
-    default boolean keyPress(int key, int scancode, int action, int mods) {
-        return false;
+    default GUIListener keyPress(int key, int scancode, int action, int mods) {
+        return null;
     }
 
-    default boolean charTyped(char c, int mods) {
-        return false;
+    default GUIListener charTyped(char c, int mods) {
+        return null;
     }
 
-    default boolean mouseMove(int x, int y) {
-        return false;
+    default GUIListener mouseMove(int x, int y) {
+        return null;
     }
 
-    default boolean scroll(double x, double y) {
-        return false;
+    default GUIListener scroll(double x, double y) {
+        return null;
     }
 
-    default boolean windowFocused(boolean focused) {
-        return false;
+    default GUIListener windowFocused(boolean focused) {
+        return null;
     }
 }

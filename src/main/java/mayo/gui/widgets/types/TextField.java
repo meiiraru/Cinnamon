@@ -1,6 +1,7 @@
 package mayo.gui.widgets.types;
 
 import mayo.Client;
+import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.SelectableWidget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
@@ -31,7 +32,6 @@ public class TextField extends SelectableWidget {
     private Integer borderColor;
     private int selectedIndex = 0;
     private Consumer<String> changeListener;
-    private boolean focused;
 
     public TextField(Font font, int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -57,7 +57,7 @@ public class TextField extends SelectableWidget {
     }
 
     protected void renderOverlay(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        if (borderColor == null || this.isHovered())
+        if (borderColor == null || this.isHoveredOrFocused())
             return;
 
         UIHelper.nineQuad(
@@ -100,18 +100,10 @@ public class TextField extends SelectableWidget {
     protected int getState() {
         if (!isActive())
             return 0;
-        else if (isHovered() || isFocused())
+        else if (isHoveredOrFocused())
             return 2;
         else
             return 1;
-    }
-
-    public void setFocused(boolean focused) {
-        this.focused = focused;
-    }
-
-    public boolean isFocused() {
-        return focused;
     }
 
     public void setHintText(String hintText) {
@@ -139,14 +131,7 @@ public class TextField extends SelectableWidget {
     }
 
     @Override
-    public boolean mousePress(int button, int action, int mods) {
-        if (action == GLFW_PRESS)
-            setFocused(this.isHovered());
-        return isFocused() || super.mousePress(button, action, mods);
-    }
-
-    @Override
-    public boolean keyPress(int key, int scancode, int action, int mods) {
+    public GUIListener keyPress(int key, int scancode, int action, int mods) {
         if (!isFocused() || action == GLFW_RELEASE)
             return super.keyPress(key, scancode, action, mods);
 
@@ -155,31 +140,31 @@ public class TextField extends SelectableWidget {
         switch (key) {
             case GLFW_KEY_ENTER, GLFW_KEY_KP_ENTER -> {
                 append("\n");
-                return true;
+                return this;
             }
             case GLFW_KEY_BACKSPACE -> {
                 remove(1);
-                return true;
+                return this;
             }
             case GLFW_KEY_V -> {
                 if (ctrl) {
                     String clipboard = glfwGetClipboardString(-1);
                     if (clipboard != null) {
                         append(clipboard.replaceAll("\r\n", "\n"));
-                        return true;
+                        return this;
                     }
                 }
             }
             case GLFW_KEY_Z -> {
                 if (ctrl) {
                     undo();
-                    return true;
+                    return this;
                 }
             }
             case GLFW_KEY_Y -> {
                 if (ctrl) {
                     redo();
-                    return true;
+                    return this;
                 }
             }
         }
@@ -188,18 +173,12 @@ public class TextField extends SelectableWidget {
     }
 
     @Override
-    public boolean charTyped(char c, int mods) {
+    public GUIListener charTyped(char c, int mods) {
         if (!isFocused())
             return super.charTyped(c, mods);;
 
         append(String.valueOf(c));
-        return true;
-    }
-
-    @Override
-    public boolean windowFocused(boolean focused) {
-        this.focused = false;
-        return super.windowFocused(focused);
+        return this;
     }
 
     private void undo() {

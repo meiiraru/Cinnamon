@@ -2,6 +2,7 @@ package mayo.gui;
 
 import mayo.Client;
 import mayo.gui.widgets.Container;
+import mayo.gui.widgets.SelectableWidget;
 import mayo.gui.widgets.Widget;
 import mayo.gui.widgets.types.ContextMenu;
 import mayo.model.GeometryHelper;
@@ -10,12 +11,10 @@ import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
-import mayo.text.Text;
 import mayo.utils.Resource;
 import mayo.utils.UIHelper;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.*;
 
 public abstract class Screen {
 
@@ -27,6 +26,7 @@ public abstract class Screen {
 
     //main container
     protected final Container mainContainer = new Container(0, 0);
+    protected SelectableWidget focused;
 
     //screen-wise fields
     protected Client client;
@@ -34,7 +34,7 @@ public abstract class Screen {
     protected int width, height;
 
     //overlays
-    public Text tooltip;
+    public SelectableWidget tooltip;
     public ContextMenu contextMenu;
 
 
@@ -96,6 +96,18 @@ public abstract class Screen {
         this.mainContainer.removeWidget(widget);
     }
 
+    public void focusWidget(SelectableWidget widget) {
+        if (this.focused == widget)
+            return;
+
+        if (this.focused != null)
+            this.focused.setFocused(false);
+
+        this.focused = widget;
+        if (widget != null)
+            widget.setFocused(true);
+    }
+
 
     // -- tick -- //
 
@@ -139,10 +151,8 @@ public abstract class Screen {
     }
 
     protected void postRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        //render tooltip
         if (tooltip != null) {
-            if (!tooltip.isEmpty())
-                UIHelper.renderTooltip(matrices, tooltip, client.font, mouseX, mouseY);
+            UIHelper.renderTooltip(matrices, tooltip, client.font);
             tooltip = null;
         }
     }
@@ -152,32 +162,41 @@ public abstract class Screen {
 
 
     public boolean mousePress(int button, int action, int mods) {
-        return this.mainContainer.mousePress(button, action, mods);
+        return (contextMenu != null && contextMenu.mousePress(button, action, mods) != null) || this.mainContainer.mousePress(button, action, mods) != null;
     }
 
     public boolean keyPress(int key, int scancode, int action, int mods) {
-        boolean child = this.mainContainer.keyPress(key, scancode, action, mods);
-        if (child) return true;
+        if (contextMenu != null && this.contextMenu.keyPress(key, scancode, action, mods) != null)
+            return true;
 
-        if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE && closeOnEsc())
-            this.close();
+        if (this.mainContainer.keyPress(key, scancode, action, mods) != null)
+            return true;
 
-        return false;
+        if (action != GLFW_PRESS)
+            return false;
+
+        switch (key) {
+            case GLFW_KEY_ESCAPE -> {if (closeOnEsc()) this.close();}
+            case GLFW_KEY_TAB -> focusWidget(mainContainer.selectNext(focused, (mods & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT));
+            default -> {return false;}
+        }
+
+        return true;
     }
 
     public boolean charTyped(char c, int mods) {
-        return this.mainContainer.charTyped(c, mods);
+        return this.mainContainer.charTyped(c, mods) != null;
     }
 
     public boolean mouseMove(int x, int y) {
-        return this.mainContainer.mouseMove(x, y);
+        return this.mainContainer.mouseMove(x, y) != null;
     }
 
     public boolean scroll(double x, double y) {
-        return this.mainContainer.scroll(x, y);
+        return this.mainContainer.scroll(x, y) != null;
     }
 
     public boolean windowFocused(boolean focused) {
-        return this.mainContainer.windowFocused(focused);
+        return this.mainContainer.windowFocused(focused) != null;
     }
 }
