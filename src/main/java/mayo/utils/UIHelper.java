@@ -168,6 +168,9 @@ public class UIHelper {
             return;
 
         ContextMenu sContext = s.contextMenu;
+        if (sContext == context)
+            return;
+
         if (sContext != null) {
             s.removeWidget(sContext);
             sContext.close();
@@ -183,6 +186,11 @@ public class UIHelper {
 
         s.contextMenu = context;
         s.addWidgetOnTop(context);
+    }
+
+    public static void focusWidget(SelectableWidget w) {
+        Screen s = Client.getInstance().screen;
+        if (s != null) s.focusWidget(w);
     }
 
     public static boolean hasActiveContextMenu() {

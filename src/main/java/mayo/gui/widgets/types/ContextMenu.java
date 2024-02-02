@@ -2,6 +2,7 @@ package mayo.gui.widgets.types;
 
 import mayo.Client;
 import mayo.gui.widgets.GUIListener;
+import mayo.gui.widgets.SelectableWidget;
 import mayo.gui.widgets.Widget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
@@ -17,8 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class ContextMenu extends WidgetList {
 
@@ -131,12 +131,22 @@ public class ContextMenu extends WidgetList {
         if (!isOpen())
             return null;
 
-        if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
-            this.close();
-            return this;
+        if (action != GLFW_PRESS)
+            return super.keyPress(key, scancode, action, mods);
+
+        switch (key) {
+            case GLFW_KEY_ESCAPE -> this.close();
+            case GLFW_KEY_DOWN -> {} //this.selectNext(false);
+            case GLFW_KEY_UP -> {} //this.selectNext(true);
+            default -> {super.keyPress(key, scancode, action, mods);}
         }
 
-        return super.keyPress(key, scancode, action, mods);
+        return this;
+    }
+
+    @Override
+    protected List<SelectableWidget> getSelectableWidgets() {
+        return List.of();
     }
 
     public static class ContextButton extends Button {

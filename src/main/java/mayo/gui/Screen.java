@@ -108,6 +108,9 @@ public abstract class Screen {
             widget.setFocused(true);
     }
 
+    public SelectableWidget getFocusedWidget() {
+        return focused;
+    }
 
     // -- tick -- //
 
@@ -162,13 +165,10 @@ public abstract class Screen {
 
 
     public boolean mousePress(int button, int action, int mods) {
-        return (contextMenu != null && contextMenu.mousePress(button, action, mods) != null) || this.mainContainer.mousePress(button, action, mods) != null;
+        return this.mainContainer.mousePress(button, action, mods) != null;
     }
 
     public boolean keyPress(int key, int scancode, int action, int mods) {
-        if (contextMenu != null && this.contextMenu.keyPress(key, scancode, action, mods) != null)
-            return true;
-
         if (this.mainContainer.keyPress(key, scancode, action, mods) != null)
             return true;
 

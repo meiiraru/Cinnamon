@@ -1,7 +1,6 @@
 package mayo.gui.widgets.types;
 
 import mayo.Client;
-import mayo.gui.widgets.Container;
 import mayo.gui.widgets.GUIListener;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
@@ -17,7 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class SelectionBox extends Container {
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_MENU;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+
+public class SelectionBox extends Button {
 
     private final List<Text> indexes = new ArrayList<>();
     protected ContextMenu context;
@@ -29,40 +31,36 @@ public class SelectionBox extends Container {
     protected boolean closeOnSelect;
 
     public SelectionBox(int x, int y, int width, int height) {
-        super(x, y);
-        addWidget(new Button(x, y, width, height, Text.of(""), button -> {
-            if (context.isOpen()) {
-                context.close();
-            } else {
-                UIHelper.setContextMenu(getX(), getY() + getHeight(), context);
-                context.open();
-            }
-        }) {
-            @Override
-            protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-                Font f = Client.getInstance().font;
-
-                //render arrow
-                Text text = Text.of(isExpanded() ? "\u23F6" : "\u23F7");
-                int width = TextUtils.getWidth(text, f);
-                int x = getX() + getWidth() - width - 2;
-                int y = getCenterY() - TextUtils.getHeight(text, f) / 2;
-                f.render(VertexConsumer.FONT, matrices, x, y, text);
-
-                //render selected text
-                text = TextUtils.addEllipsis(selectedText, f, getWidth() - width - 4);
-                x = getX() + 2;
-                y = getCenterY() - TextUtils.getHeight(text, f) / 2;
-                f.render(VertexConsumer.FONT, matrices, x, y, text);
-            }
-
-            @Override
-            public boolean isHovered() {
-                return context.isOpen() || super.isHovered();
-            }
+        super(x, y, width, height, Text.of(""), button -> {
+            SelectionBox box = (SelectionBox) button;
+            if (box.context.isOpen()) box.context.close();
+            else box.openContext();
         });
 
         context = new ContextMenu(width, height, this);
+    }
+
+    @Override
+    protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        Font f = Client.getInstance().font;
+
+        //render arrow
+        Text text = Text.of(isExpanded() ? "\u23F6" : "\u23F7");
+        int width = TextUtils.getWidth(text, f);
+        int x = getX() + getWidth() - width - 2;
+        int y = getCenterY() - TextUtils.getHeight(text, f) / 2;
+        f.render(VertexConsumer.FONT, matrices, x, y, text);
+
+        //render selected text
+        text = TextUtils.addEllipsis(selectedText, f, getWidth() - width - 4);
+        x = getX() + 2;
+        y = getCenterY() - TextUtils.getHeight(text, f) / 2;
+        f.render(VertexConsumer.FONT, matrices, x, y, text);
+    }
+
+    @Override
+    public boolean isHovered() {
+        return context.isOpen() || super.isHovered();
     }
 
     public boolean isExpanded() {
@@ -128,6 +126,11 @@ public class SelectionBox extends Container {
         }
     }
 
+    protected void openContext() {
+        UIHelper.setContextMenu(getX(), getY() + getHeight(), context);
+        context.open();
+    }
+
     @Override
     public GUIListener scroll(double x, double y) {
         Window w = Client.getInstance().window;
@@ -139,5 +142,22 @@ public class SelectionBox extends Container {
         }
 
         return super.scroll(x, y);
+    }
+
+    @Override
+    public GUIListener keyPress(int key, int scancode, int action, int mods) {
+        if (isFocused() && action == GLFW_PRESS && key == GLFW_KEY_MENU) {
+            openContext();
+            return this;
+        }
+
+        return super.keyPress(key, scancode, action, mods);
+    }
+
+    @Override
+    public void setFocused(boolean focused) {
+        if (isFocused() && !focused)
+            context.close();
+        super.setFocused(focused);
     }
 }
