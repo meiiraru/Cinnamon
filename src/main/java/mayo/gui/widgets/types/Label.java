@@ -38,8 +38,8 @@ public class Label extends SelectableWidget {
                 getX() - 1, getY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,
-                16, 16,
-                16, 16
+                15, 15,
+                15, 15
         );
     }
 

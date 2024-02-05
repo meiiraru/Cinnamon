@@ -29,6 +29,7 @@ public class ContextMenu extends WidgetList {
     private final int minWidth;
     private final int elementHeight;
     private boolean open;
+    private ContextMenu subContext;
 
     public ContextMenu(int minWidth, int elementHeight, Widget owner) {
         super(0, 0, 0);
@@ -51,14 +52,25 @@ public class ContextMenu extends WidgetList {
     }
 
     public void addAction(Text name, Text tooltip, Consumer<Button> action) {
-        int y = widgets.isEmpty() ? 0 : getHeight();
         int width = Math.max(TextUtils.getWidth(name, Client.getInstance().font) + 4, minWidth - 2);
 
-        ContextButton button = new ContextButton(getX(), y, name, action, widgets.size());
+        ContextButton button = new ContextButton(getX(), getNewY(), name, action, widgets.size());
         button.setTooltip(tooltip);
         button.setDimensions(width, elementHeight);
 
         addAction(button);
+    }
+
+    public void addDivider() {
+        this.addWidget(new ContextDivider(getX(), getNewY(), getWidth(), 5, widgets.size()));
+    }
+
+    public void addSubMenu() {
+
+    }
+
+    private int getNewY() {
+        return widgets.isEmpty() ? 0 : getHeight();
     }
 
     private void addAction(ContextButton button) {
@@ -83,8 +95,12 @@ public class ContextMenu extends WidgetList {
         if (!isOpen())
             return;
 
-        matrices.push();
-        matrices.translate(0f, 0f, 500f);
+        boolean isChild = parent instanceof ContextMenu;
+
+        if (!isChild) {
+            matrices.push();
+            matrices.translate(0f, 0f, 500f);
+        }
 
         //render background
         renderBackground(matrices, mouseX, mouseY, delta);
@@ -92,7 +108,7 @@ public class ContextMenu extends WidgetList {
         //render child
         super.render(matrices, mouseX, mouseY, delta);
 
-        matrices.pop();
+        if (!isChild) matrices.pop();
     }
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -102,7 +118,7 @@ public class ContextMenu extends WidgetList {
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,
                 16, 16,
-                32, 32
+                32, 35
         );
     }
 
@@ -166,7 +182,7 @@ public class ContextMenu extends WidgetList {
                     getWidth(), getHeight(),
                     hover ? 16f : (index % 2) * 16f, hover ? 0f : 16f,
                     16, 16,
-                    32, 32
+                    32, 35
             );
         }
 
@@ -177,6 +193,36 @@ public class ContextMenu extends WidgetList {
             int x = getX() + 2;
             int y = getCenterY() - TextUtils.getHeight(text, f) / 2;
             f.render(VertexConsumer.FONT, matrices, x, y, text);
+        }
+    }
+
+    private static class ContextDivider extends Widget {
+        private final int index;
+
+        public ContextDivider(int x, int y, int width, int height, int index) {
+            super(x, y, width, height);
+            this.index = index;
+        }
+
+        @Override
+        public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+            UIHelper.nineQuad(
+                    VertexConsumer.GUI, matrices, TEXTURE.getID(),
+                    getX(), getY(),
+                    getWidth(), getHeight(),
+                    (index % 2) * 16f, 16f,
+                    16, 16,
+                    32, 35
+            );
+
+            UIHelper.horizontalQuad(
+                    VertexConsumer.GUI, matrices, TEXTURE.getID(),
+                    getX() + 1, getY() + 1,
+                    getWidth() - 2, 3,
+                    0f, 32f,
+                    32, 3,
+                    32, 35
+            );
         }
     }
 }

@@ -112,6 +112,11 @@ public class SelectionBox extends Button {
         return this;
     }
 
+    public SelectionBox addDivider() {
+        context.addDivider();
+        return this;
+    }
+
     private void updateTexts() {
         for (int i = 0; i < indexes.size(); i++) {
             //get text

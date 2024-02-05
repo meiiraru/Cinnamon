@@ -101,6 +101,16 @@ public class UIHelper {
         return vertices;
     }
 
+    public static void horizontalQuad(VertexConsumer consumer, MatrixStack matrices, int textureID, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
+        float rWidthThird = regionWidth / 3f;
+        float middleW = width - rWidthThird * 2;
+
+        consumer.consume(quad(matrices, x, y, rWidthThird, height, u, v, rWidthThird, regionHeight, textureWidth, textureHeight), textureID);
+        if (middleW > 0)
+            consumer.consume(quad(matrices, x + rWidthThird, y, middleW, height, u + rWidthThird, v, rWidthThird, regionHeight, textureWidth, textureHeight), textureID);
+        consumer.consume(quad(matrices, x + width - rWidthThird, y, rWidthThird, height, u + rWidthThird * 2, v, rWidthThird, regionHeight, textureWidth, textureHeight), textureID);
+    }
+
     public static void renderTooltip(MatrixStack matrices, SelectableWidget widget, Font font) {
         //grab text
         Text tooltip = widget.getTooltip();
