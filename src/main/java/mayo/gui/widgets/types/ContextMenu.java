@@ -4,12 +4,13 @@ import mayo.Client;
 import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.SelectableWidget;
 import mayo.gui.widgets.Widget;
+import mayo.model.GeometryHelper;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
-import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
+import mayo.utils.Maths;
 import mayo.utils.Resource;
 import mayo.utils.TextUtils;
 import mayo.utils.UIHelper;
@@ -25,57 +26,82 @@ public class ContextMenu extends WidgetList {
     private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/context_menu.png"));
 
     private final List<ContextButton> actions = new ArrayList<>();
-    private final Widget parent;
     private final int minWidth;
     private final int elementHeight;
     private boolean open;
+    private Widget parent;
     private ContextMenu subContext;
+    private int selected = -1;
+    private boolean hovered;
 
-    public ContextMenu(int minWidth, int elementHeight, Widget owner) {
+    public ContextMenu() {
+        this(0, 0);
+    }
+
+    public ContextMenu(int minWidth, int elementHeight) {
         super(0, 0, 0);
-        this.minWidth = minWidth;
-        this.elementHeight = elementHeight;
-        this.parent = owner;
-        this.setDimensions(minWidth, 6);
+        this.minWidth = Math.max(minWidth, 22);
+        this.elementHeight = Math.max(elementHeight, 12);
+        this.setDimensions(this.minWidth, 6);
     }
 
     public boolean isOpen() {
         return open;
     }
 
+    public boolean isHovered() {
+        return isOpen() && (hovered || isSubContextHovered());
+    }
+
+    private boolean isSubContextHovered() {
+        return subContext != null && subContext.isHovered();
+    }
+
     public void close() {
         this.open = false;
+        this.selected = -1;
     }
 
     public void open() {
         this.open = true;
+        this.selected = -1;
     }
 
-    public void addAction(Text name, Text tooltip, Consumer<Button> action) {
-        int width = Math.max(TextUtils.getWidth(name, Client.getInstance().font) + 4, minWidth - 2);
+    public void setParent(Widget parent) {
+        this.parent = parent;
+    }
 
-        ContextButton button = new ContextButton(getX(), getNewY(), name, action, widgets.size());
+    public ContextMenu addAction(Text name, Text tooltip, Consumer<Button> action) {
+        ContextButton button = new ContextButton(getX(), getAddY(), name, action, widgets.size(), this);
         button.setTooltip(tooltip);
-        button.setDimensions(width, elementHeight);
+        button.setDimensions(getWidthForText(name), elementHeight);
 
-        addAction(button);
+        this.addWidget(button);
+        this.actions.add(button);
+
+        return this;
     }
 
-    public void addDivider() {
-        this.addWidget(new ContextDivider(getX(), getNewY(), getWidth(), 5, widgets.size()));
+    public ContextMenu addDivider() {
+        this.addWidget(new ContextDivider(getX(), getAddY(), getWidth(), widgets.size()));
+        return this;
     }
 
-    public void addSubMenu() {
+    public ContextMenu addSubMenu(Text name, ContextMenu subContext) {
+        ContextSubMenu subMenu = new ContextSubMenu(getX(), getAddY(), name, subContext, widgets.size(), this);
+        subMenu.setDimensions(getWidthForText(name), elementHeight);
 
+        this.addWidget(subMenu);
+
+        return this;
     }
 
-    private int getNewY() {
+    private int getAddY() {
         return widgets.isEmpty() ? 0 : getHeight();
     }
 
-    private void addAction(ContextButton button) {
-        this.addWidget(button);
-        this.actions.add(button);
+    private int getWidthForText(Text name) {
+        return Math.max(TextUtils.getWidth(name, Client.getInstance().font) + 4, minWidth - 2);
     }
 
     public Button getAction(int i) {
@@ -95,12 +121,8 @@ public class ContextMenu extends WidgetList {
         if (!isOpen())
             return;
 
-        boolean isChild = parent instanceof ContextMenu;
-
-        if (!isChild) {
-            matrices.push();
-            matrices.translate(0f, 0f, 500f);
-        }
+        matrices.push();
+        matrices.translate(0f, 0f, parent instanceof ContextMenu ? 1f : 500f);
 
         //render background
         renderBackground(matrices, mouseX, mouseY, delta);
@@ -108,7 +130,7 @@ public class ContextMenu extends WidgetList {
         //render child
         super.render(matrices, mouseX, mouseY, delta);
 
-        if (!isChild) matrices.pop();
+        matrices.pop();
     }
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -127,19 +149,24 @@ public class ContextMenu extends WidgetList {
         if (!isOpen())
             return null;
 
-        Window w = Client.getInstance().window;
-        if (action == GLFW_PRESS) {
-            if (UIHelper.isMouseOver(parent, w.mouseX, w.mouseY))
-                return null; //void this when clicking on the parent widget
+        //check if a child is being pressed first
+        GUIListener sup = super.mousePress(button, action, mods);
+        if (sup != null) return sup;
 
-            if (!UIHelper.isMouseOver(this, w.mouseX, w.mouseY)) {
-                this.close();
-                return null; //do not void mouse click, however do not allow for children click
-            }
+        //close context when clicked outside it, but do not void the mouse click
+        if (action == GLFW_PRESS && !UIHelper.isWidgetHovered(this)) {
+            this.close();
+            return null;
         }
 
-        super.mousePress(button, action, mods);
-        return this; //always void mouse click for other widgets
+        //always void mouse click when clicking somewhere inside it
+        return this;
+    }
+
+    @Override
+    public GUIListener mouseMove(int x, int y) {
+        this.hovered = UIHelper.isMouseOver(this, x, y);
+        return super.mouseMove(x, y);
     }
 
     @Override
@@ -165,25 +192,41 @@ public class ContextMenu extends WidgetList {
         return List.of();
     }
 
-    public static class ContextButton extends Button {
-        private final int index;
+    private static void renderBackground(MatrixStack matrices, int x, int y, int width, int height, boolean hover, int index) {
+        //bg
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, x, y, width, height, (index % 2) * 16, 16f, 16, 16, 32, 35), TEXTURE.getID());
 
-        public ContextButton(int x, int y, Text message, Consumer<Button> action, int index) {
+        //hover
+        if (hover) UIHelper.nineQuad(
+                VertexConsumer.GUI, matrices, TEXTURE.getID(),
+                x, y,
+                width, height,
+                16f, 0f,
+                16, 16,
+                32, 35
+        );
+    }
+
+    public static class ContextButton extends Button {
+        protected final int index;
+        protected final ContextMenu parent;
+
+        public ContextButton(int x, int y, Text message, Consumer<Button> action, int index, ContextMenu parent) {
             super(x, y, 0, 0, message, action);
             this.index = index;
+            this.parent = parent;
+        }
+
+        @Override
+        public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+            super.renderWidget(matrices, mouseX, mouseY, delta);
+            if (isHoveredOrFocused())
+                parent.selected = index;
         }
 
         @Override
         protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            boolean hover = isHoveredOrFocused();
-            UIHelper.nineQuad(
-                    VertexConsumer.GUI, matrices, TEXTURE.getID(),
-                    getX(), getY(),
-                    getWidth(), getHeight(),
-                    hover ? 16f : (index % 2) * 16f, hover ? 0f : 16f,
-                    16, 16,
-                    32, 35
-            );
+            ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), isHoveredOrFocused(), index);
         }
 
         @Override
@@ -194,26 +237,25 @@ public class ContextMenu extends WidgetList {
             int y = getCenterY() - TextUtils.getHeight(text, f) / 2;
             f.render(VertexConsumer.FONT, matrices, x, y, text);
         }
+
+        @Override
+        public boolean isHovered() {
+            return super.isHovered() && !parent.isSubContextHovered();
+        }
     }
 
     private static class ContextDivider extends Widget {
+        private static final int HEIGHT = 5;
         private final int index;
 
-        public ContextDivider(int x, int y, int width, int height, int index) {
-            super(x, y, width, height);
+        public ContextDivider(int x, int y, int width, int index) {
+            super(x, y, width, HEIGHT);
             this.index = index;
         }
 
         @Override
         public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            UIHelper.nineQuad(
-                    VertexConsumer.GUI, matrices, TEXTURE.getID(),
-                    getX(), getY(),
-                    getWidth(), getHeight(),
-                    (index % 2) * 16f, 16f,
-                    16, 16,
-                    32, 35
-            );
+            ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), false, index);
 
             UIHelper.horizontalQuad(
                     VertexConsumer.GUI, matrices, TEXTURE.getID(),
@@ -223,6 +265,70 @@ public class ContextMenu extends WidgetList {
                     32, 3,
                     32, 35
             );
+        }
+    }
+
+    private static class ContextSubMenu extends ContextButton {
+        private static final Text ARROW = Text.of("\u23F5");
+        private final ContextMenu subContext;
+        private float arrowOffset = 0f;
+
+        public ContextSubMenu(int x, int y, Text message, ContextMenu subContext, int index, ContextMenu parent) {
+            super(x, y, message, null, index, parent);
+            this.subContext = subContext;
+            subContext.setParent(parent);
+        }
+
+        @Override
+        public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+            super.renderWidget(matrices, mouseX, mouseY, delta);
+
+            //check for hover changes
+            boolean hover = isHoveredOrFocused();
+            if (hover && !subContext.isOpen()) {
+                //set pos
+                UIHelper.moveWidgetRelativeTo(this, subContext, 0);
+
+                //add to parent
+                parent.subContext = subContext;
+                parent.listeners.addFirst(subContext);
+                subContext.open();
+            } else if (!hover && subContext.isOpen()) {
+                //remove from parent
+                parent.subContext = null;
+                parent.listeners.remove(subContext);
+                subContext.close();
+            }
+
+            //render subcontext if open
+            if (subContext.isOpen())
+                subContext.render(matrices, mouseX, mouseY, delta);
+        }
+
+        @Override
+        protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+            super.renderText(matrices, mouseX, mouseY, delta);
+
+            //render arrow
+            Font f = Client.getInstance().font;
+            int x = getX() + getWidth() - 2 - TextUtils.getWidth(ARROW, f);
+            int y = getCenterY() - TextUtils.getHeight(message, f) / 2;
+
+            //arrow animation :3
+            float d = UIHelper.tickDelta(0.6f);
+            arrowOffset = Maths.lerp(arrowOffset, isHoveredOrFocused() ? 2f : 0f, d);
+
+            f.render(VertexConsumer.FONT, matrices, x + arrowOffset, y, ARROW);
+        }
+
+        @Override
+        public void onRun() {
+            //do nothing
+        }
+
+        @Override
+        public boolean isHoveredOrFocused() {
+            return super.isHoveredOrFocused() || parent.selected == this.index;
         }
     }
 }

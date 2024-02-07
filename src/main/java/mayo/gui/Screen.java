@@ -2,6 +2,7 @@ package mayo.gui;
 
 import mayo.Client;
 import mayo.gui.widgets.Container;
+import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.SelectableWidget;
 import mayo.gui.widgets.Widget;
 import mayo.gui.widgets.types.ContextMenu;
@@ -75,6 +76,10 @@ public abstract class Screen {
 
     public void rebuild() {
         this.mainContainer.clear();
+        this.tooltip = null;
+        if (this.contextMenu != null)
+            this.contextMenu.close();
+        this.contextMenu = null;
         this.init();
     }
 
@@ -94,6 +99,7 @@ public abstract class Screen {
 
     public void removeWidget(Widget widget) {
         this.mainContainer.removeWidget(widget);
+        if (widget == focused) focusWidget(null);
     }
 
     public void focusWidget(SelectableWidget widget) {
@@ -110,6 +116,10 @@ public abstract class Screen {
 
     public SelectableWidget getFocusedWidget() {
         return focused;
+    }
+
+    public GUIListener getWidgetAt(int x, int y) {
+        return mainContainer.getWidgetAt(x, y);
     }
 
     // -- tick -- //
@@ -165,7 +175,10 @@ public abstract class Screen {
 
 
     public boolean mousePress(int button, int action, int mods) {
-        return this.mainContainer.mousePress(button, action, mods) != null;
+        GUIListener click = this.mainContainer.mousePress(button, action, mods);
+        if (click != focused)
+            focusWidget(null);
+        return click != null;
     }
 
     public boolean keyPress(int key, int scancode, int action, int mods) {

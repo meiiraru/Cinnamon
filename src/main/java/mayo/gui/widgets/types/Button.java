@@ -116,10 +116,10 @@ public class Button extends SelectableWidget {
         if (message == null)
             return null;
 
-        if (getState() != 0)
-            return message;
+        if (getState() == 0)
+            return Text.empty().withStyle(Style.EMPTY.color(Colors.DARK_GRAY)).append(message);
 
-        return Text.empty().withStyle(Style.EMPTY.color(Colors.DARK_GRAY)).append(message);
+        return message;
     }
 
     public void setMessage(Text message) {

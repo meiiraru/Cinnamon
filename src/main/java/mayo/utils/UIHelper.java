@@ -50,6 +50,11 @@ public class UIHelper {
         }
     }
 
+    public static boolean isWidgetHovered(Widget widget) {
+        Window w = Client.getInstance().window;
+        return isMouseOver(widget, w.mouseX, w.mouseY);
+    }
+
     public static boolean isMouseOver(Widget w, int mouseX, int mouseY) {
         return isMouseOver(w.getX(), w.getY(), w.getWidth(), w.getHeight(), mouseX, mouseY);
     }
@@ -178,10 +183,7 @@ public class UIHelper {
             return;
 
         ContextMenu sContext = s.contextMenu;
-        if (sContext == context)
-            return;
-
-        if (sContext != null) {
+        if (sContext != context && sContext != null) {
             s.removeWidget(sContext);
             sContext.close();
         }
@@ -194,8 +196,10 @@ public class UIHelper {
         Window window = Client.getInstance().window;
         fitInsideBoundaries(context, 0, 0, window.scaledWidth, window.scaledHeight);
 
-        s.contextMenu = context;
-        s.addWidgetOnTop(context);
+        if (sContext != context) {
+            s.contextMenu = context;
+            s.addWidgetOnTop(context);
+        }
     }
 
     public static void focusWidget(SelectableWidget w) {
@@ -203,9 +207,24 @@ public class UIHelper {
         if (s != null) s.focusWidget(w);
     }
 
-    public static boolean hasActiveContextMenu() {
+    public static boolean isMouseOverContext() {
         Screen s = Client.getInstance().screen;
-        return s != null && s.contextMenu != null && s.contextMenu.isOpen();
+        return s != null && s.contextMenu != null && s.contextMenu.isHovered();
+    }
+
+    public static void moveWidgetRelativeTo(Widget source, Widget toMove, int hOffset) {
+        //set the first pos
+        int x = source.getX() + source.getWidth() + hOffset;
+        toMove.setPos(x, source.getY());
+
+        //fit to window
+        Window window = Client.getInstance().window;
+        fitInsideBoundaries(toMove, 0, 0, window.scaledWidth, window.scaledHeight);
+
+        if (toMove.getX() < x) {
+            toMove.setX(source.getX() - toMove.getWidth() - hOffset);
+            fitInsideBoundaries(toMove, 0, 0, window.scaledWidth, window.scaledHeight);
+        }
     }
 
     public static void fitInsideBoundaries(Widget w, int x0, int y0, int x1, int y1) {

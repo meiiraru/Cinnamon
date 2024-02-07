@@ -28,7 +28,6 @@ public class CurvesScreen extends ParentedScreen {
     private static final int POINT_SIZE = 10;
     private static final int R = (int) (POINT_SIZE * 0.5f);
     private final List<Point> points = new ArrayList<>();
-    private Point selected;
 
     private Curve curve = new Curve.BSpline().steps(30).loop(true).width(20f);
 
@@ -156,7 +155,7 @@ public class CurvesScreen extends ParentedScreen {
         //draw texts
         f.render(VertexConsumer.FONT, matrices, width / 2f, 4, Text.of("Curve quality: " + this.curve.getSteps() + "\nCurve Size: " + this.curve.getCurve().size()), TextUtils.Alignment.CENTER);
 
-        if (selected != null) {
+        if (focused instanceof Point selected) {
             Text t = Text.of("x" + selected.getX() + " y" + selected.getY());
             f.render(VertexConsumer.FONT, matrices, 4, height - 4 - TextUtils.getHeight(t, f), t);
         }
@@ -196,12 +195,8 @@ public class CurvesScreen extends ParentedScreen {
             Window w = client.window;
             switch (button) {
                 case GLFW.GLFW_MOUSE_BUTTON_1 -> {
-                    Point p = getHovered();
-                    if (p == null) {
+                    if (focused == null)
                         addPoint(w.mouseX, w.mouseY);
-                    } else {
-                        selected = p;
-                    }
                 }
                 case GLFW.GLFW_MOUSE_BUTTON_2 -> removePoint();
                 case GLFW.GLFW_MOUSE_BUTTON_3 -> {
@@ -209,8 +204,6 @@ public class CurvesScreen extends ParentedScreen {
                     anchorY = w.mouseY;
                 }
             }
-        } else if (button == GLFW.GLFW_MOUSE_BUTTON_1) {
-            selected = null;
         }
 
         return false;
@@ -221,7 +214,7 @@ public class CurvesScreen extends ParentedScreen {
         Window w = client.window;
 
         if (w.mouse1Press) {
-            if (selected != null) {
+            if (focused instanceof Point selected) {
                 selected.setPos(x - R, y - R);
                 int i = points.indexOf(selected);
                 if (i != -1)
@@ -253,34 +246,31 @@ public class CurvesScreen extends ParentedScreen {
         return false;
     }
 
-    private Point getHovered() {
-        for (int i = points.size() - 1; i >= 0; i--) {
-            Point p = points.get(i);
-            if (p.isHovered())
-                return p;
-        }
-        return null;
-    }
-
     private void addPoint(int x, int y) {
         Point p = new Point(x - R, y - R);
         points.add(p);
         addWidget(p);
-        selected = p;
 
         curve.addPoint(x, hetHeight(), y);
     }
 
     private void removePoint() {
-        Point remove = getHovered();
-        if (remove != null) {
-            int i = points.indexOf(remove);
-
-            points.remove(i);
-            removeWidget(remove);
-
-            curve.removePoint(i);
+        Point p = null;
+        for (Point point : points) {
+            if (point.isHovered()) {
+                p = point;
+                break;
+            }
         }
+
+        if (p == null)
+            return;
+
+        int i = points.indexOf(p);
+
+        points.remove(i);
+        removeWidget(p);
+        curve.removePoint(i);
     }
 
     private int hetHeight() {
@@ -300,6 +290,16 @@ public class CurvesScreen extends ParentedScreen {
             float d = UIHelper.tickDelta(0.6f);
             alpha = Maths.lerp(alpha, this.isHoveredOrFocused() ? 1f : 0.5f, d);
             GeometryHelper.circle(VertexConsumer.GUI, matrices, getX() + R, getY() + R, R, 12, 0xAD72FF + ((int) (alpha * 255) << 24));
+        }
+
+        @Override
+        public GUIListener mousePress(int button, int action, int mods) {
+            if (isActive() && isHovered() && action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1) {
+                UIHelper.focusWidget(this);
+                return this;
+            }
+
+            return super.mousePress(button, action, mods);
         }
 
         @Override

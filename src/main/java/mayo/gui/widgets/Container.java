@@ -2,6 +2,7 @@ package mayo.gui.widgets;
 
 import mayo.render.MatrixStack;
 import mayo.utils.Maths;
+import mayo.utils.UIHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +24,9 @@ public class Container extends Widget implements Tickable, GUIListener {
     }
 
     public void addWidgetOnTop(Widget widget) {
-        this.widgets.add(0, widget);
+        this.widgets.addFirst(widget);
         if (widget instanceof GUIListener el)
-            this.listeners.add(0, el);
+            this.listeners.addFirst(el);
         updateDimensions();
     }
 
@@ -34,6 +35,14 @@ public class Container extends Widget implements Tickable, GUIListener {
         if (widget instanceof GUIListener el)
             this.listeners.remove(el);
         updateDimensions();
+    }
+
+    public GUIListener getWidgetAt(int x, int y) {
+        for (GUIListener listener : this.listeners) {
+            if (UIHelper.isMouseOver((Widget) listener, x, y))
+                return listener;
+        }
+        return null;
     }
 
     public void clear() {
@@ -162,12 +171,12 @@ public class Container extends Widget implements Tickable, GUIListener {
 
         //no widget is selected yet, return first
         if (current == null)
-            return list.get(0);
+            return list.getFirst();
 
         //did not find selected widget, return first
         int i = list.indexOf(current);
         if (i == -1)
-            return list.get(0);
+            return list.getFirst();
 
         //change selected index
         i = backwards ? i - 1 : i + 1;

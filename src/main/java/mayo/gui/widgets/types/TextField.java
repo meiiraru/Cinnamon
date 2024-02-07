@@ -204,6 +204,16 @@ public class TextField extends SelectableWidget {
         }
     }
 
+    @Override
+    public GUIListener mousePress(int button, int action, int mods) {
+        if (isActive() && isHovered() && action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1) {
+            UIHelper.focusWidget(this);
+            return this;
+        }
+
+        return super.mousePress(button, action, mods);
+    }
+
     public String getString() {
         return currText;
     }
