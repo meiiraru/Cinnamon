@@ -2,7 +2,7 @@ package mayo.utils;
 
 public class Resource {
 
-    public static final String NAMESPACE = "mayo";
+    public static final String VANILLA_NAMESPACE = "vanilla";
 
     private final String namespace, path;
 
@@ -12,7 +12,7 @@ public class Resource {
             this.namespace = path.substring(0, index);
             this.path = path.substring(index + 1);
         } else {
-            this.namespace = NAMESPACE;
+            this.namespace = VANILLA_NAMESPACE;
             this.path = path;
         }
     }

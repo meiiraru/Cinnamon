@@ -115,17 +115,14 @@ public class CollisionScreen extends ParentedScreen {
 
     @Override
     public boolean keyPress(int key, int scancode, int action, int mods) {
-        boolean child = super.keyPress(key, scancode, action, mods);
-        if (child) return true;
-
         boolean press = action != GLFW_RELEASE;
         switch (key) {
             case GLFW_KEY_LEFT  -> l = press;
             case GLFW_KEY_RIGHT -> r = press;
             case GLFW_KEY_UP    -> u = press;
             case GLFW_KEY_DOWN  -> d = press;
+            default -> {return super.keyPress(key, scancode, action, mods);}
         }
-
-        return false;
+        return true;
     }
 }

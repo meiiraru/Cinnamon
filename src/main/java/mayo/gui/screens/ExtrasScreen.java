@@ -2,8 +2,8 @@ package mayo.gui.screens;
 
 import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
+import mayo.gui.widgets.ContainerList;
 import mayo.gui.widgets.types.Button;
-import mayo.gui.widgets.types.WidgetList;
 import mayo.text.Text;
 
 public class ExtrasScreen extends ParentedScreen {
@@ -14,10 +14,8 @@ public class ExtrasScreen extends ParentedScreen {
 
     @Override
     public void init() {
-        super.init();
-
         //buttons
-        WidgetList list = new WidgetList(0, 0, 4);
+        ContainerList list = new ContainerList(0, 0, 4);
 
         //dvd screen
         Button dvd = new Button(0, 0, 180, 20, Text.of("DVD screensaver"), button -> client.setScreen(new DVDScreen(this)));
@@ -38,6 +36,8 @@ public class ExtrasScreen extends ParentedScreen {
         //add list to screen
         list.setPos((width - list.getWidth()) / 2, (height - list.getHeight()) / 2);
         this.addWidget(list);
+
+        super.init();
     }
 
     @Override

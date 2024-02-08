@@ -80,7 +80,7 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
     @Override
     public GUIListener keyPress(int key, int scancode, int action, int mods) {
         if (isFocused() && action == GLFW_PRESS && key == GLFW_KEY_MENU && contextMenu != null) {
-            openContext(getX() + getWidth() + 1, getY());
+            openContext(getCenterX(), getCenterY());
             return this;
         }
 

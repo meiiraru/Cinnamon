@@ -3,9 +3,13 @@ package mayo.gui.screens;
 import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
 import mayo.gui.Toast;
+import mayo.gui.widgets.ContainerList;
 import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.SelectableWidget;
-import mayo.gui.widgets.types.*;
+import mayo.gui.widgets.types.Button;
+import mayo.gui.widgets.types.Label;
+import mayo.gui.widgets.types.SelectionBox;
+import mayo.gui.widgets.types.ToggleButton;
 import mayo.model.GeometryHelper;
 import mayo.parsers.CurveToMesh;
 import mayo.parsers.ObjExporter;
@@ -42,10 +46,8 @@ public class CurvesScreen extends ParentedScreen {
 
     @Override
     public void init() {
-        super.init();
-
         //widget list
-        WidgetList list = new WidgetList(4, 4, 4);
+        ContainerList list = new ContainerList(4, 4, 4);
 
         //help label
         Label help = new Label(Text.of("\u2753 Help"), client.font, 0, 0);
@@ -121,6 +123,8 @@ public class CurvesScreen extends ParentedScreen {
 
         //add list to screen
         this.addWidget(list);
+
+        super.init();
     }
 
     @Override
@@ -218,7 +222,7 @@ public class CurvesScreen extends ParentedScreen {
                 selected.setPos(x - R, y - R);
                 int i = points.indexOf(selected);
                 if (i != -1)
-                    curve.setPoint(i, x, hetHeight(), y);
+                    curve.setPoint(i, x, randomHeight(), y);
             }
         } else if (w.mouse2Press) {
             removePoint();
@@ -251,7 +255,7 @@ public class CurvesScreen extends ParentedScreen {
         points.add(p);
         addWidget(p);
 
-        curve.addPoint(x, hetHeight(), y);
+        curve.addPoint(x, randomHeight(), y);
     }
 
     private void removePoint() {
@@ -273,7 +277,7 @@ public class CurvesScreen extends ParentedScreen {
         curve.removePoint(i);
     }
 
-    private int hetHeight() {
+    private static int randomHeight() {
         return (int) (Math.random() * 11) * 10;
     }
 

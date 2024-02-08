@@ -1,17 +1,14 @@
-package mayo.gui.widgets.types;
+package mayo.gui.widgets;
 
-import mayo.gui.widgets.Container;
-import mayo.gui.widgets.Widget;
-
-public class WidgetList extends Container {
+public class ContainerList extends Container {
 
     private final int spacing, columns;
 
-    public WidgetList(int x, int y, int spacing) {
+    public ContainerList(int x, int y, int spacing) {
         this(x, y, spacing, 1);
     }
 
-    public WidgetList(int x, int y, int spacing, int columns) {
+    public ContainerList(int x, int y, int spacing, int columns) {
         super(x, y);
         this.spacing = spacing;
         this.columns = Math.max(columns, 1);

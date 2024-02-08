@@ -81,7 +81,7 @@ public class Toast {
     private final ToastType type;
     private Text text;
     private Font font;
-    private int addedTime = -1;
+    private long addedTime = -1;
 
     protected Toast(Text text, Font font, int length, ToastType type) {
         this.length = length;

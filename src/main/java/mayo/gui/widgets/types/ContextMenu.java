@@ -1,6 +1,7 @@
 package mayo.gui.widgets.types;
 
 import mayo.Client;
+import mayo.gui.widgets.ContainerList;
 import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.SelectableWidget;
 import mayo.gui.widgets.Widget;
@@ -21,7 +22,7 @@ import java.util.function.Consumer;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class ContextMenu extends WidgetList {
+public class ContextMenu extends ContainerList {
 
     private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/context_menu.png"));
 

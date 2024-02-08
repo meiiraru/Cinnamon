@@ -3,9 +3,9 @@ package mayo.gui.screens;
 import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
 import mayo.gui.Toast;
+import mayo.gui.widgets.ContainerList;
 import mayo.gui.widgets.types.Button;
 import mayo.gui.widgets.types.TextField;
-import mayo.gui.widgets.types.WidgetList;
 import mayo.networking.ClientConnection;
 import mayo.networking.NetworkConstants;
 import mayo.render.MatrixStack;
@@ -26,8 +26,6 @@ public class MultiplayerJoinScreen extends ParentedScreen {
 
     @Override
     public void init() {
-        super.init();
-
         int x = width / 2;
         int y = height / 2;
 
@@ -45,7 +43,7 @@ public class MultiplayerJoinScreen extends ParentedScreen {
         ipField.setString(ip);
         addWidget(ipField);
 
-        WidgetList list = new WidgetList(0, y + 4, 4, 2);
+        ContainerList list = new ContainerList(0, y + 4, 4, 2);
 
         //connect button
         list.addWidget(new Button(0, 0, 80, 20, Text.of("Connect"), button -> connect(name, ip)));
@@ -55,6 +53,8 @@ public class MultiplayerJoinScreen extends ParentedScreen {
 
         list.setX(x - list.getWidth() / 2);
         addWidget(list);
+
+        super.init();
     }
 
     @Override

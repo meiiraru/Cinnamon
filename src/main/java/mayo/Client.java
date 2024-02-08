@@ -37,7 +37,7 @@ public class Client {
 
     public static final int TPS = 20;
     public final Timer timer = new Timer(TPS);
-    public int ticks;
+    public long ticks;
     public int fps;
 
     public String name = "May";

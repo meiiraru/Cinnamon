@@ -17,7 +17,8 @@ import static org.lwjgl.system.MemoryUtil.memSlice;
 
 public class IOUtils {
 
-    public static final Path ROOT_FOLDER = Path.of("./" + Resource.NAMESPACE);
+    public static final String VANILLA_FOLDER = "mayo";
+    public static final Path ROOT_FOLDER = Path.of("./" + VANILLA_FOLDER);
 
     public static InputStream getResource(Resource res) {
         String resourcePath = "resources/" + res.getNamespace() + "/" + res.getPath();

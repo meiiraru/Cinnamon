@@ -207,6 +207,11 @@ public class UIHelper {
         if (s != null) s.focusWidget(w);
     }
 
+    public static SelectableWidget getFocusedWidget() {
+        Screen s = Client.getInstance().screen;
+        return s != null ? s.getFocusedWidget() : null;
+    }
+
     public static boolean isMouseOverContext() {
         Screen s = Client.getInstance().screen;
         return s != null && s.contextMenu != null && s.contextMenu.isHovered();
