@@ -1,11 +1,7 @@
 package mayo.gui;
 
 import mayo.Client;
-import mayo.gui.widgets.Container;
-import mayo.gui.widgets.GUIListener;
-import mayo.gui.widgets.SelectableWidget;
-import mayo.gui.widgets.Widget;
-import mayo.gui.widgets.types.ContextMenu;
+import mayo.gui.widgets.*;
 import mayo.model.GeometryHelper;
 import mayo.model.Vertex;
 import mayo.render.Font;
@@ -36,7 +32,7 @@ public abstract class Screen {
 
     //overlays
     public SelectableWidget tooltip;
-    public ContextMenu contextMenu;
+    public PopupWidget popup;
 
 
     // -- screen functions -- //
@@ -77,9 +73,9 @@ public abstract class Screen {
     public void rebuild() {
         this.mainContainer.clear();
         this.tooltip = null;
-        if (this.contextMenu != null)
-            this.contextMenu.close();
-        this.contextMenu = null;
+        if (this.popup != null)
+            this.popup.close();
+        this.popup = null;
         this.init();
     }
 

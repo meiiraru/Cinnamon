@@ -17,7 +17,7 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
             focused = false,
             selectable = true;
     private Text tooltip;
-    private ContextMenu contextMenu;
+    private PopupWidget popup;
 
     public SelectableWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -34,7 +34,7 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
     }
 
     public boolean isHovered() {
-        return (hovered && (this instanceof ContextMenu.ContextButton || !UIHelper.isMouseOverContext())) || (contextMenu != null && contextMenu.isOpen());
+        return (hovered && (this instanceof ContextMenu.ContextButton || !UIHelper.isPopupHovered())) || (popup != null && popup.isOpen());
     }
 
     public boolean isHoveredOrFocused() {
@@ -56,8 +56,8 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
     }
 
     protected void onFocusChange(boolean focused) {
-        if (contextMenu != null && !focused)
-            contextMenu.close();
+        if (popup != null && !focused)
+            popup.close();
     }
 
     public int getState() {
@@ -71,9 +71,9 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
 
     @Override
     public GUIListener mousePress(int button, int action, int mods) {
-        if (isActive() && isHovered() && action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_2 && contextMenu != null) {
+        if (isActive() && isHovered() && action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_2 && popup != null) {
             Window w = Client.getInstance().window;
-            openContext(w.mouseX, w.mouseY);
+            openPopup(w.mouseX, w.mouseY);
             return this;
         }
 
@@ -88,22 +88,22 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
 
     @Override
     public GUIListener keyPress(int key, int scancode, int action, int mods) {
-        if (isFocused() && action == GLFW_PRESS && key == GLFW_KEY_MENU && contextMenu != null) {
-            openContext(getCenterX(), getCenterY());
+        if (isFocused() && action == GLFW_PRESS && key == GLFW_KEY_MENU && popup != null) {
+            openPopup(getCenterX(), getCenterY());
             return this;
         }
 
         return GUIListener.super.keyPress(key, scancode, action, mods);
     }
 
-    protected void openContext(int x, int y) {
-        UIHelper.setContextMenu(x, y, contextMenu);
-        contextMenu.open();
+    protected void openPopup(int x, int y) {
+        UIHelper.setPopup(x, y, popup);
+        popup.open();
     }
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        if (this.isHoveredOrFocused() && tooltip != null && (contextMenu == null || !contextMenu.isOpen()))
+        if (this.isHoveredOrFocused() && tooltip != null && (popup == null || !popup.isOpen()))
             UIHelper.setTooltip(this);
 
         renderWidget(matrices, mouseX, mouseY, delta);
@@ -119,13 +119,13 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
         this.tooltip = tooltip;
     }
 
-    public ContextMenu getContextMenu() {
-        return contextMenu;
+    public PopupWidget getPopup() {
+        return popup;
     }
 
-    public void setContextMenu(ContextMenu contextMenu) {
-        this.contextMenu = contextMenu;
-        contextMenu.setParent(this);
+    public void setPopup(PopupWidget popup) {
+        this.popup = popup;
+        popup.setParent(this);
     }
 
     public boolean isSelectable() {

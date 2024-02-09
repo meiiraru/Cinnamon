@@ -1,9 +1,7 @@
 package mayo.gui.widgets.types;
 
 import mayo.Client;
-import mayo.gui.widgets.ContainerList;
-import mayo.gui.widgets.GUIListener;
-import mayo.gui.widgets.SelectableWidget;
+import mayo.gui.widgets.PopupWidget;
 import mayo.gui.widgets.Widget;
 import mayo.model.GeometryHelper;
 import mayo.render.Font;
@@ -20,20 +18,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static org.lwjgl.glfw.GLFW.*;
-
-public class ContextMenu extends ContainerList {
+public class ContextMenu extends PopupWidget {
 
     private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/context_menu.png"));
 
     private final List<ContextButton> actions = new ArrayList<>();
     private final int minWidth;
     private final int elementHeight;
-    private boolean open;
-    private Widget parent;
     private ContextMenu subContext;
     private int selected = -1;
-    private boolean hovered;
 
     public ContextMenu() {
         this(0, 0);
@@ -46,30 +39,19 @@ public class ContextMenu extends ContainerList {
         this.setDimensions(this.minWidth, 6);
     }
 
-    public boolean isOpen() {
-        return open;
-    }
-
+    @Override
     public boolean isHovered() {
-        return isOpen() && (hovered || isSubContextHovered());
+        return isOpen() && (super.isHovered() || isSubContextHovered());
     }
 
     private boolean isSubContextHovered() {
         return subContext != null && subContext.isHovered();
     }
 
-    public void close() {
-        this.open = false;
+    @Override
+    protected void reset() {
+        super.reset();
         this.selected = -1;
-    }
-
-    public void open() {
-        this.open = true;
-        this.selected = -1;
-    }
-
-    public void setParent(Widget parent) {
-        this.parent = parent;
     }
 
     public ContextMenu addAction(Text name, Text tooltip, Consumer<Button> action) {
@@ -118,23 +100,8 @@ public class ContextMenu extends ContainerList {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        if (!isOpen())
-            return;
-
-        matrices.push();
-        matrices.translate(0f, 0f, parent instanceof ContextMenu ? 1f : 500f);
-
+    public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //render background
-        renderBackground(matrices, mouseX, mouseY, delta);
-
-        //render child
-        super.render(matrices, mouseX, mouseY, delta);
-
-        matrices.pop();
-    }
-
-    protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
                 VertexConsumer.GUI, matrices, TEXTURE.getID(),
                 getX() - 1, getY() - 1,
@@ -143,54 +110,6 @@ public class ContextMenu extends ContainerList {
                 16, 16,
                 32, 35
         );
-    }
-
-    @Override
-    public GUIListener mousePress(int button, int action, int mods) {
-        if (!isOpen())
-            return null;
-
-        //check if a child is being pressed first
-        GUIListener sup = super.mousePress(button, action, mods);
-        if (sup != null) return sup;
-
-        //close context when clicked outside it, but do not void the mouse click
-        if (action == GLFW_PRESS && !UIHelper.isWidgetHovered(this)) {
-            this.close();
-            return null;
-        }
-
-        //always void mouse click when clicking somewhere inside it
-        return this;
-    }
-
-    @Override
-    public GUIListener mouseMove(int x, int y) {
-        this.hovered = UIHelper.isMouseOver(this, x, y);
-        return super.mouseMove(x, y);
-    }
-
-    @Override
-    public GUIListener keyPress(int key, int scancode, int action, int mods) {
-        if (!isOpen())
-            return null;
-
-        if (action != GLFW_PRESS)
-            return super.keyPress(key, scancode, action, mods);
-
-        switch (key) {
-            case GLFW_KEY_ESCAPE -> this.close();
-            case GLFW_KEY_DOWN -> {} //this.selectNext(false);
-            case GLFW_KEY_UP -> {} //this.selectNext(true);
-            default -> {super.keyPress(key, scancode, action, mods);}
-        }
-
-        return this;
-    }
-
-    @Override
-    protected List<SelectableWidget> getSelectableWidgets() {
-        return List.of();
     }
 
     private static void renderBackground(MatrixStack matrices, int x, int y, int width, int height, boolean hover, int index) {

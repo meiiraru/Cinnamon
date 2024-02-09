@@ -2,6 +2,7 @@ package mayo.gui.widgets.types;
 
 import mayo.Client;
 import mayo.gui.widgets.GUIListener;
+import mayo.gui.widgets.PopupWidget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
@@ -28,15 +29,15 @@ public class SelectionBox extends Button {
     public SelectionBox(int x, int y, int width, int height) {
         super(x, y, width, height, Text.of(""), button -> {
             SelectionBox box = (SelectionBox) button;
-            if (box.isExpanded()) box.getContextMenu().close();
-            else box.openContext(box.getX(), box.getY() + box.getHeight());
+            if (box.isExpanded()) box.getPopup().close();
+            else box.openPopup(box.getX(), box.getY() + box.getHeight());
         });
 
-        super.setContextMenu(new ContextMenu(width, height));
+        super.setPopup(new ContextMenu(width, height));
     }
 
     @Override
-    public void setContextMenu(ContextMenu contextMenu) {
+    public void setPopup(PopupWidget popup) {
         throw new UnsupportedOperationException();
     }
 
@@ -59,7 +60,7 @@ public class SelectionBox extends Button {
     }
 
     public boolean isExpanded() {
-        return getContextMenu().isOpen();
+        return getPopup().isOpen();
     }
 
     public int getSelectedIndex() {
@@ -72,7 +73,7 @@ public class SelectionBox extends Button {
         if (changeListener != null)
             changeListener.accept(index);
         if (closeOnSelect)
-            getContextMenu().close();
+            getPopup().close();
         updateTexts();
     }
 
@@ -98,7 +99,7 @@ public class SelectionBox extends Button {
         int index = indexes.size();
         indexes.add(name);
 
-        getContextMenu().addAction(name, tooltip, button -> {
+        ((ContextMenu) getPopup()).addAction(name, tooltip, button -> {
             select(index);
             if (action != null)
                 action.accept(button);
@@ -108,13 +109,13 @@ public class SelectionBox extends Button {
     }
 
     public SelectionBox addDivider() {
-        getContextMenu().addDivider();
+        ((ContextMenu) getPopup()).addDivider();
         return this;
     }
 
     /*
     public SelectionBox addSubMenu(Text name, ContextMenu subMenu) {
-        getContextMenu().addSubMenu(name, subMenu);
+        ((ContextMenu) getPopup()).addSubMenu(name, subMenu);
         return this;
     }
     */
@@ -129,15 +130,15 @@ public class SelectionBox extends Button {
                 text = Text.empty().withStyle(Style.EMPTY.color(UIHelper.ACCENT)).append(text);
 
             //apply text
-            getContextMenu().getAction(i).setMessage(text);
+            ((ContextMenu) getPopup()).getAction(i).setMessage(text);
         }
     }
 
     @Override
-    protected void openContext(int x, int y) {
-        ContextMenu context = getContextMenu();
-        UIHelper.setContextMenu(x, y, context);
-        context.open();
+    protected void openPopup(int x, int y) {
+        PopupWidget popup = getPopup();
+        UIHelper.setPopup(x, y, popup);
+        popup.open();
     }
 
     @Override
@@ -145,7 +146,9 @@ public class SelectionBox extends Button {
         if (UIHelper.isWidgetHovered(this)) {
             int i = selected;
             i += (int) Math.signum(-y);
-            select((int) Maths.modulo(i, indexes.size()));
+            i = (int) Maths.modulo(i, indexes.size());
+            select(i);
+            ((ContextMenu) getPopup()).getAction(i).onRun();
             return this;
         }
 

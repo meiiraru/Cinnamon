@@ -2,9 +2,9 @@ package mayo.utils;
 
 import mayo.Client;
 import mayo.gui.Screen;
+import mayo.gui.widgets.PopupWidget;
 import mayo.gui.widgets.SelectableWidget;
 import mayo.gui.widgets.Widget;
-import mayo.gui.widgets.types.ContextMenu;
 import mayo.model.Vertex;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
@@ -219,28 +219,28 @@ public class UIHelper {
         if (s != null) s.tooltip = tooltip;
     }
 
-    public static void setContextMenu(int x, int y, ContextMenu context) {
+    public static void setPopup(int x, int y, PopupWidget popup) {
         Screen s = Client.getInstance().screen;
         if (s == null)
             return;
 
-        ContextMenu sContext = s.contextMenu;
-        if (sContext != context && sContext != null) {
-            s.removeWidget(sContext);
-            sContext.close();
+        PopupWidget sPopup = s.popup;
+        if (sPopup != popup && sPopup != null) {
+            s.removeWidget(sPopup);
+            sPopup.close();
         }
 
-        if (context == null)
+        if (popup == null)
             return;
 
-        context.setPos(x, y);
+        popup.setPos(x, y);
 
         Window window = Client.getInstance().window;
-        fitInsideBoundaries(context, 0, 0, window.scaledWidth, window.scaledHeight);
+        fitInsideBoundaries(popup, 0, 0, window.scaledWidth, window.scaledHeight);
 
-        if (sContext != context) {
-            s.contextMenu = context;
-            s.addWidgetOnTop(context);
+        if (sPopup != popup) {
+            s.popup = popup;
+            s.addWidgetOnTop(popup);
         }
     }
 
@@ -254,9 +254,9 @@ public class UIHelper {
         return s != null ? s.getFocusedWidget() : null;
     }
 
-    public static boolean isMouseOverContext() {
+    public static boolean isPopupHovered() {
         Screen s = Client.getInstance().screen;
-        return s != null && s.contextMenu != null && s.contextMenu.isHovered();
+        return s != null && s.popup != null && s.popup.isOpen() && s.popup.isHovered();
     }
 
     public static void moveWidgetRelativeTo(Widget source, Widget toMove, int hOffset) {

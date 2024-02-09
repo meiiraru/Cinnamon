@@ -41,7 +41,7 @@ public class WidgetTestScreen extends ParentedScreen {
         ctx2.addDivider().addSubMenu(Text.of("||"), ctx3);
         ctx.addDivider().addSubMenu(Text.of("Purr~"), ctx2);
 
-        b.setContextMenu(ctx);
+        b.setPopup(ctx);
 
         //label
         Label l = new Label(Text.of("Label"), font, 0, 0);
