@@ -21,17 +21,15 @@ public class SelectionBox extends Button {
 
     protected Text selectedText = Text.of("-");
     protected int selected = -1;
-    protected Consumer<Integer> changeListener;
-    protected boolean expanded;
 
-    protected boolean closeOnSelect;
+    protected Consumer<Integer> changeListener;
+    protected boolean closeOnSelect = true;
 
     public SelectionBox(int x, int y, int width, int height) {
         super(x, y, width, height, Text.of(""), button -> {
             SelectionBox box = (SelectionBox) button;
-            if (box.expanded) box.getContextMenu().close();
+            if (box.isExpanded()) box.getContextMenu().close();
             else box.openContext(box.getX(), box.getY() + box.getHeight());
-            box.expanded = !box.expanded;
         });
 
         super.setContextMenu(new ContextMenu(width, height));
@@ -61,7 +59,7 @@ public class SelectionBox extends Button {
     }
 
     public boolean isExpanded() {
-        return expanded;
+        return getContextMenu().isOpen();
     }
 
     public int getSelectedIndex() {

@@ -21,7 +21,7 @@ public abstract class Batch { //vertex consumer
 
     //immutable properties
     protected static final int BUFFER_SIZE = 4098; //faces
-    protected static final int[] TEXTURE_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7};
+    protected static final int[] TEXTURE_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 
     //buffer
     protected final List<Integer> textures;
@@ -110,8 +110,12 @@ public abstract class Batch { //vertex consumer
             return false;
 
         //add texture
-        if (textureID != -1 && !textures.contains(textureID))
+        if (textureID != -1 && !textures.contains(textureID)) {
+            //cannot add texture
+            if (textures.size() >= TEXTURE_SLOTS.length)
+                return false;
             textures.add(textureID);
+        }
         int texID = textures.indexOf(textureID);
 
         //unwrap and push the vertices

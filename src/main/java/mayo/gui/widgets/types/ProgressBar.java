@@ -44,7 +44,7 @@ public class ProgressBar extends Widget {
                 getX() + 1, getY() + 1,
                 (getWidth() - 2) * progress, getHeight() - 2,
                 16f, 0f,
-                16 * progress, 16,
+                16, 16,
                 32, 16
         );
         for (Vertex vertex : vertices) {

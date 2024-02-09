@@ -85,10 +85,6 @@ public class Maths {
         return new Vector2f(Float.parseFloat(x), Float.parseFloat(y));
     }
 
-    public static float clamp(float val, float min, float max) {
-        return Math.min(Math.max(val, min), max);
-    }
-
     public static Vector3f rotToDir(float pitch, float yaw) {
         double p = Math.toRadians(pitch + 180f);
         double y = Math.toRadians(-yaw);

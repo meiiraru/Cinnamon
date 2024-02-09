@@ -3,7 +3,6 @@ package mayo.world.entity.projectile;
 import mayo.registry.EntityModelRegistry;
 import mayo.registry.EntityRegistry;
 import mayo.render.MatrixStack;
-import mayo.utils.Maths;
 import mayo.world.collisions.CollisionResolver;
 import mayo.world.collisions.CollisionResult;
 import org.joml.Vector3f;
@@ -48,7 +47,7 @@ public class Candy extends Projectile {
     @Override
     protected void applyModelPose(MatrixStack matrices, float delta) {
         super.applyModelPose(matrices, delta);
-        matrices.scale(Maths.clamp((this.lifetime - delta) / 5f, 0, 1));
+        matrices.scale(Math.clamp((this.lifetime - delta) / 5f, 0, 1));
     }
 
     @Override

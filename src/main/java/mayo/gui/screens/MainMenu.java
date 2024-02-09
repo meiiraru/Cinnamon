@@ -5,7 +5,6 @@ import mayo.gui.Screen;
 import mayo.gui.Toast;
 import mayo.gui.widgets.ContainerList;
 import mayo.gui.widgets.types.Button;
-import mayo.gui.widgets.types.ContextMenu;
 import mayo.gui.widgets.types.Label;
 import mayo.model.GeometryHelper;
 import mayo.networking.ServerConnection;
@@ -54,28 +53,6 @@ public class MainMenu extends Screen {
         Button extras = new MainButton(Text.of("Extras"), button -> client.setScreen(new ExtrasScreen(this)));
         list.addWidget(extras);
 
-        ContextMenu ctx = new ContextMenu()
-                .addAction(Text.of("Meow 1"), Text.of("Meow 1"), button -> System.out.println("1"))
-                .addDivider()
-                .addAction(Text.of("Meow 2"), Text.of("Meow 2"), button -> System.out.println("2"))
-                .addDivider()
-                .addAction(Text.of("Meow 3"), Text.of("Meow 3"), button -> System.out.println("3"));
-
-        ContextMenu ctx2 = new ContextMenu()
-                .addAction(Text.of("A"), Text.of("A"), button -> System.out.println("a"))
-                .addAction(Text.of("B"), Text.of("B"), button -> System.out.println("b"))
-                .addAction(Text.of("C"), Text.of("C"), button -> System.out.println("c"));
-
-        ContextMenu ctx3 = new ContextMenu()
-                .addAction(Text.of("1"), Text.of("1"), button -> System.out.println("1"))
-                .addAction(Text.of("11"), Text.of("11"), button -> System.out.println("11"))
-                .addAction(Text.of("111"), Text.of("111"), button -> System.out.println("111"));
-
-        ctx2.addDivider().addSubMenu(Text.of("||"), ctx3);
-        ctx.addDivider().addSubMenu(Text.of("Purr~"), ctx2);
-
-        extras.setContextMenu(ctx);
-
         //exit
         Button exitButton = new MainButton(Text.of("Exit"), button -> client.window.exit());
         exitButton.setTooltip(Text.of("bye~"));
@@ -122,10 +99,15 @@ public class MainMenu extends Screen {
             if (!this.isHoveredOrFocused())
                 return;
 
+            matrices.push();
+            matrices.translate(0, 0, -1f);
+
             VertexConsumer.GUI.consume(GeometryHelper.quad(
                     matrices, getCenterX() - 64, getY(),
                     128, 32
             ), LINE.getID());
+
+            matrices.pop();
         }
     }
 }

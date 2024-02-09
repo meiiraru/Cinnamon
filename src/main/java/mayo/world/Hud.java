@@ -151,9 +151,9 @@ public class Hud {
             Style style = Style.EMPTY.color(Colors.RED);
             text
                     .append("\n")
-                    .append(Text.of(item.getCount() + "").withStyle(style))
+                    .append(Text.of(item.getCount()).withStyle(style))
                     .append(" / ")
-                    .append(Text.of(item.getStackCount() + "").withStyle(style));
+                    .append(Text.of(item.getStackCount()).withStyle(style));
         }
 
         //transform matrices
@@ -198,7 +198,7 @@ public class Hud {
             text.append(" - ");
 
             //remaining time
-            text.append(Text.of(((effect.getRemainingTime()) / 20) + "").withStyle(Style.EMPTY.color(Colors.RED)));
+            text.append(Text.of((effect.getRemainingTime()) / 20).withStyle(Style.EMPTY.color(Colors.RED)));
 
             text.append("\n");
         }

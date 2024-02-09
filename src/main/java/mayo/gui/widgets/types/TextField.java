@@ -97,15 +97,6 @@ public class TextField extends SelectableWidget {
             font.render(VertexConsumer.FONT, matrices, x, y, Text.empty().withStyle(colorStyle).append(Text.of(POINTER).withStyle(style)));
     }
 
-    protected int getState() {
-        if (!isActive())
-            return 0;
-        else if (isHoveredOrFocused())
-            return 2;
-        else
-            return 1;
-    }
-
     public void setHintText(String hintText) {
         this.hintText = hintText == null ? null : Text.of(hintText).withStyle(HINT_STYLE);
     }
@@ -118,8 +109,16 @@ public class TextField extends SelectableWidget {
         this.selectedIndex = Math.max(Math.min(selectedIndex, currText.length()), 0);
     }
 
+    public void setColor(Colors color) {
+        this.setColor(color.rgba);
+    }
+
     public void setColor(int color) {
         this.colorStyle = Style.EMPTY.color(color);
+    }
+
+    public void setBorderColor(Colors color) {
+        this.setBorderColor(color.rgba);
     }
 
     public void setBorderColor(Integer color) {

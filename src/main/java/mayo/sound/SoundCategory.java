@@ -1,7 +1,5 @@
 package mayo.sound;
 
-import mayo.utils.Maths;
-
 public enum SoundCategory {
     MASTER,
     GUI,
@@ -18,7 +16,7 @@ public enum SoundCategory {
     }
 
     public void setVolume(SoundManager manager, float volume) {
-        this.volume = Maths.clamp(volume, 0, 1);
+        this.volume = Math.clamp(volume, 0, 1);
         manager.updateVolumes(this);
     }
 }

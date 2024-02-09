@@ -24,8 +24,8 @@ public class Text {
         return of("");
     }
 
-    public static Text of(String text) {
-        return new Text(text);
+    public static Text of(Object text) {
+        return new Text(String.valueOf(text));
     }
 
     public Text copy() {

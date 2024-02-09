@@ -59,15 +59,6 @@ public class Button extends SelectableWidget {
         f.render(VertexConsumer.FONT, matrices, x, y, text, TextUtils.Alignment.CENTER);
     }
 
-    public int getState() {
-        if (!this.isActive())
-            return 0;
-        else if (this.isHoveredOrFocused())
-            return 2;
-        else
-            return 1;
-    }
-
     @Override
     public GUIListener mousePress(int button, int action, int mods) {
         if (!isActive())

@@ -18,8 +18,8 @@ public class ToggleButton extends Button {
 
     protected boolean toggled;
 
-    public ToggleButton(int x, int y, int height, Text message) {
-        super(x, y, 0, height, message, null);
+    public ToggleButton(int x, int y, Text message) {
+        super(x, y, 0, 0, message, null);
 
         //force updates
         setAction(null);
@@ -62,7 +62,12 @@ public class ToggleButton extends Button {
     @Override
     public void setMessage(Text message) {
         super.setMessage(message);
-        this.setWidth(8 + 2 + TextUtils.getWidth(message, Client.getInstance().font));
+
+        Font f = Client.getInstance().font;
+        this.setDimensions(
+                Math.max(8, 8 + 2 + TextUtils.getWidth(message, f)),
+                Math.max(8, TextUtils.getHeight(message, f))
+        );
     }
 
     public boolean isToggled() {

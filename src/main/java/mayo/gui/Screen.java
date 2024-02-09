@@ -176,7 +176,7 @@ public abstract class Screen {
 
     public boolean mousePress(int button, int action, int mods) {
         GUIListener click = this.mainContainer.mousePress(button, action, mods);
-        if (click != focused)
+        if (click != focused && action == GLFW_PRESS)
             focusWidget(null);
         return click != null;
     }

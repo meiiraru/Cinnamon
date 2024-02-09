@@ -29,6 +29,10 @@ public class ExtrasScreen extends ParentedScreen {
         Button curve = new Button(0, 0, 180, 20, Text.of("Curves"), button -> client.setScreen(new CurvesScreen(this)));
         list.addWidget(curve);
 
+        //widgets test
+        Button widgetTest = new Button(0, 0, 180, 20, Text.of("GUI Test"), button -> client.setScreen(new WidgetTestScreen(this)));
+        list.addWidget(widgetTest);
+
         //back
         Button back = new Button(0, 0, 180, 20, Text.of("Back"), button -> close());
         list.addWidget(back);

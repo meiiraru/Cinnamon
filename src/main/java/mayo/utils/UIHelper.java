@@ -107,13 +107,55 @@ public class UIHelper {
     }
 
     public static void horizontalQuad(VertexConsumer consumer, MatrixStack matrices, int textureID, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
+        for (Vertex[] vertices : horizontalQuad(matrices, x, y, width, height, u, v, regionWidth, regionHeight, textureWidth, textureHeight))
+            consumer.consume(vertices, textureID);
+    }
+
+    public static void horizontalQuad(VertexConsumer consumer, MatrixStack matrices, int textureID, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight, int color) {
+        for (Vertex[] vertices : horizontalQuad(matrices, x, y, width, height, u, v, regionWidth, regionHeight, textureWidth, textureHeight)) {
+            for (Vertex vertex : vertices)
+                vertex.color(color);
+            consumer.consume(vertices, textureID);
+        }
+    }
+
+    private static Vertex[][] horizontalQuad(MatrixStack matrices, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
         float rWidthThird = regionWidth / 3f;
         float middleW = width - rWidthThird * 2;
 
-        consumer.consume(quad(matrices, x, y, rWidthThird, height, u, v, rWidthThird, regionHeight, textureWidth, textureHeight), textureID);
-        if (middleW > 0)
-            consumer.consume(quad(matrices, x + rWidthThird, y, middleW, height, u + rWidthThird, v, rWidthThird, regionHeight, textureWidth, textureHeight), textureID);
-        consumer.consume(quad(matrices, x + width - rWidthThird, y, rWidthThird, height, u + rWidthThird * 2, v, rWidthThird, regionHeight, textureWidth, textureHeight), textureID);
+        Vertex[][] vertices = new Vertex[3][4];
+
+        vertices[0] = quad(matrices, x, y, rWidthThird, height, u, v, rWidthThird, regionHeight, textureWidth, textureHeight);
+        vertices[1] = quad(matrices, x + rWidthThird, y, middleW, height, u + rWidthThird, v, rWidthThird, regionHeight, textureWidth, textureHeight);
+        vertices[2] = quad(matrices, x + width - rWidthThird, y, rWidthThird, height, u + rWidthThird * 2, v, rWidthThird, regionHeight, textureWidth, textureHeight);
+
+        return vertices;
+    }
+
+    public static void verticalQuad(VertexConsumer consumer, MatrixStack matrices, int textureID, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
+        for (Vertex[] vertices : verticalQuad(matrices, x, y, width, height, u, v, regionWidth, regionHeight, textureWidth, textureHeight))
+            consumer.consume(vertices, textureID);
+    }
+
+    public static void verticalQuad(VertexConsumer consumer, MatrixStack matrices, int textureID, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight, int color) {
+        for (Vertex[] vertices : verticalQuad(matrices, x, y, width, height, u, v, regionWidth, regionHeight, textureWidth, textureHeight)) {
+            for (Vertex vertex : vertices)
+                vertex.color(color);
+            consumer.consume(vertices, textureID);
+        }
+    }
+
+    private static Vertex[][] verticalQuad(MatrixStack matrices, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
+        float rHeightThird = regionHeight / 3f;
+        float middleH = height - rHeightThird * 2;
+
+        Vertex[][] vertices = new Vertex[3][4];
+
+        vertices[0] = quad(matrices, x, y, width, rHeightThird, u, v, width, rHeightThird, textureWidth, textureHeight);
+        vertices[1] = quad(matrices, x, y + rHeightThird, width, middleH, u, v + rHeightThird, width, rHeightThird, textureWidth, textureHeight);
+        vertices[2] = quad(matrices, x, y + height - rHeightThird, width, rHeightThird, u, v + rHeightThird * 2, width, rHeightThird, textureWidth, textureHeight);
+
+        return vertices;
     }
 
     public static void renderTooltip(MatrixStack matrices, SelectableWidget widget, Font font) {
@@ -146,8 +188,8 @@ public class UIHelper {
         }
 
         //then fit in the screen boundaries
-        x = (int) Maths.clamp(x, -2f, screenW - w - 2);
-        y = (int) Maths.clamp(y, -2f, screenH - h - 2);
+        x = (int) Math.clamp(x, -2f, screenW - w - 2);
+        y = (int) Math.clamp(y, -2f, screenH - h - 2);
 
         //render background
 
@@ -234,8 +276,8 @@ public class UIHelper {
 
     public static void fitInsideBoundaries(Widget w, int x0, int y0, int x1, int y1) {
         //fix widget pos
-        int x = (int) Maths.clamp(w.getX(), x0, x1 - w.getWidth());
-        int y = (int) Maths.clamp(w.getY(), y0, y1 - w.getHeight());
+        int x = Math.clamp(w.getX(), x0, x1 - w.getWidth());
+        int y = Math.clamp(w.getY(), y0, y1 - w.getHeight());
         w.setPos(x, y);
     }
 

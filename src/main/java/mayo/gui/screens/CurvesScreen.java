@@ -71,7 +71,6 @@ public class CurvesScreen extends ParentedScreen {
 
         //selection box
         SelectionBox box = new SelectionBox(0, 0, 60, 12)
-                .closeOnSelect(true)
                 .setChangeListener(i -> {
                     lastSelected = i;
                     switch (i) {
@@ -92,19 +91,19 @@ public class CurvesScreen extends ParentedScreen {
         list.addWidget(box);
 
         //points button
-        ToggleButton pointsButton = new ToggleButton(0, 0, 12, Text.of("Render points index"));
+        ToggleButton pointsButton = new ToggleButton(0, 0, Text.of("Render points index"));
         pointsButton.setAction(button -> renderPointsText = pointsButton.isToggled());
         pointsButton.setToggled(renderPointsText);
         list.addWidget(pointsButton);
 
         //lines button
-        ToggleButton linesButton = new ToggleButton(0, 0, 12, Text.of("Render lines"));
+        ToggleButton linesButton = new ToggleButton(0, 0, Text.of("Render lines"));
         linesButton.setAction(button -> renderLines = linesButton.isToggled());
         linesButton.setToggled(renderLines);
         list.addWidget(linesButton);
 
         //loop button
-        ToggleButton loopButton = new ToggleButton(0, 0, 12, Text.of("Loop"));
+        ToggleButton loopButton = new ToggleButton(0, 0, Text.of("Loop"));
         loopButton.setAction(button -> curve.loop(!curve.isLooping()));
         loopButton.setToggled(curve.isLooping());
         list.addWidget(loopButton);
