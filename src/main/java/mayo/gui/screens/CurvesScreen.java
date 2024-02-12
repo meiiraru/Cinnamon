@@ -50,7 +50,7 @@ public class CurvesScreen extends ParentedScreen {
         ContainerList list = new ContainerList(4, 4, 4);
 
         //help label
-        Label help = new Label(Text.of("\u2753 Help"), client.font, 0, 0);
+        Label help = new Label(0, 0, Text.of("\u2753 Help"), client.font);
         help.setTooltip(Text.of("""
                 Mouse 1
                     Add control point
@@ -82,6 +82,7 @@ public class CurvesScreen extends ParentedScreen {
                     }
                 })
                 .addEntry(Text.of("Linear"))
+                .addDivider()
                 .addEntry(Text.of("Hermite"))
                 .addEntry(Text.of("Bezier"))
                 .addEntry(Text.of("B-Spline"))

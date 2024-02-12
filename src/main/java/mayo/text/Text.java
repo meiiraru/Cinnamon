@@ -35,6 +35,10 @@ public class Text {
         return t;
     }
 
+    public Text withStyle(Text other) {
+        return withStyle(other.getStyle());
+    }
+
     public Text withStyle(Style style) {
         this.style = style.applyParent(this.style);
         return this;

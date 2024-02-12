@@ -18,7 +18,7 @@ public class Label extends SelectableWidget {
     private Text text;
     private TextUtils.Alignment alignment = TextUtils.Alignment.LEFT;
 
-    public Label(Text text, Font font, int x, int y) {
+    public Label(int x, int y, Text text, Font font) {
         super(x, y, TextUtils.getWidth(text, font), TextUtils.getHeight(text, font));
         this.text = text;
         this.font = font;
@@ -45,6 +45,10 @@ public class Label extends SelectableWidget {
 
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         font.render(VertexConsumer.FONT, matrices, getX(), getY(), text, alignment);
+    }
+
+    public Text getText() {
+        return text;
     }
 
     public Label setText(Text text) {

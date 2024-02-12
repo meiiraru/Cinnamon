@@ -6,7 +6,12 @@ import mayo.gui.widgets.ContainerList;
 import mayo.gui.widgets.types.Button;
 import mayo.text.Text;
 
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+
 public class ExtrasScreen extends ParentedScreen {
+
+    private static final BiFunction<String, Consumer<Button>, Button> BUTTON_FACTORY = (s, a) -> new Button(0, 0, 180, 20, Text.of(s), a);
 
     public ExtrasScreen(Screen parentScreen) {
         super(parentScreen);
@@ -18,23 +23,27 @@ public class ExtrasScreen extends ParentedScreen {
         ContainerList list = new ContainerList(0, 0, 4);
 
         //dvd screen
-        Button dvd = new Button(0, 0, 180, 20, Text.of("DVD screensaver"), button -> client.setScreen(new DVDScreen(this)));
+        Button dvd = BUTTON_FACTORY.apply("DVD screensaver", button -> client.setScreen(new DVDScreen(this)));
         list.addWidget(dvd);
 
         //collision screen
-        Button coll = new Button(0, 0, 180, 20, Text.of("Collision Test"), button -> client.setScreen(new CollisionScreen(this)));
+        Button coll = BUTTON_FACTORY.apply("Collision Test", button -> client.setScreen(new CollisionScreen(this)));
         list.addWidget(coll);
 
         //curves screen
-        Button curve = new Button(0, 0, 180, 20, Text.of("Curves"), button -> client.setScreen(new CurvesScreen(this)));
+        Button curve = BUTTON_FACTORY.apply("Curves", button -> client.setScreen(new CurvesScreen(this)));
         list.addWidget(curve);
 
         //widgets test
-        Button widgetTest = new Button(0, 0, 180, 20, Text.of("GUI Test"), button -> client.setScreen(new WidgetTestScreen(this)));
+        Button widgetTest = BUTTON_FACTORY.apply("GUI Test", button -> client.setScreen(new WidgetTestScreen(this)));
         list.addWidget(widgetTest);
 
+        //wordle
+        Button worlde = BUTTON_FACTORY.apply("Wordle", button -> client.setScreen(new WordleScreen(this)));
+        list.addWidget(worlde);
+
         //back
-        Button back = new Button(0, 0, 180, 20, Text.of("Back"), button -> close());
+        Button back = BUTTON_FACTORY.apply("Back", button -> close());
         list.addWidget(back);
 
         //add list to screen

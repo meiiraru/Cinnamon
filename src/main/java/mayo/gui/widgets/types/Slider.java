@@ -350,4 +350,8 @@ public class Slider extends SelectableWidget {
     public float getAnimationValue() {
         return animationValue;
     }
+
+    public int getStepIndex() {
+        return steps == 1 ? intValue : Math.round(value / stepValue);
+    }
 }

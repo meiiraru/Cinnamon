@@ -174,7 +174,7 @@ public class TextField extends SelectableWidget {
     @Override
     public GUIListener charTyped(char c, int mods) {
         if (!isFocused())
-            return super.charTyped(c, mods);;
+            return super.charTyped(c, mods);
 
         append(String.valueOf(c));
         return this;
@@ -188,13 +188,13 @@ public class TextField extends SelectableWidget {
 
     }
 
-    private void append(String s) {
+    public void append(String s) {
         currText += s;
         if (changeListener != null)
             changeListener.accept(currText);
     }
 
-    private void remove(int count) {
+    public void remove(int count) {
         int len = currText.length();
         if (len > 0) {
             currText = currText.substring(0, len - Math.min(count, len));

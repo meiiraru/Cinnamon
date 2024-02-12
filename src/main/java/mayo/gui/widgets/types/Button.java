@@ -24,6 +24,8 @@ public class Button extends SelectableWidget {
     private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/button.png"));
     private static final Resource CLICK_SOUND = new Resource("sounds/pop.ogg");
 
+    private boolean silent;
+
     protected Text message;
     protected Consumer<Button> action;
 
@@ -90,7 +92,8 @@ public class Button extends SelectableWidget {
     }
 
     public void onRun() {
-        playClickSound();
+        if (!isSilent())
+            playClickSound();
         if (action != null)
             action.accept(this);
     }
@@ -119,5 +122,13 @@ public class Button extends SelectableWidget {
 
     public void setAction(Consumer<Button> action) {
         this.action = action;
+    }
+
+    public boolean isSilent() {
+        return silent;
+    }
+
+    public void setSilent(boolean silent) {
+        this.silent = silent;
     }
 }

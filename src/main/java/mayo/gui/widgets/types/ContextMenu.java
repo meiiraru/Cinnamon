@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 public class ContextMenu extends PopupWidget {
 
     private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/context_menu.png"));
+    private static final int DIVIDER_HEIGHT = 5;
 
     private final List<ContextButton> actions = new ArrayList<>();
     private final int minWidth;
@@ -55,32 +56,20 @@ public class ContextMenu extends PopupWidget {
     }
 
     public ContextMenu addAction(Text name, Text tooltip, Consumer<Button> action) {
-        ContextButton button = new ContextButton(getX(), getAddY(), name, action, widgets.size(), this);
-        button.setTooltip(tooltip);
-        button.setDimensions(getWidthForText(name), elementHeight);
-
+        ContextButton button = new ContextButton(getWidthForText(name), elementHeight, name, tooltip, action, widgets.size(), this);
         this.addWidget(button);
         this.actions.add(button);
-
         return this;
     }
 
     public ContextMenu addDivider() {
-        this.addWidget(new ContextDivider(getX(), getAddY(), getWidth(), widgets.size()));
+        this.addWidget(new ContextDivider(getWidth(), DIVIDER_HEIGHT, widgets.size()));
         return this;
     }
 
     public ContextMenu addSubMenu(Text name, ContextMenu subContext) {
-        ContextSubMenu subMenu = new ContextSubMenu(getX(), getAddY(), name, subContext, widgets.size(), this);
-        subMenu.setDimensions(getWidthForText(name), elementHeight);
-
-        this.addWidget(subMenu);
-
+        this.addWidget(new ContextSubMenu(getWidthForText(name), elementHeight, name, subContext, widgets.size(), this));
         return this;
-    }
-
-    private int getAddY() {
-        return widgets.isEmpty() ? 0 : getHeight();
     }
 
     private int getWidthForText(Text name) {
@@ -131,8 +120,9 @@ public class ContextMenu extends PopupWidget {
         protected final int index;
         protected final ContextMenu parent;
 
-        public ContextButton(int x, int y, Text message, Consumer<Button> action, int index, ContextMenu parent) {
-            super(x, y, 0, 0, message, action);
+        public ContextButton(int width, int height, Text message, Text tooltip, Consumer<Button> action, int index, ContextMenu parent) {
+            super(0, 0, width, height, message, action);
+            setTooltip(tooltip);
             this.index = index;
             this.parent = parent;
         }
@@ -165,11 +155,9 @@ public class ContextMenu extends PopupWidget {
     }
 
     private static class ContextDivider extends Widget {
-        private static final int HEIGHT = 5;
         private final int index;
-
-        public ContextDivider(int x, int y, int width, int index) {
-            super(x, y, width, HEIGHT);
+        public ContextDivider(int width, int height, int index) {
+            super(0, 0, width, height);
             this.index = index;
         }
 
@@ -179,7 +167,7 @@ public class ContextMenu extends PopupWidget {
 
             UIHelper.horizontalQuad(
                     VertexConsumer.GUI, matrices, TEXTURE.getID(),
-                    getX() + 1, getY() + 1,
+                    getX() + 1, Math.round(getCenterY() - 1.5f),
                     getWidth() - 2, 3,
                     0f, 32f,
                     32, 3,
@@ -193,8 +181,8 @@ public class ContextMenu extends PopupWidget {
         private final ContextMenu subContext;
         private float arrowOffset = 0f;
 
-        public ContextSubMenu(int x, int y, Text message, ContextMenu subContext, int index, ContextMenu parent) {
-            super(x, y, message, null, index, parent);
+        public ContextSubMenu(int width, int height, Text message, ContextMenu subContext, int index, ContextMenu parent) {
+            super(width, height, message, null, null, index, parent);
             this.subContext = subContext;
             subContext.setParent(parent);
         }

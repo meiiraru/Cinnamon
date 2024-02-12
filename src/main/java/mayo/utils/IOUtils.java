@@ -3,15 +3,14 @@ package mayo.utils;
 import org.lwjgl.BufferUtils;
 
 import java.awt.*;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.BiConsumer;
 
 import static org.lwjgl.system.MemoryUtil.memSlice;
 
@@ -48,11 +47,28 @@ public class IOUtils {
 
     public static String readString(Resource res) {
         try {
-            InputStream stream = IOUtils.getResource(res);
+            InputStream stream = getResource(res);
             if (stream == null)
                 throw new RuntimeException("Resource not found: " + res);
 
             return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void readStringLines(Resource res, BiConsumer<String, Integer> lineConsumer) {
+        try {
+            InputStream stream = getResource(res);
+            if (stream == null)
+                throw new RuntimeException("Resource not found: " + res);
+
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
+                int i = 1;
+                String line;
+                while ((line = br.readLine()) != null)
+                    lineConsumer.accept(line, i++);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

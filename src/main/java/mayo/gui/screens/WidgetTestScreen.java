@@ -44,7 +44,7 @@ public class WidgetTestScreen extends ParentedScreen {
         b.setPopup(ctx);
 
         //label
-        Label l = new Label(Text.of("Label"), font, 0, 0);
+        Label l = new Label(0, 0, Text.of("Label"), font);
         list.addWidget(l);
 
         //progress bar
@@ -69,7 +69,7 @@ public class WidgetTestScreen extends ParentedScreen {
 
         s.setColor(Colors.PINK);
         s.setChangeListener((f, i) -> {
-            l.setText(Text.of("Label " + f));
+            l.setText(Text.of("Label " + s.getStepIndex()));
             pb.setProgress(f);
         });
         s.setMax(1000);

@@ -7,7 +7,7 @@ import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public abstract class PopupWidget extends ContainerList {
+public class PopupWidget extends ContainerList {
 
     private boolean open;
     private Widget parent;
@@ -62,7 +62,9 @@ public abstract class PopupWidget extends ContainerList {
         matrices.pop();
     }
 
-    protected abstract void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta);
+    protected void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+
+    };
 
     @Override
     public GUIListener mousePress(int button, int action, int mods) {
