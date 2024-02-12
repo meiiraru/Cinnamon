@@ -2,7 +2,7 @@ package mayo.world;
 
 import mayo.Client;
 import mayo.sound.SoundCategory;
-import mayo.sound.SoundSource;
+import mayo.sound.SoundInstance;
 import mayo.utils.AABB;
 import mayo.utils.Resource;
 import mayo.world.collisions.CollisionDetector;
@@ -95,7 +95,7 @@ public abstract class World {
         });
     }
 
-    public SoundSource playSound(Resource sound, SoundCategory category, Vector3f position) {
+    public SoundInstance playSound(Resource sound, SoundCategory category, Vector3f position) {
         return Client.getInstance().soundManager.playSound(sound, category, position);
     }
 

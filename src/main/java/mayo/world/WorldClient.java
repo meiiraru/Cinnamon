@@ -91,6 +91,8 @@ public class WorldClient extends World {
         addLight(sunLight);
         addLight(flashlight);
 
+        //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
+
         //rip for-loop
         addLight(new Light().pos(-5.5f, 0.5f, 2f).color(0x000000));
         addLight(new Light().pos(-3.5f, 0.5f, 2f).color(0xFF0000));
