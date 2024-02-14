@@ -411,7 +411,7 @@ public class WordleScreen extends ParentedScreen {
         private final TextField field;
         public Field(Font font, int x, int y, Consumer<String> listener) {
             super(x, y, 4);
-            field = new TextField(font, 0, 0, 16, 16) {
+            field = new TextField(0, 0, 16, 16, font) {
                 @Override
                 public void setFocused(boolean focused) {
                     super.setFocused(true);

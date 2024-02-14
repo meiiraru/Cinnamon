@@ -2,6 +2,7 @@ package mayo.gui.screens;
 
 import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
+import mayo.gui.Toast;
 import mayo.gui.widgets.ContainerList;
 import mayo.gui.widgets.types.*;
 import mayo.text.Text;
@@ -78,15 +79,23 @@ public class WidgetTestScreen extends ParentedScreen {
         b.setAction(button -> s.setStepCount(s.getStepCount() + 1));
 
         //text field
-        TextField tf = new TextField(font, 0, 0, 60, 12);
+        TextField tf = new TextField(0, 0, 60, 12, font);
         list.addWidget(tf);
 
         tf.setHintText("Text Field");
         tf.setListener(s1 -> tf.setColor(Colors.randomRainbow()));
 
         //toggle button
-        ToggleButton tb =  new ToggleButton(0, 0, Text.of("Toggle Button"));
+        ToggleButton tb = new ToggleButton(0, 0, Text.of("Toggle Button"));
         list.addWidget(tb);
+
+        //toast 1
+        Button toast1 = new Button(0, 0, 60, 12, Text.of("Toast 1"), button -> Toast.addToast(Text.of("Toast 1"), font));
+        list.addWidget(toast1);
+
+        //toast 2
+        Button toast2 = new Button(0, 0, 60, 12, Text.of("Toast 2"), button -> Toast.addToast(Text.of("Multi-line\nToast :3"), font));
+        list.addWidget(toast2);
 
         //add list
         addWidget(list);

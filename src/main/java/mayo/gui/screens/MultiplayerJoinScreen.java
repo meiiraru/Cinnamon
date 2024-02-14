@@ -30,14 +30,14 @@ public class MultiplayerJoinScreen extends ParentedScreen {
         int y = height / 2;
 
         //name field
-        nameField = new TextField(font, x - 50, y - 15 - 4 - (int) font.lineHeight - 4 - 15, 100, 15);
+        nameField = new TextField(x - 50, y - 15 - 4 - (int) font.lineHeight - 4 - 15, 100, 15, font);
         nameField.setListener(string -> name = string);
         nameField.setHintText("name...");
         nameField.setString(name);
         addWidget(nameField);
 
         //ip field
-        ipField = new TextField(font, x - 50, y - 15, 100, 15);
+        ipField = new TextField(x - 50, y - 15, 100, 15, font);
         ipField.setListener(string -> ip = string);
         ipField.setHintText("ip...");
         ipField.setString(ip);

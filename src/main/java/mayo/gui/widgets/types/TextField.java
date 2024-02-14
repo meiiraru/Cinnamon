@@ -33,7 +33,7 @@ public class TextField extends SelectableWidget {
     private int selectedIndex = 0;
     private Consumer<String> changeListener;
 
-    public TextField(Font font, int x, int y, int width, int height) {
+    public TextField(int x, int y, int width, int height, Font font) {
         super(x, y, width, height);
         this.font = font;
     }

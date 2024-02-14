@@ -195,7 +195,7 @@ public class UIHelper {
 
         //move matrices on x and z
         matrices.push();
-        matrices.translate(x, 0, 999f);
+        matrices.translate(x, 0, 998f);
 
         int texID = TOOLTIP.getID();
 

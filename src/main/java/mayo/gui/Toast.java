@@ -11,19 +11,21 @@ import mayo.utils.Resource;
 import mayo.utils.TextUtils;
 import mayo.utils.UIHelper;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class Toast {
 
     // -- properties -- //
 
     protected static final int
-            LENGTH = 100,
+            LENGTH = 60,
             ANIM = 5,
-            PADDING = 12;
+            PADDING = 6,
+            TOASTS_LIMIT = 5;
     private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/toast.png"));
-    private static final Queue<Toast> TOASTS = new LinkedList<>();
+    private static final List<Toast> TOASTS = new ArrayList<>();
 
 
     // -- toast functions -- //
@@ -33,12 +35,21 @@ public class Toast {
         if (TOASTS.isEmpty())
             return;
 
-        Toast toast = TOASTS.peek();
-        if (toast.addedTime < 0)
-            toast.addedTime = Client.getInstance().ticks;
+        matrices.push();
+        matrices.translate(Math.round(width / 2f), 4f - 1f, 999f);
 
-        if (toast.render(matrices, width, height, delta))
-            TOASTS.remove();
+        Iterator<Toast> iterator = TOASTS.iterator();
+        for (int i = 0; i < TOASTS_LIMIT && iterator.hasNext(); i++) {
+            Toast toast = iterator.next();
+
+            if (toast.addedTime < 0)
+                toast.addedTime = Client.getInstance().ticks;
+
+            if (toast.render(matrices, width, height, delta))
+                iterator.remove();
+        }
+
+        matrices.pop();
     }
 
     public static void addToast(Text text, Font font) {
@@ -46,21 +57,9 @@ public class Toast {
     }
 
     public static void addToast(Text text, Font font, int length) {
-        String str = text.asString();
-        for (Toast toast : TOASTS) {
-            //update toast if it already exists
-            if (toast.text.asString().equals(str)) {
-                toast.text = text;
-                toast.font = font;
-                toast.addedTime = Client.getInstance().ticks - ANIM;
-                return;
-            }
-        }
-
-        //otherwise queue a new toast
+        //add a new toast
         TOASTS.add(new Toast(text, font, length, ToastType.DEFAULT));
-
-        System.out.println("[Toast] " + str);
+        System.out.println("[Toast] " + text.asString());
     }
 
     public static void clearAll() {
@@ -79,8 +78,9 @@ public class Toast {
 
     private final int length;
     private final ToastType type;
-    private Text text;
-    private Font font;
+    private final Text text;
+    private final Font font;
+    private final int width, height;
     private long addedTime = -1;
 
     protected Toast(Text text, Font font, int length, ToastType type) {
@@ -88,6 +88,8 @@ public class Toast {
         this.type = type;
         this.text = text;
         this.font = font;
+        this.width = TextUtils.getWidth(text, font);
+        this.height = TextUtils.getHeight(text, font);
     }
 
     protected boolean render(MatrixStack matrices, int width, int height, float delta) {
@@ -96,37 +98,36 @@ public class Toast {
         if (life > length)
             return true;
 
-        //grab text dimensions
-        int tWidth = TextUtils.getWidth(text, font);
-        int tHeight = TextUtils.getHeight(text, font);
-
         //set y animation offset
         float y;
         if (life <= ANIM) {
-            y = Maths.lerp(-tHeight - PADDING, 4f, life / ANIM);
+            y = Maths.lerp(-this.height - PADDING, 1f, life / ANIM);
         } else if (life >= length - ANIM) {
-            y = Maths.lerp(4f, -tHeight - PADDING, (life - (length - ANIM)) / ANIM);
+            y = Maths.lerp(1f, -this.height - PADDING, (life - (length - ANIM)) / ANIM);
         } else {
-            y = 4f;
+            y = 1f;
         }
 
-        matrices.push();
-        matrices.translate((width - tWidth - PADDING) / 2f, y, 999f);
+        matrices.translate(0f, y, 0f);
 
         //render background
+        int bgWidth = this.width + PADDING;
+        int bgHeight = this.height + PADDING;
+
         UIHelper.nineQuad(
                 VertexConsumer.GUI, matrices, TEXTURE.getID(),
-                0f, 0f,
-                tWidth + PADDING, tHeight + PADDING,
+                Math.round(-bgWidth / 2f), 0f,
+                bgWidth, bgHeight,
                 type.ordinal() * 16f, 0f,
                 16, 16,
                 48, 16
         );
 
         //render text
-        font.render(VertexConsumer.FONT, matrices, (tWidth + PADDING) / 2f, PADDING / 2f, text, TextUtils.Alignment.CENTER);
+        font.render(VertexConsumer.FONT, matrices, 0f, PADDING / 2f, text, TextUtils.Alignment.CENTER);
 
-        matrices.pop();
+        //return
+        matrices.translate(0f, bgHeight, 0f);
         return false;
     }
 }
