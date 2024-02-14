@@ -10,10 +10,7 @@ import mayo.render.batch.VertexConsumer;
 import mayo.sound.SoundCategory;
 import mayo.text.Style;
 import mayo.text.Text;
-import mayo.utils.Colors;
-import mayo.utils.Resource;
-import mayo.utils.TextUtils;
-import mayo.utils.UIHelper;
+import mayo.utils.*;
 
 import java.util.function.Consumer;
 
@@ -58,7 +55,7 @@ public class Button extends SelectableWidget {
         Font f = Client.getInstance().font;
         int x = getCenterX();
         int y = getCenterY() - TextUtils.getHeight(text, f) / 2;
-        f.render(VertexConsumer.FONT, matrices, x, y, text, TextUtils.Alignment.CENTER);
+        f.render(VertexConsumer.FONT, matrices, x, y, text, Alignment.CENTER);
     }
 
     @Override

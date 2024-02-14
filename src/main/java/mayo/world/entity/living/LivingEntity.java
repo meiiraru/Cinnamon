@@ -9,6 +9,7 @@ import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
+import mayo.utils.Alignment;
 import mayo.utils.Colors;
 import mayo.utils.Rotation;
 import mayo.utils.TextUtils;
@@ -109,7 +110,7 @@ public abstract class LivingEntity extends PhysEntity {
         matrices.peek().pos().scale(-s);
         matrices.translate(0f, -TextUtils.getHeight(text, c.font), 0f);
 
-        c.font.render(VertexConsumer.WORLD_FONT, matrices, 0, 0, text, TextUtils.Alignment.CENTER, 50);
+        c.font.render(VertexConsumer.WORLD_FONT, matrices, 0, 0, text, Alignment.CENTER, 50);
 
         matrices.pop();
     }

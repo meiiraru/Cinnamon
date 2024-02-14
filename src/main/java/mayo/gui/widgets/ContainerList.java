@@ -1,8 +1,11 @@
 package mayo.gui.widgets;
 
-public class ContainerList extends Container {
+import mayo.utils.Alignment;
+
+public class ContainerList extends Container implements AlignedWidget {
 
     private final int spacing, columns;
+    private Alignment alignment = Alignment.LEFT;
 
     public ContainerList(int x, int y, int spacing) {
         this(x, y, spacing, 1);
@@ -16,27 +19,44 @@ public class ContainerList extends Container {
 
     @Override
     public void updateDimensions() {
+        //prepare variables
         int size = widgets.size();
 
-        //calculate cell dimensions
-        int[] minX = new int[columns + 1];
-        int[] minY = new int[(int) Math.ceil((float) size / columns) + 1];
-        minX[0] = 0; minY[0] = 0;
+        int totalWidth = -spacing;
+        int[] xPos = new int[columns + 1];
 
-        for (int i = 0; i < widgets.size(); i++) {
+        int[] widths = new int[xPos.length];
+        int[] yPos = new int[(int) Math.ceil((float) size / columns) + 1];
+        widths[0] = 0;
+        yPos[0] = 0;
+
+        //grab cells size
+        for (int i = 0; i < size; i++) {
             Widget w = widgets.get(i);
 
             //x
             int row = i % columns;
-            minX[row + 1] = Math.max(minX[row + 1], w.getWidth() + minX[row] + spacing);
+            widths[row + 1] = Math.max(widths[row + 1], w.getWidth());
 
             //y
             int column = i / columns;
-            minY[column + 1] = Math.max(minY[column + 1], w.getHeight() + minY[column] + spacing);
+            yPos[column + 1] = Math.max(yPos[column + 1], w.getHeight() + yPos[column] + spacing);
         }
 
+        //fix for widths
+        for (int i = 0; i < widths.length; i++) {
+            totalWidth += widths[i] + spacing;
+            xPos[i] = totalWidth;
+        }
+
+        if (size < columns)
+            totalWidth -= spacing * (columns - size);
+
+        //set dimensions (as super)
+        setDimensions(totalWidth - spacing, yPos[yPos.length - 1] - spacing);
+
         //set widget positions
-        int x = getX();
+        int x = getX() + Math.round(alignment.getOffset(getWidth()));
         int y = getY();
 
         for (int i = 0; i < widgets.size(); i++) {
@@ -44,10 +64,19 @@ public class ContainerList extends Container {
             int column = i / columns;
 
             Widget w = widgets.get(i);
-            w.setPos(x + minX[row], y + minY[column]);
-        }
+            int ww = w.getWidth();
+            w.setPos(x + xPos[row] + Math.round(alignment.getOffset(ww - widths[row + 1])), y + yPos[column]);
 
-        //super call
-        super.updateDimensions();
+            if (w instanceof AlignedWidget aw) {
+                aw.setAlignment(alignment);
+                w.translate(Math.round(-alignment.getOffset(ww)), 0);
+            }
+        }
+    }
+
+    @Override
+    public void setAlignment(Alignment alignment) {
+        this.alignment = alignment;
+        updateDimensions();
     }
 }

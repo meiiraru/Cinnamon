@@ -15,9 +15,9 @@ import mayo.text.Text;
 import mayo.utils.*;
 import mayo.world.collisions.Hit;
 import mayo.world.effects.Effect;
-import mayo.world.items.Inventory;
 import mayo.world.entity.living.Player;
 import mayo.world.items.CooldownItem;
+import mayo.world.items.Inventory;
 import mayo.world.items.Item;
 import mayo.world.items.ItemRenderContext;
 import org.joml.Matrix4f;
@@ -53,7 +53,7 @@ public class Hud {
         c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps").withStyle(style));
         if (c.world.isDebugRendering()) {
             c.font.render(VertexConsumer.FONT, matrices, 4, 4 + c.font.lineHeight * 2, Text.of(debugLeftText()).withStyle(style));
-            c.font.render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, Text.of(debugRightText()).withStyle(style), TextUtils.Alignment.RIGHT);
+            c.font.render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, Text.of(debugRightText()).withStyle(style), Alignment.RIGHT);
         }
 
         //draw player stats
@@ -164,7 +164,7 @@ public class Hud {
         matrices.rotate(Rotation.Z.rotationDeg(10f));
 
         //draw text
-        font.render(VertexConsumer.FONT, matrices, 0f, 0f, text, TextUtils.Alignment.RIGHT);
+        font.render(VertexConsumer.FONT, matrices, 0f, 0f, text, Alignment.RIGHT);
 
         //draw progressbar
         if (onCooldown) {
@@ -205,7 +205,7 @@ public class Hud {
 
         //render
         if (!text.asString().equals("\n"))
-            font.render(VertexConsumer.FONT, matrices, 0f, 0f, text, TextUtils.Alignment.RIGHT);
+            font.render(VertexConsumer.FONT, matrices, 0f, 0f, text, Alignment.RIGHT);
 
         matrices.pop();
     }

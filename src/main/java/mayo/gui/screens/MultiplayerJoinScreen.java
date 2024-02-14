@@ -11,7 +11,7 @@ import mayo.networking.NetworkConstants;
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
-import mayo.utils.TextUtils;
+import mayo.utils.Alignment;
 import mayo.world.WorldClient;
 
 public class MultiplayerJoinScreen extends ParentedScreen {
@@ -66,10 +66,10 @@ public class MultiplayerJoinScreen extends ParentedScreen {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //name text
-        font.render(VertexConsumer.FONT, matrices, width / 2f,  nameField.getY() - 4 - font.lineHeight, Text.of("Enter your name:"), TextUtils.Alignment.CENTER);
+        font.render(VertexConsumer.FONT, matrices, width / 2f,  nameField.getY() - 4 - font.lineHeight, Text.of("Enter your name:"), Alignment.CENTER);
 
         //ip text
-        font.render(VertexConsumer.FONT, matrices, width / 2f, ipField.getY() - 4 - font.lineHeight, Text.of("Enter server IP:"), TextUtils.Alignment.CENTER);
+        font.render(VertexConsumer.FONT, matrices, width / 2f, ipField.getY() - 4 - font.lineHeight, Text.of("Enter server IP:"), Alignment.CENTER);
 
         super.render(matrices, mouseX, mouseY, delta);
     }

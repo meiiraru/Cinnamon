@@ -1,5 +1,7 @@
 package mayo.gui.widgets.types;
 
+import mayo.gui.widgets.AlignedWidget;
+import mayo.utils.Alignment;
 import mayo.gui.widgets.SelectableWidget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
@@ -10,13 +12,13 @@ import mayo.utils.Resource;
 import mayo.utils.TextUtils;
 import mayo.utils.UIHelper;
 
-public class Label extends SelectableWidget {
+public class Label extends SelectableWidget implements AlignedWidget {
 
     private static final Texture HOVER_TEXTURE = Texture.of(new Resource("textures/gui/widgets/label.png"));
 
     private final Font font;
     private Text text;
-    private TextUtils.Alignment alignment = TextUtils.Alignment.LEFT;
+    private Alignment alignment = Alignment.LEFT;
 
     public Label(int x, int y, Text text, Font font) {
         super(x, y, TextUtils.getWidth(text, font), TextUtils.getHeight(text, font));
@@ -51,16 +53,14 @@ public class Label extends SelectableWidget {
         return text;
     }
 
-    public Label setText(Text text) {
+    public void setText(Text text) {
         this.text = text;
         setWidth(TextUtils.getWidth(text, font));
         setHeight(TextUtils.getHeight(text, font));
-
-        return this;
     }
 
-    public Label setAlignment(TextUtils.Alignment alignment) {
+    @Override
+    public void setAlignment(Alignment alignment) {
         this.alignment = alignment;
-        return this;
     }
 }

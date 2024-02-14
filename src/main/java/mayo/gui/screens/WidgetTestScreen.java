@@ -3,6 +3,7 @@ package mayo.gui.screens;
 import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
 import mayo.gui.Toast;
+import mayo.utils.Alignment;
 import mayo.gui.widgets.ContainerList;
 import mayo.gui.widgets.types.*;
 import mayo.text.Text;
@@ -97,8 +98,23 @@ public class WidgetTestScreen extends ParentedScreen {
         Button toast2 = new Button(0, 0, 60, 12, Text.of("Toast 2"), button -> Toast.addToast(Text.of("Multi-line\nToast :3"), font));
         list.addWidget(toast2);
 
-        //add list
+        //right panel
+        ContainerList list2 = new ContainerList(width - 4, 4, 4, 3);
+        list2.setAlignment(Alignment.RIGHT);
+
+        for (int i = 0; i < 9; i++) {
+            int x = i % 3 + 1;
+            int y = i / 3 + 1;
+            Button btx = new Button(0, 0, 30, 12, Text.of(y + "-" + x), button -> System.out.println(y + " " + x));
+            list2.addWidget(btx);
+        }
+
+        Label rightLabel = new Label(0, 0, Text.of("Some text\nNo Alignment"), font);
+        list2.addWidget(rightLabel);
+
+        //add lists
         addWidget(list);
+        addWidget(list2);
         super.init();
     }
 }

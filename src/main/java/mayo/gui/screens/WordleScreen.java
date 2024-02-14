@@ -16,10 +16,7 @@ import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
-import mayo.utils.Colors;
-import mayo.utils.IOUtils;
-import mayo.utils.Resource;
-import mayo.utils.TextUtils;
+import mayo.utils.*;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -72,6 +69,7 @@ public class WordleScreen extends ParentedScreen {
     private Field field;
     private Stats stats;
     private Keyboard keyboard;
+    private KeyboardControls controls;
 
     public WordleScreen(Screen parentScreen) {
         super(parentScreen);
@@ -100,12 +98,7 @@ public class WordleScreen extends ParentedScreen {
         resetGame();
 
         //load save
-        try {
-            loadGame();
-        } catch (Exception e) {
-            System.out.println("Failed to load save file");
-            e.printStackTrace();
-        }
+        loadGame();
     }
 
     @Override
@@ -134,30 +127,22 @@ public class WordleScreen extends ParentedScreen {
 
         //stats
         stats = new Stats(0, 0, 4, font, TRIES);
-        stats.setPos((list.getX() - stats.getWidth()) / 2, (height - stats.getHeight()) / 2);
+        stats.setAlignment(Alignment.CENTER);
+        stats.setPos(list.getX() / 2, (height - stats.getHeight()) / 2);
         addWidget(stats);
 
         //keyboard
         ContainerList keyboardList = new ContainerList(0, 0, 2);
+        keyboardList.setAlignment(Alignment.CENTER);
 
         int listXWidth = list.getX() + list.getWidth();
         keyboard = new Keyboard(0, 0, 2, c -> field.append(String.valueOf(c)));
         keyboardList.addWidget(keyboard);
 
-        ContainerList keyboardControls = new ContainerList(0, 0, 2, 2);
+        controls = new KeyboardControls(0, 0, 2, keyboard.getWidth(), c -> field.remove(1), c -> testWord());
+        keyboardList.addWidgetOnTop(controls);
 
-        int charsWidth = (keyboard.getWidth() - 2) / 2;
-        Char remove = new Char(charsWidth, 12, '\u2715', c -> field.remove(1));
-        remove.setStatus(5);
-        keyboardControls.addWidget(remove);
-
-        Char accept = new Char(charsWidth, 12, '\u2713', c -> testWord());
-        accept.setStatus(4);
-        keyboardControls.addWidget(accept);
-
-        keyboardList.addWidgetOnTop(keyboardControls);
-
-        keyboardList.setPos((width - listXWidth - keyboardList.getWidth()) / 2 + listXWidth, (height - keyboardList.getHeight()) / 2);
+        keyboardList.setPos((width - listXWidth) / 2 + listXWidth, (height - keyboardList.getHeight()) / 2);
         addWidget(keyboardList);
 
         super.init();
@@ -177,6 +162,8 @@ public class WordleScreen extends ParentedScreen {
             onTextUpdate(attempt);
             field.setString(attempt);
         }
+
+        controls.showReset(gameOver);
     }
 
     @Override
@@ -199,6 +186,7 @@ public class WordleScreen extends ParentedScreen {
             processWord(i);
         updateSelected(tries);
         keyboard.reset();
+        controls.showReset(false);
     }
 
     private void processWord(int index) {
@@ -308,6 +296,7 @@ public class WordleScreen extends ParentedScreen {
             lastWord = word;
             results[tries - 1]++;
             stats.update(lastWord, ++playCount, results);
+            controls.showReset(true);
         }
     }
 
@@ -337,69 +326,79 @@ public class WordleScreen extends ParentedScreen {
     }
 
     private void saveGame() {
-        StringBuilder save = new StringBuilder();
+        try {
+            StringBuilder save = new StringBuilder();
 
-        //save stats
-        for (int i = 0; i < results.length; i++)
-            save.append("results.").append(i).append("=").append(results[i]).append("\n");
-        save.append("playCount=").append(playCount).append("\n");
-        if (lastWord != null)
-            save.append("lastWord=").append(lastWord).append("\n");
+            //save stats
+            for (int i = 0; i < results.length; i++)
+                save.append("results.").append(i).append("=").append(results[i]).append("\n");
+            save.append("playCount=").append(playCount).append("\n");
+            if (lastWord != null)
+                save.append("lastWord=").append(lastWord).append("\n");
 
-        //save game state
-        if (!gameOver) {
-            save.append("tries=").append(tries).append("\n");
-            save.append("word=").append(word).append("\n");
-            for (int i = 0; i < attempts.length; i++) {
-                if (attempts[i] != null)
-                    save.append("attempts.").append(i).append("=").append(attempts[i]).append("\n");
+            //save game state
+            if (!gameOver) {
+                save.append("tries=").append(tries).append("\n");
+                save.append("word=").append(word).append("\n");
+                for (int i = 0; i < attempts.length; i++) {
+                    if (attempts[i] != null)
+                        save.append("attempts.").append(i).append("=").append(attempts[i]).append("\n");
+                }
             }
-        }
 
-        //write file
-        IOUtils.writeFile(SAVE_FILE, save.toString().getBytes());
+            //write file
+            IOUtils.writeFile(SAVE_FILE, save.toString().getBytes());
+        } catch (Exception e) {
+            System.out.println("Failed to save the game to a file");
+            e.printStackTrace();
+        }
     }
 
     private void loadGame() {
-        //read file
-        byte[] bytes = IOUtils.readFileBytes(SAVE_FILE);
-        if (bytes == null)
-            return;
+        try {
+            //read file
+            byte[] bytes = IOUtils.readFileBytes(SAVE_FILE);
+            if (bytes == null)
+                return;
 
-        String save = new String(bytes);
-        String[] lines = save.split("\n");
-        for (String line : lines) {
-            String[] split = line.split("=", 2);
-            if (split.length < 2)
-                continue;
+            String save = new String(bytes);
+            String[] lines = save.split("\n");
+            for (String line : lines) {
+                String[] split = line.split("=", 2);
+                if (split.length < 2)
+                    continue;
 
-            String key = split[0];
-            String value = split[1];
+                String key = split[0];
+                String value = split[1];
 
-            switch (key) {
-                //stats check
-                case "playCount" -> playCount = Integer.parseInt(value);
-                case "lastWord" -> lastWord = value;
+                switch (key) {
+                    //stats check
+                    case "playCount" -> playCount = Integer.parseInt(value);
+                    case "lastWord" -> lastWord = value;
 
-                //game state check
-                case "tries" -> tries = Integer.parseInt(value);
-                case "word" -> word = value;
+                    //game state check
+                    case "tries" -> tries = Integer.parseInt(value);
+                    case "word" -> word = value;
 
-                //arrays
-                default -> {
-                    String[] split2 = key.split("\\.", 2);
-                    if (split2.length < 2)
-                        continue;
+                    //arrays
+                    default -> {
+                        String[] split2 = key.split("\\.", 2);
+                        if (split2.length < 2)
+                            continue;
 
-                    String key2 = split2[0];
-                    int i = Integer.parseInt(split2[1]);
+                        String key2 = split2[0];
+                        int i = Integer.parseInt(split2[1]);
 
-                    switch (key2) {
-                        case "results" -> results[i] = Integer.parseInt(value);
-                        case "attempts" -> attempts[i] = value;
+                        switch (key2) {
+                            case "results" -> results[i] = Integer.parseInt(value);
+                            case "attempts" -> attempts[i] = value;
+                        }
                     }
                 }
             }
+        } catch (Exception e) {
+            System.out.println("Failed to load save file");
+            e.printStackTrace();
         }
     }
 
@@ -459,7 +458,7 @@ public class WordleScreen extends ParentedScreen {
 
             if (text != null) {
                 Font f = Client.getInstance().font;
-                f.render(VertexConsumer.FONT, matrices, getCenterX(), getCenterY() - Math.round(TextUtils.getHeight(text, f) / 2f), text, TextUtils.Alignment.CENTER);
+                f.render(VertexConsumer.FONT, matrices, getCenterX(), getCenterY() - Math.round(TextUtils.getHeight(text, f) / 2f), text, Alignment.CENTER);
             }
         }
 
@@ -494,13 +493,13 @@ public class WordleScreen extends ParentedScreen {
         public Stats(int x, int y, int spacing, Font font, int tries) {
             super(x, y, spacing);
 
-            lastWord = new Label(0, 0, Text.of("Last Word:\n" + "???"), font);
+            lastWord = new Label(0, 0, Text.of("Last Word\n" + "???"), font);
             addWidget(lastWord);
 
-            playCount = new Label(0, 0, Text.of("Games:\n0"), font);
+            playCount = new Label(0, 0, Text.of("Games\n0"), font);
             addWidget(playCount);
 
-            Label triesLabel = new Label(0, 0, Text.of("Stats:"), font);
+            Label triesLabel = new Label(0, 0, Text.of("Stats"), font);
             addWidget(triesLabel);
 
             ContainerList bars = new ContainerList(0, 0, spacing, 3);
@@ -526,9 +525,9 @@ public class WordleScreen extends ParentedScreen {
         }
 
         public void update(String lastWord, int playCount, int[] results) {
-            this.lastWord.setText(Text.of("Last Word:\n" + (lastWord == null ? "???" : lastWord)));
+            this.lastWord.setText(Text.of("Last Word\n" + (lastWord == null ? "???" : lastWord)));
 
-            this.playCount.setText(Text.of("Games:\n" + playCount));
+            this.playCount.setText(Text.of("Games\n" + playCount));
 
             for (int i = 0; i < results.length; i++) {
                 triesBar[i].setProgress(playCount == 0 ? 0 : (float) results[i] / playCount);
@@ -555,7 +554,7 @@ public class WordleScreen extends ParentedScreen {
             super(x, y, spacing);
 
             for (String s : ORDER) {
-                ContainerList list = new ContainerList(0, 0, spacing, 5);
+                ContainerList list = new ContainerList(0, 0, spacing, 10);
 
                 for (int i = 0; i < s.length(); i++) {
                     char c = s.charAt(i);
@@ -605,6 +604,49 @@ public class WordleScreen extends ParentedScreen {
 
         public void reset() {
             this.status = 0;
+        }
+    }
+
+    private static class KeyboardControls extends ContainerList {
+        private static final char
+                REMOVE_CHAR = '\u2715',
+                ACCEPT_CHAR = '\u2713',
+                RESET_CHAR = '\u21BA';
+        private final Char remove, accept, reset;
+        private boolean showReset;
+
+        public KeyboardControls(int x, int y, int spacing, int width, Consumer<Character> removeAction, Consumer<Character> acceptAction) {
+            super(x, y, spacing, 2);
+
+            int w = (width - spacing) / 2;
+
+            remove = new Char(w, 12, REMOVE_CHAR, removeAction);
+            remove.setStatus(5);
+            this.addWidget(remove);
+
+            accept = new Char(w, 12, ACCEPT_CHAR, acceptAction);
+            accept.setStatus(4);
+            this.addWidget(accept);
+
+            reset = new Char(width, 12, RESET_CHAR, acceptAction);
+            reset.setStatus(3);
+        }
+
+        public void showReset(boolean showReset) {
+            if (this.showReset == showReset)
+                return;
+
+            if (showReset) {
+                this.removeWidget(remove);
+                this.removeWidget(accept);
+                this.addWidget(reset);
+            } else {
+                this.addWidget(remove);
+                this.addWidget(accept);
+                this.removeWidget(reset);
+            }
+
+            this.showReset = showReset;
         }
     }
 }

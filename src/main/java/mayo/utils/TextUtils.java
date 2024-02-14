@@ -6,7 +6,6 @@ import mayo.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
 
 public class TextUtils {
 
@@ -86,22 +85,6 @@ public class TextUtils {
         clamped.append(ELLIPSIS);
 
         return clamped;
-    }
-
-    public enum Alignment {
-        LEFT((font, text) -> 0f),
-        RIGHT((font, text) -> -font.width(text)),
-        CENTER((font, text) -> -font.width(text) / 2f);
-
-        private final BiFunction<Font, Text, Float> textFunction;
-
-        Alignment(BiFunction<Font, Text, Float> textFunction) {
-            this.textFunction = textFunction;
-        }
-
-        public float apply(Font font, Text text) {
-            return textFunction.apply(font, text);
-        }
     }
 
     public static int getWidth(Text text, Font font) {

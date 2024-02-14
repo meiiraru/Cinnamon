@@ -6,10 +6,7 @@ import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
-import mayo.utils.Maths;
-import mayo.utils.Resource;
-import mayo.utils.TextUtils;
-import mayo.utils.UIHelper;
+import mayo.utils.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -124,7 +121,7 @@ public class Toast {
         );
 
         //render text
-        font.render(VertexConsumer.FONT, matrices, 0f, PADDING / 2f, text, TextUtils.Alignment.CENTER);
+        font.render(VertexConsumer.FONT, matrices, 0f, PADDING / 2f, text, Alignment.CENTER);
 
         //return
         matrices.translate(0f, bgHeight, 0f);

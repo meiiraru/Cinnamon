@@ -157,7 +157,7 @@ public class CurvesScreen extends ParentedScreen {
         renderCurve(matrices, curve.getInternalCurve(), 0xFF7272, 0xFFFF72);
 
         //draw texts
-        f.render(VertexConsumer.FONT, matrices, width / 2f, 4, Text.of("Curve quality: " + this.curve.getSteps() + "\nCurve Size: " + this.curve.getCurve().size()), TextUtils.Alignment.CENTER);
+        f.render(VertexConsumer.FONT, matrices, width / 2f, 4, Text.of("Curve quality: " + this.curve.getSteps() + "\nCurve Size: " + this.curve.getCurve().size()), Alignment.CENTER);
 
         if (focused instanceof Point selected) {
             Text t = Text.of("x" + selected.getX() + " y" + selected.getY());
@@ -168,7 +168,7 @@ public class CurvesScreen extends ParentedScreen {
         super.render(matrices, mouseX, mouseY, delta);
 
         //draw FPS
-        f.render(VertexConsumer.FONT, matrices, width - 4, 4, Text.of(client.fps + " fps"), TextUtils.Alignment.RIGHT);
+        f.render(VertexConsumer.FONT, matrices, width - 4, 4, Text.of(client.fps + " fps"), Alignment.RIGHT);
     }
 
     private static void renderCurve(MatrixStack matrices, List<Vector3f> curve, int colorA, int colorB) {

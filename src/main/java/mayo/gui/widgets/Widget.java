@@ -65,4 +65,8 @@ public abstract class Widget {
     public int getCenterY() {
         return getY() + getHeight() / 2;
     }
+
+    public void translate(int x, int y) {
+        setPos(getX() + x, getY() + y);
+    }
 }

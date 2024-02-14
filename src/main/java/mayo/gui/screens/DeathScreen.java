@@ -6,6 +6,7 @@ import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
+import mayo.utils.Alignment;
 import mayo.utils.ColorUtils;
 import mayo.utils.Colors;
 import mayo.utils.TextUtils;
@@ -44,7 +45,7 @@ public class DeathScreen extends Screen {
 
         float dc = (float) (Math.sin((client.ticks + delta) * 0.1f) + 1) * 0.5f;
         int color = ColorUtils.lerpARGBColor(Colors.RED.rgba, 0xFF880000, dc);
-        font.render(VertexConsumer.FONT, matrices, 0f, 0f, YOU_DIED.withStyle(Style.EMPTY.color(color)), TextUtils.Alignment.CENTER);
+        font.render(VertexConsumer.FONT, matrices, 0f, 0f, YOU_DIED.withStyle(Style.EMPTY.color(color)), Alignment.CENTER);
 
         matrices.pop();
     }

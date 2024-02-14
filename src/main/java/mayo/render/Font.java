@@ -4,6 +4,7 @@ import mayo.model.Vertex;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
+import mayo.utils.Alignment;
 import mayo.utils.IOUtils;
 import mayo.utils.Resource;
 import mayo.utils.TextUtils;
@@ -93,20 +94,20 @@ public class Font {
     // -- font rendering -- //
 
     public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Text text) {
-        render(consumer, matrices, x, y, text, TextUtils.Alignment.LEFT);
+        render(consumer, matrices, x, y, text, Alignment.LEFT);
     }
 
-    public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Text text, TextUtils.Alignment alignment) {
+    public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Text text, Alignment alignment) {
         this.render(consumer, matrices, x, y, text, alignment, 1);
     }
 
-    public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Text text, TextUtils.Alignment alignment, int indexScaling) {
+    public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Text text, Alignment alignment, int indexScaling) {
         List<Text> list = TextUtils.split(text, "\n");
 
         for (int i = 0; i < list.size(); i++) {
             Text t = list.get(i);
-            int x2 = (int) alignment.apply(this, t);
-            int y2 = (int) (lineHeight * (i + 1) - 1);
+            int x2 = Math.round(alignment.getOffset(this.width(t)));
+            int y2 = Math.round((lineHeight * (i + 1) - 1));
             bake(consumer, matrices, t, x + x2, y + y2, indexScaling * Z_OFFSET);
         }
     }

@@ -6,7 +6,7 @@ import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
-import mayo.utils.TextUtils;
+import mayo.utils.Alignment;
 
 public class PauseScreen extends Screen {
 
@@ -29,7 +29,7 @@ public class PauseScreen extends Screen {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
-        font.render(VertexConsumer.FONT, matrices, width / 2f, 4f, PAUSE_TEXT, TextUtils.Alignment.CENTER);
+        font.render(VertexConsumer.FONT, matrices, width / 2f, 4f, PAUSE_TEXT, Alignment.CENTER);
     }
 
     @Override

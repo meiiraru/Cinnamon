@@ -6,7 +6,7 @@ import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
-import mayo.utils.TextUtils;
+import mayo.utils.Alignment;
 import mayo.world.WorldClient;
 import org.joml.Vector3f;
 
@@ -30,7 +30,7 @@ public class TextParticle extends Particle {
     @Override
     protected void renderParticle(MatrixStack matrices, float delta) {
         matrices.peek().pos().scale(-PARTICLE_SCALING);
-        font.render(isEmissive() ? VertexConsumer.FONT : VertexConsumer.WORLD_FONT, matrices, 0, 0, text, TextUtils.Alignment.CENTER);
+        font.render(isEmissive() ? VertexConsumer.FONT : VertexConsumer.WORLD_FONT, matrices, 0, 0, text, Alignment.CENTER);
     }
 
     @Override
