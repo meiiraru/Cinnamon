@@ -1,8 +1,6 @@
 package mayo.gui.widgets.types;
 
 import mayo.gui.widgets.Widget;
-import mayo.model.GeometryHelper;
-import mayo.model.Vertex;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
@@ -15,16 +13,20 @@ public class ProgressBar extends Widget {
 
     private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/progress_bar.png"));
 
-    private float progress, newProgress;
+    private float progress;
+    private float animationValue;
     private int color = Colors.WHITE.rgba;
 
-    public ProgressBar(float initialValue, int x, int y, int width, int height) {
+    public ProgressBar(int x, int y, int width, int height, float initialValue) {
         super(x, y, width, height);
-        setProgress(initialValue, true);
+        this.progress = initialValue;
     }
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        float d = UIHelper.tickDelta(0.4f);
+        animationValue = Maths.lerp(animationValue, getProgress(), d);
+
         //draw background
         UIHelper.nineQuad(
                 VertexConsumer.GUI, matrices, TEXTURE.getID(),
@@ -35,41 +37,28 @@ public class ProgressBar extends Widget {
                 32, 16
         );
 
-        //smooth out progress changes
-        this.progress = Maths.lerp(this.progress, this.newProgress, delta);
-
         //draw progress
-        Vertex[] vertices = GeometryHelper.quad(
-                matrices,
-                getX() + 1, getY() + 1,
-                (getWidth() - 2) * progress, getHeight() - 2,
+        UIHelper.nineQuad(
+                VertexConsumer.GUI, matrices, TEXTURE.getID(),
+                getX(), getY(),
+                Math.round(getWidth() * getAnimationValue()), getHeight(),
                 16f, 0f,
                 16, 16,
-                32, 16
+                32, 16,
+                color
         );
-        for (Vertex vertex : vertices) {
-            vertex.color(color);
-            vertex.getPosition().z += 0.001f;
-        }
-
-        VertexConsumer.GUI.consume(vertices, TEXTURE.getID());
     }
 
     public void setProgress(float progress) {
-        setProgress(progress, false);
-    }
-
-    public void setProgress(float progress, boolean force) {
-        this.newProgress = progress;
-        if (force) this.progress = progress;
+        this.progress = progress;
     }
 
     public float getProgress() {
-        return newProgress;
+        return progress;
     }
 
     public boolean isCompleted() {
-        return this.newProgress >= 1f;
+        return this.progress >= 1f;
     }
 
     public void setColor(Colors color) {
@@ -82,5 +71,9 @@ public class ProgressBar extends Widget {
 
     public int getColor() {
         return color;
+    }
+
+    public float getAnimationValue() {
+        return animationValue;
     }
 }

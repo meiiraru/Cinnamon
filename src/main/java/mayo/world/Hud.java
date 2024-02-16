@@ -37,10 +37,10 @@ public class Hud {
     private ProgressBar health, itemCooldown;
 
     public void init() {
-        health = new ProgressBar(1f, 0, 0, 60, 8);
+        health = new ProgressBar(0, 0, 60, 8, 1f);
         health.setColor(Colors.RED);
 
-        itemCooldown = new ProgressBar(0f, 0, 0, 60, 8);
+        itemCooldown = new ProgressBar(0, 0, 60, 8, 0f);
     }
 
     public void tick() {}

@@ -25,7 +25,7 @@ public class Window {
     public float guiScale = 1f;
 
     //mouse properties
-    public int mouseX = -100, mouseY = -100;
+    public int mouseX, mouseY;
     public boolean mouse1Press, mouse2Press, mouse3Press;
     private boolean mouseLocked;
 
@@ -151,8 +151,8 @@ public class Window {
     }
 
     public void setGuiScale(float scale) {
-        this.guiScale = scale;
-        this.scaledWidth = (int) (width / scale);
-        this.scaledHeight = (int) (height / scale);
+        this.guiScale = Math.max(scale, 1f);
+        this.scaledWidth = (int) (width / guiScale);
+        this.scaledHeight = (int) (height / guiScale);
     }
 }

@@ -20,6 +20,8 @@ public class Container extends Widget implements Tickable, GUIListener {
         this.widgets.add(widget);
         if (widget instanceof GUIListener el)
             this.listeners.add(el);
+        if (widget instanceof Container c)
+            c.updateDimensions();
         updateDimensions();
     }
 
@@ -27,6 +29,8 @@ public class Container extends Widget implements Tickable, GUIListener {
         this.widgets.addFirst(widget);
         if (widget instanceof GUIListener el)
             this.listeners.addFirst(el);
+        if (widget instanceof Container c)
+            c.updateDimensions();
         updateDimensions();
     }
 

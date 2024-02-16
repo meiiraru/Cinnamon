@@ -21,8 +21,6 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
 
     public SelectableWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
-        Window w = Client.getInstance().window;
-        updateHover(w.mouseX, w.mouseY);
     }
 
     public boolean isActive() {

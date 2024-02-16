@@ -224,21 +224,25 @@ public class Slider extends SelectableWidget {
 
     @Override
     public GUIListener keyPress(int key, int scancode, int action, int mods) {
-        if (isActive() && isFocused() && action != GLFW_RELEASE) {
+        if (isActive() && isHoveredOrFocused() && action != GLFW_RELEASE) {
             switch (key) {
-                case GLFW_KEY_LEFT, GLFW_KEY_UP -> {return selectNext(true);}
-                case GLFW_KEY_RIGHT, GLFW_KEY_DOWN -> {return selectNext(false);}
+                case GLFW_KEY_LEFT, GLFW_KEY_UP -> {return selectNext(true, mods);}
+                case GLFW_KEY_RIGHT, GLFW_KEY_DOWN -> {return selectNext(false, mods);}
             }
         }
 
         return super.keyPress(key, scancode, action, mods);
     }
 
-    protected Slider selectNext(boolean backwards) {
-        if (steps == 1)
-            setValue(intValue + (backwards ? -1 : 1));
-        else
+    protected Slider selectNext(boolean backwards, int mods) {
+        if (steps == 1) {
+            boolean shift = (mods & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT;
+            boolean ctrl = (mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL;
+            int amount = shift || ctrl ? Math.max(getMax() / (shift ? 10 : 20), 1) : 1;
+            setValue(intValue + (backwards ? -amount : amount));
+        } else {
             setPercentage(value + (backwards ? -stepValue : stepValue));
+        }
 
         return this;
     }
@@ -353,5 +357,9 @@ public class Slider extends SelectableWidget {
 
     public int getStepIndex() {
         return steps == 1 ? intValue : Math.round(value / stepValue);
+    }
+
+    public boolean isDragged() {
+        return mouseSelected;
     }
 }

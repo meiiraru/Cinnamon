@@ -195,6 +195,16 @@ public class Client {
         this.playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
     }
 
+    public void updateWindowSizes() {
+        queueTick(() -> {
+            if (camera != null)
+                camera.updateProjMatrix(window.scaledWidth, window.scaledHeight, this.options.fov);
+
+            if (screen != null)
+                screen.resize(window.scaledWidth, window.scaledHeight);
+        });
+    }
+
     // -- glfw events -- //
 
     public void mousePress(int button, int action, int mods) {
@@ -251,12 +261,7 @@ public class Client {
             window.windowResize(width, height);
             PostProcess.resize(width, height);
         }
-
-        if (camera != null)
-            camera.updateProjMatrix(window.scaledWidth, window.scaledHeight, this.options.fov);
-
-        if (screen != null)
-            screen.resize(window.scaledWidth, window.scaledHeight);
+        updateWindowSizes();
     }
 
     public void windowFocused(boolean focused) {

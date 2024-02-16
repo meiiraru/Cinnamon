@@ -3,10 +3,10 @@ package mayo.gui.screens;
 import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
 import mayo.gui.Toast;
-import mayo.utils.Alignment;
 import mayo.gui.widgets.ContainerList;
 import mayo.gui.widgets.types.*;
 import mayo.text.Text;
+import mayo.utils.Alignment;
 import mayo.utils.Colors;
 
 public class WidgetTestScreen extends ParentedScreen {
@@ -50,7 +50,7 @@ public class WidgetTestScreen extends ParentedScreen {
         list.addWidget(l);
 
         //progress bar
-        ProgressBar pb = new ProgressBar(0, 0, 0, 60, 12);
+        ProgressBar pb = new ProgressBar(0, 0, 60, 12, 0f);
         pb.setColor(Colors.PINK);
         list.addWidget(pb);
 
@@ -99,18 +99,33 @@ public class WidgetTestScreen extends ParentedScreen {
         list.addWidget(toast2);
 
         //right panel
-        ContainerList list2 = new ContainerList(width - 4, 4, 4, 3);
+        ContainerList list2 = new ContainerList(width - 4, 4, 4);
         list2.setAlignment(Alignment.RIGHT);
+
+        //button grid
+        ContainerList grid = new ContainerList(0, 0, 2, 3);
+        list2.addWidget(grid);
 
         for (int i = 0; i < 9; i++) {
             int x = i % 3 + 1;
             int y = i / 3 + 1;
             Button btx = new Button(0, 0, 30, 12, Text.of(y + "-" + x), button -> System.out.println(y + " " + x));
-            list2.addWidget(btx);
+            grid.addWidget(btx);
         }
 
         Label rightLabel = new Label(0, 0, Text.of("Some text\nNo Alignment"), font);
-        list2.addWidget(rightLabel);
+        grid.addWidget(rightLabel);
+
+        //GUI scale slider
+        Slider s2 = new Slider(0, 0, 40);
+        list2.addWidget(s2);
+
+        s2.setMin(1);
+        s2.setMax(5);
+        s2.setStepCount(5);
+        s2.setChangeListener((f, i) -> s2.setColor(Colors.values()[i]));
+        s2.setPercentage((float) Math.random());
+        s2.setVertical(true);
 
         //add lists
         addWidget(list);

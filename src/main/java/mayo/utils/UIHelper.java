@@ -77,33 +77,54 @@ public class UIHelper {
     }
 
     private static Vertex[][] nineQuad(MatrixStack matrices, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
-        float rWidthThird = regionWidth / 3f;
-        float rHeightThird = regionHeight / 3f;
+        SplitQuad w = new SplitQuad(width, regionWidth, x, u);
+        SplitQuad h = new SplitQuad(height, regionHeight, y, v);
 
+        //draw
         Vertex[][] vertices = new Vertex[9][4];
 
         //top left
-        vertices[0] = quad(matrices, x, y, rWidthThird, rHeightThird, u, v, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        vertices[0] = quad(matrices, x, y, w.length1, h.length1, u, v, w.length1, h.length1, textureWidth, textureHeight);
         //top middle
-        vertices[1] = quad(matrices, x + rWidthThird, y, width - rWidthThird * 2, rHeightThird, u + rWidthThird, v, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        vertices[1] = quad(matrices, w.pos2, y, w.length2, h.length1, w.uv2, v, w.centerRegion, h.length1, textureWidth, textureHeight);
         //top right
-        vertices[2] = quad(matrices, x + width - rWidthThird, y, rWidthThird, rHeightThird, u + rWidthThird * 2, v, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        vertices[2] = quad(matrices, w.pos3, y, w.length3, h.length1, w.uv3, v, w.length3, h.length1, textureWidth, textureHeight);
 
         //middle left
-        vertices[3] = quad(matrices, x, y + rHeightThird, rWidthThird, height - rHeightThird * 2, u, v + rHeightThird, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        vertices[3] = quad(matrices, x, h.pos2, w.length1, h.length2, u, h.uv2, w.length1, h.centerRegion, textureWidth, textureHeight);
         //middle middle
-        vertices[4] = quad(matrices, x + rWidthThird, y + rHeightThird, width - rWidthThird * 2, height - rHeightThird * 2, u + rWidthThird, v + rHeightThird, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        vertices[4] = quad(matrices, w.pos2, h.pos2, w.length2, h.length2, w.uv2, h.uv2, w.centerRegion, h.centerRegion, textureWidth, textureHeight);
         //middle right
-        vertices[5] = quad(matrices, x + width - rWidthThird, y + rHeightThird, rWidthThird, height - rHeightThird * 2, u + rWidthThird * 2, v + rHeightThird, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        vertices[5] = quad(matrices, w.pos3, h.pos2, w.length3, h.length2, w.uv3, h.uv2, w.length3, h.centerRegion, textureWidth, textureHeight);
 
         //bottom left
-        vertices[6] = quad(matrices, x, y + height - rHeightThird, rWidthThird, rHeightThird, u, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        vertices[6] = quad(matrices, x, h.pos3, w.length1, h.length3, u, h.uv3, w.length1, h.length3, textureWidth, textureHeight);
         //bottom middle
-        vertices[7] = quad(matrices, x + rWidthThird, y + height - rHeightThird, width - rWidthThird * 2, rHeightThird, u + rWidthThird, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        vertices[7] = quad(matrices, w.pos2, h.pos3, w.length2, h.length3, w.uv2, h.uv3, w.centerRegion, h.length3, textureWidth, textureHeight);
         //bottom right
-        vertices[8] = quad(matrices, x + width - rWidthThird, y + height - rHeightThird, rWidthThird, rHeightThird, u + rWidthThird * 2, v + rHeightThird * 2, rWidthThird, rHeightThird, textureWidth, textureHeight);
+        vertices[8] = quad(matrices, w.pos3, h.pos3, w.length3, h.length3, w.uv3, h.uv3, w.length3, h.length3, textureWidth, textureHeight);
 
         return vertices;
+    }
+
+    private static class SplitQuad {
+        private final float
+                length1, length2, length3,
+                pos2, pos3,
+                centerRegion,
+                uv2, uv3;
+        public SplitQuad(float length, float regionLength, float pos, float uv) {
+            length1 = Math.round(Math.min(regionLength / 3f, Math.min(length / 2f, length)));
+            length3 = Math.min(Math.max(length - length1, 0f), length1);
+            length2 = Math.max(length - length1 - length3, 0f);
+
+            pos2 = pos + length1;
+            pos3 = pos2 + length2;
+
+            centerRegion = regionLength - length1 - length3;
+            uv2 = uv + length1;
+            uv3 = uv + regionLength - length3;
+        }
     }
 
     public static void horizontalQuad(VertexConsumer consumer, MatrixStack matrices, int textureID, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
@@ -120,14 +141,13 @@ public class UIHelper {
     }
 
     private static Vertex[][] horizontalQuad(MatrixStack matrices, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
-        float rWidthThird = regionWidth / 3f;
-        float middleW = width - rWidthThird * 2;
+        SplitQuad w = new SplitQuad(width, regionWidth, x, u);
 
         Vertex[][] vertices = new Vertex[3][4];
 
-        vertices[0] = quad(matrices, x, y, rWidthThird, height, u, v, rWidthThird, regionHeight, textureWidth, textureHeight);
-        vertices[1] = quad(matrices, x + rWidthThird, y, middleW, height, u + rWidthThird, v, rWidthThird, regionHeight, textureWidth, textureHeight);
-        vertices[2] = quad(matrices, x + width - rWidthThird, y, rWidthThird, height, u + rWidthThird * 2, v, rWidthThird, regionHeight, textureWidth, textureHeight);
+        vertices[0] = quad(matrices, x, y, w.length1, height, u, v, w.length1, regionHeight, textureWidth, textureHeight);
+        vertices[1] = quad(matrices, w.pos2, y, w.length2, height, w.uv2, v, w.centerRegion, regionHeight, textureWidth, textureHeight);
+        vertices[2] = quad(matrices, w.pos3, y, w.length3, height, w.uv3, v, w.length3, regionHeight, textureWidth, textureHeight);
 
         return vertices;
     }
@@ -146,14 +166,13 @@ public class UIHelper {
     }
 
     private static Vertex[][] verticalQuad(MatrixStack matrices, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
-        float rHeightThird = regionHeight / 3f;
-        float middleH = height - rHeightThird * 2;
+        SplitQuad h = new SplitQuad(height, regionHeight, y, v);
 
         Vertex[][] vertices = new Vertex[3][4];
 
-        vertices[0] = quad(matrices, x, y, width, rHeightThird, u, v, width, rHeightThird, textureWidth, textureHeight);
-        vertices[1] = quad(matrices, x, y + rHeightThird, width, middleH, u, v + rHeightThird, width, rHeightThird, textureWidth, textureHeight);
-        vertices[2] = quad(matrices, x, y + height - rHeightThird, width, rHeightThird, u, v + rHeightThird * 2, width, rHeightThird, textureWidth, textureHeight);
+        vertices[0] = quad(matrices, x, y, width, h.length1, u, v, regionWidth, h.length1, textureWidth, textureHeight);
+        vertices[1] = quad(matrices, x, h.pos2, width, h.length2, u, h.uv2, regionWidth, h.centerRegion, textureWidth, textureHeight);
+        vertices[2] = quad(matrices, x, h.pos3, width, h.length3, u, h.uv3, regionWidth, h.length3, textureWidth, textureHeight);
 
         return vertices;
     }

@@ -513,7 +513,7 @@ public class WordleScreen extends ParentedScreen {
 
                 bars.addWidget(new Label(0, 0, Text.of(i == length -1 ? SKULL : i + 1), font));
 
-                triesBar[i] = new ProgressBar(0, 0, 0, 40, 8);
+                triesBar[i] = new ProgressBar(0, 0, 40, 8, 0f);
                 triesBar[i].setColor(color);
                 bars.addWidget(triesBar[i]);
 
