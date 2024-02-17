@@ -116,9 +116,13 @@ public class WidgetTestScreen extends ParentedScreen {
         Label rightLabel = new Label(0, 0, Text.of("Some text\nNo Alignment"), font);
         grid.addWidget(rightLabel);
 
-        //GUI scale slider
+        //vertical stuff
+        ContainerList vertical = new ContainerList(0, 0, 4, 100);
+        list2.addWidget(vertical);
+
+        //vertical slider
         Slider s2 = new Slider(0, 0, 40);
-        list2.addWidget(s2);
+        vertical.addWidget(s2);
 
         s2.setMin(1);
         s2.setMax(5);
@@ -126,6 +130,10 @@ public class WidgetTestScreen extends ParentedScreen {
         s2.setChangeListener((f, i) -> s2.setColor(Colors.values()[i]));
         s2.setPercentage((float) Math.random());
         s2.setVertical(true);
+
+        //scrollbar
+        Scrollbar bar = new Scrollbar(0, 0, 40);
+        vertical.addWidget(bar);
 
         //add lists
         addWidget(list);

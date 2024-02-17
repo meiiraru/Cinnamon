@@ -42,6 +42,10 @@ public class ExtrasScreen extends ParentedScreen {
         Button worlde = BUTTON_FACTORY.apply("Wordle", button -> client.setScreen(new WordleScreen(this)));
         list.addWidget(worlde);
 
+        //balls
+        Button balls = BUTTON_FACTORY.apply("Balls", button -> client.setScreen(new BallsScreen(this)));
+        list.addWidget(balls);
+
         //back
         Button back = BUTTON_FACTORY.apply("Back", button -> close());
         list.addWidget(back);

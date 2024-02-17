@@ -36,8 +36,12 @@ public class Slider extends SelectableWidget {
     private boolean mouseSelected;
     private float animationValue;
 
-    public Slider(int x, int y, int width) {
-        super(x, y, width, 8);
+    public Slider(int x, int y, int size) {
+        this(x, y, size, 8);
+    }
+
+    protected Slider(int x, int y, int width, int height) {
+        super(x, y, width, height);
         setValue(0);
     }
 
@@ -288,9 +292,10 @@ public class Slider extends SelectableWidget {
     }
 
     public void setVertical(boolean vertical) {
-        if (this.vertical != vertical)
+        if (this.vertical != vertical) {
             setDimensions(getHeight(), getWidth());
-        this.vertical = vertical;
+            this.vertical = vertical;
+        }
     }
 
     public int getStepCount() {
@@ -339,6 +344,7 @@ public class Slider extends SelectableWidget {
 
     public void showValueTooltip(boolean bool) {
         showTooltip = bool;
+        if (!showTooltip) super.setTooltip(null);
     }
 
     @Override
