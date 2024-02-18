@@ -3,7 +3,7 @@ package mayo.gui.screens;
 import mayo.Client;
 import mayo.gui.Screen;
 import mayo.gui.Toast;
-import mayo.gui.widgets.ContainerList;
+import mayo.gui.widgets.ContainerGrid;
 import mayo.gui.widgets.types.Button;
 import mayo.gui.widgets.types.Label;
 import mayo.model.GeometryHelper;
@@ -29,7 +29,7 @@ public class MainMenu extends Screen {
         this.addWidget(new Label(width - TextUtils.getWidth(may, font) - 4, height - TextUtils.getHeight(may, font) - 4, may, font));
 
         //buttons
-        ContainerList list = new ContainerList(0, 0, 4);
+        ContainerGrid grid = new ContainerGrid(0, 0, 4);
 
         //open world
         Button worldButton = new MainButton(Text.of("Singleplayer").withStyle(Style.EMPTY.color(Colors.YELLOW)), button -> {
@@ -41,26 +41,26 @@ public class MainMenu extends Screen {
                 Toast.addToast(Text.of("Unable to create the internal server"), client.font);
             }
         });
-        list.addWidget(worldButton);
+        grid.addWidget(worldButton);
 
         //multiplayer
         Button joinWorld = new MainButton(Text.of("Multiplayer"), button -> client.setScreen(new MultiplayerJoinScreen(this)));
         joinWorld.setTooltip(Text.of("Sorry, not available yet! ").append(Text.of("\u2764").withStyle(Style.EMPTY.color(Colors.PINK))));
         joinWorld.setActive(false);
-        list.addWidget(joinWorld);
+        grid.addWidget(joinWorld);
 
         //extra stuff
         Button extras = new MainButton(Text.of("Extras"), button -> client.setScreen(new ExtrasScreen(this)));
-        list.addWidget(extras);
+        grid.addWidget(extras);
 
         //exit
         Button exitButton = new MainButton(Text.of("Exit"), button -> client.window.exit());
         exitButton.setTooltip(Text.of("bye~"));
-        list.addWidget(exitButton);
+        grid.addWidget(exitButton);
 
-        //add list to screen
-        list.setPos(12, (height - list.getHeight()) / 2);
-        this.addWidget(list);
+        //add grid to screen
+        grid.setPos(12, (height - grid.getHeight()) / 2);
+        this.addWidget(grid);
     }
 
     @Override

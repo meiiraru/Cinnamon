@@ -69,7 +69,11 @@ public class Container extends Widget implements Tickable, GUIListener {
             maxY = Math.max(maxY, y + w.getHeight());
         }
 
-        this.setDimensions(maxX - minX, maxY - minY);
+        this.updateDimensions(maxX - minX, maxY - minY);
+    }
+
+    protected void updateDimensions(int width, int height) {
+        this.setDimensions(width, height);
     }
 
     @Override

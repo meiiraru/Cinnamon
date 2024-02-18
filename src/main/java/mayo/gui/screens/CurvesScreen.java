@@ -3,7 +3,7 @@ package mayo.gui.screens;
 import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
 import mayo.gui.Toast;
-import mayo.gui.widgets.ContainerList;
+import mayo.gui.widgets.ContainerGrid;
 import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.SelectableWidget;
 import mayo.gui.widgets.types.Button;
@@ -46,8 +46,8 @@ public class CurvesScreen extends ParentedScreen {
 
     @Override
     public void init() {
-        //widget list
-        ContainerList list = new ContainerList(4, 4, 4);
+        //widget grid
+        ContainerGrid grid = new ContainerGrid(4, 4, 4);
 
         //help label
         Label help = new Label(0, 0, Text.of("\u2753 Help"), client.font);
@@ -67,7 +67,7 @@ public class CurvesScreen extends ParentedScreen {
                 Scroll
                     Change curve quality"""));
         help.setSelectable(true);
-        list.addWidget(help);
+        grid.addWidget(help);
 
         //selection box
         SelectionBox box = new SelectionBox(0, 0, 60, 12)
@@ -89,25 +89,25 @@ public class CurvesScreen extends ParentedScreen {
                 .addEntry(Text.of("Bezier De Casteljau"));
 
         box.select(lastSelected); //widget recreation
-        list.addWidget(box);
+        grid.addWidget(box);
 
         //points button
         ToggleButton pointsButton = new ToggleButton(0, 0, Text.of("Render points index"));
         pointsButton.setAction(button -> renderPointsText = pointsButton.isToggled());
         pointsButton.setToggled(renderPointsText);
-        list.addWidget(pointsButton);
+        grid.addWidget(pointsButton);
 
         //lines button
         ToggleButton linesButton = new ToggleButton(0, 0, Text.of("Render lines"));
         linesButton.setAction(button -> renderLines = linesButton.isToggled());
         linesButton.setToggled(renderLines);
-        list.addWidget(linesButton);
+        grid.addWidget(linesButton);
 
         //loop button
         ToggleButton loopButton = new ToggleButton(0, 0, Text.of("Loop"));
         loopButton.setAction(button -> curve.loop(!curve.isLooping()));
         loopButton.setToggled(curve.isLooping());
-        list.addWidget(loopButton);
+        grid.addWidget(loopButton);
 
         //export button
         Button exportCurve = new Button(0, 0, 60, 12, Text.of("Export"), button -> {
@@ -119,10 +119,10 @@ public class CurvesScreen extends ParentedScreen {
                 Toast.addToast(Text.of(e.getMessage()), client.font);
             }
         });
-        list.addWidget(exportCurve);
+        grid.addWidget(exportCurve);
 
-        //add list to screen
-        this.addWidget(list);
+        //add grid to screen
+        this.addWidget(grid);
 
         super.init();
     }

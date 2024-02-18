@@ -4,7 +4,7 @@ import mayo.Client;
 import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
 import mayo.gui.Toast;
-import mayo.gui.widgets.ContainerList;
+import mayo.gui.widgets.ContainerGrid;
 import mayo.gui.widgets.Widget;
 import mayo.gui.widgets.types.Button;
 import mayo.gui.widgets.types.Label;
@@ -108,10 +108,10 @@ public class WordleScreen extends ParentedScreen {
         addWidget(field);
 
         //letters
-        ContainerList list = new ContainerList(0, 0, 4);
+        ContainerGrid grid = new ContainerGrid(0, 0, 4);
 
         for (int i = 0; i < TRIES; i++) {
-            ContainerList word = new ContainerList(0, 0, 4, WORD_LENGTH);
+            ContainerGrid word = new ContainerGrid(0, 0, 4, WORD_LENGTH);
 
             for (int j = 0; j < WORD_LENGTH; j++) {
                 Letter l = new Letter();
@@ -119,31 +119,31 @@ public class WordleScreen extends ParentedScreen {
                 letters[i][j] = l;
             }
 
-            list.addWidget(word);
+            grid.addWidget(word);
         }
 
-        list.setPos((width - list.getWidth()) / 2, (height - list.getHeight()) / 2);
-        addWidget(list);
+        grid.setPos((width - grid.getWidth()) / 2, (height - grid.getHeight()) / 2);
+        addWidget(grid);
 
         //stats
         stats = new Stats(0, 0, 4, font, TRIES);
         stats.setAlignment(Alignment.CENTER);
-        stats.setPos(list.getX() / 2, (height - stats.getHeight()) / 2);
+        stats.setPos(grid.getX() / 2, (height - stats.getHeight()) / 2);
         addWidget(stats);
 
         //keyboard
-        ContainerList keyboardList = new ContainerList(0, 0, 2);
-        keyboardList.setAlignment(Alignment.CENTER);
+        ContainerGrid keyboardGrid = new ContainerGrid(0, 0, 2);
+        keyboardGrid.setAlignment(Alignment.CENTER);
 
-        int listXWidth = list.getX() + list.getWidth();
+        int gridXWidth = grid.getX() + grid.getWidth();
         keyboard = new Keyboard(0, 0, 2, c -> field.append(String.valueOf(c)));
-        keyboardList.addWidget(keyboard);
+        keyboardGrid.addWidget(keyboard);
 
         controls = new KeyboardControls(0, 0, 2, keyboard.getWidth(), c -> field.remove(1), c -> testWord());
-        keyboardList.addWidgetOnTop(controls);
+        keyboardGrid.addWidgetOnTop(controls);
 
-        keyboardList.setPos((width - listXWidth) / 2 + listXWidth, (height - keyboardList.getHeight()) / 2);
-        addWidget(keyboardList);
+        keyboardGrid.setPos((width - gridXWidth) / 2 + gridXWidth, (height - keyboardGrid.getHeight()) / 2);
+        addWidget(keyboardGrid);
 
         super.init();
     }
@@ -406,7 +406,7 @@ public class WordleScreen extends ParentedScreen {
         void readLine(String text, int line, List<String> target);
     }
 
-    private static class Field extends ContainerList {
+    private static class Field extends ContainerGrid {
         private final TextField field;
         public Field(Font font, int x, int y, Consumer<String> listener) {
             super(x, y, 4);
@@ -484,7 +484,7 @@ public class WordleScreen extends ParentedScreen {
         }
     }
 
-    private static class Stats extends ContainerList {
+    private static class Stats extends ContainerGrid {
         private static final String SKULL = "\u2620";
         private final Label lastWord, playCount;
         private final ProgressBar[] triesBar;
@@ -502,7 +502,7 @@ public class WordleScreen extends ParentedScreen {
             Label triesLabel = new Label(0, 0, Text.of("Stats"), font);
             addWidget(triesLabel);
 
-            ContainerList bars = new ContainerList(0, 0, spacing, 3);
+            ContainerGrid bars = new ContainerGrid(0, 0, spacing, 3);
 
             int length = tries + 1;
             triesBar = new ProgressBar[length];
@@ -538,7 +538,7 @@ public class WordleScreen extends ParentedScreen {
         }
     }
 
-    private static class Keyboard extends ContainerList {
+    private static class Keyboard extends ContainerGrid {
         private static final String[] ORDER = {
                 "ABCDE",
                 "FGHIJ",
@@ -554,16 +554,16 @@ public class WordleScreen extends ParentedScreen {
             super(x, y, spacing);
 
             for (String s : ORDER) {
-                ContainerList list = new ContainerList(0, 0, spacing, 10);
+                ContainerGrid grid = new ContainerGrid(0, 0, spacing, 10);
 
                 for (int i = 0; i < s.length(); i++) {
                     char c = s.charAt(i);
                     Char ch = new Char(10, 12, c, action);
                     characters.put(c, ch);
-                    list.addWidget(ch);
+                    grid.addWidget(ch);
                 }
 
-                addWidget(list);
+                addWidget(grid);
             }
         }
 
@@ -607,7 +607,7 @@ public class WordleScreen extends ParentedScreen {
         }
     }
 
-    private static class KeyboardControls extends ContainerList {
+    private static class KeyboardControls extends ContainerGrid {
         private static final char
                 REMOVE_CHAR = '\u2715',
                 ACCEPT_CHAR = '\u2713',

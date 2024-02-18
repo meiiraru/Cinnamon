@@ -7,7 +7,7 @@ import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class PopupWidget extends ContainerList {
+public class PopupWidget extends ContainerGrid {
 
     private boolean open;
     private Widget parent;

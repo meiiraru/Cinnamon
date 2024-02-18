@@ -200,10 +200,14 @@ public class Slider extends SelectableWidget {
     @Override
     public GUIListener scroll(double x, double y) {
         if (isActive() && isHovered()) {
-            setPercentage(value + (Math.signum(-y) < 0 ? -stepValue : stepValue));
-            return this;
+            return forceScroll(x, y);
         }
         return super.scroll(x, y);
+    }
+
+    public GUIListener forceScroll(double x, double y) {
+        setPercentage(value + (Math.signum(-y) < 0 ? -stepValue : stepValue));
+        return this;
     }
 
     protected void setValueFromMouse(int x, int y) {

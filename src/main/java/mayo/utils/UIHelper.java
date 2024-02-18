@@ -12,13 +12,20 @@ import mayo.render.Texture;
 import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
+import org.joml.Matrix4f;
+import org.joml.Vector4i;
+
+import java.util.Stack;
 
 import static mayo.model.GeometryHelper.quad;
+import static org.lwjgl.opengl.GL11.*;
 
 public class UIHelper {
 
     private static final Texture TOOLTIP = Texture.of(new Resource("textures/gui/widgets/tooltip.png"));
     public static final Colors ACCENT = Colors.PURPLE;
+
+    private static final Stack<Vector4i> SCISSORS_STACK = new Stack<>();
 
     public static void renderBackground(MatrixStack matrices, int width, int height, float delta, Texture... background) {
         Client c = Client.getInstance();
@@ -302,5 +309,43 @@ public class UIHelper {
 
     public static float tickDelta(float speed) {
         return (float) (1f - Math.pow(speed, Client.getInstance().timer.tickDelta));
+    }
+
+    public static void pushScissors(int x, int y, int width, int height) {
+        float guiScale = Client.getInstance().window.guiScale;
+        int x2 = Math.round(x * guiScale);
+        int y2 = Math.round(y * guiScale);
+        int w2 = Math.round(width * guiScale);
+        int h2 = Math.round(height * guiScale);
+
+        if (!SCISSORS_STACK.isEmpty()) {
+            Vector4i peek = SCISSORS_STACK.peek();
+            x2 = Math.max(x2, peek.x);
+            y2 = Math.max(y2, peek.y);
+
+            //todo
+        }
+
+        Vector4i vec = new Vector4i(x2, y2, w2, h2);
+        SCISSORS_STACK.push(vec);
+
+        VertexConsumer.finishAllBatches(Client.getInstance().camera.getOrthographicMatrix(), new Matrix4f());
+
+        glEnable(GL_SCISSOR_TEST);
+        glScissor(vec.x, vec.y, vec.z, vec.w);
+    }
+
+    public static void popScissors() {
+        SCISSORS_STACK.pop();
+
+        VertexConsumer.finishAllBatches(Client.getInstance().camera.getOrthographicMatrix(), new Matrix4f());
+
+        if (!SCISSORS_STACK.isEmpty()) {
+            Vector4i peek = SCISSORS_STACK.peek();
+            glEnable(GL_SCISSOR_TEST);
+            glScissor(peek.x, peek.y, peek.z, peek.w);
+        } else {
+            glDisable(GL_SCISSOR_TEST);
+        }
     }
 }

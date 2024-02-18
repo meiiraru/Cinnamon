@@ -3,7 +3,7 @@ package mayo.gui.screens;
 import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
 import mayo.gui.Toast;
-import mayo.gui.widgets.ContainerList;
+import mayo.gui.widgets.ContainerGrid;
 import mayo.gui.widgets.types.Button;
 import mayo.gui.widgets.types.TextField;
 import mayo.networking.ClientConnection;
@@ -43,16 +43,16 @@ public class MultiplayerJoinScreen extends ParentedScreen {
         ipField.setString(ip);
         addWidget(ipField);
 
-        ContainerList list = new ContainerList(0, y + 4, 4, 2);
+        ContainerGrid grid = new ContainerGrid(0, y + 4, 4, 2);
 
         //connect button
-        list.addWidget(new Button(0, 0, 80, 20, Text.of("Connect"), button -> connect(name, ip)));
+        grid.addWidget(new Button(0, 0, 80, 20, Text.of("Connect"), button -> connect(name, ip)));
 
         //back button
-        list.addWidget(new Button(0, 0, 80, 20, Text.of("Back"), button -> close()));
+        grid.addWidget(new Button(0, 0, 80, 20, Text.of("Back"), button -> close()));
 
-        list.setX(x - list.getWidth() / 2);
-        addWidget(list);
+        grid.setX(x - grid.getWidth() / 2);
+        addWidget(grid);
 
         super.init();
     }

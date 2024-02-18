@@ -2,16 +2,16 @@ package mayo.gui.widgets;
 
 import mayo.utils.Alignment;
 
-public class ContainerList extends Container implements AlignedWidget {
+public class ContainerGrid extends Container implements AlignedWidget {
 
     private final int spacing, columns;
     private Alignment alignment = Alignment.LEFT;
 
-    public ContainerList(int x, int y, int spacing) {
+    public ContainerGrid(int x, int y, int spacing) {
         this(x, y, spacing, 1);
     }
 
-    public ContainerList(int x, int y, int spacing, int columns) {
+    public ContainerGrid(int x, int y, int spacing, int columns) {
         super(x, y);
         this.spacing = spacing;
         this.columns = Math.max(columns, 1);
@@ -52,8 +52,8 @@ public class ContainerList extends Container implements AlignedWidget {
         if (size < columns)
             totalWidth -= spacing * (columns - size);
 
-        //set dimensions (as super)
-        setDimensions(totalWidth - spacing, yPos[yPos.length - 1] - spacing);
+        //set dimensions (same as super)
+        updateDimensions(totalWidth - spacing, yPos[yPos.length - 1] - spacing);
 
         //set widget positions
         int x = getX() + Math.round(alignment.getOffset(getWidth()));
