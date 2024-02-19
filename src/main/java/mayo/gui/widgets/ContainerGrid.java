@@ -5,7 +5,7 @@ import mayo.utils.Alignment;
 public class ContainerGrid extends Container implements AlignedWidget {
 
     private final int spacing, columns;
-    private Alignment alignment = Alignment.LEFT;
+    protected Alignment alignment = Alignment.LEFT;
 
     public ContainerGrid(int x, int y, int spacing) {
         this(x, y, spacing, 1);
@@ -78,5 +78,10 @@ public class ContainerGrid extends Container implements AlignedWidget {
     public void setAlignment(Alignment alignment) {
         this.alignment = alignment;
         updateDimensions();
+    }
+
+    @Override
+    public int getAlignedX() {
+        return getX() + Math.round(alignment.getOffset(getWidth()));
     }
 }

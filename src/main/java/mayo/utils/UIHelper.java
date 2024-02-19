@@ -13,7 +13,6 @@ import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
 import org.joml.Matrix4f;
-import org.joml.Vector4i;
 
 import java.util.Stack;
 
@@ -25,7 +24,7 @@ public class UIHelper {
     private static final Texture TOOLTIP = Texture.of(new Resource("textures/gui/widgets/tooltip.png"));
     public static final Colors ACCENT = Colors.PURPLE;
 
-    private static final Stack<Vector4i> SCISSORS_STACK = new Stack<>();
+    private static final Stack<Region2D> SCISSORS_STACK = new Stack<>();
 
     public static void renderBackground(MatrixStack matrices, int width, int height, float delta, Texture... background) {
         Client c = Client.getInstance();
@@ -318,21 +317,19 @@ public class UIHelper {
         int w2 = Math.round(width * guiScale);
         int h2 = Math.round(height * guiScale);
 
-        if (!SCISSORS_STACK.isEmpty()) {
-            Vector4i peek = SCISSORS_STACK.peek();
-            x2 = Math.max(x2, peek.x);
-            y2 = Math.max(y2, peek.y);
+        Region2D region = new Region2D(x2, y2, x2 + w2, y2 + h2);
 
-            //todo
+        if (!SCISSORS_STACK.isEmpty()) {
+            Region2D peek = SCISSORS_STACK.peek();
+            region.clip(peek);
         }
 
-        Vector4i vec = new Vector4i(x2, y2, w2, h2);
-        SCISSORS_STACK.push(vec);
+        SCISSORS_STACK.push(region);
 
         VertexConsumer.finishAllBatches(Client.getInstance().camera.getOrthographicMatrix(), new Matrix4f());
 
         glEnable(GL_SCISSOR_TEST);
-        glScissor(vec.x, vec.y, vec.z, vec.w);
+        glScissor(region.getX(), region.getY(), region.getWidth(), region.getHeight());
     }
 
     public static void popScissors() {
@@ -341,9 +338,9 @@ public class UIHelper {
         VertexConsumer.finishAllBatches(Client.getInstance().camera.getOrthographicMatrix(), new Matrix4f());
 
         if (!SCISSORS_STACK.isEmpty()) {
-            Vector4i peek = SCISSORS_STACK.peek();
+            Region2D peek = SCISSORS_STACK.peek();
             glEnable(GL_SCISSOR_TEST);
-            glScissor(peek.x, peek.y, peek.z, peek.w);
+            glScissor(peek.getX(), peek.getY(), peek.getWidth(), peek.getHeight());
         } else {
             glDisable(GL_SCISSOR_TEST);
         }

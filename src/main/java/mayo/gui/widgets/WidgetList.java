@@ -6,6 +6,7 @@ import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
+import mayo.utils.Alignment;
 import mayo.utils.Resource;
 import mayo.utils.UIHelper;
 
@@ -22,12 +23,12 @@ public class WidgetList extends ContainerGrid {
     private boolean showScrollbar = true;
     private boolean shouldRenderScrollbar;
     private boolean shouldRenderBackground = true;
-
-    private int widgetsHeight;
+    private int widgetsWidth, widgetsHeight;
 
     public WidgetList(int x, int y, int width, int height, int spacing) {
         super(x, y, spacing, 1);
         setDimensions(width, height);
+        setAlignment(Alignment.CENTER);
 
         scrollbar = new Scrollbar(0, 0, height - 2);
         scrollbar.setChangeListener((f, i) -> updateDimensions());
@@ -41,7 +42,7 @@ public class WidgetList extends ContainerGrid {
 
         boolean scroll = shouldRenderScrollbar;
         if (scroll)
-            UIHelper.pushScissors(getX(), getY(), getWidth(), getHeight());
+            UIHelper.pushScissors(getAlignedX(), getY(), getWidth(), getHeight());
 
         for (Widget widget : widgetsToRender)
             widget.render(matrices, mouseX, mouseY, delta);
@@ -56,7 +57,7 @@ public class WidgetList extends ContainerGrid {
         //render background
         UIHelper.nineQuad(
                 VertexConsumer.GUI, matrices, TEXTURE.getID(),
-                getX() - 1, getY() - 1,
+                getAlignedX() - 1, getY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,
                 16, 16,
@@ -68,40 +69,59 @@ public class WidgetList extends ContainerGrid {
     public void updateDimensions() { //todo
         super.updateDimensions();
 
+        //clear render list
         widgetsToRender.clear();
 
-        int diff = widgetsHeight - getHeight();
+        //grab height difference, also account for borders spacing
+        int diff = getWidgetsHeight() - getHeight();
         if (diff > 0) {
             int d = (int) (diff * scrollbar.getPercentage());
             for (Widget widget : widgets) {
+                //set y based on scrollbar and borders spacing
                 int y = widget.getY() - d;
                 widget.setY(y);
 
+                //update hover status
                 if (widget instanceof SelectableWidget sw) {
                     Window w = Client.getInstance().window;
                     sw.updateHover(w.mouseX, w.mouseY);
                 }
 
+                //if widget is inside list, allow it for render
                 if (y + widget.getHeight() >= this.getY() && y <= this.getY() + this.getHeight())
                     widgetsToRender.add(widget);
             }
         } else {
+            //all widgets are allowed to render
             widgetsToRender.addAll(widgets);
         }
 
-        shouldRenderScrollbar = true;
+        //update scrollbar
+        shouldRenderScrollbar = showScrollbar && diff > 0;
         updateScrollbar();
+
+        //fix spacing
+        int width = getWidth();
+        if (shouldRenderScrollbar) width -= scrollbar.getWidth() + 3;
+        int x = 1 - Math.round(alignment.getOffset(width - getWidgetsWidth()));
+        for (Widget widget : widgets)
+            widget.translate(x, 1);
     }
 
     @Override
     protected void updateDimensions(int width, int height) {
-        //do not update dimensions here, but save the height
+        //do not update dimensions here, but save them
+        widgetsWidth = width;
         widgetsHeight = height;
     }
 
     protected void updateScrollbar() {
+        if (scrollbar == null)
+            return;
+
+        scrollbar.setHeight(getHeight() - 2);
         scrollbar.setPos(
-                getX() + getWidth() - scrollbar.getWidth() - 1,
+                getAlignedX() + getWidth() - scrollbar.getWidth() - 1,
                 getY() + 1
         );
     }
@@ -119,6 +139,18 @@ public class WidgetList extends ContainerGrid {
     }
 
     @Override
+    public void setWidth(int width) {
+        super.setWidth(width);
+        updateScrollbar();
+    }
+
+    @Override
+    public void setHeight(int height) {
+        super.setHeight(height);
+        updateScrollbar();
+    }
+
+    @Override
     public GUIListener scroll(double x, double y) {
         GUIListener sup = super.scroll(x, y);
         if (sup != null)
@@ -130,10 +162,22 @@ public class WidgetList extends ContainerGrid {
         return null;
     }
 
+    @Override
+    protected List<SelectableWidget> getSelectableWidgets() {
+        List<SelectableWidget> sup = super.getSelectableWidgets();
+        if (shouldRenderScrollbar) sup.addFirst(scrollbar);
+        return sup;
+    }
+
+    public boolean isHovered() {
+        Window w = Client.getInstance().window;
+        return UIHelper.isMouseOver(getAlignedX(), getY(), getWidth(), getHeight(), w.mouseX, w.mouseY);
+    }
+
     public void setShowScrollbar(boolean showScrollbar) {
         if (this.showScrollbar != showScrollbar) {
             if (showScrollbar) {
-                listeners.add(scrollbar);
+                listeners.addFirst(scrollbar);
                 updateScrollbar();
             } else {
                 listeners.remove(scrollbar);
@@ -146,7 +190,11 @@ public class WidgetList extends ContainerGrid {
         this.shouldRenderBackground = shouldRenderBackground;
     }
 
-    public boolean isHovered() {
-        return UIHelper.isWidgetHovered(this);
+    public int getWidgetsWidth() {
+        return widgetsWidth;
+    }
+
+    public int getWidgetsHeight() {
+        return widgetsHeight + 2; //include spacing
     }
 }

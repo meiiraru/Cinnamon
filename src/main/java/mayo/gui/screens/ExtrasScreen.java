@@ -4,6 +4,7 @@ import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
 import mayo.gui.widgets.WidgetList;
 import mayo.gui.widgets.types.Button;
+import mayo.gui.widgets.types.Label;
 import mayo.text.Text;
 
 import java.util.function.BiFunction;
@@ -20,11 +21,11 @@ public class ExtrasScreen extends ParentedScreen {
     @Override
     public void init() {
         //buttons
-        WidgetList list = new WidgetList(0, 0, 200, 100, 4);
+        WidgetList list = new WidgetList(0, 0, 0, 0, 4);
+        list.setShouldRenderBackground(false);
 
-        //dvd screen
-        Button dvd = BUTTON_FACTORY.apply("DVD screensaver", button -> client.setScreen(new DVDScreen(this)));
-        list.addWidget(dvd);
+        //spacing (literally)
+        list.addWidget(new Label(0, 0, Text.of("Tech demos\n"), font));
 
         //collision screen
         Button coll = BUTTON_FACTORY.apply("Collision Test", button -> client.setScreen(new CollisionScreen(this)));
@@ -38,20 +39,31 @@ public class ExtrasScreen extends ParentedScreen {
         Button widgetTest = BUTTON_FACTORY.apply("GUI Test", button -> client.setScreen(new WidgetTestScreen(this)));
         list.addWidget(widgetTest);
 
+        //balls
+        Button balls = BUTTON_FACTORY.apply("Balls", button -> client.setScreen(new BallsScreen(this)));
+        list.addWidget(balls);
+
+        //spacing (literally)
+        list.addWidget(new Label(0, 0, Text.of("\nGames\n"), font));
+
+        //dvd screen
+        Button dvd = BUTTON_FACTORY.apply("DVD screensaver", button -> client.setScreen(new DVDScreen(this)));
+        list.addWidget(dvd);
+
         //wordle
         Button worlde = BUTTON_FACTORY.apply("Wordle", button -> client.setScreen(new WordleScreen(this)));
         list.addWidget(worlde);
 
-        //balls
-        Button balls = BUTTON_FACTORY.apply("Balls", button -> client.setScreen(new BallsScreen(this)));
-        list.addWidget(balls);
+        //spacing (literally)
+        list.addWidget(new Label(0, 0, Text.of("\n"), font));
 
         //back
         Button back = BUTTON_FACTORY.apply("Back", button -> close());
         list.addWidget(back);
 
         //add list to screen
-        list.setPos((width - list.getWidth()) / 2, (height - list.getHeight()) / 2);
+        list.setDimensions(width - 8, Math.min(list.getWidgetsHeight(), height - 8));
+        list.setPos(width / 2, (height - list.getHeight()) / 2);
         this.addWidget(list);
 
         super.init();

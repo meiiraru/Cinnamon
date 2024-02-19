@@ -56,8 +56,13 @@ public class BallsScreen extends ParentedScreen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
 
+        matrices.push();
+        matrices.translate(width / 2f, height / 2f, 0f);
+
         for (Ball ball : balls)
             ball.render(matrices, mouseX, mouseY, delta);
+
+        matrices.pop();
 
         //draw FPS
         font.render(VertexConsumer.FONT, matrices, width - 4, 4, Text.of(client.fps + " fps"), Alignment.RIGHT);
@@ -79,7 +84,7 @@ public class BallsScreen extends ParentedScreen {
         if (sup) return true;
 
         if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1) {
-            Ball ball = new Ball(client.window.mouseX, client.window.mouseY, (float) (Math.random() * 5) + 5f, Colors.randomRainbow().rgba);
+            Ball ball = new Ball(client.window.mouseX - width / 2f, client.window.mouseY - height / 2f, (float) (Math.random() * 5) + 5f, Colors.randomRainbow().rgba);
             balls.add(ball);
             return true;
         }

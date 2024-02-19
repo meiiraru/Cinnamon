@@ -10,9 +10,10 @@ import mayo.utils.UIHelper;
 public class Scrollbar extends Slider {
 
     private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/scrollbar.png"));
+    public static int SCROLLBAR_WIDTH = 8;
 
     public Scrollbar(int x, int y, int size) {
-        super(x, y, size, 8);
+        super(x, y, size, SCROLLBAR_WIDTH);
         this.setVertical(true);
         this.showValueTooltip(false);
     }

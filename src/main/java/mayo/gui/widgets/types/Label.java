@@ -37,7 +37,7 @@ public class Label extends SelectableWidget implements AlignedWidget {
     protected void renderHover(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
                 VertexConsumer.GUI, matrices, HOVER_TEXTURE.getID(),
-                getX() - 1, getY() - 1,
+                getAlignedX() - 1, getY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,
                 15, 15,
@@ -62,5 +62,10 @@ public class Label extends SelectableWidget implements AlignedWidget {
     @Override
     public void setAlignment(Alignment alignment) {
         this.alignment = alignment;
+    }
+
+    @Override
+    public int getAlignedX() {
+        return getX() + Math.round(alignment.getOffset(getWidth()));
     }
 }
