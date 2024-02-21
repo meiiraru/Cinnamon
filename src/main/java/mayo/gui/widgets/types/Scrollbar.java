@@ -1,6 +1,5 @@
 package mayo.gui.widgets.types;
 
-import mayo.model.GeometryHelper;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
@@ -10,10 +9,9 @@ import mayo.utils.UIHelper;
 public class Scrollbar extends Slider {
 
     private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/scrollbar.png"));
-    public static int SCROLLBAR_WIDTH = 8;
 
     public Scrollbar(int x, int y, int size) {
-        super(x, y, size, SCROLLBAR_WIDTH);
+        super(x, y, size, 8);
         this.setVertical(true);
         this.showValueTooltip(false);
     }
@@ -46,17 +44,27 @@ public class Scrollbar extends Slider {
         );
 
         float anim = getAnimationValue();
-        if (isVertical())
-            y += Math.round((h - 8f) * anim);
-        else
-            x += Math.round((w - 8f) * anim);
+        if (isVertical()) {
+            UIHelper.verticalQuad(VertexConsumer.GUI, matrices, id,
+                    x, y + Math.round((h - handleSize) * anim),
+                    8, handleSize,
+                    s, 8f,
+                    8, 8,
+                    24, 16
+            );
+        } else {
+            UIHelper.horizontalQuad(VertexConsumer.GUI, matrices, id,
+                    x + Math.round((w - handleSize) * anim), y,
+                    handleSize, 8,
+                    s, 8f,
+                    8, 8,
+                    24, 16
+            );
+        }
+    }
 
-        //button
-        VertexConsumer.GUI.consume(GeometryHelper.quad(
-                matrices, x, y, 8, 8,
-                s, 8f,
-                8, 8,
-                24, 16
-        ), id);
+    public void setHandlePercentage(float handleSize) {
+        int size = isVertical() ? getHeight() : getWidth();
+        this.handleSize = Math.max(8, Math.round(size * Math.min(handleSize, 1f)));
     }
 }

@@ -26,6 +26,7 @@ public class Slider extends SelectableWidget {
     private float value = 0f;
     private int steps = 1;
     private float stepValue = 0.05f;
+    private float scrollAmount = 0.05f;
     private int intValue = 0;
     private int min = 0;
     private int max = 100;
@@ -35,6 +36,10 @@ public class Slider extends SelectableWidget {
     private BiConsumer<Float, Integer> changeListener;
     private boolean mouseSelected;
     private float animationValue;
+
+    protected int handleSize = 8;
+    protected int anchorX, anchorY;
+    protected float anchorValue;
 
     public Slider(int x, int y, int size) {
         this(x, y, size, 8);
@@ -180,7 +185,26 @@ public class Slider extends SelectableWidget {
         this.mouseSelected = isActive() && isHovered() && action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1;
         if (this.mouseSelected) {
             Window w = Client.getInstance().window;
-            setValueFromMouse(w.mouseX, w.mouseY);
+
+            if (!isHandleHovered()) {
+                int pos;
+                int size;
+
+                if (isVertical()) {
+                    pos = w.mouseY - getY() - handleSize / 2;
+                    size = getHeight() - handleSize;
+                } else {
+                    pos = w.mouseX - getX() - handleSize / 2;
+                    size = getWidth() - handleSize;
+                }
+
+                setPercentage((float) pos / size);
+            }
+
+            anchorX = w.mouseX;
+            anchorY = w.mouseY;
+            anchorValue = getPercentage();
+
             return this;
         }
 
@@ -190,7 +214,18 @@ public class Slider extends SelectableWidget {
     @Override
     public GUIListener mouseMove(int x, int y) {
         if (this.mouseSelected) {
-            setValueFromMouse(x, y);
+            int delta;
+            int size;
+
+            if (isVertical()) {
+                delta = y - anchorY;
+                size = getHeight() - handleSize;
+            } else {
+                delta = x - anchorX;
+                size = getWidth() - handleSize;
+            }
+
+            setPercentage(anchorValue + (float) delta / size);
             return this;
         }
 
@@ -206,28 +241,9 @@ public class Slider extends SelectableWidget {
     }
 
     public GUIListener forceScroll(double x, double y) {
-        setPercentage(value + (Math.signum(-y) < 0 ? -stepValue : stepValue));
+        float val = steps == 1 ? scrollAmount : stepValue;
+        setPercentage(value + (Math.signum(-y) < 0 ? -val : val));
         return this;
-    }
-
-    protected void setValueFromMouse(int x, int y) {
-        float value;
-
-        if (isVertical()) {
-            int y1 = getY() + 4;
-            int y2 = y1 + getHeight() - 8;
-
-            int pos = Math.clamp(y, y1, y2);
-            value = Maths.map(pos, y1, y2, 0f, 1f);
-        } else {
-            int x1 = getX() + 4;
-            int x2 = x1 + getWidth() - 8;
-
-            int pos = Math.clamp(x, x1, x2);
-            value = Maths.map(pos, x1, x2, 0f, 1f);
-        }
-
-        setPercentage(value);
     }
 
     @Override
@@ -246,7 +262,7 @@ public class Slider extends SelectableWidget {
         if (steps == 1) {
             boolean shift = (mods & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT;
             boolean ctrl = (mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL;
-            int amount = shift || ctrl ? Math.max(getMax() / (shift ? 10 : 20), 1) : 1;
+            int amount = shift || ctrl ? Math.max(getMax() / (shift ? 10 : 50), 1) : 1;
             setValue(intValue + (backwards ? -amount : amount));
         } else {
             setPercentage(value + (backwards ? -stepValue : stepValue));
@@ -371,5 +387,23 @@ public class Slider extends SelectableWidget {
 
     public boolean isDragged() {
         return mouseSelected;
+    }
+
+    public void setScrollAmount(float scrollAmount) {
+        this.scrollAmount = scrollAmount;
+    }
+
+    public boolean isHandleHovered() {
+        if (!super.isHovered())
+            return false;
+
+        Window w = Client.getInstance().window;
+        if (isVertical()) {
+            int y = getY() + Math.round((getHeight() - handleSize) * getPercentage());
+            return w.mouseY >= y && w.mouseY < y + handleSize;
+        } else {
+            int x = getX() + Math.round((getWidth() - handleSize) * getPercentage());
+            return w.mouseX >= x && w.mouseX < x + handleSize;
+        }
     }
 }

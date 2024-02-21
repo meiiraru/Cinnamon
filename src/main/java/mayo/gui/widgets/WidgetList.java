@@ -124,6 +124,9 @@ public class WidgetList extends ContainerGrid {
                 getAlignedX() + getWidth() - scrollbar.getWidth() - 1,
                 getY() + 1
         );
+
+        scrollbar.setHandlePercentage((float) scrollbar.getHeight() / getWidgetsHeight());
+        scrollbar.setScrollAmount(1f / (widgets.size() - widgetsToRender.size()));
     }
 
     @Override
