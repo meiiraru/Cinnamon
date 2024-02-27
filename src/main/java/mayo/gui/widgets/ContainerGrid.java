@@ -84,4 +84,8 @@ public class ContainerGrid extends Container implements AlignedWidget {
     public int getAlignedX() {
         return getX() + Math.round(alignment.getOffset(getWidth()));
     }
+
+    public int getSpacing() {
+        return spacing;
+    }
 }
