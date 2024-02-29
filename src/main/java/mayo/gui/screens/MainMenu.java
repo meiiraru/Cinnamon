@@ -63,9 +63,63 @@ public class MainMenu extends Screen {
         this.addWidget(grid);
     }
 
+    Animation2D
+            anim1 = new Animation2D.Translate(-1, 1),
+            anim2 = new Animation2D.Rotate(1, 0),
+            anim3 = new Animation2D.Scale(0.01f, 0);
+    Texture temp = Texture.of(new Resource("textures/temp.png"));
+
+    @Override
+    public void tick() {
+        super.tick();
+        anim1.tick();
+        anim2.tick();
+        anim3.tick();
+    }
+
     @Override
     protected void renderBackground(MatrixStack matrices, float delta) {
         GeometryHelper.rectangle(VertexConsumer.GUI, matrices, 0, 0, width, height, -999, 0xFF29224B, 0xFF2E2557, 0xFF553C89, 0xFFDBA8DC);
+
+        matrices.push();
+        anim1.apply(matrices, delta);
+
+        VertexConsumer.GUI.consume(GeometryHelper.quad(
+                matrices,
+                width, 0f,
+                32, 32
+                ), temp.getID()
+        );
+
+        matrices.pop();
+
+        //
+
+        matrices.push();
+        anim2.apply(matrices, delta);
+
+        VertexConsumer.GUI.consume(GeometryHelper.quad(
+                        matrices,
+                        width * 0.25f - 16, 0f,
+                        32, 32
+                ), temp.getID()
+        );
+
+        matrices.pop();
+
+        //
+
+        matrices.push();
+        anim3.apply(matrices, delta);
+
+        VertexConsumer.GUI.consume(GeometryHelper.quad(
+                        matrices,
+                        width * 0.75f - 16, 0f,
+                        32, 32
+                ), temp.getID()
+        );
+
+        matrices.pop();
     }
 
     private static class MainButton extends Button {
