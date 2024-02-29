@@ -4,6 +4,8 @@ import mayo.Client;
 import mayo.gui.Screen;
 import mayo.gui.Toast;
 import mayo.gui.widgets.ContainerGrid;
+import mayo.gui.widgets.Tickable;
+import mayo.gui.widgets.Widget;
 import mayo.gui.widgets.types.Button;
 import mayo.gui.widgets.types.Label;
 import mayo.model.GeometryHelper;
@@ -19,6 +21,8 @@ import mayo.world.WorldClient;
 import java.util.function.Consumer;
 
 public class MainMenu extends Screen {
+
+    private Star[] stars;
 
     @Override
     public void init() {
@@ -61,72 +65,45 @@ public class MainMenu extends Screen {
         //add grid to screen
         grid.setPos(12, (height - grid.getHeight()) / 2);
         this.addWidget(grid);
-    }
 
-    Animation2D
-            anim1 = new Animation2D.Translate(-1, 1),
-            anim2 = new Animation2D.Rotate(1, 0),
-            anim3 = new Animation2D.Scale(0.01f, 0);
-    Texture temp = Texture.of(new Resource("textures/temp.png"));
+        //stars
+        stars = new Star[(int) Math.ceil(height / 24f)];
+        for (int i = 0; i < stars.length; i++)
+            stars[i] = genStar(true);
+    }
 
     @Override
     public void tick() {
         super.tick();
-        anim1.tick();
-        anim2.tick();
-        anim3.tick();
+
+        for (int i = 0; i < stars.length; i++) {
+            Star star = stars[i];
+            star.tick();
+            if (star.getTrueX() + star.getWidth() < 0)
+                stars[i] = genStar(false);
+        }
     }
 
     @Override
     protected void renderBackground(MatrixStack matrices, float delta) {
         GeometryHelper.rectangle(VertexConsumer.GUI, matrices, 0, 0, width, height, -999, 0xFF29224B, 0xFF2E2557, 0xFF553C89, 0xFFDBA8DC);
+        for (Star star : stars)
+            star.render(matrices, 0, 0, delta);
+    }
 
-        matrices.push();
-        anim1.apply(matrices, delta);
-
-        VertexConsumer.GUI.consume(GeometryHelper.quad(
-                matrices,
-                width, 0f,
-                32, 32
-                ), temp.getID()
+    private Star genStar(boolean init) {
+        return new Star(
+                init ? (int) (Math.random() * (width + 32) - 16) : width,
+                (int) (Math.random() * (height + 16) - 8),
+                (int) (Math.random() * 8 + 8),
+                (int) (Math.random() * 4 + 1),
+                (int) (Math.random() * 9 + 1)
         );
-
-        matrices.pop();
-
-        //
-
-        matrices.push();
-        anim2.apply(matrices, delta);
-
-        VertexConsumer.GUI.consume(GeometryHelper.quad(
-                        matrices,
-                        width * 0.25f - 16, 0f,
-                        32, 32
-                ), temp.getID()
-        );
-
-        matrices.pop();
-
-        //
-
-        matrices.push();
-        anim3.apply(matrices, delta);
-
-        VertexConsumer.GUI.consume(GeometryHelper.quad(
-                        matrices,
-                        width * 0.75f - 16, 0f,
-                        32, 32
-                ), temp.getID()
-        );
-
-        matrices.pop();
     }
 
     private static class MainButton extends Button {
 
-        protected static final Texture
-                STAR = Texture.of(new Resource("textures/gui/widgets/main_menu/star.png")),
-                LINE = Texture.of(new Resource("textures/gui/widgets/main_menu/line.png"));
+        protected static final Texture LINE = Texture.of(new Resource("textures/gui/widgets/main_menu/line.png"));
 
         private float hoverX = -40f;
 
@@ -162,6 +139,44 @@ public class MainMenu extends Screen {
             ), LINE.getID());
 
             matrices.pop();
+        }
+    }
+
+    private static class Star extends Widget implements Tickable {
+        private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/main_menu/star.png"));
+
+        private final Animation2D translate, rotate;
+
+        public Star(int x, int y, int size, float translate, float rotate) {
+            super(x, y, size, size);
+            this.translate = new Animation2D.Translate(-translate, 0);
+            this.rotate = new Animation2D.Rotate(rotate);
+        }
+
+        @Override
+        public void tick() {
+            translate.tick();
+            rotate.tick();
+        }
+
+        @Override
+        public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+            matrices.push();
+            rotate.setAnchor(getX() + translate.getX(delta), getY() + translate.getY(delta));
+            rotate.apply(matrices, delta);
+            translate.apply(matrices, delta);
+
+            VertexConsumer.GUI.consume(GeometryHelper.quad(
+                    matrices,
+                    getX(), getY(),
+                    getWidth(), getHeight()
+            ), TEXTURE.getID());
+
+            matrices.pop();
+        }
+
+        public int getTrueX() {
+            return getX() + (int) translate.getX(1f);
         }
     }
 }

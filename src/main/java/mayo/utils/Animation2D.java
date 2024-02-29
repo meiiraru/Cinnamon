@@ -50,18 +50,15 @@ public abstract class Animation2D {
     }
 
     public static class Rotate extends Animation2D {
-        public Rotate(float rotX, float rotY) {
-            super(rotX, rotY);
+        public Rotate(float rot) {
+            super(rot, 0f);
         }
 
         @Override
         public void apply(MatrixStack matrices, float delta) {
             boolean anchor = anchorX != 0f || anchorY != 0f;
             if (anchor) matrices.translate(anchorX, anchorY, 0f);
-
-            matrices.rotate(Rotation.X.rotationDeg(getX(delta)));
-            matrices.rotate(Rotation.Y.rotationDeg(getY(delta)));
-
+            matrices.rotate(Rotation.Z.rotationDeg(getX(delta)));
             if (anchor) matrices.translate(-anchorX, -anchorY, 0f);
         }
     }

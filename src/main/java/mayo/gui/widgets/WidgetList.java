@@ -87,7 +87,12 @@ public class WidgetList extends ContainerGrid {
         //update scrollbar
         if (scrollbar != null) {
             scrollbar.setHandlePercentage((float) scrollbar.getHeight() / getWidgetsHeight());
-            scrollbar.setScrollAmount(1f / (widgets.size() - widgetsToRender.size()));
+
+            updateList();
+            int remaining = widgets.size() - widgetsToRender.size();
+
+            scrollbar.setScrollAmount(1f / remaining);
+            scrollbar.setMax(remaining);
         }
     }
 
@@ -114,6 +119,7 @@ public class WidgetList extends ContainerGrid {
         int thisY = this.getY();
         int thisY2 = thisY + this.getHeight();
         boolean hovered = this.isHovered();
+        Window w = Client.getInstance().window;
 
         //apply new scroll
         for (Widget widget : widgets) {
@@ -121,16 +127,18 @@ public class WidgetList extends ContainerGrid {
             int y = widget.getY() + diff;
             widget.setY(y);
 
+            //if widget is inside list, allow it for render
+            boolean isInside = y + widget.getHeight() >= thisY && y <= thisY2;
+            if (isInside)
+                widgetsToRender.add(widget);
+
             //update hover status
             if (widget instanceof SelectableWidget sw) {
-                Window w = Client.getInstance().window;
-                sw.updateHover(w.mouseX, w.mouseY);
-                if (!hovered) sw.setHovered(false);
+                if (!isInside || !hovered)
+                    sw.setHovered(false);
+                else
+                    sw.updateHover(w.mouseX, w.mouseY);
             }
-
-            //if widget is inside list, allow it for render
-            if (y + widget.getHeight() >= thisY && y <= thisY2)
-                widgetsToRender.add(widget);
         }
 
         return widgetsToRender;
