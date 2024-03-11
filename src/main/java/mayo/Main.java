@@ -2,6 +2,7 @@ package mayo;
 
 import mayo.render.MatrixStack;
 import mayo.render.Window;
+import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
@@ -68,6 +69,7 @@ public class Main {
         //opengl debug info
         System.out.println("Renderer: " + glGetString(GL_RENDERER));
         System.out.println("OpenGL Version: " + glGetString(GL_VERSION));
+        System.out.println("LWJGL Version: " + Version.getVersion());
 
         //vsync
         glfwSwapInterval(GLFW_FALSE);
