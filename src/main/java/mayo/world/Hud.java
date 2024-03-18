@@ -168,7 +168,7 @@ public class Hud {
 
         //draw progressbar
         if (onCooldown) {
-            itemCooldown.setProgress(((CooldownItem) item).getCooldownProgress());
+            itemCooldown.setProgressWithoutLerp(((CooldownItem) item).getCooldownProgress());
             itemCooldown.setPos(-itemCooldown.getWidth(), y);
             itemCooldown.render(matrices, 0, 0, delta);
         }
