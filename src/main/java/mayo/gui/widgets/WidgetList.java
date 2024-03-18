@@ -13,6 +13,8 @@ import mayo.utils.UIHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+
 public class WidgetList extends ContainerGrid {
 
     private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/list.png"));
@@ -182,7 +184,7 @@ public class WidgetList extends ContainerGrid {
 
     @Override
     public GUIListener mousePress(int button, int action, int mods) {
-        return isHovered() ? super.mousePress(button, action, mods) : null;
+        return isHovered() || action != GLFW_PRESS ? super.mousePress(button, action, mods) : null;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package mayo.gui.widgets.types;
 
 import mayo.Client;
+import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.PopupWidget;
 import mayo.gui.widgets.Widget;
 import mayo.model.GeometryHelper;
@@ -42,11 +43,19 @@ public class ContextMenu extends PopupWidget {
 
     @Override
     public boolean isHovered() {
-        return isOpen() && (super.isHovered() || isSubContextHovered());
+        return isOpen() && (super.isHovered() || isSubContextHovered() || isChildDragged());
     }
 
     private boolean isSubContextHovered() {
         return subContext != null && subContext.isHovered();
+    }
+
+    protected boolean isChildDragged() {
+        for (ContextButton action : actions) {
+            if (action.isDragged())
+                return true;
+        }
+        return false;
     }
 
     @Override
@@ -237,6 +246,11 @@ public class ContextMenu extends PopupWidget {
         @Override
         public boolean isHoveredOrFocused() {
             return super.isHoveredOrFocused() || parent.selected == this.index;
+        }
+
+        @Override
+        public GUIListener mousePress(int button, int action, int mods) {
+            return null;
         }
     }
 }

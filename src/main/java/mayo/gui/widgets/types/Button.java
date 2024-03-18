@@ -22,6 +22,7 @@ public class Button extends SelectableWidget {
     private static final Resource CLICK_SOUND = new Resource("sounds/pop.ogg");
 
     private boolean silent;
+    protected boolean mouseSelected;
 
     protected Text message;
     protected Consumer<Button> action;
@@ -59,13 +60,31 @@ public class Button extends SelectableWidget {
     }
 
     @Override
+    public boolean isHoveredOrFocused() {
+        return super.isHoveredOrFocused() || mouseSelected;
+    }
+
+    @Override
     public GUIListener mousePress(int button, int action, int mods) {
         if (!isActive())
             return null;
 
-        if (isHovered() && action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1) {
-            onRun();
-            return this;
+        //test for left mouse button
+        if (button == GLFW_MOUSE_BUTTON_1) {
+            //test the click when hovered, otherwise cancel the click
+            if (isHovered()) {
+                //if the button was released while clicking, run the function
+                if (mouseSelected && action == GLFW_RELEASE) {
+                    onRun();
+                    mouseSelected = false;
+                    return this;
+                }
+
+                //update click based if the button was pressed
+                mouseSelected = action == GLFW_PRESS;
+            } else {
+                mouseSelected = false;
+            }
         }
 
         return super.mousePress(button, action, mods);
@@ -127,5 +146,9 @@ public class Button extends SelectableWidget {
 
     public void setSilent(boolean silent) {
         this.silent = silent;
+    }
+
+    public boolean isDragged() {
+        return mouseSelected;
     }
 }

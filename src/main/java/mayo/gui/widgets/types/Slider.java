@@ -182,10 +182,10 @@ public class Slider extends SelectableWidget {
 
     @Override
     public GUIListener mousePress(int button, int action, int mods) {
-        this.mouseSelected = isActive() && isHovered() && action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1;
-        if (this.mouseSelected) {
-            Window w = Client.getInstance().window;
+        mouseSelected = isActive() && isHovered() && action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1;
+        Window w = Client.getInstance().window;
 
+        if (mouseSelected) {
             if (!isHandleHovered()) {
                 int pos;
                 int size;
@@ -206,6 +206,8 @@ public class Slider extends SelectableWidget {
             anchorValue = getPercentage();
 
             return this;
+        } else {
+            updateHover(w.mouseX, w.mouseY);
         }
 
         return super.mousePress(button, action, mods);

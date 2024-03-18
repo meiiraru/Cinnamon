@@ -12,6 +12,7 @@ public class PopupWidget extends ContainerGrid {
     private boolean open;
     private Widget parent;
     private boolean hovered;
+    private boolean closeOnSelect = true;
 
     public PopupWidget(int x, int y, int spacing) {
         super(x, y, spacing);
@@ -73,16 +74,20 @@ public class PopupWidget extends ContainerGrid {
 
         //check if a child is being pressed first
         GUIListener sup = super.mousePress(button, action, mods);
-        if (sup != null) return sup;
-
-        //close popup when clicked outside it, but do not void the mouse click
-        if (action == GLFW_PRESS && !UIHelper.isWidgetHovered(this)) {
-            this.close();
-            return null;
+        if (sup != null) {
+            if (closeOnSelect && !(sup instanceof PopupWidget))
+                this.close();
+            return sup;
         }
 
-        //always void mouse click when clicking somewhere inside it
-        return this;
+        if (action == GLFW_PRESS) {
+            //close popup when clicked outside it, but do not void the mouse click
+            if (!this.isHovered()) this.close();
+            //always void mouse click when clicking somewhere inside it
+            else return this;
+        }
+
+        return null;
     }
 
     @Override
@@ -112,5 +117,10 @@ public class PopupWidget extends ContainerGrid {
     @Override
     protected List<SelectableWidget> getSelectableWidgets() {
         return List.of();
+    }
+
+    public PopupWidget closeOnSelect(boolean bool) {
+        this.closeOnSelect = bool;
+        return this;
     }
 }
