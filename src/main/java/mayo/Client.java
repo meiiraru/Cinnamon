@@ -68,7 +68,7 @@ public class Client {
     }
 
     public void close() {
-        disconnect();
+        //disconnect();
         this.font.free();
         this.soundManager.free();
         ResourceManager.free();

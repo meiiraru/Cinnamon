@@ -2,14 +2,12 @@ package mayo.gui.screens;
 
 import mayo.Client;
 import mayo.gui.Screen;
-import mayo.gui.Toast;
 import mayo.gui.widgets.ContainerGrid;
 import mayo.gui.widgets.Tickable;
 import mayo.gui.widgets.Widget;
 import mayo.gui.widgets.types.Button;
 import mayo.gui.widgets.types.Label;
 import mayo.model.GeometryHelper;
-import mayo.networking.ServerConnection;
 import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.batch.VertexConsumer;
@@ -38,12 +36,12 @@ public class MainMenu extends Screen {
         //open world
         Button worldButton = new MainButton(Text.of("Singleplayer").withStyle(Style.EMPTY.color(Colors.YELLOW)), button -> {
             //init client
-            if (ServerConnection.open()) {
+            //if (ServerConnection.open()) {
                 WorldClient world = new WorldClient();
                 world.init();
-            } else {
-                Toast.addToast(Text.of("Unable to create the internal server"), client.font);
-            }
+            //} else {
+            //    Toast.addToast(Text.of("Unable to create the internal server"), client.font);
+            //}
         });
         grid.addWidget(worldButton);
 

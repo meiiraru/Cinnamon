@@ -1,8 +1,6 @@
 package mayo.input;
 
 import mayo.Client;
-import mayo.networking.ClientConnection;
-import mayo.networking.packet.ClientMovement;
 import mayo.world.entity.Entity;
 import mayo.world.entity.living.Player;
 import org.joml.Vector2f;
@@ -67,27 +65,27 @@ public class Movement {
         if (forward) movement.z += 1;
         if (backward) movement.z -= 1;
 
-        ClientMovement clientMovement = new ClientMovement().uuid(entity.getUUID());
+        //ClientMovement clientMovement = new ClientMovement().uuid(entity.getUUID());
 
         if (movement.lengthSquared() > 0) {
             entity.move(movement.x, movement.y, movement.z);
-            clientMovement.move(movement.x, movement.y, movement.z);
+            //clientMovement.move(movement.x, movement.y, movement.z);
             movement.set(0);
         }
 
         if (rotation.lengthSquared() > 0) {
             entity.rotate(rotation.y, rotation.x);
-            clientMovement.rotate(rotation.y, rotation.x);
+            //clientMovement.rotate(rotation.y, rotation.x);
             rotation.set(0);
         }
 
         if (entity instanceof Player p) {
             boolean flying = false;
             p.updateMovementFlags(sneak, sprint, flying);
-            clientMovement.flags(sneak, sprint, flying);
+            //clientMovement.flags(sneak, sprint, flying);
         }
 
-        ClientConnection.connection.sendUDP(clientMovement);
+        //ClientConnection.connection.sendUDP(clientMovement);
     }
 
     public void reset() {

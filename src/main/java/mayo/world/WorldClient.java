@@ -6,8 +6,6 @@ import mayo.gui.screens.DeathScreen;
 import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
 import mayo.model.GeometryHelper;
-import mayo.networking.ServerConnection;
-import mayo.networking.packet.*;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
 import mayo.render.Window;
@@ -19,12 +17,14 @@ import mayo.render.shader.Shaders;
 import mayo.text.Text;
 import mayo.utils.AABB;
 import mayo.utils.Maths;
+import mayo.utils.Resource;
 import mayo.world.chunk.Chunk;
 import mayo.world.collisions.Hit;
 import mayo.world.entity.Entity;
 import mayo.world.entity.living.LivingEntity;
 import mayo.world.entity.living.LocalPlayer;
 import mayo.world.entity.living.Player;
+import mayo.world.entity.vehicle.Cart;
 import mayo.world.items.Item;
 import mayo.world.items.ItemRenderContext;
 import mayo.world.items.MagicWand;
@@ -43,8 +43,8 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-import static mayo.networking.ClientConnection.connection;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
@@ -106,16 +106,31 @@ public class WorldClient extends World {
         //create player
         respawn(true);
 
+        //SERVER STUFF
+
+        //load level
+        LevelLoad.load(this, new Resource("data/levels/level0.json"));
+
+        Cart c = new Cart(UUID.randomUUID());
+        c.setPos(10, 2, 10);
+        this.addEntity(c);
+
+        Cart c2 = new Cart(UUID.randomUUID());
+        c2.setPos(15, 2, 10);
+        this.addEntity(c2);
+
+        //END SERVER STUFF
+
         runScheduledTicks();
 
         //request world data
-        connection.sendTCP(new Login());
+        //connection.sendTCP(new Login());
     }
 
     @Override
     public void close() {
-        ServerConnection.close();
-        client.disconnect();
+        //ServerConnection.close();
+        //client.disconnect();
     }
 
     @Override
@@ -387,27 +402,27 @@ public class WorldClient extends World {
     public void mousePress(int button, int action, int mods) {
         boolean press = action != GLFW_RELEASE;
 
-        ClientEntityAction mouseAction = new ClientEntityAction();
-        boolean used = false;
+        //ClientEntityAction mouseAction = new ClientEntityAction();
+        //boolean used = false;
 
         switch (button) {
             case GLFW_MOUSE_BUTTON_1 -> {
                 if (!press) {
-                    //player.stopAttacking();
-                    mouseAction.attack(false);
-                    used = true;
+                    player.stopAttacking();
+                    //mouseAction.attack(false);
+                    //used = true;
                 }
             }
             case GLFW_MOUSE_BUTTON_2 -> {
                 if (!press) {
-                    //player.stopUsing();
-                    mouseAction.use(false);
-                    used = true;
+                    player.stopUsing();
+                    //mouseAction.use(false);
+                    //used = true;
                 }
             }
         }
 
-        if (used) connection.sendUDP(mouseAction);
+        //if (used) connection.sendUDP(mouseAction);
 
         processMouseInput();
     }
@@ -417,21 +432,21 @@ public class WorldClient extends World {
         if (!w.isMouseLocked())
             return;
 
-        ClientEntityAction action = new ClientEntityAction();
-        boolean used = false;
+        //ClientEntityAction action = new ClientEntityAction();
+        //boolean used = false;
 
         if (w.mouse1Press) {
-            //player.attackAction();
-            action.attack(true);
-            used = true;
+            player.attackAction();
+            //action.attack(true);
+            //used = true;
         }
         if (w.mouse2Press) {
-            //player.useAction();
-            action.use(true);
-            used = true;
+            player.useAction();
+            //action.use(true);
+            //used = true;
         }
 
-        if (used) connection.sendUDP(action);
+        //if (used) connection.sendUDP(action);
     }
 
     public void mouseMove(double x, double y) {
@@ -441,7 +456,7 @@ public class WorldClient extends World {
     public void scroll(double x, double y) {
         int i = player.getInventory().getSelectedIndex() - (int) Math.signum(y);
         player.setSelectedItem(i);
-        connection.sendUDP(new SelectItem().index(i));
+        //connection.sendUDP(new SelectItem().index(i));
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
@@ -453,7 +468,7 @@ public class WorldClient extends World {
         if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9) {
             int i = key - GLFW_KEY_1;
             player.setSelectedItem(i);
-            connection.sendUDP(new SelectItem().index(i));
+            //connection.sendUDP(new SelectItem().index(i));
         }
 
         switch (key) {
@@ -470,8 +485,8 @@ public class WorldClient extends World {
             case GLFW_KEY_F7 -> this.timeOfTheDay -= 100;
             case GLFW_KEY_F8 -> this.timeOfTheDay += 100;
 
-            case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
-            case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));
+            //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
+            //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));
         }
     }
 
@@ -500,8 +515,8 @@ public class WorldClient extends World {
         givePlayerItems(player);
         this.addEntity(player);
 
-        if (!init)
-            connection.sendTCP(new Respawn());
+        //if (!init)
+        //    connection.sendTCP(new Respawn());
     }
 
     public static void givePlayerItems(Player player) {
