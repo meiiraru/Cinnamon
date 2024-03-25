@@ -25,16 +25,13 @@ import mayo.world.entity.living.LivingEntity;
 import mayo.world.entity.living.LocalPlayer;
 import mayo.world.entity.living.Player;
 import mayo.world.entity.vehicle.Cart;
+import mayo.world.items.Flashlight;
 import mayo.world.items.Item;
 import mayo.world.items.ItemRenderContext;
 import mayo.world.items.MagicWand;
-import mayo.world.items.weapons.CoilGun;
-import mayo.world.items.weapons.PotatoCannon;
-import mayo.world.items.weapons.RiceGun;
 import mayo.world.items.weapons.Weapon;
 import mayo.world.light.DirectionalLight;
 import mayo.world.light.Light;
-import mayo.world.light.Spotlight;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.Terrain;
 import org.joml.Matrix4f;
@@ -54,7 +51,7 @@ public class WorldClient extends World {
     public final Hud hud = new Hud();
     private final Movement movement = new Movement();
 
-    private Client client;
+    protected Client client;
     public LocalPlayer player;
 
     private int cameraMode = 0;
@@ -64,8 +61,7 @@ public class WorldClient extends World {
 
     //lights
     protected final List<Light> lights = new ArrayList<>();
-    private final DirectionalLight sunLight = new DirectionalLight();
-    private final Spotlight flashlight = (Spotlight) new Spotlight().cutOff(25f, 45f).brightness(64);
+    protected final DirectionalLight sunLight = new DirectionalLight();
 
     //skybox
     private final SkyBox skyBox = new SkyBox();
@@ -85,15 +81,11 @@ public class WorldClient extends World {
         hud.init();
 
         //tutorial toast
-        Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), client.font);
+        Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), client.font, 200);
 
         //lights
-        addLight(sunLight);
-        addLight(flashlight);
-
-        //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
-
         //rip for-loop
+        addLight(sunLight);
         addLight(new Light().pos(-5.5f, 0.5f, 2f).color(0x000000));
         addLight(new Light().pos(-3.5f, 0.5f, 2f).color(0xFF0000));
         addLight(new Light().pos(-1.5f, 0.5f, 2f).color(0x00FF00));
@@ -102,6 +94,8 @@ public class WorldClient extends World {
         addLight(new Light().pos(4.5f, 0.5f, 2f).color(0xFF00FF));
         addLight(new Light().pos(6.5f, 0.5f, 2f).color(0xFFFF00));
         addLight(new Light().pos(8.5f, 0.5f, 2f).color(0xFFFFFF));
+
+        //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
 
         //create player
         respawn(true);
@@ -159,10 +153,6 @@ public class WorldClient extends World {
 
         //render skybox
         renderSky(matrices, delta);
-
-        //flashlight
-        flashlight.pos(player.getEyePos(delta));
-        flashlight.direction(player.getLookDir(delta));
 
         //render shadows
         renderShadows(client.camera, matrices, delta);
@@ -323,6 +313,10 @@ public class WorldClient extends World {
                 e.renderDebugHitbox(matrices, delta);
         }
 
+        renderLights(area, cameraPos, matrices);
+    }
+
+    protected void renderLights(AABB area, Vector3f cameraPos, MatrixStack matrices) {
         for (Light l : getLights(area)) {
             Vector3f pos = l.getPos();
             if (cameraPos.distanceSquared(pos) <= 0.1f)
@@ -388,6 +382,10 @@ public class WorldClient extends World {
 
     public void addLight(Light light) {
         scheduledTicks.add(() -> this.lights.add(light));
+    }
+
+    public void removeLight(Light light) {
+        scheduledTicks.add(() -> this.lights.remove(light));
     }
 
     public int lightCount() {
@@ -524,10 +522,11 @@ public class WorldClient extends World {
     }
 
     public static void givePlayerItems(Player player) {
-        player.giveItem(new CoilGun(1, 5, 0));
-        player.giveItem(new PotatoCannon(3, 40, 30));
-        player.giveItem(new RiceGun(8, 80, 60));
+        //player.giveItem(new CoilGun(1, 5, 0));
+        //player.giveItem(new PotatoCannon(3, 40, 30));
+        //player.giveItem(new RiceGun(8, 80, 60));
         //player.getInventory().setItem(player.getInventory().getFreeIndex() + 1, new CurveMaker(1, 0, 5));
+        player.giveItem(new Flashlight(1, 0xFFFFCC));
         player.getInventory().setItem(player.getInventory().getSize() - 1, new MagicWand(1));
     }
 

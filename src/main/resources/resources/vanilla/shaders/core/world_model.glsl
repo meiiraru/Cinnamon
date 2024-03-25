@@ -99,6 +99,9 @@ vec4 applyLighting(vec4 diffTex) {
 
     vec3 ambient = ambient * material.ambient * diffTex.rgb;
 
+    if (dot(viewDir, norm) < 0.0f)
+        return vec4(ambient, 1);
+
     // shadow //
 
     float shadow = 1 - calculateShadow(norm, normalize(shadowDir));
