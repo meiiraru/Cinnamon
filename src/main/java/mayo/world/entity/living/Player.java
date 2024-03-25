@@ -42,6 +42,9 @@ public class Player extends LivingEntity {
 
         if (damageSourceTicks > 0)
             damageSourceTicks--;
+
+        if (onGround)
+            flying = false;
     }
 
     @Override
@@ -61,7 +64,7 @@ public class Player extends LivingEntity {
     @Override
     protected void motionFallout() {
         if (flying) {
-            this.motion.mul(0.6f, 0.6f, 0.6f);
+            this.motion.mul(0.6f);
         } else {
             super.motionFallout();
         }
@@ -161,5 +164,9 @@ public class Player extends LivingEntity {
     protected Text getHeadText() {
         Text supr = super.getHeadText();
         return Text.of(getName()).withStyle(supr.getStyle()).append("\n").append(supr);
+    }
+
+    public boolean isFlying() {
+        return flying;
     }
 }

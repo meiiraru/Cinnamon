@@ -107,7 +107,15 @@ public class WorldClient extends World {
         respawn(true);
 
         //SERVER STUFF
+        tempLoad();
 
+        runScheduledTicks();
+
+        //request world data
+        //connection.sendTCP(new Login());
+    }
+
+    protected void tempLoad() {
         //load level
         LevelLoad.load(this, new Resource("data/levels/level0.json"));
 
@@ -118,13 +126,6 @@ public class WorldClient extends World {
         Cart c2 = new Cart(UUID.randomUUID());
         c2.setPos(15, 2, 10);
         this.addEntity(c2);
-
-        //END SERVER STUFF
-
-        runScheduledTicks();
-
-        //request world data
-        //connection.sendTCP(new Login());
     }
 
     @Override
@@ -142,7 +143,7 @@ public class WorldClient extends World {
             client.setScreen(new DeathScreen());
 
         //process input
-        this.movement.apply(player);
+        this.movement.tick(player);
         processMouseInput();
 
         //hud
@@ -157,13 +158,7 @@ public class WorldClient extends World {
         client.camera.setup(player, cameraMode, delta);
 
         //render skybox
-        Shaders.MODEL.getShader().use().setup(
-                client.camera.getPerspectiveMatrix(),
-                client.camera.getViewMatrix()
-        );
-        skyBox.setSunAngle(Maths.map(timeOfTheDay + delta, 0, 24000, 0, 360));
-        skyBox.render(client.camera, matrices);
-        sunLight.direction(skyBox.getSunDirection());
+        renderSky(matrices, delta);
 
         //flashlight
         flashlight.pos(player.getEyePos(delta));
@@ -198,12 +193,21 @@ public class WorldClient extends World {
         VertexConsumer.finishAllBatches(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
 
         //debug shadows
-        if (renderShadowMap) {
+        if (renderShadowMap)
             renderShadowBuffer(client.window.width, client.window.height, 500);
-        }
     }
 
-    private void renderShadows(Camera camera, MatrixStack matrices, float delta) {
+    protected void renderSky(MatrixStack matrices, float delta) {
+        Shaders.MODEL.getShader().use().setup(
+                client.camera.getPerspectiveMatrix(),
+                client.camera.getViewMatrix()
+        );
+        skyBox.setSunAngle(Maths.map(timeOfTheDay + delta, 0, 24000, 0, 360));
+        skyBox.render(client.camera, matrices);
+        sunLight.direction(skyBox.getSunDirection());
+    }
+
+    protected void renderShadows(Camera camera, MatrixStack matrices, float delta) {
         //prepare matrix
         float r = Chunk.CHUNK_SIZE * 2 * 0.5f;
         Matrix4f lightProjection = new Matrix4f().ortho(-r, r, -r, r, -r, r);
@@ -245,7 +249,7 @@ public class WorldClient extends World {
         camera.setRot(rot.x, rot.y);
     }
 
-    private void renderWorld(Entity camEntity, MatrixStack matrices, float delta) {
+    protected void renderWorld(Entity camEntity, MatrixStack matrices, float delta) {
         //render terrain
         for (Terrain terrain : terrain)
             terrain.render(matrices, delta);
@@ -261,7 +265,7 @@ public class WorldClient extends World {
             particle.render(matrices, delta);
     }
 
-    private void renderItemExtra(Entity entity, MatrixStack matrices, float delta) {
+    protected void renderItemExtra(Entity entity, MatrixStack matrices, float delta) {
         if (!(entity instanceof LivingEntity le))
             return;
 
@@ -299,13 +303,13 @@ public class WorldClient extends World {
         matrices.pop();
     }
 
-    private void renderShadowBuffer(int width, int height, int size) {
+    protected void renderShadowBuffer(int width, int height, int size) {
         glViewport(width - size, height - size, size, size);
         Blit.copy(shadowBuffer, 0, Shaders.DEPTH_BLIT.getShader());
         glViewport(0, 0, width, height);
     }
 
-    private void renderHitboxes(Camera camera, MatrixStack matrices, float delta) {
+    protected void renderHitboxes(Camera camera, MatrixStack matrices, float delta) {
         Vector3f cameraPos = camera.getPos();
         AABB area = new AABB();
         area.translate(player.getPos());
@@ -330,7 +334,7 @@ public class WorldClient extends World {
         }
     }
 
-    private void renderHitResults(MatrixStack matrices) {
+    protected void renderHitResults(MatrixStack matrices) {
         float f = 0.025f;
         float r = player.getPickRange();
 
@@ -363,7 +367,7 @@ public class WorldClient extends World {
         s.setColor("fogColor", Chunk.fogColor);
 
         //lighting
-        s.setColor("ambient", 0x202020);//Chunk.ambientLight);
+        s.setColor("ambient", 0x000030);//Chunk.ambientLight);
 
         s.setInt("lightCount", lights.size());
         for (int i = 0; i < lights.size(); i++) {

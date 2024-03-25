@@ -145,7 +145,7 @@ vec4 applyLighting(vec4 diffTex) {
     vec3 emissive = texture(material.emissiveTex, texCoords).rgb;
 
     //return light
-    return vec4(ambient + diffuse + specular + emissive, diffTex.a);
+    return vec4(max(ambient + diffuse + specular, emissive), diffTex.a);
 }
 
 void main() {

@@ -10,6 +10,8 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Movement {
 
+    private static final int TICKS_TO_FLY = (int) (0.3f * Client.TPS);
+
     //pos
     private final Vector3f movement = new Vector3f();
     private boolean up, down, left, right, forward, backward, sprint, sneak;
@@ -19,6 +21,10 @@ public class Movement {
     private double mouseX, mouseY, offsetX, offsetY;
     private boolean firstMouse = true;
 
+    //flying
+    private int flyTicks = 0;
+    private boolean flyingToggle = false;
+
     public void keyPress(int key, int action) {
         boolean pressed = action != GLFW_RELEASE;
         switch (key) {
@@ -27,7 +33,17 @@ public class Movement {
             case GLFW_KEY_A -> left = pressed;
             case GLFW_KEY_S -> backward = pressed;
             case GLFW_KEY_D -> right = pressed;
-            case GLFW_KEY_SPACE -> up = pressed;
+            case GLFW_KEY_SPACE -> {
+                up = pressed;
+                if (action == GLFW_PRESS) {
+                    if (flyTicks > 0) {
+                        flyingToggle = true;
+                        flyTicks = 0;
+                    } else {
+                        flyTicks = TICKS_TO_FLY;
+                    }
+                }
+            }
             case GLFW_KEY_LEFT_SHIFT -> down = pressed;
             case GLFW_KEY_TAB -> sprint = pressed;
             case GLFW_KEY_LEFT_CONTROL -> sneak = pressed;
@@ -57,7 +73,10 @@ public class Movement {
         offsetY = 0;
     }
 
-    public void apply(Entity entity) {
+    public void tick(Entity target) {
+        if (flyTicks > 0)
+            flyTicks--;
+
         if (up) movement.y += 1;
         if (down) movement.y -= 1;
         if (left) movement.x -= 1;
@@ -65,32 +84,31 @@ public class Movement {
         if (forward) movement.z += 1;
         if (backward) movement.z -= 1;
 
-        //ClientMovement clientMovement = new ClientMovement().uuid(entity.getUUID());
-
         if (movement.lengthSquared() > 0) {
-            entity.move(movement.x, movement.y, movement.z);
-            //clientMovement.move(movement.x, movement.y, movement.z);
+            target.move(movement.x, movement.y, movement.z);
             movement.set(0);
         }
 
         if (rotation.lengthSquared() > 0) {
-            entity.rotate(rotation.y, rotation.x);
-            //clientMovement.rotate(rotation.y, rotation.x);
+            target.rotate(rotation.y, rotation.x);
             rotation.set(0);
         }
 
-        if (entity instanceof Player p) {
-            boolean flying = false;
-            p.updateMovementFlags(sneak, sprint, flying);
-            //clientMovement.flags(sneak, sprint, flying);
-        }
+        if (target instanceof Player p) {
+            boolean flying = p.isFlying();
+            if (flyingToggle) {
+                flyingToggle = false;
+                flying = !flying;
+            }
 
-        //ClientConnection.connection.sendUDP(clientMovement);
+            p.updateMovementFlags(sneak, sprint, flying);
+        }
     }
 
     public void reset() {
         this.firstMouse = true;
         this.movement.set(0);
-        up = down = left = right = forward = backward = sprint = sneak = false;
+        up = down = left = right = forward = backward = sprint = sneak = flyingToggle = false;
+        flyTicks = 0;
     }
 }

@@ -270,7 +270,7 @@ public class Hud {
 
         //rotate
         matrices.push();
-        matrices.translate((int) (w / 2f), (int) (h / 2f), 0f);
+        matrices.translate(Math.round(w / 2f), Math.round(h / 2f), 0f);
         matrices.rotate(Rotation.Z.rotationDeg(angle));
 
         //draw
@@ -308,7 +308,7 @@ public class Hud {
         } else {
             glBlendFuncSeparate(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_ONE, GL_ZERO);
 
-            VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, (int) (w / 2f - 8), (int) (h / 2f - 8), 16, 16), CROSSHAIR.getID());
+            VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, Math.round(w / 2f - 8), Math.round(h / 2f - 8), 16, 16), CROSSHAIR.getID());
             VertexConsumer.GUI.finishBatch(projMat, viewMat);
 
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
