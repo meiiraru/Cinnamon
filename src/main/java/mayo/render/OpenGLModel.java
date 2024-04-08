@@ -250,14 +250,18 @@ public class OpenGLModel extends Model {
             glBindVertexArray(vao);
 
             //bind material
-            if (material == null || material.use() == -1)
+            int texCount;
+            if (material == null || (texCount = material.use()) == -1) {
                 Texture.MISSING.bind();
+                texCount = 1;
+            }
 
             //draw
             glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
             //unbind all used textures
-            Texture.unbindAll();
+            for (int i = texCount - 1; i >= 0; i--)
+                Texture.unbindTex(i);
         }
 
         private void free() {
