@@ -87,7 +87,7 @@ vec3 getNormalFromMap() {
 }
 
 //Trowbridge-Reitz GGX
-//NDF (Normal Distribution Function)
+//D (NDF Normal Distribution Function)
 float distributionGGX(vec3 N, vec3 H, float roughness) {
     float a = roughness * roughness;
     float a2 = a * a;
@@ -99,14 +99,13 @@ float distributionGGX(vec3 N, vec3 H, float roughness) {
     return a2 / (PI * (denom * denom));
 }
 
-//geometry function
 float geometrySchlickGGX(float NdotV, float roughness) {
     float r = (roughness + 1);
     float k = (r * r) / 8;
     return NdotV / (NdotV * (1 - k) + k);
 }
 
-//G
+//G (Geometry function)
 float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
     float NdotV = max(dot(N, V), 0);
     float NdotL = max(dot(N, L), 0);
@@ -116,7 +115,7 @@ float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
     return ggx1 * ggx2;
 }
 
-//F
+//F (Fresnel equation)
 vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1 - F0) * pow(clamp(1 - cosTheta, 0, 1), 5);
 }
@@ -160,7 +159,7 @@ vec4 applyLighting(vec4 albedoTex) {
         }
 
         //cook torrance BRDF
-        float NDF = distributionGGX(N, H, roughness);
+        float D = distributionGGX(N, H, roughness);
         float G = geometrySmith(N, V, L, roughness);
         vec3 F = fresnelSchlick(max(dot(H, V), 0), F0);
 
@@ -170,7 +169,7 @@ vec4 applyLighting(vec4 albedoTex) {
         kD *= 1 - metallic;
 
         float NdotL = max(dot(N, L), 0);
-        vec3 specular = (NDF * G * F) / (4 * max(dot(N, V), 0) * NdotL + 0.0001f);
+        vec3 specular = (D * F * G) / (4 * max(dot(N, V), 0) * NdotL + 0.0001f);
 
         //calculate radiance and add to Lo
         Lo += (kD * albedo / PI + specular) * radiance * NdotL * shadow;

@@ -188,6 +188,7 @@ public class WorldClient extends World {
 
         // -- PBR TEMP -- //
 
+        ///*
         Shader sh = Shaders.WORLD_MODEL_PBR.getShader().use();
         sh.setup(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
 
@@ -201,11 +202,12 @@ public class WorldClient extends World {
         pbr.render();
 
         matrices.pop();
+        //*/
 
         // -- END PBR TEMP -- //
     }
 
-    private final Model pbr = ModelManager.load(new Resource("models/terrain/pbr_test/pbr_test.obj"));
+    private final Model pbr = ModelManager.load(new Resource("models/terrain/pbr_test/sphere.obj"));
 
     protected void renderSky(MatrixStack matrices, float delta) {
         Shaders.MODEL.getShader().use().setup(
@@ -338,6 +340,9 @@ public class WorldClient extends World {
 
     protected void renderLights(AABB area, Vector3f cameraPos, MatrixStack matrices) {
         for (Light l : getLights(area)) {
+            if (l instanceof DirectionalLight)
+                continue;
+
             Vector3f pos = l.getPos();
             if (cameraPos.distanceSquared(pos) <= 0.1f)
                 continue;

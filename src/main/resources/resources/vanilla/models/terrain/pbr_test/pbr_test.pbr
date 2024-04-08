@@ -1,6 +1,0 @@
-newmtl sphere
-albedo albedo.png
-ao ao.png
-metallic metallic.png
-normal normal.png
-roughness roughness.png
