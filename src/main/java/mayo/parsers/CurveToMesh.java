@@ -2,8 +2,8 @@ package mayo.parsers;
 
 import mayo.model.obj.Face;
 import mayo.model.obj.Group;
-import mayo.model.obj.Material;
 import mayo.model.obj.Mesh;
+import mayo.model.obj.material.MtlMaterial;
 import mayo.utils.Curve;
 import mayo.utils.Resource;
 import org.joml.Vector2f;
@@ -95,7 +95,7 @@ public class CurveToMesh {
         }
 
         //material
-        Material material = new Material("curve");
+        MtlMaterial material = new MtlMaterial("curve");
         mesh.getMaterials().put("curve", material);
         group.setMaterial(material);
 

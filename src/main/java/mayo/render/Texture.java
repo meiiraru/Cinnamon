@@ -21,6 +21,7 @@ public class Texture {
     private static final Map<Resource, Texture> TEXTURE_MAP = new HashMap<>();
     //the missing texture
     public static final Texture MISSING = generateMissingTex();
+    public static final int MAX_TEXTURES = 16;
 
     private final int ID, uFrames, vFrames;
 
@@ -127,6 +128,12 @@ public class Texture {
     public static void unbindTex(int index) {
         glActiveTexture(GL_TEXTURE0 + index);
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    public static void unbindAll() {
+        //inverted so the last active texture is GL_TEXTURE0
+        for (int i = MAX_TEXTURES - 1; i >= 0; i--)
+            unbindTex(i);
     }
 
     public static void freeAll() {

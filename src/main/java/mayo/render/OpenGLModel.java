@@ -2,8 +2,10 @@ package mayo.render;
 
 import mayo.model.obj.Face;
 import mayo.model.obj.Group;
-import mayo.model.obj.Material;
+import mayo.model.obj.material.Material;
 import mayo.model.obj.Mesh;
+import mayo.model.obj.material.PBRMaterial;
+import mayo.model.obj.material.MtlMaterial;
 import mayo.render.shader.Attributes;
 import mayo.render.shader.Shader;
 import mayo.utils.AABB;
@@ -248,16 +250,14 @@ public class OpenGLModel extends Model {
             glBindVertexArray(vao);
 
             //bind material
-            if (material == null || !material.use())
+            if (material == null || material.use() == -1)
                 Texture.MISSING.bind();
 
             //draw
             glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
-            //unbind texture
-            //inverted so the last active texture is GL_TEXTURE0
-            for (int i = MaterialData.TEX_COUNT - 1; i >= 0; i--)
-                Texture.unbindTex(i);
+            //unbind all used textures
+            Texture.unbindAll();
         }
 
         private void free() {
@@ -267,27 +267,40 @@ public class OpenGLModel extends Model {
     }
 
     private record MaterialData(Material material) {
-        public static final int TEX_COUNT = 3;
-
-        public boolean use() {
+        public int use() {
             if (material == null)
-                return false;
+                return -1;
 
             Shader s = Shader.activeShader;
 
-            s.setVec3("material.ambient", material.getAmbientColor());
-            s.setVec3("material.diffuse", material.getDiffuseColor());
-            s.setVec3("material.specular", material.getSpecularColor());
-            s.setFloat("material.shininess", material.getSpecularExponent());
+            if (material instanceof MtlMaterial phong) {
+                s.setVec3("material.ambient", phong.getAmbientColor());
+                s.setVec3("material.diffuse", phong.getDiffuseColor());
+                s.setVec3("material.specular", phong.getSpecularColor());
+                s.setFloat("material.shininess", phong.getSpecularExponent());
 
-            bindTex(s, material.getDiffuseTex(), 0, "material.diffuseTex");
-            bindTex(s, material.getSpColorTex(), 1, "material.specularTex");
-            bindTex(s, material.getEmissiveTex(), 2, "material.emissiveTex");
+                bindTex(s, phong.getDiffuseTex(), 0, "material.diffuseTex");
+                bindTex(s, phong.getSpColorTex(), 1, "material.specularTex");
+                bindTex(s, phong.getEmissiveTex(), 2, "material.emissiveTex");
 
-            return true;
+                return 3;
+            } else if (material instanceof PBRMaterial pbr) {
+                bindTex(s, pbr.getAlbedo(), 0, "material.albedoTex");
+                bindTex(s, pbr.getNormal(), 1, "material.normalTex");
+                bindTex(s, pbr.getRoughness(), 2, "material.roughnessTex");
+                bindTex(s, pbr.getMetallic(), 3, "material.metallicTex");
+                bindTex(s, pbr.getAO(), 4, "material.aoTex");
+                bindTex(s, pbr.getEmissive(), 5, "material.emissiveTex");
+
+                return 6;
+            } else {
+                return -1;
+            }
         }
 
         private static void bindTex(Shader s, Resource res, int index, String name) {
+            s.setInt(name, index);
+
             if (res == null) {
                 Texture.unbindTex(index);
                 return;
@@ -299,7 +312,6 @@ public class OpenGLModel extends Model {
                 return;
             }
 
-            s.setInt(name, index);
             glActiveTexture(GL_TEXTURE0 + index);
             tex.bind();
         }

@@ -7,6 +7,7 @@ public enum Shaders {
     WORLD_FONT,
     FONT,
     WORLD_MODEL,
+    WORLD_MODEL_PBR,
     MODEL,
     WORLD_MAIN,
     MAIN,

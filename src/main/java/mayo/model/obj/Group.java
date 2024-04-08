@@ -1,5 +1,7 @@
 package mayo.model.obj;
 
+import mayo.model.obj.material.Material;
+
 import java.util.ArrayList;
 import java.util.List;
 

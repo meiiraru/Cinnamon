@@ -6,9 +6,8 @@ import mayo.gui.screens.DeathScreen;
 import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
 import mayo.model.GeometryHelper;
-import mayo.render.Camera;
-import mayo.render.MatrixStack;
-import mayo.render.Window;
+import mayo.model.ModelManager;
+import mayo.render.*;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.framebuffer.Blit;
 import mayo.render.framebuffer.Framebuffer;
@@ -44,7 +43,8 @@ import java.util.UUID;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 
 public class WorldClient extends World {
 
@@ -185,7 +185,27 @@ public class WorldClient extends World {
         //debug shadows
         if (renderShadowMap)
             renderShadowBuffer(client.window.width, client.window.height, 500);
+
+        // -- PBR TEMP -- //
+
+        Shader sh = Shaders.WORLD_MODEL_PBR.getShader().use();
+        sh.setup(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
+
+        applyWorldUniforms(sh);
+        applyShadowUniforms(sh);
+
+        matrices.push();
+        matrices.translate(-3, 1, 0);
+
+        sh.applyMatrixStack(matrices);
+        pbr.render();
+
+        matrices.pop();
+
+        // -- END PBR TEMP -- //
     }
+
+    private final Model pbr = ModelManager.load(new Resource("models/terrain/pbr_test/pbr_test.obj"));
 
     protected void renderSky(MatrixStack matrices, float delta) {
         Shaders.MODEL.getShader().use().setup(
@@ -361,7 +381,7 @@ public class WorldClient extends World {
         s.setColor("fogColor", Chunk.fogColor);
 
         //lighting
-        s.setColor("ambient", 0x000030);//Chunk.ambientLight);
+        s.setColor("ambient", 0x121220);//Chunk.ambientLight);
 
         s.setInt("lightCount", lights.size());
         for (int i = 0; i < lights.size(); i++) {
@@ -370,11 +390,13 @@ public class WorldClient extends World {
     }
 
     public void applyShadowUniforms(Shader s) {
+        int id = Texture.MAX_TEXTURES - 1;
+
         s.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-        s.setInt("shadowMap", 3);
+        s.setInt("shadowMap", id);
         s.setVec3("shadowDir", skyBox.getSunDirection());
 
-        glActiveTexture(GL_TEXTURE3); //0-1-2 used by the material
+        glActiveTexture(GL_TEXTURE0 + id); //use last available texture
         glBindTexture(GL_TEXTURE_2D, shadowBuffer.getDepthBuffer());
 
         glActiveTexture(GL_TEXTURE0);
@@ -526,7 +548,7 @@ public class WorldClient extends World {
         //player.giveItem(new PotatoCannon(3, 40, 30));
         //player.giveItem(new RiceGun(8, 80, 60));
         //player.getInventory().setItem(player.getInventory().getFreeIndex() + 1, new CurveMaker(1, 0, 5));
-        player.giveItem(new Flashlight(1, 0xFFFFCC));
+        player.getInventory().setItem(1, new Flashlight(1, 0xFFFFCC));
         player.getInventory().setItem(player.getInventory().getSize() - 1, new MagicWand(1));
     }
 

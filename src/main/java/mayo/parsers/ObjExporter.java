@@ -2,8 +2,10 @@ package mayo.parsers;
 
 import mayo.model.obj.Face;
 import mayo.model.obj.Group;
-import mayo.model.obj.Material;
 import mayo.model.obj.Mesh;
+import mayo.model.obj.material.Material;
+import mayo.model.obj.material.MtlMaterial;
+import mayo.model.obj.material.PBRMaterial;
 import mayo.utils.IOUtils;
 import mayo.utils.Resource;
 import org.joml.Vector2f;
@@ -28,8 +30,17 @@ public class ObjExporter {
 
         //materials
         string.append("mtllib %s.mtl\n".formatted(meshName));
-        for (Material material : mesh.getMaterials().values())
-            writeMaterial(folder, mtlString, material);
+        for (Material material : mesh.getMaterials().values()) {
+            //material name
+            mtlString.append("newmtl %s\n".formatted(material.getName()));
+
+            //material data
+            if (mesh.isPBR()) {
+                writePBR(folder, mtlString, (PBRMaterial) material);
+            } else {
+                writeMtl(folder, mtlString, (MtlMaterial) material);
+            }
+        }
 
         //write vertices
         for (Vector3f vertex : mesh.getVertices())
@@ -92,10 +103,7 @@ public class ObjExporter {
         }
     }
 
-    private static void writeMaterial(Path path, StringBuilder string, Material material) throws IOException {
-        //name
-        string.append("newmtl %s\n".formatted(material.getName()));
-
+    private static void writeMtl(Path path, StringBuilder string, MtlMaterial material) throws IOException {
         //textures
         writeTexture(path, string, "map_Ka", material.getAmbientTex());
         writeTexture(path, string, "map_Kd", material.getDiffuseTex());
@@ -116,6 +124,17 @@ public class ObjExporter {
         string.append("Ns %s\n".formatted(material.getSpecularExponent()));
         string.append("Ni %s\n".formatted(material.getRefractionIndex()));
         string.append("illum %s\n".formatted(material.getIllumModel()));
+    }
+
+    private static void writePBR(Path path, StringBuilder string, PBRMaterial material) throws IOException {
+        //textures
+        writeTexture(path, string, "albedo", material.getAlbedo());
+        writeTexture(path, string, "height", material.getHeight());
+        writeTexture(path, string, "normal", material.getNormal());
+        writeTexture(path, string, "roughness", material.getRoughness());
+        writeTexture(path, string, "metallic", material.getMetallic());
+        writeTexture(path, string, "ao", material.getAO());
+        writeTexture(path, string, "emissive", material.getEmissive());
     }
 
     private static void writeVector(String key, StringBuilder string, Vector3f vec) {

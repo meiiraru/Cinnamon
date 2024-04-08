@@ -1,11 +1,9 @@
-package mayo.model.obj;
+package mayo.model.obj.material;
 
 import mayo.utils.Resource;
 import org.joml.Vector3f;
 
-public class Material {
-
-    private final String name;
+public class MtlMaterial extends Material {
 
     private final Vector3f
             ambient = new Vector3f(1, 1, 1), //Ka
@@ -28,16 +26,8 @@ public class Material {
             displacementTex, //disp
             stencilDecalTex; //decal
 
-    public Material(String name) {
-        this.name = name;
-    }
-
-
-    // -- getters and setters -- //
-
-
-    public String getName() {
-        return name;
+    public MtlMaterial(String name) {
+        super(name);
     }
 
     public Vector3f getAmbientColor() {

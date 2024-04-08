@@ -1,5 +1,6 @@
 package mayo.model.obj;
 
+import mayo.model.obj.material.Material;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -25,6 +26,8 @@ public class Mesh {
     private final Map<String, Material>
             materials = new HashMap<>();
 
+    private boolean pbr;
+
     public List<Vector3f> getVertices() {
         return vertices;
     }
@@ -43,5 +46,13 @@ public class Mesh {
 
     public Map<String, Material> getMaterials() {
         return materials;
+    }
+
+    public void setPBR(boolean bool) {
+        this.pbr = bool;
+    }
+
+    public boolean isPBR() {
+        return pbr;
     }
 }

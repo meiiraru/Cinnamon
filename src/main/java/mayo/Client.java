@@ -40,7 +40,7 @@ public class Client {
     public long ticks;
     public int fps;
 
-    public String name = "May";
+    public String name = "Meii";
     public UUID playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
 
     //objects
@@ -114,7 +114,8 @@ public class Client {
             screen.render(matrices, window.mouseX, window.mouseY, delta);
 
         //toasts
-        Toast.renderToasts(matrices, window.scaledWidth, window.scaledHeight, delta);
+        if (world == null || !world.hideHUD())
+            Toast.renderToasts(matrices, window.scaledWidth, window.scaledHeight, delta);
 
         VertexConsumer.finishAllBatches(camera.getOrthographicMatrix(), new Matrix4f());
 
