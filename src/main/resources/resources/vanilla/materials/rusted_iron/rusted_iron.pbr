@@ -1,0 +1,5 @@
+newmtl rusted_iron
+albedo rustediron2_basecolor.png
+metallic rustediron2_metallic.png
+normal rustediron2_normal.png
+roughness rustediron2_roughness.png

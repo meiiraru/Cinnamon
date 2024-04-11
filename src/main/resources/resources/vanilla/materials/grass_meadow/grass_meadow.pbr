@@ -1,0 +1,7 @@
+newmtl grass_meadow
+albedo wispy-grass-meadow_albedo.png
+ao wispy-grass-meadow_ao.png
+height wispy-grass-meadow_height.png
+metallic wispy-grass-meadow_metallic.png
+normal wispy-grass-meadow_normal-ogl.png
+roughness wispy-grass-meadow_roughness.png

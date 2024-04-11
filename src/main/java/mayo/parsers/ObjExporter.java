@@ -35,10 +35,10 @@ public class ObjExporter {
             mtlString.append("newmtl %s\n".formatted(material.getName()));
 
             //material data
-            if (mesh.isPBR()) {
-                writePBR(folder, mtlString, (PBRMaterial) material);
-            } else {
-                writeMtl(folder, mtlString, (MtlMaterial) material);
+            if (material instanceof PBRMaterial pbr) {
+                writePBR(folder, mtlString, pbr);
+            } else if (material instanceof MtlMaterial mtl) {
+                writeMtl(folder, mtlString, mtl);
             }
         }
 

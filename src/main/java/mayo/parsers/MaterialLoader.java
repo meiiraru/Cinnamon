@@ -18,7 +18,7 @@ import static mayo.utils.Maths.parseVec3;
 
 public class MaterialLoader {
 
-    public static Map<String, Material> load(Resource res, boolean pbr) {
+    public static Map<String, Material> load(Resource res) {
         InputStream stream = IOUtils.getResource(res);
         Map<String, Material> map = new HashMap<>();
 
@@ -27,6 +27,10 @@ public class MaterialLoader {
 
         String path = res.getPath();
         String folder = path.substring(0, path.lastIndexOf("/") + 1);
+
+        boolean pbr = path.endsWith(".pbr");
+        if (!pbr && !path.endsWith(".mtl"))
+            throw new RuntimeException("Unsupported material file: " + path);
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
             Material material = pbr ? new PBRMaterial("") : new MtlMaterial("");

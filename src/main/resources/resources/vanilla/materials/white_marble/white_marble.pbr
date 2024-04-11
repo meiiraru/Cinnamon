@@ -1,0 +1,7 @@
+newmtl white_marble
+albedo white-marble_albedo.png
+ao white-marble_ao.png
+height white-marble_height.png
+metallic white-marble_metallic.png
+normal white-marble_normal-ogl.png
+roughness white-marble_roughness.png

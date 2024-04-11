@@ -41,13 +41,7 @@ public class ObjLoader {
                 String[] split = line.trim().replaceAll(" +", " ").split(" ");
                 switch (split[0]) {
                     //material file
-                    case "mtllib" -> {
-                        String type = split[1].substring(split[1].lastIndexOf('.') + 1);
-                        boolean pbr = type.equalsIgnoreCase("pbr");
-                        theMesh.setPBR(pbr);
-                        if (pbr || type.equalsIgnoreCase("mtl"))
-                            theMesh.getMaterials().putAll(MaterialLoader.load(new Resource(res.getNamespace(), folder + split[1]), pbr));
-                    }
+                    case "mtllib" -> theMesh.getMaterials().putAll(MaterialLoader.load(new Resource(res.getNamespace(), folder + split[1])));
 
                     //group
                     case "g", "o" -> {

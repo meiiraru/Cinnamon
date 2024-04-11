@@ -1,0 +1,5 @@
+newmtl volcanic_rock
+albedo TCom_Rock_CliffVolcanic_512_albedo.png
+ao TCom_Rock_CliffVolcanic_512_ao.png
+normal TCom_Rock_CliffVolcanic_512_normal.png
+roughness TCom_Rock_CliffVolcanic_512_roughness.png

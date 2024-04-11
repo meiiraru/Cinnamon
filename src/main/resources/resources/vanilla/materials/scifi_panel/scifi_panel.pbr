@@ -1,0 +1,6 @@
+newmtl scifi_panel
+albedo TCom_Scifi_Panel_512_albedo.png
+ao TCom_Scifi_Panel_512_ao.png
+metallic TCom_Scifi_Panel_512_metallic.png
+normal TCom_Scifi_Panel_512_normal.png
+roughness TCom_Scifi_Panel_512_roughness.png

@@ -1,0 +1,7 @@
+newmtl stainless_steel
+albedo used-stainless-steel2_albedo.png
+ao used-stainless-steel2_ao.png
+height used-stainless-steel2_height.png
+metallic used-stainless-steel2_metallic.png
+normal used-stainless-steel2_normal-ogl.png
+roughness used-stainless-steel2_roughness.png

@@ -39,4 +39,9 @@ public class Resource {
     public boolean equals(Object o) {
         return o instanceof Resource r && r.namespace.equals(namespace) && r.path.equals(path);
     }
+
+    @Override
+    public int hashCode() {
+        return 31 * namespace.hashCode() + path.hashCode();
+    }
 }

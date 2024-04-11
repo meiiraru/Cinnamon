@@ -1,5 +1,6 @@
 package mayo.resource;
 
+import mayo.model.MaterialManager;
 import mayo.model.ModelManager;
 import mayo.registry.EntityModelRegistry;
 import mayo.registry.LivingModelRegistry;
@@ -34,6 +35,7 @@ public class ResourceManager {
         FREE_EVENTS.add(Shaders::freeAll);
         FREE_EVENTS.add(PostProcess::free);
         FREE_EVENTS.add(ModelManager::free);
+        FREE_EVENTS.add(MaterialManager::free);
     }
 
     public static void init() {

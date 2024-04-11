@@ -1,0 +1,6 @@
+newmtl space_blanket
+albedo TCom_Plastic_SpaceBlanketFolds_512_albedo.png
+ao TCom_Plastic_SpaceBlanketFolds_512_ao.png
+metallic TCom_Plastic_SpaceBlanketFolds_512_metallic.png
+normal TCom_Plastic_SpaceBlanketFolds_512_normal.png
+roughness TCom_Plastic_SpaceBlanketFolds_512_roughness.png

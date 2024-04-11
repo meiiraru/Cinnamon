@@ -1,0 +1,7 @@
+newmtl brick_wall
+albedo brick-wall_albedo.png
+ao brick-wall_ao.png
+height brick-wall_height.png
+metallic brick-wall_metallic.png
+normal brick-wall_normal-ogl.png
+roughness brick-wall_roughness.png

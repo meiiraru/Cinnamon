@@ -134,6 +134,13 @@ public class OpenGLModel extends Model {
             group.free();
     }
 
+    @Override
+    public void setOverrideMaterial(Material material) {
+        MaterialData mat = material == null ? null : new MaterialData(material);
+        for (GroupData group : groups)
+            group.overrideMaterial = mat;
+    }
+
     private record VertexData(Vector3f pos, Vector2f uv, Vector3f norm) {
         private void pushToBuffer(FloatBuffer buffer) {
             //push pos
@@ -217,6 +224,7 @@ public class OpenGLModel extends Model {
         private final int vao, vbo, vertexCount;
         private final MaterialData material;
         private final Vector3f bbMin, bbMax;
+        private MaterialData overrideMaterial;
 
         private GroupData(Group group, int vertexCount, int capacity, Vector3f bbMin, Vector3f bbMax) {
             this.vertexCount = vertexCount;
@@ -251,6 +259,7 @@ public class OpenGLModel extends Model {
 
             //bind material
             int texCount;
+            MaterialData material = overrideMaterial != null ? overrideMaterial : this.material;
             if (material == null || (texCount = material.use()) == -1) {
                 Texture.MISSING.bind();
                 texCount = 1;

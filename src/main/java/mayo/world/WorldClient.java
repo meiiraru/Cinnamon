@@ -6,7 +6,9 @@ import mayo.gui.screens.DeathScreen;
 import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
 import mayo.model.GeometryHelper;
+import mayo.model.MaterialManager;
 import mayo.model.ModelManager;
+import mayo.model.obj.material.Material;
 import mayo.render.*;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.framebuffer.Blit;
@@ -188,7 +190,10 @@ public class WorldClient extends World {
 
         // -- PBR TEMP -- //
 
-        ///*
+        String name = "bamboo_wood";
+        Material material = MaterialManager.load(new Resource("materials/" + name + "/" + name + ".pbr"), name);
+        pbr.setOverrideMaterial(material);
+
         Shader sh = Shaders.WORLD_MODEL_PBR.getShader().use();
         sh.setup(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
 
@@ -202,12 +207,11 @@ public class WorldClient extends World {
         pbr.render();
 
         matrices.pop();
-        //*/
 
         // -- END PBR TEMP -- //
     }
 
-    private final Model pbr = ModelManager.load(new Resource("models/terrain/pbr_test/sphere.obj"));
+    private final Model pbr = new OpenGLModel(ModelManager.load(new Resource("models/terrain/sphere/sphere.obj")).getMesh());
 
     protected void renderSky(MatrixStack matrices, float delta) {
         Shaders.MODEL.getShader().use().setup(
@@ -386,7 +390,7 @@ public class WorldClient extends World {
         s.setColor("fogColor", Chunk.fogColor);
 
         //lighting
-        s.setColor("ambient", 0x121220);//Chunk.ambientLight);
+        s.setColor("ambient", 0x888888);//Chunk.ambientLight);
 
         s.setInt("lightCount", lights.size());
         for (int i = 0; i < lights.size(); i++) {

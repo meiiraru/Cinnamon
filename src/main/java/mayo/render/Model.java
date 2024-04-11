@@ -1,6 +1,7 @@
 package mayo.render;
 
 import mayo.model.obj.Mesh;
+import mayo.model.obj.material.Material;
 import mayo.utils.AABB;
 
 import java.util.List;
@@ -24,4 +25,6 @@ public abstract class Model {
     }
 
     public abstract void free();
+
+    public abstract void setOverrideMaterial(Material material);
 }

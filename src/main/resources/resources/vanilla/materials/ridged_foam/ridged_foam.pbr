@@ -1,0 +1,7 @@
+newmtl ridged_foam
+albedo ridged-foam1_albedo.png
+ao ridged-foam1_ao.png
+height ridged-foam1_height.png
+metallic ridged-foam1_metallic.png
+normal ridged-foam1_normal-ogl.png
+roughness ridged-foam1_roughness.png
