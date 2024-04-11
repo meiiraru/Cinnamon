@@ -24,13 +24,32 @@ public class SkyBox {
     private final Vector3f sunDir = new Vector3f(1, 0, 0);
     private float sunAngle;
 
-    public void render(Camera camera, MatrixStack matrices) {
-        matrices.push();
-        matrices.translate(camera.getPos());
+    public boolean
+            renderSky = true,
+            renderSun = true;
 
+    public void render(Camera camera, MatrixStack matrices) {
         //disable depth
         glDepthMask(false);
 
+        //move to camera position
+        matrices.push();
+        matrices.translate(camera.getPos());
+
+        //render sky
+        if (renderSky)
+            renderSky(matrices);
+
+        //render sun
+        if (renderSun)
+            renderSun(camera, matrices);
+
+        //cleanup rendering
+        glDepthMask(true);
+        matrices.pop();
+    }
+
+    private void renderSky(MatrixStack matrices) {
         //render model
         matrices.push();
         matrices.rotate(Rotation.Y.rotationDeg(sunAngle * CLOUD_SPEED));
@@ -39,7 +58,9 @@ public class SkyBox {
         MODEL.render();
 
         matrices.pop();
+    }
 
+    private void renderSun(Camera camera, MatrixStack matrices) {
         //translate sun
         matrices.rotate(Rotation.Y.rotationDeg(90f));
         matrices.rotate(Rotation.Z.rotation(SUN_ROLL));
@@ -49,10 +70,6 @@ public class SkyBox {
         //render sun
         VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, -32, -32, 64, 64), SUN.getID());
         VertexConsumer.MAIN.finishBatch(camera.getPerspectiveMatrix(), camera.getViewMatrix());
-
-        //cleanup rendering
-        glDepthMask(true);
-        matrices.pop();
     }
 
     public void setSunAngle(float angle) {
