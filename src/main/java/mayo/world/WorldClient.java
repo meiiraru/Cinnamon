@@ -6,9 +6,8 @@ import mayo.gui.screens.DeathScreen;
 import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
 import mayo.model.GeometryHelper;
-import mayo.model.MaterialManager;
 import mayo.model.ModelManager;
-import mayo.model.obj.material.Material;
+import mayo.registry.MaterialRegistry;
 import mayo.render.*;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.framebuffer.Blit;
@@ -190,9 +189,7 @@ public class WorldClient extends World {
 
         // -- PBR TEMP -- //
 
-        String name = "bamboo_wood";
-        Material material = MaterialManager.load(new Resource("materials/" + name + "/" + name + ".pbr"), name);
-        pbr.setOverrideMaterial(material);
+        pbr.setOverrideMaterial(MaterialRegistry.GORE.material);
 
         Shader sh = Shaders.WORLD_MODEL_PBR.getShader().use();
         sh.setup(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());

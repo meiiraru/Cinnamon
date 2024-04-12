@@ -2,10 +2,7 @@ package mayo.resource;
 
 import mayo.model.MaterialManager;
 import mayo.model.ModelManager;
-import mayo.registry.EntityModelRegistry;
-import mayo.registry.LivingModelRegistry;
-import mayo.registry.ParticlesRegistry;
-import mayo.registry.TerrainRegistry;
+import mayo.registry.*;
 import mayo.render.Texture;
 import mayo.render.framebuffer.PostProcess;
 import mayo.render.shader.Shader;
@@ -28,6 +25,7 @@ public class ResourceManager {
         INIT_EVENTS.add(LivingModelRegistry::loadAllModels);
         INIT_EVENTS.add(EntityModelRegistry::loadAllModels);
         INIT_EVENTS.add(ParticlesRegistry::loadAllTextures);
+        INIT_EVENTS.add(MaterialRegistry::loadAllMaterials);
 
         FREE_EVENTS.add(Texture::freeAll);
         FREE_EVENTS.add(Sound::freeAllSounds);
