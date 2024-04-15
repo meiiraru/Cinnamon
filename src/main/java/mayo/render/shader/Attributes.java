@@ -14,8 +14,8 @@ import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 public class Attributes {
 
     //vertex
-    //pos     tex id    uv      color    normal
-    //vec3    int       vec2    vec3     vec3
+    //pos     tex id    uv      color    colorRGBA    normal    index    tangents
+    //vec3    int       vec2    vec3     vec4         vec3      int      vec3
     public static final int
             POS        = 0x1,
             TEXTURE_ID = 0x2,
@@ -23,7 +23,8 @@ public class Attributes {
             COLOR      = 0x8,
             COLOR_RGBA = 0x10,
             NORMAL     = 0x20,
-            INDEX      = 0x40;
+            INDEX      = 0x40,
+            TANGENTS   = 0x80;
 
     public static Pair<Integer, Integer> getAttributes(int flags) {
         int e = 0, verts = 0;
@@ -35,6 +36,7 @@ public class Attributes {
         if ((flags & COLOR_RGBA) == COLOR_RGBA) {e++; verts += 4;}
         if ((flags & NORMAL)     == NORMAL)     {e++; verts += 3;}
         if ((flags & INDEX)      == INDEX)      {e++; verts += 1;}
+        if ((flags & TANGENTS)   == TANGENTS)   {e++; verts += 3;}
 
         return Pair.of(e, verts);
     }
@@ -47,7 +49,7 @@ public class Attributes {
 
         //create attributes
         if ((flags & POS) == POS) {
-            glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, 0);
+            glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer);
             pointer += 3 * Float.BYTES;
         }
         if ((flags & TEXTURE_ID) == TEXTURE_ID) {
@@ -67,11 +69,16 @@ public class Attributes {
             pointer += 4 * Float.BYTES;
         }
         if ((flags & NORMAL) == NORMAL) {
-            glVertexAttribPointer(index, 3, GL_FLOAT, false, stride, pointer);
+            glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer);
             pointer += 3 * Float.BYTES;
         }
         if ((flags & INDEX) == INDEX) {
-            glVertexAttribPointer(index, 1, GL_FLOAT, true, stride, pointer);
+            glVertexAttribPointer(index++, 1, GL_FLOAT, true, stride, pointer);
+            pointer += Float.BYTES;
+        }
+        if ((flags & TANGENTS) == TANGENTS) {
+            glVertexAttribPointer(index, 3, GL_FLOAT, false, stride, pointer);
+            //pointer += 3 * Float.BYTES;
         }
     }
 

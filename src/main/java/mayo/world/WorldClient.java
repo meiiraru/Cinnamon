@@ -190,6 +190,7 @@ public class WorldClient extends World {
         // -- PBR TEMP -- //
 
         pbr.setOverrideMaterial(MaterialRegistry.GORE.material);
+        pbr2.setOverrideMaterial(MaterialRegistry.BRICK_WALL.material);
 
         Shader sh = Shaders.WORLD_MODEL_PBR.getShader().use();
         sh.setup(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
@@ -198,17 +199,23 @@ public class WorldClient extends World {
         applyShadowUniforms(sh);
 
         matrices.push();
-        matrices.translate(-3, 1, 0);
 
+        matrices.translate(-3, 1, 0);
         sh.applyMatrixStack(matrices);
         pbr.render();
+
+        matrices.translate(-2, 0, 0);
+        sh.applyMatrixStack(matrices);
+        pbr2.render();
 
         matrices.pop();
 
         // -- END PBR TEMP -- //
     }
 
-    private final Model pbr = new OpenGLModel(ModelManager.load(new Resource("models/terrain/sphere/sphere.obj")).getMesh());
+    private final Model
+            pbr = new OpenGLModel(ModelManager.load(new Resource("models/terrain/sphere/sphere.obj")).getMesh()),
+            pbr2 = new OpenGLModel(ModelManager.load(new Resource("models/terrain/box/box.obj")).getMesh());
 
     protected void renderSky(MatrixStack matrices, float delta) {
         Shaders.MODEL.getShader().use().setup(

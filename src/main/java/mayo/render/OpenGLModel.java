@@ -2,10 +2,10 @@ package mayo.render;
 
 import mayo.model.obj.Face;
 import mayo.model.obj.Group;
-import mayo.model.obj.material.Material;
 import mayo.model.obj.Mesh;
-import mayo.model.obj.material.PBRMaterial;
+import mayo.model.obj.material.Material;
 import mayo.model.obj.material.MtlMaterial;
+import mayo.model.obj.material.PBRMaterial;
 import mayo.render.shader.Attributes;
 import mayo.render.shader.Shader;
 import mayo.utils.AABB;
@@ -20,7 +20,8 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
@@ -85,8 +86,11 @@ public class OpenGLModel extends Model {
                 //triangulate the faces using ear clipping
                 List<VertexData> sorted = VertexData.triangulate(data);
 
+                //calculate tangent
+                VertexData.calculateTangent(sorted);
+
                 //increase needed capacity
-                capacity += sorted.size() * 3 * (vt.isEmpty() ? 1 : 2) * (vn.isEmpty() ? 1 : 3);
+                capacity += sorted.size() * (3 + (vt.isEmpty() ? 0 : 2) + (vn.isEmpty() ? 0 : 3) + 3);
 
                 //add data to the vertex list
                 sortedVertices.addAll(sorted);
@@ -141,7 +145,20 @@ public class OpenGLModel extends Model {
             group.overrideMaterial = mat;
     }
 
-    private record VertexData(Vector3f pos, Vector2f uv, Vector3f norm) {
+    private static final class VertexData {
+        private static final Vector3f DEFAULT_TANGENT = new Vector3f(0, 0, -1);
+
+        private final Vector3f pos, norm;
+        private final Vector2f uv;
+        private Vector3f tangent;
+
+        private VertexData(Vector3f pos, Vector2f uv, Vector3f norm) {
+            this.pos = pos;
+            this.uv = uv;
+            this.norm = norm;
+            this.tangent = DEFAULT_TANGENT;
+        }
+
         private void pushToBuffer(FloatBuffer buffer) {
             //push pos
             buffer.put(pos.x);
@@ -160,6 +177,11 @@ public class OpenGLModel extends Model {
                 buffer.put(norm.y);
                 buffer.put(norm.z);
             }
+
+            //push tangent
+            buffer.put(tangent.x);
+            buffer.put(tangent.y);
+            buffer.put(tangent.z);
         }
 
         private static List<VertexData> triangulate(List<VertexData> data) {
@@ -218,6 +240,37 @@ public class OpenGLModel extends Model {
 
             return true;
         }
+
+        private static void calculateTangent(List<VertexData> list) {
+            for (int i = 0; i < list.size(); i += 3) {
+                VertexData v0 = list.get(i);
+                VertexData v1 = list.get(i + 1);
+                VertexData v2 = list.get(i + 2);
+
+                //vertex uv may be null
+                if (v0.uv == null || v1.uv == null || v2.uv == null)
+                    continue;
+
+                Vector3f edge1 = new Vector3f(v1.pos).sub(v0.pos);
+                Vector3f edge2 = new Vector3f(v2.pos).sub(v0.pos);
+
+                Vector2f deltaUV1 = new Vector2f(v1.uv).sub(v0.uv);
+                Vector2f deltaUV2 = new Vector2f(v2.uv).sub(v0.uv);
+
+                float r = 1f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+                //tangent = (edge1 * deltaUV2.y - edge2 * deltaUV1.y) * r;
+                Vector3f tangent = new Vector3f(
+                        (edge1.x * deltaUV2.y - edge2.x * deltaUV1.y) * r,
+                        (edge1.y * deltaUV2.y - edge2.y * deltaUV1.y) * r,
+                        (edge1.z * deltaUV2.y - edge2.z * deltaUV1.y) * r
+                );
+
+                v0.tangent = tangent;
+                v1.tangent = tangent;
+                v2.tangent = tangent;
+            }
+        }
     }
 
     private static class GroupData {
@@ -233,7 +286,7 @@ public class OpenGLModel extends Model {
             this.bbMax = bbMax;
 
             //parse attributes
-            int flags = group.getFaces().get(0).getAttributesFlag();
+            int flags = group.getFaces().getFirst().getAttributesFlag() | Attributes.TANGENTS;
             Pair<Integer, Integer> attrib = Attributes.getAttributes(flags);
 
             //vao
@@ -299,13 +352,14 @@ public class OpenGLModel extends Model {
                 return 3;
             } else if (material instanceof PBRMaterial pbr) {
                 bindTex(s, pbr.getAlbedo(), 0, "material.albedoTex");
-                bindTex(s, pbr.getNormal(), 1, "material.normalTex");
-                bindTex(s, pbr.getRoughness(), 2, "material.roughnessTex");
-                bindTex(s, pbr.getMetallic(), 3, "material.metallicTex");
-                bindTex(s, pbr.getAO(), 4, "material.aoTex");
-                bindTex(s, pbr.getEmissive(), 5, "material.emissiveTex");
+                bindTex(s, pbr.getHeight(), 1, "material.heightTex");
+                bindTex(s, pbr.getNormal(), 2, "material.normalTex");
+                bindTex(s, pbr.getRoughness(), 3, "material.roughnessTex");
+                bindTex(s, pbr.getMetallic(), 4, "material.metallicTex");
+                bindTex(s, pbr.getAO(), 5, "material.aoTex");
+                bindTex(s, pbr.getEmissive(), 6, "material.emissiveTex");
 
-                return 6;
+                return 7;
             } else {
                 return -1;
             }
