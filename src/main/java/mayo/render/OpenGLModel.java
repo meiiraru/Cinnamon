@@ -87,9 +87,10 @@ public class OpenGLModel extends Model {
                 List<VertexData> sorted = VertexData.triangulate(data);
 
                 //calculate tangent
-                VertexData.calculateTangent(sorted);
+                VertexData.calculateTangents(sorted);
 
                 //increase needed capacity
+                //pos, uv?, norm?, tangent
                 capacity += sorted.size() * (3 + (vt.isEmpty() ? 0 : 2) + (vn.isEmpty() ? 0 : 3) + 3);
 
                 //add data to the vertex list
@@ -241,7 +242,7 @@ public class OpenGLModel extends Model {
             return true;
         }
 
-        private static void calculateTangent(List<VertexData> list) {
+        private static void calculateTangents(List<VertexData> list) {
             for (int i = 0; i < list.size(); i += 3) {
                 VertexData v0 = list.get(i);
                 VertexData v1 = list.get(i + 1);
@@ -251,21 +252,23 @@ public class OpenGLModel extends Model {
                 if (v0.uv == null || v1.uv == null || v2.uv == null)
                     continue;
 
+                //calculate tangent vector
                 Vector3f edge1 = new Vector3f(v1.pos).sub(v0.pos);
                 Vector3f edge2 = new Vector3f(v2.pos).sub(v0.pos);
 
-                Vector2f deltaUV1 = new Vector2f(v1.uv).sub(v0.uv);
-                Vector2f deltaUV2 = new Vector2f(v2.uv).sub(v0.uv);
+                float deltaU1 = v1.uv.x - v0.uv.x;
+                float deltaV1 = v1.uv.y - v0.uv.y;
+                float deltaU2 = v2.uv.x - v0.uv.x;
+                float deltaV2 = v2.uv.y - v0.uv.y;
 
-                float r = 1f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
-
-                //tangent = (edge1 * deltaUV2.y - edge2 * deltaUV1.y) * r;
+                float f = 1f / (deltaU1 * deltaV2 - deltaU2 * deltaV1);
                 Vector3f tangent = new Vector3f(
-                        (edge1.x * deltaUV2.y - edge2.x * deltaUV1.y) * r,
-                        (edge1.y * deltaUV2.y - edge2.y * deltaUV1.y) * r,
-                        (edge1.z * deltaUV2.y - edge2.z * deltaUV1.y) * r
-                );
+                        f * (deltaV2 * edge1.x - deltaV1 * edge2.x),
+                        f * (deltaV2 * edge1.y - deltaV1 * edge2.y),
+                        f * (deltaV2 * edge1.z - deltaV1 * edge2.z)
+                ).normalize();
 
+                //set tangent to the vertices
                 v0.tangent = tangent;
                 v1.tangent = tangent;
                 v2.tangent = tangent;
@@ -358,6 +361,8 @@ public class OpenGLModel extends Model {
                 bindTex(s, pbr.getMetallic(), 4, "material.metallicTex");
                 bindTex(s, pbr.getAO(), 5, "material.aoTex");
                 bindTex(s, pbr.getEmissive(), 6, "material.emissiveTex");
+
+                s.setFloat("material.heightScale", pbr.getHeightScale());
 
                 return 7;
             } else {

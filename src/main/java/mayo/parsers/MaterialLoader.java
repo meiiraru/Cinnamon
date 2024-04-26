@@ -106,6 +106,7 @@ public class MaterialLoader {
 
     private static void processPBR(String[] split, PBRMaterial material, Resource res, String folder) {
         switch (split[0]) {
+            //textures
             case "albedo" -> material.setAlbedo(new Resource(res.getNamespace(), folder + split[1]));
             case "height" -> material.setHeight(new Resource(res.getNamespace(), folder + split[1]));
             case "normal" -> material.setNormal(new Resource(res.getNamespace(), folder + split[1]));
@@ -113,6 +114,9 @@ public class MaterialLoader {
             case "metallic" -> material.setMetallic(new Resource(res.getNamespace(), folder + split[1]));
             case "ao" -> material.setAO(new Resource(res.getNamespace(), folder + split[1]));
             case "emissive" -> material.setEmissive(new Resource(res.getNamespace(), folder + split[1]));
+
+            //height
+            case "ps" -> material.setHeightScale(parseFloat(split[1]));
         }
     }
 }

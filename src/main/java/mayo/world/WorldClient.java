@@ -189,8 +189,10 @@ public class WorldClient extends World {
 
         // -- PBR TEMP -- //
 
-        pbr.setOverrideMaterial(MaterialRegistry.GORE.material);
-        pbr2.setOverrideMaterial(MaterialRegistry.BRICK_WALL.material);
+        MaterialRegistry[] materials = MaterialRegistry.values();
+        MaterialRegistry material = materials[(int) Maths.modulo(currentMaterial, materials.length)];
+        pbr.setOverrideMaterial(material.material);
+        pbr2.setOverrideMaterial(material.material);
 
         Shader sh = Shaders.WORLD_MODEL_PBR.getShader().use();
         sh.setup(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
@@ -216,6 +218,7 @@ public class WorldClient extends World {
     private final Model
             pbr = new OpenGLModel(ModelManager.load(new Resource("models/terrain/sphere/sphere.obj")).getMesh()),
             pbr2 = new OpenGLModel(ModelManager.load(new Resource("models/terrain/box/box.obj")).getMesh());
+    private int currentMaterial = 2;
 
     protected void renderSky(MatrixStack matrices, float delta) {
         Shaders.MODEL.getShader().use().setup(
@@ -394,7 +397,7 @@ public class WorldClient extends World {
         s.setColor("fogColor", Chunk.fogColor);
 
         //lighting
-        s.setColor("ambient", 0x888888);//Chunk.ambientLight);
+        s.setColor("ambient", 0x444444);//Chunk.ambientLight);
 
         s.setInt("lightCount", lights.size());
         for (int i = 0; i < lights.size(); i++) {
@@ -521,6 +524,9 @@ public class WorldClient extends World {
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
             case GLFW_KEY_F7 -> this.timeOfTheDay -= 100;
             case GLFW_KEY_F8 -> this.timeOfTheDay += 100;
+
+            case GLFW_KEY_KP_ADD -> currentMaterial++;
+            case GLFW_KEY_KP_SUBTRACT -> currentMaterial--;
 
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
             //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));

@@ -15,6 +15,7 @@ import mayo.render.batch.VertexConsumer;
 import mayo.render.framebuffer.PostProcess;
 import mayo.resource.ResourceManager;
 import mayo.sound.SoundManager;
+import mayo.text.Text;
 import mayo.utils.Resource;
 import mayo.utils.Timer;
 import mayo.world.WorldClient;
@@ -186,9 +187,11 @@ public class Client {
     }
 
     public void reloadAssets() {
-        //ResourceManager.free();
-        //ResourceManager.init();
-        //Toast.addToast(Text.of("Reloaded assets"), font);
+        queueTick(() -> {
+            ResourceManager.free();
+            ResourceManager.init();
+            Toast.addToast(Text.of("Reloaded assets"), font);
+        });
     }
 
     public void setName(String name) {

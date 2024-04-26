@@ -24,9 +24,9 @@ void main() {
     texCoords = aTexCoords;
     shadowPos = lightSpaceMatrix * posVec;
 
-    vec3 T = normalize(vec3(mat3(model) * (aTangent * normalMat)));
-    vec3 N = normalize(vec3(mat3(model) * (aNormal * normalMat)));
-    vec3 B = cross(N, T);
+    vec3 T = normalize(normalMat * aTangent);
+    vec3 N = normalize(normalMat * aNormal);
+    vec3 B = cross(T, N);
     TBN = mat3(T, B, N);
 }
 
@@ -43,6 +43,7 @@ struct Material {
     sampler2D metallicTex;
     sampler2D aoTex;
     sampler2D emissiveTex;
+    float heightScale;
 };
 
 struct Light {
@@ -74,6 +75,41 @@ uniform int lightCount;
 uniform Light lights[16];
 
 const float PI = 3.14159265359f;
+const int minParallax = 16;
+const int maxParallax = 64;
+
+vec2 pallaxMapping(vec2 texCoords, vec3 viewDir, sampler2D depthMap, float heightScale) {
+    //calculate number of layers
+    float numLayers = mix(maxParallax, minParallax, max(dot(vec3(0.0f, 0.0f, 1.0f), viewDir), 0.0f));
+    float layerDepth = 1.0f / numLayers;
+    float currentLayerDepth = 0.0f;
+    vec2 P = viewDir.xy / viewDir.z * heightScale;
+    vec2 deltaTexCoords = P / numLayers;
+
+    //initial values
+    vec2 currentTexCoords = texCoords;
+    float currentDepthMapValue = texture(depthMap, currentTexCoords).r;
+
+    while(currentLayerDepth < currentDepthMapValue) {
+        //shift texture coordinates along direction of view
+        currentTexCoords -= deltaTexCoords;
+        currentDepthMapValue = texture(depthMap, currentTexCoords).r;
+        currentLayerDepth += layerDepth;
+    }
+
+    //get texture coordinates before collision
+    vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
+
+    //get depth between collision
+    float afterDepth  = currentDepthMapValue - currentLayerDepth;
+    float beforeDepth = texture(depthMap, prevTexCoords).r - currentLayerDepth + layerDepth;
+
+    //interpolate final texture coordinates
+    float weight = afterDepth / (afterDepth - beforeDepth);
+    vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0f - weight);
+
+    return finalTexCoords;
+}
 
 //normal mapping function from tangent space to world space
 vec3 getNormalFromMap(sampler2D normalTex, vec2 texCoords, mat3 TBN) {
@@ -118,6 +154,14 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
 }
 
 vec4 applyLighting() {
+    //parallax mapping
+    mat3 pTBN = transpose(mat3(TBN));
+    vec3 viewDir = normalize(pTBN * camPos - pTBN * pos);
+    vec2 texCoords = pallaxMapping(texCoords, viewDir, material.heightTex, material.heightScale);
+
+    //if (texCoords.x > 1.0f || texCoords.y > 1.0f || texCoords.x < 0.0f || texCoords.y < 0.0f)
+    //    discard;
+
     //grab textures
     vec4 albedo4 = texture(material.albedoTex, texCoords);
     if (albedo4.a <= 0.01f)
@@ -130,7 +174,7 @@ vec4 applyLighting() {
 
     //normal mapping
     vec3 N = getNormalFromMap(material.normalTex, texCoords, TBN);
-    vec3 V = normalize(camPos - pos);
+    vec3 V = viewDir; //normalize(camPos - pos);
 
     //grab shadow from shadow map
     float shadow = 1.0f - calculateShadow(N, normalize(shadowDir));
@@ -146,7 +190,7 @@ vec4 applyLighting() {
 
         //light radiance
         //L = light direction; H = half vector
-        vec3 L = normalize(light.directional ? light.dir : (light.pos - pos));
+        vec3 L = normalize(light.directional ? TBN * light.dir : (TBN * light.pos - TBN * pos));
         vec3 H = normalize(V + L);
 
         vec3 radiance;
@@ -154,7 +198,7 @@ vec4 applyLighting() {
         if (light.directional) {
             radiance = vec3(1.0f);
         } else {
-            float distance = length(light.pos - pos);
+            float distance = length(TBN * light.pos - TBN * pos);
             float attenuation = 1.0f / (distance * distance);
             radiance = light.color * attenuation;
         }
@@ -185,7 +229,7 @@ vec4 applyLighting() {
 }
 
 void main() {
-    //if (true) {fragColor = vec4((getNormalFromMap(material.normalTex, texCoords, TBN) + 2) / 4, 1); return;}
+    //if (true) {fragColor = vec4(getNormalFromMap(material.normalTex, texCoords, TBN), 1); return;}
 
     //color
     vec4 col = vec4(color, 1.0f);

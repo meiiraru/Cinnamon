@@ -1,7 +1,5 @@
 newmtl brick_wall
-albedo sloppy-mortar-bricks_albedo.png
-ao sloppy-mortar-bricks_ao.png
-height sloppy-mortar-bricks_height.png
-metallic sloppy-mortar-bricks_metallic.png
-normal sloppy-mortar-bricks_normal-ogl.png
-roughness sloppy-mortar-bricks_roughness.png
+albedo bricks2.png
+height bricks2_disp.png
+normal bricks2_normal.png
+ao bricks2_ao.png

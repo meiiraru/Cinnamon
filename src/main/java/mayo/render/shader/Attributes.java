@@ -77,8 +77,8 @@ public class Attributes {
             pointer += Float.BYTES;
         }
         if ((flags & TANGENTS) == TANGENTS) {
-            glVertexAttribPointer(index, 3, GL_FLOAT, false, stride, pointer);
-            //pointer += 3 * Float.BYTES;
+            glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer);
+            pointer += 3 * Float.BYTES;
         }
     }
 

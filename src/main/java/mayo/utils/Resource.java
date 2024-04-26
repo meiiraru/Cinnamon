@@ -1,5 +1,7 @@
 package mayo.utils;
 
+import java.util.Objects;
+
 public class Resource {
 
     public static final String VANILLA_NAMESPACE = "vanilla";
@@ -31,17 +33,17 @@ public class Resource {
     }
 
     @Override
-    public String toString() {
-        return namespace + ":" + path;
-    }
-
-    @Override
     public boolean equals(Object o) {
         return o instanceof Resource r && r.namespace.equals(namespace) && r.path.equals(path);
     }
 
     @Override
     public int hashCode() {
-        return 31 * namespace.hashCode() + path.hashCode();
+        return Objects.hash(namespace, path);
+    }
+
+    @Override
+    public String toString() {
+        return namespace + ":" + path;
     }
 }

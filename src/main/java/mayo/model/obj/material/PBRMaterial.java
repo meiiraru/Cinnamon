@@ -12,6 +12,7 @@ public class PBRMaterial extends Material {
         metallic,
         ao, //ambient occlusion
         emissive;
+    private float heightScale = 0.1f;
 
     public PBRMaterial(String name) {
         super(name);
@@ -71,5 +72,13 @@ public class PBRMaterial extends Material {
 
     public void setEmissive(Resource emissive) {
         this.emissive = emissive;
+    }
+
+    public float getHeightScale() {
+        return heightScale;
+    }
+
+    public void setHeightScale(float heightScale) {
+        this.heightScale = heightScale;
     }
 }
