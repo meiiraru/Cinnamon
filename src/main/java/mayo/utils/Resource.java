@@ -24,6 +24,10 @@ public class Resource {
         this.path = path;
     }
 
+    public Resource resolve(String path) {
+        return new Resource(this.namespace, this.path + "/" + path);
+    }
+
     public String getNamespace() {
         return namespace;
     }

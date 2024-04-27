@@ -1,0 +1,125 @@
+package mayo.render;
+
+import mayo.utils.IOUtils;
+import mayo.utils.Resource;
+import org.lwjgl.stb.STBImage;
+import org.lwjgl.system.MemoryStack;
+
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.lwjgl.opengl.GL13.*;
+
+public class CubeMap extends Texture {
+
+    private static final Map<Resource, CubeMap> CUBEMAP_MAP = new HashMap<>();
+    public static final CubeMap MISSING_CUBEMAP = generateMissingMap();
+
+    protected CubeMap(int id) {
+        super(id, 1, 1);
+    }
+
+    public static CubeMap of(Resource res) {
+        if (res == null)
+            return MISSING_CUBEMAP;
+
+        CubeMap saved = CUBEMAP_MAP.get(res);
+        if (saved != null)
+            return saved;
+
+        Resource[] resources = new Resource[6];
+        for (int i = 0; i < 6; i++)
+            resources[i] = res.resolve(Face.values()[i].path);
+
+        return cacheCubemap(res, new CubeMap(loadCubemap(resources)));
+    }
+
+    private static CubeMap cacheCubemap(Resource res, CubeMap texture) {
+        CUBEMAP_MAP.put(res, texture);
+        return texture;
+    }
+
+    protected static int loadCubemap(Resource[] resources) {
+        int id = glGenTextures();
+        glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer w = stack.mallocInt(1);
+            IntBuffer h = stack.mallocInt(1);
+            IntBuffer channels = stack.mallocInt(1);
+
+            for (int i = 0; i < 6; i++) {
+                Resource res = resources[i];
+                int target = Face.values()[i].GLTarget;
+
+                try {
+                    ByteBuffer imageBuffer = IOUtils.getResourceBuffer(res);
+                    ByteBuffer buffer = STBImage.stbi_load_from_memory(imageBuffer, w, h, channels, 4);
+                    if (buffer == null)
+                        throw new Exception("Failed to load image \"" + res + "\", " + STBImage.stbi_failure_reason());
+
+                    glTexImage2D(target, 0, GL_RGBA, w.get(), h.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+
+                    STBImage.stbi_image_free(buffer);
+                    w.clear();
+                    h.clear();
+                    channels.clear();
+                } catch (Exception e) {
+                    System.err.println("Failed to load texture \"" + res + "\"");
+                    e.printStackTrace();
+                    glTexImage2D(target, 0, GL_RGBA, 16, 16, 0, GL_RGBA, GL_UNSIGNED_BYTE, MISSING_DATA);
+                }
+            }
+        }
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+        return id;
+    }
+
+    private static CubeMap generateMissingMap() {
+        int id = glGenTextures();
+        Resource res = new Resource("generated/missing_cubemap");
+
+        glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+
+        for (Face face : Face.values())
+            glTexImage2D(face.GLTarget, 0, GL_RGBA, 16, 16, 0, GL_RGBA, GL_UNSIGNED_BYTE, MISSING_DATA);
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+        return cacheCubemap(res, new CubeMap(id));
+    }
+
+    public static void freeAll() {
+        for (CubeMap map : CUBEMAP_MAP.values())
+            map.free();
+        CUBEMAP_MAP.clear();
+    }
+
+    @Override
+    public void bind() {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, getID());
+    }
+
+    public enum Face {
+        RIGHT(GL_TEXTURE_CUBE_MAP_POSITIVE_X),
+        LEFT(GL_TEXTURE_CUBE_MAP_NEGATIVE_X),
+        TOP(GL_TEXTURE_CUBE_MAP_POSITIVE_Y),
+        BOTTOM(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y),
+        FRONT(GL_TEXTURE_CUBE_MAP_POSITIVE_Z),
+        BACK(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
+
+        private final int GLTarget;
+        private final String path;
+
+        Face(int textureTarget) {
+            this.GLTarget = textureTarget;
+            this.path = this.name().toLowerCase() + ".png";
+        }
+    }
+}

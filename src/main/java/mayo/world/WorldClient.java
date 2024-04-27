@@ -162,8 +162,9 @@ public class WorldClient extends World {
         //set camera
         client.camera.setup(player, cameraMode, delta);
 
-        //render skybox
-        renderSky(matrices, delta);
+        //prepare sun
+        skyBox.setSunAngle(Maths.map(timeOfTheDay + delta, 0, 24000, 0, 360));
+        sunLight.direction(skyBox.getSunDirection());
 
         //render shadows
         renderShadows(client.camera, matrices, delta);
@@ -222,6 +223,9 @@ public class WorldClient extends World {
 
         // -- END PBR TEMP -- //
 
+        //render skybox
+        renderSky(matrices, delta);
+
         //post process
         if (postProcess != null) {
             PostProcess.render(postProcess);
@@ -246,13 +250,12 @@ public class WorldClient extends World {
     }
 
     protected void renderSky(MatrixStack matrices, float delta) {
-        Shaders.MODEL.getShader().use().setup(
+        Shader s = Shaders.SKYBOX.getShader();
+        s.use().setup(
                 client.camera.getPerspectiveMatrix(),
                 client.camera.getViewMatrix()
         );
-        skyBox.setSunAngle(Maths.map(timeOfTheDay + delta, 0, 24000, 0, 360));
         skyBox.render(client.camera, matrices);
-        sunLight.direction(skyBox.getSunDirection());
     }
 
     protected void renderShadows(Camera camera, MatrixStack matrices, float delta) {

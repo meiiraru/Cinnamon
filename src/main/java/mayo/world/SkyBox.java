@@ -2,20 +2,16 @@ package mayo.world;
 
 import mayo.model.GeometryHelper;
 import mayo.model.ModelManager;
-import mayo.render.Camera;
-import mayo.render.MatrixStack;
-import mayo.render.Model;
-import mayo.render.Texture;
+import mayo.render.*;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
 import mayo.utils.Resource;
 import mayo.utils.Rotation;
 import org.joml.Vector3f;
 
-import static org.lwjgl.opengl.GL11.glDepthMask;
-
 public class SkyBox {
 
+    private static final CubeMap TEXTURE = CubeMap.of(new Resource("textures/environment/skybox/test"));
     private static final Model MODEL = ModelManager.load(new Resource("models/skybox/skybox.obj"));
     private static final Texture SUN = Texture.of(new Resource("textures/environment/sun.png"));
     private static final float SUN_ROLL = (float) Math.toRadians(30f);
@@ -29,9 +25,6 @@ public class SkyBox {
             renderSun = true;
 
     public void render(Camera camera, MatrixStack matrices) {
-        //disable depth
-        glDepthMask(false);
-
         //move to camera position
         matrices.push();
         matrices.translate(camera.getPos());
@@ -45,7 +38,6 @@ public class SkyBox {
             renderSun(camera, matrices);
 
         //cleanup rendering
-        glDepthMask(true);
         matrices.pop();
     }
 
@@ -55,7 +47,9 @@ public class SkyBox {
         matrices.rotate(Rotation.Y.rotationDeg(sunAngle * CLOUD_SPEED));
 
         Shader.activeShader.applyMatrixStack(matrices);
-        MODEL.render();
+
+        TEXTURE.bind();
+        MODEL.renderWithoutMaterial();
 
         matrices.pop();
     }

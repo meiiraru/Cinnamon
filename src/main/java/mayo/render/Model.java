@@ -16,6 +16,8 @@ public abstract class Model {
 
     public abstract void render();
 
+    public abstract void renderWithoutMaterial();
+
     public abstract AABB getMeshAABB();
 
     public abstract List<AABB> getGroupsAABB();

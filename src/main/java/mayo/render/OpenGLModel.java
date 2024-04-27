@@ -121,6 +121,12 @@ public class OpenGLModel extends Model {
     }
 
     @Override
+    public void renderWithoutMaterial() {
+        for (GroupData group : groups)
+            group.renderWithoutMaterial();
+    }
+
+    @Override
     public AABB getMeshAABB() {
         return new AABB(bbMin, bbMax);
     }
@@ -309,10 +315,15 @@ public class OpenGLModel extends Model {
                 glEnableVertexAttribArray(i);
         }
 
-        private void render() {
+        private void renderWithoutMaterial() {
             //bind vao
             glBindVertexArray(vao);
 
+            //draw
+            glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+        }
+
+        private void render() {
             //bind material
             int texCount;
             MaterialData material = overrideMaterial != null ? overrideMaterial : this.material;
@@ -321,8 +332,8 @@ public class OpenGLModel extends Model {
                 texCount = 1;
             }
 
-            //draw
-            glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+            //render model
+            renderWithoutMaterial();
 
             //unbind all used textures
             for (int i = texCount - 1; i >= 0; i--)

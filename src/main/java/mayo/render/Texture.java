@@ -1,6 +1,7 @@
 package mayo.render;
 
 import mayo.utils.IOUtils;
+import mayo.utils.Pair;
 import mayo.utils.Resource;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
@@ -19,9 +20,18 @@ public class Texture {
 
     //a map containing all registered textures
     private static final Map<Resource, Texture> TEXTURE_MAP = new HashMap<>();
+
     //the missing texture
-    public static final Texture MISSING = generateMissingTex();
+    public static final Texture MISSING;
+    protected static final long MISSING_DATA;
+
     public static final int MAX_TEXTURES = 16;
+
+    static {
+        Pair<Texture, Long> missing = generateMissingTex();
+        MISSING = missing.first();
+        MISSING_DATA = missing.second();
+    }
 
     private final int ID, uFrames, vFrames;
 
@@ -29,7 +39,7 @@ public class Texture {
     // -- texture loading -- //
 
 
-    private Texture(int id, int hFrames, int vFrames) {
+    protected Texture(int id, int hFrames, int vFrames) {
         this.ID = id;
         this.uFrames = hFrames;
         this.vFrames = vFrames;
@@ -91,7 +101,7 @@ public class Texture {
         }
     }
 
-    private static Texture generateMissingTex() {
+    private static Pair<Texture, Long> generateMissingTex() {
         //generate texture properties
         int id = glGenTextures();
         Resource res = new Resource("generated/missing.png");
@@ -122,7 +132,8 @@ public class Texture {
         glBindTexture(GL_TEXTURE_2D, 0);
 
         //return a new texture
-        return cacheTexture(res, new Texture(id, 1, 1));
+        Texture missing = cacheTexture(res, new Texture(id, 1, 1));
+        return new Pair<>(missing, pixels);
     }
 
     public static void unbindTex(int index) {
