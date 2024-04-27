@@ -155,9 +155,8 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
 
 vec4 applyLighting() {
     //parallax mapping
-    mat3 pTBN = transpose(mat3(TBN));
-    vec3 viewDir = normalize(pTBN * camPos - pTBN * pos);
-    vec2 texCoords = pallaxMapping(texCoords, viewDir, material.heightTex, material.heightScale);
+    vec3 parallaxDir = normalize(transpose(mat3(TBN)) * (camPos - pos));
+    vec2 texCoords = pallaxMapping(texCoords, parallaxDir, material.heightTex, material.heightScale);
 
     //if (texCoords.x > 1.0f || texCoords.y > 1.0f || texCoords.x < 0.0f || texCoords.y < 0.0f)
     //    discard;
@@ -174,7 +173,7 @@ vec4 applyLighting() {
 
     //normal mapping
     vec3 N = getNormalFromMap(material.normalTex, texCoords, TBN);
-    vec3 V = viewDir; //normalize(camPos - pos);
+    vec3 V = normalize(camPos - pos);
 
     //grab shadow from shadow map
     float shadow = 1.0f - calculateShadow(N, normalize(shadowDir));
@@ -190,7 +189,7 @@ vec4 applyLighting() {
 
         //light radiance
         //L = light direction; H = half vector
-        vec3 L = normalize(light.directional ? TBN * light.dir : (TBN * light.pos - TBN * pos));
+        vec3 L = normalize(light.directional ? light.dir : (light.pos - pos));
         vec3 H = normalize(V + L);
 
         vec3 radiance;
@@ -198,7 +197,7 @@ vec4 applyLighting() {
         if (light.directional) {
             radiance = vec3(1.0f);
         } else {
-            float distance = length(TBN * light.pos - TBN * pos);
+            float distance = length(light.pos - pos);
             float attenuation = 1.0f / (distance * distance);
             radiance = light.color * attenuation;
         }
