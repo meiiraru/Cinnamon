@@ -1,0 +1,7 @@
+newmtl quilted_diamond
+albedo white-quilted-diamond_albedo.png
+ao white-quilted-diamond_ao.png
+height white-quilted-diamond_height.png
+metallic white-quilted-diamond_metallic.png
+normal white-quilted-diamond_normal-ogl.png
+roughness white-quilted-diamond_roughness.png

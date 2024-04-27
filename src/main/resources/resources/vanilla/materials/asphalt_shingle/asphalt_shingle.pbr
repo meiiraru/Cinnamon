@@ -1,0 +1,7 @@
+newmtl asphalt_shingle
+albedo tapered-asphalt-shingle_albedo.png
+ao tapered-asphalt-shingle_ao.png
+height tapered-asphalt-shingle_height.png
+metallic tapered-asphalt-shingle_metallic.png
+normal tapered-asphalt-shingle_normal-dx.png
+roughness tapered-asphalt-shingle_roughness.png

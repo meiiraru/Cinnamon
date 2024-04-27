@@ -1,0 +1,8 @@
+newmtl lava_rock
+albedo columned-lava-rock_albedo.png
+ao columned-lava-rock_ao.png
+emissive columned-lava-rock_emissive.png
+height columned-lava-rock_height.png
+metallic columned-lava-rock_metallic.png
+normal columned-lava-rock_normal-ogl.png
+roughness columned-lava-rock_roughness.png

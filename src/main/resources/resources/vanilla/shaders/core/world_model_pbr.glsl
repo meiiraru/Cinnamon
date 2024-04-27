@@ -155,7 +155,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
 
 vec4 applyLighting() {
     //parallax mapping
-    vec3 parallaxDir = normalize(transpose(mat3(TBN)) * (camPos - pos));
+    vec3 parallaxDir = normalize(inverse(TBN) * (camPos - pos));
     vec2 texCoords = pallaxMapping(texCoords, parallaxDir, material.heightTex, material.heightScale);
 
     //if (texCoords.x > 1.0f || texCoords.y > 1.0f || texCoords.x < 0.0f || texCoords.y < 0.0f)

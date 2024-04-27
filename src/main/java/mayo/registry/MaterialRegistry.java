@@ -7,11 +7,24 @@ import mayo.utils.Resource;
 public enum MaterialRegistry {
 
     ACOUSTIC_FOAM,
+    ASPHALT_SHINGLE,
     BAMBOO_WOOD,
     BRICK_WALL,
+    CARBON_FIBER,
+    CARPET,
+    COBBLESTONE,
+    CRISSCROSS_FOAM,
+    FUR,
     GORE,
     GRASS_MEADOW,
+    LAVA_ROCK,
     LEATHER_PLAIN,
+    METAL_STUDS,
+    ORBED_PLASTIC,
+    PADDED_LEATHER,
+    PLASTIC,
+    QUILTED_DIAMOND,
+    RIBBED_CHIPPED_METAL,
     RIDGED_FOAM,
     RUSTED_IRON,
     SCIFI_PANEL,
@@ -19,6 +32,7 @@ public enum MaterialRegistry {
     STAINLESS_STEEL,
     TERRACOTTA_PAVEMENT,
     VOLCANIC_ROCK,
+    WAFFLED_CHIPPED_METAL,
     WHITE_MARBLE;
 
     public final Resource resource;

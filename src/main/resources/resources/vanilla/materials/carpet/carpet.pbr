@@ -1,0 +1,7 @@
+newmtl carpet
+albedo carpet1-albedo.png
+ao carpet1-ao.png
+height carpet1-Height.png
+metallic carpet1-Metallic.png
+normal carpet1-Normal-ogl.png
+roughness carpet1-Roughness.png

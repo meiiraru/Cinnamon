@@ -1,0 +1,6 @@
+newmtl plastic
+albedo plasticpattern1-albedo.png
+ao plasticpattern1-ao.png
+metallic plasticpattern1-metalness.png
+normal plasticpattern1-normal2-ogl.png
+roughness plasticpattern1-roughness2.png

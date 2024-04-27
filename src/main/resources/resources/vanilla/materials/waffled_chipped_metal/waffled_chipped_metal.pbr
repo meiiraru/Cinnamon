@@ -1,0 +1,7 @@
+newmtl waffled_chipped_metal
+albedo waffled-chipped-metal_albedo.png
+ao waffled-chipped-metal_ao.png
+height waffled-chipped-metal_height.png
+metallic waffled-chipped-metal_metallic.png
+normal waffled-chipped-metal_normal-ogl.png
+roughness waffled-chipped-metal_roughness.png

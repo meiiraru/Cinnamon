@@ -1,0 +1,8 @@
+newmtl padded_leather
+albedo older-padded-leather_albedo.png
+ao older-padded-leather_ao.png
+height older-padded-leather_height.png
+metallic older-padded-leather_metallic.png
+normal older-padded-leather_normal-ogl.png
+roughness older-padded-leather_roughness.png
+ps 0.05
