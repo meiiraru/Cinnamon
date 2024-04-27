@@ -151,8 +151,10 @@ vec4 applyLighting(vec4 diffTex) {
     return vec4(max(ambient + diffuse + specular, emissive), diffTex.a);
 }
 
+//#include shaders/libs/cubemap.glsl
+
 void main() {
-    //if (true) {fragColor = vec4(normal, 1.0f); return;}
+    //if (true) {fragColor = vec4(getCubemapColor(pos, normal, camPos), 1.0f); return;}
 
     //texture
     vec4 tex = texture(material.diffuseTex, texCoords);

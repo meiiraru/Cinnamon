@@ -54,24 +54,24 @@ public class CubeMap extends Texture {
                 Resource res = resources[i];
                 int target = Face.values()[i].GLTarget;
 
-                try {
-                    ByteBuffer imageBuffer = IOUtils.getResourceBuffer(res);
-                    ByteBuffer buffer = STBImage.stbi_load_from_memory(imageBuffer, w, h, channels, 4);
-                    if (buffer == null)
-                        throw new Exception("Failed to load image \"" + res + "\", " + STBImage.stbi_failure_reason());
+                ByteBuffer imageBuffer = IOUtils.getResourceBuffer(res);
+                ByteBuffer buffer = STBImage.stbi_load_from_memory(imageBuffer, w, h, channels, 4);
+                if (buffer == null)
+                    throw new Exception("Failed to load image \"" + res + "\", " + STBImage.stbi_failure_reason());
 
-                    glTexImage2D(target, 0, GL_RGBA, w.get(), h.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+                glTexImage2D(target, 0, GL_RGBA, w.get(), h.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
-                    STBImage.stbi_image_free(buffer);
-                    w.clear();
-                    h.clear();
-                    channels.clear();
-                } catch (Exception e) {
-                    System.err.println("Failed to load texture \"" + res + "\"");
-                    e.printStackTrace();
-                    glTexImage2D(target, 0, GL_RGBA, 16, 16, 0, GL_RGBA, GL_UNSIGNED_BYTE, MISSING_DATA);
-                }
+                STBImage.stbi_image_free(buffer);
+                w.clear();
+                h.clear();
+                channels.clear();
             }
+        } catch (Exception e) {
+            System.err.println("Failed to load cubemap texture");
+            e.printStackTrace();
+
+            glDeleteTextures(id);
+            return MISSING_CUBEMAP.getID();
         }
 
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
