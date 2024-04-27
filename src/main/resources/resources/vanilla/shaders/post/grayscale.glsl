@@ -19,12 +19,9 @@ in vec2 texCoords;
 out vec4 fragColor;
 
 uniform sampler2D screenTexture;
-uniform vec2 textelSize;
-
-const float factor = 8.0f;
 
 void main() {
-    vec2 screenSize = 1.0f / textelSize / factor;
-    vec2 coords = floor(texCoords * screenSize) / screenSize;
-    fragColor = texture(screenTexture, coords);
+    float brightness = dot(texture(screenTexture, texCoords).rgb, vec3(0.2126f, 0.7152f, 0.0722f));
+    brightness = pow(brightness, 1.0f / 2.2f);
+    fragColor = vec4(vec3(brightness), 1.0f);
 }

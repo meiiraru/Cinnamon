@@ -12,6 +12,7 @@ import mayo.render.*;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.framebuffer.Blit;
 import mayo.render.framebuffer.Framebuffer;
+import mayo.render.framebuffer.PostProcess;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
 import mayo.text.Text;
@@ -70,6 +71,10 @@ public class WorldClient extends World {
     //shadows
     private final Framebuffer shadowBuffer = new Framebuffer(2048, 2048, Framebuffer.DEPTH_BUFFER);
     private final Matrix4f lightSpaceMatrix = new Matrix4f();
+
+    //post process
+    private PostProcess postProcess;
+    private Framebuffer prevFramebuffer;
 
     @Override
     public void init() {
@@ -149,6 +154,11 @@ public class WorldClient extends World {
         if (player.getWorld() == null)
             return;
 
+        if (postProcess != null) {
+            prevFramebuffer = Framebuffer.activeFramebuffer;
+            PostProcess.prepare();
+        }
+
         //set camera
         client.camera.setup(player, cameraMode, delta);
 
@@ -211,6 +221,13 @@ public class WorldClient extends World {
         matrices.pop();
 
         // -- END PBR TEMP -- //
+
+        //post process
+        if (postProcess != null) {
+            PostProcess.render(postProcess);
+            if (prevFramebuffer != null) prevFramebuffer.use();
+            else Framebuffer.useDefault();
+        }
     }
 
     private final Model
@@ -426,6 +443,10 @@ public class WorldClient extends World {
         glActiveTexture(GL_TEXTURE0);
     }
 
+    public PostProcess getActivePostProcess() {
+        return postProcess;
+    }
+
     public void addLight(Light light) {
         scheduledTicks.add(() -> this.lights.add(light));
     }
@@ -532,6 +553,15 @@ public class WorldClient extends World {
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
             case GLFW_KEY_F7 -> this.timeOfTheDay -= 100;
             case GLFW_KEY_F8 -> this.timeOfTheDay += 100;
+            case GLFW_KEY_F9 -> {
+                PostProcess[] values = PostProcess.values();
+                if (this.postProcess == null) {
+                    this.postProcess = values[1]; //0 will always be BLIT
+                } else {
+                    int i = this.postProcess.ordinal() + 1;
+                    this.postProcess = i >= values.length ? null : values[i];
+                }
+            }
 
             case GLFW_KEY_PERIOD -> changeMaterial(materialIndex + 1);
             case GLFW_KEY_COMMA -> changeMaterial(materialIndex - 1);

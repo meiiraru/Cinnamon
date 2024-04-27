@@ -9,6 +9,7 @@ import mayo.render.MatrixStack;
 import mayo.render.Texture;
 import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
+import mayo.render.framebuffer.PostProcess;
 import mayo.render.shader.Shaders;
 import mayo.text.Style;
 import mayo.text.Text;
@@ -321,9 +322,11 @@ public class Hud {
         int soundCount = c.soundManager.getSoundCount();
 
         WorldClient w = c.world;
-        Vector3f epos = w.player.getPos();
-        Vector2f erot = w.player.getRot();
-        Vector3f emot = w.player.getMotion();
+        Player p = w.player;
+
+        Vector3f epos = p.getPos();
+        Vector2f erot = p.getRot();
+        Vector3f emot = p.getMotion();
         Vector3f cpos = c.camera.getPos();
         Vector2f crot = c.camera.getRot();
 
@@ -353,7 +356,6 @@ public class Hud {
             default -> "unknown";
         };
 
-        Player p = c.world.player;
         float range = p.getPickRange();
         String entity = getTargetedObjString(p.getLookingEntity(range), range);
         String terrain = getTargetedObjString(p.getLookingTerrain(range), range);
@@ -363,6 +365,7 @@ public class Hud {
                         %s entities %s terrain
                         %s particles %s sounds
                         %s light sources
+                        time %s
  
                         [player]
                         xyz %.3f %.3f %.3f
@@ -385,6 +388,7 @@ public class Hud {
                 w.entityCount(), w.terrainCount(),
                 w.particleCount(), soundCount,
                 w.lightCount(),
+                w.getTime(),
 
                 epos.x, epos.y, epos.z,
                 erot.x, erot.y,
@@ -409,6 +413,7 @@ public class Hud {
         long used = total - free;
 
         Window w = Client.getInstance().window;
+        PostProcess post = Client.getInstance().world.getActivePostProcess();
 
         return String.format("""
                 [java]
@@ -423,6 +428,9 @@ public class Hud {
                 [window]
                 %s x %s
                 gui scale %s
+
+                [post process]
+                %s
                 """,
                 System.getProperty("java.version"),
                 used * 100 / max, Maths.prettyByteSize(used), Maths.prettyByteSize(max),
@@ -432,7 +440,9 @@ public class Hud {
                 glGetString(GL_VERSION),
 
                 w.width, w.height,
-                w.guiScale
+                w.guiScale,
+
+                post == null ? "none" : post.name()
         );
     }
 

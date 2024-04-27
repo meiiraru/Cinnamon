@@ -14,7 +14,8 @@ public enum PostProcess {
     BLUR,
     EDGES,
     CHROMATIC_ABERRATION,
-    PIXELATE;
+    PIXELATE,
+    GRAYSCALE;
 
     private final Resource resource;
     private Shader shader;
