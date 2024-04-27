@@ -35,6 +35,7 @@ import mayo.world.light.DirectionalLight;
 import mayo.world.light.Light;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.Terrain;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -194,10 +195,6 @@ public class WorldClient extends World {
         //finish rendering
         VertexConsumer.finishAllBatches(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
 
-        //debug shadows
-        if (renderShadowMap)
-            renderShadowBuffer(client.window.width, client.window.height, 500);
-
         // -- PBR TEMP -- //
 
         pbr.setOverrideMaterial(currentMaterial.material);
@@ -232,6 +229,10 @@ public class WorldClient extends World {
             if (prevFramebuffer != null) prevFramebuffer.use();
             else Framebuffer.useDefault();
         }
+
+        //debug shadows
+        if (renderShadowMap)
+            renderShadowBuffer(client.window.width, client.window.height, 500);
     }
 
     private final Model
@@ -253,7 +254,7 @@ public class WorldClient extends World {
         Shader s = Shaders.SKYBOX.getShader();
         s.use().setup(
                 client.camera.getPerspectiveMatrix(),
-                client.camera.getViewMatrix()
+                new Matrix4f(new Matrix3f(client.camera.getViewMatrix()))
         );
         skyBox.render(client.camera, matrices);
     }
@@ -431,6 +432,10 @@ public class WorldClient extends World {
         for (int i = 0; i < lights.size(); i++) {
             lights.get(i).pushToShader(s, i);
         }
+
+        //skybox cubemap
+        skyBox.type.bind();
+        s.setMat3("cubemapRotation", skyBox.getSkyRotation());
     }
 
     public void applyShadowUniforms(Shader s) {

@@ -25,7 +25,7 @@ public class Resource {
     }
 
     public Resource resolve(String path) {
-        return new Resource(this.namespace, this.path + "/" + path);
+        return new Resource(this.namespace, this.path.endsWith("/") ? this.path + path : this.path + "/" + path);
     }
 
     public String getNamespace() {

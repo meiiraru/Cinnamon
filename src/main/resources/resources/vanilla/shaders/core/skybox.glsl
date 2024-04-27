@@ -7,11 +7,10 @@ out vec3 texCoords;
 
 uniform mat4 projection;
 uniform mat4 view;
-uniform mat4 model;
 
 void main() {
     texCoords = aPosition;
-    vec4 pos = projection * view * model * vec4(aPosition, 1.0f);
+    vec4 pos = projection * view * vec4(aPosition, 1.0f);
     gl_Position = pos.xyww;
 }
 
@@ -23,7 +22,8 @@ in vec3 texCoords;
 out vec4 fragColor;
 
 uniform samplerCube skybox;
+uniform mat3 rotation;
 
 void main() {
-    fragColor = texture(skybox, texCoords);
+    fragColor = texture(skybox, texCoords * rotation);
 }

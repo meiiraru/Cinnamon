@@ -17,7 +17,7 @@ uniform mat3 normalMat;
 uniform mat4 lightSpaceMatrix;
 
 void main() {
-    vec4 posVec = model * vec4(aPosition, 1);
+    vec4 posVec = model * vec4(aPosition, 1.0f);
     gl_Position = projection * view * posVec;
     pos = posVec.xyz;
     texCoords = aTexCoords;
@@ -74,7 +74,7 @@ float calculateAttenuation(vec3 attenuation, float distance) {
 
 vec3 calculateDiffuse(Light light, vec3 normal, float attenuation, vec3 lightDir) {
     //minimum of 0 otherwise it will override the ambient lgiht
-    float diff = max(dot(normal, lightDir), 0);
+    float diff = max(dot(normal, lightDir), 0.0f);
     return attenuation * light.color * material.diffuse * diff;
 }
 
@@ -88,7 +88,7 @@ vec3 calculateSpecular(Light light, vec3 normal, vec3 viewDir, float attenuation
 float spotlightIntensity(Light light, vec3 lightDir) {
     float theta = dot(lightDir, normalize(-light.dir));
     float epsilon = (light.cutOff - light.outerCutOff);
-    return clamp((theta - light.outerCutOff) / epsilon, 0, 1);
+    return clamp((theta - light.outerCutOff) / epsilon, 0.0f, 1.0f);
 }
 
 vec4 applyLighting(vec4 diffTex) {
@@ -100,7 +100,7 @@ vec4 applyLighting(vec4 diffTex) {
     vec3 ambient = ambient * material.ambient * diffTex.rgb;
 
     if (dot(viewDir, norm) < 0.0f)
-        return vec4(ambient, 1);
+        return vec4(ambient, 1.0f);
 
     // shadow //
 
@@ -152,7 +152,7 @@ vec4 applyLighting(vec4 diffTex) {
 }
 
 void main() {
-    //if (true) {fragColor = vec4(normal, 1); return;}
+    //if (true) {fragColor = vec4(normal, 1.0f); return;}
 
     //texture
     vec4 tex = texture(material.diffuseTex, texCoords);
@@ -160,7 +160,7 @@ void main() {
         discard;
 
     //color
-    vec4 col = vec4(color, 1);
+    vec4 col = vec4(color, 1.0f);
 
     //lighting
     col *= applyLighting(tex);
