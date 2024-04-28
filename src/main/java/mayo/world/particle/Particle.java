@@ -2,7 +2,9 @@ package mayo.world.particle;
 
 import mayo.Client;
 import mayo.registry.ParticlesRegistry;
+import mayo.render.Camera;
 import mayo.render.MatrixStack;
+import mayo.utils.AABB;
 import mayo.utils.Maths;
 import mayo.world.WorldObject;
 import org.joml.Vector3f;
@@ -34,9 +36,6 @@ public abstract class Particle extends WorldObject {
     }
 
     public void render(MatrixStack matrices, float delta) {
-        if (!shouldRender())
-            return;
-
         matrices.push();
 
         //apply pos
@@ -51,9 +50,13 @@ public abstract class Particle extends WorldObject {
         matrices.pop();
     }
 
-    public boolean shouldRender() {
-        Vector3f cam = Client.getInstance().camera.getPos();
-        return cam.distanceSquared(pos) <= 4098;
+    @Override
+    public boolean shouldRender(Camera camera) {
+        return camera.getPos().distanceSquared(pos) <= getRenderDistance() && camera.isInsideFrustum(pos.x, pos.y, pos.z);
+    }
+
+    protected int getRenderDistance() {
+        return 4098;
     }
 
     protected abstract void renderParticle(MatrixStack matrices, float delta);
@@ -74,6 +77,11 @@ public abstract class Particle extends WorldObject {
 
     public void move(float x, float y, float z) {
         this.pos.add(x, y, z);
+    }
+
+    @Override
+    public AABB getAABB() {
+        return new AABB(pos, pos);
     }
 
     public boolean isRemoved() {

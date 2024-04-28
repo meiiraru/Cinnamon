@@ -2,6 +2,7 @@ package mayo.world.particle;
 
 import mayo.Client;
 import mayo.registry.ParticlesRegistry;
+import mayo.render.Camera;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
@@ -34,12 +35,13 @@ public class TextParticle extends Particle {
     }
 
     @Override
-    public boolean shouldRender() {
-        if (((WorldClient) world).hideHUD())
-            return false;
+    public boolean shouldRender(Camera camera) {
+        return !((WorldClient) world).hideHUD() && super.shouldRender(camera);
+    }
 
-        Vector3f cam = Client.getInstance().camera.getPos();
-        return cam.distanceSquared(getPos()) <= 256;
+    @Override
+    protected int getRenderDistance() {
+        return 256;
     }
 
     @Override

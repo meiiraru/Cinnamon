@@ -276,6 +276,7 @@ public abstract class Entity extends WorldObject {
         return Maths.rotToDir(rot.x, rot.y);
     }
 
+    @Override
     public AABB getAABB() {
         return aabb;
     }

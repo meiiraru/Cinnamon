@@ -79,6 +79,7 @@ public abstract class Terrain extends WorldObject {
         return world;
     }
 
+    @Override
     public AABB getAABB() {
         return aabb;
     }

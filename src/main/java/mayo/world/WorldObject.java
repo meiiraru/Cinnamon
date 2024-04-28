@@ -1,5 +1,7 @@
 package mayo.world;
 
+import mayo.render.Camera;
+import mayo.utils.AABB;
 import org.joml.Vector3f;
 
 public abstract class WorldObject {
@@ -22,6 +24,12 @@ public abstract class WorldObject {
     public Vector3f getPos() {
         return pos;
     }
+
+    public boolean shouldRender(Camera camera) {
+        return camera.isInsideFrustum(getAABB());
+    }
+
+    public abstract AABB getAABB();
 
     public abstract Enum<?> getType();
 }

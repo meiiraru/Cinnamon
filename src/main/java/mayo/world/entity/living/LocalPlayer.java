@@ -2,6 +2,7 @@ package mayo.world.entity.living;
 
 import mayo.Client;
 import mayo.registry.LivingModelRegistry;
+import mayo.render.Camera;
 import mayo.world.WorldClient;
 
 public class LocalPlayer extends Player {
@@ -18,6 +19,11 @@ public class LocalPlayer extends Player {
     public void tickPhysics() {
         if (!super.isRemoved())
             super.tickPhysics();
+    }
+
+    @Override
+    public boolean shouldRender(Camera camera) {
+        return (camera.getEntity() != this || ((WorldClient) getWorld()).isThirdPerson()) && super.shouldRender(camera);
     }
 
     @Override

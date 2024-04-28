@@ -15,6 +15,8 @@ public class Camera {
             NEAR_PLANE = 0.1f,
             FAR_PLANE = 1000f;
 
+    private final Frustum frustum = new Frustum();
+
     private final Vector3f
             pos = new Vector3f(),
             forwards = new Vector3f(0f, 0f, -1f),
@@ -31,8 +33,9 @@ public class Camera {
 
     private Entity entity;
 
-    public void setup(Entity entity, int mode, float delta) {
-        this.entity = entity;
+    public void setup(int mode, float delta) {
+        if (this.entity == null)
+            return;
 
         //rotation
         Vector2f rot = entity.getRot(delta);
@@ -104,10 +107,12 @@ public class Camera {
         matrices.rotate(Rotation.Y.rotationDeg(180f - rot.y));
     }
 
-    public boolean isInsideFrustum(float x, float y, float z, float fov) {
-        Vector3f facing = getForwards();
-        Vector3f target = new Vector3f(x, y, z).sub(pos).normalize();
-        return facing.dot(target) > Math.cos(Math.toRadians(fov));
+    public boolean isInsideFrustum(AABB aabb) {
+        return !frustum.culledXY(aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ());
+    }
+
+    public boolean isInsideFrustum(float x, float y, float z) {
+        return !frustum.culledXY(x, y, z);
     }
 
     public Vector4f worldToScreenSpace(float x, float y, float z) {
@@ -128,6 +133,20 @@ public class Camera {
         Vector3f direction = new Vector3f(x, y, z).sub(pos).normalize();
         Vector2f rot = Maths.dirToRot(direction);
         setRot(rot.x, rot.y);
+    }
+
+    public void updateFrustum() {
+        Matrix4f proj = getPerspectiveMatrix();
+        Matrix4f mvp = getViewMatrix().mulLocal(proj);
+        frustum.updateFrustum(mvp);
+    }
+
+    public void updateFrustum(Matrix4f mvp) {
+        frustum.updateFrustum(mvp);
+    }
+
+    public void setEntity(Entity entity) {
+        this.entity = entity;
     }
 
     public Vector3f getPos() {

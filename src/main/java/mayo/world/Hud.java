@@ -362,8 +362,8 @@ public class Hud {
 
         return String.format("""
                         [world]
-                        %s entities %s terrain
-                        %s particles %s sounds
+                        %s/%s entities %s/%s terrain
+                        %s/%s particles %s sounds
                         %s light sources
                         time %s
  
@@ -385,8 +385,8 @@ public class Hud {
                         [targeted terrain]
                         %s
                         """,
-                w.entityCount(), w.terrainCount(),
-                w.particleCount(), soundCount,
+                w.getRenderedEntities(), w.entityCount(), w.getRenderedTerrain(), w.terrainCount(),
+                w.getRenderedParticles(), w.particleCount(), soundCount,
                 w.lightCount(),
                 w.getTime(),
 

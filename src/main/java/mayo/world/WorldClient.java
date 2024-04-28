@@ -59,7 +59,7 @@ public class WorldClient extends World {
 
     private int cameraMode = 0;
 
-    private boolean debugRendering, renderShadowMap;
+    private boolean debugRendering;
     private boolean hideHUD;
 
     //lights
@@ -72,10 +72,14 @@ public class WorldClient extends World {
     //shadows
     private final Framebuffer shadowBuffer = new Framebuffer(2048, 2048, Framebuffer.DEPTH_BUFFER);
     private final Matrix4f lightSpaceMatrix = new Matrix4f();
+    private boolean renderShadowMap;
 
     //post process
     private PostProcess postProcess;
     private Framebuffer prevFramebuffer;
+
+    //counters
+    private int renderedEntities, renderedTerrain, renderedParticles;
 
     @Override
     public void init() {
@@ -161,7 +165,9 @@ public class WorldClient extends World {
         }
 
         //set camera
-        client.camera.setup(player, cameraMode, delta);
+        client.camera.setEntity(player);
+        client.camera.setup(cameraMode, delta);
+        client.camera.updateFrustum();
 
         //prepare sun
         skyBox.setSunAngle(Maths.map(timeOfTheDay + delta, 0, 24000, 0, 360));
@@ -178,13 +184,11 @@ public class WorldClient extends World {
         applyWorldUniforms(s);
         applyShadowUniforms(s);
 
-        Entity cameraEntity = client.camera.getEntity();
-
         //render world
-        renderWorld(cameraEntity, matrices, delta);
+        renderWorld(client.camera, matrices, delta);
 
         //render local player item effects
-        renderItemExtra(cameraEntity, matrices, delta);
+        renderItemExtra(matrices, delta);
 
         //render debug
         if (debugRendering && !hideHUD) {
@@ -274,6 +278,7 @@ public class WorldClient extends World {
 
         //finish matrix
         lightSpaceMatrix.set(lightProjection).mul(camera.getViewMatrix());
+        camera.updateFrustum(lightSpaceMatrix);
 
         //shader
         Shader s = Shaders.DEPTH.getShader().use();
@@ -284,41 +289,60 @@ public class WorldClient extends World {
         shadowBuffer.use();
         shadowBuffer.clear();
 
-        //null so the camera entity shadows renders even in first person
-        renderWorld(null, matrices, delta);
+        //render the world
+        renderWorld(camera, matrices, delta);
+        //render camera entity when in first person
+        if (!isThirdPerson() && camera.getEntity() != null)
+            camera.getEntity().render(matrices, delta);
 
+        //finish rendering
         matrices.push();
         matrices.identity();
         s.applyMatrixStack(matrices);
         VertexConsumer.finishAllBatches(s);
         matrices.pop();
 
+        //restore framebuffer
         if (prev != null) prev.use();
         else Framebuffer.useDefault();
 
         //restore camera
         camera.setPos(pos.x, pos.y, pos.z);
         camera.setRot(rot.x, rot.y);
+        camera.updateFrustum();
     }
 
-    protected void renderWorld(Entity camEntity, MatrixStack matrices, float delta) {
+    protected void renderWorld(Camera camera, MatrixStack matrices, float delta) {
         //render terrain
-        for (Terrain terrain : terrain)
-            terrain.render(matrices, delta);
+        renderedTerrain = 0;
+        for (Terrain terrain : terrain) {
+            if (terrain.shouldRender(camera)) {
+                terrain.render(matrices, delta);
+                renderedTerrain++;
+            }
+        }
 
         //render entities
+        renderedEntities = 0;
         for (Entity entity : entities.values()) {
-            if (camEntity != entity || isThirdPerson())
+            if (entity.shouldRender(camera)) {
                 entity.render(matrices, delta);
+                renderedEntities++;
+            }
         }
 
         //render particles
-        for (Particle particle : particles)
-            particle.render(matrices, delta);
+        renderedParticles = 0;
+        for (Particle particle : particles) {
+            if (particle.shouldRender(camera)) {
+                particle.render(matrices, delta);
+                renderedParticles++;
+            }
+        }
     }
 
-    protected void renderItemExtra(Entity entity, MatrixStack matrices, float delta) {
-        if (!(entity instanceof LivingEntity le))
+    protected void renderItemExtra(MatrixStack matrices, float delta) {
+        if (!(client.camera.getEntity() instanceof LivingEntity le))
             return;
 
         Item item = le.getHoldingItem();
@@ -474,6 +498,18 @@ public class WorldClient extends World {
                 list.add(light);
         }
         return list;
+    }
+
+    public int getRenderedTerrain() {
+        return renderedTerrain;
+    }
+
+    public int getRenderedEntities() {
+        return renderedEntities;
+    }
+
+    public int getRenderedParticles() {
+        return renderedParticles;
     }
 
     public void mousePress(int button, int action, int mods) {
