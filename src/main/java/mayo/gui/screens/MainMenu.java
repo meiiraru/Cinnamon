@@ -9,7 +9,7 @@ import mayo.gui.widgets.types.Button;
 import mayo.gui.widgets.types.Label;
 import mayo.model.GeometryHelper;
 import mayo.render.MatrixStack;
-import mayo.render.Texture;
+import mayo.render.texture.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;

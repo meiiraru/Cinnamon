@@ -1,4 +1,4 @@
-package mayo.render;
+package mayo.render.texture;
 
 import mayo.utils.IOUtils;
 import mayo.utils.Pair;

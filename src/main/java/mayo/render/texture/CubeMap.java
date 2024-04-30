@@ -1,7 +1,9 @@
-package mayo.render;
+package mayo.render.texture;
 
 import mayo.utils.IOUtils;
 import mayo.utils.Resource;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 
@@ -104,25 +106,32 @@ public class CubeMap extends Texture {
         CUBEMAP_MAP.clear();
     }
 
+    public static void unbindTex(int index) {
+        glActiveTexture(GL_TEXTURE0 + index);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    }
+
     @Override
     public void bind() {
         glBindTexture(GL_TEXTURE_CUBE_MAP, getID());
     }
 
     public enum Face {
-        RIGHT(GL_TEXTURE_CUBE_MAP_POSITIVE_X),
-        LEFT(GL_TEXTURE_CUBE_MAP_NEGATIVE_X),
-        TOP(GL_TEXTURE_CUBE_MAP_POSITIVE_Y),
-        BOTTOM(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y),
-        FRONT(GL_TEXTURE_CUBE_MAP_POSITIVE_Z),
-        BACK(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
+        RIGHT(GL_TEXTURE_CUBE_MAP_POSITIVE_X, new Vector3f(1f, 0f, 0f), new Vector3f(0f, -1f, 0f)),
+        LEFT(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, new Vector3f(-1f, 0f, 0f), new Vector3f(0f, -1f, 0f)),
+        TOP(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, new Vector3f(0f, 1f, 0f), new Vector3f(0f, 0f, 1f)),
+        BOTTOM(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, new Vector3f(0f, -1f, 0f), new Vector3f(0f, 0f, -1f)),
+        FRONT(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, new Vector3f(0f, 0f, 1f), new Vector3f(0f, -1f, 0f)),
+        BACK(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, new Vector3f(0f, 0f, -1f), new Vector3f(0f, -1f, 0f));
 
-        private final int GLTarget;
-        private final String path;
+        public final int GLTarget;
+        public final String path;
+        public final Matrix4f viewMatrix;
 
-        Face(int textureTarget) {
+        Face(int textureTarget, Vector3f center, Vector3f up) {
             this.GLTarget = textureTarget;
             this.path = this.name().toLowerCase() + ".png";
+            this.viewMatrix = new Matrix4f().lookAt(0f, 0f, 0f, center.x, center.y, center.z, up.x, up.y, up.z);
         }
     }
 }

@@ -15,6 +15,7 @@ import mayo.render.framebuffer.Framebuffer;
 import mayo.render.framebuffer.PostProcess;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
+import mayo.render.texture.Texture;
 import mayo.text.Text;
 import mayo.utils.AABB;
 import mayo.utils.Maths;
@@ -35,7 +36,6 @@ import mayo.world.light.DirectionalLight;
 import mayo.world.light.Light;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.Terrain;
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -46,8 +46,7 @@ import java.util.UUID;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL13.*;
 
 public class WorldClient extends World {
 
@@ -183,6 +182,7 @@ public class WorldClient extends World {
         //apply lighting
         applyWorldUniforms(s);
         applyShadowUniforms(s);
+        applySkyboxUniforms(s);
 
         //render world
         renderWorld(client.camera, matrices, delta);
@@ -209,6 +209,7 @@ public class WorldClient extends World {
 
         applyWorldUniforms(sh);
         applyShadowUniforms(sh);
+        applySkyboxUniforms(sh);
 
         matrices.push();
 
@@ -258,7 +259,7 @@ public class WorldClient extends World {
         Shader s = Shaders.SKYBOX.getShader();
         s.use().setup(
                 client.camera.getPerspectiveMatrix(),
-                new Matrix4f(new Matrix3f(client.camera.getViewMatrix()))
+                client.camera.getViewMatrix()
         );
         skyBox.render(client.camera, matrices);
     }
@@ -456,10 +457,18 @@ public class WorldClient extends World {
         for (int i = 0; i < lights.size(); i++) {
             lights.get(i).pushToShader(s, i);
         }
+    }
 
-        //skybox cubemap
-        skyBox.type.bind();
+    public void applySkyboxUniforms(Shader s) {
+        int id = Texture.MAX_TEXTURES - 2;
+
+        s.setInt("irradianceMap", id);
         s.setMat3("cubemapRotation", skyBox.getSkyRotation());
+
+        glActiveTexture(GL_TEXTURE0 + id);
+        skyBox.type.bindIrradiance();
+
+        glActiveTexture(GL_TEXTURE0);
     }
 
     public void applyShadowUniforms(Shader s) {
@@ -469,7 +478,7 @@ public class WorldClient extends World {
         s.setInt("shadowMap", id);
         s.setVec3("shadowDir", skyBox.getSunDirection());
 
-        glActiveTexture(GL_TEXTURE0 + id); //use last available texture
+        glActiveTexture(GL_TEXTURE0 + id);
         glBindTexture(GL_TEXTURE_2D, shadowBuffer.getDepthBuffer());
 
         glActiveTexture(GL_TEXTURE0);

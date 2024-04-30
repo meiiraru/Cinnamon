@@ -2,9 +2,14 @@ package mayo.world;
 
 import mayo.model.GeometryHelper;
 import mayo.model.ModelManager;
-import mayo.render.*;
+import mayo.render.Camera;
+import mayo.render.MatrixStack;
+import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
+import mayo.render.texture.CubeMap;
+import mayo.render.texture.IrradianceMap;
+import mayo.render.texture.Texture;
 import mayo.utils.Resource;
 import mayo.utils.Rotation;
 import org.joml.Matrix3f;
@@ -40,8 +45,9 @@ public class SkyBox {
     private void renderSky() {
         //render model
         Shader.activeShader.setMat3("rotation", skyRotation);
-        type.bind();
+        type.bindTexture();
         MODEL.renderWithoutMaterial();
+        CubeMap.unbindTex(0);
     }
 
     private void renderSun(Camera camera, MatrixStack matrices) {
@@ -84,16 +90,18 @@ public class SkyBox {
     public enum Type {
         CLEAR,
         SPACE,
+        CLOUDS,
         TEST;
 
         private final CubeMap texture = CubeMap.of(new Resource("textures/environment/skybox/" + name().toLowerCase()));
+        private final CubeMap irradiance = IrradianceMap.generateIrradianceMap(texture);
 
-        public void bind() {
+        public void bindTexture() {
             texture.bind();
         }
 
-        public int getID() {
-            return texture.getID();
+        public void bindIrradiance() {
+            irradiance.bind();
         }
     }
 }

@@ -5,7 +5,7 @@ import mayo.utils.Alignment;
 import mayo.gui.widgets.SelectableWidget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
-import mayo.render.Texture;
+import mayo.render.texture.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
 import mayo.utils.Resource;

@@ -70,13 +70,14 @@ uniform vec3 camPos;
 
 uniform Material material;
 
-uniform vec3 ambient;
 uniform int lightCount;
 uniform Light lights[16];
 
 const float PI = 3.14159265359f;
 const int minParallax = 16;
 const int maxParallax = 64;
+
+uniform samplerCube irradianceMap;
 
 vec2 pallaxMapping(vec2 texCoords, vec3 viewDir, sampler2D depthMap, float heightScale) {
     //calculate number of layers
@@ -219,8 +220,12 @@ vec4 applyLighting() {
         Lo += (kD * albedo / PI + specular) * radiance * NdotL * shadow;
     }
 
-    //finish calculating light
-    vec3 color = (ambient * albedo * ao) + Lo;
+    //finish calculating light - applying IBL as ambient
+    vec3 kS = fresnelSchlick(max(dot(N, V), 0.0f), F0);
+    vec3 kD = (1.0f - kS) * (1.0f - metallic);
+    vec3 irradiance = texture(irradianceMap, N).rgb;
+    vec3 color = (kD * irradiance * albedo * ao) + Lo;
+
     vec4 emissive = texture(material.emissiveTex, texCoords);
 
     //output

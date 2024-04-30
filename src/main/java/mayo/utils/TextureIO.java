@@ -1,6 +1,6 @@
 package mayo.utils;
 
-import mayo.render.Texture;
+import mayo.render.texture.Texture;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;

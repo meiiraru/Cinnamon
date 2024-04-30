@@ -1,6 +1,6 @@
 package mayo.registry;
 
-import mayo.render.Texture;
+import mayo.render.texture.Texture;
 import mayo.utils.Resource;
 
 public enum ParticlesRegistry {

@@ -29,14 +29,14 @@ public class Attributes {
     public static Pair<Integer, Integer> getAttributes(int flags) {
         int e = 0, verts = 0;
 
-        if ((flags & POS)        == POS)        {e++; verts += 3;}
-        if ((flags & TEXTURE_ID) == TEXTURE_ID) {e++; verts += 1;}
-        if ((flags & UV)         == UV)         {e++; verts += 2;}
-        if ((flags & COLOR)      == COLOR)      {e++; verts += 3;}
-        if ((flags & COLOR_RGBA) == COLOR_RGBA) {e++; verts += 4;}
-        if ((flags & NORMAL)     == NORMAL)     {e++; verts += 3;}
-        if ((flags & INDEX)      == INDEX)      {e++; verts += 1;}
-        if ((flags & TANGENTS)   == TANGENTS)   {e++; verts += 3;}
+        if ((flags & POS)        != 0) {e++; verts += 3;}
+        if ((flags & TEXTURE_ID) != 0) {e++; verts += 1;}
+        if ((flags & UV)         != 0) {e++; verts += 2;}
+        if ((flags & COLOR)      != 0) {e++; verts += 3;}
+        if ((flags & COLOR_RGBA) != 0) {e++; verts += 4;}
+        if ((flags & NORMAL)     != 0) {e++; verts += 3;}
+        if ((flags & INDEX)      != 0) {e++; verts += 1;}
+        if ((flags & TANGENTS)   != 0) {e++; verts += 3;}
 
         return Pair.of(e, verts);
     }
@@ -48,35 +48,35 @@ public class Attributes {
         int index = 0;
 
         //create attributes
-        if ((flags & POS) == POS) {
+        if ((flags & POS) != 0) {
             glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer);
             pointer += 3 * Float.BYTES;
         }
-        if ((flags & TEXTURE_ID) == TEXTURE_ID) {
+        if ((flags & TEXTURE_ID) != 0) {
             glVertexAttribPointer(index++, 1, GL_FLOAT, true, stride, pointer);
             pointer += Float.BYTES;
         }
-        if ((flags & UV) == UV) {
+        if ((flags & UV) != 0) {
             glVertexAttribPointer(index++, 2, GL_FLOAT, false, stride, pointer);
             pointer += 2 * Float.BYTES;
         }
-        if ((flags & COLOR) == COLOR) {
+        if ((flags & COLOR) != 0) {
             glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer);
             pointer += 3 * Float.BYTES;
         }
-        if ((flags & COLOR_RGBA) == COLOR_RGBA) {
+        if ((flags & COLOR_RGBA) != 0) {
             glVertexAttribPointer(index++, 4, GL_FLOAT, false, stride, pointer);
             pointer += 4 * Float.BYTES;
         }
-        if ((flags & NORMAL) == NORMAL) {
+        if ((flags & NORMAL) != 0) {
             glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer);
             pointer += 3 * Float.BYTES;
         }
-        if ((flags & INDEX) == INDEX) {
+        if ((flags & INDEX) != 0) {
             glVertexAttribPointer(index++, 1, GL_FLOAT, true, stride, pointer);
             pointer += Float.BYTES;
         }
-        if ((flags & TANGENTS) == TANGENTS) {
+        if ((flags & TANGENTS) != 0) {
             glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer);
             pointer += 3 * Float.BYTES;
         }
@@ -84,7 +84,7 @@ public class Attributes {
 
     public static void pushVertex(FloatBuffer buffer, Vertex vertex, int textureID, int flags) {
         //push pos
-        if ((flags & POS) == POS) {
+        if ((flags & POS) != 0) {
             Vector3f pos = vertex.getPosition();
             buffer.put(pos.x);
             buffer.put(pos.y);
@@ -92,19 +92,19 @@ public class Attributes {
         }
 
         //push texture id
-        if ((flags & TEXTURE_ID) == TEXTURE_ID) {
+        if ((flags & TEXTURE_ID) != 0) {
             buffer.put(textureID);
         }
 
         //push uv
-        if ((flags & UV) == UV) {
+        if ((flags & UV) != 0) {
             Vector2f uv = vertex.getUV();
             buffer.put(uv.x);
             buffer.put(uv.y);
         }
 
         //push color RGB
-        if ((flags & COLOR) == COLOR) {
+        if ((flags & COLOR) != 0) {
             Vector4f color = vertex.getColor();
             buffer.put(color.x);
             buffer.put(color.y);
@@ -112,7 +112,7 @@ public class Attributes {
         }
 
         //push color RGBA
-        if ((flags & COLOR_RGBA) == COLOR_RGBA) {
+        if ((flags & COLOR_RGBA) != 0) {
             Vector4f color = vertex.getColor();
             buffer.put(color.x);
             buffer.put(color.y);
@@ -121,7 +121,7 @@ public class Attributes {
         }
 
         //push normal
-        if ((flags & NORMAL) == NORMAL) {
+        if ((flags & NORMAL) != 0) {
             Vector3f normal = vertex.getNormal();
             buffer.put(normal.x);
             buffer.put(normal.y);
@@ -129,7 +129,7 @@ public class Attributes {
         }
 
         //push index
-        if ((flags & INDEX) == INDEX) {
+        if ((flags & INDEX) != 0) {
             buffer.put(vertex.getIndex());
         }
     }

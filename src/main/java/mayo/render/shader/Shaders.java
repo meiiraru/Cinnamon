@@ -12,6 +12,7 @@ public enum Shaders {
     WORLD_MAIN,
     MAIN,
     SKYBOX,
+    IRRADIANCE,
     LINES,
     DEPTH,
     DEPTH_BLIT;

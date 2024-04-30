@@ -3,7 +3,7 @@ package mayo.world.particle;
 import mayo.model.GeometryHelper;
 import mayo.model.Vertex;
 import mayo.render.MatrixStack;
-import mayo.render.Texture;
+import mayo.render.texture.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.utils.Maths;
 

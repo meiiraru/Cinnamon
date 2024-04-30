@@ -2,7 +2,7 @@ package mayo.render.batch;
 
 import mayo.Client;
 import mayo.model.Vertex;
-import mayo.render.Texture;
+import mayo.render.texture.Texture;
 import mayo.render.shader.Attributes;
 import mayo.render.shader.Shader;
 import mayo.utils.Pair;

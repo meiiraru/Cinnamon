@@ -1,7 +1,7 @@
 package mayo.gui.widgets.types;
 
 import mayo.render.MatrixStack;
-import mayo.render.Texture;
+import mayo.render.texture.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.utils.Resource;
 import mayo.utils.UIHelper;

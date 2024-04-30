@@ -3,7 +3,7 @@ package mayo.gui.widgets;
 import mayo.Client;
 import mayo.gui.widgets.types.Scrollbar;
 import mayo.render.MatrixStack;
-import mayo.render.Texture;
+import mayo.render.texture.Texture;
 import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.utils.Alignment;

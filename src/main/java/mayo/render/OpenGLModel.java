@@ -8,6 +8,7 @@ import mayo.model.obj.material.MtlMaterial;
 import mayo.model.obj.material.PBRMaterial;
 import mayo.render.shader.Attributes;
 import mayo.render.shader.Shader;
+import mayo.render.texture.Texture;
 import mayo.utils.AABB;
 import mayo.utils.Maths;
 import mayo.utils.Pair;
