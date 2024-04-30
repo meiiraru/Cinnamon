@@ -598,12 +598,18 @@ public class WorldClient extends World {
             case GLFW_KEY_F7 -> this.timeOfTheDay -= 100;
             case GLFW_KEY_F8 -> this.timeOfTheDay += 100;
             case GLFW_KEY_F9 -> {
-                PostProcess[] values = PostProcess.values();
+                PostProcess[] values = PostProcess.EFFECTS;
                 if (this.postProcess == null) {
-                    this.postProcess = values[1]; //0 will always be BLIT
+                    this.postProcess = values[0];
                 } else {
-                    int i = this.postProcess.ordinal() + 1;
-                    this.postProcess = i >= values.length ? null : values[i];
+                    PostProcess next = null;
+                    for (int i = 0; i < values.length; i++) {
+                        if (values[i] == this.postProcess) {
+                            next = i + 1 < values.length ? values[i + 1] : null;
+                            break;
+                        }
+                    }
+                    this.postProcess = next;
                 }
             }
 

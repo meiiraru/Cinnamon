@@ -10,12 +10,15 @@ import static org.lwjgl.opengl.GL15.*;
 public enum PostProcess {
 
     BLIT,
+    HDR,
     INVERT,
     BLUR,
     EDGES,
     CHROMATIC_ABERRATION,
     PIXELATE,
     GRAYSCALE;
+
+    public static final PostProcess[] EFFECTS = {INVERT, BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE};
 
     private final Resource resource;
     private Shader shader;
@@ -26,6 +29,10 @@ public enum PostProcess {
 
     private void loadShader() {
         this.shader = new Shader(this.resource);
+    }
+
+    public Shader getShader() {
+        return shader;
     }
 
     public static void loadAllShaders() {

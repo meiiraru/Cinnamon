@@ -10,7 +10,8 @@ public class Framebuffer {
 
     public static final int
             COLOR_BUFFER = 0x1,
-            DEPTH_BUFFER = 0x2;
+            DEPTH_BUFFER = 0x2,
+            HDR_COLOR_BUFFER = 0x4;
 
     private final int flags;
     private final int fbo;
@@ -32,10 +33,13 @@ public class Framebuffer {
 
         boolean hasColorBuffer = (flags & COLOR_BUFFER) == COLOR_BUFFER;
         boolean hasDepthBuffer = (flags & DEPTH_BUFFER) == DEPTH_BUFFER;
+        boolean hdrColorBuffer = (flags & HDR_COLOR_BUFFER) == HDR_COLOR_BUFFER;
 
         //color buffer
         if (hasColorBuffer) {
             this.color = genTexture(width, height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_COLOR_ATTACHMENT0);
+        } else if (hdrColorBuffer) {
+            this.color = genTexture(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_COLOR_ATTACHMENT0);
         } else {
             glDrawBuffer(GL_NONE);
             glReadBuffer(GL_NONE);
