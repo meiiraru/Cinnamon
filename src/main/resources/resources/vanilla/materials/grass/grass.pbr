@@ -1,0 +1,7 @@
+newmtl grass
+albedo stylized-grass1_albedo.png
+ao stylized-grass1_ao.png
+height stylized-grass1_height.png
+metallic stylized-grass1_metallic.png
+normal stylized-grass1_normal-ogl.png
+roughness stylized-grass1_roughness.png

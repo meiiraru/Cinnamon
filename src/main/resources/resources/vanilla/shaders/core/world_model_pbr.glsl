@@ -88,12 +88,12 @@ vec2 pallaxMapping(vec2 texCoords, vec3 viewDir, sampler2D depthMap, float heigh
 
     //initial values
     vec2 currentTexCoords = texCoords;
-    float currentDepthMapValue = texture(depthMap, currentTexCoords).r;
+    float currentDepthMapValue = 1.0f - texture(depthMap, currentTexCoords).r;
 
     while(currentLayerDepth < currentDepthMapValue) {
         //shift texture coordinates along direction of view
         currentTexCoords -= deltaTexCoords;
-        currentDepthMapValue = texture(depthMap, currentTexCoords).r;
+        currentDepthMapValue = 1.0f - texture(depthMap, currentTexCoords).r;
         currentLayerDepth += layerDepth;
     }
 
@@ -102,7 +102,7 @@ vec2 pallaxMapping(vec2 texCoords, vec3 viewDir, sampler2D depthMap, float heigh
 
     //get depth between collision
     float afterDepth  = currentDepthMapValue - currentLayerDepth;
-    float beforeDepth = texture(depthMap, prevTexCoords).r - currentLayerDepth + layerDepth;
+    float beforeDepth = 1.0f - texture(depthMap, prevTexCoords).r - currentLayerDepth + layerDepth;
 
     //interpolate final texture coordinates
     float weight = afterDepth / (afterDepth - beforeDepth);
@@ -155,7 +155,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
 
 vec4 applyLighting() {
     //parallax mapping
-    vec3 parallaxDir = normalize(inverse(TBN) * (camPos - pos));
+    vec3 parallaxDir = normalize(transpose(TBN) * (camPos - pos));
     vec2 texCoords = pallaxMapping(texCoords, parallaxDir, material.heightTex, material.heightScale);
 
     //if (texCoords.x > 1.0f || texCoords.y > 1.0f || texCoords.x < 0.0f || texCoords.y < 0.0f)
