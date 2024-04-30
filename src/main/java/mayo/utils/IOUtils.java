@@ -2,7 +2,9 @@ package mayo.utils;
 
 import org.lwjgl.BufferUtils;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -102,6 +104,29 @@ public class IOUtils {
         }
     }
 
+    public static Path parseNonDuplicatePath(Path path) {
+        //return path as is if it already does not exist
+        if (!Files.exists(path))
+            return path;
+
+        //grab file name and extension
+        String fileName = path.getFileName().toString();
+        String extension = "";
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex != -1) {
+            extension = fileName.substring(dotIndex);
+            fileName = fileName.substring(0, dotIndex);
+        }
+
+        //iterate until a unique path is found
+        int i = 1;
+        while (Files.exists(path))
+            path = path.resolveSibling(fileName + "_" + i++ + extension);
+
+        //return new unique path
+        return path;
+    }
+
     public static void ensureParentExists(Path path) {
         try {
             Path parent = path.getParent();
@@ -129,6 +154,22 @@ public class IOUtils {
     public static void openFileInExplorer(Path path) {
         try {
             Desktop.getDesktop().open(path.toFile().isDirectory() ? path.getParent().toFile() : path.toFile());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void writeImage(Path path, BufferedImage image) {
+        try {
+            //ensure path exists
+            createOrGetPath(path);
+
+            //write image to output stream
+            OutputStream fs = Files.newOutputStream(path);
+            ImageIO.write(image, "png", fs);
+
+            //close file
+            fs.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
