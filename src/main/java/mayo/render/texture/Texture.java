@@ -1,7 +1,6 @@
 package mayo.render.texture;
 
 import mayo.utils.IOUtils;
-import mayo.utils.Pair;
 import mayo.utils.Resource;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
@@ -22,16 +21,9 @@ public class Texture {
     private static final Map<Resource, Texture> TEXTURE_MAP = new HashMap<>();
 
     //the missing texture
-    public static final Texture MISSING;
-    protected static final long MISSING_DATA;
+    public static final Texture MISSING = generateMissingTex();
 
     public static final int MAX_TEXTURES = 16;
-
-    static {
-        Pair<Texture, Long> missing = generateMissingTex();
-        MISSING = missing.first();
-        MISSING_DATA = missing.second();
-    }
 
     private final int ID, uFrames, vFrames;
 
@@ -105,13 +97,13 @@ public class Texture {
         }
     }
 
-    private static Pair<Texture, Long> generateMissingTex() {
+    private static Texture generateMissingTex() {
         //generate texture properties
         int id = glGenTextures();
         Resource res = new Resource("generated/missing.png");
 
         //w * h * rgba
-        long pixels = MemoryUtil.nmemAlloc(16 * 16 * 4);
+        ByteBuffer pixels = MemoryUtil.memAlloc(16 * 16 * 4);
 
         //paint texture
         //  Pink Black
@@ -119,11 +111,14 @@ public class Texture {
         for (int y = 0; y < 16; y++) {
             for (int x = 0; x < 16; x++) {
                 //x + y * w * rgba
-                long i = (x + y * 16) * 4;
+                int i = (x + y * 16) * 4;
                 boolean b = (x < 8 && y < 8) || (y >= 8 && x >= 8);
-                MemoryUtil.memPutInt(pixels + i, b ? 0xFFAD72FF : 0xFF << 24); //A B G R
+                int col = b ? 0xFF << 24 : 0xFFAD72FF; //ABGR
+                pixels.putInt(i, col);
             }
         }
+
+        pixels.flip();
 
         //open gl stuff
         glBindTexture(GL_TEXTURE_2D, id);
@@ -136,8 +131,28 @@ public class Texture {
         glBindTexture(GL_TEXTURE_2D, 0);
 
         //return a new texture
-        Texture missing = cacheTexture(res, new Texture(id, 1, 1));
-        return new Pair<>(missing, pixels);
+        return cacheTexture(res, new Texture(id));
+    }
+
+    //returns a 1x1 texture with a solid color
+    public static Texture generateSolid(int ARGB) {
+        int id = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, id);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+        ByteBuffer buffer = MemoryUtil.memAlloc(4);
+        buffer.put((byte) (ARGB >> 16));
+        buffer.put((byte) (ARGB >> 8));
+        buffer.put((byte) ARGB);
+        buffer.put((byte) (ARGB >> 24));
+        buffer.flip();
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        return new Texture(id);
     }
 
     public static void unbindTex(int index) {
@@ -146,8 +161,12 @@ public class Texture {
     }
 
     public static void unbindAll() {
+        unbindAll(MAX_TEXTURES);
+    }
+
+    public static void unbindAll(int max) {
         //inverted so the last active texture is GL_TEXTURE0
-        for (int i = MAX_TEXTURES - 1; i >= 0; i--)
+        for (int i = max - 1; i >= 0; i--)
             unbindTex(i);
     }
 

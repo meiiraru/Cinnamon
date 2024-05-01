@@ -87,10 +87,22 @@ public class CubeMap extends Texture {
         int id = glGenTextures();
         Resource res = new Resource("generated/missing_cubemap");
 
+        //grab missing tex data
+        glBindTexture(GL_TEXTURE_2D, Texture.MISSING.getID());
+        int width = glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH);
+        int height = glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT);
+
+        ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * 4);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+        buffer.flip();
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        //generate cubemap
         glBindTexture(GL_TEXTURE_CUBE_MAP, id);
 
         for (Face face : Face.values())
-            glTexImage2D(face.GLTarget, 0, GL_RGBA, 16, 16, 0, GL_RGBA, GL_UNSIGNED_BYTE, MISSING_DATA);
+            glTexImage2D(face.GLTarget, 0, GL_RGBA, 16, 16, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

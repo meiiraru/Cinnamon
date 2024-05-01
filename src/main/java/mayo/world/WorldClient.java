@@ -201,9 +201,6 @@ public class WorldClient extends World {
 
         // -- PBR TEMP -- //
 
-        pbr.setOverrideMaterial(currentMaterial.material);
-        pbr2.setOverrideMaterial(currentMaterial.material);
-
         Shader sh = Shaders.WORLD_MODEL_PBR.getShader().use();
         sh.setup(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
 
@@ -213,13 +210,17 @@ public class WorldClient extends World {
 
         matrices.push();
 
+        int texCount = MaterialApplier.applyMaterial(currentMaterial.material);
+
         matrices.translate(-3, 1, 0);
         sh.applyMatrixStack(matrices);
-        pbr.render();
+        pbr.renderWithoutMaterial();
 
         matrices.translate(-2, 0, 0);
         sh.applyMatrixStack(matrices);
-        pbr2.render();
+        pbr2.renderWithoutMaterial();
+
+        Texture.unbindAll(texCount);
 
         matrices.pop();
 
@@ -241,8 +242,8 @@ public class WorldClient extends World {
     }
 
     private final Model
-            pbr = new OpenGLModel(ModelManager.load(new Resource("models/terrain/sphere/sphere.obj")).getMesh()),
-            pbr2 = new OpenGLModel(ModelManager.load(new Resource("models/terrain/box/box.obj")).getMesh());
+            pbr = new Model(ModelManager.load(new Resource("models/terrain/sphere/sphere.obj")).getMesh()),
+            pbr2 = new Model(ModelManager.load(new Resource("models/terrain/box/box.obj")).getMesh());
     private MaterialRegistry currentMaterial = MaterialRegistry.GOLD;
     private int materialIndex = currentMaterial.ordinal();
     private int ambientLight = 0x888888;

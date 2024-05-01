@@ -2,7 +2,6 @@ package mayo.model;
 
 import mayo.parsers.ObjLoader;
 import mayo.render.Model;
-import mayo.render.OpenGLModel;
 import mayo.utils.Resource;
 
 import java.util.HashMap;
@@ -19,7 +18,7 @@ public class ModelManager {
             return model;
 
         //load mesh :)
-        Model newModel = new OpenGLModel(ObjLoader.load(resource));
+        Model newModel = new Model(ObjLoader.load(resource));
         MODEL_MAP.put(resource, newModel);
         return newModel;
     }
