@@ -1,0 +1,6 @@
+newmtl crystal
+albedo Crystal_001_COLOR.png
+ao Crystal_001_OCC.png
+height Crystal_001_DISP.png
+normal Crystal_001_NORM.png
+roughness Crystal_001_SPEC.png

@@ -1,0 +1,6 @@
+newmtl cliff_rock
+albedo Stylized_Cliff_Rock_001_basecolor.png
+ao Stylized_Cliff_Rock_001_ambientOcclusion.png
+height Stylized_Cliff_Rock_001_height.png
+normal Stylized_Cliff_Rock_001_normal.png
+roughness Stylized_Cliff_Rock_001_roughness.png

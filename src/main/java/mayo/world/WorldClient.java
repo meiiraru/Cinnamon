@@ -6,9 +6,9 @@ import mayo.gui.screens.DeathScreen;
 import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
 import mayo.model.GeometryHelper;
-import mayo.model.ModelManager;
-import mayo.registry.MaterialRegistry;
-import mayo.render.*;
+import mayo.render.Camera;
+import mayo.render.MatrixStack;
+import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.framebuffer.Blit;
 import mayo.render.framebuffer.Framebuffer;
@@ -46,7 +46,8 @@ import java.util.UUID;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 
 public class WorldClient extends World {
 
@@ -66,7 +67,7 @@ public class WorldClient extends World {
     protected final DirectionalLight sunLight = new DirectionalLight();
 
     //skybox
-    private final SkyBox skyBox = new SkyBox();
+    protected final SkyBox skyBox = new SkyBox();
 
     //shadows
     private final Framebuffer shadowBuffer = new Framebuffer(2048, 2048, Framebuffer.DEPTH_BUFFER);
@@ -199,33 +200,6 @@ public class WorldClient extends World {
         //finish rendering
         VertexConsumer.finishAllBatches(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
 
-        // -- PBR TEMP -- //
-
-        Shader sh = Shaders.WORLD_MODEL_PBR.getShader().use();
-        sh.setup(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
-
-        applyWorldUniforms(sh);
-        applyShadowUniforms(sh);
-        applySkyboxUniforms(sh);
-
-        matrices.push();
-
-        int texCount = MaterialApplier.applyMaterial(currentMaterial.material);
-
-        matrices.translate(-3, 1, 0);
-        sh.applyMatrixStack(matrices);
-        pbr.renderWithoutMaterial();
-
-        matrices.translate(-2, 0, 0);
-        sh.applyMatrixStack(matrices);
-        pbr2.renderWithoutMaterial();
-
-        Texture.unbindAll(texCount);
-
-        matrices.pop();
-
-        // -- END PBR TEMP -- //
-
         //render skybox
         renderSky(matrices, delta);
 
@@ -239,21 +213,6 @@ public class WorldClient extends World {
         //debug shadows
         if (renderShadowMap)
             renderShadowBuffer(client.window.width, client.window.height, 500);
-    }
-
-    private final Model
-            pbr = new Model(ModelManager.load(new Resource("models/terrain/sphere/sphere.obj")).getMesh()),
-            pbr2 = new Model(ModelManager.load(new Resource("models/terrain/box/box.obj")).getMesh());
-    private MaterialRegistry currentMaterial = MaterialRegistry.GOLD;
-    private int materialIndex = currentMaterial.ordinal();
-    private int ambientLight = 0x888888;
-
-    private void changeMaterial(int index) {
-        materialIndex = index;
-        MaterialRegistry[] values = MaterialRegistry.values();
-        currentMaterial = values[(int) Maths.modulo(index, values.length)];
-
-        Toast.addToast(Text.of(currentMaterial.name()), client.font);
     }
 
     protected void renderSky(MatrixStack matrices, float delta) {
@@ -452,7 +411,7 @@ public class WorldClient extends World {
         s.setColor("fogColor", Chunk.fogColor);
 
         //lighting
-        s.setColor("ambient", ambientLight);//Chunk.ambientLight);
+        s.setColor("ambient", 0x888888);//Chunk.ambientLight);
 
         s.setInt("lightCount", lights.size());
         for (int i = 0; i < lights.size(); i++) {
@@ -632,10 +591,10 @@ public class WorldClient extends World {
                 }
             }
 
-            case GLFW_KEY_PERIOD -> changeMaterial(materialIndex + 1);
-            case GLFW_KEY_COMMA -> changeMaterial(materialIndex - 1);
-            case GLFW_KEY_KP_ADD -> ambientLight = Math.min(0xFFFFFF, ambientLight + 0x111111);
-            case GLFW_KEY_KP_SUBTRACT -> ambientLight = Math.max(0x000000, ambientLight - 0x111111);
+            case GLFW_KEY_SLASH -> {
+                skyBox.type = SkyBox.Type.values()[(skyBox.type.ordinal() + 1) % SkyBox.Type.values().length];
+                Toast.addToast(Text.of(skyBox.type.name()), client.font);
+            }
 
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
             //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));

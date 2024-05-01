@@ -1,0 +1,6 @@
+newmtl water
+albedo Water_002_COLOR.png
+ao Water_002_OCC.png
+height Water_002_DISP.png
+normal Water_002_NORM.png
+roughness Water_002_ROUGH.png

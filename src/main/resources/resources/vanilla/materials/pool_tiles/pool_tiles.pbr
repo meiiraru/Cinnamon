@@ -1,0 +1,6 @@
+newmtl pool_tiles
+albedo Tiles_008_COLOR.png
+ao Tiles_008_OCC.png
+height Tiles_008_DISP.png
+roughness Tiles_008_SPEC.png
+normal Tiles_008_NORM.png

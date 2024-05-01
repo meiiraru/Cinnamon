@@ -1,6 +1,7 @@
 package mayo.gui.screens;
 
 import mayo.gui.Screen;
+import mayo.gui.widgets.ContainerGrid;
 import mayo.gui.widgets.types.Button;
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
@@ -16,14 +17,20 @@ public class PauseScreen extends Screen {
     public void init() {
         super.init();
 
-        Button resume = new Button((width - 180) / 2, (height - 20) / 2, 180, 20, Text.of("Resume game"), button -> client.setScreen(null));
-        this.addWidget(resume);
+        ContainerGrid grid = new ContainerGrid(0, 0, 8, 2);
 
-        Button menu = new Button(resume.getX(), resume.getY() + resume.getHeight() + 16, 180, 20, Text.of("Main menu"), button -> {
+        Button resume = new Button(0, 0, 120, 20, Text.of("Resume game"), button -> client.setScreen(null));
+        Button menu = new Button(0, 0, 120, 20, Text.of("Main menu"), button -> {
             client.setScreen(new MainMenu());
             client.world.close();
         });
-        this.addWidget(menu);
+
+        grid.addWidget(resume);
+        grid.addWidget(menu);
+
+        grid.setPos((width - grid.getWidth()) / 2, (height - grid.getHeight()) / 2);
+
+        this.addWidget(grid);
     }
 
     @Override

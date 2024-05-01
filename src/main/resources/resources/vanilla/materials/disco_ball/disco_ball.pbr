@@ -1,0 +1,7 @@
+newmtl disco_ball
+albedo Disco_Ball_001_basecolor.png
+ao Disco_Ball_001_ambientOcclusion.png
+height Disco_Ball_001_height.png
+metallic Disco_Ball_001_metallic.png
+normal Disco_Ball_001_normal.png
+roughness Disco_Ball_001_roughness.png

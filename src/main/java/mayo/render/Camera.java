@@ -95,16 +95,16 @@ public class Camera {
     }
 
     public void billboard(MatrixStack matrices) {
-        verticalBillboard(matrices);
         horizontalBillboard(matrices);
+        verticalBillboard(matrices);
     }
 
     public void horizontalBillboard(MatrixStack matrices) {
-        matrices.rotate(Rotation.X.rotationDeg(rot.x));
+        matrices.rotate(Rotation.Y.rotationDeg(180f - rot.y));
     }
 
     public void verticalBillboard(MatrixStack matrices) {
-        matrices.rotate(Rotation.Y.rotationDeg(180f - rot.y));
+        matrices.rotate(Rotation.X.rotationDeg(rot.x));
     }
 
     public boolean isInsideFrustum(AABB aabb) {

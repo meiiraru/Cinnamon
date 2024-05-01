@@ -1,0 +1,6 @@
+newmtl plywood
+albedo Wood_Plywood_Front_001_basecolor.jpg
+ao Wood_Plywood_Front_001_ambientOcclusion.png
+height Wood_Plywood_Front_001_height.png
+normal Wood_Plywood_Front_001_normal.jpg
+roughness Wood_Plywood_Front_001_roughness.jpg

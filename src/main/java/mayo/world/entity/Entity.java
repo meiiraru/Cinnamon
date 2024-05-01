@@ -2,8 +2,6 @@ package mayo.world.entity;
 
 import mayo.Client;
 import mayo.model.GeometryHelper;
-import mayo.networking.ServerConnection;
-import mayo.networking.packet.EntitySync;
 import mayo.registry.EntityRegistry;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
@@ -365,7 +363,7 @@ public abstract class Entity extends WorldObject {
     public abstract EntityRegistry getType();
 
     public void sendServerUpdate() {
-        if (!getWorld().isClientside())
-            ServerConnection.connection.sendToAllUDP(new EntitySync().entity(this));
+        //if (!getWorld().isClientside())
+        //    ServerConnection.connection.sendToAllUDP(new EntitySync().entity(this));
     }
 }

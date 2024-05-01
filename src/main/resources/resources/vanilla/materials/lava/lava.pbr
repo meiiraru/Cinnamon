@@ -1,0 +1,7 @@
+newmtl lava
+albedo Lava_002_COLOR.png
+ao Lava_002_OCC.png
+emissive Lava_002_COLOR.png
+height Lava_002_DISP.png
+normal Lava_002_NRM.png
+roughness Lava_002_SPEC.png

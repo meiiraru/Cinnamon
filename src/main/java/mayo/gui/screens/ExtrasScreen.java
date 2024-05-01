@@ -6,6 +6,7 @@ import mayo.gui.widgets.WidgetList;
 import mayo.gui.widgets.types.Button;
 import mayo.gui.widgets.types.Label;
 import mayo.text.Text;
+import mayo.world.MaterialPreviewWorld;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -26,6 +27,9 @@ public class ExtrasScreen extends ParentedScreen {
 
         //spacing (literally)
         list.addWidget(new Label(0, 0, Text.of("Tech demos\n"), font));
+
+        Button materialDebug = BUTTON_FACTORY.apply("Material Debug", button -> new MaterialPreviewWorld().init());
+        list.addWidget(materialDebug);
 
         //collision screen
         Button coll = BUTTON_FACTORY.apply("Collision Test", button -> client.setScreen(new CollisionScreen(this)));
