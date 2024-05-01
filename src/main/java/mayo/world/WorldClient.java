@@ -243,7 +243,7 @@ public class WorldClient extends World {
     private final Model
             pbr = new OpenGLModel(ModelManager.load(new Resource("models/terrain/sphere/sphere.obj")).getMesh()),
             pbr2 = new OpenGLModel(ModelManager.load(new Resource("models/terrain/box/box.obj")).getMesh());
-    private MaterialRegistry currentMaterial = MaterialRegistry.BRICK_WALL;
+    private MaterialRegistry currentMaterial = MaterialRegistry.GOLD;
     private int materialIndex = currentMaterial.ordinal();
     private int ambientLight = 0x888888;
 
@@ -460,24 +460,33 @@ public class WorldClient extends World {
     }
 
     public void applySkyboxUniforms(Shader s) {
-        int id = Texture.MAX_TEXTURES - 2;
+        //last available texture
+        int id = Texture.MAX_TEXTURES - 1;
 
-        s.setInt("irradianceMap", id);
         s.setMat3("cubemapRotation", skyBox.getSkyRotation());
 
+        s.setInt("irradianceMap", --id);
         glActiveTexture(GL_TEXTURE0 + id);
         skyBox.type.bindIrradiance();
+
+        s.setInt("prefilterMap", --id);
+        glActiveTexture(GL_TEXTURE0 + id);
+        skyBox.type.bindPrefilter();
+
+        s.setInt("brdfLUT", --id);
+        glActiveTexture(GL_TEXTURE0 + id);
+        skyBox.type.bindLUT();
 
         glActiveTexture(GL_TEXTURE0);
     }
 
     public void applyShadowUniforms(Shader s) {
-        int id = Texture.MAX_TEXTURES - 1;
+        int id = Texture.MAX_TEXTURES;
 
         s.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-        s.setInt("shadowMap", id);
         s.setVec3("shadowDir", skyBox.getSunDirection());
 
+        s.setInt("shadowMap", --id);
         glActiveTexture(GL_TEXTURE0 + id);
         glBindTexture(GL_TEXTURE_2D, shadowBuffer.getDepthBuffer());
 

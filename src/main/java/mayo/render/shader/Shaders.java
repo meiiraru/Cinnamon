@@ -13,6 +13,9 @@ public enum Shaders {
     MAIN,
     SKYBOX,
     IRRADIANCE,
+    PREFILTER,
+    BRDF_LUT,
+    EQUIRECTANGULAR_TO_CUBEMAP,
     LINES,
     DEPTH,
     DEPTH_BLIT;

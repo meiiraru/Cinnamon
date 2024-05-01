@@ -10,6 +10,7 @@ out vec2 texCoords;
 out vec3 pos;
 out vec4 shadowPos;
 out mat3 TBN;
+out mat3 pTBN;
 
 uniform mat4 projection;
 uniform mat4 view;
@@ -28,6 +29,7 @@ void main() {
     vec3 N = normalize(normalMat * aNormal);
     vec3 B = cross(T, N);
     TBN = mat3(T, B, N);
+    pTBN = transpose(TBN);
 }
 
 #type fragment
@@ -62,6 +64,7 @@ struct Light {
 in vec2 texCoords;
 in vec3 pos;
 in mat3 TBN;
+in mat3 pTBN;
 
 out vec4 fragColor;
 
@@ -74,10 +77,15 @@ uniform int lightCount;
 uniform Light lights[16];
 
 const float PI = 3.14159265359f;
+
 const int minParallax = 16;
 const int maxParallax = 64;
 
+//IBL
+const int MAX_REFLECTION_LOD = 4;
 uniform samplerCube irradianceMap;
+uniform samplerCube prefilterMap;
+uniform sampler2D brdfLUT;
 
 vec2 pallaxMapping(vec2 texCoords, vec3 viewDir, sampler2D depthMap, float heightScale) {
     //calculate number of layers
@@ -154,9 +162,13 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0f - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
 }
 
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) {
+    return F0 + (max(vec3(1.0f - roughness), F0) - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
+}
+
 vec4 applyLighting() {
     //parallax mapping
-    vec3 parallaxDir = normalize(transpose(TBN) * (camPos - pos));
+    vec3 parallaxDir = normalize(pTBN * (camPos - pos));
     vec2 texCoords = pallaxMapping(texCoords, parallaxDir, material.heightTex, material.heightScale);
 
     //if (texCoords.x > 1.0f || texCoords.y > 1.0f || texCoords.x < 0.0f || texCoords.y < 0.0f)
@@ -175,6 +187,7 @@ vec4 applyLighting() {
     //normal mapping
     vec3 N = getNormalFromMap(material.normalTex, texCoords, TBN);
     vec3 V = normalize(camPos - pos);
+    vec3 R = reflect(-V, N);
 
     //grab shadow from shadow map
     float shadow = 1.0f - calculateShadow(N, normalize(shadowDir));
@@ -210,8 +223,7 @@ vec4 applyLighting() {
 
         //calculate specular and diffuse
         vec3 kS = F;
-        vec3 kD = vec3(1.0f) - kS;
-        kD *= 1 - metallic;
+        vec3 kD = (vec3(1.0f) - kS) * (1.0f - metallic);
 
         float NdotL = max(dot(N, L), 0.0f);
         vec3 specular = (D * F * G) / (4.0f * max(dot(N, V), 0.0f) * NdotL + 0.0001f);
@@ -220,11 +232,20 @@ vec4 applyLighting() {
         Lo += (kD * albedo / PI + specular) * radiance * NdotL * shadow;
     }
 
-    //finish calculating light - applying IBL as ambient
-    vec3 kS = fresnelSchlick(max(dot(N, V), 0.0f), F0);
+    //ambient lighting
+    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+
+    vec3 kS = F;
     vec3 kD = (1.0f - kS) * (1.0f - metallic);
     vec3 irradiance = texture(irradianceMap, N).rgb;
-    vec3 color = (kD * irradiance * albedo * ao) + Lo;
+    vec3 diffuse = irradiance * albedo;
+
+    //sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part
+    vec3 prefilteredColor = textureLod(prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0f), roughness)).rg;
+    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+
+    vec3 color = (kD * diffuse + specular) * ao + Lo;
 
     vec4 emissive = texture(material.emissiveTex, texCoords);
 

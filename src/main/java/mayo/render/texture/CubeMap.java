@@ -20,7 +20,7 @@ public class CubeMap extends Texture {
     public static final CubeMap MISSING_CUBEMAP = generateMissingMap();
 
     protected CubeMap(int id) {
-        super(id, 1, 1);
+        super(id);
     }
 
     public static CubeMap of(Resource res) {
@@ -76,8 +76,8 @@ public class CubeMap extends Texture {
             return MISSING_CUBEMAP.getID();
         }
 
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
         return id;

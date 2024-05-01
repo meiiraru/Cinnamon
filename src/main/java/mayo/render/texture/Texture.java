@@ -39,6 +39,10 @@ public class Texture {
     // -- texture loading -- //
 
 
+    protected Texture(int id) {
+        this(id, 1, 1);
+    }
+
     protected Texture(int id, int hFrames, int vFrames) {
         this.ID = id;
         this.uFrames = hFrames;

@@ -1,23 +1,24 @@
 package mayo.world;
 
 import mayo.model.GeometryHelper;
-import mayo.model.ModelManager;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
-import mayo.render.Model;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
 import mayo.render.texture.CubeMap;
-import mayo.render.texture.IrradianceMap;
+import mayo.render.texture.HDRTexture;
+import mayo.render.texture.IBLMap;
 import mayo.render.texture.Texture;
 import mayo.utils.Resource;
 import mayo.utils.Rotation;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.glBindTexture;
+
 public class SkyBox {
 
-    private static final Model MODEL = ModelManager.load(new Resource("models/skybox/skybox.obj"));
     private static final Texture SUN = Texture.of(new Resource("textures/environment/sun.png"));
     private static final float SUN_ROLL = (float) Math.toRadians(30f);
     private static final float CLOUD_SPEED = (float) Math.PI / 2f;
@@ -26,7 +27,7 @@ public class SkyBox {
     private float sunAngle;
     private Matrix3f skyRotation;
 
-    public Type type = Type.SPACE;
+    public Type type = Type.CLOUDS;
 
     public boolean
             renderSky = true,
@@ -46,7 +47,7 @@ public class SkyBox {
         //render model
         Shader.activeShader.setMat3("rotation", skyRotation);
         type.bindTexture();
-        MODEL.renderWithoutMaterial();
+        IBLMap.CUBE.render();
         CubeMap.unbindTex(0);
     }
 
@@ -91,10 +92,27 @@ public class SkyBox {
         CLEAR,
         SPACE,
         CLOUDS,
-        TEST;
+        TEST,
+        HDR_TEST(true);
 
-        private final CubeMap texture = CubeMap.of(new Resource("textures/environment/skybox/" + name().toLowerCase()));
-        private final CubeMap irradiance = IrradianceMap.generateIrradianceMap(texture);
+        private static final int LUT_MAP = Texture.of(new Resource("textures/environment/skybox/brdf_lut.png")).getID();
+        private final CubeMap texture, irradiance, prefilter;
+
+        Type() {
+            this(false);
+        }
+
+        Type(boolean hdr) {
+            if (hdr) {
+                HDRTexture hdrTex = HDRTexture.of(new Resource("textures/environment/skybox/" + name().toLowerCase() + ".hdr"));
+                texture = IBLMap.hdrToCubemap(hdrTex);
+            } else {
+                texture = CubeMap.of(new Resource("textures/environment/skybox/" + name().toLowerCase()));
+            }
+
+            irradiance = IBLMap.generateIrradianceMap(texture);
+            prefilter = IBLMap.generatePrefilterMap(texture);
+        }
 
         public void bindTexture() {
             texture.bind();
@@ -102,6 +120,14 @@ public class SkyBox {
 
         public void bindIrradiance() {
             irradiance.bind();
+        }
+
+        public void bindPrefilter() {
+            prefilter.bind();
+        }
+
+        public void bindLUT() {
+            glBindTexture(GL_TEXTURE_2D, LUT_MAP);
         }
     }
 }
