@@ -22,6 +22,18 @@ public class Vertex implements Comparable<Vertex> {
         return new Vertex(x, y, z);
     }
 
+    public static Vertex of(float x, float y) {
+        return of(x, y, 0);
+    }
+
+    public static Vertex of(Vector3f pos) {
+        return of(pos.x, pos.y, pos.z);
+    }
+
+    public static Vertex of(Vector2f pos) {
+        return of(pos.x, pos.y);
+    }
+
     public Vertex color(int color) {
         Vector4f rgba = ColorUtils.argbIntToRGBA(color);
         return color(rgba.x, rgba.y, rgba.z, rgba.w);

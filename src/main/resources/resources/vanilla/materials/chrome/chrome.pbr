@@ -1,2 +1,3 @@
 newmtl chrome
 metallic chrome_metallic.png
+roughness chrome_roughness.png

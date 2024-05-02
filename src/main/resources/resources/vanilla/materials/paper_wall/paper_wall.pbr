@@ -1,0 +1,6 @@
+newmtl paper_wall
+albedo wood_0033_color_1k.png
+ao wood_0033_ao_1k.png
+height wood_0033_height_1k.png
+normal wood_0033_normal_opengl_1k.png
+roughness wood_0033_roughness_1k.png

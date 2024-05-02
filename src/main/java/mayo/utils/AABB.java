@@ -1,5 +1,6 @@
 package mayo.utils;
 
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public class AABB {
@@ -86,7 +87,7 @@ public class AABB {
     }
 
     public boolean isInside(float x, float y, float z) {
-        return x >= minX && x <= maxX &&
+        return  x >= minX && x <= maxX &&
                 y >= minY && y <= maxY &&
                 z >= minZ && z <= maxZ;
     }
@@ -268,6 +269,16 @@ public class AABB {
 
         min.rotateZ(angle);
         max.rotateZ(angle);
+
+        return this.set(min, max);
+    }
+
+    public AABB applyMatrix(Matrix4f matrix) {
+        Vector3f min = getMin();
+        Vector3f max = getMax();
+
+        min.mulPosition(matrix);
+        max.mulPosition(matrix);
 
         return this.set(min, max);
     }

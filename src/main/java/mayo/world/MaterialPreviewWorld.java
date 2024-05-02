@@ -12,6 +12,7 @@ import mayo.render.shader.Shaders;
 import mayo.render.texture.Texture;
 import mayo.text.Style;
 import mayo.text.Text;
+import mayo.utils.AABB;
 import mayo.utils.Alignment;
 import mayo.utils.Colors;
 import mayo.utils.Resource;
@@ -59,23 +60,37 @@ public class MaterialPreviewWorld extends WorldClient {
             matrices.translate(i % grid * 6f, 0f, (int) (i / grid * 3f));
 
             int texCount = MaterialApplier.applyMaterial(values[i].material);
+            boolean visible = false;
 
-            sh.applyMatrixStack(matrices);
-            SPHERE.renderWithoutMaterial();
+            AABB sphereBB = SPHERE.getMeshAABB();
+            sphereBB.applyMatrix(matrices.peek().pos());
+            if (camera.isInsideFrustum(sphereBB)) {
+                sh.applyMatrixStack(matrices);
+                SPHERE.renderWithoutMaterial();
+                visible = true;
+            }
 
             matrices.translate(3f, 0f, 0f);
-            sh.applyMatrixStack(matrices);
-            BOX.renderWithoutMaterial();
 
-            matrices.translate(-1f, 1.5f, 0.5f);
-            matrices.scale(-1 / 48f);
-            camera.billboard(matrices);
-            client.font.render(
-                    VertexConsumer.WORLD_FONT, matrices,
-                    0f, 0f,
-                    Text.of(values[i].name()).withStyle(Style.EMPTY.shadow(true).shadowColor(Colors.PURPLE)),
-                    Alignment.CENTER
-            );
+            AABB boxBB = BOX.getMeshAABB();
+            boxBB.applyMatrix(matrices.peek().pos());
+            if (camera.isInsideFrustum(boxBB)) {
+                sh.applyMatrixStack(matrices);
+                BOX.renderWithoutMaterial();
+                visible = true;
+            }
+
+            if (visible) {
+                matrices.translate(-1f, 1.5f, 0.5f);
+                matrices.scale(-1 / 48f);
+                camera.billboard(matrices);
+                client.font.render(
+                        VertexConsumer.WORLD_FONT, matrices,
+                        0f, 0f,
+                        Text.of(values[i].name()).withStyle(Style.EMPTY.shadow(true).shadowColor(Colors.PURPLE)),
+                        Alignment.CENTER
+                );
+            }
 
             Texture.unbindAll(texCount);
             matrices.pop();

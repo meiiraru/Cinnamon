@@ -14,22 +14,24 @@ import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 public class Attributes {
 
     //vertex
-    //pos     tex id    uv      color    colorRGBA    normal    index    tangents
-    //vec3    int       vec2    vec3     vec4         vec3      int      vec3
+    //pos     posXY    tex id    uv      color    colorRGBA    normal    index    tangents
+    //vec3    vec2     int       vec2    vec3     vec4         vec3      int      vec3
     public static final int
             POS        = 0x1,
-            TEXTURE_ID = 0x2,
-            UV         = 0x4,
-            COLOR      = 0x8,
-            COLOR_RGBA = 0x10,
-            NORMAL     = 0x20,
-            INDEX      = 0x40,
-            TANGENTS   = 0x80;
+            POS_XY     = 0x2,
+            TEXTURE_ID = 0x4,
+            UV         = 0x8,
+            COLOR      = 0x10,
+            COLOR_RGBA = 0x20,
+            NORMAL     = 0x40,
+            INDEX      = 0x80,
+            TANGENTS   = 0x100;
 
     public static Pair<Integer, Integer> getAttributes(int flags) {
         int e = 0, verts = 0;
 
         if ((flags & POS)        != 0) {e++; verts += 3;}
+        if ((flags & POS_XY)     != 0) {e++; verts += 2;}
         if ((flags & TEXTURE_ID) != 0) {e++; verts += 1;}
         if ((flags & UV)         != 0) {e++; verts += 2;}
         if ((flags & COLOR)      != 0) {e++; verts += 3;}
@@ -51,6 +53,10 @@ public class Attributes {
         if ((flags & POS) != 0) {
             glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer);
             pointer += 3 * Float.BYTES;
+        }
+        if ((flags & POS_XY) != 0) {
+            glVertexAttribPointer(index++, 2, GL_FLOAT, false, stride, pointer);
+            pointer += 2 * Float.BYTES;
         }
         if ((flags & TEXTURE_ID) != 0) {
             glVertexAttribPointer(index++, 1, GL_FLOAT, true, stride, pointer);
@@ -89,6 +95,13 @@ public class Attributes {
             buffer.put(pos.x);
             buffer.put(pos.y);
             buffer.put(pos.z);
+        }
+
+        //push posXY
+        if ((flags & POS_XY) != 0) {
+            Vector3f pos = vertex.getPosition();
+            buffer.put(pos.x);
+            buffer.put(pos.y);
         }
 
         //push texture id

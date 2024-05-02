@@ -1,0 +1,7 @@
+newmtl metal_weave
+albedo MetalWeave02_1K_BaseColor.png
+ao MetalWeave02_1K_AO.png
+height MetalWeave02_1K_Height.png
+metallic MetalWeave02_1K_Metallic.png
+normal MetalWeave02_1K_Normal.png
+roughness MetalWeave02_1K_Roughness.png

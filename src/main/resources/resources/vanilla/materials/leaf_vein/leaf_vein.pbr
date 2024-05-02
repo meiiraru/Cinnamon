@@ -1,0 +1,6 @@
+newmtl leaf_vein
+albedo plants_0007_color_1k.png
+ao plants_0007_ao_1k.png
+height plants_0007_height_1k.png
+normal plants_0007_normal_opengl_1k.png
+roughness plants_0007_roughness_1k.png

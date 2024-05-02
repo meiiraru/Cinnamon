@@ -1,0 +1,6 @@
+newmtl bathroom_tiles
+albedo BathroomTiles03_4K_BaseColor.png
+ao BathroomTiles03_4K_AO.png
+height BathroomTiles03_4K_Height.png
+normal BathroomTiles03_4K_Normal.png
+roughness BathroomTiles03_4K_Roughness.png

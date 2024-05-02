@@ -38,7 +38,7 @@ public class MaterialApplier {
             bindTex(s, pbr.getAlbedo(), 0, "material.albedoTex", WHITE_TEX);
             bindTex(s, pbr.getHeight(), 1, "material.heightTex", WHITE_TEX);
             bindTex(s, pbr.getNormal(), 2, "material.normalTex", NORMAL_TEX);
-            bindTex(s, pbr.getRoughness(), 3, "material.roughnessTex", BLACK_TEX);
+            bindTex(s, pbr.getRoughness(), 3, "material.roughnessTex", WHITE_TEX);
             bindTex(s, pbr.getMetallic(), 4, "material.metallicTex", BLACK_TEX);
             bindTex(s, pbr.getAO(), 5, "material.aoTex", WHITE_TEX);
             bindTex(s, pbr.getEmissive(), 6, "material.emissiveTex", BLACK_TEX);
