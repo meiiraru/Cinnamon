@@ -1,6 +1,7 @@
 package mayo.world;
 
 import mayo.model.GeometryHelper;
+import mayo.model.SimpleGeometry;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
@@ -14,8 +15,7 @@ import mayo.utils.Rotation;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.*;
 
 public class SkyBox {
 
@@ -47,7 +47,9 @@ public class SkyBox {
         //render model
         Shader.activeShader.setMat3("rotation", skyRotation);
         type.bindTexture();
-        IBLMap.CUBE.render();
+        glDepthMask(false);
+        SimpleGeometry.INVERTED_CUBE.render();
+        glDepthMask(true);
         CubeMap.unbindTex(0);
     }
 

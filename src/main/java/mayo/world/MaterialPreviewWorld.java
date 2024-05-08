@@ -2,13 +2,9 @@ package mayo.world;
 
 import mayo.model.ModelManager;
 import mayo.registry.MaterialRegistry;
-import mayo.render.Camera;
-import mayo.render.MaterialApplier;
-import mayo.render.MatrixStack;
-import mayo.render.Model;
+import mayo.render.*;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
-import mayo.render.shader.Shaders;
 import mayo.render.texture.Texture;
 import mayo.text.Style;
 import mayo.text.Text;
@@ -16,12 +12,18 @@ import mayo.utils.AABB;
 import mayo.utils.Alignment;
 import mayo.utils.Colors;
 import mayo.utils.Resource;
+import mayo.world.light.Light;
 
 public class MaterialPreviewWorld extends WorldClient {
 
     private static final Model
             SPHERE = new Model(ModelManager.load(new Resource("models/terrain/sphere/sphere.obj")).getMesh()),
             BOX = new Model(ModelManager.load(new Resource("models/terrain/box/box.obj")).getMesh());
+
+    @Override
+    public void init() {
+        super.init();
+    }
 
     @Override
     protected void tempLoad() {
@@ -31,6 +33,13 @@ public class MaterialPreviewWorld extends WorldClient {
         player.rotate(0f, 135f);
         scheduledTicks.add(lights::clear);
         skyBox.renderSun = false;
+
+        MaterialRegistry[] values = MaterialRegistry.values();
+        int grid = (int) Math.ceil(Math.sqrt(values.length));
+
+        for (int i = 0; i < values.length; i++) {
+            addLight(new Light().pos(i % grid * 6f + 1f, 1f, (int) (i / grid * 3f) + 0.5f).color(Colors.randomRainbow().rgb));
+        }
     }
 
     @Override
@@ -40,15 +49,11 @@ public class MaterialPreviewWorld extends WorldClient {
 
     @Override
     protected void renderWorld(Camera camera, MatrixStack matrices, float delta) {
-        super.renderWorld(camera, matrices, delta);
-
-        //setup pbr shader
-        Shader sh = Shaders.WORLD_MODEL_PBR.getShader().use();
+        //setup pbr renderer
+        Shader prevShdr = Shader.activeShader;
+        Shader sh = WorldRenderer.prepareGeometry();
         sh.setup(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
-
-        applyWorldUniforms(sh);
-        applyShadowUniforms(sh);
-        applySkyboxUniforms(sh);
+        sh.setVec3("camPos", client.camera.getPos());
 
         //render materials
         MaterialRegistry[] values = MaterialRegistry.values();
@@ -95,5 +100,19 @@ public class MaterialPreviewWorld extends WorldClient {
             Texture.unbindAll(texCount);
             matrices.pop();
         }
+
+        WorldRenderer.render(s -> {
+            applyWorldUniforms(s);
+            applySkyboxUniforms(s);
+        });
+
+        if (prevShdr != null) prevShdr.use();
+        super.renderWorld(camera, matrices, delta);
+    }
+
+    @Override
+    public void onWindowResize(int width, int height) {
+        super.onWindowResize(width, height);
+        WorldRenderer.resize(width, height);
     }
 }

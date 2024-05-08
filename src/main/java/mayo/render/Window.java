@@ -1,6 +1,9 @@
 package mayo.render;
 
 import mayo.utils.Pair;
+import mayo.utils.Resource;
+import mayo.utils.TextureIO;
+import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -154,5 +157,19 @@ public class Window {
         this.guiScale = Math.max(scale, 1f);
         this.scaledWidth = (int) (width / guiScale);
         this.scaledHeight = (int) (height / guiScale);
+    }
+
+    public void setIcon(Resource resource) {
+        try (
+                GLFWImage icon = GLFWImage.malloc();
+                GLFWImage.Buffer imageBuffer = GLFWImage.malloc(1);
+                TextureIO.ImageData data = TextureIO.load(resource)
+        ) {
+            icon.set(data.width, data.height, data.buffer);
+            imageBuffer.put(0, icon);
+            glfwSetWindowIcon(window, imageBuffer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

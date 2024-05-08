@@ -51,19 +51,19 @@ public class Shader {
         int vertexShader = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShader, vertexSource);
         glCompileShader(vertexShader);
-        checkCompileErrors(vertexShader);
+        checkCompileErrors(res, vertexShader);
 
         int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragmentShader, fragmentSource);
         glCompileShader(fragmentShader);
-        checkCompileErrors(fragmentShader);
+        checkCompileErrors(res, fragmentShader);
 
         //create program
         int program = glCreateProgram();
         glAttachShader(program, vertexShader);
         glAttachShader(program, fragmentShader);
         glLinkProgram(program);
-        checkProgramErrors(program);
+        checkProgramErrors(res, program);
 
         //delete shaders
         glDetachShader(program, vertexShader);
@@ -96,18 +96,20 @@ public class Shader {
         return finalShader.toString();
     }
 
-    private static void checkCompileErrors(int id) {
+    private static void checkCompileErrors(Resource res, int id) {
         int status = glGetShaderi(id, GL_COMPILE_STATUS);
         if (status == GL_FALSE) {
             int i = glGetShaderi(id, GL_INFO_LOG_LENGTH);
+            System.out.println("Error compiling shader: " + res);
             throw new RuntimeException(glGetShaderInfoLog(id, i));
         }
     }
 
-    private static void checkProgramErrors(int id) {
+    private static void checkProgramErrors(Resource res, int id) {
         int status = glGetProgrami(id, GL_LINK_STATUS);
         if (status == GL_FALSE) {
             int i = glGetProgrami(id, GL_INFO_LOG_LENGTH);
+            System.out.println("Error linking shader program: " + res);
             throw new RuntimeException(glGetProgramInfoLog(id, i));
         }
     }

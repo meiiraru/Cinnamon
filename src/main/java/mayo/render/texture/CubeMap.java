@@ -1,14 +1,11 @@
 package mayo.render.texture;
 
-import mayo.utils.IOUtils;
 import mayo.utils.Resource;
+import mayo.utils.TextureIO;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.lwjgl.stb.STBImage;
-import org.lwjgl.system.MemoryStack;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,33 +44,19 @@ public class CubeMap extends Texture {
         int id = glGenTextures();
         glBindTexture(GL_TEXTURE_CUBE_MAP, id);
 
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            IntBuffer w = stack.mallocInt(1);
-            IntBuffer h = stack.mallocInt(1);
-            IntBuffer channels = stack.mallocInt(1);
+        for (int i = 0; i < 6; i++) {
+            Resource res = resources[i];
+            int target = Face.values()[i].GLTarget;
 
-            for (int i = 0; i < 6; i++) {
-                Resource res = resources[i];
-                int target = Face.values()[i].GLTarget;
+            try (TextureIO.ImageData image = TextureIO.load(res)) {
+                glTexImage2D(target, 0, GL_RGBA, image.width, image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.buffer);
+            } catch (Exception e) {
+                System.err.println("Failed to load cubemap texture");
+                e.printStackTrace();
 
-                ByteBuffer imageBuffer = IOUtils.getResourceBuffer(res);
-                ByteBuffer buffer = STBImage.stbi_load_from_memory(imageBuffer, w, h, channels, 4);
-                if (buffer == null)
-                    throw new Exception("Failed to load image \"" + res + "\", " + STBImage.stbi_failure_reason());
-
-                glTexImage2D(target, 0, GL_RGBA, w.get(), h.get(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-
-                STBImage.stbi_image_free(buffer);
-                w.clear();
-                h.clear();
-                channels.clear();
+                glDeleteTextures(id);
+                return MISSING_CUBEMAP.getID();
             }
-        } catch (Exception e) {
-            System.err.println("Failed to load cubemap texture");
-            e.printStackTrace();
-
-            glDeleteTextures(id);
-            return MISSING_CUBEMAP.getID();
         }
 
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

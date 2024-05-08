@@ -11,14 +11,16 @@ public enum Shaders {
     MODEL,
     WORLD_MAIN,
     MAIN,
+    LINES,
+    DEPTH,
+    DEPTH_BLIT,
     SKYBOX,
     IRRADIANCE,
     PREFILTER,
     BRDF_LUT,
     EQUIRECTANGULAR_TO_CUBEMAP,
-    LINES,
-    DEPTH,
-    DEPTH_BLIT;
+    DEFERRED_WORLD_PBR,
+    GBUFFER_WORLD_PBR;
 
     private final Resource resource;
     private Shader shader;

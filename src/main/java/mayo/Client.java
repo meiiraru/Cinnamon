@@ -4,15 +4,11 @@ import mayo.gui.Screen;
 import mayo.gui.Toast;
 import mayo.gui.screens.MainMenu;
 import mayo.gui.screens.PauseScreen;
-import mayo.networking.ClientConnection;
 import mayo.networking.ServerConnection;
 import mayo.options.Options;
-import mayo.render.Camera;
-import mayo.render.Font;
-import mayo.render.MatrixStack;
-import mayo.render.Window;
+import mayo.render.*;
 import mayo.render.batch.VertexConsumer;
-import mayo.render.framebuffer.PostProcess;
+import mayo.render.framebuffer.Framebuffer;
 import mayo.resource.ResourceManager;
 import mayo.sound.SoundManager;
 import mayo.text.Text;
@@ -40,7 +36,7 @@ public class Client {
     public static final int TPS = 20;
     public final Timer timer = new Timer(TPS);
     public long ticks;
-    public int fps;
+    public int fps, ms;
 
     public String name = "Meii";
     public UUID playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
@@ -175,16 +171,11 @@ public class Client {
     }
 
     public void disconnect() {
-        ClientConnection.disconnect();
-
+        //ClientConnection.disconnect();
         queueTick(() -> {
-            if (this.world != null) {
-                this.world.close();
-                this.world = null;
-            }
+            this.world = null;
+            this.setScreen(new MainMenu());
         });
-
-        this.setScreen(new MainMenu());
     }
 
     public void reloadAssets() {
@@ -198,16 +189,6 @@ public class Client {
     public void setName(String name) {
         this.name = name;
         this.playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
-    }
-
-    public void updateWindowSizes() {
-        queueTick(() -> {
-            if (camera != null)
-                camera.updateProjMatrix(window.scaledWidth, window.scaledHeight, this.options.fov);
-
-            if (screen != null)
-                screen.resize(window.scaledWidth, window.scaledHeight);
-        });
     }
 
     // -- glfw events -- //
@@ -263,11 +244,22 @@ public class Client {
     }
 
     public void windowResize(int width, int height) {
-        if (width > 0 && height > 0) {
-            window.windowResize(width, height);
-            PostProcess.resize(width, height);
-        }
-        updateWindowSizes();
+        if (width <= 0 || height <= 0)
+            return;
+
+        window.windowResize(width, height);
+        Framebuffer.DEFAULT_FRAMEBUFFER.resize(width, height);
+
+        if (world != null)
+            world.onWindowResize(width, height);
+
+        queueTick(() -> {
+            if (camera != null)
+                camera.updateProjMatrix(window.scaledWidth, window.scaledHeight, this.options.fov);
+
+            if (screen != null)
+                screen.resize(window.scaledWidth, window.scaledHeight);
+        });
     }
 
     public void windowFocused(boolean focused) {

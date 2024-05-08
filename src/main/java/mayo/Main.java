@@ -2,6 +2,10 @@ package mayo;
 
 import mayo.render.MatrixStack;
 import mayo.render.Window;
+import mayo.render.framebuffer.Blit;
+import mayo.render.framebuffer.Framebuffer;
+import mayo.render.framebuffer.PostProcess;
+import mayo.utils.Resource;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
@@ -48,6 +52,7 @@ public class Main {
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
         client.window = new Window(window, 854, 480);
+        client.window.setIcon(new Resource("textures/icon.png"));
 
         //input callbacks
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> client.keyPress(key, scancode, action, mods));
@@ -88,7 +93,7 @@ public class Main {
         MatrixStack matrices = new MatrixStack();
 
         //flags
-        glClearColor(0f, 0f, 0f, 0f);
+        glClearColor(1f, 1f, 1f, 1f);
         //glEnable(GL_CULL_FACE);
         glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
@@ -101,7 +106,8 @@ public class Main {
         glLineWidth(10f);
 
         //fps count
-        double previousTime = glfwGetTime();
+        double prevSecond = glfwGetTime();
+        double prevTime = prevSecond;
         int fps = 0;
 
         //render loop
@@ -109,29 +115,30 @@ public class Main {
             //fps counter
             double currentTime = glfwGetTime();
             fps++;
-
-            if (currentTime - previousTime >= 1) {
+            if (currentTime - prevSecond >= 1) {
                 client.fps = fps;
+                client.ms = (int) ((currentTime - prevTime) * 1000);
                 fps = 0;
-                previousTime = currentTime;
+                prevSecond = currentTime;
             }
+            prevTime = currentTime;
 
+            //process input events
             glfwPollEvents();
 
-            //clear the framebuffer
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT /*| GL_STENCIL_BUFFER_BIT */);
-
-            //set viewport
-            glViewport(0, 0, client.window.width, client.window.height);
-
             //render client
+            Framebuffer.DEFAULT_FRAMEBUFFER.useClear();
+            Framebuffer.DEFAULT_FRAMEBUFFER.adjustViewPort();
             client.render(matrices);
+            Blit.copy(Framebuffer.DEFAULT_FRAMEBUFFER, 0, PostProcess.BLIT.getShader());
 
             //end render
             glfwSwapBuffers(window);
 
-            if (!matrices.isEmpty())
-                System.out.println("Forgot to pop the matrix stack!");
+            if (!matrices.isEmpty()) {
+                System.err.println("Forgot to pop the matrix stack! - Popping it for you!");
+                while (!matrices.isEmpty()) matrices.pop();
+            }
         }
     }
 

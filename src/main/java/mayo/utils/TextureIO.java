@@ -1,9 +1,12 @@
 package mayo.utils;
 
 import mayo.render.texture.Texture;
+import org.lwjgl.stb.STBImage;
+import org.lwjgl.system.MemoryStack;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -86,6 +89,45 @@ public class TextureIO {
         } catch (Exception e) {
             System.out.println("Failed to save texture!");
             e.printStackTrace();
+        }
+    }
+
+    public static ImageData load(Resource resource) throws Exception {
+        return load(resource, false, 4);
+    }
+
+    public static ImageData load(Resource resource, boolean flip, int desiredChannels) throws Exception {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer w = stack.mallocInt(1);
+            IntBuffer h = stack.mallocInt(1);
+            IntBuffer channels = stack.mallocInt(1);
+
+            STBImage.stbi_set_flip_vertically_on_load(flip);
+            ByteBuffer imageBuffer = IOUtils.getResourceBuffer(resource);
+            ByteBuffer buffer = STBImage.stbi_load_from_memory(imageBuffer, w, h, channels, desiredChannels);
+            STBImage.stbi_set_flip_vertically_on_load(false);
+
+            if (buffer == null)
+                throw new Exception("Failed to load image \"" + resource + "\", " + STBImage.stbi_failure_reason());
+
+            return new ImageData(w.get(), h.get(), buffer);
+        }
+    }
+
+    public static class ImageData implements AutoCloseable {
+
+        public final int width, height;
+        public final ByteBuffer buffer;
+
+        private ImageData(int width, int height, ByteBuffer buffer) {
+            this.width = width;
+            this.height = height;
+            this.buffer = buffer;
+        }
+
+        @Override
+        public void close() throws Exception {
+            STBImage.stbi_image_free(buffer);
         }
     }
 }

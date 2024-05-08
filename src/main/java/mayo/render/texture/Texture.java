@@ -1,13 +1,10 @@
 package mayo.render.texture;
 
-import mayo.utils.IOUtils;
 import mayo.utils.Resource;
-import org.lwjgl.stb.STBImage;
-import org.lwjgl.system.MemoryStack;
+import mayo.utils.TextureIO;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,32 +61,8 @@ public class Texture {
     }
 
     private static int loadTexture(Resource res) {
-        //read texture
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            IntBuffer w = stack.mallocInt(1);
-            IntBuffer h = stack.mallocInt(1);
-            IntBuffer channels = stack.mallocInt(1);
-
-            ByteBuffer imageBuffer = IOUtils.getResourceBuffer(res);
-            ByteBuffer buffer = STBImage.stbi_load_from_memory(imageBuffer, w, h, channels, 4);
-            if (buffer == null)
-                throw new Exception("Failed to load image \"" + res + "\", " + STBImage.stbi_failure_reason());
-
-            int width = w.get();
-            int height = h.get();
-
-            int id = glGenTextures();
-            glBindTexture(GL_TEXTURE_2D, id);
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-
-            STBImage.stbi_image_free(buffer);
-            glBindTexture(GL_TEXTURE_2D, 0);
-
-            return id;
+        try (TextureIO.ImageData image = TextureIO.load(res)) {
+            return registerTexture(image.width, image.height, image.buffer);
         } catch (Exception e) {
             System.err.println("Failed to load texture \"" + res + "\"");
             e.printStackTrace();
@@ -97,9 +70,20 @@ public class Texture {
         }
     }
 
+    protected static int registerTexture(int width, int height, ByteBuffer buffer) {
+        int id = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, id);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        return id;
+    }
+
     private static Texture generateMissingTex() {
         //generate texture properties
-        int id = glGenTextures();
         Resource res = new Resource("generated/missing.png");
 
         //w * h * rgba
@@ -120,28 +104,13 @@ public class Texture {
 
         pixels.flip();
 
-        //open gl stuff
-        glBindTexture(GL_TEXTURE_2D, id);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 16, 16, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-
         //return a new texture
+        int id = registerTexture(16, 16, pixels);
         return cacheTexture(res, new Texture(id));
     }
 
     //returns a 1x1 texture with a solid color
     public static Texture generateSolid(int ARGB) {
-        int id = glGenTextures();
-        glBindTexture(GL_TEXTURE_2D, id);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
         ByteBuffer buffer = MemoryUtil.memAlloc(4);
         buffer.put((byte) (ARGB >> 16));
         buffer.put((byte) (ARGB >> 8));
@@ -149,9 +118,7 @@ public class Texture {
         buffer.put((byte) (ARGB >> 24));
         buffer.flip();
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-
-        glBindTexture(GL_TEXTURE_2D, 0);
+        int id = registerTexture(1, 1, buffer);
         return new Texture(id);
     }
 

@@ -24,13 +24,15 @@ public enum Colors {
     LIGHT_GRAY(0xBBBBBB),
     WHITE(0xFFFFFF);
 
-    public final int rgb;
-    public final int rgba;
+    public final int rgb, rgba, r, g, b;
     public final Vector3f vec;
 
     Colors(int rgb) {
         this.rgb = rgb;
         this.rgba = rgb + (0xFF << 24);
+        this.r = (rgb >> 16) & 0xFF;
+        this.g = (rgb >> 8) & 0xFF;
+        this.b = rgb & 0xFF;
         this.vec = ColorUtils.intToRGB(rgb);
     }
 

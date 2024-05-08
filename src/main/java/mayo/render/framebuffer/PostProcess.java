@@ -1,11 +1,7 @@
 package mayo.render.framebuffer;
 
-import mayo.Client;
-import mayo.render.Window;
 import mayo.render.shader.Shader;
 import mayo.utils.Resource;
-
-import static org.lwjgl.opengl.GL15.*;
 
 public enum PostProcess {
 
@@ -19,6 +15,7 @@ public enum PostProcess {
     GRAYSCALE;
 
     public static final PostProcess[] EFFECTS = {INVERT, BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE};
+    private static final Framebuffer POST_FRAMEBUFFER = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
 
     private final Resource resource;
     private Shader shader;
@@ -35,47 +32,32 @@ public enum PostProcess {
         return shader;
     }
 
-    public static void loadAllShaders() {
-        for (PostProcess postProcess : values())
-            postProcess.loadShader();
-    }
+    public void apply() {
+        //prepare framebuffer
+        POST_FRAMEBUFFER.useClear();
 
-    // -- static framebuffer stuff -- //
+        //fix framebuffer size
+        int defaultWidth = Framebuffer.DEFAULT_FRAMEBUFFER.getWidth();
+        int defaultHeight = Framebuffer.DEFAULT_FRAMEBUFFER.getHeight();
+        if (POST_FRAMEBUFFER.getWidth() != defaultWidth || POST_FRAMEBUFFER.getHeight() != defaultHeight)
+            POST_FRAMEBUFFER.resize(defaultWidth, defaultHeight);
 
-    public static final Framebuffer frameBuffer;
+        //render post effect
+        Blit.prepareShader(Framebuffer.DEFAULT_FRAMEBUFFER, shader);
+        Blit.renderQuad();
+        Blit.unbindTextures();
 
-    static {
-        Window w = Client.getInstance().window;
-        frameBuffer = new Framebuffer(w.width, w.height, Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
-    }
-
-    public static void prepare() {
-        frameBuffer.use();
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
-
-        frameBuffer.clear();
-    }
-
-    public static void render(PostProcess effect) {
-        render(effect, 0);
-    }
-
-    public static void render(PostProcess effect, int targetFramebufferID) {
-        Blit.copy(frameBuffer, targetFramebufferID, effect.shader);
+        //blit post effect back to main framebuffer
+        Blit.copy(POST_FRAMEBUFFER, Framebuffer.DEFAULT_FRAMEBUFFER.id(), BLIT.shader);
     }
 
     public static void free() {
-        for (PostProcess value : PostProcess.values())
-            value.shader.free();
-        frameBuffer.free();
+        for (PostProcess postProcess : values())
+            postProcess.shader.free();
     }
 
-    public static void resize(int width, int height) {
-        frameBuffer.resize(width, height);
+    public static void loadAllShaders() {
+        for (PostProcess postProcess : values())
+            postProcess.loadShader();
     }
 }

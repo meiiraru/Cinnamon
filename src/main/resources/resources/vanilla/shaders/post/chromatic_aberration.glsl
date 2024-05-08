@@ -28,7 +28,7 @@ void main() {
 
     vec2 offset = vec2(textelSize.x, textelSize.y) * intensity;
     tex.r = texture(screenTexture, texCoords + offset).r;
-    tex.b = texture(screenTexture, texCoords - offset).b;
+    tex.gb = texture(screenTexture, texCoords - offset).gb;
 
     fragColor = tex;
 }

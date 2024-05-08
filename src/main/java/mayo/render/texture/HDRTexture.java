@@ -39,27 +39,28 @@ public class HDRTexture extends Texture {
             if (buffer == null)
                 throw new Exception("Failed to load HDR image \"" + res + "\", " + STBImage.stbi_failure_reason());
 
-            int width = w.get();
-            int height = h.get();
-
-            int id = glGenTextures();
-            glBindTexture(GL_TEXTURE_2D, id);
-
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, buffer);
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-            stbi_image_free(buffer);
-            glBindTexture(GL_TEXTURE_2D, 0);
-
-            return id;
+            return registerTexture(w.get(), h.get(), buffer);
         } catch (Exception e) {
             System.err.println("Failed to load HDR texture \"" + res + "\"");
             e.printStackTrace();
             return MISSING.getID();
         }
+    }
+
+    protected static int registerTexture(int width, int height, FloatBuffer buffer) {
+        int id = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, id);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, buffer);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(buffer);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        return id;
     }
 }

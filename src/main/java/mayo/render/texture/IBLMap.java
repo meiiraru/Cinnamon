@@ -16,9 +16,6 @@ public class IBLMap {
 
     private static final int captureFBO = glGenFramebuffers();
     private static final Matrix4f CAPTURE_PROJECTION = new Matrix4f().perspective((float) Math.toRadians(90f), 1f, 0.1f, 10f);
-    public static final SimpleGeometry
-            QUAD = SimpleGeometry.quad(),
-            CUBE = SimpleGeometry.invertedCube();
 
     public static CubeMap hdrToCubemap(HDRTexture hdr) {
         int id = generateEmptyMap(512, GL_LINEAR_MIPMAP_LINEAR);
@@ -35,7 +32,7 @@ public class IBLMap {
             s.setMat4("view", face.viewMatrix);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, face.GLTarget, id, 0);
             glClear(GL_COLOR_BUFFER_BIT);
-            CUBE.render();
+            SimpleGeometry.INVERTED_CUBE.render();
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -64,7 +61,7 @@ public class IBLMap {
             s.setMat4("view", face.viewMatrix);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, face.GLTarget, id, 0);
             glClear(GL_COLOR_BUFFER_BIT);
-            CUBE.render();
+            SimpleGeometry.INVERTED_CUBE.render();
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -95,7 +92,7 @@ public class IBLMap {
                 s.setMat4("view", face.viewMatrix);
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, face.GLTarget, id, mip);
                 glClear(GL_COLOR_BUFFER_BIT);
-                CUBE.render();
+                SimpleGeometry.INVERTED_CUBE.render();
             }
         }
 
@@ -119,7 +116,7 @@ public class IBLMap {
         glViewport(0, 0, 512, 512);
         Shaders.BRDF_LUT.getShader().use();
         glClear(GL_COLOR_BUFFER_BIT);
-        QUAD.render();
+        SimpleGeometry.QUAD.render();
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         return id;

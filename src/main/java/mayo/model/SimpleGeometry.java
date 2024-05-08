@@ -104,7 +104,12 @@ public class SimpleGeometry {
     // -- generators -- //
 
 
-    public static SimpleGeometry quad() {
+    public static final SimpleGeometry
+            QUAD = quad(),
+            INVERTED_CUBE = invertedCube(),
+            SPHERE = sphere();
+
+    private static SimpleGeometry quad() {
         return of(new Vertex[]{
                 Vertex.of(-1f, 1f).uv(0f, 1f),
                 Vertex.of(-1f, -1f).uv(0f, 0f),
@@ -115,7 +120,7 @@ public class SimpleGeometry {
         }, Attributes.POS_XY | Attributes.UV, GL_TRIANGLES);
     }
 
-    public static SimpleGeometry invertedCube() {
+    private static SimpleGeometry invertedCube() {
         return of(new Vertex[]{
                 //back
                 Vertex.of(-1f, -1f, -1f),
@@ -162,7 +167,7 @@ public class SimpleGeometry {
         }, Attributes.POS, GL_TRIANGLES);
     }
 
-    public static SimpleGeometry sphere() {
+    private static SimpleGeometry sphere() {
         int xSegments = 64;
         int ySegments = 64;
         int vertexCount = (xSegments + 1) * (ySegments + 1);

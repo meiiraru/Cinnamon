@@ -9,6 +9,7 @@ import mayo.model.GeometryHelper;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
 import mayo.render.Window;
+import mayo.render.WorldRenderer;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.framebuffer.Blit;
 import mayo.render.framebuffer.Framebuffer;
@@ -76,7 +77,6 @@ public class WorldClient extends World {
 
     //post process
     private PostProcess postProcess;
-    private Framebuffer prevFramebuffer;
 
     //counters
     private int renderedEntities, renderedTerrain, renderedParticles;
@@ -111,6 +111,9 @@ public class WorldClient extends World {
         //create player
         respawn(true);
 
+        //prepare renderer
+        WorldRenderer.resize(client.window.width, client.window.height);
+
         //SERVER STUFF
         tempLoad();
 
@@ -136,7 +139,7 @@ public class WorldClient extends World {
     @Override
     public void close() {
         //ServerConnection.close();
-        //client.disconnect();
+        client.disconnect();
     }
 
     @Override
@@ -158,11 +161,6 @@ public class WorldClient extends World {
     public void render(MatrixStack matrices, float delta) {
         if (player.getWorld() == null)
             return;
-
-        if (postProcess != null) {
-            prevFramebuffer = Framebuffer.activeFramebuffer;
-            PostProcess.prepare();
-        }
 
         //set camera
         client.camera.setEntity(player);
@@ -203,16 +201,12 @@ public class WorldClient extends World {
         //render skybox
         renderSky(matrices, delta);
 
-        //post process
-        if (postProcess != null) {
-            PostProcess.render(postProcess);
-            if (prevFramebuffer != null) prevFramebuffer.use();
-            else Framebuffer.useDefault();
-        }
+        if (postProcess != null)
+            postProcess.apply();
 
         //debug shadows
         if (renderShadowMap)
-            renderShadowBuffer(client.window.width, client.window.height, 500);
+            renderShadowBuffer(client.window.width - 500, client.window.height - 500, 500);
     }
 
     protected void renderSky(MatrixStack matrices, float delta) {
@@ -246,9 +240,8 @@ public class WorldClient extends World {
         s.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
         //framebuffer
-        Framebuffer prev = Framebuffer.activeFramebuffer;
-        shadowBuffer.use();
-        shadowBuffer.clear();
+        shadowBuffer.useClear();
+        shadowBuffer.adjustViewPort();
 
         //render the world
         renderWorld(camera, matrices, delta);
@@ -263,9 +256,9 @@ public class WorldClient extends World {
         VertexConsumer.finishAllBatches(s);
         matrices.pop();
 
-        //restore framebuffer
-        if (prev != null) prev.use();
-        else Framebuffer.useDefault();
+        //restore to default framebuffer
+        Framebuffer.DEFAULT_FRAMEBUFFER.use();
+        Framebuffer.DEFAULT_FRAMEBUFFER.adjustViewPort();
 
         //restore camera
         camera.setPos(pos.x, pos.y, pos.z);
@@ -340,10 +333,10 @@ public class WorldClient extends World {
         matrices.pop();
     }
 
-    protected void renderShadowBuffer(int width, int height, int size) {
-        glViewport(width - size, height - size, size, size);
-        Blit.copy(shadowBuffer, 0, Shaders.DEPTH_BLIT.getShader());
-        glViewport(0, 0, width, height);
+    protected void renderShadowBuffer(int x, int y, int size) {
+        glViewport(x, y, size, size);
+        Blit.copy(shadowBuffer, Framebuffer.DEFAULT_FRAMEBUFFER.id(), Shaders.DEPTH_BLIT.getShader());
+        Framebuffer.DEFAULT_FRAMEBUFFER.adjustViewPort();
     }
 
     protected void renderHitboxes(Camera camera, MatrixStack matrices, float delta) {
@@ -599,6 +592,10 @@ public class WorldClient extends World {
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
             //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));
         }
+    }
+
+    public void onWindowResize(int width, int height) {
+        resetMovement();
     }
 
     public boolean isDebugRendering() {
