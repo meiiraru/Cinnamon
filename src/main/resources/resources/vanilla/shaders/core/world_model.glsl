@@ -143,12 +143,14 @@ vec4 applyLighting(vec4 diffTex) {
     diffuse *= diffTex.rgb;
     specular *= texture(material.specularTex, texCoords).rgb;
 
+    vec3 color = ambient + diffuse + specular;
+
     // emissive //
 
-    vec3 emissive = texture(material.emissiveTex, texCoords).rgb;
+    vec4 emissive = texture(material.emissiveTex, texCoords);
 
     //return light
-    return vec4(max(ambient + diffuse + specular, emissive), diffTex.a);
+    return vec4(color, diffTex.a) + emissive;
 }
 
 //#include shaders/libs/cubemap.glsl

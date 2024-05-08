@@ -97,7 +97,7 @@ public class SkyBox {
         TEST,
         HDR_TEST(true);
 
-        private static final int LUT_MAP = Texture.of(new Resource("textures/environment/skybox/brdf_lut.png")).getID();
+        private static final int LUT_MAP = IBLMap.brdfLUT(512);
         private final CubeMap texture, irradiance, prefilter;
 
         Type() {

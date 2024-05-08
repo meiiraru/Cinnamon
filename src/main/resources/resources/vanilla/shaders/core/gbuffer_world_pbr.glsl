@@ -115,7 +115,7 @@ void main() {
     float metallic  = texture(material.metallicTex, texCoords).r;
     float roughness = texture(material.roughnessTex, texCoords).r;
     float ao        = texture(material.aoTex, texCoords).r;
-    vec4 emissive   = texture(material.emissiveTex, texCoords);
+    vec3 emissive   = texture(material.emissiveTex, texCoords).rgb;
     vec3 normal     = getNormalFromMap(material.normalTex, texCoords, TBN);
 
     //write to gBuffer
@@ -123,5 +123,5 @@ void main() {
     gAlbedo = albedo * vec4(color, 1.0f);
     gRMAo = vec4(roughness, metallic, ao, 1.0f);
     gNormal = vec4(normal, 1.0f);
-    gEmissive = emissive;
+    gEmissive = vec4(emissive, 1.0f);
 }

@@ -1,10 +1,12 @@
 package mayo.world;
 
+import mayo.gui.Toast;
 import mayo.model.ModelManager;
 import mayo.registry.MaterialRegistry;
 import mayo.render.*;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
+import mayo.render.shader.Shaders;
 import mayo.render.texture.Texture;
 import mayo.text.Style;
 import mayo.text.Text;
@@ -13,12 +15,15 @@ import mayo.utils.Alignment;
 import mayo.utils.Colors;
 import mayo.utils.Resource;
 import mayo.world.light.Light;
+import org.lwjgl.glfw.GLFW;
 
 public class MaterialPreviewWorld extends WorldClient {
 
     private static final Model
             SPHERE = new Model(ModelManager.load(new Resource("models/terrain/sphere/sphere.obj")).getMesh()),
             BOX = new Model(ModelManager.load(new Resource("models/terrain/box/box.obj")).getMesh());
+
+    private boolean useDeferredRendering = true;
 
     @Override
     public void init() {
@@ -51,9 +56,18 @@ public class MaterialPreviewWorld extends WorldClient {
     protected void renderWorld(Camera camera, MatrixStack matrices, float delta) {
         //setup pbr renderer
         Shader prevShdr = Shader.activeShader;
-        Shader sh = WorldRenderer.prepareGeometry();
+
+        Shader sh;
+        if (useDeferredRendering) {
+            sh = WorldRenderer.prepareGeometry();
+            sh.setVec3("camPos", client.camera.getPos());
+        } else {
+            sh = Shaders.WORLD_MODEL_PBR.getShader().use();
+            applyWorldUniforms(sh);
+            applyShadowUniforms(sh);
+            applySkyboxUniforms(sh);
+        }
         sh.setup(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
-        sh.setVec3("camPos", client.camera.getPos());
 
         //render materials
         MaterialRegistry[] values = MaterialRegistry.values();
@@ -101,10 +115,11 @@ public class MaterialPreviewWorld extends WorldClient {
             matrices.pop();
         }
 
-        WorldRenderer.render(s -> {
-            applyWorldUniforms(s);
-            applySkyboxUniforms(s);
-        });
+        if (useDeferredRendering)
+            WorldRenderer.render(s -> {
+                applyWorldUniforms(s);
+                applySkyboxUniforms(s);
+            });
 
         if (prevShdr != null) prevShdr.use();
         super.renderWorld(camera, matrices, delta);
@@ -114,5 +129,14 @@ public class MaterialPreviewWorld extends WorldClient {
     public void onWindowResize(int width, int height) {
         super.onWindowResize(width, height);
         WorldRenderer.resize(width, height);
+    }
+
+    @Override
+    public void keyPress(int key, int scancode, int action, int mods) {
+        super.keyPress(key, scancode, action, mods);
+        if (key == GLFW.GLFW_KEY_F && action == GLFW.GLFW_PRESS) {
+            useDeferredRendering = !useDeferredRendering;
+            Toast.addToast(Text.of("Deferred Rendering: " + useDeferredRendering), client.font);
+        }
     }
 }

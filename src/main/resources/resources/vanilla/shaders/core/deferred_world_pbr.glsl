@@ -136,7 +136,8 @@ vec4 applyLighting(vec3 pos) {
     }
 
     //ambient lighting
-    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+    float NdotV = max(dot(N, V), 0.0f);
+    vec3 F = fresnelSchlickRoughness(NdotV, F0, roughness);
 
     vec3 kS = F;
     vec3 kD = (1.0f - kS) * (1.0f - metallic);
@@ -145,7 +146,7 @@ vec4 applyLighting(vec3 pos) {
 
     //sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part
     vec3 prefilteredColor = textureLod(prefilterMap, R * cubemapRotation, roughness * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0f), roughness)).rg;
+    vec2 brdf = texture(brdfLUT, vec2(NdotV, roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
     vec3 color = (kD * diffuse + specular) * ao + Lo;

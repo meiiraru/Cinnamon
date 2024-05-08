@@ -1,6 +1,7 @@
 package mayo.render.texture;
 
 import mayo.model.SimpleGeometry;
+import mayo.render.framebuffer.Framebuffer;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
 import org.joml.Matrix4f;
@@ -35,7 +36,7 @@ public class IBLMap {
             SimpleGeometry.INVERTED_CUBE.render();
         }
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        Framebuffer.DEFAULT_FRAMEBUFFER.use();
 
         glBindTexture(GL_TEXTURE_CUBE_MAP, id);
         glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
@@ -64,7 +65,7 @@ public class IBLMap {
             SimpleGeometry.INVERTED_CUBE.render();
         }
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        Framebuffer.DEFAULT_FRAMEBUFFER.use();
         return new CubeMap(id);
     }
 
@@ -96,15 +97,15 @@ public class IBLMap {
             }
         }
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        Framebuffer.DEFAULT_FRAMEBUFFER.use();
         return new CubeMap(id);
     }
 
-    public static int brdfLUT() {
+    public static int brdfLUT(int size) {
         int id = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, id);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, size, size, 0, GL_RG, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -113,12 +114,13 @@ public class IBLMap {
         glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, id, 0);
 
-        glViewport(0, 0, 512, 512);
-        Shaders.BRDF_LUT.getShader().use();
+        glViewport(0, 0, size, size);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        Shaders.BRDF_LUT.getShader().use();
         SimpleGeometry.QUAD.render();
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        Framebuffer.DEFAULT_FRAMEBUFFER.use();
         return id;
     }
 
