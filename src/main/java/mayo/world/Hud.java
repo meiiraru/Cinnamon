@@ -423,6 +423,7 @@ public class Hud {
 
                 [renderer]
                 %s
+                %s
                 OpenGL %s
 
                 [window]
@@ -436,6 +437,7 @@ public class Hud {
                 used * 100 / max, Maths.prettyByteSize(used), Maths.prettyByteSize(max),
                 total * 100 / max, Maths.prettyByteSize(total),
 
+                System.getProperty("os.name"),
                 glGetString(GL_RENDERER),
                 glGetString(GL_VERSION),
 

@@ -43,9 +43,13 @@ public class Main {
 
         //configure GLFW
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+
+        //enable only if were on apple
+        String os = System.getProperty("os.name");
+        if (os != null && os.toLowerCase().contains("mac"))
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
         //create window
         window = glfwCreateWindow(854, 480, "May~o", NULL, NULL);
@@ -73,6 +77,7 @@ public class Main {
         // -- init -- //
 
         //opengl debug info
+        System.out.println("OS: " + os);
         System.out.println("Renderer: " + glGetString(GL_RENDERER));
         System.out.println("OpenGL Version: " + glGetString(GL_VERSION));
         System.out.println("LWJGL Version: " + Version.getVersion());
@@ -103,7 +108,7 @@ public class Main {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
 
-        glLineWidth(10f);
+        glLineWidth(2.5f);
 
         //fps count
         double prevSecond = glfwGetTime();
