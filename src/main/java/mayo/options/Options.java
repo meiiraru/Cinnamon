@@ -13,6 +13,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static mayo.Client.LOGGER;
+
 public class Options {
 
     //actual options
@@ -49,7 +51,7 @@ public class Options {
             return new Options().save();
 
         //could not read file - create new
-        byte[] bytes = IOUtils.readFileBytes(OPTIONS_FILE);
+        byte[] bytes = IOUtils.readFile(OPTIONS_FILE);
         if (bytes == null)
             return new Options().save();
 
@@ -58,7 +60,7 @@ public class Options {
             String options = new String(bytes, StandardCharsets.UTF_8);
             return MAPPER.readValue(options, Options.class).save();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to read options file", e);
         }
 
         //...it failed - create new
@@ -71,7 +73,7 @@ public class Options {
             String json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(this);
             IOUtils.writeFile(OPTIONS_FILE, json.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to save options file", e);
         }
         return this;
     }

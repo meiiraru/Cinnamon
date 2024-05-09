@@ -4,6 +4,8 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Server;
 
+import static mayo.Client.LOGGER;
+
 public class Handshake extends PacketWithOwner {
 
     private final String version;
@@ -15,12 +17,12 @@ public class Handshake extends PacketWithOwner {
 
     @Override
     public void clientReceived(Client client, Connection connection) {
-        System.out.println("Handshake received!");
+        LOGGER.info("Handshake received!");
     }
 
     @Override
     public void serverReceived(Server server, Connection connection) {
-        System.out.printf("[Server] %s (id %s) handshaked with version: v%s\n", name, connection.getID(), version);
+        LOGGER.info("[Server] {} (id {}) handshaked with version: v{}", name, connection.getID(), version);
         connection.sendTCP(new Handshake());
     }
 }

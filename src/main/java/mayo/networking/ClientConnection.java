@@ -6,6 +6,8 @@ import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
 import mayo.networking.packet.Packet;
 
+import static mayo.Client.LOGGER;
+
 public class ClientConnection {
 
     public static Client connection;
@@ -31,17 +33,16 @@ public class ClientConnection {
                         if (object instanceof Packet p)
                             p.clientReceived(client, connection);
                         else if (!(object instanceof FrameworkMessage))
-                            System.out.println("Unknown packet " + object);
+                            LOGGER.warn("Unknown packet " + object);
                     } catch (Exception e) {
-                        System.out.println("Failed to parse packet " + object);
-                        e.printStackTrace();
+                        LOGGER.error("Failed to parse packet " + object, e);
                     }
                 }
             });
 
             connection = client;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e);
             return false;
         }
 

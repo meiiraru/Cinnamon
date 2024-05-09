@@ -9,6 +9,8 @@ import mayo.text.Text;
 import mayo.utils.Alignment;
 import mayo.utils.Colors;
 
+import static mayo.Client.LOGGER;
+
 public class WidgetTestScreen extends ParentedScreen {
 
     public WidgetTestScreen(Screen parentScreen) {
@@ -20,25 +22,25 @@ public class WidgetTestScreen extends ParentedScreen {
         ContainerGrid grid = new ContainerGrid(4, 4, 4);
 
         //button
-        Button b = new Button(0, 0, 60, 12, Text.of("Button"), button -> System.out.println("button!"));
+        Button b = new Button(0, 0, 60, 12, Text.of("Button"), button -> LOGGER.info("button!"));
         grid.addWidget(b);
 
         ContextMenu ctx = new ContextMenu()
-                .addAction(Text.of("Meow 1"), Text.of("Meow 1"), button -> System.out.println("1"))
+                .addAction(Text.of("Meow 1"), Text.of("Meow 1"), button -> LOGGER.info("1"))
                 .addDivider()
-                .addAction(Text.of("Meow 2"), Text.of("Meow 2"), button -> System.out.println("2"))
+                .addAction(Text.of("Meow 2"), Text.of("Meow 2"), button -> LOGGER.info("2"))
                 .addDivider()
-                .addAction(Text.of("Meow 3"), Text.of("Meow 3"), button -> System.out.println("3"));
+                .addAction(Text.of("Meow 3"), Text.of("Meow 3"), button -> LOGGER.info("3"));
 
         ContextMenu ctx2 = new ContextMenu()
-                .addAction(Text.of("A"), Text.of("A"), button -> System.out.println("a"))
-                .addAction(Text.of("B"), Text.of("B"), button -> System.out.println("b"))
-                .addAction(Text.of("C"), Text.of("C"), button -> System.out.println("c"));
+                .addAction(Text.of("A"), Text.of("A"), button -> LOGGER.info("a"))
+                .addAction(Text.of("B"), Text.of("B"), button -> LOGGER.info("b"))
+                .addAction(Text.of("C"), Text.of("C"), button -> LOGGER.info("c"));
 
         ContextMenu ctx3 = new ContextMenu()
-                .addAction(Text.of("1"), Text.of("1"), button -> System.out.println("1"))
-                .addAction(Text.of("11"), Text.of("11"), button -> System.out.println("11"))
-                .addAction(Text.of("111"), Text.of("111"), button -> System.out.println("111"));
+                .addAction(Text.of("1"), Text.of("1"), button -> LOGGER.info("1"))
+                .addAction(Text.of("11"), Text.of("11"), button -> LOGGER.info("11"))
+                .addAction(Text.of("111"), Text.of("111"), button -> LOGGER.info("111"));
 
         ctx2.addDivider().addSubMenu(Text.of("||"), ctx3);
         ctx.addDivider().addSubMenu(Text.of("Purr~"), ctx2);
@@ -59,11 +61,11 @@ public class WidgetTestScreen extends ParentedScreen {
         grid.addWidget(sb);
 
         sb
-                .addEntry(Text.of("Entry 1"), Text.of("1"), button -> System.out.println("1"))
+                .addEntry(Text.of("Entry 1"), Text.of("1"), button -> LOGGER.info("1"))
                 .addDivider()
-                .addEntry(Text.of("Entry 2"), Text.of("2"), button -> System.out.println("2"))
+                .addEntry(Text.of("Entry 2"), Text.of("2"), button -> LOGGER.info("2"))
                 .addDivider()
-                .addEntry(Text.of("Entry 3"), Text.of("3"), button -> System.out.println("3"));
+                .addEntry(Text.of("Entry 3"), Text.of("3"), button -> LOGGER.info("3"));
 
         //slider
         Slider s = new Slider(0, 0, 60);
@@ -95,8 +97,12 @@ public class WidgetTestScreen extends ParentedScreen {
         grid.addWidget(toast1);
 
         //toast 2
-        Button toast2 = new Button(0, 0, 60, 12, Text.of("Toast 2"), button -> Toast.addToast(Text.of("Multi-line\nToast :3"), font));
+        Button toast2 = new Button(0, 0, 60, 12, Text.of("Toast 2"), button -> Toast.addToast(Text.of("Multi-line\nToast :3"), font, Toast.ToastType.WARN));
         grid.addWidget(toast2);
+
+        //toast 3
+        Button toast3 = new Button(0, 0, 60, 12, Text.of("Toast 3"), button -> Toast.addToast(Text.of("Oopsie daisy"), font, Toast.ToastType.ERROR));
+        grid.addWidget(toast3);
 
         //right panel
         ContainerGrid grid2 = new ContainerGrid(width - 4, 4, 4);
@@ -109,7 +115,7 @@ public class WidgetTestScreen extends ParentedScreen {
         for (int i = 0; i < 9; i++) {
             int x = i % 3 + 1;
             int y = i / 3 + 1;
-            Button btx = new Button(0, 0, 30, 12, Text.of(y + "-" + x), button -> System.out.println(y + " " + x));
+            Button btx = new Button(0, 0, 30, 12, Text.of(y + "-" + x), button -> LOGGER.info(y + " " + x));
             buttonsGrid.addWidget(btx);
         }
 

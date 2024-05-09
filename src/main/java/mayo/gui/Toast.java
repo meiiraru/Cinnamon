@@ -3,8 +3,8 @@ package mayo.gui;
 import mayo.Client;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
-import mayo.render.texture.Texture;
 import mayo.render.batch.VertexConsumer;
+import mayo.render.texture.Texture;
 import mayo.text.Text;
 import mayo.utils.*;
 
@@ -12,12 +12,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static mayo.Client.LOGGER;
+
 public class Toast {
 
     // -- properties -- //
 
+    public static int DEFAULT_LENGTH = 60;
     protected static final int
-            LENGTH = 60,
             ANIM = 5,
             PADDING = 6,
             TOASTS_LIMIT = 5;
@@ -50,13 +52,28 @@ public class Toast {
     }
 
     public static void addToast(Text text, Font font) {
-        addToast(text, font, LENGTH);
+        addToast(text, font, DEFAULT_LENGTH);
     }
 
     public static void addToast(Text text, Font font, int length) {
+        addToast(text, font, length, ToastType.DEFAULT);
+    }
+
+    public static void addToast(Text text, Font font, ToastType type) {
+        addToast(text, font, DEFAULT_LENGTH, type);
+    }
+
+    public static void addToast(Text text, Font font, int length, ToastType type) {
         //add a new toast
-        TOASTS.add(new Toast(text, font, length, ToastType.DEFAULT));
-        System.out.println("[Toast] " + text.asString());
+        TOASTS.add(new Toast(text, font, length, type));
+
+        //logging
+        String log = "[Toast] " + text.asString();
+        switch (type) {
+            case WARN -> LOGGER.warn(log);
+            case ERROR -> LOGGER.error(log);
+            case DEFAULT -> LOGGER.info(log);
+        }
     }
 
     public static void clearAll() {
@@ -66,7 +83,7 @@ public class Toast {
     public enum ToastType {
         DEFAULT,
         WARN,
-        ERROR;
+        ERROR
     }
 
 

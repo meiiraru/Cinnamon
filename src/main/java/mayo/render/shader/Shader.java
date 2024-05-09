@@ -9,6 +9,7 @@ import org.joml.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import static mayo.Client.LOGGER;
 import static org.lwjgl.opengl.GL30.*;
 
 public class Shader {
@@ -100,7 +101,7 @@ public class Shader {
         int status = glGetShaderi(id, GL_COMPILE_STATUS);
         if (status == GL_FALSE) {
             int i = glGetShaderi(id, GL_INFO_LOG_LENGTH);
-            System.out.println("Error compiling shader: " + res);
+            LOGGER.error("Error compiling shader: " + res);
             throw new RuntimeException(glGetShaderInfoLog(id, i));
         }
     }
@@ -109,7 +110,7 @@ public class Shader {
         int status = glGetProgrami(id, GL_LINK_STATUS);
         if (status == GL_FALSE) {
             int i = glGetProgrami(id, GL_INFO_LOG_LENGTH);
-            System.out.println("Error linking shader program: " + res);
+            LOGGER.error("Error linking shader program: " + res);
             throw new RuntimeException(glGetProgramInfoLog(id, i));
         }
     }

@@ -4,6 +4,8 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Server;
 
+import static mayo.Client.LOGGER;
+
 public class Message extends PacketWithOwner {
 
     private String msg;
@@ -15,13 +17,13 @@ public class Message extends PacketWithOwner {
 
     @Override
     public void clientReceived(Client client, Connection connection) {
-        System.out.println(msg);
+        LOGGER.info(msg);
     }
 
     @Override
     public void serverReceived(Server server, Connection connection) {
         String s = "<%s> %s".formatted(name, msg);
-        System.out.println("[Server] " + s);
+        LOGGER.info("[Server] " + s);
         server.sendToAllTCP(new Message().msg(s));
     }
 }

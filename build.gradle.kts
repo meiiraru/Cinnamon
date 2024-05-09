@@ -3,11 +3,12 @@ plugins {
 }
 
 group = "io.github.sheep_may"
-version = "1.0"
+version = "0.0.1"
 
 //dependencies versions
 val lwjglVersion = "3.3.3"
 val jomlVersion = "1.10.5"
+val log4jVersion = "2.23.1"
 val jacksonVersion = "2.15.2"
 val kryonetVersion = "2.22.9"
 
@@ -64,6 +65,8 @@ dependencies {
 
     //extra libraries
     implementation("org.joml", "joml", jomlVersion)
+    implementation("org.apache.logging.log4j", "log4j-api", log4jVersion)
+    implementation("org.apache.logging.log4j", "log4j-core", log4jVersion)
     implementation("com.fasterxml.jackson.core", "jackson-databind", jacksonVersion)
     implementation("com.github.crykn", "kryonet", kryonetVersion)
 }

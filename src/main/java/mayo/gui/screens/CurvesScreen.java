@@ -25,6 +25,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.ArrayList;
 import java.util.List;
 
+import static mayo.Client.LOGGER;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class CurvesScreen extends ParentedScreen {
@@ -115,8 +116,8 @@ public class CurvesScreen extends ParentedScreen {
                 ObjExporter.export("curve", CurveToMesh.generateMesh(curve, true));
                 Toast.addToast(Text.of("Curve exported!"), client.font);
             } catch (Exception e) {
-                e.printStackTrace();
-                Toast.addToast(Text.of(e.getMessage()), client.font);
+                LOGGER.error("Failed to export curve", e);
+                Toast.addToast(Text.of(e.getMessage()), client.font, Toast.ToastType.ERROR);
             }
         });
         grid.addWidget(exportCurve);

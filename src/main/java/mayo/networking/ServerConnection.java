@@ -7,6 +7,8 @@ import com.esotericsoftware.kryonet.Server;
 import mayo.networking.packet.Packet;
 import mayo.world.WorldServer;
 
+import static mayo.Client.LOGGER;
+
 public class ServerConnection {
 
     public static WorldServer world;
@@ -35,18 +37,16 @@ public class ServerConnection {
                         if (object instanceof Packet p)
                             p.serverReceived(server, connection);
                         else if (!(object instanceof FrameworkMessage))
-                            System.out.println("Unknown packet " + object);
+                            LOGGER.warn("Unknown packet " + object);
                     } catch (Exception e) {
-                        System.out.println("Failed to parse packet " + object);
-                        e.printStackTrace();
+                        LOGGER.error("Failed to parse packet " + object, e);
                     }
                 }
             });
 
             connection = server;
         } catch (Exception e) {
-            System.out.println("Unable to create local server");
-            e.printStackTrace();
+            LOGGER.error("Unable to create local server", e);
             close();
             return false;
         }
@@ -60,7 +60,7 @@ public class ServerConnection {
 
         //then connect to localhost
         if (!ClientConnection.connectToServer(NetworkConstants.LOCAL_IP, NetworkConstants.TCP_PORT, NetworkConstants.UDP_PORT, 30_000)) {
-            System.out.println("Failed to connect to local server");
+            LOGGER.error("Failed to connect to local server");
             close();
             return false;
         }

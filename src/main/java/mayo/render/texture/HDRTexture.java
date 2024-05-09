@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import static mayo.Client.LOGGER;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL30.GL_RGB16F;
@@ -41,8 +42,7 @@ public class HDRTexture extends Texture {
 
             return registerTexture(w.get(), h.get(), buffer);
         } catch (Exception e) {
-            System.err.println("Failed to load HDR texture \"" + res + "\"");
-            e.printStackTrace();
+            LOGGER.error("Failed to load HDR texture \"" + res + "\"", e);
             return MISSING.getID();
         }
     }

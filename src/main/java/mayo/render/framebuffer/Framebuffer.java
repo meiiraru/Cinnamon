@@ -1,5 +1,8 @@
 package mayo.render.framebuffer;
 
+import mayo.Client;
+import mayo.render.Window;
+
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -15,7 +18,12 @@ public class Framebuffer {
     private int color, depth;
     private int width, height;
 
-    public static final Framebuffer DEFAULT_FRAMEBUFFER = new Framebuffer(1, 1, COLOR_BUFFER | DEPTH_BUFFER);
+    public static final Framebuffer DEFAULT_FRAMEBUFFER;
+
+    static {
+        Window w = Client.getInstance().window;
+        DEFAULT_FRAMEBUFFER = new Framebuffer(w.width, w.height, COLOR_BUFFER | DEPTH_BUFFER);
+    }
 
     public Framebuffer(int width, int height, int flags) {
         //generate and use a new framebuffer

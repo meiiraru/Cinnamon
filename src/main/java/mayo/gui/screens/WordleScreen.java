@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static mayo.Client.LOGGER;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class WordleScreen extends ParentedScreen {
@@ -80,7 +81,7 @@ public class WordleScreen extends ParentedScreen {
                 return;
 
             if (word.length() != WORD_LENGTH) {
-                System.out.println("Ignoring wordle word \"" + word + "\" at line " + line);
+                LOGGER.warn("Ignoring wordle word \"" + word + "\" at line " + line);
                 return;
             }
 
@@ -349,15 +350,14 @@ public class WordleScreen extends ParentedScreen {
             //write file
             IOUtils.writeFile(SAVE_FILE, save.toString().getBytes());
         } catch (Exception e) {
-            System.out.println("Failed to save the game to a file");
-            e.printStackTrace();
+            LOGGER.error("Failed to save the game to a file", e);
         }
     }
 
     private void loadGame() {
         try {
             //read file
-            byte[] bytes = IOUtils.readFileBytes(SAVE_FILE);
+            byte[] bytes = IOUtils.readFile(SAVE_FILE);
             if (bytes == null)
                 return;
 
@@ -397,8 +397,7 @@ public class WordleScreen extends ParentedScreen {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Failed to load save file");
-            e.printStackTrace();
+            LOGGER.error("Failed to load save file", e);
         }
     }
 

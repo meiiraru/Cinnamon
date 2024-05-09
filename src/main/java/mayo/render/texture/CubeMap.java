@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import static mayo.Client.LOGGER;
 import static org.lwjgl.opengl.GL13.*;
 
 public class CubeMap extends Texture {
@@ -51,9 +52,7 @@ public class CubeMap extends Texture {
             try (TextureIO.ImageData image = TextureIO.load(res)) {
                 glTexImage2D(target, 0, GL_RGBA, image.width, image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.buffer);
             } catch (Exception e) {
-                System.err.println("Failed to load cubemap texture");
-                e.printStackTrace();
-
+                LOGGER.error("Failed to load cubemap texture", e);
                 glDeleteTextures(id);
                 return MISSING_CUBEMAP.getID();
             }

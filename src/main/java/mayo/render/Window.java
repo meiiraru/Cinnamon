@@ -6,6 +6,7 @@ import mayo.utils.TextureIO;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 
+import static mayo.Client.LOGGER;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -169,7 +170,7 @@ public class Window {
             imageBuffer.put(0, icon);
             glfwSetWindowIcon(window, imageBuffer);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to set window icon", e);
         }
     }
 }

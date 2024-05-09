@@ -27,7 +27,7 @@ public class MainMenu extends Screen {
         super.init();
 
         //may~o
-        Text may = Text.of("May~o v%s \u25E0\u25DE\u25DF\u25E0".formatted(Client.VERSION)).withStyle(Style.EMPTY.italic(true).color(0x66FFFFFF).shadow(true).shadowColor(0x66161616));
+        Text may = Text.of("Mayonnaise v%s \u25E0\u25DE\u25DF\u25E0".formatted(Client.VERSION)).withStyle(Style.EMPTY.italic(true).color(0x66FFFFFF).shadow(true).shadowColor(0x66161616));
         this.addWidget(new Label(width - TextUtils.getWidth(may, font) - 4, height - TextUtils.getHeight(may, font) - 4, may, font));
 
         //buttons

@@ -6,7 +6,10 @@ import mayo.gui.screens.MainMenu;
 import mayo.gui.screens.PauseScreen;
 import mayo.networking.ServerConnection;
 import mayo.options.Options;
-import mayo.render.*;
+import mayo.render.Camera;
+import mayo.render.Font;
+import mayo.render.MatrixStack;
+import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.framebuffer.Framebuffer;
 import mayo.resource.ResourceManager;
@@ -16,6 +19,8 @@ import mayo.utils.Resource;
 import mayo.utils.TextureIO;
 import mayo.utils.Timer;
 import mayo.world.WorldClient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joml.Matrix4f;
 
 import java.util.LinkedList;
@@ -29,7 +34,8 @@ import static org.lwjgl.opengl.GL11.glClear;
 public class Client {
 
     private static final Client INSTANCE = new Client();
-    public static final String VERSION = "0.1";
+    public static final String VERSION = "0.0.1";
+    public static final Logger LOGGER = LogManager.getLogger(Main.class);
 
     private final Queue<Runnable> scheduledTicks = new LinkedList<>();
 

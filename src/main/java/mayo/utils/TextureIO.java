@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static mayo.Client.LOGGER;
 import static org.lwjgl.opengl.GL11.*;
 
 public class TextureIO {
@@ -44,10 +45,9 @@ public class TextureIO {
             //write file
             IOUtils.writeImage(path, img);
 
-            System.out.println("Saved screenshot as " + path.getFileName());
+            LOGGER.info("Saved screenshot as " + path.getFileName());
         } catch (Exception e) {
-            System.out.println("Failed to save screenshot!");
-            e.printStackTrace();
+            LOGGER.error("Failed to save screenshot!", e);
         }
     }
 
@@ -85,10 +85,9 @@ public class TextureIO {
             //unbind texture
             glBindTexture(GL_TEXTURE_2D, 0);
 
-            System.out.println("Exported texture to " + outputPath.getFileName());
+            LOGGER.info("Exported texture to " + outputPath.getFileName());
         } catch (Exception e) {
-            System.out.println("Failed to save texture!");
-            e.printStackTrace();
+            LOGGER.error("Failed to save texture!", e);
         }
     }
 

@@ -1,5 +1,6 @@
 package mayo;
 
+import mayo.logger.LoggerConfig;
 import mayo.render.MatrixStack;
 import mayo.render.Window;
 import mayo.render.framebuffer.Blit;
@@ -8,8 +9,10 @@ import mayo.render.framebuffer.PostProcess;
 import mayo.utils.Resource;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
+import static mayo.Client.LOGGER;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -22,6 +25,8 @@ public class Main {
         //System.load("D:\\apps\\RenderDoc_1.32_64\\renderdoc.dll");
         new Main().run();
     }
+
+    public static final int WIDTH = 854, HEIGHT = 480;
 
     private Client client;
     private long window;
@@ -52,10 +57,10 @@ public class Main {
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
         //create window
-        window = glfwCreateWindow(854, 480, "May~o", NULL, NULL);
+        window = glfwCreateWindow(WIDTH, HEIGHT, "Mayonnaise", NULL, NULL);
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
-        client.window = new Window(window, 854, 480);
+        client.window = new Window(window, WIDTH, HEIGHT);
         client.window.setIcon(new Resource("textures/icon.png"));
 
         //input callbacks
@@ -76,20 +81,32 @@ public class Main {
 
         // -- init -- //
 
+        //initiate logger
+        LoggerConfig.initialize(LOGGER);
+
         //opengl debug info
-        System.out.println("OS: " + os);
-        System.out.println("Renderer: " + glGetString(GL_RENDERER));
-        System.out.println("OpenGL Version: " + glGetString(GL_VERSION));
-        System.out.println("LWJGL Version: " + Version.getVersion());
+        LOGGER.info("OS: {}", os);
+        LOGGER.info("Renderer: {}", glGetString(GL_RENDERER));
+        LOGGER.info("OpenGL Version: {}", glGetString(GL_VERSION));
+        LOGGER.info("LWJGL Version: {}", Version.getVersion());
+
+        //window properties
 
         //vsync
         glfwSwapInterval(GLFW_FALSE);
 
-        //window properties
-        glfwShowWindow(window);
-        glfwMaximizeWindow(window);
+        //center window on screen
+        GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        if (vidMode != null) {
+            glfwSetWindowPos(window, (vidMode.width() - WIDTH) / 2, (vidMode.height() - HEIGHT) / 2);
+        } else { //could not find video mode, so just maximize the window
+            glfwMaximizeWindow(window);
+        }
 
-        //init client
+        //and then show the window
+        glfwShowWindow(window);
+
+        //finish init by initializing the client
         client.init();
     }
 
@@ -141,7 +158,7 @@ public class Main {
             glfwSwapBuffers(window);
 
             if (!matrices.isEmpty()) {
-                System.err.println("Forgot to pop the matrix stack! - Popping it for you!");
+                LOGGER.error("Forgot to pop the matrix stack! - Popping it for you!");
                 while (!matrices.isEmpty()) matrices.pop();
             }
         }

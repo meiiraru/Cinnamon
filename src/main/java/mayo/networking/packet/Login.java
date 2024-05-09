@@ -6,6 +6,8 @@ import com.esotericsoftware.kryonet.Server;
 import mayo.networking.ServerConnection;
 import mayo.world.entity.Entity;
 
+import static mayo.Client.LOGGER;
+
 public class Login extends PacketWithOwner {
     @Override
     public void clientReceived(Client client, Connection connection) {}
@@ -13,7 +15,7 @@ public class Login extends PacketWithOwner {
     @Override
     public void serverReceived(Server server, Connection connection) {
         int id = connection.getID();
-        System.out.printf("[Server] %s (id %s) logged!\n", name, id);
+        LOGGER.info("[Server] {} (id {}) logged!", name, id);
 
         //join message
         server.sendToAllExceptTCP(id, new Message().msg(name + " joined the server"));

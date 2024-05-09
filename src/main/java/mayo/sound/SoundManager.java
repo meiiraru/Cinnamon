@@ -12,6 +12,7 @@ import org.lwjgl.openal.ALCapabilities;
 import java.util.ArrayList;
 import java.util.List;
 
+import static mayo.Client.LOGGER;
 import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.openal.AL11.AL_LINEAR_DISTANCE_CLAMPED;
 import static org.lwjgl.openal.ALC10.*;
@@ -31,9 +32,8 @@ public class SoundManager {
         try {
             checkALCError(device);
         } catch (Exception e) {
-            System.out.println("Failed to initialize sound engine!");
-            System.out.println("Disabling all sounds...");
-            e.printStackTrace();
+            LOGGER.error("Failed to initialize sound engine!", e);
+            LOGGER.warn("Disabling all sounds...");
             return;
         }
 

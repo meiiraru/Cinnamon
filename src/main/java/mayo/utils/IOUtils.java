@@ -13,12 +13,14 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import static org.lwjgl.system.MemoryUtil.memSlice;
 
 public class IOUtils {
 
-    public static final String VANILLA_FOLDER = "mayo";
+    public static final String VANILLA_FOLDER = "mayonnaise";
     public static final Path ROOT_FOLDER = Path.of("./" + VANILLA_FOLDER);
 
     public static InputStream getResource(Resource res) {
@@ -76,13 +78,25 @@ public class IOUtils {
         }
     }
 
-    public static byte[] readFileBytes(Path path) {
+    public static byte[] readFile(Path path) {
         if (!Files.exists(path))
             return null;
 
         try (InputStream stream = Files.newInputStream(path)) {
             //read bytes from file
             return stream.readAllBytes();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static byte[] readFileCompressed(Path path) {
+        if (!Files.exists(path))
+            return null;
+
+        try (InputStream stream = Files.newInputStream(path); GZIPInputStream gzip = new GZIPInputStream(stream)) {
+            //read bytes from file
+            return gzip.readAllBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -104,6 +118,24 @@ public class IOUtils {
         }
     }
 
+    public static void writeFileCompressed(Path path, byte[] bytes) {
+        try {
+            //ensure path exists
+            createOrGetPath(path);
+
+            //write bytes to file
+            OutputStream fs = Files.newOutputStream(path);
+            GZIPOutputStream gzip = new GZIPOutputStream(fs);
+            gzip.write(bytes);
+
+            //close streams
+            gzip.close();
+            fs.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static Path parseNonDuplicatePath(Path path) {
         //return path as is if it already does not exist
         if (!Files.exists(path))
@@ -112,7 +144,7 @@ public class IOUtils {
         //grab file name and extension
         String fileName = path.getFileName().toString();
         String extension = "";
-        int dotIndex = fileName.lastIndexOf('.');
+        int dotIndex = fileName.indexOf('.');
         if (dotIndex != -1) {
             extension = fileName.substring(dotIndex);
             fileName = fileName.substring(0, dotIndex);

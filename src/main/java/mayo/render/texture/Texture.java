@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import static mayo.Client.LOGGER;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
@@ -64,8 +65,7 @@ public class Texture {
         try (TextureIO.ImageData image = TextureIO.load(res)) {
             return registerTexture(image.width, image.height, image.buffer);
         } catch (Exception e) {
-            System.err.println("Failed to load texture \"" + res + "\"");
-            e.printStackTrace();
+            LOGGER.error("Failed to load texture \"" + res + "\"", e);
             return MISSING.ID;
         }
     }

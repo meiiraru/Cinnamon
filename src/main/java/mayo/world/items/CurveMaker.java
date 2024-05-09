@@ -18,6 +18,8 @@ import org.joml.Vector3f;
 
 import java.util.List;
 
+import static mayo.Client.LOGGER;
+
 public class CurveMaker extends CooldownItem {
 
     private static final String ID = "Curve Maker";
@@ -106,8 +108,8 @@ public class CurveMaker extends CooldownItem {
 
             curve.clear();
         } catch (Exception e) {
-            Toast.addToast(Text.of(e.getMessage()), Client.getInstance().font);
-            e.printStackTrace();
+            LOGGER.error(e);
+            Toast.addToast(Text.of(e.getMessage()), Client.getInstance().font, Toast.ToastType.ERROR);
         }
 
         setUseCooldown();
