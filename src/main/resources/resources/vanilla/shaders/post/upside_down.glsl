@@ -11,6 +11,6 @@ out vec4 fragColor;
 uniform sampler2D screenTexture;
 
 void main() {
-    vec4 tex = texture(screenTexture, texCoords);
-    fragColor = vec4(vec3(1.0f - tex.rgb), tex.a);
+    vec2 uv = vec2(texCoords.x, 1.0f - texCoords.y);
+    fragColor = texture(screenTexture, uv);
 }

@@ -1,15 +1,5 @@
 #type vertex
-#version 330 core
-
-layout (location = 0) in vec2 aPosition;
-layout (location = 1) in vec2 aTexCoords;
-
-out vec2 texCoords;
-
-void main() {
-    gl_Position = vec4(aPosition, 0.0f, 1.0f);
-    texCoords = aTexCoords;
-}
+#include shaders/libs/blit.vsh
 
 #type fragment
 #version 330 core
@@ -20,24 +10,18 @@ out vec4 fragColor;
 
 uniform sampler2D screenTexture;
 uniform vec2 textelSize;
-
-const float intensity = 5.0f;
-const float kernel[] = float[](
-    1.0f / 16, 2.0f / 16, 1.0f / 16,
-    2.0f / 16, 4.0f / 16, 2.0f / 16,
-    1.0f / 16, 2.0f / 16, 1.0f / 16
-);
+uniform vec2 dir;
+uniform float radius;
 
 void main() {
-    vec2 offset = textelSize * intensity;
-    vec4 col = vec4(0.0f);
+    vec4 blurred = vec4(0.0f);
+    float totalAlpha = 0.0f;
 
-    for (int y = -1, i = 0; y <= 1; y++) {
-        for (int x = -1; x <= 1; x++, i++) {
-            vec4 tex = texture(screenTexture, texCoords.xy + vec2(offset.x * x, offset.y * y));
-            col += tex * kernel[i];
-        }
+    for (float r = -radius; r <= radius; r++) {
+        vec4 sampleValue = texture(screenTexture, texCoords + textelSize * r * dir);
+        totalAlpha += sampleValue.a;
+        blurred += sampleValue;
     }
 
-    fragColor = col;
+    fragColor = vec4(blurred.rgb / (radius * 2.0f + 1.0f), totalAlpha);
 }

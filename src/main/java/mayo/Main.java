@@ -5,7 +5,7 @@ import mayo.render.MatrixStack;
 import mayo.render.Window;
 import mayo.render.framebuffer.Blit;
 import mayo.render.framebuffer.Framebuffer;
-import mayo.render.framebuffer.PostProcess;
+import mayo.render.shader.PostProcess;
 import mayo.utils.Resource;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -152,7 +152,7 @@ public class Main {
             Framebuffer.DEFAULT_FRAMEBUFFER.useClear();
             Framebuffer.DEFAULT_FRAMEBUFFER.adjustViewPort();
             client.render(matrices);
-            Blit.copy(Framebuffer.DEFAULT_FRAMEBUFFER, 0, PostProcess.BLIT.getShader());
+            Blit.copy(Framebuffer.DEFAULT_FRAMEBUFFER, 0, PostProcess.BLIT);
 
             //end render
             glfwSwapBuffers(window);

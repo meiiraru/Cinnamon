@@ -1,15 +1,5 @@
 #type vertex
-#version 330 core
-
-layout (location = 0) in vec2 aPosition;
-layout (location = 1) in vec2 aTexCoords;
-
-out vec2 texCoords;
-
-void main() {
-    gl_Position = vec4(aPosition, 0.0f, 1.0f);
-    texCoords = aTexCoords;
-}
+#include shaders/libs/blit.vsh
 
 #type fragment
 #version 330 core
@@ -21,21 +11,18 @@ out vec4 fragColor;
 uniform sampler2D screenTexture;
 uniform vec2 textelSize;
 
-const float kernel[] = float[](
-    1,  1, 1,
-    1, -8, 1,
-    1,  1, 1
-);
-
 void main() {
-    vec4 col = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    vec4 center = texture(screenTexture, texCoords);
+    vec4 left   = texture(screenTexture, texCoords - vec2(textelSize.x, 0.0f));
+    vec4 right  = texture(screenTexture, texCoords + vec2(textelSize.x, 0.0f));
+    vec4 up     = texture(screenTexture, texCoords - vec2(0.0f, textelSize.y));
+    vec4 down   = texture(screenTexture, texCoords + vec2(0.0f, textelSize.y));
 
-    for (int y = -1, i = 0; y <= 1; y++) {
-        for (int x = -1; x <= 1; x++, i++) {
-            vec4 tex = texture(screenTexture, texCoords.xy + vec2(textelSize.x * x, textelSize.y * y));
-            col += tex * kernel[i];
-        }
-    }
+    vec4 leftDiff  = center - left;
+    vec4 rightDiff = center - right;
+    vec4 upDiff    = center - up;
+    vec4 downDiff  = center - down;
 
-    fragColor = col;
+    vec4 total = clamp(leftDiff + rightDiff + upDiff + downDiff, 0.0f, 1.0f);
+    fragColor = vec4(total.rgb, 1.0f);
 }

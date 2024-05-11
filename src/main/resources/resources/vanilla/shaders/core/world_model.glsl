@@ -81,7 +81,7 @@ vec3 calculateDiffuse(Light light, vec3 normal, float attenuation, vec3 lightDir
 vec3 calculateSpecular(Light light, vec3 normal, vec3 viewDir, float attenuation, vec3 lightDir) {
     //blinn-phong
     vec3 halfwayDir = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(normal, halfwayDir), 0), material.shininess);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0f), material.shininess);
     return attenuation * light.color * material.specular * spec;
 }
 
@@ -115,7 +115,7 @@ vec4 applyLighting(vec4 diffTex) {
         Light l = lights[i];
 
         vec3 diffDist = l.pos - pos;
-        float attenuation = l.directional ? 1 : calculateAttenuation(l.attenuation, length(diffDist));
+        float attenuation = l.directional ? 1.0f : calculateAttenuation(l.attenuation, length(diffDist));
         if (attenuation <= 0.01f)
             continue;
 

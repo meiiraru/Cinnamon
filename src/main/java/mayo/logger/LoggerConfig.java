@@ -29,7 +29,7 @@ public class LoggerConfig {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 String fileName = sdf.format(new Date()) + ".log.gz";
                 Path writePath = IOUtils.parseNonDuplicatePath(LOG_OUTPUT.resolveSibling(fileName));
-                IOUtils.writeFile(writePath, IOUtils.readFile(LOG_OUTPUT));
+                IOUtils.writeFileCompressed(writePath, IOUtils.readFile(LOG_OUTPUT));
                 Files.delete(LOG_OUTPUT);
             } catch (Exception e) {
                 gzipException = e;

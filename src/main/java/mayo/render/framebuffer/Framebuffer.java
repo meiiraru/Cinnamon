@@ -140,6 +140,10 @@ public class Framebuffer {
         return depth;
     }
 
+    public void resizeTo(Framebuffer other) {
+        resize(other.getWidth(), other.getHeight());
+    }
+
     public void resize(int width, int height) {
         if (width == this.width && height == this.height)
             return;

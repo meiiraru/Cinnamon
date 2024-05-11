@@ -7,7 +7,7 @@ uniform mat4 lightSpaceMatrix;
 uniform mat4 model;
 
 void main() {
-    gl_Position = lightSpaceMatrix * model * vec4(aPosition, 1);
+    gl_Position = lightSpaceMatrix * model * vec4(aPosition, 1.0f);
 }
 
 #type fragment

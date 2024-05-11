@@ -9,8 +9,11 @@ in vec2 texCoords;
 out vec4 fragColor;
 
 uniform sampler2D screenTexture;
+uniform int bits;
 
 void main() {
-    vec4 tex = texture(screenTexture, texCoords);
-    fragColor = vec4(vec3(1.0f - tex.rgb), tex.a);
+    float bit = pow(2.0f, bits);
+    vec4 color = texture(screenTexture, texCoords);
+    color = floor(color * bit) / bit;
+    fragColor = color;
 }

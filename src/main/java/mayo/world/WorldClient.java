@@ -13,7 +13,7 @@ import mayo.render.WorldRenderer;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.framebuffer.Blit;
 import mayo.render.framebuffer.Framebuffer;
-import mayo.render.framebuffer.PostProcess;
+import mayo.render.shader.PostProcess;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
 import mayo.render.texture.Texture;
@@ -335,7 +335,7 @@ public class WorldClient extends World {
 
     protected void renderShadowBuffer(int x, int y, int size) {
         glViewport(x, y, size, size);
-        Blit.copy(shadowBuffer, Framebuffer.DEFAULT_FRAMEBUFFER.id(), Shaders.DEPTH_BLIT.getShader());
+        Blit.copy(shadowBuffer, Framebuffer.DEFAULT_FRAMEBUFFER.id(), Shaders.DEPTH_BLIT.getShader(), Blit.DEPTH_ONLY_UNIFORM);
         Framebuffer.DEFAULT_FRAMEBUFFER.adjustViewPort();
     }
 

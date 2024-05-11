@@ -1,15 +1,5 @@
 #type vertex
-#version 330 core
-
-layout (location = 0) in vec2 aPosition;
-layout (location = 1) in vec2 aTexCoords;
-
-out vec2 texCoords;
-
-void main() {
-    gl_Position = vec4(aPosition, 0, 1);
-    texCoords = aTexCoords;
-}
+#include shaders/libs/blit.vsh
 
 #type fragment
 #version 330 core
@@ -22,5 +12,5 @@ uniform sampler2D depthTexture;
 
 void main() {
     float depthValue = texture(depthTexture, texCoords).r;
-    fragColor = vec4(vec3(depthValue), 1);
+    fragColor = vec4(vec3(depthValue), 1.0f);
 }

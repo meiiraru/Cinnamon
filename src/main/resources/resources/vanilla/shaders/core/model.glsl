@@ -11,7 +11,7 @@ uniform mat4 view;
 uniform mat4 model;
 
 void main() {
-    gl_Position = projection * view * model * vec4(aPosition, 1);
+    gl_Position = projection * view * model * vec4(aPosition, 1.0f);
     texCoords = aTexCoords;
 }
 
@@ -30,5 +30,5 @@ void main() {
     if (tex.a <= 0.01f)
         discard;
 
-    fragColor = vec4(color, 1) * tex;
+    fragColor = vec4(color, 1.0f) * tex;
 }

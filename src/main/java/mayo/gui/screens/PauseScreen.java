@@ -11,7 +11,7 @@ import mayo.utils.Alignment;
 
 public class PauseScreen extends Screen {
 
-    private static final Text PAUSE_TEXT = Text.of("Game Paused...").withStyle(Style.EMPTY.italic(true));
+    private static final Text PAUSE_TEXT = Text.of("Paused...").withStyle(Style.EMPTY.italic(true));
 
     @Override
     public void init() {
@@ -19,7 +19,7 @@ public class PauseScreen extends Screen {
 
         ContainerGrid grid = new ContainerGrid(0, 0, 8, 2);
 
-        Button resume = new Button(0, 0, 120, 20, Text.of("Resume game"), button -> client.setScreen(null));
+        Button resume = new Button(0, 0, 120, 20, Text.of("Resume"), button -> client.setScreen(null));
         Button menu = new Button(0, 0, 120, 20, Text.of("Main menu"), button -> client.world.close());
 
         grid.addWidget(resume);

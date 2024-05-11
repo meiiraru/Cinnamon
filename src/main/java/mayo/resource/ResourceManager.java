@@ -3,11 +3,11 @@ package mayo.resource;
 import mayo.model.MaterialManager;
 import mayo.model.ModelManager;
 import mayo.registry.*;
-import mayo.render.texture.CubeMap;
-import mayo.render.texture.Texture;
-import mayo.render.framebuffer.PostProcess;
+import mayo.render.shader.PostProcess;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
+import mayo.render.texture.CubeMap;
+import mayo.render.texture.Texture;
 import mayo.sound.Sound;
 
 import java.util.ArrayList;

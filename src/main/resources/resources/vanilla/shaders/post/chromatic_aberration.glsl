@@ -1,15 +1,5 @@
 #type vertex
-#version 330 core
-
-layout (location = 0) in vec2 aPosition;
-layout (location = 1) in vec2 aTexCoords;
-
-out vec2 texCoords;
-
-void main() {
-    gl_Position = vec4(aPosition, 0.0f, 1.0f);
-    texCoords = aTexCoords;
-}
+#include shaders/libs/blit.vsh
 
 #type fragment
 #version 330 core
@@ -20,8 +10,7 @@ out vec4 fragColor;
 
 uniform sampler2D screenTexture;
 uniform vec2 textelSize;
-
-const float intensity = 2.5f;
+uniform float intensity;
 
 void main() {
     vec4 tex = texture(screenTexture, texCoords);
