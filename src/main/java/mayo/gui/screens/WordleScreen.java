@@ -18,8 +18,10 @@ import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.*;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static mayo.Client.LOGGER;
@@ -75,22 +77,27 @@ public class WordleScreen extends ParentedScreen {
     public WordleScreen(Screen parentScreen) {
         super(parentScreen);
 
-        ReadFile func = (text, line, target) -> {
-            String word = text.trim().replaceAll(" ", "");
-            if (word.startsWith("#"))
-                return;
+        BiConsumer<byte[], List<String>> func = (bytes, target) -> {
+            String string = new String(bytes, StandardCharsets.UTF_8);
+            String[] lines = string.split("\n");
 
-            if (word.length() != WORD_LENGTH) {
-                LOGGER.warn("Ignoring wordle word \"" + word + "\" at line " + line);
-                return;
+            for (int i = 0; i < lines.length; i++) {
+                String word = lines[i].trim().replaceAll(" ", "");
+                if (word.startsWith("#"))
+                    continue;
+
+                if (word.length() != WORD_LENGTH) {
+                    LOGGER.warn("Ignoring wordle word \"" + word + "\" at line " + (i + 1));
+                    continue;
+                }
+
+                target.add(word.toUpperCase());
             }
-
-            target.add(word.toUpperCase());
         };
 
         //load words
-        IOUtils.readStringLines(ANSWER_WORDS_PATH, (s, i) -> func.readLine(s, i, answers));
-        IOUtils.readStringLines(GUESS_WORDS_PATH, (s, i) -> func.readLine(s, i, guesses));
+        func.accept(IOUtils.readCompressed(ANSWER_WORDS_PATH), answers);
+        func.accept(IOUtils.readCompressed(GUESS_WORDS_PATH), guesses);
 
         //stats
         playCount = 0;
@@ -348,7 +355,7 @@ public class WordleScreen extends ParentedScreen {
             }
 
             //write file
-            IOUtils.writeFile(SAVE_FILE, save.toString().getBytes());
+            IOUtils.writeFileCompressed(SAVE_FILE, save.toString().getBytes());
         } catch (Exception e) {
             LOGGER.error("Failed to save the game to a file", e);
         }
@@ -357,7 +364,7 @@ public class WordleScreen extends ParentedScreen {
     private void loadGame() {
         try {
             //read file
-            byte[] bytes = IOUtils.readFile(SAVE_FILE);
+            byte[] bytes = IOUtils.readFileCompressed(SAVE_FILE);
             if (bytes == null)
                 return;
 
@@ -399,10 +406,6 @@ public class WordleScreen extends ParentedScreen {
         } catch (Exception e) {
             LOGGER.error("Failed to load save file", e);
         }
-    }
-
-    private interface ReadFile {
-        void readLine(String text, int line, List<String> target);
     }
 
     private static class Field extends ContainerGrid {

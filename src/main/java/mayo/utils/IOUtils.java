@@ -5,14 +5,15 @@ import org.lwjgl.BufferUtils;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.function.BiConsumer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -29,12 +30,12 @@ public class IOUtils {
     }
 
     public static ByteBuffer getResourceBuffer(Resource res) {
+        InputStream stream = getResource(res);
+
+        if (stream == null)
+            throw new RuntimeException("Resource not found: " + res);
+
         try {
-            InputStream stream = getResource(res);
-
-            if (stream == null)
-                throw new RuntimeException("Resource not found: " + res);
-
             ByteBuffer fontBuffer = BufferUtils.createByteBuffer(stream.available() + 1);
             Channels.newChannel(stream).read(fontBuffer);
 
@@ -50,30 +51,27 @@ public class IOUtils {
     }
 
     public static String readString(Resource res) {
-        try {
-            InputStream stream = getResource(res);
-            if (stream == null)
-                throw new RuntimeException("Resource not found: " + res);
+        InputStream stream = getResource(res);
+        if (stream == null)
+            throw new RuntimeException("Resource not found: " + res);
 
+        try {
             return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void readStringLines(Resource res, BiConsumer<String, Integer> lineConsumer) {
-        try {
-            InputStream stream = getResource(res);
-            if (stream == null)
-                throw new RuntimeException("Resource not found: " + res);
+    public static byte[] readCompressed(Resource res) {
+        InputStream stream = getResource(res);
+        if (stream == null)
+            throw new RuntimeException("Resource not found: " + res);
 
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
-                int i = 1;
-                String line;
-                while ((line = br.readLine()) != null)
-                    lineConsumer.accept(line, i++);
+        try {
+            try (GZIPInputStream gzip = new GZIPInputStream(stream)) {
+                return gzip.readAllBytes();
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
