@@ -4,6 +4,8 @@ import mayo.model.Vertex;
 import mayo.render.batch.Batch.*;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
+import mayo.render.texture.Texture;
+import mayo.utils.Resource;
 import org.joml.Matrix4f;
 
 import java.util.function.Supplier;
@@ -24,8 +26,12 @@ public enum VertexConsumer {
         this.shader = shader;
     }
 
-    public void consume(Vertex[] vertices, int texID) {
-        renderer.consume(vertices, texID);
+    public void consume(Vertex[] vertices, Resource texture) {
+        consume(vertices, Texture.of(texture).getID());
+    }
+
+    public void consume(Vertex[] vertices, int texture) {
+        renderer.consume(vertices, texture);
     }
 
     public void finishBatch(Matrix4f proj, Matrix4f view) {

@@ -10,7 +10,6 @@ import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.PostProcess;
 import mayo.render.shader.Shaders;
-import mayo.render.texture.Texture;
 import mayo.text.Style;
 import mayo.text.Text;
 import mayo.utils.*;
@@ -30,10 +29,10 @@ import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 
 public class Hud {
 
-    private final Texture CROSSHAIR = Texture.of(new Resource("textures/gui/hud/crosshair.png"));
-    private final Texture HOTBAR = Texture.of(new Resource("textures/gui/hud/hotbar.png"));
-    private final Texture VIGNETTE = Texture.of(new Resource("textures/gui/hud/vignette.png"));
-    private final Texture HIT_DIRECTION = Texture.of(new Resource("textures/gui/hud/hit_direction.png"));
+    private final Resource CROSSHAIR = new Resource("textures/gui/hud/crosshair.png");
+    private final Resource HOTBAR = new Resource("textures/gui/hud/hotbar.png");
+    private final Resource VIGNETTE = new Resource("textures/gui/hud/vignette.png");
+    private final Resource HIT_DIRECTION = new Resource("textures/gui/hud/hit_direction.png");
 
     private ProgressBar health, itemCooldown;
 
@@ -132,7 +131,7 @@ public class Hud {
             vertex.getPosition().z = -999;
         }
 
-        VertexConsumer.GUI.consume(vertices, VIGNETTE.getID());
+        VertexConsumer.GUI.consume(vertices, VIGNETTE);
     }
 
     private void drawItemStats(MatrixStack matrices, Item item, float delta) {
@@ -236,7 +235,7 @@ public class Hud {
                             i == selected ? 16f : 0f, 0f,
                             16, 16,
                             32, 16
-                    ), HOTBAR.getID()
+                    ), HOTBAR
             );
 
             //render item model
@@ -281,7 +280,7 @@ public class Hud {
         for (Vertex vertex : vertices)
             vertex.color(color);
 
-        VertexConsumer.GUI.consume(vertices, HIT_DIRECTION.getID());
+        VertexConsumer.GUI.consume(vertices, HIT_DIRECTION);
 
         matrices.pop();
     }
@@ -309,7 +308,7 @@ public class Hud {
         } else {
             glBlendFuncSeparate(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_ONE, GL_ZERO);
 
-            VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, Math.round(w / 2f - 8), Math.round(h / 2f - 8), 16, 16), CROSSHAIR.getID());
+            VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, Math.round(w / 2f - 8), Math.round(h / 2f - 8), 16, 16), CROSSHAIR);
             VertexConsumer.GUI.finishBatch(projMat, viewMat);
 
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

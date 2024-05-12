@@ -2,20 +2,22 @@ package mayo.world.particle;
 
 import mayo.model.GeometryHelper;
 import mayo.model.Vertex;
+import mayo.registry.ParticlesRegistry;
 import mayo.render.MatrixStack;
-import mayo.render.texture.Texture;
 import mayo.render.batch.VertexConsumer;
+import mayo.render.texture.SpriteTexture;
 import mayo.utils.Maths;
 
 public abstract class SpriteParticle extends Particle {
 
-    private final Texture texture;
+    private final SpriteTexture texture;
     private int color;
     private float scale = 1f;
 
     public SpriteParticle(int lifetime, int color) {
         super(lifetime);
-        this.texture = getType().getTexture();
+        ParticlesRegistry type = getType();
+        this.texture = type.getTexture();
         this.color = color;
     }
 
@@ -31,20 +33,20 @@ public abstract class SpriteParticle extends Particle {
                 16, 16,
                 getCurrentFrame(), 0f,
                 1, 1,
-                texture.getuFrames(), texture.getvFrames()
+                texture.getUFrames(), texture.getVFrames()
         );
 
         for (Vertex vertex : vertices)
             vertex.color(getColor());
 
         VertexConsumer consumer = isEmissive() ? VertexConsumer.MAIN : VertexConsumer.WORLD_MAIN;
-        consumer.consume(vertices, texture.getID());
+        consumer.consume(vertices, texture.getResource());
 
         matrices.pop();
     }
 
     public int getCurrentFrame() {
-        return Math.round(Maths.lerp(0, this.texture.getuFrames() - 1, (float) getAge() / getLifetime()));
+        return Math.round(Maths.lerp(0, texture.getUFrames() - 1, (float) getAge() / getLifetime()));
     }
 
     public void setColor(int color) {

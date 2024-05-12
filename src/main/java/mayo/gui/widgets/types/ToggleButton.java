@@ -4,7 +4,6 @@ import mayo.Client;
 import mayo.model.GeometryHelper;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
-import mayo.render.texture.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
 import mayo.utils.Resource;
@@ -14,7 +13,7 @@ import java.util.function.Consumer;
 
 public class ToggleButton extends Button {
 
-    private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/toggle_box.png"));
+    private static final Resource TEXTURE = new Resource("textures/gui/widgets/toggle_box.png");
 
     protected boolean toggled;
 
@@ -36,7 +35,7 @@ public class ToggleButton extends Button {
                         getState() * 8f, toggled ? 8f : 0f,
                         8, 8,
                         24, 16
-                ), TEXTURE.getID()
+                ), TEXTURE
         );
     }
 

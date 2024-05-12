@@ -9,7 +9,6 @@ import mayo.render.shader.Shader;
 import mayo.render.texture.CubeMap;
 import mayo.render.texture.HDRTexture;
 import mayo.render.texture.IBLMap;
-import mayo.render.texture.Texture;
 import mayo.utils.Resource;
 import mayo.utils.Rotation;
 import org.joml.Matrix3f;
@@ -19,7 +18,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class SkyBox {
 
-    private static final Texture SUN = Texture.of(new Resource("textures/environment/sun.png"));
+    private static final Resource SUN = new Resource("textures/environment/sun.png");
     private static final float SUN_ROLL = (float) Math.toRadians(30f);
     private static final float CLOUD_SPEED = (float) Math.PI / 2f;
 
@@ -65,7 +64,7 @@ public class SkyBox {
         matrices.translate(0, 0, 512);
 
         //render sun
-        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, -32, -32, 64, 64), SUN.getID());
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, -32, -32, 64, 64), SUN);
         VertexConsumer.MAIN.finishBatch(camera.getPerspectiveMatrix(), camera.getViewMatrix());
 
         //cleanup rendering
@@ -98,13 +97,28 @@ public class SkyBox {
         HDR_TEST(true);
 
         private static final int LUT_MAP = IBLMap.brdfLUT(512);
-        private final CubeMap texture, irradiance, prefilter;
+        private final boolean hdr;
+        private CubeMap texture, irradiance, prefilter;
 
         Type() {
             this(false);
         }
 
         Type(boolean hdr) {
+            this.hdr = hdr;
+        }
+
+        public static void freeAll() {
+            for (Type skybox : values())
+                skybox.free();
+        }
+
+        public static void loadAll() {
+            for (Type skybox : values())
+                skybox.loadTextures();
+        }
+
+        public void loadTextures() {
             if (hdr) {
                 HDRTexture hdrTex = HDRTexture.of(new Resource("textures/environment/skybox/" + name().toLowerCase() + ".hdr"));
                 texture = IBLMap.hdrToCubemap(hdrTex);
@@ -114,6 +128,12 @@ public class SkyBox {
 
             irradiance = IBLMap.generateIrradianceMap(texture);
             prefilter = IBLMap.generatePrefilterMap(texture);
+        }
+
+        public void free() {
+            texture.free();
+            irradiance.free();
+            prefilter.free();
         }
 
         public void bindTexture() {

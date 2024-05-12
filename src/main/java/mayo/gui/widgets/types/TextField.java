@@ -5,7 +5,6 @@ import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.SelectableWidget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
-import mayo.render.texture.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
@@ -20,7 +19,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class TextField extends SelectableWidget {
 
-    private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/text_field.png"));
+    private static final Resource TEXTURE = new Resource("textures/gui/widgets/text_field.png");
     private static final String POINTER = "|";
     private static final Style HINT_STYLE = Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK);
 
@@ -47,7 +46,7 @@ public class TextField extends SelectableWidget {
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE.getID(),
+                VertexConsumer.GUI, matrices, TEXTURE,
                 getX(), getY(),
                 getWidth(), getHeight(),
                 getState() * 16f, 0f,
@@ -61,7 +60,7 @@ public class TextField extends SelectableWidget {
             return;
 
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE.getID(),
+                VertexConsumer.GUI, matrices, TEXTURE,
                 getX(), getY(),
                 getWidth(), getHeight(),
                 48f, 0f,

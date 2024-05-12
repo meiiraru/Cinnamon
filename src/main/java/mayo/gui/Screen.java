@@ -6,7 +6,6 @@ import mayo.model.GeometryHelper;
 import mayo.model.Vertex;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
-import mayo.render.texture.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.utils.Resource;
 import mayo.utils.UIHelper;
@@ -15,10 +14,10 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public abstract class Screen {
 
-    protected static final Texture[] BACKGROUND = new Texture[]{
-            Texture.of(new Resource("textures/gui/background/background_0.png")),
-            Texture.of(new Resource("textures/gui/background/background_1.png")),
-            Texture.of(new Resource("textures/gui/background/background_2.png"))
+    protected static final Resource[] BACKGROUND = new Resource[]{
+            new Resource("textures/gui/background/background_0.png"),
+            new Resource("textures/gui/background/background_1.png"),
+            new Resource("textures/gui/background/background_2.png")
     };
 
     //main container

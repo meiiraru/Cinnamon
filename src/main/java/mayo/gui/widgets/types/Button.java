@@ -5,7 +5,6 @@ import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.SelectableWidget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
-import mayo.render.texture.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.sound.SoundCategory;
 import mayo.text.Style;
@@ -18,7 +17,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Button extends SelectableWidget {
 
-    private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/button.png"));
+    private static final Resource TEXTURE = new Resource("textures/gui/widgets/button.png");
     private static final Resource CLICK_SOUND = new Resource("sounds/pop.ogg");
 
     private boolean silent;
@@ -42,7 +41,7 @@ public class Button extends SelectableWidget {
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE.getID(),
+                VertexConsumer.GUI, matrices, TEXTURE,
                 getX(), getY(),
                 getWidth(), getHeight(),
                 getState() * 16f, 0f,

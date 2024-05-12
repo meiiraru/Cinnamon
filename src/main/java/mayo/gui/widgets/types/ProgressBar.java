@@ -2,7 +2,6 @@ package mayo.gui.widgets.types;
 
 import mayo.gui.widgets.Widget;
 import mayo.render.MatrixStack;
-import mayo.render.texture.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.utils.Colors;
 import mayo.utils.Maths;
@@ -11,7 +10,7 @@ import mayo.utils.UIHelper;
 
 public class ProgressBar extends Widget {
 
-    private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/progress_bar.png"));
+    private static final Resource TEXTURE = new Resource("textures/gui/widgets/progress_bar.png");
     private static final float PROGRESS_Z = 0.01f;
 
     private float progress;
@@ -30,7 +29,7 @@ public class ProgressBar extends Widget {
 
         //draw background
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE.getID(),
+                VertexConsumer.GUI, matrices, TEXTURE,
                 getX(), getY(),
                 getWidth(), getHeight(),
                 0f, 0f,
@@ -42,7 +41,7 @@ public class ProgressBar extends Widget {
         matrices.push();
         matrices.translate(0, 0, PROGRESS_Z);
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE.getID(),
+                VertexConsumer.GUI, matrices, TEXTURE,
                 getX(), getY(),
                 Math.round(getWidth() * getAnimationValue()), getHeight(),
                 16f, 0f,

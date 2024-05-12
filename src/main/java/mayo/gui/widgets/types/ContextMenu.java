@@ -7,7 +7,6 @@ import mayo.gui.widgets.Widget;
 import mayo.model.GeometryHelper;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
-import mayo.render.texture.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
 import mayo.utils.Maths;
@@ -21,7 +20,7 @@ import java.util.function.Consumer;
 
 public class ContextMenu extends PopupWidget {
 
-    private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/context_menu.png"));
+    private static final Resource TEXTURE = new Resource("textures/gui/widgets/context_menu.png");
     private static final int DIVIDER_HEIGHT = 5;
 
     private final List<ContextButton> actions = new ArrayList<>();
@@ -101,7 +100,7 @@ public class ContextMenu extends PopupWidget {
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //render background
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE.getID(),
+                VertexConsumer.GUI, matrices, TEXTURE,
                 getX() - 1, getY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,
@@ -112,11 +111,11 @@ public class ContextMenu extends PopupWidget {
 
     private static void renderBackground(MatrixStack matrices, int x, int y, int width, int height, boolean hover, int index) {
         //bg
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, x, y, width, height, (index % 2) * 16, 16f, 16, 16, 32, 35), TEXTURE.getID());
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, x, y, width, height, (index % 2) * 16, 16f, 16, 16, 32, 35), TEXTURE);
 
         //hover
         if (hover) UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE.getID(),
+                VertexConsumer.GUI, matrices, TEXTURE,
                 x, y,
                 width, height,
                 16f, 0f,
@@ -175,7 +174,7 @@ public class ContextMenu extends PopupWidget {
             ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), false, index);
 
             UIHelper.horizontalQuad(
-                    VertexConsumer.GUI, matrices, TEXTURE.getID(),
+                    VertexConsumer.GUI, matrices, TEXTURE,
                     getX() + 1, Math.round(getCenterY() - 1.5f),
                     getWidth() - 2, 3,
                     0f, 32f,

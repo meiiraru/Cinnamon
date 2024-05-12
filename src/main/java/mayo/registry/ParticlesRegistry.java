@@ -1,5 +1,6 @@
 package mayo.registry;
 
+import mayo.render.texture.SpriteTexture;
 import mayo.render.texture.Texture;
 import mayo.utils.Resource;
 
@@ -15,30 +16,17 @@ public enum ParticlesRegistry {
     STEAM("textures/particles/steam.png", 5, 1),
     TEXT(null);
 
-    public final Resource resource;
-    private final int hFrames, vFrames;
-    private Texture texture;
+    private final SpriteTexture texture;
 
     ParticlesRegistry(String texture) {
         this(texture, 1, 1);
     }
 
     ParticlesRegistry(String texture, int hFrames, int vFrames) {
-        this.resource = texture == null ? null : new Resource(texture);
-        this.hFrames = hFrames;
-        this.vFrames = vFrames;
+        this.texture = texture == null ? null : new SpriteTexture(new Resource(texture), hFrames, vFrames);
     }
 
-    public void loadTexture() {
-        this.texture = Texture.of(resource, hFrames, vFrames);
-    }
-
-    public Texture getTexture() {
+    public SpriteTexture getTexture() {
         return texture;
-    }
-
-    public static void loadAllTextures() {
-        for (ParticlesRegistry particle : values())
-            particle.loadTexture();
     }
 }

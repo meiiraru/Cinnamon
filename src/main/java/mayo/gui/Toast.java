@@ -4,7 +4,6 @@ import mayo.Client;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
-import mayo.render.texture.Texture;
 import mayo.text.Text;
 import mayo.utils.*;
 
@@ -23,7 +22,7 @@ public class Toast {
             ANIM = 5,
             PADDING = 6,
             TOASTS_LIMIT = 5;
-    private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/toast.png"));
+    private static final Resource TEXTURE = new Resource("textures/gui/widgets/toast.png");
     private static final List<Toast> TOASTS = new ArrayList<>();
 
 
@@ -129,7 +128,7 @@ public class Toast {
         int bgHeight = this.height + PADDING;
 
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE.getID(),
+                VertexConsumer.GUI, matrices, TEXTURE,
                 Math.round(-bgWidth / 2f), 0f,
                 bgWidth, bgHeight,
                 type.ordinal() * 16f, 0f,

@@ -9,7 +9,6 @@ import mayo.gui.widgets.types.Button;
 import mayo.gui.widgets.types.Label;
 import mayo.model.GeometryHelper;
 import mayo.render.MatrixStack;
-import mayo.render.texture.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Style;
 import mayo.text.Text;
@@ -101,7 +100,7 @@ public class MainMenu extends Screen {
 
     private static class MainButton extends Button {
 
-        protected static final Texture LINE = Texture.of(new Resource("textures/gui/widgets/main_menu/line.png"));
+        protected static final Resource LINE = new Resource("textures/gui/widgets/main_menu/line.png");
 
         private float hoverX = -40f;
 
@@ -134,14 +133,14 @@ public class MainMenu extends Screen {
             VertexConsumer.GUI.consume(GeometryHelper.quad(
                     matrices, getCenterX() - 64, getY(),
                     128, 32
-            ), LINE.getID());
+            ), LINE);
 
             matrices.pop();
         }
     }
 
     private static class Star extends Widget implements Tickable {
-        private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/main_menu/star.png"));
+        private static final Resource TEXTURE = new Resource("textures/gui/widgets/main_menu/star.png");
 
         private final Animation2D translate, rotate;
 
@@ -168,7 +167,7 @@ public class MainMenu extends Screen {
                     matrices,
                     getX(), getY(),
                     getWidth(), getHeight()
-            ), TEXTURE.getID());
+            ), TEXTURE);
 
             matrices.pop();
         }

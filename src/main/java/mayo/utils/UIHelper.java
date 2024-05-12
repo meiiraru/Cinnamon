@@ -8,7 +8,6 @@ import mayo.gui.widgets.Widget;
 import mayo.model.Vertex;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
-import mayo.render.texture.Texture;
 import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
@@ -21,19 +20,19 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class UIHelper {
 
-    private static final Texture TOOLTIP = Texture.of(new Resource("textures/gui/widgets/tooltip.png"));
+    private static final Resource TOOLTIP = new Resource("textures/gui/widgets/tooltip.png");
     public static final Colors ACCENT = Colors.PURPLE;
 
     private static final Stack<Region2D> SCISSORS_STACK = new Stack<>();
 
-    public static void renderBackground(MatrixStack matrices, int width, int height, float delta, Texture... background) {
+    public static void renderBackground(MatrixStack matrices, int width, int height, float delta, Resource... background) {
         Client c = Client.getInstance();
         float speed = 0.125f;
         int textureSize = 64;
         width += textureSize;
         height += textureSize;
 
-        for (Texture texture : background) {
+        for (Resource res : background) {
             float x = 0, y = 0;
             float d = (c.ticks + delta) * speed;
 
@@ -50,7 +49,7 @@ public class UIHelper {
                     -999,
                     0f, u1,
                     0f, v1
-            ), texture.getID());
+            ), res);
 
             speed *= 2f;
         }
@@ -69,16 +68,16 @@ public class UIHelper {
         return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
     }
 
-    public static void nineQuad(VertexConsumer consumer, MatrixStack matrices, int textureID, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
+    public static void nineQuad(VertexConsumer consumer, MatrixStack matrices, Resource texture, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
         for (Vertex[] vertices : nineQuad(matrices, x, y, width, height, u, v, regionWidth, regionHeight, textureWidth, textureHeight))
-            consumer.consume(vertices, textureID);
+            consumer.consume(vertices, texture);
     }
 
-    public static void nineQuad(VertexConsumer consumer, MatrixStack matrices, int textureID, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight, int color) {
+    public static void nineQuad(VertexConsumer consumer, MatrixStack matrices, Resource texture, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight, int color) {
         for (Vertex[] vertices : nineQuad(matrices, x, y, width, height, u, v, regionWidth, regionHeight, textureWidth, textureHeight)) {
             for (Vertex vertex : vertices)
                 vertex.color(color);
-            consumer.consume(vertices, textureID);
+            consumer.consume(vertices, texture);
         }
     }
 
@@ -133,16 +132,16 @@ public class UIHelper {
         }
     }
 
-    public static void horizontalQuad(VertexConsumer consumer, MatrixStack matrices, int textureID, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
+    public static void horizontalQuad(VertexConsumer consumer, MatrixStack matrices, Resource texture, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
         for (Vertex[] vertices : horizontalQuad(matrices, x, y, width, height, u, v, regionWidth, regionHeight, textureWidth, textureHeight))
-            consumer.consume(vertices, textureID);
+            consumer.consume(vertices, texture);
     }
 
-    public static void horizontalQuad(VertexConsumer consumer, MatrixStack matrices, int textureID, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight, int color) {
+    public static void horizontalQuad(VertexConsumer consumer, MatrixStack matrices, Resource texture, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight, int color) {
         for (Vertex[] vertices : horizontalQuad(matrices, x, y, width, height, u, v, regionWidth, regionHeight, textureWidth, textureHeight)) {
             for (Vertex vertex : vertices)
                 vertex.color(color);
-            consumer.consume(vertices, textureID);
+            consumer.consume(vertices, texture);
         }
     }
 
@@ -158,16 +157,16 @@ public class UIHelper {
         return vertices;
     }
 
-    public static void verticalQuad(VertexConsumer consumer, MatrixStack matrices, int textureID, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
+    public static void verticalQuad(VertexConsumer consumer, MatrixStack matrices, Resource texture, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight) {
         for (Vertex[] vertices : verticalQuad(matrices, x, y, width, height, u, v, regionWidth, regionHeight, textureWidth, textureHeight))
-            consumer.consume(vertices, textureID);
+            consumer.consume(vertices, texture);
     }
 
-    public static void verticalQuad(VertexConsumer consumer, MatrixStack matrices, int textureID, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight, int color) {
+    public static void verticalQuad(VertexConsumer consumer, MatrixStack matrices, Resource texture, float x, float y, float width, float height, float u, float v, int regionWidth, int regionHeight, int textureWidth, int textureHeight, int color) {
         for (Vertex[] vertices : verticalQuad(matrices, x, y, width, height, u, v, regionWidth, regionHeight, textureWidth, textureHeight)) {
             for (Vertex vertex : vertices)
                 vertex.color(color);
-            consumer.consume(vertices, textureID);
+            consumer.consume(vertices, texture);
         }
     }
 
@@ -222,16 +221,14 @@ public class UIHelper {
         matrices.push();
         matrices.translate(x, 0, 998f);
 
-        int texID = TOOLTIP.getID();
-
         //render arrow
-        VertexConsumer.GUI.consume(quad(matrices, lefty ? w + 4f : -2, wcy - 8, 2, 16, lefty ? 18f : 16f, 0f, 2, 16, 20, 16), texID);
+        VertexConsumer.GUI.consume(quad(matrices, lefty ? w + 4f : -2, wcy - 8, 2, 16, lefty ? 18f : 16f, 0f, 2, 16, 20, 16), TOOLTIP);
 
         //move matrices on y
         matrices.translate(0, y, 0);
 
         //render background
-        nineQuad(VertexConsumer.GUI, matrices, texID, 0f, 0f, w + 4f, h + 4f, 0f, 0f, 16, 16, 20, 16);
+        nineQuad(VertexConsumer.GUI, matrices, TOOLTIP, 0f, 0f, w + 4f, h + 4f, 0f, 0f, 16, 16, 20, 16);
 
         //render text
         font.render(VertexConsumer.FONT, matrices, 2, 2, tooltip);

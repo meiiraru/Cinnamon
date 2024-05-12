@@ -1,20 +1,19 @@
 package mayo.gui.widgets.types;
 
 import mayo.gui.widgets.AlignedWidget;
-import mayo.utils.Alignment;
 import mayo.gui.widgets.SelectableWidget;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
-import mayo.render.texture.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
+import mayo.utils.Alignment;
 import mayo.utils.Resource;
 import mayo.utils.TextUtils;
 import mayo.utils.UIHelper;
 
 public class Label extends SelectableWidget implements AlignedWidget {
 
-    private static final Texture HOVER_TEXTURE = Texture.of(new Resource("textures/gui/widgets/label.png"));
+    private static final Resource HOVER_TEXTURE = new Resource("textures/gui/widgets/label.png");
 
     private final Font font;
     private Text text;
@@ -36,7 +35,7 @@ public class Label extends SelectableWidget implements AlignedWidget {
 
     protected void renderHover(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, HOVER_TEXTURE.getID(),
+                VertexConsumer.GUI, matrices, HOVER_TEXTURE,
                 getAlignedX() - 1, getY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,

@@ -6,7 +6,6 @@ import mayo.gui.widgets.SelectableWidget;
 import mayo.model.GeometryHelper;
 import mayo.model.Vertex;
 import mayo.render.MatrixStack;
-import mayo.render.texture.Texture;
 import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
@@ -21,7 +20,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Slider extends SelectableWidget {
 
-    private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/slider.png"));
+    private static final Resource TEXTURE = new Resource("textures/gui/widgets/slider.png");
 
     private float value = 0f;
     private int steps = 1;
@@ -72,24 +71,23 @@ public class Slider extends SelectableWidget {
         int right = Math.round((width * (1 - val)) + 4);
 
         int v = state * 4;
-        int id = TEXTURE.getID();
 
         //left
-        renderHorizontalBar(matrices, x, y, left, 0f, v, id, -1);
-        renderHorizontalBar(matrices, x, y, left, 0f, 12f, id, color);
+        renderHorizontalBar(matrices, x, y, left, 0f, v, -1);
+        renderHorizontalBar(matrices, x, y, left, 0f, 12f, color);
 
         //right
-        renderHorizontalBar(matrices, x + width + 8 - right, y, right, 9f, v, id, -1);
+        renderHorizontalBar(matrices, x + width + 8 - right, y, right, 9f, v, -1);
 
         //steps
         renderSteps(matrices, x, y, width, 3, 4, state * 3f + 9f, 12f);
 
         //button
-        renderButton(matrices, x + left - 4, y - 2, state, id);
+        renderButton(matrices, x + left - 4, y - 2, state);
     }
 
-    protected void renderHorizontalBar(MatrixStack matrices, int x, int y, int width, float u, float v, int id, int color) {
-        UIHelper.horizontalQuad(VertexConsumer.GUI, matrices, id,
+    protected void renderHorizontalBar(MatrixStack matrices, int x, int y, int width, float u, float v, int color) {
+        UIHelper.horizontalQuad(VertexConsumer.GUI, matrices, TEXTURE,
                 x, y, width, 4,
                 u, v,
                 9, 4,
@@ -109,24 +107,23 @@ public class Slider extends SelectableWidget {
         int down = Math.round((height * (1 - val)) + 4);
 
         int u = state * 4 + 18;
-        int id = TEXTURE.getID();
 
         //up
-        renderVerticalBar(matrices, x, y, up, u, 0f, id, -1);
-        renderVerticalBar(matrices, x, y, up, 30f, 0f, id, color);
+        renderVerticalBar(matrices, x, y, up, u, 0f, -1);
+        renderVerticalBar(matrices, x, y, up, 30f, 0f, color);
 
         //down
-        renderVerticalBar(matrices, x, y + height + 8 - down, down, u, 9f, id, -1);
+        renderVerticalBar(matrices, x, y + height + 8 - down, down, u, 9f, -1);
 
         //steps
         renderSteps(matrices, x, y, height, 4, 3, 30f, state * 3f + 9f);
 
         //button
-        renderButton(matrices, x - 2, y + up - 4, state, id);
+        renderButton(matrices, x - 2, y + up - 4, state);
     }
 
-    protected void renderVerticalBar(MatrixStack matrices, int x, int y, int height, float u, float v, int id, int color) {
-        UIHelper.verticalQuad(VertexConsumer.GUI, matrices, id,
+    protected void renderVerticalBar(MatrixStack matrices, int x, int y, int height, float u, float v, int color) {
+        UIHelper.verticalQuad(VertexConsumer.GUI, matrices, TEXTURE,
                 x, y, 4, height,
                 u, v,
                 4, 9,
@@ -139,7 +136,6 @@ public class Slider extends SelectableWidget {
         if (steps <= 1)
             return;
 
-        int id = TEXTURE.getID();
         boolean vertical = isVertical();
         int x2 = x;
         int y2 = y;
@@ -154,18 +150,18 @@ public class Slider extends SelectableWidget {
                     u, v,
                     width, height,
                     34, 26
-            ), id);
+            ), TEXTURE);
         }
     }
 
-    protected void renderButton(MatrixStack matrices, int x, int y, int state, int id) {
+    protected void renderButton(MatrixStack matrices, int x, int y, int state) {
         //button
         VertexConsumer.GUI.consume(GeometryHelper.quad(
                 matrices, x, y, 8, 8,
                 state * 8, 18f,
                 8, 8,
                 34, 26
-        ), id);
+        ), TEXTURE);
 
         //color
         Vertex[] vertices = GeometryHelper.quad(
@@ -177,7 +173,7 @@ public class Slider extends SelectableWidget {
         for (Vertex vertex : vertices)
             vertex.color(color);
 
-        VertexConsumer.GUI.consume(vertices, id);
+        VertexConsumer.GUI.consume(vertices, TEXTURE);
     }
 
     @Override

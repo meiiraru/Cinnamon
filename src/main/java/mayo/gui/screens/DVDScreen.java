@@ -6,7 +6,6 @@ import mayo.gui.Toast;
 import mayo.model.GeometryHelper;
 import mayo.model.Vertex;
 import mayo.render.MatrixStack;
-import mayo.render.texture.Texture;
 import mayo.render.batch.VertexConsumer;
 import mayo.text.Text;
 import mayo.utils.Colors;
@@ -16,7 +15,7 @@ import org.joml.Vector2f;
 
 public class DVDScreen extends ParentedScreen {
 
-    private static final Texture DVD_TEX = Texture.of(new Resource("textures/gui/widgets/dvd.png"));
+    private static final Resource DVD_TEX = new Resource("textures/gui/widgets/dvd.png");
     private static final int w = 58, h = 40;
     private static final float speed = 2f;
 
@@ -95,7 +94,7 @@ public class DVDScreen extends ParentedScreen {
         Vertex[] vertices = GeometryHelper.quad(matrices, p.x, p.y, w, h);
         for (Vertex vertex : vertices)
             vertex.color(color.rgba);
-        VertexConsumer.GUI.consume(vertices, DVD_TEX.getID());
+        VertexConsumer.GUI.consume(vertices, DVD_TEX);
 
         //render children on top
         super.render(matrices, mouseX, mouseY, delta);

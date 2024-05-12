@@ -3,7 +3,6 @@ package mayo.gui.widgets;
 import mayo.Client;
 import mayo.gui.widgets.types.Scrollbar;
 import mayo.render.MatrixStack;
-import mayo.render.texture.Texture;
 import mayo.render.Window;
 import mayo.render.batch.VertexConsumer;
 import mayo.utils.Alignment;
@@ -17,7 +16,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public class WidgetList extends ContainerGrid {
 
-    private static final Texture TEXTURE = Texture.of(new Resource("textures/gui/widgets/list.png"));
+    private static final Resource TEXTURE = new Resource("textures/gui/widgets/list.png");
 
     private final List<Widget> widgetsToRender = new ArrayList<>();
 
@@ -63,7 +62,7 @@ public class WidgetList extends ContainerGrid {
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //render background
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE.getID(),
+                VertexConsumer.GUI, matrices, TEXTURE,
                 getAlignedX() - 1, getY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,
