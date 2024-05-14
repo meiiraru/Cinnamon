@@ -46,9 +46,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL11.glViewport;
 
 public class WorldClient extends World {
 
@@ -335,7 +333,7 @@ public class WorldClient extends World {
 
     protected void renderShadowBuffer(int x, int y, int size) {
         glViewport(x, y, size, size);
-        Blit.copy(shadowBuffer, Framebuffer.DEFAULT_FRAMEBUFFER.id(), Shaders.DEPTH_BLIT.getShader(), Blit.DEPTH_ONLY_UNIFORM);
+        Blit.copy(shadowBuffer, Framebuffer.DEFAULT_FRAMEBUFFER.id(), Shaders.DEPTH_BLIT.getShader(), Blit.DEPTH_UNIFORM);
         Framebuffer.DEFAULT_FRAMEBUFFER.adjustViewPort();
     }
 
@@ -407,43 +405,23 @@ public class WorldClient extends World {
         s.setColor("ambient", 0x888888);//Chunk.ambientLight);
 
         s.setInt("lightCount", lights.size());
-        for (int i = 0; i < lights.size(); i++) {
+        for (int i = 0; i < lights.size(); i++)
             lights.get(i).pushToShader(s, i);
-        }
     }
 
     public void applySkyboxUniforms(Shader s) {
-        //last available texture
+        //last available texture - shadow map
         int id = Texture.MAX_TEXTURES - 1;
-
         s.setMat3("cubemapRotation", skyBox.getSkyRotation());
-
-        s.setInt("irradianceMap", --id);
-        glActiveTexture(GL_TEXTURE0 + id);
-        skyBox.type.bindIrradiance();
-
-        s.setInt("prefilterMap", --id);
-        glActiveTexture(GL_TEXTURE0 + id);
-        skyBox.type.bindPrefilter();
-
-        s.setInt("brdfLUT", --id);
-        glActiveTexture(GL_TEXTURE0 + id);
-        skyBox.type.bindLUT();
-
-        glActiveTexture(GL_TEXTURE0);
+        s.setTexture("irradianceMap", skyBox.type.getIrradiance(), --id);
+        s.setTexture("prefilterMap", skyBox.type.getPrefilter(), --id);
+        s.setTexture("brdfLUT", SkyBox.Type.LUT_MAP, --id);
     }
 
     public void applyShadowUniforms(Shader s) {
-        int id = Texture.MAX_TEXTURES;
-
         s.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         s.setVec3("shadowDir", skyBox.getSunDirection());
-
-        s.setInt("shadowMap", --id);
-        glActiveTexture(GL_TEXTURE0 + id);
-        glBindTexture(GL_TEXTURE_2D, shadowBuffer.getDepthBuffer());
-
-        glActiveTexture(GL_TEXTURE0);
+        s.setTexture("shadowMap", shadowBuffer.getDepthBuffer(), Texture.MAX_TEXTURES - 1);
     }
 
     public PostProcess getActivePostProcess() {

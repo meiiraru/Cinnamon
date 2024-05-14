@@ -9,12 +9,13 @@ import mayo.render.shader.Shader;
 import mayo.render.texture.CubeMap;
 import mayo.render.texture.HDRTexture;
 import mayo.render.texture.IBLMap;
+import mayo.render.texture.Texture;
 import mayo.utils.Resource;
 import mayo.utils.Rotation;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.glDepthMask;
 
 public class SkyBox {
 
@@ -45,7 +46,7 @@ public class SkyBox {
     private void renderSky() {
         //render model
         Shader.activeShader.setMat3("rotation", skyRotation);
-        type.bindTexture();
+        Shader.activeShader.setTexture("skybox", type.getTexture(), 0);
         glDepthMask(false);
         SimpleGeometry.INVERTED_CUBE.render();
         glDepthMask(true);
@@ -96,7 +97,7 @@ public class SkyBox {
         TEST,
         HDR_TEST(true);
 
-        private static final int LUT_MAP = IBLMap.brdfLUT(512);
+        public static final Texture LUT_MAP = IBLMap.brdfLUT(512);
         private final boolean hdr;
         private CubeMap texture, irradiance, prefilter;
 
@@ -136,20 +137,16 @@ public class SkyBox {
             prefilter.free();
         }
 
-        public void bindTexture() {
-            texture.bind();
+        public CubeMap getTexture() {
+            return texture;
         }
 
-        public void bindIrradiance() {
-            irradiance.bind();
+        public CubeMap getIrradiance() {
+            return irradiance;
         }
 
-        public void bindPrefilter() {
-            prefilter.bind();
-        }
-
-        public void bindLUT() {
-            glBindTexture(GL_TEXTURE_2D, LUT_MAP);
+        public CubeMap getPrefilter() {
+            return prefilter;
         }
     }
 }

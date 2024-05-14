@@ -8,15 +8,15 @@ in vec2 texCoords;
 
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
+uniform sampler2D colorTex;
 uniform vec2 textelSize;
 
 void main() {
-    vec4 center = texture(screenTexture, texCoords);
-    vec4 left   = texture(screenTexture, texCoords - vec2(textelSize.x, 0.0f));
-    vec4 right  = texture(screenTexture, texCoords + vec2(textelSize.x, 0.0f));
-    vec4 up     = texture(screenTexture, texCoords - vec2(0.0f, textelSize.y));
-    vec4 down   = texture(screenTexture, texCoords + vec2(0.0f, textelSize.y));
+    vec4 center = texture(colorTex, texCoords);
+    vec4 left   = texture(colorTex, texCoords - vec2(textelSize.x, 0.0f));
+    vec4 right  = texture(colorTex, texCoords + vec2(textelSize.x, 0.0f));
+    vec4 up     = texture(colorTex, texCoords - vec2(0.0f, textelSize.y));
+    vec4 down   = texture(colorTex, texCoords + vec2(0.0f, textelSize.y));
 
     vec4 leftDiff  = center - left;
     vec4 rightDiff = center - right;

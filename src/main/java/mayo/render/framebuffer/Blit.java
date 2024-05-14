@@ -14,17 +14,18 @@ import static org.lwjgl.opengl.GL30.glBindFramebuffer;
 public class Blit {
 
     public static BiFunction<Framebuffer, Shader, Integer>
-            DEPTH_ONLY_UNIFORM = (fb, s) -> {
-                s.setInt("depthTexture", 0);
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, fb.getDepthBuffer());
+            DEPTH_UNIFORM = (fb, s) -> {
+                s.setTexture("depthTex", fb.getDepthBuffer(), 0);
                 return 1;
             },
-            SCREEN_TEX_ONLY_UNIFORM = (fb, s) -> {
-                s.setInt("screenTexture", 0);
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, fb.getColorBuffer());
+            COLOR_UNIFORM = (fb, s) -> {
+                s.setTexture("colorTex", fb.getColorBuffer(), 0);
                 return 1;
+            },
+            COLOR_AND_DEPTH_UNIFORM = (fb, s) -> {
+                s.setTexture("colorTex", fb.getColorBuffer(), 0);
+                s.setTexture("depthTex", fb.getDepthBuffer(), 1);
+                return 2;
             };
 
     public static void copy(Framebuffer source, int targetFramebufferID, PostProcess postProcess) {

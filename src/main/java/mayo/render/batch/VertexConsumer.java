@@ -54,4 +54,9 @@ public enum VertexConsumer {
         for (VertexConsumer consumer : VertexConsumer.values())
             consumer.finishBatch(shader);
     }
+
+    public static void freeBatches() {
+        for (VertexConsumer consumer : VertexConsumer.values())
+            consumer.renderer.free();
+    }
 }

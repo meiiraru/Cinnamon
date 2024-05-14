@@ -1,6 +1,7 @@
 package mayo.render.shader;
 
 import mayo.render.MatrixStack;
+import mayo.render.texture.Texture;
 import mayo.utils.ColorUtils;
 import mayo.utils.IOUtils;
 import mayo.utils.Resource;
@@ -189,8 +190,16 @@ public class Shader {
         this.setVec3(name, ColorUtils.intToRGB(color));
     }
 
-    public void setColorRGBA(String name, int color) {
-        this.setVec4(name, ColorUtils.intToRGBA(color));
+    public void setColorRGBA(String name, int colorARGB) {
+        this.setVec4(name, ColorUtils.argbIntToRGBA(colorARGB));
+    }
+
+    public void setTexture(String name, Texture texture, int index) {
+        this.setInt(name, texture.bind(index));
+    }
+
+    public void setTexture(String name, int texture, int index) {
+        this.setInt(name, Texture.bind(texture, index));
     }
 
     // -- common functions -- //

@@ -8,12 +8,12 @@ in vec2 texCoords;
 
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
+uniform sampler2D colorTex;
 uniform vec2 resolution;
 uniform float factor;
 
 void main() {
     vec2 screenSize = resolution / factor;
     vec2 coords = floor(texCoords * screenSize) / screenSize;
-    fragColor = texture(screenTexture, coords);
+    fragColor = texture(colorTex, coords);
 }

@@ -114,9 +114,14 @@ public class Texture {
         return new Texture(id);
     }
 
-    public static void unbindTex(int index) {
+    public static int bind(int id, int index) {
         glActiveTexture(GL_TEXTURE0 + index);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_2D, id);
+        return index;
+    }
+
+    public static void unbindTex(int index) {
+        bind(0, index);
     }
 
     public static void unbindAll() {
@@ -143,8 +148,8 @@ public class Texture {
     // -- getters -- //
 
 
-    public void bind() {
-        glBindTexture(GL_TEXTURE_2D, this.ID);
+    public int bind(int index) {
+        return bind(this.ID, index);
     }
 
     public int getID() {

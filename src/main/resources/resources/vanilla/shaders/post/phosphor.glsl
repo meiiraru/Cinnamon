@@ -8,12 +8,12 @@ in vec2 texCoords;
 
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
-uniform sampler2D prevTexture;
-uniform vec3 phosphor;
+uniform sampler2D colorTex;
+uniform sampler2D prevColorTex;
+uniform float phosphor;
 
 void main() {
-    vec4 currTex = texture(screenTexture, texCoords);
-    vec4 prevTex = texture(prevTexture, texCoords);
-    fragColor = vec4(max(prevTex.rgb * phosphor, currTex.rgb), 1.0f);
+    vec4 currTex = texture(colorTex, texCoords);
+    vec4 prevTex = texture(prevColorTex, texCoords);
+    fragColor = max(prevTex * phosphor, currTex);
 }

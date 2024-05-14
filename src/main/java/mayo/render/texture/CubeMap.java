@@ -100,14 +100,19 @@ public class CubeMap extends Texture {
         CUBEMAP_MAP.clear();
     }
 
-    public static void unbindTex(int index) {
+    public static int bind(int id, int index) {
         glActiveTexture(GL_TEXTURE0 + index);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+        return index;
+    }
+
+    public static void unbindTex(int index) {
+        bind(0, index);
     }
 
     @Override
-    public void bind() {
-        glBindTexture(GL_TEXTURE_CUBE_MAP, getID());
+    public int bind(int index) {
+        return bind(getID(), index);
     }
 
     public enum Face {

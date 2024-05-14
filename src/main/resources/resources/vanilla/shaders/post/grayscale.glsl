@@ -8,10 +8,10 @@ in vec2 texCoords;
 
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
+uniform sampler2D colorTex;
 
 void main() {
-    float brightness = dot(texture(screenTexture, texCoords).rgb, vec3(0.2126f, 0.7152f, 0.0722f));
+    float brightness = dot(texture(colorTex, texCoords).rgb, vec3(0.2126f, 0.7152f, 0.0722f));
     brightness = pow(brightness, 1.0f / 2.2f);
     fragColor = vec4(vec3(brightness), 1.0f);
 }

@@ -7,61 +7,65 @@ import mayo.utils.Resource;
 
 import java.util.function.BiFunction;
 
-import static mayo.render.framebuffer.Blit.SCREEN_TEX_ONLY_UNIFORM;
+import static mayo.render.framebuffer.Blit.COLOR_UNIFORM;
+import static mayo.render.framebuffer.Framebuffer.DEFAULT_FRAMEBUFFER;
 import static org.lwjgl.glfw.GLFW.glfwGetTime;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.*;
 
 public enum PostProcess {
 
-    BLIT(SCREEN_TEX_ONLY_UNIFORM),
-    HDR(SCREEN_TEX_ONLY_UNIFORM),
-    INVERT(SCREEN_TEX_ONLY_UNIFORM),
+    //specials
+    BLIT(COLOR_UNIFORM),
+    HDR(COLOR_UNIFORM),
+
+    //effects
+    INVERT(COLOR_UNIFORM),
     BLUR((fb, s) -> {
         s.setVec2("textelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
         s.setVec2("dir", 1f, 1f);
         s.setFloat("radius", 5f);
-        return SCREEN_TEX_ONLY_UNIFORM.apply(fb, s);
+        return COLOR_UNIFORM.apply(fb, s);
     }),
     EDGES((fb, s) -> {
         s.setVec2("textelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
-        return SCREEN_TEX_ONLY_UNIFORM.apply(fb, s);
+        return COLOR_UNIFORM.apply(fb, s);
     }),
     CHROMATIC_ABERRATION((fb, s) -> {
         s.setVec2("textelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
         s.setFloat("intensity", 2.5f);
-        return SCREEN_TEX_ONLY_UNIFORM.apply(fb, s);
+        return COLOR_UNIFORM.apply(fb, s);
     }),
     PIXELATE((fb, s) -> {
         s.setVec2("resolution", fb.getWidth(), fb.getHeight());
         s.setFloat("factor", 8f);
-        return SCREEN_TEX_ONLY_UNIFORM.apply(fb, s);
+        return COLOR_UNIFORM.apply(fb, s);
     }),
-    GRAYSCALE(SCREEN_TEX_ONLY_UNIFORM),
+    GRAYSCALE(COLOR_UNIFORM),
     SCAN_LINE((fb, s) -> {
         s.setFloat("time", (float) glfwGetTime() * 0.01f);
         s.setFloat("density", 0.9f * fb.getHeight());
         s.setFloat("opacity", 0.3f);
-        return SCREEN_TEX_ONLY_UNIFORM.apply(fb, s);
+        return COLOR_UNIFORM.apply(fb, s);
     }),
     LENS((fb, s) -> {
         s.setVec2("distortion", -0.5f, -0.5f);
         s.setFloat("focus", 1f);
-        return SCREEN_TEX_ONLY_UNIFORM.apply(fb, s);
+        return COLOR_UNIFORM.apply(fb, s);
     }),
     LENS2(LENS.resource, (fb, s) -> {
         s.setVec2("distortion", 1f, 1f);
         s.setFloat("focus", 0.4f);
-        return SCREEN_TEX_ONLY_UNIFORM.apply(fb, s);
+        return COLOR_UNIFORM.apply(fb, s);
     }),
     MICROWAVE_SCREEN((fb, s) -> {
         s.setVec2("resolution", fb.getWidth(), fb.getHeight());
         s.setFloat("cellSize", 10f);
         s.setFloat("fill", 0.8f);
-        s.setFloat("opacity", 0.4f);
-        return SCREEN_TEX_ONLY_UNIFORM.apply(fb, s);
+        s.setFloat("opacity", 0.2f);
+        s.setVec2("borders", 1f, 2f);
+        return COLOR_UNIFORM.apply(fb, s);
     }),
-    UPSIDE_DOWN(SCREEN_TEX_ONLY_UNIFORM),
+    UPSIDE_DOWN(COLOR_UNIFORM),
     TRIPPY((fb, s) -> {
         s.setVec2("resolution", fb.getWidth(), fb.getHeight());
         s.setFloat("count", 1f);
@@ -69,40 +73,65 @@ public enum PostProcess {
         s.setFloat("waveSpeed", 10f);
         s.setFloat("waveStrength", 0.005f);
         s.setFloat("waveFrequency", 24f);
-        return SCREEN_TEX_ONLY_UNIFORM.apply(fb, s);
+        return COLOR_UNIFORM.apply(fb, s);
     }),
     KALEIDOSCOPE((fb, s) -> {
         s.setFloat("segments", 5f);
-        return SCREEN_TEX_ONLY_UNIFORM.apply(fb, s);
+        return COLOR_UNIFORM.apply(fb, s);
     }),
     BITS((fb, s) -> {
         s.setInt("bits", 2);
-        return SCREEN_TEX_ONLY_UNIFORM.apply(fb, s);
+        return COLOR_UNIFORM.apply(fb, s);
     }),
     BLOBS((fb, s) -> {
         s.setVec2("textelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
         s.setFloat("radius", 7f);
-        return SCREEN_TEX_ONLY_UNIFORM.apply(fb, s);
+        return COLOR_UNIFORM.apply(fb, s);
+    }),
+    PHOSPHOR((fb, s) -> {
+        s.setFloat("phosphor", 0.97f);
+        int i = COLOR_UNIFORM.apply(fb, s);
+        s.setTexture("prevColorTex", FB.PREVIOUS_COLOR_FRAMEBUFFER.getColorBuffer(), i++);
+        return i;
+    }, true),
+    SPEED_LINES((fb, s) -> {
+        s.setFloat("time", (float) glfwGetTime());
+        s.setFloat("speed", 5f);
+        s.setFloat("lines", 200f);
+        s.setFloat("rotationSpeed", 3f);
+        s.setFloat("intensity", 0.2f);
+        s.setFloat("maskSize", 0.5f);
+        s.setFloat("maskStrength", 0.5f);
+        s.setColor("color", -1);
+        return COLOR_UNIFORM.apply(fb, s);
     });
 
     public static final PostProcess[] EFFECTS = {
-            INVERT, BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE, SCAN_LINE,
-            LENS, LENS2, MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY, KALEIDOSCOPE, BITS, BLOBS
+            INVERT, BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE, SCAN_LINE, LENS, LENS2,
+            MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY, KALEIDOSCOPE, BITS, BLOBS, PHOSPHOR, SPEED_LINES
     };
-    private static final Framebuffer POST_FRAMEBUFFER = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
 
     private final Resource resource;
     private final BiFunction<Framebuffer, Shader, Integer> uniformFunction;
+    private final boolean usesPrevColor;
     private Shader shader;
 
     PostProcess(BiFunction<Framebuffer, Shader, Integer> uniformFunction) {
-        this.resource = new Resource("shaders/post/" + this.name().toLowerCase() + ".glsl");
-        this.uniformFunction = uniformFunction;
+        this(uniformFunction, false);
+    }
+
+    PostProcess(BiFunction<Framebuffer, Shader, Integer> uniformFunction, boolean usesPrevColor) {
+        this(null, uniformFunction, usesPrevColor);
     }
 
     PostProcess(Resource shaderSrc, BiFunction<Framebuffer, Shader, Integer> uniformFunction) {
-        this.resource = shaderSrc;
+        this(shaderSrc, uniformFunction, false);
+    }
+
+    PostProcess(Resource shaderSrc, BiFunction<Framebuffer, Shader, Integer> uniformFunction, boolean usesPrevColor) {
+        this.resource = shaderSrc == null ? new Resource("shaders/post/" + this.name().toLowerCase() + ".glsl") : shaderSrc;
         this.uniformFunction = uniformFunction;
+        this.usesPrevColor = usesPrevColor;
     }
 
     public static void free() {
@@ -134,20 +163,41 @@ public enum PostProcess {
     }
 
     public void apply(PostProcess... postProcesses) {
+        glDisable(GL_DEPTH_TEST);
+
         //prepare framebuffer
-        POST_FRAMEBUFFER.useClear();
-        POST_FRAMEBUFFER.resizeTo(Framebuffer.DEFAULT_FRAMEBUFFER);
+        FB.POST_FRAMEBUFFER.useClear();
+        FB.POST_FRAMEBUFFER.resizeTo(DEFAULT_FRAMEBUFFER);
+
+        boolean savePrevColor = this.usesPrevColor;
 
         //render post effect
-        render(Framebuffer.DEFAULT_FRAMEBUFFER);
+        render(DEFAULT_FRAMEBUFFER);
 
         //render additional post effects
         for (PostProcess postProcess : postProcesses) {
             glClear(GL_DEPTH_BUFFER_BIT);
-            postProcess.render(POST_FRAMEBUFFER);
+            postProcess.render(FB.POST_FRAMEBUFFER);
+            savePrevColor |= postProcess.usesPrevColor;
         }
 
         //blit everything back to main framebuffer
-        Blit.copy(POST_FRAMEBUFFER, Framebuffer.DEFAULT_FRAMEBUFFER.id(), BLIT);
+        Blit.copy(FB.POST_FRAMEBUFFER, DEFAULT_FRAMEBUFFER.id(), BLIT);
+
+        //if any effect uses the previous color buffer, copy buffers again
+        if (savePrevColor) {
+            FB.PREVIOUS_COLOR_FRAMEBUFFER.resizeTo(DEFAULT_FRAMEBUFFER);
+            Blit.copy(DEFAULT_FRAMEBUFFER, FB.PREVIOUS_COLOR_FRAMEBUFFER.id(), BLIT);
+            DEFAULT_FRAMEBUFFER.use();
+        }
+
+        glEnable(GL_DEPTH_TEST);
+    }
+
+    //wacky hack
+    private static final class FB {
+        private static final Framebuffer
+                POST_FRAMEBUFFER = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER),
+                PREVIOUS_COLOR_FRAMEBUFFER = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER);
     }
 }

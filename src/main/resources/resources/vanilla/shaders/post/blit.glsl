@@ -8,8 +8,8 @@ in vec2 texCoords;
 
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
+uniform sampler2D colorTex;
 
 void main() {
-    fragColor = texture(screenTexture, texCoords);
+    fragColor = texture(colorTex, texCoords);
 }

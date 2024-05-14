@@ -8,16 +8,15 @@ in vec2 texCoords;
 
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
+uniform sampler2D colorTex;
 uniform vec2 textelSize;
 uniform float intensity;
 
 void main() {
-    vec4 tex = texture(screenTexture, texCoords);
-
     vec2 offset = vec2(textelSize.x, textelSize.y) * intensity;
-    tex.r = texture(screenTexture, texCoords + offset).r;
-    tex.gb = texture(screenTexture, texCoords - offset).gb;
-
-    fragColor = tex;
+    fragColor = vec4(
+        texture(colorTex, texCoords + offset).r,
+        texture(colorTex, texCoords - offset).gb,
+        1.0f
+    );
 }

@@ -8,13 +8,13 @@ in vec2 texCoords;
 
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
+uniform sampler2D colorTex;
 uniform float time;
 uniform float density;
 uniform float opacity;
 
 void main() {
-    vec4 col4 = texture(screenTexture, texCoords);
+    vec4 col4 = texture(colorTex, texCoords);
     vec3 col = col4.rgb;
 
     float y = texCoords.y + time;

@@ -22,10 +22,8 @@ public class IBLMap {
         int id = generateEmptyMap(512, GL_LINEAR_MIPMAP_LINEAR);
 
         Shader s = Shaders.EQUIRECTANGULAR_TO_CUBEMAP.getShader().use();
-        s.setInt("equirectangularMap", 0);
+        s.setTexture("equirectangularMap", hdr, 0);
         s.setMat4("projection", CAPTURE_PROJECTION);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, hdr.getID());
 
         glViewport(0, 0, 512, 512);
         glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
@@ -50,11 +48,8 @@ public class IBLMap {
         glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 
         Shader s = Shaders.IRRADIANCE.getShader().use();
-        s.setInt("environmentMap", 0);
+        s.setTexture("environmentMap", cubemap, 0);
         s.setMat4("projection", CAPTURE_PROJECTION);
-
-        glActiveTexture(GL_TEXTURE0);
-        cubemap.bind();
 
         glViewport(0, 0, 32, 32);
         glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
@@ -74,11 +69,8 @@ public class IBLMap {
         glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
         Shader s = Shaders.PREFILTER.getShader().use();
-        s.setInt("environmentMap", 0);
+        s.setTexture("environmentMap", cubemap, 0);
         s.setMat4("projection", CAPTURE_PROJECTION);
-
-        glActiveTexture(GL_TEXTURE0);
-        cubemap.bind();
 
         glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
         int maxMipLevels = 5;
@@ -101,7 +93,7 @@ public class IBLMap {
         return new CubeMap(id);
     }
 
-    public static int brdfLUT(int size) {
+    public static Texture brdfLUT(int size) {
         int id = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, id);
 
@@ -121,7 +113,7 @@ public class IBLMap {
         SimpleGeometry.QUAD.render();
 
         Framebuffer.DEFAULT_FRAMEBUFFER.use();
-        return id;
+        return new Texture(id);
     }
 
     private static int generateEmptyMap(int size, int minFilter) {

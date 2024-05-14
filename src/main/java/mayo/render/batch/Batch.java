@@ -2,9 +2,9 @@ package mayo.render.batch;
 
 import mayo.Client;
 import mayo.model.Vertex;
-import mayo.render.texture.Texture;
 import mayo.render.shader.Attributes;
 import mayo.render.shader.Shader;
+import mayo.render.texture.Texture;
 import mayo.utils.Pair;
 import mayo.world.WorldClient;
 import org.lwjgl.BufferUtils;
@@ -15,8 +15,7 @@ import java.util.List;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+import static org.lwjgl.opengl.GL30.*;
 
 public abstract class Batch { //vertex consumer
 
@@ -67,6 +66,11 @@ public abstract class Batch { //vertex consumer
             glEnableVertexAttribArray(i);
     }
 
+    public void free() {
+        glDeleteBuffers(vboID);
+        glDeleteVertexArrays(vaoID);
+    }
+
     public void render(Shader shader) {
         if (faceCount == 0)
             return;
@@ -82,10 +86,8 @@ public abstract class Batch { //vertex consumer
         preRender(shader);
 
         //textures
-        for (int i = 0; i < textures.size(); i++) {
-            glActiveTexture(GL_TEXTURE0 + i);
-            glBindTexture(GL_TEXTURE_2D, textures.get(i));
-        }
+        for (int i = 0; i < textures.size(); i++)
+            Texture.bind(textures.get(i), i);
         shader.setIntArray("textures", TEXTURE_SLOTS);
 
         //render
@@ -94,10 +96,7 @@ public abstract class Batch { //vertex consumer
 
         //clear gl flags
         glBindVertexArray(0);
-        for (int i = textures.size() - 1; i >= 0; i--) {
-            glActiveTexture(GL_TEXTURE0 + i);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
+        Texture.unbindAll(textures.size() - 1);
 
         //clear buffers
         textures.clear();

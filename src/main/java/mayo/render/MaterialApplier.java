@@ -7,9 +7,6 @@ import mayo.render.shader.Shader;
 import mayo.render.texture.Texture;
 import mayo.utils.Resource;
 
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
-
 public class MaterialApplier {
 
     private static final Texture
@@ -64,7 +61,6 @@ public class MaterialApplier {
             tex = fallback;
         }
 
-        glActiveTexture(GL_TEXTURE0 + index);
-        tex.bind();
+        tex.bind(index);
     }
 }

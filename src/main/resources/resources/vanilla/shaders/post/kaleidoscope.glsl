@@ -8,7 +8,7 @@ in vec2 texCoords;
 
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
+uniform sampler2D colorTex;
 uniform float segments;
 
 void main() {
@@ -17,7 +17,6 @@ void main() {
     float theta = atan(normed.y / abs(normed.x));
     theta *= segments;
 
-    vec2 newUv = (vec2(r * cos(theta), r * sin(theta)) + 1.0f) / 2.0f;
-
-    fragColor = texture(screenTexture, newUv);
+    vec2 newUV = (vec2(r * cos(theta), r * sin(theta)) + 1.0f) / 2.0f;
+    fragColor = texture(colorTex, newUV);
 }

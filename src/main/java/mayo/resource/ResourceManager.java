@@ -6,6 +6,7 @@ import mayo.registry.EntityModelRegistry;
 import mayo.registry.LivingModelRegistry;
 import mayo.registry.MaterialRegistry;
 import mayo.registry.TerrainRegistry;
+import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.PostProcess;
 import mayo.render.shader.Shader;
 import mayo.render.shader.Shaders;
@@ -41,6 +42,7 @@ public class ResourceManager {
         FREE_EVENTS.add(ModelManager::free);
         FREE_EVENTS.add(MaterialManager::free);
         FREE_EVENTS.add(SkyBox.Type::freeAll);
+        FREE_EVENTS.add(VertexConsumer::freeBatches);
     }
 
     public static void init() {

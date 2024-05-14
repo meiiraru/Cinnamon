@@ -8,7 +8,7 @@ in vec2 texCoords;
 
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
+uniform sampler2D colorTex;
 uniform vec2 textelSize;
 uniform vec2 dir;
 uniform float radius;
@@ -18,7 +18,7 @@ void main() {
     float totalAlpha = 0.0f;
 
     for (float r = -radius; r <= radius; r++) {
-        vec4 sampleValue = texture(screenTexture, texCoords + textelSize * r * dir);
+        vec4 sampleValue = texture(colorTex, texCoords + textelSize * r * dir);
         totalAlpha += sampleValue.a;
         blurred += sampleValue;
     }

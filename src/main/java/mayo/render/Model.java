@@ -317,7 +317,7 @@ public class Model {
             //bind material
             int texCount;
             if (material == null || (texCount = MaterialApplier.applyMaterial(material)) == -1) {
-                Texture.MISSING.bind();
+                Texture.MISSING.bind(0);
                 texCount = 1;
             }
 

@@ -1,5 +1,7 @@
 package mayo.render.framebuffer;
 
+import mayo.render.texture.Texture;
+
 import static org.lwjgl.opengl.GL30.*;
 
 public class PBRDeferredFramebuffer extends Framebuffer {
@@ -63,16 +65,11 @@ public class PBRDeferredFramebuffer extends Framebuffer {
     }
 
     public int bindTextures() {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, gPosition);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, gAlbedo);
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, gRMAo);
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, gNormal);
-        glActiveTexture(GL_TEXTURE4);
-        glBindTexture(GL_TEXTURE_2D, gEmissive);
+        Texture.bind(gPosition, 0);
+        Texture.bind(gAlbedo, 1);
+        Texture.bind(gRMAo, 2);
+        Texture.bind(gNormal, 3);
+        Texture.bind(gEmissive, 4);
         return 5;
     }
 }

@@ -9,7 +9,7 @@ in vec2 texCoords;
 
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
+uniform sampler2D colorTex;
 uniform vec2 resolution;
 uniform float count;
 uniform float time;
@@ -21,7 +21,7 @@ void main() {
     vec2 uv = texCoords;
     uv.x += sin(uv.y * resolution.y / waveFrequency + time * waveSpeed) * waveStrength;
 
-    vec4 color = texture(screenTexture, uv);
+    vec4 color = texture(colorTex, uv);
     vec2 aspect = vec2(resolution.x / resolution.y, 1.0f);
 
     vec2 center = vec2(0.5f, 0.5f);

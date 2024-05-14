@@ -8,9 +8,9 @@ in vec2 texCoords;
 
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
+uniform sampler2D colorTex;
 
 void main() {
     vec2 uv = vec2(texCoords.x, 1.0f - texCoords.y);
-    fragColor = texture(screenTexture, uv);
+    fragColor = texture(colorTex, uv);
 }

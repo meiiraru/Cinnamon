@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static mayo.Client.LOGGER;
+
 public class BatchRenderer<T extends Batch> {
 
     private final List<Batch> batches = new ArrayList<>();
@@ -22,14 +24,24 @@ public class BatchRenderer<T extends Batch> {
                 return;
         }
 
-        Batch batch = factory.get();
-        batches.add(batch);
-        if (!batch.pushFace(vertices, textureID))
-            throw new RuntimeException("Failed to push vertices to a plain new batch");
+        Batch batch;
+        do {
+            batch = factory.get();
+            batches.add(batch);
+
+            if (batches.size() > 100)
+                LOGGER.warn("Renderer of {} has reached over 100 batches!", batch.getClass().getSimpleName());
+        } while (!batch.pushFace(vertices, textureID));
     }
 
     public void render(Shader shader) {
         for (Batch batch : batches)
             batch.render(shader);
+    }
+
+    public void free() {
+        for (Batch batch : batches)
+            batch.free();
+        batches.clear();
     }
 }

@@ -8,9 +8,9 @@ in vec2 texCoords;
 
 out vec4 fragColor;
 
-uniform sampler2D depthTexture;
+uniform sampler2D depthTex;
 
 void main() {
-    float depthValue = texture(depthTexture, texCoords).r;
+    float depthValue = texture(depthTex, texCoords).r;
     fragColor = vec4(vec3(depthValue), 1.0f);
 }

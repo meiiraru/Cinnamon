@@ -8,13 +8,13 @@ in vec2 texCoords;
 
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
+uniform sampler2D colorTex;
 
 void main() {
     const float gamma = 2.2f;
     float exposure = 1.0f;
 
-    vec3 hdrColor = texture(screenTexture, texCoords).rgb;
+    vec3 hdrColor = texture(colorTex, texCoords).rgb;
 
     //exposure tone mapping
     vec3 mapped = vec3(1.0f) - exp(-hdrColor * exposure);
