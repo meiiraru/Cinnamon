@@ -90,7 +90,7 @@ public class WorldClient extends World {
         hud.init();
 
         //tutorial toast
-        Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), client.font, 200);
+        Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), client.font, 200, Toast.ToastType.WORLD);
 
         //lights
         //rip for-loop
@@ -200,7 +200,7 @@ public class WorldClient extends World {
         renderSky(matrices, delta);
 
         if (postProcess != null)
-            postProcess.apply();
+            PostProcess.apply(postProcess);
 
         //debug shadows
         if (renderShadowMap)
@@ -564,7 +564,7 @@ public class WorldClient extends World {
 
             case GLFW_KEY_SLASH -> {
                 skyBox.type = SkyBox.Type.values()[(skyBox.type.ordinal() + 1) % SkyBox.Type.values().length];
-                Toast.addToast(Text.of(skyBox.type.name()), client.font);
+                Toast.addToast(Text.of(skyBox.type.name()), client.font, Toast.ToastType.WORLD);
             }
 
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());

@@ -79,10 +79,25 @@ public class Toast {
         TOASTS.clear();
     }
 
+    public static void clear(ToastType type) {
+        TOASTS.removeIf(toast -> toast.type == type);
+    }
+
     public enum ToastType {
         DEFAULT,
-        WARN,
-        ERROR
+        WARN(1),
+        ERROR(2),
+        WORLD;
+
+        public final int textureIndex;
+
+        ToastType() {
+            this(0);
+        }
+
+        ToastType(int textureIndex) {
+            this.textureIndex = textureIndex;
+        }
     }
 
 
@@ -131,7 +146,7 @@ public class Toast {
                 VertexConsumer.GUI, matrices, TEXTURE,
                 Math.round(-bgWidth / 2f), 0f,
                 bgWidth, bgHeight,
-                type.ordinal() * 16f, 0f,
+                type.textureIndex * 16f, 0f,
                 16, 16,
                 48, 16
         );

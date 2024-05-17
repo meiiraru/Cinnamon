@@ -180,6 +180,7 @@ public class Client {
         //ClientConnection.disconnect();
         queueTick(() -> {
             this.world = null;
+            Toast.clear(Toast.ToastType.WORLD);
             this.setScreen(new MainMenu());
         });
     }
@@ -188,6 +189,7 @@ public class Client {
         queueTick(() -> {
             ResourceManager.free();
             ResourceManager.init();
+            Toast.clearAll();
             Toast.addToast(Text.of("Reloaded assets"), font);
         });
     }

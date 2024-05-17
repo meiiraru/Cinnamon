@@ -10,7 +10,6 @@ import java.util.function.BiFunction;
 import static mayo.render.framebuffer.Blit.COLOR_UNIFORM;
 import static mayo.render.framebuffer.Framebuffer.DEFAULT_FRAMEBUFFER;
 import static org.lwjgl.glfw.GLFW.glfwGetTime;
-import static org.lwjgl.opengl.GL11.*;
 
 public enum PostProcess {
 
@@ -104,11 +103,23 @@ public enum PostProcess {
         s.setFloat("maskStrength", 0.5f);
         s.setColor("color", -1);
         return COLOR_UNIFORM.apply(fb, s);
+    }),
+    DOT_GRID((fb, s) -> {
+        s.setVec2("resolution", fb.getWidth(), fb.getHeight());
+        s.setFloat("cellSize", 12f);
+        s.setFloat("fill", 0.4f);
+        s.setFloat("opacity", 0.85f);
+        return COLOR_UNIFORM.apply(fb, s);
+    }),
+    POSTERIZE((fb, s) -> {
+        s.setInt("colorCount", 8);
+        return COLOR_UNIFORM.apply(fb, s);
     });
 
     public static final PostProcess[] EFFECTS = {
-            INVERT, BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE, SCAN_LINE, LENS, LENS2,
-            MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY, KALEIDOSCOPE, BITS, BLOBS, PHOSPHOR, SPEED_LINES
+            INVERT, BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE,
+            SCAN_LINE, LENS, LENS2, MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY,
+            KALEIDOSCOPE, BITS, POSTERIZE, BLOBS, PHOSPHOR, SPEED_LINES, DOT_GRID
     };
 
     private final Resource resource;
@@ -156,33 +167,31 @@ public enum PostProcess {
         return uniformFunction;
     }
 
-    private void render(Framebuffer framebuffer) {
-        int tex = Blit.prepareShader(framebuffer, shader, uniformFunction);
-        Blit.renderQuad();
-        Texture.unbindAll(tex);
-    }
-
-    public void apply(PostProcess... postProcesses) {
-        glDisable(GL_DEPTH_TEST);
+    public static void apply(PostProcess... postProcesses) {
+        if (postProcesses.length == 0)
+            return;
 
         //prepare framebuffer
         FB.POST_FRAMEBUFFER.useClear();
         FB.POST_FRAMEBUFFER.resizeTo(DEFAULT_FRAMEBUFFER);
 
-        boolean savePrevColor = this.usesPrevColor;
+        boolean savePrevColor = false;
 
-        //render post effect
-        render(DEFAULT_FRAMEBUFFER);
-
-        //render additional post effects
         for (PostProcess postProcess : postProcesses) {
-            glClear(GL_DEPTH_BUFFER_BIT);
-            postProcess.render(FB.POST_FRAMEBUFFER);
-            savePrevColor |= postProcess.usesPrevColor;
-        }
+            if (postProcess == null)
+                continue;
 
-        //blit everything back to main framebuffer
-        Blit.copy(FB.POST_FRAMEBUFFER, DEFAULT_FRAMEBUFFER.id(), BLIT);
+            //render post effect
+            FB.POST_FRAMEBUFFER.use();
+            int tex = Blit.prepareShader(DEFAULT_FRAMEBUFFER, postProcess.shader, postProcess.uniformFunction);
+            Blit.renderQuad();
+            Texture.unbindAll(tex);
+
+            savePrevColor |= postProcess.usesPrevColor;
+
+            //blit to main framebuffer
+            Blit.copy(FB.POST_FRAMEBUFFER, DEFAULT_FRAMEBUFFER.id(), BLIT);
+        }
 
         //if any effect uses the previous color buffer, copy buffers again
         if (savePrevColor) {
@@ -190,8 +199,6 @@ public enum PostProcess {
             Blit.copy(DEFAULT_FRAMEBUFFER, FB.PREVIOUS_COLOR_FRAMEBUFFER.id(), BLIT);
             DEFAULT_FRAMEBUFFER.use();
         }
-
-        glEnable(GL_DEPTH_TEST);
     }
 
     //wacky hack
