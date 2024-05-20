@@ -114,9 +114,17 @@ public enum PostProcess {
     POSTERIZE((fb, s) -> {
         s.setInt("colorCount", 8);
         return COLOR_UNIFORM.apply(fb, s);
+    }),
+    DITHER((fb, s) -> {
+        int i = COLOR_UNIFORM.apply(fb, s);
+        Texture t = Texture.of(new Resource("textures/shader/dither.png"));
+        s.setTexture("ditherTex", t, ++i);
+        s.setVec2("resolution", fb.getWidth(), fb.getHeight());
+        return i;
     });
 
     public static final PostProcess[] EFFECTS = {
+            DITHER,
             INVERT, BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE,
             SCAN_LINE, LENS, LENS2, MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY,
             KALEIDOSCOPE, BITS, POSTERIZE, BLOBS, PHOSPHOR, SPEED_LINES, DOT_GRID
