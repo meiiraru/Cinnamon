@@ -1,4 +1,4 @@
-package mayo.world.chunk;
+package mayo.world.worldgen;
 
 import mayo.world.World;
 

@@ -178,8 +178,16 @@ public class Shader {
         glUniformMatrix3fv(get(name), false, matrix3f.get(new float[3 * 3]));
     }
 
+    public void setMat3(String name, float... values) {
+        glUniformMatrix3fv(get(name), false, values);
+    }
+
     public void setMat4(String name, Matrix4f matrix4f) {
         glUniformMatrix4fv(get(name), false, matrix4f.get(new float[4 * 4]));
+    }
+
+    public void setMat4(String name, float... values) {
+        glUniformMatrix4fv(get(name), false, values);
     }
 
     public void setIntArray(String name, int[] array) {

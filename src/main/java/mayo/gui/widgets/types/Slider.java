@@ -258,8 +258,8 @@ public class Slider extends SelectableWidget {
 
     protected Slider selectNext(boolean backwards, int mods) {
         if (steps == 1) {
-            boolean shift = (mods & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT;
-            boolean ctrl = (mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL;
+            boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
+            boolean ctrl = (mods & GLFW_MOD_CONTROL) != 0;
             int amount = shift || ctrl ? Math.max(getMax() / (shift ? 10 : 50), 1) : 1;
             setValue(intValue + (backwards ? -amount : amount));
         } else {

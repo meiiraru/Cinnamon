@@ -188,7 +188,7 @@ public class Container extends Widget implements Tickable, GUIListener {
 
         //change selected index
         i = backwards ? i - 1 : i + 1;
-        i = (int) Maths.modulo(i, list.size());
+        i = Maths.modulo(i, list.size());
 
         //return new selected widget
         return list.get(i);

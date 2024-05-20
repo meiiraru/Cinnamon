@@ -21,7 +21,7 @@ import mayo.text.Text;
 import mayo.utils.AABB;
 import mayo.utils.Maths;
 import mayo.utils.Resource;
-import mayo.world.chunk.Chunk;
+import mayo.world.worldgen.Chunk;
 import mayo.world.collisions.Hit;
 import mayo.world.entity.Entity;
 import mayo.world.entity.living.LivingEntity;
@@ -547,18 +547,20 @@ public class WorldClient extends World {
             case GLFW_KEY_F7 -> this.timeOfTheDay -= 100;
             case GLFW_KEY_F8 -> this.timeOfTheDay += 100;
             case GLFW_KEY_F9 -> {
-                PostProcess[] values = PostProcess.EFFECTS;
-                if (this.postProcess == null) {
-                    this.postProcess = values[0];
+                boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
+                if (postProcess == null) {
+                    int i = shift ? PostProcess.EFFECTS.length - 1 : 0;
+                    postProcess = PostProcess.EFFECTS[i];
                 } else {
-                    PostProcess next = null;
-                    for (int i = 0; i < values.length; i++) {
-                        if (values[i] == this.postProcess) {
-                            next = i + 1 < values.length ? values[i + 1] : null;
+                    int i = -1;
+                    for (int j = 0; j < PostProcess.EFFECTS.length; j++) {
+                        if (PostProcess.EFFECTS[j] == postProcess) {
+                            i = j;
                             break;
                         }
                     }
-                    this.postProcess = next;
+                    i += shift ? -1 : 1;
+                    postProcess = i < 0 || i >= PostProcess.EFFECTS.length ? null : PostProcess.EFFECTS[i];
                 }
             }
 

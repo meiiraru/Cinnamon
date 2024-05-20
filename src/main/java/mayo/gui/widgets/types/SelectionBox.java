@@ -146,7 +146,7 @@ public class SelectionBox extends Button {
         if (UIHelper.isWidgetHovered(this)) {
             int i = selected;
             i += (int) Math.signum(-y);
-            i = (int) Maths.modulo(i, indexes.size());
+            i = Maths.modulo(i, indexes.size());
             select(i);
             ((ContextMenu) getPopup()).getAction(i).onRun();
             return this;

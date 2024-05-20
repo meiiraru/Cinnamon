@@ -119,6 +119,10 @@ public class Maths {
         return (a % n + n) % n;
     }
 
+    public static int modulo(int a, int n) {
+        return (a % n + n) % n;
+    }
+
     public static float ratio(float x, float min, float max) {
         return (x - min) / (max - min);
     }

@@ -372,8 +372,8 @@ public abstract class Curve {
                     nnext = Math.min(next + 1, size - 1);
                 }
 
-                Vector3f p0 = controlPoints.get((int) Maths.modulo(pprev, size));
-                Vector3f p1 = controlPoints.get((int) Maths.modulo(prev, size));
+                Vector3f p0 = controlPoints.get(Maths.modulo(pprev, size));
+                Vector3f p1 = controlPoints.get(Maths.modulo(prev, size));
                 Vector3f p2 = controlPoints.get(next % size);
                 Vector3f p3 = controlPoints.get(nnext % size);
 

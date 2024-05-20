@@ -185,7 +185,7 @@ public abstract class Screen {
 
         switch (key) {
             case GLFW_KEY_ESCAPE -> {if (closeOnEsc()) this.close();}
-            case GLFW_KEY_TAB -> focusWidget(mainContainer.selectNext(focused, (mods & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT));
+            case GLFW_KEY_TAB -> focusWidget(mainContainer.selectNext(focused, (mods & GLFW_MOD_SHIFT) != 0));
             case GLFW_KEY_UP -> focusWidget(mainContainer.selectNext(focused, true));
             case GLFW_KEY_DOWN -> focusWidget(mainContainer.selectNext(focused, false));
             default -> {return false;}
