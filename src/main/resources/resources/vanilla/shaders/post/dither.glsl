@@ -13,13 +13,14 @@ uniform sampler2D colorTex;
 uniform sampler2D ditherTex;
 uniform vec2 resolution;
 
+ivec2 ditherTexSize = textureSize(ditherTex, 0);
+float ditherSteps = ditherTexSize.x / ditherTexSize.y;
+
 float great(vec3 t) {
     return max(t.x, max(t.y, t.z));
 }
 
 void main() {
-    ivec2 ditherTexSize = textureSize(ditherTex, 0);
-    float ditherSteps = ditherTexSize.x / ditherTexSize.y;
     vec2 scrCoords = texCoords * resolution;
     vec2 uv = mod(scrCoords, vec2(16.0f, 16.0f)) / 16.0f;
 

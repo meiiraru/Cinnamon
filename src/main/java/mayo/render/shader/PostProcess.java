@@ -130,9 +130,9 @@ public enum PostProcess {
         s.setMat3("kernel", 0f, -1f, 0f, -1f, 5f, -1f, 0f, -1f, 0f);
         return KERNEL.uniformFunction.apply(fb, s);
     }),
-    REDS(LOOKUP_TEXTURE.resource, (fb, s) -> {
+    VINTAGE(LOOKUP_TEXTURE.resource, (fb, s) -> {
         int i = LOOKUP_TEXTURE.uniformFunction.apply(fb, s);
-        s.setTexture("lutTex", Texture.of(new Resource("textures/shader/lut/red.png")), ++i);
+        s.setTexture("lutTex", Texture.of(new Resource("textures/shader/lut/vintage.png")), ++i);
         s.setVec2("lutGrid", 8f, 8f);
         return i;
     });
@@ -141,7 +141,7 @@ public enum PostProcess {
             INVERT, BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE,
             SCAN_LINE, LENS, LENS2, MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY,
             KALEIDOSCOPE, BITS, POSTERIZE, BLOBS, PHOSPHOR, SPEED_LINES, DOT_GRID,
-            DITHER, SHARPEN, REDS
+            DITHER, SHARPEN, VINTAGE
     };
 
     private final Resource resource;
