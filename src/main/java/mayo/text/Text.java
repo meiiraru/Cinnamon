@@ -44,13 +44,17 @@ public class Text {
         return this;
     }
 
+    public Text append(Text text) {
+        this.children.add(text);
+        return this;
+    }
+
     public Text append(String text) {
         return this.append(Text.of(text));
     }
 
-    public Text append(Text text) {
-        this.children.add(text);
-        return this;
+    public Text append(String text, Object... args) {
+        return this.append(Text.of(String.format(text, args)));
     }
 
     public String getText() {

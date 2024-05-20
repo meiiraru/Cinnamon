@@ -29,10 +29,11 @@ import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 
 public class Hud {
 
-    private final Resource CROSSHAIR = new Resource("textures/gui/hud/crosshair.png");
-    private final Resource HOTBAR = new Resource("textures/gui/hud/hotbar.png");
-    private final Resource VIGNETTE = new Resource("textures/gui/hud/vignette.png");
-    private final Resource HIT_DIRECTION = new Resource("textures/gui/hud/hit_direction.png");
+    private static final Resource
+            CROSSHAIR = new Resource("textures/gui/hud/crosshair.png"),
+            HOTBAR = new Resource("textures/gui/hud/hotbar.png"),
+            VIGNETTE = new Resource("textures/gui/hud/vignette.png"),
+            HIT_DIRECTION = new Resource("textures/gui/hud/hit_direction.png");
 
     private ProgressBar health, itemCooldown;
 
@@ -50,10 +51,11 @@ public class Hud {
 
         //render debug text
         Style style = Style.EMPTY.shadow(true).shadowColor(Colors.DARK_GRAY);
-        c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(style));
         if (c.world.isDebugRendering()) {
-            c.font.render(VertexConsumer.FONT, matrices, 4, 4 + c.font.lineHeight * 2, Text.of(debugLeftText()).withStyle(style));
-            c.font.render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, Text.of(debugRightText()).withStyle(style), Alignment.RIGHT);
+            c.font.render(VertexConsumer.FONT, matrices, 4, 4, TextUtils.parseColorFormatting(Text.of(debugLeftText())).withStyle(style));
+            c.font.render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, TextUtils.parseColorFormatting(Text.of(debugRightText())).withStyle(style), Alignment.RIGHT);
+        } else {
+            c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(style));
         }
 
         //draw player stats
@@ -360,30 +362,34 @@ public class Hud {
         String terrain = getTargetedObjString(p.getLookingTerrain(range), range);
 
         return String.format("""
-                        [world]
-                        %s/%s entities %s/%s terrain
-                        %s/%s particles %s sounds
-                        %s light sources
-                        time %s
+                        &e%s&r fps @ &e%s&r ms
+
+                        [&bworld&r]
+                         &e%s&r/&e%s&r entities &e%s&r/&e%s&r terrain
+                         &e%s&r/&e%s&r particles &e%s&r sounds
+                         &e%s&r light sources
+                         time &e%s&r
  
-                        [player]
-                        xyz %.3f %.3f %.3f
-                        pitch %.3f yaw %.3f
-                        motion %.3f %.3f %.3f
-                        chunk %.0f %.0f %.0f
+                        [&bplayer&r]
+                         xyz &c%.3f &a%.3f &b%.3f&r
+                         pitch &e%.3f&r yaw &e%.3f&r
+                         motion &c%.3f &a%.3f &b%.3f&r
+                         chunk &c%.0f &a%.0f &b%.0f&r
 
-                        [camera]
-                        xyz %.3f %.3f %.3f
-                        pitch %.3f yaw %.3f
-                        facing %s
-                        mode %s
+                        [&bcamera&r]
+                         xyz &c%.3f &a%.3f &b%.3f&r
+                         pitch &e%.3f&r yaw &e%.3f&r
+                         facing &e%s&r
+                         mode &e%s&r
 
-                        [targeted entity]
+                        [&btargeted entity&r]
                         %s
 
-                        [targeted terrain]
+                        [&btargeted terrain&r]
                         %s
                         """,
+                c.fps, c.ms,
+
                 w.getRenderedEntities(), w.entityCount(), w.getRenderedTerrain(), w.terrainCount(),
                 w.getRenderedParticles(), w.particleCount(), soundCount,
                 w.lightCount(),
@@ -415,22 +421,22 @@ public class Hud {
         PostProcess post = Client.getInstance().world.getActivePostProcess();
 
         return String.format("""
-                [java]
-                version %s
-                mem %s%% %s/%s
-                allocated %s%% %s
+                [&bjava&r]
+                version &e%s&r\s
+                mem &e%s&r%% &e%s&r/&e%s&r\s
+                allocated &e%s&r%% &e%s&r\s
 
-                [renderer]
-                %s
-                %s
-                OpenGL %s
+                [&brenderer&r]
+                %s\s
+                %s\s
+                OpenGL &e%s&r\s
 
-                [window]
-                %s x %s
-                gui scale %s
+                [&bwindow&r]
+                &e%s&r x &e%s&r\s
+                gui scale &e%s&r\s
 
-                [post process]
-                %s
+                [&bpost process&r]
+                %s\s
                 """,
                 System.getProperty("java.version"),
                 used * 100 / max, Maths.prettyByteSize(used), Maths.prettyByteSize(max),
@@ -443,24 +449,24 @@ public class Hud {
                 w.width, w.height,
                 w.guiScale,
 
-                post == null ? "none" : post.name()
+                post == null ? "none" : "&e" + post.name() + "&r"
         );
     }
 
     private static String getTargetedObjString(Hit<? extends WorldObject> hit, float range) {
         if (hit == null)
-            return "---";
+            return " ---";
 
         Vector3f pos = hit.obj().getPos();
         Vector3f hPos = hit.pos();
         Vector3f normal = hit.collision().normal();
         float distance = range * hit.collision().near();
         return String.format("""
-                pos %.3f %.3f %.3f
-                hit pos %.3f %.3f %.3f
-                hit normal %.3f %.3f %.3f
-                hit distance %.3fm
-                type %s
+                 pos &c%.3f &a%.3f &b%.3f&r
+                 hit pos &c%.3f &a%.3f &b%.3f&r
+                 hit normal &c%.3f &a%.3f &b%.3f&r
+                 hit distance &e%.3fm&r
+                 type &e%s&r
                 """,
                 pos.x, pos.y, pos.z,
                 hPos.x, hPos.y, hPos.z,

@@ -1,6 +1,7 @@
 package mayo.utils;
 
 import mayo.render.Font;
+import mayo.text.Formatting;
 import mayo.text.Style;
 import mayo.text.Text;
 
@@ -85,6 +86,37 @@ public class TextUtils {
         clamped.append(ELLIPSIS);
 
         return clamped;
+    }
+
+    public static Text parseColorFormatting(Text text) {
+        Text result = Text.empty();
+
+        text.visit((string, style) -> {
+            String[] split = string.split(Formatting.FORMATTING_CHAR + "");
+            Text newText = Text.of(split[0]).withStyle(style);
+
+            if (split.length < 2) {
+                result.append(newText);
+                return;
+            }
+
+            for (int i = 1; i < split.length; i++) {
+                String s = split[i];
+
+                if (s.isEmpty())
+                    continue;
+
+                Formatting formatting = Formatting.byCode(s.charAt(0));
+                if (formatting != null)
+                    style = style.formatted(formatting);
+
+                newText.append(Text.of(s.substring(1)).withStyle(style));
+            }
+
+            result.append(newText);
+        }, Style.EMPTY);
+
+        return result;
     }
 
     public static int getWidth(Text text, Font font) {

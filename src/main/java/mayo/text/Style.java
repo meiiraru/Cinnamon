@@ -140,6 +140,13 @@ public class Style {
         return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
     }
 
+    public Style formatted(Formatting... formats) {
+        Style style = this;
+        for (Formatting format : formats)
+            style = format == Formatting.RESET ? EMPTY: format.style.applyParent(style);
+        return style;
+    }
+
     public Integer getColor() {
         return color;
     }

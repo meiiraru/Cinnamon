@@ -29,7 +29,7 @@ public enum Colors {
 
     Colors(int rgb) {
         this.rgb = rgb;
-        this.rgba = rgb + (0xFF << 24);
+        this.rgba = rgb | 0xFF000000;
         this.r = (rgb >> 16) & 0xFF;
         this.g = (rgb >> 8) & 0xFF;
         this.b = rgb & 0xFF;
