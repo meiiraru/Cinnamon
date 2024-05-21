@@ -31,6 +31,7 @@ public class TextField extends SelectableWidget {
     private Integer borderColor;
     private int selectedIndex = 0;
     private Consumer<String> changeListener;
+    private boolean textOnly;
 
     public TextField(int x, int y, int width, int height, Font font) {
         super(x, y, width, height);
@@ -39,9 +40,9 @@ public class TextField extends SelectableWidget {
 
     @Override
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        renderBackground(matrices, mouseX, mouseY, delta);
+        if (!textOnly) renderBackground(matrices, mouseX, mouseY, delta);
         renderText(matrices, mouseX, mouseY, delta);
-        renderOverlay(matrices, mouseX, mouseY, delta);
+        if (!textOnly) renderOverlay(matrices, mouseX, mouseY, delta);
     }
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -97,7 +98,11 @@ public class TextField extends SelectableWidget {
     }
 
     public void setHintText(String hintText) {
-        this.hintText = hintText == null ? null : Text.of(hintText).withStyle(HINT_STYLE);
+        setHintText(hintText == null ? null : Text.of(hintText));
+    }
+
+    public void setHintText(Text hintText) {
+        this.hintText = hintText == null ? null : Text.empty().withStyle(HINT_STYLE).append(hintText);
     }
 
     public void setStyle(Style style) {
@@ -126,6 +131,10 @@ public class TextField extends SelectableWidget {
 
     public void setListener(Consumer<String> changeListener) {
         this.changeListener = changeListener;
+    }
+
+    public void setTextOnly(boolean textOnly) {
+        this.textOnly = textOnly;
     }
 
     @Override

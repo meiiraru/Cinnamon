@@ -50,11 +50,12 @@ public class Hud {
         Client c = Client.getInstance();
 
         //render debug text
-        Style style = Style.EMPTY.shadow(true).shadowColor(Colors.DARK_GRAY);
         if (c.world.isDebugRendering()) {
+            Style style = Style.EMPTY.background(true);
             c.font.render(VertexConsumer.FONT, matrices, 4, 4, TextUtils.parseColorFormatting(Text.of(debugLeftText())).withStyle(style));
             c.font.render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, TextUtils.parseColorFormatting(Text.of(debugRightText())).withStyle(style), Alignment.RIGHT);
         } else {
+            Style style = Style.EMPTY.shadow(true);
             c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(style));
         }
 

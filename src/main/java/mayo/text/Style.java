@@ -143,7 +143,7 @@ public class Style {
     public Style formatted(Formatting... formats) {
         Style style = this;
         for (Formatting format : formats)
-            style = format == Formatting.RESET ? EMPTY: format.style.applyParent(style);
+            style = format == Formatting.RESET ? format.style : format.style.applyParent(style);
         return style;
     }
 

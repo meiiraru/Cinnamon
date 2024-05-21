@@ -2,6 +2,7 @@ package mayo.world;
 
 import mayo.Client;
 import mayo.gui.Toast;
+import mayo.gui.screens.ChatScreen;
 import mayo.gui.screens.DeathScreen;
 import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
@@ -540,6 +541,7 @@ public class WorldClient extends World {
                     weapon.setOnCooldown();
             }
             case GLFW_KEY_ESCAPE -> client.setScreen(new PauseScreen());
+            case GLFW_KEY_ENTER -> client.setScreen(new ChatScreen());
             case GLFW_KEY_F1 -> this.hideHUD = !this.hideHUD;
             case GLFW_KEY_F3 -> this.debugRendering = !this.debugRendering;
             case GLFW_KEY_F4 -> this.renderShadowMap = !this.renderShadowMap;

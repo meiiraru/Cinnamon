@@ -12,30 +12,32 @@ uniform sampler2D colorTex;
 uniform sampler2D lutTex;
 uniform vec2 lutGrid = vec2(8.0f);
 
-vec2 lutSize = textureSize(lutTex, 0) / lutGrid;
+vec2 cellSize = textureSize(lutTex, 0) / lutGrid;
 
 void main() {
     //original color
     vec4 color = texture(colorTex, texCoords);
 
-    //check which cell were currently in based on the blue channel
-    float blue = color.b * (lutGrid.x * lutGrid.y - 1.0f);
-    float red = color.r * (lutSize.x - 1.0f);
-    float green = color.g * (lutSize.y - 1.0f);
+    //get channels values
+    vec3 channels = vec3(
+        color.r * (cellSize.x - 1.0f),
+        color.g * (cellSize.y - 1.0f),
+        color.b * (lutGrid.x * lutGrid.y - 1.0f)
+    );
 
-    //grab floor grid position
-    vec2 cell = vec2(floor(mod(blue, lutGrid.x)), floor(blue / lutGrid.x)) * lutSize;
-    vec2 uv = (cell + floor(vec2(red, green))) / (lutGrid * lutSize);
+    //get the floor color
+    float blue2 = floor(channels.b);
+    vec2 gridPos = vec2(mod(blue2, lutGrid.x), floor(blue2 / lutGrid.x));
+    vec2 uv = (gridPos + floor(channels.rg) / cellSize) / lutGrid;
     vec3 lutColor1 = texture(lutTex, uv).rgb;
 
-    //grab ceil grid position
-    cell = vec2(floor(mod(blue + 1.0f, lutGrid.x)), floor((blue + 1.0f) / lutGrid.x)) * lutSize;
-    uv = (cell + ceil(vec2(red, green))) / (lutGrid * lutSize);
+    //get the ceil color
+    blue2 += 1.0f;
+    gridPos = vec2(mod(blue2, lutGrid.x), floor(blue2 / lutGrid.x));
+    uv = (gridPos + ceil(channels.rg) / cellSize) / lutGrid;
     vec3 lutColor2 = texture(lutTex, uv).rgb;
 
-    //get the color from the LUT
-    vec3 lutColor = mix(lutColor1, lutColor2, vec3(fract(red), fract(green), fract(blue)));
-
-    //output the color
+    //interpolate and return the color
+    vec3 lutColor = mix(lutColor1, lutColor2, fract(channels));
     fragColor = vec4(lutColor, color.a);
 }
