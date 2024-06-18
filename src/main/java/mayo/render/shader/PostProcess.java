@@ -205,7 +205,7 @@ public enum PostProcess {
 
             //render post effect
             FB.POST_FRAMEBUFFER.use();
-            int tex = Blit.prepareShader(DEFAULT_FRAMEBUFFER, postProcess.shader, postProcess.uniformFunction);
+            int tex = postProcess.uniformFunction.apply(DEFAULT_FRAMEBUFFER, postProcess.shader.use());
             Blit.renderQuad();
             Texture.unbindAll(tex);
 

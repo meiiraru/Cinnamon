@@ -116,7 +116,7 @@ public class Main {
 
         //flags
         glClearColor(1f, 1f, 1f, 1f);
-        //glEnable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE);
         glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
         glEnable(GL_BLEND);

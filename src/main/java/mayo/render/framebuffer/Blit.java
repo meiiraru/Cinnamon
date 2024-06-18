@@ -37,7 +37,7 @@ public class Blit {
         glBindFramebuffer(GL_FRAMEBUFFER, targetFramebufferID);
 
         //prepare shader
-        int textures = prepareShader(source, shader, shaderUniforms);
+        int textures = shaderUniforms.apply(source, shader.use());
 
         //draw quad
         renderQuad();
@@ -47,11 +47,6 @@ public class Blit {
 
         //unbind
         Texture.unbindAll(textures);
-    }
-
-    public static int prepareShader(Framebuffer source, Shader shader, BiFunction<Framebuffer, Shader, Integer> shaderUniforms) {
-        //prepare shader
-        return shaderUniforms.apply(source, shader.use());
     }
 
     public static void renderQuad() {

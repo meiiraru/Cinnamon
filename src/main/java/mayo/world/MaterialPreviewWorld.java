@@ -14,7 +14,6 @@ import mayo.utils.AABB;
 import mayo.utils.Alignment;
 import mayo.utils.Colors;
 import mayo.utils.Resource;
-import mayo.world.light.Light;
 import org.lwjgl.glfw.GLFW;
 
 public class MaterialPreviewWorld extends WorldClient {
@@ -39,12 +38,12 @@ public class MaterialPreviewWorld extends WorldClient {
         scheduledTicks.add(lights::clear);
         skyBox.renderSun = false;
 
-        MaterialRegistry[] values = MaterialRegistry.values();
-        int grid = (int) Math.ceil(Math.sqrt(values.length));
-
-        for (int i = 0; i < values.length; i++) {
-            addLight(new Light().pos(i % grid * 6f + 1f, 1f, (int) (i / grid * 3f) + 0.5f).color(Colors.randomRainbow().rgb));
-        }
+        //MaterialRegistry[] values = MaterialRegistry.values();
+        //int grid = (int) Math.ceil(Math.sqrt(values.length));
+        //
+        //for (int i = 0; i < values.length; i++) {
+        //    addLight(new Light().pos(i % grid * 6f + 1f, 1f, (int) (i / grid * 3f) + 0.5f).color(Colors.randomRainbow().rgb));
+        //}
     }
 
     @Override

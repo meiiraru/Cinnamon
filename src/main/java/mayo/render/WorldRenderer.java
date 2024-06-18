@@ -15,7 +15,7 @@ public class WorldRenderer {
             GEOMETRY_PASS = Shaders.GBUFFER_WORLD_PBR,
             LIGHTING_PASS = Shaders.DEFERRED_WORLD_PBR;
 
-    private static final PBRDeferredFramebuffer PBRFrameBuffer = new PBRDeferredFramebuffer(1, 1);
+    public static final PBRDeferredFramebuffer PBRFrameBuffer = new PBRDeferredFramebuffer(1, 1);
 
     public static Shader prepareGeometry() {
         PBRFrameBuffer.useClear();

@@ -78,7 +78,7 @@ public class GeometryHelper {
             //center vertex
             vertices[j] = Vertex.of(x, y, 0).color(color).mul(matrices);
             //first pos
-            vertices[j + 1] = Vertex.of(x1, y1, 0).color(color).mul(matrices);
+            vertices[j + 2] = Vertex.of(x1, y1, 0).color(color).mul(matrices);
 
             //second pos
             float a = aStep * (i + 1) + f;
@@ -94,7 +94,7 @@ public class GeometryHelper {
             }
 
             x1 = x2; y1 = y2;
-            vertices[j + 2] = Vertex.of(x1, y1, 0).color(color).mul(matrices);
+            vertices[j + 1] = Vertex.of(x1, y1, 0).color(color).mul(matrices);
         }
 
         //push to consumer

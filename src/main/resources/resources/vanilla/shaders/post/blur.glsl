@@ -10,8 +10,8 @@ out vec4 fragColor;
 
 uniform sampler2D colorTex;
 uniform vec2 textelSize;
-uniform vec2 dir;
-uniform float radius;
+uniform vec2 dir = vec2(1.0f, 1.0f);
+uniform float radius = 5.0f;
 
 void main() {
     vec4 blurred = vec4(0.0f);
