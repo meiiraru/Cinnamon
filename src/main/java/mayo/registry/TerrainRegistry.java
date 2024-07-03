@@ -9,15 +9,9 @@ import mayo.world.terrain.*;
 import java.util.function.Supplier;
 
 public enum TerrainRegistry implements Registry {
-    GRASS(Grass.class, Grass::new),
-    PILLAR(Pillar.class, Pillar::new),
-    TEAPOT(Teapot.class, Teapot::new),
-    LIGHT_POLE(LightPole.class, LightPole::new),
-    TORII_GATE(ToriiGate.class, ToriiGate::new),
-    FENCE(Fence.class, Fence::new),
-    TREE(Tree.class, Tree::new),
     BOX(Box.class, Box::new),
-    SPHERE(Sphere.class, Sphere::new);
+    SPHERE(Sphere.class, Sphere::new),
+    TEAPOT(Teapot.class, Teapot::new);
 
     private static final String MODELS_PATH = "models/terrain/";
 

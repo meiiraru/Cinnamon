@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib ice_cream_sandwich.mtl
+mtllib ice_cream_sandwich.pbr
 o cuboid
 v 0.500000 2.000000 0.187500
 v 0.500000 2.000000 -0.187500

@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib teapot.mtl
+mtllib teapot.pbr
 o Teapot01
 v 0.054179 0.442260 0.161288
 v 0.031144 0.472500 -0.016204

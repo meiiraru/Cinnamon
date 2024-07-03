@@ -1,5 +1,5 @@
 # Made in Blockbench 4.8.3
-mtllib flashlight.mtl
+mtllib flashlight.pbr
 
 o cylinder
 v -0.0018749999999999878 -5.342948306008565e-18 -0.23375000000000012

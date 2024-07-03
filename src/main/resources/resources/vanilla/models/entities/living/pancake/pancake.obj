@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib pancake.mtl
+mtllib pancake.pbr
 o butter
 v 0.437500 1.750000 -0.125000
 v -0.187500 1.750000 -0.125000

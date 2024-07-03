@@ -21,7 +21,7 @@ public class Login extends PacketWithOwner {
         server.sendToAllExceptTCP(id, new Message().msg(name + " joined the server"));
 
         //send terrain
-        server.sendToTCP(id, new SendTerrain().terrain(ServerConnection.world.getTerrain()));
+        //server.sendToTCP(id, new SendTerrain().terrain(ServerConnection.world.getTerrain()));
 
         //send entities
         server.sendToTCP(id, new SendEntities().entity(ServerConnection.world.getEntities().values()));

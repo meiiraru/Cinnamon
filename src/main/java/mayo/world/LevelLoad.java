@@ -56,7 +56,7 @@ public class LevelLoad {
                 if (terrain != null) {
                     Terrain t = terrain.getFactory().get();
                     t.setPos(tile.x + x0, tile.y + y0, tile.z + z0);
-                    world.addTerrain(t);
+                    //world.addTerrain(t);
                 }
             }
         }

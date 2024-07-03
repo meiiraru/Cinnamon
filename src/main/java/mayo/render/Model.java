@@ -114,8 +114,12 @@ public class Model {
     }
 
     public void render() {
+        render(null);
+    }
+
+    public void render(Material material) {
         for (GroupData group : groups)
-            group.render();
+            group.render(material == null ? group.material : material);
     }
 
     public void renderWithoutMaterial() {
@@ -313,7 +317,7 @@ public class Model {
             glDrawArrays(GL_TRIANGLES, 0, vertexCount);
         }
 
-        private void render() {
+        private void render(Material material) {
             //bind material
             int texCount;
             if (material == null || (texCount = MaterialApplier.applyMaterial(material)) == -1) {

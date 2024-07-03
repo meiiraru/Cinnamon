@@ -21,8 +21,8 @@ public class SendTerrain implements Packet {
     @Override
     public void clientReceived(Client client, Connection connection) {
         WorldClient world = mayo.Client.getInstance().world;
-        for (Terrain t : terrain)
-            world.addTerrain(t);
+        //for (Terrain t : terrain)
+        //    world.addTerrain(t);
     }
 
     @Override

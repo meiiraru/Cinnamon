@@ -4,6 +4,8 @@ import mayo.Client;
 import mayo.gui.widgets.types.ProgressBar;
 import mayo.model.GeometryHelper;
 import mayo.model.Vertex;
+import mayo.registry.MaterialRegistry;
+import mayo.registry.TerrainRegistry;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.Window;
@@ -20,6 +22,7 @@ import mayo.world.items.CooldownItem;
 import mayo.world.items.Inventory;
 import mayo.world.items.Item;
 import mayo.world.items.ItemRenderContext;
+import mayo.world.terrain.Terrain;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -89,6 +92,9 @@ public class Hud {
 
         //hit direction
         drawHitDirection(matrices, player, delta);
+
+        //selected terrain
+        drawSelectedTerrain(matrices, delta);
     }
 
     private void drawHealth(MatrixStack matrices, Player player, float delta) {
@@ -288,6 +294,33 @@ public class Hud {
         matrices.pop();
     }
 
+    private void drawSelectedTerrain(MatrixStack matrices, float delta) {
+        Client c = Client.getInstance();
+        WorldClient w = c.world;
+        int t = w.getSelectedTerrain();
+        int m = w.getSelectedMaterial();
+
+        matrices.push();
+        Window ww = c.window;
+        matrices.translate(ww.scaledWidth - 12.5f, 5, 0);
+        matrices.scale(15);
+        matrices.rotate(Rotation.X.rotationDeg(20));
+        matrices.rotate(Rotation.Y.rotationDeg(c.ticks + delta));
+
+        matrices.push();
+        matrices.translate(-0.5f, 0f, -0.5f);
+
+        Terrain terr = TerrainRegistry.values()[t].getFactory().get();
+        MaterialRegistry material = MaterialRegistry.values()[m];
+        terr.setMaterial(material.material);
+        terr.render(matrices, delta);
+
+        matrices.pop();
+        matrices.pop();
+
+        c.font.render(VertexConsumer.FONT, matrices, ww.scaledWidth - 4f, 25f, Text.of(material.name()).withStyle(Style.EMPTY.shadow(true)), Alignment.RIGHT);
+    }
+
     private void drawCrosshair(MatrixStack matrices, Matrix4f projMat, Matrix4f viewMat) {
         Client c = Client.getInstance();
         int w = c.window.scaledWidth;
@@ -332,11 +365,7 @@ public class Hud {
         Vector3f cpos = c.camera.getPos();
         Vector2f crot = c.camera.getRot();
 
-        Vector3f chunk = new Vector3f(
-                (int) Math.floor(epos.x / 32f),
-                (int) Math.floor(epos.y / 32f),
-                (int) Math.floor(epos.z / 32f)
-        );
+        Vector3f chunk = new Vector3f(w.getChunkGridPos(epos));
 
         String face;
         float yaw = Maths.modulo(crot.y, 360);
@@ -366,9 +395,10 @@ public class Hud {
                         &e%s&r fps @ &e%s&r ms
 
                         [&bworld&r]
-                         &e%s&r/&e%s&r entities &e%s&r/&e%s&r terrain
-                         &e%s&r/&e%s&r particles &e%s&r sounds
+                         &e%s&r/&e%s&r entities &e%s&r/&e%s&r particles
+                         &e%s&r/&e%s&r chunks &e%s&r terrain
                          &e%s&r light sources
+                         &e%s&r sounds
                          time &e%s&r
  
                         [&bplayer&r]
@@ -391,9 +421,10 @@ public class Hud {
                         """,
                 c.fps, c.ms,
 
-                w.getRenderedEntities(), w.entityCount(), w.getRenderedTerrain(), w.terrainCount(),
-                w.getRenderedParticles(), w.particleCount(), soundCount,
+                w.getRenderedEntities(), w.entityCount(), w.getRenderedParticles(), w.particleCount(),
+                w.getRenderedChunks(), w.chunkCount(), w.getRenderedTerrain(),
                 w.lightCount(),
+                soundCount,
                 w.getTime(),
 
                 epos.x, epos.y, epos.z,

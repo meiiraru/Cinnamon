@@ -13,7 +13,9 @@ import mayo.world.entity.PhysEntity;
 import mayo.world.particle.ExplosionParticle;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.Terrain;
+import mayo.world.worldgen.Chunk;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -24,14 +26,14 @@ public abstract class World {
 
     protected final Queue<Runnable> scheduledTicks = new LinkedList<>();
 
-    protected final List<Terrain> terrain = new ArrayList<>();
+    protected final Map<Vector3i, Chunk> chunks = new HashMap<>();
     protected final Map<UUID, Entity> entities = new HashMap<>();
     protected final List<Particle> particles = new ArrayList<>();
 
     public final float updateTime = 1f / Client.TPS;
     public final float gravity = 0.98f * updateTime;
 
-    public final float renderDistance = 3;
+    public final int renderDistance = 5;
     protected int timeOfTheDay = 0;
 
     public abstract void init();
@@ -45,8 +47,8 @@ public abstract class World {
         runScheduledTicks();
 
         //terrain
-        for (Terrain terrain : terrain)
-            terrain.tick();
+        for (Chunk chunk : chunks.values())
+            chunk.tick();
 
         //entities
         for (Iterator<Map.Entry<UUID, Entity>> iterator = entities.entrySet().iterator(); iterator.hasNext(); ) {
@@ -74,10 +76,22 @@ public abstract class World {
             toRun.run();
     }
 
-    public void addTerrain(Terrain terrain) {
+    public Vector3i getChunkGridPos(Vector3f worldPos) {
+        return getChunkGridPos(worldPos.x, worldPos.y, worldPos.z);
+    }
+
+    public Vector3i getChunkGridPos(float x, float y, float z) {
+        return new Vector3i(
+                (int) Math.floor(x / Chunk.CHUNK_SIZE),
+                (int) Math.floor(y / Chunk.CHUNK_SIZE),
+                (int) Math.floor(z / Chunk.CHUNK_SIZE)
+        );
+    }
+
+    public void addChunk(Chunk chunk) {
         scheduledTicks.add(() -> {
-            this.terrain.add(terrain);
-            terrain.onAdded(this);
+            this.chunks.put(chunk.getGridPos(), chunk);
+            chunk.onAdded(this);
         });
     }
 
@@ -105,12 +119,31 @@ public abstract class World {
         return entities.size();
     }
 
-    public int terrainCount() {
-        return terrain.size();
+    public int chunkCount() {
+        return chunks.size();
     }
 
     public int particleCount() {
         return particles.size();
+    }
+
+    public List<Chunk> getChunks(AABB region) {
+        List<Chunk> list = new ArrayList<>();
+
+        Vector3i min = getChunkGridPos(region.getMin());
+        Vector3i max = getChunkGridPos(region.getMax());
+
+        for (int x = min.x; x <= max.x; x++) {
+            for (int y = min.y; y <= max.y; y++) {
+                for (int z = min.z; z <= max.z; z++) {
+                    Chunk chunk = chunks.get(new Vector3i(x, y, z));
+                    if (chunk != null)
+                        list.add(chunk);
+                }
+            }
+        }
+
+        return list;
     }
 
     public List<Entity> getEntities(AABB region) {
@@ -124,10 +157,13 @@ public abstract class World {
 
     public List<Terrain> getTerrain(AABB region) {
         List<Terrain> list = new ArrayList<>();
-        for (Terrain terrain : this.terrain) {
-            if (region.intersects(terrain.getAABB()))
-                list.add(terrain);
+
+        for (Chunk chunk : getChunks(region)) {
+            Vector3i pos = chunk.getGridPos();
+            AABB aabb = new AABB(region).translate(-pos.x * Chunk.CHUNK_SIZE, -pos.y * Chunk.CHUNK_SIZE, -pos.z * Chunk.CHUNK_SIZE);
+            list.addAll(chunk.getTerrainInArea(aabb));
         }
+
         return list;
     }
 
@@ -142,10 +178,8 @@ public abstract class World {
 
     public List<AABB> getTerrainCollisions(AABB region) {
         List<AABB> list = new ArrayList<>();
-        for (Terrain terrain : this.terrain) {
-            if (region.intersects(terrain.getAABB()))
-                list.addAll(terrain.getGroupsAABB());
-        }
+        for (Terrain terrain : getTerrain(region))
+            list.addAll(terrain.getGroupsAABB());
         return list;
     }
 

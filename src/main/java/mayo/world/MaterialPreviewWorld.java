@@ -1,12 +1,10 @@
 package mayo.world;
 
-import mayo.gui.Toast;
 import mayo.model.ModelManager;
 import mayo.registry.MaterialRegistry;
 import mayo.render.*;
 import mayo.render.batch.VertexConsumer;
 import mayo.render.shader.Shader;
-import mayo.render.shader.Shaders;
 import mayo.render.texture.Texture;
 import mayo.text.Style;
 import mayo.text.Text;
@@ -14,15 +12,12 @@ import mayo.utils.AABB;
 import mayo.utils.Alignment;
 import mayo.utils.Colors;
 import mayo.utils.Resource;
-import org.lwjgl.glfw.GLFW;
 
 public class MaterialPreviewWorld extends WorldClient {
 
     private static final Model
             SPHERE = new Model(ModelManager.load(new Resource("models/terrain/sphere/sphere.obj")).getMesh()),
             BOX = new Model(ModelManager.load(new Resource("models/terrain/box/box.obj")).getMesh());
-
-    private boolean useDeferredRendering = true;
 
     @Override
     public void init() {
@@ -35,8 +30,6 @@ public class MaterialPreviewWorld extends WorldClient {
         player.updateMovementFlags(false, false, true);
         player.setPos(-2f, 2f, -2f);
         player.rotate(0f, 135f);
-        scheduledTicks.add(lights::clear);
-        skyBox.renderSun = false;
 
         //MaterialRegistry[] values = MaterialRegistry.values();
         //int grid = (int) Math.ceil(Math.sqrt(values.length));
@@ -47,28 +40,9 @@ public class MaterialPreviewWorld extends WorldClient {
     }
 
     @Override
-    protected void renderShadows(Camera camera, MatrixStack matrices, float delta) {
-        //super.renderShadows(camera, matrices, delta);
-    }
-
-    @Override
     protected void renderWorld(Camera camera, MatrixStack matrices, float delta) {
-        //setup pbr renderer
-        Shader prevShdr = Shader.activeShader;
-
-        Shader sh;
-        if (useDeferredRendering) {
-            sh = WorldRenderer.prepareGeometry();
-            sh.setVec3("camPos", client.camera.getPos());
-        } else {
-            sh = Shaders.WORLD_MODEL_PBR.getShader().use();
-            applyWorldUniforms(sh);
-            applyShadowUniforms(sh);
-            applySkyboxUniforms(sh);
-        }
-        sh.setup(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
-
         //render materials
+        Shader s = Shader.activeShader;
         MaterialRegistry[] values = MaterialRegistry.values();
         int grid = (int) Math.ceil(Math.sqrt(values.length));
 
@@ -83,7 +57,7 @@ public class MaterialPreviewWorld extends WorldClient {
             AABB sphereBB = SPHERE.getMeshAABB();
             sphereBB.applyMatrix(matrices.peek().pos());
             if (camera.isInsideFrustum(sphereBB)) {
-                sh.applyMatrixStack(matrices);
+                s.applyMatrixStack(matrices);
                 SPHERE.renderWithoutMaterial();
                 visible = true;
             }
@@ -93,7 +67,7 @@ public class MaterialPreviewWorld extends WorldClient {
             AABB boxBB = BOX.getMeshAABB();
             boxBB.applyMatrix(matrices.peek().pos());
             if (camera.isInsideFrustum(boxBB)) {
-                sh.applyMatrixStack(matrices);
+                s.applyMatrixStack(matrices);
                 BOX.renderWithoutMaterial();
                 visible = true;
             }
@@ -114,28 +88,6 @@ public class MaterialPreviewWorld extends WorldClient {
             matrices.pop();
         }
 
-        if (useDeferredRendering)
-            WorldRenderer.render(s -> {
-                applyWorldUniforms(s);
-                applySkyboxUniforms(s);
-            });
-
-        if (prevShdr != null) prevShdr.use();
         super.renderWorld(camera, matrices, delta);
-    }
-
-    @Override
-    public void onWindowResize(int width, int height) {
-        super.onWindowResize(width, height);
-        WorldRenderer.resize(width, height);
-    }
-
-    @Override
-    public void keyPress(int key, int scancode, int action, int mods) {
-        super.keyPress(key, scancode, action, mods);
-        if (key == GLFW.GLFW_KEY_F && action == GLFW.GLFW_PRESS) {
-            useDeferredRendering = !useDeferredRendering;
-            Toast.addToast(Text.of("Deferred Rendering: " + useDeferredRendering), client.font);
-        }
     }
 }

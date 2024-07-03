@@ -254,15 +254,21 @@ public abstract class LivingEntity extends PhysEntity {
             ServerConnection.connection.sendToAllUDP(new SyncHealth().entity(getUUID()).health(health));
     }
 
-    public void attackAction() {
+    public boolean attackAction() {
         //attack using holding item
-        if (getHoldingItem() != null)
+        if (getHoldingItem() != null) {
             getHoldingItem().attack(this);
+            return true;
+        }
 
         //attack entity
         Hit<Entity> facingEntity = getLookingEntity(getPickRange());
-        if (facingEntity != null)
+        if (facingEntity != null) {
             facingEntity.get().onAttacked(this);
+            return true;
+        }
+
+        return false;
     }
 
     public void stopAttacking() {

@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib tomato.mtl
+mtllib tomato.pbr
 o body
 v 0.000000 0.000000 0.000000
 v 0.000000 0.984375 -0.000000

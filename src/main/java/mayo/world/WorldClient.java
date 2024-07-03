@@ -7,6 +7,8 @@ import mayo.gui.screens.DeathScreen;
 import mayo.gui.screens.PauseScreen;
 import mayo.input.Movement;
 import mayo.model.GeometryHelper;
+import mayo.registry.MaterialRegistry;
+import mayo.registry.TerrainRegistry;
 import mayo.render.Camera;
 import mayo.render.MatrixStack;
 import mayo.render.Window;
@@ -21,8 +23,6 @@ import mayo.render.texture.Texture;
 import mayo.text.Text;
 import mayo.utils.AABB;
 import mayo.utils.Maths;
-import mayo.utils.Resource;
-import mayo.world.worldgen.Chunk;
 import mayo.world.collisions.Hit;
 import mayo.world.entity.Entity;
 import mayo.world.entity.living.LivingEntity;
@@ -33,14 +33,20 @@ import mayo.world.items.Flashlight;
 import mayo.world.items.Item;
 import mayo.world.items.ItemRenderContext;
 import mayo.world.items.MagicWand;
+import mayo.world.items.weapons.CoilGun;
+import mayo.world.items.weapons.PotatoCannon;
+import mayo.world.items.weapons.RiceGun;
 import mayo.world.items.weapons.Weapon;
 import mayo.world.light.DirectionalLight;
 import mayo.world.light.Light;
 import mayo.world.particle.Particle;
 import mayo.world.terrain.Terrain;
+import mayo.world.worldgen.Chunk;
+import mayo.world.worldgen.TerrainGenerator;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +84,10 @@ public class WorldClient extends World {
     private PostProcess postProcess;
 
     //counters
-    private int renderedEntities, renderedTerrain, renderedParticles;
+    private int renderedEntities, renderedChunks, renderedTerrain, renderedParticles;
+
+    //terrain
+    private int selectedTerrain, selectedMaterial;
 
     @Override
     public void init() {
@@ -93,19 +102,8 @@ public class WorldClient extends World {
         //tutorial toast
         Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), client.font, 200, Toast.ToastType.WORLD);
 
-        //lights
-        //rip for-loop
-        addLight(sunLight);
-        addLight(new Light().pos(-5.5f, 0.5f, 2f).color(0x000000));
-        addLight(new Light().pos(-3.5f, 0.5f, 2f).color(0xFF0000));
-        addLight(new Light().pos(-1.5f, 0.5f, 2f).color(0x00FF00));
-        addLight(new Light().pos(0.5f, 0.5f, 2f).color(0x0000FF));
-        addLight(new Light().pos(2.5f, 0.5f, 2f).color(0x00FFFF));
-        addLight(new Light().pos(4.5f, 0.5f, 2f).color(0xFF00FF));
-        addLight(new Light().pos(6.5f, 0.5f, 2f).color(0xFFFF00));
-        addLight(new Light().pos(8.5f, 0.5f, 2f).color(0xFFFFFF));
-
-        //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
+        //sun light
+        //addLight(sunLight);
 
         //create player
         respawn(true);
@@ -124,7 +122,29 @@ public class WorldClient extends World {
 
     protected void tempLoad() {
         //load level
-        LevelLoad.load(this, new Resource("data/levels/level0.json"));
+        int radius = 1;
+        for (int i = -radius; i < radius; i++) {
+            for (int j = -radius; j < radius; j++) {
+                for (int k = -radius; k < radius; k++) {
+                    Chunk c = TerrainGenerator.generatePlain(i, j, k);
+                    addChunk(c);
+                }
+            }
+        }
+
+        //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
+
+        /*
+        //rip for-loop
+        addLight(new Light().pos(-5.5f, 0.5f, 2f).color(0x000000));
+        addLight(new Light().pos(-3.5f, 0.5f, 2f).color(0xFF0000));
+        addLight(new Light().pos(-1.5f, 0.5f, 2f).color(0x00FF00));
+        addLight(new Light().pos(0.5f, 0.5f, 2f).color(0x0000FF));
+        addLight(new Light().pos(2.5f, 0.5f, 2f).color(0x00FFFF));
+        addLight(new Light().pos(4.5f, 0.5f, 2f).color(0xFF00FF));
+        addLight(new Light().pos(6.5f, 0.5f, 2f).color(0xFFFF00));
+        addLight(new Light().pos(8.5f, 0.5f, 2f).color(0xFFFFFF));
+        */
 
         Cart c = new Cart(UUID.randomUUID());
         c.setPos(10, 2, 10);
@@ -171,16 +191,10 @@ public class WorldClient extends World {
         sunLight.direction(skyBox.getSunDirection());
 
         //render shadows
-        renderShadows(client.camera, matrices, delta);
+        //renderShadows(client.camera, matrices, delta);
 
-        //set world shader
-        Shader s = Shaders.WORLD_MODEL.getShader().use();
-        s.setup(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
-
-        //apply lighting
-        applyWorldUniforms(s);
-        applyShadowUniforms(s);
-        applySkyboxUniforms(s);
+        //setup world PBR shader
+        WorldRenderer.prepareGeometry(client.camera);
 
         //render world
         renderWorld(client.camera, matrices, delta);
@@ -189,12 +203,22 @@ public class WorldClient extends World {
         renderItemExtra(matrices, delta);
 
         //render debug
-        if (debugRendering && !hideHUD) {
-            renderHitboxes(client.camera, matrices, delta);
-            renderHitResults(matrices);
+        if (!hideHUD) {
+            if (debugRendering) {
+                renderHitboxes(client.camera, matrices, delta);
+                renderHitResults(matrices);
+            }
+
+            renderTargetedBlock(matrices, delta);
         }
 
         //finish rendering
+        WorldRenderer.render(shader -> {
+            applyWorldUniforms(shader);
+            //applyShadowUniforms(shader);
+            applySkyboxUniforms(shader);
+        });
+
         VertexConsumer.finishAllBatches(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
 
         //render skybox
@@ -265,13 +289,32 @@ public class WorldClient extends World {
         camera.updateFrustum();
     }
 
+    protected List<Chunk> getChunksToRender() {
+        List<Chunk> list = new ArrayList<>();
+
+        Vector3i startingPoint = getChunkGridPos(player.getPos());
+        for (int x = -renderDistance; x <= renderDistance; x++) {
+            for (int y = -renderDistance; y <= renderDistance; y++) {
+                for (int z = -renderDistance; z <= renderDistance; z++) {
+                    Vector3i pos = new Vector3i(startingPoint).add(x, y, z);
+                    Chunk c = chunks.get(pos);
+                    if (c != null)
+                        list.add(c);
+                }
+            }
+        }
+
+        return list;
+    }
+
     protected void renderWorld(Camera camera, MatrixStack matrices, float delta) {
         //render terrain
+        renderedChunks = 0;
         renderedTerrain = 0;
-        for (Terrain terrain : terrain) {
-            if (terrain.shouldRender(camera)) {
-                terrain.render(matrices, delta);
-                renderedTerrain++;
+        for (Chunk chunk : getChunksToRender()) {
+            if (chunk.shouldRender(camera)) {
+                renderedTerrain += chunk.render(camera, matrices, delta);
+                renderedChunks++;
             }
         }
 
@@ -311,11 +354,7 @@ public class WorldClient extends World {
             return;
 
         //set world shader
-        Shader s = Shaders.WORLD_MODEL.getShader().use();
-        s.setup(camera.getPerspectiveMatrix(), camera.getViewMatrix());
-
-        //apply lighting
-        applyWorldUniforms(s);
+        WorldRenderer.prepareGeometry(client.camera);
 
         matrices.push();
 
@@ -330,6 +369,12 @@ public class WorldClient extends World {
         item.render(ItemRenderContext.FIRST_PERSON, matrices, delta);
 
         matrices.pop();
+
+        //finish rendering
+        WorldRenderer.render(shader -> {
+            applyWorldUniforms(shader);
+            applySkyboxUniforms(shader);
+        });
     }
 
     protected void renderShadowBuffer(int x, int y, int size) {
@@ -376,9 +421,6 @@ public class WorldClient extends World {
 
         Hit<Terrain> terrain = player.getLookingTerrain(r);
         if (terrain != null) {
-            for (AABB aabb : terrain.obj().getGroupsAABB())
-                GeometryHelper.pushCube(VertexConsumer.LINES, matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00);
-
             Vector3f pos = terrain.pos();
             GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF);
         }
@@ -390,6 +432,18 @@ public class WorldClient extends World {
 
             Vector3f pos = entity.pos();
             GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF);
+        }
+    }
+
+    protected void renderTargetedBlock(MatrixStack matrices, float delta) {
+        Hit<Terrain> terrain = player.getLookingTerrain(player.getPickRange());
+        if (terrain == null)
+            return;
+
+        int alpha = (int) Maths.lerp(0x32, 0xFF, ((float) Math.sin((client.ticks + delta) * 0.15f) + 1f) * 0.5f);
+
+        for (AABB aabb : terrain.obj().getGroupsAABB()) {
+            GeometryHelper.pushCube(VertexConsumer.LINES, matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF + (alpha << 24));
         }
     }
 
@@ -450,6 +504,10 @@ public class WorldClient extends World {
         return list;
     }
 
+    public int getRenderedChunks() {
+        return renderedChunks;
+    }
+
     public int getRenderedTerrain() {
         return renderedTerrain;
     }
@@ -463,24 +521,66 @@ public class WorldClient extends World {
     }
 
     public void mousePress(int button, int action, int mods) {
-        boolean press = action != GLFW_RELEASE;
+        boolean press = action == GLFW_PRESS;
+        boolean release = action == GLFW_RELEASE;
 
         //ClientEntityAction mouseAction = new ClientEntityAction();
         //boolean used = false;
 
         switch (button) {
             case GLFW_MOUSE_BUTTON_1 -> {
-                if (!press) {
+                if (release) {
                     player.stopAttacking();
                     //mouseAction.attack(false);
                     //used = true;
+                } else if (press && player.getHoldingItem() == null) {
+                    Hit<Terrain> terrain = player.getLookingTerrain(player.getPickRange());
+                    if (terrain != null) {
+                        Vector3f tpos = terrain.obj().getPos();
+
+                        Vector3i chunk = getChunkGridPos(tpos);
+                        Vector3i pos = new Vector3i(
+                                (int) Math.floor(tpos.x) - chunk.x * Chunk.CHUNK_SIZE,
+                                (int) Math.floor(tpos.y) - chunk.y * Chunk.CHUNK_SIZE,
+                                (int) Math.floor(tpos.z) - chunk.z * Chunk.CHUNK_SIZE
+                        );
+
+                        chunks.get(chunk).setTerrain(null, pos);
+                    }
                 }
             }
             case GLFW_MOUSE_BUTTON_2 -> {
-                if (!press) {
+                if (release) {
                     player.stopUsing();
                     //mouseAction.use(false);
                     //used = true;
+                } else if (press && player.getHoldingItem() == null) {
+                    Hit<Terrain> terrain = player.getLookingTerrain(player.getPickRange());
+                    if (terrain != null) {
+                        Vector3f dir = terrain.collision().normal();
+                        Vector3f tpos = new Vector3f(terrain.obj().getPos()).add(dir);
+
+                        Vector3i chunk = getChunkGridPos(tpos);
+                        Vector3i pos = new Vector3i(
+                                (int) Math.floor(tpos.x) - chunk.x * Chunk.CHUNK_SIZE,
+                                (int) Math.floor(tpos.y) - chunk.y * Chunk.CHUNK_SIZE,
+                                (int) Math.floor(tpos.z) - chunk.z * Chunk.CHUNK_SIZE
+                        );
+
+                        AABB entities = new AABB().translate(tpos).expand(1f, 1f, 1f);
+                        Chunk c = chunks.get(chunk);
+                        if (getEntities(entities).isEmpty()) {
+                            if (c == null) {
+                                c = new Chunk(chunk.x, chunk.y, chunk.z);
+                                addChunk(c);
+                            }
+
+                            Terrain t = TerrainRegistry.values()[selectedTerrain].getFactory().get();
+                            t.setMaterial(MaterialRegistry.values()[selectedMaterial].material);
+                            c.setTerrain(t, pos);
+                            scheduledTicks.add(() -> t.onAdded(this));
+                        }
+                    }
                 }
             }
         }
@@ -534,6 +634,8 @@ public class WorldClient extends World {
             //connection.sendUDP(new SelectItem().index(i));
         }
 
+        boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
+
         switch (key) {
             case GLFW_KEY_R -> {
                 Item i = player.getHoldingItem();
@@ -549,7 +651,6 @@ public class WorldClient extends World {
             case GLFW_KEY_F7 -> this.timeOfTheDay -= 100;
             case GLFW_KEY_F8 -> this.timeOfTheDay += 100;
             case GLFW_KEY_F9 -> {
-                boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
                 if (postProcess == null) {
                     int i = shift ? PostProcess.EFFECTS.length - 1 : 0;
                     postProcess = PostProcess.EFFECTS[i];
@@ -573,11 +674,15 @@ public class WorldClient extends World {
 
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
             //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));
+
+            case GLFW_KEY_COMMA -> selectedTerrain = (selectedTerrain + 1) % (TerrainRegistry.values().length - 1); //no teapot
+            case GLFW_KEY_PERIOD -> selectedMaterial = Maths.modulo((selectedMaterial + (shift ? -1 : 1)), MaterialRegistry.values().length);
         }
     }
 
     public void onWindowResize(int width, int height) {
         resetMovement();
+        WorldRenderer.resize(width, height);
     }
 
     public boolean isDebugRendering() {
@@ -600,6 +705,14 @@ public class WorldClient extends World {
         return hideHUD;
     }
 
+    public int getSelectedTerrain() {
+        return selectedTerrain;
+    }
+
+    public int getSelectedMaterial() {
+        return selectedMaterial;
+    }
+
     public void respawn(boolean init) {
         player = new LocalPlayer();
         givePlayerItems(player);
@@ -610,11 +723,10 @@ public class WorldClient extends World {
     }
 
     public static void givePlayerItems(Player player) {
-        //player.giveItem(new CoilGun(1, 5, 0));
-        //player.giveItem(new PotatoCannon(3, 40, 30));
-        //player.giveItem(new RiceGun(8, 80, 60));
-        //player.getInventory().setItem(player.getInventory().getFreeIndex() + 1, new CurveMaker(1, 0, 5));
-        player.getInventory().setItem(1, new Flashlight(1, 0xFFFFCC));
+        player.giveItem(new CoilGun(1, 5, 0));
+        player.giveItem(new PotatoCannon(3, 40, 30));
+        player.giveItem(new RiceGun(8, 80, 60));
+        player.getInventory().setItem(player.getInventory().getFreeIndex() + 1, new Flashlight(1, 0xFFFFCC));
         player.getInventory().setItem(player.getInventory().getSize() - 1, new MagicWand(1));
     }
 

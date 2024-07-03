@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib rice_ball.mtl
+mtllib rice_ball.pbr
 o sphere
 v 0.000000 -0.187500 0.000000
 v 0.000000 0.187500 -0.000000

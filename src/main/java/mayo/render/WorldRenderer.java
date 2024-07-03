@@ -17,9 +17,11 @@ public class WorldRenderer {
 
     public static final PBRDeferredFramebuffer PBRFrameBuffer = new PBRDeferredFramebuffer(1, 1);
 
-    public static Shader prepareGeometry() {
+    public static void prepareGeometry(Camera camera) {
         PBRFrameBuffer.useClear();
-        return GEOMETRY_PASS.getShader().use();
+        Shader s = GEOMETRY_PASS.getShader().use();
+        s.setup(camera.getPerspectiveMatrix(), camera.getViewMatrix());
+        s.setVec3("camPos", camera.getPos());
     }
 
     public static void render(Consumer<Shader> shaderConsumer) {

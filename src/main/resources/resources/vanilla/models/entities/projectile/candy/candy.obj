@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib candy.mtl
+mtllib candy.pbr
 o left
 v -0.218750 0.011719 0.019043
 v -0.218750 0.011719 -0.019043

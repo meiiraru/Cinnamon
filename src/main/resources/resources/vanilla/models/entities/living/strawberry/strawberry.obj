@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib strawberry.mtl
+mtllib strawberry.pbr
 o hair
 v 0.437500 0.750000 -0.500000
 v -0.437500 0.687500 -0.500000

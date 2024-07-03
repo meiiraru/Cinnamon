@@ -7,10 +7,8 @@ import mayo.utils.Resource;
 import mayo.world.entity.Entity;
 import mayo.world.entity.living.Player;
 import mayo.world.entity.vehicle.Cart;
-import mayo.world.terrain.Terrain;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -43,10 +41,6 @@ public class WorldServer extends World {
     @Override
     public void entityRemoved(UUID uuid) {
         ServerConnection.connection.sendToAllTCP(new RemoveEntity().uuid(uuid));
-    }
-
-    public List<Terrain> getTerrain() {
-        return this.terrain;
     }
 
     public Map<UUID, Entity> getEntities() {

@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib cherry.mtl
+mtllib cherry.pbr
 o body
 v -0.500000 0.000000 0.000000
 v -0.500000 0.937500 -0.000000

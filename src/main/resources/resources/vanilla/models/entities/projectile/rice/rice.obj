@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib rice.mtl
+mtllib rice.pbr
 o cuboid
 v -0.022321 0.022321 0.102273
 v 0.022321 0.022321 0.102273

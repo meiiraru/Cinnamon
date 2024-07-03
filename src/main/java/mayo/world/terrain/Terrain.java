@@ -1,6 +1,7 @@
 package mayo.world.terrain;
 
 import mayo.model.GeometryHelper;
+import mayo.model.obj.material.Material;
 import mayo.registry.TerrainRegistry;
 import mayo.render.MatrixStack;
 import mayo.render.Model;
@@ -23,6 +24,7 @@ public abstract class Terrain extends WorldObject {
     private final List<AABB> groupsAABB = new ArrayList<>(); //group's AABB
 
     private byte rotation = 0;
+    private Material overrideMaterial;
 
     public Terrain() {
         this.model = getType().model;
@@ -45,7 +47,7 @@ public abstract class Terrain extends WorldObject {
     protected void renderModel(MatrixStack matrices, float delta) {
         //render model
         Shader.activeShader.applyMatrixStack(matrices);
-        model.render();
+        model.render(overrideMaterial);
     }
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {
@@ -98,6 +100,10 @@ public abstract class Terrain extends WorldObject {
 
     public float getRotationAngle() {
         return 90f * rotation;
+    }
+
+    public void setMaterial(Material material) {
+        this.overrideMaterial = material;
     }
 
     @Override

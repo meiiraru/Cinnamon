@@ -1,5 +1,5 @@
 # Made in Blockbench 4.8.3
-mtllib mystery_box.mtl
+mtllib mystery_box.pbr
 
 o inner
 v 0.4375 0.90625 0.4375
