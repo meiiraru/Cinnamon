@@ -97,11 +97,7 @@ public abstract class Entity extends WorldObject {
     protected void renderTexts(MatrixStack matrices, float delta) {}
 
     public boolean shouldRenderText() {
-        if (((WorldClient) world).hideHUD())
-            return false;
-
-        Camera c = Client.getInstance().camera;
-        return c.getEntity() != this && c.getPos().distanceSquared(pos) <= 256;
+        return !((WorldClient) world).hideHUD() && Client.getInstance().camera.getPos().distanceSquared(pos) <= 256;
     }
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {

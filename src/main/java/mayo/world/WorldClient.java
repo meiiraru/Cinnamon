@@ -25,6 +25,7 @@ import mayo.utils.AABB;
 import mayo.utils.Maths;
 import mayo.world.collisions.Hit;
 import mayo.world.entity.Entity;
+import mayo.world.entity.living.Dummy;
 import mayo.world.entity.living.LivingEntity;
 import mayo.world.entity.living.LocalPlayer;
 import mayo.world.entity.living.Player;
@@ -153,6 +154,14 @@ public class WorldClient extends World {
         Cart c2 = new Cart(UUID.randomUUID());
         c2.setPos(15, 2, 10);
         this.addEntity(c2);
+
+        Dummy d = new Dummy(UUID.randomUUID());
+        d.setPos(-10, 2, 10);
+        this.addEntity(d);
+
+        Dummy d2 = new Dummy(UUID.randomUUID());
+        d2.setPos(-15, 2, 10);
+        this.addEntity(d2);
     }
 
     @Override

@@ -5,6 +5,7 @@ import mayo.world.WorldClient;
 import mayo.world.entity.Entity;
 import mayo.world.entity.collectable.EffectBox;
 import mayo.world.entity.collectable.HealthPack;
+import mayo.world.entity.living.Dummy;
 import mayo.world.entity.living.Enemy;
 import mayo.world.entity.living.Player;
 import mayo.world.entity.projectile.Candy;
@@ -28,6 +29,7 @@ public enum EntityRegistry implements Registry {
         WorldClient.givePlayerItems(p); //TODO
         return p;
     }),
+    DUMMY(Dummy.class, Dummy::new),
 
     //projectiles
     CANDY(Candy.class, uuid -> new Candy(uuid, null)),
