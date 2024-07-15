@@ -77,5 +77,5 @@ tasks.jar {
 
     from("LICENSE.md")
 
-    manifest.attributes["Main-Class"] = "mayo.Main"
+    manifest.attributes["Main-Class"] = "cinnamon.Main"
 }
