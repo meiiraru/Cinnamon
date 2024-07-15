@@ -22,6 +22,7 @@ public class UIHelper {
 
     private static final Resource TOOLTIP = new Resource("textures/gui/widgets/tooltip.png");
     public static final Colors ACCENT = Colors.PURPLE;
+    public static final float Z_OFFSET = 0.01f;
 
     private static final Stack<Region2D> SCISSORS_STACK = new Stack<>();
 

@@ -1,4 +1,4 @@
-package mayo.gui.screens;
+package mayo.gui.screens.extras;
 
 import mayo.Client;
 import mayo.gui.ParentedScreen;
@@ -422,14 +422,14 @@ public class WordleScreen extends ParentedScreen {
             field.setListener(s -> {
                 String newString = s.substring(0, Math.min(s.length(), WORD_LENGTH)).trim().toUpperCase();
                 if (!newString.equals(s))
-                    field.setString(newString);
+                    field.setText(newString);
                 listener.accept(newString);
             });
             this.listeners.add(field);
         }
 
         public void setString(String string) {
-            field.setString(string);
+            field.setText(string);
         }
 
         public void append(String s) {

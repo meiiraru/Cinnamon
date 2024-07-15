@@ -3,7 +3,7 @@ package mayo;
 import mayo.gui.Screen;
 import mayo.gui.Toast;
 import mayo.gui.screens.MainMenu;
-import mayo.gui.screens.PauseScreen;
+import mayo.gui.screens.world.PauseScreen;
 import mayo.networking.ServerConnection;
 import mayo.options.Options;
 import mayo.render.Camera;

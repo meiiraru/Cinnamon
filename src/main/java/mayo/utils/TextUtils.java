@@ -62,7 +62,7 @@ public class TextUtils {
     }
 
     public static Text trim(Text text) {
-        String string = text.getText();
+        String string = text.asString();
         int start = 0;
         int end = string.length();
 

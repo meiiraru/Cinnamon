@@ -1,4 +1,4 @@
-package mayo.gui.screens;
+package mayo.gui.screens.extras;
 
 import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
@@ -81,12 +81,40 @@ public class WidgetTestScreen extends ParentedScreen {
 
         b.setAction(button -> s.setStepCount(s.getStepCount() + 1));
 
-        //text field
-        TextField tf = new TextField(0, 0, 60, 12, font);
-        grid.addWidget(tf);
+        //text fields
 
-        tf.setHintText("Text Field");
-        tf.setListener(s1 -> tf.setColor(Colors.randomRainbow()));
+        //normal text field
+        TextField tf1 = new TextField(0, 0, 60, 12, font);
+        grid.addWidget(tf1);
+
+        tf1.setHintText("Text Field");
+        tf1.setListener(s1 -> tf1.setStyle(tf1.getStyle().color(Colors.randomRainbow())));
+
+        //filtered text field
+        TextField tf2 = new TextField(0, 0, 60, 12, font);
+        tf2.setFilter(TextField.Filter.AZ);
+        tf2.setHintText("Alphabet...");
+        grid.addWidget(tf2);
+
+        TextField tf3 = new TextField(0, 0, 60, 12, font);
+        tf3.setFilter(TextField.Filter.INTEGER);
+        tf3.setHintText("Integer...");
+        grid.addWidget(tf3);
+
+        TextField tf4 = new TextField(0, 0, 60, 12, font);
+        tf4.setFilter(TextField.Filter.FLOAT);
+        tf4.setHintText("Float...");
+        grid.addWidget(tf4);
+
+        TextField tf5 = new TextField(0, 0, 60, 12, font);
+        tf5.setFilter(TextField.Filter.HEX_COLOR_ALPHA);
+        tf5.setHintText("Hex Color...");
+        grid.addWidget(tf5);
+
+        TextField tf6 = new TextField(0, 0, 60, 12, font);
+        tf6.setHintText("Password...");
+        tf6.setPassword(true);
+        grid.addWidget(tf6);
 
         //toggle button
         ToggleButton tb = new ToggleButton(0, 0, Text.of("Toggle Button"));

@@ -2,6 +2,7 @@ package mayo.gui.screens;
 
 import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;
+import mayo.gui.screens.extras.*;
 import mayo.gui.widgets.WidgetList;
 import mayo.gui.widgets.types.Button;
 import mayo.gui.widgets.types.Label;
@@ -25,45 +26,44 @@ public class ExtrasScreen extends ParentedScreen {
         WidgetList list = new WidgetList(0, 0, 0, 0, 4);
         list.setShouldRenderBackground(false);
 
-        //spacing (literally)
+        //title
         list.addWidget(new Label(0, 0, Text.of("Tech demos\n"), font));
 
-        Button materialDebug = BUTTON_FACTORY.apply("Material Debug", button -> new MaterialPreviewWorld().init());
-        list.addWidget(materialDebug);
+        //material debug world
+        list.addWidget(BUTTON_FACTORY.apply("Material Debug", button -> new MaterialPreviewWorld().init()));
 
         //collision screen
-        Button coll = BUTTON_FACTORY.apply("Collision Test", button -> client.setScreen(new CollisionScreen(this)));
-        list.addWidget(coll);
+        list.addWidget(BUTTON_FACTORY.apply("Collision Test", button -> client.setScreen(new CollisionScreen(this))));
 
         //curves screen
-        Button curve = BUTTON_FACTORY.apply("Curves", button -> client.setScreen(new CurvesScreen(this)));
-        list.addWidget(curve);
+        list.addWidget(BUTTON_FACTORY.apply("Curves", button -> client.setScreen(new CurvesScreen(this))));
 
         //widgets test
-        Button widgetTest = BUTTON_FACTORY.apply("GUI Test", button -> client.setScreen(new WidgetTestScreen(this)));
-        list.addWidget(widgetTest);
+        list.addWidget(BUTTON_FACTORY.apply("GUI Test", button -> client.setScreen(new WidgetTestScreen(this))));
 
         //balls
-        Button balls = BUTTON_FACTORY.apply("Balls", button -> client.setScreen(new BallsScreen(this)));
-        list.addWidget(balls);
+        list.addWidget(BUTTON_FACTORY.apply("Balls", button -> client.setScreen(new BallsScreen(this))));
 
-        //spacing (literally)
+        //title
         list.addWidget(new Label(0, 0, Text.of("\nGames\n"), font));
 
         //dvd screen
-        Button dvd = BUTTON_FACTORY.apply("DVD screensaver", button -> client.setScreen(new DVDScreen(this)));
-        list.addWidget(dvd);
+        list.addWidget(BUTTON_FACTORY.apply("DVD screensaver", button -> client.setScreen(new DVDScreen(this))));
 
         //wordle
-        Button worlde = BUTTON_FACTORY.apply("Wordle", button -> client.setScreen(new WordleScreen(this)));
-        list.addWidget(worlde);
+        list.addWidget(BUTTON_FACTORY.apply("Wordle", button -> client.setScreen(new WordleScreen(this))));
+
+        //title
+        list.addWidget(new Label(0, 0, Text.of("\nOther\n"), font));
+
+        //CPF validator
+        list.addWidget(BUTTON_FACTORY.apply("CPF Validator", button -> client.setScreen(new CPFScreen(this))));
 
         //spacing (literally)
         list.addWidget(new Label(0, 0, Text.of("\n"), font));
 
         //back
-        Button back = BUTTON_FACTORY.apply("Back", button -> close());
-        list.addWidget(back);
+        list.addWidget(BUTTON_FACTORY.apply("Back", button -> close()));
 
         //add list to screen
         list.setDimensions(width - 8, Math.min(list.getWidgetsHeight(), height - 8));

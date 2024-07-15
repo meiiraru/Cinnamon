@@ -1,4 +1,4 @@
-package mayo.gui.screens;
+package mayo.gui.screens.world;
 
 import mayo.gui.Screen;
 import mayo.gui.widgets.types.TextField;
@@ -31,11 +31,7 @@ public class ChatScreen extends Screen {
         field = new TextField(0, height - fh - 20, width, fh, font);
         field.setHintText(Text.of("Type a message...").withStyle(Style.EMPTY.color(Colors.LIGHT_GRAY)));
         field.setTextOnly(true);
-        field.setListener(s -> {
-            field.setString(s.replaceAll("\n", ""));
-            fieldMsg = s;
-        });
-        field.setString(fieldMsg);
+        field.setText(fieldMsg);
         addWidget(field);
         this.focusWidget(field);
     }
@@ -62,8 +58,8 @@ public class ChatScreen extends Screen {
     @Override
     public boolean keyPress(int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS && (key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER)) {
-            String s = field.getString();
-            field.setString(fieldMsg = "");
+            String s = field.getText();
+            field.setText(fieldMsg = "");
             if (!s.isBlank()) {
                 addMessage(s);
                 //close();

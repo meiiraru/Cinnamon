@@ -1,4 +1,4 @@
-package mayo.gui.screens;
+package mayo.gui.screens.extras;
 
 import mayo.gui.ParentedScreen;
 import mayo.gui.Screen;

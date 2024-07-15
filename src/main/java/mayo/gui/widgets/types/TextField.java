@@ -3,6 +3,7 @@ package mayo.gui.widgets.types;
 import mayo.Client;
 import mayo.gui.widgets.GUIListener;
 import mayo.gui.widgets.SelectableWidget;
+import mayo.model.GeometryHelper;
 import mayo.render.Font;
 import mayo.render.MatrixStack;
 import mayo.render.batch.VertexConsumer;
@@ -14,24 +15,30 @@ import mayo.utils.TextUtils;
 import mayo.utils.UIHelper;
 
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public class TextField extends SelectableWidget {
 
     private static final Resource TEXTURE = new Resource("textures/gui/widgets/text_field.png");
-    private static final String POINTER = "|";
+    private static final int
+            POINTER_WIDTH = 1,
+            INSERT_WIDTH = 4;
     private static final Style HINT_STYLE = Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK);
+    private static final String PASSWORD_CHAR = "\u2022";
 
     private final Font font;
     private Text hintText = null;
     private String currText = "";
     private Style style = Style.EMPTY;
-    private Style colorStyle = Style.EMPTY;
     private Integer borderColor;
-    private int selectedIndex = 0;
+    private int cursor = 0;
     private Consumer<String> changeListener;
     private boolean textOnly;
+    private Predicate<String> filter = Filter.ANY.predicate;
+    private boolean insert;
+    private boolean password;
 
     public TextField(int x, int y, int width, int height, Font font) {
         super(x, y, width, height);
@@ -80,21 +87,28 @@ public class TextField extends SelectableWidget {
             if (hintText != null)
                 font.render(VertexConsumer.FONT, matrices, x, y, hintText);
         } else {
+            String str = password ? PASSWORD_CHAR.repeat(currText.length()) : currText;
+
             //render text
-            Text text = Text.empty().withStyle(colorStyle).append(Text.of(currText));
+            Text text = Text.empty().withStyle(style).append(Text.of(str));
             font.render(VertexConsumer.FONT, matrices, x, y, text);
 
-            //offset x
-            x += TextUtils.getWidth(text, font);
+            //offset x based on the cursor
+            Text index = Text.empty().withStyle(style).append(Text.of(str.substring(0, cursor)));
+            x += TextUtils.getWidth(index, font);
         }
 
         //render pointer
-        renderPointer(matrices, x, y);
+        renderPointer(matrices, x, y - 1, font.lineHeight + 2);
     }
 
-    protected void renderPointer(MatrixStack matrices, float x, float y) {
-        if (isFocused() && Client.getInstance().ticks % 20 < 10)
-            font.render(VertexConsumer.FONT, matrices, x, y, Text.empty().withStyle(colorStyle).append(Text.of(POINTER).withStyle(style)));
+    protected void renderPointer(MatrixStack matrices, float x, float y, float height) {
+        if (isFocused() && Client.getInstance().ticks % 20 < 10) {
+            matrices.push();
+            matrices.translate(0, 0, UIHelper.Z_OFFSET);
+            GeometryHelper.rectangle(VertexConsumer.GUI, matrices, x, y, x + (insert ? INSERT_WIDTH : POINTER_WIDTH), y + height, borderColor == null ? -1 : borderColor);
+            matrices.pop();
+        }
     }
 
     public void setHintText(String hintText) {
@@ -109,16 +123,12 @@ public class TextField extends SelectableWidget {
         this.style = style == null ? Style.EMPTY : style;
     }
 
-    public void setSelectedIndex(int selectedIndex) {
-        this.selectedIndex = Math.max(Math.min(selectedIndex, currText.length()), 0);
+    public Style getStyle() {
+        return style;
     }
 
-    public void setColor(Colors color) {
-        this.setColor(color.rgba);
-    }
-
-    public void setColor(int color) {
-        this.colorStyle = Style.EMPTY.color(color);
+    public void setCursorPosition(int index) {
+        this.cursor = Math.max(Math.min(index, currText.length()), 0);
     }
 
     public void setBorderColor(Colors color) {
@@ -137,6 +147,18 @@ public class TextField extends SelectableWidget {
         this.textOnly = textOnly;
     }
 
+    public void setFilter(Filter filter) {
+        setFilter(filter.predicate);
+    }
+
+    public void setFilter(Predicate<String> predicate) {
+        this.filter = predicate;
+    }
+
+    public void setPassword(boolean password) {
+        this.password = password;
+    }
+
     @Override
     public GUIListener keyPress(int key, int scancode, int action, int mods) {
         if (!isFocused() || action == GLFW_RELEASE)
@@ -145,19 +167,60 @@ public class TextField extends SelectableWidget {
         boolean ctrl = (mods & GLFW_MOD_CONTROL) == 2;
 
         switch (key) {
-            case GLFW_KEY_ENTER, GLFW_KEY_KP_ENTER -> {
-                append("\n");
+            //navigation
+            case GLFW_KEY_LEFT -> {
+                if (ctrl) {
+                    cursor = getPreviousWord(cursor);
+                } else {
+                    cursor = Math.max(cursor - 1, 0);
+                }
                 return this;
             }
+            case GLFW_KEY_RIGHT -> {
+                if (ctrl) {
+                    cursor = getNextWord(cursor);
+                } else {
+                    cursor = Math.min(cursor + 1, currText.length());
+                }
+                return this;
+            }
+            case GLFW_KEY_HOME, GLFW_KEY_PAGE_UP -> {
+                cursor = 0;
+                return this;
+            }
+            case GLFW_KEY_END, GLFW_KEY_PAGE_DOWN -> {
+                cursor = currText.length();
+                return this;
+            }
+            //editing
             case GLFW_KEY_BACKSPACE -> {
-                remove(1);
+                if (ctrl) {
+                    int prev = getPreviousWord(cursor);
+                    remove(cursor - prev);
+                } else {
+                    remove(1);
+                }
                 return this;
             }
+            case GLFW_KEY_DELETE -> {
+                if (ctrl) {
+                    int next = getNextWord(cursor);
+                    remove(cursor - next);
+                } else {
+                    remove(-1);
+                }
+                return this;
+            }
+            case GLFW_KEY_INSERT -> {
+                insert = !insert;
+                return this;
+            }
+            //commands
             case GLFW_KEY_V -> {
                 if (ctrl) {
                     String clipboard = glfwGetClipboardString(-1);
                     if (clipboard != null) {
-                        append(clipboard.replaceAll("\r\n", "\n"));
+                        append(clipboard.replaceAll("\r\n", " "));
                         return this;
                     }
                 }
@@ -184,8 +247,31 @@ public class TextField extends SelectableWidget {
         if (!isFocused())
             return super.charTyped(c, mods);
 
-        append(String.valueOf(c));
+        if (insert) insert(c);
+        else append(String.valueOf(c));
         return this;
+    }
+
+    private int getPreviousWord(int i) {
+        if (password)
+            return 0;
+
+        while (i > 0 && currText.charAt(i - 1) == ' ')
+            i--;
+        while (i > 0 && currText.charAt(i - 1) != ' ')
+            i--;
+        return i;
+    }
+
+    private int getNextWord(int i) {
+        if (password)
+            return currText.length();
+
+        while (i < currText.length() && currText.charAt(i) == ' ')
+            i++;
+        while (i < currText.length() && currText.charAt(i) != ' ')
+            i++;
+        return i;
     }
 
     private void undo() {
@@ -196,36 +282,85 @@ public class TextField extends SelectableWidget {
 
     }
 
+    private void insert(char c) {
+        if (cursor == currText.length()) {
+            append(String.valueOf(c));
+            return;
+        }
+
+        String newText = currText.substring(0, cursor) + c + currText.substring(cursor + 1);
+        if (setText(newText))
+            cursor++;
+    }
+
     public void append(String s) {
-        currText += s;
-        if (changeListener != null)
-            changeListener.accept(currText);
+        String newText = currText.substring(0, cursor) + s + currText.substring(cursor);
+        if (setText(newText))
+            cursor += s.length();
     }
 
     public void remove(int count) {
         int len = currText.length();
         if (len > 0) {
-            currText = currText.substring(0, len - Math.min(count, len));
-            if (changeListener != null)
-                changeListener.accept(currText);
+            if (count < 0) {
+                if (cursor < len)
+                    setText(currText.substring(0, cursor) + currText.substring(Math.min(cursor - count, len)));
+            } else {
+                if (cursor > 0) {
+                    int amount = Math.max(cursor - count, 0);
+                    if (setText(currText.substring(0, amount) + currText.substring(cursor)))
+                        cursor = amount;
+                }
+            }
         }
+    }
+
+    private void selectClosestToMouse() {
+        int x0 = getX() + 2;
+        int mousePos = Client.getInstance().window.mouseX;
+        Text text = Text.empty().withStyle(style).append(Text.of(password ? PASSWORD_CHAR.repeat(currText.length()) : currText));
+        Text clamped = font.clampToWidth(text, mousePos - x0);
+        cursor = clamped.asString().length();
     }
 
     @Override
     public GUIListener mousePress(int button, int action, int mods) {
         if (isActive() && isHovered() && action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1) {
             UIHelper.focusWidget(this);
+            selectClosestToMouse();
             return this;
         }
 
         return super.mousePress(button, action, mods);
     }
 
-    public String getString() {
+    public String getText() {
         return currText;
     }
 
-    public void setString(String string) {
-        this.currText = string;
+    public boolean setText(String string) {
+        if (!filter.test(string))
+            return false;
+
+        currText = string;
+        if (changeListener != null)
+            changeListener.accept(currText);
+
+        return true;
+    }
+
+    public enum Filter {
+        ANY(s -> true),
+        INTEGER(s -> s.matches("^-?\\d*$")),
+        FLOAT(s -> s.matches("^-?\\d*\\.?\\d*$")),
+        AZ(s -> s.matches("^[a-zA-Z]*$")),
+        HEX_COLOR(s -> s.matches("^#?[0-9a-fA-F]{0,6}$")),
+        HEX_COLOR_ALPHA(s -> s.matches("^#?[0-9a-fA-F]{0,8}$"));
+
+        private final Predicate<String> predicate;
+
+        Filter(Predicate<String> predicate) {
+            this.predicate = predicate;
+        }
     }
 }

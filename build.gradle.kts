@@ -2,7 +2,7 @@ plugins {
     id("java")
 }
 
-group = "io.github.sheep_may"
+group = "io.github.meiiraru"
 version = "0.0.1"
 
 //dependencies versions

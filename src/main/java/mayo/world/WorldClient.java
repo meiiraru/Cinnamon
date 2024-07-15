@@ -2,9 +2,9 @@ package mayo.world;
 
 import mayo.Client;
 import mayo.gui.Toast;
-import mayo.gui.screens.ChatScreen;
-import mayo.gui.screens.DeathScreen;
-import mayo.gui.screens.PauseScreen;
+import mayo.gui.screens.world.ChatScreen;
+import mayo.gui.screens.world.DeathScreen;
+import mayo.gui.screens.world.PauseScreen;
 import mayo.input.Movement;
 import mayo.model.GeometryHelper;
 import mayo.registry.MaterialRegistry;

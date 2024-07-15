@@ -1,4 +1,4 @@
-package mayo.gui.screens;
+package mayo.gui.screens.world;
 
 import mayo.gui.Screen;
 import mayo.gui.widgets.types.Button;
