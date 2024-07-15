@@ -111,7 +111,10 @@ void main() {
     //    discard;
 
     //grab textures
-    vec4 albedo     = texture(material.albedoTex, texCoords);
+    vec4 albedo = texture(material.albedoTex, texCoords);
+    if (albedo.a <= 0.01f)
+        discard;
+
     float metallic  = texture(material.metallicTex, texCoords).r;
     float roughness = texture(material.roughnessTex, texCoords).r;
     float ao        = texture(material.aoTex, texCoords).r;

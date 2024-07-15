@@ -77,9 +77,6 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) {
 vec4 applyLighting(vec3 pos) {
     //grab textures
     vec4 albedo4 = texture(gAlbedo, texCoords);
-    if (albedo4.a <= 0.01f)
-        discard;
-
     vec3 albedo = albedo4.rgb;
 
     float roughness = texture(gRMAo, texCoords).r;
