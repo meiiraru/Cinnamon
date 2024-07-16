@@ -84,37 +84,27 @@ public class WidgetTestScreen extends ParentedScreen {
         //text fields
 
         //normal text field
-        TextField tf1 = new TextField(0, 0, 60, 12, font);
+        TextField tf1 = new TextField(0, 0, 60, 14, font);
         grid.addWidget(tf1);
 
         tf1.setHintText("Text Field");
         tf1.setListener(s1 -> tf1.setStyle(tf1.getStyle().color(Colors.randomRainbow())));
 
         //filtered text field
-        TextField tf2 = new TextField(0, 0, 60, 12, font);
-        tf2.setFilter(TextField.Filter.AZ);
-        tf2.setHintText("Alphabet...");
+        TextField tf2 = new TextField(0, 0, 60, 14, font);
+        tf2.setFilter(TextField.Filter.ASCII);
+        tf2.setHintText("ASCII...");
         grid.addWidget(tf2);
 
-        TextField tf3 = new TextField(0, 0, 60, 12, font);
-        tf3.setFilter(TextField.Filter.INTEGER);
-        tf3.setHintText("Integer...");
+        TextField tf3 = new TextField(0, 0, 60, 14, font);
+        tf3.setFilter(TextField.Filter.NUMBERS);
+        tf3.setHintText("Numbers...");
         grid.addWidget(tf3);
 
-        TextField tf4 = new TextField(0, 0, 60, 12, font);
-        tf4.setFilter(TextField.Filter.FLOAT);
-        tf4.setHintText("Float...");
+        TextField tf4 = new TextField(0, 0, 60, 14, font);
+        tf4.setHintText("Password...");
+        tf4.setPassword(true);
         grid.addWidget(tf4);
-
-        TextField tf5 = new TextField(0, 0, 60, 12, font);
-        tf5.setFilter(TextField.Filter.HEX_COLOR_ALPHA);
-        tf5.setHintText("Hex Color...");
-        grid.addWidget(tf5);
-
-        TextField tf6 = new TextField(0, 0, 60, 12, font);
-        tf6.setHintText("Password...");
-        tf6.setPassword(true);
-        grid.addWidget(tf6);
 
         //toggle button
         ToggleButton tb = new ToggleButton(0, 0, Text.of("Toggle Button"));

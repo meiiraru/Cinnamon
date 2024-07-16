@@ -144,10 +144,14 @@ public class WordleScreen extends ParentedScreen {
         keyboardGrid.setAlignment(Alignment.CENTER);
 
         int gridXWidth = grid.getX() + grid.getWidth();
-        keyboard = new Keyboard(0, 0, 2, c -> field.append(String.valueOf(c)));
+        keyboard = new Keyboard(0, 0, 2, c -> field.setString(field.getString() + c));
         keyboardGrid.addWidget(keyboard);
 
-        controls = new KeyboardControls(0, 0, 2, keyboard.getWidth(), c -> field.remove(1), c -> testWord());
+        controls = new KeyboardControls(0, 0, 2, keyboard.getWidth(), c -> {
+            String s = field.getString();
+            if (!s.isEmpty())
+                field.setString(s.substring(0, s.length() - 1));
+        }, c -> testWord());
         keyboardGrid.addWidgetOnTop(controls);
 
         keyboardGrid.setPos((width - gridXWidth) / 2 + gridXWidth, (height - keyboardGrid.getHeight()) / 2);
@@ -193,6 +197,7 @@ public class WordleScreen extends ParentedScreen {
         for (int i = 0; i < TRIES; i++)
             processWord(i);
         updateSelected(tries);
+        field.setString("");
         keyboard.reset();
         controls.showReset(false);
     }
@@ -255,11 +260,6 @@ public class WordleScreen extends ParentedScreen {
     }
 
     private void onTextUpdate(String text)  {
-        if (gameOver) {
-            field.setString("");
-            return;
-        }
-
         this.attempt = text;
         for (int i = 0; i < WORD_LENGTH; i++)
             letters[tries][i].setChar(i < attempt.length() ? attempt.charAt(i) : null);
@@ -419,12 +419,9 @@ public class WordleScreen extends ParentedScreen {
                 }
             };
             field.setFocused(true);
-            field.setListener(s -> {
-                String newString = s.substring(0, Math.min(s.length(), WORD_LENGTH)).trim().toUpperCase();
-                if (!newString.equals(s))
-                    field.setText(newString);
-                listener.accept(newString);
-            });
+            field.setCharLimit(WORD_LENGTH);
+            field.setFilter(TextField.Filter.LETTERS);
+            field.setListener(s -> listener.accept(s.trim().toUpperCase()));
             this.listeners.add(field);
         }
 
@@ -432,12 +429,8 @@ public class WordleScreen extends ParentedScreen {
             field.setText(string);
         }
 
-        public void append(String s) {
-            field.append(s);
-        }
-
-        public void remove(int count) {
-            field.remove(count);
+        public String getString() {
+            return field.getText();
         }
     }
 

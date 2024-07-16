@@ -7,6 +7,7 @@ import cinnamon.gui.widgets.WidgetList;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.TextField;
 import cinnamon.text.Text;
+import cinnamon.utils.Colors;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,19 +28,26 @@ public class CPFScreen extends ParentedScreen {
         //field
         TextField field = new TextField(0, 0, 180, 20, font);
         field.setHintText("CPF...");
-        field.setFilter(s -> s.matches("^\\d{0,3}(\\.\\d{0,3})?(\\.\\d{0,3})?(-\\d{0,2})?$"));
+        field.setCharLimit(11);
+        field.setFilter(TextField.Filter.NUMBERS);
+        field.setListener(s -> field.setBorderColor((Integer) null));
+        field.setFormatting("###.###.###-##");
         list.addWidget(field);
 
         //validate button
         list.addWidget(new Button(0, 0, 180, 20, Text.of("Validate"), b -> {
-            String cpf = field.getText();
+            String cpf = field.getFormattedText();
             try {
-                if (isValid(cpf))
+                if (isValid(cpf)) {
                     Toast.addToast(Text.of("Valid CPF"), font);
-                else
+                    field.setBorderColor(Colors.LIME);
+                } else {
                     Toast.addToast(Text.of("Invalid CPF"), font);
+                    field.setBorderColor(Colors.RED);
+                }
             } catch (Exception e) {
                 Toast.addToast(Text.of("Malformed CPF"), font);
+                field.setBorderColor(Colors.YELLOW);
             }
         }));
 
