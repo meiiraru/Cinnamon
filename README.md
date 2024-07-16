@@ -1,33 +1,33 @@
-# Repo
-* https://github.com/sheep-may/Mayo
+# Cinnamon Game Engine
+The purpose of this engine is to learn how game engines work. I hope it can be used in production one day, but for now, it's only a playground for me to have fun and build stuff I like and dream of.
+
+# Features I want to implement
+- [x] Rendering Pipeline
+- [x] GUI
+- [ ] Animations
+- [x] Sound System
+- [x] Entity System
+- [x] AABB Collisions
+- [ ] Better Collisions
+- [x] Items
+- [x] Inventory
+- [x] Particles
+- [x] World System
+- [x] Networking
+- [ ] What else comes into my very flat brain
+
 # Controls
-* Escape: pause menu
-#
-* WASD: move
-* Space: jump
-* TAB: sprint
-* Left-Control: sneak
-#
-* Mouse: rotate camera
-* Left-Click: shoot
-* Scroll: change hotbar slot
-* R: reload
-#
-* 1-9: select hotbar slot
-#
-* F1: toggle hud
-* F3: toggle debug menu
-* F5: toggle third person view
-# Options
-* fov: field of view (default `70`)
-* sensibility: mouse movement (default `0.27`)
-#
-* player: player model (default `"STRAWBERRY"`)
-* `PICKLE`, `STRAWBERRY`, `TOMATO`, `CHERRY`, `ICE_CREAM_SANDWICH`, `DONUT`, `ICE_CREAM`, `PANCAKE`, `COXINHA`
-#
-* enemySpawn: ticks to wait between enemy spawns (default `60`)
-* healthSpawn: ticks to wait between health pack spawns (default `300`)
-* boostSpawn: ticks to wait between boost spawns (default `300`)
-#
-* enemyBehaviour: actions for enemies to execute (default `["WALK"]`)
-* `WALK`, `SHOOT`
+| ACTION         |      BIND | ACTION             |   BIND |
+|----------------|----------:|--------------------|-------:|
+| Move Forwards  |         W | Hide Hud           |     F1 |
+| Move Backwards |         S | Screenshot         |     F2 |
+| Strafe Left    |         A | Debug Menu         |     F3 |
+| Strafe Right   |         D | Camera Perspective |     F5 |
+| Jump           |     Space | Fullscreen         |    F11 |
+| Walk           | Left-Ctrl | Reload Assets      |    F12 |
+| Sprint         |       Tab | Free Hamburger     | Alt+F4 |
+| Fly            |  2x Space |                    |        |
+
+# How to compile
+Dunno, I just let Gradle do its thing and it kinda works
+
