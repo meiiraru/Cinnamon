@@ -168,6 +168,7 @@ public class Main {
     private void close() {
         //close client
         client.close();
+        LOGGER.info("Now leaving... bye!");
 
         //free the window callbacks and destroy the window
         glfwFreeCallbacks(window);
