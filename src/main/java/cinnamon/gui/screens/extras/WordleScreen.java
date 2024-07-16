@@ -87,7 +87,7 @@ public class WordleScreen extends ParentedScreen {
                     continue;
 
                 if (word.length() != WORD_LENGTH) {
-                    LOGGER.warn("Ignoring wordle word \"" + word + "\" at line " + (i + 1));
+                    LOGGER.warn("Ignoring wordle word \"{}\" at line {}", word, i + 1);
                     continue;
                 }
 

@@ -45,7 +45,7 @@ public class TextureIO {
             //write file
             IOUtils.writeImage(path, img);
 
-            LOGGER.info("Saved screenshot as " + path.getFileName());
+            LOGGER.info("Saved screenshot as {}", path.getFileName());
         } catch (Exception e) {
             LOGGER.error("Failed to save screenshot!", e);
         }
@@ -85,7 +85,7 @@ public class TextureIO {
             //unbind texture
             glBindTexture(GL_TEXTURE_2D, 0);
 
-            LOGGER.info("Exported texture to " + outputPath.getFileName());
+            LOGGER.info("Exported texture to {}", outputPath.getFileName());
         } catch (Exception e) {
             LOGGER.error("Failed to save texture!", e);
         }

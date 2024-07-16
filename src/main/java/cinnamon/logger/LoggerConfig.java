@@ -31,6 +31,9 @@ public class LoggerConfig {
 
         //system out detection
         System.setOut(IoBuilder.forLogger(logger).setLevel(Level.INFO).setAutoFlush(true).buildPrintStream());
+        System.setErr(IoBuilder.forLogger(logger).setLevel(Level.ERROR).setAutoFlush(true).buildPrintStream());
+
+        //debugLogLevels(logger);
 
         //log any gzip exceptions
         if (gzipException != null)
@@ -92,5 +95,15 @@ public class LoggerConfig {
         }
 
         return null;
+    }
+
+    public static void debugLogLevels(Logger logger) {
+        logger.trace("trace!");
+        logger.debug("debug!");
+        logger.info("info!");
+        logger.warn("warn!");
+        logger.error("error!");
+        logger.fatal("fatal!");
+        logger.error("exception!", new Exception("exception!"));
     }
 }

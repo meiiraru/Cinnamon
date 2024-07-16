@@ -23,7 +23,7 @@ public class Message extends PacketWithOwner {
     @Override
     public void serverReceived(Server server, Connection connection) {
         String s = "<%s> %s".formatted(name, msg);
-        LOGGER.info("[Server] " + s);
+        LOGGER.info("[Server] {}", s);
         server.sendToAllTCP(new Message().msg(s));
     }
 }
