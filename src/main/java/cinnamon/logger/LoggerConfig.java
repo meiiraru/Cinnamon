@@ -9,6 +9,7 @@ import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
 import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuilder;
 import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
+import org.apache.logging.log4j.io.IoBuilder;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,20 +23,21 @@ public class LoggerConfig {
     private static final Level DEFAULT_LEVEL = Level.INFO;
 
     public static void initialize(Logger logger) {
-        //if a log file already exists, gzip it then delete the old file
-        Exception gzipException = null;
-        if (Files.exists(LOG_OUTPUT)) {
-            try {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                String fileName = sdf.format(new Date()) + ".log.gz";
-                Path writePath = IOUtils.parseNonDuplicatePath(LOG_OUTPUT.resolveSibling(fileName));
-                IOUtils.writeFileCompressed(writePath, IOUtils.readFile(LOG_OUTPUT));
-                Files.delete(LOG_OUTPUT);
-            } catch (Exception e) {
-                gzipException = e;
-            }
-        }
+        //save old log file
+        Exception gzipException = saveOldLog();
 
+        //configure logger
+        configureLogger();
+
+        //system out detection
+        System.setOut(IoBuilder.forLogger(logger).setLevel(Level.INFO).setAutoFlush(true).buildPrintStream());
+
+        //log any gzip exceptions
+        if (gzipException != null)
+            logger.error("Failed to parse previous log file", gzipException);
+    }
+
+    private static void configureLogger() {
         //configure log4j
         ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
 
@@ -61,9 +63,34 @@ public class LoggerConfig {
 
         //build new configuration
         Configurator.reconfigure(builder.build());
+    }
 
-        //log any gzip exceptions
-        if (gzipException != null)
-            logger.error("Failed to gzip previous log file", gzipException);
+    private static Exception saveOldLog() {
+        //if a log file already exists, check if it is the same date as today, if not, gzip it then delete the old file
+        if (!Files.exists(LOG_OUTPUT))
+            return null;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String today = sdf.format(new Date());
+        String fileDate;
+
+        try {
+            fileDate = sdf.format(new Date(Files.getLastModifiedTime(LOG_OUTPUT).toMillis()));
+            if (today.equals(fileDate))
+                return null;
+        } catch (Exception e) {
+            return e;
+        }
+
+        try {
+            String fileName = fileDate + ".log.gz";
+            Path writePath = IOUtils.parseNonDuplicatePath(LOG_OUTPUT.resolveSibling(fileName));
+            IOUtils.writeFileCompressed(writePath, IOUtils.readFile(LOG_OUTPUT));
+            Files.delete(LOG_OUTPUT);
+        } catch (Exception e) {
+            return e;
+        }
+
+        return null;
     }
 }

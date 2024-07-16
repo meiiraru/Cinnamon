@@ -85,6 +85,7 @@ public class Main {
         LoggerConfig.initialize(LOGGER);
 
         //opengl debug info
+        LOGGER.info("Welcome to Cinnamon!");
         LOGGER.info("OS: {}", os);
         LOGGER.info("Renderer: {}", glGetString(GL_RENDERER));
         LOGGER.info("OpenGL Version: {}", glGetString(GL_VERSION));
