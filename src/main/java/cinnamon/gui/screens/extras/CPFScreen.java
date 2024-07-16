@@ -30,26 +30,35 @@ public class CPFScreen extends ParentedScreen {
         field.setHintText("CPF...");
         field.setCharLimit(11);
         field.setFilter(TextField.Filter.NUMBERS);
-        field.setListener(s -> field.setBorderColor((Integer) null));
+        field.setListener(s -> {
+            String cpf = field.getFormattedText();
+            switch (checkCPF(cpf)) {
+                case 1 -> {
+                    field.setBorderColor(Colors.LIME);
+                    field.setTooltip(null);
+                }
+                case 2 -> {
+                    field.setBorderColor(Colors.RED);
+                    field.setTooltip(null);
+                }
+                case -1 -> field.setBorderColor(Colors.YELLOW);
+            }
+        });
         field.setFormatting("###.###.###-##");
         list.addWidget(field);
 
         //validate button
-        list.addWidget(new Button(0, 0, 180, 20, Text.of("Validate"), b -> {
+        Button button = new Button(0, 0, 180, 20, Text.of("Validate"), b -> {
             String cpf = field.getFormattedText();
-            try {
-                if (isValid(cpf)) {
-                    Toast.addToast(Text.of("Valid CPF"), font);
-                    field.setBorderColor(Colors.LIME);
-                } else {
-                    Toast.addToast(Text.of("Invalid CPF"), font);
-                    field.setBorderColor(Colors.RED);
-                }
-            } catch (Exception e) {
-                Toast.addToast(Text.of("Malformed CPF"), font);
-                field.setBorderColor(Colors.YELLOW);
+            Toast.addToast(Text.of("Checking..."), font, 5);
+            switch (checkCPF(cpf)) {
+                case 1 -> field.setTooltip(Text.of("Valid CPF"));
+                case 2 -> field.setTooltip(Text.of("Invalid CPF"));
+                case -1 -> field.setTooltip(Text.of("Malformed CPF"));
             }
-        }));
+        });
+        list.addWidget(button);
+        field.setEnterListener(tf -> button.onRun());
 
         //add list to screen
         list.setDimensions(width - 8, Math.min(list.getWidgetsHeight(), height - 8));
@@ -57,6 +66,18 @@ public class CPFScreen extends ParentedScreen {
         this.addWidget(list);
 
         super.init();
+    }
+
+    private static int checkCPF(String cpf) {
+        try {
+            if (isValid(cpf)) {
+                return 1;
+            } else {
+                return 2;
+            }
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     private static boolean isValid(String cpf) {

@@ -29,6 +29,7 @@ public class TextField extends SelectableWidget {
             HISTORY_SIZE = 20;
     private static final Style HINT_STYLE = Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK);
     private static final String PASSWORD_CHAR = "\u2022";
+    private static final Predicate<Character> WORD_CHARACTERS = c -> Character.isAlphabetic(c) || Character.isDigit(c) || c == '_';
 
     private final Font font;
 
@@ -39,6 +40,7 @@ public class TextField extends SelectableWidget {
     private Consumer<String> changeListener;
     private Predicate<Character> filter = Filter.ANY.predicate;
     private int charLimit = Integer.MAX_VALUE;
+    private Consumer<TextField> enterListener;
 
     //history
     private final String[] history = new String[HISTORY_SIZE];
@@ -197,6 +199,10 @@ public class TextField extends SelectableWidget {
         setText(currText);
     }
 
+    public void setEnterListener(Consumer<TextField> enterListener) {
+        this.enterListener = enterListener;
+    }
+
 
     // -- formatting -- //
 
@@ -301,7 +307,7 @@ public class TextField extends SelectableWidget {
         if (!isFocused() || action == GLFW_RELEASE)
             return super.keyPress(key, scancode, action, mods);
 
-        boolean ctrl = (mods & GLFW_MOD_CONTROL) == 2;
+        boolean ctrl = (mods & GLFW_MOD_CONTROL) != 0;
 
         switch (key) {
             //navigation
@@ -368,13 +374,21 @@ public class TextField extends SelectableWidget {
             }
             case GLFW_KEY_Z -> {
                 if (ctrl) {
-                    undo();
+                    if ((mods & GLFW_MOD_SHIFT) != 0) redo();
+                    else undo();
                     return this;
                 }
             }
             case GLFW_KEY_Y -> {
                 if (ctrl) {
                     redo();
+                    return this;
+                }
+            }
+            //enter
+            case GLFW_KEY_ENTER, GLFW_KEY_KP_ENTER -> {
+                if (enterListener != null) {
+                    enterListener.accept(this);
                     return this;
                 }
             }
@@ -402,10 +416,23 @@ public class TextField extends SelectableWidget {
         if (password) //for security, passwords do not have words
             return 0;
 
-        while (i > 0 && currText.charAt(i - 1) == ' ')
+        //skip spaces
+        while (i > 0 && Character.isWhitespace(currText.charAt(i - 1)))
             i--;
-        while (i > 0 && currText.charAt(i - 1) != ' ')
+
+        int oldI = i;
+
+        //skip words
+        while (i > 0 && WORD_CHARACTERS.test(currText.charAt(i - 1)))
             i--;
+
+        //if we did not move, try to skip anything else
+        if (i == oldI) {
+            char c;
+            while (i > 0 && !Character.isWhitespace(c = currText.charAt(i - 1)) && !WORD_CHARACTERS.test(c))
+                i--;
+        }
+
         return i;
     }
 
@@ -414,10 +441,23 @@ public class TextField extends SelectableWidget {
         if (password) //for security, passwords do not have words
             return len;
 
-        while (i < len && currText.charAt(i) == ' ')
+        //skip spaces
+        while (i < len && Character.isWhitespace(currText.charAt(i)))
             i++;
-        while (i < len && currText.charAt(i) != ' ')
+
+        int oldI = i;
+
+        //skip words
+        while (i < len && WORD_CHARACTERS.test(currText.charAt(i)))
             i++;
+
+        //if we did not move, try to skip anything else
+        if (i == oldI) {
+            char c;
+            while (i < len && !Character.isWhitespace(c = currText.charAt(i)) && !WORD_CHARACTERS.test(c))
+                i++;
+        }
+
         return i;
     }
 
@@ -574,10 +614,6 @@ public class TextField extends SelectableWidget {
         if (currText.equals(string))
             return;
 
-        //notify the listener about the change, before updating the text, allowing the listener to compare the old and new text
-        if (changeListener != null)
-            changeListener.accept(string);
-
         //update cursor inside the new boundaries then set the text
         cursor = Math.min(cursor, string.length());
         currText = string;
@@ -592,6 +628,10 @@ public class TextField extends SelectableWidget {
         else
             //otherwise just use the text
             formattedText = currText;
+
+        //then finally notify the listener about the change
+        if (changeListener != null)
+            changeListener.accept(string);
     }
 
 

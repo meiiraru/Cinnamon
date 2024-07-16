@@ -112,7 +112,7 @@ public class Toast {
     private long addedTime = -1;
 
     protected Toast(Text text, Font font, int length, ToastType type) {
-        this.length = length;
+        this.length = length + ANIM * 2;
         this.type = type;
         this.text = text;
         this.font = font;

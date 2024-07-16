@@ -84,24 +84,25 @@ public class WidgetTestScreen extends ParentedScreen {
         //text fields
 
         //normal text field
-        TextField tf1 = new TextField(0, 0, 60, 14, font);
+        int tfw = Math.min(width / 2 - 8, 180);
+        TextField tf1 = new TextField(0, 0, tfw, 14, font);
         grid.addWidget(tf1);
 
         tf1.setHintText("Text Field");
         tf1.setListener(s1 -> tf1.setStyle(tf1.getStyle().color(Colors.randomRainbow())));
 
         //filtered text field
-        TextField tf2 = new TextField(0, 0, 60, 14, font);
+        TextField tf2 = new TextField(0, 0, tfw, 14, font);
         tf2.setFilter(TextField.Filter.ASCII);
         tf2.setHintText("ASCII...");
         grid.addWidget(tf2);
 
-        TextField tf3 = new TextField(0, 0, 60, 14, font);
+        TextField tf3 = new TextField(0, 0, tfw, 14, font);
         tf3.setFilter(TextField.Filter.NUMBERS);
         tf3.setHintText("Numbers...");
         grid.addWidget(tf3);
 
-        TextField tf4 = new TextField(0, 0, 60, 14, font);
+        TextField tf4 = new TextField(0, 0, tfw, 14, font);
         tf4.setHintText("Password...");
         tf4.setPassword(true);
         grid.addWidget(tf4);
