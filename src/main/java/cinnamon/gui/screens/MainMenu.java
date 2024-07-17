@@ -126,16 +126,10 @@ public class MainMenu extends Screen {
         protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
             if (!this.isHoveredOrFocused())
                 return;
-
-            matrices.push();
-            matrices.translate(0, 0, -1f);
-
             VertexConsumer.GUI.consume(GeometryHelper.quad(
                     matrices, getCenterX() - 64, getY(),
                     128, 32
             ), LINE);
-
-            matrices.pop();
         }
     }
 

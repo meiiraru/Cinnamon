@@ -30,6 +30,7 @@ public class Font {
 
     //properties
     private static final float Z_OFFSET = 0.01f;
+    public static final float Z_DEPTH = Z_OFFSET * 3;
     private static final int SHADOW_COLOR = 0xFF161616;
     private static final int BG_COLOR = 0x44 << 24;
     private static final int SHADOW_OFFSET = 1;
@@ -132,6 +133,7 @@ public class Font {
             boolean bg      = style.hasBackground();
             boolean under   = style.isUnderlined();
             boolean strike  = style.isStrikethrough();
+            int zi = (shadow ? 1 : 0) + (outline ? 1 : 0) + (bg ? 1 : 0);
 
             if (prevItalic[0] && !italic)
                 xb.put(0, xb.get(0) + ITALIC_OFFSET);
@@ -142,7 +144,7 @@ public class Font {
 
             //main render
             int color = Objects.requireNonNullElse(style.getColor(), -1);
-            bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, 0, color);
+            bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * zi--, color);
 
             //backup final buffer
             float finalX = xb.get(0), finalY = yb.get(0);
@@ -151,7 +153,7 @@ public class Font {
             if (shadow) {
                 xb.put(0, initialX + SHADOW_OFFSET); yb.put(0, initialY + SHADOW_OFFSET);
                 int sc = Objects.requireNonNullElse(style.getShadowColor(), SHADOW_COLOR);
-                bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * -1, sc);
+                bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * zi--, sc);
             }
 
             //render outline
@@ -160,7 +162,7 @@ public class Font {
                 for (int i = -SHADOW_OFFSET; i <= SHADOW_OFFSET; i += SHADOW_OFFSET) {
                     for (int j = -SHADOW_OFFSET; j <= SHADOW_OFFSET; j += SHADOW_OFFSET) {
                         xb.put(0, initialX + i); yb.put(0, initialY + j);
-                        bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * -2, oc);
+                        bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * zi, oc);
                     }
                 }
             }
@@ -183,7 +185,7 @@ public class Font {
                 }
 
                 int bgc = Objects.requireNonNullElse(style.getBackgroundColor(), BG_COLOR);
-                consumer.consume(quad(matrices, x0, y0, zOffset * -3, w, h, bgc), -1);
+                consumer.consume(quad(matrices, x0, y0, zOffset * --zi, w, h, bgc), -1);
             }
 
             //restore buffer data

@@ -23,6 +23,7 @@ public class UIHelper {
     private static final Resource TOOLTIP = new Resource("textures/gui/widgets/tooltip.png");
     public static final Colors ACCENT = Colors.PURPLE;
     public static final float Z_OFFSET = 0.01f;
+    public static final int DOUBLE_CLICK_TIME = 10; //500ms
 
     private static final Stack<Region2D> SCISSORS_STACK = new Stack<>();
 
@@ -309,13 +310,15 @@ public class UIHelper {
     }
 
     public static void pushScissors(int x, int y, int width, int height) {
-        float guiScale = Client.getInstance().window.guiScale;
+        Window w = Client.getInstance().window;
+        float guiScale = w.guiScale;
+
         int x2 = Math.round(x * guiScale);
-        int y2 = Math.round(y * guiScale);
+        int y2 = w.height - Math.round(y * guiScale);
         int w2 = Math.round(width * guiScale);
         int h2 = Math.round(height * guiScale);
 
-        Region2D region = new Region2D(x2, y2, x2 + w2, y2 + h2);
+        Region2D region = new Region2D(x2, y2 - h2, x2 + w2, y2);
 
         if (!SCISSORS_STACK.isEmpty()) {
             Region2D peek = SCISSORS_STACK.peek();
