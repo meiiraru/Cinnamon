@@ -16,6 +16,8 @@ public class PopupWidget extends ContainerGrid {
     private boolean closeOnSelect = true;
     private Consumer<PopupWidget> openListener;
     private Consumer<PopupWidget> closeListener;
+    private boolean wasParentFocused;
+    private boolean forceFocusParent;
 
     public PopupWidget(int x, int y, int spacing) {
         super(x, y, spacing);
@@ -36,13 +38,15 @@ public class PopupWidget extends ContainerGrid {
         if (closeListener != null)
             closeListener.accept(this);
 
-        if (parent instanceof SelectableWidget sw)
+        if ((forceFocusParent || wasParentFocused) && parent instanceof SelectableWidget sw)
             UIHelper.focusWidget(sw);
     }
 
     public void open() {
         this.open = true;
         reset();
+
+        wasParentFocused = parent instanceof SelectableWidget sw && sw.isFocused();
 
         if (openListener != null)
             openListener.accept(this);
@@ -64,6 +68,10 @@ public class PopupWidget extends ContainerGrid {
 
     public void setCloseListener(Consumer<PopupWidget> closeListener) {
         this.closeListener = closeListener;
+    }
+
+    public void setForceFocusParent(boolean bool) {
+        this.forceFocusParent = bool;
     }
 
     @Override

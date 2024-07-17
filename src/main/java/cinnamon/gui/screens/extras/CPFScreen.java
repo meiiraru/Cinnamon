@@ -32,16 +32,21 @@ public class CPFScreen extends ParentedScreen {
         field.setFilter(TextField.Filter.NUMBERS);
         field.setListener(s -> {
             String cpf = field.getFormattedText();
+            if (cpf.length() != 14) {
+                field.setBorderColor((Integer) null);
+                field.setTooltip(null);
+                return;
+            }
+
             switch (checkCPF(cpf)) {
                 case 1 -> {
                     field.setBorderColor(Colors.LIME);
-                    field.setTooltip(null);
+                    field.setTooltip(Text.of("Valid CPF"));
                 }
                 case 2 -> {
                     field.setBorderColor(Colors.RED);
-                    field.setTooltip(null);
+                    field.setTooltip(Text.of("Invalid CPF"));
                 }
-                case -1 -> field.setBorderColor(Colors.YELLOW);
             }
         });
         field.setFormatting("###.###.###-##");
@@ -54,7 +59,10 @@ public class CPFScreen extends ParentedScreen {
             switch (checkCPF(cpf)) {
                 case 1 -> field.setTooltip(Text.of("Valid CPF"));
                 case 2 -> field.setTooltip(Text.of("Invalid CPF"));
-                case -1 -> field.setTooltip(Text.of("Malformed CPF"));
+                case -1 -> {
+                    field.setBorderColor(Colors.YELLOW);
+                    field.setTooltip(Text.of("Malformed CPF"));
+                }
             }
         });
         list.addWidget(button);

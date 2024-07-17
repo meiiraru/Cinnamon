@@ -62,6 +62,7 @@ public class TextField extends SelectableWidget {
     private Integer selectedColor;
     private int xOffset;
     private float xAnim;
+    private long lastBlink = -1;
 
     public TextField(int x, int y, int width, int height, Font font) {
         super(x, y, width, height);
@@ -77,6 +78,7 @@ public class TextField extends SelectableWidget {
                 .addAction(Text.of("Undo"), null, b -> undo())
                 .addAction(Text.of("Redo"), null, b -> redo());
         contextMenu.setOpenListener(ctx -> updateContext());
+        contextMenu.setForceFocusParent(true);
         this.setPopup(contextMenu);
     }
 
@@ -136,8 +138,8 @@ public class TextField extends SelectableWidget {
 
             //offset x based on the cursor
             if (cursor > 0) {
-                int extra = getFormattingSkippedCharCount(cursor);
-                Text index = Text.of(str.substring(0, cursor + extra)).withStyle(style);
+                int extra = cursor + getFormattingSkippedCharCount(cursor);
+                Text index = Text.of(str.substring(0, extra)).withStyle(style);
                 x0 += TextUtils.getWidth(index, font);
             }
 
@@ -145,13 +147,14 @@ public class TextField extends SelectableWidget {
             //also generate the text with the style, but with inverted colors for the selection
             if (selectedIndex != -1) {
                 //x1 offset
-                int extra = getFormattingSkippedCharCount(selectedIndex);
-                Text index = Text.of(str.substring(0, selectedIndex + extra)).withStyle(style);
+                int extra = selectedIndex + getFormattingSkippedCharCount(selectedIndex);
+                Text index = Text.of(str.substring(0, extra)).withStyle(style);
                 x1 += TextUtils.getWidth(index, font);
 
                 //text
-                int start = Math.min(cursor, selectedIndex);
-                int end = Math.max(cursor, selectedIndex);
+                int i = cursor + getFormattingSkippedCharCount(cursor);
+                int start = Math.min(i, extra);
+                int end = Math.max(i, extra);
                 int color = selectedColor == null ? Colors.BLACK.rgba : selectedColor;
 
                 text = Text.empty().withStyle(style)
@@ -211,7 +214,7 @@ public class TextField extends SelectableWidget {
     }
 
     protected void renderCursor(MatrixStack matrices, float x, float y, float height) {
-        if (isFocused() && Client.getInstance().ticks % BLINK_SPEED < BLINK_SPEED / 2) {
+        if (isFocused() && Math.max(Client.getInstance().ticks, lastBlink) % BLINK_SPEED < BLINK_SPEED / 2) {
             matrices.push();
             //translate matrices so we can render on top of text
             matrices.translate(0, 0, Font.Z_DEPTH);
@@ -304,6 +307,11 @@ public class TextField extends SelectableWidget {
 
     public void setSelectedTextColor(Integer color) {
         this.selectedColor = color;
+    }
+
+    public void setCursorPos(int cursor) {
+        this.cursor = Math.min(Math.max(cursor, 0), currText.length());
+        this.lastBlink = Client.getInstance().ticks;
     }
 
     // -- formatting -- //
@@ -417,31 +425,31 @@ public class TextField extends SelectableWidget {
             case GLFW_KEY_LEFT -> {
                 markSelection(shift);
                 if (ctrl) { //move word
-                    cursor = getPreviousWord(cursor);
+                    setCursorPos(getPreviousWord(cursor));
                 } else { //move char
-                    cursor = Math.max(cursor - 1, 0);
+                    setCursorPos(cursor - 1);
                 }
                 return this;
             }
             case GLFW_KEY_RIGHT -> {
                 markSelection(shift);
                 if (ctrl) { //move word
-                    cursor = getNextWord(cursor);
+                    setCursorPos(getNextWord(cursor));
                 } else { //move char
-                    cursor = Math.min(cursor + 1, currText.length());
+                    setCursorPos(cursor + 1);
                 }
                 return this;
             }
             case GLFW_KEY_HOME, GLFW_KEY_PAGE_UP -> {
                 markSelection(shift);
                 //no lines, so page up is the same as home
-                cursor = 0;
+                setCursorPos(0);
                 return this;
             }
             case GLFW_KEY_END, GLFW_KEY_PAGE_DOWN -> {
                 markSelection(shift);
                 //same for page down
-                cursor = currText.length();
+                setCursorPos(currText.length());
                 return this;
             }
             //editing
@@ -584,7 +592,7 @@ public class TextField extends SelectableWidget {
     }
 
     private void selectAll() {
-        cursor = currText.length();
+        setCursorPos(currText.length());
         selectedIndex = 0;
     }
 
@@ -661,9 +669,9 @@ public class TextField extends SelectableWidget {
         String[] split = text.split("\\|", 3);
 
         //set the cursor and text
-        cursor = Integer.parseInt(split[0]);
-        selectedIndex = Integer.parseInt(split[1]);
         setText(split[2]);
+        selectedIndex = Integer.parseInt(split[1]);
+        setCursorPos(Integer.parseInt(split[0]));
     }
 
     private void insert(char c) {
@@ -683,9 +691,8 @@ public class TextField extends SelectableWidget {
 
             //then backup the text, change cursor and set the new text
             appendToHistory(Action.INSERT);
-            text = text.substring(0, cursor) + c + text.substring(cursor + 1);
-            cursor++;
-            setText(text);
+            setText(text.substring(0, cursor) + c + text.substring(cursor + 1));
+            setCursorPos(cursor + 1);
         }
     }
 
@@ -709,9 +716,8 @@ public class TextField extends SelectableWidget {
 
             //then backup the text, change cursor and set the new text
             appendToHistory(action);
-            text = text.substring(0, cursor) + build + text.substring(cursor);
-            cursor = Math.min(cursor + s.length(), charLimit);
-            setText(text);
+            setText(text.substring(0, cursor) + build + text.substring(cursor));
+            setCursorPos(cursor + s.length());
         }
     }
 
@@ -741,8 +747,8 @@ public class TextField extends SelectableWidget {
                 //substring out the text then add what is in the right of the cursor
                 String newText = currText.substring(0, i) + currText.substring(cursor);
                 //update cursor position and set the text
-                cursor = i;
                 setText(newText);
+                setCursorPos(i);
             }
         }
     }
@@ -759,7 +765,7 @@ public class TextField extends SelectableWidget {
         //grab the length of the text
         int length = clamped.asString().length();
         //since the length uses the formatting, we need to subtract the extra chars
-        cursor = length - getFormattingExtraCharCount(length);
+        setCursorPos(length - getFormattingExtraCharCount(length));
     }
 
     private String removeSelected(Action context) {
@@ -773,7 +779,7 @@ public class TextField extends SelectableWidget {
 
         //save to history and update the cursor
         appendToHistory(context);
-        cursor = start;
+        setCursorPos(start);
         selectedIndex = -1;
 
         //return the new modified text
@@ -821,7 +827,7 @@ public class TextField extends SelectableWidget {
                 //do not select if the cursor - 1 is a whitespace nor the next char
                 selectedIndex = cursor == 0 || Character.isWhitespace(currText.charAt(cursor - 1)) ? cursor : getPreviousWord(cursor);
                 if (!Character.isWhitespace(currText.charAt(cursor)))
-                    cursor = getNextWord(cursor);
+                    setCursorPos(getNextWord(cursor));
             }
 
             lastClickTime = -1;
@@ -847,12 +853,6 @@ public class TextField extends SelectableWidget {
         return this;
     }
 
-    @Override
-    protected void onFocusChange(boolean focused) {
-        if (focused) selectedIndex = -1;
-        super.onFocusChange(focused);
-    }
-
     public void setText(String string) {
         //trim the text to the char limit
         if (string.length() > charLimit)
@@ -862,9 +862,9 @@ public class TextField extends SelectableWidget {
         if (currText.equals(string))
             return;
 
-        //update cursor inside the new boundaries then set the text
-        cursor = Math.min(cursor, string.length());
+        //set the text and update cursor to fit the text bounds
         currText = string;
+        setCursorPos(cursor);
 
         //update the formatted text
         if (password)
