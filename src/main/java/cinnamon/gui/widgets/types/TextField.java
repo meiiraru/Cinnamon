@@ -76,6 +76,7 @@ public class TextField extends SelectableWidget {
                 .addDivider()
                 .addAction(Text.of("Undo"), null, b -> undo())
                 .addAction(Text.of("Redo"), null, b -> redo());
+        contextMenu.setOpenListener(ctx -> updateContext());
         this.setPopup(contextMenu);
     }
 

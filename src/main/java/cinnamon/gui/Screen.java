@@ -101,12 +101,13 @@ public abstract class Screen {
         if (this.focused == widget)
             return;
 
-        if (this.focused != null)
-            this.focused.setFocused(false);
-
+        SelectableWidget prevFocus = this.focused;
         this.focused = widget;
         if (widget != null)
             widget.setFocused(true);
+
+        if (prevFocus != null)
+            prevFocus.setFocused(false);
     }
 
     public SelectableWidget getFocusedWidget() {

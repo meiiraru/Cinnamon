@@ -58,7 +58,7 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
     }
 
     protected void onFocusChange(boolean focused) {
-        if (popup != null && !focused)
+        if (!focused && popup != null && popup.isOpen() && !popup.isHovered())
             popup.close();
     }
 

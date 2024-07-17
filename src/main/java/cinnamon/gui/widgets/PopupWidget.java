@@ -4,6 +4,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.utils.UIHelper;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -13,6 +14,8 @@ public class PopupWidget extends ContainerGrid {
     private Widget parent;
     private boolean hovered;
     private boolean closeOnSelect = true;
+    private Consumer<PopupWidget> openListener;
+    private Consumer<PopupWidget> closeListener;
 
     public PopupWidget(int x, int y, int spacing) {
         super(x, y, spacing);
@@ -29,11 +32,20 @@ public class PopupWidget extends ContainerGrid {
     public void close() {
         this.open = false;
         reset();
+
+        if (closeListener != null)
+            closeListener.accept(this);
+
+        if (parent instanceof SelectableWidget sw)
+            UIHelper.focusWidget(sw);
     }
 
     public void open() {
         this.open = true;
         reset();
+
+        if (openListener != null)
+            openListener.accept(this);
     }
 
     protected void reset() {}
@@ -44,6 +56,14 @@ public class PopupWidget extends ContainerGrid {
 
     public void setParent(Widget parent) {
         this.parent = parent;
+    }
+
+    public void setOpenListener(Consumer<PopupWidget> openListener) {
+        this.openListener = openListener;
+    }
+
+    public void setCloseListener(Consumer<PopupWidget> closeListener) {
+        this.closeListener = closeListener;
     }
 
     @Override
