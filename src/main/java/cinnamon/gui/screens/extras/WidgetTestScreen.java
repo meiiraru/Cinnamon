@@ -91,10 +91,17 @@ public class WidgetTestScreen extends ParentedScreen {
         tf1.setHintText("Text Field");
         tf1.setListener(s1 -> tf1.setStyle(tf1.getStyle().color(Colors.randomRainbow())));
 
+        ContainerGrid password = new ContainerGrid(0, 0, 4, 2);
+        grid.addWidget(password);
+
         TextField tf4 = new TextField(0, 0, tfw, 14, font);
         tf4.setHintText("Password...");
         tf4.setPassword(true);
-        grid.addWidget(tf4);
+        password.addWidget(tf4);
+
+        Button viewPassword = new Button(0, 0, 14, 14, Text.of("\u26F6"), button -> tf4.setPassword(!button.isHolding()));
+        viewPassword.setRunOnHold(true);
+        password.addWidget(viewPassword);
 
         //toggle button
         ToggleButton tb = new ToggleButton(0, 0, Text.of("Toggle Button"));

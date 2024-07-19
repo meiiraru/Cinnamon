@@ -42,16 +42,16 @@ public class ContextMenu extends PopupWidget {
 
     @Override
     public boolean isHovered() {
-        return isOpen() && (super.isHovered() || isSubContextHovered() || isChildDragged());
+        return isOpen() && (super.isHovered() || isSubContextHovered() || isHoldingChild());
     }
 
     private boolean isSubContextHovered() {
         return subContext != null && subContext.isHovered();
     }
 
-    protected boolean isChildDragged() {
+    protected boolean isHoldingChild() {
         for (ContextButton action : actions) {
-            if (action.isDragged())
+            if (action.isHolding())
                 return true;
         }
         return false;
@@ -159,6 +159,11 @@ public class ContextMenu extends PopupWidget {
         @Override
         public boolean isHovered() {
             return super.isHovered() && !parent.isSubContextHovered();
+        }
+
+        @Override
+        public void setRunOnHold(boolean bool) {
+            throw new UnsupportedOperationException();
         }
     }
 

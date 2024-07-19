@@ -24,8 +24,10 @@ public class TextField extends SelectableWidget {
             INSERT_WIDTH = 4,
             BLINK_SPEED = 20,
             HISTORY_SIZE = 20;
+    private static final char
+            PASSWORD_CHAR = '\u2022',
+            FORMATTING_CHAR = '*';
     private static final Style HINT_STYLE = Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK);
-    private static final String PASSWORD_CHAR = "\u2022";
     private static final Predicate<Character> WORD_CHARACTERS = c -> Character.isAlphabetic(c) || Character.isDigit(c) || c == '_';
 
     private final Font font;
@@ -269,10 +271,12 @@ public class TextField extends SelectableWidget {
 
     public void setPassword(boolean password) {
         this.password = password;
+        updateFormatting();
     }
 
     public void setFormatting(String formatting) {
         this.formatting = formatting;
+        updateFormatting();
     }
 
     public String getText() {
@@ -336,8 +340,8 @@ public class TextField extends SelectableWidget {
                 continue;
             }
 
-            if (c == '#') {
-                build.append(s.charAt(chars));
+            if (c == FORMATTING_CHAR) {
+                build.append(password ? PASSWORD_CHAR : s.charAt(chars));
                 chars++;
                 continue;
             }
@@ -345,8 +349,10 @@ public class TextField extends SelectableWidget {
             build.append(c);
         }
 
-        if (chars < length)
-            build.append(s.substring(chars));
+        if (chars < length) {
+            String str = s.substring(chars);
+            build.append(password ? String.valueOf(PASSWORD_CHAR).repeat(str.length()) : str);
+        }
 
         return build.toString();
     }
@@ -373,7 +379,7 @@ public class TextField extends SelectableWidget {
                 continue;
             }
 
-            if (c == '#') {
+            if (c == FORMATTING_CHAR) {
                 j++;
                 continue;
             }
@@ -399,7 +405,7 @@ public class TextField extends SelectableWidget {
                 escaped = !escaped;
                 continue;
             }
-            if (escaped || c != '#') {
+            if (escaped || c != FORMATTING_CHAR) {
                 escaped = false;
                 count++;
             }
@@ -795,6 +801,15 @@ public class TextField extends SelectableWidget {
         contextMenu.getAction(5).setActive(historyIndex < history.length - 1 && history[historyIndex + 1] != null);
     }
 
+    private void updateFormatting() {
+        if (formatting != null)
+            formattedText = applyFormatting(currText);
+        else if (password)
+            formattedText = String.valueOf(PASSWORD_CHAR).repeat(currText.length());
+        else
+            formattedText = currText;
+    }
+
     @Override
     public GUIListener mousePress(int button, int action, int mods) {
         if (!isActive() || !isHovered() || action != GLFW_PRESS || button != GLFW_MOUSE_BUTTON_1) {
@@ -867,15 +882,7 @@ public class TextField extends SelectableWidget {
         setCursorPos(cursor);
 
         //update the formatted text
-        if (password)
-            //password uses only the same char
-            formattedText = PASSWORD_CHAR.repeat(currText.length());
-        else if (formatting != null)
-            //formatting have a special parser
-            formattedText = applyFormatting(currText);
-        else
-            //otherwise just use the text
-            formattedText = currText;
+        updateFormatting();
 
         //then finally notify the listener about the change
         if (changeListener != null)

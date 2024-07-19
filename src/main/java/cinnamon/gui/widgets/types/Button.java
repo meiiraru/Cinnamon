@@ -21,7 +21,8 @@ public class Button extends SelectableWidget {
     private static final Resource CLICK_SOUND = new Resource("sounds/pop.ogg");
 
     private boolean silent;
-    protected boolean mouseSelected;
+    private boolean runOnHold;
+    protected boolean holding;
 
     protected Text message;
     protected Consumer<Button> action;
@@ -60,7 +61,7 @@ public class Button extends SelectableWidget {
 
     @Override
     public boolean isHoveredOrFocused() {
-        return super.isHoveredOrFocused() || mouseSelected;
+        return super.isHoveredOrFocused() || holding;
     }
 
     @Override
@@ -68,24 +69,34 @@ public class Button extends SelectableWidget {
         if (!isActive())
             return null;
 
-        //test for left mouse button
-        if (button == GLFW_MOUSE_BUTTON_1) {
-            //test the click when hovered, otherwise cancel the click
-            if (isHovered()) {
-                //if the button was released while clicking, run the function
-                if (mouseSelected && action == GLFW_RELEASE) {
+        //test for left mouse button while hovered
+        if (button == GLFW_MOUSE_BUTTON_1 && isHovered()) {
+            //when pressed, set the flag to true, and if allowed, run the action
+            if (action == GLFW_PRESS) {
+                holding = true;
+                if (runOnHold) {
                     onRun();
-                    mouseSelected = false;
                     return this;
                 }
-
-                //update click based if the button was pressed
-                mouseSelected = action == GLFW_PRESS;
-            } else {
-                mouseSelected = false;
+                return super.mousePress(button, action, mods);
+            //otherwise when released, only if we were holding, run the action
+            } else if (holding && action == GLFW_RELEASE) {
+                holding = false;
+                onRun();
+                return this;
             }
         }
 
+        //everything failed, but we were holding and allowed to run on hold
+        if (holding) {
+            holding = false;
+            if (runOnHold) {
+                onRun();
+                return this;
+            }
+        }
+
+        //super
         return super.mousePress(button, action, mods);
     }
 
@@ -94,7 +105,7 @@ public class Button extends SelectableWidget {
         if (!isActive())
             return null;
 
-        if (isFocused() && action == GLFW_PRESS) {
+        if (isFocused() && (action == GLFW_PRESS || (action == GLFW_RELEASE && runOnHold))) {
             switch (key) {
                 case GLFW_KEY_SPACE, GLFW_KEY_ENTER, GLFW_KEY_KP_ENTER -> {
                     onRun();
@@ -147,7 +158,11 @@ public class Button extends SelectableWidget {
         this.silent = silent;
     }
 
-    public boolean isDragged() {
-        return mouseSelected;
+    public void setRunOnHold(boolean bool) {
+        this.runOnHold = bool;
+    }
+
+    public boolean isHolding() {
+        return holding;
     }
 }

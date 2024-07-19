@@ -49,7 +49,7 @@ public class CPFScreen extends ParentedScreen {
                 }
             }
         });
-        field.setFormatting("###.###.###-##");
+        field.setFormatting("***.***.***-**");
         list.addWidget(field);
 
         //validate button
