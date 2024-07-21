@@ -106,11 +106,37 @@ public class TextUtils {
                 if (s.isEmpty())
                     continue;
 
+                int sub = 1;
                 Formatting formatting = Formatting.byCode(s.charAt(0));
-                if (formatting != null)
-                    style = style.formatted(formatting);
+                if (formatting != null) {
+                    if (formatting == Formatting.HEX) {
+                        sub = 7;
+                        int color = ColorUtils.rgbToInt(ColorUtils.hexStringToRGB(s.substring(1, sub)));
+                        style = style.color(color + 0xFF000000);
+                    } else {
+                        style = style.formatted(formatting);
+                    }
+                }
 
-                newText.append(Text.of(s.substring(1)).withStyle(style));
+                newText.append(Text.of(s.substring(sub)).withStyle(style));
+            }
+
+            result.append(newText);
+        }, Style.EMPTY);
+
+        return result;
+    }
+
+    public static Text replaceAll(Text text, String regex, String replacement) {
+        Text result = Text.empty();
+
+        text.visit((string, style) -> {
+            String[] split = string.split(regex, -1);
+            Text newText = Text.of(split[0]).withStyle(style);
+
+            for (int i = 1; i < split.length; i++) {
+                newText.append(replacement);
+                newText.append(split[i]);
             }
 
             result.append(newText);

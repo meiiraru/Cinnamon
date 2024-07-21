@@ -65,7 +65,7 @@ public class Client {
         this.soundManager.init();
         this.camera = new Camera();
         this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight, this.options.fov);
-        this.font = new Font(new Resource("fonts/mayscript.ttf"), 8);
+        this.font = new Font(new Resource("fonts/mayonnaise.ttf"), 8);
         ResourceManager.register();
         ResourceManager.init();
         this.setScreen(new MainMenu());

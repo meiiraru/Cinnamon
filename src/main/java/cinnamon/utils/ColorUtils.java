@@ -69,8 +69,12 @@ public class ColorUtils {
     }
 
     public static Vector3f hexStringToRGB(String string) {
+        return hexStringToRGB(string, new Vector3f());
+    }
+
+    public static Vector3f hexStringToRGB(String string, Vector3f fallbackColor) {
         if (string == null || string.isBlank())
-            return new Vector3f();
+            return fallbackColor;
 
         //parse hex color
         StringBuilder hex = new StringBuilder(string);
@@ -89,7 +93,7 @@ public class ColorUtils {
         try {
             return intToRGB(Integer.parseInt(hex.substring(0, 6), 16));
         } catch (Exception ignored) {
-            return new Vector3f();
+            return fallbackColor;
         }
     }
 

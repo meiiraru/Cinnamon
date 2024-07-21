@@ -24,7 +24,8 @@ public enum Formatting {
     OBFUSCATED('o', Style.EMPTY.obfuscated(true)),
     BOLD('n', Style.EMPTY.bold(true)),
 
-    RESET('r', Style.EMPTY);
+    RESET('r', Style.EMPTY),
+    HEX('x', Style.EMPTY);
 
     public static final char FORMATTING_CHAR = '&';
 

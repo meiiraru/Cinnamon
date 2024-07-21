@@ -3,6 +3,7 @@ package cinnamon.gui.widgets.types;
 import cinnamon.Client;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
+import cinnamon.gui.widgets.Tickable;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
@@ -16,7 +17,7 @@ import java.util.function.Predicate;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class TextField extends SelectableWidget {
+public class TextField extends SelectableWidget implements Tickable {
 
     private static final Resource TEXTURE = new Resource("textures/gui/widgets/text_field.png");
     private static final int
@@ -45,6 +46,8 @@ public class TextField extends SelectableWidget {
 
     //mouse
     private long lastClickTime = -1;
+    private int lastClickIndex = -1;
+    private int clickCount;
     private boolean dragging;
 
     //history
@@ -64,7 +67,7 @@ public class TextField extends SelectableWidget {
     private Integer selectedColor;
     private int xOffset;
     private float xAnim;
-    private long lastBlink = -1;
+    private long blinkTime;
 
     public TextField(int x, int y, int width, int height, Font font) {
         super(x, y, width, height);
@@ -85,14 +88,33 @@ public class TextField extends SelectableWidget {
     }
 
 
+    // -- tick -- //
+
+
+    @Override
+    public void tick() {
+        blinkTime++;
+    }
+
+
     // -- rendering -- //
 
 
     @Override
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        if (!textOnly) renderBackground(matrices, mouseX, mouseY, delta);
+        if (!textOnly)
+            renderBackground(matrices, mouseX, mouseY, delta);
+
+        UIHelper.pushScissors(getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
+        matrices.push();
+
         renderText(matrices, mouseX, mouseY, delta);
-        if (!textOnly) renderOverlay(matrices, mouseX, mouseY, delta);
+
+        matrices.pop();
+        UIHelper.popScissors();
+
+        if (!textOnly)
+            renderOverlay(matrices, mouseX, mouseY, delta);
     }
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -124,86 +146,81 @@ public class TextField extends SelectableWidget {
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         int x = getX() + 2;
         int y = getCenterY() - Math.round(font.lineHeight * 0.5f);
-        int x0, x1 = x0 = x;
         int height = Math.round(font.lineHeight) + 2;
-
-        UIHelper.pushScissors(getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
-        matrices.push();
 
         //hint text
         if (currText.isEmpty()) {
             if (hintText != null)
                 font.render(VertexConsumer.FONT, matrices, x, y, hintText);
-        } else {
-            String str = getFormattedText();
-            Text text;
 
-            //offset x based on the cursor
-            if (cursor > 0) {
-                int extra = cursor + getFormattingSkippedCharCount(cursor);
-                Text index = Text.of(str.substring(0, extra)).withStyle(style);
-                x0 += TextUtils.getWidth(index, font);
-            }
-
-            //offset x1 based on the selected index
-            //also generate the text with the style, but with inverted colors for the selection
-            if (selectedIndex != -1) {
-                //x1 offset
-                int extra = selectedIndex + getFormattingSkippedCharCount(selectedIndex);
-                Text index = Text.of(str.substring(0, extra)).withStyle(style);
-                x1 += TextUtils.getWidth(index, font);
-
-                //text
-                int i = cursor + getFormattingSkippedCharCount(cursor);
-                int start = Math.min(i, extra);
-                int end = Math.max(i, extra);
-                int color = selectedColor == null ? Colors.BLACK.rgba : selectedColor;
-
-                text = Text.empty().withStyle(style)
-                        .append(Text.of(str.substring(0, start)))
-                        .append(Text.of(str.substring(start, end)).withStyle(style.color(color).background(false)))
-                        .append(Text.of(str.substring(end)));
-            } else {
-                //no selection, so just use the text
-                text = Text.of(str).withStyle(style);
-            }
-
-            //if the text is too large, we may need to offset it
-            int cursorX = x0 + xOffset;
-
-            //fit the cursor inside the scissors, taking into account the x offset
-            if (cursorX < getX() + 2) {
-                xOffset += getX() + 2 - cursorX;
-            } else if (cursorX > getX() + getWidth() - 2 - 4) {
-                xOffset -= cursorX - (getX() + getWidth() - 2 - 4);
-            }
-
-            //translate offset based on the remaining empty space, if any
-            if (xOffset < 0) {
-                int emptySpace = Math.min(TextUtils.getWidth(text, font) + 2 + xOffset - getWidth() + 2 + 4, 0);
-                xOffset = Math.min(0, xOffset - emptySpace);
-            }
-
-            //smooth
-            float d = UIHelper.tickDelta(0.4f);
-            xAnim = Maths.lerp(xAnim, xOffset, d);
-
-            //apply the offset and render the text
-            matrices.translate(xAnim, 0, 0);
-            font.render(VertexConsumer.FONT, matrices, x, y, text);
+            //render cursor
+            renderCursor(matrices, x, y - 1, height);
+            xAnim = xOffset = 0;
+            return;
         }
 
-        //offset y
-        y--;
+        //we have text, so here we go!
+        int x0, x1 = x0 = x;
+        int skipped = cursor + getFormattingSkippedCharCount(cursor);
+        String str = getFormattedText();
+        Text text;
 
+        //offset x0 based on the cursor
+        if (cursor > 0) {
+            Text index = Text.of(str.substring(0, skipped)).withStyle(style);
+            x0 += TextUtils.getWidth(index, font);
+        }
+
+        //offset x1 based on the selected index
+        //also generate the text with the style, but with inverted colors for the selection
+        if (selectedIndex != -1) {
+            //x1 offset
+            int extra = selectedIndex + getFormattingSkippedCharCount(selectedIndex);
+            Text index = Text.of(str.substring(0, extra)).withStyle(style);
+            x1 += TextUtils.getWidth(index, font);
+
+            //text
+            int start = Math.min(skipped, extra);
+            int end = Math.max(skipped, extra);
+            int color = selectedColor == null ? Colors.BLACK.rgba : selectedColor;
+
+            text = Text.empty().withStyle(style)
+                    .append(Text.of(str.substring(0, start)))
+                    .append(Text.of(str.substring(start, end)).withStyle(style.color(color).background(false)))
+                    .append(Text.of(str.substring(end)));
+        } else {
+            //no selection, so just use the text
+            text = Text.of(str).withStyle(style);
+        }
+
+        //if the text is too large, we may need to offset it
+        int cursorX = x0 + xOffset;
+        int w = getWidth();
+
+        //fit the cursor inside the scissors, taking into account the x offset
+        if (cursorX < x) {
+            xOffset += x - cursorX;
+        } else if (cursorX > x + w - 4 - 4) {
+            xOffset -= cursorX - (x + w - 4 - 4);
+        }
+
+        //translate offset based on the remaining empty space, if any
+        if (xOffset < 0) {
+            int emptySpace = Math.min(TextUtils.getWidth(text, font) + 2 + xOffset - w + 2 + 4, 0);
+            xOffset = Math.min(0, xOffset - emptySpace);
+        }
+
+        //smooth and apply the offset
+        float d = UIHelper.tickDelta(0.4f);
+        xAnim = Maths.lerp(xAnim, xOffset, d);
+        matrices.translate(xAnim, 0, 0);
+
+        //render text
+        font.render(VertexConsumer.FONT, matrices, x, y, text);
         //render selection
-        renderSelection(matrices, x0, x1, y, height);
-
+        renderSelection(matrices, x0, x1, y - 1, height);
         //render cursor
-        renderCursor(matrices, x0, y, height);
-
-        UIHelper.popScissors();
-        matrices.pop();
+        renderCursor(matrices, x0, y - 1, height);
     }
 
     protected void renderSelection(MatrixStack matrices, float x0, float x1, float y, float height) {
@@ -216,7 +233,7 @@ public class TextField extends SelectableWidget {
     }
 
     protected void renderCursor(MatrixStack matrices, float x, float y, float height) {
-        if (isFocused() && Math.max(Client.getInstance().ticks, lastBlink) % BLINK_SPEED < BLINK_SPEED / 2) {
+        if (isFocused() && blinkTime % BLINK_SPEED < BLINK_SPEED / 2) {
             matrices.push();
             //translate matrices so we can render on top of text
             matrices.translate(0, 0, Font.Z_DEPTH);
@@ -315,8 +332,9 @@ public class TextField extends SelectableWidget {
 
     public void setCursorPos(int cursor) {
         this.cursor = Math.min(Math.max(cursor, 0), currText.length());
-        this.lastBlink = Client.getInstance().ticks;
+        this.blinkTime = 0;
     }
+
 
     // -- formatting -- //
 
@@ -761,13 +779,13 @@ public class TextField extends SelectableWidget {
 
     private void moveCursorToMouse() {
         //rendering text offset
-        int x0 = getX() + 2;
+        int x = getX() + 2;
         //grab mouse pos
         int mousePos = Client.getInstance().window.mouseX;
         //get the text
         Text text = Text.of(getFormattedText()).withStyle(style);
         //convert the mouse pos to the text space and get the length at the position
-        Text clamped = font.clampToWidth(text, mousePos - xOffset - x0);
+        Text clamped = font.clampToWidth(text, mousePos - xOffset - x, true);
         //grab the length of the text
         int length = clamped.asString().length();
         //since the length uses the formatting, we need to subtract the extra chars
@@ -821,33 +839,47 @@ public class TextField extends SelectableWidget {
         UIHelper.focusWidget(this);
         dragging = true;
 
-        //reset selected index, unless shift is pressed
-        if (selectedIndex == -1 && (mods & GLFW_MOD_SHIFT) != 0) {
-            selectedIndex = cursor;
-        } else if (selectedIndex != -1 && (mods & GLFW_MOD_SHIFT) == 0) {
-            selectedIndex = -1;
+        //shift selects the text
+        if ((mods & GLFW_MOD_SHIFT) != 0) {
+            if (selectedIndex == -1)
+                selectedIndex = cursor;
+            moveCursorToMouse();
+            clickCount = 0;
+            return this;
         }
 
         //move the cursor to the mouse position
-        int oldCursor = cursor;
         moveCursorToMouse();
 
-        //double click, select the word
+        //click count
         long now = Client.getInstance().ticks;
-        if (oldCursor == cursor && now - lastClickTime < UIHelper.DOUBLE_CLICK_TIME) {
-            //select all if the cursor is at the end
-            if (cursor >= currText.length()) {
-                selectAll();
-            } else {
-                //do not select if the cursor - 1 is a whitespace nor the next char
-                selectedIndex = cursor == 0 || Character.isWhitespace(currText.charAt(cursor - 1)) ? cursor : getPreviousWord(cursor);
-                if (!Character.isWhitespace(currText.charAt(cursor)))
-                    setCursorPos(getNextWord(cursor));
-            }
+        if (clickCount != 0 && lastClickIndex == cursor && now - lastClickTime < UIHelper.DOUBLE_CLICK_TIME)
+            clickCount++;
+        else
+            clickCount = 1;
 
-            lastClickTime = -1;
-        } else {
-            lastClickTime = now;
+        //save variables
+        selectedIndex = -1;
+        lastClickTime = now;
+        lastClickIndex = cursor;
+
+        //extra click actions
+        switch (clickCount) {
+            case 2 -> {
+                if (cursor >= currText.length()) {
+                    selectAll();
+                    clickCount = 0; //reset actions
+                } else {
+                    //do not select if the cursor - 1 is a whitespace nor the next char
+                    selectedIndex = cursor == 0 || Character.isWhitespace(currText.charAt(cursor - 1)) ? cursor : getPreviousWord(cursor);
+                    if (!Character.isWhitespace(currText.charAt(cursor)))
+                        setCursorPos(getNextWord(cursor));
+                }
+            }
+            case 3 -> {
+                selectAll();
+                clickCount = 0; //reset actions
+            }
         }
 
         return this;
