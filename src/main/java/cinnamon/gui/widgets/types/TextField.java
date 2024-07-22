@@ -40,7 +40,7 @@ public class TextField extends SelectableWidget implements Tickable {
     private boolean insert;
     private Consumer<String> changeListener;
     private Predicate<Character> filter = Filter.ANY.predicate;
-    private int charLimit = Integer.MAX_VALUE;
+    private int charLimit = 1000;
     private Consumer<TextField> enterListener;
     private int selectedIndex = -1;
 
@@ -452,6 +452,8 @@ public class TextField extends SelectableWidget implements Tickable {
                     setCursorPos(getPreviousWord(cursor));
                 } else { //move char
                     setCursorPos(cursor - 1);
+                    if (isSurrogate(cursor))
+                        setCursorPos(cursor - 1);
                 }
                 return this;
             }
@@ -461,6 +463,8 @@ public class TextField extends SelectableWidget implements Tickable {
                     setCursorPos(getNextWord(cursor));
                 } else { //move char
                     setCursorPos(cursor + 1);
+                    if (isSurrogate(cursor))
+                        setCursorPos(cursor + 1);
                 }
                 return this;
             }
@@ -581,6 +585,10 @@ public class TextField extends SelectableWidget implements Tickable {
         }
 
         return i;
+    }
+
+    private boolean isSurrogate(int cursor) {
+        return cursor >= 0 && cursor < currText.length() && Character.isLowSurrogate(currText.charAt(cursor));
     }
 
     private int getNextWord(int i) {
@@ -713,10 +721,16 @@ public class TextField extends SelectableWidget implements Tickable {
             if (!text.equals(currText))
                 lastAction = Action.INSERT;
 
-            //then backup the text, change cursor and set the new text
+            //backup the text
             appendToHistory(Action.INSERT);
-            setText(text.substring(0, cursor) + c + text.substring(cursor + 1));
-            setCursorPos(cursor + 1);
+
+            //check for surrogates
+            int i, j = i = cursor + 1;
+            if (isSurrogate(i)) i++;
+
+            //set the new text and cursor pos
+            setText(text.substring(0, cursor) + c + text.substring(i));
+            setCursorPos(j);
         }
     }
 
@@ -762,16 +776,23 @@ public class TextField extends SelectableWidget implements Tickable {
 
         //negative count means delete forward
         if (count < 0) {
-            if (cursor < len)
-                setText(currText.substring(0, cursor) + currText.substring(Math.min(cursor - count, len)));
+            if (cursor < len) {
+                //get the substring position
+                int i = cursor - count;
+                //check for surrogates
+                if (isSurrogate(i)) i++;
+                //set the new substring text
+                setText(currText.substring(0, cursor) + currText.substring(Math.min(i, len)));
+            }
         } else {
             if (cursor > 0) {
                 //get the substring position
-                int i = Math.max(cursor - count, 0);
-                //substring out the text then add what is in the right of the cursor
-                String newText = currText.substring(0, i) + currText.substring(cursor);
-                //update cursor position and set the text
-                setText(newText);
+                int i = cursor - count;
+                //check for surrogates
+                if (isSurrogate(i)) i--;
+                //set the new substring text
+                setText(currText.substring(0, Math.max(i, 0)) + currText.substring(cursor));
+                //also set the new cursor position
                 setCursorPos(i);
             }
         }
