@@ -4,21 +4,26 @@ import cinnamon.model.Vertex;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.*;
+import cinnamon.utils.Alignment;
+import cinnamon.utils.IOUtils;
+import cinnamon.utils.Resource;
+import cinnamon.utils.TextUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
+import org.lwjgl.stb.STBTTFontinfo;
 import org.lwjgl.stb.STBTTPackContext;
 import org.lwjgl.stb.STBTTPackedchar;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.*;
 
+import static cinnamon.Client.LOGGER;
 import static cinnamon.model.GeometryHelper.quad;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.stb.STBTruetype.*;
-import static org.lwjgl.system.MemoryUtil.NULL;
-import static org.lwjgl.system.MemoryUtil.memAllocFloat;
+import static org.lwjgl.system.MemoryUtil.*;
 
 public class Font {
 
@@ -28,69 +33,111 @@ public class Font {
     //properties
     private static final float Z_OFFSET = 0.01f;
     public static final float Z_DEPTH = Z_OFFSET * 3;
-    private static final int SHADOW_COLOR = 0xFF161616;
-    private static final int BG_COLOR = 0x44 << 24;
-    private static final int SHADOW_OFFSET = 1;
-    private static final int BOLD_OFFSET = 1;
-    private static final int ITALIC_OFFSET = 3;
-    private static final int HIGHEST_CODEPOINT = 0x1FBFF;
+    private static final int
+            SHADOW_COLOR = 0xFF161616,
+            BG_COLOR = 0x44 << 24,
+            SHADOW_OFFSET = 1,
+            BOLD_OFFSET = 1,
+            ITALIC_OFFSET = 3;
 
-    public static final Random RANDOM = new Random();
+    private static final Random RANDOM = new Random();
     private static int SEED = 42;
 
     //buffers
     private final STBTTAlignedQuad q = STBTTAlignedQuad.malloc();
     private final FloatBuffer xb = memAllocFloat(1), yb = memAllocFloat(1);
 
-    //fields
-    private final ByteBuffer ttf;
+    //data
+    private final ByteBuffer ttf; //needs to be kept in memory
+    private final STBTTFontinfo info = STBTTFontinfo.malloc();
     private final STBTTPackedchar.Buffer charData;
     private final int textureID;
-    public final float lineHeight;
 
-    //other
+    //properties
+    public final float
+            lineHeight,
+            lineGap,
+            ascent,
+            descent,
+            scale;
+
+    private final float[] missing;
     private final Map<Float, List<Integer>> charsByWidth = new HashMap<>();
+
 
     // -- font initialization -- //
 
+
     public Font(Resource res, float height) {
+        this(res, height, 1, false);
+    }
+
+    public Font(Resource res, float height, float lineSpacing, boolean smooth) {
         this.ttf = IOUtils.getResourceBuffer(res);
         this.lineHeight = height;
-        this.charData = STBTTPackedchar.malloc(HIGHEST_CODEPOINT + 1);
+        this.lineGap = lineSpacing;
+        this.charData = STBTTPackedchar.malloc(0x10FFFF + 3 + 1); //".notdef" ".null" "nonmarkingreturn"
         this.textureID = glGenTextures();
 
+        //font data
+        stbtt_InitFont(info, ttf);
+
+        IntBuffer ascent = memAllocInt(1);
+        IntBuffer descent = memAllocInt(1);
+        IntBuffer lineGap = memAllocInt(1);
+
+        stbtt_GetFontVMetrics(info, ascent, descent, lineGap);
+
+        this.scale = height / (ascent.get(0) - descent.get(0));
+        this.ascent = ascent.get(0) * scale;
+        this.descent = descent.get(0) * scale;
+
+        memFree(ascent); memFree(descent); memFree(lineGap);
+
+        //font bitmap
         try (STBTTPackContext spc = STBTTPackContext.malloc()) {
             ByteBuffer bitmap = BufferUtils.createByteBuffer(TEXTURE_W * TEXTURE_H);
 
-            stbtt_PackSetSkipMissingCodepoints(spc, true);
             stbtt_PackBegin(spc, bitmap, TEXTURE_W, TEXTURE_H, 0, 1, NULL);
             stbtt_PackFontRange(spc, ttf, 0, height, 0, charData);
-
-            charData.clear();
             stbtt_PackEnd(spc);
 
             glBindTexture(GL_TEXTURE_2D, textureID);
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
 
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, TEXTURE_W, TEXTURE_H, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap);
 
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
-        for (int i = 0; i < HIGHEST_CODEPOINT; i++) {
-            float w = getCharWidth(i);
+        //char widths
+        getCharData(0x110000); //".notdef"
+        this.missing = new float[]{q.s0(), q.s1(), q.t0(), q.t1()};
+
+        for (int i = 0; i < 0x10FFFF; i++) {
+            if (Character.isSpaceChar(i) || isMissingGlyph(i))
+                continue;
+            float w = width(i);
             charsByWidth.computeIfAbsent(w, k -> new ArrayList<>()).add(i);
         }
+
+        //finished!
+        LOGGER.debug("Loaded font \"{}\"", res);
     }
 
     public void free() {
+        glDeleteTextures(textureID);
         charData.free();
+        info.free();
+        q.free();
+        memFree(xb);
+        memFree(yb);
     }
 
     private void getCharData(int c) {
-        stbtt_GetPackedQuad(charData, TEXTURE_W, TEXTURE_H, c > HIGHEST_CODEPOINT ? 0 : c, xb, yb, q, false);
+        stbtt_GetPackedQuad(charData, TEXTURE_W, TEXTURE_H, c, xb, yb, q, false);
     }
 
 
@@ -102,7 +149,7 @@ public class Font {
     }
 
     public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Text text, Alignment alignment) {
-        this.render(consumer, matrices, x, y, text, alignment, 1);
+        render(consumer, matrices, x, y, text, alignment, 1);
     }
 
     public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Text text, Alignment alignment, int indexScaling) {
@@ -111,7 +158,7 @@ public class Font {
         for (int i = 0; i < list.size(); i++) {
             Text t = list.get(i);
             int x2 = Math.round(alignment.getOffset(this.width(t)));
-            int y2 = Math.round((lineHeight * (i + 1) - 1));
+            int y2 = Math.round((lineHeight * (i + 1) + descent));
             bake(consumer, matrices, t, x + x2, y + y2, indexScaling * Z_OFFSET);
         }
     }
@@ -168,12 +215,13 @@ public class Font {
                         bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * zi, oc);
                     }
                 }
+                zi--;
             }
 
             //render background
             if (bg) {
                 float x0 = initialX + x;
-                float y0 = initialY + y - lineHeight + 1;
+                float y0 = initialY + y - lineHeight - descent;
                 float w  = finalX - initialX;
                 float h  = lineHeight;
 
@@ -188,7 +236,7 @@ public class Font {
                 }
 
                 int bgc = Objects.requireNonNullElse(style.getBackgroundColor(), BG_COLOR);
-                consumer.consume(quad(matrices, x0, y0, zOffset * --zi, w, h, bgc), -1);
+                consumer.consume(quad(matrices, x0, y0, zOffset * zi, w, h, bgc), -1);
             }
 
             //restore buffer data
@@ -205,9 +253,14 @@ public class Font {
         for (int i = 0; i < s.length(); ) {
             int c = s.codePointAt(i);
             i += Character.charCount(c);
-            if (obfuscated && !Character.isSpaceChar(i))
-                c = getRandomChar(c);
+
+            if (obfuscated && !Character.isSpaceChar(c))
+                c = getRandomCodepoint(c);
+
             bakeChar(consumer, matrices, c, italic, bold, x, y, z, color);
+
+            if (!obfuscated && i < s.length())
+                xb.put(0, xb.get(0) + getKerning(c, s.codePointAt(i)));
         }
 
         //extra rendering
@@ -220,7 +273,7 @@ public class Font {
 
         //strikethrough
         if (strikethrough)
-            consumer.consume(quad(matrices, x0, y0 - (int) (lineHeight / 2 - 1), z, width, 1f, color), -1);
+            consumer.consume(quad(matrices, x0, y0 - (int) (ascent / 2), z, width, 1f, color), -1);
     }
 
     private void bakeChar(VertexConsumer consumer, MatrixStack matrices, int c, boolean italic, boolean bold, float x, float y, float z, int color) {
@@ -237,8 +290,8 @@ public class Font {
 
         float i0 = 0f, i1 = 0f;
         if (italic) {
-            i0 = ((y0 - 1) / lineHeight) * -ITALIC_OFFSET;
-            i1 = ((y1 - 1) / lineHeight) * -ITALIC_OFFSET;
+            i0 = ((y0 + descent) / lineHeight) * -ITALIC_OFFSET;
+            i1 = ((y1 + descent) / lineHeight) * -ITALIC_OFFSET;
         }
 
         x0 += x; x1 += x;
@@ -262,27 +315,39 @@ public class Font {
         };
     }
 
-    private int getRandomChar(int c) {
-        List<Integer> list = charsByWidth.get(getCharWidth(c));
-        return list == null ? c : list.get(RANDOM.nextInt(list.size()));
-    }
-
 
     // -- misc functions -- //
 
 
-    private float getCharWidth(int c) {
-        //backup buffer
-        float x = xb.get(0), y = yb.get(0);
+    public int getRandomCodepoint(int codepoint) {
+        List<Integer> list = charsByWidth.get(width(codepoint));
+        return list == null ? codepoint : list.get(RANDOM.nextInt(list.size()));
+    }
 
-        //fill data
-        getCharData(c);
+    public float getKerning(int codepoint, int next) {
+        return stbtt_GetCodepointKernAdvance(info, codepoint, next) * scale;
+    }
 
-        //save return value
-        float w = xb.get(0) - x;
+    public boolean isMissingGlyph(int codepoint) {
+        getCharData(codepoint);
+        return q.s0() == missing[0] && q.s1() == missing[1] && q.t0() == missing[2] && q.t1() == missing[3];
+    }
 
-        //restore buffer
-        xb.put(0, x); yb.put(0, y);
+    public float width(int codepoint) {
+        return charData.get(codepoint).xadvance();
+    }
+
+    public float width(String string) {
+        float w = 0;
+
+        for (int i = 0; i < string.length(); ) {
+            int c = string.codePointAt(i);
+            i += Character.charCount(c);
+            w += width(c);
+
+            if (i < string.length())
+                w += getKerning(c, string.codePointAt(i));
+        }
 
         return w;
     }
@@ -290,7 +355,7 @@ public class Font {
     public float width(Text text) {
         //prepare vars
         boolean[] prevItalic = {false};
-        xb.put(0, 0f);
+        float[] x = {0f};
 
         //iterate text
         text.visit((s, style) -> {
@@ -300,22 +365,18 @@ public class Font {
 
             //bold special
             if (bold)
-                xb.put(0, xb.get(0) + (BOLD_OFFSET * length));
+                x[0] += BOLD_OFFSET * length;
 
             //italic special
             if (prevItalic[0] && !italic)
-                xb.put(0, xb.get(0) + ITALIC_OFFSET);
+                x[0] += ITALIC_OFFSET;
             prevItalic[0] = italic;
 
-            //this function will fill the buffers with all necessary data, as we only want the xb (width)
-            for (int i = 0; i < length; ) {
-                int c = s.codePointAt(i);
-                i += Character.charCount(c);
-                getCharData(c);
-            }
+            //add string width
+            x[0] += width(s);
         }, Style.EMPTY);
 
-        return xb.get(0);
+        return x[0];
     }
 
     public Text clampToWidth(Text text, int width) {
@@ -326,8 +387,7 @@ public class Font {
         //prepare vars
         Text builder = Text.empty();
         boolean[] prevItalic = {false};
-        float[] prevX = {0f};
-        xb.put(0, 0f);
+        float[] x = {0f, 0f};
 
         //iterate text
         text.visit((s, style) -> {
@@ -336,7 +396,7 @@ public class Font {
 
             //italic
             if (!prevItalic[0] && italic)
-                xb.put(0, xb.get(0) + ITALIC_OFFSET);
+                x[0] += ITALIC_OFFSET;
             prevItalic[0] = italic;
 
             //text allowed to add
@@ -345,27 +405,30 @@ public class Font {
 
             //iterate over the text
             for (int i = 0; i < s.length(); ) {
+                //char
                 int c = s.codePointAt(i);
+                i += Character.charCount(c);
+                x[0] += width(c);
 
-                //fill buffers
-                getCharData(c);
+                //kerning
+                if (i < s.length())
+                    x[0] += getKerning(c, s.codePointAt(i));
 
                 //bold special
                 if (bold)
-                    xb.put(0, xb.get(0) + BOLD_OFFSET);
+                    x[0] += BOLD_OFFSET;
 
                 //check width
-                if (xb.get(0) <= width) {
+                if (x[0] <= width) {
                     current.appendCodePoint(c);
                 } else {
-                    if (roundToClosest && xb.get(0) - width < width - prevX[0])
+                    if (roundToClosest && x[0] - width < width - x[1])
                         current.appendCodePoint(c);
                     stop = true;
                     break;
                 }
 
-                prevX[0] = xb.get(0);
-                i += Character.charCount(c);
+                x[1] = x[0];
             }
 
             //append allowed text

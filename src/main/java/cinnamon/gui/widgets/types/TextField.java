@@ -173,7 +173,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
         //offset x1 based on the selected index
         //also generate the text with the style, but with inverted colors for the selection
-        if (selectedIndex != -1) {
+        if (selectedIndex != -1 && cursor != selectedIndex) {
             //x1 offset
             int extra = selectedIndex + getFormattingSkippedCharCount(selectedIndex);
             Text index = Text.of(str.substring(0, extra)).withStyle(style);
@@ -186,7 +186,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
             text = Text.empty().withStyle(style)
                     .append(Text.of(str.substring(0, start)))
-                    .append(Text.of(str.substring(start, end)).withStyle(style.color(color).background(false)))
+                    .append(Text.of(str.substring(start, end)).withStyle(style.color(color).background(false).outlined(false).shadow(false)))
                     .append(Text.of(str.substring(end)));
         } else {
             //no selection, so just use the text
@@ -224,7 +224,7 @@ public class TextField extends SelectableWidget implements Tickable {
     }
 
     protected void renderSelection(MatrixStack matrices, float x0, float x1, float y, float height) {
-        if (selectedIndex == -1)
+        if (selectedIndex == -1 || cursor == selectedIndex)
             return;
         float t = x0;
         x0 = Math.min(x0, x1);
