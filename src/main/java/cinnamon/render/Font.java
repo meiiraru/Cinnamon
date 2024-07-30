@@ -359,18 +359,15 @@ public class Font {
 
         //iterate text
         text.visit((s, style) -> {
-            int length = s.length();
-            boolean bold = style.isBold();
+            //italic
             boolean italic = style.isItalic();
-
-            //bold special
-            if (bold)
-                x[0] += BOLD_OFFSET * length;
-
-            //italic special
             if (prevItalic[0] && !italic)
                 x[0] += ITALIC_OFFSET;
             prevItalic[0] = italic;
+
+            //bold
+            if (style.isBold())
+                x[0] += BOLD_OFFSET * s.codePoints().count();
 
             //add string width
             x[0] += width(s);

@@ -20,19 +20,20 @@ import static org.lwjgl.glfw.GLFW.*;
 public class TextField extends SelectableWidget implements Tickable {
 
     private static final Resource TEXTURE = new Resource("textures/gui/widgets/text_field.png");
-    private static final int
+    public static final int
             CURSOR_WIDTH = 1,
             INSERT_WIDTH = 4,
             BLINK_SPEED = 20,
-            HISTORY_SIZE = 20;
-    private static final char
+            HISTORY_SIZE = 20,
+            DRAG_ZONE = 8;
+    public static final char
             PASSWORD_CHAR = '\u2022',
             FORMATTING_CHAR = '*';
-    private static final Style HINT_STYLE = Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK);
-    private static final Predicate<Character> WORD_CHARACTERS = c -> Character.isAlphabetic(c) || Character.isDigit(c) || c == '_';
+    public static final Style HINT_STYLE = Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK);
+    public static final Predicate<Character> WORD_CHARACTERS = c -> Character.isAlphabetic(c) || Character.isDigit(c) || c == '_';
 
-    private final Font font;
-    private final ContextMenu contextMenu;
+    protected final Font font;
+    protected final ContextMenu contextMenu;
 
     //text
     private String currText = "";
@@ -93,7 +94,35 @@ public class TextField extends SelectableWidget implements Tickable {
 
     @Override
     public void tick() {
+        //tick the cursor blink
         blinkTime++;
+
+        //move the text when dragging
+        if (dragging) {
+            int w = getWidth();
+            int tw = TextUtils.getWidth(Text.of(getFormattedText()).withStyle(style), font);
+
+            //only move if the text is bigger than the width
+            if (tw > w - DRAG_ZONE * 2) {
+                int x = getX();
+                int mx = Client.getInstance().window.mouseX;
+
+                //dragging to the left
+                if (mx < x + DRAG_ZONE) {
+                    //get speed based on distance from dead zone, then apply to the offset
+                    int speed = x + DRAG_ZONE - mx;
+                    xOffset = Math.min(xOffset + speed, 0);
+                    //reselect the text as were dragging
+                    selectOnMousePos();
+                }
+                //dragging to the right
+                else if (mx > x + w - DRAG_ZONE) {
+                    int speed = mx - x - w + DRAG_ZONE;
+                    xOffset = Math.max(xOffset - speed, w - 4 * 2 - tw);
+                    selectOnMousePos();
+                }
+            }
+        }
     }
 
 
@@ -107,6 +136,11 @@ public class TextField extends SelectableWidget implements Tickable {
 
         UIHelper.pushScissors(getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
         matrices.push();
+
+        //smooth and apply the offset
+        float d = UIHelper.tickDelta(0.4f);
+        xAnim = Maths.lerp(xAnim, xOffset, d);
+        matrices.translate(xAnim, 0, 0);
 
         renderText(matrices, mouseX, mouseY, delta);
 
@@ -171,6 +205,9 @@ public class TextField extends SelectableWidget implements Tickable {
             x0 += TextUtils.getWidth(index, font);
         }
 
+        //render cursor
+        renderCursor(matrices, x0, y - 1, height);
+
         //offset x1 based on the selected index
         //also generate the text with the style, but with inverted colors for the selection
         if (selectedIndex != -1 && cursor != selectedIndex) {
@@ -178,6 +215,9 @@ public class TextField extends SelectableWidget implements Tickable {
             int extra = selectedIndex + getFormattingSkippedCharCount(selectedIndex);
             Text index = Text.of(str.substring(0, extra)).withStyle(style);
             x1 += TextUtils.getWidth(index, font);
+
+            //render selection
+            renderSelection(matrices, x0, x1, y - 1, height);
 
             //text
             int start = Math.min(skipped, extra);
@@ -193,43 +233,8 @@ public class TextField extends SelectableWidget implements Tickable {
             text = Text.of(str).withStyle(style);
         }
 
-        //if the text is too large, we may need to offset it
-        int cursorX = x0 + xOffset;
-        int w = getWidth();
-
-        //fit the cursor inside the scissors, taking into account the x offset
-        if (cursorX < x) {
-            xOffset += x - cursorX;
-        } else if (cursorX > x + w - 4 - 4) {
-            xOffset -= cursorX - (x + w - 4 - 4);
-        }
-
-        //translate offset based on the remaining empty space, if any
-        if (xOffset < 0) {
-            int emptySpace = Math.min(TextUtils.getWidth(text, font) + 2 + xOffset - w + 2 + 4, 0);
-            xOffset = Math.min(0, xOffset - emptySpace);
-        }
-
-        //smooth and apply the offset
-        float d = UIHelper.tickDelta(0.4f);
-        xAnim = Maths.lerp(xAnim, xOffset, d);
-        matrices.translate(xAnim, 0, 0);
-
         //render text
         font.render(VertexConsumer.FONT, matrices, x, y, text);
-        //render selection
-        renderSelection(matrices, x0, x1, y - 1, height);
-        //render cursor
-        renderCursor(matrices, x0, y - 1, height);
-    }
-
-    protected void renderSelection(MatrixStack matrices, float x0, float x1, float y, float height) {
-        if (selectedIndex == -1 || cursor == selectedIndex)
-            return;
-        float t = x0;
-        x0 = Math.min(x0, x1);
-        x1 = Math.max(t, x1);
-        GeometryHelper.rectangle(VertexConsumer.GUI, matrices, x0, y, x1, y + height, selectionColor == null ? UIHelper.ACCENT.rgba : selectionColor);
     }
 
     protected void renderCursor(MatrixStack matrices, float x, float y, float height) {
@@ -240,6 +245,13 @@ public class TextField extends SelectableWidget implements Tickable {
             GeometryHelper.rectangle(VertexConsumer.GUI, matrices, x, y, x + (insert ? INSERT_WIDTH : CURSOR_WIDTH), y + height, borderColor == null ? -1 : borderColor);
             matrices.pop();
         }
+    }
+
+    protected void renderSelection(MatrixStack matrices, float x0, float x1, float y, float height) {
+        float t = x0;
+        x0 = Math.min(x0, x1);
+        x1 = Math.max(t, x1);
+        GeometryHelper.rectangle(VertexConsumer.GUI, matrices, x0, y, x1, y + height, selectionColor == null ? UIHelper.ACCENT.rgba : selectionColor);
     }
 
 
@@ -432,6 +444,53 @@ public class TextField extends SelectableWidget implements Tickable {
         return count;
     }
 
+    private void updateFormatting() {
+        if (formatting != null)
+            formattedText = applyFormatting(currText);
+        else if (password)
+            formattedText = String.valueOf(PASSWORD_CHAR).repeat(currText.length());
+        else
+            formattedText = currText;
+    }
+
+    private void updateContext() {
+        //0, 1 - cut / copy
+        contextMenu.getAction(0).setActive(selectedIndex != -1 && !password);
+        contextMenu.getAction(1).setActive(selectedIndex != -1 && !password);
+        //4, 5 - undo / redo
+        contextMenu.getAction(4).setActive(historyIndex > 0);
+        contextMenu.getAction(5).setActive(historyIndex < history.length - 1 && history[historyIndex + 1] != null);
+    }
+
+    private void fitCursorInWidth() {
+        String str = getFormattedText();
+        int width = getWidth() - 4 * 2;
+
+        //if the text is too big, we try to fit it in the remaining space
+        int textWidth = TextUtils.getWidth(Text.of(str).withStyle(style), font);
+        if (textWidth > width) {
+            int remainingSpace = width - (textWidth + xOffset);
+            if (remainingSpace > 0)
+                xOffset += remainingSpace;
+        } else {
+            xOffset = 0;
+        }
+
+        //cursor is inside the boundaries - nothing to fit
+        int cursorX = TextUtils.getWidth(Text.of(str.substring(0, cursor)).withStyle(style), font) + xOffset;
+        if (cursorX >= 0 && cursorX < width)
+            return;
+
+        //cursor too much to the left
+        if (cursorX < 0) {
+            xOffset = -cursorX + xOffset;
+            return;
+        }
+
+        //cursor too much to the right
+        xOffset += width - cursorX;
+    }
+
 
     // -- events -- //
 
@@ -455,6 +514,7 @@ public class TextField extends SelectableWidget implements Tickable {
                     if (isSurrogate(cursor))
                         setCursorPos(cursor - 1);
                 }
+                fitCursorInWidth();
                 return this;
             }
             case GLFW_KEY_RIGHT -> {
@@ -466,18 +526,21 @@ public class TextField extends SelectableWidget implements Tickable {
                     if (isSurrogate(cursor))
                         setCursorPos(cursor + 1);
                 }
+                fitCursorInWidth();
                 return this;
             }
             case GLFW_KEY_HOME, GLFW_KEY_PAGE_UP -> {
                 markSelection(shift);
                 //no lines, so page up is the same as home
                 setCursorPos(0);
+                fitCursorInWidth();
                 return this;
             }
             case GLFW_KEY_END, GLFW_KEY_PAGE_DOWN -> {
                 markSelection(shift);
                 //same for page down
                 setCursorPos(currText.length());
+                fitCursorInWidth();
                 return this;
             }
             //editing
@@ -563,69 +626,96 @@ public class TextField extends SelectableWidget implements Tickable {
         return this;
     }
 
-    private int getPreviousWord(int i) {
-        if (password) //for security, passwords do not have words
-            return 0;
-
-        //skip spaces
-        while (i > 0 && Character.isWhitespace(currText.charAt(i - 1)))
-            i--;
-
-        int oldI = i;
-
-        //skip words
-        while (i > 0 && WORD_CHARACTERS.test(currText.charAt(i - 1)))
-            i--;
-
-        //if we did not move, try to skip anything else
-        if (i == oldI) {
-            char c;
-            while (i > 0 && !Character.isWhitespace(c = currText.charAt(i - 1)) && !WORD_CHARACTERS.test(c))
-                i--;
+    @Override
+    public GUIListener mousePress(int button, int action, int mods) {
+        if (!isActive() || !isHovered() || action != GLFW_PRESS || button != GLFW_MOUSE_BUTTON_1) {
+            dragging = false;
+            return super.mousePress(button, action, mods);
         }
 
-        return i;
-    }
+        //flags
+        UIHelper.focusWidget(this);
+        dragging = true;
 
-    private boolean isSurrogate(int cursor) {
-        return cursor >= 0 && cursor < currText.length() && Character.isLowSurrogate(currText.charAt(cursor));
-    }
-
-    private int getNextWord(int i) {
-        int len = currText.length();
-        if (password) //for security, passwords do not have words
-            return len;
-
-        //skip spaces
-        while (i < len && Character.isWhitespace(currText.charAt(i)))
-            i++;
-
-        int oldI = i;
-
-        //skip words
-        while (i < len && WORD_CHARACTERS.test(currText.charAt(i)))
-            i++;
-
-        //if we did not move, try to skip anything else
-        if (i == oldI) {
-            char c;
-            while (i < len && !Character.isWhitespace(c = currText.charAt(i)) && !WORD_CHARACTERS.test(c))
-                i++;
+        //shift selects the text
+        if ((mods & GLFW_MOD_SHIFT) != 0) {
+            if (selectedIndex == -1)
+                selectedIndex = cursor;
+            moveCursorToMouse();
+            clickCount = 0;
+            return this;
         }
 
-        return i;
+        //move the cursor to the mouse position
+        moveCursorToMouse();
+
+        //click count
+        long now = Client.getInstance().ticks;
+        if (clickCount == 0 || (lastClickIndex == cursor && now - lastClickTime < UIHelper.DOUBLE_CLICK_TIME))
+            clickCount++;
+        else
+            clickCount = 1;
+
+        //save variables
+        lastClickTime = now;
+        lastClickIndex = cursor;
+
+        //extra click actions
+        switch (clickCount) {
+            case 1 -> selectedIndex = -1;
+            case 2 -> {
+                //no words in passwords
+                if (password) {
+                    selectAll();
+                    //select whitespaces
+                } else if (isWhitespace(cursor - 1) && isWhitespace(cursor)) {
+                    selectWhitespaces(cursor);
+                    //select word
+                } else {
+                    selectWord(cursor);
+                }
+            }
+            //3+
+            default -> selectAll();
+        }
+
+        return this;
     }
 
-    private void markSelection(boolean shift) {
-        if (!shift) //shift is not pressed, so reset the selection
-            selectedIndex = -1;
-        else if (selectedIndex == -1)
-            selectedIndex = cursor;
+    @Override
+    public GUIListener mouseMove(int x, int y) {
+        if (dragging) {
+            selectOnMousePos();
+            return this;
+        }
+
+        return super.mouseMove(x, y);
     }
 
-    private void selectAll() {
-        setCursorPos(currText.length());
-        selectedIndex = 0;
+
+    // -- text editing -- //
+
+
+    public void setText(String string) {
+        //trim the text to the char limit
+        if (string.length() > charLimit)
+            string = string.substring(0, charLimit);
+
+        //do not update if the text is the same
+        if (currText.equals(string))
+            return;
+
+        //update the text
+        currText = string;
+        updateFormatting();
+
+        //update the cursor
+        setCursorPos(cursor);
+        fitCursorInWidth();
+
+        //then finally notify the listener about the change
+        if (changeListener != null)
+            changeListener.accept(string);
     }
 
     private void copy() {
@@ -647,6 +737,114 @@ public class TextField extends SelectableWidget implements Tickable {
             setText(removeSelected(Action.CUT));
         }
     }
+
+    private void insert(char c) {
+        //if the cursor is at the end, we can just append the char
+        if (cursor == currText.length()) {
+            append(String.valueOf(c), Action.INSERT);
+            return;
+        }
+
+        //otherwise we test the char, then substring it inside the text
+        if (filter.test(c)) {
+            //get tne text removing, if any, selected text
+            String text = removeSelected(Action.WRITE_SEL);
+            //if the text was modified, we set the action to this
+            if (!text.equals(currText))
+                lastAction = Action.INSERT;
+
+            //backup the text
+            appendToHistory(Action.INSERT);
+
+            //check for surrogates
+            int i, j = i = cursor + 1;
+            if (isSurrogate(i)) i++;
+
+            //set the new text and cursor pos
+            setText(text.substring(0, cursor) + c + text.substring(i));
+            setCursorPos(j);
+            fitCursorInWidth();
+        }
+    }
+
+    private void append(String s, Action action) {
+        StringBuilder build = new StringBuilder();
+
+        //test each char and append it to the build
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (filter.test(c))
+                build.append(c);
+        }
+
+        //append the build to the text, caring for the cursor position
+        if (!build.isEmpty()) {
+            //get tne text removing, if any, selected text
+            String text = removeSelected(Action.WRITE_SEL);
+            //if the text was modified, we set the action to this
+            if (!text.equals(currText))
+                lastAction = action;
+
+            //then backup the text, change cursor and set the new text
+            appendToHistory(action);
+            setText(text.substring(0, cursor) + build + text.substring(cursor));
+            setCursorPos(cursor + s.length());
+            fitCursorInWidth();
+        }
+    }
+
+    private void remove(int count) {
+        int len = currText.length();
+        if (len == 0) //nothing to remove
+            return;
+
+        //remove the selected text and void the remove event
+        String text = removeSelected(Action.DELETE);
+        if (!text.equals(currText)) {
+            setText(text);
+            return;
+        }
+
+        //history
+        appendToHistory(Action.DELETE);
+
+        //negative count means delete forward
+        if (count < 0) {
+            if (cursor < len) {
+                //get the substring position
+                int i = cursor - count;
+                //check for surrogates
+                if (isSurrogate(i)) i++;
+                //set the new substring text
+                setText(currText.substring(0, cursor) + currText.substring(Math.min(i, len)));
+            }
+        } else {
+            if (cursor > 0) {
+                //get the substring position
+                int i = cursor - count;
+                //check for surrogates
+                if (isSurrogate(i)) i--;
+                //set the new substring text
+                setText(currText.substring(0, Math.max(i, 0)) + currText.substring(cursor));
+                //also set the new cursor position
+                setCursorPos(i);
+                fitCursorInWidth();
+            }
+        }
+    }
+
+    private boolean isSurrogate(int cursor) {
+        return cursor >= 0 && cursor < currText.length() && Character.isLowSurrogate(currText.charAt(cursor));
+    }
+
+    private boolean isWhitespace(int cursor) {
+        //consider out of bounds as whitespace
+        return cursor < 0 || cursor >= currText.length() || Character.isWhitespace(currText.charAt(cursor));
+    }
+
+
+    // -- history -- //
+
 
     private void undo() {
         //cannot undo from here
@@ -704,98 +902,99 @@ public class TextField extends SelectableWidget implements Tickable {
         setText(split[2]);
         selectedIndex = Integer.parseInt(split[1]);
         setCursorPos(Integer.parseInt(split[0]));
+        fitCursorInWidth();
     }
 
-    private void insert(char c) {
-        //if the cursor is at the end, we can just append the char
-        if (cursor == currText.length()) {
-            append(String.valueOf(c), Action.INSERT);
-            return;
+
+    // -- selection -- //
+
+
+    private int getPreviousWord(int i) {
+        if (password) //for security, passwords do not have words
+            return 0;
+
+        //skip spaces
+        while (i > 0 && isWhitespace(i - 1))
+            i--;
+
+        int oldI = i;
+
+        //skip words
+        while (i > 0 && WORD_CHARACTERS.test(currText.charAt(i - 1)))
+            i--;
+
+        //if we did not move, try to skip anything else
+        if (i == oldI) {
+            char c;
+            while (i > 0 && !Character.isWhitespace(c = currText.charAt(i - 1)) && !WORD_CHARACTERS.test(c))
+                i--;
         }
 
-        //otherwise we test the char, then substring it inside the text
-        if (filter.test(c)) {
-            //get tne text removing, if any, selected text
-            String text = removeSelected(Action.WRITE_SEL);
-            //if the text was modified, we set the action to this
-            if (!text.equals(currText))
-                lastAction = Action.INSERT;
-
-            //backup the text
-            appendToHistory(Action.INSERT);
-
-            //check for surrogates
-            int i, j = i = cursor + 1;
-            if (isSurrogate(i)) i++;
-
-            //set the new text and cursor pos
-            setText(text.substring(0, cursor) + c + text.substring(i));
-            setCursorPos(j);
-        }
+        return i;
     }
 
-    private void append(String s, Action action) {
-        StringBuilder build = new StringBuilder();
-
-        //test each char and append it to the build
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (filter.test(c))
-                build.append(c);
-        }
-
-        //append the build to the text, caring for the cursor position
-        if (!build.isEmpty()) {
-            //get tne text removing, if any, selected text
-            String text = removeSelected(Action.WRITE_SEL);
-            //if the text was modified, we set the action to this
-            if (!text.equals(currText))
-                lastAction = action;
-
-            //then backup the text, change cursor and set the new text
-            appendToHistory(action);
-            setText(text.substring(0, cursor) + build + text.substring(cursor));
-            setCursorPos(cursor + s.length());
-        }
-    }
-
-    private void remove(int count) {
+    private int getNextWord(int i) {
         int len = currText.length();
-        if (len == 0) //nothing to remove
-            return;
+        if (password) //for security, passwords do not have words
+            return len;
 
-        //remove the selected text and void the remove event
-        String text = removeSelected(Action.DELETE);
-        if (!text.equals(currText)) {
-            setText(text);
-            return;
+        //skip spaces
+        while (i < len && isWhitespace(i))
+            i++;
+
+        int oldI = i;
+
+        //skip words
+        while (i < len && WORD_CHARACTERS.test(currText.charAt(i)))
+            i++;
+
+        //if we did not move, try to skip anything else
+        if (i == oldI) {
+            char c;
+            while (i < len && !Character.isWhitespace(c = currText.charAt(i)) && !WORD_CHARACTERS.test(c))
+                i++;
         }
 
-        //history
-        appendToHistory(Action.DELETE);
+        return i;
+    }
 
-        //negative count means delete forward
-        if (count < 0) {
-            if (cursor < len) {
-                //get the substring position
-                int i = cursor - count;
-                //check for surrogates
-                if (isSurrogate(i)) i++;
-                //set the new substring text
-                setText(currText.substring(0, cursor) + currText.substring(Math.min(i, len)));
-            }
-        } else {
-            if (cursor > 0) {
-                //get the substring position
-                int i = cursor - count;
-                //check for surrogates
-                if (isSurrogate(i)) i--;
-                //set the new substring text
-                setText(currText.substring(0, Math.max(i, 0)) + currText.substring(cursor));
-                //also set the new cursor position
-                setCursorPos(i);
-            }
-        }
+    private void selectAll() {
+        setCursorPos(currText.length());
+        selectedIndex = 0;
+    }
+
+    private void selectWhitespaces(int i) {
+        //no words in passwords
+        if (password)
+            return;
+
+        //spaces to the left
+        selectedIndex = i;
+        while (selectedIndex > 0 && isWhitespace(selectedIndex - 1))
+            selectedIndex--;
+
+        //spaces to the right
+        int len = currText.length();
+        while (i < len && isWhitespace(i))
+            i++;
+        setCursorPos(i);
+    }
+
+    private void selectWord(int i) {
+        //no words in passwords
+        if (password)
+            return;
+
+        //set the word positions
+        selectedIndex = isWhitespace(i - 1) ? i : getPreviousWord(i);
+        setCursorPos(getNextWord(selectedIndex));
+    }
+
+    private void markSelection(boolean shift) {
+        if (!shift) //shift is not pressed, so reset the selection
+            selectedIndex = -1;
+        else if (selectedIndex == -1)
+            selectedIndex = cursor;
     }
 
     private void moveCursorToMouse() {
@@ -831,115 +1030,43 @@ public class TextField extends SelectableWidget implements Tickable {
         return currText.substring(0, start) + currText.substring(end);
     }
 
-    private void updateContext() {
-        //0, 1 - cut / copy
-        contextMenu.getAction(0).setActive(selectedIndex != -1 && !password);
-        contextMenu.getAction(1).setActive(selectedIndex != -1 && !password);
-        //4, 5 - undo / redo
-        contextMenu.getAction(4).setActive(historyIndex > 0);
-        contextMenu.getAction(5).setActive(historyIndex < history.length - 1 && history[historyIndex + 1] != null);
-    }
-
-    private void updateFormatting() {
-        if (formatting != null)
-            formattedText = applyFormatting(currText);
-        else if (password)
-            formattedText = String.valueOf(PASSWORD_CHAR).repeat(currText.length());
-        else
-            formattedText = currText;
-    }
-
-    @Override
-    public GUIListener mousePress(int button, int action, int mods) {
-        if (!isActive() || !isHovered() || action != GLFW_PRESS || button != GLFW_MOUSE_BUTTON_1) {
-            dragging = false;
-            return super.mousePress(button, action, mods);
-        }
-
-        //flags
-        UIHelper.focusWidget(this);
-        dragging = true;
-
-        //shift selects the text
-        if ((mods & GLFW_MOD_SHIFT) != 0) {
-            if (selectedIndex == -1)
-                selectedIndex = cursor;
-            moveCursorToMouse();
-            clickCount = 0;
-            return this;
-        }
-
-        //move the cursor to the mouse position
-        moveCursorToMouse();
-
-        //click count
-        long now = Client.getInstance().ticks;
-        if (clickCount != 0 && lastClickIndex == cursor && now - lastClickTime < UIHelper.DOUBLE_CLICK_TIME)
-            clickCount++;
-        else
-            clickCount = 1;
-
-        //save variables
-        selectedIndex = -1;
-        lastClickTime = now;
-        lastClickIndex = cursor;
-
-        //extra click actions
-        switch (clickCount) {
-            case 2 -> {
-                if (cursor >= currText.length()) {
-                    selectAll();
-                    clickCount = 0; //reset actions
-                } else {
-                    //do not select if the cursor - 1 is a whitespace nor the next char
-                    selectedIndex = cursor == 0 || Character.isWhitespace(currText.charAt(cursor - 1)) ? cursor : getPreviousWord(cursor);
-                    if (!Character.isWhitespace(currText.charAt(cursor)))
-                        setCursorPos(getNextWord(cursor));
-                }
-            }
-            case 3 -> {
-                selectAll();
-                clickCount = 0; //reset actions
-            }
-        }
-
-        return this;
-    }
-
-    @Override
-    public GUIListener mouseMove(int x, int y) {
-        if (!dragging)
-            return super.mouseMove(x, y);
-
+    private void selectOnMousePos() {
         //start selection
         if (selectedIndex == -1)
             selectedIndex = cursor;
 
         //move the cursor to the mouse position
+        int oldCursor = cursor;
         moveCursorToMouse();
 
-        return this;
-    }
+        //move words
+        if (!password && clickCount == 2 && oldCursor != cursor) {
+            int newCursor;
 
-    public void setText(String string) {
-        //trim the text to the char limit
-        if (string.length() > charLimit)
-            string = string.substring(0, charLimit);
+            //were selecting the right side
+            if (oldCursor > selectedIndex) {
+                //invert
+                if (cursor < selectedIndex) {
+                    selectedIndex = oldCursor;
+                    newCursor = getPreviousWord(cursor);
+                } else {
+                    newCursor = getNextWord(cursor);
+                }
+            }
+            //left side
+            else {
+                //invert
+                if (cursor > selectedIndex) {
+                    selectedIndex = oldCursor;
+                    newCursor = getNextWord(cursor);
+                } else {
+                    newCursor = getPreviousWord(cursor);
+                }
+            }
 
-        //do not update if the text is the same
-        if (currText.equals(string))
-            return;
-
-        //set the text and update cursor to fit the text bounds
-        currText = string;
-        setCursorPos(cursor);
-
-        //update the formatted text
-        updateFormatting();
-
-        //then finally notify the listener about the change
-        if (changeListener != null)
-            changeListener.accept(string);
+            //update cursor position
+            setCursorPos(newCursor);
+        }
     }
 
 
