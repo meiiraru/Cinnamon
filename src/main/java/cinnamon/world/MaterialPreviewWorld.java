@@ -20,11 +20,6 @@ public class MaterialPreviewWorld extends WorldClient {
             BOX = new Model(ModelManager.load(new Resource("models/terrain/box/box.obj")).getMesh());
 
     @Override
-    public void init() {
-        super.init();
-    }
-
-    @Override
     protected void tempLoad() {
         //super.tempLoad();
         player.updateMovementFlags(false, false, true);
@@ -49,7 +44,7 @@ public class MaterialPreviewWorld extends WorldClient {
         //render
         for (int i = 0; i < values.length; i++) {
             matrices.push();
-            matrices.translate(i % grid * 6f, 0f, (int) (i / grid * 3f));
+            matrices.translate(i % grid * 6f, 0f, (float) (i / grid * 3));
 
             int texCount = MaterialApplier.applyMaterial(values[i].material);
             boolean visible = false;

@@ -132,7 +132,7 @@ public class Maths {
     }
 
     public static Vector3f reflect(Vector3f dir, Vector3f normal) {
-        //r = d − 2 * (d dot n) * n
+        //r = d - 2 * (d dot n) * n
         float dot = dir.dot(normal) * 2;
         return dir.sub(normal.x * dot, normal.y * dot, normal.z * dot, new Vector3f());
     }

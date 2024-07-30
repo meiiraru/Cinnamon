@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.lwjgl.openal.AL10.*;
-import static org.lwjgl.openal.AL10.AL_FORMAT_STEREO16;
 import static org.lwjgl.stb.STBVorbis.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 

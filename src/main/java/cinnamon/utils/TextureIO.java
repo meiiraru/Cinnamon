@@ -125,7 +125,7 @@ public class TextureIO {
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() {
             STBImage.stbi_image_free(buffer);
         }
     }

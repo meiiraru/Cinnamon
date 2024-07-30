@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL30.glBindFramebuffer;
 
 public class Blit {
 
-    public static BiFunction<Framebuffer, Shader, Integer>
+    public static final BiFunction<Framebuffer, Shader, Integer>
             DEPTH_UNIFORM = (fb, s) -> {
                 s.setTexture("depthTex", fb.getDepthBuffer(), 0);
                 return 1;

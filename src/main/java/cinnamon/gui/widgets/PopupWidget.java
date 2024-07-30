@@ -93,7 +93,7 @@ public class PopupWidget extends ContainerGrid {
 
     protected void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 
-    };
+    }
 
     @Override
     public GUIListener mousePress(int button, int action, int mods) {

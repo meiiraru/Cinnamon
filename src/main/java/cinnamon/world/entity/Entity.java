@@ -319,7 +319,7 @@ public abstract class Entity extends WorldObject {
     }
 
     public Entity getControllingEntity() {
-        return riders.isEmpty() ? this : riders.get(0).getControllingEntity();
+        return riders.isEmpty() ? this : riders.getFirst().getControllingEntity();
     }
 
     protected void updateRiders() {

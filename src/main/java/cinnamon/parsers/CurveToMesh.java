@@ -5,6 +5,7 @@ import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
 import cinnamon.model.obj.material.MtlMaterial;
 import cinnamon.utils.Curve;
+import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -80,8 +81,8 @@ public class CurveToMesh {
             );
 
             //calculate normals
-            mesh.getNormals().add(calculateNormal(internal.get(i), internal.get(j), external.get(i)));
-            mesh.getNormals().add(calculateNormal(external.get(i), internal.get(i), external.get(j)));
+            mesh.getNormals().add(Maths.normal(internal.get(i), internal.get(j), external.get(i)));
+            mesh.getNormals().add(Maths.normal(external.get(i), internal.get(i), external.get(j)));
         }
 
         //add missing UVs and normals
@@ -107,11 +108,5 @@ public class CurveToMesh {
         material.setSpecularExponent(256);
 
         return mesh;
-    }
-
-    private static Vector3f calculateNormal(Vector3f a, Vector3f b, Vector3f c) {
-        Vector3f ba = b.sub(a, new Vector3f());
-        Vector3f ca = c.sub(a, new Vector3f());
-        return ba.cross(ca);
     }
 }

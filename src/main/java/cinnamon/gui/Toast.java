@@ -17,7 +17,7 @@ public class Toast {
 
     // -- properties -- //
 
-    public static int DEFAULT_LENGTH = 60;
+    public static final int DEFAULT_LENGTH = 60;
     protected static final int
             ANIM = 5,
             PADDING = 6,
