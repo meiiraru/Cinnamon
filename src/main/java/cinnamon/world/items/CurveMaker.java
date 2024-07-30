@@ -109,7 +109,7 @@ public class CurveMaker extends CooldownItem {
             curve.clear();
         } catch (Exception e) {
             LOGGER.error(e);
-            Toast.addToast(Text.of(e.getMessage()), Client.getInstance().font, Toast.ToastType.ERROR);
+            Toast.addToast(Text.of(e.getMessage()), Client.getInstance().font).type(Toast.ToastType.ERROR);
         }
 
         setUseCooldown();

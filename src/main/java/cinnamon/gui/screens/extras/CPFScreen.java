@@ -55,7 +55,7 @@ public class CPFScreen extends ParentedScreen {
         //validate button
         Button button = new Button(0, 0, 180, 20, Text.of("Validate"), b -> {
             String cpf = field.getFormattedText();
-            Toast.addToast(Text.of("Checking..."), font, 5);
+            Toast.addToast(Text.of("Checking..."), font).length(5);
             switch (checkCPF(cpf)) {
                 case 1 -> field.setTooltip(Text.of("Valid CPF"));
                 case 2 -> field.setTooltip(Text.of("Invalid CPF"));

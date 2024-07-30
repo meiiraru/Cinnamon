@@ -112,11 +112,11 @@ public class WidgetTestScreen extends ParentedScreen {
         grid.addWidget(toast1);
 
         //toast 2
-        Button toast2 = new Button(0, 0, 60, 12, Text.of("Toast 2"), button -> Toast.addToast(Text.of("Multi-line\nToast :3"), font, Toast.ToastType.WARN));
+        Button toast2 = new Button(0, 0, 60, 12, Text.of("Toast 2"), button -> Toast.addToast(Text.of("Multi-line\nToast :3"), font).type(Toast.ToastType.WARN));
         grid.addWidget(toast2);
 
         //toast 3
-        Button toast3 = new Button(0, 0, 60, 12, Text.of("Toast 3"), button -> Toast.addToast(Text.of("Oopsie daisy"), font, Toast.ToastType.ERROR));
+        Button toast3 = new Button(0, 0, 60, 12, Text.of("Toast 3"), button -> Toast.addToast(Text.of("Oopsie daisy"), font).type(Toast.ToastType.ERROR).color(Colors.randomRainbow().rgba));
         grid.addWidget(toast3);
 
         //right panel

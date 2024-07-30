@@ -117,7 +117,7 @@ public class CurvesScreen extends ParentedScreen {
                 Toast.addToast(Text.of("Curve exported!"), client.font);
             } catch (Exception e) {
                 LOGGER.error("Failed to export curve", e);
-                Toast.addToast(Text.of(e.getMessage()), client.font, Toast.ToastType.ERROR);
+                Toast.addToast(Text.of(e.getMessage()), client.font).type(Toast.ToastType.ERROR);
             }
         });
         grid.addWidget(exportCurve);
