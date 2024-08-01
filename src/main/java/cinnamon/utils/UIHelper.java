@@ -34,9 +34,10 @@ public class UIHelper {
         width += textureSize;
         height += textureSize;
 
-        for (Resource res : background) {
+        for (int i = 0; i < background.length; i++) {
+            Resource res = background[i];
             float x = 0, y = 0;
-            float d = (c.ticks + delta) * speed;
+            float d = (c.ticks + delta) * speed * i;
 
             x -= d % textureSize;
             y -= d % textureSize;
@@ -52,8 +53,6 @@ public class UIHelper {
                     0f, u1,
                     0f, v1
             ), res);
-
-            speed *= 2f;
         }
     }
 

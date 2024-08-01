@@ -170,6 +170,10 @@ public class Client {
 
             //unlock mouse
             window.unlockMouse();
+
+            //reset player movement
+            if (world != null)
+                world.resetMovement();
         } else if (window.lockMouse() && world != null) {
             //no screen, then lock the mouse and reset player movement
             world.resetMovement();

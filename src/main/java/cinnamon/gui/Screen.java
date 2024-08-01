@@ -17,7 +17,8 @@ public abstract class Screen {
     protected static final Resource[] BACKGROUND = new Resource[]{
             new Resource("textures/gui/background/background_0.png"),
             new Resource("textures/gui/background/background_1.png"),
-            new Resource("textures/gui/background/background_2.png")
+            new Resource("textures/gui/background/background_2.png"),
+            new Resource("textures/gui/background/background_3.png")
     };
 
     //main container

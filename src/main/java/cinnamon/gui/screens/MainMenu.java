@@ -4,10 +4,10 @@ import cinnamon.Client;
 import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.Tickable;
-import cinnamon.gui.widgets.Widget;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Label;
 import cinnamon.model.GeometryHelper;
+import cinnamon.model.Vertex;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
@@ -19,7 +19,13 @@ import java.util.function.Consumer;
 
 public class MainMenu extends Screen {
 
-    private Star[] stars;
+    private static final Resource
+        BACKGROUND = new Resource("textures/gui/main_menu/background.png"),
+        STARS1 = new Resource("textures/gui/main_menu/stars1.png"),
+        STARS2 = new Resource("textures/gui/main_menu/stars2.png"),
+        OVERLAY = new Resource("textures/gui/main_menu/overlay.png");
+
+    private Nebula[] nebula;
 
     @Override
     public void init() {
@@ -63,39 +69,62 @@ public class MainMenu extends Screen {
         grid.setPos(12, (height - grid.getHeight()) / 2);
         this.addWidget(grid);
 
-        //stars
-        stars = new Star[(int) Math.ceil(height / 24f)];
-        for (int i = 0; i < stars.length; i++)
-            stars[i] = genStar(true);
+        //nebula
+        nebula = new Nebula[(int) Math.ceil(height / 32f)];
+        for (int i = 0; i < nebula.length; i++)
+            nebula[i] = new Nebula((float) (Math.random() * width), (float) (Math.random() * height));
+    }
+
+    private void createNebula(int index) {
+        int x, y;
+
+        //vertical
+        if (Math.random() < 0.5f) {
+            x = (int) (Math.random() * width);
+            y = Math.random() < 0.5f ? -Nebula.SIZE : height + Nebula.SIZE;
+        }
+        //horizontal
+        else {
+            x = Math.random() < 0.5f ? -Nebula.SIZE : width + Nebula.SIZE;
+            y = (int) (Math.random() * height);
+        }
+
+        nebula[index] = new Nebula(x, y);
     }
 
     @Override
     public void tick() {
-        super.tick();
-
-        for (int i = 0; i < stars.length; i++) {
-            Star star = stars[i];
-            star.tick();
-            if (star.getTrueX() + star.getWidth() < 0)
-                stars[i] = genStar(false);
+        for (int i = 0; i < nebula.length; i++) {
+            Nebula n = nebula[i];
+            n.tick();
+            //create a new one when out of bounds
+            if (n.x < -Nebula.SIZE || n.x > width || n.y < -Nebula.SIZE || n.y > height)
+                createNebula(i);
         }
     }
 
     @Override
     protected void renderBackground(MatrixStack matrices, float delta) {
-        GeometryHelper.rectangle(VertexConsumer.GUI, matrices, 0, 0, width, height, -999, 0xFF29224B, 0xFF2E2557, 0xFF553C89, 0xFFDBA8DC);
-        for (Star star : stars)
-            star.render(matrices, 0, 0, delta);
-    }
+        //background
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, 1f, 0f, 1f), BACKGROUND, true);
 
-    private Star genStar(boolean init) {
-        return new Star(
-                init ? (int) (Math.random() * (width + 32) - 16) : width,
-                (int) (Math.random() * (height + 16) - 8),
-                (int) (Math.random() * 8 + 8),
-                (int) (Math.random() * 4 + 1),
-                (int) (Math.random() * 9 + 1)
-        );
+        //stars
+        float time = (client.ticks + delta) * 0.02f;
+        Vertex[] stars = GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, width / 256f, 0f, height / 256f);
+        for (Vertex vertex : stars)
+            vertex.color(1f, 1f, 1f, (float) Math.sin(time) * 0.5f + 0.5f);
+        VertexConsumer.GUI.consume(stars, STARS1, true);
+
+        for (Vertex vertex : stars)
+            vertex.color(1f, 1f, 1f, (float) Math.sin(-time) * 0.5f + 0.5f);
+        VertexConsumer.GUI.consume(stars, STARS2, true);
+
+        //nebula
+        for (Nebula nebula : nebula)
+            nebula.render(matrices, delta);
+
+        //overlay
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, 1f, 0f, 1f), OVERLAY, true);
     }
 
     private static class MainButton extends Button {
@@ -133,41 +162,44 @@ public class MainMenu extends Screen {
         }
     }
 
-    private static class Star extends Widget implements Tickable {
-        private static final Resource TEXTURE = new Resource("textures/gui/widgets/main_menu/star.png");
+    private static class Nebula implements Tickable {
 
-        private final Animation2D translate, rotate;
+        private static final Resource[] TEXTURES = {
+                new Resource("textures/gui/main_menu/nebula1.png"),
+                new Resource("textures/gui/main_menu/nebula2.png"),
+                new Resource("textures/gui/main_menu/nebula3.png"),
+        };
+        private static final int SIZE = 256;
+        private static final float ALPHA = 0.15f;
 
-        public Star(int x, int y, int size, float translate, float rotate) {
-            super(x, y, size, size);
-            this.translate = new Animation2D.Translate(-translate, 0);
-            this.rotate = new Animation2D.Rotate(rotate);
+        private final Resource texture;
+        private final float motionX, motionY;
+        private final Colors color;
+
+        private float x, y;
+
+        public Nebula(float x, float y) {
+            this.x = x;
+            this.y = y;
+            texture = TEXTURES[(int) (Math.random() * TEXTURES.length)];
+            motionX = (float) (Math.random() * 2f - 1f) * 0.15f;
+            motionY = (float) (Math.random() * 2f - 1f) * 0.15f;
+            color = Colors.randomRainbow();
         }
 
         @Override
         public void tick() {
-            translate.tick();
-            rotate.tick();
+            x += motionX;
+            y += motionY;
         }
 
-        @Override
-        public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            matrices.push();
-            rotate.setAnchor(getX() + translate.getX(delta), getY() + translate.getY(delta));
-            rotate.apply(matrices, delta);
-            translate.apply(matrices, delta);
-
-            VertexConsumer.GUI.consume(GeometryHelper.quad(
-                    matrices,
-                    getX(), getY(),
-                    getWidth(), getHeight()
-            ), TEXTURE);
-
-            matrices.pop();
-        }
-
-        public int getTrueX() {
-            return getX() + (int) translate.getX(1f);
+        public void render(MatrixStack matrices, float delta) {
+            float x = this.x + motionX * delta;
+            float y = this.y + motionY * delta;
+            Vertex[] vertices = GeometryHelper.quad(matrices, x, y, SIZE, SIZE, -999, 0f, 1f, 0f, 1f);
+            for (Vertex vertex : vertices)
+                vertex.color(color.r / 255f, color.g / 255f, color.b / 255f, ALPHA);
+            VertexConsumer.GUI.consume(vertices, texture, true);
         }
     }
 }

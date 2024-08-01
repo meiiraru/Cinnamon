@@ -34,6 +34,10 @@ public class Texture {
     }
 
     public static Texture of(Resource res) {
+        return of(res, false);
+    }
+
+    public static Texture of(Resource res, boolean smooth) {
         if (res == null)
             return MISSING;
 
@@ -43,7 +47,7 @@ public class Texture {
             return saved;
 
         //otherwise load a new texture and cache it
-        int id = loadTexture(res);
+        int id = loadTexture(res, smooth);
         return cacheTexture(res, id == MISSING.ID ? MISSING : new Texture(id));
     }
 
@@ -52,22 +56,22 @@ public class Texture {
         return tex;
     }
 
-    private static int loadTexture(Resource res) {
+    private static int loadTexture(Resource res, boolean smooth) {
         try (TextureIO.ImageData image = TextureIO.load(res)) {
-            return registerTexture(image.width, image.height, image.buffer);
+            return registerTexture(image.width, image.height, image.buffer, smooth);
         } catch (Exception e) {
             LOGGER.error("Failed to load texture \"{}\"", res, e);
             return MISSING.ID;
         }
     }
 
-    protected static int registerTexture(int width, int height, ByteBuffer buffer) {
+    protected static int registerTexture(int width, int height, ByteBuffer buffer, boolean smooth) {
         int id = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, id);
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
 
         glBindTexture(GL_TEXTURE_2D, 0);
         return id;
@@ -93,7 +97,7 @@ public class Texture {
         pixels.flip();
 
         //return a new texture
-        return new Texture(registerTexture(16, 16, pixels)) {
+        return new Texture(registerTexture(16, 16, pixels, false)) {
             @Override
             public void free() {
                 //do not free the missing texture
@@ -110,7 +114,7 @@ public class Texture {
         buffer.put((byte) (ARGB >> 24));
         buffer.flip();
 
-        int id = registerTexture(1, 1, buffer);
+        int id = registerTexture(1, 1, buffer, false);
         return new Texture(id);
     }
 

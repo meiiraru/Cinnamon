@@ -27,7 +27,11 @@ public enum VertexConsumer {
     }
 
     public void consume(Vertex[] vertices, Resource texture) {
-        consume(vertices, Texture.of(texture).getID());
+        consume(vertices, texture, false);
+    }
+
+    public void consume(Vertex[] vertices, Resource texture, boolean smooth) {
+        consume(vertices, Texture.of(texture, smooth).getID());
     }
 
     public void consume(Vertex[] vertices, int texture) {

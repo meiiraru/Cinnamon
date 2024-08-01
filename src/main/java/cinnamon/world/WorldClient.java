@@ -175,7 +175,7 @@ public class WorldClient extends World {
         super.tick();
 
         //if the player is dead, show death screen
-        if (player.isDead())
+        if (player.isDead() && client.screen == null)
             client.setScreen(new DeathScreen());
 
         //process input

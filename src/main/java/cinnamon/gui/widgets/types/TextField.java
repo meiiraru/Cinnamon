@@ -455,8 +455,9 @@ public class TextField extends SelectableWidget implements Tickable {
 
     private void updateContext() {
         //0, 1 - cut / copy
-        contextMenu.getAction(0).setActive(selectedIndex != -1 && !password);
-        contextMenu.getAction(1).setActive(selectedIndex != -1 && !password);
+        boolean bool = selectedIndex != -1 && selectedIndex != cursor && !password;
+        contextMenu.getAction(0).setActive(bool);
+        contextMenu.getAction(1).setActive(bool);
         //4, 5 - undo / redo
         contextMenu.getAction(4).setActive(historyIndex > 0);
         contextMenu.getAction(5).setActive(historyIndex < history.length - 1 && history[historyIndex + 1] != null);
