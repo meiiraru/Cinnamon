@@ -103,19 +103,19 @@ public class PopupWidget extends ContainerGrid {
         //check if a child is being pressed first
         GUIListener sup = super.mousePress(button, action, mods);
         if (sup != null) {
-            if (closeOnSelect && !(sup instanceof PopupWidget))
+            if (action == GLFW_RELEASE && closeOnSelect && !(sup instanceof PopupWidget))
                 this.close();
             return sup;
         }
 
-        if (action == GLFW_PRESS) {
-            //close popup when clicked outside it, but do not void the mouse click
-            if (!this.isHovered()) this.close();
-            //always void mouse click when clicking somewhere inside it
-            else return this;
+        //close popup when clicked outside it, but do not void the mouse click
+        if (!this.isHovered()) {
+            this.close();
+            return null;
         }
 
-        return null;
+        //and always void mouse click when clicking somewhere inside it
+        return this;
     }
 
     @Override

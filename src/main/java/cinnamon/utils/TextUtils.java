@@ -145,6 +145,27 @@ public class TextUtils {
         return result;
     }
 
+    public static Text parseSimpleMarkdown(Text text) {
+        Text result = Text.empty();
+
+        text.visit((string, style) -> {
+            //~~  ~~ strikethrough
+            //**  ** bold
+            //__  __ underline
+            //||  || obfuscated
+            //*  * or _  _ italic
+
+            for (int i = 0; i < string.length(); i++) {
+                char c = string.charAt(i);
+
+            }
+
+
+        }, Style.EMPTY);
+
+        return result;
+    }
+
     public static int getWidth(Text text, Font font) {
         List<Text> split = split(text, "\n");
         float width = 0f;

@@ -26,7 +26,6 @@ public abstract class Curve {
         this.loop = other.loop;
         this.steps = other.steps;
         this.width = other.width;
-        this.dirty = other.dirty;
     }
 
     public Curve addPoint(float x, float y, float z) {

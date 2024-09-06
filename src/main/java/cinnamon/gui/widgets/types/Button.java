@@ -18,7 +18,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class Button extends SelectableWidget {
 
     private static final Resource TEXTURE = new Resource("textures/gui/widgets/button.png");
-    private static final Resource CLICK_SOUND = new Resource("sounds/pop.ogg");
+    private static final Resource CLICK_SOUND = new Resource("sounds/ui/click.ogg");
 
     private boolean silent;
     private boolean runOnHold;
@@ -74,11 +74,9 @@ public class Button extends SelectableWidget {
             //when pressed, set the flag to true, and if allowed, run the action
             if (action == GLFW_PRESS) {
                 holding = true;
-                if (runOnHold) {
+                if (runOnHold)
                     onRun();
-                    return this;
-                }
-                return super.mousePress(button, action, mods);
+                return this;
             //otherwise when released, only if we were holding, run the action
             } else if (holding && action == GLFW_RELEASE) {
                 holding = false;
@@ -90,10 +88,9 @@ public class Button extends SelectableWidget {
         //everything failed, but we were holding and allowed to run on hold
         if (holding) {
             holding = false;
-            if (runOnHold) {
+            if (runOnHold)
                 onRun();
-                return this;
-            }
+            return this;
         }
 
         //super

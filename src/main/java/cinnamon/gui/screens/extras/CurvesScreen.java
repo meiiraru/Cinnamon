@@ -208,10 +208,13 @@ public class CurvesScreen extends ParentedScreen {
                     anchorX = w.mouseX;
                     anchorY = w.mouseY;
                 }
+                default -> {
+                    return false;
+                }
             }
         }
 
-        return false;
+        return true;
     }
 
     @Override

@@ -29,11 +29,18 @@ public class SelectionBox extends Button {
     public SelectionBox(int x, int y, int width, int height) {
         super(x, y, width, height, Text.of(""), button -> {
             SelectionBox box = (SelectionBox) button;
-            if (box.isExpanded()) box.getPopup().close();
-            else box.openPopup(box.getX(), box.getY() + box.getHeight());
+            box.openPopup(box.getX(), box.getY() + box.getHeight());
         });
 
-        super.setPopup(new ContextMenu(width, height));
+        ContextMenu ctx = new ContextMenu(width, height) {
+            @Override
+            public GUIListener mousePress(int button, int action, int mods) {
+                boolean wasOpen = isOpen();
+                GUIListener sup = super.mousePress(button, action, mods);
+                return sup == null && wasOpen && SelectionBox.this.isHovered() ? this : sup;
+            }
+        };
+        super.setPopup(ctx);
     }
 
     @Override

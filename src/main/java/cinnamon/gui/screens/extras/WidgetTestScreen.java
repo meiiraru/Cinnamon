@@ -13,12 +13,18 @@ import static cinnamon.Client.LOGGER;
 
 public class WidgetTestScreen extends ParentedScreen {
 
+    private int clicks = 0;
+    private Label clicksLabel;
+
     public WidgetTestScreen(Screen parentScreen) {
         super(parentScreen);
     }
 
     @Override
     public void init() {
+        clicksLabel = new Label(width / 2, (int) (height - font.lineHeight), Text.of(clicks), font);
+        clicksLabel.setAlignment(Alignment.CENTER);
+
         ContainerGrid grid = new ContainerGrid(4, 4, 4);
 
         //button
@@ -159,6 +165,15 @@ public class WidgetTestScreen extends ParentedScreen {
         //add lists
         addWidget(grid);
         addWidget(grid2);
+        addWidget(clicksLabel);
         super.init();
+    }
+
+    @Override
+    public boolean mousePress(int button, int action, int mods) {
+        boolean sup = super.mousePress(button, action, mods);
+        if (sup) return true;
+        clicksLabel.setText(Text.of(++clicks));
+        return false;
     }
 }
