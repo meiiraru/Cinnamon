@@ -3,7 +3,7 @@ package cinnamon.parsers;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
-import cinnamon.model.obj.material.MtlMaterial;
+import cinnamon.model.obj.material.PBRMaterial;
 import cinnamon.utils.Curve;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
@@ -96,16 +96,13 @@ public class CurveToMesh {
         }
 
         //material
-        MtlMaterial material = new MtlMaterial("curve");
+        PBRMaterial material = new PBRMaterial("curve");
         mesh.getMaterials().put("curve", material);
         group.setMaterial(material);
 
         //textures
-        material.setDiffuseTex(TEXTURE_KD);
-        material.setSpColorTex(TEXTURE_KS);
-
-        //specular exponent
-        material.setSpecularExponent(256);
+        material.setAlbedo(TEXTURE_KD);
+        material.setMetallic(TEXTURE_KS);
 
         return mesh;
     }

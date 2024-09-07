@@ -126,10 +126,8 @@ public class WorldClient extends World {
         int radius = 1;
         for (int i = -radius; i < radius; i++) {
             for (int j = -radius; j < radius; j++) {
-                for (int k = -radius; k < radius; k++) {
-                    Chunk c = TerrainGenerator.generatePlain(i, j, k);
-                    addChunk(c);
-                }
+                Chunk c = TerrainGenerator.generatePlain(i, 0, j);
+                addChunk(c);
             }
         }
 
@@ -731,7 +729,7 @@ public class WorldClient extends World {
         //    connection.sendTCP(new Respawn());
     }
 
-    public static void givePlayerItems(Player player) {
+    public void givePlayerItems(Player player) {
         player.giveItem(new CoilGun(1, 5, 0));
         player.giveItem(new PotatoCannon(3, 40, 30));
         player.giveItem(new RiceGun(8, 80, 60));

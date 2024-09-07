@@ -8,6 +8,7 @@ import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Label;
 import cinnamon.text.Text;
 import cinnamon.world.MaterialPreviewWorld;
+import cinnamon.world.RollerCoasterWorld;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -27,10 +28,16 @@ public class ExtrasScreen extends ParentedScreen {
         list.setShouldRenderBackground(false);
 
         //title
-        list.addWidget(new Label(0, 0, Text.of("Tech demos\n"), font));
+        list.addWidget(new Label(0, 0, Text.of("Custom Worlds\n"), font));
 
         //material debug world
         list.addWidget(BUTTON_FACTORY.apply("Material Debug", button -> new MaterialPreviewWorld().init()));
+
+        //material debug world
+        list.addWidget(BUTTON_FACTORY.apply("Roller Coaster", button -> new RollerCoasterWorld().init()));
+
+        //title
+        list.addWidget(new Label(0, 0, Text.of("\nTech demos\n"), font));
 
         //collision screen
         list.addWidget(BUTTON_FACTORY.apply("Collision Test", button -> client.setScreen(new CollisionScreen(this))));

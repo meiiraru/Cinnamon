@@ -9,6 +9,9 @@ import java.util.UUID;
 
 public class Cart extends Vehicle {
 
+    private boolean isRailed;
+
+
     public Cart(UUID uuid) {
         super(uuid, EntityModelRegistry.CART.model, 1);
     }
@@ -30,7 +33,11 @@ public class Cart extends Vehicle {
 
     @Override
     public void rotateTo(float pitch, float yaw) {
-        super.rotateTo(0, yaw);
+        super.rotateTo(isRailed ? pitch : 0, yaw);
+    }
+
+    public void setRailed(boolean railed) {
+        isRailed = railed;
     }
 
     @Override

@@ -24,6 +24,7 @@ import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.particle.SmokeParticle;
 import cinnamon.world.particle.TextParticle;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.Collection;
@@ -76,6 +77,12 @@ public abstract class LivingEntity extends PhysEntity {
 
     @Override
     protected void applyModelPose(MatrixStack matrices, float delta) {
+        if (this.riding != null) {
+            Vector2f rot = riding.getRot(delta);
+            matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
+            matrices.rotate(Rotation.X.rotationDeg(-rot.x));
+            matrices.rotate(Rotation.Y.rotationDeg(rot.y));
+        }
         matrices.rotate(Rotation.Y.rotationDeg(-getRot(delta).y));
     }
 

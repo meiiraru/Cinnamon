@@ -226,6 +226,10 @@ public class Maths {
         return Float.isNaN(vec.x) || Float.isNaN(vec.y) || Float.isNaN(vec.z);
     }
 
+    public static boolean isNaN(Vector2f vec) {
+        return Float.isNaN(vec.x) || Float.isNaN(vec.y);
+    }
+
     public static Vector2f rotate(Vector2f vec, float angle) {
         float rad = (float) Math.toRadians(angle);
         float cos = (float) (Math.cos(rad));

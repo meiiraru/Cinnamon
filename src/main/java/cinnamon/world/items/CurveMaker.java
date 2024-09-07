@@ -4,6 +4,7 @@ import cinnamon.Client;
 import cinnamon.gui.Toast;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
+import cinnamon.parsers.CurveToMesh;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Model;
 import cinnamon.render.batch.VertexConsumer;
@@ -11,12 +12,15 @@ import cinnamon.text.Text;
 import cinnamon.utils.Curve;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
+import cinnamon.world.RollerCoasterWorld;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.terrain.Terrain;
 import org.joml.Vector3f;
 
 import java.util.List;
+import java.util.UUID;
 
 import static cinnamon.Client.LOGGER;
 
@@ -25,7 +29,7 @@ public class CurveMaker extends CooldownItem {
     private static final String ID = "Curve Maker";
     private static final Model MODEL = ModelManager.load(new Resource("models/items/curve_maker/curve_maker.obj"));
 
-    private final Curve curve = new Curve.BSpline().loop(true).steps(10);
+    private final Curve curve = new Curve.BSpline().steps(10);
 
     public CurveMaker(int stackCount, int depleatCooldown, int useCooldown) {
         super(ID, stackCount, MODEL, depleatCooldown, useCooldown);
@@ -75,7 +79,7 @@ public class CurveMaker extends CooldownItem {
         for (int i = 0; i < size - 1; i++) {
             Vector3f a = curve.get(i);
             Vector3f b = curve.get(i + 1);
-            GeometryHelper.drawLine(VertexConsumer.MAIN, matrices, a.x, a.y, a.z, b.x, b.y, b.z, 0.1f, color + (0xFF << 24));
+            GeometryHelper.drawLine(VertexConsumer.LINES, matrices, a.x, a.y, a.z, b.x, b.y, b.z, 0f, color + (0xFF << 24));
         }
     }
 
@@ -95,16 +99,16 @@ public class CurveMaker extends CooldownItem {
     public void use(Entity source) {
         super.use(source);
 
-        if (!canUse() || !source.getWorld().isClientside())
+        if (!canUse() || !(source.getWorld() instanceof RollerCoasterWorld rc))
             return;
 
         try {
-            //WorldClient world = ((WorldClient) source.getWorld());
-            //world.curve = new OpenGLModel(CurveToMesh.generateMesh(this.curve, false));
-            //world.curvePath = this.curve.getCurve().toArray(new Vector3f[0]);
-            //world.cart = new Cart(UUID.randomUUID());
-            //world.cart.setRailed(true);
-            //world.addEntity(world.cart);
+            rc.curve = new Model(CurveToMesh.generateMesh(this.curve, false));
+            rc.curvePath = this.curve.getCurve().toArray(new Vector3f[0]);
+            if (rc.cart != null) rc.cart.remove();
+            rc.cart = new Cart(UUID.randomUUID());
+            rc.cart.setRailed(true);
+            rc.addEntity(rc.cart);
 
             curve.clear();
         } catch (Exception e) {

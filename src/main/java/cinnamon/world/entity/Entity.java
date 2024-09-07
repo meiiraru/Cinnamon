@@ -48,9 +48,8 @@ public abstract class Entity extends WorldObject {
     }
 
     public void tick() {
+        this.oPos.set(pos);
         this.oRot.set(rot);
-        if (!isRiding())
-            this.oPos.set(pos);
     }
 
     public void render(MatrixStack matrices, float delta) {
@@ -173,7 +172,7 @@ public abstract class Entity extends WorldObject {
     public void moveTo(float x, float y, float z) {
         this.pos.set(x, y, z);
         this.updateAABB();
-        this.updateRiders();
+        this.updateRidersPos();
         sendServerUpdate();
     }
 
@@ -229,7 +228,7 @@ public abstract class Entity extends WorldObject {
         super.setPos(x, y, z);
         this.oPos.set(x, y, z);
         this.updateAABB();
-        this.updateRiders();
+        this.updateRidersPos();
     }
 
     public Vector2f getRot(float delta) {
@@ -322,11 +321,16 @@ public abstract class Entity extends WorldObject {
         return riders.isEmpty() ? this : riders.getFirst().getControllingEntity();
     }
 
-    protected void updateRiders() {
-        for (Entity rider : new ArrayList<>(riders)) {
-            rider.oPos.set(rider.pos);
+    protected void updateRidersPos() {
+        for (Entity rider : new ArrayList<>(riders))
             rider.moveTo(getRiderOffset(rider).add(this.pos));
-        }
+    }
+
+    protected void updateRidersRot() {
+        float xDelta = rot.x - oRot.x;
+        float yDelta = rot.y - oRot.y;
+        for (Entity rider : new ArrayList<>(riders))
+            rider.rotateTo(rider.rot.x + xDelta, rider.rot.y + yDelta);
     }
 
     public Vector3f getRiderOffset(Entity rider) {

@@ -49,4 +49,10 @@ public abstract class Vehicle extends PhysEntity {
             e.rotateTo(this.getRot());
         }
     }
+
+    @Override
+    public void rotateTo(float pitch, float yaw) {
+        super.rotateTo(pitch, yaw);
+        updateRidersRot();
+    }
 }
