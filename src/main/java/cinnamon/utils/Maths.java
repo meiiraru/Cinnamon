@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.function.Function;
 
 public class Maths {
 
@@ -314,5 +315,75 @@ public class Maths {
         }
 
         return points[0];
+    }
+
+    private static final float
+            C1 = 1.70158f,
+            C2 = C1 * 1.525f,
+            C3 = C1 + 1f,
+            C4 = (2f * (float) Math.PI) / 3f,
+            C5 = (2f * (float) Math.PI) / 4.5f,
+            N1 = 7.5625f,
+            D1 = 2.75f;
+
+    public enum Easing {
+        IN_SINE(x -> 1f - (float) Math.cos((x * Math.PI) / 2f)),
+        OUT_SINE(x -> (float) Math.sin((x * Math.PI) / 2f)),
+        IN_OUT_SINE(x -> (float) -(Math.cos(Math.PI * x) - 1f) / 2f),
+
+        IN_QUAD(x -> x * x),
+        OUT_QUAD(x -> 1f - (1f - x) * (1f - x)),
+        IN_OUT_QUAD(x -> x < 0.5f ? 2f * x * x : 1f - (float) Math.pow(-2f * x + 2f, 2f) / 2f),
+
+        IN_CUBIC(x -> x * x * x),
+        OUT_CUBIC(x -> 1f - (float) Math.pow(1f - x, 3f)),
+        IN_OUT_CUBIC(x -> x < 0.5f ? 4f * x * x * x : 1f - (float) Math.pow(-2f * x + 2f, 3f) / 2f),
+
+        IN_QUART(x -> x * x * x * x),
+        OUT_QUART(x -> 1f - (float) Math.pow(1f - x, 4f)),
+        IN_OUT_QUART(x -> x < 0.5f ? 8f * x * x * x * x : 1f - (float) Math.pow(-2f * x + 2f, 4f) / 2f),
+
+        IN_QUINT(x -> x * x * x * x * x),
+        OUT_QUINT(x -> 1f - (float) Math.pow(1f - x, 5f)),
+        IN_OUT_QUINT(x -> x < 0.5f ? 16f * x * x * x * x * x : 1f - (float) Math.pow(-2f * x + 2f, 5f) / 2f),
+
+        IN_EXPO(x -> x == 0f ? 0f : (float) Math.pow(2f, 10f * x - 10f)),
+        OUT_EXPO(x ->  x == 1f ? 1f : 1f - (float) Math.pow(2f, -10f * x)),
+        IN_OUT_EXPO(x -> (float) (x == 0f ? 0f : x == 1f ? 1f : x < 0.5f ? Math.pow(2f, 20f * x - 10f) / 2f : (2f - Math.pow(2f, -20f * x + 10f)) / 2f)),
+
+        IN_CIRC(x -> 1f - (float) Math.sqrt(1f - Math.pow(x, 2f))),
+        OUT_CIRC(x -> (float) Math.sqrt(1f - Math.pow(x - 1f, 2f))),
+        IN_OUT_CIRC(x -> (float) (x < 0.5f ? (1f - Math.sqrt(1f - Math.pow(2f * x, 2f))) / 2f : (Math.sqrt(1f - Math.pow(-2f * x + 2f, 2f)) + 1f) / 2f)),
+
+        IN_BACK(x -> C3 * x * x * x - C1 * x * x),
+        OUT_BACK(x -> 1f + C3 * (float) Math.pow(x - 1f, 3f) + C1 * (float) Math.pow(x - 1f, 2f)),
+        IN_OUT_BACK(x -> (float) (x < 0.5f ? (Math.pow(2f * x, 2f) * ((C2 + 1f) * 2f * x - C2)) / 2f : (Math.pow(2f * x - 2f, 2f) * ((C2 + 1f) * (x * 2f - 2f) + C2) + 2f) / 2f)),
+
+        IN_ELASTIC(x -> (float) (x == 0f ? 0f : x == 1f ? 1f : -Math.pow(2f, 10f * x - 10f) * Math.sin((x * 10f - 10.75f) * C4))),
+        OUT_ELASTIC(x -> (float) (x == 0f ? 0f : x == 1f ? 1f : Math.pow(2f, -10f * x) * Math.sin((x * 10f - 0.75f) * C4) + 1f)),
+        IN_OUT_ELASTIC(x -> (float) (x == 0f ? 0f : x == 1f ? 1f : x < 0.5f ? -(Math.pow(2f, 20f * x - 10f) * Math.sin((20f * x - 11.125f) * C5)) / 2f : (Math.pow(2f, -20f * x + 10f) * Math.sin((20f * x - 11.125f) * C5)) / 2f + 1f)),
+
+        OUT_BOUNCE(x -> {
+            if (x < 1f / D1)
+                return N1 * x * x;
+            else if (x < 2f / D1)
+                return N1 * (x -= 1.5f / D1) * x + 0.75f;
+            else if (x < 2.5 / D1)
+                return N1 * (x -= 2.25f / D1) * x + 0.9375f;
+            else
+                return N1 * (x -= 2.625f / D1) * x + 0.984375f;
+        }),
+        IN_BOUNCE(x -> 1f - OUT_BOUNCE.get(1f - x)),
+        IN_OUT_BOUNCE(x -> x < 0.5f ? (1 - OUT_BOUNCE.get(1f - 2f * x)) / 2f : (1 + OUT_BOUNCE.get(2f * x - 1f)) / 2f);
+
+        private final Function<Float, Float> func;
+
+        Easing(Function<Float, Float> func) {
+            this.func = func;
+        }
+
+        public float get(float x) {
+            return func.apply(x);
+        }
     }
 }
