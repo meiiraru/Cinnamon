@@ -80,6 +80,7 @@ public class CurvesScreen extends ParentedScreen {
                         case 2 -> curve = new Curve.Bezier(curve);
                         case 3 -> curve = new Curve.BSpline(curve);
                         case 4 -> curve = new Curve.BezierDeCasteljau(curve);
+                        case 5 -> curve = new Curve.CatmullRom(curve);
                     }
                 })
                 .addEntry(Text.of("Linear"))
@@ -87,7 +88,8 @@ public class CurvesScreen extends ParentedScreen {
                 .addEntry(Text.of("Hermite"))
                 .addEntry(Text.of("Bezier"))
                 .addEntry(Text.of("B-Spline"))
-                .addEntry(Text.of("Bezier De Casteljau"));
+                .addEntry(Text.of("Bezier De Casteljau"))
+                .addEntry(Text.of("Catmull-Rom"));
 
         box.select(lastSelected); //widget recreation
         grid.addWidget(box);
@@ -176,7 +178,7 @@ public class CurvesScreen extends ParentedScreen {
         int size = curve.size();
         for (int i = 0; i < size - 1; i++) {
             float t = (float) i / (size - 1);
-            int color = ColorUtils.lerpRGBColor(colorA, colorB, t);
+            int color = ColorUtils.lerpHSVColor(colorA, colorB, t);
 
             Vector3f a = curve.get(i);
             Vector3f b = curve.get(i + 1);

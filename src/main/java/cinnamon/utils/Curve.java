@@ -15,7 +15,7 @@ public abstract class Curve {
             externalCurve = new ArrayList<>();
 
     protected boolean loop;
-    protected boolean dirty = true;
+    protected boolean dirty;
     protected int steps = 1;
     protected float width = 1f;
 
@@ -26,6 +26,7 @@ public abstract class Curve {
         this.loop = other.loop;
         this.steps = other.steps;
         this.width = other.width;
+        this.dirty = true;
     }
 
     public Curve addPoint(float x, float y, float z) {
@@ -208,6 +209,27 @@ public abstract class Curve {
         return controlPoints;
     }
 
+    private static void grabPoints(List<Vector3f> controlPoints, boolean loop, int size, int i, Vector3f[] out) {
+        int pprev, prev, next, nnext;
+
+        if (loop) {
+            pprev = i - 1;
+            prev = i;
+            next = i + 1;
+            nnext =  i + 2;
+        } else {
+            pprev = Math.max(i - 1, 0);
+            prev = Math.max(i, 0);
+            next = Math.min(i + 1, size - 1);
+            nnext = Math.min(next + 1, size - 1);
+        }
+
+        out[0].set(controlPoints.get(Maths.modulo(pprev, size)));
+        out[1].set(controlPoints.get(Maths.modulo(prev, size)));
+        out[2].set(controlPoints.get(next % size));
+        out[3].set(controlPoints.get(nnext % size));
+    }
+
 
     // -- types -- //
 
@@ -358,31 +380,15 @@ public abstract class Curve {
             Vector3f last = null;
 
             for (int i = loop ? 0 : -1; i < size; i++) {
-                int pprev, prev, next, nnext;
-
-                if (loop) {
-                    pprev = i - 1;
-                    prev = i;
-                    next = i + 1;
-                    nnext =  i + 2;
-                } else {
-                    pprev = Math.max(i - 1, 0);
-                    prev = Math.max(i, 0);
-                    next = Math.min(i + 1, size - 1);
-                    nnext = Math.min(next + 1, size - 1);
-                }
-
-                Vector3f p0 = controlPoints.get(Maths.modulo(pprev, size));
-                Vector3f p1 = controlPoints.get(Maths.modulo(prev, size));
-                Vector3f p2 = controlPoints.get(next % size);
-                Vector3f p3 = controlPoints.get(nnext % size);
+                Vector3f[] out = {new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f()};
+                grabPoints(controlPoints, loop, size, i, out);
 
                 for (float j = 0; j <= steps; j++) {
                     float t = j / steps;
                     Vector3f vec = new Vector3f(
-                            Maths.bSpline(p0.x, p1.x, p2.x, p3.x, t),
-                            Maths.bSpline(p0.y, p1.y, p2.y, p3.y, t),
-                            Maths.bSpline(p0.z, p1.z, p2.z, p3.z, t)
+                            Maths.bSpline(out[0].x, out[1].x, out[2].x, out[3].x, t),
+                            Maths.bSpline(out[0].y, out[1].y, out[2].y, out[3].y, t),
+                            Maths.bSpline(out[0].z, out[1].z, out[2].z, out[3].z, t)
                     );
                     if (last == null || !last.equals(vec))
                         curve.add(vec);
@@ -435,6 +441,46 @@ public abstract class Curve {
                 if (last == null || !last.equals(vec))
                     curve.add(vec);
                 last = vec;
+            }
+
+            return curve;
+        }
+    }
+
+    public static class CatmullRom extends Curve {
+        public CatmullRom() {
+            super();
+        }
+
+        public CatmullRom(Curve other) {
+            super(other);
+        }
+
+        @Override
+        protected List<Vector3f> calculateCurve(List<Vector3f> controlPoints) {
+            int size = controlPoints.size();
+            List<Vector3f> curve = new ArrayList<>();
+
+            if (size < 2)
+                return curve;
+
+            Vector3f last = null;
+
+            for (int i = loop ? 0 : -1; i < size; i++) {
+                Vector3f[] out = {new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f()};
+                grabPoints(controlPoints, loop, size, i, out);
+
+                for (float j = 0; j <= steps; j++) {
+                    float t = j / steps;
+                    Vector3f vec = new Vector3f(
+                            Maths.catmullRom(out[0].x, out[1].x, out[2].x, out[3].x, t),
+                            Maths.catmullRom(out[0].y, out[1].y, out[2].y, out[3].y, t),
+                            Maths.catmullRom(out[0].z, out[1].z, out[2].z, out[3].z, t)
+                    );
+                    if (last == null || !last.equals(vec))
+                        curve.add(vec);
+                    last = vec;
+                }
             }
 
             return curve;

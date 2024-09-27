@@ -89,7 +89,7 @@ public class SoundManager {
         Vector3f up = camera.getUp();
 
         if (Maths.isNaN(pos) || Maths.isNaN(forward) || Maths.isNaN(up))
-            return;
+            throw new RuntimeException("Camera properties contains a NaN value!");
 
         alListener3f(AL_POSITION, pos.x, pos.y, pos.z);
         alListenerfv(AL_ORIENTATION, new float[]{

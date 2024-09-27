@@ -31,9 +31,13 @@ public class MainMenu extends Screen {
     public void init() {
         super.init();
 
-        //may~o
-        Text may = Text.of("Cinnamon v%s \u25E0\u25DE\u25DF\u25E0".formatted(Client.VERSION)).withStyle(Style.EMPTY.italic(true).color(0x66FFFFFF).shadow(true).shadowColor(0x66161616));
-        this.addWidget(new Label(width - TextUtils.getWidth(may, font) - 4, height - TextUtils.getHeight(may, font) - 4, may, font));
+        //bottom texts
+        Style s = Style.EMPTY.italic(true).color(0x66FFFFFF).shadow(true).shadowColor(0x66161616);
+        Text bottomLeft = Text.of("Cinnamon v%s".formatted(Client.VERSION)).withStyle(s);
+        this.addWidget(new Label(4, height - TextUtils.getHeight(bottomLeft, font) - 4, bottomLeft, font));
+
+        Text bottomRight = Text.of("\u00A9 Meiiraru").withStyle(s);
+        this.addWidget(new Label(width - TextUtils.getWidth(bottomRight, font) - 4, height - TextUtils.getHeight(bottomRight, font) - 4, bottomRight, font));
 
         //buttons
         ContainerGrid grid = new ContainerGrid(0, 0, 4);

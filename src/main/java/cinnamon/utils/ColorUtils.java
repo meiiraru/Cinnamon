@@ -110,4 +110,43 @@ public class ColorUtils {
         Vector3f lerped = Maths.lerp(cA, cB, t);
         return rgbToInt(lerped);
     }
+
+    public static int lerpHSVColor(int a, int b, float t) {
+        return lerpHSVColor(a, b, t, false);
+    }
+
+    public static int lerpHSVColor(int a, int b, float t, boolean longAngle) {
+        Vector3f cA = rgbToHSV(intToRGB(a));
+        Vector3f cB = rgbToHSV(intToRGB(b));
+        float h, s;
+
+        //do not change hue (x) nor saturation (y) when black (brightness 0)
+        //do not change hue (x) when gray (saturation 0)
+        if (cA.z == 0f) {
+            h = cB.x;
+            s = cB.y;
+        } else if (cB.z == 0f) {
+            h = cA.x;
+            s = cA.y;
+        } else {
+            if (cA.y == 0f) {
+                h = cB.x;
+            } else if (cB.y == 0f) {
+                h = cA.x;
+            } else if (longAngle) {
+                float xA = cA.x;
+                float xB = cB.x;
+                if (cA.x > cB.x) xB += 1f;
+                else xA += 1f;
+                h = Maths.lerp(xA, xB, t) % 1f;
+            } else {
+                float angle = Maths.shortAngle(cA.x * 360f, cB.x * 360f) / 360f;
+                h = Maths.lerp(cA.x, cA.x + angle, t);
+            }
+            s = Maths.lerp(cA.y, cB.y, t);
+        }
+
+        float v = Maths.lerp(cA.z, cB.z, t);
+        return rgbToInt(hsvToRGB(new Vector3f(h, s, v)));
+    }
 }

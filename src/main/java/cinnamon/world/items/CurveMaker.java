@@ -4,7 +4,6 @@ import cinnamon.Client;
 import cinnamon.gui.Toast;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
-import cinnamon.parsers.CurveToMesh;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Model;
 import cinnamon.render.batch.VertexConsumer;
@@ -15,12 +14,10 @@ import cinnamon.utils.Rotation;
 import cinnamon.world.RollerCoasterWorld;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
-import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.terrain.Terrain;
 import org.joml.Vector3f;
 
 import java.util.List;
-import java.util.UUID;
 
 import static cinnamon.Client.LOGGER;
 
@@ -29,7 +26,7 @@ public class CurveMaker extends CooldownItem {
     private static final String ID = "Curve Maker";
     private static final Model MODEL = ModelManager.load(new Resource("models/items/curve_maker/curve_maker.obj"));
 
-    private final Curve curve = new Curve.BSpline().steps(10);
+    private final Curve curve = new Curve.CatmullRom().loop(true).steps(10);
 
     public CurveMaker(int stackCount, int depleatCooldown, int useCooldown) {
         super(ID, stackCount, MODEL, depleatCooldown, useCooldown);
@@ -103,13 +100,7 @@ public class CurveMaker extends CooldownItem {
             return;
 
         try {
-            rc.curve = new Model(CurveToMesh.generateMesh(this.curve, false));
-            rc.curvePath = this.curve.getCurve().toArray(new Vector3f[0]);
-            if (rc.cart != null) rc.cart.remove();
-            rc.cart = new Cart(UUID.randomUUID());
-            rc.cart.setRailed(true);
-            rc.addEntity(rc.cart);
-
+            rc.setCurve(this.curve);
             curve.clear();
         } catch (Exception e) {
             LOGGER.error(e);

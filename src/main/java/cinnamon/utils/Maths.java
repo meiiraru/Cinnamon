@@ -41,15 +41,8 @@ public class Maths {
         );
     }
 
-    public static float lerpRot(float a, float b, float t) {
-        return a + wrapDegrees(b - a) * t;
-    }
-
-    public static float wrapDegrees(float angle) {
-        float f = angle % 360;
-        if (f >= 180f) f -= 360f;
-        if (f < -180f) f += 360f;
-        return f;
+    public static float shortAngle(float a, float b) {
+        return (b - a + 180f) % 360f - 180f;
     }
 
     public static float lerpArray(float[] array, float t) {
@@ -103,7 +96,7 @@ public class Maths {
     }
 
     public static Vector2f dirToRot(float x, float y, float z) {
-        float pitch = (float) Math.toDegrees(Math.asin(-y));
+        float pitch = (float) Math.toDegrees(Math.asin(Math.clamp(-y, -1f, 1f)));
         float yaw = (float) Math.toDegrees(Math.atan2(z, x));
         return new Vector2f(pitch, yaw + 90f);
     }
@@ -315,6 +308,13 @@ public class Maths {
         }
 
         return points[0];
+    }
+
+    public static float catmullRom(float p0, float p1, float p2, float p3, float t) {
+        return 0.5f * ((2 * p1) +
+                (-p0 + p2) * t +
+                (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t +
+                (-p0 + 3 * p1 - 3 * p2 + p3) * t * t * t);
     }
 
     private static final float

@@ -1,23 +1,29 @@
 package cinnamon.world;
 
+import cinnamon.parsers.CurveToMesh;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Model;
 import cinnamon.render.shader.Shader;
+import cinnamon.utils.Curve;
 import cinnamon.utils.Maths;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.items.CurveMaker;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
+
+import java.util.UUID;
 
 public class RollerCoasterWorld extends WorldClient {
 
-    public Model curve;
-    public Vector3f[] curvePath;
-    public Cart cart;
+    private Model model;
+    private Vector3f[] path;
+    private Cart cart;
 
-    private float t = 0f;
+    private float t, toAdd;
+    private int p0, p1;
+
+    private float speed = 0.3f;
 
     @Override
     public void tick() {
@@ -26,38 +32,62 @@ public class RollerCoasterWorld extends WorldClient {
         if (cart == null)
             return;
 
-        //tick time
-        if (!cart.getRiders().isEmpty()) {
-            t += 0.001f;
-            if (t >= 1f)
-                t = 0f;
+        if (!cart.getRiders().isEmpty())
+            t += toAdd;
+
+        while (t >= 1f) {
+            t--;
+            float oldDistance = path[p0].distance(path[p1]);
+
+            p0 = p1;
+            p1 = (p1 + 1) % path.length;
+
+            if (p1 == p0)
+                continue;
+
+            float distance = path[p0].distance(path[p1]);
+            while (distance == 0f) {
+                p0 = p1;
+                p1 = (p1 + 1) % path.length;
+                distance = path[p0].distance(path[p1]);
+            }
+
+            toAdd = speed / distance;
+            t = Maths.map(t, 0f, 1f, 0f, oldDistance / distance);
         }
 
-        //get min and max index from the curve array
-        int min = (int) Math.floor(t * (curvePath.length - 1));
-        int max = (int) Math.ceil(t * (curvePath.length - 1));
+        cart.moveTo(Maths.lerp(path[p0], path[p1], t));
+        cart.rotateTo(Maths.dirToRot(path[p1].sub(path[p0], new Vector3f())));
+    }
 
-        //get the new position of the cart
-        float delta = (t * (curvePath.length - 1)) - min;
-        Vector3f pos = Maths.lerp(curvePath[min], curvePath[max], delta);
+    public void setCurve(Curve curve) throws Exception {
+        //set model and path
+        model = new Model(CurveToMesh.generateMesh(curve, false));
+        path = curve.getCurve().toArray(new Vector3f[0]);
 
-        //set the position of the cart
-        cart.moveTo(pos);
+        //set cart
+        if (cart != null)
+            cart.remove();
+        cart = new Cart(UUID.randomUUID());
+        cart.setRailed(true);
+        addEntity(cart);
 
-        //get direction from min and max
-        Vector3f dir = new Vector3f(curvePath[max]).sub(curvePath[min]).normalize();
-        Vector2f rot = Maths.dirToRot(dir);
-        if (!Maths.isNaN(rot))
-            cart.rotateTo(rot);
+        cart.moveTo(path[0]);
+        cart.rotateTo(Maths.dirToRot(path[1 % path.length].sub(path[0], new Vector3f())));
+
+        t = 1f;
+        toAdd = 0f;
+        p0 = path.length - 1;
+        p1 = 0;
     }
 
     @Override
     protected void renderWorld(Camera camera, MatrixStack matrices, float delta) {
         super.renderWorld(camera, matrices, delta);
 
-        if (curve != null) {
+        if (model != null) {
             Shader.activeShader.applyMatrixStack(matrices);
-            curve.render();
+            model.render();
         }
     }
 
