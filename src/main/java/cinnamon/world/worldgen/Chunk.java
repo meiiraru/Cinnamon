@@ -33,6 +33,10 @@ public class Chunk {
     private final Vector3i gridPos;
     private final AABB aabb;
 
+    public Chunk(Vector3i pos) {
+        this(pos.x, pos.y, pos.z);
+    }
+
     public Chunk(int x, int y, int z) {
         this.gridPos = new Vector3i(x, y, z);
         int ax = x * CHUNK_SIZE;

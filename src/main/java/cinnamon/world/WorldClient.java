@@ -25,6 +25,8 @@ import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.collectable.EffectBox;
+import cinnamon.world.entity.collectable.HealthPack;
 import cinnamon.world.entity.living.Dummy;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.living.LocalPlayer;
@@ -90,6 +92,9 @@ public class WorldClient extends World {
     //terrain
     private int selectedTerrain, selectedMaterial;
 
+    //temp
+    private Entity effectBox, healthPack;
+
     @Override
     public void init() {
         //set client
@@ -127,9 +132,12 @@ public class WorldClient extends World {
         for (int i = -radius; i < radius; i++) {
             for (int j = -radius; j < radius; j++) {
                 Chunk c = TerrainGenerator.generatePlain(i, 0, j);
-                addChunk(c);
+                chunks.put(c.getGridPos(), c);
             }
         }
+
+        //menger sponge
+        TerrainGenerator.generateMengerSponge(this, 2, -23, 1, -23);
 
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
 
@@ -175,6 +183,21 @@ public class WorldClient extends World {
         //if the player is dead, show death screen
         if (player.isDead() && client.screen == null)
             client.setScreen(new DeathScreen());
+
+        //every 10s
+        if (timeOfTheDay % 200 == 1) {
+            if (effectBox == null || effectBox.isRemoved()) {
+                effectBox = new EffectBox(UUID.randomUUID());
+                effectBox.setPos(-1.5f, 2f, 10f);
+                addEntity(effectBox);
+            }
+
+            if (healthPack == null || healthPack.isRemoved()) {
+                healthPack = new HealthPack(UUID.randomUUID());
+                healthPack.setPos(2.5f, 2f, 10f);
+                addEntity(healthPack);
+            }
+        }
 
         //process input
         this.movement.tick(player);
@@ -543,16 +566,8 @@ public class WorldClient extends World {
                 } else if (press && player.getHoldingItem() == null) {
                     Hit<Terrain> terrain = player.getLookingTerrain(player.getPickRange());
                     if (terrain != null) {
-                        Vector3f tpos = terrain.obj().getPos();
-
-                        Vector3i chunk = getChunkGridPos(tpos);
-                        Vector3i pos = new Vector3i(
-                                (int) Math.floor(tpos.x) - chunk.x * Chunk.CHUNK_SIZE,
-                                (int) Math.floor(tpos.y) - chunk.y * Chunk.CHUNK_SIZE,
-                                (int) Math.floor(tpos.z) - chunk.z * Chunk.CHUNK_SIZE
-                        );
-
-                        chunks.get(chunk).setTerrain(null, pos);
+                        Vector3f pos = terrain.obj().getPos();
+                        setTerrain(null, (int) pos.x, (int) pos.y, (int) pos.z);
                     }
                 }
             }
@@ -567,25 +582,11 @@ public class WorldClient extends World {
                         Vector3f dir = terrain.collision().normal();
                         Vector3f tpos = new Vector3f(terrain.obj().getPos()).add(dir);
 
-                        Vector3i chunk = getChunkGridPos(tpos);
-                        Vector3i pos = new Vector3i(
-                                (int) Math.floor(tpos.x) - chunk.x * Chunk.CHUNK_SIZE,
-                                (int) Math.floor(tpos.y) - chunk.y * Chunk.CHUNK_SIZE,
-                                (int) Math.floor(tpos.z) - chunk.z * Chunk.CHUNK_SIZE
-                        );
-
                         AABB entities = new AABB().translate(tpos).expand(1f, 1f, 1f);
-                        Chunk c = chunks.get(chunk);
                         if (getEntities(entities).isEmpty()) {
-                            if (c == null) {
-                                c = new Chunk(chunk.x, chunk.y, chunk.z);
-                                addChunk(c);
-                            }
-
                             Terrain t = TerrainRegistry.values()[selectedTerrain].getFactory().get();
                             t.setMaterial(MaterialRegistry.values()[selectedMaterial].material);
-                            c.setTerrain(t, pos);
-                            scheduledTicks.add(() -> t.onAdded(this));
+                            setTerrain(t, (int) tpos.x, (int) tpos.y, (int) tpos.z);
                         }
                     }
                 }

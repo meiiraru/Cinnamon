@@ -109,6 +109,29 @@ public abstract class World {
         });
     }
 
+    public void setTerrain(Terrain terrain, Vector3i pos) {
+        setTerrain(terrain, pos.x, pos.y, pos.z);
+    }
+
+    public void setTerrain(Terrain terrain, int x, int y, int z) {
+        Vector3i cPos = getChunkGridPos(x, y, z);
+        Vector3i tPos = new Vector3i(
+                x - cPos.x * Chunk.CHUNK_SIZE,
+                y - cPos.y * Chunk.CHUNK_SIZE,
+                z - cPos.z * Chunk.CHUNK_SIZE
+        );
+
+        Chunk c = chunks.get(cPos);
+        if (c == null) {
+            c = new Chunk(cPos);
+            addChunk(c);
+        }
+
+        c.setTerrain(terrain, tPos);
+        if (terrain != null)
+            scheduledTicks.add(() -> terrain.onAdded(this));
+    }
+
     public SoundInstance playSound(Resource sound, SoundCategory category, Vector3f position) {
         return Client.getInstance().soundManager.playSound(sound, category, position);
     }
@@ -127,6 +150,14 @@ public abstract class World {
         return particles.size();
     }
 
+    public Chunk getChunk(Vector3i pos) {
+        return chunks.get(pos);
+    }
+
+    public Chunk getChunk(int x, int y, int z) {
+        return getChunk(new Vector3i(x, y, z));
+    }
+
     public List<Chunk> getChunks(AABB region) {
         List<Chunk> list = new ArrayList<>();
 
@@ -136,7 +167,7 @@ public abstract class World {
         for (int x = min.x; x <= max.x; x++) {
             for (int y = min.y; y <= max.y; y++) {
                 for (int z = min.z; z <= max.z; z++) {
-                    Chunk chunk = chunks.get(new Vector3i(x, y, z));
+                    Chunk chunk = getChunk(x, y, z);
                     if (chunk != null)
                         list.add(chunk);
                 }

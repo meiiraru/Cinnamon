@@ -74,11 +74,11 @@ public abstract class Projectile extends PhysEntity {
         super.onAdded(world);
 
         //calculate damage - only on server
-        if (!world.isClientside()) {
-            Entity owner = world.getEntityByUUID(this.owner);
-            this.damage = calculateDamage(owner, damage);
-            this.crit = checkCrit(owner, critChance);
-        }
+        //if (!world.isClientside()) {
+        Entity owner = world.getEntityByUUID(this.owner);
+        this.damage = calculateDamage(owner, damage);
+        this.crit = checkCrit(owner, critChance);
+        //}
 
         //apply move
         this.move(0, 0, 1);
