@@ -34,7 +34,7 @@ import static org.lwjgl.opengl.GL11.glClear;
 public class Client {
 
     private static final Client INSTANCE = new Client();
-    public static final String VERSION = "0.0.1";
+    public static final String VERSION = "0.0.8";
     public static final Logger LOGGER = LogManager.getLogger(Main.class);
 
     private final Queue<Runnable> scheduledTicks = new LinkedList<>();
