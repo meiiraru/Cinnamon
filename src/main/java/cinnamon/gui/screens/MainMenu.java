@@ -14,6 +14,7 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
 import cinnamon.world.WorldClient;
+import org.joml.Vector3f;
 
 import java.util.function.Consumer;
 
@@ -24,6 +25,8 @@ public class MainMenu extends Screen {
         STARS1 = new Resource("textures/gui/main_menu/stars1.png"),
         STARS2 = new Resource("textures/gui/main_menu/stars2.png"),
         OVERLAY = new Resource("textures/gui/main_menu/overlay.png");
+
+    private static final String TITLE = "CINNAMON";
 
     private Nebula[] nebula;
 
@@ -36,7 +39,7 @@ public class MainMenu extends Screen {
         Text bottomLeft = Text.of("Cinnamon v%s".formatted(Client.VERSION)).withStyle(s);
         this.addWidget(new Label(4, height - TextUtils.getHeight(bottomLeft, font) - 4, bottomLeft, font));
 
-        Text bottomRight = Text.of("\u00A9 Meiiraru").withStyle(s);
+        Text bottomRight = Text.of("\u00A9").withStyle(s.italic(false)).append(Text.of("Meiiraru").withStyle(s));
         this.addWidget(new Label(width - TextUtils.getWidth(bottomRight, font) - 4, height - TextUtils.getHeight(bottomRight, font) - 4, bottomRight, font));
 
         //buttons
@@ -129,6 +132,31 @@ public class MainMenu extends Screen {
 
         //overlay
         VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, 1f, 0f, 1f), OVERLAY, true);
+
+        //title
+        renderTitle(matrices, delta);
+    }
+
+    private void renderTitle(MatrixStack matrices, float delta) {
+        Style style = Style.EMPTY.bold(true).outlined(true);
+        Vector3f color = new Vector3f(0f, 0.6f, 1f);
+        float deltaTick = client.ticks + delta;
+        float x = 0f;
+
+        matrices.push();
+        matrices.translate(width * 0.66f - font.width(TITLE) * 0.5f, height * 0.5f, 0f);
+        matrices.scale(2f);
+        matrices.translate(0f, -font.lineHeight * TITLE.length() * 0.5f * 0.7f, 0f);
+
+        for (int i = 0; i < TITLE.length(); i++) {
+            char c = TITLE.charAt(i);
+            float y = (float) Math.sin(deltaTick * 0.1f + i * 0.5f) * 2f + font.lineHeight * i * 0.7f;
+            color.x = (deltaTick + i) * 0.01f % 1f;
+            font.render(VertexConsumer.FONT, matrices, x, y, Text.of(c).withStyle(style.color(ColorUtils.rgbToInt(ColorUtils.hsvToRGB(color)) + (0xFF << 24))));
+            x += font.width(c);
+        }
+
+        matrices.pop();
     }
 
     private static class MainButton extends Button {
