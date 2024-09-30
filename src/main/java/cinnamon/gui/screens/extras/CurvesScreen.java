@@ -41,6 +41,9 @@ public class CurvesScreen extends ParentedScreen {
     private boolean renderPointsText = true, renderLines = true;
     private int lastSelected = 3;
 
+    private boolean exported;
+    private Button openFolder;
+
     public CurvesScreen(Screen parentScreen) {
         super(parentScreen);
     }
@@ -115,14 +118,31 @@ public class CurvesScreen extends ParentedScreen {
         //export button
         Button exportCurve = new Button(0, 0, 60, 12, Text.of("Export"), button -> {
             try {
-                ObjExporter.export("curve", CurveToMesh.generateMesh(curve, true));
+                ObjExporter.export("curve", CurveToMesh.generateMesh(curve, true, false));
                 Toast.addToast(Text.of("Curve exported!"), client.font);
+                if (!exported) {
+                    exported = true;
+                    grid.insertWidget(openFolder, button);
+                }
             } catch (Exception e) {
                 LOGGER.error("Failed to export curve", e);
                 Toast.addToast(Text.of(e.getMessage()), client.font).type(Toast.ToastType.ERROR);
             }
         });
         grid.addWidget(exportCurve);
+
+        //
+        openFolder = new Button(0, 0, 60, 12, Text.of("Open Folder"), button -> {
+            try {
+                IOUtils.openInExplorer(ObjExporter.EXPORT_FOLDER.resolve("curve"));
+            } catch (Exception e) {
+                LOGGER.error("Failed to open folder", e);
+                Toast.addToast(Text.of(e.getMessage()), client.font).type(Toast.ToastType.ERROR);
+            }
+        });
+
+        if (exported)
+            grid.addWidget(openFolder);
 
         //add grid to screen
         this.addWidget(grid);
@@ -202,8 +222,10 @@ public class CurvesScreen extends ParentedScreen {
             Window w = client.window;
             switch (button) {
                 case GLFW.GLFW_MOUSE_BUTTON_1 -> {
-                    if (focused == null)
+                    if (focused == null) {
                         addPoint(w.mouseX, w.mouseY);
+                        points.getLast().mouseMove(w.mouseX, w.mouseY);
+                    }
                 }
                 case GLFW.GLFW_MOUSE_BUTTON_2 -> removePoint();
                 case GLFW.GLFW_MOUSE_BUTTON_3 -> {

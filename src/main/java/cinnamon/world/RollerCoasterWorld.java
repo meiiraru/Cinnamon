@@ -10,6 +10,7 @@ import cinnamon.utils.Maths;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.items.CurveMaker;
+import cinnamon.world.light.Light;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -24,6 +25,12 @@ public class RollerCoasterWorld extends WorldClient {
     private int p0, p1;
 
     private float speed = 0.3f;
+
+    @Override
+    protected void tempLoad() {
+        super.tempLoad();
+        addLight(new Light().pos(0f, 5f, 0f).color(0xAD72FF));
+    }
 
     @Override
     public void tick() {
@@ -62,7 +69,7 @@ public class RollerCoasterWorld extends WorldClient {
 
     public void setCurve(Curve curve) throws Exception {
         //set model and path
-        model = new Model(CurveToMesh.generateMesh(curve, false));
+        model = new Model(CurveToMesh.generateMesh(curve, false, true));
         path = curve.getCurve().toArray(new Vector3f[0]);
 
         //set cart

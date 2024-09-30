@@ -26,7 +26,7 @@ public class CurveMaker extends CooldownItem {
     private static final String ID = "Curve Maker";
     private static final Model MODEL = ModelManager.load(new Resource("models/items/curve_maker/curve_maker.obj"));
 
-    private final Curve curve = new Curve.CatmullRom().loop(true).steps(10);
+    private final Curve curve = new Curve.BSpline().loop(true).steps(10);
 
     public CurveMaker(int stackCount, int depleatCooldown, int useCooldown) {
         super(ID, stackCount, MODEL, depleatCooldown, useCooldown);
@@ -103,7 +103,7 @@ public class CurveMaker extends CooldownItem {
             rc.setCurve(this.curve);
             curve.clear();
         } catch (Exception e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
             Toast.addToast(Text.of(e.getMessage()), Client.getInstance().font).type(Toast.ToastType.ERROR);
         }
 

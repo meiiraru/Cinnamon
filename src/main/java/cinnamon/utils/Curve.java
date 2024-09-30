@@ -245,17 +245,9 @@ public abstract class Curve {
 
         @Override
         protected List<Vector3f> calculateCurve(List<Vector3f> controlPoints) {
-            int size = controlPoints.size();
-            List<Vector3f> curve = new ArrayList<>();
-
-            if (size < 2)
-                return curve;
-
-            curve.addAll(controlPoints);
-
-            if (loop)
+            List<Vector3f> curve = new ArrayList<>(controlPoints);
+            if (loop && !controlPoints.isEmpty())
                 curve.add(controlPoints.getFirst());
-
             return curve;
         }
     }
@@ -430,6 +422,7 @@ public abstract class Curve {
             }
 
             Vector3f last = null;
+            int steps = this.steps * len;
 
             for (float j = 0; j <= steps; j++) {
                 float t = j / steps;

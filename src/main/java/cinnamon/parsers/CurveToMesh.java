@@ -10,22 +10,23 @@ import cinnamon.utils.Resource;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CurveToMesh {
 
     private static final Resource
-            TEXTURE_KD = new Resource("textures/rollercoaster/kd.png"),
-            TEXTURE_KS = new Resource("textures/rollercoaster/ks.png");
+            TEXTURE_ALBEDO = new Resource("textures/rollercoaster/albedo.png"),
+            TEXTURE_METALLIC = new Resource("textures/rollercoaster/metallic.png"),
+            TEXTURE_ROUGHNESS = new Resource("textures/rollercoaster/roughness.png");
 
-    public static Mesh generateMesh(Curve curve, boolean offset) throws Exception {
+    public static Mesh generateMesh(Curve curve, boolean offset, boolean bottomFace) throws Exception {
         //offset curve to 0-0
         Vector3f center = offset ? curve.getCenter() : new Vector3f();
         curve.offset(-center.x, -center.y, -center.z);
 
         //grab curve variables
         float curveWidth = curve.getWidth();
-        boolean loop = curve.isLooping();
         List<Vector3f> internal = curve.getInternalCurve();
         List<Vector3f> external = curve.getExternalCurve();
 
@@ -34,65 +35,64 @@ public class CurveToMesh {
 
         //check sizes
         int size = internal.size();
-
         if (size != external.size())
             throw new Exception("Curve internal size is different than external size");
-
-        if (size < 2)
-            throw new Exception("Cannot create curve with size smaller than 2");
 
         //create mesh
         Mesh mesh = new Mesh();
 
-        //vertices
-        for (int i = 0; i < size; i++) {
-            mesh.getVertices().add(internal.get(i));
-            mesh.getVertices().add(external.get(i));
-        }
-
         //default group
-        Group group = new Group("default");
+        Group group = new Group("root");
         mesh.getGroups().add(group);
 
-        //prepare uvs
+        //prepare uv length
         float uv = 0f;
 
         //faces
-        int max = loop ? size : size - 1;
+        boolean loop = curve.isLooping();
+        int max = loop ? size - 1 : size;
+
         for (int i = 0; i < max; i++) {
             int j = (i + 1) % size;
 
-            //internal
-            int p0 = i * 2;
-            int p1 = j * 2;
-            //external
-            int p2 = j * 2 + 1;
-            int p3 = i * 2 + 1;
-            //add
-            List<Integer> indexes = List.of(p0, p1, p2, p3);
-            group.getFaces().add(new Face(indexes, indexes, indexes));
+            //get vertices
+            Vector3f a = internal.get(i);
+            Vector3f b = external.get(i);
+            Vector3f c = internal.get(j);
+            Vector3f d = external.get(j);
 
-            //calculate UVs
-            mesh.getUVs().add(new Vector2f(1, uv));
-            mesh.getUVs().add(new Vector2f(0, uv));
-            uv += Math.max(
-                    internal.get(j).sub(internal.get(i), new Vector3f()).length() / curveWidth,
-                    external.get(j).sub(external.get(i), new Vector3f()).length() / curveWidth
-            );
+            //add vertices to mesh
+            mesh.getVertices().add(a);
+            mesh.getVertices().add(b);
+
+            //calculate uv
+            mesh.getUVs().add(new Vector2f(1f, uv));
+            mesh.getUVs().add(new Vector2f(0f, uv));
+            uv += Math.max(a.distance(c) / curveWidth, b.distance(d) / curveWidth);
 
             //calculate normals
-            mesh.getNormals().add(Maths.normal(internal.get(i), internal.get(j), external.get(i)));
-            mesh.getNormals().add(Maths.normal(external.get(i), internal.get(i), external.get(j)));
+            mesh.getNormals().add(Maths.normal(a, b, c));
+            mesh.getNormals().add(Maths.normal(b, d, a));
+
+            if (i == max - 1)
+                continue;
+
+            //add quad
+            int k = i * 2, l = j * 2, m = k + 1, n = l + 1;
+            List<Integer> indexes = List.of(k, l, n, m);
+            group.getFaces().add(new Face(indexes, indexes, indexes));
         }
 
-        //add missing UVs and normals
-        if (!loop) {
-            //uvs
-            mesh.getUVs().add(new Vector2f(1, uv));
-            mesh.getUVs().add(new Vector2f(0, uv));
-            //normals
-            mesh.getNormals().add(new Vector3f(1));
-            mesh.getNormals().add(new Vector3f(1));
+        if (loop) {
+            //add last uv
+            mesh.getUVs().add(new Vector2f(1f, uv));
+            mesh.getUVs().add(new Vector2f(0f, uv));
+
+            int len = mesh.getVertices().size();
+            List<Integer> uvIndexes = List.of(len - 2, len, len + 1, len - 1);
+            List<Integer> indexes = List.of(len - 2, 0, 1, len - 1);
+
+            group.getFaces().add(new Face(indexes, uvIndexes, indexes));
         }
 
         //material
@@ -100,9 +100,37 @@ public class CurveToMesh {
         mesh.getMaterials().put("curve", material);
         group.setMaterial(material);
 
+        //bottom face
+        if (bottomFace) {
+            //re-add all faces indexes, but in the inverted order
+            Group bottom = new Group("bottom");
+            bottom.setMaterial(material);
+            mesh.getGroups().add(bottom);
+
+            //add inverted normals
+            int normalSize = mesh.getNormals().size();
+            List<Vector3f> meshNormals = new ArrayList<>(mesh.getNormals());
+            for (Vector3f normal : meshNormals)
+                mesh.getNormals().add(normal.negate(new Vector3f()));
+
+            //add inverted faces
+            for (Face face : group.getFaces()) {
+                List<Integer> vertices = face.getVertices();
+                List<Integer> uvs = face.getUVs();
+                List<Integer> normals = face.getNormals();
+
+                bottom.getFaces().add(new Face(
+                        List.of(vertices.get(3), vertices.get(2), vertices.get(1), vertices.get(0)),
+                        List.of(uvs.get(3), uvs.get(2), uvs.get(1), uvs.get(0)),
+                        List.of(normals.get(3) + normalSize, normals.get(2) + normalSize, normals.get(1) + normalSize, normals.get(0) + normalSize)
+                ));
+            }
+        }
+
         //textures
-        material.setAlbedo(TEXTURE_KD);
-        material.setMetallic(TEXTURE_KS);
+        material.setAlbedo(TEXTURE_ALBEDO);
+        material.setMetallic(TEXTURE_METALLIC);
+        material.setRoughness(TEXTURE_ROUGHNESS);
 
         return mesh;
     }

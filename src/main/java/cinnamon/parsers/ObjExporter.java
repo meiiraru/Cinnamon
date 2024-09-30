@@ -29,7 +29,9 @@ public class ObjExporter {
                 mtlString = new StringBuilder();
 
         //materials
-        string.append("mtllib %s.mtl\n".formatted(meshName));
+        boolean isPbr = mesh.getMaterials().values().stream().anyMatch(material -> material instanceof PBRMaterial);
+        string.append("mtllib %s.%s\n".formatted(meshName, isPbr ? "pbr" : "mtl"));
+
         for (Material material : mesh.getMaterials().values()) {
             //material name
             mtlString.append("newmtl %s\n".formatted(material.getName()));
@@ -63,7 +65,7 @@ public class ObjExporter {
         IOUtils.writeFile(file, string.toString().getBytes(StandardCharsets.UTF_8));
 
         //write material file
-        Path materialFile = folder.resolve(meshName + ".mtl");
+        Path materialFile = folder.resolve(meshName + (isPbr ? ".pbr" : ".mtl"));
         IOUtils.writeFile(materialFile, mtlString.toString().getBytes(StandardCharsets.UTF_8));
     }
 

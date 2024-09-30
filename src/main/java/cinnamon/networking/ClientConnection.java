@@ -42,7 +42,7 @@ public class ClientConnection {
 
             connection = client;
         } catch (Exception e) {
-            LOGGER.error(e);
+            LOGGER.error("", e);
             return false;
         }
 

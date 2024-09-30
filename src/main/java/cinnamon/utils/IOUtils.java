@@ -181,9 +181,17 @@ public class IOUtils {
         }
     }
 
-    public static void openFileInExplorer(Path path) {
+    public static void openFile(Path path) {
         try {
-            Desktop.getDesktop().open(path.toFile().isDirectory() ? path.getParent().toFile() : path.toFile());
+            Desktop.getDesktop().open(path.toFile());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void openInExplorer(Path path) {
+        try {
+            Desktop.getDesktop().open(path.toFile().isDirectory() ? path.toFile() : path.getParent().toFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
