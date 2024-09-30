@@ -99,4 +99,12 @@ public enum MaterialRegistry {
         for (MaterialRegistry material : values())
             material.loadMaterial();
     }
+
+    public static MaterialRegistry fromMaterial(Material material) {
+        for (MaterialRegistry materialRegistry : values())
+            if (materialRegistry.material == material)
+                return materialRegistry;
+
+        return null;
+    }
 }

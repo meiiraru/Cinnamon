@@ -90,7 +90,8 @@ public class WorldClient extends World {
     private int renderedEntities, renderedChunks, renderedTerrain, renderedParticles;
 
     //terrain
-    private int selectedTerrain, selectedMaterial;
+    private int selectedTerrain = TerrainRegistry.BOX.ordinal();
+    private int selectedMaterial = MaterialRegistry.GRASS.ordinal();
 
     //temp
     private Entity effectBox, healthPack;
@@ -466,8 +467,9 @@ public class WorldClient extends World {
     }
 
     protected void renderTargetedBlock(MatrixStack matrices, float delta) {
+        Hit<Entity> entity = player.getLookingEntity(player.getPickRange());
         Hit<Terrain> terrain = player.getLookingTerrain(player.getPickRange());
-        if (terrain == null)
+        if (terrain == null || (entity != null && entity.collision().near() < terrain.collision().near()))
             return;
 
         int alpha = (int) Maths.lerp(0x32, 0xFF, ((float) Math.sin((client.ticks + delta) * 0.15f) + 1f) * 0.5f);
@@ -577,8 +579,9 @@ public class WorldClient extends World {
                     //mouseAction.use(false);
                     //used = true;
                 } else if (press && player.getHoldingItem() == null) {
+                    Hit<Entity> entity = player.getLookingEntity(player.getPickRange());
                     Hit<Terrain> terrain = player.getLookingTerrain(player.getPickRange());
-                    if (terrain != null) {
+                    if (terrain != null && (entity == null || terrain.collision().near() < entity.collision().near())) {
                         Vector3f dir = terrain.collision().normal();
                         Vector3f tpos = new Vector3f(terrain.obj().getPos()).add(dir);
 
@@ -588,6 +591,15 @@ public class WorldClient extends World {
                             t.setMaterial(MaterialRegistry.values()[selectedMaterial].material);
                             setTerrain(t, (int) tpos.x, (int) tpos.y, (int) tpos.z);
                         }
+                    }
+                }
+            }
+            case GLFW_MOUSE_BUTTON_3 -> {
+                if (press) {
+                    Hit<Terrain> terrain = player.getLookingTerrain(player.getPickRange());
+                    if (terrain != null) {
+                        selectedTerrain = terrain.obj().getType().ordinal();
+                        selectedMaterial = MaterialRegistry.fromMaterial(terrain.obj().getMaterial()).ordinal();
                     }
                 }
             }

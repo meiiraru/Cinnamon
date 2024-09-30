@@ -6,12 +6,13 @@ import cinnamon.utils.Resource;
 public enum ParticlesRegistry {
     BROKEN_HEARTH("textures/particles/broken_heart.png"),
     DUST("textures/particles/dust.png", 4, 1),
-    ELECTRO("textures/particles/electro.png"),
+    ELECTRO("textures/particles/electro.png", 4, 1),
     EXPLOSION("textures/particles/explosion.png", 6, 1),
     HEARTH("textures/particles/heart.png"),
     LIGHT("textures/particles/light.png", 4, 1),
     SMOKE("textures/particles/smoke.png", 5, 1),
     SQUARE("textures/particles/square.png"),
+    STAR("textures/particles/star.png", 8, 1),
     STEAM("textures/particles/steam.png", 5, 1),
     TEXT(null);
 

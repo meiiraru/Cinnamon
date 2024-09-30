@@ -192,6 +192,15 @@ public abstract class Entity extends WorldObject {
         sendServerUpdate();
     }
 
+    public void rotateToWithRiders(Vector2f vec) {
+        this.rotateToWithRiders(vec.x, vec.y);
+    }
+
+    public void rotateToWithRiders(float pitch, float yaw) {
+        this.rotateTo(pitch, yaw);
+        this.updateRidersRot();
+    }
+
     public void lookAt(Vector3f pos) {
         this.lookAt(pos.x, pos.y, pos.z);
     }
@@ -321,12 +330,12 @@ public abstract class Entity extends WorldObject {
         return riders.isEmpty() ? this : riders.getFirst().getControllingEntity();
     }
 
-    protected void updateRidersPos() {
+    public void updateRidersPos() {
         for (Entity rider : new ArrayList<>(riders))
             rider.moveTo(getRiderOffset(rider).add(this.pos));
     }
 
-    protected void updateRidersRot() {
+    public void updateRidersRot() {
         float xDelta = rot.x - oRot.x;
         float yDelta = rot.y - oRot.y;
         for (Entity rider : new ArrayList<>(riders))

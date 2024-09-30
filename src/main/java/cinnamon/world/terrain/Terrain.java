@@ -106,6 +106,10 @@ public abstract class Terrain extends WorldObject {
         this.overrideMaterial = material;
     }
 
+    public Material getMaterial() {
+        return overrideMaterial;
+    }
+
     @Override
     public abstract TerrainRegistry getType();
 }

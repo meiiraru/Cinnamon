@@ -39,8 +39,14 @@ public class RollerCoasterWorld extends WorldClient {
         if (cart == null)
             return;
 
-        if (!cart.getRiders().isEmpty())
+        boolean hasRider = !cart.getRiders().isEmpty();
+
+        if (hasRider) {
             t += toAdd;
+            cart.setMotion(0f, 0f, 1f);
+        } else {
+            cart.setMotion(0f, 0f, 0f);
+        }
 
         while (t >= 1f) {
             t--;
@@ -64,7 +70,7 @@ public class RollerCoasterWorld extends WorldClient {
         }
 
         cart.moveTo(Maths.lerp(path[p0], path[p1], t));
-        cart.rotateTo(Maths.dirToRot(path[p1].sub(path[p0], new Vector3f())));
+        cart.rotateToWithRiders(Maths.dirToRot(path[p1].sub(path[p0], new Vector3f())));
     }
 
     public void setCurve(Curve curve) throws Exception {
