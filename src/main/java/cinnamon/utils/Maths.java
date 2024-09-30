@@ -41,8 +41,27 @@ public class Maths {
         );
     }
 
+    public static float wrapDegrees(float angle) {
+        if (angle > 180f)
+            return angle - 360f;
+        if (angle < -180f)
+            return angle + 360f;
+        return angle;
+    }
+
     public static float shortAngle(float a, float b) {
-        return (b - a + 180f) % 360f - 180f;
+        return wrapDegrees(b - a);
+    }
+
+    public static float lerpAngle(float a, float b, float t) {
+        return a + shortAngle(a, b) * t;
+    }
+
+    public static Vector2f lerpAngle(Vector2f a, Vector2f b, float t) {
+        return new Vector2f(
+                lerpAngle(a.x, b.x, t),
+                lerpAngle(a.y, b.y, t)
+        );
     }
 
     public static float lerpArray(float[] array, float t) {

@@ -188,7 +188,7 @@ public abstract class Entity extends WorldObject {
     }
 
     public void rotateTo(float pitch, float yaw) {
-        this.rot.set(pitch, yaw);
+        this.rot.set(Maths.wrapDegrees(pitch), Maths.wrapDegrees(yaw));
         sendServerUpdate();
     }
 
@@ -232,7 +232,7 @@ public abstract class Entity extends WorldObject {
     }
 
     public Vector2f getRot(float delta) {
-        return Maths.lerp(oRot, rot, delta);
+        return Maths.lerpAngle(oRot, rot, delta);
     }
 
     public Vector2f getRot() {
@@ -244,7 +244,7 @@ public abstract class Entity extends WorldObject {
     }
 
     public void setRot(float pitch, float yaw) {
-        this.oRot.set(this.rot.set(pitch, yaw));
+        this.oRot.set(this.rot.set(Maths.wrapDegrees(pitch), Maths.wrapDegrees(yaw)));
     }
 
     public float getEyeHeight() {
