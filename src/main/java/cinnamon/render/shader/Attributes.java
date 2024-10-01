@@ -13,9 +13,13 @@ import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 
 public class Attributes {
 
-    //vertex
-    //pos     posXY    tex id    uv      color    colorRGBA    normal    index    tangents
-    //vec3    vec2     int       vec2    vec3     vec4         vec3      int      vec3
+    /**
+     * Vertex Attributes
+     * <table><tr>
+     * <td>POS {@link Vector3f Vec3}</td><td>POS_XY {@link Vector2f Vec2}</td><td>TEXTURE_ID {@link Integer int}</td><td>UV {@link Vector2f Vec2}</td><td>COLOR {@link Vector3f Vec3}</td>
+     * <td>COLOR_RGBA {@link Vector4f Vec4}</td><td>NORMAL {@link Vector3f Vec3}</td><td>INDEX {@link Integer int}</td><td>TANGENTS {@link Vector3f Vec3}</td>
+     * </tr></table>
+    **/
     public static final int
             POS        = 0x1,
             POS_XY     = 0x2,

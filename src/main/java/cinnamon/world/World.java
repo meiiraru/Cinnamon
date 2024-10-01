@@ -89,10 +89,8 @@ public abstract class World {
     }
 
     public void addChunk(Chunk chunk) {
-        scheduledTicks.add(() -> {
-            this.chunks.put(chunk.getGridPos(), chunk);
-            chunk.onAdded(this);
-        });
+        this.chunks.put(chunk.getGridPos(), chunk);
+        chunk.onAdded(this);
     }
 
     public void addEntity(Entity entity) {
