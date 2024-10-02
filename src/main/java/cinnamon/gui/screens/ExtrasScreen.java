@@ -50,6 +50,9 @@ public class ExtrasScreen extends ParentedScreen {
         //balls
         list.addWidget(BUTTON_FACTORY.apply("Balls", button -> client.setScreen(new BallsScreen(this))));
 
+        //easings
+        list.addWidget(BUTTON_FACTORY.apply("Easings", button -> client.setScreen(new EasingScreen(this))));
+
         //title
         list.addWidget(new Label(0, 0, Text.of("\nGames\n"), font));
 
