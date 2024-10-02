@@ -11,13 +11,13 @@ import cinnamon.utils.TextUtils;
 
 import java.util.function.Consumer;
 
-public class ToggleButton extends Button {
+public class CheckBox extends Button {
 
-    private static final Resource TEXTURE = new Resource("textures/gui/widgets/toggle_box.png");
+    private static final Resource TEXTURE = new Resource("textures/gui/widgets/check_box.png");
 
     protected boolean toggled;
 
-    public ToggleButton(int x, int y, Text message) {
+    public CheckBox(int x, int y, Text message) {
         super(x, y, 0, 0, message, null);
 
         //force updates
@@ -30,11 +30,11 @@ public class ToggleButton extends Button {
         VertexConsumer.GUI.consume(
                 GeometryHelper.quad(
                         matrices,
-                        getX(), getCenterY() - 4,
-                        8, 8,
-                        getState() * 8f, toggled ? 8f : 0f,
-                        8, 8,
-                        24, 16
+                        getX(), getCenterY() - 5,
+                        8, 9,
+                        getState() * 8f, toggled ? 9f : 0f,
+                        8, 9,
+                        32, 18
                 ), TEXTURE
         );
     }

@@ -25,7 +25,6 @@ public class ExtrasScreen extends ParentedScreen {
     public void init() {
         //buttons
         WidgetList list = new WidgetList(0, 0, 0, 0, 4);
-        list.setShouldRenderBackground(false);
 
         //title
         list.addWidget(new Label(0, 0, Text.of("Custom Worlds\n"), font));

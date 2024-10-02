@@ -70,7 +70,9 @@ public class RollerCoasterWorld extends WorldClient {
         }
 
         cart.moveTo(Maths.lerp(path[p0], path[p1], t));
-        cart.rotateToWithRiders(Maths.dirToRot(path[p1].sub(path[p0], new Vector3f())));
+        cart.rotateToWithRiders(Maths.dirToRot(path[p1].sub(path[p0], new Vector3f()).normalize()));
+
+        speed = Maths.lerp(speed, Math.max(0.3f + 0.3f * Math.max(cart.getRot().x, -22.5f) / 45f, 0.01f), 0.1f);
     }
 
     public void setCurve(Curve curve) throws Exception {
@@ -86,7 +88,7 @@ public class RollerCoasterWorld extends WorldClient {
         addEntity(cart);
 
         cart.moveTo(path[0]);
-        cart.rotateTo(Maths.dirToRot(path[1 % path.length].sub(path[0], new Vector3f())));
+        cart.rotateTo(Maths.dirToRot(path[1 % path.length].sub(path[0], new Vector3f()).normalize()));
 
         t = 1f;
         toAdd = 0f;

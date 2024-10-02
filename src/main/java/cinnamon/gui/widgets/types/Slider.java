@@ -1,6 +1,7 @@
 package cinnamon.gui.widgets.types;
 
 import cinnamon.Client;
+import cinnamon.gui.GUIStyle;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.model.GeometryHelper;
@@ -30,7 +31,7 @@ public class Slider extends SelectableWidget {
     private int min = 0;
     private int max = 100;
     private boolean vertical;
-    private int color = -1;
+    private Integer color;
     private boolean showTooltip = true;
     private BiConsumer<Float, Integer> changeListener;
     private boolean mouseSelected;
@@ -74,7 +75,7 @@ public class Slider extends SelectableWidget {
 
         //left
         renderHorizontalBar(matrices, x, y, left, 0f, v, -1);
-        renderHorizontalBar(matrices, x, y, left, 0f, 12f, color);
+        renderHorizontalBar(matrices, x, y, left, 0f, 12f, color == null ? GUIStyle.accentColor : color);
 
         //right
         renderHorizontalBar(matrices, x + width + 8 - right, y, right, 9f, v, -1);
@@ -110,7 +111,7 @@ public class Slider extends SelectableWidget {
 
         //up
         renderVerticalBar(matrices, x, y, up, u, 0f, -1);
-        renderVerticalBar(matrices, x, y, up, 30f, 0f, color);
+        renderVerticalBar(matrices, x, y, up, 30f, 0f, color == null ? GUIStyle.accentColor : color);
 
         //down
         renderVerticalBar(matrices, x, y + height + 8 - down, down, u, 9f, -1);
@@ -170,6 +171,7 @@ public class Slider extends SelectableWidget {
                 8, 8,
                 34, 26
         );
+        int color = this.color == null ? GUIStyle.accentColor : this.color;
         for (Vertex vertex : vertices)
             vertex.color(color);
 
@@ -344,7 +346,7 @@ public class Slider extends SelectableWidget {
         setValue(intValue);
     }
 
-    public int getColor() {
+    public Integer getColor() {
         return color;
     }
 
@@ -352,7 +354,7 @@ public class Slider extends SelectableWidget {
         this.setColor(color.rgba);
     }
 
-    public void setColor(int color) {
+    public void setColor(Integer color) {
         this.color = color;
     }
 

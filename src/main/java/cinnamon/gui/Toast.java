@@ -134,29 +134,21 @@ public class Toast {
         int bgHeight = this.height + PADDING;
         int pos = Math.round(-bgWidth / 2f);
 
-        if (color == null) {
-            UIHelper.nineQuad(
-                    VertexConsumer.GUI, matrices, TEXTURE,
-                    pos, 0f, bgWidth, bgHeight,
-                    0f, 0f,
-                    16, 16, 48, 16
-            );
-        } else {
-            UIHelper.nineQuad(
-                    VertexConsumer.GUI, matrices, TEXTURE,
-                    pos, 0f, bgWidth, bgHeight,
-                    16f, 0f,
-                    16, 16, 48, 16,
-                    color
-            );
-            UIHelper.nineQuad(
-                    VertexConsumer.GUI, matrices, TEXTURE,
-                    pos, 0f, bgWidth, bgHeight,
-                    32f, 0f,
-                    16, 16, 48, 16,
-                    color
-            );
-        }
+        int color = this.color == null ? GUIStyle.accentColor : this.color;
+        UIHelper.nineQuad(
+                VertexConsumer.GUI, matrices, TEXTURE,
+                pos, 0f, bgWidth, bgHeight,
+                16f, 0f,
+                16, 16, 48, 16,
+                color
+        );
+        UIHelper.nineQuad(
+                VertexConsumer.GUI, matrices, TEXTURE,
+                pos, 0f, bgWidth, bgHeight,
+                32f, 0f,
+                16, 16, 48, 16,
+                color
+        );
 
         //render text
         font.render(VertexConsumer.FONT, matrices, 0f, PADDING / 2f, text, Alignment.CENTER);

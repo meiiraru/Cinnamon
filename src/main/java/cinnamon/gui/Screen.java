@@ -3,10 +3,13 @@ package cinnamon.gui;
 import cinnamon.Client;
 import cinnamon.gui.widgets.*;
 import cinnamon.model.GeometryHelper;
+import cinnamon.model.SimpleGeometry;
 import cinnamon.model.Vertex;
 import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.render.shader.Shader;
+import cinnamon.render.shader.Shaders;
 import cinnamon.utils.Resource;
 import cinnamon.utils.UIHelper;
 
@@ -137,7 +140,37 @@ public abstract class Screen {
     }
 
     protected void renderBackground(MatrixStack matrices, float delta) {
-        UIHelper.renderBackground(matrices, width, height, delta, BACKGROUND);
+        //UIHelper.renderBackground(matrices, width, height, delta, BACKGROUND);
+
+        /*
+        int c1 = 0xFF9875C9;
+        int c2 = 0xFFFEE9CC;
+        int c3 = 0xFF8CD7F7;
+        int c4 = 0xFF6D5DDA;
+
+        float t = (float) Math.sin((client.ticks + delta) * 0.01f) * 0.5f + 0.5f;
+        int a = ColorUtils.lerpARGBColor(c1, c3, t);
+        int b = ColorUtils.lerpARGBColor(c2, c4, t);
+        int c = ColorUtils.lerpARGBColor(c3, c2, t);
+        int d = ColorUtils.lerpARGBColor(c4, c1, t);
+
+        GeometryHelper.rectangle(VertexConsumer.GUI, matrices, 0, 0, width, height, -999, a, b, c, d);
+         */
+
+        Shader oldShader = Shader.activeShader;
+        Shader s = Shaders.MAIN_MENU.getShader().use();
+        float time = (client.ticks + delta) * 0.05f;
+        s.setFloat("time", time);
+        s.setFloat("scale", (float) Math.sin(time * 0.5f) * 0.5f + 1f);
+        s.setColor("color1", 0x8163AB);
+        s.setColor("color2", 0xD8C6AD);
+        s.setColor("color3", 0x77B7D2);
+        s.setColor("color4", 0x5D4FB9);
+
+        SimpleGeometry.QUAD.render();
+
+        if (oldShader != null)
+            oldShader.use();
     }
 
     protected void renderTranslucentBackground(MatrixStack matrices, float delta) {

@@ -184,6 +184,7 @@ public class Client {
         //ClientConnection.disconnect();
         queueTick(() -> {
             this.world = null;
+            this.camera.setEntity(null);
             Toast.clear(Toast.ToastType.WORLD);
             this.setScreen(new MainMenu());
         });

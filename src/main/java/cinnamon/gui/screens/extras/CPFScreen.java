@@ -23,7 +23,6 @@ public class CPFScreen extends ParentedScreen {
     @Override
     public void init() {
         WidgetList list = new WidgetList(0, 0, 0, 0, 4);
-        list.setShouldRenderBackground(false);
 
         //field
         TextField field = new TextField(0, 0, 180, 20, font);

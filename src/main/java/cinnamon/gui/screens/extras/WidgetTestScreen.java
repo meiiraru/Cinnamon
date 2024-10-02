@@ -8,6 +8,7 @@ import cinnamon.gui.widgets.types.*;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
+import cinnamon.utils.Resource;
 
 import static cinnamon.Client.LOGGER;
 
@@ -59,7 +60,6 @@ public class WidgetTestScreen extends ParentedScreen {
 
         //progress bar
         ProgressBar pb = new ProgressBar(0, 0, 60, 12, 0f);
-        pb.setColor(Colors.PINK);
         grid.addWidget(pb);
 
         //selection box
@@ -77,7 +77,6 @@ public class WidgetTestScreen extends ParentedScreen {
         Slider s = new Slider(0, 0, 60);
         grid.addWidget(s);
 
-        s.setColor(Colors.PINK);
         s.setChangeListener((f, i) -> {
             l.setText(Text.of("Label " + s.getStepIndex()));
             pb.setProgress(f);
@@ -91,7 +90,7 @@ public class WidgetTestScreen extends ParentedScreen {
 
         //normal text field
         int tfw = Math.min(Math.round(width / 2f - 8), 180);
-        TextField tf1 = new TextField(0, 0, tfw, 14, font);
+        TextField tf1 = new TextField(0, 0, tfw, 16, font);
         grid.addWidget(tf1);
 
         tf1.setHintText("Text Field");
@@ -100,18 +99,24 @@ public class WidgetTestScreen extends ParentedScreen {
         ContainerGrid password = new ContainerGrid(0, 0, 4, 2);
         grid.addWidget(password);
 
-        TextField tf4 = new TextField(0, 0, tfw, 14, font);
+        TextField tf4 = new TextField(0, 0, tfw, 16, font);
         tf4.setHintText("Password...");
         tf4.setPassword(true);
         password.addWidget(tf4);
 
-        Button viewPassword = new Button(0, 0, 14, 14, Text.of("\u26F6"), button -> tf4.setPassword(!button.isHolding()));
+        Resource password1 = new Resource("textures/gui/icons/show_password.png");
+        Resource password2 = new Resource("textures/gui/icons/hide_password.png");
+        Button viewPassword = new Button(0, 0, 16, 16, null, button -> {
+            tf4.setPassword(!button.isHolding());
+            button.setImage(button.isHolding() ? password2 : password1);
+        });
+        viewPassword.setImage(password1);
         viewPassword.setRunOnHold(true);
         password.addWidget(viewPassword);
 
-        //toggle button
-        ToggleButton tb = new ToggleButton(0, 0, Text.of("Toggle Button"));
-        grid.addWidget(tb);
+        //checkbox
+        CheckBox cb = new CheckBox(0, 0, Text.of("Checkbox"));
+        grid.addWidget(cb);
 
         //toast 1
         Button toast1 = new Button(0, 0, 60, 12, Text.of("Toast 1"), button -> Toast.addToast(Text.of("Toast 1"), font));
@@ -137,6 +142,7 @@ public class WidgetTestScreen extends ParentedScreen {
             int x = i % 3 + 1;
             int y = i / 3 + 1;
             Button btx = new Button(0, 0, 30, 12, Text.of(y + "-" + x), button -> LOGGER.info("{} {}", y, x));
+            if (x == 3) btx.setActive(false);
             buttonsGrid.addWidget(btx);
         }
 

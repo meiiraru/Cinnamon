@@ -20,7 +20,8 @@ public enum Shaders {
     BRDF_LUT,
     EQUIRECTANGULAR_TO_CUBEMAP,
     DEFERRED_WORLD_PBR,
-    GBUFFER_WORLD_PBR;
+    GBUFFER_WORLD_PBR,
+    MAIN_MENU;
 
     private final Resource resource;
     private Shader shader;

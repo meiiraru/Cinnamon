@@ -1,6 +1,7 @@
 package cinnamon.gui.widgets.types;
 
 import cinnamon.Client;
+import cinnamon.gui.GUIStyle;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.PopupWidget;
 import cinnamon.render.Font;
@@ -56,13 +57,12 @@ public class SelectionBox extends Button {
         Text text = Text.of(isExpanded() ? "\u23F6" : "\u23F7");
         int width = TextUtils.getWidth(text, f);
         int x = getX() + getWidth() - width - 2;
-        int y = getCenterY() - TextUtils.getHeight(text, f) / 2;
+        int y = getCenterY() - TextUtils.getHeight(text, f) / 2 + (isHolding() ? GUIStyle.pressYOffset : 0);
         f.render(VertexConsumer.FONT, matrices, x, y, text);
 
         //render selected text
         text = TextUtils.addEllipsis(selectedText, f, getWidth() - width - 4);
         x = getX() + 2;
-        y = getCenterY() - TextUtils.getHeight(text, f) / 2;
         f.render(VertexConsumer.FONT, matrices, x, y, text);
     }
 
@@ -134,7 +134,7 @@ public class SelectionBox extends Button {
 
             //selected entry
             if (i == selected)
-                text = Text.empty().withStyle(Style.EMPTY.color(UIHelper.ACCENT)).append(text);
+                text = Text.empty().withStyle(Style.EMPTY.color(GUIStyle.accentColor)).append(text);
 
             //apply text
             ((ContextMenu) getPopup()).getAction(i).setMessage(text);

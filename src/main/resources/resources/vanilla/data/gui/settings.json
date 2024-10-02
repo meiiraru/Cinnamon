@@ -1,0 +1,22 @@
+{
+  "text_color": "FFFFFFFF",
+  "shadow_color": "FF161616",
+  "background_color": "44000000",
+  "accent_color": "FFAD72FF",
+  "selected_text_color": "FF000000",
+  "hint_color": "FF5B8CCC",
+
+  "pressed_y_offset": 2,
+  "depth_offset": 0.01,
+  "shadow_offset": 1,
+  "bold_offset": 1,
+  "italic_offset": 3,
+
+  "password_char": "\u2022",
+  "cursor_width": 1,
+
+  "cursor_blink_speed": 1000,
+  "double_click_delay": 500,
+
+  "context_menu_divider_size": 5
+}

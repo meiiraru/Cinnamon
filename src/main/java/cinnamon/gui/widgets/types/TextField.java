@@ -1,6 +1,7 @@
 package cinnamon.gui.widgets.types;
 
 import cinnamon.Client;
+import cinnamon.gui.GUIStyle;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.Tickable;
@@ -21,15 +22,11 @@ public class TextField extends SelectableWidget implements Tickable {
 
     private static final Resource TEXTURE = new Resource("textures/gui/widgets/text_field.png");
     public static final int
-            CURSOR_WIDTH = 1,
             INSERT_WIDTH = 4,
-            BLINK_SPEED = 20,
             HISTORY_SIZE = 20,
             DRAG_ZONE = 8;
     public static final char
-            PASSWORD_CHAR = '\u2022',
             FORMATTING_CHAR = '*';
-    public static final Style HINT_STYLE = Style.EMPTY.italic(true).color(Colors.LIGHT_BLACK);
     public static final Predicate<Character> WORD_CHARACTERS = c -> Character.isAlphabetic(c) || Character.isDigit(c) || c == '_';
 
     protected final Font font;
@@ -185,7 +182,7 @@ public class TextField extends SelectableWidget implements Tickable {
         //hint text
         if (currText.isEmpty()) {
             if (hintText != null)
-                font.render(VertexConsumer.FONT, matrices, x, y, hintText);
+                font.render(VertexConsumer.FONT, matrices, x, y, Text.empty().withStyle(Style.EMPTY.italic(true).color(GUIStyle.hintColor)).append(hintText));
 
             //render cursor
             renderCursor(matrices, x, y - 1, height);
@@ -222,7 +219,7 @@ public class TextField extends SelectableWidget implements Tickable {
             //text
             int start = Math.min(skipped, extra);
             int end = Math.max(skipped, extra);
-            int color = selectedColor == null ? Colors.BLACK.rgba : selectedColor;
+            int color = selectedColor == null ? GUIStyle.selectedTextColor : selectedColor;
 
             text = Text.empty().withStyle(style)
                     .append(Text.of(str.substring(0, start)))
@@ -238,11 +235,11 @@ public class TextField extends SelectableWidget implements Tickable {
     }
 
     protected void renderCursor(MatrixStack matrices, float x, float y, float height) {
-        if (isFocused() && blinkTime % BLINK_SPEED < BLINK_SPEED / 2) {
+        if (isFocused() && blinkTime % GUIStyle.blinkSpeed < GUIStyle.blinkSpeed / 2) {
             matrices.push();
             //translate matrices so we can render on top of text
-            matrices.translate(0, 0, Font.Z_DEPTH);
-            GeometryHelper.rectangle(VertexConsumer.GUI, matrices, x, y, x + (insert ? INSERT_WIDTH : CURSOR_WIDTH), y + height, borderColor == null ? -1 : borderColor);
+            matrices.translate(0, 0, GUIStyle.depthOffset * Font.Z_DEPTH);
+            GeometryHelper.rectangle(VertexConsumer.GUI, matrices, x, y, x + (insert ? INSERT_WIDTH : GUIStyle.cursorWidth), y + height, borderColor == null ? -1 : borderColor);
             matrices.pop();
         }
     }
@@ -251,7 +248,7 @@ public class TextField extends SelectableWidget implements Tickable {
         float t = x0;
         x0 = Math.min(x0, x1);
         x1 = Math.max(t, x1);
-        GeometryHelper.rectangle(VertexConsumer.GUI, matrices, x0, y, x1, y + height, selectionColor == null ? UIHelper.ACCENT.rgba : selectionColor);
+        GeometryHelper.rectangle(VertexConsumer.GUI, matrices, x0, y, x1, y + height, selectionColor == null ? GUIStyle.accentColor : selectionColor);
     }
 
 
@@ -263,7 +260,7 @@ public class TextField extends SelectableWidget implements Tickable {
     }
 
     public void setHintText(Text hintText) {
-        this.hintText = hintText == null ? null : Text.empty().withStyle(HINT_STYLE).append(hintText);
+        this.hintText = hintText;
     }
 
     public void setStyle(Style style) {
@@ -371,7 +368,7 @@ public class TextField extends SelectableWidget implements Tickable {
             }
 
             if (c == FORMATTING_CHAR) {
-                build.append(password ? PASSWORD_CHAR : s.charAt(chars));
+                build.append(password ? GUIStyle.passwordChar : s.charAt(chars));
                 chars++;
                 continue;
             }
@@ -381,7 +378,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
         if (chars < length) {
             String str = s.substring(chars);
-            build.append(password ? String.valueOf(PASSWORD_CHAR).repeat(str.length()) : str);
+            build.append(password ? String.valueOf(GUIStyle.passwordChar).repeat(str.length()) : str);
         }
 
         return build.toString();
@@ -448,7 +445,7 @@ public class TextField extends SelectableWidget implements Tickable {
         if (formatting != null)
             formattedText = applyFormatting(currText);
         else if (password)
-            formattedText = String.valueOf(PASSWORD_CHAR).repeat(currText.length());
+            formattedText = String.valueOf(GUIStyle.passwordChar).repeat(currText.length());
         else
             formattedText = currText;
     }
@@ -652,7 +649,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
         //click count
         long now = Client.getInstance().ticks;
-        if (clickCount == 0 || (lastClickIndex == cursor && now - lastClickTime < UIHelper.DOUBLE_CLICK_TIME))
+        if (clickCount == 0 || (lastClickIndex == cursor && now - lastClickTime < GUIStyle.doubleClickDelay))
             clickCount++;
         else
             clickCount = 1;

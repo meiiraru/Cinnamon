@@ -1,5 +1,6 @@
 package cinnamon.gui.widgets.types;
 
+import cinnamon.gui.GUIStyle;
 import cinnamon.gui.widgets.Widget;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
@@ -14,7 +15,7 @@ public class ProgressBar extends Widget {
 
     private float progress;
     private float animationValue;
-    private int color = Colors.WHITE.rgba;
+    private Integer color;
 
     public ProgressBar(int x, int y, int width, int height, float initialValue) {
         super(x, y, width, height);
@@ -38,7 +39,7 @@ public class ProgressBar extends Widget {
 
         //draw progress
         matrices.push();
-        matrices.translate(0, 0, UIHelper.Z_OFFSET);
+        matrices.translate(0, 0, GUIStyle.depthOffset);
         UIHelper.nineQuad(
                 VertexConsumer.GUI, matrices, TEXTURE,
                 getX(), getY(),
@@ -46,7 +47,7 @@ public class ProgressBar extends Widget {
                 16f, 0f,
                 16, 16,
                 32, 16,
-                color
+                color == null ? GUIStyle.accentColor : color
         );
         matrices.pop();
     }
@@ -72,11 +73,11 @@ public class ProgressBar extends Widget {
         this.setColor(color.rgba);
     }
 
-    public void setColor(int color) {
+    public void setColor(Integer color) {
         this.color = color;
     }
 
-    public int getColor() {
+    public Integer getColor() {
         return color;
     }
 

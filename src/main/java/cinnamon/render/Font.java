@@ -1,5 +1,6 @@
 package cinnamon.render;
 
+import cinnamon.gui.GUIStyle;
 import cinnamon.model.Vertex;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
@@ -27,18 +28,9 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public class Font {
 
-    //texture
-    private static final int TEXTURE_W = 512, TEXTURE_H = 512;
-
     //properties
-    private static final float Z_OFFSET = 0.01f;
-    public static final float Z_DEPTH = Z_OFFSET * 3;
-    private static final int
-            SHADOW_COLOR = 0xFF161616,
-            BG_COLOR = 0x44 << 24,
-            SHADOW_OFFSET = 1,
-            BOLD_OFFSET = 1,
-            ITALIC_OFFSET = 3;
+    private static final int TEXTURE_W = 512, TEXTURE_H = 512;
+    public static final float Z_DEPTH = 3;
 
     private static final Random RANDOM = new Random();
     private static int SEED = 42;
@@ -159,7 +151,7 @@ public class Font {
             Text t = list.get(i);
             int x2 = Math.round(alignment.getOffset(this.width(t)));
             int y2 = Math.round((lineHeight * (i + 1) + descent));
-            bake(consumer, matrices, t, x + x2, y + y2, indexScaling * Z_OFFSET);
+            bake(consumer, matrices, t, x + x2, y + y2, indexScaling * GUIStyle.depthOffset);
         }
     }
 
@@ -186,14 +178,14 @@ public class Font {
             int zi = (shadow ? 1 : 0) + (outline ? 1 : 0) + (bg ? 1 : 0);
 
             if (prevItalic[0] && !italic)
-                xb.put(0, xb.get(0) + ITALIC_OFFSET);
+                xb.put(0, xb.get(0) + GUIStyle.italicOffset);
             prevItalic[0] = italic;
 
             //backup initial buffer
             float initialX = xb.get(0), initialY = yb.get(0);
 
             //main render
-            int color = Objects.requireNonNullElse(style.getColor(), -1);
+            int color = Objects.requireNonNullElse(style.getColor(), GUIStyle.textColor);
             bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * zi--, color);
 
             //backup final buffer
@@ -201,16 +193,16 @@ public class Font {
 
             //render shadow
             if (shadow) {
-                xb.put(0, initialX + SHADOW_OFFSET); yb.put(0, initialY + SHADOW_OFFSET);
-                int sc = Objects.requireNonNullElse(style.getShadowColor(), SHADOW_COLOR);
+                xb.put(0, initialX + GUIStyle.shadowOffset); yb.put(0, initialY + GUIStyle.shadowOffset);
+                int sc = Objects.requireNonNullElse(style.getShadowColor(), GUIStyle.shadowColor);
                 bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * zi--, sc);
             }
 
             //render outline
             if (outline) {
-                int oc = Objects.requireNonNullElse(style.getOutlineColor(), SHADOW_COLOR);
-                for (int i = -SHADOW_OFFSET; i <= SHADOW_OFFSET; i += SHADOW_OFFSET) {
-                    for (int j = -SHADOW_OFFSET; j <= SHADOW_OFFSET; j += SHADOW_OFFSET) {
+                int oc = Objects.requireNonNullElse(style.getOutlineColor(), GUIStyle.shadowColor);
+                for (int i = -GUIStyle.shadowOffset; i <= GUIStyle.shadowOffset; i += GUIStyle.shadowOffset) {
+                    for (int j = -GUIStyle.shadowOffset; j <= GUIStyle.shadowOffset; j += GUIStyle.shadowOffset) {
                         xb.put(0, initialX + i); yb.put(0, initialY + j);
                         bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * zi, oc);
                     }
@@ -226,7 +218,7 @@ public class Font {
                 float h  = lineHeight;
 
                 if (italic)
-                    w += ITALIC_OFFSET;
+                    w += GUIStyle.italicOffset;
 
                 if (outline) {
                     x0--; y0--;
@@ -235,7 +227,7 @@ public class Font {
                     w++; h++;
                 }
 
-                int bgc = Objects.requireNonNullElse(style.getBackgroundColor(), BG_COLOR);
+                int bgc = Objects.requireNonNullElse(style.getBackgroundColor(), GUIStyle.backgroundColor);
                 consumer.consume(quad(matrices, x0, y0, zOffset * zi, w, h, bgc), -1);
             }
 
@@ -265,7 +257,7 @@ public class Font {
 
         //extra rendering
         float x0 = preX + x, y0 = yb.get(0) + y;
-        float width = xb.get(0) - preX + (italic ? ITALIC_OFFSET : 0f);
+        float width = xb.get(0) - preX + (italic ? GUIStyle.italicOffset : 0f);
 
         //underline
         if (underlined)
@@ -290,8 +282,8 @@ public class Font {
 
         float i0 = 0f, i1 = 0f;
         if (italic) {
-            i0 = ((y0 + descent) / lineHeight) * -ITALIC_OFFSET;
-            i1 = ((y1 + descent) / lineHeight) * -ITALIC_OFFSET;
+            i0 = ((y0 + descent) / lineHeight) * -GUIStyle.italicOffset;
+            i1 = ((y1 + descent) / lineHeight) * -GUIStyle.italicOffset;
         }
 
         x0 += x; x1 += x;
@@ -300,8 +292,8 @@ public class Font {
         consumer.consume(bakeQuad(matrices, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color), textureID);
 
         if (bold) {
-            xb.put(0, xb.get(0) + BOLD_OFFSET);
-            x0 += BOLD_OFFSET; x1 += BOLD_OFFSET;
+            xb.put(0, xb.get(0) + GUIStyle.boldOffset);
+            x0 += GUIStyle.boldOffset; x1 += GUIStyle.boldOffset;
             consumer.consume(bakeQuad(matrices, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color), textureID);
         }
     }
@@ -362,12 +354,12 @@ public class Font {
             //italic
             boolean italic = style.isItalic();
             if (prevItalic[0] && !italic)
-                x[0] += ITALIC_OFFSET;
+                x[0] += GUIStyle.italicOffset;
             prevItalic[0] = italic;
 
             //bold
             if (style.isBold())
-                x[0] += BOLD_OFFSET * s.codePoints().count();
+                x[0] += GUIStyle.boldOffset * s.codePoints().count();
 
             //add string width
             x[0] += width(s);
@@ -393,7 +385,7 @@ public class Font {
 
             //italic
             if (!prevItalic[0] && italic)
-                x[0] += ITALIC_OFFSET;
+                x[0] += GUIStyle.italicOffset;
             prevItalic[0] = italic;
 
             //text allowed to add
@@ -413,7 +405,7 @@ public class Font {
 
                 //bold special
                 if (bold)
-                    x[0] += BOLD_OFFSET;
+                    x[0] += GUIStyle.boldOffset;
 
                 //check width
                 if (x[0] <= width) {

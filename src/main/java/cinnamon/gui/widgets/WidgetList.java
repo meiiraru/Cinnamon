@@ -16,14 +16,14 @@ import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public class WidgetList extends ContainerGrid {
 
-    private static final Resource TEXTURE = new Resource("textures/gui/widgets/list.png");
+    private static final Resource TEXTURE = new Resource("textures/gui/widgets/container_background.png");
 
     private final List<Widget> widgetsToRender = new ArrayList<>();
 
     private final Scrollbar scrollbar;
     private boolean showScrollbar = true;
     private boolean shouldRenderScrollbar;
-    private boolean shouldRenderBackground = true;
+    private boolean hasBackground;
     private int widgetsWidth, widgetsHeight;
     private int lastY;
 
@@ -42,7 +42,7 @@ public class WidgetList extends ContainerGrid {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        if (shouldRenderBackground)
+        if (hasBackground)
             renderBackground(matrices, mouseX, mouseY, delta);
 
         boolean scroll = shouldRenderScrollbar;
@@ -94,6 +94,7 @@ public class WidgetList extends ContainerGrid {
 
             scrollbar.setScrollAmount(1f / remaining);
             scrollbar.setMax(remaining);
+            updateScrollbar();
         }
     }
 
@@ -221,8 +222,8 @@ public class WidgetList extends ContainerGrid {
         }
     }
 
-    public void setShouldRenderBackground(boolean shouldRenderBackground) {
-        this.shouldRenderBackground = shouldRenderBackground;
+    public void setBackground(boolean bool) {
+        this.hasBackground = bool;
     }
 
     public int getWidgetsWidth() {

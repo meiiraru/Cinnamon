@@ -1,6 +1,7 @@
 package cinnamon.utils;
 
 import cinnamon.Client;
+import cinnamon.gui.GUIStyle;
 import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.PopupWidget;
 import cinnamon.gui.widgets.SelectableWidget;
@@ -21,9 +22,6 @@ import static org.lwjgl.opengl.GL11.*;
 public class UIHelper {
 
     private static final Resource TOOLTIP = new Resource("textures/gui/widgets/tooltip.png");
-    public static final Colors ACCENT = Colors.PURPLE;
-    public static final float Z_OFFSET = 0.01f;
-    public static final int DOUBLE_CLICK_TIME = 10; //500ms
 
     private static final Stack<Region2D> SCISSORS_STACK = new Stack<>();
 
@@ -223,13 +221,16 @@ public class UIHelper {
         matrices.translate(x, 0, 998f);
 
         //render arrow
-        VertexConsumer.GUI.consume(quad(matrices, lefty ? w + 4f : -2, wcy - 8, 2, 16, lefty ? 18f : 16f, 0f, 2, 16, 20, 16), TOOLTIP);
+        Vertex[] vertices = quad(matrices, lefty ? w + 4f : -2, wcy - 8, 2, 16, lefty ? 18f : 16f, 0f, 2, 16, 20, 16);
+        for (Vertex vertex : vertices)
+            vertex.color(GUIStyle.accentColor);
+        VertexConsumer.GUI.consume(vertices, TOOLTIP);
 
         //move matrices on y
         matrices.translate(0, y, 0);
 
         //render background
-        nineQuad(VertexConsumer.GUI, matrices, TOOLTIP, 0f, 0f, w + 4f, h + 4f, 0f, 0f, 16, 16, 20, 16);
+        nineQuad(VertexConsumer.GUI, matrices, TOOLTIP, 0f, 0f, w + 4f, h + 4f, 0f, 0f, 16, 16, 20, 16, GUIStyle.accentColor);
 
         //render text
         font.render(VertexConsumer.FONT, matrices, 2, 2, tooltip);

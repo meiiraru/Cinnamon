@@ -1,5 +1,6 @@
 package cinnamon.resource;
 
+import cinnamon.gui.GUIStyle;
 import cinnamon.model.MaterialManager;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.EntityModelRegistry;
@@ -32,6 +33,7 @@ public class ResourceManager {
         INIT_EVENTS.add(EntityModelRegistry::loadAllModels);
         INIT_EVENTS.add(MaterialRegistry::loadAllMaterials);
         INIT_EVENTS.add(SkyBox.Type::loadAll);
+        INIT_EVENTS.add(GUIStyle::init);
 
         FREE_EVENTS.add(Texture::freeAll);
         FREE_EVENTS.add(CubeMap::freeAll);

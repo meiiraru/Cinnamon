@@ -15,7 +15,7 @@ import org.joml.Vector2f;
 
 public class DVDScreen extends ParentedScreen {
 
-    private static final Resource DVD_TEX = new Resource("textures/gui/widgets/dvd.png");
+    private static final Resource DVD_TEX = new Resource("textures/gui/dvd.png");
     private static final int w = 58, h = 40;
     private static final float speed = 2f;
 

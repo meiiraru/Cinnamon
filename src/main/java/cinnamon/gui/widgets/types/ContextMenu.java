@@ -1,6 +1,7 @@
 package cinnamon.gui.widgets.types;
 
 import cinnamon.Client;
+import cinnamon.gui.GUIStyle;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.PopupWidget;
 import cinnamon.gui.widgets.Widget;
@@ -21,7 +22,6 @@ import java.util.function.Consumer;
 public class ContextMenu extends PopupWidget {
 
     private static final Resource TEXTURE = new Resource("textures/gui/widgets/context_menu.png");
-    private static final int DIVIDER_HEIGHT = 5;
 
     private final List<ContextButton> actions = new ArrayList<>();
     private final int minWidth;
@@ -71,7 +71,7 @@ public class ContextMenu extends PopupWidget {
     }
 
     public ContextMenu addDivider() {
-        this.addWidget(new ContextDivider(getWidth(), DIVIDER_HEIGHT, widgets.size()));
+        this.addWidget(new ContextDivider(getWidth(), GUIStyle.dividerSize, widgets.size()));
         return this;
     }
 

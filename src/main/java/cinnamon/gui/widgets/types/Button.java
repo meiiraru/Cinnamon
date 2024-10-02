@@ -1,8 +1,10 @@
 package cinnamon.gui.widgets.types;
 
 import cinnamon.Client;
+import cinnamon.gui.GUIStyle;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
+import cinnamon.model.GeometryHelper;
 import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
@@ -22,10 +24,11 @@ public class Button extends SelectableWidget {
 
     private boolean silent;
     private boolean runOnHold;
-    protected boolean holding;
+    private boolean holding;
 
     protected Text message;
     protected Consumer<Button> action;
+    protected Resource image;
 
     public Button(int x, int y, int width, int height, Text message, Consumer<Button> action) {
         super(x, y, width, height);
@@ -35,7 +38,10 @@ public class Button extends SelectableWidget {
 
     @Override
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        renderBackground(matrices, mouseX, mouseY, delta);
+        if (image == null)
+            renderBackground(matrices, mouseX, mouseY, delta);
+        else
+            renderImage(matrices, mouseX, mouseY, delta);
         if (message != null)
             renderText(matrices, mouseX, mouseY, delta);
     }
@@ -47,7 +53,7 @@ public class Button extends SelectableWidget {
                 getWidth(), getHeight(),
                 getState() * 16f, 0f,
                 16, 16,
-                48, 16
+                64, 16
         );
     }
 
@@ -55,13 +61,37 @@ public class Button extends SelectableWidget {
         Text text = getFormattedMessage();
         Font f = Client.getInstance().font;
         int x = getCenterX();
-        int y = getCenterY() - TextUtils.getHeight(text, f) / 2;
+        int y = getCenterY() - TextUtils.getHeight(text, f) / 2 + (isHolding() ? GUIStyle.pressYOffset : 0);
         f.render(VertexConsumer.FONT, matrices, x, y, text, Alignment.CENTER);
+    }
+
+    protected void renderImage(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        int size = Math.min(getWidth(), getHeight());
+        VertexConsumer.GUI.consume(GeometryHelper.quad(
+                matrices,
+                getCenterX() - (int) (size / 2f), getCenterY() - (int) (size / 2f),
+                size, size,
+                getState(), 0f,
+                1f, 1f,
+                4, 1
+        ), image);
+    }
+
+    @Override
+    public int getState() {
+        if (!this.isActive())
+            return 0;
+        else if (this.isHolding())
+            return 3;
+        else if (this.isHoveredOrFocused())
+            return 2;
+        else
+            return 1;
     }
 
     @Override
     public boolean isHoveredOrFocused() {
-        return super.isHoveredOrFocused() || holding;
+        return super.isHoveredOrFocused() || isHolding();
     }
 
     @Override
@@ -70,30 +100,9 @@ public class Button extends SelectableWidget {
             return null;
 
         //test for left mouse button while hovered
-        if (button == GLFW_MOUSE_BUTTON_1 && isHovered()) {
-            //when pressed, set the flag to true, and if allowed, run the action
-            if (action == GLFW_PRESS) {
-                holding = true;
-                if (runOnHold)
-                    onRun();
-                return this;
-            //otherwise when released, only if we were holding, run the action
-            } else if (holding && action == GLFW_RELEASE) {
-                holding = false;
-                onRun();
-                return this;
-            }
-        }
-
-        //everything failed, but we were holding and allowed to run on hold
-        if (holding) {
-            holding = false;
-            if (runOnHold)
-                onRun();
+        if (executeHold(button == GLFW_MOUSE_BUTTON_1 && isHovered(), action))
             return this;
-        }
 
-        //super
         return super.mousePress(button, action, mods);
     }
 
@@ -102,16 +111,43 @@ public class Button extends SelectableWidget {
         if (!isActive())
             return null;
 
-        if (isFocused() && (action == GLFW_PRESS || (action == GLFW_RELEASE && runOnHold))) {
-            switch (key) {
-                case GLFW_KEY_SPACE, GLFW_KEY_ENTER, GLFW_KEY_KP_ENTER -> {
-                    onRun();
-                    return this;
-                }
-            }
-        }
+        //test for space or enter buttons while focused
+        if (executeHold((key == GLFW_KEY_SPACE || key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER) && isFocused(), action))
+            return this;
 
         return super.keyPress(key, scancode, action, mods);
+    }
+
+    private boolean executeHold(boolean check, int action) {
+        //is passed the input test
+        if (check) {
+            //when pressed (or repeat), set the flag to true, and if allowed, run the action
+            if (action == GLFW_PRESS) {
+                holding = true;
+                if (runOnHold)
+                    onRun();
+                return true;
+                //otherwise when released, only if we were holding, run the action
+            } else if (holding && action == GLFW_RELEASE) {
+                holding = false;
+                onRun();
+                return true;
+            }
+
+            //wait when repeating
+            if (action == GLFW_REPEAT)
+                return true;
+        }
+
+        //everything failed, but we were holding and allowed to run on hold
+        if (holding) {
+            holding = false;
+            if (runOnHold)
+                onRun();
+            return true;
+        }
+
+        return false;
     }
 
     public void onRun() {
@@ -161,5 +197,13 @@ public class Button extends SelectableWidget {
 
     public boolean isHolding() {
         return holding;
+    }
+
+    public void setImage(Resource image) {
+        this.image = image;
+    }
+
+    public Resource getImage() {
+        return image;
     }
 }

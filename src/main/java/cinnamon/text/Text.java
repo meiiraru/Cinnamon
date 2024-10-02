@@ -11,11 +11,11 @@ public class Text {
     private final String text;
     private Style style;
 
-    public Text(String text) {
+    private Text(String text) {
         this(text, Style.EMPTY);
     }
 
-    public Text(String text, Style style) {
+    private Text(String text, Style style) {
         this.text = text;
         this.style = style;
     }

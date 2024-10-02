@@ -10,6 +10,7 @@ val lwjglVersion = "3.3.4"
 val jomlVersion = "1.10.7"
 val log4jVersion = "2.23.1"
 val jacksonVersion = "2.15.2"
+val gsonVersion = "2.11.0"
 val kryonetVersion = "2.22.9"
 
 //lwjgl natives
@@ -70,6 +71,7 @@ dependencies {
     implementation("org.apache.logging.log4j", "log4j-core", log4jVersion)
     implementation("org.apache.logging.log4j", "log4j-iostreams", log4jVersion)
     implementation("com.fasterxml.jackson.core", "jackson-databind", jacksonVersion)
+    implementation("com.google.code.gson", "gson", gsonVersion)
     implementation("com.github.crykn", "kryonet", kryonetVersion)
 }
 
