@@ -10,6 +10,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class Maths {
 
@@ -42,6 +43,7 @@ public class Maths {
     }
 
     public static float wrapDegrees(float angle) {
+        angle %= 360f;
         if (angle > 180f)
             return angle - 360f;
         if (angle < -180f)
@@ -287,6 +289,17 @@ public class Maths {
 
     public static float factorial(int n) {
         return n <= 1 ? 1f : n * factorial(n - 1);
+    }
+
+    public static int binarySearch(int start, int end, Predicate<Integer> test) {
+        while (start < end) {
+            int mid = start + (end - start) / 2;
+            if (test.test(mid))
+                end = mid;
+            else
+                start = mid + 1;
+        }
+        return start;
     }
 
     public static float hermite(float p0, float p3, float r0, float r3, float weight, float t) {

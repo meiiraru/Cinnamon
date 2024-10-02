@@ -115,7 +115,7 @@ public class WidgetTestScreen extends ParentedScreen {
         password.addWidget(viewPassword);
 
         //checkbox
-        CheckBox cb = new CheckBox(0, 0, Text.of("Checkbox"));
+        Checkbox cb = new Checkbox(0, 0, Text.of("Checkbox"));
         grid.addWidget(cb);
 
         //toast 1

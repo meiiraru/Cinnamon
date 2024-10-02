@@ -11,13 +11,13 @@ import cinnamon.utils.TextUtils;
 
 import java.util.function.Consumer;
 
-public class CheckBox extends Button {
+public class Checkbox extends Button {
 
     private static final Resource TEXTURE = new Resource("textures/gui/widgets/check_box.png");
 
     protected boolean toggled;
 
-    public CheckBox(int x, int y, Text message) {
+    public Checkbox(int x, int y, Text message) {
         super(x, y, 0, 0, message, null);
 
         //force updates

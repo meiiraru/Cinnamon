@@ -9,7 +9,7 @@ import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Label;
 import cinnamon.gui.widgets.types.SelectionBox;
-import cinnamon.gui.widgets.types.CheckBox;
+import cinnamon.gui.widgets.types.Checkbox;
 import cinnamon.model.GeometryHelper;
 import cinnamon.parsers.CurveToMesh;
 import cinnamon.parsers.ObjExporter;
@@ -98,19 +98,19 @@ public class CurvesScreen extends ParentedScreen {
         grid.addWidget(box);
 
         //points button
-        CheckBox pointsButton = new CheckBox(0, 0, Text.of("Render points index"));
+        Checkbox pointsButton = new Checkbox(0, 0, Text.of("Render points index"));
         pointsButton.setAction(button -> renderPointsText = pointsButton.isToggled());
         pointsButton.setToggled(renderPointsText);
         grid.addWidget(pointsButton);
 
         //lines button
-        CheckBox linesButton = new CheckBox(0, 0, Text.of("Render lines"));
+        Checkbox linesButton = new Checkbox(0, 0, Text.of("Render lines"));
         linesButton.setAction(button -> renderLines = linesButton.isToggled());
         linesButton.setToggled(renderLines);
         grid.addWidget(linesButton);
 
         //loop button
-        CheckBox loopButton = new CheckBox(0, 0, Text.of("Loop"));
+        Checkbox loopButton = new Checkbox(0, 0, Text.of("Loop"));
         loopButton.setAction(button -> curve.loop(!curve.isLooping()));
         loopButton.setToggled(curve.isLooping());
         grid.addWidget(loopButton);
