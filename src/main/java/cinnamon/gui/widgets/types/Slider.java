@@ -299,7 +299,7 @@ public class Slider extends SelectableWidget {
             super.setTooltip(Text.of(this.intValue));
     }
 
-    protected void callListeners() {
+    public void callListeners() {
         if (changeListener != null)
             changeListener.accept(this.value, this.intValue);
     }

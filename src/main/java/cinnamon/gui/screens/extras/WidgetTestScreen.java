@@ -83,6 +83,7 @@ public class WidgetTestScreen extends ParentedScreen {
         });
         s.setMax(1000);
         s.setValue((int) (Math.random() * 500) + 250);
+        s.callListeners();
 
         b.setAction(button -> s.setStepCount(s.getStepCount() + 1));
 
