@@ -2,6 +2,9 @@ package cinnamon.world.entity.collectable;
 
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
+import cinnamon.sound.SoundCategory;
+import cinnamon.utils.Maths;
+import cinnamon.utils.Resource;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.Player;
@@ -22,6 +25,11 @@ public class EffectBox extends Collectable {
             () -> Effect.Type.SPEED.create(300),
             () -> Effect.Type.EXPLOSION_IMMUNITY.create(200)
     );
+    private static final Resource[] PICKUP_SOUND = {
+            new Resource("sounds/entity/drink/1.ogg"),
+            new Resource("sounds/entity/drink/2.ogg"),
+            new Resource("sounds/entity/drink/3.ogg")
+    };
 
     public EffectBox(UUID uuid) {
         super(uuid, EntityModelRegistry.EFFECT_BOX.model);
@@ -30,6 +38,9 @@ public class EffectBox extends Collectable {
     @Override
     protected boolean onPickUp(Entity entity) {
         if (entity instanceof Player p) {
+            int index = (int) (Math.random() * PICKUP_SOUND.length);
+            Resource sound = PICKUP_SOUND[index];
+            p.getWorld().playSound(sound, SoundCategory.ENTITY, p.getPos()).pitch(Maths.range(0.95f, 1.05f)).volume(2f);;
             p.giveEffect(EFFECT_LIST.get((int) (Math.random() * EFFECT_LIST.size())).get());
             return true;
         }
