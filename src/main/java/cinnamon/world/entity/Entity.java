@@ -58,30 +58,32 @@ public abstract class Entity extends WorldObject {
         //apply pos
         matrices.translate(getPos(delta));
 
-        //render model
-        renderModel(matrices, delta);
-
-        //render head text
-        if (shouldRenderText())
-            renderTexts(matrices, delta);
-
-        matrices.pop();
-    }
-
-    protected void renderModel(MatrixStack matrices, float delta) {
+        //apply model pose
         matrices.push();
-
-        //apply rot
         applyModelPose(matrices, delta);
 
         //render model
-        Shader.activeShader.applyMatrixStack(matrices);
-        model.render();
+        renderModel(matrices, delta);
 
         //render features
         renderFeatures(matrices, delta);
 
         matrices.pop();
+
+        //render head text
+        if (shouldRenderText()) {
+            matrices.push();
+            renderTexts(matrices, delta);
+            matrices.pop();
+        }
+
+        matrices.pop();
+    }
+
+    protected void renderModel(MatrixStack matrices, float delta) {
+        //render model
+        Shader.activeShader.applyMatrixStack(matrices);
+        model.render();
     }
 
     protected void applyModelPose(MatrixStack matrices, float delta) {

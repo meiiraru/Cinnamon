@@ -599,7 +599,8 @@ public class WorldClient extends World {
                     Hit<Terrain> terrain = player.getLookingTerrain(player.getPickRange());
                     if (terrain != null) {
                         selectedTerrain = terrain.obj().getType().ordinal();
-                        selectedMaterial = MaterialRegistry.fromMaterial(terrain.obj().getMaterial()).ordinal();
+                        MaterialRegistry material = MaterialRegistry.fromMaterial(terrain.obj().getMaterial());
+                        if (material != null) selectedMaterial = material.ordinal();
                     }
                 }
             }

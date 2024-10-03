@@ -69,6 +69,10 @@ public class MatrixStack {
         scale(scalar, scalar, scalar);
     }
 
+    public void scale(Vector3f vector) {
+        scale(vector.x, vector.y, vector.z);
+    }
+
     public void identity() {
         Matrices mat = stack.peek();
         mat.pos.identity();

@@ -145,6 +145,25 @@ public class AABB {
         return this;
     }
 
+    public AABB scale(float scale) {
+        return this.scale(scale, scale, scale);
+    }
+
+    public AABB scale(Vector3f scale) {
+        return this.scale(scale.x, scale.y, scale.z);
+    }
+
+    public AABB scale(float x, float y, float z) {
+        Vector3f center = getCenter();
+        minX = (minX - center.x) * x + center.x;
+        minY = (minY - center.y) * y + center.y;
+        minZ = (minZ - center.z) * z + center.z;
+        maxX = (maxX - center.x) * x + center.x;
+        maxY = (maxY - center.y) * y + center.y;
+        maxZ = (maxZ - center.z) * z + center.z;
+        return this;
+    }
+
     public float minX() {
         return minX;
     }

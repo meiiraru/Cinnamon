@@ -107,7 +107,6 @@ public abstract class LivingEntity extends PhysEntity {
     @Override
     protected void renderTexts(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
-        matrices.push();
         float s = 1 / 48f;
 
         Text text = getHeadText();
@@ -118,8 +117,6 @@ public abstract class LivingEntity extends PhysEntity {
         matrices.translate(0f, -TextUtils.getHeight(text, c.font), 0f);
 
         c.font.render(VertexConsumer.WORLD_FONT, matrices, 0, 0, text, Alignment.CENTER, 50);
-
-        matrices.pop();
     }
 
     protected Text getHeadText() {

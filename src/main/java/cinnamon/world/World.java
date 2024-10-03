@@ -4,6 +4,7 @@ import cinnamon.Client;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundInstance;
 import cinnamon.utils.AABB;
+import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionDetector;
 import cinnamon.world.collisions.CollisionResult;
@@ -243,7 +244,7 @@ public abstract class World {
         }
 
         //sound
-        playSound(EXPLOSION_SOUND, SoundCategory.ENTITY, pos).maxDistance(64f).volume(0.5f);
+        playSound(EXPLOSION_SOUND, SoundCategory.ENTITY, pos).maxDistance(64f).volume(0.5f).pitch(Maths.range(0.8f, 1.2f));
     }
 
     public Hit<Terrain> raycastTerrain(AABB area, Vector3f pos, Vector3f dirLen) {

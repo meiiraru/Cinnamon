@@ -15,6 +15,7 @@ import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.resource.ResourceManager;
 import cinnamon.sound.SoundManager;
 import cinnamon.text.Text;
+import cinnamon.utils.Await;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
 import cinnamon.utils.Timer;
@@ -131,6 +132,8 @@ public class Client {
         ticks++;
 
         runScheduledTicks();
+        ServerConnection.tick();
+        Await.tick();
 
         soundManager.tick(camera);
 
@@ -139,8 +142,6 @@ public class Client {
 
         if (screen != null)
             screen.tick();
-
-        ServerConnection.tick();
     }
 
     private void runScheduledTicks() {
