@@ -1,4 +1,5 @@
 newmtl asphalt_shingle
+mipmap 1
 albedo tapered-asphalt-shingle_albedo.png
 ao tapered-asphalt-shingle_ao.png
 height tapered-asphalt-shingle_height.png

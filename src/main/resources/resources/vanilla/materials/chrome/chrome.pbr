@@ -1,3 +1,4 @@
 newmtl chrome
+mipmap 1
 metallic chrome_metallic.png
 roughness chrome_roughness.png

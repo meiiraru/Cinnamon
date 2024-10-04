@@ -1,4 +1,5 @@
 newmtl quilted_fabric
+mipmap 1
 albedo white-quilted-diamond_albedo.png
 ao white-quilted-diamond_ao.png
 height white-quilted-diamond_height.png

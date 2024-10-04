@@ -1,4 +1,5 @@
 newmtl lava
+mipmap 1
 albedo Lava_002_COLOR.png
 ao Lava_002_OCC.png
 emissive Lava_002_COLOR.png

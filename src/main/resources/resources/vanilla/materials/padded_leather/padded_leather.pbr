@@ -1,4 +1,5 @@
 newmtl padded_leather
+mipmap 1
 albedo older-padded-leather_albedo.png
 ao older-padded-leather_ao.png
 height older-padded-leather_height.png

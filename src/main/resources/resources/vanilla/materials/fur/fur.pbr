@@ -1,4 +1,5 @@
 newmtl fur
+mipmap 1
 albedo stylized-animal-fur_albedo.png
 ao stylized-animal-fur_ao.png
 height stylized-animal-fur_height.png

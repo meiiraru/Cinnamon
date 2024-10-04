@@ -1,4 +1,5 @@
 newmtl paper_lantern
+mipmap 1
 albedo Paper_Lantern_001_basecolor.png
 ao Paper_Lantern_001_ambientOcclusion.png
 height Paper_Lantern_001_height.png

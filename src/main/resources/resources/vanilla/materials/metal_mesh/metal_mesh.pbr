@@ -1,4 +1,5 @@
 newmtl metal_mesh
+mipmap 1
 albedo metal_0076_color_1k.png
 ao metal_0076_ao_1k.png
 height metal_0076_height_1k.png

@@ -1,4 +1,5 @@
 newmtl carbon_fiber
+mipmap 1
 albedo carbon-fiber_smooth_albedo.png
 ao carbon-fiber_smooth_ao.png
 height carbon-fiber_smooth_height.png

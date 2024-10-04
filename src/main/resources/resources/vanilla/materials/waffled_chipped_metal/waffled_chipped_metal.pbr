@@ -1,4 +1,5 @@
 newmtl waffled_chipped_metal
+mipmap 1
 albedo waffled-chipped-metal_albedo.png
 ao waffled-chipped-metal_ao.png
 height waffled-chipped-metal_height.png

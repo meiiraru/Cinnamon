@@ -44,21 +44,24 @@ public class MaterialLoader {
                 String[] split = line.trim().replaceAll(" +", " ").split(" ");
 
                 //create new material
-                if (split[0].equals("newmtl")) {
-                    if (!material.getName().isBlank() && !material.getName().equals("none"))
-                        map.put(material.getName(), material);
+                switch (split[0]) {
+                    case "newmtl" -> {
+                        if (!material.getName().isBlank() && !material.getName().equals("none"))
+                            map.put(material.getName(), material);
 
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 1; i < split.length; i++)
-                        sb.append(split[i]).append(" ");
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 1; i < split.length; i++)
+                            sb.append(split[i]).append(" ");
 
-                    String materialName = sb.toString().trim();
-                    material = pbr ? new PBRMaterial(materialName) : new MtlMaterial(materialName);
-                } else if (pbr) {
-                    processPBR(split, (PBRMaterial) material, res, folder);
-                } else {
-                    processMtl(split, (MtlMaterial) material, res, folder);
+                        String materialName = sb.toString().trim();
+                        material = pbr ? new PBRMaterial(materialName) : new MtlMaterial(materialName);
+                    }
+                    case "smooth" -> material.setSmooth(parseInt(split[1]) > 0);
+                    case "mipmap" -> material.setMipmap(parseInt(split[1]) > 0);
                 }
+
+                if (pbr) processPBR(split, (PBRMaterial) material, res, folder);
+                else     processMtl(split, (MtlMaterial) material, res, folder);
             }
 
             map.put(material.getName(), material);

@@ -113,25 +113,25 @@ public class MainMenu extends Screen {
     @Override
     protected void renderBackground(MatrixStack matrices, float delta) {
         //background
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, 1f, 0f, 1f), BACKGROUND, true);
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, 1f, 0f, 1f), BACKGROUND, true, false);
 
         //stars
         float time = (client.ticks + delta) * 0.02f;
         Vertex[] stars = GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, width / 256f, 0f, height / 256f);
         for (Vertex vertex : stars)
             vertex.color(1f, 1f, 1f, (float) Math.sin(time) * 0.5f + 0.5f);
-        VertexConsumer.GUI.consume(stars, STARS1, true);
+        VertexConsumer.GUI.consume(stars, STARS1, true, false);
 
         for (Vertex vertex : stars)
             vertex.color(1f, 1f, 1f, (float) Math.sin(-time) * 0.5f + 0.5f);
-        VertexConsumer.GUI.consume(stars, STARS2, true);
+        VertexConsumer.GUI.consume(stars, STARS2, true, false);
 
         //nebula
         for (Nebula nebula : nebula)
             nebula.render(matrices, delta);
 
         //overlay
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, 1f, 0f, 1f), OVERLAY, true);
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, 1f, 0f, 1f), OVERLAY, true, false);
 
         //title
         renderTitle(matrices, delta);
@@ -231,7 +231,7 @@ public class MainMenu extends Screen {
             Vertex[] vertices = GeometryHelper.quad(matrices, x, y, SIZE, SIZE, -999, 0f, 1f, 0f, 1f);
             for (Vertex vertex : vertices)
                 vertex.color(color.r / 255f, color.g / 255f, color.b / 255f, ALPHA);
-            VertexConsumer.GUI.consume(vertices, texture, true);
+            VertexConsumer.GUI.consume(vertices, texture, true, false);
         }
     }
 }

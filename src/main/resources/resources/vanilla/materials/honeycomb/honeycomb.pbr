@@ -1,4 +1,5 @@
 newmtl honeycomb
+mipmap 1
 albedo others_0007_color_1k.png
 ao others_0007_ao_1k.png
 height others_0007_height_1k.png

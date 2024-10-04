@@ -1,4 +1,5 @@
 newmtl metal_studs
+mipmap 1
 albedo worn-metal-studs_albedo.png
 ao worn-metal-studs_ao.png
 height worn-metal-studs_height.png

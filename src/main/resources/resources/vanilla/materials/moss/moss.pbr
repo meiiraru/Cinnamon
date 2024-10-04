@@ -1,4 +1,5 @@
 newmtl moss
+mipmap 1
 albedo ground_0014_color_1k.png
 ao ground_0014_ao_1k.png
 height ground_0014_height_1k.png

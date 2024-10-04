@@ -1,4 +1,5 @@
 newmtl plastic
+mipmap 1
 albedo plasticpattern1-albedo.png
 ao plasticpattern1-ao.png
 metallic plasticpattern1-metalness.png

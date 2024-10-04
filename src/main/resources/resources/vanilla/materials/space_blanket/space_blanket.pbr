@@ -1,4 +1,5 @@
 newmtl space_blanket
+mipmap 1
 albedo TCom_Plastic_SpaceBlanketFolds_512_albedo.png
 height TCom_Plastic_SpaceBlanketFolds_512_height.png
 ao TCom_Plastic_SpaceBlanketFolds_512_ao.png

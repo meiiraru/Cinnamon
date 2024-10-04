@@ -1,4 +1,5 @@
 newmtl orbed_plastic
+mipmap 1
 albedo orbed-plastic_albedo.png
 ao orbed-plastic_ao.png
 height orbed-plastic_height.png

@@ -1,4 +1,5 @@
 newmtl pool_tiles
+mipmap 1
 albedo Tiles_008_COLOR.png
 ao Tiles_008_OCC.png
 height Tiles_008_DISP.png

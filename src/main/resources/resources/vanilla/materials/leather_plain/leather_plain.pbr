@@ -1,4 +1,5 @@
 newmtl leather_plain
+mipmap 1
 albedo TCom_Leather_Plain09_008x008_512_albedo.png
 ao TCom_Leather_Plain09_008x008_512_ao.png
 height TCom_Leather_Plain09_008x008_512_height.png

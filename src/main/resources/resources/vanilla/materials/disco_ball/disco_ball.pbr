@@ -1,4 +1,5 @@
 newmtl disco_ball
+mipmap 1
 albedo Disco_Ball_001_basecolor.png
 ao Disco_Ball_001_ambientOcclusion.png
 height Disco_Ball_001_height.png

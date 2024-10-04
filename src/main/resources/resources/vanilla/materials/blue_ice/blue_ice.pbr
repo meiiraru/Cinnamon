@@ -1,4 +1,5 @@
 newmtl blue_ice
+mipmap 1
 albedo Blue_Ice_001_COLOR.png
 ao Blue_Ice_001_OCC.png
 height Blue_Ice_001_DISP.png

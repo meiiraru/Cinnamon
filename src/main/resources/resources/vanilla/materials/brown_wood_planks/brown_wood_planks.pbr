@@ -1,4 +1,5 @@
 newmtl brown_wood_planks
+mipmap 1
 albedo wood_0066_color_1k.png
 ao wood_0066_ao_1k.png
 height wood_0066_height_1k.png

@@ -1,4 +1,5 @@
 newmtl raw_salmon
+mipmap 1
 albedo food_0013_color_1k.png
 ao food_0013_ao_1k.png
 height food_0013_height_1k.png

@@ -1,4 +1,5 @@
 newmtl tiles_modern
+mipmap 1
 albedo Tiles_Modern_002_basecolor.png
 ao Tiles_Modern_002_ambientOcclusion.png
 height Tiles_Modern_002_height.png

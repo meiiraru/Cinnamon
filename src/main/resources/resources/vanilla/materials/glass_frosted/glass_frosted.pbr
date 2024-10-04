@@ -1,4 +1,5 @@
 newmtl glass_frosted
+mipmap 1
 albedo Glass_Frosted_001_basecolor.png
 ao Glass_Frosted_001_ambientOcclusion.png
 height Glass_Frosted_001_height.png

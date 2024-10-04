@@ -17,6 +17,8 @@ public class WorldRenderer {
 
     public static final PBRDeferredFramebuffer PBRFrameBuffer = new PBRDeferredFramebuffer(1, 1);
 
+    //public static final Material TERRAIN_MATERIAL = MaterialManager.load(new Resource("textures/terrain/terrain.pbr"), "terrain");
+
     public static void prepareGeometry(Camera camera) {
         PBRFrameBuffer.useClear();
         Shader s = GEOMETRY_PASS.getShader().use();

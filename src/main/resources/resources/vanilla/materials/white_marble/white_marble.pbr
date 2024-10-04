@@ -1,4 +1,5 @@
 newmtl white_marble
+mipmap 1
 albedo white-marble_albedo.png
 ao white-marble_ao.png
 height white-marble_height.png

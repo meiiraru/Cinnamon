@@ -1,4 +1,5 @@
 newmtl terracotta_pavement
+mipmap 1
 albedo TCom_Pavement_TerracottaAntique_512_albedo.png
 ao TCom_Pavement_TerracottaAntique_512_ao.png
 height TCom_Pavement_TerracottaAntique_512_height.png

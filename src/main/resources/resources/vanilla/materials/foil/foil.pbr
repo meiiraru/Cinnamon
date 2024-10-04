@@ -1,4 +1,5 @@
 newmtl foil
+mipmap 1
 albedo metal_0005_color_1k.png
 ao metal_0005_ao_1k.png
 height metal_0005_height_1k.png

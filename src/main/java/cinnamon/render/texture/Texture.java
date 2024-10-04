@@ -35,10 +35,10 @@ public class Texture {
     }
 
     public static Texture of(Resource res) {
-        return of(res, false);
+        return of(res, false, false);
     }
 
-    public static Texture of(Resource res, boolean smooth) {
+    public static Texture of(Resource res, boolean smooth, boolean mipmap) {
         if (res == null)
             return MISSING;
 
@@ -48,7 +48,7 @@ public class Texture {
             return saved;
 
         //otherwise load a new texture and cache it
-        int id = loadTexture(res, smooth);
+        int id = loadTexture(res, smooth, mipmap);
         return cacheTexture(res, id == MISSING.ID ? MISSING : new Texture(id));
     }
 
@@ -57,23 +57,28 @@ public class Texture {
         return tex;
     }
 
-    private static int loadTexture(Resource res, boolean smooth) {
+    private static int loadTexture(Resource res, boolean smooth, boolean mipmap) {
         try (TextureIO.ImageData image = TextureIO.load(res)) {
-            return registerTexture(image.width, image.height, image.buffer, smooth);
+            return registerTexture(image.width, image.height, image.buffer, smooth, mipmap);
         } catch (Exception e) {
             LOGGER.error("Failed to load texture \"{}\"", res, e);
             return MISSING.ID;
         }
     }
 
-    protected static int registerTexture(int width, int height, ByteBuffer buffer, boolean smooth) {
+    protected static int registerTexture(int width, int height, ByteBuffer buffer, boolean smooth, boolean mipmap) {
         int id = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, id);
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, smooth ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST);
-        glGenerateMipmap(GL_TEXTURE_2D);
+
+        if (mipmap) {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, smooth ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        } else {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
+        }
 
         glBindTexture(GL_TEXTURE_2D, 0);
         return id;
@@ -99,7 +104,7 @@ public class Texture {
         pixels.flip();
 
         //return a new texture
-        return new Texture(registerTexture(16, 16, pixels, false)) {
+        return new Texture(registerTexture(16, 16, pixels, false, true)) {
             @Override
             public void free() {
                 //do not free the missing texture
@@ -116,7 +121,7 @@ public class Texture {
         buffer.put((byte) (ARGB >> 24));
         buffer.flip();
 
-        int id = registerTexture(1, 1, buffer, false);
+        int id = registerTexture(1, 1, buffer, false, false);
         return new Texture(id);
     }
 

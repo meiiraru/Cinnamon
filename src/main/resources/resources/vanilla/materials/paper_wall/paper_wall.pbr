@@ -1,4 +1,5 @@
 newmtl paper_wall
+mipmap 1
 albedo wood_0033_color_1k.png
 ao wood_0033_ao_1k.png
 height wood_0033_height_1k.png

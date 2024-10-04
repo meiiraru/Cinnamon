@@ -1,4 +1,5 @@
 newmtl stainless_steel
+mipmap 1
 albedo used-stainless-steel2_albedo.png
 ao used-stainless-steel2_ao.png
 height used-stainless-steel2_height.png

@@ -19,6 +19,8 @@ public class MaterialApplier {
             return -1;
 
         Shader s = Shader.activeShader;
+        boolean smooth = material.isSmooth();
+        boolean mip = material.isMipmap();
 
         if (material instanceof MtlMaterial phong) {
             s.setVec3("material.ambient", phong.getAmbientColor());
@@ -26,19 +28,19 @@ public class MaterialApplier {
             s.setVec3("material.specular", phong.getSpecularColor());
             s.setFloat("material.shininess", phong.getSpecularExponent());
 
-            bindTex(s, phong.getDiffuseTex(), 0, "material.diffuseTex", WHITE_TEX);
-            bindTex(s, phong.getSpColorTex(), 1, "material.specularTex", BLACK_TEX);
-            bindTex(s, phong.getEmissiveTex(), 2, "material.emissiveTex", BLACK_TEX);
+            bindTex(s, smooth, mip, phong.getDiffuseTex(), 0, "material.diffuseTex", WHITE_TEX);
+            bindTex(s, smooth, mip, phong.getSpColorTex(), 1, "material.specularTex", BLACK_TEX);
+            bindTex(s, smooth, mip, phong.getEmissiveTex(), 2, "material.emissiveTex", BLACK_TEX);
 
             return 3;
         } else if (material instanceof PBRMaterial pbr) {
-            bindTex(s, pbr.getAlbedo(), 0, "material.albedoTex", WHITE_TEX);
-            bindTex(s, pbr.getHeight(), 1, "material.heightTex", WHITE_TEX);
-            bindTex(s, pbr.getNormal(), 2, "material.normalTex", NORMAL_TEX);
-            bindTex(s, pbr.getRoughness(), 3, "material.roughnessTex", WHITE_TEX);
-            bindTex(s, pbr.getMetallic(), 4, "material.metallicTex", BLACK_TEX);
-            bindTex(s, pbr.getAO(), 5, "material.aoTex", WHITE_TEX);
-            bindTex(s, pbr.getEmissive(), 6, "material.emissiveTex", BLACK_TEX);
+            bindTex(s, smooth, mip, pbr.getAlbedo(), 0, "material.albedoTex", WHITE_TEX);
+            bindTex(s, smooth, mip, pbr.getHeight(), 1, "material.heightTex", WHITE_TEX);
+            bindTex(s, smooth, mip, pbr.getNormal(), 2, "material.normalTex", NORMAL_TEX);
+            bindTex(s, smooth, mip, pbr.getRoughness(), 3, "material.roughnessTex", WHITE_TEX);
+            bindTex(s, smooth, mip, pbr.getMetallic(), 4, "material.metallicTex", BLACK_TEX);
+            bindTex(s, smooth, mip, pbr.getAO(), 5, "material.aoTex", WHITE_TEX);
+            bindTex(s, smooth, mip, pbr.getEmissive(), 6, "material.emissiveTex", BLACK_TEX);
 
             s.setFloat("material.heightScale", pbr.getHeightScale());
 
@@ -48,11 +50,11 @@ public class MaterialApplier {
         }
     }
 
-    private static void bindTex(Shader s, Resource res, int index, String name, Texture fallback) {
+    private static void bindTex(Shader s, boolean smooth, boolean mipmap, Resource res, int index, String name, Texture fallback) {
         s.setInt(name, index);
         Texture tex;
 
-        if (res == null || (tex = Texture.of(res)) == null) {
+        if (res == null || (tex = Texture.of(res, smooth, mipmap)) == null) {
             if (fallback == null) {
                 Texture.unbindTex(index);
                 return;

@@ -1,4 +1,5 @@
 newmtl plywood
+mipmap 1
 albedo Wood_Plywood_Front_001_basecolor.png
 ao Wood_Plywood_Front_001_ambientOcclusion.png
 height Wood_Plywood_Front_001_height.png

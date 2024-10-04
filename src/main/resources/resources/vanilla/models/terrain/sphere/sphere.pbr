@@ -1,5 +1,6 @@
 # Made in Blockbench 4.9.4
 newmtl 1
+mipmap 1
 albedo kd.png
 metallic ks.png
 roughness roughness.png

@@ -1,4 +1,5 @@
 newmtl grass
+mipmap 1
 albedo stylized-grass1_albedo.png
 ao stylized-grass1_ao.png
 height stylized-grass1_height.png

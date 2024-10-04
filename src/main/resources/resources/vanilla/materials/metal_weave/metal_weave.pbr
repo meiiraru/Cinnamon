@@ -1,4 +1,5 @@
 newmtl metal_weave
+mipmap 1
 albedo MetalWeave02_1K_BaseColor.png
 ao MetalWeave02_1K_AO.png
 height MetalWeave02_1K_Height.png

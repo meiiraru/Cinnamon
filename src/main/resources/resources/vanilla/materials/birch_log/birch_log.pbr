@@ -1,4 +1,5 @@
 newmtl birch_log
+mipmap 1
 albedo wood_0027_color_1k.png
 ao wood_0027_ao_1k.png
 height wood_0027_height_1k.png

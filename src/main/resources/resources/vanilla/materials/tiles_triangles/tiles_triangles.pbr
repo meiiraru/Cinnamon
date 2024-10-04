@@ -1,4 +1,5 @@
 newmtl tiles_triangles
+mipmap 1
 albedo Tiles_Triangles_001_basecolor.png
 ao Tiles_Triangles_001_ambientOcclusion.png
 height Tiles_Triangles_001_height.png

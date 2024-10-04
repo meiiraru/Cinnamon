@@ -1,4 +1,5 @@
 newmtl maple_leaves
+mipmap 1
 albedo ground_0028_color_1k.png
 ao ground_0028_ao_1k.png
 height ground_0028_height_1k.png

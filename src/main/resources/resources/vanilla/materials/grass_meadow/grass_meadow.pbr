@@ -1,4 +1,5 @@
 newmtl grass_meadow
+mipmap 1
 albedo ground_0037_color_1k.png
 ao ground_0037_ao_1k.png
 height ground_0037_height_1k.png

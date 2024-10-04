@@ -1,4 +1,5 @@
 newmtl ridged_foam
+mipmap 1
 albedo ridged-foam1_albedo.png
 ao ridged-foam1_ao.png
 height ridged-foam1_height.png

@@ -1,4 +1,5 @@
 newmtl tiles_hexagons
+mipmap 1
 albedo Tiles_Hexagons_002_basecolor.png
 ao Tiles_Hexagons_002_ambientOcclusion.png
 height Tiles_Hexagons_002_height.png

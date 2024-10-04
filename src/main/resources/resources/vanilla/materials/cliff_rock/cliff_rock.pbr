@@ -1,4 +1,5 @@
 newmtl cliff_rock
+mipmap 1
 albedo Stylized_Cliff_Rock_001_basecolor.png
 ao Stylized_Cliff_Rock_001_ambientOcclusion.png
 height Stylized_Cliff_Rock_001_height.png

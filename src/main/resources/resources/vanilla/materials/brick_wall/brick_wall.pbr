@@ -1,4 +1,5 @@
 newmtl brick_wall
+mipmap 1
 albedo bricks2.png
 height bricks2_disp.png
 normal bricks2_normal.png

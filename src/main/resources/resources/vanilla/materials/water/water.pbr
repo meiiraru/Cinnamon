@@ -1,4 +1,5 @@
 newmtl water
+mipmap 1
 albedo Water_002_COLOR.png
 ao Water_002_OCC.png
 height Water_002_DISP.png

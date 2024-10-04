@@ -1,4 +1,5 @@
 newmtl volcanic_rock
+mipmap 1
 albedo TCom_Rock_CliffVolcanic_512_albedo.png
 height TCom_Rock_CliffVolcanic_512_height.png
 ao TCom_Rock_CliffVolcanic_512_ao.png

@@ -1,4 +1,5 @@
 newmtl bathroom_tiles
+mipmap 1
 albedo BathroomTiles03_4K_BaseColor.png
 ao BathroomTiles03_4K_AO.png
 height BathroomTiles03_4K_Height.png

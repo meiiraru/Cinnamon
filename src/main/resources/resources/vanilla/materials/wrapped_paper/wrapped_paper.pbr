@@ -1,4 +1,5 @@
 newmtl wrapped_paper
+mipmap 1
 albedo paper_0022_color_1k.png
 ao paper_0022_ao_1k.png
 height paper_0022_height_1k.png

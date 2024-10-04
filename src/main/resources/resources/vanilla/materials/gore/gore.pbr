@@ -1,4 +1,5 @@
 newmtl gore
+mipmap 1
 albedo TCom_Gore_512_albedo.png
 ao TCom_Gore_512_ao.png
 height TCom_Gore_512_height.png
