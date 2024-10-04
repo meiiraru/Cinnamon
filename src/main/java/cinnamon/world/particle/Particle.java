@@ -45,7 +45,9 @@ public abstract class Particle extends WorldObject {
         Client.getInstance().camera.billboard(matrices);
 
         //actual render
+        matrices.push();
         renderParticle(matrices, delta);
+        matrices.pop();
 
         matrices.pop();
     }

@@ -10,7 +10,7 @@ import cinnamon.utils.Maths;
 
 public abstract class SpriteParticle extends Particle {
 
-    private final SpriteTexture texture;
+    protected final SpriteTexture texture;
     private int color;
     private float scale = 1f;
 
@@ -23,7 +23,6 @@ public abstract class SpriteParticle extends Particle {
 
     @Override
     protected void renderParticle(MatrixStack matrices, float delta) {
-        matrices.push();
         float s = PARTICLE_SCALING * scale;
         matrices.scale(-s, -s, s);
 
@@ -36,13 +35,15 @@ public abstract class SpriteParticle extends Particle {
                 texture.getUFrames(), texture.getVFrames()
         );
 
+        drawParticle(delta, isEmissive() ? VertexConsumer.MAIN : VertexConsumer.WORLD_MAIN, vertices);
+    }
+
+    protected void drawParticle(float delta, VertexConsumer consumer, Vertex[] vertices) {
+        int color = getColor();
         for (Vertex vertex : vertices)
-            vertex.color(getColor());
+            vertex.color(color);
 
-        VertexConsumer consumer = isEmissive() ? VertexConsumer.MAIN : VertexConsumer.WORLD_MAIN;
         consumer.consume(vertices, texture.getResource());
-
-        matrices.pop();
     }
 
     public int getCurrentFrame() {

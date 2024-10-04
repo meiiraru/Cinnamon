@@ -4,7 +4,6 @@ import org.joml.Vector3f;
 
 public enum Colors {
 
-    //rainbow
     PINK(0xFF72AD),
     PURPLE(0xAD72FF),
     BLUE(0x72ADFF),
@@ -14,15 +13,18 @@ public enum Colors {
     YELLOW(0xFFFF72),
     ORANGE(0xFFAD72),
     RED(0xFF7272),
+    BROWN(0x8E625F),
     LILAC(0xC8A2C8),
 
-    //grayscale
-    BROWN(0x8E625F),
     BLACK(0),
     LIGHT_BLACK(0x323232),
     DARK_GRAY(0x666666),
     LIGHT_GRAY(0xBBBBBB),
     WHITE(0xFFFFFF);
+
+    public static final Colors[]
+            RAINBOW = {PINK, PURPLE, BLUE, CYAN, LIME, YELLOW, ORANGE, RED},
+            GRAYSCALE = {BLACK, LIGHT_BLACK, DARK_GRAY, LIGHT_GRAY, WHITE};
 
     public final int rgb, rgba, r, g, b;
     public final Vector3f vec;
@@ -37,8 +39,7 @@ public enum Colors {
     }
 
     public static Colors randomRainbow() {
-        Colors[] colors = values();
-        return colors[(int) (Math.random() * 10)];
+        return RAINBOW[(int) (Math.random() * RAINBOW.length)];
     }
 
     public static Colors random() {

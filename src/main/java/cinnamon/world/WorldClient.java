@@ -32,10 +32,7 @@ import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.living.LocalPlayer;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.entity.vehicle.Cart;
-import cinnamon.world.items.Flashlight;
-import cinnamon.world.items.Item;
-import cinnamon.world.items.ItemRenderContext;
-import cinnamon.world.items.MagicWand;
+import cinnamon.world.items.*;
 import cinnamon.world.items.weapons.CoilGun;
 import cinnamon.world.items.weapons.PotatoCannon;
 import cinnamon.world.items.weapons.RiceGun;
@@ -747,6 +744,7 @@ public class WorldClient extends World {
         player.giveItem(new CoilGun(1, 5, 0));
         player.giveItem(new PotatoCannon(3, 40, 30));
         player.giveItem(new RiceGun(8, 80, 60));
+        player.giveItem(new BubleGun(1));
         player.getInventory().setItem(player.getInventory().getFreeIndex() + 1, new Flashlight(1, 0xFFFFCC));
         player.getInventory().setItem(player.getInventory().getSize() - 1, new MagicWand(1));
     }

@@ -126,6 +126,7 @@ public class EasingScreen extends ParentedScreen {
                 widget.playTime = i;
                 widget.calculatePos();
             }
+            slider.setTooltip(Text.of("%.2f".formatted(f)));
         });
         slider.setMax(EasingWidget.ANIMATION_TIME);
         slider.showValueTooltip(false);
