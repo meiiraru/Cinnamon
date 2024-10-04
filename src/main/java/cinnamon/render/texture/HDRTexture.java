@@ -13,6 +13,7 @@ import static cinnamon.Client.LOGGER;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL30.GL_RGB16F;
+import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 import static org.lwjgl.stb.STBImage.stbi_image_free;
 
 public class HDRTexture extends Texture {
@@ -22,10 +23,14 @@ public class HDRTexture extends Texture {
     }
 
     public static HDRTexture of(Resource resource) {
-        return new HDRTexture(loadTexture(resource));
+        return of(resource, false, false);
     }
 
-    private static int loadTexture(Resource res) {
+    public static HDRTexture of(Resource resource, boolean smooth, boolean mipmap) {
+        return new HDRTexture(loadTexture(resource, smooth, mipmap));
+    }
+
+    private static int loadTexture(Resource res, boolean smooth, boolean mipmap) {
         //read texture
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer w = stack.mallocInt(1);
@@ -40,14 +45,14 @@ public class HDRTexture extends Texture {
             if (buffer == null)
                 throw new Exception("Failed to load HDR image \"" + res + "\", " + STBImage.stbi_failure_reason());
 
-            return registerTexture(w.get(), h.get(), buffer);
+            return registerTexture(w.get(), h.get(), buffer, smooth, mipmap);
         } catch (Exception e) {
             LOGGER.error("Failed to load HDR texture \"{}\"", res, e);
             return MISSING.getID();
         }
     }
 
-    protected static int registerTexture(int width, int height, FloatBuffer buffer) {
+    protected static int registerTexture(int width, int height, FloatBuffer buffer, boolean smooth, boolean mipmap) {
         int id = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, id);
 
@@ -55,8 +60,13 @@ public class HDRTexture extends Texture {
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
+        if (mipmap) {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, smooth ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        } else {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
+        }
 
         stbi_image_free(buffer);
         glBindTexture(GL_TEXTURE_2D, 0);

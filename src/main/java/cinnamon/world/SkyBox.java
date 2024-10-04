@@ -15,8 +15,6 @@ import cinnamon.utils.Rotation;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
-import static org.lwjgl.opengl.GL11.glDepthMask;
-
 public class SkyBox {
 
     private static final Resource SUN = new Resource("textures/environment/sun.png");
@@ -47,9 +45,7 @@ public class SkyBox {
         //render model
         Shader.activeShader.setMat3("rotation", skyRotation);
         Shader.activeShader.setTexture("skybox", type.getTexture(), 0);
-        glDepthMask(false);
         SimpleGeometry.INVERTED_CUBE.render();
-        glDepthMask(true);
         CubeMap.unbindTex(0);
     }
 
@@ -121,7 +117,7 @@ public class SkyBox {
 
         public void loadTextures() {
             if (hdr) {
-                HDRTexture hdrTex = HDRTexture.of(new Resource("textures/environment/skybox/" + name().toLowerCase() + ".hdr"));
+                HDRTexture hdrTex = HDRTexture.of(new Resource("textures/environment/skybox/" + name().toLowerCase() + ".hdr"), true, false);
                 texture = IBLMap.hdrToCubemap(hdrTex);
             } else {
                 texture = CubeMap.of(new Resource("textures/environment/skybox/" + name().toLowerCase()));

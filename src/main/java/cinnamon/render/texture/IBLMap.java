@@ -19,7 +19,7 @@ public class IBLMap {
     private static final Matrix4f CAPTURE_PROJECTION = new Matrix4f().perspective((float) Math.toRadians(90f), 1f, 0.1f, 10f);
 
     public static CubeMap hdrToCubemap(HDRTexture hdr) {
-        int id = generateEmptyMap(512, GL_LINEAR_MIPMAP_LINEAR);
+        int id = generateEmptyMap(512, false);
 
         Shader s = Shaders.EQUIRECTANGULAR_TO_CUBEMAP.getShader().use();
         s.setTexture("equirectangularMap", hdr, 0);
@@ -35,15 +35,11 @@ public class IBLMap {
         }
 
         Framebuffer.DEFAULT_FRAMEBUFFER.use();
-
-        glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-
         return new CubeMap(id);
     }
 
     public static CubeMap generateIrradianceMap(CubeMap cubemap) {
-        int id = generateEmptyMap(32, GL_LINEAR);
+        int id = generateEmptyMap(32, false);
 
         glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 
@@ -65,8 +61,7 @@ public class IBLMap {
     }
 
     public static CubeMap generatePrefilterMap(CubeMap cubemap) {
-        int id = generateEmptyMap(128, GL_LINEAR_MIPMAP_LINEAR);
-        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+        int id = generateEmptyMap(128, true);
 
         Shader s = Shaders.PREFILTER.getShader().use();
         s.setTexture("environmentMap", cubemap, 0);
@@ -116,7 +111,7 @@ public class IBLMap {
         return new Texture(id);
     }
 
-    private static int generateEmptyMap(int size, int minFilter) {
+    private static int generateEmptyMap(int size, boolean mipmap) {
         int id = glGenTextures();
         glBindTexture(GL_TEXTURE_CUBE_MAP, id);
 
@@ -126,8 +121,14 @@ public class IBLMap {
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, minFilter);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        if (mipmap) {
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+        }
+        else {
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        }
 
         return id;
     }
