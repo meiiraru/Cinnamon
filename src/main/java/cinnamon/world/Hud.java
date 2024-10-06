@@ -94,7 +94,8 @@ public class Hud {
         drawHitDirection(matrices, player, delta);
 
         //selected terrain
-        drawSelectedTerrain(matrices, delta);
+        if (!Client.getInstance().world.isDebugRendering())
+            drawSelectedTerrain(matrices, delta);
     }
 
     private void drawHealth(MatrixStack matrices, Player player, float delta) {
@@ -299,26 +300,39 @@ public class Hud {
         WorldClient w = c.world;
         int t = w.getSelectedTerrain();
         int m = w.getSelectedMaterial();
+        float s = 15;
+
+        TerrainRegistry registry = TerrainRegistry.values()[t];
+        Terrain terr = registry.getFactory().get();
+        MaterialRegistry material = MaterialRegistry.values()[m];
+        terr.setMaterial(material.material);
+
+        Vector3f bounds = terr.getAABB().getDimensions();
+        Vector3f center = terr.getAABB().getCenter();
 
         matrices.push();
         Window ww = c.window;
-        matrices.translate(ww.scaledWidth - 12.5f, 5, 0);
-        matrices.scale(15);
+
+        //translate to the right corner, leaving space for the name
+        matrices.translate(ww.scaledWidth - 4f - bounds.x * s * 0.5f - c.font.lineHeight * 2f - 4f, 4 + bounds.y * s * 0.5f, 0);
+        matrices.scale(s, -s, s);
+
+        //apply rotation for a better view angle of the model
         matrices.rotate(Rotation.X.rotationDeg(20));
-        matrices.rotate(Rotation.Y.rotationDeg(c.ticks + delta));
+        matrices.rotate(Rotation.Y.rotationDeg(-c.ticks - delta));
 
-        matrices.push();
-        matrices.translate(-0.5f, 0f, -0.5f);
+        //offset to center of the model
+        matrices.translate(-center.x, -center.y, -center.z);
 
-        Terrain terr = TerrainRegistry.values()[t].getFactory().get();
-        MaterialRegistry material = MaterialRegistry.values()[m];
-        terr.setMaterial(material.material);
+        //render terrain
         terr.render(matrices, delta);
-
-        matrices.pop();
         matrices.pop();
 
-        c.font.render(VertexConsumer.FONT, matrices, ww.scaledWidth - 4f, 25f, Text.of(material.name()).withStyle(Style.EMPTY.shadow(true)), Alignment.RIGHT);
+        //render name
+        matrices.push();
+        matrices.rotate(Rotation.Z.rotationDeg(90));
+        c.font.render(VertexConsumer.FONT, matrices, 4f, -ww.scaledWidth + 4f, Text.of(material.name() + "\n" + registry.name()).withStyle(Style.EMPTY.shadow(true)), Alignment.LEFT);
+        matrices.pop();
     }
 
     private void drawCrosshair(MatrixStack matrices, Matrix4f projMat, Matrix4f viewMat) {
@@ -367,17 +381,7 @@ public class Hud {
 
         Vector3f chunk = new Vector3f(w.getChunkGridPos(epos));
 
-        String face;
-        float yaw = Maths.modulo(crot.y, 360);
-        if (yaw >= 45 && yaw < 135) {
-            face = "East X+";
-        } else if (yaw >= 135 && yaw < 225) {
-            face = "South Z+";
-        } else if (yaw >= 225 && yaw < 315) {
-            face = "West X-";
-        } else {
-            face = "North Z-";
-        }
+        String face = Direction.fromRotation(crot.y).name;
 
         String camera;
         camera = switch (w.getCameraMode()) {

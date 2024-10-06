@@ -9,31 +9,33 @@ import cinnamon.world.terrain.*;
 import java.util.function.Supplier;
 
 public enum TerrainRegistry implements Registry {
-    BOX(Box.class, Box::new),
-    SPHERE(Sphere.class, Sphere::new),
-    TEAPOT(Teapot.class, Teapot::new);
+    BOX,
+    SPHERE,
+    TEAPOT(Teapot::new);
 
     private static final String MODELS_PATH = "models/terrain/";
 
     public final Resource resource;
     public Model model;
 
-    private final Class<? extends Terrain> clazz;
     private final Supplier<Terrain> factory;
 
-    TerrainRegistry(Class<? extends Terrain> clazz, Supplier<Terrain> factory) {
-        //fields
-        this.clazz = clazz;
-        this.factory = factory;
+    TerrainRegistry() {
+        this(null);
+    }
 
+    TerrainRegistry(Supplier<Terrain> factory) {
         //model
         String name = name().toLowerCase();
         this.resource = new Resource(MODELS_PATH + name + "/" + name + ".obj");
+
+        //factory
+        this.factory = factory != null ? factory : () -> new Terrain(this);
     }
 
     @Override
     public void register(Kryo kryo) {
-        kryo.register(clazz);
+        //kryo.register(clazz);
     }
 
     public Supplier<Terrain> getFactory() {

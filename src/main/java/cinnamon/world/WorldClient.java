@@ -22,6 +22,7 @@ import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.text.Text;
 import cinnamon.utils.AABB;
+import cinnamon.utils.Direction;
 import cinnamon.utils.Maths;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
@@ -587,6 +588,7 @@ public class WorldClient extends World {
                             Terrain t = TerrainRegistry.values()[selectedTerrain].getFactory().get();
                             t.setMaterial(MaterialRegistry.values()[selectedMaterial].material);
                             setTerrain(t, (int) tpos.x, (int) tpos.y, (int) tpos.z);
+                            t.setRotation(Direction.fromRotation(player.getRot().y).invRotation);
                         }
                     }
                 }
@@ -693,7 +695,7 @@ public class WorldClient extends World {
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
             //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));
 
-            case GLFW_KEY_COMMA -> selectedTerrain = (selectedTerrain + 1) % (TerrainRegistry.values().length - 1); //no teapot
+            case GLFW_KEY_COMMA -> selectedTerrain = (selectedTerrain + 1) % (TerrainRegistry.values().length);
             case GLFW_KEY_PERIOD -> selectedMaterial = Maths.modulo((selectedMaterial + (shift ? -1 : 1)), MaterialRegistry.values().length);
         }
     }

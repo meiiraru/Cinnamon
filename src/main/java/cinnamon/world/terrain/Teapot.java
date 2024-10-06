@@ -5,6 +5,11 @@ import cinnamon.registry.TerrainRegistry;
 import cinnamon.world.particle.ElectroParticle;
 
 public class Teapot extends Terrain {
+
+    public Teapot() {
+        super(TerrainRegistry.TEAPOT);
+    }
+
     @Override
     public void tick() {
         super.tick();
@@ -14,10 +19,5 @@ public class Teapot extends Terrain {
             e.setPos(getAABB().getRandomPoint());
             getWorld().addParticle(e);
         }
-    }
-
-    @Override
-    public TerrainRegistry getType() {
-        return TerrainRegistry.TEAPOT;
     }
 }

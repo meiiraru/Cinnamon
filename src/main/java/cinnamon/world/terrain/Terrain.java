@@ -16,9 +16,10 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Terrain extends WorldObject {
+public class Terrain extends WorldObject {
 
     protected final Model model;
+    private final TerrainRegistry type;
 
     private AABB aabb; //the entire model's AABB
     private final List<AABB> groupsAABB = new ArrayList<>(); //group's AABB
@@ -26,7 +27,8 @@ public abstract class Terrain extends WorldObject {
     private byte rotation = 0;
     private Material overrideMaterial;
 
-    public Terrain() {
+    public Terrain(TerrainRegistry type) {
+        this.type = type;
         this.model = getType().model;
         this.updateAABB();
     }
@@ -92,6 +94,7 @@ public abstract class Terrain extends WorldObject {
 
     public void setRotation(byte rotation) {
         this.rotation = rotation;
+        this.updateAABB();
     }
 
     public int getRotation() {
@@ -111,5 +114,7 @@ public abstract class Terrain extends WorldObject {
     }
 
     @Override
-    public abstract TerrainRegistry getType();
+    public TerrainRegistry getType() {
+        return type;
+    }
 }
