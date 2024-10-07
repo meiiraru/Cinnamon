@@ -57,14 +57,14 @@ public class RiceBall extends Projectile {
         if (mot.lengthSquared() > 0f)
             mot.normalize();
 
-        Matrix3f rot = Maths.getDirMat(motion);
+        Matrix3f dir = Maths.getDirMat(motion);
 
         for (int i = 0; i < SPLIT_AMOUNT; i++) {
             Projectile proj = new Rice(UUID.randomUUID(), owner, SPLIT_LIFE, this.speed, CRIT_CHANCE);
 
             //pos
             proj.setPos(this.getPos());
-            proj.setRot(Maths.dirToRot(Maths.spread(rot, SPREAD_ANGLE, SPREAD_ANGLE)));
+            proj.setRot(Maths.dirToRot(Maths.spread(dir, SPREAD_ANGLE, SPREAD_ANGLE)));
 
             //add
             world.addEntity(proj);

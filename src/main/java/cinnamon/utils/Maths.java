@@ -365,7 +365,7 @@ public class Maths {
         );
     }
 
-    public static Vector3f spread(Matrix3f rotMatrix, float pitch, float yaw) {
+    public static Vector3f spread(Matrix3f dirMatrix, float pitch, float yaw) {
         float r1 = (float) Math.toRadians(Math.random() * 2f - 1f) * yaw;
         float r2 = (float) Math.toRadians(Math.random() * 2f - 1f) * pitch;
 
@@ -375,12 +375,12 @@ public class Maths {
                 (float) (Math.cos(r1) * Math.cos(r2))
         );
 
-        return rotVec.mul(rotMatrix);
+        return rotVec.mul(dirMatrix);
     }
 
     public static Vector3f spread(Vector3f dir, float pitch, float yaw) {
-        Matrix3f rotMatrix = getDirMat(dir);
-        return spread(rotMatrix, pitch, yaw);
+        Matrix3f dirMatrix = getDirMat(dir);
+        return spread(dirMatrix, pitch, yaw);
     }
 
     private static final float

@@ -32,9 +32,10 @@ public class BubbleGun extends Item {
 
         //motion
         motion = Maths.spread(motion, 45f, 45f).mul(0.1f);
+        motion.y = (float) (Math.random() * 0.05f) + 0.001f;
 
         if (source instanceof PhysEntity pe)
-            motion.add(new Vector3f(pe.getMotion()).mul(0.2f));
+            motion.add(pe.getMotion());
 
         particle.setMotion(motion);
 
