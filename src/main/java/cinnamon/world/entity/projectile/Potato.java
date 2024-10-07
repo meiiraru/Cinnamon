@@ -76,13 +76,13 @@ public class Potato extends Projectile {
 
         //color
         float t2 = Math.min(lifetime / 30f, 1f);
-        Shader.activeShader.applyColor(ColorUtils.lerpRGBColor(0xFF8888, -1, t2));
+        Shader.activeShader.applyColor(ColorUtils.lerpRGBColor(0xFF8888, 0xFFFFFF, t2));
 
         //render
         super.renderModel(matrices, delta);
 
         //reset
-        Shader.activeShader.applyColor(-1);
+        Shader.activeShader.applyColor(0xFFFFFF);
     }
 
     @Override

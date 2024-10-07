@@ -325,12 +325,12 @@ public class WordleScreen extends ParentedScreen {
 
     @Override
     protected void renderBackground(MatrixStack matrices, float delta) {
-        GeometryHelper.rectangle(
-                VertexConsumer.GUI, matrices,
+        VertexConsumer.GUI.consume(GeometryHelper.rectangle(
+                matrices,
                 0, 0,
                 width, height,
                 -999, 0xFF202020
-        );
+        ));
     }
 
     private void saveGame() {
@@ -444,12 +444,12 @@ public class WordleScreen extends ParentedScreen {
 
         @Override
         public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            GeometryHelper.rectangle(
-                    VertexConsumer.GUI, matrices,
+            VertexConsumer.GUI.consume(GeometryHelper.rectangle(
+                    matrices,
                     getX(), getY(),
                     getX() + getWidth(), getY() + getHeight(),
                     -1, color.rgba
-            );
+            ));
 
             if (text != null) {
                 Font f = Client.getInstance().font;
@@ -584,12 +584,12 @@ public class WordleScreen extends ParentedScreen {
 
         @Override
         protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            GeometryHelper.rectangle(
-                    VertexConsumer.GUI, matrices,
+            VertexConsumer.GUI.consume(GeometryHelper.rectangle(
+                    matrices,
                     getX(), getY(),
                     getX() + getWidth(), getY() + getHeight(),
                     -1, COLORS[isHoveredOrFocused() ? 6 : status].rgba
-            );
+            ));
         }
 
         public void setStatus(int status) {

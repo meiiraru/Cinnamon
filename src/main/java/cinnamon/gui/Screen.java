@@ -154,7 +154,7 @@ public abstract class Screen {
         int c = ColorUtils.lerpARGBColor(c3, c2, t);
         int d = ColorUtils.lerpARGBColor(c4, c1, t);
 
-        GeometryHelper.rectangle(VertexConsumer.GUI, matrices, 0, 0, width, height, -999, a, b, c, d);
+        GeometryHelper.drawRectangle(VertexConsumer.GUI, matrices, 0, 0, width, height, -999, a, b, c, d);
          */
 
         Shader oldShader = Shader.activeShader;
@@ -180,7 +180,7 @@ public abstract class Screen {
         Vertex[] vertices = GeometryHelper.quad(matrices, 0, 0, width, height);
         for (Vertex vertex : vertices)
             vertex.color(0x88 << 24);
-        VertexConsumer.GUI.consume(vertices, -1);
+        VertexConsumer.GUI.consume(vertices);
 
         matrices.pop();
     }

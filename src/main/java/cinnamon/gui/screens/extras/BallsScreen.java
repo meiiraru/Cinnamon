@@ -70,12 +70,12 @@ public class BallsScreen extends ParentedScreen {
 
     @Override
     protected void renderBackground(MatrixStack matrices, float delta) {
-        GeometryHelper.rectangle(
-                VertexConsumer.GUI, matrices,
+        VertexConsumer.GUI.consume(GeometryHelper.rectangle(
+                matrices,
                 0, 0,
                 width, height,
                 -999, 0
-        );
+        ));
     }
 
     @Override
@@ -114,7 +114,7 @@ public class BallsScreen extends ParentedScreen {
         }
 
         public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            GeometryHelper.circle(VertexConsumer.GUI, matrices, pos.x, pos.y, radius, 12, color);
+            VertexConsumer.GUI.consume(GeometryHelper.circle(matrices, pos.x, pos.y, radius, 12, color));
         }
 
         public void applyForce(Vector2f force) {

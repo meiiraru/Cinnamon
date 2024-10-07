@@ -218,7 +218,7 @@ public abstract class LivingEntity extends PhysEntity {
 
     protected void spawnDeathParticles() {
         for (int i = 0; i < 20; i++) {
-            SmokeParticle particle = new SmokeParticle((int) (Math.random() * 15) + 10, -1);
+            SmokeParticle particle = new SmokeParticle((int) (Math.random() * 15) + 10, 0xFFFFFFFF);
             particle.setPos(aabb.getRandomPoint());
             world.addParticle(particle);
         }

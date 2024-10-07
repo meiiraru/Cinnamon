@@ -215,7 +215,7 @@ public class Shader {
     public void setup(Matrix4f proj, Matrix4f view) {
         applyProjectionMatrix(proj);
         applyViewMatrix(view);
-        applyColor(-1);
+        applyColor(0xFFFFFF);
     }
 
     public void applyColor(int color) {

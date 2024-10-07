@@ -285,7 +285,7 @@ public class Hud {
 
         //draw
         Vertex[] vertices = GeometryHelper.quad(matrices, -16f, -16f, 32, 32);
-        int color = ColorUtils.lerpARGBColor(0x00FFFFFF, -1, Math.min(ticks - delta, 5) / 5f);
+        int color = ColorUtils.lerpARGBColor(0x00FFFFFF, 0xFFFFFFFF, Math.min(ticks - delta, 5) / 5f);
 
         for (Vertex vertex : vertices)
             vertex.color(color);
@@ -350,9 +350,9 @@ public class Hud {
             matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
 
             float len = 10;
-            GeometryHelper.pushCube(VertexConsumer.GUI, matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000);
-            GeometryHelper.pushCube(VertexConsumer.GUI, matrices, 0, 0, 0, 1, -len, 1, 0xFF00FF00);
-            GeometryHelper.pushCube(VertexConsumer.GUI, matrices, 0, 0, 0, 1, 1, -len, 0xFF0000FF);
+            VertexConsumer.GUI.consume(GeometryHelper.cube(matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000));
+            VertexConsumer.GUI.consume(GeometryHelper.cube(matrices, 0, 0, 0, 1, -len, 1, 0xFF00FF00));
+            VertexConsumer.GUI.consume(GeometryHelper.cube(matrices, 0, 0, 0, 1, 1, -len, 0xFF0000FF));
 
             matrices.pop();
         } else {

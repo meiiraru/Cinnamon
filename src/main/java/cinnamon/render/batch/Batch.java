@@ -112,7 +112,7 @@ public abstract class Batch { //vertex consumer
 
     public boolean pushFace(Vertex[] vertices, int textureID) {
         //cant add
-        if (isFull(getUnwrappedVertexCount(vertices)))
+        if (vertices == null || vertices.length == 0 || isFull(getUnwrappedVertexCount(vertices)))
             return false;
 
         //add texture

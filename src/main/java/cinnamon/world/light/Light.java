@@ -9,7 +9,7 @@ public class Light {
             pos = new Vector3f(),
             attenuation = new Vector3f(1f, 4.5f / 16f, 75 / (16f * 16f));
     private float brightness = 16f;
-    private int color = -1;
+    private int color = 0xFFFFFF;
 
     public void pushToShader(Shader shader, int index) {
         String prefix = "lights[" + index + "].";

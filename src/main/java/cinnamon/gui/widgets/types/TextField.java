@@ -239,7 +239,7 @@ public class TextField extends SelectableWidget implements Tickable {
             matrices.push();
             //translate matrices so we can render on top of text
             matrices.translate(0, 0, GUIStyle.depthOffset * Font.Z_DEPTH);
-            GeometryHelper.rectangle(VertexConsumer.GUI, matrices, x, y, x + (insert ? INSERT_WIDTH : GUIStyle.cursorWidth), y + height, borderColor == null ? -1 : borderColor);
+            VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y, x + (insert ? INSERT_WIDTH : GUIStyle.cursorWidth), y + height, borderColor == null ? 0xFFFFFFFF : borderColor));
             matrices.pop();
         }
     }
@@ -248,7 +248,7 @@ public class TextField extends SelectableWidget implements Tickable {
         float t = x0;
         x0 = Math.min(x0, x1);
         x1 = Math.max(t, x1);
-        GeometryHelper.rectangle(VertexConsumer.GUI, matrices, x0, y, x1, y + height, selectionColor == null ? GUIStyle.accentColor : selectionColor);
+        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x0, y, x1, y + height, selectionColor == null ? GUIStyle.accentColor : selectionColor));
     }
 
 

@@ -74,11 +74,11 @@ public class Slider extends SelectableWidget {
         int v = state * 4;
 
         //left
-        renderHorizontalBar(matrices, x, y, left, 0f, v, -1);
+        renderHorizontalBar(matrices, x, y, left, 0f, v, 0xFFFFFFFF);
         renderHorizontalBar(matrices, x, y, left, 0f, 12f, color == null ? GUIStyle.accentColor : color);
 
         //right
-        renderHorizontalBar(matrices, x + width + 8 - right, y, right, 9f, v, -1);
+        renderHorizontalBar(matrices, x + width + 8 - right, y, right, 9f, v, 0xFFFFFFFF);
 
         //steps
         renderSteps(matrices, x, y, width, 3, 4, state * 3f + 9f, 12f);
@@ -110,11 +110,11 @@ public class Slider extends SelectableWidget {
         int u = state * 4 + 18;
 
         //up
-        renderVerticalBar(matrices, x, y, up, u, 0f, -1);
+        renderVerticalBar(matrices, x, y, up, u, 0f, 0xFFFFFFFF);
         renderVerticalBar(matrices, x, y, up, 30f, 0f, color == null ? GUIStyle.accentColor : color);
 
         //down
-        renderVerticalBar(matrices, x, y + height + 8 - down, down, u, 9f, -1);
+        renderVerticalBar(matrices, x, y + height + 8 - down, down, u, 9f, 0xFFFFFFFF);
 
         //steps
         renderSteps(matrices, x, y, height, 4, 3, 30f, state * 3f + 9f);

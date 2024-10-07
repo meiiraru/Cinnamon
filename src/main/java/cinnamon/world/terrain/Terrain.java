@@ -53,7 +53,7 @@ public class Terrain extends WorldObject {
     }
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {
-        renderAABB(matrices, aabb, -1);
+        renderAABB(matrices, aabb, 0xFFFFFFFF);
 
         for (AABB aabb : groupsAABB)
             renderAABB(matrices, aabb, 0xFFFF00FF);
@@ -61,7 +61,7 @@ public class Terrain extends WorldObject {
 
     private static void renderAABB(MatrixStack matrices, AABB aabb, int color) {
         Vector3f min = aabb.getMin(); Vector3f max = aabb.getMax();
-        GeometryHelper.pushCube(VertexConsumer.LINES, matrices, min.x, min.y, min.z, max.x, max.y, max.z, color);
+        VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, min.x, min.y, min.z, max.x, max.y, max.z, color));
     }
 
     protected void updateAABB() {

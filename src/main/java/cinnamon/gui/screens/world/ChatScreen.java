@@ -47,7 +47,7 @@ public class ChatScreen extends Screen {
     @Override
     protected void renderBackground(MatrixStack matrices, float delta) {
         //super.renderBackground(matrices, delta);
-        GeometryHelper.rectangle(VertexConsumer.GUI, matrices, field.getX(), field.getY(), field.getX() + field.getWidth(), field.getY() + field.getHeight(), 0x80000000);
+        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, field.getX(), field.getY(), field.getX() + field.getWidth(), field.getY() + field.getHeight(), 0x80000000));
     }
 
     @Override

@@ -67,32 +67,32 @@ public class CollisionScreen extends ParentedScreen {
         boolean collided = collision != null;
 
         //draw box
-        GeometryHelper.rectangle(VertexConsumer.GUI, matrices, aabb.minX(), aabb.minY(), aabb.maxX(), aabb.maxY(), collided ? 0xFFFF72AD : 0xFFAD72FF);
+        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, aabb.minX(), aabb.minY(), aabb.maxX(), aabb.maxY(), collided ? 0xFFFF72AD : 0xFFAD72FF));
 
         if (collided) {
             float n = collision.near();
             Vector3f near = new Vector3f(pos).add(len.x * n, len.y * n, len.z * n);
-            GeometryHelper.rectangle(VertexConsumer.GUI, matrices, near.x - 3, near.y - 3, near.x + 3, near.y + 3, 0xFF72ADFF);
+            VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, near.x - 3, near.y - 3, near.x + 3, near.y + 3, 0xFF72ADFF));
 
             float f = collision.far();
             Vector3f far = new Vector3f(pos).add(len.x * f, len.y * f, len.z * f);
-            GeometryHelper.rectangle(VertexConsumer.GUI, matrices, far.x - 3, far.y - 3, far.x + 3, far.y + 3, 0xFFFFAD72);
+            VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, far.x - 3, far.y - 3, far.x + 3, far.y + 3, 0xFFFFAD72));
 
             Vector3f normal = collision.normal();
-            GeometryHelper.drawLine(VertexConsumer.GUI, matrices, near.x, near.y, near.x + normal.x * 10, near.y + normal.y * 10, 1, 0xFF72FF72);
+            VertexConsumer.GUI.consume(GeometryHelper.line(matrices, near.x, near.y, near.x + normal.x * 10, near.y + normal.y * 10, 1, 0xFF72FF72));
         }
 
         //draw line
-        GeometryHelper.drawLine(VertexConsumer.GUI, matrices, pos.x, pos.y, mouseX, mouseY, 1, collided ? 0xFFFFFF00 : -1);
+        VertexConsumer.GUI.consume(GeometryHelper.line(matrices, pos.x, pos.y, mouseX, mouseY, 1, collided ? 0xFFFFFF00 : 0xFFFFFFFF));
     }
 
     private void aabbVsAABB(MatrixStack matrices) {
         //draw box
         if (collision != null)
-            GeometryHelper.rectangle(VertexConsumer.LINES, matrices, aabb.minX(), aabb.minY(), aabb.maxX(), aabb.maxY(), 0xFFFFFF00);
+            VertexConsumer.LINES.consume(GeometryHelper.rectangle(matrices, aabb.minX(), aabb.minY(), aabb.maxX(), aabb.maxY(), 0xFFFFFF00));
 
         //draw player
-        GeometryHelper.rectangle(VertexConsumer.GUI, matrices, player.minX(), player.minY(), player.maxX(), player.maxY(), 0xFFFF72AD);
+        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, player.minX(), player.minY(), player.maxX(), player.maxY(), 0xFFFF72AD));
     }
 
     @Override

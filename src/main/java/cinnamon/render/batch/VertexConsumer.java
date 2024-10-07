@@ -34,6 +34,15 @@ public enum VertexConsumer {
         consume(vertices, Texture.of(texture, smooth, mipmap).getID());
     }
 
+    public void consume(Vertex[] vertices) {
+        consume(vertices, -1);
+    }
+
+    public void consume(Vertex[][] vertices) {
+        for (Vertex[] vertex : vertices)
+            consume(vertex);
+    }
+
     public void consume(Vertex[] vertices, int texture) {
         renderer.consume(vertices, texture);
     }

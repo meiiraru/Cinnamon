@@ -55,7 +55,7 @@ public class CurveMaker extends CooldownItem {
         //control points
         float s = 0.25f;
         for (Vector3f vec : curve.getControlPoints())
-            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, vec.x - s, vec.y - s, vec.z - s, vec.x + s, vec.y + s, vec.z + s, -1);
+            VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, vec.x - s, vec.y - s, vec.z - s, vec.x + s, vec.y + s, vec.z + s, 0xFFFFFFFF));
 
         //curves
         renderCurve(matrices, curve.getInternalCurve(), 0x8888FF);
@@ -76,7 +76,7 @@ public class CurveMaker extends CooldownItem {
         for (int i = 0; i < size - 1; i++) {
             Vector3f a = curve.get(i);
             Vector3f b = curve.get(i + 1);
-            GeometryHelper.drawLine(VertexConsumer.LINES, matrices, a.x, a.y, a.z, b.x, b.y, b.z, 0f, color + (0xFF << 24));
+            VertexConsumer.LINES.consume(GeometryHelper.line(matrices, a.x, a.y, a.z, b.x, b.y, b.z, 0f, color + (0xFF << 24)));
         }
     }
 

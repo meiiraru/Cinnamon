@@ -440,7 +440,7 @@ public class WorldClient extends World {
 
             float r = 0.125f;
             int color = l.getColor() + (0xFF << 24);
-            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, pos.x - r, pos.y - r, pos.z - r, pos.x + r, pos.y + r, pos.z + r, color);
+            VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, pos.x - r, pos.y - r, pos.z - r, pos.x + r, pos.y + r, pos.z + r, color));
         }
     }
 
@@ -451,16 +451,16 @@ public class WorldClient extends World {
         Hit<Terrain> terrain = player.getLookingTerrain(r);
         if (terrain != null) {
             Vector3f pos = terrain.pos();
-            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF);
+            VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF));
         }
 
         Hit<Entity> entity = player.getLookingEntity(r);
         if (entity != null) {
             AABB aabb = entity.obj().getAABB();
-            GeometryHelper.pushCube(VertexConsumer.LINES, matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00);
+            VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00));
 
             Vector3f pos = entity.pos();
-            GeometryHelper.pushCube(VertexConsumer.MAIN, matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF);
+            VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF));
         }
     }
 
@@ -472,9 +472,8 @@ public class WorldClient extends World {
 
         int alpha = (int) Maths.lerp(0x32, 0xFF, ((float) Math.sin((client.ticks + delta) * 0.15f) + 1f) * 0.5f);
 
-        for (AABB aabb : terrain.obj().getGroupsAABB()) {
-            GeometryHelper.pushCube(VertexConsumer.LINES, matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF + (alpha << 24));
-        }
+        for (AABB aabb : terrain.obj().getGroupsAABB())
+            VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF + (alpha << 24)));
     }
 
     public void applyWorldUniforms(Shader s) {

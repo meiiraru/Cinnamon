@@ -226,7 +226,7 @@ public class EasingScreen extends ParentedScreen {
         @Override
         public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
             //background
-            GeometryHelper.rectangle(VertexConsumer.GUI, matrices, getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x88000000);
+            VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x88000000));
 
             //graph
             matrices.push();
@@ -239,18 +239,18 @@ public class EasingScreen extends ParentedScreen {
 
                 Vector2f a = points.get(i);
                 Vector2f b = points.get(i + 1);
-                GeometryHelper.drawLine(VertexConsumer.GUI, matrices, a.x, a.y, b.x, b.y, 1f, color + (0xFF << 24));
+                VertexConsumer.GUI.consume(GeometryHelper.line(matrices, a.x, a.y, b.x, b.y, 1f, color + (0xFF << 24)));
             }
 
             //cursor
             int color = this.color + (0xFF << 24);
             Vector2f a = Maths.lerp(oPos, pos, delta);
 
-            GeometryHelper.circle(VertexConsumer.GUI, matrices, a.x, a.y, 2, 12, color);
+            VertexConsumer.GUI.consume(GeometryHelper.circle(matrices, a.x, a.y, 2, 12, color));
 
             if (renderLines) {
-                GeometryHelper.rectangle(VertexConsumer.GUI, matrices, 0f, a.y, getWidth(), a.y + 1, color);
-                GeometryHelper.rectangle(VertexConsumer.GUI, matrices, a.x, 0f, a.x + 1, getHeight(), color);
+                VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, 0f, a.y, getWidth(), a.y + 1, color));
+                VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, a.x, 0f, a.x + 1, getHeight(), color));
             }
 
             matrices.pop();

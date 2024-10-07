@@ -48,7 +48,7 @@ public class RiceBall extends Projectile {
             return;
 
         //poof particle
-        Particle particle = new SmokeParticle(10, -1);
+        Particle particle = new SmokeParticle(10, 0xFFFFFFFF);
         particle.setPos(this.getPos());
         world.addParticle(particle);
 

@@ -106,7 +106,7 @@ public enum PostProcess {
         s.setFloat("intensity", 0.2f);
         s.setFloat("maskSize", 0.5f);
         s.setFloat("maskStrength", 0.5f);
-        s.setColor("color", -1);
+        s.setColor("color", 0xFFFFFF);
         return COLOR_UNIFORM.apply(fb, s);
     }),
     DOT_GRID((fb, s) -> {
