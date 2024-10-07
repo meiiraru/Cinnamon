@@ -746,7 +746,7 @@ public class WorldClient extends World {
         player.giveItem(new CoilGun(1, 5, 0));
         player.giveItem(new PotatoCannon(3, 40, 30));
         player.giveItem(new RiceGun(8, 80, 60));
-        player.giveItem(new BubleGun(1));
+        player.giveItem(new BubbleGun(1));
         player.getInventory().setItem(player.getInventory().getFreeIndex() + 1, new Flashlight(1, 0xFFFFCC));
         player.getInventory().setItem(player.getInventory().getSize() - 1, new MagicWand(1));
     }
