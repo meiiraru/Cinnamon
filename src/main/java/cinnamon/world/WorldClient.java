@@ -26,6 +26,7 @@ import cinnamon.utils.Direction;
 import cinnamon.utils.Maths;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.Spawner;
 import cinnamon.world.entity.collectable.EffectBox;
 import cinnamon.world.entity.collectable.HealthPack;
 import cinnamon.world.entity.living.Dummy;
@@ -90,9 +91,6 @@ public class WorldClient extends World {
     //terrain
     private int selectedTerrain = TerrainRegistry.BOX.ordinal();
     private int selectedMaterial = MaterialRegistry.GRASS.ordinal();
-
-    //temp
-    private Entity effectBox, healthPack;
 
     @Override
     public void init() {
@@ -167,6 +165,14 @@ public class WorldClient extends World {
         Dummy d2 = new Dummy(UUID.randomUUID());
         d2.setPos(-15, 2, 10);
         this.addEntity(d2);
+
+        Spawner effectBox = new Spawner(UUID.randomUUID(), 100, () -> new EffectBox(UUID.randomUUID()));
+        effectBox.setPos(-1.5f, 2f, 10f);
+        this.addEntity(effectBox);
+
+        Spawner healthPack = new Spawner(UUID.randomUUID(), 100, () -> new HealthPack(UUID.randomUUID()));
+        healthPack.setPos(2.5f, 2f, 10f);
+        this.addEntity(healthPack);
     }
 
     @Override
@@ -182,21 +188,6 @@ public class WorldClient extends World {
         //if the player is dead, show death screen
         if (player.isDead() && client.screen == null)
             client.setScreen(new DeathScreen());
-
-        //every 10s
-        if (timeOfTheDay % 200 == 1) {
-            if (effectBox == null || effectBox.isRemoved()) {
-                effectBox = new EffectBox(UUID.randomUUID());
-                effectBox.setPos(-1.5f, 2f, 10f);
-                addEntity(effectBox);
-            }
-
-            if (healthPack == null || healthPack.isRemoved()) {
-                healthPack = new HealthPack(UUID.randomUUID());
-                healthPack.setPos(2.5f, 2f, 10f);
-                addEntity(healthPack);
-            }
-        }
 
         //process input
         this.movement.tick(player);

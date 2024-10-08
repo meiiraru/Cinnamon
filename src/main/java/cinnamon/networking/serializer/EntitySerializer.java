@@ -1,15 +1,12 @@
 package cinnamon.networking.serializer;
 
+import cinnamon.world.entity.Entity;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import cinnamon.registry.EntityRegistry;
-import cinnamon.world.entity.Entity;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-
-import java.util.UUID;
 
 public class EntitySerializer extends Serializer<Entity> {
 
@@ -39,6 +36,7 @@ public class EntitySerializer extends Serializer<Entity> {
 
     @Override
     public Entity read(Kryo kryo, Input input, Class<? extends Entity> type) {
+        /*
         //uuid
         UUID uuid = kryo.readObject(input, UUID.class);
 
@@ -54,5 +52,8 @@ public class EntitySerializer extends Serializer<Entity> {
 
         //add
         return entity;
+         */
+
+        return null;
     }
 }

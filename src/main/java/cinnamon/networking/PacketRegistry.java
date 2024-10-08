@@ -3,7 +3,6 @@ package cinnamon.networking;
 import com.esotericsoftware.kryo.Kryo;
 import cinnamon.networking.packet.*;
 import cinnamon.networking.serializer.*;
-import cinnamon.registry.*;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.living.Player;
@@ -31,14 +30,14 @@ public final class PacketRegistry {
 
         //terrain
         kryo.addDefaultSerializer(Terrain.class, TerrainSerializer.class);
-        Registry.registerType(kryo, TerrainRegistry.class);
+        //Registry.registerType(kryo, TerrainRegistry.class);
 
         //entity
         kryo.addDefaultSerializer(Entity.class, EntitySerializer.class);
         kryo.addDefaultSerializer(Projectile.class, ProjectileSerializer.class);
         kryo.addDefaultSerializer(LivingEntity.class, LivingEntitySerializer.class);
         kryo.addDefaultSerializer(Player.class, PlayerEntitySerializer.class);
-        Registry.registerType(kryo, EntityRegistry.class);
+        //Registry.registerType(kryo, EntityRegistry.class);
 
         // -- packets -- //
 

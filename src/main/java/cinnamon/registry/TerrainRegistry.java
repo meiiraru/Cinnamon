@@ -1,14 +1,14 @@
 package cinnamon.registry;
 
-import com.esotericsoftware.kryo.Kryo;
 import cinnamon.model.ModelManager;
 import cinnamon.render.Model;
 import cinnamon.utils.Resource;
-import cinnamon.world.terrain.*;
+import cinnamon.world.terrain.Teapot;
+import cinnamon.world.terrain.Terrain;
 
 import java.util.function.Supplier;
 
-public enum TerrainRegistry implements Registry {
+public enum TerrainRegistry {
     BOX,
     SPHERE,
     TEAPOT(Teapot::new);
@@ -31,11 +31,6 @@ public enum TerrainRegistry implements Registry {
 
         //factory
         this.factory = factory != null ? factory : () -> new Terrain(this);
-    }
-
-    @Override
-    public void register(Kryo kryo) {
-        //kryo.register(clazz);
     }
 
     public Supplier<Terrain> getFactory() {
