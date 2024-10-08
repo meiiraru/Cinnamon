@@ -242,14 +242,14 @@ public class Shader {
         this.setMat4("model", matrix);
     }
 
-    public void applyInvertedNormalMatrix(Matrix3f matrix) {
+    public void applyNormalMatrix(Matrix3f matrix) {
         this.setMat3("normalMat", matrix);
     }
 
     public void applyMatrixStack(MatrixStack matrices) {
         MatrixStack.Matrices mat = matrices.peek();
         applyModelMatrix(mat.pos());
-        applyInvertedNormalMatrix(mat.normal().invert());
+        applyNormalMatrix(mat.normal());
     }
 
     @Override

@@ -17,8 +17,8 @@ uniform mat4 model;
 uniform mat3 normalMat;
 
 void main() {
-    vec4 worldPos  = model * vec4(aPosition, 1.0f);
-    gl_Position = projection * view * worldPos ;
+    vec4 worldPos = model * vec4(aPosition, 1.0f);
+    gl_Position = projection * view * worldPos;
     pos = worldPos.xyz;
     texCoords = aTexCoords;
 

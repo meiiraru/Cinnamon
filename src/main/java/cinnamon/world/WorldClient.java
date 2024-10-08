@@ -576,7 +576,7 @@ public class WorldClient extends World {
                         AABB entities = new AABB().translate(tpos).expand(1f, 1f, 1f);
                         if (getEntities(entities).isEmpty()) {
                             Terrain t = TerrainRegistry.values()[selectedTerrain].getFactory().get();
-                            t.setMaterial(MaterialRegistry.values()[selectedMaterial].material);
+                            t.setMaterial(MaterialRegistry.values()[selectedMaterial]);
                             setTerrain(t, (int) tpos.x, (int) tpos.y, (int) tpos.z);
                             t.setRotation(Direction.fromRotation(player.getRot().y).invRotation);
                         }
@@ -588,7 +588,7 @@ public class WorldClient extends World {
                     Hit<Terrain> terrain = player.getLookingTerrain(player.getPickRange());
                     if (terrain != null) {
                         selectedTerrain = terrain.obj().getType().ordinal();
-                        MaterialRegistry material = MaterialRegistry.fromMaterial(terrain.obj().getMaterial());
+                        MaterialRegistry material = terrain.obj().getMaterial();
                         if (material != null) selectedMaterial = material.ordinal();
                     }
                 }
@@ -725,6 +725,7 @@ public class WorldClient extends World {
 
     public void respawn(boolean init) {
         player = new LocalPlayer();
+        player.setPos(0.5f, init ? 0f : 100f, 0.5f);
         givePlayerItems(player);
         this.addEntity(player);
 

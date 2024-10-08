@@ -97,8 +97,6 @@ public abstract class LivingEntity extends PhysEntity {
         matrices.translate(aabb.getWidth() * 0.5f + 0.1f, getEyeHeight() - 0.25f, -0.25f);
         matrices.scale(0.75f);
 
-        matrices.peek().normal().rotate(Rotation.Y.rotationDeg(-rot.y * 2f));
-
         item.render(ItemRenderContext.THIRD_PERSON, matrices, delta);
 
         matrices.pop();

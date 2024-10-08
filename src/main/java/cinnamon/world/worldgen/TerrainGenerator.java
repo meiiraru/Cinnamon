@@ -18,7 +18,7 @@ public class TerrainGenerator {
             for (int i = 0; i < Chunk.CHUNK_SIZE; i++) {
                 for (int j = 0; j < Chunk.CHUNK_SIZE; j++) {
                     Terrain t = TerrainRegistry.BOX.getFactory().get();
-                    t.setMaterial((x == 0 && z == 0 && i == 0 && j == 0 ? CENTER_MATERIAL : PLAIN_MATERIAL).material);
+                    t.setMaterial(x == 0 && z == 0 && i == 0 && j == 0 ? CENTER_MATERIAL : PLAIN_MATERIAL);
                     chunk.setTerrain(t, i, 0, j);
                 }
             }
@@ -48,7 +48,7 @@ public static void generateMengerSponge(World world, int level, int xOffset, int
                         world.setTerrain(null, x + xOffset, y + yOffset, z + zOffset);
                     } else if (i == 1) {
                         Terrain terr = TerrainRegistry.BOX.getFactory().get();
-                        terr.setMaterial(MaterialRegistry.GOLD.material);
+                        terr.setMaterial(MaterialRegistry.GOLD);
                         world.setTerrain(terr, x + xOffset, y + yOffset, z + zOffset);
                     }
                 }
