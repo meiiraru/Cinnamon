@@ -197,7 +197,6 @@ public class Slider extends SelectableWidget {
                 }
 
                 setPercentage((float) pos / size);
-                callListeners();
             }
 
             anchorX = w.mouseX;
@@ -227,7 +226,6 @@ public class Slider extends SelectableWidget {
             }
 
             setPercentage(anchorValue + (float) delta / size);
-            callListeners();
             return this;
         }
 
@@ -245,7 +243,6 @@ public class Slider extends SelectableWidget {
     public GUIListener forceScroll(double x, double y) {
         float val = steps == 1 ? scrollAmount : stepValue;
         setPercentage(value + (Math.signum(-y) < 0 ? -val : val));
-        callListeners();
         return this;
     }
 
@@ -271,7 +268,6 @@ public class Slider extends SelectableWidget {
             setPercentage(value + (backwards ? -stepValue : stepValue));
         }
 
-        callListeners();
         return this;
     }
 
@@ -283,11 +279,22 @@ public class Slider extends SelectableWidget {
         this.setPercentage((float) value / max);
     }
 
+    public void updateValue(int value) {
+        this.updatePercentage((float) value / max);
+    }
+
     public float getPercentage() {
         return value;
     }
 
     public void setPercentage(float value) {
+        updatePercentage(value);
+
+        if (changeListener != null)
+            changeListener.accept(this.value, this.intValue);
+    }
+
+    public void updatePercentage(float value) {
         //update value
         value = snapToClosestStep(value);
         value = Math.clamp(value, 0f, 1f);
@@ -297,11 +304,6 @@ public class Slider extends SelectableWidget {
 
         if (showTooltip)
             super.setTooltip(Text.of(this.intValue));
-    }
-
-    public void callListeners() {
-        if (changeListener != null)
-            changeListener.accept(this.value, this.intValue);
     }
 
     protected float snapToClosestStep(float value) {

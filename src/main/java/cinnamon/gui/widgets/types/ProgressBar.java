@@ -11,11 +11,11 @@ import cinnamon.utils.UIHelper;
 
 public class ProgressBar extends Widget {
 
-    private static final Resource TEXTURE = new Resource("textures/gui/widgets/progress_bar.png");
+    public static final Resource TEXTURE = new Resource("textures/gui/widgets/progress_bar.png");
 
-    private float progress;
-    private float animationValue;
-    private Integer color;
+    protected float progress;
+    protected float animationValue;
+    protected Integer color;
 
     public ProgressBar(int x, int y, int width, int height, float initialValue) {
         super(x, y, width, height);

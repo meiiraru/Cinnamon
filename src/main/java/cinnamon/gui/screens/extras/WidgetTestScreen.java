@@ -59,14 +59,21 @@ public class WidgetTestScreen extends ParentedScreen {
         grid.addWidget(l);
 
         //progress bar
+        ContainerGrid pbGrid = new ContainerGrid(0, 0, 4, 2);
         ProgressBar pb = new ProgressBar(0, 0, 60, 12, 0f);
-        grid.addWidget(pb);
+        pbGrid.addWidget(pb);
+
+        //round progress bar
+        CircularProgressBar cpb = new CircularProgressBar(0, 0, 0f);
+        pbGrid.addWidget(cpb);
+
+        grid.addWidget(pbGrid);
 
         //selection box
-        SelectionBox sb = new SelectionBox(0, 0, 60, 12);
-        grid.addWidget(sb);
+        ComboBox cb = new ComboBox(0, 0, 60, 12);
+        grid.addWidget(cb);
 
-        sb
+        cb
                 .addEntry(Text.of("Entry 1"), Text.of("1"), button -> LOGGER.info("1"))
                 .addDivider()
                 .addEntry(Text.of("Entry 2"), Text.of("2"), button -> LOGGER.info("2"))
@@ -80,10 +87,10 @@ public class WidgetTestScreen extends ParentedScreen {
         s.setChangeListener((f, i) -> {
             l.setText(Text.of("Label " + s.getStepIndex()));
             pb.setProgress(f);
+            cpb.setProgress(f);
         });
         s.setMax(1000);
         s.setValue((int) (Math.random() * 500) + 250);
-        s.callListeners();
 
         b.setAction(button -> s.setStepCount(s.getStepCount() + 1));
 
@@ -116,8 +123,8 @@ public class WidgetTestScreen extends ParentedScreen {
         password.addWidget(viewPassword);
 
         //checkbox
-        Checkbox cb = new Checkbox(0, 0, Text.of("Checkbox"));
-        grid.addWidget(cb);
+        Checkbox ckb = new Checkbox(0, 0, Text.of("Checkbox"));
+        grid.addWidget(ckb);
 
         //toast 1
         Button toast1 = new Button(0, 0, 60, 12, Text.of("Toast 1"), button -> Toast.addToast(Text.of("Toast 1"), font));
@@ -159,9 +166,9 @@ public class WidgetTestScreen extends ParentedScreen {
         vertical.addWidget(s2);
 
         s2.setMin(1);
-        s2.setMax(5);
-        s2.setStepCount(5);
-        s2.setChangeListener((f, i) -> s2.setColor(Colors.values()[i]));
+        s2.setMax(Colors.RAINBOW.length);
+        s2.setStepCount(Colors.RAINBOW.length);
+        s2.setChangeListener((f, i) -> s2.setColor(Colors.RAINBOW[i - 1]));
         s2.setPercentage((float) Math.random());
         s2.setVertical(true);
 

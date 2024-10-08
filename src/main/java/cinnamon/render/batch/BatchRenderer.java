@@ -19,6 +19,9 @@ public class BatchRenderer<T extends Batch> {
     }
 
     public void consume(Vertex[] vertices, int textureID) {
+        if (vertices == null || vertices.length == 0)
+            return;
+
         for (Batch batch : batches) {
             if (batch.pushFace(vertices, textureID))
                 return;

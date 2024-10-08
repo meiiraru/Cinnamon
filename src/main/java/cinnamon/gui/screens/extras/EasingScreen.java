@@ -145,7 +145,8 @@ public class EasingScreen extends ParentedScreen {
     public void tick() {
         super.tick();
         if (playing) {
-            slider.setValue(widgets[0].playTime);
+            slider.updateValue(widgets[0].playTime);
+            slider.setTooltip(Text.of("%.2f".formatted(slider.getPercentage())));
             playing = widgets[0].playing;
             playButton.setImage(playing ? PAUSE_IMG : PLAY_IMG);
         }

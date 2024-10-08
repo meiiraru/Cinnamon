@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class SelectionBox extends Button {
+public class ComboBox extends Button {
 
     private final List<Text> indexes = new ArrayList<>();
 
@@ -27,9 +27,9 @@ public class SelectionBox extends Button {
     protected Consumer<Integer> changeListener;
     protected boolean closeOnSelect = true;
 
-    public SelectionBox(int x, int y, int width, int height) {
+    public ComboBox(int x, int y, int width, int height) {
         super(x, y, width, height, Text.of(""), button -> {
-            SelectionBox box = (SelectionBox) button;
+            ComboBox box = (ComboBox) button;
             box.openPopup(box.getX(), box.getY() + box.getHeight());
         });
 
@@ -38,7 +38,7 @@ public class SelectionBox extends Button {
             public GUIListener mousePress(int button, int action, int mods) {
                 boolean wasOpen = isOpen();
                 GUIListener sup = super.mousePress(button, action, mods);
-                return sup == null && wasOpen && SelectionBox.this.isHovered() ? this : sup;
+                return sup == null && wasOpen && ComboBox.this.isHovered() ? this : sup;
             }
         };
         super.setPopup(ctx);
@@ -84,25 +84,25 @@ public class SelectionBox extends Button {
         updateTexts();
     }
 
-    public SelectionBox setChangeListener(Consumer<Integer> action) {
+    public ComboBox setChangeListener(Consumer<Integer> action) {
         this.changeListener = action;
         return this;
     }
 
-    public SelectionBox closeOnSelect(boolean bool) {
+    public ComboBox closeOnSelect(boolean bool) {
         this.closeOnSelect = bool;
         return this;
     }
 
-    public SelectionBox addEntry(Text name) {
+    public ComboBox addEntry(Text name) {
         return addEntry(name, null);
     }
 
-    public SelectionBox addEntry(Text name, Text tooltip) {
+    public ComboBox addEntry(Text name, Text tooltip) {
         return addEntry(name, tooltip, null);
     }
 
-    public SelectionBox addEntry(Text name, Text tooltip, Consumer<Button> action) {
+    public ComboBox addEntry(Text name, Text tooltip, Consumer<Button> action) {
         int index = indexes.size();
         indexes.add(name);
 
@@ -115,13 +115,13 @@ public class SelectionBox extends Button {
         return this;
     }
 
-    public SelectionBox addDivider() {
+    public ComboBox addDivider() {
         ((ContextMenu) getPopup()).addDivider();
         return this;
     }
 
     /*
-    public SelectionBox addSubMenu(Text name, ContextMenu subMenu) {
+    public ComboBox addSubMenu(Text name, ContextMenu subMenu) {
         ((ContextMenu) getPopup()).addSubMenu(name, subMenu);
         return this;
     }

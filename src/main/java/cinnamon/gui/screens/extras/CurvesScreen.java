@@ -7,8 +7,8 @@ import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.types.Button;
+import cinnamon.gui.widgets.types.ComboBox;
 import cinnamon.gui.widgets.types.Label;
-import cinnamon.gui.widgets.types.SelectionBox;
 import cinnamon.gui.widgets.types.Checkbox;
 import cinnamon.model.GeometryHelper;
 import cinnamon.parsers.CurveToMesh;
@@ -74,7 +74,7 @@ public class CurvesScreen extends ParentedScreen {
         grid.addWidget(help);
 
         //selection box
-        SelectionBox box = new SelectionBox(0, 0, 60, 12)
+        ComboBox box = new ComboBox(0, 0, 60, 12)
                 .setChangeListener(i -> {
                     lastSelected = i;
                     switch (i) {
