@@ -17,6 +17,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
+import cinnamon.world.Hud;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -510,6 +511,7 @@ public class WordleScreen extends ParentedScreen {
 
                 triesBar[i] = new ProgressBar(0, 0, 40, 8, 0f);
                 triesBar[i].setColor(color);
+                triesBar[i].setTexture(Hud.PROGRESS_BAR);
                 bars.addWidget(triesBar[i]);
 
                 triesCount[i] = new Label(0, 0, Text.of(0), font);

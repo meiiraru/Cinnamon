@@ -32,19 +32,23 @@ import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 
 public class Hud {
 
-    private static final Resource
+    public static final Resource
             CROSSHAIR = new Resource("textures/gui/hud/crosshair.png"),
             HOTBAR = new Resource("textures/gui/hud/hotbar.png"),
             VIGNETTE = new Resource("textures/gui/hud/vignette.png"),
-            HIT_DIRECTION = new Resource("textures/gui/hud/hit_direction.png");
+            HIT_DIRECTION = new Resource("textures/gui/hud/hit_direction.png"),
+            PROGRESS_BAR = new Resource("textures/gui/hud/progress_bar.png");
 
     private ProgressBar health, itemCooldown;
 
     public void init() {
         health = new ProgressBar(0, 0, 60, 8, 1f);
         health.setColor(Colors.RED);
+        health.setTexture(PROGRESS_BAR);
 
         itemCooldown = new ProgressBar(0, 0, 60, 8, 0f);
+        itemCooldown.setColor(Colors.WHITE);
+        itemCooldown.setTexture(PROGRESS_BAR);
     }
 
     public void tick() {}
@@ -78,24 +82,25 @@ public class Hud {
         if (player == null)
             return;
 
-        //draw hp and other stuff
-        drawHealth(matrices, player, delta);
-
-        //draw item stats
-        drawItemStats(matrices, player.getHoldingItem(), delta);
-
-        //effects
-        drawEffects(matrices, player, delta);
-
         //hotbar
         drawHotbar(matrices, player, delta);
 
         //hit direction
         drawHitDirection(matrices, player, delta);
 
-        //selected terrain
-        if (!Client.getInstance().world.isDebugRendering())
+        if (!Client.getInstance().world.isDebugRendering()) {
+            //draw hp and other stuff
+            drawHealth(matrices, player, delta);
+
+            //draw item stats
+            drawItemStats(matrices, player.getHoldingItem(), delta);
+
+            //effects
+            drawEffects(matrices, player, delta);
+
+            //selected terrain
             drawSelectedTerrain(matrices, delta);
+        }
     }
 
     private void drawHealth(MatrixStack matrices, Player player, float delta) {
@@ -104,7 +109,7 @@ public class Hud {
 
         //health text
         Text text = Text.of(player.getHealth() + " ").withStyle(Style.EMPTY.outlined(true))
-                .append(Text.of("\u2795").withStyle(Style.EMPTY.color(Colors.RED)));
+                .append(Text.of("\u2764").withStyle(Style.EMPTY.color(Colors.RED)));
 
         //transform matrices
         matrices.push();
@@ -300,7 +305,6 @@ public class Hud {
         WorldClient w = c.world;
         int t = w.getSelectedTerrain();
         int m = w.getSelectedMaterial();
-        float s = 15;
 
         TerrainRegistry registry = TerrainRegistry.values()[t];
         Terrain terr = registry.getFactory().get();
@@ -309,12 +313,13 @@ public class Hud {
 
         Vector3f bounds = terr.getAABB().getDimensions();
         Vector3f center = terr.getAABB().getCenter();
+        float s = 16f / bounds.y;
 
         matrices.push();
         Window ww = c.window;
 
-        //translate to the right corner, leaving space for the name
-        matrices.translate(ww.scaledWidth - 4f - bounds.x * s * 0.5f - c.font.lineHeight * 2f - 4f, 4 + bounds.y * s * 0.5f, 0);
+        //translate to the top center of the screen
+        matrices.translate(ww.scaledWidth * 0.5f, 4 + bounds.y * s * 0.5f, 0);
         matrices.scale(s, -s, s);
 
         //apply rotation for a better view angle of the model
@@ -329,10 +334,8 @@ public class Hud {
         matrices.pop();
 
         //render name
-        matrices.push();
-        matrices.rotate(Rotation.Z.rotationDeg(90));
-        c.font.render(VertexConsumer.FONT, matrices, 4f, -ww.scaledWidth + 4f, Text.of(material.name() + "\n" + registry.name()).withStyle(Style.EMPTY.shadow(true)), Alignment.LEFT);
-        matrices.pop();
+        String str = (material.name() + " " + registry.name()).replaceAll("_", " ");
+        c.font.render(VertexConsumer.FONT, matrices, ww.scaledWidth * 0.5f, 16 + 4 + 4, Text.of(str).withStyle(Style.EMPTY.shadow(true)), Alignment.CENTER);
     }
 
     private void drawCrosshair(MatrixStack matrices, Matrix4f projMat, Matrix4f viewMat) {

@@ -13,6 +13,7 @@ public class CircularProgressBar extends ProgressBar {
 
     public CircularProgressBar(int x, int y, float initialValue) {
         super(x, y, 12, 12, initialValue);
+        texture = TEXTURE;
     }
 
     @Override
@@ -30,7 +31,7 @@ public class CircularProgressBar extends ProgressBar {
             vertices[i + 2].uv(0f, 0f);
         }
 
-        VertexConsumer.GUI.consume(vertices, TEXTURE);
+        VertexConsumer.GUI.consume(vertices, texture);
 
         matrices.push();
         matrices.translate(0, 0, GUIStyle.depthOffset);
@@ -42,7 +43,7 @@ public class CircularProgressBar extends ProgressBar {
             vertices[i + 2].uv(0.5f, 0f);
         }
 
-        VertexConsumer.GUI.consume(vertices, TEXTURE);
+        VertexConsumer.GUI.consume(vertices, texture);
 
         matrices.pop();
     }

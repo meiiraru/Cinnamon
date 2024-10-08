@@ -16,6 +16,7 @@ public class ProgressBar extends Widget {
     protected float progress;
     protected float animationValue;
     protected Integer color;
+    protected Resource texture = TEXTURE;
 
     public ProgressBar(int x, int y, int width, int height, float initialValue) {
         super(x, y, width, height);
@@ -29,7 +30,7 @@ public class ProgressBar extends Widget {
 
         //draw background
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE,
+                VertexConsumer.GUI, matrices, texture,
                 getX(), getY(),
                 getWidth(), getHeight(),
                 0f, 0f,
@@ -41,7 +42,7 @@ public class ProgressBar extends Widget {
         matrices.push();
         matrices.translate(0, 0, GUIStyle.depthOffset);
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE,
+                VertexConsumer.GUI, matrices, texture,
                 getX(), getY(),
                 Math.round(getWidth() * getAnimationValue()), getHeight(),
                 16f, 0f,
@@ -83,5 +84,9 @@ public class ProgressBar extends Widget {
 
     public float getAnimationValue() {
         return animationValue;
+    }
+
+    public void setTexture(Resource texture) {
+        this.texture = texture == null ? TEXTURE : texture;
     }
 }

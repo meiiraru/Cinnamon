@@ -118,7 +118,7 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     protected Text getHeadText() {
-        return Text.of(getHealth()).withStyle(Style.EMPTY.outlined(true)).append(Text.of("\u2795").withStyle(Style.EMPTY.color(Colors.RED)));
+        return Text.of(getHealth()).withStyle(Style.EMPTY.outlined(true)).append(Text.of(" \u2764").withStyle(Style.EMPTY.color(Colors.RED)));
     }
 
     @Override
