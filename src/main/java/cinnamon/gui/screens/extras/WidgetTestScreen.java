@@ -84,7 +84,7 @@ public class WidgetTestScreen extends ParentedScreen {
         Slider s = new Slider(0, 0, 60);
         grid.addWidget(s);
 
-        s.setChangeListener((f, i) -> {
+        s.setUpdateListener((f, i) -> {
             l.setText(Text.of("Label " + s.getStepIndex()));
             pb.setProgress(f);
             cpb.setProgress(f);
@@ -165,11 +165,14 @@ public class WidgetTestScreen extends ParentedScreen {
         Slider s2 = new Slider(0, 0, 40);
         vertical.addWidget(s2);
 
-        s2.setMin(1);
-        s2.setMax(Colors.RAINBOW.length);
+        s2.setMax(Colors.RAINBOW.length - 1);
         s2.setStepCount(Colors.RAINBOW.length);
-        s2.setChangeListener((f, i) -> s2.setColor(Colors.RAINBOW[i - 1]));
-        s2.setPercentage((float) Math.random());
+        s2.setChangeListener((f, i) -> {
+            client.options.guiScale = i;
+            client.windowResize(client.window.width, client.window.height);
+        });
+        s2.setUpdateListener((f, i) -> s2.setColor(Colors.RAINBOW[i]));
+        s2.updateValue((int) client.window.guiScale);
         s2.setVertical(true);
 
         //scrollbar

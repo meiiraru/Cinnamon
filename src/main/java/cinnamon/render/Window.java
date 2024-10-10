@@ -147,17 +147,20 @@ public class Window {
         this.y = y;
     }
 
-    public void windowResize(int width, int height) {
+    public void windowResize(int width, int height, float guiScale) {
         this.width = width;
         this.height = height;
-        this.scaledWidth = (int) (width / guiScale);
-        this.scaledHeight = (int) (height / guiScale);
-    }
 
-    public void setGuiScale(float scale) {
+        int w = this.width / 320;
+        int h = this.height / 240;
+        float scale = Math.min(w, h);
+
+        if (guiScale > 0)
+            scale = Math.min(scale, guiScale);
+
         this.guiScale = Math.max(scale, 1f);
-        this.scaledWidth = (int) (width / guiScale);
-        this.scaledHeight = (int) (height / guiScale);
+        this.scaledWidth = (int) (this.width / this.guiScale);
+        this.scaledHeight = (int) (this.height / this.guiScale);
     }
 
     public void setIcon(Resource resource) {

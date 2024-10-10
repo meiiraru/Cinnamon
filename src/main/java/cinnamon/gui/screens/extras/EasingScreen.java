@@ -121,7 +121,7 @@ public class EasingScreen extends ParentedScreen {
         //slider
         int sliderW = 35 * 6;
         slider = new Slider((width - sliderW) / 2, height - 12, sliderW);
-        slider.setChangeListener((f, i) -> {
+        slider.setUpdateListener((f, i) -> {
             for (EasingWidget widget : widgets) {
                 widget.playTime = i;
                 widget.calculatePos();

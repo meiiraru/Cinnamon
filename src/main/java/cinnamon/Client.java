@@ -61,7 +61,7 @@ public class Client {
 
     public void init() {
         this.options = Options.load();
-        this.window.setGuiScale(options.guiScale);
+        this.windowResize(window.width, window.height);
         this.soundManager = new SoundManager();
         this.soundManager.init();
         this.camera = new Camera();
@@ -261,7 +261,7 @@ public class Client {
         if (width <= 0 || height <= 0)
             return;
 
-        window.windowResize(width, height);
+        window.windowResize(width, height, options.guiScale);
         Framebuffer.DEFAULT_FRAMEBUFFER.resize(width, height);
 
         if (world != null)

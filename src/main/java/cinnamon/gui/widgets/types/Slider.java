@@ -33,7 +33,7 @@ public class Slider extends SelectableWidget {
     private boolean vertical;
     private Integer color;
     private boolean showTooltip = true;
-    private BiConsumer<Float, Integer> changeListener;
+    private BiConsumer<Float, Integer> changeListener, updateListener;
     private boolean mouseSelected;
     private float animationValue;
 
@@ -180,6 +180,7 @@ public class Slider extends SelectableWidget {
 
     @Override
     public GUIListener mousePress(int button, int action, int mods) {
+        boolean wasSelected = mouseSelected;
         mouseSelected = isActive() && isHovered() && action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1;
         Window w = Client.getInstance().window;
 
@@ -196,7 +197,7 @@ public class Slider extends SelectableWidget {
                     size = getWidth() - handleSize;
                 }
 
-                setPercentage((float) pos / size);
+                updatePercentage((float) pos / size);
             }
 
             anchorX = w.mouseX;
@@ -206,6 +207,8 @@ public class Slider extends SelectableWidget {
             return this;
         } else {
             updateHover(w.mouseX, w.mouseY);
+            if (wasSelected)
+                setPercentage(value); //just call the update to run the listeners
         }
 
         return super.mousePress(button, action, mods);
@@ -225,7 +228,7 @@ public class Slider extends SelectableWidget {
                 size = getWidth() - handleSize;
             }
 
-            setPercentage(anchorValue + (float) delta / size);
+            updatePercentage(anchorValue + (float) delta / size);
             return this;
         }
 
@@ -248,24 +251,29 @@ public class Slider extends SelectableWidget {
 
     @Override
     public GUIListener keyPress(int key, int scancode, int action, int mods) {
-        if (isActive() && isHoveredOrFocused() && action != GLFW_RELEASE) {
+        if (isActive() && isHoveredOrFocused()) {
             switch (key) {
-                case GLFW_KEY_LEFT, GLFW_KEY_UP -> {return selectNext(true, mods);}
-                case GLFW_KEY_RIGHT, GLFW_KEY_DOWN -> {return selectNext(false, mods);}
+                case GLFW_KEY_LEFT, GLFW_KEY_UP -> {return selectNext(true, action, mods);}
+                case GLFW_KEY_RIGHT, GLFW_KEY_DOWN -> {return selectNext(false, action, mods);}
             }
         }
 
         return super.keyPress(key, scancode, action, mods);
     }
 
-    protected Slider selectNext(boolean backwards, int mods) {
+    protected Slider selectNext(boolean backwards, int action, int mods) {
+        if (action == GLFW_RELEASE) {
+            setPercentage(value);
+            return this;
+        }
+
         if (steps == 1) {
             boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
             boolean ctrl = (mods & GLFW_MOD_CONTROL) != 0;
             int amount = shift || ctrl ? Math.max(getMax() / (shift ? 10 : 50), 1) : 1;
-            setValue(intValue + (backwards ? -amount : amount));
+            updateValue(intValue + (backwards ? -amount : amount));
         } else {
-            setPercentage(value + (backwards ? -stepValue : stepValue));
+            updatePercentage(value + (backwards ? -stepValue : stepValue));
         }
 
         return this;
@@ -276,11 +284,11 @@ public class Slider extends SelectableWidget {
     }
 
     public void setValue(int value) {
-        this.setPercentage((float) value / max);
+        this.setPercentage(Maths.ratio(value, min, max));
     }
 
     public void updateValue(int value) {
-        this.updatePercentage((float) value / max);
+        this.updatePercentage(Maths.ratio(value, min, max));
     }
 
     public float getPercentage() {
@@ -304,6 +312,9 @@ public class Slider extends SelectableWidget {
 
         if (showTooltip)
             super.setTooltip(Text.of(this.intValue));
+
+        if (updateListener != null)
+            updateListener.accept(this.value, this.intValue);
     }
 
     protected float snapToClosestStep(float value) {
@@ -341,7 +352,7 @@ public class Slider extends SelectableWidget {
 
     public void setMin(int min) {
         this.min = min;
-        setValue(intValue);
+        updateValue(intValue);
     }
 
     public int getMax() {
@@ -350,7 +361,7 @@ public class Slider extends SelectableWidget {
 
     public void setMax(int max) {
         this.max = max;
-        setValue(intValue);
+        updateValue(intValue);
     }
 
     public Integer getColor() {
@@ -382,6 +393,10 @@ public class Slider extends SelectableWidget {
 
     public void setChangeListener(BiConsumer<Float, Integer> changeListener) {
         this.changeListener = changeListener;
+    }
+
+    public void setUpdateListener(BiConsumer<Float, Integer> updateListener) {
+        this.updateListener = updateListener;
     }
 
     public float getAnimationValue() {

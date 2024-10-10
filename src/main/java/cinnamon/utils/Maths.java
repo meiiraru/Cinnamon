@@ -290,6 +290,41 @@ public class Maths {
         return n <= 1 ? 1f : n * factorial(n - 1);
     }
 
+    public static Vector3f randomDir() {
+        float pitch = (float) Math.random() * 360;
+        float yaw = (float) Math.random() * 360;
+        return rotToDir(pitch, yaw);
+    }
+
+    public static Matrix3f getDirMat(Vector3f dir) {
+        Vector2f rot = Maths.toRadians(Maths.dirToRot(dir));
+        Quaternionf rotation = new Quaternionf().rotationYXZ(-rot.y, -rot.x, 0f);
+
+        return new Matrix3f(
+                new Vector3f(1f, 0f, 0f).rotate(rotation),
+                new Vector3f(0f, 1f, 0f).rotate(rotation),
+                new Vector3f(0f, 0f, -1f).rotate(rotation)
+        );
+    }
+
+    public static Vector3f spread(Matrix3f dirMatrix, float pitch, float yaw) {
+        float r1 = (float) Math.toRadians(Math.random() * 2f - 1f) * yaw;
+        float r2 = (float) Math.toRadians(Math.random() * 2f - 1f) * pitch;
+
+        Vector3f rotVec = new Vector3f(
+                (float) (Math.sin(r1) * Math.cos(r2)),
+                (float) Math.sin(r2),
+                (float) (Math.cos(r1) * Math.cos(r2))
+        );
+
+        return rotVec.mul(dirMatrix);
+    }
+
+    public static Vector3f spread(Vector3f dir, float pitch, float yaw) {
+        Matrix3f dirMatrix = getDirMat(dir);
+        return spread(dirMatrix, pitch, yaw);
+    }
+
     public static int binarySearch(int start, int end, Predicate<Integer> test) {
         while (start < end) {
             int mid = start + (end - start) / 2;
@@ -346,41 +381,6 @@ public class Maths {
                 (-p0 + p2) * t +
                 (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t +
                 (-p0 + 3 * p1 - 3 * p2 + p3) * t * t * t);
-    }
-
-    public static Vector3f randomDir() {
-        float pitch = (float) Math.random() * 360;
-        float yaw = (float) Math.random() * 360;
-        return rotToDir(pitch, yaw);
-    }
-
-    public static Matrix3f getDirMat(Vector3f dir) {
-        Vector2f rot = Maths.toRadians(Maths.dirToRot(dir));
-        Quaternionf rotation = new Quaternionf().rotationYXZ(-rot.y, -rot.x, 0f);
-
-        return new Matrix3f(
-                new Vector3f(1f, 0f, 0f).rotate(rotation),
-                new Vector3f(0f, 1f, 0f).rotate(rotation),
-                new Vector3f(0f, 0f, -1f).rotate(rotation)
-        );
-    }
-
-    public static Vector3f spread(Matrix3f dirMatrix, float pitch, float yaw) {
-        float r1 = (float) Math.toRadians(Math.random() * 2f - 1f) * yaw;
-        float r2 = (float) Math.toRadians(Math.random() * 2f - 1f) * pitch;
-
-        Vector3f rotVec = new Vector3f(
-                (float) (Math.sin(r1) * Math.cos(r2)),
-                (float) Math.sin(r2),
-                (float) (Math.cos(r1) * Math.cos(r2))
-        );
-
-        return rotVec.mul(dirMatrix);
-    }
-
-    public static Vector3f spread(Vector3f dir, float pitch, float yaw) {
-        Matrix3f dirMatrix = getDirMat(dir);
-        return spread(dirMatrix, pitch, yaw);
     }
 
     private static final float
