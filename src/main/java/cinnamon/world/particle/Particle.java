@@ -1,9 +1,11 @@
 package cinnamon.world.particle;
 
 import cinnamon.Client;
+import cinnamon.model.GeometryHelper;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.world.WorldObject;
@@ -11,15 +13,15 @@ import org.joml.Vector3f;
 
 public abstract class Particle extends WorldObject {
 
-    protected static final float PARTICLE_SCALING = 1 / 48f;
+    public static final float PARTICLE_SCALING = 1 / 48f;
 
-    private final Vector3f
+    protected final Vector3f
             oPos = new Vector3f(),
             motion = new Vector3f();
-    private final int lifetime;
-    private int age;
-    private boolean removed = false;
-    private boolean emissive;
+    protected final int lifetime;
+    protected int age;
+    protected boolean removed = false;
+    protected boolean emissive;
 
     public Particle(int lifetime) {
         this.lifetime = lifetime;
@@ -124,4 +126,11 @@ public abstract class Particle extends WorldObject {
 
     @Override
     public abstract ParticlesRegistry getType();
+
+    public void renderDebugHitbox(MatrixStack matrices, float delta) {
+        AABB aabb = getAABB();
+        Vector3f min = aabb.getMin();
+        Vector3f max = aabb.getMax();
+        VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFFFFFFFF));
+    }
 }

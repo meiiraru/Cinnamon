@@ -200,7 +200,7 @@ public abstract class World {
     public List<Particle> getParticles(AABB region) {
         List<Particle> list = new ArrayList<>();
         for (Particle particle : this.particles) {
-            if (region.isInside(particle.getPos()))
+            if (region.intersects(particle.getAABB()))
                 list.add(particle);
         }
         return list;

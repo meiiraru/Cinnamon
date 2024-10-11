@@ -6,13 +6,14 @@ import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.texture.SpriteTexture;
+import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 
 public abstract class SpriteParticle extends Particle {
 
     protected final SpriteTexture texture;
-    private int color;
-    private float scale = 1f;
+    protected int color;
+    protected float scale = 1f;
 
     public SpriteParticle(int lifetime, int color) {
         super(lifetime);
@@ -64,5 +65,10 @@ public abstract class SpriteParticle extends Particle {
 
     public float getScale() {
         return scale;
+    }
+
+    @Override
+    public AABB getAABB() {
+        return super.getAABB().inflate(8 * PARTICLE_SCALING * scale);
     }
 }

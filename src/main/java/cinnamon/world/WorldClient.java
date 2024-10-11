@@ -417,6 +417,9 @@ public class WorldClient extends World {
                 e.renderDebugHitbox(matrices, delta);
         }
 
+        for (Particle p : getParticles(area))
+            p.renderDebugHitbox(matrices, delta);
+
         renderLights(area, cameraPos, matrices);
     }
 

@@ -1,6 +1,7 @@
 package cinnamon.world.particle;
 
 import cinnamon.registry.ParticlesRegistry;
+import cinnamon.utils.AABB;
 
 public class BubbleParticle extends SpriteParticle {
 
@@ -8,10 +9,23 @@ public class BubbleParticle extends SpriteParticle {
         super(lifetime, color);
     }
 
+    private boolean collided;
+
     @Override
     public void tick() {
         getMotion().mul(0.99f, 1f, 0.99f);
         super.tick();
+
+        if (!collided) {
+            AABB aabb = getAABB();
+            for (AABB terrain : world.getTerrainCollisions(aabb)) {
+                if (aabb.intersects(terrain)) {
+                    getMotion().zero();
+                    collided = true;
+                    age = lifetime - (texture.getUFrames() - 1);
+                }
+            }
+        }
     }
 
     @Override
