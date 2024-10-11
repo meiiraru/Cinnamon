@@ -6,6 +6,7 @@ import cinnamon.utils.Resource;
 
 public enum MaterialRegistry {
 
+    DEFAULT(null),
     ACOUSTIC_FOAM,
     ASPHALT_SHINGLE,
     BACTERIA,
@@ -91,20 +92,16 @@ public enum MaterialRegistry {
         this.resource = new Resource("materials/" + name + "/" + name + ".pbr");
     }
 
+    MaterialRegistry(Resource resource) {
+        this.resource = resource;
+    }
+
     private void loadMaterial() {
-        this.material = MaterialManager.load(this.resource, name().toLowerCase());
+        this.material = resource == null ? null : MaterialManager.load(this.resource, name().toLowerCase());
     }
 
     public static void loadAllMaterials() {
         for (MaterialRegistry material : values())
             material.loadMaterial();
-    }
-
-    public static MaterialRegistry fromMaterial(Material material) {
-        for (MaterialRegistry materialRegistry : values())
-            if (materialRegistry.material == material)
-                return materialRegistry;
-
-        return null;
     }
 }

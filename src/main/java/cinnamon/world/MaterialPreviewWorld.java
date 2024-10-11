@@ -53,7 +53,8 @@ public class MaterialPreviewWorld extends WorldClient {
             sphereBB.applyMatrix(matrices.peek().pos());
             if (camera.isInsideFrustum(sphereBB)) {
                 s.applyMatrixStack(matrices);
-                SPHERE.renderWithoutMaterial();
+                if (texCount == -1) SPHERE.render();
+                else SPHERE.renderWithoutMaterial();
                 visible = true;
             }
 
@@ -63,7 +64,8 @@ public class MaterialPreviewWorld extends WorldClient {
             boxBB.applyMatrix(matrices.peek().pos());
             if (camera.isInsideFrustum(boxBB)) {
                 s.applyMatrixStack(matrices);
-                BOX.renderWithoutMaterial();
+                if (texCount == -1) BOX.render();
+                else BOX.renderWithoutMaterial();
                 visible = true;
             }
 
