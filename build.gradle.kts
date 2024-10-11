@@ -72,7 +72,6 @@ dependencies {
     implementation("org.apache.logging.log4j", "log4j-iostreams", log4jVersion)
     implementation("com.fasterxml.jackson.core", "jackson-databind", jacksonVersion)
     implementation("com.google.code.gson", "gson", gsonVersion)
-    implementation("com.github.crykn", "kryonet", kryonetVersion)
 }
 
 tasks.jar {

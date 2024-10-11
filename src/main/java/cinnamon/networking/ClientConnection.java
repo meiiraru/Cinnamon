@@ -1,5 +1,6 @@
 package cinnamon.networking;
 
+/*
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.FrameworkMessage;
@@ -56,3 +57,4 @@ public class ClientConnection {
         }
     }
 }
+ */

@@ -1,5 +1,6 @@
 package cinnamon.world;
 
+/*
 import cinnamon.networking.ServerConnection;
 import cinnamon.networking.packet.RemoveEntity;
 import cinnamon.registry.LivingModelRegistry;
@@ -18,9 +19,6 @@ public class WorldServer extends World {
 
     @Override
     public void init() {
-        //load level
-        LevelLoad.load(this, new Resource("data/levels/level0.json"));
-
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
 
         Cart c = new Cart(UUID.randomUUID());
@@ -40,6 +38,7 @@ public class WorldServer extends World {
 
     @Override
     public void entityRemoved(UUID uuid) {
+        super.entityRemoved(uuid);
         ServerConnection.connection.sendToAllTCP(new RemoveEntity().uuid(uuid));
     }
 
@@ -65,3 +64,4 @@ public class WorldServer extends World {
         return players.get(internalID);
     }
 }
+ */

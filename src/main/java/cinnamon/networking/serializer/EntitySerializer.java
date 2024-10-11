@@ -1,5 +1,6 @@
 package cinnamon.networking.serializer;
 
+/*
 import cinnamon.world.entity.Entity;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
@@ -36,7 +37,6 @@ public class EntitySerializer extends Serializer<Entity> {
 
     @Override
     public Entity read(Kryo kryo, Input input, Class<? extends Entity> type) {
-        /*
         //uuid
         UUID uuid = kryo.readObject(input, UUID.class);
 
@@ -52,8 +52,8 @@ public class EntitySerializer extends Serializer<Entity> {
 
         //add
         return entity;
-         */
 
         return null;
     }
 }
+ */

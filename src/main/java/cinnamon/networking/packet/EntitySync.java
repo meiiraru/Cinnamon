@@ -1,5 +1,6 @@
 package cinnamon.networking.packet;
 
+/*
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Server;
@@ -40,3 +41,4 @@ public class EntitySync implements Packet {
     @Override
     public void serverReceived(Server server, Connection connection) {}
 }
+ */

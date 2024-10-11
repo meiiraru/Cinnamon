@@ -1,5 +1,6 @@
 package cinnamon.networking;
 
+/*
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
@@ -85,3 +86,4 @@ public class ServerConnection {
             world.tick();
     }
 }
+ */

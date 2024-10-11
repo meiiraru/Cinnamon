@@ -1,8 +1,6 @@
 package cinnamon.world.entity.living;
 
 import cinnamon.Client;
-import cinnamon.networking.ServerConnection;
-import cinnamon.networking.packet.SyncHealth;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Model;
@@ -252,8 +250,8 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     private void syncHealth() {
-        if (!getWorld().isClientside())
-            ServerConnection.connection.sendToAllUDP(new SyncHealth().entity(getUUID()).health(health));
+        //if (!getWorld().isClientside())
+        //    ServerConnection.connection.sendToAllUDP(new SyncHealth().entity(getUUID()).health(health));
     }
 
     public boolean attackAction() {

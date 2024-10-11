@@ -1,5 +1,6 @@
 package cinnamon.networking.serializer;
 
+/*
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
@@ -40,3 +41,4 @@ public class ProjectileSerializer extends Serializer<Projectile> {
         return projectile;
     }
 }
+ */

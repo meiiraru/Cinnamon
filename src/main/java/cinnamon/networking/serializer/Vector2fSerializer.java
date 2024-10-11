@@ -1,5 +1,6 @@
 package cinnamon.networking.serializer;
 
+/*
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
@@ -23,3 +24,4 @@ public class Vector2fSerializer extends Serializer<Vector2f> {
         return new Vector2f(input.readFloat(), input.readFloat());
     }
 }
+ */

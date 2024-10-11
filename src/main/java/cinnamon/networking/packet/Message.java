@@ -1,5 +1,6 @@
 package cinnamon.networking.packet;
 
+/*
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Server;
@@ -27,3 +28,4 @@ public class Message extends PacketWithOwner {
         server.sendToAllTCP(new Message().msg(s));
     }
 }
+ */

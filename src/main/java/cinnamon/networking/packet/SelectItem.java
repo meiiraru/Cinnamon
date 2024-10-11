@@ -1,5 +1,6 @@
 package cinnamon.networking.packet;
 
+/*
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Server;
@@ -34,3 +35,4 @@ public class SelectItem extends PacketWithOwner {
             le.setSelectedItem(index);
     }
 }
+ */

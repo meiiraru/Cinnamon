@@ -1,5 +1,6 @@
 package cinnamon.networking.packet;
 
+/*
 import cinnamon.Client;
 
 import java.util.UUID;
@@ -14,3 +15,4 @@ public abstract class PacketWithOwner implements Packet {
         this.uuid = Client.getInstance().playerUUID;
     }
 }
+ */

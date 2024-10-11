@@ -6,7 +6,7 @@ import cinnamon.gui.Toast;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.TextField;
-import cinnamon.networking.ClientConnection;
+//import cinnamon.networking.ClientConnection;
 import cinnamon.networking.NetworkConstants;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
@@ -82,7 +82,7 @@ public class MultiplayerJoinScreen extends ParentedScreen {
 
         client.setName(name);
 
-        if (ClientConnection.connectToServer(ip, NetworkConstants.TCP_PORT, NetworkConstants.UDP_PORT, 10_000)) {
+        if (false) { //ClientConnection.connectToServer(ip, NetworkConstants.TCP_PORT, NetworkConstants.UDP_PORT, 10_000)) {
             WorldClient world = new WorldClient();
             world.init();
         } else {

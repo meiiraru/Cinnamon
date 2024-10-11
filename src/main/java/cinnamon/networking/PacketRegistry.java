@@ -1,5 +1,6 @@
 package cinnamon.networking;
 
+/*
 import com.esotericsoftware.kryo.Kryo;
 import cinnamon.networking.packet.*;
 import cinnamon.networking.serializer.*;
@@ -56,3 +57,4 @@ public final class PacketRegistry {
         kryo.register(SyncHealth.class);
     }
 }
+ */

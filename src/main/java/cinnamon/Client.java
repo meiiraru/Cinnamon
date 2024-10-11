@@ -4,7 +4,7 @@ import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.screens.MainMenu;
 import cinnamon.gui.screens.world.PauseScreen;
-import cinnamon.networking.ServerConnection;
+//import cinnamon.networking.ServerConnection;
 import cinnamon.options.Options;
 import cinnamon.render.Camera;
 import cinnamon.render.Font;
@@ -132,7 +132,7 @@ public class Client {
         ticks++;
 
         runScheduledTicks();
-        ServerConnection.tick();
+        //ServerConnection.tick();
         Await.tick();
 
         soundManager.tick(camera);
