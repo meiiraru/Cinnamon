@@ -8,7 +8,7 @@ import cinnamon.world.WorldClient;
 public class LocalPlayer extends Player {
 
     public LocalPlayer() {
-        this(LivingModelRegistry.STRAWBERRY);
+        this(Client.getInstance().options.player);
     }
 
     public LocalPlayer(LivingModelRegistry model) {
