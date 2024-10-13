@@ -22,7 +22,6 @@ public class TextField extends SelectableWidget implements Tickable {
 
     private static final Resource TEXTURE = new Resource("textures/gui/widgets/text_field.png");
     public static final int
-            INSERT_WIDTH = 4,
             HISTORY_SIZE = 20,
             DRAG_ZONE = 8;
     public static final char
@@ -239,7 +238,7 @@ public class TextField extends SelectableWidget implements Tickable {
             matrices.push();
             //translate matrices so we can render on top of text
             matrices.translate(0, 0, GUIStyle.depthOffset * Font.Z_DEPTH);
-            VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y, x + (insert ? INSERT_WIDTH : GUIStyle.cursorWidth), y + height, borderColor == null ? 0xFFFFFFFF : borderColor));
+            VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y, x + (insert ? GUIStyle.insertWidth : GUIStyle.cursorWidth), y + height, borderColor == null ? 0xFFFFFFFF : borderColor));
             matrices.pop();
         }
     }
@@ -871,8 +870,8 @@ public class TextField extends SelectableWidget implements Tickable {
     }
 
     private void appendToHistory(Action action) {
-        //if it is the same action, we do not want to save it
-        if (lastAction == action)
+        //if it is the same action, we do not want to save it, unless if it is a paste action
+        if (lastAction == action && action != Action.PASTE)
             return;
 
         //store the current action and add the cursor positions to the text, then save the text

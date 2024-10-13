@@ -11,7 +11,6 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.utils.Resource;
-import cinnamon.utils.UIHelper;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -195,7 +194,7 @@ public abstract class Screen {
 
     protected void postRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         if (tooltip != null) {
-            UIHelper.renderTooltip(matrices, tooltip, client.font);
+            tooltip.renderTooltip(matrices, client.font);
             tooltip = null;
         }
     }

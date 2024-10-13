@@ -21,8 +21,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class UIHelper {
 
-    private static final Resource TOOLTIP = new Resource("textures/gui/widgets/tooltip.png");
-
+    public static final Resource TOOLTIP_TEXTURE = new Resource("textures/gui/widgets/tooltip.png");
     private static final Stack<Region2D> SCISSORS_STACK = new Stack<>();
 
     public static void renderBackground(MatrixStack matrices, int width, int height, float delta, Resource... background) {
@@ -181,59 +180,32 @@ public class UIHelper {
         return vertices;
     }
 
-    public static void renderTooltip(MatrixStack matrices, SelectableWidget widget, Font font) {
-        //grab text
-        Text tooltip = widget.getTooltip();
-        if (tooltip == null || tooltip.isEmpty())
-            return;
-
-        //dimensions
-        int w = TextUtils.getWidth(tooltip, font);
-        int h = TextUtils.getHeight(tooltip, font);
-        boolean lefty = false;
-
-        Window window = Client.getInstance().window;
-        int screenW = window.scaledWidth;
-        int screenH = window.scaledHeight;
-
-        int ww = widget.getWidth();
-
-        //position
-        int wcy = widget.getCenterY();
-
-        int x = widget.getX() + ww + 1 + 2; //spacing + arrow
-        int y = h > widget.getHeight() ? widget.getY() - 1 : widget.getCenterY() - h / 2 - 2;
-
-        //check if the tooltip could be rendered on the left side
-        if (x + w > screenW && widget.getCenterX() > screenW / 2) {
-            x -= w + ww + 4 + 2 + 4; //(background + spacing + arrow) * 2
-            lefty = true;
-        }
-
-        //then fit in the screen boundaries
-        x = (int) Math.clamp(x, -2f, screenW - w - 2);
-        y = (int) Math.clamp(y, -2f, screenH - h - 2);
-
-        //render background
-
-        //move matrices on x and z
+    public static void renderTooltip(MatrixStack matrices, int x, int y, int width, int height, int centerX, int centerY, byte arrowSide, Text tooltip, Font font) {
         matrices.push();
-        matrices.translate(x, 0, 998f);
+        matrices.translate(x, y, 998f);
 
-        //render arrow
-        Vertex[] vertices = quad(matrices, lefty ? w + 4f : -2, wcy - 8, 2, 16, lefty ? 18f : 16f, 0f, 2, 16, 20, 16);
+        //background
+        int b = GUIStyle.tooltipBorder;
+        UIHelper.nineQuad(VertexConsumer.GUI, matrices, TOOLTIP_TEXTURE, -b, -b, width + b + b, height + b + b, 0, 0, 16, 16, 20, 20, GUIStyle.accentColor);
+
+        //arrow
+        Vertex[] vertices = switch (arrowSide) {
+            //right
+            case 0 -> quad(matrices, -b - 4, -y + centerY - 8, 4, 16, 20, 0, -4, 16, 20, 20);
+            //left
+            case 1 -> quad(matrices, width + b, -y + centerY - 8, 4, 16, 16, 0, 4, 16, 20, 20);
+            //up
+            case 2 -> quad(matrices, -x + centerX - 8, height + b, 16, 4, 0, 16, 16, 4, 20, 20);
+            //down
+            default -> quad(matrices, -x + centerX - 8, -b - 4, 16, 4, 0, 20, 16, -4, 20, 20);
+        };
+
         for (Vertex vertex : vertices)
             vertex.color(GUIStyle.accentColor);
-        VertexConsumer.GUI.consume(vertices, TOOLTIP);
-
-        //move matrices on y
-        matrices.translate(0, y, 0);
-
-        //render background
-        nineQuad(VertexConsumer.GUI, matrices, TOOLTIP, 0f, 0f, w + 4f, h + 4f, 0f, 0f, 16, 16, 20, 16, GUIStyle.accentColor);
+        VertexConsumer.GUI.consume(vertices, TOOLTIP_TEXTURE);
 
         //render text
-        font.render(VertexConsumer.FONT, matrices, 2, 2, tooltip);
+        font.render(VertexConsumer.FONT, matrices, 0, 0, tooltip);
 
         matrices.pop();
     }

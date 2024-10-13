@@ -7,16 +7,19 @@
   "hint_color": "FF5B8CCC",
 
   "pressed_y_offset": 2,
-  "depth_offset": 0.01,
   "shadow_offset": 1,
   "bold_offset": 1,
   "italic_offset": 3,
+  "depth_offset": 0.01,
+
+  "double_click_delay": 500,
+  "cursor_blink_speed": 1000,
 
   "password_char": "\u2022",
   "cursor_width": 1,
+  "cursor_insert_width": 4,
 
-  "cursor_blink_speed": 1000,
-  "double_click_delay": 500,
+  "context_menu_divider_size": 5,
 
-  "context_menu_divider_size": 5
+  "tooltip_border": 4
 }

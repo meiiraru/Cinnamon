@@ -6,22 +6,22 @@ import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
+import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
-import cinnamon.utils.Colors;
-import cinnamon.utils.Maths;
-import cinnamon.utils.Resource;
-import cinnamon.utils.UIHelper;
+import cinnamon.utils.*;
 
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Slider extends SelectableWidget {
 
     private static final Resource TEXTURE = new Resource("textures/gui/widgets/slider.png");
+    public static final BiFunction<Float, Integer, Text> DEFAULT_TOOLTIP = (f, i) -> Text.of(i);
 
     private float value = 0f;
     private int steps = 1;
@@ -33,6 +33,7 @@ public class Slider extends SelectableWidget {
     private boolean vertical;
     private Integer color;
     private boolean showTooltip = true;
+    private BiFunction<Float, Integer, Text> tooltipFunction = DEFAULT_TOOLTIP;
     private BiConsumer<Float, Integer> changeListener, updateListener;
     private boolean mouseSelected;
     private float animationValue;
@@ -311,7 +312,7 @@ public class Slider extends SelectableWidget {
         this.intValue = Math.round((max - min) * value + min);
 
         if (showTooltip)
-            super.setTooltip(Text.of(this.intValue));
+            super.setTooltip(tooltipFunction.apply(this.value, this.intValue));
 
         if (updateListener != null)
             updateListener.accept(this.value, this.intValue);
@@ -385,6 +386,11 @@ public class Slider extends SelectableWidget {
         if (!showTooltip) super.setTooltip(null);
     }
 
+    public void setTooltipFunction(BiFunction<Float, Integer, Text> tooltipFunction) {
+        this.tooltipFunction = tooltipFunction;
+        super.setTooltip(tooltipFunction.apply(this.value, this.intValue));
+    }
+
     @Override
     public void setTooltip(Text tooltip) {
         showValueTooltip(false);
@@ -426,6 +432,63 @@ public class Slider extends SelectableWidget {
         } else {
             int x = getX() + Math.round((getWidth() - handleSize) * getPercentage());
             return w.mouseX >= x && w.mouseX < x + handleSize;
+        }
+    }
+
+    @Override
+    public void renderTooltip(MatrixStack matrices, Font font) {
+        //grab text
+        Text tooltip = getTooltip();
+        if (tooltip == null || tooltip.isEmpty())
+            return;
+
+        //dimensions
+        int w = TextUtils.getWidth(tooltip, font);
+        int h = TextUtils.getHeight(tooltip, font);
+
+        int wx = getX();
+        int wy = getY();
+        int cx = getCenterX();
+        int cy = getCenterY();
+
+        Window window = Client.getInstance().window;
+        int screenW = window.scaledWidth;
+        int screenH = window.scaledHeight;
+
+        int b = GUIStyle.tooltipBorder;
+
+        if (isVertical()) {
+            int animY = (int) ((getHeight() - handleSize) * getAnimationValue()) + handleSize / 2;
+            boolean left = false;
+            int x = wx + getWidth() + b + 4;
+            int y = wy - h / 2 + animY;
+
+            //boundaries test
+            if (x + w + b > screenW && cx > screenW / 2) {
+                x = wx - w - b - 4;
+                left = true;
+            }
+            x = Math.clamp(x, b, screenW - w - b);
+            y = Math.clamp(y, b, screenH - h - b);
+
+            //render
+            UIHelper.renderTooltip(matrices, x, y, w, h, cx, wy + animY, (byte) (left ? 1 : 0), tooltip, font);
+        } else {
+            int animX = (int) ((getWidth() - handleSize) * getAnimationValue()) + handleSize / 2;
+            boolean bottom = false;
+            int x = wx - w / 2 + animX;
+            int y = wy - h - b - 4;
+
+            //boundaries test
+            if (y < b && cy < screenH / 2) {
+                y = wy + b + 4;
+                bottom = true;
+            }
+            x = Math.clamp(x, b, screenW - w - b);
+            y = Math.clamp(y, b, screenH - h - b);
+
+            //render
+            UIHelper.renderTooltip(matrices, x, y, w, h, wx + animX, cy, (byte) (bottom ? 3 : 2), tooltip, font);
         }
     }
 }

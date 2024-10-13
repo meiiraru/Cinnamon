@@ -1,10 +1,13 @@
 package cinnamon.gui.widgets;
 
 import cinnamon.Client;
+import cinnamon.gui.GUIStyle;
 import cinnamon.gui.widgets.types.ContextMenu;
+import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.text.Text;
+import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -136,5 +139,41 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
 
     public void setSelectable(boolean selectable) {
         this.selectable = selectable;
+    }
+
+    public void renderTooltip(MatrixStack matrices, Font font) {
+        //grab text
+        Text tooltip = getTooltip();
+        if (tooltip == null || tooltip.isEmpty())
+            return;
+
+        //dimensions
+        int w = TextUtils.getWidth(tooltip, font);
+        int h = TextUtils.getHeight(tooltip, font);
+
+        int wx = getX();
+        int cx = getCenterX();
+        int cy = getCenterY();
+
+        Window window = Client.getInstance().window;
+        int screenW = window.scaledWidth;
+        int screenH = window.scaledHeight;
+
+        int b = GUIStyle.tooltipBorder;
+        boolean left = false;
+
+        int x = wx + getWidth() + b + 4;
+        int y = cy - h / 2;
+
+        //boundaries test
+        if (x + w + b > screenW && cx > screenW / 2) {
+            x = wx - w - b - 4;
+            left = true;
+        }
+        x = Math.clamp(x, b, screenW - w - b);
+        y = Math.clamp(y, b, screenH - h - b);
+
+        //render
+        UIHelper.renderTooltip(matrices, x, y, w, h, cx, cy, (byte) (left ? 1 : 0), tooltip, font);
     }
 }

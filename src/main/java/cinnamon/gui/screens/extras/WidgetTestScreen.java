@@ -4,7 +4,11 @@ import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.widgets.ContainerGrid;
+import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.types.*;
+import cinnamon.model.GeometryHelper;
+import cinnamon.render.MatrixStack;
+import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
@@ -90,7 +94,7 @@ public class WidgetTestScreen extends ParentedScreen {
             cpb.setProgress(f);
         });
         s.setMax(1000);
-        s.setValue((int) (Math.random() * 500) + 250);
+        s.setPercentage((float) Math.random());
 
         b.setAction(button -> s.setStepCount(s.getStepCount() + 1));
 
@@ -117,13 +121,31 @@ public class WidgetTestScreen extends ParentedScreen {
         Button viewPassword = new Button(0, 0, 16, 16, null, button -> {
             tf4.setPassword(!button.isHolding());
             button.setImage(button.isHolding() ? password2 : password1);
+            button.setTooltip(Text.of(button.isHolding() ? "Hide Password" : "Show Password"));
         });
         viewPassword.setImage(password1);
         viewPassword.setRunOnHold(true);
+        viewPassword.setTooltip(Text.of("Show Password"));
         password.addWidget(viewPassword);
+
+        //tooltip test
+        SelectableWidget empty = new SelectableWidget(0, 0, 10, 10) {
+            @Override
+            public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+                setPos(mouseX - getWidth() / 2, mouseY - getHeight() / 2);
+                VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x88 << 24));
+            }
+        };
+        empty.setTooltip(Text.of("Tooltip!"));
 
         //checkbox
         Checkbox ckb = new Checkbox(0, 0, Text.of("Checkbox"));
+        ckb.setAction(button -> {
+            if (ckb.isToggled())
+                this.addWidgetOnTop(empty);
+            else
+                this.removeWidget(empty);
+        });
         grid.addWidget(ckb);
 
         //toast 1

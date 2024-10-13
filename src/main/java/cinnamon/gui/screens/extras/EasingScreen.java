@@ -56,6 +56,7 @@ public class EasingScreen extends ParentedScreen {
     private Slider slider;
     private Button playButton;
     private boolean playing;
+    private boolean updateSlider;
 
     @Override
     public void init() {
@@ -122,14 +123,17 @@ public class EasingScreen extends ParentedScreen {
         int sliderW = 35 * 6;
         slider = new Slider((width - sliderW) / 2, height - 12, sliderW);
         slider.setUpdateListener((f, i) -> {
+            if (updateSlider) {
+                updateSlider = false;
+                return;
+            }
             for (EasingWidget widget : widgets) {
                 widget.playTime = i;
                 widget.calculatePos();
             }
-            slider.setTooltip(Text.of("%.2f".formatted(f)));
         });
         slider.setMax(EasingWidget.ANIMATION_TIME);
-        slider.showValueTooltip(false);
+        slider.setTooltipFunction((f, i) -> Text.of("%.2f".formatted(f)));
         this.addWidget(slider);
 
         super.init();
@@ -145,8 +149,8 @@ public class EasingScreen extends ParentedScreen {
     public void tick() {
         super.tick();
         if (playing) {
+            updateSlider = true;
             slider.updateValue(widgets[0].playTime);
-            slider.setTooltip(Text.of("%.2f".formatted(slider.getPercentage())));
             playing = widgets[0].playing;
             playButton.setImage(playing ? PAUSE_IMG : PLAY_IMG);
         }

@@ -40,11 +40,16 @@ public class GUIStyle {
     public static char
             passwordChar = '\u2022';
     public static int
-            cursorWidth = 1;
+            cursorWidth = 1,
+            insertWidth = 4;
 
     //context menu
     public static int
             dividerSize = 5;
+
+    //tooltip
+    public static int
+            tooltipBorder = 4;
 
     public static void init() {
         JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(RESOURCE))).getAsJsonObject();
@@ -67,8 +72,11 @@ public class GUIStyle {
 
             passwordChar = json.get("password_char").getAsString().charAt(0);
             cursorWidth = json.get("cursor_width").getAsInt();
+            insertWidth = json.get("cursor_insert_width").getAsInt();
 
             dividerSize = json.get("context_menu_divider_size").getAsInt();
+
+            tooltipBorder = json.get("tooltip_border").getAsInt();
         } catch (Exception e) {
             Client.LOGGER.error("Failed to load GUI style settings", e);
         }
