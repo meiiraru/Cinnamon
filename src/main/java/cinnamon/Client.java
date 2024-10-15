@@ -283,4 +283,9 @@ public class Client {
             this.setScreen(new PauseScreen());
         }
     }
+
+    public void filesDropped(String[] files) {
+        if (screen != null)
+            screen.filesDropped(files);
+    }
 }

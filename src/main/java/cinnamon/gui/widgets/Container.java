@@ -183,6 +183,16 @@ public class Container extends Widget implements Tickable, GUIListener {
         return null;
     }
 
+    @Override
+    public GUIListener filesDropped(String[] files) {
+        for (GUIListener listener : this.listeners) {
+            GUIListener result = listener.filesDropped(files);
+            if (result != null)
+                return result;
+        }
+        return null;
+    }
+
     public SelectableWidget selectNext(SelectableWidget current, boolean backwards) {
         List<SelectableWidget> list = getSelectableWidgets();
 

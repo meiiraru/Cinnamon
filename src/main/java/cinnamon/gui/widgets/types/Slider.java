@@ -481,7 +481,7 @@ public class Slider extends SelectableWidget {
 
             //boundaries test
             if (y < b && cy < screenH / 2) {
-                y = wy + b + 4;
+                y = wy + (int) font.lineHeight + b + 4;
                 bottom = true;
             }
             x = Math.clamp(x, b, screenW - w - b);

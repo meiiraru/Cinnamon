@@ -8,6 +8,7 @@ import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.utils.Resource;
 import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -65,13 +66,22 @@ public class Main {
 
         //input callbacks
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> client.keyPress(key, scancode, action, mods));
-        glfwSetCharModsCallback(window, (window, key, mods) -> {for (char c : Character.toChars(key)) client.charTyped(c, mods);});
+        glfwSetCharModsCallback(window, (window, key, mods) -> {
+            for (char c : Character.toChars(key))
+                client.charTyped(c, mods);
+        });
         glfwSetMouseButtonCallback(window, (window, button, action, mods) -> client.mousePress(button, action, mods));
         glfwSetCursorPosCallback(window, (window, x, y) -> client.mouseMove(x, y));
         glfwSetScrollCallback(window, (window, x, y) -> client.scroll(x, y));
         glfwSetWindowPosCallback(window, (window, x, y) -> client.windowMove(x, y));
         glfwSetWindowSizeCallback(window, (window, width, height) -> client.windowResize(width, height));
         glfwSetWindowFocusCallback(window, (window, focused) -> client.windowFocused(focused));
+        glfwSetDropCallback(window, (window, count, names) -> {
+            String[] nameArray = new String[count];
+            for (int i = 0; i < count; i++)
+                nameArray[i] = GLFWDropCallback.getName(names, i);
+            client.filesDropped(nameArray);
+        });
 
         //make the OpenGL context current
         glfwMakeContextCurrent(window);

@@ -60,6 +60,14 @@ public class SoundInstance {
         return this;
     }
 
+    public SoundInstance setPlaybackTime(long millis) {
+        return this;
+    }
+
+    public long getPlaybackTime() {
+        return 0;
+    }
+
     public SoundCategory getCategory() {
         return category;
     }

@@ -31,10 +31,16 @@ public class IOUtils {
 
     public static ByteBuffer getResourceBuffer(Resource res) {
         InputStream stream = getResource(res);
-
         if (stream == null)
             throw new RuntimeException("Resource not found: " + res);
+        return getBufferForStream(stream);
+    }
 
+    public static boolean hasResource(Resource res) {
+        return getResource(res) != null;
+    }
+
+    public static ByteBuffer getBufferForStream(InputStream stream) {
         try {
             ByteBuffer fontBuffer = BufferUtils.createByteBuffer(stream.available() + 1);
             Channels.newChannel(stream).read(fontBuffer);
@@ -44,10 +50,6 @@ public class IOUtils {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static boolean hasResource(Resource res) {
-        return getResource(res) != null;
     }
 
     public static String readString(Resource res) {

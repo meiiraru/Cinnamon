@@ -25,4 +25,8 @@ public interface GUIListener {
     default GUIListener windowFocused(boolean focused) {
         return null;
     }
+
+    default GUIListener filesDropped(String[] files) {
+        return null;
+    }
 }

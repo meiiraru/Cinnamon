@@ -62,18 +62,20 @@ public class SoundManager {
     static void checkALError() {
         int err = alGetError();
         if (err != AL_NO_ERROR)
-            throw new RuntimeException("(" + err + ")" + alGetString(err));
+            throw new RuntimeException("(" + err + ") " + alGetString(err));
     }
 
     private static void checkALCError(long device) {
         int err = alcGetError(device);
         if (err != ALC_NO_ERROR)
-            throw new RuntimeException("(" + err + ")" + alcGetString(device, err));
+            throw new RuntimeException("(" + err + ") " + alcGetString(device, err));
     }
 
     public void tick(Camera camera) {
         if (!initalized)
             return;
+
+        checkALError();
 
         //free stopped sounds
         for (SoundInstance sound : sounds)

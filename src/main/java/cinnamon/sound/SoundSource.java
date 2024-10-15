@@ -4,6 +4,7 @@ import cinnamon.utils.Resource;
 import org.joml.Vector3f;
 
 import static org.lwjgl.openal.AL10.*;
+import static org.lwjgl.openal.AL11.AL_SEC_OFFSET;
 
 public class SoundSource extends SoundInstance {
 
@@ -14,7 +15,7 @@ public class SoundSource extends SoundInstance {
         super(category);
         this.source = alGenSources();
 
-        int buffer = Sound.of(resource).getId();
+        int buffer = Sound.of(resource).id;
         alSourcei(source, AL_BUFFER, buffer);
 
         SoundManager.checkALError();
@@ -117,5 +118,16 @@ public class SoundSource extends SoundInstance {
     public SoundSource maxDistance(float maxDistance) {
         alSourcef(source, AL_MAX_DISTANCE, maxDistance);
         return this;
+    }
+
+    @Override
+    public SoundSource setPlaybackTime(long millis) {
+        alSourcef(source, AL_SEC_OFFSET, millis / 1000f);
+        return this;
+    }
+
+    @Override
+    public long getPlaybackTime() {
+        return (long) (alGetSourcef(source, AL_SEC_OFFSET) * 1000f);
     }
 }

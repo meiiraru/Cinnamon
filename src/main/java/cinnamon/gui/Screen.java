@@ -243,4 +243,8 @@ public abstract class Screen {
     public boolean windowFocused(boolean focused) {
         return this.mainContainer.windowFocused(focused) != null;
     }
+
+    public boolean filesDropped(String[] files) {
+        return this.mainContainer.filesDropped(files) != null;
+    }
 }
