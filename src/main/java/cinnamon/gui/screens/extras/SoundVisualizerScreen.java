@@ -4,7 +4,6 @@ import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.types.Button;
-import cinnamon.gui.widgets.types.Checkbox;
 import cinnamon.gui.widgets.types.Slider;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.MatrixStack;
@@ -30,7 +29,8 @@ public class SoundVisualizerScreen extends ParentedScreen {
             PLAY = new Resource("textures/gui/icons/play.png"),
             PAUSE = new Resource("textures/gui/icons/pause.png"),
             STOP = new Resource("textures/gui/icons/stop.png"),
-            REPEAT = new Resource("textures/gui/icons/reload.png");
+            REPEAT = new Resource("textures/gui/icons/repeat.png"),
+            REPEAT_OFF = new Resource("textures/gui/icons/repeat_off.png");
 
     private Resource resource;
 
@@ -71,7 +71,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
                 playSound();
             }
         });
-        playPauseButton.setImage(PLAY);
+        playPauseButton.setImage(soundData != null && !soundData.isRemoved() && soundData.isPlaying() ? PAUSE : PLAY);
         grid.addWidget(playPauseButton);
 
         Button stopButton = new Button(0, 0, 16, 16, null, button -> {
@@ -84,13 +84,13 @@ public class SoundVisualizerScreen extends ParentedScreen {
         stopButton.setImage(STOP);
         grid.addWidget(stopButton);
 
-        Checkbox repeatButton = new Checkbox(0, 0, Text.of("Repeat"));
-        repeatButton.setAction(button -> {
+        Button repeatButton = new Button(0, 0, 16, 16, null, button -> {
             repeat = !repeat;
             if (soundData != null && !soundData.isRemoved())
                 soundData.loop(repeat);
+            button.setImage(repeat ? REPEAT : REPEAT_OFF);
         });
-        //repeatButton.setImage(REPEAT);
+        repeatButton.setImage(repeat ? REPEAT : REPEAT_OFF);
         grid.addWidget(repeatButton);
 
         grid.setAlignment(Alignment.CENTER);
@@ -98,7 +98,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         addWidget(grid);
 
         slider = new Slider((width - 240) / 2, height - 8 - 4, 240);
-        slider.setMax(1);
+        slider.setMax(sound != null ? sound.duration : 1);
         slider.setChangeListener((f, i) -> {
             if (soundData != null && !soundData.isRemoved())
                 soundData.setPlaybackTime(i);

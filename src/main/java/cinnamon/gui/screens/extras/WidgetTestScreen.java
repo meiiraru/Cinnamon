@@ -187,13 +187,13 @@ public class WidgetTestScreen extends ParentedScreen {
         Slider s2 = new Slider(0, 0, 40);
         vertical.addWidget(s2);
 
-        s2.setMax(Colors.RAINBOW.length - 1);
-        s2.setStepCount(Colors.RAINBOW.length);
+        s2.setMax((int) client.window.maxGuiScale);
+        s2.setStepCount((int) client.window.maxGuiScale + 1);
         s2.setChangeListener((f, i) -> {
             client.options.guiScale = i;
             client.windowResize(client.window.width, client.window.height);
         });
-        s2.setUpdateListener((f, i) -> s2.setColor(Colors.RAINBOW[i]));
+        s2.setUpdateListener((f, i) -> s2.setColor(Colors.RAINBOW[i % Colors.RAINBOW.length]));
         s2.updateValue((int) client.window.guiScale);
         s2.setVertical(true);
 

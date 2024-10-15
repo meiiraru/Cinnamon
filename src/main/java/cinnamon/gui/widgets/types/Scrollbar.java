@@ -64,4 +64,9 @@ public class Scrollbar extends Slider {
         int size = isVertical() ? getHeight() : getWidth();
         this.handleSize = Math.max(8, Math.round(size * Math.min(handleSize, 1f)));
     }
+
+    @Override
+    protected boolean updateValueOnClick() {
+        return !isHandleHovered();
+    }
 }

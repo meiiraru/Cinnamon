@@ -186,20 +186,8 @@ public class Slider extends SelectableWidget {
         Window w = Client.getInstance().window;
 
         if (mouseSelected) {
-            if (!isHandleHovered()) {
-                int pos;
-                int size;
-
-                if (isVertical()) {
-                    pos = w.mouseY - getY() - handleSize / 2;
-                    size = getHeight() - handleSize;
-                } else {
-                    pos = w.mouseX - getX() - handleSize / 2;
-                    size = getWidth() - handleSize;
-                }
-
-                updatePercentage((float) pos / size);
-            }
+            if (updateValueOnClick())
+                updatePercentage(getValueAtMouse(w.mouseX, w.mouseY));
 
             anchorX = w.mouseX;
             anchorY = w.mouseY;
@@ -309,7 +297,7 @@ public class Slider extends SelectableWidget {
         value = Math.clamp(value, 0f, 1f);
 
         this.value = value;
-        this.intValue = Math.round((max - min) * value + min);
+        this.intValue = Math.round(Maths.lerp(min, max, value));
 
         if (showTooltip)
             super.setTooltip(tooltipFunction.apply(this.value, this.intValue));
@@ -435,10 +423,39 @@ public class Slider extends SelectableWidget {
         }
     }
 
+    protected float getValueAtMouse(int mouseX, int mouseY) {
+        int pos;
+        int size;
+
+        if (isVertical()) {
+            pos = mouseY - getY() - handleSize / 2;
+            size = getHeight() - handleSize;
+        } else {
+            pos = mouseX - getX() - handleSize / 2;
+            size = getWidth() - handleSize;
+        }
+
+        float value = (float) pos / size;
+        value = snapToClosestStep(value);
+        return Math.clamp(value, 0f, 1f);
+    }
+
+    protected boolean updateValueOnClick() {
+        return true;
+    }
+
     @Override
     public void renderTooltip(MatrixStack matrices, Font font) {
+        if (!showTooltip || !isHovered()) {
+            super.renderTooltip(matrices, font);
+            return;
+        }
+
         //grab text
-        Text tooltip = getTooltip();
+        Window window = Client.getInstance().window;
+        float value = getValueAtMouse(window.mouseX, window.mouseY);
+        Text tooltip = tooltipFunction.apply(value, Math.round(Maths.lerp(min, max, value)));
+
         if (tooltip == null || tooltip.isEmpty())
             return;
 
@@ -451,14 +468,14 @@ public class Slider extends SelectableWidget {
         int cx = getCenterX();
         int cy = getCenterY();
 
-        Window window = Client.getInstance().window;
         int screenW = window.scaledWidth;
         int screenH = window.scaledHeight;
 
         int b = GUIStyle.tooltipBorder;
 
+
         if (isVertical()) {
-            int animY = (int) ((getHeight() - handleSize) * getAnimationValue()) + handleSize / 2;
+            int animY = (int) ((getHeight() - handleSize) * value) + handleSize / 2;
             boolean left = false;
             int x = wx + getWidth() + b + 4;
             int y = wy - h / 2 + animY;
@@ -474,7 +491,7 @@ public class Slider extends SelectableWidget {
             //render
             UIHelper.renderTooltip(matrices, x, y, w, h, cx, wy + animY, (byte) (left ? 1 : 0), tooltip, font);
         } else {
-            int animX = (int) ((getWidth() - handleSize) * getAnimationValue()) + handleSize / 2;
+            int animX = (int) ((getWidth() - handleSize) * value) + handleSize / 2;
             boolean bottom = false;
             int x = wx - w / 2 + animX;
             int y = wy - h - b - 4;

@@ -15,10 +15,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.ColorUtils;
-import cinnamon.utils.Colors;
-import cinnamon.utils.Maths;
-import cinnamon.utils.Resource;
+import cinnamon.utils.*;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -119,10 +116,17 @@ public class EasingScreen extends ParentedScreen {
         list.addWidget(new Label(0, 0, Text.empty(), font));
         this.addWidget(list);
 
+        Label sliderValue = new Label(0, 0, Text.of("0.00"), font);
+        sliderValue.setAlignment(Alignment.CENTER);
+
         //slider
         int sliderW = 35 * 6;
         slider = new Slider((width - sliderW) / 2, height - 12, sliderW);
+        slider.setMax(EasingWidget.ANIMATION_TIME);
+        slider.setTooltipFunction((f, i) -> Text.of("%.2f".formatted(f)));
         slider.setUpdateListener((f, i) -> {
+            sliderValue.setText(slider.getTooltip());
+
             if (updateSlider) {
                 updateSlider = false;
                 return;
@@ -132,9 +136,10 @@ public class EasingScreen extends ParentedScreen {
                 widget.calculatePos();
             }
         });
-        slider.setMax(EasingWidget.ANIMATION_TIME);
-        slider.setTooltipFunction((f, i) -> Text.of("%.2f".formatted(f)));
         this.addWidget(slider);
+
+        sliderValue.setPos(width / 2, 4);
+        this.addWidget(sliderValue);
 
         super.init();
     }

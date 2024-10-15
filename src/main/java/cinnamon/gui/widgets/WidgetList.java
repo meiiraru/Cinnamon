@@ -80,7 +80,12 @@ public class WidgetList extends ContainerGrid {
 
         //spacing
         int width = getWidth();
-        if (shouldRenderScrollbar) width -= scrollbar.getWidth() + 3;
+        if (shouldRenderScrollbar) {
+            int remainingSpace = width - getWidgetsWidth();
+            remainingSpace += (int) alignment.getOffset(remainingSpace);
+            if (remainingSpace < scrollbar.getWidth() + 3)
+                width -= scrollbar.getWidth() + 3;
+        }
         int x = -Math.round(alignment.getOffset(width - getWidgetsWidth()));
         for (Widget widget : widgets)
             widget.translate(x, 1);
