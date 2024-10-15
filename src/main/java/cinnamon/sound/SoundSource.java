@@ -19,6 +19,9 @@ public class SoundSource extends SoundInstance {
         alSourcei(source, AL_BUFFER, buffer);
 
         SoundManager.checkALError();
+
+        //update volume to apply the category modifier
+        volume(getVolume());
     }
 
     public SoundSource(Resource resource, SoundCategory category, Vector3f pos) {

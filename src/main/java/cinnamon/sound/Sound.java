@@ -5,11 +5,9 @@ import cinnamon.utils.Resource;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBVorbisInfo;
 
-import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,16 +49,7 @@ public class Sound {
             IntBuffer error = BufferUtils.createIntBuffer(1);
 
             //load sound file
-            ByteBuffer soundBuffer;
-            if (resource.getNamespace().isEmpty()) {
-                    byte[] bytes = IOUtils.readFile(Path.of(resource.getPath()));
-                    if (bytes == null)
-                        throw new RuntimeException("Failed to read file: " + resource.getPath());
-                    soundBuffer = IOUtils.getBufferForStream(new ByteArrayInputStream(bytes));
-            } else {
-                soundBuffer = IOUtils.getResourceBuffer(resource);
-            }
-
+            ByteBuffer soundBuffer = IOUtils.getResourceBuffer(resource);
             long decoder = stb_vorbis_open_memory(soundBuffer, error, null);
             if (decoder == NULL)
                 throw new RuntimeException("Failed to open Ogg Vorbis file, error: " + error.get(0));

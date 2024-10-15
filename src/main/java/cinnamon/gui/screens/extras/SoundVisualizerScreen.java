@@ -6,6 +6,7 @@ import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Slider;
 import cinnamon.model.GeometryHelper;
+import cinnamon.parsers.LrcLoader;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.sound.Sound;
@@ -19,6 +20,7 @@ import cinnamon.utils.Resource;
 import org.jtransforms.fft.DoubleFFT_1D;
 
 import java.nio.ShortBuffer;
+import java.nio.file.Path;
 
 public class SoundVisualizerScreen extends ParentedScreen {
 
@@ -33,6 +35,8 @@ public class SoundVisualizerScreen extends ParentedScreen {
             REPEAT_OFF = new Resource("textures/gui/icons/repeat_off.png");
 
     private Resource resource;
+    private LrcLoader.Lyrics lyrics;
+    private String title = "";
 
     private Sound sound;
     private SoundInstance soundData;
@@ -105,6 +109,13 @@ public class SoundVisualizerScreen extends ParentedScreen {
         });
         slider.setTooltipFunction((f, i) -> Text.of("%d:%02d".formatted(i / 1000 / 60, (i / 1000) % 60)));
         addWidget(slider);
+
+        Slider volume = new Slider(4, height - 8 - 4, 50);
+        volume.updatePercentage(SoundCategory.MUSIC.getVolume());
+        volume.setUpdateListener((f, i) -> SoundCategory.MUSIC.setVolume(client.soundManager, f));
+        volume.setTooltipFunction((f, i) -> Text.of("Volume: " + i));
+        addWidget(volume);
+
         super.init();
     }
 
@@ -167,7 +178,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         //draw top text
         font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), 4, Text.of("Drop an Ogg Vorbis file to play!").withStyle(Style.EMPTY.color(Colors.LIGHT_GRAY)), Alignment.CENTER);
         if (resource != null)
-            font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of("File:\n" + resource.getPath()));
+            font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of("Current Playing:\n" + resource.getPath()));
 
         //draw timers
         int x = slider.getX();
@@ -176,6 +187,16 @@ public class SoundVisualizerScreen extends ParentedScreen {
         int max = slider.getMax() / 1000;
         font.render(VertexConsumer.FONT, matrices, x - 4, y, Text.of("%d:%02d".formatted(now / 60, now % 60)), Alignment.RIGHT);
         font.render(VertexConsumer.FONT, matrices, x + slider.getWidth() + 4, y, Text.of("%d:%02d".formatted(max / 60, max % 60)));
+
+        if (!title.isBlank())
+            font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), playPauseButton.getY() - font.lineHeight - 4, Text.of(title), Alignment.CENTER);
+
+        if (lyrics != null && soundData != null && !soundData.isRemoved()) {
+            int time = (int) soundData.getPlaybackTime();
+            String text = lyrics.getLyric(time);
+            if (!text.isBlank())
+                font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), (int) (height / 4f) - font.lineHeight / 2, Text.of(text), Alignment.CENTER);
+        }
 
         //render widgets
         super.render(matrices, mouseX, mouseY, delta);
@@ -204,6 +225,22 @@ public class SoundVisualizerScreen extends ParentedScreen {
     public boolean filesDropped(String[] files) {
         if (files.length > 0 && files[0].toLowerCase().endsWith(".ogg")) {
             this.resource = new Resource("", files[0]);
+
+            Path path = Path.of(files[0]);
+            String filename = path.getFileName().toString();
+            filename = filename.substring(0, filename.length() - 4);
+
+            String title = "";
+
+            try {
+                this.lyrics = LrcLoader.loadLyrics(new Resource("", path.getParent().resolve(filename + ".lrc").toString()));
+                title = lyrics.title + " - " + lyrics.artist;
+            } catch (Exception ignored) {
+                this.lyrics = null;
+            }
+
+            this.title = title.isBlank() ? filename : title;
+
             playSound();
             return true;
         }

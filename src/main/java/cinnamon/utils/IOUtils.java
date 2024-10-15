@@ -25,6 +25,9 @@ public class IOUtils {
     public static final Path ROOT_FOLDER = Path.of("./" + VANILLA_FOLDER);
 
     public static InputStream getResource(Resource res) {
+        if (res.getNamespace().isEmpty())
+            return readFileStream(Path.of(res.getPath()));
+
         String resourcePath = "resources/" + res.getNamespace() + "/" + res.getPath();
         return IOUtils.class.getClassLoader().getResourceAsStream(resourcePath);
     }
@@ -73,6 +76,16 @@ public class IOUtils {
             try (GZIPInputStream gzip = new GZIPInputStream(stream)) {
                 return gzip.readAllBytes();
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static InputStream readFileStream(Path path) {
+        if (!Files.exists(path))
+            return null;
+        try {
+            return Files.newInputStream(path);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
