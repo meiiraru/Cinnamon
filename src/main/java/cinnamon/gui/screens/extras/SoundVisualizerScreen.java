@@ -239,7 +239,10 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
             try {
                 this.lyrics = LrcLoader.loadLyrics(new Resource("", path.getParent().resolve(filename + ".lrc").toString()));
-                title = lyrics.title + " - " + lyrics.artist;
+                if (!lyrics.title.isBlank())
+                    title = lyrics.title;
+                if (!lyrics.artist.isBlank())
+                    title += " - " + lyrics.artist;
             } catch (Exception ignored) {
                 this.lyrics = null;
             }

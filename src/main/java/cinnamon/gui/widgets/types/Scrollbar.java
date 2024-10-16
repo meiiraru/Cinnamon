@@ -1,6 +1,5 @@
 package cinnamon.gui.widgets.types;
 
-import cinnamon.gui.widgets.GUIListener;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Resource;
@@ -14,6 +13,7 @@ public class Scrollbar extends Slider {
         super(x, y, size, 8);
         this.setVertical(true);
         this.showValueTooltip(false);
+        this.invertY(true);
     }
 
     @Override
@@ -69,10 +69,5 @@ public class Scrollbar extends Slider {
     @Override
     protected boolean updateValueOnClick() {
         return !isHandleHovered();
-    }
-
-    @Override
-    public GUIListener forceScroll(double x, double y) {
-        return super.forceScroll(x, -y);
     }
 }

@@ -37,7 +37,8 @@ public class Slider extends SelectableWidget {
     private BiConsumer<Float, Integer> changeListener, updateListener;
     private boolean mouseSelected;
     private float animationValue;
-    private boolean wasTheLastMouseActionAScroll;
+    private boolean showCurrentTooltip;
+    private boolean invertY;
 
     protected int handleSize = 8;
     protected int anchorX, anchorY;
@@ -206,7 +207,7 @@ public class Slider extends SelectableWidget {
 
     @Override
     public GUIListener mouseMove(int x, int y) {
-        wasTheLastMouseActionAScroll = false;
+        showCurrentTooltip = false;
 
         if (this.mouseSelected) {
             int delta;
@@ -236,9 +237,9 @@ public class Slider extends SelectableWidget {
     }
 
     public GUIListener forceScroll(double x, double y) {
-        wasTheLastMouseActionAScroll = true;
+        showCurrentTooltip = true;
         float val = steps == 1 ? scrollAmount : stepValue;
-        setPercentage(value + (Math.signum(y) < 0 ? -val : val));
+        setPercentage(value + (Math.signum(invertY ? -y : y) < 0 ? -val : val));
         return this;
     }
 
@@ -246,8 +247,10 @@ public class Slider extends SelectableWidget {
     public GUIListener keyPress(int key, int scancode, int action, int mods) {
         if (isActive() && isHoveredOrFocused()) {
             switch (key) {
-                case GLFW_KEY_LEFT, GLFW_KEY_UP -> {return selectNext(true, action, mods);}
-                case GLFW_KEY_RIGHT, GLFW_KEY_DOWN -> {return selectNext(false, action, mods);}
+                case GLFW_KEY_LEFT -> {return selectNext(true, action, mods);}
+                case GLFW_KEY_RIGHT -> {return selectNext(false, action, mods);}
+                case GLFW_KEY_DOWN -> {return selectNext(!invertY, action, mods);}
+                case GLFW_KEY_UP -> {return selectNext(invertY, action, mods);}
             }
         }
 
@@ -255,6 +258,8 @@ public class Slider extends SelectableWidget {
     }
 
     protected Slider selectNext(boolean backwards, int action, int mods) {
+        showCurrentTooltip = true;
+
         if (action == GLFW_RELEASE) {
             setPercentage(value);
             return this;
@@ -448,6 +453,10 @@ public class Slider extends SelectableWidget {
         return true;
     }
 
+    public void invertY(boolean invert) {
+        this.invertY = invert;
+    }
+
     @Override
     public void renderTooltip(MatrixStack matrices, Font font) {
         if (!showTooltip || !isHovered()) {
@@ -457,7 +466,7 @@ public class Slider extends SelectableWidget {
 
         //grab text
         Window window = Client.getInstance().window;
-        float value = wasTheLastMouseActionAScroll ? getAnimationValue() : getValueAtMouse(window.mouseX, window.mouseY);
+        float value = showCurrentTooltip ? getAnimationValue() : getValueAtMouse(window.mouseX, window.mouseY);
         Text tooltip = tooltipFunction.apply(value, Math.round(Maths.lerp(min, max, value)));
 
         if (tooltip == null || tooltip.isEmpty())
