@@ -37,6 +37,7 @@ public class Slider extends SelectableWidget {
     private BiConsumer<Float, Integer> changeListener, updateListener;
     private boolean mouseSelected;
     private float animationValue;
+    private boolean wasTheLastMouseActionAScroll;
 
     protected int handleSize = 8;
     protected int anchorX, anchorY;
@@ -205,6 +206,8 @@ public class Slider extends SelectableWidget {
 
     @Override
     public GUIListener mouseMove(int x, int y) {
+        wasTheLastMouseActionAScroll = false;
+
         if (this.mouseSelected) {
             int delta;
             int size;
@@ -233,8 +236,9 @@ public class Slider extends SelectableWidget {
     }
 
     public GUIListener forceScroll(double x, double y) {
+        wasTheLastMouseActionAScroll = true;
         float val = steps == 1 ? scrollAmount : stepValue;
-        setPercentage(value + (Math.signum(-y) < 0 ? -val : val));
+        setPercentage(value + (Math.signum(y) < 0 ? -val : val));
         return this;
     }
 
@@ -453,7 +457,7 @@ public class Slider extends SelectableWidget {
 
         //grab text
         Window window = Client.getInstance().window;
-        float value = getValueAtMouse(window.mouseX, window.mouseY);
+        float value = wasTheLastMouseActionAScroll ? getAnimationValue() : getValueAtMouse(window.mouseX, window.mouseY);
         Text tooltip = tooltipFunction.apply(value, Math.round(Maths.lerp(min, max, value)));
 
         if (tooltip == null || tooltip.isEmpty())
@@ -472,7 +476,6 @@ public class Slider extends SelectableWidget {
         int screenH = window.scaledHeight;
 
         int b = GUIStyle.tooltipBorder;
-
 
         if (isVertical()) {
             int animY = (int) ((getHeight() - handleSize) * value) + handleSize / 2;

@@ -197,9 +197,18 @@ public class WidgetTestScreen extends ParentedScreen {
         s2.updateValue((int) client.window.guiScale);
         s2.setVertical(true);
 
+        Slider s3 = new Slider(0, 0, 40);
+        s3.setVertical(true);
+        vertical.addWidget(s3);
+
         //scrollbar
         Scrollbar bar = new Scrollbar(0, 0, 40);
         vertical.addWidget(bar);
+
+        //scrollbar 2
+        Scrollbar bar2 = new Scrollbar(0, 0, 40);
+        bar2.setVertical(false);
+        grid2.addWidget(bar2);
 
         //add lists
         addWidget(grid);

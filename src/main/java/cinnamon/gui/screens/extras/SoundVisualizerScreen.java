@@ -55,7 +55,8 @@ public class SoundVisualizerScreen extends ParentedScreen {
     @Override
     public void removed() {
         super.removed();
-        client.soundManager.stopAll();
+        if (soundData != null && !soundData.isRemoved())
+            soundData.stop();
     }
 
     @Override
@@ -76,6 +77,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
             }
         });
         playPauseButton.setImage(soundData != null && !soundData.isRemoved() && soundData.isPlaying() ? PAUSE : PLAY);
+        playPauseButton.setSilent(true);
         grid.addWidget(playPauseButton);
 
         Button stopButton = new Button(0, 0, 16, 16, null, button -> {
@@ -86,6 +88,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
             }
         });
         stopButton.setImage(STOP);
+        stopButton.setSilent(true);
         grid.addWidget(stopButton);
 
         Button repeatButton = new Button(0, 0, 16, 16, null, button -> {
@@ -95,6 +98,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
             button.setImage(repeat ? REPEAT : REPEAT_OFF);
         });
         repeatButton.setImage(repeat ? REPEAT : REPEAT_OFF);
+        repeatButton.setSilent(true);
         grid.addWidget(repeatButton);
 
         grid.setAlignment(Alignment.CENTER);
@@ -120,7 +124,8 @@ public class SoundVisualizerScreen extends ParentedScreen {
     }
 
     private void playSound() {
-        client.soundManager.stopAll();
+        if (soundData != null && !soundData.isRemoved())
+            soundData.stop();
 
         sound = Sound.of(resource);
         soundData = client.soundManager.playSound(resource, SoundCategory.MUSIC);
