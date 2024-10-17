@@ -208,12 +208,26 @@ public class SoundVisualizerScreen extends ParentedScreen {
     }
 
     private void drawSpectrum(MatrixStack matrices, double[][] audioData) {
-        //apply FFT
+        // Apply FFT to the left audio channel (audioData[0])
         FFT.realForward(audioData[0]);
 
-        //draw audio data
-        for (int i = 0; i < audioData[0].length; i++) {
-            float amplitude = (float) Math.abs(audioData[0][i]) / 10000f;
+        // Number of bars (can vary based on the visualization width)
+        int numBars = width;
+
+        // Draw audio data with log scale
+        for (int i = 1; i < numBars; i++) {
+            // Logarithmic index mapping
+            int logI = (int) (Math.pow(FFT_SIZE, (double) i / numBars) - 1);
+
+            // Ensure logI stays within valid bounds
+            if (logI >= FFT_SIZE) {
+                continue;
+            }
+
+            // Calculate amplitude from log-scaled frequency bin
+            float amplitude = (float) Math.abs(audioData[0][logI]) / 10000f;
+
+            // Draw the bar on the spectrum visualizer
             drawBar(matrices, i, amplitude);
         }
     }
