@@ -343,10 +343,19 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
     private void drawBar(MatrixStack matrices, int i, float amplitude) {
         int w = 1;
-        if (i * w > width)
+        int x = i * w;
+
+        if (x > width)
             return;
 
-        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, i * w, (height - amplitude) / 2, i * w + w, (height + amplitude) / 2, 0xFF72FFAD));
+        int y = height - height / 3;
+        int height = (int) (amplitude * 0.5f);
+        int color = Colors.CYAN.rgb;
+
+        //bar
+        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y - height, x + w, y, color + (0xFF << 24)));
+        //mirror
+        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y, x + w, y + height, color + (0x88 << 24)));
     }
 
     @Override
