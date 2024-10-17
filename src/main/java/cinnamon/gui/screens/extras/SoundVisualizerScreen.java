@@ -60,15 +60,20 @@ public class SoundVisualizerScreen extends ParentedScreen {
     @Override
     public void removed() {
         super.removed();
+        //stop the sound when the screen is closed
         if (hasSound())
             soundData.stop();
     }
 
     @Override
     public void init() {
+        //widgets init
+
+        //buttons grid
         ContainerGrid buttons = new ContainerGrid(0, 0, 16, 3);
         buttons.setAlignment(Alignment.CENTER);
 
+        //previous track button
         previousButton = new Button(0, 0, 16, 16, null, button -> {
             if (playlistIndex >= 0)
                 playSound((playlistIndex - 1 + playlist.size()) % playlist.size());
@@ -79,9 +84,11 @@ public class SoundVisualizerScreen extends ParentedScreen {
         previousButton.setActive(playlist.size() > 1);
         buttons.addWidget(previousButton);
 
+        //center buttons grid
         ContainerGrid centerButtons = new ContainerGrid(0, 0, 4, 3);
         centerButtons.setAlignment(Alignment.CENTER);
 
+        //play/pause button
         playPauseButton = new Button(0, 0, 16, 16, null, button -> {
             if (hasSound()) {
                 if (soundData.isPlaying()) {
@@ -103,6 +110,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         playPauseButton.setSilent(true);
         centerButtons.addWidget(playPauseButton);
 
+        //stop button
         Button stopButton = new Button(0, 0, 16, 16, null, button -> {
             if (hasSound()) {
                 soundData.pause();
@@ -115,6 +123,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         stopButton.setSilent(true);
         centerButtons.addWidget(stopButton);
 
+        //repeat-mode button
         Button repeatButton = new Button(0, 0, 16, 16, null, button -> {
             repeat = (repeat + 1) % 3;
             if (hasSound())
@@ -139,8 +148,10 @@ public class SoundVisualizerScreen extends ParentedScreen {
         repeatButton.onRun();
         centerButtons.addWidget(repeatButton);
 
+        //add center buttons to the main grid
         buttons.addWidget(centerButtons);
 
+        //next track button
         nextButton = new Button(0, 0, 16, 16, null, button -> {
             if (playlistIndex >= 0)
                 playSound((playlistIndex + 1) % playlist.size());
@@ -151,9 +162,11 @@ public class SoundVisualizerScreen extends ParentedScreen {
         nextButton.setActive(playlist.size() > 1);
         buttons.addWidget(nextButton);
 
+        //update buttons grid to the center of screen at the bottom - and add it to the screen
         buttons.setPos(width / 2, height - 8 - 4 - 16);
         addWidget(buttons);
 
+        //slider for the playback control
         slider = new Slider((width - 240) / 2, height - 8 - 4, 240);
         slider.setMax(sound != null ? sound.duration : 1);
         slider.setChangeListener((f, i) -> {
@@ -168,6 +181,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         slider.setValue(hasSound() ? (int) soundData.getPlaybackTime() : 0);
         addWidget(slider);
 
+        //volume slider
         Slider volume = new Slider(4, height - 8 - 4, 50);
         volume.updatePercentage(SoundCategory.MUSIC.getVolume());
         volume.setUpdateListener((f, i) -> SoundCategory.MUSIC.setVolume(client.soundManager, f));
@@ -182,27 +196,33 @@ public class SoundVisualizerScreen extends ParentedScreen {
     }
 
     private void playSound(int index) {
+        //stop the current sound
         if (hasSound())
             soundData.stop();
 
+        //index out of bounds (shouldn't happen ever)
         if (index < 0 || index >= playlist.size())
             return;
 
+        //grab sound data
         playlistIndex = index;
         Track track = playlist.get(index);
         Resource resource = track.resource;
 
+        //create and play the sound instance
         sound = Sound.of(resource);
         soundData = client.soundManager.playSound(resource, SoundCategory.MUSIC);
+        soundData.loop(repeat == 1);
 
         pcmBuffer = sound.getBuffer();
         frameLength = FFT_SIZE * sound.channels;
         doubleBuffer = new double[sound.channels][FFT_SIZE];
 
+        //update widgets
         slider.setMax(sound.duration);
         playPauseButton.setImage(PAUSE);
-        soundData.loop(repeat == 1);
 
+        //notify the user
         Toast.addToast(Text.of("Now playing: %s".formatted(track.title)), font);
     }
 
@@ -230,11 +250,14 @@ public class SoundVisualizerScreen extends ParentedScreen {
     public void tick() {
         if (soundData != null) {
             if (!soundData.isRemoved()) {
+                //update slider based on the sound time, but only if not dragged by the user
                 if (!slider.isDragged() && soundData.isPlaying())
                     slider.updateValue((int) soundData.getPlaybackTime());
             } else if (playlistIndex >= 0 && repeat != 1) {
+                //no sound here, so play the next song
                 if (repeat == 2 || playlistIndex < playlist.size() - 1)
                     playSound((playlistIndex + 1) % playlist.size());
+                //or stop completely based on the repeat flag
                 else {
                     soundData = null;
                     playlistIndex = 0;
@@ -330,10 +353,12 @@ public class SoundVisualizerScreen extends ParentedScreen {
     public boolean filesDropped(String[] files) {
         List<Track> newPlaylist = new ArrayList<>();
 
+        //go through all .ogg files
         for (String file : files) {
             if (!file.toLowerCase().endsWith(".ogg"))
                 continue;
 
+            //load songs as Resources
             Resource song = new Resource("", file);
 
             Path path = Path.of(file);
@@ -342,12 +367,14 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
             LrcLoader.Lyrics lyrics;
 
+            //also .lrc lyrics with the same filename as the song
             try {
                 lyrics = LrcLoader.loadLyrics(new Resource("", path.getParent().resolve(filename + ".lrc").toString()));
             } catch (Exception ignored) {
                 lyrics = null;
             }
 
+            //grab title from the lyrics data
             String title = "";
             if (lyrics != null) {
                 if (!lyrics.title.isBlank()) {
@@ -357,22 +384,35 @@ public class SoundVisualizerScreen extends ParentedScreen {
                 }
             }
 
+            //if no title, use the filename
             if (title.isBlank())
                 title = filename;
 
+            //add the song to the playlist
             newPlaylist.add(new Track(song, lyrics, title));
         }
 
+        //sort the playlist alphabetically by title
         newPlaylist.sort((a, b) -> a.title.compareToIgnoreCase(b.title));
 
+        //update only if we got something!
         int size = newPlaylist.size();
         if (size > 0) {
+            //reset variables
             playlist.clear();
             playlistIndex = 0;
+
+            //add playlist
             playlist.addAll(newPlaylist);
+
+            //set playlist buttons to work only if there are more than 1 song
             nextButton.setActive(size > 1);
             previousButton.setActive(size > 1);
+
+            //feebdback to the user
             Toast.addToast(Text.of("Loaded %d song%s!".formatted(size, size > 1 ? "s" : "")), font);
+
+            //automatically play the first song
             playSound(0);
             return true;
         }
