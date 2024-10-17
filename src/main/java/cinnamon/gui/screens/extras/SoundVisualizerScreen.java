@@ -2,6 +2,7 @@ package cinnamon.gui.screens.extras;
 
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
+import cinnamon.gui.Toast;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Slider;
@@ -21,6 +22,8 @@ import org.jtransforms.fft.DoubleFFT_1D;
 
 import java.nio.ShortBuffer;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SoundVisualizerScreen extends ParentedScreen {
 
@@ -32,11 +35,13 @@ public class SoundVisualizerScreen extends ParentedScreen {
             PAUSE = new Resource("textures/gui/icons/pause.png"),
             STOP = new Resource("textures/gui/icons/stop.png"),
             REPEAT = new Resource("textures/gui/icons/repeat.png"),
-            REPEAT_OFF = new Resource("textures/gui/icons/repeat_off.png");
+            REPEAT_ONE = new Resource("textures/gui/icons/repeat_one.png"),
+            REPEAT_OFF = new Resource("textures/gui/icons/repeat_off.png"),
+            PREVIOUS = new Resource("textures/gui/icons/previous.png"),
+            NEXT = new Resource("textures/gui/icons/next.png");
 
-    private Resource resource;
-    private LrcLoader.Lyrics lyrics;
-    private String title = "";
+    private final List<Track> playlist = new ArrayList<>();
+    private int playlistIndex = -1;
 
     private Sound sound;
     private SoundInstance soundData;
@@ -45,8 +50,8 @@ public class SoundVisualizerScreen extends ParentedScreen {
     private double[][] doubleBuffer;
 
     private Slider slider;
-    private Button playPauseButton;
-    private boolean repeat;
+    private Button playPauseButton, nextButton, previousButton;
+    private int repeat = 0; //0 = off, 1 = one, 2 = all
 
     public SoundVisualizerScreen(Screen parentScreen) {
         super(parentScreen);
@@ -55,63 +60,112 @@ public class SoundVisualizerScreen extends ParentedScreen {
     @Override
     public void removed() {
         super.removed();
-        if (soundData != null && !soundData.isRemoved())
+        if (hasSound())
             soundData.stop();
     }
 
     @Override
     public void init() {
-        ContainerGrid grid = new ContainerGrid(0, 0, 4, 3);
+        ContainerGrid buttons = new ContainerGrid(0, 0, 16, 3);
+        buttons.setAlignment(Alignment.CENTER);
+
+        previousButton = new Button(0, 0, 16, 16, null, button -> {
+            if (playlistIndex >= 0)
+                playSound((playlistIndex - 1 + playlist.size()) % playlist.size());
+        });
+        previousButton.setImage(PREVIOUS);
+        previousButton.setTooltip(Text.of("Previous Song"));
+        previousButton.setSilent(true);
+        previousButton.setActive(playlist.size() > 1);
+        buttons.addWidget(previousButton);
+
+        ContainerGrid centerButtons = new ContainerGrid(0, 0, 4, 3);
+        centerButtons.setAlignment(Alignment.CENTER);
 
         playPauseButton = new Button(0, 0, 16, 16, null, button -> {
-            if (soundData != null && !soundData.isRemoved()) {
+            if (hasSound()) {
                 if (soundData.isPlaying()) {
                     soundData.pause();
                     button.setImage(PLAY);
+                    button.setTooltip(Text.of("Play"));
                 } else {
                     soundData.play();
                     button.setImage(PAUSE);
+                    button.setTooltip(Text.of("Pause"));
                 }
-            } else if (resource != null) {
-                playSound();
+            } else {
+                playSound(playlistIndex);
             }
         });
-        playPauseButton.setImage(soundData != null && !soundData.isRemoved() && soundData.isPlaying() ? PAUSE : PLAY);
+        boolean pause = hasSound() && soundData.isPlaying();
+        playPauseButton.setImage(pause ? PAUSE : PLAY);
+        playPauseButton.setTooltip(Text.of(pause ? "Pause" : "Play"));
         playPauseButton.setSilent(true);
-        grid.addWidget(playPauseButton);
+        centerButtons.addWidget(playPauseButton);
 
         Button stopButton = new Button(0, 0, 16, 16, null, button -> {
-            if (soundData != null && !soundData.isRemoved()) {
-                soundData.stop();
+            if (hasSound()) {
+                soundData.pause();
                 playPauseButton.setImage(PLAY);
                 slider.updateValue(0);
             }
         });
         stopButton.setImage(STOP);
+        stopButton.setTooltip(Text.of("Stop"));
         stopButton.setSilent(true);
-        grid.addWidget(stopButton);
+        centerButtons.addWidget(stopButton);
 
         Button repeatButton = new Button(0, 0, 16, 16, null, button -> {
-            repeat = !repeat;
-            if (soundData != null && !soundData.isRemoved())
-                soundData.loop(repeat);
-            button.setImage(repeat ? REPEAT : REPEAT_OFF);
+            repeat = (repeat + 1) % 3;
+            if (hasSound())
+                soundData.loop(repeat == 1);
+            switch (repeat) {
+                case 1 -> {
+                    button.setImage(REPEAT_ONE);
+                    button.setTooltip(Text.of("Repeat One"));
+                }
+                case 2 -> {
+                    button.setImage(REPEAT);
+                    button.setTooltip(Text.of("Repeat All"));
+                }
+                default -> {
+                    button.setImage(REPEAT_OFF);
+                    button.setTooltip(Text.of("Repeat Off"));
+                }
+            }
         });
-        repeatButton.setImage(repeat ? REPEAT : REPEAT_OFF);
         repeatButton.setSilent(true);
-        grid.addWidget(repeatButton);
+        repeat--;
+        repeatButton.onRun();
+        centerButtons.addWidget(repeatButton);
 
-        grid.setAlignment(Alignment.CENTER);
-        grid.setPos(width / 2, height - 8 - 4 - 16);
-        addWidget(grid);
+        buttons.addWidget(centerButtons);
+
+        nextButton = new Button(0, 0, 16, 16, null, button -> {
+            if (playlistIndex >= 0)
+                playSound((playlistIndex + 1) % playlist.size());
+        });
+        nextButton.setImage(NEXT);
+        nextButton.setTooltip(Text.of("Next Song"));
+        nextButton.setSilent(true);
+        nextButton.setActive(playlist.size() > 1);
+        buttons.addWidget(nextButton);
+
+        buttons.setPos(width / 2, height - 8 - 4 - 16);
+        addWidget(buttons);
 
         slider = new Slider((width - 240) / 2, height - 8 - 4, 240);
         slider.setMax(sound != null ? sound.duration : 1);
         slider.setChangeListener((f, i) -> {
-            if (soundData != null && !soundData.isRemoved())
+            if (hasSound())
+                soundData.setPlaybackTime(i);
+        });
+        slider.setUpdateListener((f, i) -> {
+            if (hasSound() && !soundData.isPlaying())
                 soundData.setPlaybackTime(i);
         });
         slider.setTooltipFunction((f, i) -> Text.of("%d:%02d".formatted(i / 1000 / 60, (i / 1000) % 60)));
+        slider.setValue(hasSound() ? (int) soundData.getPlaybackTime() : 0);
         addWidget(slider);
 
         Slider volume = new Slider(4, height - 8 - 4, 50);
@@ -123,9 +177,20 @@ public class SoundVisualizerScreen extends ParentedScreen {
         super.init();
     }
 
-    private void playSound() {
-        if (soundData != null && !soundData.isRemoved())
+    private boolean hasSound() {
+        return soundData != null && !soundData.isRemoved();
+    }
+
+    private void playSound(int index) {
+        if (hasSound())
             soundData.stop();
+
+        if (index < 0 || index >= playlist.size())
+            return;
+
+        playlistIndex = index;
+        Track track = playlist.get(index);
+        Resource resource = track.resource;
 
         sound = Sound.of(resource);
         soundData = client.soundManager.playSound(resource, SoundCategory.MUSIC);
@@ -136,11 +201,13 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
         slider.setMax(sound.duration);
         playPauseButton.setImage(PAUSE);
-        soundData.loop(repeat);
+        soundData.loop(repeat == 1);
+
+        Toast.addToast(Text.of("Now playing: %s".formatted(track.title)), font);
     }
 
     private double[][] getCurrentData() {
-        if (soundData == null || soundData.isRemoved())
+        if (!hasSound())
             return null;
 
         //calculate offset based on time and sample rate
@@ -163,11 +230,17 @@ public class SoundVisualizerScreen extends ParentedScreen {
     public void tick() {
         if (soundData != null) {
             if (!soundData.isRemoved()) {
-                if (!slider.isDragged())
+                if (!slider.isDragged() && soundData.isPlaying())
                     slider.updateValue((int) soundData.getPlaybackTime());
-            } else {
-                soundData = null;
-                playPauseButton.setImage(PLAY);
+            } else if (playlistIndex >= 0 && repeat != 1) {
+                if (repeat == 2 || playlistIndex < playlist.size() - 1)
+                    playSound((playlistIndex + 1) % playlist.size());
+                else {
+                    soundData = null;
+                    playlistIndex = 0;
+                    playPauseButton.setImage(PLAY);
+                    slider.updatePercentage(1f);
+                }
             }
         }
         super.tick();
@@ -180,31 +253,44 @@ public class SoundVisualizerScreen extends ParentedScreen {
         if (audioData != null)
             drawSpectrum(matrices, audioData);
 
+        //draw texts
+        drawTexts(matrices);
+
+        //render widgets
+        super.render(matrices, mouseX, mouseY, delta);
+    }
+
+    private void drawTexts(MatrixStack matrices) {
+        int songCount = playlist.size();
+        int playTime = hasSound() ? (int) soundData.getPlaybackTime() : slider.getValue();
+
         //draw top text
-        font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), 4, Text.of("Drop an Ogg Vorbis file to play!").withStyle(Style.EMPTY.color(Colors.LIGHT_GRAY)), Alignment.CENTER);
-        if (resource != null)
-            font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of("Current Playing:\n" + resource.getPath()));
+        font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), 4, Text.of("Drop Ogg Vorbis files to play!").withStyle(Style.EMPTY.color(songCount > 0 ? Colors.LIGHT_GRAY : Colors.WHITE)), Alignment.CENTER);
 
         //draw timers
         int x = slider.getX();
         int y = (int) (slider.getCenterY() - font.lineHeight / 2);
-        int now = slider.getValue() / 1000;
+        int now = playTime / 1000;
         int max = slider.getMax() / 1000;
         font.render(VertexConsumer.FONT, matrices, x - 4, y, Text.of("%d:%02d".formatted(now / 60, now % 60)), Alignment.RIGHT);
         font.render(VertexConsumer.FONT, matrices, x + slider.getWidth() + 4, y, Text.of("%d:%02d".formatted(max / 60, max % 60)));
 
-        if (!title.isBlank())
-            font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), playPauseButton.getY() - font.lineHeight - 4, Text.of(title), Alignment.CENTER);
+        if (songCount == 0)
+            return;
 
-        if (lyrics != null && soundData != null && !soundData.isRemoved()) {
-            int time = (int) soundData.getPlaybackTime();
-            String text = lyrics.getLyric(time);
-            if (!text.isBlank())
-                font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), (int) (height / 4f) - font.lineHeight / 2, Text.of(text), Alignment.CENTER);
-        }
+        //song count
+        if (songCount > 1)
+            font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), playPauseButton.getY() - font.lineHeight - 4, Text.of("%d / %d".formatted(playlistIndex + 1, songCount)), Alignment.CENTER);
 
-        //render widgets
-        super.render(matrices, mouseX, mouseY, delta);
+        Track track = playlist.get(playlistIndex);
+
+        //title
+        font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), playPauseButton.getY() - (font.lineHeight + 4) * (songCount > 1 ? 2 : 1), Text.of(track.title), Alignment.CENTER);
+
+        //lyrics
+        String text = track.getLyrics(playTime);
+        if (!text.isBlank())
+            font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), (int) (height / 4f) - font.lineHeight / 2, Text.of(text), Alignment.CENTER);
     }
 
     private void drawSpectrum(MatrixStack matrices, double[][] audioData) {
@@ -242,31 +328,61 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
     @Override
     public boolean filesDropped(String[] files) {
-        if (files.length > 0 && files[0].toLowerCase().endsWith(".ogg")) {
-            this.resource = new Resource("", files[0]);
+        List<Track> newPlaylist = new ArrayList<>();
 
-            Path path = Path.of(files[0]);
+        for (String file : files) {
+            if (!file.toLowerCase().endsWith(".ogg"))
+                continue;
+
+            Resource song = new Resource("", file);
+
+            Path path = Path.of(file);
             String filename = path.getFileName().toString();
             filename = filename.substring(0, filename.length() - 4);
 
-            String title = "";
+            LrcLoader.Lyrics lyrics;
 
             try {
-                this.lyrics = LrcLoader.loadLyrics(new Resource("", path.getParent().resolve(filename + ".lrc").toString()));
-                if (!lyrics.title.isBlank())
-                    title = lyrics.title;
-                if (!lyrics.artist.isBlank())
-                    title += " - " + lyrics.artist;
+                lyrics = LrcLoader.loadLyrics(new Resource("", path.getParent().resolve(filename + ".lrc").toString()));
             } catch (Exception ignored) {
-                this.lyrics = null;
+                lyrics = null;
             }
 
-            this.title = title.isBlank() ? filename : title;
+            String title = "";
+            if (lyrics != null) {
+                if (!lyrics.title.isBlank()) {
+                    title = lyrics.title;
+                    if (!lyrics.artist.isBlank())
+                        title += " - " + lyrics.artist;
+                }
+            }
 
-            playSound();
+            if (title.isBlank())
+                title = filename;
+
+            newPlaylist.add(new Track(song, lyrics, title));
+        }
+
+        newPlaylist.sort((a, b) -> a.title.compareToIgnoreCase(b.title));
+
+        int size = newPlaylist.size();
+        if (size > 0) {
+            playlist.clear();
+            playlistIndex = 0;
+            playlist.addAll(newPlaylist);
+            nextButton.setActive(size > 1);
+            previousButton.setActive(size > 1);
+            Toast.addToast(Text.of("Loaded %d song%s!".formatted(size, size > 1 ? "s" : "")), font);
+            playSound(0);
             return true;
         }
 
         return super.filesDropped(files);
+    }
+
+    private record Track(Resource resource, LrcLoader.Lyrics lyrics, String title) {
+        public String getLyrics(int time) {
+            return lyrics != null ? lyrics.getLyric(time) : "";
+        }
     }
 }
