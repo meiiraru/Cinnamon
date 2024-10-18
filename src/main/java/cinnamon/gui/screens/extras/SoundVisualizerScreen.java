@@ -7,6 +7,7 @@ import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Slider;
 import cinnamon.model.GeometryHelper;
+import cinnamon.model.Vertex;
 import cinnamon.parsers.LrcLoader;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
@@ -15,10 +16,9 @@ import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundInstance;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.Alignment;
-import cinnamon.utils.Colors;
-import cinnamon.utils.Resource;
-import org.jtransforms.fft.DoubleFFT_1D;
+import cinnamon.utils.*;
+import org.joml.Vector3f;
+import org.jtransforms.fft.FloatFFT_1D;
 
 import java.nio.ShortBuffer;
 import java.nio.file.Path;
@@ -27,8 +27,11 @@ import java.util.List;
 
 public class SoundVisualizerScreen extends ParentedScreen {
 
-    private static final int FFT_SIZE = 1024;
-    private static final DoubleFFT_1D FFT = new DoubleFFT_1D(FFT_SIZE);
+    private static final int
+            FFT_SIZE = 1024,
+            BARS = 100,
+            FREQUENCY = 16000; //16kHz
+    private static final FloatFFT_1D FFT = new FloatFFT_1D(FFT_SIZE);
 
     private static final Resource
             PLAY = new Resource("textures/gui/icons/play.png"),
@@ -43,11 +46,9 @@ public class SoundVisualizerScreen extends ParentedScreen {
     private final List<Track> playlist = new ArrayList<>();
     private int playlistIndex = -1;
 
+    private final float[] amplitudes = new float[BARS];
     private Sound sound;
     private SoundInstance soundData;
-    private ShortBuffer pcmBuffer;
-    private int frameLength;
-    private double[][] doubleBuffer;
 
     private Slider slider;
     private Button playPauseButton, nextButton, previousButton;
@@ -171,11 +172,11 @@ public class SoundVisualizerScreen extends ParentedScreen {
         slider.setMax(sound != null ? sound.duration : 1);
         slider.setChangeListener((f, i) -> {
             if (hasSound())
-                soundData.setPlaybackTime(i);
+                soundData.setPlaybackTime(Math.max(i - 1, 0));
         });
         slider.setUpdateListener((f, i) -> {
             if (hasSound() && !soundData.isPlaying())
-                soundData.setPlaybackTime(i);
+                soundData.setPlaybackTime(Math.max(i - 1, 0));
         });
         slider.setTooltipFunction((f, i) -> Text.of("%d:%02d".formatted(i / 1000 / 60, (i / 1000) % 60)));
         slider.setValue(hasSound() ? (int) soundData.getPlaybackTime() : 0);
@@ -189,61 +190,6 @@ public class SoundVisualizerScreen extends ParentedScreen {
         addWidget(volume);
 
         super.init();
-    }
-
-    private boolean hasSound() {
-        return soundData != null && !soundData.isRemoved();
-    }
-
-    private void playSound(int index) {
-        //stop the current sound
-        if (hasSound())
-            soundData.stop();
-
-        //index out of bounds (shouldn't happen ever)
-        if (index < 0 || index >= playlist.size())
-            return;
-
-        //grab sound data
-        playlistIndex = index;
-        Track track = playlist.get(index);
-        Resource resource = track.resource;
-
-        //create and play the sound instance
-        sound = Sound.of(resource);
-        soundData = client.soundManager.playSound(resource, SoundCategory.MUSIC);
-        soundData.loop(repeat == 1);
-
-        pcmBuffer = sound.getBuffer();
-        frameLength = FFT_SIZE * sound.channels;
-        doubleBuffer = new double[sound.channels][FFT_SIZE];
-
-        //update widgets
-        slider.setMax(sound.duration);
-        playPauseButton.setImage(PAUSE);
-
-        //notify the user
-        Toast.addToast(Text.of("Now playing: %s".formatted(track.title)), font);
-    }
-
-    private double[][] getCurrentData() {
-        if (!hasSound())
-            return null;
-
-        //calculate offset based on time and sample rate
-        int offset = (int) (soundData.getPlaybackTime() * sound.sampleRate / 1000 * sound.channels);
-
-        //return null if out of bounds
-        if (offset + frameLength >= pcmBuffer.capacity())
-            return null;
-
-        //get the current audio data from the buffer
-        for (int i = 0; i < sound.channels; i++) {
-            pcmBuffer.position(offset + FFT_SIZE * i);
-            for (int j = 0; j < FFT_SIZE; j++)
-                doubleBuffer[i][j] = pcmBuffer.get();
-        }
-        return doubleBuffer;
     }
 
     @Override
@@ -269,12 +215,18 @@ public class SoundVisualizerScreen extends ParentedScreen {
         super.tick();
     }
 
+
+    // -- render functions -- //
+
+
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        //render audio spectrum
-        double[][] audioData = getCurrentData();
-        if (audioData != null)
-            drawSpectrum(matrices, audioData);
+        //grab the audio spectrum and calculate the amplitudes
+        updateAmplitudes();
+
+        //draw bars
+        for (int i = 0; i < BARS; i++)
+            drawBar(matrices, i, amplitudes[i] * 1.5f);
 
         //draw texts
         drawTexts(matrices);
@@ -311,51 +263,142 @@ public class SoundVisualizerScreen extends ParentedScreen {
         font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), playPauseButton.getY() - (font.lineHeight + 4) * (songCount > 1 ? 2 : 1), Text.of(track.title), Alignment.CENTER);
 
         //lyrics
-        String text = track.getLyrics(playTime);
-        if (!text.isBlank())
-            font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), (int) (height / 4f) - font.lineHeight / 2, Text.of(text), Alignment.CENTER);
-    }
-
-    private void drawSpectrum(MatrixStack matrices, double[][] audioData) {
-        // Apply FFT to the left audio channel (audioData[0])
-        FFT.realForward(audioData[0]);
-
-        // Number of bars (can vary based on the visualization width)
-        int numBars = width;
-
-        // Draw audio data with log scale
-        for (int i = 1; i < numBars; i++) {
-            // Logarithmic index mapping
-            int logI = (int) (Math.pow(FFT_SIZE, (double) i / numBars) - 1);
-
-            // Ensure logI stays within valid bounds
-            if (logI >= FFT_SIZE) {
-                continue;
-            }
-
-            // Calculate amplitude from log-scaled frequency bin
-            float amplitude = (float) Math.abs(audioData[0][logI]) / 10000f;
-
-            // Draw the bar on the spectrum visualizer
-            drawBar(matrices, i, amplitude);
-        }
+        Text text = track.getLyrics(playTime);
+        if (text != null)
+            font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), (int) (height / 4f - TextUtils.getHeight(text, font) / 2f), text, Alignment.CENTER);
     }
 
     private void drawBar(MatrixStack matrices, int i, float amplitude) {
-        int w = 1;
-        int x = i * w;
+        float w = Math.max((width - 20 - BARS + 1f) / BARS, 1f);
+        float x = i * (w + 1) + 10;
 
-        if (x > width)
+        if (x > width - 10)
             return;
 
-        int y = height - height / 3;
-        int height = (int) (amplitude * 0.5f);
-        int color = Colors.CYAN.rgb;
+        float y = height - height / 3f;
+        float height = (int) Math.max(amplitude, 1f);
+        int color = ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f((x - 10f) / (width - 20f), 0.5f, 1f)));
 
         //bar
         VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y - height, x + w, y, color + (0xFF << 24)));
+
         //mirror
-        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y, x + w, y + height, color + (0x88 << 24)));
+        Vertex[] vertices = GeometryHelper.rectangle(matrices, x, y, x + w, y + height, color + (0x88 << 24));
+        vertices[0].getPosition().add(0.75f * height, 0, 0);
+        vertices[1].getPosition().add(0.75f * height, 0, 0);
+        VertexConsumer.GUI.consume(vertices);
+    }
+
+    private boolean hasSound() {
+        return soundData != null && !soundData.isRemoved();
+    }
+
+
+    // -- sound logic -- //
+
+
+    private void playSound(int index) {
+        //stop the current sound
+        if (hasSound())
+            soundData.stop();
+
+        //index out of bounds (shouldn't happen ever)
+        if (index < 0 || index >= playlist.size())
+            return;
+
+        //grab sound data
+        playlistIndex = index;
+        Track track = playlist.get(index);
+        Resource resource = track.resource;
+
+        //save properties and play the sound instance
+        sound = Sound.of(resource);
+        soundData = client.soundManager.playSound(resource, SoundCategory.MUSIC);
+        soundData.loop(repeat == 1);
+
+        //update widgets
+        slider.setMax(sound.duration);
+        playPauseButton.setImage(PAUSE);
+
+        //notify the user
+        Toast.addToast(Text.of("Now playing: %s".formatted(track.title)), font);
+    }
+
+    private float[] getSoundSamples() {
+        if (!hasSound())
+            return null;
+
+        //convert current time to sample index
+        int startIndex = (int) ((soundData.getPlaybackTime() / 1000f) * sound.sampleRate * sound.channels);
+
+        //make sure the index does not exceed the buffer capacity
+        if (startIndex + FFT_SIZE * sound.channels > sound.buffer.capacity())
+            startIndex = sound.buffer.capacity() - FFT_SIZE * sound.channels;
+
+        //get a slice of the buffer starting from the correct sample
+        ShortBuffer slicedBuffer = sound.buffer.duplicate();
+        slicedBuffer.position(startIndex);
+        slicedBuffer.limit(startIndex + FFT_SIZE * sound.channels);
+
+        ShortBuffer slice = slicedBuffer.slice();
+
+        //extract samples from the slice
+        int numSamples = slice.remaining() / sound.channels;
+        float[] samples = new float[numSamples];
+
+        //only take samples for one channel (assuming stereo)
+        for (int i = 0; i < numSamples; i++) {
+            //take the first channel only
+            samples[i] = slice.get(i * sound.channels) / (float) Short.MAX_VALUE;
+        }
+
+        return samples;
+    }
+
+    private void updateAmplitudes() {
+        //smooth out the amplitudes all back to 0
+        for (int i = 0; i < amplitudes.length; i++)
+            amplitudes[i] = Maths.lerp(amplitudes[i], 0f, UIHelper.tickDelta(0.6f));
+
+        //get sound samples
+        float[] soundSamples = getSoundSamples();
+        if (soundSamples == null)
+            return;
+
+        //apply hann window to smooth the spectrum before applying FFT
+        int length = soundSamples.length;
+        for (int i = 0; i < length; i++)
+            soundSamples[i] *= (float) (0.5f * (1 - Math.cos((2 * Math.PI * i) / (length - 1))));
+
+        //apply fast fourier transform
+        FFT.realForward(soundSamples);
+
+        //get amplitudes
+        int maxFreqBin = (int) (FREQUENCY / (sound.sampleRate * 0.5f) * (length * 0.5f));
+        for (int i = 0; i < BARS; i++) {
+            int lowIndex = i * maxFreqBin / BARS;
+            int highIndex = (i + 1) * maxFreqBin / BARS - 1;
+
+            float sum = 0;
+            int count = 0;
+
+            //get magnitude from FFT data (real and imaginary part)
+            for (int j = lowIndex; j <= highIndex; j++) {
+                float real = soundSamples[j * 2];
+                float imag = soundSamples[j * 2 + 1];
+                float magnitude = (float) Math.sqrt(real * real + imag * imag);
+                sum += magnitude;
+                count++;
+            }
+
+            //apply a weighting function based on the frequency
+            float frequency = (float) i / BARS * FREQUENCY;
+            float weight = frequency < 1024 ? 0.5f : frequency < 4096 ? 1f : 2f;
+
+            //average amplitude for the frequency band
+            float amplitude = (count > 0 ? sum / count : 0) * weight;
+            amplitudes[i] = Math.max(amplitude, amplitudes[i]);
+        }
     }
 
     @Override
@@ -430,8 +473,37 @@ public class SoundVisualizerScreen extends ParentedScreen {
     }
 
     private record Track(Resource resource, LrcLoader.Lyrics lyrics, String title) {
-        public String getLyrics(int time) {
-            return lyrics != null ? lyrics.getLyric(time) : "";
+        public Text getLyrics(int time) {
+            //no lyrics :(
+            if (lyrics == null)
+                return null;
+
+            int i = -1;
+            time += lyrics.offset;
+
+            //get the current lyrics index based on its timeframe
+            for (Pair<Integer, String> pair : lyrics.lyrics) {
+                if (pair.first() <= time)
+                    i++;
+                else break;
+            }
+
+            //prev2
+            String previous2 = i > 1 ? lyrics.lyrics.get(i - 2).second() : "";
+            //prev
+            String previous = i > 0 ? lyrics.lyrics.get(i - 1).second() : "";
+            //current
+            String current = i >= 0 ? lyrics.lyrics.get(i).second() : "";
+            //next
+            String next = i < lyrics.lyrics.size() - 1 ? lyrics.lyrics.get(i + 1).second() : "";
+            //next2
+            String next2 = i < lyrics.lyrics.size() - 2 ? lyrics.lyrics.get(i + 2).second() : "";
+
+            return Text.of(previous2 + "\n").withStyle(Style.EMPTY.color(Colors.LIGHT_GRAY))
+                    .append(previous + "\n")
+                    .append(Text.of(current).withStyle(Style.EMPTY.color(Colors.WHITE)))
+                    .append("\n" + next)
+                    .append("\n" + next2);
         }
     }
 }

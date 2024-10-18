@@ -20,7 +20,7 @@ public class Sound {
     private static final Map<Resource, Sound> SOUNDS_MAP = new HashMap<>();
 
     public final int id, channels, sampleRate, duration;
-    private final ShortBuffer buffer;
+    public final ShortBuffer buffer;
 
     private Sound(int id, int channels, int sampleRate, int duration, ShortBuffer soundBuffer) {
         this.id = id;
@@ -73,14 +73,10 @@ public class Sound {
             SoundManager.checkALError();
 
             //calculate the duration of the sound in milliseconds
-            int duration = (int) (pcm.capacity() / (float) sampleRate * 1000 / channels);
-
-            //copy the sound buffer for storage
-            ShortBuffer pcmCopy = BufferUtils.createShortBuffer(pcm.capacity());
-            pcmCopy.put(pcm).flip();
+            int duration = (int) (pcm.capacity() / (float) sampleRate * 1000f / (float) channels);
 
             //return the buffer id
-            return new Sound(id, channels, sampleRate, duration, pcmCopy);
+            return new Sound(id, channels, sampleRate, duration, pcm.duplicate());
         }
     }
 
@@ -88,10 +84,6 @@ public class Sound {
         for (Sound s : SOUNDS_MAP.values())
             s.free();
         SOUNDS_MAP.clear();
-    }
-
-    public ShortBuffer getBuffer() {
-        return buffer;
     }
 
     public void free() {

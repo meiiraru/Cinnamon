@@ -86,18 +86,5 @@ public class LrcLoader {
                 offset = 0; //offset
 
         public final List<Pair<Integer, String>> lyrics = new ArrayList<>();
-
-        public String getLyric(int time) {
-            String s = "";
-            time += offset;
-
-            for (Pair<Integer, String> pair : lyrics) {
-                if (pair.first() <= time)
-                    s = pair.second();
-                else break;
-            }
-
-            return s;
-        }
     }
 }
