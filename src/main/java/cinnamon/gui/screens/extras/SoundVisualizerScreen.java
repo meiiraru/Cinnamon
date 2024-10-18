@@ -24,13 +24,19 @@ import java.nio.ShortBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public class SoundVisualizerScreen extends ParentedScreen {
 
     private static final int
             FFT_SIZE = 1024,
-            BARS = 100,
+            BARS = 20,
             FREQUENCY = 16000; //16kHz
+    private static final float
+            BOOST = 3f;
+    private static final Function<Float, Float>
+            WEIGHTING_FUNCTION = f -> f < 1000 ? 1f : f < 4000 ? 2f : f < 12000 ? 4f : 8f;
+
     private static final FloatFFT_1D FFT = new FloatFFT_1D(FFT_SIZE);
 
     private static final Resource
@@ -226,7 +232,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
         //draw bars
         for (int i = 0; i < BARS; i++)
-            drawBar(matrices, i, amplitudes[i] * 1.5f);
+            drawBar(matrices, i, amplitudes[i] * BOOST * WEIGHTING_FUNCTION.apply((float) i / BARS * FREQUENCY));
 
         //draw texts
         drawTexts(matrices);
@@ -277,13 +283,29 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
         float y = height - height / 3f;
         float height = (int) Math.max(amplitude, 1f);
-        int color = ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f((x - 10f) / (width - 20f), 0.5f, 1f)));
+        int color = ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f((x - 10f) / (width - 20f), 0.5f, 1f))) + (0xFF << 24);
 
-        //bar
-        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y - height, x + w, y, color + (0xFF << 24)));
+        //front
+        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y - height, x + w, y, color));
+
+        float top = w * 0.5f;
+        float side = w * 0.4f;
+
+        //top
+        Vertex[] vertices = GeometryHelper.rectangle(matrices, x, y - height - top, x + w, y - height, color - 0x222222);
+        vertices[2].getPosition().add(-side, 0, -side);
+        vertices[3].getPosition().add(-side, 0, -side);
+        VertexConsumer.GUI.consume(vertices);
+
+        //side
+        vertices = GeometryHelper.rectangle(matrices, x - side, y - height - top, x, y, color - 0x111111);
+        vertices[0].getPosition().add(0, -top, -side);
+        vertices[3].getPosition().add(0, 0, -side);
+        vertices[2].getPosition().add(0, top, 0);
+        VertexConsumer.GUI.consume(vertices);
 
         //mirror
-        Vertex[] vertices = GeometryHelper.rectangle(matrices, x, y, x + w, y + height, color + (0x88 << 24));
+        vertices = GeometryHelper.rectangle(matrices, x, y, x + w, y + height, color - (0x88 << 24));
         vertices[0].getPosition().add(0.75f * height, 0, 0);
         vertices[1].getPosition().add(0.75f * height, 0, 0);
         VertexConsumer.GUI.consume(vertices);
@@ -391,12 +413,8 @@ public class SoundVisualizerScreen extends ParentedScreen {
                 count++;
             }
 
-            //apply a weighting function based on the frequency
-            float frequency = (float) i / BARS * FREQUENCY;
-            float weight = frequency < 1024 ? 0.5f : frequency < 4096 ? 1f : 2f;
-
             //average amplitude for the frequency band
-            float amplitude = (count > 0 ? sum / count : 0) * weight;
+            float amplitude = (count > 0 ? sum / count : 0);
             amplitudes[i] = Math.max(amplitude, amplitudes[i]);
         }
     }

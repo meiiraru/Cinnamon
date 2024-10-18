@@ -13,6 +13,7 @@ import cinnamon.render.shader.Shaders;
 import cinnamon.utils.Resource;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.glDepthMask;
 
 public abstract class Screen {
 
@@ -166,7 +167,9 @@ public abstract class Screen {
         s.setColor("color3", 0x77B7D2);
         s.setColor("color4", 0x5D4FB9);
 
+        glDepthMask(false);
         SimpleGeometry.QUAD.render();
+        glDepthMask(true);
 
         if (oldShader != null)
             oldShader.use();
