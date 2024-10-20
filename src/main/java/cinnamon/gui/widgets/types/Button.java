@@ -23,6 +23,7 @@ public class Button extends SelectableWidget {
     private static final Resource CLICK_SOUND = new Resource("sounds/ui/click.ogg");
 
     private boolean silent;
+    private boolean invisible;
     private boolean runOnHold;
     private boolean holding;
 
@@ -38,6 +39,9 @@ public class Button extends SelectableWidget {
 
     @Override
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        if (invisible)
+            return;
+
         if (image == null)
             renderBackground(matrices, mouseX, mouseY, delta);
         else
@@ -205,5 +209,13 @@ public class Button extends SelectableWidget {
 
     public Resource getImage() {
         return image;
+    }
+
+    public boolean isInvisible() {
+        return invisible;
+    }
+
+    public void setInvisible(boolean invisible) {
+        this.invisible = invisible;
     }
 }
