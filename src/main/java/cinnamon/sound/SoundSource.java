@@ -31,7 +31,7 @@ public class SoundSource extends SoundInstance {
             alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
         } else { //world sound
             //default attenuation properties
-            distance(0f).maxDistance(32f).volume(0.1f);
+            distance(0f).maxDistance(32f);
             //position
             pos(pos);
         }

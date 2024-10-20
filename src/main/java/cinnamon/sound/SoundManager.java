@@ -15,6 +15,7 @@ import java.util.List;
 import static cinnamon.Client.LOGGER;
 import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.openal.AL11.AL_LINEAR_DISTANCE_CLAMPED;
+import static org.lwjgl.openal.AL11.alSpeedOfSound;
 import static org.lwjgl.openal.ALC10.*;
 
 public class SoundManager {
@@ -50,6 +51,7 @@ public class SoundManager {
         if (alCapabilities.OpenAL11)
             alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
 
+        alSpeedOfSound(1f);
         initalized = true;
     }
 
