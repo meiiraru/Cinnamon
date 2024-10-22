@@ -1,5 +1,6 @@
 package cinnamon.parsers;
 
+import cinnamon.sound.Lyrics;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
@@ -7,8 +8,6 @@ import cinnamon.utils.Resource;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 public class LrcLoader {
 
@@ -41,7 +40,7 @@ public class LrcLoader {
                     float seconds = Float.parseFloat(time[0]);
 
                     int timeMillis = (int) ((minutes * 60 + seconds) * 1000);
-                    lyrics.lyrics.add(new Pair<>(timeMillis, time[1]));
+                    lyrics.getLyrics().add(new Pair<>(timeMillis, time[1]));
 
                     continue;
                 } catch (Exception ignored) {}
@@ -50,17 +49,17 @@ public class LrcLoader {
                 value = value.substring(0, value.length() - 1);
 
                 switch (key) {
-                    case "ti" -> lyrics.title = value;
-                    case "ar" -> lyrics.artist = value;
-                    case "al" -> lyrics.album = value;
-                    case "au" -> lyrics.author = value;
-                    case "by" -> lyrics.by = value;
-                    case "re", "tool" -> lyrics.tool = value;
-                    case "ve" -> lyrics.version = value;
-                    case "offset" -> lyrics.offset = Integer.parseInt(value);
+                    case "ti" -> lyrics.setTitle(value);
+                    case "ar" -> lyrics.setArtist(value);
+                    case "al" -> lyrics.setAlbum(value);
+                    case "au" -> lyrics.setAuthor(value);
+                    case "by" -> lyrics.setBy(value);
+                    case "re", "tool" -> lyrics.setTool(value);
+                    case "ve" -> lyrics.setVersion(value);
+                    case "offset" -> lyrics.setOffset(Integer.parseInt(value));
                     case "length" -> {
                         String[] time = value.split(":", 2);
-                        lyrics.length = (int) (Integer.parseInt(time[0]) * 60 + Float.parseFloat(time[1]) * 1000);
+                        lyrics.setLength((int) (Integer.parseInt(time[0]) * 60 + Float.parseFloat(time[1]) * 1000));
                     }
                 }
             }
@@ -69,22 +68,5 @@ public class LrcLoader {
         } catch (Exception e) {
             throw new RuntimeException("Failed to load lyrics file \"" + res + "\"", e);
         }
-    }
-
-    public static class Lyrics {
-        public String
-                title = "",   //ti
-                artist = "",  //ar
-                album = "",   //al
-                author = "",  //au
-                by = "",      //by
-                tool = "",    //re / tool
-                version = ""; //ve
-
-        public int
-                length = 0, //length
-                offset = 0; //offset
-
-        public final List<Pair<Integer, String>> lyrics = new ArrayList<>();
     }
 }

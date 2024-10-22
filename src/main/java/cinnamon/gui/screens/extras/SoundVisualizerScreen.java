@@ -11,6 +11,7 @@ import cinnamon.model.Vertex;
 import cinnamon.parsers.LrcLoader;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.sound.Lyrics;
 import cinnamon.sound.Sound;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundInstance;
@@ -435,7 +436,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
             String filename = path.getFileName().toString();
             filename = filename.substring(0, filename.length() - 4);
 
-            LrcLoader.Lyrics lyrics;
+            Lyrics lyrics;
 
             //also .lrc lyrics with the same filename as the song
             try {
@@ -447,10 +448,10 @@ public class SoundVisualizerScreen extends ParentedScreen {
             //grab title from the lyrics data
             String title = "";
             if (lyrics != null) {
-                if (!lyrics.title.isBlank()) {
-                    title = lyrics.title;
-                    if (!lyrics.artist.isBlank())
-                        title += " - " + lyrics.artist;
+                if (!lyrics.getTitle().isBlank()) {
+                    title = lyrics.getTitle();
+                    if (!lyrics.getArtist().isBlank())
+                        title += " - " + lyrics.getArtist();
                 }
             }
 
@@ -490,32 +491,32 @@ public class SoundVisualizerScreen extends ParentedScreen {
         return super.filesDropped(files);
     }
 
-    private record Track(Resource resource, LrcLoader.Lyrics lyrics, String title) {
+    private record Track(Resource resource, Lyrics lyrics, String title) {
         public Text getLyrics(int time) {
             //no lyrics :(
             if (lyrics == null)
                 return null;
 
             int i = -1;
-            time += lyrics.offset;
+            time += lyrics.getOffset();
 
             //get the current lyrics index based on its timeframe
-            for (Pair<Integer, String> pair : lyrics.lyrics) {
+            for (Pair<Integer, String> pair : lyrics.getLyrics()) {
                 if (pair.first() <= time)
                     i++;
                 else break;
             }
 
             //prev2
-            String previous2 = i > 1 ? lyrics.lyrics.get(i - 2).second() : "";
+            String previous2 = i > 1 ? lyrics.getLyrics().get(i - 2).second() : "";
             //prev
-            String previous = i > 0 ? lyrics.lyrics.get(i - 1).second() : "";
+            String previous = i > 0 ? lyrics.getLyrics().get(i - 1).second() : "";
             //current
-            String current = i >= 0 ? lyrics.lyrics.get(i).second() : "";
+            String current = i >= 0 ? lyrics.getLyrics().get(i).second() : "";
             //next
-            String next = i < lyrics.lyrics.size() - 1 ? lyrics.lyrics.get(i + 1).second() : "";
+            String next = i < lyrics.getLyrics().size() - 1 ? lyrics.getLyrics().get(i + 1).second() : "";
             //next2
-            String next2 = i < lyrics.lyrics.size() - 2 ? lyrics.lyrics.get(i + 2).second() : "";
+            String next2 = i < lyrics.getLyrics().size() - 2 ? lyrics.getLyrics().get(i + 2).second() : "";
 
             return Text.of(previous2 + "\n").withStyle(Style.EMPTY.color(Colors.LIGHT_GRAY))
                     .append(previous + "\n")
