@@ -14,7 +14,7 @@ public class Timer {
 
     public int update() {
         long CurrMs = getTime();
-        float diffMs = (float) (CurrMs - lastMs);
+        long diffMs = CurrMs - lastMs;
 
         tickDelta = diffMs / tickMs;
         lastMs = CurrMs;

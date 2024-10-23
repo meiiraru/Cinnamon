@@ -1,8 +1,10 @@
 package cinnamon.model;
 
-import org.joml.*;
-
-import java.lang.Math;
+import cinnamon.render.MatrixStack;
+import cinnamon.utils.Rotation;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public class Transform {
 
@@ -16,62 +18,20 @@ public class Transform {
     private final Vector2f
             uv = new Vector2f();
 
-    private final Matrix4f
-            positionMatrix = new Matrix4f();
-    private final Matrix3f
-            normalMatrix = new Matrix3f();
+    public void applyTransform(MatrixStack matrices) {
+        matrices.translate(pivot);
 
-    private boolean matrixDirty = true;
+        matrices.scale(scale.x, scale.y, scale.z);
 
-    private void recalculateMatrices() {
-        if (!matrixDirty)
-            return;
+        matrices.rotate(Rotation.Z.rotationDeg(rot.z));
+        matrices.rotate(Rotation.Y.rotationDeg(rot.y));
+        matrices.rotate(Rotation.X.rotationDeg(rot.x));
 
-        //position
-        positionMatrix.identity();
-
-        //position the pivot point at 0, 0, 0, and translate the model
-        positionMatrix.translate(-pivot.x, -pivot.y, -pivot.z);
-
-        //scale the model part around the pivot
-        positionMatrix.scale(scale);
-
-        //rotate the model part around the pivot
-        positionMatrix.rotateZYX(rot);
-
-        //undo the effects of the pivot translation
-        positionMatrix.translate(
-                pos.x + pivot.x,
-                pos.y + pivot.y,
-                pos.z + pivot.z
+        matrices.translate(
+                pos.x - pivot.x,
+                pos.y - pivot.y,
+                pos.z - pivot.z
         );
-
-        //normal
-        normalMatrix.identity();
-
-        float x = scale.x;
-        float y = scale.y;
-        float z = scale.z;
-        float c = (float) Math.cbrt(x * y * z);
-        normalMatrix.scale(
-                c == 0 && x == 0 ? 1 : c / x,
-                c == 0 && y == 0 ? 1 : c / y,
-                c == 0 && z == 0 ? 1 : c / z
-        );
-
-        normalMatrix.rotateZYX(rot);
-
-        matrixDirty = false;
-    }
-
-    public Matrix4f getPositionMatrix() {
-        recalculateMatrices();
-        return positionMatrix;
-    }
-
-    public Matrix3f getNormalMatrix() {
-        recalculateMatrices();
-        return normalMatrix;
     }
 
     public Vector3f getPos() {
@@ -104,7 +64,6 @@ public class Transform {
 
     public void setPos(float x, float y, float z) {
         this.pos.set(x, y, z);
-        matrixDirty = true;
     }
 
     public void setRot(Vector3f vec) {
@@ -113,7 +72,6 @@ public class Transform {
 
     public void setRot(float x, float y, float z) {
         this.rot.set(x, y, z);
-        matrixDirty = true;
     }
 
     public void setPivot(Vector3f vec) {
@@ -122,7 +80,6 @@ public class Transform {
 
     public void setPivot(float x, float y, float z) {
         this.pivot.set(x, y, z);
-        matrixDirty = true;
     }
 
     public void setScale(float scalar) {
@@ -135,7 +92,6 @@ public class Transform {
 
     public void setScale(float x, float y, float z) {
         this.scale.set(x, y, z);
-        matrixDirty = true;
     }
 
     public void setColor(Vector3f vec) {
@@ -160,14 +116,5 @@ public class Transform {
 
     public void setUV(float x, float y) {
         this.uv.set(x, y);
-    }
-
-    public void setPositionMatrix(Matrix4f positionMatrix) {
-        this.positionMatrix.set(positionMatrix);
-        this.matrixDirty = false;
-    }
-
-    public void setNormalMatrix(Matrix3f normalMatrix) {
-        this.positionMatrix.set(normalMatrix);
     }
 }

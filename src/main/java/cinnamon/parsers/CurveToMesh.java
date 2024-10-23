@@ -3,7 +3,7 @@ package cinnamon.parsers;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
-import cinnamon.model.obj.material.PBRMaterial;
+import cinnamon.model.material.PBRMaterial;
 import cinnamon.utils.Curve;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;

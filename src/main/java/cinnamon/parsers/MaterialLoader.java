@@ -1,8 +1,8 @@
 package cinnamon.parsers;
 
-import cinnamon.model.obj.material.Material;
-import cinnamon.model.obj.material.PBRMaterial;
-import cinnamon.model.obj.material.MtlMaterial;
+import cinnamon.model.material.Material;
+import cinnamon.model.material.PBRMaterial;
+import cinnamon.model.material.MtlMaterial;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 

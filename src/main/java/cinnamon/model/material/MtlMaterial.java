@@ -1,4 +1,4 @@
-package cinnamon.model.obj.material;
+package cinnamon.model.material;
 
 import cinnamon.utils.Resource;
 import org.joml.Vector3f;

@@ -1,6 +1,8 @@
 package cinnamon.model;
 
+import cinnamon.parsers.AnimationLoader;
 import cinnamon.parsers.ObjLoader;
+import cinnamon.render.AnimatedModel;
 import cinnamon.render.Model;
 import cinnamon.utils.Resource;
 
@@ -18,7 +20,18 @@ public class ModelManager {
             return model;
 
         //load mesh :)
-        Model newModel = new Model(ObjLoader.load(resource));
+        Model newModel;
+
+        //load animations, if any
+        String path = resource.getPath();
+        String folder = path.substring(0, path.lastIndexOf("/") + 1);
+        Resource res = new Resource(resource.getNamespace(), folder + "animations.json");
+        try {
+            newModel = new AnimatedModel(ObjLoader.load(resource), AnimationLoader.load(res));
+        } catch (Exception ignored) {
+            newModel = new Model(ObjLoader.load(resource));
+        }
+
         MODEL_MAP.put(resource, newModel);
         return newModel;
     }

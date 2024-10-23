@@ -1,4 +1,4 @@
-package cinnamon.model.obj.material;
+package cinnamon.model.material;
 
 public abstract class Material {
 

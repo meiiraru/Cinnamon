@@ -497,15 +497,9 @@ public class SoundVisualizerScreen extends ParentedScreen {
             if (lyrics == null)
                 return null;
 
-            int i = -1;
-            time += lyrics.getOffset();
-
             //get the current lyrics index based on its timeframe
-            for (Pair<Integer, String> pair : lyrics.getLyrics()) {
-                if (pair.first() <= time)
-                    i++;
-                else break;
-            }
+            final int offsetedTime = time + lyrics.getOffset();
+            int i = Maths.binarySearch(0, lyrics.getLyrics().size() - 1, index -> offsetedTime <= lyrics.getLyrics().get(index).first()) - 1;
 
             //prev2
             String previous2 = i > 1 ? lyrics.getLyrics().get(i - 2).second() : "";

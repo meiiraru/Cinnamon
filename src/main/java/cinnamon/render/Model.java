@@ -1,9 +1,9 @@
 package cinnamon.render;
 
+import cinnamon.model.material.Material;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
-import cinnamon.model.obj.material.Material;
 import cinnamon.render.shader.Attributes;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.AABB;
@@ -15,7 +15,9 @@ import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
@@ -28,13 +30,14 @@ public class Model {
 
     private final Mesh mesh;
 
-    private final List<GroupData> groups = new ArrayList<>();
+    private final Map<String, GroupData> groups;
     private final Vector3f
             bbMin = new Vector3f(Integer.MAX_VALUE),
             bbMax = new Vector3f(Integer.MIN_VALUE);
 
     public Model(Mesh mesh) {
         this.mesh = mesh;
+        this.groups = new HashMap<>(mesh.getGroups().size(), 1f);
 
         //grab mesh data
         List<Vector3f> vertices = mesh.getVertices();
@@ -98,7 +101,7 @@ public class Model {
 
             //create a new group - the group contains the OpenGL attributes
             GroupData groupData = new GroupData(group, sortedVertices.size(), capacity, groupMin, groupMax);
-            this.groups.add(groupData);
+            this.groups.put(group.getName(), groupData);
 
             //different buffer per group
             FloatBuffer buffer = BufferUtils.createFloatBuffer(capacity);
@@ -113,18 +116,23 @@ public class Model {
         }
     }
 
+    public void free() {
+        for (GroupData group : groups.values())
+            group.free();
+    }
+
     public void render() {
         render(null);
     }
 
     public void render(Material material) {
-        for (GroupData group : groups)
-            group.render(material == null ? group.material : material);
+        for (String group : groups.keySet())
+            renderGroup(group, material);
     }
 
     public void renderWithoutMaterial() {
-        for (GroupData group : groups)
-            group.renderWithoutMaterial();
+        for (String group : groups.keySet())
+            renderGroupWithoutMaterial(group);
     }
 
     public AABB getMeshAABB() {
@@ -133,7 +141,7 @@ public class Model {
 
     public List<AABB> getGroupsAABB() {
         List<AABB> list = new ArrayList<>();
-        for (GroupData data : groups)
+        for (GroupData data : groups.values())
             list.add(new AABB(data.bbMin, data.bbMax));
         return list;
     }
@@ -142,9 +150,17 @@ public class Model {
         return mesh;
     }
 
-    public void free() {
-        for (GroupData group : groups)
-            group.free();
+    public void renderGroup(String name) {
+        renderGroup(name, null);
+    }
+
+    public void renderGroup(String name, Material material) {
+        GroupData group = groups.get(name);
+        group.render(material == null ? group.material : material);
+    }
+
+    public void renderGroupWithoutMaterial(String name) {
+        groups.get(name).renderWithoutMaterial();
     }
 
     private static final class VertexData {
@@ -277,7 +293,7 @@ public class Model {
         }
     }
 
-    private static class GroupData {
+    private static final class GroupData {
         private final int vao, vbo, vertexCount;
         private final Material material;
         private final Vector3f bbMin, bbMax;

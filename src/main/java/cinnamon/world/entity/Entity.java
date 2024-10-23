@@ -1,8 +1,10 @@
 package cinnamon.world.entity;
 
 import cinnamon.Client;
+import cinnamon.animation.Animation;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.EntityRegistry;
+import cinnamon.render.AnimatedModel;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Model;
 import cinnamon.render.batch.VertexConsumer;
@@ -81,9 +83,19 @@ public abstract class Entity extends WorldObject {
     }
 
     protected void renderModel(MatrixStack matrices, float delta) {
+        //render model with animations
+        if (model instanceof AnimatedModel anim) {
+            anim.render(matrices);
+            return;
+        }
+
         //render model
         Shader.activeShader.applyMatrixStack(matrices);
         model.render();
+    }
+
+    public Animation getAnimation(String name) {
+        return model instanceof AnimatedModel anim ? anim.getAnimation(name) : null;
     }
 
     protected void applyModelPose(MatrixStack matrices, float delta) {

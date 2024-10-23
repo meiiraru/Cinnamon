@@ -1,6 +1,6 @@
 package cinnamon.model.obj;
 
-import cinnamon.model.obj.material.Material;
+import cinnamon.model.material.Material;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 

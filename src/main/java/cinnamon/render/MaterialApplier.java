@@ -1,8 +1,8 @@
 package cinnamon.render;
 
-import cinnamon.model.obj.material.Material;
-import cinnamon.model.obj.material.MtlMaterial;
-import cinnamon.model.obj.material.PBRMaterial;
+import cinnamon.model.material.Material;
+import cinnamon.model.material.MtlMaterial;
+import cinnamon.model.material.PBRMaterial;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.Resource;

@@ -1,0 +1,35 @@
+{
+  "format_version": "1.8.0",
+  "outliner": [
+    "hair",
+    "sphere",
+    {
+      "children": [
+        "left_eye",
+        "right_eye"
+      ],
+      "name": "eyes",
+      "origin": [
+        0,
+        10,
+        -7.25
+      ]
+    }
+  ],
+  "animations": {
+    "blink": {
+      "loop": true,
+      "animation_length": 5,
+      "bones": {
+        "eyes": {
+          "scale": {
+            "0.0": [1, 1, 1],
+            "4.8333": [1, 1, 1],
+            "4.9167": [1, 0, 1],
+            "5.0": [1, 1, 1]
+          }
+        }
+      }
+    }
+  }
+}

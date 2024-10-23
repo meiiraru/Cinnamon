@@ -1,7 +1,7 @@
 package cinnamon.registry;
 
 import cinnamon.model.MaterialManager;
-import cinnamon.model.obj.material.Material;
+import cinnamon.model.material.Material;
 import cinnamon.utils.Resource;
 
 public enum MaterialRegistry {

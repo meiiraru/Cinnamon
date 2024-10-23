@@ -1,6 +1,6 @@
 package cinnamon.model;
 
-import cinnamon.model.obj.material.Material;
+import cinnamon.model.material.Material;
 import cinnamon.parsers.MaterialLoader;
 import cinnamon.utils.Resource;
 

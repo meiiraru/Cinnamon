@@ -1,6 +1,7 @@
 package cinnamon.world;
 
 import cinnamon.Client;
+import cinnamon.animation.Animation;
 import cinnamon.gui.Toast;
 import cinnamon.gui.screens.world.ChatScreen;
 import cinnamon.gui.screens.world.DeathScreen;
@@ -731,6 +732,10 @@ public class WorldClient extends World {
         player.setPos(0.5f, init ? 0f : 100f, 0.5f);
         givePlayerItems(player);
         this.addEntity(player);
+
+        Animation anim = player.getAnimation("blink");
+        if (anim != null)
+            anim.setState(Animation.State.PLAYING);
 
         //if (!init)
         //    connection.sendTCP(new Respawn());
