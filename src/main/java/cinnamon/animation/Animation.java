@@ -42,7 +42,7 @@ public class Animation {
                 }
                 case LOOP -> {
                     time %= duration;
-                    initTime = (int) System.currentTimeMillis();
+                    initTime = (int) System.currentTimeMillis() - time;
                 }
             }
         }
@@ -67,7 +67,7 @@ public class Animation {
                 List<Keyframe> keyframes = channelsEntry.getValue();
 
                 //get the current keyframe and the next
-                int i = Maths.binarySearch(0, keyframes.size() - 1, index -> time <= keyframes.get(index).getTime()) - 1;
+                int i = Math.max(Maths.binarySearch(0, keyframes.size() - 1, index -> time <= keyframes.get(index).getTime()) - 1, 0);
                 int j = Math.min(keyframes.size() - 1, i + 1);
 
                 Keyframe current = keyframes.get(i);

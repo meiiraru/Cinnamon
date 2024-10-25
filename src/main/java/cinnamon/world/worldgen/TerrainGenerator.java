@@ -2,7 +2,7 @@ package cinnamon.world.worldgen;
 
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
-import cinnamon.world.World;
+import cinnamon.world.world.World;
 import cinnamon.world.terrain.Terrain;
 
 public class TerrainGenerator {

@@ -8,8 +8,9 @@ import cinnamon.gui.widgets.WidgetList;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Label;
 import cinnamon.text.Text;
-import cinnamon.world.MaterialPreviewWorld;
-import cinnamon.world.RollerCoasterWorld;
+import cinnamon.world.world.DiscoWorld;
+import cinnamon.world.world.MaterialPreviewWorld;
+import cinnamon.world.world.RollerCoasterWorld;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -33,8 +34,11 @@ public class ExtrasScreen extends ParentedScreen {
         //material debug world
         list.addWidget(BUTTON_FACTORY.apply("Material Debug", button -> new MaterialPreviewWorld().init()));
 
-        //material debug world
+        //roller coaster world
         list.addWidget(BUTTON_FACTORY.apply("Roller Coaster", button -> new RollerCoasterWorld().init()));
+
+        //disco world
+        list.addWidget(BUTTON_FACTORY.apply("Disco", button -> new DiscoWorld().init()));
 
         //title
         list.addWidget(new Label(0, 0, Text.of("\nTech demos\n"), font));

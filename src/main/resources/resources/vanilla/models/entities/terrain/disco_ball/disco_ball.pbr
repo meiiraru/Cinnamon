@@ -1,0 +1,12 @@
+# Made in Blockbench 4.11.1
+newmtl m_dec7b988-46fc-371e-cd72-5f3453a1a007
+albedo Disco_Ball_001_basecolor.png
+ao Disco_Ball_001_ambientOcclusion.png
+height Disco_Ball_001_height.png
+metallic Disco_Ball_001_metallic.png
+normal Disco_Ball_001_normal.png
+roughness Disco_Ball_001_roughness.png
+newmtl m_8042ea31-8749-5656-2e56-3d6000aa4f10
+albedo lights.png
+emissive lights_e.png
+newmtl none

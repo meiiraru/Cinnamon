@@ -1,0 +1,25 @@
+# Made in Blockbench 4.11.1
+mtllib floor.pbr
+
+o floor
+v 1.5 0 1.5
+v 1.5 0 -1.5
+v -1.5 0 1.5
+v -1.5 0 -1.5
+v 1.5 0 1.5
+v 1.5 0 -1.5
+v -1.5 0 1.5
+v -1.5 0 -1.5
+vt 1 0
+vt 1 1
+vt 0 1
+vt 0 0
+vt 0 1
+vt 1 1
+vt 1 0
+vt 0 0
+vn 0 1 0
+vn 0 -1 0
+usemtl m_731cd0a2-4c1c-6e30-b7e5-fe570bf33d6e
+f 1/1/1 2/2/1 4/3/1 3/4/1
+f 8/5/2 6/6/2 5/7/2 7/8/2

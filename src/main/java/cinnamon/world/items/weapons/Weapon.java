@@ -1,7 +1,7 @@
 package cinnamon.world.items.weapons;
 
 import cinnamon.render.Model;
-import cinnamon.world.World;
+import cinnamon.world.world.World;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.projectile.Projectile;
 import cinnamon.world.items.CooldownItem;

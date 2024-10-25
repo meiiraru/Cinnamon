@@ -20,5 +20,7 @@ public enum EntityRegistry {
     CART,
 
     //other
-    SPAWNER
+    SPAWNER,
+    TERRAIN,
+    UNKNOWN
 }

@@ -7,12 +7,11 @@ import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.TextField;
 //import cinnamon.networking.ClientConnection;
-import cinnamon.networking.NetworkConstants;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
-import cinnamon.world.WorldClient;
+import cinnamon.world.world.WorldClient;
 
 public class MultiplayerJoinScreen extends ParentedScreen {
 

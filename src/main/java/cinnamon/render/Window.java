@@ -164,6 +164,10 @@ public class Window {
         this.scaledHeight = (int) (this.height / this.guiScale);
     }
 
+    public void resize(int width, int height) {
+        glfwSetWindowSize(window, width, height);
+    }
+
     public void setIcon(Resource resource) {
         try (
                 GLFWImage icon = GLFWImage.malloc();

@@ -9,7 +9,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Rotation;
-import cinnamon.world.World;
+import cinnamon.world.world.World;
 import cinnamon.world.WorldObject;
 import org.joml.Vector3f;
 

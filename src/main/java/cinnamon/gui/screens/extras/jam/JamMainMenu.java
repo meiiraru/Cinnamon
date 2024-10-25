@@ -18,6 +18,12 @@ public class JamMainMenu extends ParentedScreen {
 
     @Override
     public void init() {
+        if (client.window.scaledWidth != 500 || client.window.scaledHeight != 300) {
+            int scale = Math.max(Math.round(Math.min(client.window.width / 500f, client.window.height / 300f)), 1);
+            client.window.resize(500 * scale, 300 * scale);
+            return;
+        }
+
         Button play = new Button(151, 123, 194, 30, null, butt -> client.setScreen(new JamScreen(this)));
         play.setInvisible(true);
         addWidget(play);

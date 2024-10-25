@@ -3,7 +3,7 @@ package cinnamon.world.entity.living;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.world.DamageType;
-import cinnamon.world.WorldClient;
+import cinnamon.world.world.WorldClient;
 import cinnamon.world.entity.Entity;
 
 import java.util.UUID;

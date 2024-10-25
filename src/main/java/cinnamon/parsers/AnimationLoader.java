@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class AnimationLoader {
 
-    public static final float SIZE_RATIO = 1 / 16f;
+    public static final float POS_RATIO = 1 / 16f;
 
     public static Pair<Bone, List<Animation>> load(Resource res) {
         InputStream stream = IOUtils.getResource(res);
@@ -51,8 +51,8 @@ public class AnimationLoader {
         }
     }
 
-    private static Vector3f parseVec3(JsonArray array, boolean scale) {
-        return new Vector3f(array.get(0).getAsFloat(), array.get(1).getAsFloat(), array.get(2).getAsFloat()).mul(scale ? 1f : SIZE_RATIO);
+    private static Vector3f parseVec3(JsonArray array, boolean position) {
+        return new Vector3f(array.get(0).getAsFloat(), array.get(1).getAsFloat(), array.get(2).getAsFloat()).mul(position ? POS_RATIO : 1f);
     }
 
     private static void parseOutliner(Bone bone, JsonArray array, HashMap<String, Bone> boneMap) {
@@ -69,7 +69,7 @@ public class AnimationLoader {
             JsonObject object = element.getAsJsonObject();
 
             Bone child = new Bone(object.get("name").getAsString());
-            child.getTransform().setPivot(parseVec3(object.getAsJsonArray("origin"), false));
+            child.getTransform().setPivot(parseVec3(object.getAsJsonArray("origin"), true));
             bone.getChildren().add(child);
             boneMap.put(child.getName(), child);
 
@@ -113,11 +113,11 @@ public class AnimationLoader {
                     JsonObject animObject = animBoneEntry.getValue().getAsJsonObject();
                     for (Map.Entry<String, JsonElement> keyframeEntry : animObject.entrySet()) {
                         int time = (int) (Float.parseFloat(keyframeEntry.getKey()) * 1000f);
-                        boolean isScale = channel == Channel.SCALE;
+                        boolean isPosition = channel == Channel.POSITION;
 
                         //array value - keyframe only contains the transform value
                         if (keyframeEntry.getValue().isJsonArray()) {
-                            Vector3f vec = parseVec3(keyframeEntry.getValue().getAsJsonArray(), isScale);
+                            Vector3f vec = parseVec3(keyframeEntry.getValue().getAsJsonArray(), isPosition);
                             animation.addKeyframe(bone, channel, new Keyframe(time, vec, false));
                             continue;
                         }
@@ -126,8 +126,8 @@ public class AnimationLoader {
                         JsonObject keyframeObject = keyframeEntry.getValue().getAsJsonObject();
 
                         boolean catmullrom = keyframeObject.has("lerp_mode") && keyframeObject.get("lerp_mode").getAsString().equals("catmullrom");
-                        Vector3f pre = keyframeObject.has("pre") ? parseVec3(keyframeObject.getAsJsonArray("pre"), isScale) : null;
-                        Vector3f post = parseVec3(keyframeObject.getAsJsonArray("post"), isScale);
+                        Vector3f pre = keyframeObject.has("pre") ? parseVec3(keyframeObject.getAsJsonArray("pre"), isPosition) : null;
+                        Vector3f post = parseVec3(keyframeObject.getAsJsonArray("post"), isPosition);
 
                         animation.addKeyframe(bone, channel, new Keyframe(time, post, pre, catmullrom));
                     }

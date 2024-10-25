@@ -1,0 +1,83 @@
+{
+  "format_version": "1.8.0",
+  "outliner": [
+    {
+      "children": [
+        "l1"
+      ],
+      "name": "bone",
+      "origin": [0, 8, 0]
+    },
+    {
+      "children": [
+        "l2"
+      ],
+      "name": "bone2",
+      "origin": [0, 8, 0]
+    },
+    {
+      "children": [
+        "l3"
+      ],
+      "name": "bone3",
+      "origin": [0, 8, 0]
+    },
+    {
+      "children": [
+        "sphere"
+      ],
+      "name": "bone4",
+      "origin": [0, 8, 0]
+    }
+  ],
+  "animations": {
+    "animation1": {
+      "loop": true,
+      "animation_length": 20,
+      "bones": {
+        "bone": {
+          "rotation": {
+            "0.0": [0, 0, 0],
+            "20.0": [0, -720, -360]
+          }
+        }
+      }
+    },
+    "animation2": {
+      "loop": true,
+      "animation_length": 25,
+      "bones": {
+        "bone2": {
+          "rotation": {
+            "0.0": [0, 0, 0],
+            "25.0": [-720, -360, 0]
+          }
+        }
+      }
+    },
+    "animation3": {
+      "loop": true,
+      "animation_length": 22.5,
+      "bones": {
+        "bone3": {
+          "rotation": {
+            "0.0": [0, 0, 0],
+            "22.5": [-360, 0, -720]
+          }
+        }
+      }
+    },
+    "animation4": {
+      "loop": true,
+      "animation_length": 30,
+      "bones": {
+        "bone4": {
+          "rotation": {
+            "0.0": [0, 0, 0],
+            "30.0": [0, 360, 0]
+          }
+        }
+      }
+    }
+  }
+}

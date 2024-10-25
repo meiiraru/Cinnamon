@@ -1,4 +1,4 @@
-package cinnamon.world;
+package cinnamon.world.world;
 
 import cinnamon.Client;
 import cinnamon.animation.Animation;
@@ -25,6 +25,8 @@ import cinnamon.text.Text;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Direction;
 import cinnamon.utils.Maths;
+import cinnamon.world.Hud;
+import cinnamon.world.SkyBox;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.Spawner;

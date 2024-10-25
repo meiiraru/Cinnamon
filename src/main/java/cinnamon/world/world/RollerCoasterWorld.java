@@ -1,4 +1,4 @@
-package cinnamon.world;
+package cinnamon.world.world;
 
 import cinnamon.parsers.CurveToMesh;
 import cinnamon.render.Camera;

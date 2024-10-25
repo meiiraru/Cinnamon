@@ -4,8 +4,8 @@ import cinnamon.model.ModelManager;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Model;
 import cinnamon.utils.Resource;
-import cinnamon.world.World;
-import cinnamon.world.WorldClient;
+import cinnamon.world.world.World;
+import cinnamon.world.world.WorldClient;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.light.Spotlight;
 

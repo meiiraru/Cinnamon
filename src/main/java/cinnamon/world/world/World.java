@@ -1,4 +1,4 @@
-package cinnamon.world;
+package cinnamon.world.world;
 
 import cinnamon.Client;
 import cinnamon.sound.SoundCategory;
@@ -6,6 +6,7 @@ import cinnamon.sound.SoundInstance;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
+import cinnamon.world.DamageType;
 import cinnamon.world.collisions.CollisionDetector;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.collisions.Hit;

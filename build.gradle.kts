@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "io.github.meiiraru"
-version = "0.0.8"
+version = "0.0.9"
 
 //dependencies versions
 val lwjglVersion = "3.3.4"

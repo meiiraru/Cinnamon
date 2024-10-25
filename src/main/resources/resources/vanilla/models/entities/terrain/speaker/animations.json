@@ -1,0 +1,48 @@
+{
+  "format_version": "1.8.0",
+  "outliner": [
+    "box",
+    {
+        "children": [
+          "ball_bottom",
+          "ring_bottom"
+        ],
+        "name": "bone",
+        "origin": [0, 4.5, -4]
+    },
+    {
+        "children": [
+          "ring_up",
+          "ball_up"
+        ],
+        "name": "bone2",
+        "origin": [0, 11.5, -4]
+    }
+  ],
+  "animations": {
+    "animation1": {
+      "animation_length": 0.25,
+      "bones": {
+        "bone": {
+          "scale": {
+            "0.0": [1, 1, 1],
+            "0.125": [1.2, 1.2, 1.2],
+            "0.25": [1, 1, 1]
+          }
+        }
+      }
+    },
+    "animation2": {
+      "animation_length": 0.25,
+      "bones": {
+        "bone2": {
+          "scale": {
+            "0.0": [1, 1, 1],
+            "0.125": [1.2, 1.2, 1.2],
+            "0.25": [1, 1, 1]
+          }
+        }
+      }
+    }
+  }
+}

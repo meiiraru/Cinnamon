@@ -3,7 +3,7 @@ package cinnamon.world.worldgen;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.AABB;
-import cinnamon.world.World;
+import cinnamon.world.world.World;
 import cinnamon.world.terrain.Terrain;
 import org.joml.Vector3i;
 

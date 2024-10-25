@@ -23,6 +23,7 @@ import cinnamon.world.items.Inventory;
 import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.terrain.Terrain;
+import cinnamon.world.world.WorldClient;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;

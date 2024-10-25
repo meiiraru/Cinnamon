@@ -3,7 +3,7 @@ package cinnamon.world.entity.living;
 import cinnamon.Client;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.render.Camera;
-import cinnamon.world.WorldClient;
+import cinnamon.world.world.WorldClient;
 
 public class LocalPlayer extends Player {
 

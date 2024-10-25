@@ -19,7 +19,7 @@ import cinnamon.utils.Await;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
 import cinnamon.utils.Timer;
-import cinnamon.world.WorldClient;
+import cinnamon.world.world.WorldClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Matrix4f;
@@ -35,7 +35,7 @@ import static org.lwjgl.opengl.GL11.glClear;
 public class Client {
 
     private static final Client INSTANCE = new Client();
-    public static final String VERSION = "0.0.8";
+    public static final String VERSION = "0.0.9";
     public static final Logger LOGGER = LogManager.getLogger(Main.class);
 
     private final Queue<Runnable> scheduledTicks = new LinkedList<>();

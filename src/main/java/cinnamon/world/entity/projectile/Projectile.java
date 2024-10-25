@@ -4,7 +4,7 @@ import cinnamon.render.Model;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
 import cinnamon.world.DamageType;
-import cinnamon.world.World;
+import cinnamon.world.world.World;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;

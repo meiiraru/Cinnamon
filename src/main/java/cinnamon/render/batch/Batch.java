@@ -6,7 +6,7 @@ import cinnamon.render.shader.Attributes;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.Pair;
-import cinnamon.world.WorldClient;
+import cinnamon.world.world.WorldClient;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;

@@ -1,0 +1,7 @@
+# Made in Blockbench 4.11.1
+newmtl m_731cd0a2-4c1c-6e30-b7e5-fe570bf33d6e
+albedo floor.png
+emissive emissive.png
+metallic metallic.png
+height height.png
+newmtl none

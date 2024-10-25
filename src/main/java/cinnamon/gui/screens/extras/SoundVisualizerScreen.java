@@ -11,17 +11,12 @@ import cinnamon.model.Vertex;
 import cinnamon.parsers.LrcLoader;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.sound.Lyrics;
-import cinnamon.sound.Sound;
-import cinnamon.sound.SoundCategory;
-import cinnamon.sound.SoundInstance;
+import cinnamon.sound.*;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
 import org.joml.Vector3f;
-import org.jtransforms.fft.FloatFFT_1D;
 
-import java.nio.ShortBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,16 +24,10 @@ import java.util.function.Function;
 
 public class SoundVisualizerScreen extends ParentedScreen {
 
-    private static final int
-            FFT_SIZE = 1024,
-            BARS = 20,
-            FREQUENCY = 16000; //16kHz
     private static final float
             BOOST = 3f;
     private static final Function<Float, Float>
             WEIGHTING_FUNCTION = f -> f < 1000 ? 1f : f < 4000 ? 2f : f < 12000 ? 4f : 8f;
-
-    private static final FloatFFT_1D FFT = new FloatFFT_1D(FFT_SIZE);
 
     private static final Resource
             PLAY = new Resource("textures/gui/icons/play.png"),
@@ -53,9 +42,9 @@ public class SoundVisualizerScreen extends ParentedScreen {
     private final List<Track> playlist = new ArrayList<>();
     private int playlistIndex = -1;
 
-    private final float[] amplitudes = new float[BARS];
     private Sound sound;
     private SoundInstance soundData;
+    private final SoundSpectrum spectrum = new SoundSpectrum();
 
     private Slider slider;
     private Button playPauseButton, nextButton, previousButton;
@@ -229,11 +218,13 @@ public class SoundVisualizerScreen extends ParentedScreen {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //grab the audio spectrum and calculate the amplitudes
-        updateAmplitudes();
+        spectrum.updateAmplitudes(sound, soundData, true);
+        float[] amplitudes = spectrum.getAmplitudes();
 
         //draw bars
-        for (int i = 0; i < BARS; i++)
-            drawBar(matrices, i, amplitudes[i] * BOOST * WEIGHTING_FUNCTION.apply((float) i / BARS * FREQUENCY));
+        int bars = amplitudes.length;
+        for (int i = 0; i < bars; i++)
+            drawBar(matrices, i, bars, amplitudes[i] * BOOST * WEIGHTING_FUNCTION.apply((float) i / bars * spectrum.getMaxFrequency()));
 
         //draw texts
         drawTexts(matrices);
@@ -275,8 +266,8 @@ public class SoundVisualizerScreen extends ParentedScreen {
             font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), (int) (height / 4f - TextUtils.getHeight(text, font) / 2f), text, Alignment.CENTER);
     }
 
-    private void drawBar(MatrixStack matrices, int i, float amplitude) {
-        float w = Math.max((width - 20 - BARS + 1f) / BARS, 1f);
+    private void drawBar(MatrixStack matrices, int i, int bars, float amplitude) {
+        float w = Math.max((width - 20 - bars + 1f) / bars, 1f);
         float x = i * (w + 1) + 10;
 
         if (x > width - 10)
@@ -345,79 +336,6 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
         //notify the user
         Toast.addToast(Text.of("Now playing: %s".formatted(track.title)), font);
-    }
-
-    private float[] getSoundSamples() {
-        if (!hasSound())
-            return null;
-
-        //convert current time to sample index
-        int startIndex = (int) ((soundData.getPlaybackTime() / 1000f) * sound.sampleRate * sound.channels);
-
-        //make sure the index does not exceed the buffer capacity
-        if (startIndex + FFT_SIZE * sound.channels > sound.buffer.capacity())
-            startIndex = sound.buffer.capacity() - FFT_SIZE * sound.channels;
-
-        //get a slice of the buffer starting from the correct sample
-        ShortBuffer slicedBuffer = sound.buffer.duplicate();
-        slicedBuffer.position(startIndex);
-        slicedBuffer.limit(startIndex + FFT_SIZE * sound.channels);
-
-        ShortBuffer slice = slicedBuffer.slice();
-
-        //extract samples from the slice
-        int numSamples = slice.remaining() / sound.channels;
-        float[] samples = new float[numSamples];
-
-        //only take samples for one channel (assuming stereo)
-        for (int i = 0; i < numSamples; i++) {
-            //take the first channel only
-            samples[i] = slice.get(i * sound.channels) / (float) Short.MAX_VALUE;
-        }
-
-        return samples;
-    }
-
-    private void updateAmplitudes() {
-        //smooth out the amplitudes all back to 0
-        for (int i = 0; i < amplitudes.length; i++)
-            amplitudes[i] = Maths.lerp(amplitudes[i], 0f, UIHelper.tickDelta(0.6f));
-
-        //get sound samples
-        float[] soundSamples = getSoundSamples();
-        if (soundSamples == null)
-            return;
-
-        //apply hann window to smooth the spectrum before applying FFT
-        int length = soundSamples.length;
-        for (int i = 0; i < length; i++)
-            soundSamples[i] *= (float) (0.5f * (1 - Math.cos((2 * Math.PI * i) / (length - 1))));
-
-        //apply fast fourier transform
-        FFT.realForward(soundSamples);
-
-        //get amplitudes
-        int maxFreqBin = (int) (FREQUENCY / (sound.sampleRate * 0.5f) * (length * 0.5f));
-        for (int i = 0; i < BARS; i++) {
-            int lowIndex = i * maxFreqBin / BARS;
-            int highIndex = (i + 1) * maxFreqBin / BARS - 1;
-
-            float sum = 0;
-            int count = 0;
-
-            //get magnitude from FFT data (real and imaginary part)
-            for (int j = lowIndex; j <= highIndex; j++) {
-                float real = soundSamples[j * 2];
-                float imag = soundSamples[j * 2 + 1];
-                float magnitude = (float) Math.sqrt(real * real + imag * imag);
-                sum += magnitude;
-                count++;
-            }
-
-            //average amplitude for the frequency band
-            float amplitude = (count > 0 ? sum / count : 0);
-            amplitudes[i] = Math.max(amplitude, amplitudes[i]);
-        }
     }
 
     @Override

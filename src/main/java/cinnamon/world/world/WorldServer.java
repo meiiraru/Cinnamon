@@ -1,4 +1,4 @@
-package cinnamon.world;
+package cinnamon.world.world;
 
 /*
 import cinnamon.networking.ServerConnection;

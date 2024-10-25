@@ -2,6 +2,7 @@ package cinnamon.world;
 
 import cinnamon.render.Camera;
 import cinnamon.utils.AABB;
+import cinnamon.world.world.World;
 import org.joml.Vector3f;
 
 public abstract class WorldObject {

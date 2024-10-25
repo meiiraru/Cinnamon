@@ -13,7 +13,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
-import cinnamon.world.WorldClient;
+import cinnamon.world.world.WorldClient;
 import org.joml.Vector3f;
 
 import java.util.function.Consumer;

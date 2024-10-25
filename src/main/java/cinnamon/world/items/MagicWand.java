@@ -4,7 +4,7 @@ import cinnamon.model.ModelManager;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Model;
 import cinnamon.utils.*;
-import cinnamon.world.World;
+import cinnamon.world.world.World;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.particle.Particle;

@@ -11,7 +11,7 @@ import cinnamon.text.Text;
 import cinnamon.utils.Curve;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
-import cinnamon.world.RollerCoasterWorld;
+import cinnamon.world.world.RollerCoasterWorld;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.terrain.Terrain;

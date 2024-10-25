@@ -1,4 +1,4 @@
-package cinnamon.world;
+package cinnamon.world.worldgen;
 
 /*
 import com.fasterxml.jackson.databind.DeserializationFeature;
