@@ -9,6 +9,8 @@ import cinnamon.utils.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
+import static cinnamon.Client.LOGGER;
+
 public class ModelManager {
 
     private static final Map<Resource, Model> MODEL_MAP = new HashMap<>();
@@ -18,6 +20,8 @@ public class ModelManager {
         Model model = MODEL_MAP.get(resource);
         if (model != null)
             return model;
+
+        LOGGER.info("Loading model {}", resource);
 
         //load mesh :)
         Model newModel;

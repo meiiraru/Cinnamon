@@ -23,7 +23,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Main {
 
     public static void main(String[] args) {
-        //System.load("D:\\apps\\RenderDoc_1.32_64\\renderdoc.dll");
+        //System.load("C:\\Program Files\\RenderDoc\\renderdoc.dll");
         new Main().run();
     }
 
@@ -52,19 +52,41 @@ public class Main {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        //enable only if were on apple
+        //enable only if we are on apple
         String os = System.getProperty("os.name");
         if (os != null && os.toLowerCase().contains("mac"))
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
         //create window
-        window = glfwCreateWindow(WIDTH, HEIGHT, "Cinnamon", NULL, NULL);
+        int width = WIDTH;
+        int height = HEIGHT;
+        window = glfwCreateWindow(width, height, "Cinnamon", NULL, NULL);
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
-        client.window = new Window(window, WIDTH, HEIGHT);
-        client.window.setIcon(new Resource("textures/icon.png"));
 
-        //input callbacks
+        //make the OpenGL context current
+        glfwMakeContextCurrent(window);
+
+        //vsync
+        glfwSwapInterval(GLFW_FALSE);
+
+        //set window size and position
+        GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        if (vidMode != null) {
+            int ww = vidMode.width();
+            int wh = vidMode.height();
+            width = (int) (ww * 0.45f);
+            height = (int) (wh * 0.45f);
+            glfwSetWindowSize(window, width, height);
+            glfwSetWindowPos(window, (ww - width) / 2, (wh - height) / 2);
+        } else { //could not find video mode, so just maximize the window
+            glfwMaximizeWindow(window);
+        }
+
+        //and then show the window
+        glfwShowWindow(window);
+
+        //register input callbacks
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> client.keyPress(key, scancode, action, mods));
         glfwSetCharModsCallback(window, (window, key, mods) -> {
             for (char c : Character.toChars(key))
@@ -74,7 +96,7 @@ public class Main {
         glfwSetCursorPosCallback(window, (window, x, y) -> client.mouseMove(x, y));
         glfwSetScrollCallback(window, (window, x, y) -> client.scroll(x, y));
         glfwSetWindowPosCallback(window, (window, x, y) -> client.windowMove(x, y));
-        glfwSetWindowSizeCallback(window, (window, width, height) -> client.windowResize(width, height));
+        glfwSetWindowSizeCallback(window, (window, w, h) -> client.windowResize(w, h));
         glfwSetWindowFocusCallback(window, (window, focused) -> client.windowFocused(focused));
         glfwSetDropCallback(window, (window, count, names) -> {
             String[] nameArray = new String[count];
@@ -83,10 +105,7 @@ public class Main {
             client.filesDropped(nameArray);
         });
 
-        //make the OpenGL context current
-        glfwMakeContextCurrent(window);
-
-        //finishes the initializing process
+        //finishes the initialization process
         GL.createCapabilities();
 
         // -- init -- //
@@ -101,23 +120,8 @@ public class Main {
         LOGGER.info("OpenGL Version: {}", glGetString(GL_VERSION));
         LOGGER.info("LWJGL Version: {}", Version.getVersion());
 
-        //window properties
-
-        //vsync
-        glfwSwapInterval(GLFW_FALSE);
-
-        //center window on screen
-        GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        if (vidMode != null) {
-            glfwSetWindowPos(window, (vidMode.width() - WIDTH) / 2, (vidMode.height() - HEIGHT) / 2);
-        } else { //could not find video mode, so just maximize the window
-            glfwMaximizeWindow(window);
-        }
-
-        //and then show the window
-        glfwShowWindow(window);
-
-        //finish init by initializing the client
+        //finish init through the client
+        client.window = new Window(window, width, height);
         client.init();
     }
 

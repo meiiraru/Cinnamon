@@ -15,6 +15,8 @@ import cinnamon.utils.Rotation;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
+import static cinnamon.Client.LOGGER;
+
 public class SkyBox {
 
     private static final Resource SUN = new Resource("textures/environment/sun.png");
@@ -116,11 +118,14 @@ public class SkyBox {
         }
 
         public void loadTextures() {
+            Resource res = new Resource("textures/environment/skybox/" + name().toLowerCase() + (hdr ? ".hdr" : ""));
+            LOGGER.info("Loading skybox: {}", res);
+
             if (hdr) {
-                HDRTexture hdrTex = HDRTexture.of(new Resource("textures/environment/skybox/" + name().toLowerCase() + ".hdr"), true, false);
+                HDRTexture hdrTex = HDRTexture.of(res, true, false);
                 texture = IBLMap.hdrToCubemap(hdrTex);
             } else {
-                texture = CubeMap.of(new Resource("textures/environment/skybox/" + name().toLowerCase()));
+                texture = CubeMap.of(res);
             }
 
             irradiance = IBLMap.generateIrradianceMap(texture);

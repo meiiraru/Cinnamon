@@ -9,6 +9,8 @@ import com.google.gson.JsonParser;
 
 import java.io.InputStreamReader;
 
+import static cinnamon.Client.LOGGER;
+
 public class GUIStyle {
 
     private static final Resource RESOURCE = new Resource("data/gui/settings.json");
@@ -52,6 +54,7 @@ public class GUIStyle {
             tooltipBorder = 4;
 
     public static void init() {
+        LOGGER.info("Applying gui style settings");
         JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(RESOURCE))).getAsJsonObject();
         try {
             textColor = Integer.parseUnsignedInt(json.get("text_color").getAsString(), 16);
@@ -78,7 +81,7 @@ public class GUIStyle {
 
             tooltipBorder = json.get("tooltip_border").getAsInt();
         } catch (Exception e) {
-            Client.LOGGER.error("Failed to load GUI style settings", e);
+            LOGGER.error("Failed to load GUI style settings", e);
         }
     }
 }

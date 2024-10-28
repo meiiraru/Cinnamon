@@ -60,6 +60,7 @@ public class Client {
     private Client() {}
 
     public void init() {
+        this.window.setIcon(new Resource("textures/icon.png"));
         this.options = Options.load();
         this.windowResize(window.width, window.height);
         this.soundManager = new SoundManager();
@@ -161,6 +162,7 @@ public class Client {
 
         //set the screen
         this.screen = s;
+        LOGGER.info("Set screen: {}", s == null ? "none" : s.getClass().getSimpleName());
 
         if (s != null) {
             //init the new screen

@@ -26,6 +26,8 @@ public class SoundManager {
     private boolean initalized;
 
     public void init() {
+        LOGGER.info("Initializing OpenAL sound engine...");
+
         //initialize audio device
         String defaultDevice = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
         device = alcOpenDevice(defaultDevice);
@@ -53,6 +55,7 @@ public class SoundManager {
 
         alSpeedOfSound(1f);
         initalized = true;
+        LOGGER.info("OpenAL version: {}", alcGetInteger(0, ALC_MAJOR_VERSION) + "." + alcGetInteger(0, ALC_MINOR_VERSION));
     }
 
     public void free() {

@@ -26,6 +26,7 @@ public class Shader {
     }
 
     private static int loadShader(Resource res) {
+        LOGGER.info("Loading shader {}", res);
         String src = IOUtils.readString(res);
         String[] split = src.split("#type ");
         //[0] = empty string

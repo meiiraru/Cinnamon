@@ -19,6 +19,8 @@ import cinnamon.world.SkyBox;
 import java.util.ArrayList;
 import java.util.List;
 
+import static cinnamon.Client.LOGGER;
+
 public class ResourceManager {
 
     private static final List<Runnable>
@@ -26,6 +28,8 @@ public class ResourceManager {
             FREE_EVENTS = new ArrayList<>();
 
     public static void register() {
+        LOGGER.info("Registering resource events");
+
         INIT_EVENTS.add(Shaders::loadAll);
         INIT_EVENTS.add(PostProcess::loadAllShaders);
         INIT_EVENTS.add(TerrainRegistry::loadAllModels);

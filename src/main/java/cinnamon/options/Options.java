@@ -1,6 +1,5 @@
 package cinnamon.options;
 
-import cinnamon.Client;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.utils.IOUtils;
 import cinnamon.world.AIBehaviour;
@@ -9,6 +8,8 @@ import com.google.gson.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+import static cinnamon.Client.LOGGER;
 
 public class Options {
 
@@ -42,6 +43,7 @@ public class Options {
         if (bytes == null)
             return options.save();
 
+        LOGGER.info("Loading options file...");
         JsonObject json = JsonParser.parseString(new String(bytes)).getAsJsonObject();
         try {
             options.fov = json.get("fov").getAsInt();
@@ -59,13 +61,15 @@ public class Options {
                 enemyBehaviour.add(AIBehaviour.valueOf(element.getAsString().toUpperCase()));
             options.enemyBehaviour = enemyBehaviour;
         } catch (Exception e) {
-            Client.LOGGER.error("Failed to load saved options", e);
+            LOGGER.error("Failed to load saved options", e);
         }
 
         return options.save();
     }
 
     public Options save() {
+        LOGGER.info("Saving options file...");
+
         JsonObject json = new JsonObject();
 
         json.addProperty("fov", fov);
