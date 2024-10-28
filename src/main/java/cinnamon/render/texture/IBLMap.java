@@ -35,7 +35,7 @@ public class IBLMap {
         }
 
         Framebuffer.DEFAULT_FRAMEBUFFER.use();
-        return new CubeMap(id);
+        return new CubeMap(id, 512, 512);
     }
 
     public static CubeMap generateIrradianceMap(CubeMap cubemap) {
@@ -57,7 +57,7 @@ public class IBLMap {
         }
 
         Framebuffer.DEFAULT_FRAMEBUFFER.use();
-        return new CubeMap(id);
+        return new CubeMap(id, 32, 32);
     }
 
     public static CubeMap generatePrefilterMap(CubeMap cubemap) {
@@ -85,7 +85,7 @@ public class IBLMap {
         }
 
         Framebuffer.DEFAULT_FRAMEBUFFER.use();
-        return new CubeMap(id);
+        return new CubeMap(id, 128, 128);
     }
 
     public static Texture brdfLUT(int size) {
@@ -108,7 +108,7 @@ public class IBLMap {
         SimpleGeometry.QUAD.render();
 
         Framebuffer.DEFAULT_FRAMEBUFFER.use();
-        return new Texture(id);
+        return new Texture(id, size, size);
     }
 
     private static int generateEmptyMap(int size, boolean mipmap) {

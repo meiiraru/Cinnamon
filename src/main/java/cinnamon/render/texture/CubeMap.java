@@ -17,8 +17,8 @@ public class CubeMap extends Texture {
     private static final Map<Resource, CubeMap> CUBEMAP_MAP = new HashMap<>();
     public static final CubeMap MISSING_CUBEMAP = generateMissingMap();
 
-    protected CubeMap(int id) {
-        super(id);
+    protected CubeMap(int id, int width, int height) {
+        super(id, width, height);
     }
 
     public static CubeMap of(Resource res) {
@@ -33,7 +33,7 @@ public class CubeMap extends Texture {
         for (int i = 0; i < 6; i++)
             resources[i] = res.resolve(Face.values()[i].path);
 
-        return cacheCubemap(res, new CubeMap(loadCubemap(resources)));
+        return cacheCubemap(res, loadCubemap(resources));
     }
 
     private static CubeMap cacheCubemap(Resource res, CubeMap texture) {
@@ -41,9 +41,11 @@ public class CubeMap extends Texture {
         return texture;
     }
 
-    protected static int loadCubemap(Resource[] resources) {
+    protected static CubeMap loadCubemap(Resource[] resources) {
         int id = glGenTextures();
         glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+
+        int width = 0, height = 0;
 
         for (int i = 0; i < 6; i++) {
             Resource res = resources[i];
@@ -51,10 +53,12 @@ public class CubeMap extends Texture {
 
             try (TextureIO.ImageData image = TextureIO.load(res)) {
                 glTexImage2D(target, 0, GL_RGBA, image.width, image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.buffer);
+                width = Math.max(image.width, width);
+                height = Math.max(image.height, height);
             } catch (Exception e) {
                 LOGGER.error("Failed to load cubemap texture", e);
                 glDeleteTextures(id);
-                return MISSING_CUBEMAP.getID();
+                return MISSING_CUBEMAP;
             }
         }
 
@@ -62,7 +66,7 @@ public class CubeMap extends Texture {
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-        return id;
+        return new CubeMap(id, width, height);
     }
 
     private static CubeMap generateMissingMap() {
@@ -91,7 +95,7 @@ public class CubeMap extends Texture {
 
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-        return cacheCubemap(res, new CubeMap(id));
+        return cacheCubemap(res, new CubeMap(id, 16, 16));
     }
 
     public static void freeAll() {

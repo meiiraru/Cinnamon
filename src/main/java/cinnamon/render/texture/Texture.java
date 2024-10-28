@@ -25,13 +25,16 @@ public class Texture {
     public static final int MAX_TEXTURES = 16;
 
     private final int ID;
+    private final int width, height;
 
 
     // -- texture loading -- //
 
 
-    protected Texture(int id) {
+    protected Texture(int id, int width, int height) {
         this.ID = id;
+        this.width = width;
+        this.height = height;
     }
 
     public static Texture of(Resource res) {
@@ -48,8 +51,7 @@ public class Texture {
             return saved;
 
         //otherwise load a new texture and cache it
-        int id = loadTexture(res, smooth, mipmap);
-        return cacheTexture(res, id == MISSING.ID ? MISSING : new Texture(id));
+        return cacheTexture(res, loadTexture(res, smooth, mipmap));
     }
 
     private static Texture cacheTexture(Resource res, Texture tex) {
@@ -57,12 +59,12 @@ public class Texture {
         return tex;
     }
 
-    private static int loadTexture(Resource res, boolean smooth, boolean mipmap) {
+    private static Texture loadTexture(Resource res, boolean smooth, boolean mipmap) {
         try (TextureIO.ImageData image = TextureIO.load(res)) {
-            return registerTexture(image.width, image.height, image.buffer, smooth, mipmap);
+            return new Texture(registerTexture(image.width, image.height, image.buffer, smooth, mipmap), image.width, image.height);
         } catch (Exception e) {
             LOGGER.error("Failed to load texture \"{}\"", res, e);
-            return MISSING.ID;
+            return MISSING;
         }
     }
 
@@ -104,7 +106,7 @@ public class Texture {
         pixels.flip();
 
         //return a new texture
-        return new Texture(registerTexture(16, 16, pixels, false, true)) {
+        return new Texture(registerTexture(16, 16, pixels, false, true), 16, 16) {
             @Override
             public void free() {
                 //do not free the missing texture
@@ -122,7 +124,7 @@ public class Texture {
         buffer.flip();
 
         int id = registerTexture(1, 1, buffer, false, false);
-        return new Texture(id);
+        return new Texture(id, 1, 1);
     }
 
     public static int bind(int id, int index) {
@@ -165,6 +167,14 @@ public class Texture {
 
     public int getID() {
         return this.ID;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 
     @Override

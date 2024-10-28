@@ -162,7 +162,6 @@ public class Client {
 
         //set the screen
         this.screen = s;
-        LOGGER.info("Set screen: {}", s == null ? "none" : s.getClass().getSimpleName());
 
         if (s != null) {
             //init the new screen
@@ -170,6 +169,7 @@ public class Client {
 
             //screen has been added
             screen.added();
+            LOGGER.info("Set screen: {}", s.getClass().getSimpleName());
 
             //unlock mouse
             window.unlockMouse();

@@ -18,8 +18,8 @@ import static org.lwjgl.stb.STBImage.stbi_image_free;
 
 public class HDRTexture extends Texture {
 
-    protected HDRTexture(int id) {
-        super(id);
+    protected HDRTexture(int id, int width, int height) {
+        super(id, width, height);
     }
 
     public static HDRTexture of(Resource resource) {
@@ -27,10 +27,10 @@ public class HDRTexture extends Texture {
     }
 
     public static HDRTexture of(Resource resource, boolean smooth, boolean mipmap) {
-        return new HDRTexture(loadTexture(resource, smooth, mipmap));
+        return loadTexture(resource, smooth, mipmap);
     }
 
-    private static int loadTexture(Resource res, boolean smooth, boolean mipmap) {
+    private static HDRTexture loadTexture(Resource res, boolean smooth, boolean mipmap) {
         //read texture
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer w = stack.mallocInt(1);
@@ -45,10 +45,10 @@ public class HDRTexture extends Texture {
             if (buffer == null)
                 throw new Exception("Failed to load HDR image \"" + res + "\", " + STBImage.stbi_failure_reason());
 
-            return registerTexture(w.get(), h.get(), buffer, smooth, mipmap);
+            return new HDRTexture(registerTexture(w.get(0), h.get(0), buffer, smooth, mipmap), w.get(0), h.get(0));
         } catch (Exception e) {
             LOGGER.error("Failed to load HDR texture \"{}\"", res, e);
-            return MISSING.getID();
+            return new HDRTexture(MISSING.getID(), MISSING.getWidth(), MISSING.getHeight());
         }
     }
 

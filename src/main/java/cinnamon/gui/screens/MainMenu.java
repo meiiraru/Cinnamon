@@ -10,12 +10,14 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.render.texture.Texture;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
 import cinnamon.world.world.WorldClient;
-import org.joml.Vector3f;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class MainMenu extends Screen {
@@ -24,9 +26,9 @@ public class MainMenu extends Screen {
         BACKGROUND = new Resource("textures/gui/main_menu/background.png"),
         STARS1 = new Resource("textures/gui/main_menu/stars1.png"),
         STARS2 = new Resource("textures/gui/main_menu/stars2.png"),
-        OVERLAY = new Resource("textures/gui/main_menu/overlay.png");
-
-    private static final String TITLE = "CINNAMON";
+        OVERLAY = new Resource("textures/gui/main_menu/overlay.png"),
+        TITLE_ROOT = new Resource("textures/gui/main_menu/title");
+    private static final List<Resource> TITLE = new ArrayList<>();
 
     private Nebula[] nebula;
 
@@ -138,25 +140,33 @@ public class MainMenu extends Screen {
     }
 
     private void renderTitle(MatrixStack matrices, float delta) {
-        Style style = Style.EMPTY.bold(true).outlined(true);
-        Vector3f color = new Vector3f(0f, 0.6f, 1f);
+        int width = 0;
+        for (Resource title : TITLE)
+            width += Texture.of(title).getWidth();
+
         float deltaTick = client.ticks + delta;
-        float x = 0f;
+        float x = this.width * 0.66f - width * 0.5f;
+        float y = this.height * 0.5f;
 
-        matrices.push();
-        matrices.translate(width * 0.66f - font.width(TITLE) * 0.5f, height * 0.5f, 0f);
-        matrices.scale(2f);
-        matrices.translate(0f, -font.lineHeight * TITLE.length() * 0.5f * 0.7f, 0f);
+        for (int i = 0; i < TITLE.size(); i++) {
+            Resource res = TITLE.get(i);
+            Texture texture = Texture.of(res);
+            int w = texture.getWidth();
+            int h = texture.getHeight();
 
-        for (int i = 0; i < TITLE.length(); i++) {
-            char c = TITLE.charAt(i);
-            float y = (float) Math.sin(deltaTick * 0.1f + i * 0.5f) * 2f + font.lineHeight * i * 0.7f;
-            color.x = (deltaTick + i) * 0.01f % 1f;
-            font.render(VertexConsumer.FONT, matrices, x, y, Text.of(c).withStyle(style.color(ColorUtils.rgbToInt(ColorUtils.hsvToRGB(color)) + (0xFF << 24))));
-            x += font.width(c);
+            float y2 = (float) Math.sin(deltaTick * 0.1f + i % 2) * 2f - h * 0.5f;
+            VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, x, y + y2, w, h), res);
+            x += w + 1;
         }
+    }
 
-        matrices.pop();
+    public static void initTextures() {
+        List<String> titles = IOUtils.listResources(TITLE_ROOT);
+        titles.sort(IOUtils.FilenameComparator::compareTo);
+
+        TITLE.clear();
+        for (String title : titles)
+            TITLE.add(TITLE_ROOT.resolve(title));
     }
 
     private static class MainButton extends Button {

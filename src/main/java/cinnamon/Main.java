@@ -6,7 +6,6 @@ import cinnamon.render.Window;
 import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
-import cinnamon.utils.Resource;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;

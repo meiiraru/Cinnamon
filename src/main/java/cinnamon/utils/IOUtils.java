@@ -5,15 +5,16 @@ import org.lwjgl.BufferUtils;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -79,6 +80,23 @@ public class IOUtils {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static List<String> listResources(Resource res) {
+        List<String> filenames = new ArrayList<>();
+
+        try (InputStream stream = getResource(res)) {
+            if (stream == null)
+                throw new RuntimeException("Resource not found: " + res);
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
+                for (String resource; (resource = br.readLine()) != null; )
+                    filenames.add(resource);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return filenames;
     }
 
     public static InputStream readFileStream(Path path) {
@@ -225,6 +243,43 @@ public class IOUtils {
             fs.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static class FilenameComparator implements Comparator<String> {
+
+        public static int compareTo(String o1, String o2) {
+            return new FilenameComparator().compare(o1, o2);
+        }
+
+        @Override
+        public int compare(String o1, String o2) {
+            //compare file names based on either string or number values
+            //file1 < file2 < file10
+
+            //split file names into parts
+            String[] parts1 = o1.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+            String[] parts2 = o2.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+
+            //iterate over parts
+            for (int i = 0; i < Math.min(parts1.length, parts2.length); i++) {
+                //compare parts
+                int result;
+                if (Character.isDigit(parts1[i].charAt(0)) && Character.isDigit(parts2[i].charAt(0))) {
+                    //compare as numbers
+                    result = Integer.compare(Integer.parseInt(parts1[i]), Integer.parseInt(parts2[i]));
+                } else {
+                    //compare as strings
+                    result = parts1[i].compareTo(parts2[i]);
+                }
+
+                //return result if parts are not equal
+                if (result != 0)
+                    return result;
+            }
+
+            //return comparison based on part count
+            return Integer.compare(parts1.length, parts2.length);
         }
     }
 }
