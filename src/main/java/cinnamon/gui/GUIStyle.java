@@ -22,7 +22,8 @@ public class GUIStyle {
             backgroundColor = 0x44000000,
             accentColor = Colors.PURPLE.rgba,
             selectedTextColor = 0xFF000000,
-            hintColor = Colors.LIGHT_BLACK.rgba;
+            hintColor = Colors.LIGHT_BLACK.rgba,
+            mainMenuTextColor = 0xFFD3AB7A;
 
     //offsets
     public static int
@@ -63,6 +64,7 @@ public class GUIStyle {
             accentColor = Integer.parseUnsignedInt(json.get("accent_color").getAsString(), 16);
             selectedTextColor = Integer.parseUnsignedInt(json.get("selected_text_color").getAsString(), 16);
             hintColor = Integer.parseUnsignedInt(json.get("hint_color").getAsString(), 16);
+            mainMenuTextColor = Integer.parseUnsignedInt(json.get("main_menu_text_color").getAsString(), 16);
 
             pressYOffset = json.get("pressed_y_offset").getAsInt();
             shadowOffset = json.get("shadow_offset").getAsInt();

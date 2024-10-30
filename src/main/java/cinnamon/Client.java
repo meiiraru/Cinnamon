@@ -113,17 +113,20 @@ public class Client {
             }
         }
 
-        //render gui
-        glClear(GL_DEPTH_BUFFER_BIT); //top of hud
+        boolean toasts = world == null || !world.hideHUD();
+        if (this.screen != null || toasts) {
+            glClear(GL_DEPTH_BUFFER_BIT); //top of hud
 
-        if (this.screen != null)
-            screen.render(matrices, window.mouseX, window.mouseY, delta);
+            //render screen
+            if (this.screen != null)
+                screen.render(matrices, window.mouseX, window.mouseY, delta);
 
-        //toasts
-        if (world == null || !world.hideHUD())
-            Toast.renderToasts(matrices, window.scaledWidth, window.scaledHeight, delta);
+            //render toasts
+            if (toasts)
+                Toast.renderToasts(matrices, window.scaledWidth, window.scaledHeight, delta);
 
-        VertexConsumer.finishAllBatches(camera.getOrthographicMatrix(), new Matrix4f());
+            VertexConsumer.finishAllBatches(camera.getOrthographicMatrix(), new Matrix4f());
+        }
 
         //finish rendering
         matrices.pop();

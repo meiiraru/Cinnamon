@@ -1,13 +1,12 @@
 package cinnamon.gui.screens;
 
 import cinnamon.Client;
+import cinnamon.gui.GUIStyle;
 import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.ContainerGrid;
-import cinnamon.gui.widgets.Tickable;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Label;
 import cinnamon.model.GeometryHelper;
-import cinnamon.model.Vertex;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.texture.Texture;
@@ -24,13 +23,10 @@ public class MainMenu extends Screen {
 
     private static final Resource
         BACKGROUND = new Resource("textures/gui/main_menu/background.png"),
-        STARS1 = new Resource("textures/gui/main_menu/stars1.png"),
-        STARS2 = new Resource("textures/gui/main_menu/stars2.png"),
         OVERLAY = new Resource("textures/gui/main_menu/overlay.png"),
+        BOTTOM = new Resource("textures/gui/main_menu/bottom.png"),
         TITLE_ROOT = new Resource("textures/gui/main_menu/title");
     private static final List<Resource> TITLE = new ArrayList<>();
-
-    private Nebula[] nebula;
 
     @Override
     public void init() {
@@ -48,7 +44,7 @@ public class MainMenu extends Screen {
         ContainerGrid grid = new ContainerGrid(0, 0, 4);
 
         //open world
-        Button worldButton = new MainButton(Text.of("Singleplayer").withStyle(Style.EMPTY.color(Colors.YELLOW)), button -> {
+        Button worldButton = new MainButton(Text.of("Singleplayer"), button -> {
             //init client
             //if (ServerConnection.open()) {
                 WorldClient world = new WorldClient();
@@ -75,65 +71,25 @@ public class MainMenu extends Screen {
         grid.addWidget(exitButton);
 
         //add grid to screen
-        grid.setPos(12, (height - grid.getHeight()) / 2);
+        int y = (int) (height * 0.15f);
+        grid.setPos((width - grid.getWidth()) / 2, y + (height - grid.getHeight() - y) / 2);
         this.addWidget(grid);
-
-        //nebula
-        nebula = new Nebula[(int) Math.ceil(height / 32f)];
-        for (int i = 0; i < nebula.length; i++)
-            nebula[i] = new Nebula((float) (Math.random() * width), (float) (Math.random() * height));
-    }
-
-    private void createNebula(int index) {
-        int x, y;
-
-        //vertical
-        if (Math.random() < 0.5f) {
-            x = (int) (Math.random() * width);
-            y = Math.random() < 0.5f ? -Nebula.SIZE : height + Nebula.SIZE;
-        }
-        //horizontal
-        else {
-            x = Math.random() < 0.5f ? -Nebula.SIZE : width + Nebula.SIZE;
-            y = (int) (Math.random() * height);
-        }
-
-        nebula[index] = new Nebula(x, y);
-    }
-
-    @Override
-    public void tick() {
-        for (int i = 0; i < nebula.length; i++) {
-            Nebula n = nebula[i];
-            n.tick();
-            //create a new one when out of bounds
-            if (n.x < -Nebula.SIZE || n.x > width || n.y < -Nebula.SIZE || n.y > height)
-                createNebula(i);
-        }
     }
 
     @Override
     protected void renderBackground(MatrixStack matrices, float delta) {
         //background
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, 1f, 0f, 1f), BACKGROUND, true, false);
+        Texture bg = Texture.of(BACKGROUND);
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, (float) width / bg.getWidth(), 0f, (float) height / bg.getHeight()), BACKGROUND, true, false);
 
-        //stars
-        float time = (client.ticks + delta) * 0.02f;
-        Vertex[] stars = GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, width / 256f, 0f, height / 256f);
-        for (Vertex vertex : stars)
-            vertex.color(1f, 1f, 1f, (float) Math.sin(time) * 0.5f + 0.5f);
-        VertexConsumer.GUI.consume(stars, STARS1, true, false);
-
-        for (Vertex vertex : stars)
-            vertex.color(1f, 1f, 1f, (float) Math.sin(-time) * 0.5f + 0.5f);
-        VertexConsumer.GUI.consume(stars, STARS2, true, false);
-
-        //nebula
-        for (Nebula nebula : nebula)
-            nebula.render(matrices, delta);
+        //bottom
+        Texture bottom = Texture.of(BOTTOM);
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, height - bottom.getHeight(), width, bottom.getHeight(), -999, 0f, (float) width / bottom.getWidth(), 0f, 1f), BOTTOM, true, false);
 
         //overlay
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, 1f, 0f, 1f), OVERLAY, true, false);
+        Texture overlay = Texture.of(OVERLAY);
+        UIHelper.nineQuad(VertexConsumer.GUI, matrices, OVERLAY, 0, 0, width, height, 0f, 0f, overlay.getWidth(), overlay.getHeight(), overlay.getWidth(), overlay.getHeight());
+        //VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, 1f, 0f, 1f), OVERLAY, true, false);
 
         //title
         renderTitle(matrices, delta);
@@ -145,8 +101,8 @@ public class MainMenu extends Screen {
             width += Texture.of(title).getWidth();
 
         float deltaTick = client.ticks + delta;
-        float x = this.width * 0.66f - width * 0.5f;
-        float y = this.height * 0.5f;
+        float x = this.width * 0.5f - width * 0.5f;
+        float y = this.height * 0.15f;
 
         for (int i = 0; i < TITLE.size(); i++) {
             Resource res = TITLE.get(i);
@@ -171,13 +127,13 @@ public class MainMenu extends Screen {
 
     private static class MainButton extends Button {
 
-        protected static final Resource LINE = new Resource("textures/gui/widgets/main_menu/line.png");
+        protected static final Resource LINE = new Resource("textures/gui/main_menu/line.png");
 
-        private float hoverX = -40f;
+        private float hoverY = 15f;
 
         public MainButton(Text message, Consumer<Button> action) {
             super(0, 0, 148, 20, message, action);
-            message.withStyle(Style.EMPTY.shadow(true));
+            message.withStyle(Style.EMPTY.outlined(true));
         }
 
         @Override
@@ -185,8 +141,8 @@ public class MainMenu extends Screen {
             matrices.push();
 
             float d = UIHelper.tickDelta(0.6f);
-            hoverX = Maths.lerp(hoverX, isHoveredOrFocused() ? 0 : -20, d);
-            matrices.translate(hoverX, 0, 0);
+            hoverY = Maths.lerp(hoverY, isHoveredOrFocused() ? -5 : 0, d);
+            matrices.translate(0, hoverY, 0);
 
             super.renderWidget(matrices, mouseX, mouseY, delta);
 
@@ -202,46 +158,11 @@ public class MainMenu extends Screen {
                     128, 32
             ), LINE);
         }
-    }
-
-    private static class Nebula implements Tickable {
-
-        private static final Resource[] TEXTURES = {
-                new Resource("textures/gui/main_menu/nebula1.png"),
-                new Resource("textures/gui/main_menu/nebula2.png"),
-                new Resource("textures/gui/main_menu/nebula3.png"),
-        };
-        private static final int SIZE = 256;
-        private static final float ALPHA = 0.15f;
-
-        private final Resource texture;
-        private final float motionX, motionY;
-        private final Colors color;
-
-        private float x, y;
-
-        public Nebula(float x, float y) {
-            this.x = x;
-            this.y = y;
-            texture = TEXTURES[(int) (Math.random() * TEXTURES.length)];
-            motionX = (float) (Math.random() * 2f - 1f) * 0.15f;
-            motionY = (float) (Math.random() * 2f - 1f) * 0.15f;
-            color = Colors.randomRainbow();
-        }
 
         @Override
-        public void tick() {
-            x += motionX;
-            y += motionY;
-        }
-
-        public void render(MatrixStack matrices, float delta) {
-            float x = this.x + motionX * delta;
-            float y = this.y + motionY * delta;
-            Vertex[] vertices = GeometryHelper.quad(matrices, x, y, SIZE, SIZE, -999, 0f, 1f, 0f, 1f);
-            for (Vertex vertex : vertices)
-                vertex.color(color.r / 255f, color.g / 255f, color.b / 255f, ALPHA);
-            VertexConsumer.GUI.consume(vertices, texture, true, false);
+        public Text getFormattedMessage() {
+            Text text = super.getFormattedMessage();
+            return !isHoveredOrFocused() || getState() == 0 ? text : Text.empty().append(text).withStyle(Style.EMPTY.color(GUIStyle.mainMenuTextColor));
         }
     }
 }

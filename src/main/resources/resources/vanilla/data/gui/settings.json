@@ -5,6 +5,7 @@
   "accent_color": "FFAD72FF",
   "selected_text_color": "FF000000",
   "hint_color": "FF5B8CCC",
+  "main_menu_text_color": "FFD3AB7A",
 
   "pressed_y_offset": 2,
   "shadow_offset": 1,
