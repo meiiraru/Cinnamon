@@ -2,9 +2,11 @@ package cinnamon.world.world;
 
 import cinnamon.model.ModelManager;
 import cinnamon.registry.MaterialRegistry;
-import cinnamon.render.*;
+import cinnamon.render.Camera;
+import cinnamon.render.MaterialApplier;
+import cinnamon.render.MatrixStack;
+import cinnamon.render.Model;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
@@ -16,8 +18,8 @@ import cinnamon.utils.Resource;
 public class MaterialPreviewWorld extends WorldClient {
 
     private static final Model
-            SPHERE = new Model(ModelManager.load(new Resource("models/terrain/sphere.obj")).getMesh()),
-            BOX = new Model(ModelManager.load(new Resource("models/terrain/box.obj")).getMesh());
+            SPHERE = ModelManager.load(new Resource("models/terrain/sphere/sphere.obj")),
+            BOX = ModelManager.load(new Resource("models/terrain/box/box.obj"));
 
     @Override
     protected void tempLoad() {
@@ -37,7 +39,6 @@ public class MaterialPreviewWorld extends WorldClient {
     @Override
     protected void renderWorld(Camera camera, MatrixStack matrices, float delta) {
         //render materials
-        Shader s = Shader.activeShader;
         MaterialRegistry[] values = MaterialRegistry.values();
         int grid = (int) Math.ceil(Math.sqrt(values.length));
 
@@ -49,7 +50,7 @@ public class MaterialPreviewWorld extends WorldClient {
             int texCount = MaterialApplier.applyMaterial(values[i].material);
             boolean visible = false;
 
-            AABB sphereBB = SPHERE.getMeshAABB();
+            AABB sphereBB = SPHERE.getAABB();
             sphereBB.applyMatrix(matrices.peek().pos());
             if (camera.isInsideFrustum(sphereBB)) {
                 if (texCount == -1) SPHERE.render(matrices);
@@ -59,7 +60,7 @@ public class MaterialPreviewWorld extends WorldClient {
 
             matrices.translate(3f, 0f, 0f);
 
-            AABB boxBB = BOX.getMeshAABB();
+            AABB boxBB = BOX.getAABB();
             boxBB.applyMatrix(matrices.peek().pos());
             if (camera.isInsideFrustum(boxBB)) {
                 if (texCount == -1) BOX.render(matrices);

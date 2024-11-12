@@ -3,6 +3,7 @@ package cinnamon.model;
 import cinnamon.parsers.AnimationLoader;
 import cinnamon.parsers.ObjLoader;
 import cinnamon.render.AnimatedModel;
+import cinnamon.render.MeshModel;
 import cinnamon.render.Model;
 import cinnamon.utils.Resource;
 
@@ -33,7 +34,7 @@ public class ModelManager {
         try {
             newModel = new AnimatedModel(ObjLoader.load(resource), AnimationLoader.load(res));
         } catch (Exception ignored) {
-            newModel = new Model(ObjLoader.load(resource));
+            newModel = new MeshModel(ObjLoader.load(resource));
         }
 
         MODEL_MAP.put(resource, newModel);

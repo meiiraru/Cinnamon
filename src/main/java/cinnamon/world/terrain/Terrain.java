@@ -21,7 +21,7 @@ public class Terrain extends WorldObject {
     private final TerrainRegistry type;
 
     private AABB aabb; //the entire model's AABB
-    private final List<AABB> groupsAABB = new ArrayList<>(); //group's AABB
+    private final List<AABB> preciseAABB = new ArrayList<>(); //group's AABB
 
     private byte rotation = 0;
     private MaterialRegistry overrideMaterial;
@@ -53,7 +53,7 @@ public class Terrain extends WorldObject {
     public void renderDebugHitbox(MatrixStack matrices, float delta) {
         renderAABB(matrices, aabb, 0xFFFFFFFF);
 
-        for (AABB aabb : groupsAABB)
+        for (AABB aabb : preciseAABB)
             renderAABB(matrices, aabb, 0xFFFF00FF);
     }
 
@@ -64,11 +64,11 @@ public class Terrain extends WorldObject {
 
     protected void updateAABB() {
         float r = (float) Math.toRadians(getRotationAngle());
-        this.aabb = this.model.getMeshAABB().rotateY(r).translate(pos.x + 0.5f, pos.y, pos.z + 0.5f);
+        this.aabb = this.model.getAABB().rotateY(r).translate(pos.x + 0.5f, pos.y, pos.z + 0.5f);
 
-        this.groupsAABB.clear();
-        for (AABB group : this.model.getGroupsAABB())
-            groupsAABB.add(group.rotateY(r).translate(pos.x + 0.5f, pos.y, pos.z + 0.5f));
+        this.preciseAABB.clear();
+        for (AABB group : this.model.getPreciseAABB())
+            preciseAABB.add(group.rotateY(r).translate(pos.x + 0.5f, pos.y, pos.z + 0.5f));
     }
 
     @Override
@@ -86,8 +86,8 @@ public class Terrain extends WorldObject {
         return aabb;
     }
 
-    public List<AABB> getGroupsAABB() {
-        return groupsAABB;
+    public List<AABB> getPreciseAABB() {
+        return preciseAABB;
     }
 
     public void setRotation(byte rotation) {

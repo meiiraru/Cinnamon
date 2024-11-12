@@ -2,6 +2,7 @@ package cinnamon.registry;
 
 import cinnamon.model.MaterialManager;
 import cinnamon.model.material.Material;
+import cinnamon.model.material.PBRMaterial;
 import cinnamon.utils.Resource;
 
 public enum MaterialRegistry {
@@ -83,7 +84,10 @@ public enum MaterialRegistry {
     WAFFLED_CHIPPED_METAL,
     WATER,
     WHITE_MARBLE,
-    WRAPPED_PAPER;
+    WRAPPED_PAPER,
+    DEBUG;
+
+    public static final Material MISSING = new PBRMaterial("missing");
 
     public final Resource resource;
     public Material material;

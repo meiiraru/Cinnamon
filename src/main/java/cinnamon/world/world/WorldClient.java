@@ -469,7 +469,7 @@ public class WorldClient extends World {
 
         int alpha = (int) Maths.lerp(0x32, 0xFF, ((float) Math.sin((client.ticks + delta) * 0.15f) + 1f) * 0.5f);
 
-        for (AABB aabb : terrain.obj().getGroupsAABB())
+        for (AABB aabb : terrain.obj().getPreciseAABB())
             VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF + (alpha << 24)));
     }
 

@@ -1,0 +1,3 @@
+newmtl box
+mipmap 1
+albedo box.png

@@ -3,8 +3,8 @@ package cinnamon.world.world;
 import cinnamon.parsers.CurveToMesh;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.MeshModel;
 import cinnamon.render.Model;
-import cinnamon.render.shader.Shader;
 import cinnamon.utils.Curve;
 import cinnamon.utils.Maths;
 import cinnamon.world.entity.living.Player;
@@ -77,7 +77,7 @@ public class RollerCoasterWorld extends WorldClient {
 
     public void setCurve(Curve curve) throws Exception {
         //set model and path
-        model = new Model(CurveToMesh.generateMesh(curve, false, true));
+        model = new MeshModel(CurveToMesh.generateMesh(curve, false, true));
         path = curve.getCurve().toArray(new Vector3f[0]);
 
         //set cart

@@ -27,7 +27,7 @@ public enum TerrainRegistry {
     TerrainRegistry(Supplier<Terrain> factory) {
         //model
         String name = name().toLowerCase();
-        this.resource = new Resource(MODELS_PATH + name + ".obj");
+        this.resource = new Resource(MODELS_PATH + name + "/" + name + ".obj");
 
         //factory
         this.factory = factory != null ? factory : () -> new Terrain(this);

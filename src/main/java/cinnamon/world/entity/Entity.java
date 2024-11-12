@@ -221,7 +221,7 @@ public abstract class Entity extends WorldObject {
 
     protected void updateAABB() {
         //set AABB
-        this.aabb = this.model.getMeshAABB();
+        this.aabb = this.model.getAABB();
 
         //make it square
         float diff = (aabb.getWidth() - aabb.getDepth()) * 0.5f;

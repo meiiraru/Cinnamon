@@ -10,7 +10,7 @@ import cinnamon.utils.Pair;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class AnimatedModel extends Model {
+public class AnimatedModel extends MeshModel {
 
     private final Bone bone;
     private final List<Animation> animations;

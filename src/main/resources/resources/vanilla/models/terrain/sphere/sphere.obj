@@ -1,6 +1,6 @@
 # Blender 4.2.3 LTS
 # www.blender.org
-mtllib default.pbr
+mtllib sphere.pbr
 o root
 v -0.037329 0.990393 0.090120
 v 0.000000 0.990393 0.097545
@@ -774,7 +774,7 @@ vt 0.000000 0.937500
 vt 0.031250 1.000000
 vt 0.906250 1.000000
 s 1
-usemtl default
+usemtl sphere
 f 1/1/1 2/2/2 3/3/3
 f 4/4/4 5/5/5 3/6/3
 f 6/7/6 7/8/7 3/9/3

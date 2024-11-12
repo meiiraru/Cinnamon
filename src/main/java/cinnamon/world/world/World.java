@@ -210,7 +210,7 @@ public abstract class World {
     public List<AABB> getTerrainCollisions(AABB region) {
         List<AABB> list = new ArrayList<>();
         for (Terrain terrain : getTerrain(region))
-            list.addAll(terrain.getGroupsAABB());
+            list.addAll(terrain.getPreciseAABB());
         return list;
     }
 
@@ -256,7 +256,7 @@ public abstract class World {
         //loop through terrain in area
         for (Terrain t : getTerrain(area)) {
             //loop through its groups AABBs
-            for (AABB aabb : t.getGroupsAABB()) {
+            for (AABB aabb : t.getPreciseAABB()) {
                 //check for collision
                 CollisionResult result = CollisionDetector.collisionRay(aabb, pos, dirLen);
                 //store collision if it is closer than previous collision

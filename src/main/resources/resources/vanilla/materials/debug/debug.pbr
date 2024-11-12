@@ -1,0 +1,3 @@
+newmtl debug
+mipmap 1
+albedo debug.png
