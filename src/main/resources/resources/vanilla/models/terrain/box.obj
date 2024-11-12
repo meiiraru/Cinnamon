@@ -1,6 +1,6 @@
 # Blender 4.2.2 LTS
 # www.blender.org
-mtllib box.pbr
+mtllib default.pbr
 o box
 v 0.500000 1.000000 -0.500000
 v 0.500000 -0.000000 -0.500000
@@ -21,7 +21,7 @@ vt 0.000000 1.000000
 vt 0.000000 0.000000
 vt 1.000000 0.000000
 s 0
-usemtl m_64d4b033-ce95-60b2-55f9-c35adb7a60e6
+usemtl default
 f 3/1/1 1/2/1 2/3/1 4/4/1
 f 1/1/2 5/2/2 6/3/2 2/4/2
 f 7/3/3 5/4/3 1/1/3 3/2/3

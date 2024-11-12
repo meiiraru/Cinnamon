@@ -1,7 +1,0 @@
-# Made in Blockbench 4.11.1
-newmtl m_64d4b033-ce95-60b2-55f9-c35adb7a60e6
-mipmap 1
-albedo kd.png
-metallic ks.png
-roughness roughness.png
-newmtl none

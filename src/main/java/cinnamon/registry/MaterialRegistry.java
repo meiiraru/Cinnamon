@@ -24,6 +24,7 @@ public enum MaterialRegistry {
     CLIFF_ROCK,
     COBBLESTONE,
     CORN,
+    CRATE,
     CRISSCROSS_FOAM,
     CRYSTAL,
     DISCO_BALL,

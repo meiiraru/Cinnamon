@@ -1,6 +1,6 @@
 # Blender 4.2.2 LTS
 # www.blender.org
-mtllib teapot.pbr
+mtllib default.pbr
 o root
 v 0.290864 0.067266 -0.097706
 v -0.420004 0.375737 0.037800
@@ -9677,7 +9677,7 @@ vt 0.599532 0.713638
 vt 0.607232 0.726015
 vt 0.610034 0.730519
 s 1
-usemtl m_96fc28f4-99d3-773c-ca5f-ec33e463fa74
+usemtl default
 f 3/1/1 4/2/2 5/3/3
 f 5/3/3 6/4/4 3/1/1
 f 6/4/4 5/3/3 7/5/5

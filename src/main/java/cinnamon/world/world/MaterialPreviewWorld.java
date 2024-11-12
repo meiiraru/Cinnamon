@@ -16,8 +16,8 @@ import cinnamon.utils.Resource;
 public class MaterialPreviewWorld extends WorldClient {
 
     private static final Model
-            SPHERE = new Model(ModelManager.load(new Resource("models/terrain/sphere/sphere.obj")).getMesh()),
-            BOX = new Model(ModelManager.load(new Resource("models/terrain/box/box.obj")).getMesh());
+            SPHERE = new Model(ModelManager.load(new Resource("models/terrain/sphere.obj")).getMesh()),
+            BOX = new Model(ModelManager.load(new Resource("models/terrain/box.obj")).getMesh());
 
     @Override
     protected void tempLoad() {
