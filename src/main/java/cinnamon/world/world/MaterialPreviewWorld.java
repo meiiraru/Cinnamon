@@ -52,9 +52,8 @@ public class MaterialPreviewWorld extends WorldClient {
             AABB sphereBB = SPHERE.getMeshAABB();
             sphereBB.applyMatrix(matrices.peek().pos());
             if (camera.isInsideFrustum(sphereBB)) {
-                s.applyMatrixStack(matrices);
-                if (texCount == -1) SPHERE.render();
-                else SPHERE.renderWithoutMaterial();
+                if (texCount == -1) SPHERE.render(matrices);
+                else SPHERE.renderWithoutMaterial(matrices);
                 visible = true;
             }
 
@@ -63,9 +62,8 @@ public class MaterialPreviewWorld extends WorldClient {
             AABB boxBB = BOX.getMeshAABB();
             boxBB.applyMatrix(matrices.peek().pos());
             if (camera.isInsideFrustum(boxBB)) {
-                s.applyMatrixStack(matrices);
-                if (texCount == -1) BOX.render();
-                else BOX.renderWithoutMaterial();
+                if (texCount == -1) BOX.render(matrices);
+                else BOX.renderWithoutMaterial(matrices);
                 visible = true;
             }
 

@@ -86,8 +86,7 @@ public class AnimationLoader {
 
             //animation data
             String name = animationMap.getKey();
-            int duration = (int) (animationObject.get("animation_length").getAsFloat() * 1000f);
-            Animation animation = new Animation(name, duration);
+            Animation animation = new Animation(name);
             animations.add(animation);
 
             if (animationObject.has("loop")) {

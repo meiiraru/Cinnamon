@@ -99,11 +99,8 @@ public class RollerCoasterWorld extends WorldClient {
     @Override
     protected void renderWorld(Camera camera, MatrixStack matrices, float delta) {
         super.renderWorld(camera, matrices, delta);
-
-        if (model != null) {
-            Shader.activeShader.applyMatrixStack(matrices);
-            model.render();
-        }
+        if (model != null)
+            model.render(matrices);
     }
 
     @Override

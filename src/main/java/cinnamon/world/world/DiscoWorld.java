@@ -1,6 +1,5 @@
 package cinnamon.world.world;
 
-import cinnamon.animation.Animation;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -56,10 +55,10 @@ public class DiscoWorld extends WorldClient {
         DiscoBall discoBall = new DiscoBall(UUID.randomUUID());
         discoBall.setPos(0f, 3f, 0f);
         addEntity(discoBall);
-        discoBall.getAnimation("animation1").setState(Animation.State.PLAYING);
-        discoBall.getAnimation("animation2").setState(Animation.State.PLAYING);
-        discoBall.getAnimation("animation3").setState(Animation.State.PLAYING);
-        discoBall.getAnimation("animation4").setState(Animation.State.PLAYING);
+        discoBall.getAnimation("animation1").play();
+        discoBall.getAnimation("animation2").play();
+        discoBall.getAnimation("animation3").play();
+        discoBall.getAnimation("animation4").play();
 
         Speaker speaker1 = new Speaker(UUID.randomUUID());
         speaker1.setPos(-1f, 1f, -2f);
@@ -96,8 +95,8 @@ public class DiscoWorld extends WorldClient {
         lights.add(light2);
 
         for (FloorLight light : lights) {
-            light.getAnimation("up_down").setState(Animation.State.PLAYING);
-            light.getAnimation("look_around").setState(Animation.State.PLAYING);
+            light.getAnimation("up_down").play();
+            light.getAnimation("look_around").play();
         }
     }
 
@@ -109,9 +108,9 @@ public class DiscoWorld extends WorldClient {
 
         for (Speaker speaker : speakers) {
             if (amplitudes[0] >= 10f)
-                speaker.getAnimation("animation1").setState(Animation.State.PLAYING);
+                speaker.getAnimation("animation1").play();
             if (amplitudes[2] >= 3f)
-                speaker.getAnimation("animation2").setState(Animation.State.PLAYING);
+                speaker.getAnimation("animation2").play();
         }
 
         if (amplitudes[3] >= 3f && amplitudes[15] >= 1f) {
@@ -126,7 +125,7 @@ public class DiscoWorld extends WorldClient {
 
         if (amplitudes[7] >= 3f) {
             for (FloorLight light : lights)
-                light.getAnimation("flick").setState(Animation.State.PLAYING);
+                light.getAnimation("flick").play();
         }
     }
 

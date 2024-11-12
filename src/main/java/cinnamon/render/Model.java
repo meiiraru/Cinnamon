@@ -5,6 +5,7 @@ import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
 import cinnamon.render.shader.Attributes;
+import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
@@ -121,16 +122,18 @@ public class Model {
             group.free();
     }
 
-    public void render() {
-        render(null);
+    public void render(MatrixStack matrices) {
+        render(matrices, null);
     }
 
-    public void render(Material material) {
+    public void render(MatrixStack matrices, Material material) {
+        Shader.activeShader.applyMatrixStack(matrices);
         for (String group : groups.keySet())
             renderGroup(group, material);
     }
 
-    public void renderWithoutMaterial() {
+    public void renderWithoutMaterial(MatrixStack matrices) {
+        Shader.activeShader.applyMatrixStack(matrices);
         for (String group : groups.keySet())
             renderGroupWithoutMaterial(group);
     }
@@ -150,16 +153,12 @@ public class Model {
         return mesh;
     }
 
-    public void renderGroup(String name) {
-        renderGroup(name, null);
-    }
-
-    public void renderGroup(String name, Material material) {
+    protected void renderGroup(String name, Material material) {
         GroupData group = groups.get(name);
         group.render(material == null ? group.material : material);
     }
 
-    public void renderGroupWithoutMaterial(String name) {
+    protected void renderGroupWithoutMaterial(String name) {
         groups.get(name).renderWithoutMaterial();
     }
 

@@ -8,17 +8,16 @@ import cinnamon.render.AnimatedModel;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Model;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.shader.Shader;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
 import cinnamon.world.DamageType;
-import cinnamon.world.world.World;
-import cinnamon.world.world.WorldClient;
 import cinnamon.world.WorldObject;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.terrain.Terrain;
+import cinnamon.world.world.World;
+import cinnamon.world.world.WorldClient;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -83,15 +82,7 @@ public abstract class Entity extends WorldObject {
     }
 
     protected void renderModel(MatrixStack matrices, float delta) {
-        //render model with animations
-        if (model instanceof AnimatedModel anim) {
-            anim.render(matrices);
-            return;
-        }
-
-        //render model
-        Shader.activeShader.applyMatrixStack(matrices);
-        model.render();
+        model.render(matrices);
     }
 
     public Animation getAnimation(String name) {

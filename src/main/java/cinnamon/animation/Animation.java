@@ -12,7 +12,7 @@ public class Animation {
 
     //animation data
     private final String name;
-    private final int duration;
+    private int duration;
 
     //keyframes
     private final Map<Bone, Map<Channel, List<Keyframe>>> keyframes = new HashMap<>();
@@ -22,9 +22,8 @@ public class Animation {
     private State state = State.STOPPED;
     private int time = 0, initTime = 0;
 
-    public Animation(String name, int duration) {
+    public Animation(String name) {
         this.name = name;
-        this.duration = duration;
     }
 
     private void updateTime() {
@@ -105,6 +104,7 @@ public class Animation {
                 .computeIfAbsent(channel, k -> new ArrayList<>());
         list.add(keyframe);
         list.sort(Keyframe::compareTo);
+        this.duration = Math.max(this.duration, keyframe.getTime());
     }
 
     public int getTime() {
@@ -119,7 +119,7 @@ public class Animation {
         return state;
     }
 
-    public void setState(State state) {
+    private void setState(State state) {
         if (state == this.state)
             return;
 
@@ -129,6 +129,18 @@ public class Animation {
             time = initTime = 0;
 
         this.state = state;
+    }
+
+    public void play() {
+        setState(State.PLAYING);
+    }
+
+    public void pause() {
+        setState(State.PAUSED);
+    }
+
+    public void stop() {
+        setState(State.STOPPED);
     }
 
     public Loop getLoop() {

@@ -6,11 +6,10 @@ import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Model;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.shader.Shader;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Rotation;
-import cinnamon.world.world.World;
 import cinnamon.world.WorldObject;
+import cinnamon.world.world.World;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -48,8 +47,7 @@ public class Terrain extends WorldObject {
 
     protected void renderModel(MatrixStack matrices, float delta) {
         //render model
-        Shader.activeShader.applyMatrixStack(matrices);
-        model.render(overrideMaterial.material);
+        model.render(matrices, overrideMaterial.material);
     }
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {

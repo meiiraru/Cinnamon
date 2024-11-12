@@ -736,8 +736,10 @@ public class WorldClient extends World {
         this.addEntity(player);
 
         Animation anim = player.getAnimation("blink");
-        if (anim != null)
-            anim.setState(Animation.State.PLAYING);
+        if (anim != null) {
+            anim.setLoop(Animation.Loop.LOOP);
+            anim.play();
+        }
 
         //if (!init)
         //    connection.sendTCP(new Respawn());

@@ -2,7 +2,6 @@ package cinnamon.world.items;
 
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Model;
-import cinnamon.render.shader.Shader;
 import cinnamon.world.entity.Entity;
 
 public abstract class Item {
@@ -24,8 +23,7 @@ public abstract class Item {
 
     public void render(ItemRenderContext context, MatrixStack matrices, float delta) {
         //render model
-        Shader.activeShader.applyMatrixStack(matrices);
-        model.render();
+        model.render(matrices);
     }
 
     public void worldRender(MatrixStack matrices, float delta) {}
