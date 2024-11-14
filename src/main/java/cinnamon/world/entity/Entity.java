@@ -4,10 +4,10 @@ import cinnamon.Client;
 import cinnamon.animation.Animation;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.EntityRegistry;
-import cinnamon.render.AnimatedModel;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.Model;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.render.model.AnimatedObjRenderer;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
@@ -28,7 +28,7 @@ import java.util.UUID;
 public abstract class Entity extends WorldObject {
 
     protected final UUID uuid;
-    protected final Model model;
+    protected final ModelRenderer model;
     protected final Vector3f
             oPos = new Vector3f();
     protected final Vector2f
@@ -42,7 +42,7 @@ public abstract class Entity extends WorldObject {
 
     private boolean removed;
 
-    public Entity(UUID uuid, Model model) {
+    public Entity(UUID uuid, ModelRenderer model) {
         this.model = model;
         this.uuid = uuid;
         this.updateAABB();
@@ -86,7 +86,7 @@ public abstract class Entity extends WorldObject {
     }
 
     public Animation getAnimation(String name) {
-        return model instanceof AnimatedModel anim ? anim.getAnimation(name) : null;
+        return model instanceof AnimatedObjRenderer anim ? anim.getAnimation(name) : null;
     }
 
     protected void applyModelPose(MatrixStack matrices, float delta) {

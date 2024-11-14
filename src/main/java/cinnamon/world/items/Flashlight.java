@@ -2,17 +2,17 @@ package cinnamon.world.items;
 
 import cinnamon.model.ModelManager;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.Model;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.Resource;
-import cinnamon.world.world.World;
-import cinnamon.world.world.WorldClient;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.light.Spotlight;
+import cinnamon.world.world.World;
+import cinnamon.world.world.WorldClient;
 
 public class Flashlight extends Item {
 
     private static final String ID = "Flashlight";
-    private static final Model MODEL = ModelManager.load(new Resource("models/items/flashlight/flashlight.obj"));
+    private static final ModelRenderer MODEL = ModelManager.load(new Resource("models/items/flashlight/flashlight.obj"));
     private static final int DELAY_TO_USE = 10;
 
     private final Spotlight light = (Spotlight) new Spotlight().cutOff(25f, 45f).brightness(64);

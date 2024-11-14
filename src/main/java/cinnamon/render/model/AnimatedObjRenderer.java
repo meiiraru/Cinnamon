@@ -1,21 +1,22 @@
-package cinnamon.render;
+package cinnamon.render.model;
 
 import cinnamon.animation.Animation;
 import cinnamon.animation.Bone;
 import cinnamon.model.material.Material;
 import cinnamon.model.obj.Mesh;
+import cinnamon.render.MatrixStack;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.Pair;
 
 import java.util.List;
 import java.util.function.Consumer;
 
-public class AnimatedModel extends MeshModel {
+public class AnimatedObjRenderer extends ObjRenderer {
 
     private final Bone bone;
     private final List<Animation> animations;
 
-    public AnimatedModel(Mesh mesh, Pair<Bone, List<Animation>> animations) {
+    public AnimatedObjRenderer(Mesh mesh, Pair<Bone, List<Animation>> animations) {
         super(mesh);
         this.bone = animations.first();
         this.animations = animations.second();

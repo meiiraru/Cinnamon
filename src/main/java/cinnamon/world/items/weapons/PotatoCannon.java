@@ -1,7 +1,7 @@
 package cinnamon.world.items.weapons;
 
 import cinnamon.model.ModelManager;
-import cinnamon.render.Model;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
@@ -14,7 +14,7 @@ import java.util.UUID;
 public class PotatoCannon extends Weapon {
 
     private static final String ID = "Potato Cannon";
-    private static final Model MODEL = ModelManager.load(new Resource("models/items/potato_cannon/potato_cannon.obj"));
+    private static final ModelRenderer MODEL = ModelManager.load(new Resource("models/items/potato_cannon/potato_cannon.obj"));
     private static final Resource SHOOT_SOUND = new Resource("sounds/pvc.ogg");
 
     public PotatoCannon(int maxRounds, int reloadTime, int useCooldown) {

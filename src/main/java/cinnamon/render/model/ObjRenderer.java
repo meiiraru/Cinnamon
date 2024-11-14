@@ -1,10 +1,12 @@
-package cinnamon.render;
+package cinnamon.render.model;
 
 import cinnamon.model.material.Material;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
 import cinnamon.registry.MaterialRegistry;
+import cinnamon.render.MaterialApplier;
+import cinnamon.render.MatrixStack;
 import cinnamon.render.shader.Attributes;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
@@ -28,7 +30,7 @@ import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
-public class MeshModel extends Model {
+public class ObjRenderer extends ModelRenderer {
 
     private final Mesh mesh;
 
@@ -37,7 +39,7 @@ public class MeshModel extends Model {
             bbMin = new Vector3f(Integer.MAX_VALUE),
             bbMax = new Vector3f(Integer.MIN_VALUE);
 
-    public MeshModel(Mesh mesh) {
+    public ObjRenderer(Mesh mesh) {
         this.mesh = mesh;
         this.groups = new HashMap<>(mesh.getGroups().size(), 1f);
 

@@ -1,7 +1,7 @@
 package cinnamon.world.items;
 
 import cinnamon.model.ModelManager;
-import cinnamon.render.Model;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.collisions.Hit;
@@ -14,7 +14,7 @@ import org.joml.Vector3f;
 public class BubbleGun extends Item {
 
     private static final String ID = "Bubble Gun";
-    private static final Model MODEL = ModelManager.load(new Resource("models/items/bubble_gun/bubble_gun.obj"));
+    private static final ModelRenderer MODEL = ModelManager.load(new Resource("models/items/bubble_gun/bubble_gun.obj"));
     private static final float DISTANCE = 1f;
 
     public BubbleGun(int stackCount) {

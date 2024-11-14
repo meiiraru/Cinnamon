@@ -3,8 +3,8 @@ package cinnamon.world.entity.living;
 import cinnamon.Client;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.Model;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
@@ -39,7 +39,7 @@ public abstract class LivingEntity extends PhysEntity {
     private int health;
     private int maxHealth;
 
-    public LivingEntity(UUID uuid, Model model, int maxHealth, float eyeHeight, int inventorySize) {
+    public LivingEntity(UUID uuid, ModelRenderer model, int maxHealth, float eyeHeight, int inventorySize) {
         super(uuid, model);
         this.health = this.maxHealth = maxHealth;
         this.eyeHeight = eyeHeight;

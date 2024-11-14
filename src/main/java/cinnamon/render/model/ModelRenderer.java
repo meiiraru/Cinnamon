@@ -1,11 +1,12 @@
-package cinnamon.render;
+package cinnamon.render.model;
 
 import cinnamon.model.material.Material;
+import cinnamon.render.MatrixStack;
 import cinnamon.utils.AABB;
 
 import java.util.List;
 
-public abstract class Model {
+public abstract class ModelRenderer {
 
     public abstract void free();
 

@@ -1,7 +1,7 @@
 package cinnamon.registry;
 
 import cinnamon.model.ModelManager;
-import cinnamon.render.Model;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.Resource;
 import cinnamon.world.terrain.Teapot;
 import cinnamon.world.terrain.Terrain;
@@ -16,7 +16,7 @@ public enum TerrainRegistry {
     private static final String MODELS_PATH = "models/terrain/";
 
     public final Resource resource;
-    public Model model;
+    public ModelRenderer model;
 
     private final Supplier<Terrain> factory;
 

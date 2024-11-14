@@ -2,20 +2,20 @@ package cinnamon.world.items;
 
 import cinnamon.model.ModelManager;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.Model;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.*;
-import cinnamon.world.world.World;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.particle.SquareParticle;
 import cinnamon.world.terrain.Terrain;
+import cinnamon.world.world.World;
 import org.joml.Vector3f;
 
 public class MagicWand extends Item {
 
     private static final String ID = "Magic Wand";
-    private static final Model MODEL = ModelManager.load(new Resource("models/items/magic_wand/magic_wand.obj"));
+    private static final ModelRenderer MODEL = ModelManager.load(new Resource("models/items/magic_wand/magic_wand.obj"));
 
     //properties :D
     private static final float DISTANCE = 3f;

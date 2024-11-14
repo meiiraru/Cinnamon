@@ -5,8 +5,8 @@ import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MaterialApplier;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.Model;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.texture.Texture;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
@@ -17,7 +17,7 @@ import cinnamon.utils.Resource;
 
 public class MaterialPreviewWorld extends WorldClient {
 
-    private static final Model
+    private static final ModelRenderer
             SPHERE = ModelManager.load(new Resource("models/terrain/sphere/sphere.obj")),
             BOX = ModelManager.load(new Resource("models/terrain/box/box.obj"));
 

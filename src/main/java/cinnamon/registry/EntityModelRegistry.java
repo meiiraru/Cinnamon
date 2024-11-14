@@ -1,7 +1,7 @@
 package cinnamon.registry;
 
 import cinnamon.model.ModelManager;
-import cinnamon.render.Model;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.Resource;
 
 public enum EntityModelRegistry {
@@ -20,7 +20,7 @@ public enum EntityModelRegistry {
     CART("models/entities/vehicle/cart/cart.obj");
 
     public final Resource resource;
-    public Model model;
+    public ModelRenderer model;
 
     EntityModelRegistry(String path) {
         this.resource = new Resource(path);

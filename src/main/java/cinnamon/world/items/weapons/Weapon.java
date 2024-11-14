@@ -1,16 +1,16 @@
 package cinnamon.world.items.weapons;
 
-import cinnamon.render.Model;
-import cinnamon.world.world.World;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.projectile.Projectile;
 import cinnamon.world.items.CooldownItem;
+import cinnamon.world.world.World;
 
 import java.util.UUID;
 
 public abstract class Weapon extends CooldownItem {
 
-    public Weapon(String id, Model model, int maxRounds, int reloadTime, int useCooldown) {
+    public Weapon(String id, ModelRenderer model, int maxRounds, int reloadTime, int useCooldown) {
         super(id, maxRounds, model, reloadTime, useCooldown);
         reload();
     }

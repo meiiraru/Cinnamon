@@ -4,8 +4,8 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.Model;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Rotation;
 import cinnamon.world.WorldObject;
@@ -17,7 +17,7 @@ import java.util.List;
 
 public class Terrain extends WorldObject {
 
-    protected final Model model;
+    protected final ModelRenderer model;
     private final TerrainRegistry type;
 
     private AABB aabb; //the entire model's AABB

@@ -1,13 +1,13 @@
 package cinnamon.world.items;
 
-import cinnamon.render.Model;
+import cinnamon.render.model.ModelRenderer;
 
 public abstract class CooldownItem extends Item {
 
     private final int depleatCooldown, useCooldown;
     private int depleat, use;
 
-    public CooldownItem(String id, int stackCount, Model model, int depleatCooldown, int useCooldown) {
+    public CooldownItem(String id, int stackCount, ModelRenderer model, int depleatCooldown, int useCooldown) {
         super(id, stackCount, model);
         this.depleatCooldown = depleatCooldown;
         this.useCooldown = useCooldown;

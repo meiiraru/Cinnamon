@@ -1,7 +1,7 @@
 package cinnamon.registry;
 
 import cinnamon.model.ModelManager;
-import cinnamon.render.Model;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.Resource;
 
 public enum LivingModelRegistry {
@@ -20,7 +20,7 @@ public enum LivingModelRegistry {
 
     public final Resource resource;
     public final float eyeHeight;
-    public Model model;
+    public ModelRenderer model;
 
     LivingModelRegistry(float eyeHeight) {
         String name = name().toLowerCase();

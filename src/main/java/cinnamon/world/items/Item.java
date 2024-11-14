@@ -1,19 +1,19 @@
 package cinnamon.world.items;
 
 import cinnamon.render.MatrixStack;
-import cinnamon.render.Model;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.world.entity.Entity;
 
 public abstract class Item {
 
     private final String id;
     protected final int stackCount;
-    protected final Model model;
+    protected final ModelRenderer model;
     protected int count = 1;
 
     private boolean isUsing, isAttacking;
 
-    public Item(String id, int stackCount, Model model) {
+    public Item(String id, int stackCount, ModelRenderer model) {
         this.id = id;
         this.stackCount = stackCount;
         this.model = model;

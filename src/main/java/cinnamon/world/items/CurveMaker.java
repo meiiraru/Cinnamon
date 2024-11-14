@@ -5,16 +5,16 @@ import cinnamon.gui.Toast;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.Model;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Text;
 import cinnamon.utils.Curve;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
-import cinnamon.world.world.RollerCoasterWorld;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.terrain.Terrain;
+import cinnamon.world.world.RollerCoasterWorld;
 import org.joml.Vector3f;
 
 import java.util.List;
@@ -24,7 +24,7 @@ import static cinnamon.Client.LOGGER;
 public class CurveMaker extends CooldownItem {
 
     private static final String ID = "Curve Maker";
-    private static final Model MODEL = ModelManager.load(new Resource("models/items/curve_maker/curve_maker.obj"));
+    private static final ModelRenderer MODEL = ModelManager.load(new Resource("models/items/curve_maker/curve_maker.obj"));
 
     private final Curve curve = new Curve.BSpline().loop(true).steps(10);
 
