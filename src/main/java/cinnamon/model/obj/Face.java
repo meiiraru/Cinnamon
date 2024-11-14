@@ -1,7 +1,5 @@
 package cinnamon.model.obj;
 
-import cinnamon.render.shader.Attributes;
-
 import java.util.List;
 
 public class Face {
@@ -12,18 +10,6 @@ public class Face {
         this.vertices = vertices;
         this.uvs = uvs;
         this.normals = normals;
-    }
-
-    public int getAttributesFlag() {
-        //always present
-        int flags = Attributes.POS;
-
-        if (!uvs.isEmpty())
-            flags |= Attributes.UV;
-        if (!normals.isEmpty())
-            flags |= Attributes.NORMAL;
-
-        return flags;
     }
 
     public List<Integer> getVertices() {

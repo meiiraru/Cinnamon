@@ -16,14 +16,13 @@ public class SimpleGeometry {
     protected final int renderMode;
     protected final int vertexCount;
 
-    private SimpleGeometry(Vertex[] vertices, int attributes, int renderMode) {
+    private SimpleGeometry(Vertex[] vertices, int renderMode, Attributes... attributes) {
         this.renderMode = renderMode;
         this.vertexCount = vertices.length;
 
         //load vertex attributes
-        Pair<Integer, Integer> pair = Attributes.getAttributes(attributes);
-        int elements = pair.first();
-        int vertexSize = pair.second();
+        int elements = attributes.length;
+        int vertexSize = Attributes.getVertexSize(attributes);
 
         //prepare vertex buffer
         FloatBuffer buffer = BufferUtils.createFloatBuffer(vertices.length * vertexSize);
@@ -49,12 +48,12 @@ public class SimpleGeometry {
         glBindVertexArray(0);
     }
 
-    public static SimpleGeometry of(Vertex[] vertices, int attributes, int renderMode) {
-        return new SimpleGeometry(vertices, attributes, renderMode);
+    public static SimpleGeometry of(Vertex[] vertices, int renderMode, Attributes... attributes) {
+        return new SimpleGeometry(vertices, renderMode, attributes);
     }
 
-    public static SimpleGeometry of(Vertex[] vertices, int attributes, int renderMode, int[] indices) {
-        return new EBOGeometry(vertices, attributes, renderMode, indices);
+    public static SimpleGeometry of(Vertex[] vertices, int renderMode, int[] indices, Attributes... attributes) {
+        return new EBOGeometry(vertices, renderMode, indices, attributes);
     }
 
     public void render() {
@@ -71,8 +70,8 @@ public class SimpleGeometry {
         protected final int ebo;
         protected final int indexCount;
 
-        private EBOGeometry(Vertex[] vertices, int attributes, int renderMode, int[] indices) {
-            super(vertices, attributes, renderMode);
+        private EBOGeometry(Vertex[] vertices, int renderMode, int[] indices, Attributes... attributes) {
+            super(vertices, renderMode, attributes);
             this.indexCount = indices.length;
 
             //rebind vao
@@ -117,7 +116,7 @@ public class SimpleGeometry {
                 Vertex.of(-1f, 1f).uv(0f, 1f),
                 Vertex.of(1f, -1f).uv(1f, 0f),
                 Vertex.of(1f, 1f).uv(1f, 1f),
-        }, Attributes.POS_XY | Attributes.UV, GL_TRIANGLES);
+        }, GL_TRIANGLES, Attributes.POS_XY, Attributes.UV);
     }
 
     private static SimpleGeometry invertedCube() {
@@ -164,7 +163,7 @@ public class SimpleGeometry {
                 Vertex.of(1f, 1f, 1f),
                 Vertex.of(-1f, 1f, 1f),
                 Vertex.of(-1f, 1f, -1f),
-        }, Attributes.POS, GL_TRIANGLES);
+        }, GL_TRIANGLES, Attributes.POS);
     }
 
     private static SimpleGeometry sphere() {
@@ -199,6 +198,6 @@ public class SimpleGeometry {
             }
         }
 
-        return of(vertices, Attributes.POS | Attributes.UV | Attributes.NORMAL, GL_TRIANGLES, indices);
+        return of(vertices, GL_TRIANGLES, indices, Attributes.POS, Attributes.UV, Attributes.NORMAL);
     }
 }

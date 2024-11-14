@@ -5,7 +5,6 @@ import cinnamon.model.Vertex;
 import cinnamon.render.shader.Attributes;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
-import cinnamon.utils.Pair;
 import cinnamon.world.world.WorldClient;
 import org.lwjgl.BufferUtils;
 
@@ -28,7 +27,7 @@ public abstract class Batch { //vertex consumer
     protected final FloatBuffer buffer;
     protected final int vertexSize;
     protected final int verticesPerFace;
-    protected final int vertexFlags;
+    protected final Attributes[] attributes;
     protected int faceCount = 0;
 
     //rendering data
@@ -40,13 +39,12 @@ public abstract class Batch { //vertex consumer
             TEXTURE_SLOTS[i] = i;
     }
 
-    public Batch(int verticesPerFace, int vertexFlags) {
+    public Batch(int verticesPerFace, Attributes... attributes) {
         this.textures = new ArrayList<>();
         this.verticesPerFace = verticesPerFace;
-        this.vertexFlags = vertexFlags;
+        this.attributes = attributes;
 
-        Pair<Integer, Integer> attributes = Attributes.getAttributes(vertexFlags);
-        this.vertexSize = attributes.second();
+        this.vertexSize = Attributes.getVertexSize(attributes);
         //each face have 6 vertices, times the amount of vertex data
         int capacity = BUFFER_SIZE * verticesPerFace * vertexSize;
         buffer = BufferUtils.createFloatBuffer(capacity);
@@ -61,8 +59,8 @@ public abstract class Batch { //vertex consumer
         glBufferData(GL_ARRAY_BUFFER, (long) capacity * Float.BYTES, GL_DYNAMIC_DRAW);
 
         //enable the shader attributes
-        Attributes.load(vertexFlags, vertexSize);
-        for (int i = 0; i < attributes.first(); i++)
+        Attributes.load(attributes, vertexSize);
+        for (int i = 0; i < attributes.length; i++)
             glEnableVertexAttribArray(i);
     }
 
@@ -133,9 +131,9 @@ public abstract class Batch { //vertex consumer
 
     protected void unwrapVertices(Vertex[] vertices, int texID) {
         for (int i = 1; i <= vertices.length - 2; i++) {
-            Attributes.pushVertex(buffer, vertices[0], texID, vertexFlags);
-            Attributes.pushVertex(buffer, vertices[i], texID, vertexFlags);
-            Attributes.pushVertex(buffer, vertices[i + 1], texID, vertexFlags);
+            Attributes.pushVertex(buffer, vertices[0], texID, attributes);
+            Attributes.pushVertex(buffer, vertices[i], texID, attributes);
+            Attributes.pushVertex(buffer, vertices[i + 1], texID, attributes);
         }
     }
 
@@ -152,13 +150,13 @@ public abstract class Batch { //vertex consumer
 
     public static class FontFlatBatch extends Batch {
         public FontFlatBatch() {
-            super(6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA);
+            super(6, Attributes.POS, Attributes.TEXTURE_ID, Attributes.UV, Attributes.COLOR_RGBA);
         }
     }
 
     public static class FontBatch extends Batch {
         public FontBatch() {
-            super(6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.NORMAL);
+            super(6, Attributes.POS, Attributes.TEXTURE_ID, Attributes.UV, Attributes.COLOR_RGBA, Attributes.NORMAL);
         }
 
         @Override
@@ -172,19 +170,19 @@ public abstract class Batch { //vertex consumer
 
     public static class GUIBatch extends Batch {
         public GUIBatch() {
-            super(6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA);
+            super(6, Attributes.POS, Attributes.TEXTURE_ID, Attributes.UV, Attributes.COLOR_RGBA);
         }
     }
 
     public static class MainFlatBatch extends Batch {
         public MainFlatBatch() {
-            super(6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA);
+            super(6, Attributes.POS, Attributes.TEXTURE_ID, Attributes.UV, Attributes.COLOR_RGBA);
         }
     }
 
     public static class MainBatch extends Batch {
         public MainBatch() {
-            super(6, Attributes.POS | Attributes.TEXTURE_ID | Attributes.UV | Attributes.COLOR_RGBA | Attributes.NORMAL);
+            super(6, Attributes.POS, Attributes.TEXTURE_ID, Attributes.UV, Attributes.COLOR_RGBA, Attributes.NORMAL);
         }
 
         @Override
@@ -198,7 +196,7 @@ public abstract class Batch { //vertex consumer
 
     public static class LinesBatch extends Batch {
         public LinesBatch() {
-            super(8, Attributes.POS | Attributes.COLOR_RGBA);
+            super(8, Attributes.POS, Attributes.COLOR_RGBA);
         }
 
         @Override
@@ -212,13 +210,13 @@ public abstract class Batch { //vertex consumer
 
             //loop through vertices
             for (int i = 1; i < len; i++) {
-                Attributes.pushVertex(buffer, vertices[i - 1], texID, vertexFlags);
-                Attributes.pushVertex(buffer, vertices[i], texID, vertexFlags);
+                Attributes.pushVertex(buffer, vertices[i - 1], texID, attributes);
+                Attributes.pushVertex(buffer, vertices[i], texID, attributes);
             }
 
             //last pair
-            Attributes.pushVertex(buffer, vertices[0], texID, vertexFlags);
-            Attributes.pushVertex(buffer, vertices[len - 1], texID, vertexFlags);
+            Attributes.pushVertex(buffer, vertices[0], texID, attributes);
+            Attributes.pushVertex(buffer, vertices[len - 1], texID, attributes);
         }
 
         @Override

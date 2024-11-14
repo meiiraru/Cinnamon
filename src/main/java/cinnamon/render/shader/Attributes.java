@@ -1,17 +1,17 @@
 package cinnamon.render.shader;
 
 import cinnamon.model.Vertex;
-import cinnamon.utils.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import java.nio.FloatBuffer;
+import java.util.function.BiConsumer;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 
-public class Attributes {
+public enum Attributes {
 
     /**
      * Vertex Attributes
@@ -20,134 +20,87 @@ public class Attributes {
      * <td>COLOR_RGBA {@link Vector4f Vec4}</td><td>NORMAL {@link Vector3f Vec3}</td><td>INDEX {@link Integer int}</td><td>TANGENTS {@link Vector3f Vec3}</td>
      * </tr></table>
     **/
-    public static final int
-            POS        = 0x1,
-            POS_XY     = 0x2,
-            TEXTURE_ID = 0x4,
-            UV         = 0x8,
-            COLOR      = 0x10,
-            COLOR_RGBA = 0x20,
-            NORMAL     = 0x40,
-            INDEX      = 0x80,
-            TANGENTS   = 0x100;
+    POS(3, (v, b) -> {
+        Vector3f pos = v.getPosition();
+        b.put(pos.x);
+        b.put(pos.y);
+        b.put(pos.z);
+    }),
+    POS_XY(2, (v, b) -> {
+        Vector3f pos = v.getPosition();
+        b.put(pos.x);
+        b.put(pos.y);
+    }),
+    TEXTURE_ID(1, null, true),
+    UV(2, (v, b) -> {
+        Vector2f uv = v.getUV();
+        b.put(uv.x);
+        b.put(uv.y);
+    }),
+    COLOR(3, (v, b) -> {
+        Vector4f color = v.getColor();
+        b.put(color.x);
+        b.put(color.y);
+        b.put(color.z);
+    }),
+    COLOR_RGBA(4, (v, b) -> {
+        Vector4f color = v.getColor();
+        b.put(color.x);
+        b.put(color.y);
+        b.put(color.z);
+        b.put(color.w);
+    }),
+    NORMAL(3, (v, b) -> {
+        Vector3f normal = v.getNormal();
+        b.put(normal.x);
+        b.put(normal.y);
+        b.put(normal.z);
+    }),
+    INDEX(1, (v, b) -> b.put(v.getIndex()), true),
+    TANGENTS(3, null);
 
-    public static Pair<Integer, Integer> getAttributes(int flags) {
-        int e = 0, verts = 0;
+    private final int size;
+    private final int sizeInBytes;
+    private final BiConsumer<Vertex, FloatBuffer> consumer;
+    private final boolean normalized;
 
-        if ((flags & POS)        != 0) {e++; verts += 3;}
-        if ((flags & POS_XY)     != 0) {e++; verts += 2;}
-        if ((flags & TEXTURE_ID) != 0) {e++; verts += 1;}
-        if ((flags & UV)         != 0) {e++; verts += 2;}
-        if ((flags & COLOR)      != 0) {e++; verts += 3;}
-        if ((flags & COLOR_RGBA) != 0) {e++; verts += 4;}
-        if ((flags & NORMAL)     != 0) {e++; verts += 3;}
-        if ((flags & INDEX)      != 0) {e++; verts += 1;}
-        if ((flags & TANGENTS)   != 0) {e++; verts += 3;}
-
-        return Pair.of(e, verts);
+    Attributes(int size, BiConsumer<Vertex, FloatBuffer> consumer) {
+        this(size, consumer, false);
     }
 
-    public static void load(int flags, int vertexSize) {
+    Attributes(int size, BiConsumer<Vertex, FloatBuffer> consumer, boolean normalized) {
+        this.size = size;
+        this.sizeInBytes = size * Float.BYTES;
+        this.consumer = consumer;
+        this.normalized = normalized;
+    }
+
+    public static int getVertexSize(Attributes... flags) {
+        int verts = 0;
+        for (Attributes flag : flags)
+            verts += flag.size;
+        return verts;
+    }
+
+    public static void load(Attributes[] flags, int vertexSize) {
         //prepare vars
         int stride = vertexSize * Float.BYTES;
         int pointer = 0;
         int index = 0;
 
         //create attributes
-        if ((flags & POS) != 0) {
-            glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer);
-            pointer += 3 * Float.BYTES;
-        }
-        if ((flags & POS_XY) != 0) {
-            glVertexAttribPointer(index++, 2, GL_FLOAT, false, stride, pointer);
-            pointer += 2 * Float.BYTES;
-        }
-        if ((flags & TEXTURE_ID) != 0) {
-            glVertexAttribPointer(index++, 1, GL_FLOAT, true, stride, pointer);
-            pointer += Float.BYTES;
-        }
-        if ((flags & UV) != 0) {
-            glVertexAttribPointer(index++, 2, GL_FLOAT, false, stride, pointer);
-            pointer += 2 * Float.BYTES;
-        }
-        if ((flags & COLOR) != 0) {
-            glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer);
-            pointer += 3 * Float.BYTES;
-        }
-        if ((flags & COLOR_RGBA) != 0) {
-            glVertexAttribPointer(index++, 4, GL_FLOAT, false, stride, pointer);
-            pointer += 4 * Float.BYTES;
-        }
-        if ((flags & NORMAL) != 0) {
-            glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer);
-            pointer += 3 * Float.BYTES;
-        }
-        if ((flags & INDEX) != 0) {
-            glVertexAttribPointer(index++, 1, GL_FLOAT, true, stride, pointer);
-            pointer += Float.BYTES;
-        }
-        if ((flags & TANGENTS) != 0) {
-            glVertexAttribPointer(index++, 3, GL_FLOAT, false, stride, pointer);
-            pointer += 3 * Float.BYTES;
+        for (Attributes flag : flags) {
+            glVertexAttribPointer(index++, flag.size, GL_FLOAT, flag.normalized, stride, pointer);
+            pointer += flag.sizeInBytes;
         }
     }
 
-    public static void pushVertex(FloatBuffer buffer, Vertex vertex, int textureID, int flags) {
-        //push pos
-        if ((flags & POS) != 0) {
-            Vector3f pos = vertex.getPosition();
-            buffer.put(pos.x);
-            buffer.put(pos.y);
-            buffer.put(pos.z);
-        }
-
-        //push posXY
-        if ((flags & POS_XY) != 0) {
-            Vector3f pos = vertex.getPosition();
-            buffer.put(pos.x);
-            buffer.put(pos.y);
-        }
-
-        //push texture id
-        if ((flags & TEXTURE_ID) != 0) {
-            buffer.put(textureID);
-        }
-
-        //push uv
-        if ((flags & UV) != 0) {
-            Vector2f uv = vertex.getUV();
-            buffer.put(uv.x);
-            buffer.put(uv.y);
-        }
-
-        //push color RGB
-        if ((flags & COLOR) != 0) {
-            Vector4f color = vertex.getColor();
-            buffer.put(color.x);
-            buffer.put(color.y);
-            buffer.put(color.z);
-        }
-
-        //push color RGBA
-        if ((flags & COLOR_RGBA) != 0) {
-            Vector4f color = vertex.getColor();
-            buffer.put(color.x);
-            buffer.put(color.y);
-            buffer.put(color.z);
-            buffer.put(color.w);
-        }
-
-        //push normal
-        if ((flags & NORMAL) != 0) {
-            Vector3f normal = vertex.getNormal();
-            buffer.put(normal.x);
-            buffer.put(normal.y);
-            buffer.put(normal.z);
-        }
-
-        //push index
-        if ((flags & INDEX) != 0) {
-            buffer.put(vertex.getIndex());
+    public static void pushVertex(FloatBuffer buffer, Vertex vertex, int textureID, Attributes[] flags) {
+        for (Attributes flag : flags) {
+            if (flag.consumer != null)
+                flag.consumer.accept(vertex, buffer);
+            else if (flag == TEXTURE_ID)
+                buffer.put(textureID);
         }
     }
 }

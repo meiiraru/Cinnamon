@@ -12,7 +12,6 @@ import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
-import cinnamon.utils.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
@@ -313,8 +312,19 @@ public class ObjRenderer extends ModelRenderer {
             this.bbMax = bbMax;
 
             //parse attributes
-            int flags = group.getFaces().getFirst().getAttributesFlag() | Attributes.TANGENTS;
-            Pair<Integer, Integer> attrib = Attributes.getAttributes(flags);
+            Face face = group.getFaces().getFirst();
+            List<Attributes> list = new ArrayList<>();
+            list.add(Attributes.POS);
+
+            if (!face.getUVs().isEmpty())
+                list.add(Attributes.UV);
+            if (!face.getNormals().isEmpty())
+                list.add(Attributes.NORMAL);
+
+            list.add(Attributes.TANGENTS);
+
+            Attributes[] flags = list.toArray(new Attributes[0]);
+            int vertexSize = Attributes.getVertexSize(flags);
 
             //vao
             this.vao = glGenVertexArrays();
@@ -326,10 +336,10 @@ public class ObjRenderer extends ModelRenderer {
             glBufferData(GL_ARRAY_BUFFER, (long) capacity * Float.BYTES, GL_STATIC_DRAW);
 
             //load vertex attributes
-            Attributes.load(flags, attrib.second());
+            Attributes.load(flags, vertexSize);
 
             //enable attributes
-            for (int i = 0; i < attrib.first(); i++)
+            for (int i = 0; i < flags.length; i++)
                 glEnableVertexAttribArray(i);
         }
 
