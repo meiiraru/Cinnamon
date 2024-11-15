@@ -5,7 +5,7 @@ import cinnamon.gui.Toast;
 import cinnamon.gui.screens.MainMenu;
 import cinnamon.gui.screens.world.PauseScreen;
 //import cinnamon.networking.ServerConnection;
-import cinnamon.options.Options;
+import cinnamon.settings.Settings;
 import cinnamon.render.Camera;
 import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
@@ -45,13 +45,13 @@ public class Client {
     public long ticks;
     public int fps, ms;
 
-    public String name = "Meii";
+    public String name = "Player";
     public UUID playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
 
     //objects
     public SoundManager soundManager;
     public Window window;
-    public Options options;
+    public Settings settings;
     public Camera camera;
     public Font font;
     public Screen screen;
@@ -61,12 +61,12 @@ public class Client {
 
     public void init() {
         this.window.setIcon(new Resource("textures/icon.png"));
-        this.options = Options.load();
+        this.settings = Settings.load();
         this.windowResize(window.width, window.height);
         this.soundManager = new SoundManager();
         this.soundManager.init();
         this.camera = new Camera();
-        this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight, this.options.fov);
+        this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight, this.settings.fov.get());
         this.font = new Font(new Resource("fonts/mayonnaise.ttf"), 8);
         ResourceManager.register();
         ResourceManager.init();
@@ -75,6 +75,7 @@ public class Client {
 
     public void close() {
         //disconnect();
+        if (screen != null) screen.removed();
         this.font.free();
         this.soundManager.free();
         ResourceManager.free();
@@ -172,7 +173,7 @@ public class Client {
 
             //screen has been added
             screen.added();
-            LOGGER.info("Set screen: {}", s.getClass().getSimpleName());
+            LOGGER.debug("Set screen: {}", s.getClass().getSimpleName());
 
             //unlock mouse
             window.unlockMouse();
@@ -266,7 +267,7 @@ public class Client {
         if (width <= 0 || height <= 0)
             return;
 
-        window.windowResize(width, height, options.guiScale);
+        window.windowResize(width, height, settings.guiScale.get());
         Framebuffer.DEFAULT_FRAMEBUFFER.resize(width, height);
 
         if (world != null)
@@ -274,7 +275,7 @@ public class Client {
 
         queueTick(() -> {
             if (camera != null)
-                camera.updateProjMatrix(window.scaledWidth, window.scaledHeight, this.options.fov);
+                camera.updateProjMatrix(window.scaledWidth, window.scaledHeight, this.settings.fov.get());
 
             if (screen != null)
                 screen.resize(window.scaledWidth, window.scaledHeight);

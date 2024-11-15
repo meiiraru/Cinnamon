@@ -17,6 +17,6 @@ public enum SoundCategory {
 
     public void setVolume(SoundManager manager, float volume) {
         this.volume = Math.clamp(volume, 0, 1);
-        manager.updateVolumes(this);
+        if (manager != null) manager.updateVolumes(this);
     }
 }

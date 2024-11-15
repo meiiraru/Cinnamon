@@ -22,7 +22,7 @@ public class ModelManager {
         if (model != null)
             return model;
 
-        LOGGER.info("Loading model {}", resource);
+        LOGGER.debug("Loading model {}", resource);
 
         //load mesh :)
         ModelRenderer newModel;

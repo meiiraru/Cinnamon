@@ -1,6 +1,7 @@
 package cinnamon.input;
 
 import cinnamon.Client;
+import cinnamon.settings.Settings;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.Player;
 import org.joml.Vector2f;
@@ -51,18 +52,20 @@ public class Movement {
     }
 
     public void mouseMove(double x, double y) {
+        Settings settings = Client.getInstance().settings;
+
         if (firstMouse) {
             mouseX = x;
             mouseY = y;
             firstMouse = false;
         }
 
-        offsetX += x - mouseX;
-        offsetY += y - mouseY;
+        offsetX += (x - mouseX) * (settings.invertX.get() ? -1 : 1);
+        offsetY += (y - mouseY) * (settings.invertY.get() ? -1 : 1);
         mouseX = x;
         mouseY = y;
 
-        double sensi = Client.getInstance().options.sensibility * 0.6f + 0.2f;
+        double sensi = settings.sensibility.get() * 0.6f + 0.2f;
         double spd = sensi * sensi * sensi * 8;
         double dx = offsetX * spd;
         double dy = offsetY * spd;

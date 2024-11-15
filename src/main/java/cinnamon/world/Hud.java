@@ -62,7 +62,7 @@ public class Hud {
             Style style = Style.EMPTY.background(true);
             c.font.render(VertexConsumer.FONT, matrices, 4, 4, TextUtils.parseColorFormatting(Text.of(debugLeftText())).withStyle(style));
             c.font.render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, TextUtils.parseColorFormatting(Text.of(debugRightText())).withStyle(style), Alignment.RIGHT);
-        } else {
+        } else if (c.settings.showFPS.get()) {
             Style style = Style.EMPTY.shadow(true);
             c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(style));
         }

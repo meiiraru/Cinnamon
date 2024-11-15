@@ -8,7 +8,7 @@ import cinnamon.world.world.WorldClient;
 public class LocalPlayer extends Player {
 
     public LocalPlayer() {
-        this(Client.getInstance().options.player);
+        this(Client.getInstance().settings.player.get());
     }
 
     public LocalPlayer(LivingModelRegistry model) {

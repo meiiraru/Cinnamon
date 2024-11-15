@@ -19,7 +19,7 @@ public class MaterialManager {
         //then return the material even if it is null
         Map<String, Material> materialMap = MATERIAL_MAP.get(resource);
         if (materialMap == null) {
-            LOGGER.info("Loading material {}", resource);
+            LOGGER.debug("Loading material {}", resource);
             materialMap = MaterialLoader.load(resource);
             MATERIAL_MAP.put(resource, materialMap);
         }

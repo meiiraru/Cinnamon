@@ -190,7 +190,8 @@ public class WidgetTestScreen extends ParentedScreen {
         s2.setMax((int) client.window.maxGuiScale);
         s2.setStepCount((int) client.window.maxGuiScale + 1);
         s2.setChangeListener((f, i) -> {
-            client.options.guiScale = i;
+            client.settings.guiScale.set((float) i);
+            client.settings.save();
             client.windowResize(client.window.width, client.window.height);
         });
         s2.setUpdateListener((f, i) -> s2.setColor(Colors.RAINBOW[i % Colors.RAINBOW.length]));

@@ -50,6 +50,8 @@ public class SoundVisualizerScreen extends ParentedScreen {
     private Button playPauseButton, nextButton, previousButton;
     private int repeat = 0; //0 = off, 1 = one, 2 = all
 
+    private final float initialVolume = SoundCategory.MUSIC.getVolume();
+
     public SoundVisualizerScreen(Screen parentScreen) {
         super(parentScreen);
     }
@@ -60,6 +62,9 @@ public class SoundVisualizerScreen extends ParentedScreen {
         //stop the sound when the screen is closed
         if (hasSound())
             soundData.stop();
+        //save settings if we changed the volume
+        if (initialVolume != SoundCategory.MUSIC.getVolume())
+            client.settings.save();
     }
 
     @Override
