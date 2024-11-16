@@ -3,12 +3,13 @@ package cinnamon.world.entity.living;
 import cinnamon.Client;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.render.Camera;
+import cinnamon.settings.Settings;
 import cinnamon.world.world.WorldClient;
 
 public class LocalPlayer extends Player {
 
     public LocalPlayer() {
-        this(Client.getInstance().settings.player.get());
+        this(Settings.playermodel.get());
     }
 
     public LocalPlayer(LivingModelRegistry model) {

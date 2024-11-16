@@ -11,6 +11,7 @@ import cinnamon.model.Vertex;
 import cinnamon.parsers.LrcLoader;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.settings.Settings;
 import cinnamon.sound.*;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
@@ -64,7 +65,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
             soundData.stop();
         //save settings if we changed the volume
         if (initialVolume != SoundCategory.MUSIC.getVolume())
-            client.settings.save();
+            Settings.save();
     }
 
     @Override

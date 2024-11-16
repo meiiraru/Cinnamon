@@ -51,7 +51,6 @@ public class Client {
     //objects
     public SoundManager soundManager;
     public Window window;
-    public Settings settings;
     public Camera camera;
     public Font font;
     public Screen screen;
@@ -61,12 +60,12 @@ public class Client {
 
     public void init() {
         this.window.setIcon(new Resource("textures/icon.png"));
-        this.settings = Settings.load();
-        this.windowResize(window.width, window.height);
         this.soundManager = new SoundManager();
         this.soundManager.init();
+        Settings.load();
+        this.windowResize(window.width, window.height);
         this.camera = new Camera();
-        this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight, this.settings.fov.get());
+        this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight, Settings.fov.get());
         this.font = new Font(new Resource("fonts/mayonnaise.ttf"), 8);
         ResourceManager.register();
         ResourceManager.init();
@@ -267,7 +266,7 @@ public class Client {
         if (width <= 0 || height <= 0)
             return;
 
-        window.windowResize(width, height, settings.guiScale.get());
+        window.windowResize(width, height, Settings.guiScale.get());
         Framebuffer.DEFAULT_FRAMEBUFFER.resize(width, height);
 
         if (world != null)
@@ -275,7 +274,7 @@ public class Client {
 
         queueTick(() -> {
             if (camera != null)
-                camera.updateProjMatrix(window.scaledWidth, window.scaledHeight, this.settings.fov.get());
+                camera.updateProjMatrix(window.scaledWidth, window.scaledHeight, Settings.fov.get());
 
             if (screen != null)
                 screen.resize(window.scaledWidth, window.scaledHeight);

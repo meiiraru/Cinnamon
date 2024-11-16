@@ -4,11 +4,11 @@ import cinnamon.Client;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.IOUtils;
-import cinnamon.utils.Pair;
 import com.google.gson.*;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -19,10 +19,6 @@ public class Settings {
     //settings registry
     static final List<Setting<?>> SETTINGS = new ArrayList<>();
 
-    private Settings() {
-        //nope!
-    }
-
 
     // -- settings -- //
 
@@ -30,47 +26,38 @@ public class Settings {
     private static final int VERSION = 1;
 
     //screen
-    public final Setting.SInt fov = new Setting.SInt("screen", "fov", 70);
-    public final Setting.SFloat guiScale = new Setting.SFloat("screen", "guiScale", 0f);
-    public final Setting.SBool showFPS = new Setting.SBool("screen", "show_fps", false);
+    public static final Setting.Ints fov = new Setting.Ints("screen.fov", 70);
+    public static final Setting.Floats guiScale = new Setting.Floats("screen.guiScale", 0f);
+    public static final Setting.Bools showFPS = new Setting.Bools("screen.show_fps", false);
 
     //mouse
-    public final Setting.SFloat sensibility = new Setting.SFloat("mouse", "sensibility", 0.27f);
-    public final Setting.SBool invertX = new Setting.SBool("mouse", "invert_mouse_x", false);
-    public final Setting.SBool invertY = new Setting.SBool("mouse", "invert_mouse_y", false);
+    public static final Setting.Floats sensibility = new Setting.Floats("mouse.sensibility", 0.27f);
+    public static final Setting.Bools invertX = new Setting.Bools("mouse.invert_mouse_x", false);
+    public static final Setting.Bools invertY = new Setting.Bools("mouse.invert_mouse_y", false);
 
     //player
-    public final Setting.SEnum<LivingModelRegistry> player = new Setting.SEnum<>("player", "player", LivingModelRegistry.STRAWBERRY);
+    public static final Setting.Enums<LivingModelRegistry> playermodel = new Setting.Enums<>("player.player_model", LivingModelRegistry.STRAWBERRY);
 
     static {
         //player name do not have a getter
-        new Setting.SString("player", "playername", "Player") {
-            @Override
-            public void set(String value) {
-                super.set(value);
-                Client.getInstance().setName(get());
-            }
-        };
+        Setting.Strings player = new Setting.Strings("player.playername", "Player");
+        player.setListener(v -> Client.getInstance().setName(v));
 
         //wrapper for sound categories
         for (SoundCategory sound : SoundCategory.values()) {
-            new Setting.SRange("sound", sound.name().toLowerCase(), 1f, 0f, 1f) {
+            Setting.Ranges setting = new Setting.Ranges("sound." + sound.name().toLowerCase(), 1f, 0f, 1f) {
                 @Override
                 public Float get() {
                     return sound.getVolume();
                 }
-                @Override
-                public void set(Float value) {
-                    super.set(value);
-                    sound.setVolume(null, super.get());
-                }
             };
+            setting.setListener(v -> sound.setVolume(Client.getInstance().soundManager, v));
         }
     }
 
     //list index = version number
-    //Pair<new category, new name> <- Pair<old category, old name>
-    private static final List<Map<Pair<String, String>, Pair<String, String>>> VERSION_MAP = List.of();
+    //map = setting -> old version name
+    private static final List<Map<Setting<?>, String>> VERSION_MAP = List.of();
 
 
     // -- IO -- //
@@ -79,25 +66,27 @@ public class Settings {
     private static final Path OPTIONS_FILE = IOUtils.ROOT_FOLDER.resolve("settings.json");
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 
-    public static Settings load() {
-        Settings settings = new Settings();
+    public static void load() {
         JsonObject json;
 
         //read the settings file
         try {
             byte[] bytes = IOUtils.readFile(OPTIONS_FILE);
-            if (bytes == null)
-                return settings.save();
+            if (bytes == null) {
+                save();
+                return;
+            }
             json = JsonParser.parseString(new String(bytes)).getAsJsonObject();
         } catch (Exception e) {
             LOGGER.error("Failed to load saved settings", e);
-            return settings.save();
+            save();
+            return;
         }
 
         LOGGER.info("Loading settings file...");
 
         //versioning
-        Map<Pair<String, String>, Pair<String, String>> versionMap;
+        Map<Setting<?>, String> versionMap;
         try {
             int v = json.get("_version").getAsInt();
             if (v != VERSION) {
@@ -113,39 +102,54 @@ public class Settings {
             }
         } catch (Exception e) {
             LOGGER.error("Failed to update settings file", e);
-            return settings.save();
+            save();
+            return;
         }
 
         //load settings
         for (Setting<?> setting : SETTINGS) {
-            String category = setting.getCategory();
             String name = setting.getName();
-
-            //get the old category and name
-            if (versionMap != null) {
-                Pair<String, String> pair = versionMap.get(Pair.of(category, name));
-                if (pair != null) {
-                    category = pair.first();
-                    name = pair.second();
-                }
-            }
-
-            if (!json.has(category))
-                continue;
+            String[] split = (versionMap != null && versionMap.containsKey(setting) ? versionMap.get(setting) : name).split("\\.", -1);
 
             try {
-                JsonElement element = json.getAsJsonObject(category).get(name);
-                if (element != null)
-                    setting.fromJson(element);
+                //get the value
+                JsonObject obj = json;
+                int i = 0;
+                for (; i < split.length - 1; i++) {
+                    String s = split[i];
+
+                    //check for object
+                    JsonElement e = obj.get(s);
+                    if (e == null) { //setting was not saved
+                        obj = null;
+                        break;
+                    }
+                    if (!e.isJsonObject()) //setting conflict
+                        break;
+
+                    obj = e.getAsJsonObject();
+                }
+
+                //setting not saved
+                if (obj == null)
+                    continue;
+
+                //get the remaining path as the setting name
+                String path = String.join(".", Arrays.copyOfRange(split, i, split.length));
+
+                //set the loaded value
+                JsonElement value = obj.get(path);
+                if (value != null)
+                    setting.fromJson(value);
             } catch (Exception e) {
-                LOGGER.warn("Failed to load setting \"{}\" \"{}\", using default value \"{}\"", category, name, setting.getDefault(), e);
+                LOGGER.warn("Failed to load setting \"{}\", using default value \"{}\"", name, setting.getDefault(), e);
             }
         }
 
-        return settings.save();
+        save();
     }
 
-    public Settings save() {
+    public static void save() {
         LOGGER.info("Saving settings file...");
         JsonObject json = new JsonObject();
 
@@ -154,10 +158,30 @@ public class Settings {
 
         //save settings
         for (Setting<?> setting : SETTINGS) {
-            String category = setting.getCategory();
-            if (!json.has(category))
-                json.add(category, new JsonObject());
-            json.getAsJsonObject(category).add(setting.getName(), GSON.toJsonTree(setting.get()));
+            String name = setting.getName();
+            String[] split = name.split("\\.", -1);
+
+            //create the path
+            JsonObject obj = json;
+            int i = 0;
+            for (; i < split.length - 1; i++) {
+                String s = split[i];
+
+                //add the object
+                if (!obj.has(s))
+                    obj.add(s, new JsonObject());
+
+                //check for object
+                JsonElement e = obj.get(s);
+                if (!e.isJsonObject())
+                    break;
+
+                obj = e.getAsJsonObject();
+            }
+
+            //get the remaining path as the setting name
+            String path = String.join(".", Arrays.copyOfRange(split, i, split.length));
+            obj.add(path, setting.toJson());
         }
 
         //write to file
@@ -166,7 +190,5 @@ public class Settings {
         } catch (Exception e) {
             LOGGER.error("Failed to save settings", e);
         }
-
-        return this;
     }
 }

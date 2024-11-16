@@ -12,6 +12,7 @@ import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shaders;
+import cinnamon.settings.Settings;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
@@ -62,7 +63,7 @@ public class Hud {
             Style style = Style.EMPTY.background(true);
             c.font.render(VertexConsumer.FONT, matrices, 4, 4, TextUtils.parseColorFormatting(Text.of(debugLeftText())).withStyle(style));
             c.font.render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, TextUtils.parseColorFormatting(Text.of(debugRightText())).withStyle(style), Alignment.RIGHT);
-        } else if (c.settings.showFPS.get()) {
+        } else if (Settings.showFPS.get()) {
             Style style = Style.EMPTY.shadow(true);
             c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(style));
         }

@@ -1,17 +1,19 @@
 package cinnamon.settings;
 
-import cinnamon.utils.Resource;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
+import java.util.function.Consumer;
 
 public abstract class Setting<T> {
 
-    private final String category;
     private final String name;
     private final T defaultValue;
     private T value;
 
-    public Setting(String category, String name, T defaultValue) {
-        this.category = category;
+    private Consumer<T> consumer;
+
+    public Setting(String name, T defaultValue) {
         this.name = name;
         this.defaultValue = defaultValue;
         this.value = defaultValue;
@@ -20,9 +22,7 @@ public abstract class Setting<T> {
 
     public abstract void fromJson(JsonElement element);
 
-    public String getCategory() {
-        return category;
-    }
+    public abstract JsonElement toJson();
 
     public String getName() {
         return name;
@@ -38,77 +38,108 @@ public abstract class Setting<T> {
 
     public void set(T value) {
         this.value = value;
+        if (consumer != null)
+            consumer.accept(value);
+    }
+
+    public void setListener(Consumer<T> consumer) {
+        this.consumer = consumer;
     }
 
     @Override
     public String toString() {
-        return category + "." + name + " = " + value;
+        return name + " = " + value;
     }
 
     // -- settings types -- //
 
 
-    public static class SInt extends Setting<Integer> {
-        public SInt(String category, String name, Integer defaultValue) {
-            super(category, name, defaultValue);
+    public static class Ints extends Setting<Integer> {
+        public Ints(String name, Integer defaultValue) {
+            super(name, defaultValue);
         }
 
         @Override
         public void fromJson(JsonElement element) {
             set(element.getAsInt());
         }
+
+        @Override
+        public JsonElement toJson() {
+            return new JsonPrimitive(get());
+        }
     }
 
-    public static class SFloat extends Setting<Float> {
-        public SFloat(String category, String name, Float defaultValue) {
-            super(category, name, defaultValue);
+    public static class Floats extends Setting<Float> {
+        public Floats(String name, Float defaultValue) {
+            super(name, defaultValue);
         }
 
         @Override
         public void fromJson(JsonElement element) {
             set(element.getAsFloat());
         }
+
+        @Override
+        public JsonElement toJson() {
+            return new JsonPrimitive(get());
+        }
     }
 
-    public static class SString extends Setting<String> {
-        public SString(String category, String name, String defaultValue) {
-            super(category, name, defaultValue);
+    public static class Strings extends Setting<String> {
+        public Strings(String name, String defaultValue) {
+            super(name, defaultValue);
         }
 
         @Override
         public void fromJson(JsonElement element) {
             set(element.getAsString());
         }
+
+        @Override
+        public JsonElement toJson() {
+            return new JsonPrimitive(get());
+        }
     }
 
-    public static class SBool extends Setting<Boolean> {
-        public SBool(String category, String name, Boolean defaultValue) {
-            super(category, name, defaultValue);
+    public static class Bools extends Setting<Boolean> {
+        public Bools(String name, Boolean defaultValue) {
+            super(name, defaultValue);
         }
 
         @Override
         public void fromJson(JsonElement element) {
             set(element.getAsBoolean());
         }
+
+        @Override
+        public JsonElement toJson() {
+            return new JsonPrimitive(get());
+        }
     }
 
-    public static class SEnum<T extends Enum<T>> extends Setting<T> {
-        public SEnum(String category, String name, T defaultValue) {
-            super(category, name, defaultValue);
+    public static class Enums<T extends Enum<T>> extends Setting<T> {
+        public Enums(String name, T defaultValue) {
+            super(name, defaultValue);
         }
 
         @Override
         public void fromJson(JsonElement element) {
             set(T.valueOf(getDefault().getDeclaringClass(), element.getAsString().toUpperCase()));
         }
+
+        @Override
+        public JsonElement toJson() {
+            return new JsonPrimitive(get().name().toLowerCase());
+        }
     }
 
-    public static class SRange extends Setting<Float> {
+    public static class Ranges extends Setting<Float> {
         private final float min;
         private final float max;
 
-        public SRange(String category, String name, Float defaultValue, float min, float max) {
-            super(category, name, defaultValue);
+        public Ranges(String name, Float defaultValue, float min, float max) {
+            super(name, Math.clamp(defaultValue, min, max));
             this.min = min;
             this.max = max;
         }
@@ -121,6 +152,19 @@ public abstract class Setting<T> {
         @Override
         public void fromJson(JsonElement element) {
             set(element.getAsFloat());
+        }
+
+        @Override
+        public JsonElement toJson() {
+            return new JsonPrimitive(get());
+        }
+
+        public float getMin() {
+            return min;
+        }
+
+        public float getMax() {
+            return max;
         }
     }
 }
