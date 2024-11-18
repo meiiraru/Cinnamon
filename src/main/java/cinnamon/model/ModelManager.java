@@ -1,10 +1,13 @@
 package cinnamon.model;
 
 import cinnamon.parsers.AnimationLoader;
+import cinnamon.parsers.GLTFLoader;
 import cinnamon.parsers.ObjLoader;
 import cinnamon.render.model.AnimatedObjRenderer;
+import cinnamon.render.model.GLTFRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.model.ObjRenderer;
+import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 
 import java.util.HashMap;
@@ -27,14 +30,19 @@ public class ModelManager {
         //load mesh :)
         ModelRenderer newModel;
 
-        //load animations, if any
-        String path = resource.getPath();
-        String folder = path.substring(0, path.lastIndexOf("/") + 1);
-        Resource res = new Resource(resource.getNamespace(), folder + "animations.json");
-        try {
-            newModel = new AnimatedObjRenderer(ObjLoader.load(resource), AnimationLoader.load(res));
-        } catch (Exception ignored) {
-            newModel = new ObjRenderer(ObjLoader.load(resource));
+        //check model type
+        if (resource.getPath().endsWith(".gltf")) {
+            newModel = new GLTFRenderer(GLTFLoader.load(resource));
+        } else {
+            //load animations, if any
+            String path = resource.getPath();
+            String folder = path.substring(0, path.lastIndexOf("/") + 1);
+            Resource anim = new Resource(resource.getNamespace(), folder + "animations.json");
+            if (IOUtils.hasResource(anim)) {
+                newModel = new AnimatedObjRenderer(ObjLoader.load(resource), AnimationLoader.load(anim));
+            } else {
+                newModel = new ObjRenderer(ObjLoader.load(resource));
+            }
         }
 
         MODEL_MAP.put(resource, newModel);
