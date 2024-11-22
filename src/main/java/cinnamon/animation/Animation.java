@@ -26,6 +26,16 @@ public class Animation {
         this.name = name;
     }
 
+    public Animation(Animation other, Map<Bone, Bone> boneMap) {
+        this.name = other.name;
+        this.duration = other.duration;
+
+        for (Map.Entry<Bone, Bone> entry : boneMap.entrySet()) {
+            Map<Channel, List<Keyframe>> keyframe = other.keyframes.get(entry.getKey());
+            if (keyframe != null) keyframes.put(entry.getValue(), keyframe);
+        }
+    }
+
     private void updateTime() {
         time = (int) (System.currentTimeMillis() - initTime);
 
@@ -47,12 +57,14 @@ public class Animation {
         }
     }
 
-    public void update() {
+    public int update() {
         if (state == State.STOPPED)
-            return;
+            return 0;
 
         if (state == State.PLAYING)
             updateTime();
+
+        int count = 0;
 
         //grab the current keyframes
         for (Map.Entry<Bone, Map<Channel, List<Keyframe>>> boneEntry : keyframes.entrySet()) {
@@ -94,8 +106,11 @@ public class Animation {
 
                 //apply the value to the bone
                 channel.apply(bone.getTransform(), value);
+                count++;
             }
         }
+
+        return count;
     }
 
     public void addKeyframe(Bone bone, Channel channel, Keyframe keyframe) {
@@ -111,8 +126,9 @@ public class Animation {
         return time;
     }
 
-    public void setTime(int time) {
+    public Animation setTime(int time) {
         this.time = time;
+        return this;
     }
 
     public State getState() {
@@ -147,12 +163,17 @@ public class Animation {
         return loop;
     }
 
-    public void setLoop(Loop loop) {
+    public Animation setLoop(Loop loop) {
         this.loop = loop;
+        return this;
     }
 
     public String getName() {
         return name;
+    }
+
+    public int getDuration() {
+        return duration;
     }
 
     public enum State {

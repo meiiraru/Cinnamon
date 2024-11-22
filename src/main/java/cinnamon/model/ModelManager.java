@@ -23,7 +23,7 @@ public class ModelManager {
         //already loaded, return it
         ModelRenderer model = MODEL_MAP.get(resource);
         if (model != null)
-            return model;
+            return model instanceof AnimatedObjRenderer anim ? new AnimatedObjRenderer(anim) : model;
 
         LOGGER.debug("Loading model {}", resource);
 

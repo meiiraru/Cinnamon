@@ -38,6 +38,13 @@ public class ObjRenderer extends ModelRenderer {
             bbMin = new Vector3f(Integer.MAX_VALUE),
             bbMax = new Vector3f(Integer.MIN_VALUE);
 
+    public ObjRenderer(ObjRenderer other) {
+        this.mesh = other.mesh;
+        this.groups = other.groups;
+        this.bbMin.set(other.bbMin);
+        this.bbMax.set(other.bbMax);
+    }
+
     public ObjRenderer(Mesh mesh) {
         this.mesh = mesh;
         this.groups = new HashMap<>(mesh.getGroups().size(), 1f);

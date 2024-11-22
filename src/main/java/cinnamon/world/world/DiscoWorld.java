@@ -1,5 +1,6 @@
 package cinnamon.world.world;
 
+import cinnamon.animation.Animation;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -17,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
+
+import static cinnamon.animation.Animation.Loop.LOOP;
 
 public class DiscoWorld extends WorldClient {
 
@@ -55,10 +58,10 @@ public class DiscoWorld extends WorldClient {
         DiscoBall discoBall = new DiscoBall(UUID.randomUUID());
         discoBall.setPos(0f, 3f, 0f);
         addEntity(discoBall);
-        discoBall.getAnimation("animation1").play();
-        discoBall.getAnimation("animation2").play();
-        discoBall.getAnimation("animation3").play();
-        discoBall.getAnimation("animation4").play();
+        discoBall.getAnimation("animation1").setLoop(LOOP).play();
+        discoBall.getAnimation("animation2").setLoop(LOOP).play();
+        discoBall.getAnimation("animation3").setLoop(LOOP).play();
+        discoBall.getAnimation("animation4").setLoop(LOOP).play();
 
         Speaker speaker1 = new Speaker(UUID.randomUUID());
         speaker1.setPos(-1f, 1f, -2f);
@@ -94,9 +97,11 @@ public class DiscoWorld extends WorldClient {
         addEntity(light2);
         lights.add(light2);
 
-        for (FloorLight light : lights) {
-            light.getAnimation("up_down").play();
-            light.getAnimation("look_around").play();
+        for (int i = 0; i < lights.size(); i++) {
+            FloorLight light = lights.get(i);
+            light.getAnimation("up_down").setLoop(LOOP).play();
+            Animation anim = light.getAnimation("look_around");
+            anim.setLoop(LOOP).setTime(i % 2 == 1 ? anim.getDuration() / 2 : 0).play();
         }
     }
 

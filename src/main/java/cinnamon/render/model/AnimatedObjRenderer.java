@@ -8,13 +8,26 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.Pair;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class AnimatedObjRenderer extends ObjRenderer {
 
     private final Bone bone;
     private final List<Animation> animations;
+
+    public AnimatedObjRenderer(AnimatedObjRenderer other) {
+        super(other);
+        Map<Bone, Bone> boneMap = new HashMap<>();
+        this.bone = new Bone(other.bone, boneMap);
+
+        this.animations = new ArrayList<>();
+        for (Animation animation : other.animations)
+            this.animations.add(new Animation(animation, boneMap));
+    }
 
     public AnimatedObjRenderer(Mesh mesh, Pair<Bone, List<Animation>> animations) {
         super(mesh);

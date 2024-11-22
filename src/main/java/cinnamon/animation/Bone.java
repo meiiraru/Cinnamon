@@ -4,6 +4,7 @@ import cinnamon.model.Transform;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Bone {
 
@@ -20,6 +21,17 @@ public class Bone {
     public Bone(String name, boolean model) {
         this.name = name;
         this.isModel = model;
+    }
+
+    public Bone(Bone other, Map<Bone, Bone> boneMap) {
+        this.name = other.name;
+        this.isModel = other.isModel;
+        this.transform.setPivot(other.transform.getPivot());
+
+        boneMap.put(other, this);
+
+        for (Bone child : other.children)
+            children.add(new Bone(child, boneMap));
     }
 
     public String getName() {
