@@ -3,6 +3,7 @@ package cinnamon.world.world;
 import cinnamon.Client;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundInstance;
+import cinnamon.sound.SoundManager;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
@@ -133,7 +134,7 @@ public abstract class World {
     }
 
     public SoundInstance playSound(Resource sound, SoundCategory category, Vector3f position) {
-        return Client.getInstance().soundManager.playSound(sound, category, position);
+        return SoundManager.playSound(sound, category, position);
     }
 
     public void entityRemoved(UUID uuid) {}

@@ -38,6 +38,9 @@ public class CurveToMesh {
         if (size != external.size())
             throw new Exception("Curve internal size is different than external size");
 
+        if (size < 1)
+            throw new Exception("Cannot create empty curve");
+
         //create mesh
         Mesh mesh = new Mesh();
 

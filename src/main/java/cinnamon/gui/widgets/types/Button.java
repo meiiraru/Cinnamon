@@ -9,6 +9,7 @@ import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.sound.SoundCategory;
+import cinnamon.sound.SoundManager;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
@@ -162,7 +163,7 @@ public class Button extends SelectableWidget {
     }
 
     public void playClickSound() {
-        Client.getInstance().soundManager.playSound(CLICK_SOUND, SoundCategory.GUI);
+        SoundManager.playSound(CLICK_SOUND, SoundCategory.GUI);
     }
 
     public Text getMessage() {

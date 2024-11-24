@@ -3,6 +3,7 @@ package cinnamon.utils;
 import cinnamon.Client;
 import cinnamon.gui.GUIStyle;
 import cinnamon.gui.Screen;
+import cinnamon.gui.widgets.AlignedWidget;
 import cinnamon.gui.widgets.PopupWidget;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.Widget;
@@ -59,7 +60,10 @@ public class UIHelper {
     }
 
     public static boolean isMouseOver(Widget w, int mouseX, int mouseY) {
-        return isMouseOver(w.getX(), w.getY(), w.getWidth(), w.getHeight(), mouseX, mouseY);
+        Widget parent = w.getParent();
+        if (parent != null && !isMouseOver(parent, mouseX, mouseY))
+            return false;
+        return isMouseOver(w instanceof AlignedWidget aw ? aw.getAlignedX() : w.getX(), w.getY(), w.getWidth(), w.getHeight(), mouseX, mouseY);
     }
 
     public static boolean isMouseOver(int x, int y, int width, int height, int mouseX, int mouseY) {
@@ -238,6 +242,13 @@ public class UIHelper {
             s.popup = popup;
             s.addWidgetOnTop(popup);
         }
+    }
+
+    public static PopupWidget getScreenPopup() {
+        Screen s = Client.getInstance().screen;
+        if (s == null)
+            return null;
+        return s.popup;
     }
 
     public static void focusWidget(SelectableWidget w) {

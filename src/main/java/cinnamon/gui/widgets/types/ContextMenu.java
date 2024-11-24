@@ -67,6 +67,7 @@ public class ContextMenu extends PopupWidget {
         ContextButton button = new ContextButton(getWidthForText(name), elementHeight, name, tooltip, action, widgets.size(), this);
         this.addWidget(button);
         this.actions.add(button);
+        button.setParent(null);
         return this;
     }
 
@@ -76,7 +77,9 @@ public class ContextMenu extends PopupWidget {
     }
 
     public ContextMenu addSubMenu(Text name, ContextMenu subContext) {
-        this.addWidget(new ContextSubMenu(getWidthForText(name), elementHeight, name, subContext, widgets.size(), this));
+        ContextSubMenu submenu = new ContextSubMenu(getWidthForText(name), elementHeight, name, subContext, widgets.size(), this);
+        this.addWidget(submenu);
+        submenu.setParent(null);
         return this;
     }
 

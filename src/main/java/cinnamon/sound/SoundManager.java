@@ -4,10 +4,7 @@ import cinnamon.render.Camera;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import org.joml.Vector3f;
-import org.lwjgl.openal.AL;
-import org.lwjgl.openal.ALC;
-import org.lwjgl.openal.ALCCapabilities;
-import org.lwjgl.openal.ALCapabilities;
+import org.lwjgl.openal.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,20 +14,47 @@ import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.openal.AL11.AL_LINEAR_DISTANCE_CLAMPED;
 import static org.lwjgl.openal.AL11.alSpeedOfSound;
 import static org.lwjgl.openal.ALC10.*;
+import static org.lwjgl.openal.ALC11.ALC_ALL_DEVICES_SPECIFIER;
 
 public class SoundManager {
 
-    private final List<SoundInstance> sounds = new ArrayList<>();
-    private long context;
-    private long device;
-    private boolean initalized;
+    private static final List<SoundInstance> sounds = new ArrayList<>();
+    private static final List<String> devices = new ArrayList<>();
+    private static long context;
+    private static long device;
+    private static boolean initialized;
 
-    public void init() {
+    public static void init(int deviceIndex) {
+        if (initialized)
+            return;
+
         LOGGER.info("Initializing OpenAL sound engine...");
 
+        devices.clear();
+        List<String> newDevices = ALUtil.getStringList(0, ALC_ALL_DEVICES_SPECIFIER);
+
+        if (newDevices == null) {
+            LOGGER.warn("No devices found! Disabling all sounds...");
+            return;
+        }
+
+        devices.addAll(newDevices);
+
+        //list all OpenAL devices
+        LOGGER.debug("Available OpenAL devices:");
+        for (String device : devices)
+            LOGGER.debug(device);
+
         //initialize audio device
-        String defaultDevice = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
-        device = alcOpenDevice(defaultDevice);
+        String deviceToUse;
+        if (deviceIndex >= 0 && deviceIndex < devices.size())
+            deviceToUse = devices.get(deviceIndex);
+        else {
+            String defaultDevice = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
+            deviceToUse = defaultDevice != null ? defaultDevice : devices.getFirst();
+        }
+
+        device = alcOpenDevice(deviceToUse);
 
         try {
             checkALCError(device);
@@ -54,14 +78,16 @@ public class SoundManager {
             alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
 
         alSpeedOfSound(1f);
-        initalized = true;
+        initialized = true;
         LOGGER.info("OpenAL version: {}", alcGetInteger(0, ALC_MAJOR_VERSION) + "." + alcGetInteger(0, ALC_MINOR_VERSION));
     }
 
-    public void free() {
+    public static void free() {
+        stopAll();
         alcDestroyContext(context);
         alcCloseDevice(device);
         Sound.freeAllSounds();
+        initialized = false;
     }
 
     static void checkALError() {
@@ -76,8 +102,8 @@ public class SoundManager {
             throw new RuntimeException("(" + err + ") " + alcGetString(device, err));
     }
 
-    public void tick(Camera camera) {
-        if (!initalized)
+    public static void tick(Camera camera) {
+        if (!initialized)
             return;
 
         checkALError();
@@ -105,12 +131,14 @@ public class SoundManager {
         });
     }
 
-    public SoundInstance playSound(Resource resource, SoundCategory category) {
-        return this.playSound(resource, category, null);
+    public static SoundInstance playSound(Resource resource, SoundCategory category) {
+        return playSound(resource, category, null);
     }
 
-    public SoundInstance playSound(Resource resource, SoundCategory category, Vector3f position) {
-        if (!initalized)
+    public static SoundInstance playSound(Resource resource, SoundCategory category, Vector3f position) {
+        LOGGER.debug("Playing sound: {}", resource.getPath());
+
+        if (!initialized)
             return new SoundInstance(category);
 
         SoundSource source = new SoundSource(resource, category, position);
@@ -119,30 +147,49 @@ public class SoundManager {
         return source;
     }
 
-    public void stopAll() {
-        for (SoundInstance sound : sounds)
+    public static void stopAll() {
+        for (SoundInstance sound : sounds) {
             sound.stop();
+            sound.free();
+        }
+        sounds.clear();
     }
 
-    public void pauseAll() {
+    public static void pauseAll() {
         for (SoundInstance sound : sounds)
             sound.pause();
     }
 
-    public void resumeAll() {
+    public static void resumeAll() {
         for (SoundInstance sound : sounds)
             sound.play();
     }
 
-    public int getSoundCount() {
+    public static int getSoundCount() {
         return sounds.size();
     }
 
-    public void updateVolumes(SoundCategory category) {
+    public static void updateVolumes(SoundCategory category) {
         //update the sounds volume
         for (SoundInstance sound : sounds) {
             if (category == SoundCategory.MASTER || sound.getCategory() == category)
                 sound.volume(sound.getVolume());
         }
+    }
+
+    public static void swapDevice(int deviceIndex) {
+        free();
+        init(deviceIndex);
+    }
+
+    public static List<String> getDevices() {
+        String sub = "OpenAL Soft on ";
+        int subLen = sub.length();
+
+        List<String> deviceList = new ArrayList<>();
+        for (String device : devices)
+            deviceList.add(device.substring(subLen));
+
+        return deviceList;
     }
 }

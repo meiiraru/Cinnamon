@@ -6,6 +6,7 @@ public abstract class Widget {
 
     private int x, y;
     private int width, height;
+    private Widget parent;
 
     public Widget(int x, int y, int width, int height) {
         this.x = x;
@@ -68,5 +69,13 @@ public abstract class Widget {
 
     public void translate(int x, int y) {
         setPos(getX() + x, getY() + y);
+    }
+
+    public void setParent(Widget parent) {
+        this.parent = parent;
+    }
+
+    public Widget getParent() {
+        return parent;
     }
 }

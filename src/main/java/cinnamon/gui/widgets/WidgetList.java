@@ -12,8 +12,6 @@ import cinnamon.utils.UIHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-
 public class WidgetList extends ContainerGrid {
 
     private static final Resource TEXTURE = new Resource("textures/gui/widgets/container_background.png");
@@ -185,11 +183,6 @@ public class WidgetList extends ContainerGrid {
     public void setHeight(int height) {
         super.setHeight(height);
         updateScrollbar();
-    }
-
-    @Override
-    public GUIListener mousePress(int button, int action, int mods) {
-        return isHovered() || action != GLFW_PRESS ? super.mousePress(button, action, mods) : null;
     }
 
     @Override

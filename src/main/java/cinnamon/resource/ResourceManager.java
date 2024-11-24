@@ -15,6 +15,7 @@ import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.Texture;
 import cinnamon.sound.Sound;
+import cinnamon.sound.SoundManager;
 import cinnamon.world.SkyBox;
 
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ public class ResourceManager {
 
         FREE_EVENTS.add(Texture::freeAll);
         FREE_EVENTS.add(CubeMap::freeAll);
+        FREE_EVENTS.add(SoundManager::stopAll);
         FREE_EVENTS.add(Sound::freeAllSounds);
         FREE_EVENTS.add(Shader::freeCache);
         FREE_EVENTS.add(Shaders::freeAll);

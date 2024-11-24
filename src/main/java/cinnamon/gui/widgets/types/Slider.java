@@ -24,6 +24,7 @@ public class Slider extends SelectableWidget {
     public static final BiFunction<Float, Integer, Text> DEFAULT_TOOLTIP = (f, i) -> Text.of(i);
 
     private float value = 0f;
+    private float clickValue = 0f;
     private int steps = 1;
     private float stepValue = 0.05f;
     private float scrollAmount = 0.05f;
@@ -38,6 +39,7 @@ public class Slider extends SelectableWidget {
     private boolean mouseSelected;
     private float animationValue;
     private boolean showCurrentTooltip;
+    private boolean previewHoverValue;
     private boolean invertY;
 
     protected int handleSize = 8;
@@ -188,6 +190,8 @@ public class Slider extends SelectableWidget {
         Window w = Client.getInstance().window;
 
         if (mouseSelected) {
+            clickValue = value;
+
             if (updateValueOnClick())
                 updatePercentage(getValueAtMouse(w.mouseX, w.mouseY));
 
@@ -249,8 +253,17 @@ public class Slider extends SelectableWidget {
             switch (key) {
                 case GLFW_KEY_LEFT -> {return selectNext(true, action, mods);}
                 case GLFW_KEY_RIGHT -> {return selectNext(false, action, mods);}
-                case GLFW_KEY_DOWN -> {return selectNext(!invertY, action, mods);}
-                case GLFW_KEY_UP -> {return selectNext(invertY, action, mods);}
+                case GLFW_KEY_DOWN, GLFW_KEY_PAGE_DOWN -> {return selectNext(!invertY, action, mods);}
+                case GLFW_KEY_UP, GLFW_KEY_PAGE_UP -> {return selectNext(invertY, action, mods);}
+                case GLFW_KEY_HOME -> {updateValue(min); return this;}
+                case GLFW_KEY_END -> {updateValue(max); return this;}
+                case GLFW_KEY_ESCAPE -> {
+                    if (mouseSelected) {
+                        mouseSelected = false;
+                        updatePercentage(clickValue);
+                        return this;
+                    }
+                }
             }
         }
 
@@ -457,6 +470,10 @@ public class Slider extends SelectableWidget {
         this.invertY = invert;
     }
 
+    public void setPreviewHoverValueTooltip(boolean bool) {
+        this.previewHoverValue = bool;
+    }
+
     @Override
     public void renderTooltip(MatrixStack matrices, Font font) {
         if (!showTooltip || !isHovered()) {
@@ -466,7 +483,7 @@ public class Slider extends SelectableWidget {
 
         //grab text
         Window window = Client.getInstance().window;
-        float value = showCurrentTooltip ? getAnimationValue() : getValueAtMouse(window.mouseX, window.mouseY);
+        float value = showCurrentTooltip || !previewHoverValue ? getAnimationValue() : getValueAtMouse(window.mouseX, window.mouseY);
         Text tooltip = tooltipFunction.apply(value, Math.round(Maths.lerp(min, max, value)));
 
         if (tooltip == null || tooltip.isEmpty())

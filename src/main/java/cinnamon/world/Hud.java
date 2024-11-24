@@ -13,6 +13,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shaders;
 import cinnamon.settings.Settings;
+import cinnamon.sound.SoundManager;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
@@ -373,7 +374,7 @@ public class Hud {
     private static String debugLeftText() {
         Client c = Client.getInstance();
 
-        int soundCount = c.soundManager.getSoundCount();
+        int soundCount = SoundManager.getSoundCount();
 
         WorldClient w = c.world;
         Player p = w.player;

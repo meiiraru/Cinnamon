@@ -39,6 +39,9 @@ public class SoundSource extends SoundInstance {
 
     @Override
     public void free() {
+        if (isRemoved())
+            return;
+
         alDeleteSources(source);
         removed = true;
     }
@@ -50,55 +53,64 @@ public class SoundSource extends SoundInstance {
 
     @Override
     public void play() {
-        alSourcePlay(source);
+        if (!isRemoved())
+            alSourcePlay(source);
     }
 
     @Override
     public void pause() {
-        alSourcePause(source);
+        if (!isRemoved())
+            alSourcePause(source);
     }
 
     @Override
     public void stop() {
-        alSourceStop(source);
+        if (!isRemoved())
+            alSourceStop(source);
     }
 
     @Override
     public boolean isPlaying() {
-        return alGetSourcei(source, AL_SOURCE_STATE) == AL_PLAYING;
+        return !isRemoved() && alGetSourcei(source, AL_SOURCE_STATE) == AL_PLAYING;
     }
 
     @Override
     public boolean isPaused() {
-        return alGetSourcei(source, AL_SOURCE_STATE) == AL_PAUSED;
+        return !isRemoved() && alGetSourcei(source, AL_SOURCE_STATE) == AL_PAUSED;
     }
 
     @Override
     public boolean isStopped() {
-        return alGetSourcei(source, AL_SOURCE_STATE) == AL_STOPPED;
+        return isRemoved() || alGetSourcei(source, AL_SOURCE_STATE) == AL_STOPPED;
     }
 
     @Override
     public SoundSource pos(Vector3f pos) {
-        alSource3f(source, AL_POSITION, pos.x, pos.y, pos.z);
+        if (!isRemoved())
+            alSource3f(source, AL_POSITION, pos.x, pos.y, pos.z);
         return this;
     }
 
     @Override
     public SoundSource pitch(float pitch) {
-        alSourcef(source, AL_PITCH, pitch);
+        if (!isRemoved())
+            alSourcef(source, AL_PITCH, pitch);
         return this;
     }
 
     @Override
     public SoundSource loop(boolean loop) {
-        alSourcei(source, AL_LOOPING, loop ? AL_TRUE : AL_FALSE);
+        if (!isRemoved())
+            alSourcei(source, AL_LOOPING, loop ? AL_TRUE : AL_FALSE);
         return this;
     }
 
     @Override
     public SoundSource volume(float volume) {
         super.volume(volume);
+
+        if (isRemoved())
+            return this;
 
         //calculate new volume
         SoundCategory category = getCategory();
@@ -113,24 +125,27 @@ public class SoundSource extends SoundInstance {
 
     @Override
     public SoundSource distance(float distance) {
-        alSourcef(source, AL_REFERENCE_DISTANCE, distance);
+        if (!isRemoved())
+            alSourcef(source, AL_REFERENCE_DISTANCE, distance);
         return this;
     }
 
     @Override
     public SoundSource maxDistance(float maxDistance) {
-        alSourcef(source, AL_MAX_DISTANCE, maxDistance);
+        if (!isRemoved())
+            alSourcef(source, AL_MAX_DISTANCE, maxDistance);
         return this;
     }
 
     @Override
     public SoundSource setPlaybackTime(long millis) {
-        alSourcef(source, AL_SEC_OFFSET, millis / 1000f);
+        if (!isRemoved())
+            alSourcef(source, AL_SEC_OFFSET, millis / 1000f);
         return this;
     }
 
     @Override
     public long getPlaybackTime() {
-        return (long) (alGetSourcef(source, AL_SEC_OFFSET) * 1000f);
+        return isRemoved() ? 0 : (long) (alGetSourcef(source, AL_SEC_OFFSET) * 1000f);
     }
 }

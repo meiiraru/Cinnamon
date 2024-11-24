@@ -11,7 +11,6 @@ import static org.lwjgl.glfw.GLFW.*;
 public class PopupWidget extends ContainerGrid {
 
     private boolean open;
-    private Widget parent;
     private boolean hovered;
     private boolean closeOnSelect = true;
     private Consumer<PopupWidget> openListener;
@@ -38,7 +37,7 @@ public class PopupWidget extends ContainerGrid {
         if (closeListener != null)
             closeListener.accept(this);
 
-        if ((forceFocusParent || wasParentFocused) && parent instanceof SelectableWidget sw)
+        if ((forceFocusParent || wasParentFocused) && getParent() instanceof SelectableWidget sw)
             UIHelper.focusWidget(sw);
     }
 
@@ -46,21 +45,13 @@ public class PopupWidget extends ContainerGrid {
         this.open = true;
         reset();
 
-        wasParentFocused = parent instanceof SelectableWidget sw && sw.isFocused();
+        wasParentFocused = getParent() instanceof SelectableWidget sw && sw.isFocused();
 
         if (openListener != null)
             openListener.accept(this);
     }
 
     protected void reset() {}
-
-    public Widget getParent() {
-        return parent;
-    }
-
-    public void setParent(Widget parent) {
-        this.parent = parent;
-    }
 
     public void setOpenListener(Consumer<PopupWidget> openListener) {
         this.openListener = openListener;
@@ -80,7 +71,7 @@ public class PopupWidget extends ContainerGrid {
             return;
 
         matrices.push();
-        matrices.translate(0f, 0f, parent instanceof PopupWidget ? 1f : 500f);
+        matrices.translate(0f, 0f, getParent() instanceof PopupWidget ? 1f : 500f);
 
         //render this
         renderWidget(matrices, mouseX, mouseY, delta);

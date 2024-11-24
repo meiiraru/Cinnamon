@@ -5,6 +5,7 @@ import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.types.Button;
+import cinnamon.gui.widgets.types.ComboBox;
 import cinnamon.gui.widgets.types.Slider;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
@@ -61,7 +62,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
     public void removed() {
         super.removed();
         //stop the sound when the screen is closed
-        if (hasSound())
+        if (soundData != null)
             soundData.stop();
         //save settings if we changed the volume
         if (initialVolume != SoundCategory.MUSIC.getVolume())
@@ -93,7 +94,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
         //play/pause button
         playPauseButton = new Button(0, 0, 16, 16, null, button -> {
-            if (hasSound()) {
+            if (soundData != null) {
                 if (soundData.isPlaying()) {
                     soundData.pause();
                     button.setImage(PLAY);
@@ -107,7 +108,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
                 playSound(playlistIndex);
             }
         });
-        boolean pause = hasSound() && soundData.isPlaying();
+        boolean pause = soundData != null && soundData.isPlaying();
         playPauseButton.setImage(pause ? PAUSE : PLAY);
         playPauseButton.setTooltip(Text.of(pause ? "Pause" : "Play"));
         playPauseButton.setSilent(true);
@@ -115,7 +116,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
         //stop button
         Button stopButton = new Button(0, 0, 16, 16, null, button -> {
-            if (hasSound()) {
+            if (soundData != null) {
                 soundData.pause();
                 playPauseButton.setImage(PLAY);
                 slider.updateValue(0);
@@ -129,7 +130,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         //repeat-mode button
         Button repeatButton = new Button(0, 0, 16, 16, null, button -> {
             repeat = (repeat + 1) % 3;
-            if (hasSound())
+            if (soundData != null)
                 soundData.loop(repeat == 1);
             switch (repeat) {
                 case 1 -> {
@@ -173,23 +174,40 @@ public class SoundVisualizerScreen extends ParentedScreen {
         slider = new Slider((width - 240) / 2, height - 8 - 4, 240);
         slider.setMax(sound != null ? sound.duration : 1);
         slider.setChangeListener((f, i) -> {
-            if (hasSound())
+            if (soundData != null)
                 soundData.setPlaybackTime(Math.max(i - 1, 0));
         });
         slider.setUpdateListener((f, i) -> {
-            if (hasSound() && !soundData.isPlaying())
+            if (soundData != null && !soundData.isPlaying())
                 soundData.setPlaybackTime(Math.max(i - 1, 0));
         });
         slider.setTooltipFunction((f, i) -> Text.of("%d:%02d".formatted(i / 1000 / 60, (i / 1000) % 60)));
-        slider.setValue(hasSound() ? (int) soundData.getPlaybackTime() : 0);
+        slider.setValue(soundData == null ? 0 : (int) soundData.getPlaybackTime());
+        slider.setPreviewHoverValueTooltip(true);
         addWidget(slider);
 
         //volume slider
         Slider volume = new Slider(4, height - 8 - 4, 50);
         volume.updatePercentage(SoundCategory.MUSIC.getVolume());
-        volume.setUpdateListener((f, i) -> SoundCategory.MUSIC.setVolume(client.soundManager, f));
+        volume.setUpdateListener((f, i) -> SoundCategory.MUSIC.setVolume(f));
         volume.setTooltipFunction((f, i) -> Text.of("Volume: " + i));
         addWidget(volume);
+
+        //output device
+        ComboBox device = new ComboBox(4, volume.getY() - 4 - 16, 50, 16);
+        for (String string : SoundManager.getDevices())
+            device.addEntry(Text.of(string));
+        device.setChangeListener(i -> {
+            boolean playing = soundData != null && soundData.isPlaying();
+            float f = slider.getPercentage();
+
+            SoundManager.swapDevice(i);
+            playSound(playlistIndex);
+
+            slider.setPercentage(f);
+            if (!playing) playPauseButton.onRun();
+        });
+        addWidget(device);
 
         super.init();
     }
@@ -241,7 +259,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
     private void drawTexts(MatrixStack matrices) {
         int songCount = playlist.size();
-        int playTime = hasSound() ? (int) soundData.getPlaybackTime() : slider.getValue();
+        int playTime = soundData != null ? (int) soundData.getPlaybackTime() : slider.getValue();
 
         //draw top text
         font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), 4, Text.of("Drop Ogg Vorbis files to play!").withStyle(Style.EMPTY.color(songCount > 0 ? Colors.LIGHT_GRAY : Colors.WHITE)), Alignment.CENTER);
@@ -309,17 +327,13 @@ public class SoundVisualizerScreen extends ParentedScreen {
         VertexConsumer.GUI.consume(vertices);
     }
 
-    private boolean hasSound() {
-        return soundData != null && !soundData.isRemoved();
-    }
-
 
     // -- sound logic -- //
 
 
     private void playSound(int index) {
         //stop the current sound
-        if (hasSound())
+        if (soundData != null)
             soundData.stop();
 
         //index out of bounds (shouldn't happen ever)
@@ -333,7 +347,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
         //save properties and play the sound instance
         sound = Sound.of(resource);
-        soundData = client.soundManager.playSound(resource, SoundCategory.MUSIC);
+        soundData = SoundManager.playSound(resource, SoundCategory.MUSIC);
         soundData.loop(repeat == 1);
 
         //update widgets

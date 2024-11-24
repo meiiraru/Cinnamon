@@ -245,9 +245,11 @@ public abstract class Curve {
 
         @Override
         protected List<Vector3f> calculateCurve(List<Vector3f> controlPoints) {
+            if (controlPoints.size() < 2)
+                return new ArrayList<>();
+
             List<Vector3f> curve = new ArrayList<>(controlPoints);
-            if (loop && !controlPoints.isEmpty())
-                curve.add(controlPoints.getFirst());
+            if (loop) curve.add(controlPoints.getFirst());
             return curve;
         }
     }
@@ -406,7 +408,7 @@ public abstract class Curve {
             int size = controlPoints.size();
             List<Vector3f> curve = new ArrayList<>();
 
-            if (size < 1)
+            if (size < 2)
                 return curve;
 
             int len = loop ? size + 1 : size;

@@ -16,32 +16,33 @@ public class Container extends Widget implements Tickable, GUIListener {
         super(x, y, 0, 0);
     }
 
-    public void addWidget(Widget widget) {
-        this.widgets.add(widget);
-        if (widget instanceof GUIListener el)
-            this.listeners.add(el);
-        if (widget instanceof Container c)
+    protected void addWidgetAtIndex(int wi, int li, Widget w) {
+        this.widgets.add(wi, w);
+        if (w instanceof GUIListener el)
+            this.listeners.add(li, el);
+        if (w instanceof Container c)
             c.updateDimensions();
         updateDimensions();
+        w.setParent(this);
+    }
+
+    public void addWidget(Widget widget) {
+        addWidgetAtIndex(this.widgets.size(), this.listeners.size(), widget);
+    }
+
+    public void addWidgets(Widget... widgets) {
+        for (Widget widget : widgets)
+            addWidget(widget);
     }
 
     public void addWidgetOnTop(Widget widget) {
-        this.widgets.addFirst(widget);
-        if (widget instanceof GUIListener el)
-            this.listeners.addFirst(el);
-        if (widget instanceof Container c)
-            c.updateDimensions();
-        updateDimensions();
+        addWidgetAtIndex(0, 0, widget);
     }
 
     public void insertWidget(Widget widget, Widget position) {
-        int index = this.widgets.indexOf(position);
-        this.widgets.add(index + 1, widget);
-        if (widget instanceof GUIListener el)
-            this.listeners.add(index, el);
-        if (widget instanceof Container c)
-            c.updateDimensions();
-        updateDimensions();
+        int wi = this.widgets.indexOf(position) + 1;
+        int li = position instanceof GUIListener l ? this.listeners.indexOf(l) + 1 : this.listeners.size();
+        addWidgetAtIndex(wi, li, widget);
     }
 
     public void removeWidget(Widget widget) {
@@ -49,6 +50,7 @@ public class Container extends Widget implements Tickable, GUIListener {
         if (widget instanceof GUIListener el)
             this.listeners.remove(el);
         updateDimensions();
+        widget.setParent(null);
     }
 
     public GUIListener getWidgetAt(int x, int y) {
@@ -99,6 +101,9 @@ public class Container extends Widget implements Tickable, GUIListener {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        //int x = this instanceof AlignedWidget aw ? aw.getAlignedX() : getX();
+        //VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, getY(), x + getWidth(), getY() + getHeight(), 0x88FF72AD));
+
         for (Widget widget : this.widgets)
             widget.render(matrices, mouseX, mouseY, delta);
     }

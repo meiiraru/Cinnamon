@@ -51,7 +51,7 @@ public class Settings {
                     return sound.getVolume();
                 }
             };
-            setting.setListener(v -> sound.setVolume(Client.getInstance().soundManager, v));
+            setting.setListener(sound::setVolume);
         }
     }
 

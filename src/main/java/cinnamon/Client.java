@@ -49,7 +49,6 @@ public class Client {
     public UUID playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
 
     //objects
-    public SoundManager soundManager;
     public Window window;
     public Camera camera;
     public Font font;
@@ -60,8 +59,7 @@ public class Client {
 
     public void init() {
         this.window.setIcon(new Resource("textures/icon.png"));
-        this.soundManager = new SoundManager();
-        this.soundManager.init();
+        SoundManager.init(-1);
         Settings.load();
         this.windowResize(window.width, window.height);
         this.camera = new Camera();
@@ -76,7 +74,7 @@ public class Client {
         //disconnect();
         if (screen != null) screen.removed();
         this.font.free();
-        this.soundManager.free();
+        SoundManager.free();
         ResourceManager.free();
     }
 
@@ -139,7 +137,7 @@ public class Client {
         //ServerConnection.tick();
         Await.tick();
 
-        soundManager.tick(camera);
+        SoundManager.tick(camera);
 
         if (world != null)
             world.tick();
