@@ -30,15 +30,14 @@ import cinnamon.world.SkyBox;
 import java.util.function.BiFunction;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glClear;
 
 public class ModelViewerScreen extends ParentedScreen {
 
     private static final int listWidth = 144;
     private static final float scaleFactor = 3f;
-    private static final SkyBox skybox = new SkyBox();
-    private static final Framebuffer modelBuffer = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
+
+    private final Framebuffer modelBuffer = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
+    private final SkyBox skybox = new SkyBox();
 
     //current opened model
     private ModelRenderer currentModel = null;
@@ -111,6 +110,16 @@ public class ModelViewerScreen extends ParentedScreen {
         animationList.setTooltip(Text.of("Animations"));
         addWidget(animationList);
 
+        //skyboxes
+        ComboBox skyboxes = new ComboBox(materials.getX(), animationList.getY() + animationList.getHeight() + 4, animationList.getWidth(), animationList.getHeight());
+        for (SkyBox.Type value : SkyBox.Type.values())
+            skyboxes.addEntry(Text.of(value.name()), null, b -> skybox.type = value);
+        skyboxes.setTooltip(Text.of("Skybox"));
+        addWidget(skyboxes);
+
+        skybox.type = SkyBox.Type.CLOUDS;
+        skyboxes.select(skybox.type.ordinal());
+
         super.init();
 
         //set initial model
@@ -121,14 +130,17 @@ public class ModelViewerScreen extends ParentedScreen {
     }
 
     @Override
+    public void removed() {
+        super.removed();
+        modelBuffer.free();
+    }
+
+    @Override
     protected void preRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.preRender(matrices, mouseX, mouseY, delta);
 
         //render model
         renderModel(matrices);
-
-        //clear depth buffer
-        glClear(GL_DEPTH_BUFFER_BIT);
     }
 
     @Override
@@ -148,7 +160,7 @@ public class ModelViewerScreen extends ParentedScreen {
         matrices.push();
 
         //position
-        matrices.translate(posX, posY, -200);
+        matrices.translate(posX, -posY, -200);
 
         //scale
         matrices.scale(scale, scale, scale);
@@ -178,9 +190,9 @@ public class ModelViewerScreen extends ParentedScreen {
         matrices.pop();
 
         //draw framebuffer result
-        //UIHelper.pushScissors(listWidth, 4, width - listWidth - 4, height - 8);
+        UIHelper.pushScissors(listWidth, 4, width - listWidth - 4, height - 8);
         VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, listWidth / 2f, 0, width, height, 0, 0f, 1f, 1f, 0f), modelBuffer.getColorBuffer());
-        //UIHelper.popScissors();
+        UIHelper.popScissors();
     }
 
     private void setModel(Resource model, String name) {
@@ -207,12 +219,6 @@ public class ModelViewerScreen extends ParentedScreen {
         scale = 92;
         rotX = -22.5f;
         rotY = 30;
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        super.resize(width, height);
-        modelBuffer.resize(client.window.width, client.window.height);
     }
 
     @Override

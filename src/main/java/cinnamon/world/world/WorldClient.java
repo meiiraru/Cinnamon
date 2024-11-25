@@ -181,6 +181,7 @@ public class WorldClient extends World {
     @Override
     public void close() {
         //ServerConnection.close();
+        shadowBuffer.free();
         client.disconnect();
     }
 
