@@ -2,7 +2,7 @@ package cinnamon.world.entity.collectable;
 
 import cinnamon.Client;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.model.ModelRenderer;
+import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionResolver;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.Entity;
@@ -15,7 +15,7 @@ public abstract class Collectable extends PhysEntity {
 
     private static final Vector3f BOUNCINESS = new Vector3f(0.5f, 0.5f, 0.5f);
 
-    public Collectable(UUID uuid, ModelRenderer model) {
+    public Collectable(UUID uuid, Resource model) {
         super(uuid, model);
     }
 

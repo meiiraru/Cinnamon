@@ -189,6 +189,7 @@ public class Client {
         queueTick(() -> {
             this.world = null;
             this.camera.setEntity(null);
+            this.camera.reset();
             Toast.clear(Toast.ToastType.WORLD);
             this.setScreen(new MainMenu());
         });

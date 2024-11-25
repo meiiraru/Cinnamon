@@ -1,6 +1,7 @@
 package cinnamon.world.terrain;
 
 import cinnamon.model.GeometryHelper;
+import cinnamon.model.ModelManager;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.MatrixStack;
@@ -28,7 +29,7 @@ public class Terrain extends WorldObject {
 
     public Terrain(TerrainRegistry type) {
         this.type = type;
-        this.model = getType().model;
+        this.model = ModelManager.load(getType().resource);
         this.updateAABB();
     }
 

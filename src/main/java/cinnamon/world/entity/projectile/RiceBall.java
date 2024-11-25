@@ -22,7 +22,7 @@ public class RiceBall extends Projectile {
     public static final int SPLIT_AMOUNT = 15;
 
     public RiceBall(UUID uuid, UUID owner) {
-        super(uuid, EntityModelRegistry.RICE_BALL.model, DAMAGE, LIFETIME, SPEED, 0f, owner);
+        super(uuid, EntityModelRegistry.RICE_BALL.resource, DAMAGE, LIFETIME, SPEED, 0f, owner);
     }
 
     @Override

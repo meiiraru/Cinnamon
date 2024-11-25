@@ -31,7 +31,7 @@ public class Potato extends Projectile {
     private int state = 0, easing = 0;
 
     public Potato(UUID uuid, UUID owner) {
-        super(uuid, EntityModelRegistry.POTATO.model, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
+        super(uuid, EntityModelRegistry.POTATO.resource, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
     }
 
     @Override

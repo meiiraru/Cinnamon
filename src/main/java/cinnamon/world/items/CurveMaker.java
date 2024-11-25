@@ -3,13 +3,11 @@ package cinnamon.world.items;
 import cinnamon.Client;
 import cinnamon.gui.Toast;
 import cinnamon.model.GeometryHelper;
-import cinnamon.model.ModelManager;
+import cinnamon.registry.ItemModelRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Text;
 import cinnamon.utils.Curve;
-import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
@@ -23,13 +21,10 @@ import static cinnamon.Client.LOGGER;
 
 public class CurveMaker extends CooldownItem {
 
-    private static final String ID = "Curve Maker";
-    private static final ModelRenderer MODEL = ModelManager.load(new Resource("models/items/curve_maker/curve_maker.obj"));
-
     private final Curve curve = new Curve.BSpline().loop(true).steps(10);
 
     public CurveMaker(int stackCount, int depleatCooldown, int useCooldown) {
-        super(ID, stackCount, MODEL, depleatCooldown, useCooldown);
+        super(ItemModelRegistry.CURVE_MAKER.id, stackCount, ItemModelRegistry.CURVE_MAKER.resource, depleatCooldown, useCooldown);
     }
 
     @Override

@@ -13,7 +13,7 @@ public class Rice extends Projectile {
     public static final int DAMAGE = 2;
 
     public Rice(UUID uuid, UUID owner, int lifetime, float speed, float critChance) {
-        super(uuid, EntityModelRegistry.RICE.model, DAMAGE, lifetime, speed, critChance, owner);
+        super(uuid, EntityModelRegistry.RICE.resource, DAMAGE, lifetime, speed, critChance, owner);
     }
 
     public Rice(UUID uuid, UUID owner) {

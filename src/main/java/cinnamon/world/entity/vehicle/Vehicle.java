@@ -1,6 +1,6 @@
 package cinnamon.world.entity.vehicle;
 
-import cinnamon.render.model.ModelRenderer;
+import cinnamon.utils.Resource;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.LivingEntity;
@@ -11,7 +11,7 @@ public abstract class Vehicle extends PhysEntity {
 
     private final int maxRiders;
 
-    public Vehicle(UUID uuid, ModelRenderer model, int maxRiders) {
+    public Vehicle(UUID uuid, Resource model, int maxRiders) {
         super(uuid, model);
         this.maxRiders = maxRiders;
     }

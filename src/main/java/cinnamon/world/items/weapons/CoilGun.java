@@ -1,7 +1,6 @@
 package cinnamon.world.items.weapons;
 
-import cinnamon.model.ModelManager;
-import cinnamon.render.model.ModelRenderer;
+import cinnamon.registry.ItemModelRegistry;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
@@ -13,12 +12,10 @@ import java.util.UUID;
 
 public class CoilGun extends Weapon {
 
-    private static final String ID = "Coil Gun";
-    private static final ModelRenderer MODEL = ModelManager.load(new Resource("models/items/coil_gun/coil_gun.obj"));
     private static final Resource SHOOT_SOUND = new Resource("sounds/pop.ogg");
 
     public CoilGun(int maxRounds, int reloadTime, int useCooldown) {
-        super(ID, MODEL, maxRounds, reloadTime, useCooldown);
+        super(ItemModelRegistry.COIL_GUN.id, ItemModelRegistry.COIL_GUN.resource, maxRounds, reloadTime, useCooldown);
     }
 
     @Override

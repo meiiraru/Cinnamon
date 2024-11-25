@@ -27,13 +27,15 @@ public class ComboBox extends Button {
     protected Consumer<Integer> changeListener;
     protected boolean closeOnSelect = true;
 
+    private final ContextMenu contextMenu, emptyMenu;
+
     public ComboBox(int x, int y, int width, int height) {
         super(x, y, width, height, Text.of(""), button -> {
             ComboBox box = (ComboBox) button;
             box.openPopup(box.getX(), box.getY() + box.getHeight());
         });
 
-        ContextMenu ctx = new ContextMenu(width, height) {
+        contextMenu = new ContextMenu(width, height) {
             @Override
             public GUIListener mousePress(int button, int action, int mods) {
                 boolean wasOpen = isOpen();
@@ -41,7 +43,17 @@ public class ComboBox extends Button {
                 return sup == null && wasOpen && ComboBox.this.isHovered() ? this : sup;
             }
         };
-        super.setPopup(ctx);
+
+        emptyMenu = new ContextMenu(width, height) {
+            @Override
+            public GUIListener mousePress(int button, int action, int mods) {
+                boolean wasOpen = isOpen();
+                GUIListener sup = super.mousePress(button, action, mods);
+                return sup == null && wasOpen && ComboBox.this.isHovered() ? this : sup;
+            }
+        };
+        emptyMenu.addAction(Text.of("-"), null, null);
+        super.setPopup(emptyMenu);
     }
 
     @Override
@@ -106,26 +118,38 @@ public class ComboBox extends Button {
         int index = indexes.size();
         indexes.add(name);
 
-        ((ContextMenu) getPopup()).addAction(name, tooltip, button -> {
+        contextMenu.addAction(name, tooltip, button -> {
             select(index);
             if (action != null)
                 action.accept(button);
         });
 
+        super.setPopup(contextMenu);
         return this;
     }
 
     public ComboBox addDivider() {
-        ((ContextMenu) getPopup()).addDivider();
+        contextMenu.addDivider();
+        super.setPopup(contextMenu);
         return this;
     }
 
     /*
     public ComboBox addSubMenu(Text name, ContextMenu subMenu) {
-        ((ContextMenu) getPopup()).addSubMenu(name, subMenu);
+        contextMenu.addSubMenu(name, subMenu);
+        super.setPopup(contextMenu);
         return this;
     }
     */
+
+    public void clearEntries() {
+        contextMenu.clearActions();
+        super.setPopup(emptyMenu);
+
+        indexes.clear();
+        selectedText = Text.of("-");
+        selected = -1;
+    }
 
     private void updateTexts() {
         for (int i = 0; i < indexes.size(); i++) {
@@ -137,15 +161,8 @@ public class ComboBox extends Button {
                 text = Text.empty().withStyle(Style.EMPTY.color(GUIStyle.accentColor)).append(text);
 
             //apply text
-            ((ContextMenu) getPopup()).getAction(i).setMessage(text);
+            contextMenu.getAction(i).setMessage(text);
         }
-    }
-
-    @Override
-    protected void openPopup(int x, int y) {
-        PopupWidget popup = getPopup();
-        UIHelper.setPopup(x, y, popup);
-        popup.open();
     }
 
     @Override
@@ -155,7 +172,7 @@ public class ComboBox extends Button {
             i += (int) Math.signum(-y);
             i = Maths.modulo(i, indexes.size());
             select(i);
-            ((ContextMenu) getPopup()).getAction(i).onRun();
+            contextMenu.getAction(i).onRun();
             return this;
         }
 

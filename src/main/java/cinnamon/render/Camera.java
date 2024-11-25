@@ -149,6 +149,11 @@ public class Camera {
         this.entity = entity;
     }
 
+    public void reset() {
+        setPos(0f, 0f, 0f);
+        setRot(0f, 0f);
+    }
+
     public Vector3f getPos() {
         return pos;
     }

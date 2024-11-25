@@ -14,9 +14,8 @@ public class Cart extends Vehicle {
 
     private boolean isRailed;
 
-
     public Cart(UUID uuid) {
-        super(uuid, EntityModelRegistry.CART.model, 1);
+        super(uuid, EntityModelRegistry.CART.resource, 1);
     }
 
     @Override

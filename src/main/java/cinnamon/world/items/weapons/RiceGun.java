@@ -1,8 +1,6 @@
 package cinnamon.world.items.weapons;
 
-import cinnamon.model.ModelManager;
-import cinnamon.render.model.ModelRenderer;
-import cinnamon.utils.Resource;
+import cinnamon.registry.ItemModelRegistry;
 import cinnamon.world.entity.projectile.Projectile;
 import cinnamon.world.entity.projectile.RiceBall;
 
@@ -10,12 +8,8 @@ import java.util.UUID;
 
 public class RiceGun extends Weapon {
 
-    private static final String ID = "Rice Gun";
-    private static final ModelRenderer
-            MODEL = ModelManager.load(new Resource("models/items/rice_gun/rice_gun.obj"));
-
     public RiceGun(int maxRounds, int reloadTime, int useCooldown) {
-        super(ID, MODEL, maxRounds, reloadTime, useCooldown);
+        super(ItemModelRegistry.RICE_GUN.id, ItemModelRegistry.RICE_GUN.resource, maxRounds, reloadTime, useCooldown);
     }
 
     @Override

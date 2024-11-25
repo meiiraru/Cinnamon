@@ -20,6 +20,9 @@ public class ModelManager {
     private static final Map<Resource, ModelRenderer> MODEL_MAP = new HashMap<>();
 
     public static ModelRenderer load(Resource resource) {
+        if (resource == null)
+            return null;
+
         //already loaded, return it
         ModelRenderer model = MODEL_MAP.get(resource);
         if (model != null)

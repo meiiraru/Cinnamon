@@ -4,13 +4,9 @@ import cinnamon.Client;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.Alignment;
-import cinnamon.utils.Colors;
-import cinnamon.utils.Rotation;
-import cinnamon.utils.TextUtils;
+import cinnamon.utils.*;
 import cinnamon.world.DamageType;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.effects.Effect;
@@ -39,7 +35,7 @@ public abstract class LivingEntity extends PhysEntity {
     private int health;
     private int maxHealth;
 
-    public LivingEntity(UUID uuid, ModelRenderer model, int maxHealth, float eyeHeight, int inventorySize) {
+    public LivingEntity(UUID uuid, Resource model, int maxHealth, float eyeHeight, int inventorySize) {
         super(uuid, model);
         this.health = this.maxHealth = maxHealth;
         this.eyeHeight = eyeHeight;
@@ -47,7 +43,7 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     public LivingEntity(UUID uuid, LivingModelRegistry entityModel, int maxHealth, int inventorySize) {
-        this(uuid, entityModel.model, maxHealth, entityModel.eyeHeight, inventorySize);
+        this(uuid, entityModel.resource, maxHealth, entityModel.eyeHeight, inventorySize);
     }
 
     @Override

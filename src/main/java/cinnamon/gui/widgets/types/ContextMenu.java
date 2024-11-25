@@ -83,6 +83,12 @@ public class ContextMenu extends PopupWidget {
         return this;
     }
 
+    public void clearActions() {
+        for (ContextButton action : actions)
+            removeWidget(action);
+        actions.clear();
+    }
+
     private int getWidthForText(Text name) {
         return Math.max(TextUtils.getWidth(name, Client.getInstance().font) + 4, minWidth - 2);
     }

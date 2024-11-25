@@ -1,7 +1,5 @@
 package cinnamon.registry;
 
-import cinnamon.model.ModelManager;
-import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.Resource;
 
 public enum LivingModelRegistry {
@@ -20,7 +18,6 @@ public enum LivingModelRegistry {
 
     public final Resource resource;
     public final float eyeHeight;
-    public ModelRenderer model;
 
     LivingModelRegistry(float eyeHeight) {
         String name = name().toLowerCase();
@@ -28,17 +25,8 @@ public enum LivingModelRegistry {
         this.eyeHeight = eyeHeight;
     }
 
-    private void loadModel() {
-        this.model = ModelManager.load(this.resource);
-    }
-
     public static LivingModelRegistry random() {
         LivingModelRegistry[] models = values();
         return models[(int) (Math.random() * models.length)];
-    }
-
-    public static void loadAllModels() {
-        for (LivingModelRegistry livingModelRegistry : values())
-            livingModelRegistry.loadModel();
     }
 }

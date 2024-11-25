@@ -1,7 +1,7 @@
 package cinnamon.world.entity.terrain;
 
+import cinnamon.registry.TerrainEntityRegistry;
 import cinnamon.utils.AABB;
-import cinnamon.utils.Resource;
 import cinnamon.world.particle.FireParticle;
 import cinnamon.world.particle.SoapParticle;
 import org.joml.Vector3f;
@@ -10,13 +10,11 @@ import java.util.UUID;
 
 public class ParticleSpawner extends TerrainEntity {
 
-    private static final Resource MODEL = new Resource("models/entities/terrain/particle_spawner/particle_spawner.obj");
-
     private int bubbles = 0;
     private int fire = 0;
 
     public ParticleSpawner(UUID uuid) {
-        super(uuid, MODEL);
+        super(uuid, TerrainEntityRegistry.PARTICLE_SPAWNER.resource);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package cinnamon.world.entity;
 
-import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.AABB;
+import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionDetector;
 import cinnamon.world.collisions.CollisionResolver;
 import cinnamon.world.collisions.CollisionResult;
@@ -18,7 +18,7 @@ public abstract class PhysEntity extends Entity {
 
     protected boolean onGround;
 
-    public PhysEntity(UUID uuid, ModelRenderer model) {
+    public PhysEntity(UUID uuid, Resource model) {
         super(uuid, model);
     }
 

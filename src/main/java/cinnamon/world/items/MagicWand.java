@@ -1,9 +1,11 @@
 package cinnamon.world.items;
 
-import cinnamon.model.ModelManager;
+import cinnamon.registry.ItemModelRegistry;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.model.ModelRenderer;
-import cinnamon.utils.*;
+import cinnamon.utils.AABB;
+import cinnamon.utils.ColorUtils;
+import cinnamon.utils.Maths;
+import cinnamon.utils.Rotation;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.particle.Particle;
@@ -13,9 +15,6 @@ import cinnamon.world.world.World;
 import org.joml.Vector3f;
 
 public class MagicWand extends Item {
-
-    private static final String ID = "Magic Wand";
-    private static final ModelRenderer MODEL = ModelManager.load(new Resource("models/items/magic_wand/magic_wand.obj"));
 
     //properties :D
     private static final float DISTANCE = 3f;
@@ -27,7 +26,7 @@ public class MagicWand extends Item {
     private boolean drawing;
 
     public MagicWand(int stackCount) {
-        super(ID, stackCount, MODEL);
+        super(ItemModelRegistry.MAGIC_WAND.id, stackCount, ItemModelRegistry.MAGIC_WAND.resource);
     }
 
     @Override

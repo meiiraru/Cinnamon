@@ -4,10 +4,7 @@ import cinnamon.gui.GUIStyle;
 import cinnamon.gui.screens.MainMenu;
 import cinnamon.model.MaterialManager;
 import cinnamon.model.ModelManager;
-import cinnamon.registry.EntityModelRegistry;
-import cinnamon.registry.LivingModelRegistry;
 import cinnamon.registry.MaterialRegistry;
-import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
@@ -34,9 +31,6 @@ public class ResourceManager {
 
         INIT_EVENTS.add(Shaders::loadAll);
         INIT_EVENTS.add(PostProcess::loadAllShaders);
-        INIT_EVENTS.add(TerrainRegistry::loadAllModels);
-        INIT_EVENTS.add(LivingModelRegistry::loadAllModels);
-        INIT_EVENTS.add(EntityModelRegistry::loadAllModels);
         INIT_EVENTS.add(MaterialRegistry::loadAllMaterials);
         INIT_EVENTS.add(SkyBox.Type::loadAll);
         INIT_EVENTS.add(GUIStyle::init);

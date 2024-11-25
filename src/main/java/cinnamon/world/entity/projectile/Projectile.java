@@ -1,8 +1,8 @@
 package cinnamon.world.entity.projectile;
 
-import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
+import cinnamon.utils.Resource;
 import cinnamon.world.DamageType;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.Entity;
@@ -23,7 +23,7 @@ public abstract class Projectile extends PhysEntity {
 
     protected int lifetime;
 
-    public Projectile(UUID uuid, ModelRenderer model, int damage, int lifetime, float speed, float critChance, UUID owner) {
+    public Projectile(UUID uuid, Resource model, int damage, int lifetime, float speed, float critChance, UUID owner) {
         super(uuid, model);
         this.lifetime = lifetime;
         this.speed = speed;

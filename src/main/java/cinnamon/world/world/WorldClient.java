@@ -239,7 +239,7 @@ public class WorldClient extends World {
         WorldRenderer.render(shader -> {
             applyWorldUniforms(shader);
             //applyShadowUniforms(shader);
-            applySkyboxUniforms(shader);
+            skyBox.pushToShader(shader, Texture.MAX_TEXTURES - 1);
         });
 
         VertexConsumer.finishAllBatches(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
@@ -396,7 +396,7 @@ public class WorldClient extends World {
         //finish rendering
         WorldRenderer.render(shader -> {
             applyWorldUniforms(shader);
-            applySkyboxUniforms(shader);
+            skyBox.pushToShader(shader, Texture.MAX_TEXTURES - 1);
         });
     }
 
@@ -483,20 +483,11 @@ public class WorldClient extends World {
         s.setColor("fogColor", Chunk.fogColor);
 
         //lighting
-        s.setColor("ambient", 0x888888);//Chunk.ambientLight);
+        s.setColor("ambient", 0xFFFFFF);//Chunk.ambientLight);
 
         s.setInt("lightCount", lights.size());
         for (int i = 0; i < lights.size(); i++)
             lights.get(i).pushToShader(s, i);
-    }
-
-    public void applySkyboxUniforms(Shader s) {
-        //last available texture - shadow map
-        int id = Texture.MAX_TEXTURES - 1;
-        s.setMat3("cubemapRotation", skyBox.getSkyRotation());
-        s.setTexture("irradianceMap", skyBox.type.getIrradiance(), --id);
-        s.setTexture("prefilterMap", skyBox.type.getPrefilter(), --id);
-        s.setTexture("brdfLUT", SkyBox.Type.LUT_MAP, --id);
     }
 
     public void applyShadowUniforms(Shader s) {

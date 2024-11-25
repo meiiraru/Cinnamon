@@ -3,6 +3,7 @@ package cinnamon.world.entity;
 import cinnamon.Client;
 import cinnamon.animation.Animation;
 import cinnamon.model.GeometryHelper;
+import cinnamon.model.ModelManager;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
@@ -10,6 +11,7 @@ import cinnamon.render.model.AnimatedObjRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
+import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
 import cinnamon.world.DamageType;
 import cinnamon.world.WorldObject;
@@ -42,8 +44,8 @@ public abstract class Entity extends WorldObject {
 
     private boolean removed;
 
-    public Entity(UUID uuid, ModelRenderer model) {
-        this.model = model;
+    public Entity(UUID uuid, Resource model) {
+        this.model = ModelManager.load(model);
         this.uuid = uuid;
         this.updateAABB();
     }

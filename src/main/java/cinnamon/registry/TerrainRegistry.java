@@ -1,7 +1,5 @@
 package cinnamon.registry;
 
-import cinnamon.model.ModelManager;
-import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.Resource;
 import cinnamon.world.terrain.Teapot;
 import cinnamon.world.terrain.Terrain;
@@ -17,7 +15,6 @@ public enum TerrainRegistry {
     private static final String MODELS_PATH = "models/terrain/";
 
     public final Resource resource;
-    public ModelRenderer model;
 
     private final Supplier<Terrain> factory;
 
@@ -36,14 +33,5 @@ public enum TerrainRegistry {
 
     public Supplier<Terrain> getFactory() {
         return factory;
-    }
-
-    private void loadModel() {
-        this.model = ModelManager.load(this.resource);
-    }
-
-    public static void loadAllModels() {
-        for (TerrainRegistry terrain : values())
-            terrain.loadModel();
     }
 }

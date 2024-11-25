@@ -18,7 +18,7 @@ public class Candy extends Projectile {
     private static final Vector3f BOUNCINESS = new Vector3f(0.7f, 0.7f, 0.7f);
 
     public Candy(UUID uuid, UUID owner) {
-        super(uuid, EntityModelRegistry.CANDY.model, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
+        super(uuid, EntityModelRegistry.CANDY.resource, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
     }
 
     @Override

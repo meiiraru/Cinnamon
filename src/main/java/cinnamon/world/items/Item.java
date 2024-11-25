@@ -1,7 +1,9 @@
 package cinnamon.world.items;
 
+import cinnamon.model.ModelManager;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.model.ModelRenderer;
+import cinnamon.utils.Resource;
 import cinnamon.world.entity.Entity;
 
 public abstract class Item {
@@ -13,10 +15,10 @@ public abstract class Item {
 
     private boolean isUsing, isAttacking;
 
-    public Item(String id, int stackCount, ModelRenderer model) {
+    public Item(String id, int stackCount, Resource model) {
         this.id = id;
         this.stackCount = stackCount;
-        this.model = model;
+        this.model = ModelManager.load(model);
     }
 
     public void tick() {}

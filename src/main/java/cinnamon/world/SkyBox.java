@@ -24,8 +24,8 @@ public class SkyBox {
     private static final float CLOUD_SPEED = (float) Math.PI / 2f;
 
     private final Vector3f sunDir = new Vector3f(1, 0, 0);
+    private final Matrix3f skyRotation = new Matrix3f();
     private float sunAngle;
-    private Matrix3f skyRotation;
 
     public Type type = Type.CLOUDS;
 
@@ -77,7 +77,7 @@ public class SkyBox {
         this.sunDir.rotateZ((float) Math.toRadians(sunAngle));
         this.sunDir.rotateX(SUN_ROLL);
 
-        this.skyRotation = Rotation.Y.rotationDeg(sunAngle * CLOUD_SPEED).get(new Matrix3f());
+        Rotation.Y.rotationDeg(sunAngle * CLOUD_SPEED).get(this.skyRotation);
     }
 
     public Vector3f getSunDirection() {
@@ -86,6 +86,13 @@ public class SkyBox {
 
     public Matrix3f getSkyRotation() {
         return skyRotation;
+    }
+
+    public void pushToShader(Shader shader, int lastTextureID) {
+        shader.setMat3("cubemapRotation", getSkyRotation());
+        shader.setTexture("irradianceMap", type.getIrradiance(), --lastTextureID);
+        shader.setTexture("prefilterMap", type.getPrefilter(), --lastTextureID);
+        shader.setTexture("brdfLUT", SkyBox.Type.LUT_MAP, --lastTextureID);
     }
 
     public enum Type {

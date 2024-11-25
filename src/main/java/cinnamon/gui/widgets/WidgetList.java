@@ -31,10 +31,9 @@ public class WidgetList extends ContainerGrid {
 
     public WidgetList(int x, int y, int width, int height, int spacing, int columns) {
         super(x, y, spacing, columns);
+        scrollbar = new Scrollbar(0, 0, height - 2);
         setDimensions(width, height);
         setAlignment(Alignment.CENTER);
-
-        scrollbar = new Scrollbar(0, 0, height - 2);
         listeners.add(scrollbar);
     }
 
@@ -71,6 +70,7 @@ public class WidgetList extends ContainerGrid {
 
     @Override
     public void updateDimensions() {
+        lastY = 0;
         super.updateDimensions();
 
         //check if size is widget list is bigger than container height
@@ -81,24 +81,22 @@ public class WidgetList extends ContainerGrid {
         if (shouldRenderScrollbar) {
             int remainingSpace = width - getWidgetsWidth();
             remainingSpace += (int) alignment.getOffset(remainingSpace);
-            if (remainingSpace < scrollbar.getWidth() + 3)
-                width -= scrollbar.getWidth() + 3;
+            if (remainingSpace < getScrollbarWidth() + 3)
+                width -= getScrollbarWidth() + 3;
         }
         int x = -Math.round(alignment.getOffset(width - getWidgetsWidth()));
         for (Widget widget : widgets)
             widget.translate(x, 1);
 
         //update scrollbar
-        if (scrollbar != null) {
-            scrollbar.setHandlePercentage((float) scrollbar.getHeight() / getWidgetsHeight());
+        scrollbar.setHandlePercentage((float) scrollbar.getHeight() / getWidgetsHeight());
 
-            updateList();
-            int remaining = widgets.size() - widgetsToRender.size();
+        updateList();
+        int remaining = widgets.size() - widgetsToRender.size();
 
-            scrollbar.setScrollAmount(1f / remaining);
-            scrollbar.setMax(remaining);
-            updateScrollbar();
-        }
+        scrollbar.setScrollAmount(1f / remaining);
+        scrollbar.setMax(remaining);
+        updateScrollbar();
     }
 
     @Override
@@ -150,13 +148,9 @@ public class WidgetList extends ContainerGrid {
     }
 
     protected void updateScrollbar() {
-        //not initialized yet
-        if (scrollbar == null)
-            return;
-
         scrollbar.setHeight(getHeight() - 2);
         scrollbar.setPos(
-                getAlignedX() + getWidth() - scrollbar.getWidth() - 1,
+                getAlignedX() + getWidth() - getScrollbarWidth() - 1,
                 getY() + 1
         );
     }
@@ -230,5 +224,9 @@ public class WidgetList extends ContainerGrid {
 
     public int getWidgetsHeight() {
         return widgetsHeight + 2; //include spacing
+    }
+
+    public int getScrollbarWidth() {
+        return scrollbar.getWidth();
     }
 }

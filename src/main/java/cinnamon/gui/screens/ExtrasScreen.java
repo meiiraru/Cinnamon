@@ -61,6 +61,9 @@ public class ExtrasScreen extends ParentedScreen {
         //sound visualizer
         list.addWidget(BUTTON_FACTORY.apply("Sound Visualizer", button -> client.setScreen(new SoundVisualizerScreen(this))));
 
+        //model viewer
+        list.addWidget(BUTTON_FACTORY.apply("Model Viewer", button -> client.setScreen(new ModelViewerScreen(this))));
+
         //title
         list.addWidget(new Label(0, 0, Text.of("\nGames\n"), font));
 

@@ -1,14 +1,12 @@
 package cinnamon.world.entity.terrain;
 
-import cinnamon.utils.Resource;
+import cinnamon.registry.TerrainEntityRegistry;
 
 import java.util.UUID;
 
 public class DiscoBall extends TerrainEntity {
 
-    private static final Resource MODEL = new Resource("models/entities/terrain/disco_ball/disco_ball.obj");
-
     public DiscoBall(UUID uuid) {
-        super(uuid, MODEL);
+        super(uuid, TerrainEntityRegistry.DISCO_BALL.resource);
     }
 }

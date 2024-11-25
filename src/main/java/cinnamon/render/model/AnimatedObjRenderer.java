@@ -17,28 +17,30 @@ import java.util.function.Consumer;
 public class AnimatedObjRenderer extends ObjRenderer {
 
     private final Bone bone;
-    private final List<Animation> animations;
+    private final Map<String, Animation> animations;
 
     public AnimatedObjRenderer(AnimatedObjRenderer other) {
         super(other);
         Map<Bone, Bone> boneMap = new HashMap<>();
         this.bone = new Bone(other.bone, boneMap);
 
-        this.animations = new ArrayList<>();
-        for (Animation animation : other.animations)
-            this.animations.add(new Animation(animation, boneMap));
+        this.animations = new HashMap<>();
+        for (Animation animation : other.animations.values())
+            this.animations.put(animation.getName(), new Animation(animation, boneMap));
     }
 
     public AnimatedObjRenderer(Mesh mesh, Pair<Bone, List<Animation>> animations) {
         super(mesh);
         this.bone = animations.first();
-        this.animations = animations.second();
+        this.animations = new HashMap<>();
+        for (Animation animation : animations.second())
+            this.animations.put(animation.getName(), animation);
     }
 
     @Override
     public void render(MatrixStack matrices, Material material) {
         //tick animations
-        for (Animation animation : animations)
+        for (Animation animation : animations.values())
             animation.update();
 
         //render bone tree
@@ -48,7 +50,7 @@ public class AnimatedObjRenderer extends ObjRenderer {
     @Override
     public void renderWithoutMaterial(MatrixStack matrices) {
         //tick animations
-        for (Animation animation : animations)
+        for (Animation animation : animations.values())
             animation.update();
 
         //render bone tree
@@ -75,11 +77,15 @@ public class AnimatedObjRenderer extends ObjRenderer {
     }
 
     public Animation getAnimation(String name) {
-        for (Animation animation : animations) {
-            if (animation.getName().equals(name))
-                return animation;
-        }
+        return animations.get(name);
+    }
 
-        return null;
+    public List<String> getAnimations() {
+        return new ArrayList<>(animations.keySet());
+    }
+
+    public void stopAllAnimations() {
+        for (Animation animation : animations.values())
+            animation.stop();
     }
 }

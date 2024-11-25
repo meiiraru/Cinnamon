@@ -72,8 +72,8 @@ public class Container extends Widget implements Tickable, GUIListener {
         int minY = getY(), maxY = minY;
 
         for (Widget w : this.widgets) {
-            if (w instanceof Container c)
-                c.updateDimensions();
+            //if (w instanceof Container c)
+            //    c.updateDimensions();
 
             int x = w.getX();
             minX = Math.min(minX, x);

@@ -16,7 +16,7 @@ public class HealthPack extends Collectable {
     private static final float SMOKE_CHANCE = 0.05f;
 
     public HealthPack(UUID uuid) {
-        super(uuid, EntityModelRegistry.HEALTH_PACK.model);
+        super(uuid, EntityModelRegistry.HEALTH_PACK.resource);
     }
 
     @Override

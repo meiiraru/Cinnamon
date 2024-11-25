@@ -32,7 +32,7 @@ public class EffectBox extends Collectable {
     };
 
     public EffectBox(UUID uuid) {
-        super(uuid, EntityModelRegistry.EFFECT_BOX.model);
+        super(uuid, EntityModelRegistry.EFFECT_BOX.resource);
     }
 
     @Override
