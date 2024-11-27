@@ -9,7 +9,6 @@ import cinnamon.gui.widgets.types.ComboBox;
 import cinnamon.gui.widgets.types.Label;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
-import cinnamon.model.material.Material;
 import cinnamon.registry.*;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
@@ -42,7 +41,7 @@ public class ModelViewerScreen extends ParentedScreen {
     //current opened model
     private ModelRenderer currentModel = null;
     private String modelName = "none";
-    private Material selectedMaterial = null;
+    private MaterialRegistry selectedMaterial = MaterialRegistry.DEFAULT;
     private final ComboBox animationList = new ComboBox(0, 0, 60, 14);
 
     //view transforms
@@ -58,6 +57,7 @@ public class ModelViewerScreen extends ParentedScreen {
 
     public ModelViewerScreen(Screen parentScreen) {
         super(parentScreen);
+        skybox.type = SkyBox.Type.WHITE;
     }
 
     @Override
@@ -97,13 +97,10 @@ public class ModelViewerScreen extends ParentedScreen {
         //add material list
         ComboBox materials = new ComboBox(width - animationList.getWidth() - 4, 4, animationList.getWidth(), animationList.getHeight());
         for (MaterialRegistry value : MaterialRegistry.values())
-            materials.addEntry(Text.of(value.name()), null, b -> selectedMaterial = value.material);
+            materials.addEntry(Text.of(value.name()), null, b -> selectedMaterial = value);
         materials.setTooltip(Text.of("Materials"));
+        materials.select(selectedMaterial.ordinal());
         addWidget(materials);
-
-        //select first material
-        selectedMaterial = null;
-        materials.select(0);
 
         //prepare animations list
         animationList.setPos(materials.getX(), materials.getY() + materials.getHeight() + 4);
@@ -115,10 +112,8 @@ public class ModelViewerScreen extends ParentedScreen {
         for (SkyBox.Type value : SkyBox.Type.values())
             skyboxes.addEntry(Text.of(value.name()), null, b -> skybox.type = value);
         skyboxes.setTooltip(Text.of("Skybox"));
-        addWidget(skyboxes);
-
-        skybox.type = SkyBox.Type.CLOUDS;
         skyboxes.select(skybox.type.ordinal());
+        addWidget(skyboxes);
 
         super.init();
 
@@ -138,6 +133,9 @@ public class ModelViewerScreen extends ParentedScreen {
     @Override
     protected void preRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.preRender(matrices, mouseX, mouseY, delta);
+
+        //render model bg
+        //VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, listWidth, 4, width - 4, height - 4, 0x20000000));
 
         //render model
         renderModel(matrices);
@@ -182,7 +180,7 @@ public class ModelViewerScreen extends ParentedScreen {
 
         //render to another framebuffer
         modelBuffer.useClear();
-        currentModel.render(matrices, selectedMaterial);
+        currentModel.render(matrices, selectedMaterial.material);
         Framebuffer.DEFAULT_FRAMEBUFFER.use();
 
         //cleanup
@@ -223,17 +221,23 @@ public class ModelViewerScreen extends ParentedScreen {
 
     @Override
     public boolean mousePress(int button, int action, int mods) {
+        if (dragged != -1 && action != GLFW_PRESS) {
+            dragged = -1;
+            return true;
+        }
+
         boolean sup = super.mousePress(button, action, mods);
         if (sup) return true;
 
-        if (currentModel == null || action != GLFW_PRESS) {
-            dragged = -1;
+        int mouseX = client.window.mouseX;
+        int mouseY = client.window.mouseY;
+
+        if (currentModel == null || !UIHelper.isMouseOver(listWidth, 4, width - listWidth - 4, height - 8, mouseX, mouseY))
             return false;
-        }
 
         dragged = button;
-        anchorX = client.window.mouseX;
-        anchorY = client.window.mouseY;
+        anchorX = mouseX;
+        anchorY = mouseY;
 
         switch (button) {
             case GLFW_MOUSE_BUTTON_1 -> {

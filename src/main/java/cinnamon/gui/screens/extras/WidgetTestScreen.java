@@ -38,11 +38,11 @@ public class WidgetTestScreen extends ParentedScreen {
         grid.addWidget(b);
 
         ContextMenu ctx = new ContextMenu()
-                .addAction(Text.of("Meow 1"), Text.of("Meow 1"), button -> LOGGER.info("1"))
+                .addAction(Text.of("Meow 1"), Text.of("Meow 1"), button -> LOGGER.info("Meow 1"))
                 .addDivider()
-                .addAction(Text.of("Meow 2"), Text.of("Meow 2"), button -> LOGGER.info("2"))
+                .addAction(Text.of("Meow 2"), Text.of("Meow 2"), button -> LOGGER.info("Meow 2"))
                 .addDivider()
-                .addAction(Text.of("Meow 3"), Text.of("Meow 3"), button -> LOGGER.info("3"));
+                .addAction(Text.of("Meow 3"), Text.of("Meow 3"), button -> LOGGER.info("Meow 3"));
 
         ContextMenu ctx2 = new ContextMenu()
                 .addAction(Text.of("A"), Text.of("A"), button -> LOGGER.info("a"))
@@ -50,12 +50,20 @@ public class WidgetTestScreen extends ParentedScreen {
                 .addAction(Text.of("C"), Text.of("C"), button -> LOGGER.info("c"));
 
         ContextMenu ctx3 = new ContextMenu()
-                .addAction(Text.of("1"), Text.of("1"), button -> LOGGER.info("1"))
-                .addAction(Text.of("11"), Text.of("11"), button -> LOGGER.info("11"))
-                .addAction(Text.of("111"), Text.of("111"), button -> LOGGER.info("111"));
+                .addAction(Text.of("1"), Text.of("1"), button -> LOGGER.info("II. 1"))
+                .addAction(Text.of("11"), Text.of("11"), button -> LOGGER.info("II. 11"))
+                .addAction(Text.of("111"), Text.of("111"), button -> LOGGER.info("II. 111"));
 
-        ctx2.addDivider().addSubMenu(Text.of("||"), ctx3);
-        ctx.addDivider().addSubMenu(Text.of("Purr~"), ctx2);
+        ContextMenu ctx4 = new ContextMenu();
+
+        for (int i = 0; i < 100; i++) {
+            int ii = i;
+            ctx4.addAction(Text.of(i), Text.of(i), button -> LOGGER.info(ii));
+        }
+
+        ctx3.addDivider().addSubMenu(Text.of("III"), ctx4);
+        ctx2.addDivider().addSubMenu(Text.of("II"), ctx3);
+        ctx.addDivider().addSubMenu(Text.of("I"), ctx2);
 
         b.setPopup(ctx);
 
@@ -84,6 +92,13 @@ public class WidgetTestScreen extends ParentedScreen {
                 .addEntry(Text.of("Entry 2"), Text.of("2"), button -> LOGGER.info("2"))
                 .addDivider()
                 .addEntry(Text.of("Entry 3"), Text.of("3"), button -> LOGGER.info("3"));
+
+        //selection 2
+        ComboBox cb2 = new ComboBox(0, 0, 60, 12);
+        grid.addWidget(cb2);
+
+        for (int i = 0; i < 100; i++)
+            cb2.addEntry(Text.of(i), Text.of(i), null);
 
         //slider
         Slider s = new Slider(0, 0, 60);

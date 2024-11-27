@@ -202,8 +202,10 @@ public class Slider extends SelectableWidget {
             return this;
         } else {
             updateHover(w.mouseX, w.mouseY);
-            if (wasSelected)
+            if (wasSelected) {
                 setPercentage(value); //just call the update to run the listeners
+                return this;
+            }
         }
 
         return super.mousePress(button, action, mods);

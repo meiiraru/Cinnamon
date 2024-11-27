@@ -1,5 +1,6 @@
 package cinnamon.gui.widgets;
 
+import cinnamon.gui.widgets.types.Scrollbar;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.UIHelper;
 
@@ -94,7 +95,7 @@ public class PopupWidget extends ContainerGrid {
         //check if a child is being pressed first
         GUIListener sup = super.mousePress(button, action, mods);
         if (sup != null) {
-            if (action == GLFW_RELEASE && closeOnSelect && !(sup instanceof PopupWidget))
+            if (!(sup instanceof Scrollbar) && action == GLFW_RELEASE && closeOnSelect && !(sup instanceof PopupWidget))
                 this.close();
             return sup;
         }
@@ -111,6 +112,9 @@ public class PopupWidget extends ContainerGrid {
 
     @Override
     public GUIListener mouseMove(int x, int y) {
+        if (!isOpen())
+            return null;
+
         this.hovered = UIHelper.isMouseOver(this, x, y);
         return super.mouseMove(x, y);
     }
@@ -134,6 +138,11 @@ public class PopupWidget extends ContainerGrid {
     }
 
     @Override
+    public GUIListener scroll(double x, double y) {
+        return isOpen() ? super.scroll(x, y) : null;
+    }
+
+    @Override
     protected List<SelectableWidget> getSelectableWidgets() {
         return List.of();
     }
@@ -141,5 +150,9 @@ public class PopupWidget extends ContainerGrid {
     public PopupWidget closeOnSelect(boolean bool) {
         this.closeOnSelect = bool;
         return this;
+    }
+
+    public void fitToScreen(int width, int height) {
+        this.setDimensions(Math.min(getWidth(), width), Math.min(getHeight(), height));
     }
 }

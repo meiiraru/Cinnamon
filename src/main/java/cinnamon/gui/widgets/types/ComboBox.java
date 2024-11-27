@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+
 public class ComboBox extends Button {
 
     private final List<Text> indexes = new ArrayList<>();
@@ -31,28 +33,16 @@ public class ComboBox extends Button {
 
     public ComboBox(int x, int y, int width, int height) {
         super(x, y, width, height, Text.of(""), button -> {
-            ComboBox box = (ComboBox) button;
-            box.openPopup(box.getX(), box.getY() + box.getHeight());
+            if (button.getPopup().isOpen())
+                button.getPopup().close();
+            else
+                ((ComboBox) button).openPopup(button.getX(), button.getY() + button.getHeight());
         });
 
-        contextMenu = new ContextMenu(width, height) {
-            @Override
-            public GUIListener mousePress(int button, int action, int mods) {
-                boolean wasOpen = isOpen();
-                GUIListener sup = super.mousePress(button, action, mods);
-                return sup == null && wasOpen && ComboBox.this.isHovered() ? this : sup;
-            }
-        };
-
-        emptyMenu = new ContextMenu(width, height) {
-            @Override
-            public GUIListener mousePress(int button, int action, int mods) {
-                boolean wasOpen = isOpen();
-                GUIListener sup = super.mousePress(button, action, mods);
-                return sup == null && wasOpen && ComboBox.this.isHovered() ? this : sup;
-            }
-        };
+        contextMenu = new ComboContext(width, height, this);
+        emptyMenu = new ComboContext(width, height, this);
         emptyMenu.addAction(Text.of("-"), null, null);
+
         super.setPopup(emptyMenu);
     }
 
@@ -177,5 +167,21 @@ public class ComboBox extends Button {
         }
 
         return super.scroll(x, y);
+    }
+
+    private static class ComboContext extends ContextMenu {
+        private final ComboBox parent;
+
+        public ComboContext(int width, int height, ComboBox parent) {
+            super(width, height);
+            this.parent = parent;
+        }
+
+        @Override
+        public GUIListener mousePress(int button, int action, int mods) {
+            if (parent.isHolding() || (!UIHelper.isWidgetHovered(this) && UIHelper.isWidgetHovered(parent) && this.isOpen() && action == GLFW_PRESS))
+                return null;
+            return super.mousePress(button, action, mods);
+        }
     }
 }

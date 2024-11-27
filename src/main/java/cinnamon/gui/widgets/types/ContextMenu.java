@@ -5,6 +5,7 @@ import cinnamon.gui.GUIStyle;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.PopupWidget;
 import cinnamon.gui.widgets.Widget;
+import cinnamon.gui.widgets.WidgetList;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
@@ -23,11 +24,17 @@ public class ContextMenu extends PopupWidget {
 
     private static final Resource TEXTURE = new Resource("textures/gui/widgets/context_menu.png");
 
+    private final WidgetList list = new WidgetList(0, 0, 0, 0, 0);
     private final List<ContextButton> actions = new ArrayList<>();
+    private final List<Widget> widgets = new ArrayList<>();
+
     private final int minWidth;
     private final int elementHeight;
     private ContextMenu subContext;
     private int selected = -1;
+
+    private int totalWidth;
+    private int totalHeight = 2;
 
     public ContextMenu() {
         this(0, 0);
@@ -35,9 +42,10 @@ public class ContextMenu extends PopupWidget {
 
     public ContextMenu(int minWidth, int elementHeight) {
         super(0, 0, 0);
-        this.minWidth = Math.max(minWidth, 22);
+        this.minWidth = this.totalWidth = Math.max(minWidth, 22);
         this.elementHeight = Math.max(elementHeight, 12);
-        this.setDimensions(this.minWidth, 6);
+        addWidget(list);
+        list.setDimensions(this.minWidth, this.elementHeight);
     }
 
     @Override
@@ -61,32 +69,42 @@ public class ContextMenu extends PopupWidget {
     protected void reset() {
         super.reset();
         this.selected = -1;
+        list.scrollToTop();
     }
 
     public ContextMenu addAction(Text name, Text tooltip, Consumer<Button> action) {
         ContextButton button = new ContextButton(getWidthForText(name), elementHeight, name, tooltip, action, widgets.size(), this);
-        this.addWidget(button);
         this.actions.add(button);
-        button.setParent(null);
+        addAction(button);
         return this;
     }
 
     public ContextMenu addDivider() {
-        this.addWidget(new ContextDivider(getWidth(), GUIStyle.dividerSize, widgets.size()));
+        addAction(new ContextDivider(totalWidth, GUIStyle.dividerSize, widgets.size()));
         return this;
     }
 
     public ContextMenu addSubMenu(Text name, ContextMenu subContext) {
-        ContextSubMenu submenu = new ContextSubMenu(getWidthForText(name), elementHeight, name, subContext, widgets.size(), this);
-        this.addWidget(submenu);
-        submenu.setParent(null);
+        addAction(new ContextSubMenu(getWidthForText(name), elementHeight, name, subContext, widgets.size(), this));
         return this;
+    }
+
+    private void addAction(Widget widget) {
+        list.addWidget(widget);
+        widgets.add(widget);
+
+        totalHeight += widget.getHeight();
+        totalWidth = Math.max(totalWidth, widget.getWidth());
+        setDimensions(totalWidth, totalHeight);
     }
 
     public void clearActions() {
         for (ContextButton action : actions)
-            removeWidget(action);
+            list.removeWidget(action);
+        widgets.clear();
         actions.clear();
+        totalWidth = minWidth;
+        totalHeight = 2;
     }
 
     private int getWidthForText(Text name) {
@@ -99,10 +117,38 @@ public class ContextMenu extends PopupWidget {
 
     @Override
     public void updateDimensions() {
+        list.updateDimensions();
         super.updateDimensions();
-        int w = this.getWidth();
+    }
+
+    @Override
+    public void fitToScreen(int width, int height) {
+        //reset dimensions
+        setDimensions(totalWidth, totalHeight);
+
+        //call super
+        super.fitToScreen(width, height);
+
+        //grab new values
+        int realWidth = getWidth();
+        int realHeight = getHeight();
+
+        //set list height
+        list.setHeight(realHeight);
+
+        //check for scrollbar
+        int scroll = list.shouldRenderScrollbar() ? list.getScrollbarWidth() + 1 : 0;
+
+        //get new width
+        int w = Math.min(realWidth + scroll, width);
+
+        //set new width
+        list.setWidth(w);
+        setWidth(w);
+
+        //apply new width to all widgets, without the scroll
         for (Widget widget : widgets)
-            widget.setWidth(w);
+            widget.setWidth(w - scroll);
     }
 
     @Override
@@ -173,6 +219,11 @@ public class ContextMenu extends PopupWidget {
         @Override
         public void setRunOnHold(boolean bool) {
             throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void updateHover(int x, int y) {
+            setHovered(UIHelper.isMouseOver(getX(), getY(), getWidth(), getHeight(), x, y));
         }
     }
 

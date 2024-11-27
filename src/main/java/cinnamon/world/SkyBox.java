@@ -100,7 +100,9 @@ public class SkyBox {
         SPACE,
         CLOUDS,
         TEST,
-        HDR_TEST(true);
+        HDR_TEST(true),
+        WHITE,
+        DEBUG;
 
         public static final Texture LUT_MAP = IBLMap.brdfLUT(512);
         private final boolean hdr;

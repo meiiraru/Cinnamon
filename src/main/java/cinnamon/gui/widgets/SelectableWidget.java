@@ -2,7 +2,6 @@ package cinnamon.gui.widgets;
 
 import cinnamon.Client;
 import cinnamon.gui.GUIStyle;
-import cinnamon.gui.widgets.types.ContextMenu;
 import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
@@ -35,7 +34,20 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
     }
 
     public boolean isHovered() {
-        return (hovered && (this instanceof ContextMenu.ContextButton || !UIHelper.isPopupHovered())) || (popup != null && popup.isOpen());
+        if (hovered && UIHelper.isPopupHovered()) {
+            boolean isPopup = false;
+            Widget parent = this;
+            while ((parent = parent.getParent()) != null) {
+                if (parent instanceof PopupWidget pw && pw.isHovered()) {
+                    isPopup = true;
+                    break;
+                }
+            }
+
+            return isPopup;
+        }
+
+        return hovered;
     }
 
     public boolean isHoveredOrFocused() {
