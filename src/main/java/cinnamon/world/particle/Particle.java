@@ -34,7 +34,8 @@ public abstract class Particle extends WorldObject {
 
         //tick time
         age++;
-        removed |= age > lifetime;
+        if (age > lifetime)
+            remove();
     }
 
     public void render(MatrixStack matrices, float delta) {
