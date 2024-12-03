@@ -1,9 +1,14 @@
 package cinnamon.world.particle;
 
 import cinnamon.registry.ParticlesRegistry;
+import cinnamon.sound.SoundCategory;
 import cinnamon.utils.AABB;
+import cinnamon.utils.Maths;
+import cinnamon.utils.Resource;
 
 public class BubbleParticle extends SpriteParticle {
+
+    private static final Resource POP_SOUND = new Resource("sounds/bubble_pop.ogg");
 
     public BubbleParticle(int lifetime, int color) {
         super(lifetime, color);
@@ -32,6 +37,12 @@ public class BubbleParticle extends SpriteParticle {
     public int getCurrentFrame() {
         int frames = texture.getUFrames() - 1;
         return Math.clamp(getAge() - getLifetime() + frames, 0, frames);
+    }
+
+    @Override
+    public void remove() {
+        super.remove();
+        world.playSound(POP_SOUND, SoundCategory.AMBIENT, pos).volume(0.1f).pitch(Maths.range(0.8f, 1.2f));
     }
 
     @Override
