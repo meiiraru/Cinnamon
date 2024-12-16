@@ -3,7 +3,6 @@ package cinnamon.world.items;
 import cinnamon.registry.ItemModelRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.sound.SoundCategory;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.light.Spotlight;

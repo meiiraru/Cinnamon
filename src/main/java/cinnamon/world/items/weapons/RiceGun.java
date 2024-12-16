@@ -2,7 +2,6 @@ package cinnamon.world.items.weapons;
 
 import cinnamon.registry.ItemModelRegistry;
 import cinnamon.sound.SoundCategory;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.projectile.Projectile;
