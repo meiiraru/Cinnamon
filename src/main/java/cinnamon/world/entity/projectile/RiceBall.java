@@ -2,7 +2,9 @@ package cinnamon.world.entity.projectile;
 
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
+import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Maths;
+import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.particle.SmokeParticle;
@@ -13,8 +15,10 @@ import java.util.UUID;
 
 public class RiceBall extends Projectile {
 
+    private static final Resource EXPLODE_SOUND = new Resource("sounds/item.shotgun/explode.ogg");
+
     public static final int DAMAGE = 15;
-    public static final int LIFETIME = 2;
+    public static final int LIFETIME = 6;
     public static final float SPEED = 1.25f;
     public static final float CRIT_CHANCE = 0.15f;
     public static final float SPREAD_ANGLE = 10;
@@ -51,6 +55,8 @@ public class RiceBall extends Projectile {
         Particle particle = new SmokeParticle(10, 0xFFFFFFFF);
         particle.setPos(this.getPos());
         world.addParticle(particle);
+
+        world.playSound(EXPLODE_SOUND, SoundCategory.ENTITY, getPos());
 
         //get rot
         Vector3f mot = new Vector3f(motion);
