@@ -2,7 +2,9 @@ package cinnamon.world.entity.collectable;
 
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
+import cinnamon.sound.SoundCategory;
 import cinnamon.utils.AABB;
+import cinnamon.utils.Resource;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.particle.SteamParticle;
@@ -11,6 +13,8 @@ import org.joml.Vector3f;
 import java.util.UUID;
 
 public class HealthPack extends Collectable {
+
+    private static final Resource PICKUP_SOUND = new Resource("sounds/entity/food/eat.ogg");
 
     private static final int HEAL = 10;
     private static final float SMOKE_CHANCE = 0.05f;
@@ -41,7 +45,10 @@ public class HealthPack extends Collectable {
 
     @Override
     protected boolean onPickUp(Entity entity) {
-        return entity instanceof Player p && p.heal(HEAL);
+        boolean hasHealed = entity instanceof Player p && p.heal(HEAL);
+        if (hasHealed)
+            entity.getWorld().playSound(PICKUP_SOUND, SoundCategory.ENTITY, entity.getPos());
+        return hasHealed;
     }
 
     @Override
