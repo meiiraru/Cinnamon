@@ -30,6 +30,7 @@ public class Camera {
             viewMatrix = new Matrix4f(),
             orthoMatrix = new Matrix4f(),
             perspMatrix = new Matrix4f();
+    private boolean isOrtho = false;
 
     private Entity entity;
 
@@ -83,9 +84,14 @@ public class Camera {
 
     public Matrix4f getViewMatrix() {
         viewMatrix.identity();
+
+        if (isOrtho)
+            return viewMatrix;
+
         viewMatrix.rotate(Rotation.X.rotationDeg(rot.x));
         viewMatrix.rotate(Rotation.Y.rotationDeg(rot.y));
         viewMatrix.translate(-pos.x, -pos.y, -pos.z);
+
         return viewMatrix;
     }
 
@@ -136,7 +142,7 @@ public class Camera {
     }
 
     public void updateFrustum() {
-        Matrix4f proj = getPerspectiveMatrix();
+        Matrix4f proj = getProjectionMatrix();
         Matrix4f mvp = getViewMatrix().mulLocal(proj);
         frustum.updateFrustum(mvp);
     }
@@ -152,6 +158,10 @@ public class Camera {
     public void reset() {
         setPos(0f, 0f, 0f);
         setRot(0f, 0f);
+    }
+
+    public void useOrtho(boolean ortho) {
+        isOrtho = ortho;
     }
 
     public Vector3f getPos() {
@@ -178,12 +188,8 @@ public class Camera {
         return rotation;
     }
 
-    public Matrix4f getPerspectiveMatrix() {
-        return perspMatrix;
-    }
-
-    public Matrix4f getOrthographicMatrix() {
-        return orthoMatrix;
+    public Matrix4f getProjectionMatrix() {
+        return isOrtho ? orthoMatrix : perspMatrix;
     }
 
     public Entity getEntity() {

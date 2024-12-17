@@ -73,12 +73,10 @@ public class Hud {
         drawPlayerStats(matrices, c.world.player, delta);
 
         //finish rendering
-        Matrix4f projMat = c.camera.getOrthographicMatrix();
-        Matrix4f viewMat = new Matrix4f();
-        VertexConsumer.finishAllBatches(projMat, viewMat);
+        VertexConsumer.finishAllBatches(c.camera);
 
         //draw crosshair separated
-        drawCrosshair(matrices, projMat, viewMat);
+        drawCrosshair(matrices);
     }
 
     private void drawPlayerStats(MatrixStack matrices, Player player, float delta) {
@@ -231,7 +229,7 @@ public class Hud {
     private void drawHotbar(MatrixStack matrices, Player player, float delta) {
         //set shader
         Shaders.MODEL.getShader().use().setup(
-                Client.getInstance().camera.getOrthographicMatrix(),
+                Client.getInstance().camera.getProjectionMatrix(),
                 new Matrix4f()
         );
 
@@ -341,7 +339,7 @@ public class Hud {
         c.font.render(VertexConsumer.FONT, matrices, ww.scaledWidth * 0.5f, 16 + 4 + 4, Text.of(str).withStyle(Style.EMPTY.shadow(true)), Alignment.CENTER);
     }
 
-    private void drawCrosshair(MatrixStack matrices, Matrix4f projMat, Matrix4f viewMat) {
+    private void drawCrosshair(MatrixStack matrices) {
         Client c = Client.getInstance();
         int w = c.window.scaledWidth;
         int h = c.window.scaledHeight;
@@ -365,7 +363,7 @@ public class Hud {
             glBlendFuncSeparate(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_ONE, GL_ZERO);
 
             VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, Math.round(w / 2f - 8), Math.round(h / 2f - 8), 16, 16), CROSSHAIR);
-            VertexConsumer.GUI.finishBatch(projMat, viewMat);
+            VertexConsumer.GUI.finishBatch(c.camera);
 
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         }

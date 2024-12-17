@@ -243,7 +243,7 @@ public class WorldClient extends World {
             skyBox.pushToShader(shader, Texture.MAX_TEXTURES - 1);
         });
 
-        VertexConsumer.finishAllBatches(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
+        VertexConsumer.finishAllBatches(client.camera);
 
         //render skybox
         renderSky(matrices, delta);
@@ -259,7 +259,7 @@ public class WorldClient extends World {
     protected void renderSky(MatrixStack matrices, float delta) {
         Shader s = Shaders.SKYBOX.getShader();
         s.use().setup(
-                client.camera.getPerspectiveMatrix(),
+                client.camera.getProjectionMatrix(),
                 client.camera.getViewMatrix()
         );
         skyBox.render(client.camera, matrices);

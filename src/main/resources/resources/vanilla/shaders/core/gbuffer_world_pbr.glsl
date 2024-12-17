@@ -34,7 +34,7 @@ void main() {
 
 layout (location = 0) out vec4 gPosition;
 layout (location = 1) out vec4 gAlbedo;
-layout (location = 2) out vec4 gRMAo;
+layout (location = 2) out vec4 gORM;
 layout (location = 3) out vec4 gNormal;
 layout (location = 4) out vec4 gEmissive;
 
@@ -124,7 +124,7 @@ void main() {
     //write to gBuffer
     gPosition = vec4(pos, 1.0f);
     gAlbedo = albedo * vec4(color, 1.0f);
-    gRMAo = vec4(roughness, metallic, ao, 1.0f);
+    gORM = vec4(ao, roughness, metallic, 1.0f);
     gNormal = vec4(normal, 1.0f);
     gEmissive = vec4(emissive, 1.0f);
 }

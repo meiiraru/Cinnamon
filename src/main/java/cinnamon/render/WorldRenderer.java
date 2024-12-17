@@ -21,8 +21,9 @@ public class WorldRenderer {
 
     public static void prepareGeometry(Camera camera) {
         PBRFrameBuffer.useClear();
+        Framebuffer.DEFAULT_FRAMEBUFFER.blit(PBRFrameBuffer.id(), false, false, true);
         Shader s = GEOMETRY_PASS.getShader().use();
-        s.setup(camera.getPerspectiveMatrix(), camera.getViewMatrix());
+        s.setup(camera.getProjectionMatrix(), camera.getViewMatrix());
         s.setVec3("camPos", camera.getPos());
     }
 
@@ -32,12 +33,12 @@ public class WorldRenderer {
         shaderConsumer.accept(s);
         s.setInt("gPosition", 0);
         s.setInt("gAlbedo", 1);
-        s.setInt("gRMAo", 2);
+        s.setInt("gORM", 2);
         s.setInt("gNormal", 3);
         s.setInt("gEmissive", 4);
         int tex = PBRFrameBuffer.bindTextures();
         SimpleGeometry.QUAD.render();
-        PBRFrameBuffer.blit(Framebuffer.DEFAULT_FRAMEBUFFER.id(), false, true);
+        PBRFrameBuffer.blit(Framebuffer.DEFAULT_FRAMEBUFFER.id(), false, true, true);
         Texture.unbindAll(tex);
     }
 
