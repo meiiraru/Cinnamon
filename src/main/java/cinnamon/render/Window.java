@@ -115,7 +115,7 @@ public class Window {
         }
     }
 
-    private Pair<Long, GLFWVidMode> getMonitorProperties() {
+    public Pair<Long, GLFWVidMode> getMonitorProperties() {
         //grab monitor
         long monitor = glfwGetWindowMonitor(window);
         if (monitor == NULL)
