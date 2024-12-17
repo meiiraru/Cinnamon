@@ -28,28 +28,35 @@ public class ModelManager {
         if (model != null)
             return model instanceof AnimatedObjRenderer anim ? new AnimatedObjRenderer(anim) : model;
 
-        LOGGER.debug("Loading model {}", resource);
+        //load new and cache
+        model = bakeModel(resource);
+        MODEL_MAP.put(resource, model);
+        return model;
+    }
 
+    private static ModelRenderer bakeModel(Resource resource) {
         //load mesh :)
-        ModelRenderer newModel;
+        LOGGER.debug("Loading model {}", resource);
+        ModelRenderer model;
 
         //check model type
-        if (resource.getPath().endsWith(".gltf")) {
-            newModel = new GLTFRenderer(GLTFLoader.load(resource));
-        } else {
+        String path = resource.getPath();
+        if (path.endsWith(".gltf")) {
+            model = new GLTFRenderer(GLTFLoader.load(resource));
+        } else if (path.endsWith(".obj")) {
             //load animations, if any
-            String path = resource.getPath();
             String folder = path.substring(0, path.lastIndexOf("/") + 1);
             Resource anim = new Resource(resource.getNamespace(), folder + "animations.json");
             if (IOUtils.hasResource(anim)) {
-                newModel = new AnimatedObjRenderer(ObjLoader.load(resource), AnimationLoader.load(anim));
+                model = new AnimatedObjRenderer(ObjLoader.load(resource), AnimationLoader.load(anim));
             } else {
-                newModel = new ObjRenderer(ObjLoader.load(resource));
+                model = new ObjRenderer(ObjLoader.load(resource));
             }
+        } else {
+            throw new RuntimeException("Unsupported model file: " + path);
         }
 
-        MODEL_MAP.put(resource, newModel);
-        return newModel;
+        return model;
     }
 
     public static void free() {

@@ -28,6 +28,7 @@ import cinnamon.world.SkyBox;
 
 import java.util.function.BiFunction;
 
+import static cinnamon.Client.LOGGER;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class ModelViewerScreen extends ParentedScreen {
@@ -303,5 +304,20 @@ public class ModelViewerScreen extends ParentedScreen {
         */
 
         return true;
+    }
+
+    public boolean filesDropped(String[] files) {
+        if (files.length == 0)
+            return false;
+
+        try {
+            String file = files[0].replaceAll("\\\\", "/");
+            setModel(new Resource("", file), file);
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("Failed to load model", e);
+        }
+
+        return false;
     }
 }

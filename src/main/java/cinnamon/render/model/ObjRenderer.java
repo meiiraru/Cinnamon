@@ -101,7 +101,13 @@ public class ObjRenderer extends ModelRenderer {
 
             //create a new group - the group contains the OpenGL attributes
             GroupData groupData = new GroupData(group, sortedVertices, groupMin, groupMax);
-            this.groups.put(group.getName(), groupData);
+
+            String groupName = group.getName();
+            String newName = groupName;
+            for (int i = 1; this.groups.containsKey(newName); i++)
+                newName = groupName + "_" + i;
+
+            this.groups.put(newName, groupData);
         }
     }
 
