@@ -8,7 +8,11 @@ import cinnamon.utils.Resource;
 
 public class BubbleParticle extends SpriteParticle {
 
-    private static final Resource POP_SOUND = new Resource("sounds/bubble_pop.ogg");
+    private static final Resource[] POP_SOUND = {
+            new Resource("sounds/particle/bubble/pop/1.ogg"),
+            new Resource("sounds/particle/bubble/pop/2.ogg"),
+            new Resource("sounds/particle/bubble/pop/3.ogg")
+    };
 
     public BubbleParticle(int lifetime, int color) {
         super(lifetime, color);
@@ -42,7 +46,9 @@ public class BubbleParticle extends SpriteParticle {
     @Override
     public void remove() {
         super.remove();
-        world.playSound(POP_SOUND, SoundCategory.AMBIENT, pos).volume(0.1f).pitch(Maths.range(0.8f, 1.2f));
+        int index = (int) (Math.random() * POP_SOUND.length);
+        Resource sound = POP_SOUND[index];
+        world.playSound(sound, SoundCategory.AMBIENT, pos).volume(0.25f).pitch(Maths.range(0.8f, 1.2f));
     }
 
     @Override
