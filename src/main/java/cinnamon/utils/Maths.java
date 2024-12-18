@@ -290,6 +290,24 @@ public class Maths {
         return n <= 1 ? 1f : n * factorial(n - 1);
     }
 
+    public static String getPermutation(int index, Object... elements) {
+        if (elements.length == 1)
+            return String.valueOf(elements[0]);
+
+        int sizeGroup = (int) factorial(elements.length - 1);
+        int quotient = index / sizeGroup;
+        int reminder = index % sizeGroup;
+
+        Object[] newElements = new Object[elements.length - 1];
+        for (int i = 0, j = 0; i < elements.length; i++) {
+            if (i == quotient)
+                continue;
+            newElements[j++] = elements[i];
+        }
+
+        return elements[quotient] + getPermutation(reminder, newElements);
+    }
+
     public static Vector3f randomDir() {
         float pitch = (float) Math.random() * 360;
         float yaw = (float) Math.random() * 360;
