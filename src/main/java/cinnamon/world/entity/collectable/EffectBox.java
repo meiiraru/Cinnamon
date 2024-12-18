@@ -26,9 +26,9 @@ public class EffectBox extends Collectable {
             () -> Effect.Type.EXPLOSION_IMMUNITY.create(200)
     );
     private static final Resource[] PICKUP_SOUND = {
-            new Resource("sounds/entity/drink/1.ogg"),
-            new Resource("sounds/entity/drink/2.ogg"),
-            new Resource("sounds/entity/drink/3.ogg")
+            new Resource("sounds/entity/effect/1.ogg"),
+            new Resource("sounds/entity/effect/2.ogg"),
+            new Resource("sounds/entity/effect/3.ogg")
     };
 
     public EffectBox(UUID uuid) {
