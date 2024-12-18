@@ -4,8 +4,6 @@ import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.screens.MainMenu;
 import cinnamon.gui.screens.world.PauseScreen;
-//import cinnamon.networking.ServerConnection;
-import cinnamon.settings.Settings;
 import cinnamon.render.Camera;
 import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
@@ -13,6 +11,7 @@ import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.resource.ResourceManager;
+import cinnamon.settings.Settings;
 import cinnamon.sound.SoundManager;
 import cinnamon.text.Text;
 import cinnamon.utils.Await;
@@ -22,7 +21,6 @@ import cinnamon.utils.Timer;
 import cinnamon.world.world.WorldClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.joml.Matrix4f;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -95,6 +93,8 @@ public class Client {
         matrices.push();
 
         if (world != null) {
+            camera.useOrtho(false);
+
             //render world
             world.render(matrices, delta);
 
@@ -106,6 +106,7 @@ public class Client {
                 }
 
                 //render hud
+                camera.useOrtho(true);
                 glClear(GL_DEPTH_BUFFER_BIT); //top of hand
                 world.hud.render(matrices, delta);
             }
@@ -113,6 +114,7 @@ public class Client {
 
         boolean toasts = world == null || !world.hideHUD();
         if (this.screen != null || toasts) {
+            camera.useOrtho(true);
             glClear(GL_DEPTH_BUFFER_BIT); //top of hud
 
             //render screen
@@ -123,7 +125,7 @@ public class Client {
             if (toasts)
                 Toast.renderToasts(matrices, window.scaledWidth, window.scaledHeight, delta);
 
-            VertexConsumer.finishAllBatches(camera.getOrthographicMatrix(), new Matrix4f());
+            VertexConsumer.finishAllBatches(camera);
         }
 
         //finish rendering

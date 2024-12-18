@@ -64,7 +64,7 @@ public class SkyBox {
 
         //render sun
         VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, -32, -32, 64, 64), SUN);
-        VertexConsumer.MAIN.finishBatch(camera.getPerspectiveMatrix(), camera.getViewMatrix());
+        VertexConsumer.MAIN.finishBatch(camera);
 
         //cleanup rendering
         matrices.pop();

@@ -11,18 +11,19 @@ public class Framebuffer {
     public static final int
             COLOR_BUFFER = 0x1,
             DEPTH_BUFFER = 0x2,
-            HDR_COLOR_BUFFER = 0x4;
+            STENCIL_BUFFER = 0x4,
+            HDR_COLOR_BUFFER = 0x8;
 
     private final int flags;
     private final int fbo;
-    private int color, depth;
+    private int color, depth, stencil;
     private int width, height;
 
     public static final Framebuffer DEFAULT_FRAMEBUFFER;
 
     static {
         Window w = Client.getInstance().window;
-        DEFAULT_FRAMEBUFFER = new Framebuffer(w.width, w.height, COLOR_BUFFER | DEPTH_BUFFER);
+        DEFAULT_FRAMEBUFFER = new Framebuffer(w.width, w.height, COLOR_BUFFER | DEPTH_BUFFER | STENCIL_BUFFER);
     }
 
     public Framebuffer(int width, int height, int flags) {
@@ -38,8 +39,9 @@ public class Framebuffer {
         use();
 
         boolean hasColorBuffer = (flags & COLOR_BUFFER) != 0;
-        boolean hasDepthBuffer = (flags & DEPTH_BUFFER) != 0;
         boolean hdrColorBuffer = (flags & HDR_COLOR_BUFFER) != 0;
+        boolean hasDepthBuffer = (flags & DEPTH_BUFFER) != 0;
+        boolean hasStencilBuffer = (flags & STENCIL_BUFFER) != 0;
 
         //color buffer
         if (hasColorBuffer) {
@@ -51,10 +53,20 @@ public class Framebuffer {
             glReadBuffer(GL_NONE);
         }
 
-        //depth buffer
-        if (hasDepthBuffer) {
-            this.depth = genTexture(GL_DEPTH_COMPONENT, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_DEPTH_ATTACHMENT);
+        //depth / stencil buffer
+        if (hasDepthBuffer && hasStencilBuffer) {
+            this.depth = genTexture(GL_DEPTH24_STENCIL8, width, height, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_DEPTH_STENCIL_ATTACHMENT);
             glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, new float[]{1, 1, 1, 1});
+        }
+        else {
+            if (hasDepthBuffer) {
+                this.depth = genTexture(GL_DEPTH_COMPONENT, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_DEPTH_ATTACHMENT);
+                glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, new float[]{1, 1, 1, 1});
+            }
+            if (hasStencilBuffer) {
+                this.stencil = genTexture(GL_STENCIL_INDEX, width, height, GL_STENCIL_INDEX, GL_UNSIGNED_INT, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_STENCIL_ATTACHMENT);
+                glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, new float[]{1, 1, 1, 1});
+            }
         }
 
         //unbind textures
@@ -100,7 +112,7 @@ public class Framebuffer {
 
     public static void clear() {
         glClearColor(0f, 0f, 0f, 0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT /* | GL_STENCIL_BUFFER_BIT */);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
     public void useClear() {
@@ -113,6 +125,8 @@ public class Framebuffer {
             glDeleteTextures(this.color);
         if (depth > 0)
             glDeleteTextures(this.depth);
+        if (stencil > 0)
+            glDeleteTextures(this.stencil);
     }
 
     public void free() {
@@ -121,14 +135,15 @@ public class Framebuffer {
     }
 
     public void blit(int targetFramebuffer) {
-        this.blit(targetFramebuffer, (flags & COLOR_BUFFER) != 0 || (flags & HDR_COLOR_BUFFER) != 0, (flags & DEPTH_BUFFER) != 0);
+        this.blit(targetFramebuffer, (flags & COLOR_BUFFER) != 0 || (flags & HDR_COLOR_BUFFER) != 0, (flags & DEPTH_BUFFER) != 0, (flags & STENCIL_BUFFER) != 0);
     }
 
-    public void blit(int targetFramebuffer, boolean color, boolean depth) {
+    public void blit(int targetFramebuffer, boolean color, boolean depth, boolean stencil) {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, id());
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetFramebuffer);
         if (color) glBlitFramebuffer(0, 0, getWidth(), getHeight(), 0, 0, getWidth(), getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
         if (depth) glBlitFramebuffer(0, 0, getWidth(), getHeight(), 0, 0, getWidth(), getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        if (stencil) glBlitFramebuffer(0, 0, getWidth(), getHeight(), 0, 0, getWidth(), getHeight(), GL_STENCIL_BUFFER_BIT, GL_NEAREST);
         glBindFramebuffer(GL_FRAMEBUFFER, targetFramebuffer);
     }
 
@@ -138,6 +153,10 @@ public class Framebuffer {
 
     public int getDepthBuffer() {
         return depth;
+    }
+
+    public int getStencilBuffer() {
+        return (flags & DEPTH_BUFFER) != 0 ? depth : stencil;
     }
 
     public void resizeTo(Framebuffer other) {

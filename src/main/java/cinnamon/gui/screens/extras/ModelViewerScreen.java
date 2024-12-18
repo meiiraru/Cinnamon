@@ -28,6 +28,7 @@ import cinnamon.world.SkyBox;
 
 import java.util.function.BiFunction;
 
+import static cinnamon.Client.LOGGER;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class ModelViewerScreen extends ParentedScreen {
@@ -155,6 +156,7 @@ public class ModelViewerScreen extends ParentedScreen {
 
         //prepare render
         Shader oldShader = Shader.activeShader;
+        client.camera.useOrtho(false);
         matrices.push();
 
         //position
@@ -172,7 +174,7 @@ public class ModelViewerScreen extends ParentedScreen {
 
         //setup shader
         Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
-        s.setup(client.camera.getPerspectiveMatrix(), client.camera.getViewMatrix());
+        s.setup(client.camera.getProjectionMatrix(), client.camera.getViewMatrix());
         s.setVec3("camPos", client.camera.getPos());
         s.setFloat("fogStart", 1024);
         s.setFloat("fogEnd", 2048);
@@ -186,6 +188,7 @@ public class ModelViewerScreen extends ParentedScreen {
         //cleanup
         oldShader.use();
         matrices.pop();
+        client.camera.useOrtho(true);
 
         //draw framebuffer result
         UIHelper.pushScissors(listWidth, 4, width - listWidth - 4, height - 8);
@@ -301,5 +304,20 @@ public class ModelViewerScreen extends ParentedScreen {
         */
 
         return true;
+    }
+
+    public boolean filesDropped(String[] files) {
+        if (files.length == 0)
+            return false;
+
+        try {
+            String file = files[0].replaceAll("\\\\", "/");
+            setModel(new Resource("", file), file);
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("Failed to load model", e);
+        }
+
+        return false;
     }
 }

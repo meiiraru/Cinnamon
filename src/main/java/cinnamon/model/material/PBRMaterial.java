@@ -4,6 +4,8 @@ import cinnamon.utils.Resource;
 
 public class PBRMaterial extends Material {
 
+    public static final float DEFAULT_HEIGHT = 0.1f;
+
     private Resource
         albedo,
         height,
@@ -12,7 +14,7 @@ public class PBRMaterial extends Material {
         metallic,
         ao, //ambient occlusion
         emissive;
-    private float heightScale = 0.1f;
+    private float heightScale = DEFAULT_HEIGHT;
 
     public PBRMaterial(String name) {
         super(name);

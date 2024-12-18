@@ -13,7 +13,6 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
-import org.joml.Matrix4f;
 
 import java.util.Stack;
 
@@ -318,7 +317,7 @@ public class UIHelper {
 
         SCISSORS_STACK.push(region);
 
-        VertexConsumer.finishAllBatches(Client.getInstance().camera.getOrthographicMatrix(), new Matrix4f());
+        VertexConsumer.finishAllBatches(Client.getInstance().camera);
 
         glEnable(GL_SCISSOR_TEST);
         glScissor(region.getX(), region.getY(), region.getWidth(), region.getHeight());
@@ -327,7 +326,7 @@ public class UIHelper {
     public static void popScissors() {
         SCISSORS_STACK.pop();
 
-        VertexConsumer.finishAllBatches(Client.getInstance().camera.getOrthographicMatrix(), new Matrix4f());
+        VertexConsumer.finishAllBatches(Client.getInstance().camera);
 
         if (!SCISSORS_STACK.isEmpty()) {
             Region2D peek = SCISSORS_STACK.peek();
@@ -336,5 +335,31 @@ public class UIHelper {
         } else {
             glDisable(GL_SCISSOR_TEST);
         }
+    }
+
+    public static void prepareStencil() {
+        VertexConsumer.finishAllBatches(Client.getInstance().camera);
+
+        glColorMask(false, false, false, false);
+        glDepthMask(false);
+        glStencilMask(0xFF);
+
+        glEnable(GL_STENCIL_TEST);
+        glClear(GL_STENCIL_BUFFER_BIT);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    }
+
+    public static void lockStencil(boolean inverted) {
+        glColorMask(true, true, true, true);
+        glDepthMask(true);
+        glStencilMask(0x00);
+
+        glStencilFunc(inverted ? GL_NOTEQUAL : GL_EQUAL, 1, 0xFF);
+    }
+
+    public static void disableStencil() {
+        VertexConsumer.finishAllBatches(Client.getInstance().camera);
+        glDisable(GL_STENCIL_TEST);
     }
 }

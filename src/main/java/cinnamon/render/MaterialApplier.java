@@ -23,6 +23,7 @@ public class MaterialApplier {
         boolean mip = material.isMipmap();
 
         if (material instanceof MtlMaterial phong) {
+            /*
             s.setVec3("material.ambient", phong.getAmbientColor());
             s.setVec3("material.diffuse", phong.getDiffuseColor());
             s.setVec3("material.specular", phong.getSpecularColor());
@@ -33,6 +34,19 @@ public class MaterialApplier {
             bindTex(s, smooth, mip, phong.getEmissiveTex(), 2, "material.emissiveTex", BLACK_TEX);
 
             return 3;
+            */
+
+            bindTex(s, smooth, mip, phong.getDiffuseTex(), 0, "material.albedoTex", Texture.MISSING);
+            bindTex(s, smooth, mip, null, 1, "material.heightTex", WHITE_TEX);
+            bindTex(s, smooth, mip, null, 2, "material.normalTex", NORMAL_TEX);
+            bindTex(s, smooth, mip, null, 3, "material.roughnessTex", WHITE_TEX);
+            bindTex(s, smooth, mip, phong.getSpColorTex(), 4, "material.metallicTex", BLACK_TEX);
+            bindTex(s, smooth, mip, null, 5, "material.aoTex", WHITE_TEX);
+            bindTex(s, smooth, mip, phong.getEmissiveTex(), 6, "material.emissiveTex", BLACK_TEX);
+
+            s.setFloat("material.heightScale", PBRMaterial.DEFAULT_HEIGHT);
+
+            return 7;
         } else if (material instanceof PBRMaterial pbr) {
             bindTex(s, smooth, mip, pbr.getAlbedo(), 0, "material.albedoTex", Texture.MISSING);
             bindTex(s, smooth, mip, pbr.getHeight(), 1, "material.heightTex", WHITE_TEX);

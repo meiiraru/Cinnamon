@@ -1,12 +1,12 @@
 package cinnamon.render.batch;
 
 import cinnamon.model.Vertex;
+import cinnamon.render.Camera;
 import cinnamon.render.batch.Batch.*;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.Resource;
-import org.joml.Matrix4f;
 
 import java.util.function.Supplier;
 
@@ -47,20 +47,21 @@ public enum VertexConsumer {
         renderer.consume(vertices, texture);
     }
 
-    public void finishBatch(Matrix4f proj, Matrix4f view) {
+    public void finishBatch(Camera camera) {
+        Shader old = Shader.activeShader;
         Shader s = shader.getShader().use();
-        s.setup(proj, view);
-
+        s.setup(camera.getProjectionMatrix(), camera.getViewMatrix());
         renderer.render(s);
+        old.use();
     }
 
     public void finishBatch(Shader shader) {
         renderer.render(shader);
     }
 
-    public static void finishAllBatches(Matrix4f proj, Matrix4f view) {
+    public static void finishAllBatches(Camera camera) {
         for (VertexConsumer consumer : VertexConsumer.values())
-            consumer.finishBatch(proj, view);
+            consumer.finishBatch(camera);
     }
 
     public static void finishAllBatches(Shader shader) {

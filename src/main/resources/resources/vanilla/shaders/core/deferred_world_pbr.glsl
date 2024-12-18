@@ -17,7 +17,7 @@ out vec4 fragColor;
 //gBuffer
 uniform sampler2D gPosition;
 uniform sampler2D gAlbedo;
-uniform sampler2D gRMAo;
+uniform sampler2D gORM;
 uniform sampler2D gNormal;
 uniform sampler2D gEmissive;
 
@@ -79,9 +79,9 @@ vec4 applyLighting(vec3 pos) {
     vec4 albedo4 = texture(gAlbedo, texCoords);
     vec3 albedo = albedo4.rgb;
 
-    float roughness = texture(gRMAo, texCoords).r;
-    float metallic  = texture(gRMAo, texCoords).g;
-    float ao        = texture(gRMAo, texCoords).b;
+    float ao        = texture(gORM, texCoords).r;
+    float roughness = texture(gORM, texCoords).g;
+    float metallic  = texture(gORM, texCoords).b;
 
     //normal mapping
     vec3 N = texture(gNormal, texCoords).rgb;
