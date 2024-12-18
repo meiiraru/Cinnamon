@@ -4,6 +4,7 @@ import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.screens.MainMenu;
 import cinnamon.gui.screens.world.PauseScreen;
+//import cinnamon.networking.ServerConnection;
 import cinnamon.render.Camera;
 import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
