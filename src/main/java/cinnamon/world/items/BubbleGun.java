@@ -1,7 +1,10 @@
 package cinnamon.world.items;
 
 import cinnamon.registry.ItemModelRegistry;
+import cinnamon.sound.SoundCategory;
+import cinnamon.sound.SoundInstance;
 import cinnamon.utils.Maths;
+import cinnamon.utils.Resource;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
@@ -11,10 +14,17 @@ import org.joml.Vector3f;
 
 public class BubbleGun extends Item {
 
+    private static final Resource SHOOT_LOOP_SOUND = new Resource("sounds/item/bubble_gun/shoot_loop.ogg");
     private static final float DISTANCE = 1f;
+    private SoundInstance shoot_loop;
 
     public BubbleGun(int stackCount) {
         super(ItemModelRegistry.BUBBLE_GUN.id, stackCount, ItemModelRegistry.BUBBLE_GUN.resource);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
     }
 
     @Override
@@ -38,6 +48,15 @@ public class BubbleGun extends Item {
 
         //add
         source.getWorld().addParticle(particle);
+        if (shoot_loop == null || shoot_loop.isRemoved())
+            shoot_loop = source.getWorld().playSound(SHOOT_LOOP_SOUND, SoundCategory.ENTITY, source.getPos()).volume(1f);
+    }
+
+    @Override
+    public void stopAttacking(Entity source) {
+        super.stopAttacking(source);
+        if (shoot_loop != null)
+            shoot_loop.stop();
     }
 
     private static Vector3f spawnPos(Entity source) {
