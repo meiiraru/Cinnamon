@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class PotatoCannon extends Weapon {
 
-    private static final Resource SHOOT_SOUND = new Resource("sounds/pvc.ogg");
+    private static final Resource SHOOT_SOUND = new Resource("sounds/item/weapon/potato_cannon/shoot.ogg");
 
     public PotatoCannon(int maxRounds, int reloadTime, int useCooldown) {
         super(ItemModelRegistry.POTATO_CANNON.id, ItemModelRegistry.POTATO_CANNON.resource, maxRounds, reloadTime, useCooldown);
