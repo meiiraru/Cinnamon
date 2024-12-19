@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 
 public abstract class World {
 
-    protected static final Resource EXPLOSION_SOUND = new Resource("sounds/explosion.ogg");
+    protected static final Resource EXPLOSION_SOUND = new Resource("sounds/world/explosion.ogg");
 
     protected final Queue<Runnable> scheduledTicks = new LinkedList<>();
 

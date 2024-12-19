@@ -8,7 +8,7 @@ import cinnamon.utils.Resource;
 
 public class BubbleParticle extends SpriteParticle {
 
-    private static final Resource POP_SOUND = new Resource("sounds/bubble_pop.ogg");
+    private static final Resource POP_SOUND = new Resource("sounds/particle/bubble/pop.ogg");
 
     public BubbleParticle(int lifetime, int color) {
         super(lifetime, color);

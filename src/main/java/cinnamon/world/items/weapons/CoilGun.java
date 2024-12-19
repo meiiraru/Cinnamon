@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class CoilGun extends Weapon {
 
-    private static final Resource SHOOT_SOUND = new Resource("sounds/pop.ogg");
+    private static final Resource SHOOT_SOUND = new Resource("sounds/item/weapon/coil_gun/shoot.ogg");
 
     public CoilGun(int maxRounds, int reloadTime, int useCooldown) {
         super(ItemModelRegistry.COIL_GUN.id, ItemModelRegistry.COIL_GUN.resource, maxRounds, reloadTime, useCooldown);
