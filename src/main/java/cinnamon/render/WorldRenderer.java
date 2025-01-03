@@ -6,8 +6,7 @@ import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
-
-import java.util.function.Consumer;
+import cinnamon.world.world.WorldClient;
 
 public class WorldRenderer {
 
@@ -19,7 +18,7 @@ public class WorldRenderer {
 
     //public static final Material TERRAIN_MATERIAL = MaterialManager.load(new Resource("textures/terrain/terrain.pbr"), "terrain");
 
-    public static void prepareGeometry(Camera camera) {
+    public static void prepare(Camera camera) {
         PBRFrameBuffer.useClear();
         Framebuffer.DEFAULT_FRAMEBUFFER.blit(PBRFrameBuffer.id(), false, false, true);
         Shader s = GEOMETRY_PASS.getShader().use();
@@ -27,18 +26,28 @@ public class WorldRenderer {
         s.setVec3("camPos", camera.getPos());
     }
 
-    public static void render(Consumer<Shader> shaderConsumer) {
+    public static void finish(WorldClient world) {
         Framebuffer.DEFAULT_FRAMEBUFFER.use();
         Shader s = LIGHTING_PASS.getShader().use();
-        shaderConsumer.accept(s);
+
+        //world uniforms
+        world.applyWorldUniforms(s);
+        //world.applyShadowUniforms(s);
+        world.getSkyBox().pushToShader(s, Texture.MAX_TEXTURES - 1);
+
+        //gbuffer textures
         s.setInt("gPosition", 0);
         s.setInt("gAlbedo", 1);
         s.setInt("gORM", 2);
         s.setInt("gNormal", 3);
         s.setInt("gEmissive", 4);
         int tex = PBRFrameBuffer.bindTextures();
+
+        //render and blit to main framebuffer
         SimpleGeometry.QUAD.render();
         PBRFrameBuffer.blit(Framebuffer.DEFAULT_FRAMEBUFFER.id(), false, true, true);
+
+        //cleanup textures
         Texture.unbindAll(tex);
     }
 

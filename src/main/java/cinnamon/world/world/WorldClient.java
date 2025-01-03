@@ -48,16 +48,15 @@ import cinnamon.world.particle.Particle;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.Chunk;
 import cinnamon.world.worldgen.TerrainGenerator;
-import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
-import org.joml.Vector3i;
+import org.joml.*;
 
+import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.glColorMask;
 import static org.lwjgl.opengl.GL11.glViewport;
 
 public class WorldClient extends World {
@@ -87,6 +86,7 @@ public class WorldClient extends World {
 
     //post process
     private PostProcess postProcess;
+    private boolean anaglyph3D = false;
 
     //counters
     private int renderedEntities, renderedChunks, renderedTerrain, renderedParticles;
@@ -217,36 +217,50 @@ public class WorldClient extends World {
         //render shadows
         //renderShadows(client.camera, matrices, delta);
 
-        //setup world PBR shader
-        WorldRenderer.prepareGeometry(client.camera);
+        if (anaglyph3D) {
+            //render skybox first
+            renderSky(matrices, delta);
 
-        //render world
-        renderWorld(client.camera, matrices, delta);
+            float eyeDistance = 1f / 32f;
+            float angle = (float) Math.toRadians(-2) * 0.5f;
+            Vector3f rot = client.camera.getUp();
+            Vector3f pos = client.camera.getPos();
+            boolean left = true;
 
-        //render local player item effects
-        renderItemExtra(matrices, delta);
+            for (int i = 0; i < 2; i++) {
+                //move and rotate camera to eye position
+                client.camera.move(left ? -eyeDistance / 2 : eyeDistance, 0, 0);
+                matrices.push();
+                matrices.translate(pos);
+                matrices.rotate(new Quaternionf().setAngleAxis(left ? -angle : angle, rot.x, rot.y, rot.z));
+                matrices.translate(-pos.x, -pos.y, -pos.z);
 
-        //render debug
-        if (!hideHUD) {
-            if (debugRendering) {
-                renderHitboxes(client.camera, matrices, delta);
-                renderHitResults(matrices);
+                //render world
+                WorldRenderer.prepare(client.camera);
+                renderWorld(client.camera, matrices, delta);
+
+                //apply eye color mask
+                glColorMask(left, !left, !left, true);
+
+                //finish rendering
+                WorldRenderer.finish(this);
+                VertexConsumer.finishAllBatches(client.camera);
+
+                //cleanup
+                matrices.pop();
+                glColorMask(true, true, true, true);
+                left = !left;
             }
+        } else {
+            //render world
+            WorldRenderer.prepare(client.camera);
+            renderWorld(client.camera, matrices, delta);
+            WorldRenderer.finish(this);
+            VertexConsumer.finishAllBatches(client.camera);
 
-            renderTargetedBlock(matrices, delta);
+            //render skybox last
+            renderSky(matrices, delta);
         }
-
-        //finish rendering
-        WorldRenderer.render(shader -> {
-            applyWorldUniforms(shader);
-            //applyShadowUniforms(shader);
-            skyBox.pushToShader(shader, Texture.MAX_TEXTURES - 1);
-        });
-
-        VertexConsumer.finishAllBatches(client.camera);
-
-        //render skybox
-        renderSky(matrices, delta);
 
         if (postProcess != null)
             PostProcess.apply(postProcess);
@@ -313,10 +327,10 @@ public class WorldClient extends World {
         camera.updateFrustum();
     }
 
-    protected List<Chunk> getChunksToRender() {
+    protected List<Chunk> getChunksToRender(Camera camera) {
         List<Chunk> list = new ArrayList<>();
 
-        Vector3i startingPoint = getChunkGridPos(player.getPos());
+        Vector3i startingPoint = getChunkGridPos(camera.getPos());
         for (int x = -renderDistance; x <= renderDistance; x++) {
             for (int y = -renderDistance; y <= renderDistance; y++) {
                 for (int z = -renderDistance; z <= renderDistance; z++) {
@@ -335,7 +349,7 @@ public class WorldClient extends World {
         //render terrain
         renderedChunks = 0;
         renderedTerrain = 0;
-        for (Chunk chunk : getChunksToRender()) {
+        for (Chunk chunk : getChunksToRender(camera)) {
             if (chunk.shouldRender(camera)) {
                 renderedTerrain += chunk.render(camera, matrices, delta);
                 renderedChunks++;
@@ -359,13 +373,25 @@ public class WorldClient extends World {
                 renderedParticles++;
             }
         }
+
+        //render camera entity item effects
+        Entity cameraEntity = camera.getEntity();
+        if (cameraEntity instanceof LivingEntity le)
+            renderItemExtra(le, matrices, delta);
+
+        //render debug
+        if (!hideHUD) {
+            if (debugRendering) {
+                renderHitboxes(camera, matrices, delta);
+                renderHitResults(cameraEntity, matrices);
+            }
+
+            renderTargetedBlock(cameraEntity, matrices, delta);
+        }
     }
 
-    protected void renderItemExtra(MatrixStack matrices, float delta) {
-        if (!(client.camera.getEntity() instanceof LivingEntity le))
-            return;
-
-        Item item = le.getHoldingItem();
+    protected void renderItemExtra(LivingEntity entity, MatrixStack matrices, float delta) {
+        Item item = entity.getHoldingItem();
         if (item == null)
             return;
 
@@ -373,12 +399,12 @@ public class WorldClient extends World {
     }
 
     public void renderHand(Camera camera, MatrixStack matrices, float delta) {
-        Item item = player.getHoldingItem();
-        if (item == null)
+        Item item;
+        if (!(camera.getEntity() instanceof LivingEntity le) || (item = le.getHoldingItem()) == null)
             return;
 
         //set world shader
-        WorldRenderer.prepareGeometry(client.camera);
+        WorldRenderer.prepare(client.camera);
 
         matrices.push();
 
@@ -395,10 +421,7 @@ public class WorldClient extends World {
         matrices.pop();
 
         //finish rendering
-        WorldRenderer.render(shader -> {
-            applyWorldUniforms(shader);
-            skyBox.pushToShader(shader, Texture.MAX_TEXTURES - 1);
-        });
+        WorldRenderer.finish(this);
     }
 
     protected void renderShadowBuffer(int x, int y, int size) {
@@ -410,14 +433,15 @@ public class WorldClient extends World {
     protected void renderHitboxes(Camera camera, MatrixStack matrices, float delta) {
         Vector3f cameraPos = camera.getPos();
         AABB area = new AABB();
-        area.translate(player.getPos());
+        area.translate(cameraPos);
         area.inflate(8f);
 
         for (Terrain t : getTerrain(area))
             t.renderDebugHitbox(matrices, delta);
 
+        Entity cameraEntity = camera.getEntity();
         for (Entity e : getEntities(area)) {
-            if (e != player || isThirdPerson())
+            if (e != cameraEntity || isThirdPerson())
                 e.renderDebugHitbox(matrices, delta);
         }
 
@@ -442,17 +466,17 @@ public class WorldClient extends World {
         }
     }
 
-    protected void renderHitResults(MatrixStack matrices) {
+    protected void renderHitResults(Entity cameraEntity, MatrixStack matrices) {
         float f = 0.025f;
-        float r = player.getPickRange();
+        float r = cameraEntity.getPickRange();
 
-        Hit<Terrain> terrain = player.getLookingTerrain(r);
+        Hit<Terrain> terrain = cameraEntity.getLookingTerrain(r);
         if (terrain != null) {
             Vector3f pos = terrain.pos();
             VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF));
         }
 
-        Hit<Entity> entity = player.getLookingEntity(r);
+        Hit<Entity> entity = cameraEntity.getLookingEntity(r);
         if (entity != null) {
             AABB aabb = entity.obj().getAABB();
             VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00));
@@ -462,9 +486,9 @@ public class WorldClient extends World {
         }
     }
 
-    protected void renderTargetedBlock(MatrixStack matrices, float delta) {
-        Hit<Entity> entity = player.getLookingEntity(player.getPickRange());
-        Hit<Terrain> terrain = player.getLookingTerrain(player.getPickRange());
+    protected void renderTargetedBlock(Entity cameraEntity, MatrixStack matrices, float delta) {
+        Hit<Entity> entity = cameraEntity.getLookingEntity(cameraEntity.getPickRange());
+        Hit<Terrain> terrain = cameraEntity.getLookingTerrain(cameraEntity.getPickRange());
         if (terrain == null || (entity != null && entity.collision().near() < terrain.collision().near()))
             return;
 
@@ -499,6 +523,10 @@ public class WorldClient extends World {
 
     public PostProcess getActivePostProcess() {
         return postProcess;
+    }
+
+    public SkyBox getSkyBox() {
+        return skyBox;
     }
 
     public void addLight(Light light) {
@@ -685,6 +713,8 @@ public class WorldClient extends World {
 
             case GLFW_KEY_COMMA -> selectedTerrain = (selectedTerrain + 1) % (TerrainRegistry.values().length);
             case GLFW_KEY_PERIOD -> selectedMaterial = Maths.modulo((selectedMaterial + (shift ? -1 : 1)), MaterialRegistry.values().length);
+
+            case GLFW_KEY_P -> anaglyph3D = !anaglyph3D;
         }
     }
 
