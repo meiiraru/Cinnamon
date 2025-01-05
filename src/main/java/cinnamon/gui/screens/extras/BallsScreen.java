@@ -6,8 +6,6 @@ import cinnamon.gui.Screen;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.text.Text;
-import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
 import org.joml.Vector2f;
 
@@ -63,9 +61,6 @@ public class BallsScreen extends ParentedScreen {
             ball.render(matrices, mouseX, mouseY, delta);
 
         matrices.pop();
-
-        //draw FPS
-        font.render(VertexConsumer.FONT, matrices, width - 4, 4, Text.of(client.fps + " fps"), Alignment.RIGHT);
     }
 
     @Override

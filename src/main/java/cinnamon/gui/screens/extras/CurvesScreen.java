@@ -189,9 +189,6 @@ public class CurvesScreen extends ParentedScreen {
 
         //draw children
         super.render(matrices, mouseX, mouseY, delta);
-
-        //draw FPS
-        f.render(VertexConsumer.FONT, matrices, width - 4, 4, Text.of(client.fps + " fps"), Alignment.RIGHT);
     }
 
     private static void renderCurve(MatrixStack matrices, List<Vector3f> curve, int colorA, int colorB) {

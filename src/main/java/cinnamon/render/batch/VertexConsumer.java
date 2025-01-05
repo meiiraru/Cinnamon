@@ -51,7 +51,7 @@ public enum VertexConsumer {
         Shader old = Shader.activeShader;
         Shader s = shader.getShader().use();
         s.setup(camera.getProjectionMatrix(), camera.getViewMatrix());
-        renderer.render(s);
+        finishBatch(s);
         old.use();
     }
 

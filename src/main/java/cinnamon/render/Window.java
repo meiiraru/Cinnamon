@@ -1,10 +1,12 @@
 package cinnamon.render;
 
-import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
+
+import java.util.function.BiConsumer;
 
 import static cinnamon.Client.LOGGER;
 import static org.lwjgl.glfw.GLFW.*;
@@ -95,14 +97,14 @@ public class Window {
             this.windowedWidth = this.width;
             this.windowedHeight = this.height;
 
-            Pair<Long, GLFWVidMode> monitor = getMonitorProperties();
-            GLFWVidMode vidMode = monitor.second();
+            long monitor = getCurrentMonitor();
+            GLFWVidMode vidMode = glfwGetVideoMode(monitor);
 
             this.x = this.y = 0;
             this.width = vidMode.width();
             this.height = vidMode.height();
 
-            glfwSetWindowMonitor(window, monitor.first(), x, y, width, height, vidMode.refreshRate());
+            glfwSetWindowMonitor(window, monitor, x, y, width, height, vidMode.refreshRate());
         }
         //set windowed
         else {
@@ -115,13 +117,36 @@ public class Window {
         }
     }
 
-    public Pair<Long, GLFWVidMode> getMonitorProperties() {
-        //grab monitor
-        long monitor = glfwGetWindowMonitor(window);
-        if (monitor == NULL)
-            monitor = glfwGetPrimaryMonitor();
+    public long getCurrentMonitor() {
+        int overlap, bestoverlap = 0;
+        long bestmonitor = glfwGetPrimaryMonitor();
 
-        return Pair.of(monitor, glfwGetVideoMode(monitor));
+        PointerBuffer monitors;
+        monitors = glfwGetMonitors();
+
+        if (monitors == null)
+            return bestmonitor;
+
+        int[] mx = {0}, my = {0};
+        while (monitors.hasRemaining()) {
+            long monitor = monitors.get();
+
+            GLFWVidMode mode = glfwGetVideoMode(monitor);
+            if (mode == null)
+                continue;
+
+            glfwGetMonitorPos(monitor, mx, my);
+            int xOverlap = Math.max(0, Math.min(x + width,  mx[0] + mode.width())  - Math.max(x, mx[0]));
+            int yOverlap = Math.max(0, Math.min(y + height, my[0] + mode.height()) - Math.max(y, my[0]));
+
+            overlap = xOverlap * yOverlap;
+            if (bestoverlap < overlap) {
+                bestoverlap = overlap;
+                bestmonitor = monitor;
+            }
+        }
+
+        return bestmonitor;
     }
 
     public void setTitle(String title) {
@@ -180,5 +205,46 @@ public class Window {
         } catch (Exception e) {
             LOGGER.error("Failed to set window icon", e);
         }
+    }
+
+    public void warpMouse(BiConsumer<Integer, Integer> deltaConsumer) {
+        long monitor = getCurrentMonitor();
+        GLFWVidMode properties = glfwGetVideoMode(monitor);
+        int screenW = properties.width();
+        int screenH = properties.height();
+
+        int[] screenX = {0}, screenY = {0};
+        glfwGetMonitorPos(monitor, screenX, screenY);
+
+        float mx = mouseX * guiScale;
+        float my = mouseY * guiScale;
+        float actualX = mx - screenX[0] + x;
+        float actualY = my - screenY[0] + y;
+
+        if (actualX > 10 && actualX < screenW - 10 && actualY > 10 && actualY < screenH - 10)
+            return;
+
+        try {
+            int dx = (int) ((screenW - 30) / guiScale);
+            int dy = (int) ((screenH - 30) / guiScale);
+
+            if (actualX <= 10) {
+                LOGGER.debug("mouse warp left");
+                glfwSetCursorPos(window, screenX[0] + screenW - x - 20, my);
+                deltaConsumer.accept(dx, 0);
+            } else if (actualX >= screenW - 10) {
+                LOGGER.debug("mouse warp right");
+                glfwSetCursorPos(window, screenX[0] - x + 20, my);
+                deltaConsumer.accept(-dx, 0);
+            } else if (actualY <= 10) {
+                LOGGER.debug("mouse warp up");
+                glfwSetCursorPos(window, mx, screenY[0] + screenH - y - 20);
+                deltaConsumer.accept(0, dy);
+            } else { //if (actualY >= screenH - 10)
+                LOGGER.debug("mouse warp down");
+                glfwSetCursorPos(window, mx, screenY[0] - y + 20);
+                deltaConsumer.accept(0, -dy);
+            }
+        } catch (Exception ignored) {}
     }
 }

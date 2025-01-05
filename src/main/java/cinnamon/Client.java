@@ -11,6 +11,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
+import cinnamon.render.shader.PostProcess;
 import cinnamon.resource.ResourceManager;
 import cinnamon.settings.Settings;
 import cinnamon.sound.SoundManager;
@@ -19,6 +20,7 @@ import cinnamon.utils.Await;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
 import cinnamon.utils.Timer;
+import cinnamon.world.Hud;
 import cinnamon.world.world.WorldClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,6 +48,10 @@ public class Client {
 
     public String name = "Player";
     public UUID playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
+
+    public boolean debug;
+    public int postProcess = -1;
+    public boolean anaglyph3D = false;
 
     //objects
     public Window window;
@@ -94,8 +100,6 @@ public class Client {
         matrices.push();
 
         if (world != null) {
-            camera.useOrtho(false);
-
             //render world
             world.render(matrices, delta);
 
@@ -107,7 +111,6 @@ public class Client {
                 }
 
                 //render hud
-                camera.useOrtho(true);
                 glClear(GL_DEPTH_BUFFER_BIT); //top of hand
                 world.hud.render(matrices, delta);
             }
@@ -115,7 +118,6 @@ public class Client {
 
         boolean toasts = world == null || !world.hideHUD();
         if (this.screen != null || toasts) {
-            camera.useOrtho(true);
             glClear(GL_DEPTH_BUFFER_BIT); //top of hud
 
             //render screen
@@ -128,6 +130,13 @@ public class Client {
 
             VertexConsumer.finishAllBatches(camera);
         }
+
+        if (postProcess != -1)
+            PostProcess.apply(PostProcess.EFFECTS[postProcess]);
+
+        //debug hud
+        Hud.renderDebugText(matrices);
+        VertexConsumer.FONT.finishBatch(camera);
 
         //finish rendering
         matrices.pop();
@@ -225,8 +234,19 @@ public class Client {
 
     public void keyPress(int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS) {
+            boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
             switch (key) {
                 case GLFW_KEY_F2 -> TextureIO.screenshot(window.width, window.height);
+                case GLFW_KEY_F3 -> debug = !debug;
+                case GLFW_KEY_F9 -> {
+                    if (postProcess == -1)
+                        postProcess = shift ? PostProcess.EFFECTS.length - 1 : 0;
+                    else if ((postProcess == 0 && shift) || (postProcess == PostProcess.EFFECTS.length - 1 && !shift))
+                        postProcess = -1;
+                    else
+                        postProcess += shift ? -1 : 1;
+                }
+                case GLFW_KEY_F10 -> anaglyph3D = !anaglyph3D;
                 case GLFW_KEY_F11 -> window.toggleFullScreen();
                 case GLFW_KEY_F12 -> reloadAssets();
             }

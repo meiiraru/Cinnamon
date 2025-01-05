@@ -29,8 +29,9 @@ public class LocalPlayer extends Player {
 
     @Override
     public boolean shouldRenderText() {
-        boolean itself = Client.getInstance().camera.getEntity() == this;
-        return super.shouldRenderText() && (!itself || ((WorldClient) getWorld()).isDebugRendering());
+        Client client = Client.getInstance();
+        boolean itself = client.camera.getEntity() == this;
+        return super.shouldRenderText() && (!itself || client.debug);
     }
 
     @Override

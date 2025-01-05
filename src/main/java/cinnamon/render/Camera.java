@@ -9,6 +9,8 @@ import org.joml.*;
 
 import java.lang.Math;
 
+import static org.lwjgl.opengl.GL11.glColorMask;
+
 public class Camera {
 
     public static final float
@@ -30,7 +32,7 @@ public class Camera {
             viewMatrix = new Matrix4f(),
             orthoMatrix = new Matrix4f(),
             perspMatrix = new Matrix4f();
-    private boolean isOrtho = false;
+    private boolean isOrtho = true;
 
     private Entity entity;
 
@@ -75,9 +77,11 @@ public class Camera {
         area.translate(pos);
         area.expand(move);
 
-        Hit<?> hit = entity.getWorld().raycastTerrain(area, pos, move);
-        if (hit != null)
-            move.mul(hit.collision().near());
+        if (entity != null) {
+            Hit<?> hit = entity.getWorld().raycastTerrain(area, pos, move);
+            if (hit != null)
+                move.mul(hit.collision().near());
+        }
 
         pos.add(move.mul(epsilon));
     }
@@ -149,6 +153,37 @@ public class Camera {
 
     public void updateFrustum(Matrix4f mvp) {
         frustum.updateFrustum(mvp);
+    }
+
+    public void anaglyph3D(MatrixStack matrices, float eyeDistance, float angle, Runnable customBufferRenderer, Runnable mainBufferRenderer) {
+        boolean left = angle < 0;
+        float angleRad = (float) Math.toRadians(angle);
+
+        for (int i = 0; i < 2; i++) {
+            //move and rotate matrices to eye position
+            Quaternionf rot = new Quaternionf().setAngleAxis(left ? -angleRad : angleRad, up.x, up.y, up.z);
+            Vector3f offset = new Vector3f(left ? -eyeDistance : eyeDistance, 0, 0).rotate(rotation);
+
+            matrices.push();
+            matrices.translate(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
+            matrices.rotate(rot);
+            matrices.translate(-pos.x, -pos.y, -pos.z);
+
+            //custom renderer
+            if (customBufferRenderer != null)
+                customBufferRenderer.run();
+
+            //apply eye color mask
+            glColorMask(left, !left, !left, true);
+
+            //finish rendering
+            mainBufferRenderer.run();
+
+            //cleanup
+            matrices.pop();
+            glColorMask(true, true, true, true);
+            left = !left;
+        }
     }
 
     public void setEntity(Entity entity) {

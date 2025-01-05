@@ -59,16 +59,6 @@ public class Hud {
     public void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
 
-        //render debug text
-        if (c.world.isDebugRendering()) {
-            Style style = Style.EMPTY.background(true);
-            c.font.render(VertexConsumer.FONT, matrices, 4, 4, TextUtils.parseColorFormatting(Text.of(debugLeftText())).withStyle(style));
-            c.font.render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, TextUtils.parseColorFormatting(Text.of(debugRightText())).withStyle(style), Alignment.RIGHT);
-        } else if (Settings.showFPS.get()) {
-            Style style = Style.EMPTY.shadow(true);
-            c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(style));
-        }
-
         //draw player stats
         drawPlayerStats(matrices, c.world.player, delta);
 
@@ -89,19 +79,17 @@ public class Hud {
         //hit direction
         drawHitDirection(matrices, player, delta);
 
-        if (!Client.getInstance().world.isDebugRendering()) {
-            //draw hp and other stuff
-            drawHealth(matrices, player, delta);
+        //draw hp and other stuff
+        drawHealth(matrices, player, delta);
 
-            //draw item stats
-            drawItemStats(matrices, player.getHoldingItem(), delta);
+        //draw item stats
+        drawItemStats(matrices, player.getHoldingItem(), delta);
 
-            //effects
-            drawEffects(matrices, player, delta);
+        //effects
+        drawEffects(matrices, player, delta);
 
-            //selected terrain
-            drawSelectedTerrain(matrices, delta);
-        }
+        //selected terrain
+        drawSelectedTerrain(matrices, delta);
     }
 
     private void drawHealth(MatrixStack matrices, Player player, float delta) {
@@ -344,7 +332,7 @@ public class Hud {
         int w = c.window.scaledWidth;
         int h = c.window.scaledHeight;
 
-        if (c.world.isDebugRendering()) {
+        if (c.debug) {
             matrices.push();
             matrices.translate(w / 2f, h / 2f, 0);
             matrices.scale(1, 1, -1);
@@ -369,12 +357,37 @@ public class Hud {
         }
     }
 
-    private static String debugLeftText() {
+
+    // -- debug -- //
+
+
+    public static void renderDebugText(MatrixStack matrices) {
         Client c = Client.getInstance();
 
+        //render debug text
+        Style style = Style.EMPTY.background(true).backgroundColor(0x88000000);
+        if (c.debug) {
+            c.font.render(VertexConsumer.FONT, matrices, 4, 4, TextUtils.parseColorFormatting(Text.of(debugLeftText(c))).withStyle(style));
+            c.font.render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, TextUtils.parseColorFormatting(Text.of(debugRightText(c))).withStyle(style), Alignment.RIGHT);
+        } else if (Settings.showFPS.get()) {
+            //Style style = Style.EMPTY.shadow(true);
+            c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(style));
+        }
+    }
+
+    private static String debugLeftText(Client c) {
         int soundCount = SoundManager.getSoundCount();
 
         WorldClient w = c.world;
+        if (w == null) {
+            return String.format("""
+                    &e%s&r fps @ &e%s&r ms
+
+                    [&bworld&r]
+                     &cNo world loaded&r
+                    """, c.fps, c.ms);
+        }
+
         Player p = w.player;
 
         Vector3f epos = p.getPos();
@@ -450,15 +463,15 @@ public class Hud {
         );
     }
 
-    private static String debugRightText() {
+    private static String debugRightText(Client c) {
         Runtime r = Runtime.getRuntime();
         long max = r.maxMemory();
         long total = r.totalMemory();
         long free = r.freeMemory();
         long used = total - free;
 
-        Window w = Client.getInstance().window;
-        PostProcess post = Client.getInstance().world.getActivePostProcess();
+        Window w = c.window;
+        PostProcess post = c.postProcess == -1 ? null : PostProcess.EFFECTS[c.postProcess];
 
         return String.format("""
                 [&bjava&r]
@@ -475,8 +488,9 @@ public class Hud {
                 &e%s&r x &e%s&r\s
                 gui scale &e%s&r\s
 
-                [&bpost process&r]
-                %s\s
+                [&beffects&r]
+                post process &e%s&r\s
+                3D anaglyph &e%s&r\s
                 """,
                 System.getProperty("java.version"),
                 used * 100 / max, Maths.prettyByteSize(used), Maths.prettyByteSize(max),
@@ -489,7 +503,8 @@ public class Hud {
                 w.width, w.height,
                 w.guiScale,
 
-                post == null ? "none" : "&e" + post.name() + "&r"
+                post == null ? "none" : post.name(),
+                c.anaglyph3D ? "on" : "off"
         );
     }
 

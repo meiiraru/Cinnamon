@@ -47,7 +47,7 @@ public class ModelViewerScreen extends ParentedScreen {
 
     //view transforms
     private float posX = 0, posY = 0;
-    private float scale = 64;
+    private float scale = 96;
     private float rotX = -22.5f, rotY = 30;
 
     //dragging
@@ -139,7 +139,12 @@ public class ModelViewerScreen extends ParentedScreen {
         //VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, listWidth, 4, width - 4, height - 4, 0x20000000));
 
         //render model
-        renderModel(matrices);
+        if (client.anaglyph3D) {
+            client.camera.anaglyph3D(matrices, 1f, 1f, () -> renderModelToBuffer(matrices), () -> renderBuffer(matrices));
+        } else {
+            renderModelToBuffer(matrices);
+            renderBuffer(matrices);
+        }
     }
 
     @Override
@@ -150,7 +155,7 @@ public class ModelViewerScreen extends ParentedScreen {
         font.render(VertexConsumer.FONT, matrices, (width - listWidth) / 2f + listWidth, 4, Text.of(modelName).withStyle(Style.EMPTY.outlined(true)), Alignment.CENTER);
     }
 
-    private void renderModel(MatrixStack matrices) {
+    private void renderModelToBuffer(MatrixStack matrices) {
         if (currentModel == null)
             return;
 
@@ -175,7 +180,7 @@ public class ModelViewerScreen extends ParentedScreen {
         //setup shader
         Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
         s.setup(client.camera.getProjectionMatrix(), client.camera.getViewMatrix());
-        s.setVec3("camPos", client.camera.getPos());
+        s.setVec3("camPos", 0, 0, 0);
         s.setFloat("fogStart", 1024);
         s.setFloat("fogEnd", 2048);
         skybox.pushToShader(s, Texture.MAX_TEXTURES - 1);
@@ -189,7 +194,9 @@ public class ModelViewerScreen extends ParentedScreen {
         oldShader.use();
         matrices.pop();
         client.camera.useOrtho(true);
+    }
 
+    private void renderBuffer(MatrixStack matrices) {
         //draw framebuffer result
         UIHelper.pushScissors(listWidth, 4, width - listWidth - 4, height - 8);
         VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, listWidth / 2f, 0, width, height, 0, 0f, 1f, 1f, 0f), modelBuffer.getColorBuffer());
@@ -217,14 +224,14 @@ public class ModelViewerScreen extends ParentedScreen {
     private void resetView() {
         posX = 0;
         posY = 0;
-        scale = 92;
+        scale = 96;
         rotX = -22.5f;
         rotY = 30;
     }
 
     @Override
     public boolean mousePress(int button, int action, int mods) {
-        if (dragged != -1 && action != GLFW_PRESS) {
+        if (dragged != -1) {
             dragged = -1;
             return true;
         }
@@ -279,6 +286,11 @@ public class ModelViewerScreen extends ParentedScreen {
             posY = Math.clamp(posY, -limitY, limitY);
         }
 
+        client.window.warpMouse((deltaX, deltaY) -> {
+            anchorX += deltaX;
+            anchorY += deltaY;
+        });
+
         return true;
     }
 
@@ -304,6 +316,12 @@ public class ModelViewerScreen extends ParentedScreen {
         */
 
         return true;
+    }
+
+    @Override
+    public boolean windowFocused(boolean focused) {
+        if (!focused) dragged = -1;
+        return super.windowFocused(focused);
     }
 
     public boolean filesDropped(String[] files) {

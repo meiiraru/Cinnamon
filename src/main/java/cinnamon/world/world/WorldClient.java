@@ -17,7 +17,6 @@ import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
-import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
@@ -48,15 +47,16 @@ import cinnamon.world.particle.Particle;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.Chunk;
 import cinnamon.world.worldgen.TerrainGenerator;
-import org.joml.*;
+import org.joml.Matrix4f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
 
-import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.glColorMask;
 import static org.lwjgl.opengl.GL11.glViewport;
 
 public class WorldClient extends World {
@@ -69,7 +69,6 @@ public class WorldClient extends World {
 
     private int cameraMode = 0;
 
-    private boolean debugRendering;
     private boolean hideHUD;
 
     //lights
@@ -83,10 +82,6 @@ public class WorldClient extends World {
     private final Framebuffer shadowBuffer = new Framebuffer(2048, 2048, Framebuffer.DEPTH_BUFFER);
     private final Matrix4f lightSpaceMatrix = new Matrix4f();
     private boolean renderShadowMap;
-
-    //post process
-    private PostProcess postProcess;
-    private boolean anaglyph3D = false;
 
     //counters
     private int renderedEntities, renderedChunks, renderedTerrain, renderedParticles;
@@ -206,6 +201,7 @@ public class WorldClient extends World {
             return;
 
         //set camera
+        client.camera.useOrtho(false);
         client.camera.setEntity(player);
         client.camera.setup(cameraMode, delta);
         client.camera.updateFrustum();
@@ -217,40 +213,16 @@ public class WorldClient extends World {
         //render shadows
         //renderShadows(client.camera, matrices, delta);
 
-        if (anaglyph3D) {
+        if (client.anaglyph3D) {
             //render skybox first
             renderSky(matrices, delta);
-
-            float eyeDistance = 1f / 32f;
-            float angle = (float) Math.toRadians(-2) * 0.5f;
-            Vector3f rot = client.camera.getUp();
-            Vector3f pos = client.camera.getPos();
-            boolean left = true;
-
-            for (int i = 0; i < 2; i++) {
-                //move and rotate camera to eye position
-                client.camera.move(left ? -eyeDistance / 2 : eyeDistance, 0, 0);
-                matrices.push();
-                matrices.translate(pos);
-                matrices.rotate(new Quaternionf().setAngleAxis(left ? -angle : angle, rot.x, rot.y, rot.z));
-                matrices.translate(-pos.x, -pos.y, -pos.z);
-
-                //render world
+            client.camera.anaglyph3D(matrices, -1f / 64f, -1f, () -> {
                 WorldRenderer.prepare(client.camera);
                 renderWorld(client.camera, matrices, delta);
-
-                //apply eye color mask
-                glColorMask(left, !left, !left, true);
-
-                //finish rendering
+            }, () -> {
                 WorldRenderer.finish(this);
                 VertexConsumer.finishAllBatches(client.camera);
-
-                //cleanup
-                matrices.pop();
-                glColorMask(true, true, true, true);
-                left = !left;
-            }
+            });
         } else {
             //render world
             WorldRenderer.prepare(client.camera);
@@ -262,8 +234,7 @@ public class WorldClient extends World {
             renderSky(matrices, delta);
         }
 
-        if (postProcess != null)
-            PostProcess.apply(postProcess);
+        client.camera.useOrtho(true);
 
         //debug shadows
         if (renderShadowMap)
@@ -381,7 +352,7 @@ public class WorldClient extends World {
 
         //render debug
         if (!hideHUD) {
-            if (debugRendering) {
+            if (client.debug) {
                 renderHitboxes(camera, matrices, delta);
                 renderHitResults(cameraEntity, matrices);
             }
@@ -403,9 +374,9 @@ public class WorldClient extends World {
         if (!(camera.getEntity() instanceof LivingEntity le) || (item = le.getHoldingItem()) == null)
             return;
 
-        //set world shader
+        //setup rendering
+        client.camera.useOrtho(false);
         WorldRenderer.prepare(client.camera);
-
         matrices.push();
 
         //camera transforms
@@ -422,6 +393,7 @@ public class WorldClient extends World {
 
         //finish rendering
         WorldRenderer.finish(this);
+        client.camera.useOrtho(true);
     }
 
     protected void renderShadowBuffer(int x, int y, int size) {
@@ -519,10 +491,6 @@ public class WorldClient extends World {
         s.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         s.setVec3("shadowDir", skyBox.getSunDirection());
         s.setTexture("shadowMap", shadowBuffer.getDepthBuffer(), Texture.MAX_TEXTURES - 1);
-    }
-
-    public PostProcess getActivePostProcess() {
-        return postProcess;
     }
 
     public SkyBox getSkyBox() {
@@ -681,50 +649,27 @@ public class WorldClient extends World {
             case GLFW_KEY_ESCAPE -> client.setScreen(new PauseScreen());
             case GLFW_KEY_ENTER -> client.setScreen(new ChatScreen());
             case GLFW_KEY_F1 -> this.hideHUD = !this.hideHUD;
-            case GLFW_KEY_F3 -> this.debugRendering = !this.debugRendering;
             case GLFW_KEY_F4 -> this.renderShadowMap = !this.renderShadowMap;
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
             case GLFW_KEY_F7 -> this.timeOfTheDay -= 100;
             case GLFW_KEY_F8 -> this.timeOfTheDay += 100;
-            case GLFW_KEY_F9 -> {
-                if (postProcess == null) {
-                    int i = shift ? PostProcess.EFFECTS.length - 1 : 0;
-                    postProcess = PostProcess.EFFECTS[i];
-                } else {
-                    int i = -1;
-                    for (int j = 0; j < PostProcess.EFFECTS.length; j++) {
-                        if (PostProcess.EFFECTS[j] == postProcess) {
-                            i = j;
-                            break;
-                        }
-                    }
-                    i += shift ? -1 : 1;
-                    postProcess = i < 0 || i >= PostProcess.EFFECTS.length ? null : PostProcess.EFFECTS[i];
-                }
-            }
 
             case GLFW_KEY_SLASH -> {
                 skyBox.type = SkyBox.Type.values()[(skyBox.type.ordinal() + 1) % SkyBox.Type.values().length];
                 Toast.addToast(Text.of(skyBox.type.name()), client.font).type(Toast.ToastType.WORLD);
             }
+            case GLFW_KEY_COMMA -> selectedTerrain = (selectedTerrain + 1) % (TerrainRegistry.values().length);
+            case GLFW_KEY_PERIOD -> selectedMaterial = Maths.modulo((selectedMaterial + (shift ? -1 : 1)), MaterialRegistry.values().length);
 
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
             //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));
 
-            case GLFW_KEY_COMMA -> selectedTerrain = (selectedTerrain + 1) % (TerrainRegistry.values().length);
-            case GLFW_KEY_PERIOD -> selectedMaterial = Maths.modulo((selectedMaterial + (shift ? -1 : 1)), MaterialRegistry.values().length);
-
-            case GLFW_KEY_P -> anaglyph3D = !anaglyph3D;
         }
     }
 
     public void onWindowResize(int width, int height) {
         resetMovement();
         WorldRenderer.resize(width, height);
-    }
-
-    public boolean isDebugRendering() {
-        return this.debugRendering;
     }
 
     public void resetMovement() {

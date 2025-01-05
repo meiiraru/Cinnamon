@@ -1,9 +1,9 @@
 package cinnamon.world.entity.living;
 
+import cinnamon.Client;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.world.DamageType;
-import cinnamon.world.world.WorldClient;
 import cinnamon.world.entity.Entity;
 
 import java.util.UUID;
@@ -24,7 +24,7 @@ public class Dummy extends LivingEntity {
 
     @Override
     public boolean shouldRenderText() {
-        return super.shouldRenderText() && ((WorldClient) getWorld()).isDebugRendering();
+        return super.shouldRenderText() && Client.getInstance().debug;
     }
 
     @Override
