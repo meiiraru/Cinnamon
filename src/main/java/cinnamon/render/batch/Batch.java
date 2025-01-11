@@ -224,4 +224,10 @@ public abstract class Batch { //vertex consumer
             return (vertices.length - 1) * 2 + 2;
         }
     }
+
+    public static class ScreenSpaceUVBatch extends Batch {
+        public ScreenSpaceUVBatch() {
+            super(6, Attributes.POS, Attributes.TEXTURE_ID, Attributes.COLOR_RGBA);
+        }
+    }
 }

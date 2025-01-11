@@ -21,7 +21,8 @@ public enum Shaders {
     EQUIRECTANGULAR_TO_CUBEMAP,
     DEFERRED_WORLD_PBR,
     GBUFFER_WORLD_PBR,
-    MAIN_MENU;
+    MAIN_MENU,
+    SCREEN_SPACE_UV;
 
     private final Resource resource;
     private Shader shader;

@@ -16,7 +16,8 @@ public enum VertexConsumer {
     WORLD_FONT(FontBatch::new, Shaders.WORLD_FONT),
     FONT(FontFlatBatch::new, Shaders.FONT),
     WORLD_MAIN(MainBatch::new, Shaders.WORLD_MAIN),
-    MAIN(MainFlatBatch::new, Shaders.MAIN);
+    MAIN(MainFlatBatch::new, Shaders.MAIN),
+    SCREEN_UV(ScreenSpaceUVBatch::new, Shaders.SCREEN_SPACE_UV);
 
     private final BatchRenderer<Batch> renderer;
     private final Shaders shader;
