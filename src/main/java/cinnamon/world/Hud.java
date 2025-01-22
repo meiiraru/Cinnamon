@@ -19,6 +19,7 @@ import cinnamon.text.Text;
 import cinnamon.utils.*;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.effects.Effect;
+import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.items.CooldownItem;
 import cinnamon.world.items.Inventory;
@@ -414,6 +415,7 @@ public class Hud {
 
         return String.format("""
                         &e%s&r fps @ &e%s&r ms
+                        &e%s&r %s
 
                         [&bworld&r]
                          &e%s&r/&e%s&r entities &e%s&r/&e%s&r particles
@@ -441,6 +443,7 @@ public class Hud {
                         %s
                         """,
                 c.fps, c.ms,
+                p.getName(), p.getUUID(),
 
                 w.getRenderedEntities(), w.entityCount(), w.getRenderedParticles(), w.particleCount(),
                 w.getRenderedChunks(), w.chunkCount(), w.getRenderedTerrain(),
@@ -516,18 +519,21 @@ public class Hud {
         Vector3f hPos = hit.pos();
         Vector3f normal = hit.collision().normal();
         float distance = range * hit.collision().near();
+        String type = hit.obj().getType().name();
+        String extra = (hit.obj() instanceof Entity e) ? "\n uuid &e" + e.getUUID() + "&r" : "";
         return String.format("""
                  pos &c%.3f &a%.3f &b%.3f&r
                  hit pos &c%.3f &a%.3f &b%.3f&r
                  hit normal &c%.3f &a%.3f &b%.3f&r
                  hit distance &e%.3fm&r
-                 type &e%s&r
+                 type &e%s&r%s
                 """,
                 pos.x, pos.y, pos.z,
                 hPos.x, hPos.y, hPos.z,
                 normal.x, normal.y, normal.z,
                 distance,
-                hit.obj().getType().name()
+                type,
+                extra
         );
     }
 }

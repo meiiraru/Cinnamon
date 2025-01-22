@@ -50,11 +50,11 @@ public class Camera {
 
         //third person
         if (mode == 1)
-            move(0f, 0f, 3f);
+            move(0f, 0f, Math.max(entity.getEyeHeight(), 1f) * 3f);
         //third person front
         else if (mode == 2) {
             setRot(-rot.x, rot.y + 180);
-            move(0f, 0f, 3f);
+            move(0f, 0f, Math.max(entity.getEyeHeight(), 1f) * 3f);
         }
     }
 

@@ -3,10 +3,11 @@ package cinnamon.world.entity.living;
 import cinnamon.Client;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.*;
+import cinnamon.utils.Colors;
+import cinnamon.utils.Resource;
+import cinnamon.utils.Rotation;
 import cinnamon.world.DamageType;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.effects.Effect;
@@ -97,22 +98,10 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     @Override
-    protected void renderTexts(MatrixStack matrices, float delta) {
-        Client c = Client.getInstance();
-        float s = 1 / 48f;
-
-        Text text = getHeadText();
-
-        matrices.translate(0f, aabb.getHeight() + 0.15f, 0f);
-        c.camera.billboard(matrices);
-        matrices.peek().pos().scale(-s);
-        matrices.translate(0f, -TextUtils.getHeight(text, c.font), 0f);
-
-        c.font.render(VertexConsumer.WORLD_FONT, matrices, 0, 0, text, Alignment.CENTER, 50);
-    }
-
     protected Text getHeadText() {
-        return Text.of(getHealth()).withStyle(Style.EMPTY.outlined(true)).append(Text.of(" \u2764").withStyle(Style.EMPTY.color(Colors.RED)));
+        Text sup = super.getHeadText();
+        Text health = Text.of(getHealth()).append(Text.of(" \u2764").withStyle(Style.EMPTY.color(Colors.RED)));
+        return sup == null ? health : sup.append(Text.of("\n").append(health));
     }
 
     @Override

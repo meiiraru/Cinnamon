@@ -2,7 +2,6 @@ package cinnamon.world.entity.living;
 
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
-import cinnamon.text.Text;
 import cinnamon.utils.Maths;
 import cinnamon.world.DamageType;
 import cinnamon.world.entity.Entity;
@@ -16,8 +15,6 @@ public class Player extends LivingEntity {
     private static final int INVULNERABILITY_TIME = 10;
     private static final int INVENTORY_SIZE = 9;
 
-    private String name;
-
     private int invulnerability = 0;
     private Entity damageSource;
     private int damageSourceTicks = 0;
@@ -30,7 +27,7 @@ public class Player extends LivingEntity {
 
     public Player(String name, UUID uuid, LivingModelRegistry model) {
         super(uuid, model == null ? LivingModelRegistry.random() : model, MAX_HEALTH, INVENTORY_SIZE);
-        this.name = name;
+        this.setName(name);
     }
 
     @Override
@@ -150,20 +147,6 @@ public class Player extends LivingEntity {
     @Override
     public EntityRegistry getType() {
         return EntityRegistry.PLAYER;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    protected Text getHeadText() {
-        Text supr = super.getHeadText();
-        return Text.of(getName()).withStyle(supr.getStyle()).append("\n").append(supr);
     }
 
     public boolean isFlying() {

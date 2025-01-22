@@ -9,10 +9,9 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.AnimatedObjRenderer;
 import cinnamon.render.model.ModelRenderer;
-import cinnamon.utils.AABB;
-import cinnamon.utils.Maths;
-import cinnamon.utils.Resource;
-import cinnamon.utils.Rotation;
+import cinnamon.text.Style;
+import cinnamon.text.Text;
+import cinnamon.utils.*;
 import cinnamon.world.DamageType;
 import cinnamon.world.WorldObject;
 import cinnamon.world.collisions.Hit;
@@ -31,6 +30,7 @@ public abstract class Entity extends WorldObject {
 
     protected final UUID uuid;
     protected final ModelRenderer model;
+
     protected final Vector3f
             oPos = new Vector3f();
     protected final Vector2f
@@ -43,6 +43,8 @@ public abstract class Entity extends WorldObject {
     protected Entity riding;
 
     private boolean removed;
+
+    private String name;
 
     public Entity(UUID uuid, Resource model) {
         this.model = ModelManager.load(model);
@@ -99,7 +101,27 @@ public abstract class Entity extends WorldObject {
 
     protected void renderFeatures(MatrixStack matrices, float delta) {}
 
-    protected void renderTexts(MatrixStack matrices, float delta) {}
+    protected void renderTexts(MatrixStack matrices, float delta) {
+        Text text = getHeadText();
+        if (text == null)
+            return;
+
+        text.withStyle(Style.EMPTY.outlined(true));
+
+        Client c = Client.getInstance();
+        float s = 1 / 48f;
+
+        matrices.translate(0f, aabb.getHeight() + 0.15f, 0f);
+        c.camera.billboard(matrices);
+        matrices.peek().pos().scale(-s);
+        matrices.translate(0f, -TextUtils.getHeight(text, c.font), 0f);
+
+        c.font.render(VertexConsumer.WORLD_FONT, matrices, 0, 0, text, Alignment.CENTER, 50);
+    }
+
+    protected Text getHeadText() {
+        return name == null || name.isBlank() ? null : Text.of(name);
+    }
 
     public boolean shouldRenderText() {
         return !((WorldClient) world).hideHUD() && Client.getInstance().camera.getPos().distanceSquared(pos) <= 256;
@@ -368,6 +390,14 @@ public abstract class Entity extends WorldObject {
 
     public boolean isRiding() {
         return this.riding != null;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public void onUse(LivingEntity source) {}
