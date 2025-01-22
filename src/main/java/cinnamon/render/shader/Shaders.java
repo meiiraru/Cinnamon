@@ -23,7 +23,8 @@ public enum Shaders {
     GBUFFER_WORLD_PBR,
     MAIN_MENU,
     SCREEN_SPACE_UV,
-    OUTLINE;
+    OUTLINE,
+    MODEL_PASS;
 
     private final Resource resource;
     private Shader shader;

@@ -157,6 +157,10 @@ public abstract class Entity extends WorldObject {
         matrices.pop();
     }
 
+    public boolean shouldRenderOutline() {
+        return true;
+    }
+
     public UUID getUUID() {
         return uuid;
     }

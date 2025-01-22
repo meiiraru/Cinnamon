@@ -21,7 +21,9 @@ import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.text.Text;
-import cinnamon.utils.*;
+import cinnamon.utils.AABB;
+import cinnamon.utils.Direction;
+import cinnamon.utils.Maths;
 import cinnamon.world.Hud;
 import cinnamon.world.SkyBox;
 import cinnamon.world.collisions.Hit;
@@ -55,8 +57,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL43.GL_DEPTH_STENCIL_TEXTURE_MODE;
+import static org.lwjgl.opengl.GL11.glViewport;
 
 public class WorldClient extends World {
 
@@ -233,35 +234,10 @@ public class WorldClient extends World {
             renderSky(matrices, delta);
         }
 
-        //render player outline
-        Shader model = Shaders.WORLD_MODEL.getShader().use();
-        model.setup(
-                client.camera.getProjectionMatrix(),
-                client.camera.getViewMatrix()
-        );
-        model.applyMatrixStack(matrices);
-        UIHelper.prepareStencil();
-        glDisable(GL_DEPTH_TEST);
-        Hit<Entity> hit = player.getLookingEntity(player.getPickRange());
-        if (hit != null) hit.get().render(matrices, delta);
-        UIHelper.lockStencil(true);
-        glDisable(GL_STENCIL_TEST);
-        UIHelper.disableStencil();
+        //render outlines
+        renderOutlines(matrices, delta);
 
-        Shader outline = Shaders.OUTLINE.getShader().use();
-        outline.setTexture("colorTex", Framebuffer.DEFAULT_FRAMEBUFFER.getColorBuffer(), 0);
-        outline.setTexture("stencilTex", Framebuffer.DEFAULT_FRAMEBUFFER.getStencilBuffer(), 1);
-        glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_STENCIL_TEXTURE_MODE, GL_STENCIL_INDEX);
-        outline.setVec2("resolution", Framebuffer.DEFAULT_FRAMEBUFFER.getWidth(), Framebuffer.DEFAULT_FRAMEBUFFER.getHeight());
-        outline.setVec3("color", ColorUtils.hsvToRGB(new Vector3f((client.ticks + delta) * 0.01f, 0.7f, 1f)));
-        outline.setFloat("radius", client.window.guiScale);
-        outline.setInt("numSteps", 12);
-
-        outline.applyMatrixStack(matrices);
-        Blit.renderQuad();
-
-        Texture.unbindAll(2);
-
+        //finish world rendering
         client.camera.useOrtho(true);
 
         //debug shadows
@@ -276,6 +252,25 @@ public class WorldClient extends World {
                 client.camera.getViewMatrix()
         );
         skyBox.render(client.camera, matrices);
+    }
+
+    protected void renderOutlines(MatrixStack matrices, float delta) {
+        //get entities to outline
+        List<Entity> entitiesToOutline = new ArrayList<>();
+        for (Entity e : entities.values())
+            if (e.shouldRender(client.camera) && e.shouldRenderOutline())
+                entitiesToOutline.add(e);
+
+        //no entities to outline
+        if (entitiesToOutline.isEmpty())
+            return;
+
+        //render outlines
+        WorldRenderer.prepareOutline(client.camera);
+        WorldRenderer.renderOutline(() -> {
+            for (Entity e : entitiesToOutline)
+                e.render(matrices, delta);
+        }, s -> {});
     }
 
     protected void renderShadows(Camera camera, MatrixStack matrices, float delta) {

@@ -14,7 +14,7 @@ uniform vec2 resolution;
 
 uniform int numSteps = 12;
 uniform float radius = 3.0f;
-uniform vec3 color = vec3(0.85f, 0.4f, 0.0f);
+uniform vec3 color = vec3(1.0f);
 
 const float TAU = 6.28318530;
 
