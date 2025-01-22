@@ -56,16 +56,16 @@ public class Framebuffer {
         //depth / stencil buffer
         if (hasDepthBuffer && hasStencilBuffer) {
             this.depth = genTexture(GL_DEPTH24_STENCIL8, width, height, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_DEPTH_STENCIL_ATTACHMENT);
-            glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, new float[]{1, 1, 1, 1});
+            glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, new float[]{0, 1, 0, 1});
         }
         else {
             if (hasDepthBuffer) {
                 this.depth = genTexture(GL_DEPTH_COMPONENT, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_DEPTH_ATTACHMENT);
-                glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, new float[]{1, 1, 1, 1});
+                glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, new float[]{0, 1, 0, 0});
             }
             if (hasStencilBuffer) {
                 this.stencil = genTexture(GL_STENCIL_INDEX, width, height, GL_STENCIL_INDEX, GL_UNSIGNED_INT, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_STENCIL_ATTACHMENT);
-                glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, new float[]{1, 1, 1, 1});
+                glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, new float[]{0, 1, 0, 0});
             }
         }
 

@@ -22,7 +22,8 @@ public enum Shaders {
     DEFERRED_WORLD_PBR,
     GBUFFER_WORLD_PBR,
     MAIN_MENU,
-    SCREEN_SPACE_UV;
+    SCREEN_SPACE_UV,
+    OUTLINE;
 
     private final Resource resource;
     private Shader shader;
