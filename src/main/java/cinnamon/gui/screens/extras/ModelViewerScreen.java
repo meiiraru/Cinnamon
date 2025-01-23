@@ -179,7 +179,7 @@ public class ModelViewerScreen extends ParentedScreen {
 
         //setup shader
         Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
-        s.setup(client.camera.getProjectionMatrix(), client.camera.getViewMatrix());
+        s.setup(client.camera);
         s.setVec3("camPos", 0, 0, 0);
         s.setFloat("fogStart", 1024);
         s.setFloat("fogEnd", 2048);

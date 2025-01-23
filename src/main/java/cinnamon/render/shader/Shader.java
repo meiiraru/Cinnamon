@@ -1,5 +1,6 @@
 package cinnamon.render.shader;
 
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.ColorUtils;
@@ -217,6 +218,10 @@ public class Shader {
         applyProjectionMatrix(proj);
         applyViewMatrix(view);
         applyColor(0xFFFFFF);
+    }
+
+    public void setup(Camera camera) {
+        setup(camera.getProjectionMatrix(), camera.getViewMatrix());
     }
 
     public void applyColor(int color) {

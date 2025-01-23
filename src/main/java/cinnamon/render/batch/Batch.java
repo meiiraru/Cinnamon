@@ -69,9 +69,9 @@ public abstract class Batch { //vertex consumer
         glDeleteVertexArrays(vaoID);
     }
 
-    public void render(Shader shader) {
-        if (faceCount == 0)
-            return;
+    public int render(Shader shader) {
+        if (!hasFace())
+            return 0;
 
         int count = buffer.position() / vertexSize;
 
@@ -97,9 +97,16 @@ public abstract class Batch { //vertex consumer
         Texture.unbindAll(textures.size() - 1);
 
         //clear buffers
-        textures.clear();
-        buffer.clear();
-        faceCount = 0;
+        clear();
+        return count;
+    }
+
+    public void clear() {
+        if (faceCount > 0) {
+            textures.clear();
+            buffer.clear();
+            faceCount = 0;
+        }
     }
 
     protected void preRender(Shader shader) {}
@@ -143,6 +150,10 @@ public abstract class Batch { //vertex consumer
 
     public boolean isFull(int size) {
         return buffer.remaining() < (vertexSize * size);
+    }
+
+    public boolean hasFace() {
+        return faceCount > 0;
     }
 
     // -- children types -- //

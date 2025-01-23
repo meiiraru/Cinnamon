@@ -27,7 +27,6 @@ import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
-import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -217,10 +216,7 @@ public class Hud {
 
     private void drawHotbar(MatrixStack matrices, Player player, float delta) {
         //set shader
-        Shaders.MODEL.getShader().use().setup(
-                Client.getInstance().camera.getProjectionMatrix(),
-                new Matrix4f()
-        );
+        Shaders.MODEL.getShader().use().setup(Client.getInstance().camera);
 
         //prepare variables
         Window window = Client.getInstance().window;
@@ -370,7 +366,7 @@ public class Hud {
         if (c.debug) {
             c.font.render(VertexConsumer.FONT, matrices, 4, 4, TextUtils.parseColorFormatting(Text.of(debugLeftText(c))).withStyle(style));
             c.font.render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, TextUtils.parseColorFormatting(Text.of(debugRightText(c))).withStyle(style), Alignment.RIGHT);
-        } else if (Settings.showFPS.get()) {
+        } else if (Settings.showFPS.get() && (c.world == null || !c.world.hideHUD())) {
             //Style style = Style.EMPTY.shadow(true);
             c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(style));
         }

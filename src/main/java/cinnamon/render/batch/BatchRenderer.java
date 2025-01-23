@@ -1,17 +1,16 @@
 package cinnamon.render.batch;
 
 import cinnamon.model.Vertex;
+import cinnamon.render.Camera;
 import cinnamon.render.shader.Shader;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
 import static cinnamon.Client.LOGGER;
 
 public class BatchRenderer<T extends Batch> {
 
-    private final List<Batch> batches = new ArrayList<>();
+    private final Batch[] batches = new Batch[32];
     private final Supplier<T> factory;
 
     public BatchRenderer(Supplier<T> factory) {
@@ -22,29 +21,67 @@ public class BatchRenderer<T extends Batch> {
         if (vertices == null || vertices.length == 0)
             return;
 
-        for (Batch batch : batches) {
-            if (batch.pushFace(vertices, textureID))
+        int i = 0;
+        for (; i < batches.length; i++) {
+            if (batches[i] == null)
+                break;
+            if (batches[i].pushFace(vertices, textureID))
                 return;
         }
 
-        Batch batch;
-        do {
-            batch = factory.get();
-            batches.add(batch);
+        if (i >= batches.length)
+            return;
 
-            if (batches.size() > 100)
-                LOGGER.warn("Renderer of {} has reached over 100 batches!", batch.getClass().getSimpleName());
-        } while (!batch.pushFace(vertices, textureID));
+        batches[i] = factory.get();
+        batches[i].pushFace(vertices, textureID);
+
+        if (i == batches.length - 1)
+            LOGGER.warn("Renderer of {} has reached over {} batches!", batches[i].getClass().getSimpleName(), batches.length);
     }
 
-    public void render(Shader shader) {
-        for (Batch batch : batches)
-            batch.render(shader);
+    public int render(Shader shader, Camera camera) {
+        Shader old = Shader.activeShader;
+        boolean active = false;
+        int count = 0;
+
+        for (Batch batch : batches) {
+            if (batch == null)
+                break;
+
+            if (!batch.hasFace())
+                continue;
+
+            if (!active) {
+                shader.use();
+                if (camera != null)
+                    shader.setup(camera);
+                active = true;
+            }
+
+            count += batch.render(shader);
+        }
+
+        if (count > 0)
+            old.use();
+
+        return count;
+    }
+
+    public void clear() {
+        for (Batch batch : batches) {
+            if (batch == null)
+                break;
+            batch.clear();
+        }
     }
 
     public void free() {
-        for (Batch batch : batches)
-            batch.free();
-        batches.clear();
+        for (int i = 0; i < batches.length; i++) {
+            if (batches[i] == null)
+                break;
+
+            batches[i].free();
+            batches[i] = null;
+        }
     }
 }

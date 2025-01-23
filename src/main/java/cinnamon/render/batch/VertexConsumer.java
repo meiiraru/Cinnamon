@@ -48,26 +48,31 @@ public enum VertexConsumer {
         renderer.consume(vertices, texture);
     }
 
-    public void finishBatch(Camera camera) {
-        Shader old = Shader.activeShader;
-        Shader s = shader.getShader().use();
-        s.setup(camera.getProjectionMatrix(), camera.getViewMatrix());
-        finishBatch(s);
-        old.use();
+    public int finishBatch(Camera camera) {
+        return finishBatch(shader.getShader(), camera);
     }
 
-    public void finishBatch(Shader shader) {
-        renderer.render(shader);
+    public int finishBatch(Shader shader, Camera camera) {
+        return renderer.render(shader, camera);
     }
 
-    public static void finishAllBatches(Camera camera) {
+    public static int finishAllBatches(Camera camera) {
+        int count = 0;
         for (VertexConsumer consumer : VertexConsumer.values())
-            consumer.finishBatch(camera);
+            count += consumer.finishBatch(camera);
+        return count;
     }
 
-    public static void finishAllBatches(Shader shader) {
+    public static int finishAllBatches(Shader shader) {
+        int count = 0;
         for (VertexConsumer consumer : VertexConsumer.values())
-            consumer.finishBatch(shader);
+            count += consumer.finishBatch(shader, null);
+        return count;
+    }
+
+    public static void clearBatches() {
+        for (VertexConsumer consumer : VertexConsumer.values())
+            consumer.renderer.clear();
     }
 
     public static void freeBatches() {
