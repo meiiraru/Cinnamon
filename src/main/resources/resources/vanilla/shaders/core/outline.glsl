@@ -8,30 +8,26 @@ in vec2 texCoords;
 
 out vec4 fragColor;
 
-uniform sampler2D colorTex; //GL_RGBA
-uniform usampler2D stencilTex; //GL_DEPTH24_STENCIL8
-uniform vec2 resolution;
+uniform sampler2D outlineTex;
+uniform vec2 textelSize;
 
 uniform int numSteps = 12;
 uniform float radius = 3.0f;
-uniform vec3 color = vec3(1.0f);
 
 const float TAU = 6.28318530;
 
 void main() {
-    vec3 texCcolor = texture(colorTex, texCoords).rgb;
-    uint stencil = texture(stencilTex, texCoords).r;
+    //if (true) {fragColor = vec4(texture(outlineTex, texCoords).rgb, 1.0f); return;}
 
-    vec2 aspect = 1.0f / resolution;
-    float outlinemask = 0.0f;
+    vec4 color = texture(outlineTex, texCoords);
+    vec4 outlinemask = vec4(0.0f);
+
     for (float i = 0.0f; i < TAU; i += TAU / numSteps) {
-        vec2 offset = vec2(sin(i), cos(i)) * aspect * radius;
-        float col = texture(stencilTex, texCoords + offset).r;
-        outlinemask = mix(outlinemask, 1.0f, col);
+        vec2 offset = vec2(sin(i), cos(i)) * textelSize * radius;
+        vec4 col = texture(outlineTex, texCoords + offset);
+        outlinemask = mix(outlinemask, vec4(col.rgb, 1.0f), col.a);
     }
-    outlinemask = mix(outlinemask, 0.0f, float(stencil));
 
-    //vec4 final = vec4(vec3(texture(stencilTex, texCoords).r), 1.0f);
-    vec4 final = mix(vec4(texCcolor, 1.0f), vec4(color, 1.0f), clamp(outlinemask, 0.0f, 1.0f));
-    fragColor = final;
+    outlinemask = mix(outlinemask, vec4(color.rgb, 0.0f), color.a);
+    fragColor = outlinemask;
 }

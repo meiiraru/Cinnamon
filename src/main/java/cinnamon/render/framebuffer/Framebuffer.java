@@ -21,6 +21,8 @@ public class Framebuffer {
 
     public static final Framebuffer DEFAULT_FRAMEBUFFER;
 
+    public static Framebuffer activeFramebuffer;
+
     static {
         Window w = Client.getInstance().window;
         DEFAULT_FRAMEBUFFER = new Framebuffer(w.width, w.height, COLOR_BUFFER | DEPTH_BUFFER | STENCIL_BUFFER);
@@ -103,6 +105,7 @@ public class Framebuffer {
 
     public Framebuffer use() {
         glBindFramebuffer(GL_FRAMEBUFFER, this.fbo);
+        activeFramebuffer = this;
         return this;
     }
 

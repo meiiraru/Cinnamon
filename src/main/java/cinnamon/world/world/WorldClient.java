@@ -213,15 +213,17 @@ public class WorldClient extends World {
         //render shadows
         //renderShadows(client.camera, matrices, delta);
 
+        //render skybox
+        renderSky(matrices, delta);
+
         if (client.anaglyph3D) {
-            //render skybox first
-            renderSky(matrices, delta);
             client.camera.anaglyph3D(matrices, -1f / 64f, -1f, () -> {
                 WorldRenderer.prepare(client.camera);
                 renderWorld(client.camera, matrices, delta);
             }, () -> {
                 WorldRenderer.finish(this);
                 VertexConsumer.finishAllBatches(client.camera);
+                renderOutlines(matrices, delta);
             });
         } else {
             //render world
@@ -229,13 +231,8 @@ public class WorldClient extends World {
             renderWorld(client.camera, matrices, delta);
             WorldRenderer.finish(this);
             VertexConsumer.finishAllBatches(client.camera);
-
-            //render skybox last
-            renderSky(matrices, delta);
+            renderOutlines(matrices, delta);
         }
-
-        //render outlines
-        renderOutlines(matrices, delta);
 
         //finish world rendering
         client.camera.useOrtho(true);
@@ -247,15 +244,11 @@ public class WorldClient extends World {
 
     protected void renderSky(MatrixStack matrices, float delta) {
         Shader s = Shaders.SKYBOX.getShader();
-        s.use().setup(
-                client.camera.getProjectionMatrix(),
-                client.camera.getViewMatrix()
-        );
+        s.use().setup(client.camera);
         skyBox.render(client.camera, matrices);
     }
 
     protected void renderOutlines(MatrixStack matrices, float delta) {
-        //get entities to outline
         List<Entity> entitiesToOutline = new ArrayList<>();
         for (Entity e : entities.values())
             if (e.shouldRender(client.camera) && e.shouldRenderOutline())
@@ -265,12 +258,18 @@ public class WorldClient extends World {
         if (entitiesToOutline.isEmpty())
             return;
 
-        //render outlines
-        WorldRenderer.prepareOutline(client.camera);
-        WorldRenderer.renderOutline(() -> {
-            for (Entity e : entitiesToOutline)
-                e.render(matrices, delta);
-        }, s -> {});
+        //prepare framebuffer
+        Shader s = WorldRenderer.prepareOutlineBuffer(client.camera);
+
+        //render entities
+        for (Entity entity : entitiesToOutline) {
+            s.applyColor(Math.abs(entity.getUUID().hashCode()));
+            entity.render(matrices, delta);
+        }
+
+        //finish rendering
+        WorldRenderer.finishOutlines();
+        VertexConsumer.clearBatches();
     }
 
     protected void renderShadows(Camera camera, MatrixStack matrices, float delta) {
@@ -686,7 +685,6 @@ public class WorldClient extends World {
 
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
             //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));
-
         }
     }
 

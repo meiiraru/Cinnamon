@@ -145,7 +145,7 @@ vec4 applyLighting(vec3 pos) {
 }
 
 void main() {
-    //if (true) {fragColor = vec4(texture(gAlbedo, texCoords); return;}
+    //if (true) {fragColor = texture(gNormal, texCoords); return;}
 
     //position
     vec3 pos = texture(gPosition, texCoords).rgb;

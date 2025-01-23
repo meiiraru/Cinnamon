@@ -7,38 +7,28 @@ import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
-import cinnamon.utils.UIHelper;
 import cinnamon.world.world.WorldClient;
-
-import java.util.function.Consumer;
-
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL11.GL_STENCIL_INDEX;
-import static org.lwjgl.opengl.GL43.GL_DEPTH_STENCIL_TEXTURE_MODE;
 
 public class WorldRenderer {
 
-    private static final Shaders
-            GEOMETRY_PASS = Shaders.GBUFFER_WORLD_PBR,
-            LIGHTING_PASS = Shaders.DEFERRED_WORLD_PBR,
-            MODEL_PASS    = Shaders.MODEL_PASS,
-            OUTLINE       = Shaders.OUTLINE;
-
     public static final PBRDeferredFramebuffer PBRFrameBuffer = new PBRDeferredFramebuffer(1, 1);
+    public static final Framebuffer outlineFramebuffer = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER);
+
+    private static boolean outlineRendering = false;
 
     //public static final Material TERRAIN_MATERIAL = MaterialManager.load(new Resource("textures/terrain/terrain.pbr"), "terrain");
 
     public static void prepare(Camera camera) {
         PBRFrameBuffer.useClear();
         Framebuffer.DEFAULT_FRAMEBUFFER.blit(PBRFrameBuffer.id(), false, false, true);
-        Shader s = GEOMETRY_PASS.getShader().use();
-        s.setup(camera.getProjectionMatrix(), camera.getViewMatrix());
+        Shader s = Shaders.GBUFFER_WORLD_PBR.getShader().use();
+        s.setup(camera);
         s.setVec3("camPos", camera.getPos());
     }
 
     public static void finish(WorldClient world) {
         Framebuffer.DEFAULT_FRAMEBUFFER.use();
-        Shader s = LIGHTING_PASS.getShader().use();
+        Shader s = Shaders.DEFERRED_WORLD_PBR.getShader().use();
 
         //world uniforms
         world.applyWorldUniforms(s);
@@ -61,46 +51,33 @@ public class WorldRenderer {
         Texture.unbindAll(tex);
     }
 
-    public static void prepareOutline(Camera camera) {
-        //prepare model pass shader
-        Shader model = MODEL_PASS.getShader().use();
-        model.setup(
-                camera.getProjectionMatrix(),
-                camera.getViewMatrix()
-        );
-
-        //prepare outline shader
-        Shader outline = OUTLINE.getShader().use();
-        outline.setVec2("resolution", PBRFrameBuffer.getWidth(), PBRFrameBuffer.getHeight());
+    public static Shader prepareOutlineBuffer(Camera camera) {
+        outlineRendering = true;
+        WorldRenderer.outlineFramebuffer.useClear();
+        Shader s = Shaders.MODEL_PASS.getShader().use();
+        s.setup(camera);
+        return s;
     }
 
-    public static void renderOutline(Runnable render, Consumer<Shader> outlineConsumer) {
-        //prepare model render
-        UIHelper.prepareStencil();
-        glDisable(GL_DEPTH_TEST);
-
-        //render model
-        MODEL_PASS.getShader().use();
-        render.run();
-
-        //finish model render
-        UIHelper.lockStencil(false);
-        glEnable(GL_DEPTH_TEST);
-        UIHelper.disableStencil();
-
+    public static void finishOutlines() {
         //prepare outline
-        Shader outline = OUTLINE.getShader().use();
-        outline.setTexture("colorTex", Framebuffer.DEFAULT_FRAMEBUFFER.getColorBuffer(), 0);
-        outline.setTexture("stencilTex", Framebuffer.DEFAULT_FRAMEBUFFER.getStencilBuffer(), 1);
-        glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_STENCIL_TEXTURE_MODE, GL_STENCIL_INDEX);
-        outlineConsumer.accept(outline);
+        Framebuffer.DEFAULT_FRAMEBUFFER.use();
+        Shader outline = Shaders.OUTLINE.getShader().use();
+        outline.setVec2("textelSize", 1f / WorldRenderer.outlineFramebuffer.getWidth(), 1f / WorldRenderer.outlineFramebuffer.getHeight());
+        outline.setTexture("outlineTex", WorldRenderer.outlineFramebuffer.getColorBuffer(), 0);
 
         //render outline
         Blit.renderQuad();
-        Texture.unbindAll(2);
+        Texture.unbindAll(1);
+        outlineRendering = false;
+    }
+
+    public static boolean isRenderingOutlines() {
+        return outlineRendering;
     }
 
     public static void resize(int width, int height) {
         PBRFrameBuffer.resize(width, height);
+        outlineFramebuffer.resize(width, height);
     }
 }

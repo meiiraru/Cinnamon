@@ -3,6 +3,7 @@ package cinnamon.world.entity.terrain;
 import cinnamon.Client;
 import cinnamon.registry.TerrainEntityRegistry;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.WorldRenderer;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.ColorUtils;
 import org.joml.Vector3f;
@@ -17,7 +18,8 @@ public class DiscoFloor extends TerrainEntity {
 
     @Override
     protected void renderModel(MatrixStack matrices, float delta) {
-        Shader.activeShader.applyColor(ColorUtils.hsvToRGB(new Vector3f((Client.getInstance().ticks + delta) % 255 / 255f, 1f, 1f)));
+        if (!WorldRenderer.isRenderingOutlines())
+            Shader.activeShader.applyColor(ColorUtils.hsvToRGB(new Vector3f((Client.getInstance().ticks + delta) % 255 / 255f, 1f, 1f)));
 
         //render
         super.renderModel(matrices, delta);

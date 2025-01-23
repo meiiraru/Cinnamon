@@ -6,6 +6,7 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.AnimatedObjRenderer;
 import cinnamon.render.model.ModelRenderer;
@@ -124,7 +125,12 @@ public abstract class Entity extends WorldObject {
     }
 
     public boolean shouldRenderText() {
-        return !((WorldClient) world).hideHUD() && Client.getInstance().camera.getPos().distanceSquared(pos) <= 256;
+        Client client = Client.getInstance();
+        return
+                !((WorldClient) world).hideHUD() &&
+                (client.camera.getEntity() != this || client.debug) &&
+                !WorldRenderer.isRenderingOutlines() &&
+                client.camera.getPos().distanceSquared(pos) <= 1024;
     }
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {

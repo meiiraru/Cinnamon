@@ -28,13 +28,6 @@ public class LocalPlayer extends Player {
     }
 
     @Override
-    public boolean shouldRenderText() {
-        Client client = Client.getInstance();
-        boolean itself = client.camera.getEntity() == this;
-        return super.shouldRenderText() && (!itself || client.debug);
-    }
-
-    @Override
     protected void spawnDeathParticles() {
         if (((WorldClient) getWorld()).isThirdPerson())
             super.spawnDeathParticles();

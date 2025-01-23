@@ -3,6 +3,7 @@ package cinnamon.world.entity.projectile;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.WorldRenderer;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Await;
@@ -72,16 +73,20 @@ public class Potato extends Projectile {
     protected void renderModel(MatrixStack matrices, float delta) {
         //scale
         float t = (easing + delta) > 10 ? 1f : Maths.Easing.OUT_ELASTIC.get((easing + delta) / 10);
+        matrices.push();
         matrices.scale(Maths.lerp(oScale, scale, t));
 
         //color
-        float t2 = Math.min(lifetime / 30f, 1f);
-        Shader.activeShader.applyColor(ColorUtils.lerpRGBColor(0xFF8888, 0xFFFFFF, t2));
+        if (!WorldRenderer.isRenderingOutlines()) {
+            float t2 = Math.min(lifetime / 30f, 1f);
+            Shader.activeShader.applyColor(ColorUtils.lerpRGBColor(0xFF8888, 0xFFFFFF, t2));
+        }
 
         //render
         super.renderModel(matrices, delta);
 
         //reset
+        matrices.pop();
         Shader.activeShader.applyColor(0xFFFFFF);
     }
 

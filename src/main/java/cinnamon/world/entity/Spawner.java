@@ -66,8 +66,11 @@ public class Spawner extends Entity {
         VertexConsumer.MAIN.consume(vertices);
 
         matrices.pop();
+    }
 
-
+    @Override
+    public boolean shouldRenderOutline() {
+        return false;
     }
 
     @Override
