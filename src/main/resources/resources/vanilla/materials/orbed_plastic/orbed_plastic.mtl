@@ -1,6 +1,6 @@
 newmtl orbed_plastic
 map_Kd -mip orbed-plastic_albedo.png
-map_disp -bm 0.025 -smooth orbed-plastic_height.png
+map_disp -dm 0.025 -smooth orbed-plastic_height.png
 map_Bump orbed-plastic_normal-ogl.png
 map_ao orbed-plastic_ao.png
 map_Pr orbed-plastic_roughness.png

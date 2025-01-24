@@ -20,10 +20,7 @@ import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.Alignment;
-import cinnamon.utils.Resource;
-import cinnamon.utils.Rotation;
-import cinnamon.utils.UIHelper;
+import cinnamon.utils.*;
 import cinnamon.world.SkyBox;
 
 import java.util.function.BiFunction;
@@ -34,7 +31,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class ModelViewerScreen extends ParentedScreen {
 
     private static final int listWidth = 144;
-    private static final float scaleFactor = 3f;
+    private static final float scaleFactor = 0.1f;
 
     private final Framebuffer modelBuffer = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
     private final SkyBox skybox = new SkyBox();
@@ -47,7 +44,7 @@ public class ModelViewerScreen extends ParentedScreen {
 
     //view transforms
     private float posX = 0, posY = 0;
-    private float scale = 96;
+    private float scale = 128, scaleReset = 128;
     private float rotX = -22.5f, rotY = 30;
 
     //dragging
@@ -219,12 +216,16 @@ public class ModelViewerScreen extends ParentedScreen {
             animationList.addEntry(Text.of("None"), null, null);
         }
         animationList.select(0);
+
+        float maxDimension = Maths.max(currentModel.getAABB().getDimensions());
+        scaleReset = 128 / maxDimension;
+        resetView();
     }
 
     private void resetView() {
         posX = 0;
         posY = 0;
-        scale = 96;
+        scale = scaleReset;
         rotX = -22.5f;
         rotY = 30;
     }
@@ -302,7 +303,7 @@ public class ModelViewerScreen extends ParentedScreen {
         if (currentModel == null)
             return false;
 
-        scale = Math.max(scale + (float) Math.signum(y) * scaleFactor, 8f);
+        scale *= 1f + (float) Math.signum(y) * scaleFactor;
 
         /*
         //zoom around the mouse position

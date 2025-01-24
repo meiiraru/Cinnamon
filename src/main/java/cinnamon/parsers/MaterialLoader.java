@@ -53,16 +53,16 @@ public class MaterialLoader {
 
                     //textures
                     case "map_Kd", "albedo", "diffuse" -> material.setAlbedo(parseTexture(split, folder, res));
-                    case "map_disp", "bump", "height" -> material.setHeight(parseTexture(split, folder, res));
-                    case "map_Bump", "norm", "normal", "map_Kn" -> {
+                    case "map_disp", "bump", "height" -> {
                         for (int i = 1; i < split.length; i++) {
-                            if (split[i].equals("-bm")) {
+                            if (split[i].equals("-dm")) {
                                 material.setHeightScale(Float.parseFloat(split[i + 1]));
                                 break;
                             }
                         }
-                        material.setNormal(parseTexture(split, folder, res));
+                        material.setHeight(parseTexture(split, folder, res));
                     }
+                    case "map_Bump", "norm", "normal", "map_Kn" -> material.setNormal(parseTexture(split, folder, res));
                     case "map_ao", "map_AO", "ao", "ambient_occlusion" -> material.setAO(parseTexture(split, folder, res));
                     case "map_Pr", "roughness" -> material.setRoughness(parseTexture(split, folder, res));
                     case "map_Pm", "metallic" -> material.setMetallic(parseTexture(split, folder, res));

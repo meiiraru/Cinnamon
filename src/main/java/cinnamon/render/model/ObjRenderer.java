@@ -92,7 +92,11 @@ public class ObjRenderer extends ModelRenderer {
                 //triangulate the faces using ear clipping
                 List<VertexData> sorted = VertexData.triangulate(data);
 
-                //calculate tangent
+                //generate normals when missing
+                if (normals.isEmpty())
+                    VertexData.calculateNormals(sorted);
+
+                //calculate tangents
                 VertexData.calculateTangents(sorted);
 
                 //add data to the vertex list

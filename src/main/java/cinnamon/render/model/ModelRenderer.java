@@ -71,9 +71,9 @@ public abstract class ModelRenderer {
     protected static final class VertexData {
         public static final Vector3f DEFAULT_TANGENT = new Vector3f(0, 0, -1);
 
-        public final Vector3f pos, norm;
+        public final Vector3f pos;
         public final Vector2f uv;
-        public Vector3f tangent;
+        public Vector3f tangent, norm;
 
         public VertexData(Vector3f pos, Vector2f uv, Vector3f norm) {
             this.pos = pos;
@@ -92,14 +92,15 @@ public abstract class ModelRenderer {
             if (uv != null) {
                 buffer.put(uv.x);
                 buffer.put(1 - uv.y); //invert Y
+            } else {
+                buffer.put(0);
+                buffer.put(0);
             }
 
             //push normal
-            if (norm != null) {
-                buffer.put(norm.x);
-                buffer.put(norm.y);
-                buffer.put(norm.z);
-            }
+            buffer.put(norm.x);
+            buffer.put(norm.y);
+            buffer.put(norm.z);
 
             //push tangent
             buffer.put(tangent.x);
@@ -164,6 +165,40 @@ public abstract class ModelRenderer {
             return true;
         }
 
+        public static void calculateNormals(List<VertexData> list) {
+            for (int i = 0; i < list.size(); i += 3) {
+                VertexData v0 = list.get(i);
+                VertexData v1 = list.get(i + 1);
+                VertexData v2 = list.get(i + 2);
+
+                //calculate normal vector
+                //Dir = (B - A) x (C - A)
+                //Norm = Dir / len(Dir)
+                Vector3f normal = new Vector3f(v1.pos.x - v0.pos.x, v1.pos.y - v0.pos.y, v1.pos.z - v0.pos.z)
+                        .cross(v2.pos.x - v0.pos.x, v2.pos.y - v0.pos.y, v2.pos.z - v0.pos.z).normalize();
+
+                //set normal to the vertices
+                if (v0.norm == null) v0.norm = normal;
+                if (v1.norm == null) v1.norm = normal;
+                if (v2.norm == null) v2.norm = normal;
+            }
+
+            //average normals
+            /*
+            for (int i = 0; i < list.size(); i++) {
+                VertexData v = list.get(i);
+                Vector3f normal = new Vector3f();
+
+                for (VertexData other : list)
+                    if (v.pos.equals(other.pos))
+                        normal.add(other.norm);
+
+                //normalize
+                v.norm = normal.normalize();
+            }
+             */
+        }
+
         public static void calculateTangents(List<VertexData> list) {
             for (int i = 0; i < list.size(); i += 3) {
                 VertexData v0 = list.get(i);
@@ -195,6 +230,22 @@ public abstract class ModelRenderer {
                 v1.tangent = tangent;
                 v2.tangent = tangent;
             }
+
+            //average tangents
+            /*
+            for (int i = 0; i < list.size(); i++) {
+                VertexData v = list.get(i);
+                Vector3f tangent = new Vector3f();
+
+                for (VertexData other : list) {
+                    if (v.pos.equals(other.pos))
+                        tangent.add(other.tangent);
+                }
+
+                //normalize
+                v.tangent = tangent.normalize();
+            }
+             */
         }
     }
 }
