@@ -1,0 +1,4 @@
+newmtl chrome
+map_Kd -mip chrome_albedo.png
+map_Pr chrome_roughness.png
+map_Pm chrome_metallic.png

@@ -1,0 +1,7 @@
+newmtl rubber
+map_Kd -mip yoga-mat-wavy-pattern1-albedo.png
+map_disp -smooth yoga-mat-wavy-pattern1-Height.png
+map_Bump yoga-mat-wavy-pattern1-Normal-ogl.png
+map_ao yoga-mat-wavy-pattern1-ao.png
+map_Pr yoga-mat-wavy-pattern1-Roughness.png
+map_Pm yoga-mat-wavy-pattern1-Metallic.png

@@ -1,7 +1,0 @@
-newmtl pine_planks
-mipmap 1
-albedo wood_0056_color_1k.png
-ao wood_0056_ao_1k.png
-height wood_0056_height_1k.png
-normal wood_0056_normal_opengl_1k.png
-roughness wood_0056_roughness_1k.png

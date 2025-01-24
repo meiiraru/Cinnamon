@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib ramen.pbr
+mtllib ramen.mtl
 o bowl
 v 0.133975 0.437500 0.500000
 v 0.116025 0.187500 0.433013

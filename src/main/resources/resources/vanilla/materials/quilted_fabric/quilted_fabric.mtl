@@ -1,0 +1,7 @@
+newmtl quilted_fabric
+map_Kd -mip white-quilted-diamond_albedo.png
+map_disp -smooth white-quilted-diamond_height.png
+map_Bump white-quilted-diamond_normal-ogl.png
+map_ao white-quilted-diamond_ao.png
+map_Pr white-quilted-diamond_roughness.png
+map_Pm white-quilted-diamond_metallic.png

@@ -1,0 +1,7 @@
+# Made in Blockbench 4.11.1
+newmtl m_d41f45f9-a3c6-a71c-d66d-8e3de0200b21
+map_Kd -mip base.png
+newmtl m_28881cd3-971e-1932-e95e-a8c54417965b
+map_Kd -mip light.png
+map_Ke -mip light_e.png
+newmtl none

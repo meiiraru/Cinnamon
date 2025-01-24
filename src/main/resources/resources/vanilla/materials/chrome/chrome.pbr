@@ -1,5 +1,0 @@
-newmtl chrome
-mipmap 1
-albedo chrome_albedo.png
-metallic chrome_metallic.png
-roughness chrome_roughness.png

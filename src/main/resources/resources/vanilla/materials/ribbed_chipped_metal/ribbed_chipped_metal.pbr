@@ -1,8 +1,0 @@
-newmtl ribbed_chipped_metal
-mipmap 1
-albedo ribbed-chipped-metal_albedo.png
-ao ribbed-chipped-metal_ao.png
-height ribbed-chipped-metal_height.png
-metallic ribbed-chipped-metal_metallic.png
-normal ribbed-chipped-metal_normal-ogl.png
-roughness ribbed-chipped-metal_roughness.png

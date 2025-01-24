@@ -1,6 +1,6 @@
 # Blender 4.0.1
 # www.blender.org
-mtllib cart.pbr
+mtllib cart.mtl
 o bottom
 v 0.520000 0.040625 0.520000
 v 0.520000 0.040625 -0.520000

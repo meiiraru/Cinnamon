@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib potato_cannon.pbr
+mtllib potato_cannon.mtl
 o air
 v 0.093750 0.321995 0.296875
 v 0.093750 0.321995 0.796875

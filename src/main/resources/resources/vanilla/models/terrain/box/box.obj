@@ -1,6 +1,6 @@
 # Blender 4.2.2 LTS
 # www.blender.org
-mtllib box.pbr
+mtllib box.mtl
 o box
 v 0.500000 1.000000 -0.500000
 v 0.500000 -0.000000 -0.500000

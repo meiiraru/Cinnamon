@@ -1,7 +1,0 @@
-newmtl plastic_bricks
-mipmap 1
-albedo Blocks_001_COLOR_C.png
-ao Blocks_001_OCC.png
-height Blocks_001_DISP.png
-normal Blocks_001_NORM.png
-roughness Blocks_001_ROUGH.png

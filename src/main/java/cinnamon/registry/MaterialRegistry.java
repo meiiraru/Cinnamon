@@ -2,7 +2,6 @@ package cinnamon.registry;
 
 import cinnamon.model.MaterialManager;
 import cinnamon.model.material.Material;
-import cinnamon.model.material.PBRMaterial;
 import cinnamon.utils.Resource;
 
 public enum MaterialRegistry {
@@ -87,14 +86,14 @@ public enum MaterialRegistry {
     WRAPPED_PAPER,
     DEBUG;
 
-    public static final Material MISSING = new PBRMaterial("missing");
+    public static final Material MISSING = new Material("missing");
 
     public final Resource resource;
     public Material material;
 
     MaterialRegistry() {
         String name = name().toLowerCase();
-        this.resource = new Resource("materials/" + name + "/" + name + ".pbr");
+        this.resource = new Resource("materials/" + name + "/" + name + ".mtl");
     }
 
     MaterialRegistry(Resource resource) {

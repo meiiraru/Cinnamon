@@ -1,8 +1,0 @@
-newmtl carpet
-mipmap 1
-albedo beige-carpet-worn1-albedo.png
-ao beige-carpet-worn1-ao.png
-height beige-carpet-worn1-Height.png
-metallic beige-carpet-worn1-Metallic.png
-normal beige-carpet-worn1-Normal-ogl.png
-roughness beige-carpet-worn1-Roughness.png

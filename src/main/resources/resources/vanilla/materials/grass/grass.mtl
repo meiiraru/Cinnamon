@@ -1,0 +1,7 @@
+newmtl grass
+map_Kd -mip stylized-grass1_albedo.png
+map_disp -smooth stylized-grass1_height.png
+map_Bump stylized-grass1_normal-ogl.png
+map_ao stylized-grass1_ao.png
+map_Pr stylized-grass1_roughness.png
+map_Pm stylized-grass1_metallic.png

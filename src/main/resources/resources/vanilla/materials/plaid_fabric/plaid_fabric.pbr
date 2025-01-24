@@ -1,6 +1,0 @@
-newmtl plaid_fabric
-mipmap 1
-albedo fabrics_0083_color_1k.png
-ao fabrics_0083_ao_1k.png
-height fabrics_0083_height_1k.png
-normal fabrics_0083_normal_opengl_1k.png

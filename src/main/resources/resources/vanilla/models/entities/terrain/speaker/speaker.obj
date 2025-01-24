@@ -1,5 +1,5 @@
 # Made in Blockbench 4.11.1
-mtllib speaker.pbr
+mtllib speaker.mtl
 
 o box
 v 0.25 1 0.25

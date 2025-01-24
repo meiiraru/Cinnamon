@@ -1,6 +1,6 @@
 # Blender 4.2.3 LTS
 # www.blender.org
-mtllib teapot.pbr
+mtllib teapot.mtl
 o lid
 v 0.022094 0.464419 0.082675
 v 0.010784 0.464419 0.084920

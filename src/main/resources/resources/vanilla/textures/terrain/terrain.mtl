@@ -1,0 +1,9 @@
+newmtl 1
+map_Kd -mip albedo.png 
+map_disp -smooth height.png
+map_Bump normal.png
+map_ao ao.png
+map_Pr roughness.png
+map_Pm metallic.png
+map_Ke -mip emissive.png
+map_ORM orm.png

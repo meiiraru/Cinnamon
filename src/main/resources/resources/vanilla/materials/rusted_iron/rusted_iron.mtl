@@ -1,0 +1,5 @@
+newmtl rusted_iron
+map_Kd -mip rustediron2_basecolor.png
+map_Bump rustediron2_normal.png
+map_Pr rustediron2_roughness.png
+map_Pm rustediron2_metallic.png

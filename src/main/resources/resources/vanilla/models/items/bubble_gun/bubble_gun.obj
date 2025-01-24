@@ -1,6 +1,6 @@
 # Blender 4.2.2 LTS
 # www.blender.org
-mtllib bubble_gun.pbr
+mtllib bubble_gun.mtl
 o back
 v 0.090609 -0.156250 0.625000
 v 0.218750 -0.028109 0.625000

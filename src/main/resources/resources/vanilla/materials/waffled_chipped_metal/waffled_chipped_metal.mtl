@@ -1,0 +1,7 @@
+newmtl waffled_chipped_metal
+map_Kd -mip waffled-chipped-metal_albedo.png
+map_disp -smooth waffled-chipped-metal_height.png
+map_Bump waffled-chipped-metal_normal-ogl.png
+map_ao waffled-chipped-metal_ao.png
+map_Pr waffled-chipped-metal_roughness.png
+map_Pm waffled-chipped-metal_metallic.png

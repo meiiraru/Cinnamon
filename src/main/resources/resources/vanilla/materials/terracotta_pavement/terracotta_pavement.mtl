@@ -1,0 +1,6 @@
+newmtl terracotta_pavement
+map_Kd -mip TCom_Pavement_TerracottaAntique_512_albedo.png
+map_disp -smooth TCom_Pavement_TerracottaAntique_512_height.png
+map_Bump TCom_Pavement_TerracottaAntique_512_normal.png
+map_ao TCom_Pavement_TerracottaAntique_512_ao.png
+map_Pr TCom_Pavement_TerracottaAntique_512_roughness.png

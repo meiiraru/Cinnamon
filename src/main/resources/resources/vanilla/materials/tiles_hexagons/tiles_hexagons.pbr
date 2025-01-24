@@ -1,8 +1,0 @@
-newmtl tiles_hexagons
-mipmap 1
-albedo Tiles_Hexagons_002_basecolor.png
-ao Tiles_Hexagons_002_ambientOcclusion.png
-height Tiles_Hexagons_002_height.png
-metallic Tiles_Hexagons_002_metallic.png
-normal Tiles_Hexagons_002_normal.png
-roughness Tiles_Hexagons_002_roughness.png

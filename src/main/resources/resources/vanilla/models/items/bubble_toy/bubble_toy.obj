@@ -1,6 +1,6 @@
 # Blender 4.2.2 LTS
 # www.blender.org
-mtllib bubble_toy.pbr
+mtllib bubble_toy.mtl
 o cuboid
 v 0.010417 -0.125000 -0.177083
 v 0.010417 -0.125000 -0.197917

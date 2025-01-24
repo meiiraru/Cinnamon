@@ -1,7 +1,0 @@
-newmtl gold
-mipmap 1
-albedo gold-scuffed_basecolor-boosted.png
-ao gold-scuffed_ao.png
-metallic gold-scuffed_metallic.png
-normal gold-scuffed_normal.png
-roughness gold-scuffed_roughness.png

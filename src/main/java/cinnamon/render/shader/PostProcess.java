@@ -122,8 +122,15 @@ public enum PostProcess {
     }),
     DITHER((fb, s) -> {
         int i = COLOR_UNIFORM.apply(fb, s);
-        s.setTexture("ditherTex", Texture.of(new Resource("textures/shader/dither.png")), ++i);
+        s.setTexture("ditherTex", Texture.of(new Resource("textures/shader/dither/dither.png")), ++i);
         s.setVec2("resolution", fb.getWidth(), fb.getHeight());
+        return i;
+    }),
+    DITHER_LINES(DITHER.resource, (fb, s) -> {
+        int i = COLOR_UNIFORM.apply(fb, s);
+        s.setTexture("ditherTex", Texture.of(new Resource("textures/shader/dither/lines.png")), ++i);
+        s.setVec2("resolution", fb.getWidth(), fb.getHeight());
+        s.setFloat("colorMask", 0.2f);
         return i;
     }),
     SHARPEN(KERNEL.resource, (fb, s) -> {
@@ -141,7 +148,7 @@ public enum PostProcess {
             INVERT, BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE,
             SCAN_LINE, LENS, LENS2, MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY,
             KALEIDOSCOPE, BITS, POSTERIZE, BLOBS, PHOSPHOR, SPEED_LINES, DOT_GRID,
-            DITHER, SHARPEN, VINTAGE
+            DITHER, DITHER_LINES, SHARPEN, VINTAGE
     };
 
     private final Resource resource;

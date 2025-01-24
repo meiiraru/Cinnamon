@@ -1,0 +1,7 @@
+newmtl metal_mesh
+map_Kd -mip metal_0076_color_1k.png
+map_disp -smooth metal_0076_height_1k.png
+map_Bump metal_0076_normal_opengl_1k.png
+map_ao metal_0076_ao_1k.png
+map_Pr metal_0076_roughness_1k.png
+map_Pm metal_0076_metallic_1k.png

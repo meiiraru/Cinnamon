@@ -1,7 +1,0 @@
-newmtl oak_log
-mipmap 1
-albedo wood_0063_color_1k.png
-ao wood_0063_ao_1k.png
-height wood_0063_height_1k.png
-normal wood_0063_normal_opengl_1k.png
-roughness wood_0063_roughness_1k.png

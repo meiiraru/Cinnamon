@@ -1,5 +1,0 @@
-newmtl crate
-mipmap 1
-albedo kd.png
-metallic ks.png
-roughness roughness.png

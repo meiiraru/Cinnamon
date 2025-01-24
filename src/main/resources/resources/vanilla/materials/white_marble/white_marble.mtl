@@ -1,0 +1,7 @@
+newmtl white_marble
+map_Kd -mip white-marble_albedo.png
+map_disp -smooth white-marble_height.png
+map_Bump white-marble_normal-ogl.png
+map_ao white-marble_ao.png
+map_Pr white-marble_roughness.png
+map_Pm white-marble_metallic.png

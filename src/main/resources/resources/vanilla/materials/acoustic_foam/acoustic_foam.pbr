@@ -1,8 +1,0 @@
-newmtl acoustic_foam
-mipmap 1
-albedo TCom_Various_AcousticFoam_512_albedo.png
-ao TCom_Various_AcousticFoam_512_ao.png
-height TCom_Various_AcousticFoam_512_height.png
-metallic TCom_Various_AcousticFoam_512_metallic.png
-normal TCom_Various_AcousticFoam_512_normal.png
-roughness TCom_Various_AcousticFoam_512_roughness.png

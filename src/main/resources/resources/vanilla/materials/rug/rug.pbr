@@ -1,7 +1,0 @@
-newmtl rug
-mipmap 1
-albedo fabric_0026_color_1k.png
-ao fabric_0026_ao_1k.png
-height fabric_0026_height_1k.png
-normal fabric_0026_normal_opengl_1k.png
-roughness fabric_0026_roughness_1k.png

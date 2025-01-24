@@ -1,7 +1,0 @@
-newmtl corn
-mipmap 1
-albedo food_0007_color_1k.png
-ao food_0007_ao_1k.png
-height food_0007_height_1k.png
-normal food_0007_normal_opengl_1k.png
-roughness food_0007_roughness_1k.png

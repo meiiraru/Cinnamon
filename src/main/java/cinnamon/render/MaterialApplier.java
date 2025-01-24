@@ -1,11 +1,9 @@
 package cinnamon.render;
 
 import cinnamon.model.material.Material;
-import cinnamon.model.material.MtlMaterial;
-import cinnamon.model.material.PBRMaterial;
+import cinnamon.model.material.MaterialTexture;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
-import cinnamon.utils.Resource;
 
 public class MaterialApplier {
 
@@ -19,56 +17,26 @@ public class MaterialApplier {
             return -1;
 
         Shader s = Shader.activeShader;
-        boolean smooth = material.isSmooth();
-        boolean mip = material.isMipmap();
+        int i = 0;
 
-        if (material instanceof MtlMaterial phong) {
-            /*
-            s.setVec3("material.ambient", phong.getAmbientColor());
-            s.setVec3("material.diffuse", phong.getDiffuseColor());
-            s.setVec3("material.specular", phong.getSpecularColor());
-            s.setFloat("material.shininess", phong.getSpecularExponent());
+        bindTex(s, material.getAlbedo(), i++, "material.albedoTex", Texture.MISSING);
+        bindTex(s, material.getHeight(), i++, "material.heightTex", WHITE_TEX);
+        bindTex(s, material.getNormal(), i++, "material.normalTex", NORMAL_TEX);
+        bindTex(s, material.getAO(), i++, "material.aoTex", WHITE_TEX);
+        bindTex(s, material.getRoughness(), i++, "material.roughnessTex", WHITE_TEX);
+        bindTex(s, material.getMetallic(), i++, "material.metallicTex", BLACK_TEX);
+        bindTex(s, material.getEmissive(), i++, "material.emissiveTex", BLACK_TEX);
 
-            bindTex(s, smooth, mip, phong.getDiffuseTex(), 0, "material.diffuseTex", Texture.MISSING);
-            bindTex(s, smooth, mip, phong.getSpColorTex(), 1, "material.specularTex", BLACK_TEX);
-            bindTex(s, smooth, mip, phong.getEmissiveTex(), 2, "material.emissiveTex", BLACK_TEX);
+        s.setFloat("material.heightScale", material.getHeightScale());
 
-            return 3;
-            */
-
-            bindTex(s, smooth, mip, phong.getDiffuseTex(), 0, "material.albedoTex", Texture.MISSING);
-            bindTex(s, smooth, mip, null, 1, "material.heightTex", WHITE_TEX);
-            bindTex(s, smooth, mip, null, 2, "material.normalTex", NORMAL_TEX);
-            bindTex(s, smooth, mip, null, 3, "material.roughnessTex", WHITE_TEX);
-            bindTex(s, smooth, mip, phong.getSpColorTex(), 4, "material.metallicTex", BLACK_TEX);
-            bindTex(s, smooth, mip, null, 5, "material.aoTex", WHITE_TEX);
-            bindTex(s, smooth, mip, phong.getEmissiveTex(), 6, "material.emissiveTex", BLACK_TEX);
-
-            s.setFloat("material.heightScale", PBRMaterial.DEFAULT_HEIGHT);
-
-            return 7;
-        } else if (material instanceof PBRMaterial pbr) {
-            bindTex(s, smooth, mip, pbr.getAlbedo(), 0, "material.albedoTex", Texture.MISSING);
-            bindTex(s, smooth, mip, pbr.getHeight(), 1, "material.heightTex", WHITE_TEX);
-            bindTex(s, smooth, mip, pbr.getNormal(), 2, "material.normalTex", NORMAL_TEX);
-            bindTex(s, smooth, mip, pbr.getRoughness(), 3, "material.roughnessTex", WHITE_TEX);
-            bindTex(s, smooth, mip, pbr.getMetallic(), 4, "material.metallicTex", BLACK_TEX);
-            bindTex(s, smooth, mip, pbr.getAO(), 5, "material.aoTex", WHITE_TEX);
-            bindTex(s, smooth, mip, pbr.getEmissive(), 6, "material.emissiveTex", BLACK_TEX);
-
-            s.setFloat("material.heightScale", pbr.getHeightScale());
-
-            return 7;
-        } else {
-            return -1;
-        }
+        return i;
     }
 
-    private static void bindTex(Shader s, boolean smooth, boolean mipmap, Resource res, int index, String name, Texture fallback) {
+    private static void bindTex(Shader s, MaterialTexture texture, int index, String name, Texture fallback) {
         s.setInt(name, index);
         Texture tex;
 
-        if (res == null || (tex = Texture.of(res, smooth, mipmap)) == null) {
+        if (texture == null || (tex = Texture.of(texture.texture(), texture.smooth(), texture.mipmap())) == null) {
             if (fallback == null) {
                 Texture.unbindTex(index);
                 return;

@@ -1,5 +1,5 @@
 # Made in Blockbench 4.11.1
-mtllib particle_spawner.pbr
+mtllib particle_spawner.mtl
 
 o cylinder
 v -0.10355339059327377 0 0.25

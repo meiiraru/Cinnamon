@@ -1,0 +1,7 @@
+newmtl space_blanket
+map_Kd -mip TCom_Plastic_SpaceBlanketFolds_512_albedo.png
+map_disp -smooth TCom_Plastic_SpaceBlanketFolds_512_height.png
+map_Bump TCom_Plastic_SpaceBlanketFolds_512_normal.png
+map_ao TCom_Plastic_SpaceBlanketFolds_512_ao.png
+map_Pr TCom_Plastic_SpaceBlanketFolds_512_roughness.png
+map_Pm TCom_Plastic_SpaceBlanketFolds_512_metallic.png

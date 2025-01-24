@@ -1,0 +1,6 @@
+newmtl crystal
+map_Kd -mip Crystal_001_COLOR.png
+map_disp -smooth Crystal_001_DISP.png
+map_Bump Crystal_001_NORM.png
+map_ao Crystal_001_OCC.png
+map_Pr Crystal_001_SPEC.png

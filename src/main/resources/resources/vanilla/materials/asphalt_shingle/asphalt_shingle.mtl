@@ -1,0 +1,7 @@
+newmtl asphalt_shingle
+map_Kd -mip tapered-asphalt-shingle_albedo.png
+map_disp -smooth tapered-asphalt-shingle_height.png
+map_Bump tapered-asphalt-shingle_normal-dx.png
+map_ao tapered-asphalt-shingle_ao.png
+map_Pr tapered-asphalt-shingle_roughness.png
+map_Pm tapered-asphalt-shingle_metallic.png

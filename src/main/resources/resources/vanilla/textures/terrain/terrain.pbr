@@ -1,9 +1,0 @@
-newmtl 1
-mipmap 1
-albedo albedo.png
-ao ao.png
-emissive emissive.png
-height height.png
-metallic metallic.png
-normal normal.png
-roughness roughness.png

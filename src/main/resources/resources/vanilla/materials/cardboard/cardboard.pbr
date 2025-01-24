@@ -1,7 +1,0 @@
-newmtl cardboard
-mipmap 1
-albedo paper_0025_color_1k.png
-ao paper_0025_ao_1k.png
-height paper_0025_height_1k.png
-normal paper_0025_normal_opengl_1k.png
-roughness paper_0025_roughness_1k.png

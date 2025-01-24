@@ -1,0 +1,6 @@
+newmtl snow
+map_Kd -mip Snow_002_COLOR.png
+map_disp -smooth Snow_002_DISP.png
+map_Bump Snow_002_NORM.png
+map_ao Snow_002_OCC.png
+map_Pr Snow_002_ROUGH.png

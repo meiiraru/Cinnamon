@@ -1,6 +1,6 @@
 # Blender 4.2.3 LTS
 # www.blender.org
-mtllib sphere.pbr
+mtllib sphere.mtl
 o root
 v -0.037329 0.990393 0.090120
 v 0.000000 0.990393 0.097545

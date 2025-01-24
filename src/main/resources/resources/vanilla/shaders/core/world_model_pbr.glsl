@@ -41,9 +41,9 @@ struct Material {
     sampler2D albedoTex;
     sampler2D heightTex;
     sampler2D normalTex;
+    sampler2D aoTex;
     sampler2D roughnessTex;
     sampler2D metallicTex;
-    sampler2D aoTex;
     sampler2D emissiveTex;
     float heightScale;
 };
@@ -82,17 +82,19 @@ uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
 
 vec2 pallaxMapping(vec2 texCoords, vec3 viewDir, sampler2D depthMap, float heightScale) {
+    float currentDepthMapValue = 1.0f - texture(depthMap, texCoords).r;
+    if (currentDepthMapValue <= 0.01f)
+        return texCoords;
+
     //calculate number of layers
     float numLayers = mix(maxParallax, minParallax, max(dot(vec3(0.0f, 0.0f, 1.0f), viewDir), 0.0f));
     float layerDepth = 1.0f / numLayers;
     float currentLayerDepth = 0.0f;
-    vec2 P = viewDir.xy / viewDir.z * heightScale;
+    vec2 textureSize = vec2(textureSize(depthMap, 0));
+    vec2 P = viewDir.xy / viewDir.z * heightScale * normalize(textureSize).yx;
     vec2 deltaTexCoords = P / numLayers;
 
-    //initial values
     vec2 currentTexCoords = texCoords;
-    float currentDepthMapValue = 1.0f - texture(depthMap, currentTexCoords).r;
-
     while(currentLayerDepth < currentDepthMapValue) {
         //shift texture coordinates along direction of view
         currentTexCoords -= deltaTexCoords;
@@ -174,9 +176,9 @@ vec4 applyLighting() {
         discard;
 
     vec3 albedo     = albedo4.rgb;
-    float metallic  = texture(material.metallicTex, texCoords).r;
-    float roughness = texture(material.roughnessTex, texCoords).r;
     float ao        = texture(material.aoTex, texCoords).r;
+    float roughness = texture(material.roughnessTex, texCoords).r;
+    float metallic  = texture(material.metallicTex, texCoords).r;
 
     //normal mapping
     vec3 N = getNormalFromMap(material.normalTex, texCoords, TBN);

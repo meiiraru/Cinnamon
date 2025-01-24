@@ -1,7 +1,0 @@
-newmtl inflatable_fabric
-mipmap 1
-albedo Fabric_Padded_006_basecolor.png
-ao Fabric_Padded_006_ambientOcclusion.png
-height Fabric_Padded_006_height.png
-normal Fabric_Padded_006_normal.png
-roughness Fabric_Padded_006_roughness.png

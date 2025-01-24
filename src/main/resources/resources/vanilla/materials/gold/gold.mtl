@@ -1,0 +1,6 @@
+newmtl gold
+map_Kd -mip gold-scuffed_basecolor-boosted.png
+map_Bump gold-scuffed_normal.png
+map_ao gold-scuffed_ao.png
+map_Pr gold-scuffed_roughness.png
+map_Pm gold-scuffed_metallic.png

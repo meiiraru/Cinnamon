@@ -1,7 +1,0 @@
-newmtl bamboo_wood
-mipmap 1
-albedo bamboo-wood-semigloss-albedo.png
-ao bamboo-wood-semigloss-ao.png
-metallic bamboo-wood-semigloss-metal.png
-normal bamboo-wood-semigloss-normal.png
-roughness bamboo-wood-semigloss-roughness.png

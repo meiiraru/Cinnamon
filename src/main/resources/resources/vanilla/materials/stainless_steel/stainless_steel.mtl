@@ -1,0 +1,7 @@
+newmtl stainless_steel
+map_Kd -mip used-stainless-steel2_albedo.png
+map_disp -smooth used-stainless-steel2_height.png
+map_Bump used-stainless-steel2_normal-ogl.png
+map_ao used-stainless-steel2_ao.png
+map_Pr used-stainless-steel2_roughness.png
+map_Pm used-stainless-steel2_metallic.png

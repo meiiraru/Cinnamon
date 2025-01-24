@@ -1,5 +1,5 @@
 # Made in Blockbench 4.11.1
-mtllib disco_ball.pbr
+mtllib disco_ball.mtl
 
 o sphere
 v 0.353553 0.5 -0.353554

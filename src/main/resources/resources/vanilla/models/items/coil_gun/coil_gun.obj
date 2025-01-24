@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib coil_gun.pbr
+mtllib coil_gun.mtl
 o body
 v -0.151179 -0.017727 -0.464063
 v -0.052827 0.013283 -0.464063

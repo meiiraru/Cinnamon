@@ -1,7 +1,0 @@
-newmtl milkshake_foam
-mipmap 1
-albedo Strawberry_milkshake_foam_001_COLOR.png
-ao Strawberry_milkshake_foam_001_OCC.png
-height Strawberry_milkshake_foam_001_DISP.png
-normal Strawberry_milkshake_foam_001_NORM.png
-roughness Strawberry_milkshake_foam_001_ROUGH.png

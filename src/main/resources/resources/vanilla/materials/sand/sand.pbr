@@ -1,7 +1,0 @@
-newmtl sand
-mipmap 1
-albedo Stylized_Sand_001_basecolor.png
-ao Stylized_Sand_001_ambientOcclusion.png
-height Stylized_Sand_001_height.png
-normal Stylized_Sand_001_normal.png
-roughness Stylized_Sand_001_roughness.png

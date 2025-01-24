@@ -1,0 +1,7 @@
+newmtl tiles_hexagons
+map_Kd -mip Tiles_Hexagons_002_basecolor.png
+map_disp -smooth Tiles_Hexagons_002_height.png
+map_Bump Tiles_Hexagons_002_normal.png
+map_ao Tiles_Hexagons_002_ambientOcclusion.png
+map_Pr Tiles_Hexagons_002_roughness.png
+map_Pm Tiles_Hexagons_002_metallic.png

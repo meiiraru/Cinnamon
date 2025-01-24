@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib rice_gun.pbr
+mtllib rice_gun.mtl
 o barrel
 v 0.054427 0.265625 -0.953125
 v 0.148698 0.211198 -0.953125

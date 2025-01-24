@@ -1,6 +1,0 @@
-newmtl granite
-mipmap 1
-albedo Granite08small_1K_BaseColor.png
-height Granite08small_1K_Height.png
-normal Granite08small_1K_Normal.png
-roughness Granite08small_1K_Roughness.png

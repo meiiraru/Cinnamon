@@ -1,0 +1,7 @@
+newmtl lava
+map_Kd -mip Lava_002_COLOR.png
+map_disp -smooth Lava_002_DISP.png
+map_Bump Lava_002_NRM.png
+map_ao Lava_002_OCC.png
+map_Pr Lava_002_SPEC.png
+map_Ke -mip Lava_002_COLOR.png

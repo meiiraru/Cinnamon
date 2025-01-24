@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib donut.pbr
+mtllib donut.mtl
 o left_eye
 v -0.218750 1.828125 -0.396875
 v -0.193630 1.734494 -0.402328

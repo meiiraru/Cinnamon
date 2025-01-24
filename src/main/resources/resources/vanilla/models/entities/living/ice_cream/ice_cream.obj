@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib ice_cream.pbr
+mtllib ice_cream.mtl
 o body
 v -0.000000 -0.000000 -0.000000
 v 0.100481 0.500000 0.375000

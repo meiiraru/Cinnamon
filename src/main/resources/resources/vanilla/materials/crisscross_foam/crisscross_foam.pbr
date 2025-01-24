@@ -1,8 +1,0 @@
-newmtl crisscross_foam
-mipmap 1
-albedo crisscross-foam_albedo.png
-ao crisscross-foam_ao.png
-height crisscross-foam_height.png
-metallic crisscross-foam_metallic.png
-normal crisscross-foam_normal-ogl.png
-roughness crisscross-foam_roughness.png

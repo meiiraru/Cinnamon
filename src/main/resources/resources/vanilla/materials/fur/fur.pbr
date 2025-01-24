@@ -1,8 +1,0 @@
-newmtl fur
-mipmap 1
-albedo stylized-animal-fur_albedo.png
-ao stylized-animal-fur_ao.png
-height stylized-animal-fur_height.png
-metallic stylized-animal-fur_metallic.png
-normal stylized-animal-fur_normal-ogl.png
-roughness stylized-animal-fur_roughness.png

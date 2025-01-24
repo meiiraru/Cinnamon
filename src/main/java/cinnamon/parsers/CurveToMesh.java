@@ -1,9 +1,10 @@
 package cinnamon.parsers;
 
+import cinnamon.model.material.MaterialTexture;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
-import cinnamon.model.material.PBRMaterial;
+import cinnamon.model.material.Material;
 import cinnamon.utils.Curve;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
@@ -15,10 +16,10 @@ import java.util.List;
 
 public class CurveToMesh {
 
-    private static final Resource
-            TEXTURE_ALBEDO = new Resource("textures/rollercoaster/albedo.png"),
-            TEXTURE_METALLIC = new Resource("textures/rollercoaster/metallic.png"),
-            TEXTURE_ROUGHNESS = new Resource("textures/rollercoaster/roughness.png");
+    private static final MaterialTexture
+            TEXTURE_ALBEDO = new MaterialTexture(new Resource("textures/rollercoaster/albedo.png"), false, true),
+            TEXTURE_METALLIC = new MaterialTexture(new Resource("textures/rollercoaster/metallic.png")),
+            TEXTURE_ROUGHNESS = new MaterialTexture(new Resource("textures/rollercoaster/roughness.png"));
 
     public static Mesh generateMesh(Curve curve, boolean offset, boolean bottomFace) throws Exception {
         //offset curve to 0-0
@@ -99,7 +100,7 @@ public class CurveToMesh {
         }
 
         //material
-        PBRMaterial material = new PBRMaterial("curve");
+        Material material = new Material("curve");
         mesh.getMaterials().put("curve", material);
         group.setMaterial(material);
 

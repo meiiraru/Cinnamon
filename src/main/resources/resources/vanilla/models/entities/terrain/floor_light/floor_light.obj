@@ -1,5 +1,5 @@
 # Made in Blockbench 4.11.1
-mtllib floor_light.pbr
+mtllib floor_light.mtl
 
 o cylinder_selection
 v 0.08373412263472584 0 0.3125

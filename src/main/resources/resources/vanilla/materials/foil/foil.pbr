@@ -1,8 +1,0 @@
-newmtl foil
-mipmap 1
-albedo metal_0005_color_1k.png
-ao metal_0005_ao_1k.png
-height metal_0005_height_1k.png
-metallic metal_0005_metallic_1k.png
-normal metal_0005_normal_opengl_1k.png
-roughness metal_0005_roughness_1k.png

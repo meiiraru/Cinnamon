@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib magic_wand.pbr
+mtllib magic_wand.mtl
 o cuboid
 v 0.031250 0.031250 -0.656250
 v 0.031250 -0.031250 -0.656250

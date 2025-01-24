@@ -1,7 +1,0 @@
-newmtl paper_lantern
-mipmap 1
-albedo Paper_Lantern_001_basecolor.png
-ao Paper_Lantern_001_ambientOcclusion.png
-height Paper_Lantern_001_height.png
-normal Paper_Lantern_001_normal.png
-roughness Paper_Lantern_001_roughness.png

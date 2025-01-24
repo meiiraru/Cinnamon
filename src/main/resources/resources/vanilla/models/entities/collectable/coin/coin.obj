@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib coin.pbr
+mtllib coin.mtl
 o tube
 v 0.100481 -0.000000 -0.031250
 v 0.100481 0.000000 0.031250

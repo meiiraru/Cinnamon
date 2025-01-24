@@ -1,8 +1,0 @@
-newmtl cobblestone
-mipmap 1
-albedo angled-blocks-vegetation_albedo.png
-ao angled-blocks-vegetation_ao.png
-height angled-blocks-vegetation_height.png
-metallic angled-blocks-vegetation_metallic.png
-normal angled-blocks-vegetation_normal-ogl.png
-roughness angled-blocks-vegetation_roughness.png

@@ -1,0 +1,7 @@
+newmtl scifi_panel
+map_Kd -mip TCom_Scifi_Panel_512_albedo.png
+map_disp -smooth TCom_Scifi_Panel_512_height.png
+map_Bump TCom_Scifi_Panel_512_normal.png
+map_ao TCom_Scifi_Panel_512_ao.png
+map_Pr TCom_Scifi_Panel_512_roughness.png
+map_Pm TCom_Scifi_Panel_512_metallic.png

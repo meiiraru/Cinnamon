@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib milkshake.pbr
+mtllib milkshake.mtl
 o cup_bottom
 v 0.199146 0.042337 0.085731
 v 0.193808 0.062259 0.085731

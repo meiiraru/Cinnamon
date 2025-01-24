@@ -1,0 +1,7 @@
+newmtl metal_studs
+map_Kd -mip worn-metal-studs_albedo.png
+map_disp -smooth worn-metal-studs_height.png
+map_Bump worn-metal-studs_normal-ogl.png
+map_ao worn-metal-studs_ao.png
+map_Pr worn-metal-studs_roughness.png
+map_Pm worn-metal-studs_metallic.png

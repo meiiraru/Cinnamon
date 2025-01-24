@@ -1,7 +1,0 @@
-newmtl snow
-mipmap 1
-albedo Snow_002_COLOR.png
-ao Snow_002_OCC.png
-height Snow_002_DISP.png
-normal Snow_002_NORM.png
-roughness Snow_002_ROUGH.png

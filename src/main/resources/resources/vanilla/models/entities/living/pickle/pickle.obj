@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib pickle.pbr
+mtllib pickle.mtl
 o body
 v 0.000000 0.000000 0.000000
 v 0.133975 0.437500 0.500000

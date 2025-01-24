@@ -1,6 +1,6 @@
 # Blender 3.6.5
 # www.blender.org
-mtllib potato.pbr
+mtllib potato.mtl
 o cuboid
 v -0.118750 0.064583 0.233333
 v 0.047917 0.064583 0.233333

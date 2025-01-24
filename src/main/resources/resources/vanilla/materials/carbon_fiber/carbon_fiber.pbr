@@ -1,8 +1,0 @@
-newmtl carbon_fiber
-mipmap 1
-albedo carbon-fiber_smooth_albedo.png
-ao carbon-fiber_smooth_ao.png
-height carbon-fiber_smooth_height.png
-metallic carbon-fiber_smooth_metallic.png
-normal carbon-fiber_smooth_normal-ogl.png
-roughness carbon-fiber_smooth_roughness.png

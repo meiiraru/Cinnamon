@@ -1,7 +1,0 @@
-newmtl bacteria
-mipmap 1
-albedo Bacteria_001_COLOR.png
-ao Bacteria_001_OCC.png
-height Bacteria_001_DISP.png
-normal Bacteria_001_NORM.png
-roughness Bacteria_001_SPEC.png
