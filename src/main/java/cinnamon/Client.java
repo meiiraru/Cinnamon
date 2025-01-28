@@ -135,8 +135,8 @@ public class Client {
             PostProcess.apply(PostProcess.EFFECTS[postProcess]);
 
         //debug hud
-        Hud.renderDebugText(matrices);
-        VertexConsumer.FONT.finishBatch(camera);
+        Hud.renderDebug(matrices);
+        VertexConsumer.finishAllBatches(camera);
 
         //finish rendering
         matrices.pop();

@@ -66,7 +66,8 @@ public class Hud {
         VertexConsumer.finishAllBatches(c.camera);
 
         //draw crosshair separated
-        drawCrosshair(matrices);
+        if (!c.debug)
+            drawCrosshair(matrices);
     }
 
     private void drawPlayerStats(MatrixStack matrices, Player player, float delta) {
@@ -326,50 +327,53 @@ public class Hud {
 
     private void drawCrosshair(MatrixStack matrices) {
         Client c = Client.getInstance();
-        int w = c.window.scaledWidth;
-        int h = c.window.scaledHeight;
 
-        if (c.debug) {
-            matrices.push();
-            matrices.translate(w / 2f, h / 2f, 0);
-            matrices.scale(1, 1, -1);
+        glBlendFuncSeparate(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_ONE, GL_ZERO);
 
-            Vector2f rot = c.camera.getRot();
-            matrices.rotate(Rotation.X.rotationDeg(rot.x));
-            matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, Math.round(c.window.scaledWidth / 2f - 8), Math.round(c.window.scaledHeight / 2f - 8), 16, 16), CROSSHAIR);
+        VertexConsumer.GUI.finishBatch(c.camera);
 
-            float len = 10;
-            VertexConsumer.GUI.consume(GeometryHelper.cube(matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000));
-            VertexConsumer.GUI.consume(GeometryHelper.cube(matrices, 0, 0, 0, 1, -len, 1, 0xFF00FF00));
-            VertexConsumer.GUI.consume(GeometryHelper.cube(matrices, 0, 0, 0, 1, 1, -len, 0xFF0000FF));
-
-            matrices.pop();
-        } else {
-            glBlendFuncSeparate(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_ONE, GL_ZERO);
-
-            VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, Math.round(w / 2f - 8), Math.round(h / 2f - 8), 16, 16), CROSSHAIR);
-            VertexConsumer.GUI.finishBatch(c.camera);
-
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        }
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
 
     // -- debug -- //
 
 
-    public static void renderDebugText(MatrixStack matrices) {
+    public static void renderDebug(MatrixStack matrices) {
         Client c = Client.getInstance();
+        Style style = Style.EMPTY.background(true).backgroundColor(0x88000000);
 
         //render debug text
-        Style style = Style.EMPTY.background(true).backgroundColor(0x88000000);
         if (c.debug) {
             c.font.render(VertexConsumer.FONT, matrices, 4, 4, TextUtils.parseColorFormatting(Text.of(debugLeftText(c))).withStyle(style));
             c.font.render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, TextUtils.parseColorFormatting(Text.of(debugRightText(c))).withStyle(style), Alignment.RIGHT);
+
+            //render crosshair
+            renderDebugCrosshair(matrices);
         } else if (Settings.showFPS.get() && (c.world == null || !c.world.hideHUD())) {
             //Style style = Style.EMPTY.shadow(true);
             c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(style));
         }
+    }
+
+    private static void renderDebugCrosshair(MatrixStack matrices) {
+        Client c = Client.getInstance();
+
+        matrices.push();
+        matrices.translate(c.window.scaledWidth / 2f, c.window.scaledHeight / 2f, 0);
+        matrices.scale(1, c.world == null ? -1 : 1, -1);
+
+        Vector2f rot = c.camera.getRot();
+        matrices.rotate(Rotation.X.rotationDeg(rot.x));
+        matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
+
+        float len = 10;
+        VertexConsumer.GUI.consume(GeometryHelper.cube(matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000));
+        VertexConsumer.GUI.consume(GeometryHelper.cube(matrices, 0, 0, 0, 1, -len, 1, 0xFF00FF00));
+        VertexConsumer.GUI.consume(GeometryHelper.cube(matrices, 0, 0, 0, 1, 1, -len, 0xFF0000FF));
+
+        matrices.pop();
     }
 
     private static String debugLeftText(Client c) {
