@@ -123,13 +123,13 @@ public enum PostProcess {
     }),
     DITHER((fb, s) -> {
         int i = COLOR_UNIFORM.apply(fb, s);
-        s.setTexture("ditherTex", Texture.of(new Resource("textures/shader/dither/dither.png")), ++i);
+        s.setTexture("ditherTex", Texture.of(new Resource("textures/shader/dither/dither.png")), i++);
         s.setVec2("resolution", fb.getWidth(), fb.getHeight());
         return i;
     }),
-    DITHER_LINES(DITHER.resource, (fb, s) -> {
+    DITHER_SQUARE_TEX((fb, s) -> {
         int i = COLOR_UNIFORM.apply(fb, s);
-        s.setTexture("ditherTex", Texture.of(new Resource("textures/shader/dither/lines.png")), ++i);
+        s.setTexture("ditherTex", Texture.of(new Resource("textures/shader/dither/lines.png")), i++);
         s.setVec2("resolution", fb.getWidth(), fb.getHeight());
         s.setFloat("colorMask", 0.2f);
         return i;
@@ -140,7 +140,7 @@ public enum PostProcess {
     }),
     VINTAGE(LOOKUP_TEXTURE.resource, (fb, s) -> {
         int i = LOOKUP_TEXTURE.uniformFunction.apply(fb, s);
-        s.setTexture("lutTex", Texture.of(new Resource("textures/shader/lut/vintage.png")), ++i);
+        s.setTexture("lutTex", Texture.of(new Resource("textures/shader/lut/vintage.png")), i++);
         s.setVec2("lutGrid", 8f, 8f);
         return i;
     }),
@@ -161,7 +161,7 @@ public enum PostProcess {
             INVERT, BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE,
             SCAN_LINE, LENS, LENS2, MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY,
             KALEIDOSCOPE, BITS, POSTERIZE, BLOBS, PHOSPHOR, SPEED_LINES, DOT_GRID,
-            DITHER, DITHER_LINES, SHARPEN, VINTAGE
+            DITHER, DITHER_SQUARE_TEX, SHARPEN, VINTAGE
     };
     public static final PostProcess[] WORLD_EFFECTS = {
             TOON_OUTLINE

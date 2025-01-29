@@ -18,10 +18,6 @@ uniform float colorMask = 1.0f;
 ivec2 ditherTexSize = textureSize(ditherTex, 0);
 float ditherSteps = ditherTexSize.x / ditherTexSize.y;
 
-float great(vec3 t) {
-    return max(t.x, max(t.y, t.z));
-}
-
 void main() {
     vec2 scrCoords = texCoords * resolution;
     float cellSize = ditherTexSize.y;
@@ -32,7 +28,7 @@ void main() {
 
     float offset = max(brightness - 1.0f / ditherSteps, 0.0f);
 
-    vec2 f = vec2(uv.x / ditherSteps + offset, uv.y);
+    vec2 f = vec2(uv.x / ditherSteps + offset, 1.0f - uv.y);
     vec3 d = texture(ditherTex, f).rgb;
 
     fragColor = vec4(mix(d, d * color, colorMask), 1.0f);
