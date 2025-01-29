@@ -238,8 +238,10 @@ public class WorldClient extends World {
         client.camera.useOrtho(true);
 
         //debug shadows
-        if (renderShadowMap)
-            renderShadowBuffer(client.window.width - 500, client.window.height - 500, 500);
+        if (renderShadowMap) {
+            int size = client.window.height / 4;
+            renderShadowBuffer(client.window.width - size, client.window.height - size, size);
+        }
     }
 
     protected void renderSky(MatrixStack matrices, float delta) {
@@ -398,7 +400,12 @@ public class WorldClient extends World {
 
         //setup rendering
         client.camera.useOrtho(false);
-        WorldRenderer.prepare(client.camera);
+
+        Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
+        s.setup(camera);
+        applyWorldUniforms(s);
+        skyBox.pushToShader(s, Texture.MAX_TEXTURES - 1);
+
         matrices.push();
 
         //camera transforms
@@ -414,7 +421,6 @@ public class WorldClient extends World {
         matrices.pop();
 
         //finish rendering
-        WorldRenderer.finish(this);
         client.camera.useOrtho(true);
     }
 

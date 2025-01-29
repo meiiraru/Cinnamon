@@ -8,7 +8,6 @@ layout (location = 3) in vec3 aTangent;
 
 out vec2 texCoords;
 out vec3 pos;
-out vec4 shadowPos;
 out mat3 TBN;
 out mat3 pTBN;
 
@@ -16,14 +15,12 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
 uniform mat3 normalMat;
-uniform mat4 lightSpaceMatrix;
 
 void main() {
     vec4 posVec = model * vec4(aPosition, 1.0f);
     gl_Position = projection * view * posVec;
     pos = posVec.xyz;
     texCoords = aTexCoords;
-    shadowPos = lightSpaceMatrix * posVec;
 
     vec3 T = normalize(normalMat * aTangent);
     vec3 N = normalize(normalMat * aNormal);
@@ -35,7 +32,6 @@ void main() {
 #type fragment
 #version 330 core
 #include shaders/libs/fog.glsl
-#include shaders/libs/shadow.glsl
 
 struct Material {
     sampler2D albedoTex;
@@ -185,9 +181,6 @@ vec4 applyLighting() {
     vec3 V = normalize(camPos - pos);
     vec3 R = reflect(-V, N);
 
-    //grab shadow from shadow map
-    float shadow = 1.0f - calculateShadow(N, normalize(shadowDir));
-
     //F0
     vec3 F0 = vec3(0.04f);
     F0 = mix(F0, albedo, metallic);
@@ -219,7 +212,7 @@ vec4 applyLighting() {
         vec3 specular = (D * F * G) / (4.0f * max(dot(N, V), 0.0f) * NdotL + 0.0001f);
 
         //calculate radiance and add to Lo
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL * shadow;
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
 
     //ambient lighting

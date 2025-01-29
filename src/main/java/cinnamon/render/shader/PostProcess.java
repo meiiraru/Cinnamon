@@ -1,5 +1,6 @@
 package cinnamon.render.shader;
 
+import cinnamon.render.WorldRenderer;
 import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.texture.Texture;
@@ -142,6 +143,18 @@ public enum PostProcess {
         s.setTexture("lutTex", Texture.of(new Resource("textures/shader/lut/vintage.png")), ++i);
         s.setVec2("lutGrid", 8f, 8f);
         return i;
+    }),
+
+    //world only effects
+    TOON_OUTLINE((fb, s) -> {
+        int i = COLOR_UNIFORM.apply(fb, s);
+        s.setTexture("depthTex", WorldRenderer.PBRFrameBuffer.getDepthBuffer(), i++);
+        s.setTexture("normalTex", WorldRenderer.PBRFrameBuffer.gNormal, i++);
+        s.setVec2("textelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
+        s.setVec2("depthBias", 64f, 1f);
+        s.setVec2("normalBias", 1f, 16f);
+        s.setVec3("outlineColor", 0f, 0f, 0f);
+        return i;
     });
 
     public static final PostProcess[] EFFECTS = {
@@ -149,6 +162,9 @@ public enum PostProcess {
             SCAN_LINE, LENS, LENS2, MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY,
             KALEIDOSCOPE, BITS, POSTERIZE, BLOBS, PHOSPHOR, SPEED_LINES, DOT_GRID,
             DITHER, DITHER_LINES, SHARPEN, VINTAGE
+    };
+    public static final PostProcess[] WORLD_EFFECTS = {
+            TOON_OUTLINE
     };
 
     private final Resource resource;
