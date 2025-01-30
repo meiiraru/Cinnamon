@@ -3,7 +3,6 @@ package cinnamon.gui.screens;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.screens.extras.*;
-import cinnamon.gui.screens.extras.jam.JamMainMenu;
 import cinnamon.gui.widgets.WidgetList;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Label;
@@ -72,9 +71,6 @@ public class ExtrasScreen extends ParentedScreen {
 
         //wordle
         list.addWidget(BUTTON_FACTORY.apply("Wordle", button -> client.setScreen(new WordleScreen(this))));
-
-        //jam
-        list.addWidget(BUTTON_FACTORY.apply("Unisinos 1st Game Jam", button -> client.setScreen(new JamMainMenu(this))));
 
         //title
         list.addWidget(new Label(0, 0, Text.of("\nOther\n"), font));

@@ -19,26 +19,22 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class Main {
+public class Cinnamon {
 
     public static void main(String[] args) {
-        //System.load("C:\\Program Files\\RenderDoc\\renderdoc.dll");
-        new Main().run();
+        //System.load("D:\\apps\\RenderDoc_1.32_64\\renderdoc.dll");
+        new Cinnamon().run();
     }
 
-    public static final int WIDTH = 854, HEIGHT = 480;
-
-    private Client client;
-    private long window;
-
     public void run() {
-        this.client = Client.getInstance();
         init();
         loop();
         close();
     }
 
     private void init() {
+        Client client = Client.getInstance();
+
         //error callback
         GLFWErrorCallback.createPrint(System.err).set();
 
@@ -57,9 +53,9 @@ public class Main {
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
         //create window
-        int width = WIDTH;
-        int height = HEIGHT;
-        window = glfwCreateWindow(width, height, "Cinnamon", NULL, NULL);
+        int width = Window.DEFAULT_WIDTH;
+        int height = Window.DEFAULT_HEIGHT;
+        long window = glfwCreateWindow(width, height, "Cinnamon", NULL, NULL);
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
 
@@ -86,18 +82,18 @@ public class Main {
         glfwShowWindow(window);
 
         //register input callbacks
-        glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> client.keyPress(key, scancode, action, mods));
-        glfwSetCharModsCallback(window, (window, key, mods) -> {
+        glfwSetKeyCallback(window, (win, key, scancode, action, mods) -> client.keyPress(key, scancode, action, mods));
+        glfwSetCharModsCallback(window, (win, key, mods) -> {
             for (char c : Character.toChars(key))
                 client.charTyped(c, mods);
         });
-        glfwSetMouseButtonCallback(window, (window, button, action, mods) -> client.mousePress(button, action, mods));
-        glfwSetCursorPosCallback(window, (window, x, y) -> client.mouseMove(x, y));
-        glfwSetScrollCallback(window, (window, x, y) -> client.scroll(x, y));
-        glfwSetWindowPosCallback(window, (window, x, y) -> client.windowMove(x, y));
-        glfwSetWindowSizeCallback(window, (window, w, h) -> client.windowResize(w, h));
-        glfwSetWindowFocusCallback(window, (window, focused) -> client.windowFocused(focused));
-        glfwSetDropCallback(window, (window, count, names) -> {
+        glfwSetMouseButtonCallback(window, (win, button, action, mods) -> client.mousePress(button, action, mods));
+        glfwSetCursorPosCallback(window, (win, x, y) -> client.mouseMove(x, y));
+        glfwSetScrollCallback(window, (win, x, y) -> client.scroll(x, y));
+        glfwSetWindowPosCallback(window, (win, x, y) -> client.windowMove(x, y));
+        glfwSetWindowSizeCallback(window, (win, w, h) -> client.windowResize(w, h));
+        glfwSetWindowFocusCallback(window, (win, focused) -> client.windowFocused(focused));
+        glfwSetDropCallback(window, (win, count, names) -> {
             String[] nameArray = new String[count];
             for (int i = 0; i < count; i++)
                 nameArray[i] = GLFWDropCallback.getName(names, i);
@@ -125,6 +121,9 @@ public class Main {
     }
 
     private void loop() {
+        Client client = Client.getInstance();
+        long window = client.window.getHandle();
+
         //transform matrix
         MatrixStack matrices = new MatrixStack();
 
@@ -179,11 +178,14 @@ public class Main {
     }
 
     private void close() {
+        Client client = Client.getInstance();
+
         //close client
         client.close();
         LOGGER.info("Now leaving... bye!");
 
         //free the window callbacks and destroy the window
+        long window = client.window.getHandle();
         glfwFreeCallbacks(window);
         glfwDestroyWindow(window);
 

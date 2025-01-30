@@ -1,8 +1,10 @@
 package cinnamon;
 
+import cinnamon.events.Await;
+import cinnamon.events.EventType;
+import cinnamon.events.Events;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
-import cinnamon.gui.screens.MainMenu;
 import cinnamon.gui.screens.world.PauseScreen;
 //import cinnamon.networking.ServerConnection;
 import cinnamon.render.Camera;
@@ -12,11 +14,9 @@ import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
-import cinnamon.resource.ResourceManager;
 import cinnamon.settings.Settings;
 import cinnamon.sound.SoundManager;
 import cinnamon.text.Text;
-import cinnamon.utils.Await;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
 import cinnamon.utils.Timer;
@@ -36,8 +36,8 @@ import static org.lwjgl.opengl.GL11.glClear;
 public class Client {
 
     private static final Client INSTANCE = new Client();
-    public static final String VERSION = "0.0.9";
-    public static final Logger LOGGER = LogManager.getLogger(Main.class);
+    public static final String VERSION = "0.0.1";
+    public static final Logger LOGGER = LogManager.getLogger(Client.class);
 
     private final Queue<Runnable> scheduledTicks = new LinkedList<>();
 
@@ -52,6 +52,9 @@ public class Client {
     public boolean debug;
     public int postProcess = -1;
     public boolean anaglyph3D = false;
+
+    //events
+    public Events events = new Events();
 
     //objects
     public Window window;
@@ -70,9 +73,9 @@ public class Client {
         this.camera = new Camera();
         this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight, Settings.fov.get());
         this.font = new Font(new Resource("fonts/mayonnaise.ttf"), 8);
-        ResourceManager.register();
-        ResourceManager.init();
-        this.setScreen(new MainMenu());
+        events.registerClientEvents();
+        events.runEvents(EventType.RESOURCE_INIT);
+        this.setScreen(events.getMainScreen().get());
     }
 
     public void close() {
@@ -80,7 +83,7 @@ public class Client {
         if (screen != null) screen.removed();
         this.font.free();
         SoundManager.free();
-        ResourceManager.free();
+        events.runEvents(EventType.RESOURCE_FREE);
     }
 
     public static Client getInstance() {
@@ -99,8 +102,11 @@ public class Client {
 
         matrices.push();
 
+        //run render events
+        events.runEvents(EventType.RENDER_BEFORE_WORLD);
+
+        //render world
         if (world != null) {
-            //render world
             world.render(matrices, delta);
 
             if (!world.hideHUD()) {
@@ -110,31 +116,37 @@ public class Client {
                     world.renderHand(camera, matrices, delta);
                 }
 
-                //render hud
+                //render world hud
                 glClear(GL_DEPTH_BUFFER_BIT); //top of hand
                 world.hud.render(matrices, delta);
             }
         }
 
-        boolean toasts = world == null || !world.hideHUD();
-        if (this.screen != null || toasts) {
-            glClear(GL_DEPTH_BUFFER_BIT); //top of hud
+        //top of world hud
+        glClear(GL_DEPTH_BUFFER_BIT);
 
-            //render screen
-            if (this.screen != null)
-                screen.render(matrices, window.mouseX, window.mouseY, delta);
+        //run gui events
+        events.runEvents(EventType.RENDER_BEFORE_GUI);
 
-            //render toasts
-            if (toasts)
-                Toast.renderToasts(matrices, window.scaledWidth, window.scaledHeight, delta);
+        //render screen
+        if (this.screen != null)
+            screen.render(matrices, window.mouseX, window.mouseY, delta);
 
-            VertexConsumer.finishAllBatches(camera);
-        }
+        //render toasts
+        if (world == null || !world.hideHUD())
+            Toast.renderToasts(matrices, window.scaledWidth, window.scaledHeight, delta);
 
+        //finish hud
+        VertexConsumer.finishAllBatches(camera);
+
+        //apply global post process
         if (postProcess != -1)
             PostProcess.apply(PostProcess.EFFECTS[postProcess]);
 
-        //debug hud
+        //run post render events
+        events.runEvents(EventType.RENDER_END);
+
+        //debug hud always on top
         Hud.renderDebug(matrices);
         VertexConsumer.finishAllBatches(camera);
 
@@ -151,11 +163,17 @@ public class Client {
 
         SoundManager.tick(camera);
 
+        events.runEvents(EventType.TICK_BEFORE_WORLD);
+
         if (world != null)
             world.tick();
 
+        events.runEvents(EventType.TICK_BEFORE_GUI);
+
         if (screen != null)
             screen.tick();
+
+        events.runEvents(EventType.TICK_END);
     }
 
     private void runScheduledTicks() {
@@ -203,14 +221,14 @@ public class Client {
             this.camera.setEntity(null);
             this.camera.reset();
             Toast.clear(Toast.ToastType.WORLD);
-            this.setScreen(new MainMenu());
+            this.setScreen(events.getMainScreen().get());
         });
     }
 
     public void reloadAssets() {
         queueTick(() -> {
-            ResourceManager.free();
-            ResourceManager.init();
+            events.runEvents(EventType.RESOURCE_FREE);
+            events.runEvents(EventType.RESOURCE_INIT);
             Toast.clearAll();
             Toast.addToast(Text.of("Reloaded assets"), font);
         });

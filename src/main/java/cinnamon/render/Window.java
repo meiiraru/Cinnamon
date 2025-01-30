@@ -14,6 +14,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window {
 
+    public static final int DEFAULT_WIDTH = 854, DEFAULT_HEIGHT = 480;
+
     //window address
     private final long window;
 
@@ -246,5 +248,9 @@ public class Window {
                 deltaConsumer.accept(0, -dy);
             }
         } catch (Exception ignored) {}
+    }
+
+    public long getHandle() {
+        return window;
     }
 }

@@ -3,10 +3,10 @@ plugins {
 }
 
 group = "io.github.meiiraru"
-version = "0.0.9"
+version = "0.0.1"
 
 //dependencies versions
-val lwjglVersion = "3.3.4"
+val lwjglVersion = "3.3.6"
 val jomlVersion = "1.10.7"
 val log4jVersion = "2.23.1"
 val gsonVersion = "2.11.0"
@@ -75,9 +75,9 @@ dependencies {
 
 tasks.jar {
     from(configurations.runtimeClasspath.get().map(::zipTree))
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
     from("LICENSE.md")
 
-    manifest.attributes["Main-Class"] = "cinnamon.Main"
+    manifest.attributes["Main-Class"] = "cinnamon.Cinnamon"
 }

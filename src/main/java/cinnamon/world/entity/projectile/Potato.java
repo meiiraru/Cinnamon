@@ -6,7 +6,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.AABB;
-import cinnamon.utils.Await;
+import cinnamon.events.Await;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Maths;
 import cinnamon.world.DamageType;

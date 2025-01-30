@@ -1,4 +1,4 @@
-package cinnamon.utils;
+package cinnamon.events;
 
 import cinnamon.Client;
 

@@ -52,9 +52,13 @@ public class TextureIO {
     }
 
     public static void saveTexture(Texture texture, Path outputPath) {
+        saveTexture(texture.getID(), outputPath, false, false);
+    }
+
+    public static void saveTexture(int texture, Path outputPath, boolean flipX, boolean flipY) {
         try {
             //bind texture
-            glBindTexture(GL_TEXTURE_2D, texture.getID());
+            glBindTexture(GL_TEXTURE_2D, texture);
 
             //grab width and height
             int width = glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH);
@@ -75,11 +79,12 @@ public class TextureIO {
                     int g = buffer.get(i + 1) & 0xFF;
                     int b = buffer.get(i + 2) & 0xFF;
                     int a = buffer.get(i + 3) & 0xFF;
-                    img.setRGB(x, y, (a << 24) | (r << 16) | (g << 8) | b);
+                    img.setRGB(flipX ? width - x - 1 : x, flipY ? height - y - 1 : y, (a << 24) | (r << 16) | (g << 8) | b);
                 }
             }
 
             //write file
+            outputPath = IOUtils.parseNonDuplicatePath(outputPath);
             IOUtils.writeImage(outputPath, img);
 
             //unbind texture
