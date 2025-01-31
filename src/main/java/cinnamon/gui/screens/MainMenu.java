@@ -117,10 +117,13 @@ public class MainMenu extends Screen {
     }
 
     public static void initTextures() {
-        List<String> titles = IOUtils.listResources(TITLE_ROOT);
-        titles.sort(IOUtils.FilenameComparator::compareTo);
-
         TITLE.clear();
+
+        List<String> titles = IOUtils.listResources(TITLE_ROOT, false);
+        if (titles == null)
+            return;
+
+        titles.sort(IOUtils.FilenameComparator::compareTo);
         for (String title : titles)
             TITLE.add(TITLE_ROOT.resolve(title));
     }

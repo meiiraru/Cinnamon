@@ -46,22 +46,22 @@ public class LoggerConfig {
 
         //console appender
         builder.add(builder
-                .newAppender("Console", "CONSOLE")
-                .addAttribute("target", ConsoleAppender.Target.SYSTEM_OUT)
+                .newAppender("console", "Console")
+                .addAttribute("Target", ConsoleAppender.Target.SYSTEM_OUT)
                 .add(builder.newLayout("PatternLayout").addAttribute("pattern", PATTERN))
         );
 
         //file appender
         builder.add(builder
-                .newAppender("File", "FILE")
+                .newAppender("logfile", "File")
                 .addAttribute("fileName", LOG_OUTPUT.toString())
                 .add(builder.newLayout("PatternLayout").addAttribute("pattern", PATTERN))
         );
 
         //root logger
-        RootLoggerComponentBuilder rootLogger = builder.newRootLogger(DEFAULT_LEVEL);
-        rootLogger.add(builder.newAppenderRef("Console"));
-        rootLogger.add(builder.newAppenderRef("File"));
+        RootLoggerComponentBuilder rootLogger = builder.newRootLogger(DEFAULT_LEVEL)
+                .add(builder.newAppenderRef("console"))
+                .add(builder.newAppenderRef("logfile"));
         builder.add(rootLogger);
 
         //build new configuration

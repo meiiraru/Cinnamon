@@ -1,5 +1,7 @@
 plugins {
-    id("java")
+    java
+    `maven-publish`
+    id("org.springframework.boot") version "3.4.2"
 }
 
 group = "io.github.meiiraru"
@@ -7,9 +9,9 @@ version = "0.0.1"
 
 //dependencies versions
 val lwjglVersion = "3.3.6"
-val jomlVersion = "1.10.7"
-val log4jVersion = "2.23.1"
-val gsonVersion = "2.11.0"
+val jomlVersion = "1.10.8"
+val log4jVersion = "2.24.3"
+val gsonVersion = "2.12.0"
 val jTransformsVersion = "3.1"
 
 //lwjgl natives
@@ -20,21 +22,24 @@ val lwjglNatives = Pair(
     when {
         arrayOf("Linux", "SunOS", "Unit").any { name.startsWith(it) } ->
             if (arrayOf("arm", "aarch64").any { arch.startsWith(it) })
-                "natives-linux${if (arch.contains("64") || arch.startsWith("armv8")) "-arm64" else "-arm32"}"
+                "linux${if (arch.contains("64") || arch.startsWith("armv8")) "-arm64" else "-arm32"}"
             else if (arch.startsWith("ppc"))
-                "natives-linux-ppc64le"
+                "linux-ppc64le"
             else if (arch.startsWith("riscv"))
-                "natives-linux-riscv64"
+                "linux-riscv64"
             else
-                "natives-linux"
-        arrayOf("Mac OS X", "Darwin").any { name.startsWith(it) }     ->
-            "natives-macos${if (arch.startsWith("aarch64")) "-arm64" else ""}"
-        arrayOf("Windows").any { name.startsWith(it) }                ->
+                "linux"
+
+        arrayOf("Mac OS X", "Darwin").any { name.startsWith(it) } ->
+            "macos${if (arch.startsWith("aarch64")) "-arm64" else ""}"
+
+        arrayOf("Windows").any { name.startsWith(it) } ->
             if (arch.contains("64"))
-                "natives-windows${if (arch.startsWith("aarch64")) "-arm64" else ""}"
+                "windows${if (arch.startsWith("aarch64")) "-arm64" else ""}"
             else
-                "natives-windows-x86"
-        else                                                                            ->
+                "windows-x86"
+
+        else ->
             throw Error("Unrecognized or unsupported platform. Please set \"lwjglNatives\" manually")
     }
 }
@@ -56,6 +61,7 @@ dependencies {
     implementation("org.lwjgl", "lwjgl-openxr")
     implementation("org.lwjgl", "lwjgl-stb")
 
+    val lwjglNatives = "natives-$lwjglNatives"
     runtimeOnly("org.lwjgl", "lwjgl", classifier = lwjglNatives)
     runtimeOnly("org.lwjgl", "lwjgl-assimp", classifier = lwjglNatives)
     runtimeOnly("org.lwjgl", "lwjgl-glfw", classifier = lwjglNatives)
@@ -73,11 +79,7 @@ dependencies {
     implementation("com.github.wendykierp", "JTransforms", jTransformsVersion)
 }
 
-tasks.jar {
-    from(configurations.runtimeClasspath.get().map(::zipTree))
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-
+tasks.bootJar {
     from("LICENSE.md")
-
-    manifest.attributes["Main-Class"] = "cinnamon.Cinnamon"
+    archiveBaseName.set(archiveBaseName.get() + "-" + lwjglNatives)
 }

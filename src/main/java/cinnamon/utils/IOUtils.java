@@ -5,16 +5,26 @@ import org.lwjgl.BufferUtils;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -25,12 +35,16 @@ public class IOUtils {
     public static final String VANILLA_FOLDER = "cinnamon";
     public static final Path ROOT_FOLDER = Path.of("./" + VANILLA_FOLDER);
 
+    private static String resolveResourcePath(Resource res) {
+        return "resources/" + res.getNamespace() + "/" + res.getPath();
+    }
+
     public static InputStream getResource(Resource res) {
         if (res.getNamespace().isEmpty())
             return readFileStream(Path.of(res.getPath()));
 
-        String resourcePath = "resources/" + res.getNamespace() + "/" + res.getPath();
-        return IOUtils.class.getClassLoader().getResourceAsStream(resourcePath);
+        String resourcePath = resolveResourcePath(res);
+        return Thread.currentThread().getContextClassLoader().getResourceAsStream(resourcePath);
     }
 
     public static ByteBuffer getResourceBuffer(Resource res) {
@@ -82,21 +96,36 @@ public class IOUtils {
         }
     }
 
-    public static List<String> listResources(Resource res) {
-        List<String> filenames = new ArrayList<>();
+    //https://stackoverflow.com/a/49570879
+    public static List<String> listResources(Resource res, boolean includeDirectories) {
+        try {
+            URL url = res.getNamespace().isEmpty() ?
+                    Path.of(res.getPath()).toUri().toURL() :
+                    Thread.currentThread().getContextClassLoader().getResource(resolveResourcePath(res));
+            if (url == null)
+                return null;
 
-        try (InputStream stream = getResource(res)) {
-            if (stream == null)
-                throw new RuntimeException("Resource not found: " + res);
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
-                for (String resource; (resource = br.readLine()) != null; )
-                    filenames.add(resource);
+            URI uri = url.toURI();
+            if (uri.getScheme().equals("jar")) { //jar packed resource
+                try (FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
+                    Path path = fileSystem.getPath(resolveResourcePath(res));
+
+                    //get all contents of a resource (skip resource itself)
+                    try (Stream<Path> stream = Files.walk(path, 1).skip(1)) {
+                        return stream
+                                .filter(p -> includeDirectories || !Files.isDirectory(p))
+                                .map(p -> p.getFileName().toString())
+                                .collect(Collectors.toList());
+                    }
+                }
+            } else { //file system resource
+                File resource = new File(uri);
+                String[] files = resource.list();
+                return files == null ? null : includeDirectories ? Arrays.asList(files) : Arrays.stream(files).filter(f -> !new File(resource, f).isDirectory()).collect(Collectors.toList());
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        return filenames;
     }
 
     public static InputStream readFileStream(Path path) {
