@@ -86,13 +86,20 @@ publishing {
             groupId = project.group as String
             artifactId = project.name
             version = project.version as String
-
             from(components["java"])
         }
     }
 }
 
+tasks.jar {
+    //from(configurations.runtimeClasspath.get().map(::zipTree))
+    //duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    //manifest.attributes["Main-Class"] = "cinnamon.Cinnamon"
+    from("LICENSE.md")
+    archiveClassifier.set("")
+}
+
 tasks.bootJar {
     from("LICENSE.md")
-    archiveBaseName.set(archiveBaseName.get() + "-" + lwjglNatives)
+    archiveClassifier.set("")
 }
