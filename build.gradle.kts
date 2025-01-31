@@ -2,7 +2,7 @@ plugins {
     java
     `java-library`
     `maven-publish`
-    id("org.springframework.boot") version "3.4.2"
+    //id("org.springframework.boot") version "3.4.2"
 }
 
 group = "io.github.meiiraru"
@@ -94,12 +94,12 @@ publishing {
 tasks.jar {
     //from(configurations.runtimeClasspath.get().map(::zipTree))
     //duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    //manifest.attributes["Main-Class"] = "cinnamon.Cinnamon"
+    manifest.attributes["Main-Class"] = "cinnamon.Cinnamon"
     from("LICENSE.md")
     archiveClassifier.set("")
 }
 
-tasks.bootJar {
-    from("LICENSE.md")
-    archiveClassifier.set("")
-}
+//tasks.bootJar {
+//    from("LICENSE.md")
+//    archiveClassifier.set("")
+//}
