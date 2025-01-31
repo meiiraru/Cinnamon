@@ -1,5 +1,6 @@
 plugins {
     java
+    `java-library`
     `maven-publish`
     id("org.springframework.boot") version "3.4.2"
 }
@@ -51,15 +52,15 @@ repositories {
 
 dependencies {
     //lwjgl
-    implementation(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
-    implementation("org.lwjgl", "lwjgl")
-    implementation("org.lwjgl", "lwjgl-assimp")
-    implementation("org.lwjgl", "lwjgl-egl")
-    implementation("org.lwjgl", "lwjgl-glfw")
-    implementation("org.lwjgl", "lwjgl-openal")
-    implementation("org.lwjgl", "lwjgl-opengl")
-    implementation("org.lwjgl", "lwjgl-openxr")
-    implementation("org.lwjgl", "lwjgl-stb")
+    api(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
+    api("org.lwjgl", "lwjgl")
+    api("org.lwjgl", "lwjgl-assimp")
+    api("org.lwjgl", "lwjgl-egl")
+    api("org.lwjgl", "lwjgl-glfw")
+    api("org.lwjgl", "lwjgl-openal")
+    api("org.lwjgl", "lwjgl-opengl")
+    api("org.lwjgl", "lwjgl-openxr")
+    api("org.lwjgl", "lwjgl-stb")
 
     val lwjglNatives = "natives-$lwjglNatives"
     runtimeOnly("org.lwjgl", "lwjgl", classifier = lwjglNatives)
@@ -71,12 +72,12 @@ dependencies {
     runtimeOnly("org.lwjgl", "lwjgl-stb", classifier = lwjglNatives)
 
     //extra libraries
-    implementation("org.joml", "joml", jomlVersion)
-    implementation("org.apache.logging.log4j", "log4j-api", log4jVersion)
-    implementation("org.apache.logging.log4j", "log4j-core", log4jVersion)
-    implementation("org.apache.logging.log4j", "log4j-iostreams", log4jVersion)
-    implementation("com.google.code.gson", "gson", gsonVersion)
-    implementation("com.github.wendykierp", "JTransforms", jTransformsVersion)
+    api("org.joml", "joml", jomlVersion)
+    api("org.apache.logging.log4j", "log4j-api", log4jVersion)
+    api("org.apache.logging.log4j", "log4j-core", log4jVersion)
+    api("org.apache.logging.log4j", "log4j-iostreams", log4jVersion)
+    api("com.google.code.gson", "gson", gsonVersion)
+    api("com.github.wendykierp", "JTransforms", jTransformsVersion)
 }
 
 publishing {
