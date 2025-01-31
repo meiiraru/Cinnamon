@@ -79,6 +79,18 @@ dependencies {
     implementation("com.github.wendykierp", "JTransforms", jTransformsVersion)
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            groupId = project.group as String
+            artifactId = project.name
+            version = project.version as String
+
+            from(components["java"])
+        }
+    }
+}
+
 tasks.bootJar {
     from("LICENSE.md")
     archiveBaseName.set(archiveBaseName.get() + "-" + lwjglNatives)
