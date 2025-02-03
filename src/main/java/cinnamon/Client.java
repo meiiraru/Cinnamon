@@ -7,6 +7,7 @@ import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.screens.world.PauseScreen;
 //import cinnamon.networking.ServerConnection;
+import cinnamon.logger.Logger;
 import cinnamon.render.Camera;
 import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
@@ -22,8 +23,6 @@ import cinnamon.utils.TextureIO;
 import cinnamon.utils.Timer;
 import cinnamon.world.Hud;
 import cinnamon.world.world.WorldClient;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -37,7 +36,7 @@ public class Client {
 
     private static final Client INSTANCE = new Client();
     public static final String VERSION = "0.0.1";
-    public static final Logger LOGGER = LogManager.getLogger(Client.class);
+    public static final Logger LOGGER = new Logger(Client.class);
 
     private final Queue<Runnable> scheduledTicks = new LinkedList<>();
 
@@ -200,7 +199,7 @@ public class Client {
 
             //screen has been added
             screen.added();
-            LOGGER.debug("Set screen: {}", s.getClass().getSimpleName());
+            LOGGER.debug("Set screen: %s", s.getClass().getSimpleName());
 
             //unlock mouse
             window.unlockMouse();

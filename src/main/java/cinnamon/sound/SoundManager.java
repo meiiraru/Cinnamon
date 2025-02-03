@@ -79,7 +79,7 @@ public class SoundManager {
 
         alSpeedOfSound(1f);
         initialized = true;
-        LOGGER.info("OpenAL version: {}", alcGetInteger(0, ALC_MAJOR_VERSION) + "." + alcGetInteger(0, ALC_MINOR_VERSION));
+        LOGGER.info("OpenAL version: %s", alcGetInteger(0, ALC_MAJOR_VERSION) + "." + alcGetInteger(0, ALC_MINOR_VERSION));
     }
 
     public static void free() {
@@ -136,7 +136,7 @@ public class SoundManager {
     }
 
     public static SoundInstance playSound(Resource resource, SoundCategory category, Vector3f position) {
-        LOGGER.debug("Playing sound: {}", resource.getPath());
+        LOGGER.debug("Playing sound: %s", resource.getPath());
 
         if (!initialized)
             return new SoundInstance(category);

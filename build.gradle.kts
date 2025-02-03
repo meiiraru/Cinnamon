@@ -2,16 +2,15 @@ plugins {
     java
     `java-library`
     `maven-publish`
-    //id("org.springframework.boot") version "3.4.2"
 }
 
 group = "io.github.meiiraru"
 version = "0.0.1"
+val mainClass = "cinnamon.Cinnamon"
 
 //dependencies versions
 val lwjglVersion = "3.3.6"
 val jomlVersion = "1.10.8"
-val log4jVersion = "2.24.3"
 val gsonVersion = "2.12.0"
 val jTransformsVersion = "3.1"
 
@@ -73,33 +72,46 @@ dependencies {
 
     //extra libraries
     api("org.joml", "joml", jomlVersion)
-    api("org.apache.logging.log4j", "log4j-api", log4jVersion)
-    api("org.apache.logging.log4j", "log4j-core", log4jVersion)
-    api("org.apache.logging.log4j", "log4j-iostreams", log4jVersion)
     api("com.google.code.gson", "gson", gsonVersion)
     api("com.github.wendykierp", "JTransforms", jTransformsVersion)
+}
+
+tasks.register<Jar>("sourcesJar") {
+    archiveClassifier.set("sources")
+    from(sourceSets.main.get().allSource)
+}
+
+tasks.register<Jar>("javadocJar") {
+    archiveClassifier.set("javadoc")
+    from(tasks.javadoc)
+}
+
+tasks.register<Jar>("fatJar") {
+    archiveClassifier.set(lwjglNatives)
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    manifest.attributes["Main-Class"] = mainClass
+
+    from(sourceSets.main.get().output)
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+}
+
+tasks.jar {
+    archiveClassifier.set("")
+    manifest.attributes["Main-Class"] = mainClass
+    from("LICENSE.md")
 }
 
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
+            from(components["java"])
             groupId = project.group as String
             artifactId = project.name
             version = project.version as String
-            from(components["java"])
+
+            artifact(tasks["sourcesJar"])
+            artifact(tasks["javadocJar"])
         }
     }
 }
-
-tasks.jar {
-    //from(configurations.runtimeClasspath.get().map(::zipTree))
-    //duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    manifest.attributes["Main-Class"] = "cinnamon.Cinnamon"
-    from("LICENSE.md")
-    archiveClassifier.set("")
-}
-
-//tasks.bootJar {
-//    from("LICENSE.md")
-//    archiveClassifier.set("")
-//}

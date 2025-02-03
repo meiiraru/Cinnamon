@@ -34,9 +34,9 @@ public class ClientConnection {
                         if (object instanceof Packet p)
                             p.clientReceived(client, connection);
                         else if (!(object instanceof FrameworkMessage))
-                            LOGGER.warn("Unknown packet {}", object);
+                            LOGGER.warn("Unknown packet %s", object);
                     } catch (Exception e) {
-                        LOGGER.error("Failed to parse packet {}", object, e);
+                        LOGGER.error("Failed to parse packet %s", object, e);
                     }
                 }
             });

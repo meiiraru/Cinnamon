@@ -47,7 +47,7 @@ public class HDRTexture extends Texture {
 
             return new HDRTexture(registerTexture(w.get(0), h.get(0), buffer, smooth, mipmap), w.get(0), h.get(0));
         } catch (Exception e) {
-            LOGGER.error("Failed to load HDR texture \"{}\"", res, e);
+            LOGGER.error("Failed to load HDR texture \"%s\"", res, e);
             return new HDRTexture(MISSING.getID(), MISSING.getWidth(), MISSING.getHeight());
         }
     }

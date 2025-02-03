@@ -23,7 +23,7 @@ public class Handshake extends PacketWithOwner {
 
     @Override
     public void serverReceived(Server server, Connection connection) {
-        LOGGER.info("[Server] {} (id {}) handshaked with version: v{}", name, connection.getID(), version);
+        LOGGER.info("[Server] %s (id %s) handshaked with version: v%s", name, connection.getID(), version);
         connection.sendTCP(new Handshake());
     }
 }

@@ -187,7 +187,7 @@ public class WidgetTestScreen extends ParentedScreen {
         for (int i = 0; i < 9; i++) {
             int x = i % 3 + 1;
             int y = i / 3 + 1;
-            Button btx = new Button(0, 0, 30, 12, Text.of(y + "-" + x), button -> LOGGER.info("{} {}", y, x));
+            Button btx = new Button(0, 0, 30, 12, Text.of(y + "-" + x), button -> LOGGER.info("%s %s", y, x));
             if (x == 3) btx.setActive(false);
             buttonsGrid.addWidget(btx);
         }

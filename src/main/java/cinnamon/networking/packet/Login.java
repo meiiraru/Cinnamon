@@ -16,7 +16,7 @@ public class Login extends PacketWithOwner {
     @Override
     public void serverReceived(Server server, Connection connection) {
         int id = connection.getID();
-        LOGGER.info("[Server] {} (id {}) logged!", name, id);
+        LOGGER.info("[Server] %s (id %s) logged!", name, id);
 
         //join message
         server.sendToAllExceptTCP(id, new Message().msg(name + " joined the server"));

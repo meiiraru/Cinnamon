@@ -110,10 +110,10 @@ public class Cinnamon {
 
         //opengl debug info
         LOGGER.info("Welcome to Cinnamon!");
-        LOGGER.info("OS: {}", os);
-        LOGGER.info("Renderer: {}", glGetString(GL_RENDERER));
-        LOGGER.info("OpenGL Version: {}", glGetString(GL_VERSION));
-        LOGGER.info("LWJGL Version: {}", Version.getVersion());
+        LOGGER.info("OS: %s", os);
+        LOGGER.info("Renderer: %s", glGetString(GL_RENDERER));
+        LOGGER.info("OpenGL Version: %s", glGetString(GL_VERSION));
+        LOGGER.info("LWJGL Version: %s", Version.getVersion());
 
         //finish init through the client
         client.window = new Window(window, width, height);

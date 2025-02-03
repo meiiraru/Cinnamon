@@ -92,9 +92,9 @@ public class Settings {
             if (v != VERSION) {
                 if (v > 0 && v <= VERSION_MAP.size()) {
                     versionMap = VERSION_MAP.get(v - 1);
-                    LOGGER.info("Updating settings file from version {} to {}", v, VERSION);
+                    LOGGER.info("Updating settings file from version %s to %s", v, VERSION);
                 } else {
-                    LOGGER.warn("Unknown settings version {}, forcing update with default missing values", v);
+                    LOGGER.warn("Unknown settings version %s, forcing update with default missing values", v);
                     versionMap = null;
                 }
             } else {
@@ -142,7 +142,7 @@ public class Settings {
                 if (value != null)
                     setting.fromJson(value);
             } catch (Exception e) {
-                LOGGER.warn("Failed to load setting \"{}\", using default value \"{}\"", name, setting.getDefault(), e);
+                LOGGER.warn("Failed to load setting \"%s\", using default value \"%s\"", name, setting.getDefault(), e);
             }
         }
 

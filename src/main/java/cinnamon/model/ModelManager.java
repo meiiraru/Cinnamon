@@ -36,7 +36,7 @@ public class ModelManager {
 
     private static ModelRenderer bakeModel(Resource resource) {
         //load mesh :)
-        LOGGER.debug("Loading model {}", resource);
+        LOGGER.debug("Loading model %s", resource);
         ModelRenderer model;
 
         //check model type

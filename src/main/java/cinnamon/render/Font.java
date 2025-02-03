@@ -116,7 +116,7 @@ public class Font {
         }
 
         //finished!
-        LOGGER.debug("Loaded font \"{}\"", res);
+        LOGGER.debug("Loaded font \"%s\"", res);
     }
 
     public void free() {

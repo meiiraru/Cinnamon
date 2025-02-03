@@ -63,7 +63,7 @@ public class Texture {
         try (TextureIO.ImageData image = TextureIO.load(res)) {
             return new Texture(registerTexture(image.width, image.height, image.buffer, smooth, mipmap), image.width, image.height);
         } catch (Exception e) {
-            LOGGER.error("Failed to load texture \"{}\"", res, e);
+            LOGGER.error("Failed to load texture \"%s\"", res, e);
             return MISSING;
         }
     }

@@ -1,15 +1,6 @@
 package cinnamon.logger;
 
 import cinnamon.utils.IOUtils;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.appender.ConsoleAppender;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
-import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
-import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuilder;
-import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
-import org.apache.logging.log4j.io.IoBuilder;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,7 +10,7 @@ import java.util.Date;
 public class LoggerConfig {
 
     public static final Path LOG_OUTPUT = IOUtils.ROOT_FOLDER.resolve("logs/log.log");
-    private static final String PATTERN = "[%d{HH:mm:ss}] [%t/%level] (%logger{36}) %msg%n";
+    private static final String PATTERN = "[%1$tT] [%2$s/%3$s] (%4$s) %5$s%n";
     private static final Level DEFAULT_LEVEL = Level.INFO;
 
     public static void initialize(Logger logger) {
@@ -27,11 +18,11 @@ public class LoggerConfig {
         Exception gzipException = saveOldLog();
 
         //configure logger
-        configureLogger();
+        configureLogger(logger);
 
-        //system out detection
-        System.setOut(IoBuilder.forLogger(logger).setLevel(Level.INFO).setAutoFlush(true).buildPrintStream());
-        System.setErr(IoBuilder.forLogger(logger).setLevel(Level.ERROR).setAutoFlush(true).buildPrintStream());
+        //system out/err redirection
+        System.setOut(new LoggerStream(logger::info));
+        System.setErr(new LoggerStream(logger::error));
 
         //debugLogLevels(logger);
 
@@ -40,32 +31,22 @@ public class LoggerConfig {
             logger.error("Failed to parse previous log file", gzipException);
     }
 
-    private static void configureLogger() {
-        //configure log4j
-        ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
+    private static void configureLogger(Logger logger) {
+        //add console output
+        ConsoleOutput consoleOutput = new ConsoleOutput(System.out);
+        consoleOutput.setFormatting(PATTERN);
+        consoleOutput.setLevel(DEFAULT_LEVEL);
+        logger.addOutput(consoleOutput);
 
-        //console appender
-        builder.add(builder
-                .newAppender("console", "Console")
-                .addAttribute("Target", ConsoleAppender.Target.SYSTEM_OUT)
-                .add(builder.newLayout("PatternLayout").addAttribute("pattern", PATTERN))
-        );
-
-        //file appender
-        builder.add(builder
-                .newAppender("logfile", "File")
-                .addAttribute("fileName", LOG_OUTPUT.toString())
-                .add(builder.newLayout("PatternLayout").addAttribute("pattern", PATTERN))
-        );
-
-        //root logger
-        RootLoggerComponentBuilder rootLogger = builder.newRootLogger(DEFAULT_LEVEL)
-                .add(builder.newAppenderRef("console"))
-                .add(builder.newAppenderRef("logfile"));
-        builder.add(rootLogger);
-
-        //build new configuration
-        Configurator.reconfigure(builder.build());
+        //add file output
+        try {
+            FileOutput fileOutput = new FileOutput(LOG_OUTPUT);
+            fileOutput.setFormatting(PATTERN);
+            fileOutput.setLevel(DEFAULT_LEVEL);
+            logger.addOutput(fileOutput);
+        } catch (Exception e) {
+            logger.error("Failed to create log file", e);
+        }
     }
 
     private static Exception saveOldLog() {
@@ -105,5 +86,7 @@ public class LoggerConfig {
         logger.error("error!");
         logger.fatal("fatal!");
         logger.error("exception!", new Exception("exception!"));
+        System.out.println("System.out test");
+        System.err.println("System.err test");
     }
 }

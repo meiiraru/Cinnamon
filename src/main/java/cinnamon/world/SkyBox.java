@@ -128,7 +128,7 @@ public class SkyBox {
 
         public void loadTextures() {
             Resource res = new Resource("textures/environment/skybox/" + name().toLowerCase() + (hdr ? ".hdr" : ""));
-            LOGGER.debug("Loading skybox: {}", res);
+            LOGGER.debug("Loading skybox: %s", res);
 
             if (hdr) {
                 HDRTexture hdrTex = HDRTexture.of(res, true, false);

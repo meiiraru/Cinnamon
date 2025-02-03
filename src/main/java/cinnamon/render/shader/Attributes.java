@@ -14,8 +14,7 @@ import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 public enum Attributes {
 
     /**
-     * Vertex Attributes
-     * <table><tr>
+     * <table><caption>Vertex Attributes</caption><tr>
      * <td>POS {@link Vector3f Vec3}</td><td>POS_XY {@link Vector2f Vec2}</td><td>TEXTURE_ID {@link Integer int}</td><td>UV {@link Vector2f Vec2}</td><td>COLOR {@link Vector3f Vec3}</td>
      * <td>COLOR_RGBA {@link Vector4f Vec4}</td><td>NORMAL {@link Vector3f Vec3}</td><td>INDEX {@link Integer int}</td><td>TANGENTS {@link Vector3f Vec3}</td>
      * </tr></table>

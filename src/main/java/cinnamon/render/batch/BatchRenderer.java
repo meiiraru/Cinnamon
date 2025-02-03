@@ -36,7 +36,7 @@ public class BatchRenderer<T extends Batch> {
         batches[i].pushFace(vertices, textureID);
 
         if (i == batches.length - 1)
-            LOGGER.warn("Renderer of {} has reached over {} batches!", batches[i].getClass().getSimpleName(), batches.length);
+            LOGGER.warn("Renderer of %s has reached over %s batches!", batches[i].getClass().getSimpleName(), batches.length);
     }
 
     public int render(Shader shader, Camera camera) {
