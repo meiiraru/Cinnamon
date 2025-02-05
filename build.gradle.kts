@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.github.meiiraru"
-version = "0.0.1"
+version = "0.0.1-e"
 val mainClass = "cinnamon.Cinnamon"
 
 //dependencies
@@ -113,5 +113,14 @@ publishing {
             artifact(tasks["sourcesJar"])
             artifact(tasks["javadocJar"])
         }
+    }
+}
+
+tasks.processResources {
+    val versionFile = file("src/main/resources/resources/vanilla/version")
+    outputs.file(versionFile)
+
+    doLast {
+        versionFile.writeText(project.version.toString())
     }
 }

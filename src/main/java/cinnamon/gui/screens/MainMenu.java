@@ -1,6 +1,5 @@
 package cinnamon.gui.screens;
 
-import cinnamon.Client;
 import cinnamon.gui.GUIStyle;
 import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.ContainerGrid;
@@ -34,7 +33,7 @@ public class MainMenu extends Screen {
 
         //bottom texts
         Style s = Style.EMPTY.italic(true).color(0x66FFFFFF).shadow(true).shadowColor(0x66161616);
-        Text bottomLeft = Text.of("Cinnamon v%s".formatted(Client.VERSION)).withStyle(s);
+        Text bottomLeft = Text.of("Cinnamon v%s".formatted(Version.CLIENT_VERSION.toStringNoBuild())).withStyle(s);
         this.addWidget(new Label(4, height - TextUtils.getHeight(bottomLeft, font) - 4, bottomLeft, font));
 
         Text bottomRight = Text.of("\u00A9").withStyle(s.italic(false)).append(Text.of("Meiiraru").withStyle(s));
