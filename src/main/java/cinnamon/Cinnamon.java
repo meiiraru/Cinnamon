@@ -53,9 +53,9 @@ public class Cinnamon {
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
         //create window
-        int width = Window.DEFAULT_WIDTH;
-        int height = Window.DEFAULT_HEIGHT;
-        long window = glfwCreateWindow(width, height, "Cinnamon", NULL, NULL);
+        int width = client.windowSettings.defaultWidth;
+        int height = client.windowSettings.defaultHeight;
+        long window = glfwCreateWindow(width, height, client.windowSettings.title, NULL, NULL);
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
 

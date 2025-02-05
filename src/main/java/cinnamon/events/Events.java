@@ -1,7 +1,6 @@
 package cinnamon.events;
 
 import cinnamon.gui.GUIStyle;
-import cinnamon.gui.Screen;
 import cinnamon.gui.screens.MainMenu;
 import cinnamon.model.MaterialManager;
 import cinnamon.model.ModelManager;
@@ -19,15 +18,12 @@ import cinnamon.world.SkyBox;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import static cinnamon.Client.LOGGER;
 import static cinnamon.events.EventType.RESOURCE_FREE;
 import static cinnamon.events.EventType.RESOURCE_INIT;
 
 public class Events {
-
-    private Supplier<Screen> mainScreen = MainMenu::new;
 
     //event map
     private final Map<EventType, List<Runnable>> eventMap = Map.of(
@@ -45,14 +41,6 @@ public class Events {
             EventType.RESOURCE_INIT, new ArrayList<>(),
             EventType.RESOURCE_FREE, new ArrayList<>()
     );
-
-    public void setMainScreen(Supplier<Screen> mainScreen) {
-        this.mainScreen = mainScreen;
-    }
-
-    public Supplier<Screen> getMainScreen() {
-        return mainScreen;
-    }
 
     public void registerEvent(EventType type, Runnable event) {
         eventMap.get(type).add(event);

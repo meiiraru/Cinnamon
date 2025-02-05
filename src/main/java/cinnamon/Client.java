@@ -16,6 +16,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.settings.Settings;
+import cinnamon.settings.WindowSettings;
 import cinnamon.sound.SoundManager;
 import cinnamon.text.Text;
 import cinnamon.utils.Resource;
@@ -54,6 +55,7 @@ public class Client {
 
     //events
     public Events events = new Events();
+    public WindowSettings windowSettings = new WindowSettings();
 
     //objects
     public Window window;
@@ -65,7 +67,7 @@ public class Client {
     private Client() {}
 
     public void init() {
-        this.window.setIcon(new Resource("textures/icon.png"));
+        this.window.setIcon(windowSettings.icon);
         SoundManager.init(-1);
         Settings.load();
         this.windowResize(window.width, window.height);
@@ -74,7 +76,7 @@ public class Client {
         this.font = new Font(new Resource("fonts/mayonnaise.ttf"), 8);
         events.registerClientEvents();
         events.runEvents(EventType.RESOURCE_INIT);
-        this.setScreen(events.getMainScreen().get());
+        this.setScreen(windowSettings.mainScreen.get());
     }
 
     public void close() {
@@ -220,7 +222,7 @@ public class Client {
             this.camera.setEntity(null);
             this.camera.reset();
             Toast.clear(Toast.ToastType.WORLD);
-            this.setScreen(events.getMainScreen().get());
+            this.setScreen(windowSettings.mainScreen.get());
         });
     }
 

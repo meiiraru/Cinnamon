@@ -4,22 +4,34 @@ plugins {
     `maven-publish`
 }
 
-group = "io.github.meiiraru"
+group = "com.github.meiiraru"
 version = "0.0.1"
 val mainClass = "cinnamon.Cinnamon"
 
-//dependencies versions
+//dependencies
 val lwjglVersion = "3.3.6"
 val jomlVersion = "1.10.8"
 val gsonVersion = "2.12.0"
 val jTransformsVersion = "3.1"
 
-//lwjgl natives
-val lwjglNatives = Pair(
-        System.getProperty("os.name")!!,
-        System.getProperty("os.arch")!!
+val lwjglModules = arrayOf(
+    "lwjgl",
+    "lwjgl-assimp",
+    "lwjgl-glfw",
+    "lwjgl-openal",
+    "lwjgl-opengl",
+    "lwjgl-openxr",
+    "lwjgl-stb"
+)
+
+val os = Pair(
+    System.getProperty("os.name")!!,
+    System.getProperty("os.arch")!!
 ).let { (name, arch) ->
     when {
+        "FreeBSD" == name ->
+            "freebsd"
+
         arrayOf("Linux", "SunOS", "Unit").any { name.startsWith(it) } ->
             if (arrayOf("arm", "aarch64").any { arch.startsWith(it) })
                 "linux${if (arch.contains("64") || arch.startsWith("armv8")) "-arm64" else "-arm32"}"
@@ -51,24 +63,12 @@ repositories {
 
 dependencies {
     //lwjgl
+    val lwjglNatives = "natives-$os"
     api(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
-    api("org.lwjgl", "lwjgl")
-    api("org.lwjgl", "lwjgl-assimp")
-    api("org.lwjgl", "lwjgl-egl")
-    api("org.lwjgl", "lwjgl-glfw")
-    api("org.lwjgl", "lwjgl-openal")
-    api("org.lwjgl", "lwjgl-opengl")
-    api("org.lwjgl", "lwjgl-openxr")
-    api("org.lwjgl", "lwjgl-stb")
-
-    val lwjglNatives = "natives-$lwjglNatives"
-    runtimeOnly("org.lwjgl", "lwjgl", classifier = lwjglNatives)
-    runtimeOnly("org.lwjgl", "lwjgl-assimp", classifier = lwjglNatives)
-    runtimeOnly("org.lwjgl", "lwjgl-glfw", classifier = lwjglNatives)
-    runtimeOnly("org.lwjgl", "lwjgl-openal", classifier = lwjglNatives)
-    runtimeOnly("org.lwjgl", "lwjgl-opengl", classifier = lwjglNatives)
-    runtimeOnly("org.lwjgl", "lwjgl-openxr", classifier = lwjglNatives)
-    runtimeOnly("org.lwjgl", "lwjgl-stb", classifier = lwjglNatives)
+    lwjglModules.forEach { module ->
+        api("org.lwjgl", module)
+        runtimeOnly("org.lwjgl", module, classifier = lwjglNatives)
+    }
 
     //extra libraries
     api("org.joml", "joml", jomlVersion)
@@ -87,7 +87,7 @@ tasks.register<Jar>("javadocJar") {
 }
 
 tasks.register<Jar>("fatJar") {
-    archiveClassifier.set(lwjglNatives)
+    archiveClassifier.set(os)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
     manifest.attributes["Main-Class"] = mainClass
