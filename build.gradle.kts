@@ -79,6 +79,7 @@ dependencies {
 tasks.register<Jar>("sourcesJar") {
     archiveClassifier.set("sources")
     from(sourceSets.main.get().allSource)
+    dependsOn("updateVersionFile")
 }
 
 tasks.register<Jar>("javadocJar") {
