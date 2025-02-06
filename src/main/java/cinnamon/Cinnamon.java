@@ -6,6 +6,7 @@ import cinnamon.render.Window;
 import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
+import cinnamon.utils.Resource;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -20,6 +21,11 @@ import static org.lwjgl.opengl.GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Cinnamon {
+
+    //window settings
+    public static int WIDTH = 854, HEIGHT = 480;
+    public static String TITLE = "Cinnamon";
+    public static Resource ICON = new Resource("textures/icon.png");
 
     public static void main(String[] args) {
         //System.load("D:\\apps\\RenderDoc_1.32_64\\renderdoc.dll");
@@ -53,9 +59,9 @@ public class Cinnamon {
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
         //create window
-        int width = client.windowSettings.defaultWidth;
-        int height = client.windowSettings.defaultHeight;
-        long window = glfwCreateWindow(width, height, client.windowSettings.title, NULL, NULL);
+        int width = WIDTH;
+        int height = HEIGHT;
+        long window = glfwCreateWindow(width, height, TITLE, NULL, NULL);
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
 
@@ -70,12 +76,10 @@ public class Cinnamon {
         if (vidMode != null) {
             int ww = vidMode.width();
             int wh = vidMode.height();
-            width = (int) (ww * 0.45f);
-            height = (int) (wh * 0.45f);
+            width = Math.min(width, ww);
+            height = Math.min(height, wh);
             glfwSetWindowSize(window, width, height);
             glfwSetWindowPos(window, (ww - width) / 2, (wh - height) / 2);
-        } else { //could not find video mode, so just maximize the window
-            glfwMaximizeWindow(window);
         }
 
         //and then show the window
@@ -117,6 +121,7 @@ public class Cinnamon {
 
         //finish init through the client
         client.window = new Window(window, width, height);
+        client.window.setIcon(ICON);
         client.init();
     }
 

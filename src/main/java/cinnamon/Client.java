@@ -5,6 +5,7 @@ import cinnamon.events.EventType;
 import cinnamon.events.Events;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
+import cinnamon.gui.screens.MainMenu;
 import cinnamon.gui.screens.world.PauseScreen;
 //import cinnamon.networking.ServerConnection;
 import cinnamon.logger.Logger;
@@ -16,7 +17,6 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.settings.Settings;
-import cinnamon.settings.WindowSettings;
 import cinnamon.sound.SoundManager;
 import cinnamon.text.Text;
 import cinnamon.utils.Resource;
@@ -28,6 +28,7 @@ import cinnamon.world.world.WorldClient;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
@@ -54,7 +55,7 @@ public class Client {
 
     //events
     public Events events = new Events();
-    public WindowSettings windowSettings = new WindowSettings();
+    public Supplier<Screen> mainScreen = MainMenu::new;
 
     //objects
     public Window window;
@@ -66,7 +67,6 @@ public class Client {
     private Client() {}
 
     public void init() {
-        this.window.setIcon(windowSettings.icon);
         SoundManager.init(-1);
         Settings.load();
         this.windowResize(window.width, window.height);
@@ -75,7 +75,8 @@ public class Client {
         this.font = new Font(new Resource("fonts/mayonnaise.ttf"), 8);
         events.registerClientEvents();
         events.runEvents(EventType.RESOURCE_INIT);
-        this.setScreen(windowSettings.mainScreen.get());
+        events.runEvents(EventType.CLIENT_INIT);
+        this.setScreen(mainScreen.get());
     }
 
     public void close() {
@@ -221,7 +222,7 @@ public class Client {
             this.camera.setEntity(null);
             this.camera.reset();
             Toast.clear(Toast.ToastType.WORLD);
-            this.setScreen(windowSettings.mainScreen.get());
+            this.setScreen(mainScreen.get());
         });
     }
 
@@ -248,6 +249,8 @@ public class Client {
             screen.mousePress(button, action, mods);
         else if (world != null && window.isMouseLocked())
             world.mousePress(button, action, mods);
+
+        events.runEvents(EventType.MOUSE_PRESS, button, action, mods);
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
@@ -275,10 +278,15 @@ public class Client {
         } else if (world != null && window.isMouseLocked()) {
             world.keyPress(key, scancode, action, mods);
         }
+
+        events.runEvents(EventType.KEY_PRESS, key, scancode, action, mods);
     }
 
     public void charTyped(char c, int mods) {
-        if (screen != null) screen.charTyped(c, mods);
+        if (screen != null)
+            screen.charTyped(c, mods);
+
+        events.runEvents(EventType.CHAR_TYPED, c, mods);
     }
 
     public void mouseMove(double x, double y) {
@@ -289,6 +297,8 @@ public class Client {
         } else if (world != null && window.isMouseLocked()) {
             world.mouseMove(x, y);
         }
+
+        events.runEvents(EventType.MOUSE_MOVE, x, y);
     }
 
     public void scroll(double x, double y) {
@@ -296,10 +306,13 @@ public class Client {
             screen.scroll(x, y);
         else if (world != null && window.isMouseLocked())
             world.scroll(x, y);
+
+        events.runEvents(EventType.SCROLL, x, y);
     }
 
     public void windowMove(int x, int y) {
         window.windowMove(x, y);
+        events.runEvents(EventType.WINDOW_MOVE, x, y);
     }
 
     public void windowResize(int width, int height) {
@@ -319,6 +332,8 @@ public class Client {
             if (screen != null)
                 screen.resize(window.scaledWidth, window.scaledHeight);
         });
+
+        events.runEvents(EventType.WINDOW_RESIZE, width, height);
     }
 
     public void windowFocused(boolean focused) {
@@ -327,10 +342,14 @@ public class Client {
         } else if (world != null && !focused) {
             this.setScreen(new PauseScreen());
         }
+
+        events.runEvents(EventType.WINDOW_FOCUSED, focused);
     }
 
     public void filesDropped(String[] files) {
         if (screen != null)
             screen.filesDropped(files);
+
+        events.runEvents(EventType.FILES_DROPPED, (Object) files);
     }
 }

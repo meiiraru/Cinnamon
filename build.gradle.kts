@@ -71,7 +71,9 @@ dependencies {
     }
 
     //extra libraries
-    api("org.joml", "joml", jomlVersion)
+    api("org.joml", "joml", jomlVersion) {
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
+    }
     api("com.google.code.gson", "gson", gsonVersion)
     api("com.github.wendykierp", "JTransforms", jTransformsVersion)
 }

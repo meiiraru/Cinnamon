@@ -16,8 +16,10 @@ import cinnamon.sound.SoundManager;
 import cinnamon.world.SkyBox;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static cinnamon.Client.LOGGER;
 import static cinnamon.events.EventType.RESOURCE_FREE;
@@ -26,51 +28,41 @@ import static cinnamon.events.EventType.RESOURCE_INIT;
 public class Events {
 
     //event map
-    private final Map<EventType, List<Runnable>> eventMap = Map.of(
-            //tick events
-            EventType.TICK_BEFORE_WORLD, new ArrayList<>(),
-            EventType.TICK_BEFORE_GUI, new ArrayList<>(),
-            EventType.TICK_END, new ArrayList<>(),
+    private final Map<EventType, List<Consumer<Object[]>>> eventMap = new HashMap<>(EventType.values().length, 1f);
+    {
+        for (EventType value : EventType.values())
+            eventMap.put(value, new ArrayList<>());
+    }
 
-            //render events
-            EventType.RENDER_BEFORE_WORLD, new ArrayList<>(),
-            EventType.RENDER_BEFORE_GUI, new ArrayList<>(),
-            EventType.RENDER_END, new ArrayList<>(),
-
-            //resource events
-            EventType.RESOURCE_INIT, new ArrayList<>(),
-            EventType.RESOURCE_FREE, new ArrayList<>()
-    );
-
-    public void registerEvent(EventType type, Runnable event) {
+    public void registerEvent(EventType type, Consumer<Object[]> event) {
         eventMap.get(type).add(event);
     }
 
-    public void runEvents(EventType type) {
-        for (Runnable runnable : eventMap.get(type))
-            runnable.run();
+    public void runEvents(EventType type, Object... args) {
+        for (Consumer<Object[]> consumer : eventMap.get(type))
+            consumer.accept(args);
     }
 
     public void registerClientEvents() {
         LOGGER.info("Registering client resource events");
 
-        registerEvent(RESOURCE_INIT, Shaders::loadAll);
-        registerEvent(RESOURCE_INIT, PostProcess::loadAllShaders);
-        registerEvent(RESOURCE_INIT, MaterialRegistry::loadAllMaterials);
-        registerEvent(RESOURCE_INIT, SkyBox.Type::loadAll);
-        registerEvent(RESOURCE_INIT, GUIStyle::init);
-        registerEvent(RESOURCE_INIT, MainMenu::initTextures);
+        registerEvent(RESOURCE_INIT, o -> Shaders.loadAll());
+        registerEvent(RESOURCE_INIT, o -> PostProcess.loadAllShaders());
+        registerEvent(RESOURCE_INIT, o -> MaterialRegistry.loadAllMaterials());
+        registerEvent(RESOURCE_INIT, o -> SkyBox.Type.loadAll());
+        registerEvent(RESOURCE_INIT, o -> GUIStyle.init());
+        registerEvent(RESOURCE_INIT, o -> MainMenu.initTextures());
 
-        registerEvent(RESOURCE_FREE, Texture::freeAll);
-        registerEvent(RESOURCE_FREE, CubeMap::freeAll);
-        registerEvent(RESOURCE_FREE, SoundManager::stopAll);
-        registerEvent(RESOURCE_FREE, Sound::freeAllSounds);
-        registerEvent(RESOURCE_FREE, Shader::freeCache);
-        registerEvent(RESOURCE_FREE, Shaders::freeAll);
-        registerEvent(RESOURCE_FREE, PostProcess::free);
-        registerEvent(RESOURCE_FREE, ModelManager::free);
-        registerEvent(RESOURCE_FREE, MaterialManager::free);
-        registerEvent(RESOURCE_FREE, SkyBox.Type::freeAll);
-        registerEvent(RESOURCE_FREE, VertexConsumer::freeBatches);
+        registerEvent(RESOURCE_FREE, o -> Texture.freeAll());
+        registerEvent(RESOURCE_FREE, o -> CubeMap.freeAll());
+        registerEvent(RESOURCE_FREE, o -> SoundManager.stopAll());
+        registerEvent(RESOURCE_FREE, o -> Sound.freeAllSounds());
+        registerEvent(RESOURCE_FREE, o -> Shader.freeCache());
+        registerEvent(RESOURCE_FREE, o -> Shaders.freeAll());
+        registerEvent(RESOURCE_FREE, o -> PostProcess.free());
+        registerEvent(RESOURCE_FREE, o -> ModelManager.free());
+        registerEvent(RESOURCE_FREE, o -> MaterialManager.free());
+        registerEvent(RESOURCE_FREE, o -> SkyBox.Type.freeAll());
+        registerEvent(RESOURCE_FREE, o -> VertexConsumer.freeBatches());
     }
 }

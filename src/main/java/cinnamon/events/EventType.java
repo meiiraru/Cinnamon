@@ -1,6 +1,8 @@
 package cinnamon.events;
 
 public enum EventType {
+    CLIENT_INIT,
+
     TICK_BEFORE_WORLD,
     TICK_BEFORE_GUI,
     TICK_END,
@@ -10,5 +12,15 @@ public enum EventType {
     RENDER_END,
 
     RESOURCE_INIT,
-    RESOURCE_FREE
+    RESOURCE_FREE,
+
+    KEY_PRESS,
+    CHAR_TYPED,
+    MOUSE_PRESS,
+    MOUSE_MOVE,
+    SCROLL,
+    WINDOW_MOVE,
+    WINDOW_RESIZE,
+    WINDOW_FOCUSED,
+    FILES_DROPPED
 }
