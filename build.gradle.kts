@@ -65,9 +65,9 @@ dependencies {
     //lwjgl
     val lwjglNatives = "natives-$os"
     api(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
-    lwjglModules.forEach { module ->
-        api("org.lwjgl", module)
-        runtimeOnly("org.lwjgl", module, classifier = lwjglNatives)
+    lwjglModules.forEach {
+        api("org.lwjgl", it)
+        runtimeOnly("org.lwjgl", it, classifier = lwjglNatives)
     }
 
     //extra libraries
