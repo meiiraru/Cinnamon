@@ -1,5 +1,7 @@
 package cinnamon.sound;
 
+import cinnamon.utils.Maths;
+
 public enum SoundCategory {
     MASTER,
     GUI,
@@ -16,7 +18,7 @@ public enum SoundCategory {
     }
 
     public void setVolume(float volume) {
-        this.volume = Math.clamp(volume, 0, 1);
+        this.volume = Maths.clamp(volume, 0, 1);
         SoundManager.updateVolumes(this);
     }
 }

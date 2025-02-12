@@ -96,16 +96,12 @@ public class ModelViewerScreen extends ParentedScreen {
 
         super.init();
 
+        //add last of the last
+        addWidget(modelViewer);
+
         //set initial model
         if (!modelViewer.hasModel())
             setModel(LivingModelRegistry.STRAWBERRY.resource, LivingModelRegistry.STRAWBERRY.name());
-    }
-
-    @Override
-    protected void addBackButton() {
-        super.addBackButton();
-        //add last of the last
-        addWidget(modelViewer);
     }
 
     @Override

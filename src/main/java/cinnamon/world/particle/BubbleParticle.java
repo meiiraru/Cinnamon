@@ -36,7 +36,7 @@ public class BubbleParticle extends SpriteParticle {
     @Override
     public int getCurrentFrame() {
         int frames = texture.getUFrames() - 1;
-        return Math.clamp(getAge() - getLifetime() + frames, 0, frames);
+        return Maths.clamp(getAge() - getLifetime() + frames, 0, frames);
     }
 
     @Override

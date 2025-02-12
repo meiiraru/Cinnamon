@@ -3,6 +3,7 @@ package cinnamon.world.entity.projectile;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.MatrixStack;
+import cinnamon.utils.Maths;
 import cinnamon.world.collisions.CollisionResult;
 import org.joml.Vector3f;
 
@@ -38,7 +39,7 @@ public class Rice extends Projectile {
     @Override
     protected void applyModelPose(MatrixStack matrices, float delta) {
         super.applyModelPose(matrices, delta);
-        matrices.scale(Math.clamp((this.lifetime - delta) / 5f, 0, 1));
+        matrices.scale(Maths.clamp((this.lifetime - delta) / 5f, 0, 1));
     }
 
     @Override

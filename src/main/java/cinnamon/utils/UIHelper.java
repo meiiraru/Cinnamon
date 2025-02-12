@@ -290,8 +290,8 @@ public class UIHelper {
 
     public static void fitInsideBoundaries(Widget w, int x0, int y0, int x1, int y1) {
         //fix widget pos
-        int x = Math.clamp(w.getX(), x0, x1 - w.getWidth());
-        int y = Math.clamp(w.getY(), y0, y1 - w.getHeight());
+        int x = Maths.clamp(w.getX(), x0, x1 - w.getWidth());
+        int y = Maths.clamp(w.getY(), y0, y1 - w.getHeight());
         w.setPos(x, y);
     }
 

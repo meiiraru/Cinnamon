@@ -318,7 +318,7 @@ public class Slider extends SelectableWidget {
     public void updatePercentage(float value) {
         //update value
         value = snapToClosestStep(value);
-        value = Math.clamp(value, 0f, 1f);
+        value = Maths.clamp(value, 0f, 1f);
 
         this.value = value;
         this.intValue = Math.round(Maths.lerp(min, max, value));
@@ -461,7 +461,7 @@ public class Slider extends SelectableWidget {
 
         float value = (float) pos / size;
         value = snapToClosestStep(value);
-        return Math.clamp(value, 0f, 1f);
+        return Maths.clamp(value, 0f, 1f);
     }
 
     protected boolean updateValueOnClick() {
@@ -516,8 +516,8 @@ public class Slider extends SelectableWidget {
                 x = wx - w - b - 4;
                 left = true;
             }
-            x = Math.clamp(x, b, screenW - w - b);
-            y = Math.clamp(y, b, screenH - h - b);
+            x = Maths.clamp(x, b, screenW - w - b);
+            y = Maths.clamp(y, b, screenH - h - b);
 
             //render
             UIHelper.renderTooltip(matrices, x, y, w, h, cx, wy + animY, (byte) (left ? 1 : 0), tooltip, font);
@@ -532,8 +532,8 @@ public class Slider extends SelectableWidget {
                 y = wy + (int) font.lineHeight + b + 4;
                 bottom = true;
             }
-            x = Math.clamp(x, b, screenW - w - b);
-            y = Math.clamp(y, b, screenH - h - b);
+            x = Maths.clamp(x, b, screenW - w - b);
+            y = Maths.clamp(y, b, screenH - h - b);
 
             //render
             UIHelper.renderTooltip(matrices, x, y, w, h, wx + animX, cy, (byte) (bottom ? 3 : 2), tooltip, font);

@@ -6,6 +6,7 @@ import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.text.Text;
+import cinnamon.utils.Maths;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
 
@@ -182,8 +183,8 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
             x = wx - w - b - 4;
             left = true;
         }
-        x = Math.clamp(x, b, screenW - w - b);
-        y = Math.clamp(y, b, screenH - h - b);
+        x = Maths.clamp(x, b, screenW - w - b);
+        y = Maths.clamp(y, b, screenH - h - b);
 
         //render
         UIHelper.renderTooltip(matrices, x, y, w, h, cx, cy, (byte) (left ? 1 : 0), tooltip, font);

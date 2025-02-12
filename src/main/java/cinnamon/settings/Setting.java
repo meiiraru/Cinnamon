@@ -1,5 +1,6 @@
 package cinnamon.settings;
 
+import cinnamon.utils.Maths;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
@@ -139,14 +140,14 @@ public abstract class Setting<T> {
         private final float max;
 
         public Ranges(String name, Float defaultValue, float min, float max) {
-            super(name, Math.clamp(defaultValue, min, max));
+            super(name, Maths.clamp(defaultValue, min, max));
             this.min = min;
             this.max = max;
         }
 
         @Override
         public void set(Float value) {
-            super.set(Math.clamp(value, min, max));
+            super.set(Maths.clamp(value, min, max));
         }
 
         @Override

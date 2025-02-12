@@ -116,7 +116,7 @@ public class Maths {
     }
 
     public static Vector2f dirToRot(float x, float y, float z) {
-        float pitch = (float) Math.toDegrees(Math.asin(Math.clamp(-y, -1f, 1f)));
+        float pitch = (float) Math.toDegrees(Math.asin(clamp(-y, -1f, 1f)));
         float yaw = (float) Math.toDegrees(Math.atan2(z, x));
         return new Vector2f(pitch, yaw + 90f);
     }
@@ -143,6 +143,14 @@ public class Maths {
 
     public static float map(float x, float min1, float max1, float min2, float max2) {
         return lerp(min2, max2, ratio(x, min1, max1));
+    }
+
+    public static float clamp(float n, float min, float max) {
+        return min > max ? Math.clamp(n, max, min) : Math.clamp(n, min, max);
+    }
+
+    public static int clamp(int n, int min, int max) {
+        return min > max ? Math.clamp(n, max, min) : Math.clamp(n, min, max);
     }
 
     public static Vector3f reflect(Vector3f dir, Vector3f normal) {
