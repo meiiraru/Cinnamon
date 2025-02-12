@@ -12,6 +12,9 @@ import static cinnamon.Client.LOGGER;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+/**
+ * A window, the primary way to display the program's content to the user
+ */
 public class Window {
 
     //window address
@@ -25,6 +28,7 @@ public class Window {
     private int windowedX, windowedY;
     private int windowedWidth, windowedHeight;
     private boolean fullscreen;
+    public boolean allowFullscreen = true;
 
     //gui properties
     public int scaledWidth = width, scaledHeight = height;
@@ -35,6 +39,12 @@ public class Window {
     public boolean mouse1Press, mouse2Press, mouse3Press;
     private boolean mouseLocked;
 
+    /**
+     * Create a new window
+     * @param window the window's GLFW handle
+     * @param width the window's initial width
+     * @param height the window's initial height
+     */
     public Window(long window, int width, int height) {
         this.window = window;
 
@@ -50,10 +60,17 @@ public class Window {
         this.y = y[0];
     }
 
+    /**
+     * Tells GLFW to close the window
+     */
     public void exit() {
         glfwSetWindowShouldClose(window, true);
     }
 
+    /**
+     * Unlock the mouse from the window
+     * @return true if the mouse was set to unlocked, false if it was already unlocked
+     */
     public boolean unlockMouse() {
         if (!mouseLocked)
             return false;
@@ -70,6 +87,10 @@ public class Window {
         return true;
     }
 
+    /**
+     * Lock the mouse inside the window (hide and center it)
+     * @return true if the mouse was set to locked, false if it was already locked
+     */
     public boolean lockMouse() {
         if (mouseLocked)
             return false;
@@ -83,11 +104,21 @@ public class Window {
         return true;
     }
 
+    /**
+     * Check if the mouse is locked inside the window (hidden and centered)
+     * @return true if the mouse is locked
+     */
     public boolean isMouseLocked() {
         return mouseLocked;
     }
 
+    /**
+     * Toggle the window's fullscreen state
+     */
     public void toggleFullScreen() {
+        if (!fullscreen && !allowFullscreen)
+            return;
+
         fullscreen = !fullscreen;
 
         //set fullscreen
@@ -113,10 +144,14 @@ public class Window {
             this.width = this.windowedWidth;
             this.height = this.windowedHeight;
 
-            glfwSetWindowMonitor(window, NULL, x, y, width, height, -1);
+            glfwSetWindowMonitor(window, NULL, x, y, width, height, GLFW_DONT_CARE);
         }
     }
 
+    /**
+     * Get the monitor that has the most overlap with the window
+     * @return the monitor's GLFW handle
+     */
     public long getCurrentMonitor() {
         int overlap, bestoverlap = 0;
         long bestmonitor = glfwGetPrimaryMonitor();
@@ -149,10 +184,20 @@ public class Window {
         return bestmonitor;
     }
 
+    /**
+     * Set the window's title
+     * @param title the new title
+     */
     public void setTitle(String title) {
         glfwSetWindowTitle(window, title);
     }
 
+    /**
+     * Stores the mouse button presses for later use
+     * @param button the button that was pressed
+     * @param action the action (press or release)
+     * @param mods the mods (shift, ctrl, alt, super) (not used)
+     */
     public void mousePress(int button, int action, int mods) {
         boolean press = action == GLFW_PRESS;
         switch (button) {
@@ -162,17 +207,33 @@ public class Window {
         }
     }
 
-    public void mouseMove(double x, double y) {
+    /**
+     * Update the mouse's position
+     * @param x the mouse x position
+     * @param y the mouse y position
+     */
+    public void updateMosuePos(double x, double y) {
         this.mouseX = (int) (x / guiScale);
         this.mouseY = (int) (y / guiScale);
     }
 
-    public void windowMove(int x, int y) {
+    /**
+     * Update the window's position
+     * @param x the new x position
+     * @param y the new y position
+     */
+    public void updatePos(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    public void windowResize(int width, int height, float guiScale) {
+    /**
+     * Update the window's dimensions and gui scale
+     * @param width the new width (absolute)
+     * @param height the new height (absolute)
+     * @param guiScale the new gui scale (0 to auto-calculate)
+     */
+    public void updateSize(int width, int height, float guiScale) {
         this.width = width;
         this.height = height;
 
@@ -189,10 +250,28 @@ public class Window {
         this.scaledHeight = (int) (this.height / this.guiScale);
     }
 
-    public void resize(int width, int height) {
+    /**
+     * Resize the window to a new size
+     * @param width the new absolute width
+     * @param height the new absolute height
+     */
+    public void setSize(int width, int height) {
         glfwSetWindowSize(window, width, height);
     }
 
+    /**
+     * Set the window's position
+     * @param x the new x position
+     * @param y the new y position
+     */
+    public void setPos(int x, int y) {
+        glfwSetWindowPos(window, x, y);
+    }
+
+    /**
+     * Set the window's icon
+     * @param resource the icon's resource path
+     */
     public void setIcon(Resource resource) {
         try (
                 GLFWImage icon = GLFWImage.malloc();
@@ -207,6 +286,10 @@ public class Window {
         }
     }
 
+    /**
+     * Warp the mouse to the opposite side of the screen if it's too close to the edge
+     * @param deltaConsumer a consumer that takes how much the mouse was moved in x and y
+     */
     public void warpMouse(BiConsumer<Integer, Integer> deltaConsumer) {
         long monitor = getCurrentMonitor();
         GLFWVidMode properties = glfwGetVideoMode(monitor);
@@ -248,6 +331,34 @@ public class Window {
         } catch (Exception ignored) {}
     }
 
+    /**
+     * Set the window's decorated state (border, title bar, close button, ...)
+     * @param bool true if the window should be decorated (default true)
+     */
+    public void setDecorated(boolean bool) {
+        glfwSetWindowAttrib(window, GLFW_DECORATED, bool ? GLFW_TRUE : GLFW_FALSE);
+    }
+
+    /**
+     * Set if the window can be resizable
+     * @param bool true if the window should be resizable (default true)
+     */
+    public void setResizable(boolean bool) {
+        glfwSetWindowAttrib(window, GLFW_RESIZABLE, bool ? GLFW_TRUE : GLFW_FALSE);
+    }
+
+    /**
+     * Set if the window is floating (always on top)
+     * @param bool true if the window should be floating (default false)
+     */
+    public void setFloating(boolean bool) {
+        glfwSetWindowAttrib(window, GLFW_FLOATING, bool ? GLFW_TRUE : GLFW_FALSE);
+    }
+
+    /**
+     * Get the window's internal GLFW handle
+     * @return the window's handle
+     */
     public long getHandle() {
         return window;
     }

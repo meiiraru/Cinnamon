@@ -255,11 +255,11 @@ public class Client {
 
     public void keyPress(int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS) {
-            boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
             switch (key) {
                 case GLFW_KEY_F2 -> TextureIO.screenshot(window.width, window.height);
                 case GLFW_KEY_F3 -> debug = !debug;
                 case GLFW_KEY_F9 -> {
+                    boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
                     if (postProcess == -1)
                         postProcess = shift ? PostProcess.EFFECTS.length - 1 : 0;
                     else if ((postProcess == 0 && shift) || (postProcess == PostProcess.EFFECTS.length - 1 && !shift))
@@ -269,6 +269,7 @@ public class Client {
                 }
                 case GLFW_KEY_F10 -> anaglyph3D = !anaglyph3D;
                 case GLFW_KEY_F11 -> window.toggleFullScreen();
+                case GLFW_KEY_ENTER -> {if ((mods & GLFW_MOD_ALT) != 0) window.toggleFullScreen();}
                 case GLFW_KEY_F12 -> reloadAssets();
             }
         }
@@ -290,7 +291,7 @@ public class Client {
     }
 
     public void mouseMove(double x, double y) {
-        window.mouseMove(x, y);
+        window.updateMosuePos(x, y);
 
         if (screen != null) {
             screen.mouseMove(window.mouseX, window.mouseY);
@@ -311,7 +312,7 @@ public class Client {
     }
 
     public void windowMove(int x, int y) {
-        window.windowMove(x, y);
+        window.updatePos(x, y);
         events.runEvents(EventType.WINDOW_MOVE, x, y);
     }
 
@@ -319,7 +320,7 @@ public class Client {
         if (width <= 0 || height <= 0)
             return;
 
-        window.windowResize(width, height, Settings.guiScale.get());
+        window.updateSize(width, height, Settings.guiScale.get());
         Framebuffer.DEFAULT_FRAMEBUFFER.resize(width, height);
 
         if (world != null)
