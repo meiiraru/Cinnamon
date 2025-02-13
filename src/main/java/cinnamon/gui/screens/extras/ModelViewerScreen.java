@@ -8,6 +8,7 @@ import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.ComboBox;
 import cinnamon.gui.widgets.types.Label;
 import cinnamon.gui.widgets.types.ModelViewer;
+import cinnamon.model.ModelManager;
 import cinnamon.registry.*;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
@@ -113,7 +114,7 @@ public class ModelViewerScreen extends ParentedScreen {
     }
 
     private void setModel(Resource model, String name) {
-        modelViewer.setModel(model);
+        modelViewer.setModel(ModelManager.load(model));
         modelName = name;
 
         animationList.clearEntries();

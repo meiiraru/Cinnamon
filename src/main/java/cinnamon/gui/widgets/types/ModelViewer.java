@@ -5,7 +5,6 @@ import cinnamon.animation.Animation;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.model.GeometryHelper;
-import cinnamon.model.ModelManager;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
@@ -17,7 +16,6 @@ import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.Maths;
-import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
 import cinnamon.world.SkyBox;
 
@@ -151,8 +149,8 @@ public class ModelViewer extends SelectableWidget {
         return model != null;
     }
 
-    public void setModel(Resource res) {
-        model = ModelManager.load(res);
+    public void setModel(ModelRenderer model) {
+        this.model = model;
         float maxDimension = Maths.max(model.getAABB().getDimensions());
         scaleReset = defaultScale / maxDimension;
         resetView();
