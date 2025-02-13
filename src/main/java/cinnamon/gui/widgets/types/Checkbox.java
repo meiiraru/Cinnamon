@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 public class Checkbox extends Button {
 
     protected boolean toggled;
+    protected int textSpacing = 4;
 
     public Checkbox(int x, int y, Text message) {
         super(x, y, 0, 0, message, null);
@@ -38,7 +39,7 @@ public class Checkbox extends Button {
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         Text text = getFormattedMessage();
         int y = getCenterY() - TextUtils.getHeight(text) / 2;
-        text.render(VertexConsumer.FONT, matrices, getX() + 8 + 2, y);
+        text.render(VertexConsumer.FONT, matrices, getX() + 8 + textSpacing, y);
     }
 
     @Override
@@ -55,9 +56,12 @@ public class Checkbox extends Button {
     @Override
     public void setMessage(Text message) {
         super.setMessage(message);
+        updateDimensions();
+    }
 
+    private void updateDimensions() {
         this.setDimensions(
-                Math.max(8, 8 + 2 + TextUtils.getWidth(message)),
+                Math.max(8, 8 + textSpacing + TextUtils.getWidth(message)),
                 Math.max(8, TextUtils.getHeight(message))
         );
     }
@@ -68,5 +72,14 @@ public class Checkbox extends Button {
 
     public void setToggled(boolean toggled) {
         this.toggled = toggled;
+    }
+
+    public int getTextSpacing() {
+        return textSpacing;
+    }
+
+    public void setTextSpacing(int textSpacing) {
+        this.textSpacing = textSpacing;
+        updateDimensions();
     }
 }

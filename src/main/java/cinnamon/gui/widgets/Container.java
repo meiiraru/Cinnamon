@@ -242,4 +242,10 @@ public class Container extends Widget implements Tickable, GUIListener {
         for (Widget widget : this.widgets)
             widget.setStyle(style);
     }
+
+    public void setActive(boolean active) {
+        for (Widget widget : widgets)
+            if (widget instanceof SelectableWidget w)
+                w.setActive(active);
+    }
 }

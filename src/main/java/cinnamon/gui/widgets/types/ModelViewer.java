@@ -156,6 +156,22 @@ public class ModelViewer extends SelectableWidget {
         resetView();
     }
 
+    public float getPosX() {
+        return posX;
+    }
+
+    public float getPosY() {
+        return posY;
+    }
+
+    public void setPosX(float posX) {
+        this.posX = posX;
+    }
+
+    public void setPosY(float posY) {
+        this.posY = posY;
+    }
+
     public float getRotX() {
         return rotX;
     }
@@ -164,22 +180,52 @@ public class ModelViewer extends SelectableWidget {
         return rotY;
     }
 
+    public void setRotX(float rotX) {
+        this.rotX = rotX;
+    }
+
+    public void setRotY(float rotY) {
+        this.rotY = rotY;
+    }
+
     public void setDefaultRot(float rotX, float rotY) {
         this.defaultRotX = rotX;
         this.defaultRotY = rotY;
+    }
+
+    public float getDefaultRotX() {
+        return defaultRotX;
+    }
+
+    public float getDefaultRotY() {
+        return defaultRotY;
+    }
+
+    public void setScale(float scale) {
+        this.scale = scale;
     }
 
     public void setDefaultScale(float scale) {
         this.defaultScale = scale;
     }
 
+    public float getDefaultScale() {
+        return defaultScale;
+    }
+
     public void setScaleFactor(float scaleFactor) {
         this.scaleFactor = scaleFactor;
     }
 
-    public void setModelFlip(boolean flipX, boolean flipY, boolean flipZ) {
+    public void flipX(boolean flipX) {
         this.flipX = flipX;
+    }
+
+    public void flipY(boolean flipY) {
         this.flipY = flipY;
+    }
+
+    public void flipZ(boolean flipZ) {
         this.flipZ = flipZ;
     }
 
