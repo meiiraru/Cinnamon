@@ -40,7 +40,7 @@ public class Settings {
 
     static {
         //player name do not have a getter
-        Setting.Strings player = new Setting.Strings("player.playername", "Player");
+        Setting.Strings player = new Setting.Strings("player.playername", Client.getInstance().name);
         player.setListener(v -> Client.getInstance().setName(v));
 
         //wrapper for sound categories

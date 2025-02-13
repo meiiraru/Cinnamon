@@ -379,11 +379,12 @@ public class Hud {
         WorldClient w = c.world;
         if (w == null) {
             return String.format("""
+                    Cinnamon v&e%s&r
                     &e%s&r fps @ &e%s&r ms
 
                     [&bworld&r]
                      &cNo world loaded&r
-                    """, c.fps, c.ms);
+                    """, Version.CLIENT_VERSION, c.fps, c.ms);
         }
 
         Player p = w.player;
@@ -411,8 +412,8 @@ public class Hud {
         String terrain = getTargetedObjString(p.getLookingTerrain(range), range);
 
         return String.format("""
+                        Cinnamon v&e%s&r
                         &e%s&r fps @ &e%s&r ms
-                        &e%s&r %s
 
                         [&bworld&r]
                          &e%s&r/&e%s&r entities &e%s&r/&e%s&r particles
@@ -422,6 +423,7 @@ public class Hud {
                          time &e%s&r
  
                         [&bplayer&r]
+                         &e%s&r %s
                          xyz &c%.3f &a%.3f &b%.3f&r
                          pitch &e%.3f&r yaw &e%.3f&r
                          motion &c%.3f &a%.3f &b%.3f&r
@@ -439,8 +441,8 @@ public class Hud {
                         [&btargeted terrain&r]
                         %s
                         """,
+                Version.CLIENT_VERSION,
                 c.fps, c.ms,
-                p.getName(), p.getUUID(),
 
                 w.getRenderedEntities(), w.entityCount(), w.getRenderedParticles(), w.particleCount(),
                 w.getRenderedChunks(), w.chunkCount(), w.getRenderedTerrain(),
@@ -448,6 +450,7 @@ public class Hud {
                 soundCount,
                 w.getTime(),
 
+                p.getName(), p.getUUID(),
                 epos.x, epos.y, epos.z,
                 erot.x, erot.y,
                 emot.x, emot.y, emot.z,
@@ -479,8 +482,8 @@ public class Hud {
                 mem &e%s&r%% &e%s&r/&e%s&r\s
                 allocated &e%s&r%% &e%s&r\s
 
-                [&brenderer&r]
-                %s\s
+                [&bsystem&r]
+                OS &e%s&r\s
                 %s\s
                 OpenGL &e%s&r\s
 
