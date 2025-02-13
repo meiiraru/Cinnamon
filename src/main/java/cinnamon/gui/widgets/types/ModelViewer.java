@@ -15,11 +15,14 @@ import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
+import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
 import cinnamon.world.SkyBox;
+import org.joml.Vector3f;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -33,6 +36,9 @@ public class ModelViewer extends SelectableWidget {
     private ModelRenderer model = null;
     private MaterialRegistry selectedMaterial = MaterialRegistry.DEFAULT;
     private SkyBox.Type skybox = SkyBox.Type.WHITE;
+
+    private boolean renderBounds;
+    private Consumer<MatrixStack> extraRendering;
 
     private float defaultScale = 128f, scaleFactor = 0.1f;
     private float defaultRotX = -22.5f, defaultRotY = 30f;
@@ -51,6 +57,7 @@ public class ModelViewer extends SelectableWidget {
 
     public ModelViewer(int x, int y, int width, int height) {
         super(x, y, width, height);
+        setSelectable(false);
     }
 
     public static void free() {
@@ -74,8 +81,10 @@ public class ModelViewer extends SelectableWidget {
             return;
 
         //prepare render
-        Shader oldShader = Shader.activeShader;
         Client client = Client.getInstance();
+        VertexConsumer.finishAllBatches(client.camera);
+
+        Shader oldShader = Shader.activeShader;
         client.camera.useOrtho(false);
         matrices.push();
 
@@ -90,7 +99,8 @@ public class ModelViewer extends SelectableWidget {
         matrices.rotate(Rotation.Y.rotationDeg(-rotY - 180));
 
         //offset model to center
-        matrices.translate(model.getAABB().getCenter().mul(-1f));
+        AABB aabb = model.getAABB();
+        matrices.translate(aabb.getCenter().mul(-1f));
 
         //setup shader
         Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
@@ -105,13 +115,26 @@ public class ModelViewer extends SelectableWidget {
         matrices.scale(flipX ? -1 : 1, flipY ? -1 : 1, flipZ ? -1 : 1);
         if (flipX ^ flipY ^ flipZ)
             glCullFace(GL_FRONT);
-        if (flipY)
-            matrices.translate(0, -model.getAABB().getHeight(), 0);
+        matrices.translate(flipX ? -(aabb.minX() + aabb.maxX()) : 0, flipY ? -(aabb.minY() + aabb.maxY()) : 0, flipZ ? -(aabb.minZ() + aabb.maxZ()) : 0);
 
         //render to another framebuffer;
         modelBuffer.useClear();
         modelBuffer.resizeTo(Framebuffer.DEFAULT_FRAMEBUFFER);
         model.render(matrices, selectedMaterial.material);
+
+        //draw bounding box
+        if (renderBounds) {
+            Vector3f min = aabb.getMin();
+            Vector3f max = aabb.getMax();
+            VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFFFFFFFF));
+        }
+
+        //extra rendering
+        if (extraRendering != null)
+            extraRendering.accept(matrices);
+
+        //finish render
+        VertexConsumer.finishAllBatches(client.camera);
         Framebuffer.DEFAULT_FRAMEBUFFER.use();
 
         //cleanup
@@ -154,6 +177,18 @@ public class ModelViewer extends SelectableWidget {
         float maxDimension = Maths.max(model.getAABB().getDimensions());
         scaleReset = defaultScale / maxDimension;
         resetView();
+    }
+
+    public boolean shouldRenderBounds() {
+        return renderBounds;
+    }
+
+    public void setRenderBounds(boolean renderBounds) {
+        this.renderBounds = renderBounds;
+    }
+
+    public void setExtraRendering(Consumer<MatrixStack> extraRendering) {
+        this.extraRendering = extraRendering;
     }
 
     public float getPosX() {
@@ -227,6 +262,18 @@ public class ModelViewer extends SelectableWidget {
 
     public void flipZ(boolean flipZ) {
         this.flipZ = flipZ;
+    }
+
+    public boolean isFlipX() {
+        return flipX;
+    }
+
+    public boolean isFlipY() {
+        return flipY;
+    }
+
+    public boolean isFlipZ() {
+        return flipZ;
     }
 
     private void resetView() {
