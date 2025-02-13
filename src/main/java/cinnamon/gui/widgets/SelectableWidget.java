@@ -1,12 +1,12 @@
 package cinnamon.gui.widgets;
 
 import cinnamon.Client;
-import cinnamon.gui.GUIStyle;
-import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
+import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Maths;
+import cinnamon.utils.Resource;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
 
@@ -144,6 +144,7 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
     public void setPopup(PopupWidget popup) {
         this.popup = popup;
         popup.setParent(this);
+        popup.setStyle(getStyleRes());
     }
 
     public boolean isSelectable() {
@@ -154,15 +155,17 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
         this.selectable = selectable;
     }
 
-    public void renderTooltip(MatrixStack matrices, Font font) {
+    public void renderTooltip(MatrixStack matrices) {
         //grab text
         Text tooltip = getTooltip();
-        if (tooltip == null || tooltip.isEmpty())
+        if (tooltip == null)
             return;
 
+        tooltip = Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(tooltip);
+
         //dimensions
-        int w = TextUtils.getWidth(tooltip, font);
-        int h = TextUtils.getHeight(tooltip, font);
+        int w = TextUtils.getWidth(tooltip);
+        int h = TextUtils.getHeight(tooltip);
 
         int wx = getX();
         int cx = getCenterX();
@@ -172,7 +175,7 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
         int screenW = window.scaledWidth;
         int screenH = window.scaledHeight;
 
-        int b = GUIStyle.tooltipBorder;
+        int b = getStyle().tooltipBorder;
         boolean left = false;
 
         int x = wx + getWidth() + b + 4;
@@ -187,6 +190,13 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
         y = Maths.clamp(y, b, screenH - h - b);
 
         //render
-        UIHelper.renderTooltip(matrices, x, y, w, h, cx, cy, (byte) (left ? 1 : 0), tooltip, font);
+        UIHelper.renderTooltip(matrices, x, y, w, h, cx, cy, (byte) (left ? 1 : 0), tooltip, getStyle());
+    }
+
+    @Override
+    public void setStyle(Resource style) {
+        super.setStyle(style);
+        if (this.popup != null)
+            this.popup.setStyle(style);
     }
 }

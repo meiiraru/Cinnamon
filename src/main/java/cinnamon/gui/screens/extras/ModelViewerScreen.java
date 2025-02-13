@@ -46,23 +46,23 @@ public class ModelViewerScreen extends ParentedScreen {
                 new Button(0, 0, models.getWidth() - models.getScrollbarWidth() - 4, 16, Text.of(name), b -> setModel(model, name));
 
         //add models
-        models.addWidget(new Label(0, 0, Text.of("Entity"), font));
+        models.addWidget(new Label(0, 0, Text.of("Entity")));
         for (EntityModelRegistry value : EntityModelRegistry.values())
             models.addWidget(createButton.apply(value.resource, value.name()));
 
-        models.addWidget(new Label(0, 0, Text.of("Living Entity"), font));
+        models.addWidget(new Label(0, 0, Text.of("Living Entity")));
         for (LivingModelRegistry value : LivingModelRegistry.values())
             models.addWidget(createButton.apply(value.resource, value.name()));
 
-        models.addWidget(new Label(0, 0, Text.of("Terrain"), font));
+        models.addWidget(new Label(0, 0, Text.of("Terrain")));
         for (TerrainRegistry value : TerrainRegistry.values())
             models.addWidget(createButton.apply(value.resource, value.name()));
 
-        models.addWidget(new Label(0, 0, Text.of("Terrain Entities"), font));
+        models.addWidget(new Label(0, 0, Text.of("Terrain Entities")));
         for (TerrainEntityRegistry value : TerrainEntityRegistry.values())
             models.addWidget(createButton.apply(value.resource, value.name()));
 
-        models.addWidget(new Label(0, 0, Text.of("Items"), font));
+        models.addWidget(new Label(0, 0, Text.of("Items")));
         for (ItemModelRegistry value : ItemModelRegistry.values())
             models.addWidget(createButton.apply(value.resource, value.name()));
 
@@ -109,7 +109,7 @@ public class ModelViewerScreen extends ParentedScreen {
         super.render(matrices, mouseX, mouseY, delta);
 
         //render title
-        font.render(VertexConsumer.FONT, matrices, (width - listWidth) / 2f + listWidth, 4, Text.of(modelName).withStyle(Style.EMPTY.outlined(true)), Alignment.CENTER);
+        Text.of(modelName).withStyle(Style.EMPTY.outlined(true)).render(VertexConsumer.FONT, matrices, (width - listWidth) / 2f + listWidth, 4, Alignment.CENTER);
     }
 
     private void setModel(Resource model, String name) {

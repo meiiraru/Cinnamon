@@ -1,5 +1,6 @@
 package cinnamon.gui.screens.extras;
 
+import cinnamon.gui.GUIStyle;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
@@ -10,10 +11,12 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.settings.Settings;
+import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
+import cinnamon.world.Hud;
 
 import static cinnamon.Client.LOGGER;
 
@@ -28,7 +31,7 @@ public class WidgetTestScreen extends ParentedScreen {
 
     @Override
     public void init() {
-        clicksLabel = new Label(width / 2, (int) (height - font.lineHeight), Text.of(clicks), font);
+        clicksLabel = new Label(width / 2, (int) (height - GUIStyle.getDefault().font.lineHeight), Text.of(clicks));
         clicksLabel.setAlignment(Alignment.CENTER);
 
         ContainerGrid grid = new ContainerGrid(4, 4, 4);
@@ -68,7 +71,7 @@ public class WidgetTestScreen extends ParentedScreen {
         b.setPopup(ctx);
 
         //label
-        Label l = new Label(0, 0, Text.of("Label"), font);
+        Label l = new Label(0, 0, Text.of("Label"));
         grid.addWidget(l);
 
         //progress bar
@@ -118,16 +121,17 @@ public class WidgetTestScreen extends ParentedScreen {
 
         //normal text field
         int tfw = Math.min(Math.round(width / 2f - 8), 180);
-        TextField tf1 = new TextField(0, 0, tfw, 16, font);
+        TextField tf1 = new TextField(0, 0, tfw, 16);
         grid.addWidget(tf1);
 
         tf1.setHintText("Text Field");
-        tf1.setListener(s1 -> tf1.setStyle(tf1.getStyle().color(Colors.randomRainbow())));
+        tf1.setListener(s1 -> tf1.setTextStyle(tf1.getTextStyle().color(Colors.randomRainbow())));
+        tf1.setTextStyle(Style.EMPTY.guiStyle(Hud.HUD_STYLE));
 
         ContainerGrid password = new ContainerGrid(0, 0, 4, 2);
         grid.addWidget(password);
 
-        TextField tf4 = new TextField(0, 0, tfw, 16, font);
+        TextField tf4 = new TextField(0, 0, tfw, 16);
         tf4.setHintText("Password...");
         tf4.setPassword(true);
         password.addWidget(tf4);
@@ -165,15 +169,15 @@ public class WidgetTestScreen extends ParentedScreen {
         grid.addWidget(ckb);
 
         //toast 1
-        Button toast1 = new Button(0, 0, 60, 12, Text.of("Toast 1"), button -> Toast.addToast(Text.of("Toast 1"), font));
+        Button toast1 = new Button(0, 0, 60, 12, Text.of("Toast 1"), button -> Toast.addToast(Text.of("Toast 1")).style(button.getStyleRes()));
         grid.addWidget(toast1);
 
         //toast 2
-        Button toast2 = new Button(0, 0, 60, 12, Text.of("Toast 2"), button -> Toast.addToast(Text.of("Multi-line\nToast :3"), font).type(Toast.ToastType.WARN));
+        Button toast2 = new Button(0, 0, 60, 12, Text.of("Toast 2"), button -> Toast.addToast(Text.of("Multi-line\nToast :3")).style(button.getStyleRes()).type(Toast.ToastType.WARN));
         grid.addWidget(toast2);
 
         //toast 3
-        Button toast3 = new Button(0, 0, 60, 12, Text.of("Toast 3"), button -> Toast.addToast(Text.of("Oopsie daisy"), font).type(Toast.ToastType.ERROR).color(Colors.randomRainbow().rgba));
+        Button toast3 = new Button(0, 0, 60, 12, Text.of("Toast 3"), button -> Toast.addToast(Text.of("Oopsie daisy")).style(button.getStyleRes()).type(Toast.ToastType.ERROR).color(Colors.randomRainbow().rgba));
         grid.addWidget(toast3);
 
         //right panel
@@ -192,7 +196,7 @@ public class WidgetTestScreen extends ParentedScreen {
             buttonsGrid.addWidget(btx);
         }
 
-        Label rightLabel = new Label(0, 0, Text.of("Some text\nNo Alignment"), font);
+        Label rightLabel = new Label(0, 0, Text.of("Some text\nNo Alignment"));
         buttonsGrid.addWidget(rightLabel);
 
         //vertical stuff

@@ -36,13 +36,13 @@ public class DeathScreen extends Screen {
 
         matrices.push();
 
-        float textSize = TextUtils.getHeight(YOU_DIED, font) * 5f;
+        float textSize = TextUtils.getHeight(YOU_DIED) * 5f;
         matrices.translate(width / 2f, (respawn.getY() - textSize) / 2f, 0f);
         matrices.scale(5f);
 
         float dc = (float) (Math.sin((client.ticks + delta) * 0.1f) + 1) * 0.5f;
         int color = ColorUtils.lerpARGBColor(Colors.RED.rgba, 0xFF880000, dc);
-        font.render(VertexConsumer.FONT, matrices, 0f, 0f, YOU_DIED.withStyle(Style.EMPTY.color(color)), Alignment.CENTER);
+        YOU_DIED.withStyle(Style.EMPTY.color(color)).render(VertexConsumer.FONT, matrices, 0f, 0f, Alignment.CENTER);
 
         matrices.pop();
     }

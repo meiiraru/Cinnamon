@@ -1,17 +1,19 @@
 package cinnamon.gui.widgets.types;
 
 import cinnamon.Client;
-import cinnamon.gui.GUIStyle;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
-import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.*;
+import cinnamon.utils.Colors;
+import cinnamon.utils.Maths;
+import cinnamon.utils.TextUtils;
+import cinnamon.utils.UIHelper;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -20,7 +22,6 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Slider extends SelectableWidget {
 
-    private static final Resource TEXTURE = new Resource("textures/gui/widgets/slider.png");
     public static final BiFunction<Float, Integer, Text> DEFAULT_TOOLTIP = (f, i) -> Text.of(i);
 
     private float value = 0f;
@@ -80,7 +81,7 @@ public class Slider extends SelectableWidget {
 
         //left
         renderHorizontalBar(matrices, x, y, left, 0f, v, 0xFFFFFFFF);
-        renderHorizontalBar(matrices, x, y, left, 0f, 12f, color == null ? GUIStyle.accentColor : color);
+        renderHorizontalBar(matrices, x, y, left, 0f, 12f, color == null ? getStyle().accentColor : color);
 
         //right
         renderHorizontalBar(matrices, x + width + 8 - right, y, right, 9f, v, 0xFFFFFFFF);
@@ -93,7 +94,7 @@ public class Slider extends SelectableWidget {
     }
 
     protected void renderHorizontalBar(MatrixStack matrices, int x, int y, int width, float u, float v, int color) {
-        UIHelper.horizontalQuad(VertexConsumer.GUI, matrices, TEXTURE,
+        UIHelper.horizontalQuad(VertexConsumer.GUI, matrices, getStyle().sliderTex,
                 x, y, width, 4,
                 u, v,
                 9, 4,
@@ -116,7 +117,7 @@ public class Slider extends SelectableWidget {
 
         //up
         renderVerticalBar(matrices, x, y, up, u, 0f, 0xFFFFFFFF);
-        renderVerticalBar(matrices, x, y, up, 30f, 0f, color == null ? GUIStyle.accentColor : color);
+        renderVerticalBar(matrices, x, y, up, 30f, 0f, color == null ? getStyle().accentColor : color);
 
         //down
         renderVerticalBar(matrices, x, y + height + 8 - down, down, u, 9f, 0xFFFFFFFF);
@@ -129,7 +130,7 @@ public class Slider extends SelectableWidget {
     }
 
     protected void renderVerticalBar(MatrixStack matrices, int x, int y, int height, float u, float v, int color) {
-        UIHelper.verticalQuad(VertexConsumer.GUI, matrices, TEXTURE,
+        UIHelper.verticalQuad(VertexConsumer.GUI, matrices, getStyle().sliderTex,
                 x, y, 4, height,
                 u, v,
                 4, 9,
@@ -156,7 +157,7 @@ public class Slider extends SelectableWidget {
                     u, v,
                     width, height,
                     34, 26
-            ), TEXTURE);
+            ), getStyle().sliderTex);
         }
     }
 
@@ -167,7 +168,7 @@ public class Slider extends SelectableWidget {
                 state * 8, 18f,
                 8, 8,
                 34, 26
-        ), TEXTURE);
+        ), getStyle().sliderTex);
 
         //color
         Vertex[] vertices = GeometryHelper.quad(
@@ -176,11 +177,11 @@ public class Slider extends SelectableWidget {
                 8, 8,
                 34, 26
         );
-        int color = this.color == null ? GUIStyle.accentColor : this.color;
+        int color = this.color == null ? getStyle().accentColor : this.color;
         for (Vertex vertex : vertices)
             vertex.color(color);
 
-        VertexConsumer.GUI.consume(vertices, TEXTURE);
+        VertexConsumer.GUI.consume(vertices, getStyle().sliderTex);
     }
 
     @Override
@@ -477,9 +478,9 @@ public class Slider extends SelectableWidget {
     }
 
     @Override
-    public void renderTooltip(MatrixStack matrices, Font font) {
+    public void renderTooltip(MatrixStack matrices) {
         if (!showTooltip || !isHovered()) {
-            super.renderTooltip(matrices, font);
+            super.renderTooltip(matrices);
             return;
         }
 
@@ -488,12 +489,15 @@ public class Slider extends SelectableWidget {
         float value = showCurrentTooltip || !previewHoverValue ? getAnimationValue() : getValueAtMouse(window.mouseX, window.mouseY);
         Text tooltip = tooltipFunction.apply(value, Math.round(Maths.lerp(min, max, value)));
 
-        if (tooltip == null || tooltip.isEmpty())
+        if (tooltip == null)
             return;
 
+        //style
+        tooltip = Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(tooltip);
+
         //dimensions
-        int w = TextUtils.getWidth(tooltip, font);
-        int h = TextUtils.getHeight(tooltip, font);
+        int w = TextUtils.getWidth(tooltip);
+        int h = TextUtils.getHeight(tooltip);
 
         int wx = getX();
         int wy = getY();
@@ -503,7 +507,7 @@ public class Slider extends SelectableWidget {
         int screenW = window.scaledWidth;
         int screenH = window.scaledHeight;
 
-        int b = GUIStyle.tooltipBorder;
+        int b = getStyle().tooltipBorder;
 
         if (isVertical()) {
             int animY = (int) ((getHeight() - handleSize) * value) + handleSize / 2;
@@ -520,7 +524,7 @@ public class Slider extends SelectableWidget {
             y = Maths.clamp(y, b, screenH - h - b);
 
             //render
-            UIHelper.renderTooltip(matrices, x, y, w, h, cx, wy + animY, (byte) (left ? 1 : 0), tooltip, font);
+            UIHelper.renderTooltip(matrices, x, y, w, h, cx, wy + animY, (byte) (left ? 1 : 0), tooltip, getStyle());
         } else {
             int animX = (int) ((getWidth() - handleSize) * value) + handleSize / 2;
             boolean bottom = false;
@@ -529,14 +533,14 @@ public class Slider extends SelectableWidget {
 
             //boundaries test
             if (y < b && cy < screenH / 2) {
-                y = wy + (int) font.lineHeight + b + 4;
+                y = wy + (int) getStyle().font.lineHeight + b + 4;
                 bottom = true;
             }
             x = Maths.clamp(x, b, screenW - w - b);
             y = Maths.clamp(y, b, screenH - h - b);
 
             //render
-            UIHelper.renderTooltip(matrices, x, y, w, h, wx + animX, cy, (byte) (bottom ? 3 : 2), tooltip, font);
+            UIHelper.renderTooltip(matrices, x, y, w, h, wx + animX, cy, (byte) (bottom ? 3 : 2), tooltip, getStyle());
         }
     }
 }

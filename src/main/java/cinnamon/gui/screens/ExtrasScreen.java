@@ -28,7 +28,7 @@ public class ExtrasScreen extends ParentedScreen {
         WidgetList list = new WidgetList(0, 0, 0, 0, 4);
 
         //title
-        list.addWidget(new Label(0, 0, Text.of("Custom Worlds\n"), font));
+        list.addWidget(new Label(0, 0, Text.of("Custom Worlds\n")));
 
         //material debug world
         list.addWidget(BUTTON_FACTORY.apply("Material Debug", button -> new MaterialPreviewWorld().init()));
@@ -40,7 +40,7 @@ public class ExtrasScreen extends ParentedScreen {
         list.addWidget(BUTTON_FACTORY.apply("Disco", button -> new DiscoWorld().init()));
 
         //title
-        list.addWidget(new Label(0, 0, Text.of("\nTech demos\n"), font));
+        list.addWidget(new Label(0, 0, Text.of("\nTech demos\n")));
 
         //collision screen
         list.addWidget(BUTTON_FACTORY.apply("Collision Test", button -> client.setScreen(new CollisionScreen(this))));
@@ -64,7 +64,7 @@ public class ExtrasScreen extends ParentedScreen {
         list.addWidget(BUTTON_FACTORY.apply("Model Viewer", button -> client.setScreen(new ModelViewerScreen(this))));
 
         //title
-        list.addWidget(new Label(0, 0, Text.of("\nGames\n"), font));
+        list.addWidget(new Label(0, 0, Text.of("\nGames\n")));
 
         //dvd screen
         list.addWidget(BUTTON_FACTORY.apply("DVD screensaver", button -> client.setScreen(new DVDScreen(this))));
@@ -73,13 +73,13 @@ public class ExtrasScreen extends ParentedScreen {
         list.addWidget(BUTTON_FACTORY.apply("Wordle", button -> client.setScreen(new WordleScreen(this))));
 
         //title
-        list.addWidget(new Label(0, 0, Text.of("\nOther\n"), font));
+        list.addWidget(new Label(0, 0, Text.of("\nOther\n")));
 
         //CPF validator
         list.addWidget(BUTTON_FACTORY.apply("CPF Validator", button -> client.setScreen(new CPFScreen(this))));
 
         //spacing (literally)
-        list.addWidget(new Label(0, 0, Text.of("\n"), font));
+        list.addWidget(new Label(0, 0, Text.of("\n")));
 
         //back
         list.addWidget(BUTTON_FACTORY.apply("Back", button -> close()));

@@ -39,7 +39,7 @@ public class DVDScreen extends ParentedScreen {
     @Override
     public void added() {
         //fullscreen toast
-        Toast.addToast(Text.of("Press [F11] to toggle fullscreen"), font);
+        Toast.addToast(Text.of("Press [F11] to toggle fullscreen"));
 
         //set color and position
         this.changeColor();

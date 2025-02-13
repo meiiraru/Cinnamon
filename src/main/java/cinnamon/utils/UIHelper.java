@@ -8,7 +8,6 @@ import cinnamon.gui.widgets.PopupWidget;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.Widget;
 import cinnamon.model.Vertex;
-import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
@@ -22,6 +21,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class UIHelper {
 
     public static final Resource TOOLTIP_TEXTURE = new Resource("textures/gui/widgets/tooltip.png");
+    public static final float DEPTH_OFFSET = 0.01f;
     private static final Stack<Region2D> SCISSORS_STACK = new Stack<>();
 
     public static void renderBackground(MatrixStack matrices, int width, int height, float delta, Resource... background) {
@@ -183,13 +183,13 @@ public class UIHelper {
         return vertices;
     }
 
-    public static void renderTooltip(MatrixStack matrices, int x, int y, int width, int height, int centerX, int centerY, byte arrowSide, Text tooltip, Font font) {
+    public static void renderTooltip(MatrixStack matrices, int x, int y, int width, int height, int centerX, int centerY, byte arrowSide, Text tooltip, GUIStyle style) {
         matrices.push();
         matrices.translate(x, y, 998f);
 
         //background
-        int b = GUIStyle.tooltipBorder;
-        UIHelper.nineQuad(VertexConsumer.GUI, matrices, TOOLTIP_TEXTURE, -b, -b, width + b + b, height + b + b, 0, 0, 16, 16, 20, 20, GUIStyle.accentColor);
+        int b = style.tooltipBorder;
+        UIHelper.nineQuad(VertexConsumer.GUI, matrices, TOOLTIP_TEXTURE, -b, -b, width + b + b, height + b + b, 0, 0, 16, 16, 20, 20, style.accentColor);
 
         //arrow
         Vertex[] vertices = switch (arrowSide) {
@@ -204,11 +204,11 @@ public class UIHelper {
         };
 
         for (Vertex vertex : vertices)
-            vertex.color(GUIStyle.accentColor);
+            vertex.color(style.accentColor);
         VertexConsumer.GUI.consume(vertices, TOOLTIP_TEXTURE);
 
         //render text
-        font.render(VertexConsumer.FONT, matrices, 0, 0, tooltip);
+        tooltip.render(VertexConsumer.FONT, matrices, 0, 0);
 
         matrices.pop();
     }

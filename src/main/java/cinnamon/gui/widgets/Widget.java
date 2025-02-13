@@ -1,12 +1,15 @@
 package cinnamon.gui.widgets;
 
+import cinnamon.gui.GUIStyle;
 import cinnamon.render.MatrixStack;
+import cinnamon.utils.Resource;
 
 public abstract class Widget {
 
     private int x, y;
     private int width, height;
     private Widget parent;
+    private Resource style = GUIStyle.DEFAULT_STYLE;
 
     public Widget(int x, int y, int width, int height) {
         this.x = x;
@@ -77,5 +80,17 @@ public abstract class Widget {
 
     public Widget getParent() {
         return parent;
+    }
+
+    public void setStyle(Resource style) {
+        this.style = style;
+    }
+
+    public Resource getStyleRes() {
+        return style;
+    }
+
+    public GUIStyle getStyle() {
+        return GUIStyle.of(style);
     }
 }

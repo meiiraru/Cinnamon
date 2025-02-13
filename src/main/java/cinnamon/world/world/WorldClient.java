@@ -36,7 +36,11 @@ import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.living.LocalPlayer;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.entity.vehicle.Cart;
-import cinnamon.world.items.*;
+import cinnamon.world.items.BubbleGun;
+import cinnamon.world.items.Flashlight;
+import cinnamon.world.items.Item;
+import cinnamon.world.items.ItemRenderContext;
+import cinnamon.world.items.MagicWand;
 import cinnamon.world.items.weapons.CoilGun;
 import cinnamon.world.items.weapons.PotatoCannon;
 import cinnamon.world.items.weapons.RiceGun;
@@ -101,7 +105,7 @@ public class WorldClient extends World {
         hud.init();
 
         //tutorial toast
-        Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person"), client.font).length(200).type(Toast.ToastType.WORLD);
+        Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person")).length(200).type(Toast.ToastType.WORLD).style(Hud.HUD_STYLE);
 
         //sun light
         //addLight(sunLight);
@@ -684,7 +688,7 @@ public class WorldClient extends World {
 
             case GLFW_KEY_SLASH -> {
                 skyBox.type = SkyBox.Type.values()[(skyBox.type.ordinal() + 1) % SkyBox.Type.values().length];
-                Toast.addToast(Text.of(skyBox.type.name()), client.font).type(Toast.ToastType.WORLD);
+                Toast.addToast(Text.of(skyBox.type.name())).type(Toast.ToastType.WORLD);
             }
             case GLFW_KEY_COMMA -> selectedTerrain = (selectedTerrain + 1) % (TerrainRegistry.values().length);
             case GLFW_KEY_PERIOD -> selectedMaterial = Maths.modulo((selectedMaterial + (shift ? -1 : 1)), MaterialRegistry.values().length);

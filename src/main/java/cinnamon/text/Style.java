@@ -1,79 +1,82 @@
 package cinnamon.text;
 
+import cinnamon.gui.GUIStyle;
 import cinnamon.utils.Colors;
+import cinnamon.utils.Resource;
 
 public class Style {
 
-    public final static Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null, null, null);
+    public final static Style EMPTY = new Style();
 
-    private final Integer
+    private Integer
             color,
             backgroundColor,
             shadowColor,
-            outlineColor;
+            outlineColor,
 
-    private final Boolean
+            italicOffset,
+            boldOffset,
+            shadowOffset;
+
+    private Boolean
             bold,
             italic,
             underlined,
             obfuscated,
-            strikethrough;
+            strikethrough,
 
-    private final Boolean
             background,
             shadow,
             outlined;
 
-    private Style(
-            Integer color,
-            Integer backgroundColor,
-            Integer shadowColor,
-            Integer outlineColor,
-            Boolean bold,
-            Boolean italic,
-            Boolean underlined,
-            Boolean obfuscated,
-            Boolean strikethrough,
-            Boolean background,
-            Boolean shadow,
-            Boolean outlined
-    ) {
-        this.color = color;
-        this.backgroundColor = backgroundColor;
-        this.shadowColor = shadowColor;
-        this.outlineColor = outlineColor;
+    private Resource
+            guiStyle;
 
-        this.bold = bold;
-        this.italic = italic;
-        this.underlined = underlined;
-        this.obfuscated = obfuscated;
-        this.strikethrough = strikethrough;
+    private Style() {}
 
-        this.background = background;
-        this.shadow = shadow;
-        this.outlined = outlined;
+    private Style(Style o) {
+        this.color           = o.color;
+        this.backgroundColor = o.backgroundColor;
+        this.shadowColor     = o.shadowColor;
+        this.outlineColor    = o.outlineColor;
+        this.italicOffset    = o.italicOffset;
+        this.boldOffset      = o.boldOffset;
+        this.shadowOffset    = o.shadowOffset;
+        this.bold            = o.bold;
+        this.italic          = o.italic;
+        this.underlined      = o.underlined;
+        this.obfuscated      = o.obfuscated;
+        this.strikethrough   = o.strikethrough;
+        this.background      = o.background;
+        this.shadow          = o.shadow;
+        this.outlined        = o.outlined;
+        this.guiStyle        = o.guiStyle;
     }
 
     public Style applyParent(Style p) {
         if (this == EMPTY)
-            return p;
-        if (p == EMPTY)
+            return p == null ? this : p;
+        if (p == null || p == EMPTY)
             return this;
 
-        return new Style(
-                color           != null ? color            : p.color,
-                backgroundColor != null ? backgroundColor  : p.backgroundColor,
-                shadowColor     != null ? shadowColor      : p.shadowColor,
-                outlineColor    != null ? outlineColor     : p.outlineColor,
-                bold            != null ? bold             : p.bold,
-                italic          != null ? italic           : p.italic,
-                underlined      != null ? underlined       : p.underlined,
-                obfuscated      != null ? obfuscated       : p.obfuscated,
-                strikethrough   != null ? strikethrough    : p.strikethrough,
-                background      != null ? background       : p.background,
-                shadow          != null ? shadow           : p.shadow,
-                outlined        != null ? outlined         : p.outlined
-        );
+        Style s = new Style(p);
+        if (color           != null) s.color           = color;
+        if (backgroundColor != null) s.backgroundColor = backgroundColor;
+        if (shadowColor     != null) s.shadowColor     = shadowColor;
+        if (outlineColor    != null) s.outlineColor    = outlineColor;
+        if (italicOffset    != null) s.italicOffset    = italicOffset;
+        if (boldOffset      != null) s.boldOffset      = boldOffset;
+        if (shadowOffset    != null) s.shadowOffset    = shadowOffset;
+        if (bold            != null) s.bold            = bold;
+        if (italic          != null) s.italic          = italic;
+        if (underlined      != null) s.underlined      = underlined;
+        if (obfuscated      != null) s.obfuscated      = obfuscated;
+        if (strikethrough   != null) s.strikethrough   = strikethrough;
+        if (background      != null) s.background      = background;
+        if (shadow          != null) s.shadow          = shadow;
+        if (outlined        != null) s.outlined        = outlined;
+        if (guiStyle        != null) s.guiStyle        = guiStyle;
+        return s;
     }
 
     public Style color(Colors color) {
@@ -81,7 +84,9 @@ public class Style {
     }
 
     public Style color(Integer color) {
-        return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
+        Style s = new Style(this);
+        s.color = color;
+        return s;
     }
 
     public Style backgroundColor(Colors color) {
@@ -89,7 +94,9 @@ public class Style {
     }
 
     public Style backgroundColor(Integer backgroundColor) {
-        return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
+        Style s = new Style(this);
+        s.backgroundColor = backgroundColor;
+        return s;
     }
 
     public Style shadowColor(Colors color) {
@@ -97,7 +104,9 @@ public class Style {
     }
 
     public Style shadowColor(Integer shadowColor) {
-        return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
+        Style s = new Style(this);
+        s.shadowColor = shadowColor;
+        return s;
     }
 
     public Style outlineColor(Colors color) {
@@ -105,39 +114,81 @@ public class Style {
     }
 
     public Style outlineColor(Integer outlineColor) {
-        return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
+        Style s = new Style(this);
+        s.outlineColor = outlineColor;
+        return s;
+    }
+
+    public Style italicOffset(Integer italicOffset) {
+        Style s = new Style(this);
+        s.italicOffset = italicOffset;
+        return s;
+    }
+
+    public Style boldOffset(Integer boldOffset) {
+        Style s = new Style(this);
+        s.boldOffset = boldOffset;
+        return s;
+    }
+
+    public Style shadowOffset(Integer shadowOffset) {
+        Style s = new Style(this);
+        s.shadowOffset = shadowOffset;
+        return s;
     }
 
     public Style bold(Boolean bold) {
-        return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
+        Style s = new Style(this);
+        s.bold = bold;
+        return s;
     }
 
     public Style italic(Boolean italic) {
-        return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
+        Style s = new Style(this);
+        s.italic = italic;
+        return s;
     }
 
     public Style underlined(Boolean underlined) {
-        return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
+        Style s = new Style(this);
+        s.underlined = underlined;
+        return s;
     }
 
     public Style obfuscated(Boolean obfuscated) {
-        return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
+        Style s = new Style(this);
+        s.obfuscated = obfuscated;
+        return s;
     }
 
     public Style strikethrough(Boolean strikethrough) {
-        return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
+        Style s = new Style(this);
+        s.strikethrough = strikethrough;
+        return s;
     }
 
     public Style background(Boolean background) {
-        return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
+        Style s = new Style(this);
+        s.background = background;
+        return s;
     }
 
     public Style shadow(Boolean shadow) {
-        return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
+        Style s = new Style(this);
+        s.shadow = shadow;
+        return s;
     }
 
     public Style outlined(Boolean outlined) {
-        return new Style(color, backgroundColor, shadowColor, outlineColor, bold, italic, underlined, obfuscated, strikethrough, background, shadow, outlined);
+        Style s = new Style(this);
+        s.outlined = outlined;
+        return s;
+    }
+
+    public Style guiStyle(Resource guiStyle) {
+        Style s = new Style(this);
+        s.guiStyle = guiStyle;
+        return s;
     }
 
     public Style formatted(Formatting... formats) {
@@ -147,20 +198,32 @@ public class Style {
         return style;
     }
 
-    public Integer getColor() {
-        return color;
+    public int getColor() {
+        return color == null ? getGuiStyle().textColor : color;
     }
 
-    public Integer getBackgroundColor() {
-        return backgroundColor;
+    public int getBackgroundColor() {
+        return backgroundColor == null ? getGuiStyle().backgroundColor : backgroundColor;
     }
 
-    public Integer getShadowColor() {
-        return shadowColor;
+    public int getShadowColor() {
+        return shadowColor == null ? getGuiStyle().shadowColor : shadowColor;
     }
 
-    public Integer getOutlineColor() {
-        return outlineColor;
+    public int getOutlineColor() {
+        return outlineColor == null ? getGuiStyle().shadowColor : outlineColor;
+    }
+
+    public int getItalicOffset() {
+        return italicOffset == null ? getGuiStyle().italicOffset : italicOffset;
+    }
+
+    public int getBoldOffset() {
+        return boldOffset == null ? getGuiStyle().boldOffset : boldOffset;
+    }
+
+    public int getShadowOffset() {
+        return shadowOffset == null ? getGuiStyle().shadowOffset : shadowOffset;
     }
 
     public boolean isBold() {
@@ -193,5 +256,9 @@ public class Style {
 
     public boolean hasOutline() {
         return outlined == Boolean.TRUE;
+    }
+
+    public GUIStyle getGuiStyle() {
+        return guiStyle == null ? GUIStyle.getDefault() : GUIStyle.of(guiStyle);
     }
 }

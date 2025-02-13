@@ -7,13 +7,12 @@ import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.types.Button;
+import cinnamon.gui.widgets.types.Checkbox;
 import cinnamon.gui.widgets.types.ComboBox;
 import cinnamon.gui.widgets.types.Label;
-import cinnamon.gui.widgets.types.Checkbox;
 import cinnamon.model.GeometryHelper;
 import cinnamon.parsers.CurveToMesh;
 import cinnamon.parsers.ObjExporter;
-import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
@@ -54,7 +53,7 @@ public class CurvesScreen extends ParentedScreen {
         ContainerGrid grid = new ContainerGrid(4, 4, 4);
 
         //help label
-        Label help = new Label(0, 0, Text.of("\u2753 Help"), client.font);
+        Label help = new Label(0, 0, Text.of("\u2753 Help"));
         help.setTooltip(Text.of("""
                 Mouse 1
                     Add control point
@@ -119,14 +118,14 @@ public class CurvesScreen extends ParentedScreen {
         Button exportCurve = new Button(0, 0, 60, 12, Text.of("Export"), button -> {
             try {
                 ObjExporter.export("curve", CurveToMesh.generateMesh(curve, true, false));
-                Toast.addToast(Text.of("Curve exported!"), client.font);
+                Toast.addToast(Text.of("Curve exported!"));
                 if (!exported) {
                     exported = true;
                     grid.insertWidget(openFolder, button);
                 }
             } catch (Exception e) {
                 LOGGER.error("Failed to export curve", e);
-                Toast.addToast(Text.of(e.getMessage()), client.font).type(Toast.ToastType.ERROR);
+                Toast.addToast(Text.of(e.getMessage())).type(Toast.ToastType.ERROR);
             }
         });
         grid.addWidget(exportCurve);
@@ -137,7 +136,7 @@ public class CurvesScreen extends ParentedScreen {
                 IOUtils.openInExplorer(ObjExporter.EXPORT_FOLDER.resolve("curve"));
             } catch (Exception e) {
                 LOGGER.error("Failed to open folder", e);
-                Toast.addToast(Text.of(e.getMessage()), client.font).type(Toast.ToastType.ERROR);
+                Toast.addToast(Text.of(e.getMessage())).type(Toast.ToastType.ERROR);
             }
         });
 
@@ -153,13 +152,12 @@ public class CurvesScreen extends ParentedScreen {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         int size = points.size();
-        Font f = client.font;
 
         //draw text
         if (renderPointsText) {
             for (int i = 0; i < size; i++) {
                 Point p = points.get(i);
-                f.render(VertexConsumer.FONT, matrices, p.getX() + POINT_SIZE, p.getY() + POINT_SIZE, Text.of("p" + i));
+                Text.of("p" + i).render(VertexConsumer.FONT, matrices, p.getX() + POINT_SIZE, p.getY() + POINT_SIZE);
             }
         }
 
@@ -180,11 +178,11 @@ public class CurvesScreen extends ParentedScreen {
         renderCurve(matrices, curve.getInternalCurve(), 0xFF7272, 0xFFFF72);
 
         //draw texts
-        f.render(VertexConsumer.FONT, matrices, width / 2f, 4, Text.of("Curve quality: " + this.curve.getSteps() + "\nCurve Size: " + this.curve.getCurve().size()), Alignment.CENTER);
+        Text.of("Curve quality: " + this.curve.getSteps() + "\nCurve Size: " + this.curve.getCurve().size()).render(VertexConsumer.FONT, matrices, width / 2f, 4, Alignment.CENTER);
 
         if (focused instanceof Point selected) {
             Text t = Text.of("x" + selected.getX() + " y" + selected.getY());
-            f.render(VertexConsumer.FONT, matrices, 4, height - 4 - TextUtils.getHeight(t, f), t);
+            t.render(VertexConsumer.FONT, matrices, 4, height - 4 - TextUtils.getHeight(t));
         }
 
         //draw children

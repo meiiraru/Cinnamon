@@ -1,5 +1,12 @@
 package cinnamon.text;
 
+import cinnamon.render.Font;
+import cinnamon.render.MatrixStack;
+import cinnamon.render.batch.VertexConsumer;
+import cinnamon.utils.Alignment;
+import cinnamon.utils.TextUtils;
+import cinnamon.utils.UIHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -76,10 +83,6 @@ public class Text {
         return children;
     }
 
-    public boolean isEmpty() {
-        return text.isEmpty();
-    }
-
     public void visit(BiConsumer<String, Style> consumer, Style initialStyle) {
         Style s = style.applyParent(initialStyle);
         consumer.accept(text, s);
@@ -99,5 +102,25 @@ public class Text {
                 return true;
 
         return false;
+    }
+
+    public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y) {
+        render(consumer, matrices, x, y, Alignment.LEFT);
+    }
+
+    public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Alignment alignment) {
+        render(consumer, matrices, x, y, alignment, 1);
+    }
+
+    public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Alignment alignment, int indexScaling) {
+        List<Text> list = TextUtils.split(this, "\n");
+        Font font = style.getGuiStyle().font;
+
+        for (int i = 0; i < list.size(); i++) {
+            Text t = list.get(i);
+            int x2 = Math.round(alignment.getOffset(font.width(t)));
+            int y2 = Math.round(font.lineHeight * (i + 1) + font.descent + font.lineGap * i);
+            font.bake(consumer, matrices, t, x + x2, y + y2, indexScaling * UIHelper.DEPTH_OFFSET);
+        }
     }
 }

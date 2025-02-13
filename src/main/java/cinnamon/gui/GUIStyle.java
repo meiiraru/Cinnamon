@@ -1,89 +1,203 @@
 package cinnamon.gui;
 
 import cinnamon.Client;
+import cinnamon.render.Font;
 import cinnamon.utils.Colors;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static cinnamon.Client.LOGGER;
 
 public class GUIStyle {
 
-    private static final Resource RESOURCE = new Resource("data/gui/settings.json");
+    public static final Resource DEFAULT_STYLE = new Resource("data/gui_styles/default.json");
+    private static final Map<Resource, GUIStyle> STYLES_CACHE = new HashMap<>();
 
     //colors
-    public static int
+    public int
             textColor = Colors.WHITE.rgba,
             shadowColor = 0xFF161616,
             backgroundColor = 0x44000000,
             accentColor = Colors.PURPLE.rgba,
             selectedTextColor = 0xFF000000,
-            hintColor = Colors.LIGHT_BLACK.rgba,
-            mainMenuTextColor = 0xFFD3AB7A;
+            hintColor = Colors.LIGHT_BLACK.rgba;
 
     //offsets
-    public static int
+    public int
             pressYOffset = 0,
             shadowOffset = 1,
             boldOffset = 1,
             italicOffset = 3;
-    public static float
-            depthOffset = 0.01f;
 
     //speeds
-    public static int
+    public int
             doubleClickDelay = 10,
             blinkSpeed = 20;
 
     //text field
-    public static char
+    public char
             passwordChar = '\u2022';
-    public static int
+    public int
             cursorWidth = 1,
             insertWidth = 4;
 
     //context menu
-    public static int
+    public int
             dividerSize = 5;
 
     //tooltip
-    public static int
+    public int
             tooltipBorder = 4;
 
-    public static void init() {
-        LOGGER.info("Applying gui style settings");
-        JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(RESOURCE))).getAsJsonObject();
+    //textures
+    public Resource
+            buttonTex              = new Resource("textures/gui/widgets/button.png"),
+            checkboxTex            = new Resource("textures/gui/widgets/checkbox.png"),
+            circularProgressTex    = new Resource("textures/gui/widgets/circular_progress_bar.png"),
+            containerBackgroundTex = new Resource("textures/gui/widgets/container_background.png"),
+            contextMenuTex         = new Resource("textures/gui/widgets/context_menu.png"),
+            labelTex               = new Resource("textures/gui/widgets/label.png"),
+            loadingTex             = new Resource("textures/gui/widgets/loading.png"),
+            progressbarTex         = new Resource("textures/gui/widgets/progress_bar.png"),
+            scrollbarTex           = new Resource("textures/gui/widgets/scrollbar.png"),
+            sliderTex              = new Resource("textures/gui/widgets/slider.png"),
+            textFieldTex           = new Resource("textures/gui/widgets/text_field.png"),
+            toastTex               = new Resource("textures/gui/widgets/toast.png"),
+            tooltipTex             = new Resource("textures/gui/widgets/tooltip.png");
+
+    //font
+    public Resource
+            fontRes = new Resource("fonts/mayonnaise.ttf");
+    public int
+            fontSize = 8,
+            fontLineSpacing = 1;
+    public boolean
+            fontSmooth = false;
+
+    public Font
+            font;
+
+
+    // -- constructor -- //
+
+
+    private GUIStyle() {}
+
+
+    public static void free() {
+        STYLES_CACHE.clear();
+    }
+
+    public static GUIStyle getDefault() {
+        return of(DEFAULT_STYLE);
+    }
+
+    public static GUIStyle of(Resource res) {
+        if (STYLES_CACHE.containsKey(res))
+            return STYLES_CACHE.get(res);
+
+        GUIStyle style = createStyle(res);
+        style.font = Font.getFont(style.fontRes, style.fontSize, style.fontLineSpacing, style.fontSmooth);
+
+        STYLES_CACHE.put(res, style);
+        return style;
+    }
+
+    private static GUIStyle createStyle(Resource res) {
+        LOGGER.debug("Loading gui style for %s", res);
+        GUIStyle style = new GUIStyle();
+
         try {
-            textColor = Integer.parseUnsignedInt(json.get("text_color").getAsString(), 16);
-            shadowColor = Integer.parseUnsignedInt(json.get("shadow_color").getAsString(), 16);
-            backgroundColor = Integer.parseUnsignedInt(json.get("background_color").getAsString(), 16);
-            accentColor = Integer.parseUnsignedInt(json.get("accent_color").getAsString(), 16);
-            selectedTextColor = Integer.parseUnsignedInt(json.get("selected_text_color").getAsString(), 16);
-            hintColor = Integer.parseUnsignedInt(json.get("hint_color").getAsString(), 16);
-            mainMenuTextColor = Integer.parseUnsignedInt(json.get("main_menu_text_color").getAsString(), 16);
+            JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(res))).getAsJsonObject();
 
-            pressYOffset = json.get("pressed_y_offset").getAsInt();
-            shadowOffset = json.get("shadow_offset").getAsInt();
-            boldOffset = json.get("bold_offset").getAsInt();
-            italicOffset = json.get("italic_offset").getAsInt();
-            depthOffset = json.get("depth_offset").getAsFloat();
+            //parent
+            Resource parent = json.has("parent") ? new Resource(json.get("parent").getAsString()) : DEFAULT_STYLE;
+            GUIStyle p = parent.equals(res) ? style : of(parent);
 
-            doubleClickDelay = (int) ((json.get("double_click_delay").getAsInt() / 1000f) * Client.TPS);
-            blinkSpeed = (int) ((json.get("cursor_blink_speed").getAsInt() / 1000f) * Client.TPS);
+            //colors
+            Parser.COLOR.apply(json, "text_color",           o -> style.textColor         = (int) o, p.textColor);
+            Parser.COLOR.apply(json, "shadow_color",         o -> style.shadowColor       = (int) o, p.shadowColor);
+            Parser.COLOR.apply(json, "background_color",     o -> style.backgroundColor   = (int) o, p.backgroundColor);
+            Parser.COLOR.apply(json, "accent_color",         o -> style.accentColor       = (int) o, p.accentColor);
+            Parser.COLOR.apply(json, "selected_text_color",  o -> style.selectedTextColor = (int) o, p.selectedTextColor);
+            Parser.COLOR.apply(json, "hint_color",           o -> style.hintColor         = (int) o, p.hintColor);
 
-            passwordChar = json.get("password_char").getAsString().charAt(0);
-            cursorWidth = json.get("cursor_width").getAsInt();
-            insertWidth = json.get("cursor_insert_width").getAsInt();
+            //offsets
+            Parser.INT.apply(json, "pressed_y_offset", o -> style.pressYOffset = (int) o, p.pressYOffset);
+            Parser.INT.apply(json, "shadow_offset",    o -> style.shadowOffset = (int) o, p.shadowOffset);
+            Parser.INT.apply(json, "bold_offset",      o -> style.boldOffset   = (int) o, p.boldOffset);
+            Parser.INT.apply(json, "italic_offset",    o -> style.italicOffset = (int) o, p.italicOffset);
 
-            dividerSize = json.get("context_menu_divider_size").getAsInt();
+            //speeds
+            Parser.TIME.apply(json, "double_click_delay", o -> style.doubleClickDelay = (int) o, p.doubleClickDelay);
+            Parser.TIME.apply(json, "cursor_blink_speed", o -> style.blinkSpeed       = (int) o, p.blinkSpeed);
 
-            tooltipBorder = json.get("tooltip_border").getAsInt();
+            //text field
+            Parser.CHAR.apply(json, "password_char",       o -> style.passwordChar = (char) o, p.passwordChar);
+            Parser.INT.apply(json,  "cursor_width",        o -> style.cursorWidth  =  (int) o, p.cursorWidth);
+            Parser.INT.apply(json,  "cursor_insert_width", o -> style.insertWidth  =  (int) o, p.insertWidth);
+
+            //context menu
+            Parser.INT.apply(json, "context_menu_divider_size", o -> style.dividerSize = (int) o, p.dividerSize);
+
+            //tooltip
+            Parser.INT.apply(json, "tooltip_border", o -> style.tooltipBorder = (int) o, p.tooltipBorder);
+
+            //textures
+            Parser.RESOURCE.apply(json, "button_tex",               o -> style.buttonTex              = (Resource) o, p.buttonTex);
+            Parser.RESOURCE.apply(json, "checkbox_tex",             o -> style.checkboxTex            = (Resource) o, p.checkboxTex);
+            Parser.RESOURCE.apply(json, "circular_progress_tex",    o -> style.circularProgressTex    = (Resource) o, p.circularProgressTex);
+            Parser.RESOURCE.apply(json, "container_background_tex", o -> style.containerBackgroundTex = (Resource) o, p.containerBackgroundTex);
+            Parser.RESOURCE.apply(json, "context_menu_tex",         o -> style.contextMenuTex         = (Resource) o, p.contextMenuTex);
+            Parser.RESOURCE.apply(json, "label_tex",                o -> style.labelTex               = (Resource) o, p.labelTex);
+            Parser.RESOURCE.apply(json, "loading_tex",              o -> style.loadingTex             = (Resource) o, p.loadingTex);
+            Parser.RESOURCE.apply(json, "progress_bar_tex",         o -> style.progressbarTex         = (Resource) o, p.progressbarTex);
+            Parser.RESOURCE.apply(json, "scroll_bar_tex",           o -> style.scrollbarTex           = (Resource) o, p.scrollbarTex);
+            Parser.RESOURCE.apply(json, "slider_tex",               o -> style.sliderTex              = (Resource) o, p.sliderTex);
+            Parser.RESOURCE.apply(json, "text_field_tex",           o -> style.textFieldTex           = (Resource) o, p.textFieldTex);
+            Parser.RESOURCE.apply(json, "toast_tex",                o -> style.toastTex               = (Resource) o, p.toastTex);
+            Parser.RESOURCE.apply(json, "tooltip_tex",              o -> style.tooltipTex             = (Resource) o, p.tooltipTex);
+
+            //font
+            Parser.RESOURCE.apply(json, "font",              o -> style.fontRes         = (Resource) o, p.fontRes);
+            Parser.INT.apply(json,      "font_size",         o -> style.fontSize        =      (int) o, p.fontSize);
+            Parser.INT.apply(json,      "font_line_spacing", o -> style.fontLineSpacing =      (int) o, p.fontLineSpacing);
+            Parser.BOOLEAN.apply(json,  "font_smooth",       o -> style.fontSmooth      =  (boolean) o, p.fontSmooth);
         } catch (Exception e) {
-            LOGGER.error("Failed to load GUI style settings", e);
+            LOGGER.error("Failed to load gui style for %s", res, e);
+        }
+
+        return style;
+    }
+
+    private enum Parser {
+        INT(JsonElement::getAsInt),
+        COLOR(JsonElement -> Integer.parseUnsignedInt(JsonElement.getAsString(), 16)),
+        STRING(JsonElement::getAsString),
+        FLOAT(JsonElement::getAsFloat),
+        TIME((JsonElement e) -> (int) ((e.getAsInt() / 1000f) * Client.TPS)),
+        CHAR(JsonElement -> JsonElement.getAsString().charAt(0)),
+        RESOURCE(JsonElement -> new Resource(JsonElement.getAsString())),
+        BOOLEAN(JsonElement::getAsBoolean);
+
+        private final Function<JsonElement, Object> func;
+
+        Parser(Function<JsonElement, Object> func) {
+            this.func = func;
+        }
+
+        public void apply(JsonObject json, String key, Consumer<Object> consumer, Object defaultValue) {
+            JsonElement element = json.get(key);
+            consumer.accept(element != null ? func.apply(element) : defaultValue);
         }
     }
 }

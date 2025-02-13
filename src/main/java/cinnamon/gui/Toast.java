@@ -1,9 +1,9 @@
 package cinnamon.gui;
 
 import cinnamon.Client;
-import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
 
@@ -17,20 +17,19 @@ public class Toast {
 
     // -- properties -- //
 
-    public static final int DEFAULT_LENGTH = 60;
+    public static final int DEFAULT_LENGTH = 3 * Client.TPS;
     protected static final int
             ANIM = 5,
             PADDING = 6,
             TOASTS_LIMIT = 5;
-    private static final Resource TEXTURE = new Resource("textures/gui/widgets/toast.png");
     private static final List<Toast> TOASTS = new ArrayList<>();
 
 
     // -- toast functions -- //
 
 
-    public static Toast addToast(Text text, Font font) {
-        Toast toast = new Toast(text, font);
+    public static Toast addToast(Text text) {
+        Toast toast = new Toast(text);
         TOASTS.add(toast);
         return toast;
     }
@@ -94,21 +93,19 @@ public class Toast {
 
 
     private final Text text;
-    private final Font font;
-    private final int width, height;
+    private int width, height;
     private long addedTime = -1;
 
     private int length;
     private ToastType type;
     private Integer color;
+    private Resource style;
 
-    protected Toast(Text text, Font font) {
+    protected Toast(Text text) {
         this.text = text;
-        this.font = font;
-        this.width = TextUtils.getWidth(text, font);
-        this.height = TextUtils.getHeight(text, font);
         length(DEFAULT_LENGTH);
         type(ToastType.INFO);
+        style(GUIStyle.DEFAULT_STYLE);
     }
 
     protected boolean render(MatrixStack matrices, int width, int height, float delta) {
@@ -134,16 +131,17 @@ public class Toast {
         int bgHeight = this.height + PADDING;
         int pos = Math.round(-bgWidth / 2f);
 
-        int color = this.color == null ? GUIStyle.accentColor : this.color;
+        GUIStyle style = GUIStyle.of(this.style);
+        int color = this.color == null ? style.accentColor : this.color;
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE,
+                VertexConsumer.GUI, matrices, style.toastTex,
                 pos, 0f, bgWidth, bgHeight,
                 16f, 0f,
                 16, 16, 48, 16,
                 color
         );
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE,
+                VertexConsumer.GUI, matrices, style.toastTex,
                 pos, 0f, bgWidth, bgHeight,
                 32f, 0f,
                 16, 16, 48, 16,
@@ -151,7 +149,7 @@ public class Toast {
         );
 
         //render text
-        font.render(VertexConsumer.FONT, matrices, 0f, PADDING / 2f, text, Alignment.CENTER);
+        Text.empty().withStyle(Style.EMPTY.guiStyle(this.style)).append(text).render(VertexConsumer.FONT, matrices, 0f, PADDING / 2f, Alignment.CENTER);
 
         //return
         matrices.translate(0f, bgHeight, 0f);
@@ -173,6 +171,14 @@ public class Toast {
 
     public Toast color(Integer color) {
         this.color = color;
+        return this;
+    }
+
+    public Toast style(Resource style) {
+        this.style = style;
+        Text t = Text.empty().withStyle(Style.EMPTY.guiStyle(style)).append(text);
+        this.width = TextUtils.getWidth(t);
+        this.height = TextUtils.getHeight(t);
         return this;
     }
 }

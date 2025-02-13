@@ -115,9 +115,9 @@ public abstract class Entity extends WorldObject {
         matrices.translate(0f, aabb.getHeight() + 0.15f, 0f);
         c.camera.billboard(matrices);
         matrices.peek().pos().scale(-s);
-        matrices.translate(0f, -TextUtils.getHeight(text, c.font), 0f);
+        matrices.translate(0f, -TextUtils.getHeight(text), 0f);
 
-        c.font.render(VertexConsumer.WORLD_FONT, matrices, 0, 0, text, Alignment.CENTER, 50);
+        text.render(VertexConsumer.WORLD_FONT, matrices, 0, 0, Alignment.CENTER, 50);
     }
 
     protected Text getHeadText() {

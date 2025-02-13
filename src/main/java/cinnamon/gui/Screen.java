@@ -1,11 +1,14 @@
 package cinnamon.gui;
 
 import cinnamon.Client;
-import cinnamon.gui.widgets.*;
+import cinnamon.gui.widgets.Container;
+import cinnamon.gui.widgets.GUIListener;
+import cinnamon.gui.widgets.PopupWidget;
+import cinnamon.gui.widgets.SelectableWidget;
+import cinnamon.gui.widgets.Widget;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.SimpleGeometry;
 import cinnamon.model.Vertex;
-import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
@@ -30,7 +33,6 @@ public abstract class Screen {
 
     //screen-wise fields
     protected Client client;
-    protected Font font;
     protected int width, height;
 
     //overlays
@@ -44,7 +46,6 @@ public abstract class Screen {
     //init from client
     public final void init(Client client, int width, int height) {
         this.client = client;
-        this.font = client.font;
         this.width = width;
         this.height = height;
         this.rebuild();
@@ -197,7 +198,7 @@ public abstract class Screen {
 
     protected void postRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         if (tooltip != null) {
-            tooltip.renderTooltip(matrices, client.font);
+            tooltip.renderTooltip(matrices);
             tooltip = null;
         }
     }

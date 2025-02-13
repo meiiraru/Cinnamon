@@ -1,0 +1,4 @@
+{
+  "parent": "data/gui_styles/default.json",
+  "progress_bar_tex": "textures/gui/hud/progress_bar.png"
+}

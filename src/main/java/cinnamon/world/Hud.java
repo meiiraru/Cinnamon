@@ -6,7 +6,6 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
-import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
@@ -40,18 +39,19 @@ public class Hud {
             HOTBAR = new Resource("textures/gui/hud/hotbar.png"),
             VIGNETTE = new Resource("textures/gui/hud/vignette.png"),
             HIT_DIRECTION = new Resource("textures/gui/hud/hit_direction.png"),
-            PROGRESS_BAR = new Resource("textures/gui/hud/progress_bar.png");
+            HUD_STYLE = new Resource("data/gui_styles/hud.json"),
+            DEBUG_STYLE = new Resource("data/gui_styles/debug.json");
 
     private ProgressBar health, itemCooldown;
 
     public void init() {
         health = new ProgressBar(0, 0, 60, 8, 1f);
         health.setColor(Colors.RED);
-        health.setTexture(PROGRESS_BAR);
+        health.setStyle(HUD_STYLE);
 
         itemCooldown = new ProgressBar(0, 0, 60, 8, 0f);
         itemCooldown.setColor(Colors.WHITE);
-        itemCooldown.setTexture(PROGRESS_BAR);
+        itemCooldown.setStyle(HUD_STYLE);
     }
 
     public void tick() {}
@@ -95,27 +95,26 @@ public class Hud {
 
     private void drawHealth(MatrixStack matrices, Player player, float delta) {
         Window window = Client.getInstance().window;
-        Font font = Client.getInstance().font;
 
         //health text
-        Text text = Text.of(player.getHealth() + " ").withStyle(Style.EMPTY.outlined(true))
+        Text text = Text.of(player.getHealth() + " ").withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE))
                 .append(Text.of("\u2764").withStyle(Style.EMPTY.color(Colors.RED)));
 
         //transform matrices
         matrices.push();
-        matrices.translate(12, window.scaledHeight - TextUtils.getHeight(text, font) - 12, 0f);
+        matrices.translate(12, window.scaledHeight - TextUtils.getHeight(text) - 12, 0f);
         matrices.push();
 
         matrices.rotate(Rotation.Y.rotationDeg(-20f));
         matrices.rotate(Rotation.Z.rotationDeg(-10f));
 
         //draw text
-        font.render(VertexConsumer.FONT, matrices, 0f, 0f, text);
+        text.render(VertexConsumer.FONT, matrices, 0f, 0f);
 
         //health progress bar
         float hp = player.getHealthProgress();
         health.setProgress(hp);
-        health.setY(TextUtils.getHeight(text, font));
+        health.setY(TextUtils.getHeight(text));
         health.render(matrices, 0, 0, delta);
 
         matrices.pop();
@@ -144,12 +143,11 @@ public class Hud {
             return;
 
         Window window = Client.getInstance().window;
-        Font font = Client.getInstance().font;
         boolean onCooldown = item instanceof CooldownItem ci && ci.isOnCooldown();
 
         //item name
-        Text text = Text.of(item.getId()).withStyle(Style.EMPTY.outlined(true));
-        int y = TextUtils.getHeight(text, font);
+        Text text = Text.of(item.getId()).withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE));
+        int y = TextUtils.getHeight(text);
 
         //item count
         if (!onCooldown) {
@@ -169,7 +167,7 @@ public class Hud {
         matrices.rotate(Rotation.Z.rotationDeg(10f));
 
         //draw text
-        font.render(VertexConsumer.FONT, matrices, 0f, 0f, text, Alignment.RIGHT);
+        text.render(VertexConsumer.FONT, matrices, 0f, 0f, Alignment.RIGHT);
 
         //draw progressbar
         if (onCooldown) {
@@ -187,8 +185,7 @@ public class Hud {
         matrices.push();
         matrices.translate(Client.getInstance().window.scaledWidth - 12, 12, 0f);
 
-        Font font = Client.getInstance().font;
-        Text text = Text.empty().withStyle(Style.EMPTY.outlined(true));
+        Text text = Text.empty().withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE));
 
         for (Effect effect : player.getActiveEffects()) {
             //name
@@ -210,7 +207,7 @@ public class Hud {
 
         //render
         if (!text.asString().equals("\n"))
-            font.render(VertexConsumer.FONT, matrices, 0f, 0f, text, Alignment.RIGHT);
+            text.render(VertexConsumer.FONT, matrices, 0f, 0f, Alignment.RIGHT);
 
         matrices.pop();
     }
@@ -322,7 +319,7 @@ public class Hud {
 
         //render name
         String str = (material.name() + " " + registry.name()).replaceAll("_", " ");
-        c.font.render(VertexConsumer.FONT, matrices, ww.scaledWidth * 0.5f, 16 + 4 + 4, Text.of(str).withStyle(Style.EMPTY.shadow(true)), Alignment.CENTER);
+        Text.of(str).withStyle(Style.EMPTY.shadow(true).guiStyle(HUD_STYLE)).render(VertexConsumer.FONT, matrices, ww.scaledWidth * 0.5f, 16 + 4 + 4, Alignment.CENTER);
     }
 
     private void drawCrosshair(MatrixStack matrices) {
@@ -342,18 +339,18 @@ public class Hud {
 
     public static void renderDebug(MatrixStack matrices) {
         Client c = Client.getInstance();
-        Style style = Style.EMPTY.background(true).backgroundColor(0x88000000);
+        Style style = Style.EMPTY.background(true).guiStyle(DEBUG_STYLE);
 
         //render debug text
         if (c.debug) {
-            c.font.render(VertexConsumer.FONT, matrices, 4, 4, TextUtils.parseColorFormatting(Text.of(debugLeftText(c))).withStyle(style));
-            c.font.render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, TextUtils.parseColorFormatting(Text.of(debugRightText(c))).withStyle(style), Alignment.RIGHT);
+            TextUtils.parseColorFormatting(Text.of(debugLeftText(c))).withStyle(style).render(VertexConsumer.FONT, matrices, 4, 4);
+            TextUtils.parseColorFormatting(Text.of(debugRightText(c))).withStyle(style).render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, Alignment.RIGHT);
 
             //render crosshair
             renderDebugCrosshair(matrices);
         } else if (Settings.showFPS.get() && (c.world == null || !c.world.hideHUD())) {
             //Style style = Style.EMPTY.shadow(true);
-            c.font.render(VertexConsumer.FONT, matrices, 4, 4, Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(style));
+            Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(style).render(VertexConsumer.FONT, matrices, 4, 4);
         }
     }
 

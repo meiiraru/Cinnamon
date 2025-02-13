@@ -1,6 +1,5 @@
 package cinnamon.world.items;
 
-import cinnamon.Client;
 import cinnamon.gui.Toast;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.ItemModelRegistry;
@@ -99,7 +98,7 @@ public class CurveMaker extends CooldownItem {
             curve.clear();
         } catch (Exception e) {
             LOGGER.error("", e);
-            Toast.addToast(Text.of(e.getMessage()), Client.getInstance().font).type(Toast.ToastType.ERROR);
+            Toast.addToast(Text.of(e.getMessage())).type(Toast.ToastType.ERROR);
         }
 
         setUseCooldown();

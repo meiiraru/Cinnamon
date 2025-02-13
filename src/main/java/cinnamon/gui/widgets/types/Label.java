@@ -2,9 +2,9 @@ package cinnamon.gui.widgets.types;
 
 import cinnamon.gui.widgets.AlignedWidget;
 import cinnamon.gui.widgets.SelectableWidget;
-import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Resource;
@@ -13,16 +13,12 @@ import cinnamon.utils.UIHelper;
 
 public class Label extends SelectableWidget implements AlignedWidget {
 
-    private static final Resource HOVER_TEXTURE = new Resource("textures/gui/widgets/label.png");
-
-    private final Font font;
     private Text text;
     private Alignment alignment = Alignment.LEFT;
 
-    public Label(int x, int y, Text text, Font font) {
-        super(x, y, TextUtils.getWidth(text, font), TextUtils.getHeight(text, font));
-        this.text = text;
-        this.font = font;
+    public Label(int x, int y, Text text) {
+        super(x, y, 0, 0);
+        this.setText(text);
         this.setSelectable(false);
     }
 
@@ -35,7 +31,7 @@ public class Label extends SelectableWidget implements AlignedWidget {
 
     protected void renderHover(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, HOVER_TEXTURE,
+                VertexConsumer.GUI, matrices, getStyle().labelTex,
                 getAlignedX() - 1, getY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,
@@ -45,7 +41,7 @@ public class Label extends SelectableWidget implements AlignedWidget {
     }
 
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        font.render(VertexConsumer.FONT, matrices, getX(), getY(), text, alignment);
+        Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(text).render(VertexConsumer.FONT, matrices, getX(), getY(), alignment);
     }
 
     public Text getText() {
@@ -54,8 +50,13 @@ public class Label extends SelectableWidget implements AlignedWidget {
 
     public void setText(Text text) {
         this.text = text;
-        setWidth(TextUtils.getWidth(text, font));
-        setHeight(TextUtils.getHeight(text, font));
+        updateDimensions();
+    }
+
+    private void updateDimensions() {
+        Text text = Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(this.text);
+        setWidth(TextUtils.getWidth(text));
+        setHeight(TextUtils.getHeight(text));
     }
 
     @Override
@@ -66,5 +67,11 @@ public class Label extends SelectableWidget implements AlignedWidget {
     @Override
     public int getAlignedX() {
         return getX() + Math.round(alignment.getOffset(getWidth()));
+    }
+
+    @Override
+    public void setStyle(Resource style) {
+        super.setStyle(style);
+        updateDimensions();
     }
 }

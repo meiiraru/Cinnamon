@@ -1,15 +1,13 @@
 package cinnamon.gui.widgets.types;
 
-import cinnamon.Client;
-import cinnamon.gui.GUIStyle;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.PopupWidget;
 import cinnamon.gui.widgets.Widget;
 import cinnamon.gui.widgets.WidgetList;
 import cinnamon.model.GeometryHelper;
-import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
@@ -21,8 +19,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class ContextMenu extends PopupWidget {
-
-    private static final Resource TEXTURE = new Resource("textures/gui/widgets/context_menu.png");
 
     private final WidgetList list = new WidgetList(0, 0, 0, 0, 0);
     private final List<ContextButton> actions = new ArrayList<>();
@@ -80,7 +76,7 @@ public class ContextMenu extends PopupWidget {
     }
 
     public ContextMenu addDivider() {
-        addAction(new ContextDivider(totalWidth, GUIStyle.dividerSize, widgets.size()));
+        addAction(new ContextDivider(totalWidth, getStyle().dividerSize, widgets.size()));
         return this;
     }
 
@@ -108,7 +104,7 @@ public class ContextMenu extends PopupWidget {
     }
 
     private int getWidthForText(Text name) {
-        return Math.max(TextUtils.getWidth(name, Client.getInstance().font) + 4, minWidth - 2);
+        return Math.max(TextUtils.getWidth(name) + 4, minWidth - 2);
     }
 
     public Button getAction(int i) {
@@ -155,7 +151,7 @@ public class ContextMenu extends PopupWidget {
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //render background
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE,
+                VertexConsumer.GUI, matrices, getStyle().contextMenuTex,
                 getX() - 1, getY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,
@@ -164,13 +160,13 @@ public class ContextMenu extends PopupWidget {
         );
     }
 
-    private static void renderBackground(MatrixStack matrices, int x, int y, int width, int height, boolean hover, int index) {
+    private static void renderBackground(MatrixStack matrices, int x, int y, int width, int height, boolean hover, int index, Resource texture) {
         //bg
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, x, y, width, height, (index % 2) * 16, 16f, 16, 16, 32, 35), TEXTURE);
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, x, y, width, height, (index % 2) * 16, 16f, 16, 16, 32, 35), texture);
 
         //hover
         if (hover) UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE,
+                VertexConsumer.GUI, matrices, texture,
                 x, y,
                 width, height,
                 16f, 0f,
@@ -199,16 +195,15 @@ public class ContextMenu extends PopupWidget {
 
         @Override
         protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), isHoveredOrFocused(), index);
+            ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), isHoveredOrFocused(), index, getStyle().contextMenuTex);
         }
 
         @Override
         protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
             Text text = getFormattedMessage();
-            Font f = Client.getInstance().font;
             int x = getX() + 2;
-            int y = getCenterY() - TextUtils.getHeight(text, f) / 2;
-            f.render(VertexConsumer.FONT, matrices, x, y, text);
+            int y = getCenterY() - TextUtils.getHeight(text) / 2;
+            text.render(VertexConsumer.FONT, matrices, x, y);
         }
 
         @Override
@@ -236,10 +231,10 @@ public class ContextMenu extends PopupWidget {
 
         @Override
         public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), false, index);
+            ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), false, index, getStyle().contextMenuTex);
 
             UIHelper.horizontalQuad(
-                    VertexConsumer.GUI, matrices, TEXTURE,
+                    VertexConsumer.GUI, matrices, getStyle().contextMenuTex,
                     getX() + 1, Math.round(getCenterY() - 1.5f),
                     getWidth() - 2, 3,
                     0f, 32f,
@@ -291,15 +286,15 @@ public class ContextMenu extends PopupWidget {
             super.renderText(matrices, mouseX, mouseY, delta);
 
             //render arrow
-            Font f = Client.getInstance().font;
-            int x = getX() + getWidth() - 2 - TextUtils.getWidth(ARROW, f);
-            int y = getCenterY() - TextUtils.getHeight(message, f) / 2;
+            Text arrow = Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(ARROW);
+            int x = getX() + getWidth() - 2 - TextUtils.getWidth(arrow);
+            int y = getCenterY() - TextUtils.getHeight(getFormattedMessage()) / 2;
 
             //arrow animation :3
             float d = UIHelper.tickDelta(0.6f);
             arrowOffset = Maths.lerp(arrowOffset, isHoveredOrFocused() ? 2f : 0f, d);
 
-            f.render(VertexConsumer.FONT, matrices, x + arrowOffset, y, ARROW);
+            arrow.render(VertexConsumer.FONT, matrices, x + arrowOffset, y);
         }
 
         @Override
@@ -315,6 +310,12 @@ public class ContextMenu extends PopupWidget {
         @Override
         public GUIListener mousePress(int button, int action, int mods) {
             return null;
+        }
+
+        @Override
+        public void setStyle(Resource style) {
+            super.setStyle(style);
+            subContext.setStyle(style);
         }
     }
 }

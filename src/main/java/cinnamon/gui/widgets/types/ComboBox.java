@@ -1,10 +1,7 @@
 package cinnamon.gui.widgets.types;
 
-import cinnamon.Client;
-import cinnamon.gui.GUIStyle;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.PopupWidget;
-import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
@@ -53,19 +50,17 @@ public class ComboBox extends Button {
 
     @Override
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        Font f = Client.getInstance().font;
-
         //render arrow
-        Text text = Text.of(isExpanded() ? "\u23F6" : "\u23F7");
-        int width = TextUtils.getWidth(text, f);
+        Text text = Text.of(isExpanded() ? "\u23F6" : "\u23F7").withStyle(Style.EMPTY.guiStyle(getStyleRes()));
+        int width = TextUtils.getWidth(text);
         int x = getX() + getWidth() - width - 2;
-        int y = getCenterY() - TextUtils.getHeight(text, f) / 2 + (isHolding() ? GUIStyle.pressYOffset : 0);
-        f.render(VertexConsumer.FONT, matrices, x, y, text);
+        int y = getCenterY() - TextUtils.getHeight(text) / 2 + (isHolding() ? getStyle().pressYOffset : 0);
+        text.render(VertexConsumer.FONT, matrices, x, y);
 
         //render selected text
-        text = TextUtils.addEllipsis(selectedText, f, getWidth() - width - 4);
+        text = TextUtils.addEllipsis(Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(selectedText), getWidth() - width - 4);
         x = getX() + 2;
-        f.render(VertexConsumer.FONT, matrices, x, y, text);
+        text.render(VertexConsumer.FONT, matrices, x, y);
     }
 
     public boolean isExpanded() {
@@ -108,13 +103,13 @@ public class ComboBox extends Button {
         int index = indexes.size();
         indexes.add(name);
 
+        super.setPopup(contextMenu);
         contextMenu.addAction(name, tooltip, button -> {
             select(index);
             if (action != null)
                 action.accept(button);
         });
 
-        super.setPopup(contextMenu);
         return this;
     }
 
@@ -148,7 +143,7 @@ public class ComboBox extends Button {
 
             //selected entry
             if (i == selected)
-                text = Text.empty().withStyle(Style.EMPTY.color(GUIStyle.accentColor)).append(text);
+                text = Text.empty().withStyle(Style.EMPTY.color(getStyle().accentColor)).append(text);
 
             //apply text
             contextMenu.getAction(i).setMessage(text);

@@ -1,5 +1,6 @@
 package cinnamon.gui.screens;
 
+import cinnamon.gui.GUIStyle;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
@@ -29,14 +30,14 @@ public class MultiplayerJoinScreen extends ParentedScreen {
         int y = height / 2;
 
         //name field
-        nameField = new TextField(x - 50, y - 15 - 4 - (int) font.lineHeight - 4 - 15, 100, 15, font);
+        nameField = new TextField(x - 50, y - 15 - 4 - (int) GUIStyle.getDefault().font.lineHeight - 4 - 15, 100, 15);
         nameField.setListener(string -> name = string);
         nameField.setHintText("name...");
         nameField.setText(name);
         addWidget(nameField);
 
         //ip field
-        ipField = new TextField(x - 50, y - 15, 100, 15, font);
+        ipField = new TextField(x - 50, y - 15, 100, 15);
         ipField.setListener(string -> ip = string);
         ipField.setHintText("ip...");
         ipField.setText(ip);
@@ -65,17 +66,17 @@ public class MultiplayerJoinScreen extends ParentedScreen {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //name text
-        font.render(VertexConsumer.FONT, matrices, width / 2f,  nameField.getY() - 4 - font.lineHeight, Text.of("Enter your name:"), Alignment.CENTER);
+        Text.of("Enter your name:").render(VertexConsumer.FONT, matrices, width / 2f,  nameField.getY() - 4 - GUIStyle.getDefault().font.lineHeight, Alignment.CENTER);
 
         //ip text
-        font.render(VertexConsumer.FONT, matrices, width / 2f, ipField.getY() - 4 - font.lineHeight, Text.of("Enter server IP:"), Alignment.CENTER);
+        Text.of("Enter server IP:").render(VertexConsumer.FONT, matrices, width / 2f, ipField.getY() - 4 - GUIStyle.getDefault().font.lineHeight, Alignment.CENTER);
 
         super.render(matrices, mouseX, mouseY, delta);
     }
 
     private void connect(String name, String ip) {
         if (name.isBlank()) {
-            Toast.addToast(Text.of("Invalid name"), client.font);
+            Toast.addToast(Text.of("Invalid name"));
             return;
         }
 
@@ -85,7 +86,7 @@ public class MultiplayerJoinScreen extends ParentedScreen {
             WorldClient world = new WorldClient();
             world.init();
         } else {
-            Toast.addToast(Text.of("Unable to connect to server"), client.font);
+            Toast.addToast(Text.of("Unable to connect to server"));
         }
     }
 }

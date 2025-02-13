@@ -76,13 +76,13 @@ public class TextUtils {
         return substring(text, start, end);
     }
 
-    public static Text addEllipsis(Text text, Font font, int width) {
-        if (getWidth(text, font) <= width)
+    public static Text addEllipsis(Text text, int width) {
+        if (getWidth(text) <= width)
             return text;
 
-        int ellipsisWidth = getWidth(ELLIPSIS, font);
+        int ellipsisWidth = getWidth(ELLIPSIS);
 
-        Text clamped = font.clampToWidth(text, width - ellipsisWidth);
+        Text clamped = text.getStyle().getGuiStyle().font.clampToWidth(text, width - ellipsisWidth);
         clamped.append(ELLIPSIS);
 
         return clamped;
@@ -166,17 +166,19 @@ public class TextUtils {
         return result;
     }
 
-    public static int getWidth(Text text, Font font) {
+    public static int getWidth(Text text) {
         List<Text> split = split(text, "\n");
         float width = 0f;
+        Font f = text.getStyle().getGuiStyle().font;
         for (Text t : split)
-            width = Math.max(width, font.width(t));
+            width = Math.max(width, f.width(t));
 
         return (int) width;
     }
 
-    public static int getHeight(Text text, Font font) {
+    public static int getHeight(Text text) {
         String[] split = text.asString().split("\n", -1);
-        return (int) (font.lineHeight * split.length);
+        Font f = text.getStyle().getGuiStyle().font;
+        return (int) (f.lineHeight * split.length + f.lineGap * (split.length - 1));
     }
 }

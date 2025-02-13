@@ -10,7 +10,6 @@ import cinnamon.gui.screens.world.PauseScreen;
 //import cinnamon.networking.ServerConnection;
 import cinnamon.logger.Logger;
 import cinnamon.render.Camera;
-import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
@@ -19,7 +18,6 @@ import cinnamon.render.shader.PostProcess;
 import cinnamon.settings.Settings;
 import cinnamon.sound.SoundManager;
 import cinnamon.text.Text;
-import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
 import cinnamon.utils.Timer;
 import cinnamon.world.Hud;
@@ -60,7 +58,6 @@ public class Client {
     //objects
     public Window window;
     public Camera camera;
-    public Font font;
     public Screen screen;
     public WorldClient world;
 
@@ -72,7 +69,6 @@ public class Client {
         this.windowResize(window.width, window.height);
         this.camera = new Camera();
         this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight, Settings.fov.get());
-        this.font = new Font(new Resource("fonts/mayonnaise.ttf"), 8);
         events.registerClientEvents();
         events.runEvents(EventType.RESOURCE_INIT);
         events.runEvents(EventType.CLIENT_INIT);
@@ -82,7 +78,6 @@ public class Client {
     public void close() {
         //disconnect();
         if (screen != null) screen.removed();
-        this.font.free();
         SoundManager.free();
         events.runEvents(EventType.RESOURCE_FREE);
     }
@@ -231,7 +226,7 @@ public class Client {
             events.runEvents(EventType.RESOURCE_FREE);
             events.runEvents(EventType.RESOURCE_INIT);
             Toast.clearAll();
-            Toast.addToast(Text.of("Reloaded assets"), font);
+            Toast.addToast(Text.of("Reloaded assets"));
         });
     }
 

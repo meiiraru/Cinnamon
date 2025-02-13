@@ -1,18 +1,19 @@
 package cinnamon.gui.widgets.types;
 
-import cinnamon.Client;
-import cinnamon.gui.GUIStyle;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.model.GeometryHelper;
-import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundManager;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.*;
+import cinnamon.utils.Alignment;
+import cinnamon.utils.Colors;
+import cinnamon.utils.Resource;
+import cinnamon.utils.TextUtils;
+import cinnamon.utils.UIHelper;
 
 import java.util.function.Consumer;
 
@@ -20,7 +21,6 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Button extends SelectableWidget {
 
-    private static final Resource TEXTURE = new Resource("textures/gui/widgets/button.png");
     private static final Resource CLICK_SOUND = new Resource("sounds/ui/click.ogg");
 
     private boolean silent;
@@ -53,7 +53,7 @@ public class Button extends SelectableWidget {
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE,
+                VertexConsumer.GUI, matrices, getStyle().buttonTex,
                 getX(), getY(),
                 getWidth(), getHeight(),
                 getState() * 16f, 0f,
@@ -64,10 +64,9 @@ public class Button extends SelectableWidget {
 
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         Text text = getFormattedMessage();
-        Font f = Client.getInstance().font;
         int x = getCenterX();
-        int y = getCenterY() - TextUtils.getHeight(text, f) / 2 + (isHolding() ? GUIStyle.pressYOffset : 0);
-        f.render(VertexConsumer.FONT, matrices, x, y, text, Alignment.CENTER);
+        int y = getCenterY() - TextUtils.getHeight(text) / 2 + (isHolding() ? getStyle().pressYOffset : 0);
+        text.render(VertexConsumer.FONT, matrices, x, y, Alignment.CENTER);
     }
 
     protected void renderImage(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -174,10 +173,12 @@ public class Button extends SelectableWidget {
         if (message == null)
             return null;
 
-        if (getState() == 0)
-            return Text.empty().withStyle(Style.EMPTY.color(Colors.DARK_GRAY)).append(message);
+        Style style = Style.EMPTY.guiStyle(getStyleRes());
 
-        return message;
+        if (getState() == 0)
+            style = style.color(Colors.DARK_GRAY);
+
+        return Text.empty().withStyle(style).append(message);
     }
 
     public void setMessage(Text message) {

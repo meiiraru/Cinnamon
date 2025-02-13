@@ -1,22 +1,17 @@
 package cinnamon.gui.widgets.types;
 
-import cinnamon.gui.GUIStyle;
 import cinnamon.gui.widgets.Widget;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
-import cinnamon.utils.Resource;
 import cinnamon.utils.UIHelper;
 
 public class ProgressBar extends Widget {
 
-    public static final Resource TEXTURE = new Resource("textures/gui/widgets/progress_bar.png");
-
     protected float progress;
     protected float animationValue;
     protected Integer color;
-    protected Resource texture = TEXTURE;
 
     public ProgressBar(int x, int y, int width, int height, float initialValue) {
         super(x, y, width, height);
@@ -30,7 +25,7 @@ public class ProgressBar extends Widget {
 
         //draw background
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, texture,
+                VertexConsumer.GUI, matrices, getStyle().progressbarTex,
                 getX(), getY(),
                 getWidth(), getHeight(),
                 0f, 0f,
@@ -40,15 +35,15 @@ public class ProgressBar extends Widget {
 
         //draw progress
         matrices.push();
-        matrices.translate(0, 0, GUIStyle.depthOffset);
+        matrices.translate(0, 0, UIHelper.DEPTH_OFFSET);
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, texture,
+                VertexConsumer.GUI, matrices, getStyle().progressbarTex,
                 getX(), getY(),
                 Math.round(getWidth() * getAnimationValue()), getHeight(),
                 16f, 0f,
                 16, 16,
                 32, 16,
-                color == null ? GUIStyle.accentColor : color
+                color == null ? getStyle().accentColor : color
         );
         matrices.pop();
     }
@@ -84,9 +79,5 @@ public class ProgressBar extends Widget {
 
     public float getAnimationValue() {
         return animationValue;
-    }
-
-    public void setTexture(Resource texture) {
-        this.texture = texture == null ? TEXTURE : texture;
     }
 }

@@ -1,7 +1,6 @@
 package cinnamon.gui.widgets.types;
 
 import cinnamon.Client;
-import cinnamon.gui.GUIStyle;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.Tickable;
@@ -11,7 +10,10 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.*;
+import cinnamon.utils.Colors;
+import cinnamon.utils.Maths;
+import cinnamon.utils.TextUtils;
+import cinnamon.utils.UIHelper;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -20,7 +22,6 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class TextField extends SelectableWidget implements Tickable {
 
-    private static final Resource TEXTURE = new Resource("textures/gui/widgets/text_field.png");
     public static final int
             HISTORY_SIZE = 20,
             DRAG_ZONE = 8;
@@ -28,7 +29,6 @@ public class TextField extends SelectableWidget implements Tickable {
             FORMATTING_CHAR = '*';
     public static final Predicate<Character> WORD_CHARACTERS = c -> Character.isAlphabetic(c) || Character.isDigit(c) || c == '_';
 
-    protected final Font font;
     protected final ContextMenu contextMenu;
 
     //text
@@ -54,7 +54,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
     //rendering
     private Text hintText = null;
-    private Style style = Style.EMPTY;
+    private Style textStyle = Style.EMPTY;
     private Integer borderColor;
     private String formatting;
     private String formattedText = "";
@@ -66,9 +66,8 @@ public class TextField extends SelectableWidget implements Tickable {
     private float xAnim;
     private long blinkTime;
 
-    public TextField(int x, int y, int width, int height, Font font) {
+    public TextField(int x, int y, int width, int height) {
         super(x, y, width, height);
-        this.font = font;
 
         contextMenu = new ContextMenu()
                 .addAction(Text.of("Cut"), null, b -> cut())
@@ -96,7 +95,7 @@ public class TextField extends SelectableWidget implements Tickable {
         //move the text when dragging
         if (dragging) {
             int w = getWidth();
-            int tw = TextUtils.getWidth(Text.of(getFormattedText()).withStyle(style), font);
+            int tw = TextUtils.getWidth(Text.of(getFormattedText()).withStyle(Style.EMPTY.guiStyle(getStyleRes()).applyParent(textStyle)));
 
             //only move if the text is bigger than the width
             if (tw > w - DRAG_ZONE * 2) {
@@ -149,7 +148,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE,
+                VertexConsumer.GUI, matrices, getStyle().textFieldTex,
                 getX(), getY(),
                 getWidth(), getHeight(),
                 getState() * 16f, 0f,
@@ -163,7 +162,7 @@ public class TextField extends SelectableWidget implements Tickable {
             return;
 
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, TEXTURE,
+                VertexConsumer.GUI, matrices, getStyle().textFieldTex,
                 getX(), getY(),
                 getWidth(), getHeight(),
                 48f, 0f,
@@ -175,13 +174,13 @@ public class TextField extends SelectableWidget implements Tickable {
 
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         int x = getX() + 2;
-        int y = getCenterY() - Math.round(font.lineHeight * 0.5f);
-        int height = Math.round(font.lineHeight) + 2;
+        int y = getCenterY() - Math.round(getStyle().font.lineHeight * 0.5f);
+        int height = Math.round(getStyle().font.lineHeight) + 2;
 
         //hint text
         if (currText.isEmpty()) {
             if (hintText != null)
-                font.render(VertexConsumer.FONT, matrices, x, y, Text.empty().withStyle(Style.EMPTY.italic(true).color(GUIStyle.hintColor)).append(hintText));
+                Text.empty().withStyle(Style.EMPTY.italic(true).color(getStyle().hintColor).guiStyle(getStyleRes())).append(hintText).render(VertexConsumer.FONT, matrices, x, y);
 
             //render cursor
             renderCursor(matrices, x, y - 1, height);
@@ -194,11 +193,12 @@ public class TextField extends SelectableWidget implements Tickable {
         int skipped = cursor + getFormattingSkippedCharCount(cursor);
         String str = getFormattedText();
         Text text;
+        Style textStyle = Style.EMPTY.guiStyle(getStyleRes()).applyParent(this.textStyle);
 
         //offset x0 based on the cursor
         if (cursor > 0) {
-            Text index = Text.of(str.substring(0, skipped)).withStyle(style);
-            x0 += TextUtils.getWidth(index, font);
+            Text index = Text.of(str.substring(0, skipped)).withStyle(textStyle);
+            x0 += TextUtils.getWidth(index);
         }
 
         //render cursor
@@ -209,8 +209,8 @@ public class TextField extends SelectableWidget implements Tickable {
         if (selectedIndex != -1 && cursor != selectedIndex) {
             //x1 offset
             int extra = selectedIndex + getFormattingSkippedCharCount(selectedIndex);
-            Text index = Text.of(str.substring(0, extra)).withStyle(style);
-            x1 += TextUtils.getWidth(index, font);
+            Text index = Text.of(str.substring(0, extra)).withStyle(textStyle);
+            x1 += TextUtils.getWidth(index);
 
             //render selection
             renderSelection(matrices, x0, x1, y - 1, height);
@@ -218,27 +218,27 @@ public class TextField extends SelectableWidget implements Tickable {
             //text
             int start = Math.min(skipped, extra);
             int end = Math.max(skipped, extra);
-            int color = selectedColor == null ? GUIStyle.selectedTextColor : selectedColor;
+            int color = selectedColor == null ? getStyle().selectedTextColor : selectedColor;
 
-            text = Text.empty().withStyle(style)
+            text = Text.empty().withStyle(textStyle)
                     .append(Text.of(str.substring(0, start)))
-                    .append(Text.of(str.substring(start, end)).withStyle(style.color(color).background(false).outlined(false).shadow(false)))
+                    .append(Text.of(str.substring(start, end)).withStyle(Style.EMPTY.color(color).background(false).outlined(false).shadow(false)))
                     .append(Text.of(str.substring(end)));
         } else {
             //no selection, so just use the text
-            text = Text.of(str).withStyle(style);
+            text = Text.of(str).withStyle(textStyle);
         }
 
         //render text
-        font.render(VertexConsumer.FONT, matrices, x, y, text);
+        text.render(VertexConsumer.FONT, matrices, x, y);
     }
 
     protected void renderCursor(MatrixStack matrices, float x, float y, float height) {
-        if (isFocused() && blinkTime % GUIStyle.blinkSpeed < GUIStyle.blinkSpeed / 2) {
+        if (isFocused() && blinkTime % getStyle().blinkSpeed < getStyle().blinkSpeed / 2) {
             matrices.push();
             //translate matrices so we can render on top of text
-            matrices.translate(0, 0, GUIStyle.depthOffset * Font.Z_DEPTH);
-            VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y, x + (insert ? GUIStyle.insertWidth : GUIStyle.cursorWidth), y + height, borderColor == null ? 0xFFFFFFFF : borderColor));
+            matrices.translate(0, 0, UIHelper.DEPTH_OFFSET * Font.Z_DEPTH);
+            VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y, x + (insert ? getStyle().insertWidth : getStyle().cursorWidth), y + height, borderColor == null ? 0xFFFFFFFF : borderColor));
             matrices.pop();
         }
     }
@@ -247,7 +247,7 @@ public class TextField extends SelectableWidget implements Tickable {
         float t = x0;
         x0 = Math.min(x0, x1);
         x1 = Math.max(t, x1);
-        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x0, y, x1, y + height, selectionColor == null ? GUIStyle.accentColor : selectionColor));
+        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x0, y, x1, y + height, selectionColor == null ? getStyle().accentColor : selectionColor));
     }
 
 
@@ -262,12 +262,12 @@ public class TextField extends SelectableWidget implements Tickable {
         this.hintText = hintText;
     }
 
-    public void setStyle(Style style) {
-        this.style = style == null ? Style.EMPTY : style;
+    public void setTextStyle(Style style) {
+        this.textStyle = style == null ? Style.EMPTY : style;
     }
 
-    public Style getStyle() {
-        return style;
+    public Style getTextStyle() {
+        return textStyle;
     }
 
     public void setBorderColor(Colors color) {
@@ -367,7 +367,7 @@ public class TextField extends SelectableWidget implements Tickable {
             }
 
             if (c == FORMATTING_CHAR) {
-                build.append(password ? GUIStyle.passwordChar : s.charAt(chars));
+                build.append(password ? getStyle().passwordChar : s.charAt(chars));
                 chars++;
                 continue;
             }
@@ -377,7 +377,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
         if (chars < length) {
             String str = s.substring(chars);
-            build.append(password ? String.valueOf(GUIStyle.passwordChar).repeat(str.length()) : str);
+            build.append(password ? String.valueOf(getStyle().passwordChar).repeat(str.length()) : str);
         }
 
         return build.toString();
@@ -444,7 +444,7 @@ public class TextField extends SelectableWidget implements Tickable {
         if (formatting != null)
             formattedText = applyFormatting(currText);
         else if (password)
-            formattedText = String.valueOf(GUIStyle.passwordChar).repeat(currText.length());
+            formattedText = String.valueOf(getStyle().passwordChar).repeat(currText.length());
         else
             formattedText = currText;
     }
@@ -464,7 +464,8 @@ public class TextField extends SelectableWidget implements Tickable {
         int width = getWidth() - 4 * 2;
 
         //if the text is too big, we try to fit it in the remaining space
-        int textWidth = TextUtils.getWidth(Text.of(str).withStyle(style), font);
+        Style textStyle = Style.EMPTY.guiStyle(getStyleRes()).applyParent(this.textStyle);
+        int textWidth = TextUtils.getWidth(Text.of(str).withStyle(textStyle));
         if (textWidth > width) {
             int remainingSpace = width - (textWidth + xOffset);
             if (remainingSpace > 0)
@@ -474,7 +475,7 @@ public class TextField extends SelectableWidget implements Tickable {
         }
 
         //cursor is inside the boundaries - nothing to fit
-        int cursorX = TextUtils.getWidth(Text.of(str.substring(0, cursor)).withStyle(style), font) + xOffset;
+        int cursorX = TextUtils.getWidth(Text.of(str.substring(0, cursor)).withStyle(textStyle)) + xOffset;
         if (cursorX >= 0 && cursorX < width)
             return;
 
@@ -648,7 +649,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
         //click count
         long now = Client.getInstance().ticks;
-        if (clickCount == 0 || (lastClickIndex == cursor && now - lastClickTime < GUIStyle.doubleClickDelay))
+        if (clickCount == 0 || (lastClickIndex == cursor && now - lastClickTime < getStyle().doubleClickDelay))
             clickCount++;
         else
             clickCount = 1;
@@ -1000,9 +1001,9 @@ public class TextField extends SelectableWidget implements Tickable {
         //grab mouse pos
         int mousePos = Client.getInstance().window.mouseX;
         //get the text
-        Text text = Text.of(getFormattedText()).withStyle(style);
+        Text text = Text.of(getFormattedText()).withStyle(Style.EMPTY.guiStyle(getStyleRes()).applyParent(textStyle));
         //convert the mouse pos to the text space and get the length at the position
-        Text clamped = font.clampToWidth(text, mousePos - xOffset - x, true);
+        Text clamped = getStyle().font.clampToWidth(text, mousePos - xOffset - x, true);
         //grab the length of the text
         int length = clamped.asString().length();
         //since the length uses the formatting, we need to subtract the extra chars

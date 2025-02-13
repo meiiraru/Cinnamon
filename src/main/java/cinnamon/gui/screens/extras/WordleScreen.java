@@ -1,6 +1,5 @@
 package cinnamon.gui.screens.extras;
 
-import cinnamon.Client;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
@@ -11,17 +10,24 @@ import cinnamon.gui.widgets.types.Label;
 import cinnamon.gui.widgets.types.ProgressBar;
 import cinnamon.gui.widgets.types.TextField;
 import cinnamon.model.GeometryHelper;
-import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.*;
+import cinnamon.utils.Alignment;
+import cinnamon.utils.Colors;
+import cinnamon.utils.IOUtils;
+import cinnamon.utils.Resource;
+import cinnamon.utils.TextUtils;
 import cinnamon.world.Hud;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -113,7 +119,7 @@ public class WordleScreen extends ParentedScreen {
     @Override
     public void init() {
         //dummy text field
-        field = new Field(font, width, height, this::onTextUpdate);
+        field = new Field(width, height, this::onTextUpdate);
         addWidget(field);
 
         //letters
@@ -135,7 +141,7 @@ public class WordleScreen extends ParentedScreen {
         addWidget(grid);
 
         //stats
-        stats = new Stats(0, 0, 4, font, TRIES);
+        stats = new Stats(0, 0, 4, TRIES);
         stats.setAlignment(Alignment.CENTER);
         stats.setPos(grid.getX() / 2, (height - stats.getHeight()) / 2);
         addWidget(stats);
@@ -274,14 +280,14 @@ public class WordleScreen extends ParentedScreen {
         }
 
         if (attempt.length() != WORD_LENGTH) {
-            Toast.addToast(Text.of("Word too small"), font);
+            Toast.addToast(Text.of("Word too small"));
             playAnimBadWord();
             return;
         } else if (word.equals(attempt)) {
-            Toast.addToast(Text.of("Congrats!"), font);
+            Toast.addToast(Text.of("Congrats!"));
             gameOver = true;
         } else if (!guesses.contains(attempt) && !answers.contains(attempt)) {
-            Toast.addToast(Text.of("Word not in the word list!"), font);
+            Toast.addToast(Text.of("Word not in the word list!"));
             playAnimBadWord();
             return;
         }
@@ -294,7 +300,7 @@ public class WordleScreen extends ParentedScreen {
         tries++;
 
         if (!gameOver && tries >= TRIES) {
-            Toast.addToast(Text.of("Game Over\nThe word was " + word), font);
+            Toast.addToast(Text.of("Game Over\nThe word was " + word));
             gameOver = true;
             tries++;
         }
@@ -411,9 +417,9 @@ public class WordleScreen extends ParentedScreen {
 
     private static class Field extends ContainerGrid {
         private final TextField field;
-        public Field(Font font, int x, int y, Consumer<String> listener) {
+        public Field(int x, int y, Consumer<String> listener) {
             super(x, y, 4);
-            field = new TextField(0, 0, 16, 16, font) {
+            field = new TextField(0, 0, 16, 16) {
                 @Override
                 public void setFocused(boolean focused) {
                     super.setFocused(true);
@@ -452,10 +458,8 @@ public class WordleScreen extends ParentedScreen {
                     -1, color.rgba
             ));
 
-            if (text != null) {
-                Font f = Client.getInstance().font;
-                f.render(VertexConsumer.FONT, matrices, getCenterX(), getCenterY() - Math.round(TextUtils.getHeight(text, f) / 2f), text, Alignment.CENTER);
-            }
+            if (text != null)
+                text.render(VertexConsumer.FONT, matrices, getCenterX(), getCenterY() - Math.round(TextUtils.getHeight(text) / 2f), Alignment.CENTER);
         }
 
         public void setColor(Colors color) {
@@ -486,16 +490,16 @@ public class WordleScreen extends ParentedScreen {
         private final ProgressBar[] triesBar;
         private final Label[] triesCount;
 
-        public Stats(int x, int y, int spacing, Font font, int tries) {
+        public Stats(int x, int y, int spacing, int tries) {
             super(x, y, spacing);
 
-            lastWord = new Label(0, 0, Text.of("Last Word\n" + "???"), font);
+            lastWord = new Label(0, 0, Text.of("Last Word\n" + "???"));
             addWidget(lastWord);
 
-            playCount = new Label(0, 0, Text.of("Games\n0"), font);
+            playCount = new Label(0, 0, Text.of("Games\n0"));
             addWidget(playCount);
 
-            Label triesLabel = new Label(0, 0, Text.of("Stats"), font);
+            Label triesLabel = new Label(0, 0, Text.of("Stats"));
             addWidget(triesLabel);
 
             ContainerGrid bars = new ContainerGrid(0, 0, spacing, 3);
@@ -507,14 +511,14 @@ public class WordleScreen extends ParentedScreen {
             for (int i = 0; i < length; i++) {
                 Colors color = COLORS[i == length - 1 ? 5 : i > length / 2 ? 3 : 4];
 
-                bars.addWidget(new Label(0, 0, Text.of(i == length -1 ? SKULL : i + 1), font));
+                bars.addWidget(new Label(0, 0, Text.of(i == length -1 ? SKULL : i + 1)));
 
                 triesBar[i] = new ProgressBar(0, 0, 40, 8, 0f);
                 triesBar[i].setColor(color);
-                triesBar[i].setTexture(Hud.PROGRESS_BAR);
+                triesBar[i].setStyle(Hud.HUD_STYLE);
                 bars.addWidget(triesBar[i]);
 
-                triesCount[i] = new Label(0, 0, Text.of(0), font);
+                triesCount[i] = new Label(0, 0, Text.of(0));
                 bars.addWidget(triesCount[i]);
             }
 

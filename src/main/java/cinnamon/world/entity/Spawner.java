@@ -1,7 +1,6 @@
 package cinnamon.world.entity;
 
 import cinnamon.Client;
-import cinnamon.gui.GUIStyle;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.registry.EntityRegistry;
@@ -9,6 +8,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Rotation;
+import cinnamon.utils.UIHelper;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -60,7 +60,7 @@ public class Spawner extends Entity {
         Vertex[] vertices = GeometryHelper.circle(matrices, 0, 0, 0.15f, 1, 16, 0x88000000);
         VertexConsumer.MAIN.consume(vertices);
 
-        matrices.translate(0, 0, GUIStyle.depthOffset);
+        matrices.translate(0, 0, UIHelper.DEPTH_OFFSET);
 
         vertices = GeometryHelper.circle(matrices, 0, 0, 0.15f * 0.85f, 1f - (float) time / delay, 16, 0xAAFFFFFF);
         VertexConsumer.MAIN.consume(vertices);

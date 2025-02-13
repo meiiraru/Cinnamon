@@ -2,6 +2,7 @@ package cinnamon.gui.widgets;
 
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.Maths;
+import cinnamon.utils.Resource;
 import cinnamon.utils.UIHelper;
 
 import java.util.ArrayList;
@@ -233,5 +234,12 @@ public class Container extends Widget implements Tickable, GUIListener {
         }
 
         return list;
+    }
+
+    @Override
+    public void setStyle(Resource style) {
+        super.setStyle(style);
+        for (Widget widget : this.widgets)
+            widget.setStyle(style);
     }
 }

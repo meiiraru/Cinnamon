@@ -1,14 +1,11 @@
 package cinnamon.render;
 
-import cinnamon.gui.GUIStyle;
 import cinnamon.model.Vertex;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.Alignment;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
-import cinnamon.utils.TextUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
 import org.lwjgl.stb.STBTTFontinfo;
@@ -18,7 +15,11 @@ import org.lwjgl.stb.STBTTPackedchar;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import static cinnamon.Client.LOGGER;
 import static cinnamon.model.GeometryHelper.quad;
@@ -27,6 +28,9 @@ import static org.lwjgl.stb.STBTruetype.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 public class Font {
+
+    //cache
+    private static final Map<Resource, Font> FONTS_CACHE = new HashMap<>();
 
     //properties
     private static final int TEXTURE_W = 512, TEXTURE_H = 512;
@@ -60,11 +64,15 @@ public class Font {
     // -- font initialization -- //
 
 
-    public Font(Resource res, float height) {
-        this(res, height, 1, false);
+    public static Font getFont(Resource res, float height) {
+        return getFont(res, height, 1, false);
     }
 
-    public Font(Resource res, float height, float lineSpacing, boolean smooth) {
+    public static Font getFont(Resource res, float height, float lineSpacing, boolean smooth) {
+        return FONTS_CACHE.computeIfAbsent(res, r -> new Font(r, height, lineSpacing, smooth));
+    }
+
+    private Font(Resource res, float height, float lineSpacing, boolean smooth) {
         this.ttf = IOUtils.getResourceBuffer(res);
         this.lineHeight = height;
         this.lineGap = lineSpacing;
@@ -119,6 +127,12 @@ public class Font {
         LOGGER.debug("Loaded font \"%s\"", res);
     }
 
+    public static void freeAll() {
+        for (Font font : FONTS_CACHE.values())
+            font.free();
+        FONTS_CACHE.clear();
+    }
+
     public void free() {
         glDeleteTextures(textureID);
         charData.free();
@@ -136,26 +150,7 @@ public class Font {
     // -- font rendering -- //
 
 
-    public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Text text) {
-        render(consumer, matrices, x, y, text, Alignment.LEFT);
-    }
-
-    public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Text text, Alignment alignment) {
-        render(consumer, matrices, x, y, text, alignment, 1);
-    }
-
-    public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Text text, Alignment alignment, int indexScaling) {
-        List<Text> list = TextUtils.split(text, "\n");
-
-        for (int i = 0; i < list.size(); i++) {
-            Text t = list.get(i);
-            int x2 = Math.round(alignment.getOffset(this.width(t)));
-            int y2 = Math.round((lineHeight * (i + 1) + descent));
-            bake(consumer, matrices, t, x + x2, y + y2, indexScaling * GUIStyle.depthOffset);
-        }
-    }
-
-    private void bake(VertexConsumer consumer, MatrixStack matrices, Text text, float x, float y, float zOffset) {
+    public void bake(VertexConsumer consumer, MatrixStack matrices, Text text, float x, float y, float zOffset) {
         //prepare vars
         boolean[] prevItalic = {false};
         xb.put(0, 0f); yb.put(0, 0f);
@@ -167,44 +162,48 @@ public class Font {
                 return;
 
             //style flags
-            boolean italic  = style.isItalic();
-            boolean bold    = style.isBold();
-            boolean obf     = style.isObfuscated();
-            boolean shadow  = style.hasShadow();
-            boolean outline = style.hasOutline();
-            boolean bg      = style.hasBackground();
-            boolean under   = style.isUnderlined();
-            boolean strike  = style.isStrikethrough();
+            boolean italic   = style.isItalic();
+            boolean bold     = style.isBold();
+            boolean obf      = style.isObfuscated();
+            boolean shadow   = style.hasShadow();
+            boolean outline  = style.hasOutline();
+            boolean bg       = style.hasBackground();
+            boolean under    = style.isUnderlined();
+            boolean strike   = style.isStrikethrough();
+            int italicOffset = style.getItalicOffset();
+            int boldOffset   = style.getBoldOffset();
+            int shadowOffset = style.getShadowOffset();
+
             int zi = (shadow ? 1 : 0) + (outline ? 1 : 0) + (bg ? 1 : 0);
 
             if (prevItalic[0] && !italic)
-                xb.put(0, xb.get(0) + GUIStyle.italicOffset);
+                xb.put(0, xb.get(0) + italicOffset);
             prevItalic[0] = italic;
 
             //backup initial buffer
             float initialX = xb.get(0), initialY = yb.get(0);
 
             //main render
-            int color = Objects.requireNonNullElse(style.getColor(), GUIStyle.textColor);
-            bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * zi--, color);
+            int color = style.getColor();
+            bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * zi--, color, italicOffset, boldOffset);
 
             //backup final buffer
             float finalX = xb.get(0), finalY = yb.get(0);
 
             //render shadow
             if (shadow) {
-                xb.put(0, initialX + GUIStyle.shadowOffset); yb.put(0, initialY + GUIStyle.shadowOffset);
-                int sc = Objects.requireNonNullElse(style.getShadowColor(), GUIStyle.shadowColor);
-                bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * zi--, sc);
+                xb.put(0, initialX + shadowOffset); yb.put(0, initialY + shadowOffset);
+                int sc = style.getShadowColor();
+                bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * zi--, sc, italicOffset, boldOffset);
             }
 
             //render outline
             if (outline) {
-                int oc = Objects.requireNonNullElse(style.getOutlineColor(), GUIStyle.shadowColor);
-                for (int i = -GUIStyle.shadowOffset; i <= GUIStyle.shadowOffset; i += GUIStyle.shadowOffset) {
-                    for (int j = -GUIStyle.shadowOffset; j <= GUIStyle.shadowOffset; j += GUIStyle.shadowOffset) {
+                int oc = style.getOutlineColor();
+                for (int i = -shadowOffset; i <= shadowOffset; i += shadowOffset) {
+                    for (int j = -shadowOffset; j <= shadowOffset; j += shadowOffset) {
                         xb.put(0, initialX + i); yb.put(0, initialY + j);
-                        bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * zi, oc);
+                        bakeString(consumer, matrices, s, italic, bold, obf, under, strike, x, y, zOffset * zi, oc, italicOffset, boldOffset);
                     }
                 }
                 zi--;
@@ -218,7 +217,7 @@ public class Font {
                 float h  = lineHeight;
 
                 if (italic)
-                    w += GUIStyle.italicOffset;
+                    w += italicOffset;
 
                 if (outline) {
                     x0--; y0--;
@@ -227,7 +226,7 @@ public class Font {
                     w++; h++;
                 }
 
-                int bgc = Objects.requireNonNullElse(style.getBackgroundColor(), GUIStyle.backgroundColor);
+                int bgc = style.getBackgroundColor();
                 consumer.consume(quad(matrices, x0, y0, zOffset * zi, w, h, bgc));
             }
 
@@ -236,7 +235,7 @@ public class Font {
         }, Style.EMPTY);
     }
 
-    private void bakeString(VertexConsumer consumer, MatrixStack matrices, String s, boolean italic, boolean bold, boolean obfuscated, boolean underlined, boolean strikethrough, float x, float y, float z, int color) {
+    private void bakeString(VertexConsumer consumer, MatrixStack matrices, String s, boolean italic, boolean bold, boolean obfuscated, boolean underlined, boolean strikethrough, float x, float y, float z, int color, int italicOffset, int boldOffset) {
         //prepare vars
         RANDOM.setSeed(SEED);
         float preX = xb.get(0);
@@ -249,7 +248,7 @@ public class Font {
             if (obfuscated && !Character.isSpaceChar(c))
                 c = getRandomCodepoint(c);
 
-            bakeChar(consumer, matrices, c, italic, bold, x, y, z, color);
+            bakeChar(consumer, matrices, c, italic, bold, x, y, z, color, italicOffset, boldOffset);
 
             if (!obfuscated && i < s.length())
                 xb.put(0, xb.get(0) + getKerning(c, s.codePointAt(i)));
@@ -257,7 +256,7 @@ public class Font {
 
         //extra rendering
         float x0 = preX + x, y0 = yb.get(0) + y;
-        float width = xb.get(0) - preX + (italic ? GUIStyle.italicOffset : 0f);
+        float width = xb.get(0) - preX + (italic ? italicOffset : 0f);
 
         //underline
         if (underlined)
@@ -268,7 +267,7 @@ public class Font {
             consumer.consume(quad(matrices, x0, y0 - (int) (ascent / 2), z, width, 1f, color));
     }
 
-    private void bakeChar(VertexConsumer consumer, MatrixStack matrices, int c, boolean italic, boolean bold, float x, float y, float z, int color) {
+    private void bakeChar(VertexConsumer consumer, MatrixStack matrices, int c, boolean italic, boolean bold, float x, float y, float z, int color, int italicOffset, int boldOffset) {
         getCharData(c);
 
         float
@@ -282,8 +281,8 @@ public class Font {
 
         float i0 = 0f, i1 = 0f;
         if (italic) {
-            i0 = ((y0 + descent) / lineHeight) * -GUIStyle.italicOffset;
-            i1 = ((y1 + descent) / lineHeight) * -GUIStyle.italicOffset;
+            i0 = ((y0 + descent) / lineHeight) * -italicOffset;
+            i1 = ((y1 + descent) / lineHeight) * -italicOffset;
         }
 
         x0 += x; x1 += x;
@@ -292,8 +291,8 @@ public class Font {
         consumer.consume(bakeQuad(matrices, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color), textureID);
 
         if (bold) {
-            xb.put(0, xb.get(0) + GUIStyle.boldOffset);
-            x0 += GUIStyle.boldOffset; x1 += GUIStyle.boldOffset;
+            xb.put(0, xb.get(0) + boldOffset);
+            x0 += boldOffset; x1 += boldOffset;
             consumer.consume(bakeQuad(matrices, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color), textureID);
         }
     }
@@ -354,12 +353,12 @@ public class Font {
             //italic
             boolean italic = style.isItalic();
             if (prevItalic[0] && !italic)
-                x[0] += GUIStyle.italicOffset;
+                x[0] += style.getItalicOffset();
             prevItalic[0] = italic;
 
             //bold
             if (style.isBold())
-                x[0] += GUIStyle.boldOffset * s.codePoints().count();
+                x[0] += style.getBoldOffset() * s.codePoints().count();
 
             //add string width
             x[0] += width(s);
@@ -385,7 +384,7 @@ public class Font {
 
             //italic
             if (!prevItalic[0] && italic)
-                x[0] += GUIStyle.italicOffset;
+                x[0] += style.getItalicOffset();
             prevItalic[0] = italic;
 
             //text allowed to add
@@ -405,7 +404,7 @@ public class Font {
 
                 //bold special
                 if (bold)
-                    x[0] += GUIStyle.boldOffset;
+                    x[0] += style.getBoldOffset();
 
                 //check width
                 if (x[0] <= width) {

@@ -1,6 +1,5 @@
 package cinnamon.gui.screens;
 
-import cinnamon.gui.GUIStyle;
 import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.types.Button;
@@ -22,9 +21,10 @@ public class MainMenu extends Screen {
 
     private static final Resource
         BACKGROUND = new Resource("textures/gui/main_menu/background.png"),
-        OVERLAY = new Resource("textures/gui/main_menu/overlay.png"),
-        BOTTOM = new Resource("textures/gui/main_menu/bottom.png"),
-        TITLE_ROOT = new Resource("textures/gui/main_menu/title");
+        OVERLAY    = new Resource("textures/gui/main_menu/overlay.png"),
+        BOTTOM     = new Resource("textures/gui/main_menu/bottom.png"),
+        TITLE_ROOT = new Resource("textures/gui/main_menu/title"),
+        GUI_STYLE  = new Resource("data/gui_styles/main_menu.json");
     private static final List<Resource> TITLE = new ArrayList<>();
 
     @Override
@@ -32,12 +32,12 @@ public class MainMenu extends Screen {
         super.init();
 
         //bottom texts
-        Style s = Style.EMPTY.italic(true).color(0x66FFFFFF).shadow(true).shadowColor(0x66161616);
+        Style s = Style.EMPTY.italic(true).color(0x66FFFFFF).shadow(true).shadowColor(0x66161616).guiStyle(GUI_STYLE);
         Text bottomLeft = Text.of("Cinnamon v%s".formatted(Version.CLIENT_VERSION.toStringNoBuild())).withStyle(s);
-        this.addWidget(new Label(4, height - TextUtils.getHeight(bottomLeft, font) - 4, bottomLeft, font));
+        this.addWidget(new Label(4, height - TextUtils.getHeight(bottomLeft) - 4, bottomLeft));
 
         Text bottomRight = Text.of("\u00A9").withStyle(s.italic(false)).append(Text.of("Meiiraru").withStyle(s));
-        this.addWidget(new Label(width - TextUtils.getWidth(bottomRight, font) - 4, height - TextUtils.getHeight(bottomRight, font) - 4, bottomRight, font));
+        this.addWidget(new Label(width - TextUtils.getWidth(bottomRight) - 4, height - TextUtils.getHeight(bottomRight) - 4, bottomRight));
 
         //buttons
         ContainerGrid grid = new ContainerGrid(0, 0, 4);
@@ -72,6 +72,7 @@ public class MainMenu extends Screen {
         //add grid to screen
         int y = (int) (height * 0.15f);
         grid.setPos((width - grid.getWidth()) / 2, y + (height - grid.getHeight() - y) / 2);
+        grid.setStyle(GUI_STYLE);
         this.addWidget(grid);
     }
 
@@ -136,6 +137,7 @@ public class MainMenu extends Screen {
         public MainButton(Text message, Consumer<Button> action) {
             super(0, 0, 148, 20, message, action);
             message.withStyle(Style.EMPTY.outlined(true));
+            setStyle(GUI_STYLE);
         }
 
         @Override
@@ -159,12 +161,6 @@ public class MainMenu extends Screen {
                     matrices, getCenterX() - 64, getY(),
                     128, 32
             ), LINE);
-        }
-
-        @Override
-        public Text getFormattedMessage() {
-            Text text = super.getFormattedMessage();
-            return !isHoveredOrFocused() || getState() == 0 ? text : Text.empty().append(text).withStyle(Style.EMPTY.color(GUIStyle.mainMenuTextColor));
         }
     }
 }

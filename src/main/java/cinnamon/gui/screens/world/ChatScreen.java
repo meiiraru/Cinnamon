@@ -1,5 +1,6 @@
 package cinnamon.gui.screens.world;
 
+import cinnamon.gui.GUIStyle;
 import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.types.TextField;
 import cinnamon.model.GeometryHelper;
@@ -27,8 +28,8 @@ public class ChatScreen extends Screen {
     @Override
     public void init() {
         super.init();
-        int fh = (int) (font.lineHeight + 2);
-        field = new TextField(0, height - fh - 20, width, fh, font);
+        int fh = (int) (GUIStyle.getDefault().font.lineHeight + 2);
+        field = new TextField(0, height - fh - 20, width, fh);
         field.setHintText(Text.of("Type a message...").withStyle(Style.EMPTY.color(Colors.LIGHT_GRAY)));
         field.setTextOnly(true);
         field.setText(fieldMsg);

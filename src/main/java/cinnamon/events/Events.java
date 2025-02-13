@@ -5,6 +5,7 @@ import cinnamon.gui.screens.MainMenu;
 import cinnamon.model.MaterialManager;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.MaterialRegistry;
+import cinnamon.render.Font;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
@@ -50,7 +51,6 @@ public class Events {
         registerEvent(RESOURCE_INIT, o -> PostProcess.loadAllShaders());
         registerEvent(RESOURCE_INIT, o -> MaterialRegistry.loadAllMaterials());
         registerEvent(RESOURCE_INIT, o -> SkyBox.Type.loadAll());
-        registerEvent(RESOURCE_INIT, o -> GUIStyle.init());
         registerEvent(RESOURCE_INIT, o -> MainMenu.initTextures());
 
         registerEvent(RESOURCE_FREE, o -> Texture.freeAll());
@@ -64,5 +64,7 @@ public class Events {
         registerEvent(RESOURCE_FREE, o -> MaterialManager.free());
         registerEvent(RESOURCE_FREE, o -> SkyBox.Type.freeAll());
         registerEvent(RESOURCE_FREE, o -> VertexConsumer.freeBatches());
+        registerEvent(RESOURCE_FREE, o -> GUIStyle.free());
+        registerEvent(RESOURCE_FREE, o -> Font.freeAll());
     }
 }

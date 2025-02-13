@@ -1,5 +1,6 @@
 package cinnamon.gui.screens.extras;
 
+import cinnamon.gui.GUIStyle;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
@@ -261,33 +262,35 @@ public class SoundVisualizerScreen extends ParentedScreen {
         int songCount = playlist.size();
         int playTime = soundData != null ? (int) soundData.getPlaybackTime() : slider.getValue();
 
+        float lineHeight = GUIStyle.getDefault().font.lineHeight;
+
         //draw top text
-        font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), 4, Text.of("Drop Ogg Vorbis files to play!").withStyle(Style.EMPTY.color(songCount > 0 ? Colors.LIGHT_GRAY : Colors.WHITE)), Alignment.CENTER);
+        Text.of("Drop Ogg Vorbis files to play!").withStyle(Style.EMPTY.color(songCount > 0 ? Colors.LIGHT_GRAY : Colors.WHITE)).render(VertexConsumer.FONT, matrices, (int) (width / 2f), 4, Alignment.CENTER);
 
         //draw timers
         int x = slider.getX();
-        int y = (int) (slider.getCenterY() - font.lineHeight / 2);
+        int y = (int) (slider.getCenterY() - lineHeight / 2);
         int now = playTime / 1000;
         int max = slider.getMax() / 1000;
-        font.render(VertexConsumer.FONT, matrices, x - 4, y, Text.of("%d:%02d".formatted(now / 60, now % 60)), Alignment.RIGHT);
-        font.render(VertexConsumer.FONT, matrices, x + slider.getWidth() + 4, y, Text.of("%d:%02d".formatted(max / 60, max % 60)));
+        Text.of("%d:%02d".formatted(now / 60, now % 60)).render(VertexConsumer.FONT, matrices, x - 4, y, Alignment.RIGHT);
+        Text.of("%d:%02d".formatted(max / 60, max % 60)).render(VertexConsumer.FONT, matrices, x + slider.getWidth() + 4, y);
 
         if (songCount == 0)
             return;
 
         //song count
         if (songCount > 1)
-            font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), playPauseButton.getY() - font.lineHeight - 4, Text.of("%d / %d".formatted(playlistIndex + 1, songCount)), Alignment.CENTER);
+            Text.of("%d / %d".formatted(playlistIndex + 1, songCount)).render(VertexConsumer.FONT, matrices, (int) (width / 2f), playPauseButton.getY() - lineHeight - 4, Alignment.CENTER);
 
         Track track = playlist.get(playlistIndex);
 
         //title
-        font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), playPauseButton.getY() - (font.lineHeight + 4) * (songCount > 1 ? 2 : 1), Text.of(track.title), Alignment.CENTER);
+        Text.of(track.title).render(VertexConsumer.FONT, matrices, (int) (width / 2f), playPauseButton.getY() - (lineHeight + 4) * (songCount > 1 ? 2 : 1), Alignment.CENTER);
 
         //lyrics
         Text text = track.getLyrics(playTime);
         if (text != null)
-            font.render(VertexConsumer.FONT, matrices, (int) (width / 2f), (int) (height / 4f - TextUtils.getHeight(text, font) / 2f), text, Alignment.CENTER);
+            text.render(VertexConsumer.FONT, matrices, (int) (width / 2f), (int) (height / 4f - TextUtils.getHeight(text) / 2f), Alignment.CENTER);
     }
 
     private void drawBar(MatrixStack matrices, int i, int bars, float amplitude) {
@@ -355,7 +358,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         playPauseButton.setImage(PAUSE);
 
         //notify the user
-        Toast.addToast(Text.of("Now playing: %s".formatted(track.title)), font);
+        Toast.addToast(Text.of("Now playing: %s".formatted(track.title)));
     }
 
     @Override
@@ -419,7 +422,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
             previousButton.setActive(size > 1);
 
             //feebdback to the user
-            Toast.addToast(Text.of("Loaded %d song%s!".formatted(size, size > 1 ? "s" : "")), font);
+            Toast.addToast(Text.of("Loaded %d song%s!".formatted(size, size > 1 ? "s" : "")));
 
             //automatically play the first song
             playSound(0);
