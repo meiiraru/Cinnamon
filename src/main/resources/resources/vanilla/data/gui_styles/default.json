@@ -3,8 +3,10 @@
   "shadow_color": "FF161616",
   "background_color": "44000000",
   "accent_color": "FFAD72FF",
+  "disabled_color": "FF666666",
   "selected_text_color": "FF000000",
   "hint_color": "FF5B8CCC",
+  "disabled_hint_color": "FF404040",
 
   "pressed_y_offset": 2,
   "shadow_offset": 1,

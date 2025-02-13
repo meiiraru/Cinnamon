@@ -28,8 +28,10 @@ public class GUIStyle {
             shadowColor = 0xFF161616,
             backgroundColor = 0x44000000,
             accentColor = Colors.PURPLE.rgba,
+            disabledColor = 0xFF666666,
             selectedTextColor = 0xFF000000,
-            hintColor = Colors.LIGHT_BLACK.rgba;
+            hintColor = Colors.LIGHT_BLACK.rgba,
+            disabledHintColor = 0xFFBDC4CE;
 
     //offsets
     public int
@@ -124,12 +126,14 @@ public class GUIStyle {
             GUIStyle p = parent.equals(res) ? style : of(parent);
 
             //colors
-            Parser.COLOR.apply(json, "text_color",           o -> style.textColor         = (int) o, p.textColor);
-            Parser.COLOR.apply(json, "shadow_color",         o -> style.shadowColor       = (int) o, p.shadowColor);
-            Parser.COLOR.apply(json, "background_color",     o -> style.backgroundColor   = (int) o, p.backgroundColor);
-            Parser.COLOR.apply(json, "accent_color",         o -> style.accentColor       = (int) o, p.accentColor);
-            Parser.COLOR.apply(json, "selected_text_color",  o -> style.selectedTextColor = (int) o, p.selectedTextColor);
-            Parser.COLOR.apply(json, "hint_color",           o -> style.hintColor         = (int) o, p.hintColor);
+            Parser.COLOR.apply(json, "text_color",          o -> style.textColor         = (int) o, p.textColor);
+            Parser.COLOR.apply(json, "shadow_color",        o -> style.shadowColor       = (int) o, p.shadowColor);
+            Parser.COLOR.apply(json, "background_color",    o -> style.backgroundColor   = (int) o, p.backgroundColor);
+            Parser.COLOR.apply(json, "accent_color",        o -> style.accentColor       = (int) o, p.accentColor);
+            Parser.COLOR.apply(json, "disabled_color",      o -> style.disabledColor     = (int) o, p.disabledColor);
+            Parser.COLOR.apply(json, "selected_text_color", o -> style.selectedTextColor = (int) o, p.selectedTextColor);
+            Parser.COLOR.apply(json, "hint_color",          o -> style.hintColor         = (int) o, p.hintColor);
+            Parser.COLOR.apply(json, "disabled_hint_color", o -> style.disabledHintColor = (int) o, p.disabledHintColor);
 
             //offsets
             Parser.INT.apply(json, "pressed_y_offset", o -> style.pressYOffset = (int) o, p.pressYOffset);

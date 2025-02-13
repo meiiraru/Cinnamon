@@ -180,7 +180,13 @@ public class TextField extends SelectableWidget implements Tickable {
         //hint text
         if (currText.isEmpty()) {
             if (hintText != null)
-                Text.empty().withStyle(Style.EMPTY.italic(true).color(getStyle().hintColor).guiStyle(getStyleRes())).append(hintText).render(VertexConsumer.FONT, matrices, x, y);
+                Text.empty()
+                        .withStyle(Style.EMPTY
+                                .italic(true)
+                                .color(isActive() ? getStyle().hintColor : getStyle().disabledHintColor)
+                                .guiStyle(getStyleRes()))
+                        .append(hintText)
+                        .render(VertexConsumer.FONT, matrices, x, y);
 
             //render cursor
             renderCursor(matrices, x, y - 1, height);

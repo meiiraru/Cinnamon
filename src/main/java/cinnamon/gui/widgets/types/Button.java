@@ -10,7 +10,6 @@ import cinnamon.sound.SoundManager;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
-import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
@@ -176,7 +175,7 @@ public class Button extends SelectableWidget {
         Style style = Style.EMPTY.guiStyle(getStyleRes());
 
         if (getState() == 0)
-            style = style.color(Colors.DARK_GRAY);
+            style = style.color(style.getGuiStyle().disabledColor);
 
         return Text.empty().withStyle(style).append(message);
     }

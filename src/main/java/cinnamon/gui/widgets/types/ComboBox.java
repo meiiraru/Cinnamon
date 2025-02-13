@@ -50,15 +50,17 @@ public class ComboBox extends Button {
 
     @Override
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        Style style = Style.EMPTY.guiStyle(getStyleRes()).color(!isActive() ? getStyle().disabledColor : null);
+
         //render arrow
-        Text text = Text.of(isExpanded() ? "\u23F6" : "\u23F7").withStyle(Style.EMPTY.guiStyle(getStyleRes()));
+        Text text = Text.of(isExpanded() ? "\u23F6" : "\u23F7").withStyle(style);
         int width = TextUtils.getWidth(text);
         int x = getX() + getWidth() - width - 2;
         int y = getCenterY() - TextUtils.getHeight(text) / 2 + (isHolding() ? getStyle().pressYOffset : 0);
         text.render(VertexConsumer.FONT, matrices, x, y);
 
         //render selected text
-        text = TextUtils.addEllipsis(Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(selectedText), getWidth() - width - 4);
+        text = TextUtils.addEllipsis(Text.empty().withStyle(style).append(selectedText), getWidth() - width - 4);
         x = getX() + 2;
         text.render(VertexConsumer.FONT, matrices, x, y);
     }

@@ -177,7 +177,7 @@ public class Slider extends SelectableWidget {
                 8, 8,
                 34, 26
         );
-        int color = this.color == null ? getStyle().accentColor : this.color;
+        int color = isActive() ? (this.color == null ? getStyle().accentColor : this.color) : getStyle().disabledColor;
         for (Vertex vertex : vertices)
             vertex.color(color);
 

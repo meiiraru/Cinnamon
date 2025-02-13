@@ -37,8 +37,11 @@ public class WidgetTestScreen extends ParentedScreen {
         ContainerGrid grid = new ContainerGrid(4, 4, 4);
 
         //button
+        ContainerGrid buttons = new ContainerGrid(0, 0, 4, 2);
+        grid.addWidget(buttons);
+
         Button b = new Button(0, 0, 60, 12, Text.of("Button"), button -> LOGGER.info("button!"));
-        grid.addWidget(b);
+        buttons.addWidget(b);
 
         ContextMenu ctx = new ContextMenu()
                 .addAction(Text.of("Meow 1"), Text.of("Meow 1"), button -> LOGGER.info("Meow 1"))
@@ -69,6 +72,10 @@ public class WidgetTestScreen extends ParentedScreen {
         ctx.addDivider().addSubMenu(Text.of("I"), ctx2);
 
         b.setPopup(ctx);
+
+        Button disabledButt = new Button(0, 0, 60, 12, Text.of("Disabled"), button -> LOGGER.info("Disabled"));
+        disabledButt.setActive(false);
+        buttons.addWidget(disabledButt);
 
         //label
         Label l = new Label(0, 0, Text.of("Label"));
@@ -103,6 +110,12 @@ public class WidgetTestScreen extends ParentedScreen {
         for (int i = 0; i < 100; i++)
             cb2.addEntry(Text.of(i), Text.of(i), null);
 
+        //selection 3
+        ComboBox cb3 = new ComboBox(0, 0, 60, 12);
+        cb3.setActive(false);
+        cb3.addEntry(Text.of("Disabled"), Text.of("Disabled"), null);
+        grid.addWidget(cb3);
+
         //slider
         Slider s = new Slider(0, 0, 60);
         grid.addWidget(s);
@@ -127,6 +140,13 @@ public class WidgetTestScreen extends ParentedScreen {
         tf1.setHintText("Text Field");
         tf1.setListener(s1 -> tf1.setTextStyle(tf1.getTextStyle().color(Colors.randomRainbow())));
         tf1.setTextStyle(Style.EMPTY.guiStyle(Hud.HUD_STYLE));
+
+        TextField tf2 = new TextField(0, 0, tfw, 16);
+        grid.addWidget(tf2);
+
+        tf2.setHintText("Disabled Text Field");
+        tf2.setActive(false);
+        tf2.setTextStyle(Style.EMPTY.guiStyle(Hud.HUD_STYLE));
 
         ContainerGrid password = new ContainerGrid(0, 0, 4, 2);
         grid.addWidget(password);
@@ -167,6 +187,10 @@ public class WidgetTestScreen extends ParentedScreen {
                 this.removeWidget(empty);
         });
         grid.addWidget(ckb);
+
+        Checkbox ckb2 = new Checkbox(0, 0, Text.of("No Checkbox :("));
+        ckb2.setActive(false);
+        grid.addWidget(ckb2);
 
         //toast 1
         Button toast1 = new Button(0, 0, 60, 12, Text.of("Toast 1"), button -> Toast.addToast(Text.of("Toast 1")).style(button.getStyleRes()));
@@ -222,11 +246,22 @@ public class WidgetTestScreen extends ParentedScreen {
         s3.setVertical(true);
         vertical.addWidget(s3);
 
+        //disabled slider
+        Slider s4 = new Slider(0, 0, 40);
+        s4.setVertical(true);
+        s4.setActive(false);
+        vertical.addWidget(s4);
+
         //scrollbar
         Scrollbar bar = new Scrollbar(0, 0, 40);
         vertical.addWidget(bar);
 
-        //scrollbar 2
+        //disabled scrollbar
+        Scrollbar bar1 = new Scrollbar(0, 0, 40);
+        bar1.setActive(false);
+        vertical.addWidget(bar1);
+
+        //vertical scrollbar
         Scrollbar bar2 = new Scrollbar(0, 0, 40);
         bar2.setVertical(false);
         grid2.addWidget(bar2);
