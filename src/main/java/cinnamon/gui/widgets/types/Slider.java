@@ -42,6 +42,7 @@ public class Slider extends SelectableWidget {
     private boolean showCurrentTooltip;
     private boolean previewHoverValue;
     private boolean invertY;
+    private boolean warp;
 
     protected int handleSize = 8;
     protected int anchorX, anchorY;
@@ -319,7 +320,7 @@ public class Slider extends SelectableWidget {
     public void updatePercentage(float value) {
         //update value
         value = snapToClosestStep(value);
-        value = Maths.clamp(value, 0f, 1f);
+        value = warp ? Maths.clampWarp(value, 0f, 1f) : Maths.clamp(value, 0f, 1f);
 
         this.value = value;
         this.intValue = Math.round(Maths.lerp(min, max, value));
@@ -475,6 +476,10 @@ public class Slider extends SelectableWidget {
 
     public void setPreviewHoverValueTooltip(boolean bool) {
         this.previewHoverValue = bool;
+    }
+
+    public void setWarp(boolean warp) {
+        this.warp = warp;
     }
 
     @Override

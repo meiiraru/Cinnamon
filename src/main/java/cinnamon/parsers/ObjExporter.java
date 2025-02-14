@@ -6,8 +6,10 @@ import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
 import cinnamon.utils.IOUtils;
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,8 +26,13 @@ public class ObjExporter {
     private static final DecimalFormat df = new DecimalFormat("#.######", DecimalFormatSymbols.getInstance(Locale.US));
 
     public static void export(String meshName, Mesh mesh) throws IOException {
+        export(meshName, mesh, new Matrix4f(), EXPORT_FOLDER);
+    }
+
+    public static void export(String meshName, Mesh mesh, Matrix4f poseMat, Path exportTarget) throws IOException {
         //prepare variables
-        Path folder = EXPORT_FOLDER.resolve(meshName);
+        Path folder = IOUtils.parseNonDuplicatePath(exportTarget.resolve(meshName));
+
         StringBuilder
                 string = new StringBuilder(),
                 mtlString = new StringBuilder();
@@ -42,8 +49,10 @@ public class ObjExporter {
         }
 
         //write vertices
-        for (Vector3f vertex : mesh.getVertices())
-            string.append("v %s %s %S\n".formatted(df.format(vertex.x), df.format(vertex.y), df.format(vertex.z)));
+        for (Vector3f vertex : mesh.getVertices()) {
+            Vector4f v = new Vector4f(vertex, 1f).mul(poseMat);
+            string.append("v %s %s %S\n".formatted(df.format(v.x), df.format(v.y), df.format(v.z)));
+        }
 
         //uvs
         for (Vector2f uv : mesh.getUVs())
@@ -53,9 +62,13 @@ public class ObjExporter {
         for (Vector3f normal : mesh.getNormals())
             string.append("vn %s %s %s\n".formatted(df.format(normal.x), df.format(normal.y), df.format(normal.z)));
 
+
+        //check if the face should be inverted when the pose matrix scale is negative
+        boolean invertFace = poseMat.determinant() < 0f;
+
         //groups
         for (Group group : mesh.getGroups())
-            writeGroup(string, group);
+            writeGroup(string, group, invertFace);
 
         //write obj file
         Path file = folder.resolve(meshName + ".obj");
@@ -66,7 +79,7 @@ public class ObjExporter {
         IOUtils.writeFile(materialFile, mtlString.toString().getBytes(StandardCharsets.UTF_8));
     }
 
-    private static void writeGroup(StringBuilder string, Group group) {
+    private static void writeGroup(StringBuilder string, Group group, boolean invert) {
         string.append("g %s\n".formatted(group.getName()));
         string.append("usemtl %s\n".formatted(group.getMaterial().getName()));
 
@@ -79,19 +92,21 @@ public class ObjExporter {
             string.append("f ");
 
             for (int i = 0; i < v.size(); i++) {
+                int j = invert ? v.size() - 1 - i : i;
+
                 //v always present
-                string.append("%s".formatted(v.get(i) + 1));
+                string.append("%s".formatted(v.get(j) + 1));
 
                 //append vt v/vt
                 if (!vt.isEmpty())
-                    string.append("/%s".formatted(vt.get(i) + 1));
+                    string.append("/%s".formatted(vt.get(j) + 1));
                 //if vt is not present, but we have vn, add '/' v//vn
                 else if (!vn.isEmpty())
                     string.append("/");
 
                 //append vn
                 if (!vn.isEmpty())
-                    string.append("/%s".formatted(vn.get(i) + 1));
+                    string.append("/%s".formatted(vn.get(j) + 1));
 
                 //spacing
                 string.append(" ");
@@ -106,7 +121,7 @@ public class ObjExporter {
         //textures
         writeTexture(path, string, "map_Kd", material.getAlbedo());
         writeTexture(path, string, "bump", material.getHeight());
-        writeTexture(path, string, "norm", material.getNormal(), " -bm " + material.getHeightScale());
+        writeTexture(path, string, "norm", material.getNormal(), "-bm " + material.getHeightScale() + " ");
         writeTexture(path, string, "map_ao", material.getAO());
         writeTexture(path, string, "map_Pr", material.getRoughness());
         writeTexture(path, string, "map_Pm", material.getMetallic());
@@ -121,15 +136,18 @@ public class ObjExporter {
         if (texture == null)
             return;
 
-        //write texture file
-        String[] split = texture.texture().getPath().split("/");
-        String textureName = split[split.length - 1];
+        String textureName = texture.texture().getPath();
+        if (texture.texture().getNamespace().isEmpty()) {
+            textureName = textureName.replaceAll("\\\\", "/");
+            textureName = textureName.substring(textureName.lastIndexOf('/') + 1);
+        }
 
+        //write texture file
         InputStream input = IOUtils.getResource(texture.texture());
         IOUtils.writeFile(path.resolve(textureName), input.readAllBytes());
 
         //write texture material
         string.append(key);
-        string.append(" %s%s%s%s\n".formatted(textureName, extra, texture.smooth() ? " -smooth" : "", texture.mipmap() ? " -mip" : ""));
+        string.append(" %s%s%s%s\n".formatted(extra, texture.smooth() ? "-smooth " : "", texture.mipmap() ? "-mip " : "", textureName));
     }
 }

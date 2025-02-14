@@ -153,6 +153,17 @@ public class Maths {
         return min > max ? Math.clamp(n, max, min) : Math.clamp(n, min, max);
     }
 
+    public static float clampWarp(float n, float min, float max) {
+        if (min > max) {
+            float temp = min;
+            min = max;
+            max = temp;
+        }
+
+        float range = max - min;
+        return n - range * (float) Math.floor((n - min) / range);
+    }
+
     public static Vector3f reflect(Vector3f dir, Vector3f normal) {
         //r = d - 2 * (d dot n) * n
         float dot = dir.dot(normal) * 2;

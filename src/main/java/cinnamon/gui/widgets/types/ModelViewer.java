@@ -42,7 +42,6 @@ public class ModelViewer extends SelectableWidget {
 
     private float defaultScale = 128f, scaleFactor = 0.1f;
     private float defaultRotX = -22.5f, defaultRotY = 30f;
-    private boolean flipX, flipY, flipZ;
 
     //view transforms
     private float posX = 0, posY = 0;
@@ -86,7 +85,21 @@ public class ModelViewer extends SelectableWidget {
 
         Shader oldShader = Shader.activeShader;
         client.camera.useOrtho(false);
+        AABB aabb = model.getAABB();
         matrices.push();
+
+        //setup shader
+        Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
+        s.setup(client.camera);
+        s.setVec3("camPos", 0, 0, 0);
+        s.setFloat("fogStart", 1024);
+        s.setFloat("fogEnd", 2048);
+        the_skybox.type = skybox;
+        the_skybox.pushToShader(s, Texture.MAX_TEXTURES - 1);
+
+        //set up framebuffer
+        modelBuffer.useClear();
+        modelBuffer.resizeTo(Framebuffer.DEFAULT_FRAMEBUFFER);
 
         //position
         matrices.translate(posX, -posY, -200);
@@ -98,29 +111,15 @@ public class ModelViewer extends SelectableWidget {
         matrices.rotate(Rotation.X.rotationDeg(-rotX));
         matrices.rotate(Rotation.Y.rotationDeg(-rotY - 180));
 
-        //offset model to center
-        AABB aabb = model.getAABB();
+        //extra rendering
+        if (extraRendering != null)
+            extraRendering.accept(matrices);
+
+        //draw model
         matrices.translate(aabb.getCenter().mul(-1f));
-
-        //setup shader
-        Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
-        s.setup(client.camera);
-        s.setVec3("camPos", 0, 0, 0);
-        s.setFloat("fogStart", 1024);
-        s.setFloat("fogEnd", 2048);
-        the_skybox.type = skybox;
-        the_skybox.pushToShader(s, Texture.MAX_TEXTURES - 1);
-
-        //apply model flip
-        matrices.scale(flipX ? -1 : 1, flipY ? -1 : 1, flipZ ? -1 : 1);
-        if (flipX ^ flipY ^ flipZ)
-            glCullFace(GL_FRONT);
-        matrices.translate(flipX ? -(aabb.minX() + aabb.maxX()) : 0, flipY ? -(aabb.minY() + aabb.maxY()) : 0, flipZ ? -(aabb.minZ() + aabb.maxZ()) : 0);
-
-        //render to another framebuffer;
-        modelBuffer.useClear();
-        modelBuffer.resizeTo(Framebuffer.DEFAULT_FRAMEBUFFER);
+        glDisable(GL_CULL_FACE);
         model.render(matrices, selectedMaterial.material);
+        glEnable(GL_CULL_FACE);
 
         //draw bounding box
         if (renderBounds) {
@@ -129,16 +128,11 @@ public class ModelViewer extends SelectableWidget {
             VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFFFFFFFF));
         }
 
-        //extra rendering
-        if (extraRendering != null)
-            extraRendering.accept(matrices);
-
         //finish render
         VertexConsumer.finishAllBatches(client.camera);
         Framebuffer.DEFAULT_FRAMEBUFFER.use();
 
         //cleanup
-        glCullFace(GL_BACK);
         oldShader.use();
         matrices.pop();
         client.camera.useOrtho(true);
@@ -250,30 +244,6 @@ public class ModelViewer extends SelectableWidget {
 
     public void setScaleFactor(float scaleFactor) {
         this.scaleFactor = scaleFactor;
-    }
-
-    public void flipX(boolean flipX) {
-        this.flipX = flipX;
-    }
-
-    public void flipY(boolean flipY) {
-        this.flipY = flipY;
-    }
-
-    public void flipZ(boolean flipZ) {
-        this.flipZ = flipZ;
-    }
-
-    public boolean isFlipX() {
-        return flipX;
-    }
-
-    public boolean isFlipY() {
-        return flipY;
-    }
-
-    public boolean isFlipZ() {
-        return flipZ;
     }
 
     private void resetView() {
