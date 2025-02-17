@@ -240,7 +240,7 @@ public class TextField extends SelectableWidget implements Tickable {
     }
 
     protected void renderCursor(MatrixStack matrices, float x, float y, float height) {
-        if (isFocused() && blinkTime % getStyle().blinkSpeed < getStyle().blinkSpeed / 2) {
+        if (isActive() && isFocused() && blinkTime % getStyle().blinkSpeed < getStyle().blinkSpeed / 2) {
             matrices.push();
             //translate matrices so we can render on top of text
             matrices.translate(0, 0, UIHelper.DEPTH_OFFSET * Font.Z_DEPTH);
@@ -501,7 +501,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
     @Override
     public GUIListener keyPress(int key, int scancode, int action, int mods) {
-        if (!isFocused() || action == GLFW_RELEASE)
+        if (!isActive() || !isFocused() || action == GLFW_RELEASE)
             return super.keyPress(key, scancode, action, mods);
 
         boolean ctrl = (mods & GLFW_MOD_CONTROL) != 0;
@@ -622,7 +622,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
     @Override
     public GUIListener charTyped(char c, int mods) {
-        if (!isFocused())
+        if (!isActive() || !isFocused())
             return super.charTyped(c, mods);
 
         if (insert) insert(c);

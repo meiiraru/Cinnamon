@@ -11,7 +11,6 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Resource;
-import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
 
 import java.util.function.Consumer;
@@ -64,7 +63,7 @@ public class Button extends SelectableWidget {
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         Text text = getFormattedMessage();
         int x = getCenterX();
-        int y = getCenterY() - TextUtils.getHeight(text) / 2 + (isHolding() ? getStyle().pressYOffset : 0);
+        int y = getCenterY() + (isHolding() ? getStyle().pressYOffset : 0);
         text.render(VertexConsumer.FONT, matrices, x, y, Alignment.CENTER);
     }
 

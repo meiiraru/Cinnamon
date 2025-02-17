@@ -15,11 +15,13 @@ import static org.lwjgl.openal.AL11.AL_LINEAR_DISTANCE_CLAMPED;
 import static org.lwjgl.openal.AL11.alSpeedOfSound;
 import static org.lwjgl.openal.ALC10.*;
 import static org.lwjgl.openal.ALC11.ALC_ALL_DEVICES_SPECIFIER;
+import static org.lwjgl.openal.ALC11.ALC_DEFAULT_ALL_DEVICES_SPECIFIER;
 
 public class SoundManager {
 
     private static final List<SoundInstance> sounds = new ArrayList<>();
     private static final List<String> devices = new ArrayList<>();
+    private static int currentDevice = 0;
     private static long context;
     private static long device;
     private static boolean initialized;
@@ -50,11 +52,12 @@ public class SoundManager {
         if (deviceIndex >= 0 && deviceIndex < devices.size())
             deviceToUse = devices.get(deviceIndex);
         else {
-            String defaultDevice = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
+            String defaultDevice = alcGetString(0, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
             deviceToUse = defaultDevice != null ? defaultDevice : devices.getFirst();
         }
 
         device = alcOpenDevice(deviceToUse);
+        currentDevice = devices.indexOf(deviceToUse);
 
         try {
             checkALCError(device);
@@ -80,6 +83,7 @@ public class SoundManager {
         alSpeedOfSound(1f);
         initialized = true;
         LOGGER.info("OpenAL version: %s", alcGetInteger(0, ALC_MAJOR_VERSION) + "." + alcGetInteger(0, ALC_MINOR_VERSION));
+        LOGGER.info("OpenAL device: %s", deviceToUse.replaceFirst("^OpenAL Soft on ", ""));
     }
 
     public static void free() {
@@ -183,13 +187,14 @@ public class SoundManager {
     }
 
     public static List<String> getDevices() {
-        String sub = "OpenAL Soft on ";
-        int subLen = sub.length();
-
         List<String> deviceList = new ArrayList<>();
         for (String device : devices)
-            deviceList.add(device.substring(subLen));
+            deviceList.add(device.replaceFirst("^OpenAL Soft on ", ""));
 
         return deviceList;
+    }
+
+    public static String getCurrentDevice() {
+        return currentDevice < 0 || currentDevice >= devices.size() ? "Unknown" : devices.get(currentDevice).replaceFirst("^OpenAL Soft on ", "");
     }
 }

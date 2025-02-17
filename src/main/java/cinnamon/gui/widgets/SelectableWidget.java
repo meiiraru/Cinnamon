@@ -151,7 +151,7 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
         return selectable;
     }
 
-    public void setSelectable(boolean selectable) {
+    protected void setSelectable(boolean selectable) {
         this.selectable = selectable;
     }
 
@@ -167,7 +167,7 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
         int w = TextUtils.getWidth(tooltip);
         int h = TextUtils.getHeight(tooltip);
 
-        int wx = getX();
+        int wx = this instanceof AlignedWidget aw ? aw.getAlignedX() : getX();
         int cx = getCenterX();
         int cy = getCenterY();
 

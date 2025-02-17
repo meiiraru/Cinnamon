@@ -1,6 +1,5 @@
 package cinnamon.gui.screens.extras;
 
-import cinnamon.gui.GUIStyle;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
@@ -31,8 +30,14 @@ public class WidgetTestScreen extends ParentedScreen {
 
     @Override
     public void init() {
-        clicksLabel = new Label(width / 2, (int) (height - GUIStyle.getDefault().font.lineHeight), Text.of(clicks));
-        clicksLabel.setAlignment(Alignment.CENTER);
+        clicksLabel = new Label(width / 2, height - 4, Text.of(clicks));
+        clicksLabel.setAlignment(Alignment.BOTTOM_CENTER);
+        clicksLabel.setTooltip(Text.of("Voided Clicks"));
+        clicksLabel.setPopup(new ContextMenu()
+                .addAction(Text.of("Reset"), Text.of("Reset"), button -> clicks = 0)
+                .addDivider()
+                .addAction(Text.of("Meow"), Text.of("~ :3"), button -> System.out.println("meow"))
+        );
 
         ContainerGrid grid = new ContainerGrid(4, 4, 4);
 
@@ -43,35 +48,30 @@ public class WidgetTestScreen extends ParentedScreen {
         Button b = new Button(0, 0, 60, 12, Text.of("Button"), button -> LOGGER.info("button!"));
         buttons.addWidget(b);
 
-        ContextMenu ctx = new ContextMenu()
-                .addAction(Text.of("Meow 1"), Text.of("Meow 1"), button -> LOGGER.info("Meow 1"))
-                .addDivider()
-                .addAction(Text.of("Meow 2"), Text.of("Meow 2"), button -> LOGGER.info("Meow 2"))
-                .addDivider()
-                .addAction(Text.of("Meow 3"), Text.of("Meow 3"), button -> LOGGER.info("Meow 3"));
-
-        ContextMenu ctx2 = new ContextMenu()
-                .addAction(Text.of("A"), Text.of("A"), button -> LOGGER.info("a"))
-                .addAction(Text.of("B"), Text.of("B"), button -> LOGGER.info("b"))
-                .addAction(Text.of("C"), Text.of("C"), button -> LOGGER.info("c"));
-
-        ContextMenu ctx3 = new ContextMenu()
-                .addAction(Text.of("1"), Text.of("1"), button -> LOGGER.info("II. 1"))
-                .addAction(Text.of("11"), Text.of("11"), button -> LOGGER.info("II. 11"))
-                .addAction(Text.of("111"), Text.of("111"), button -> LOGGER.info("II. 111"));
-
         ContextMenu ctx4 = new ContextMenu();
-
         for (int i = 0; i < 100; i++) {
             int ii = i;
             ctx4.addAction(Text.of(i), Text.of(i), button -> LOGGER.info(ii));
         }
 
-        ctx3.addDivider().addSubMenu(Text.of("III"), ctx4);
-        ctx2.addDivider().addSubMenu(Text.of("II"), ctx3);
-        ctx.addDivider().addSubMenu(Text.of("I"), ctx2);
-
-        b.setPopup(ctx);
+        b.setPopup(new ContextMenu()
+                .addAction(Text.of("Meow 1"), Text.of("Meow 1"), button -> LOGGER.info("Meow 1"))
+                .addDivider()
+                .addAction(Text.of("Meow 2"), Text.of("Meow 2"), button -> LOGGER.info("Meow 2"))
+                .addDivider()
+                .addAction(Text.of("Meow 3"), Text.of("Meow 3"), button -> LOGGER.info("Meow 3"))
+                .addSubMenu(Text.of("I"), new ContextMenu()
+                        .addAction(Text.of("A"), Text.of("A"), button -> LOGGER.info("a"))
+                        .addAction(Text.of("B"), Text.of("B"), button -> LOGGER.info("b"))
+                        .addAction(Text.of("C"), Text.of("C"), button -> LOGGER.info("c"))
+                        .addSubMenu(Text.of("II"), new ContextMenu()
+                                .addAction(Text.of("1"), Text.of("1"), button -> LOGGER.info("II. 1"))
+                                .addAction(Text.of("11"), Text.of("11"), button -> LOGGER.info("II. 11"))
+                                .addAction(Text.of("111"), Text.of("111"), button -> LOGGER.info("II. 111"))
+                                .addSubMenu(Text.of("III"), ctx4)
+                        )
+                )
+        );
 
         Button disabledButt = new Button(0, 0, 60, 12, Text.of("Disabled"), button -> LOGGER.info("Disabled"));
         disabledButt.setActive(false);
@@ -156,15 +156,16 @@ public class WidgetTestScreen extends ParentedScreen {
         tf4.setPassword(true);
         password.addWidget(tf4);
 
+        boolean[] showing = {false};
         Resource password1 = new Resource("textures/gui/icons/show_password.png");
         Resource password2 = new Resource("textures/gui/icons/hide_password.png");
         Button viewPassword = new Button(0, 0, 16, 16, null, button -> {
-            tf4.setPassword(!button.isHolding());
-            button.setImage(button.isHolding() ? password2 : password1);
-            button.setTooltip(Text.of(button.isHolding() ? "Hide Password" : "Show Password"));
+            showing[0] = !showing[0];
+            tf4.setPassword(!showing[0]);
+            button.setImage(showing[0] ? password2 : password1);
+            button.setTooltip(Text.of(showing[0] ? "Hide Password" : "Show Password"));
         });
         viewPassword.setImage(password1);
-        viewPassword.setRunOnHold(true);
         viewPassword.setTooltip(Text.of("Show Password"));
         password.addWidget(viewPassword);
 
@@ -206,22 +207,25 @@ public class WidgetTestScreen extends ParentedScreen {
 
         //right panel
         ContainerGrid grid2 = new ContainerGrid(width - 4, 4, 4);
-        grid2.setAlignment(Alignment.RIGHT);
+        grid2.setAlignment(Alignment.TOP_RIGHT);
 
         //button grid
         ContainerGrid buttonsGrid = new ContainerGrid(0, 0, 2, 3);
         grid2.addWidget(buttonsGrid);
 
+        Label rightLabel = new Label(0, 0, Text.of("Alignment:\n" + buttonsGrid.getAlignment().name()));
+        grid2.addWidget(rightLabel);
+
         for (int i = 0; i < 9; i++) {
             int x = i % 3 + 1;
             int y = i / 3 + 1;
-            Button btx = new Button(0, 0, 30, 12, Text.of(y + "-" + x), button -> LOGGER.info("%s %s", y, x));
-            if (x == 3) btx.setActive(false);
+            final int fi = i;
+            Button btx = new Button(0, 0, 30 + y * 3, 12 + x * 3, Text.of(y + "-" + x), button -> {
+                buttonsGrid.setAlignment(Alignment.values()[fi]);
+                rightLabel.setText(Text.of("Alignment:\n" + buttonsGrid.getAlignment().name()));
+            });
             buttonsGrid.addWidget(btx);
         }
-
-        Label rightLabel = new Label(0, 0, Text.of("Some text\nNo Alignment"));
-        buttonsGrid.addWidget(rightLabel);
 
         //vertical stuff
         ContainerGrid vertical = new ContainerGrid(0, 0, 4, 100);

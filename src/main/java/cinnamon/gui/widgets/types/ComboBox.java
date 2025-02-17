@@ -6,6 +6,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
+import cinnamon.utils.Alignment;
 import cinnamon.utils.Maths;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
@@ -54,15 +55,14 @@ public class ComboBox extends Button {
 
         //render arrow
         Text text = Text.of(isExpanded() ? "\u23F6" : "\u23F7").withStyle(style);
-        int width = TextUtils.getWidth(text);
-        int x = getX() + getWidth() - width - 2;
-        int y = getCenterY() - TextUtils.getHeight(text) / 2 + (isHolding() ? getStyle().pressYOffset : 0);
-        text.render(VertexConsumer.FONT, matrices, x, y);
+        int x = getX() + getWidth() - 2;
+        int y = getCenterY() + (isHolding() ? getStyle().pressYOffset : 0);
+        text.render(VertexConsumer.FONT, matrices, x, y, Alignment.CENTER_RIGHT);
 
         //render selected text
-        text = TextUtils.addEllipsis(Text.empty().withStyle(style).append(selectedText), getWidth() - width - 4);
+        text = TextUtils.addEllipsis(Text.empty().withStyle(style).append(selectedText), getWidth() - TextUtils.getWidth(text) - 4);
         x = getX() + 2;
-        text.render(VertexConsumer.FONT, matrices, x, y);
+        text.render(VertexConsumer.FONT, matrices, x, y, Alignment.CENTER_LEFT);
     }
 
     public boolean isExpanded() {
@@ -74,12 +74,23 @@ public class ComboBox extends Button {
     }
 
     public void select(int index) {
-        this.selected = index;
-        this.selectedText = indexes.get(index);
+        if (index < 0 || index >= indexes.size() || index == selected)
+            return;
+
+        setSelected(index);
+
         if (changeListener != null)
             changeListener.accept(index);
         if (closeOnSelect)
             getPopup().close();
+    }
+
+    public void setSelected(int index) {
+        if (index < 0 || index >= indexes.size() || index == selected)
+            return;
+
+        this.selected = index;
+        this.selectedText = indexes.get(index);
         updateTexts();
     }
 

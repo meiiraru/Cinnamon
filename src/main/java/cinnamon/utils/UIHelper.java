@@ -62,7 +62,17 @@ public class UIHelper {
         Widget parent = w.getParent();
         if (parent != null && !(parent instanceof PopupWidget) && !isMouseOver(parent, mouseX, mouseY))
             return false;
-        return isMouseOver(w instanceof AlignedWidget aw ? aw.getAlignedX() : w.getX(), w.getY(), w.getWidth(), w.getHeight(), mouseX, mouseY);
+
+        int x, y;
+        if (w instanceof AlignedWidget aw) {
+            x = aw.getAlignedX();
+            y = aw.getAlignedY();
+        } else {
+            x = w.getX();
+            y = w.getY();
+        }
+
+        return isMouseOver(x, y, w.getWidth(), w.getHeight(), mouseX, mouseY);
     }
 
     public static boolean isMouseOver(int x, int y, int width, int height, int mouseX, int mouseY) {
@@ -242,8 +252,6 @@ public class UIHelper {
         if (sPopup != popup) {
             s.popup = popup;
             s.addWidgetOnTop(popup);
-        } else {
-            popup.updateDimensions();
         }
     }
 

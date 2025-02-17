@@ -100,6 +100,7 @@ public class EasingScreen extends ParentedScreen {
         for (int i = 0; i < widgets.length; i++) {
             if (i % 3 == 0) {
                 ContainerGrid category = new ContainerGrid(0, 0, 4);
+                category.setAlignment(Alignment.CENTER);
                 category.addWidget(new Label(0, 0, Text.of(EASING_TYPES.get(i / 3)).withStyle(Style.EMPTY.outlined(true))));
 
                 group = new ContainerGrid(0, 0, 4, 3);
@@ -117,7 +118,7 @@ public class EasingScreen extends ParentedScreen {
         this.addWidget(list);
 
         Label sliderValue = new Label(0, 0, Text.of("0.00"));
-        sliderValue.setAlignment(Alignment.CENTER);
+        sliderValue.setAlignment(Alignment.TOP_CENTER);
 
         //slider
         int sliderW = 35 * 6;

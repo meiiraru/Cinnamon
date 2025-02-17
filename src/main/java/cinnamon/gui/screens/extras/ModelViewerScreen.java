@@ -40,7 +40,7 @@ public class ModelViewerScreen extends ParentedScreen {
     public void init() {
         //create model list
         WidgetList models = new WidgetList(4, 4, listWidth - 4, height - 8, 4);
-        models.setAlignment(Alignment.LEFT);
+        models.setAlignment(Alignment.TOP_LEFT);
 
         //button common function
         BiFunction<Resource, String, Button> createButton = (model, name) ->
@@ -75,7 +75,7 @@ public class ModelViewerScreen extends ParentedScreen {
         for (MaterialRegistry value : MaterialRegistry.values())
             materials.addEntry(Text.of(value.name()), null, b -> modelViewer.setMaterial(value));
         materials.setTooltip(Text.of("Materials"));
-        materials.select(modelViewer.getMaterial().ordinal());
+        materials.setSelected(modelViewer.getMaterial().ordinal());
         addWidget(materials);
 
         //prepare animations list
@@ -88,7 +88,7 @@ public class ModelViewerScreen extends ParentedScreen {
         for (SkyBox.Type value : SkyBox.Type.values())
             skyboxes.addEntry(Text.of(value.name()), null, b -> modelViewer.setSkybox(value));
         skyboxes.setTooltip(Text.of("Skybox"));
-        skyboxes.select(modelViewer.getSkybox().ordinal());
+        skyboxes.setSelected(modelViewer.getSkybox().ordinal());
         addWidget(skyboxes);
 
         //add model viewer
@@ -110,7 +110,7 @@ public class ModelViewerScreen extends ParentedScreen {
         super.render(matrices, mouseX, mouseY, delta);
 
         //render title
-        Text.of(modelName).withStyle(Style.EMPTY.outlined(true)).render(VertexConsumer.FONT, matrices, (width - listWidth) / 2f + listWidth, 4, Alignment.CENTER);
+        Text.of(modelName).withStyle(Style.EMPTY.outlined(true)).render(VertexConsumer.FONT, matrices, (width - listWidth) / 2f + listWidth, 4, Alignment.TOP_CENTER);
     }
 
     private void setModel(Resource model, String name) {
@@ -129,7 +129,7 @@ public class ModelViewerScreen extends ParentedScreen {
         } else {
             animationList.addEntry(Text.of("None"), null, null);
         }
-        animationList.select(0);
+        animationList.setSelected(0);
     }
 
     public boolean filesDropped(String[] files) {

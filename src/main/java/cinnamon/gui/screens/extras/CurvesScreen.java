@@ -69,7 +69,6 @@ public class CurvesScreen extends ParentedScreen {
 
                 Scroll
                     Change curve quality"""));
-        help.setSelectable(true);
         grid.addWidget(help);
 
         //selection box
@@ -93,7 +92,7 @@ public class CurvesScreen extends ParentedScreen {
                 .addEntry(Text.of("Bezier De Casteljau"))
                 .addEntry(Text.of("Catmull-Rom"));
 
-        box.select(lastSelected); //widget recreation
+        box.setSelected(lastSelected); //widget recreation
         grid.addWidget(box);
 
         //points button
@@ -178,11 +177,11 @@ public class CurvesScreen extends ParentedScreen {
         renderCurve(matrices, curve.getInternalCurve(), 0xFF7272, 0xFFFF72);
 
         //draw texts
-        Text.of("Curve quality: " + this.curve.getSteps() + "\nCurve Size: " + this.curve.getCurve().size()).render(VertexConsumer.FONT, matrices, width / 2f, 4, Alignment.CENTER);
+        Text.of("Curve quality: " + this.curve.getSteps() + "\nCurve Size: " + this.curve.getCurve().size()).render(VertexConsumer.FONT, matrices, width / 2f, 4, Alignment.TOP_CENTER);
 
         if (focused instanceof Point selected) {
             Text t = Text.of("x" + selected.getX() + " y" + selected.getY());
-            t.render(VertexConsumer.FONT, matrices, 4, height - 4 - TextUtils.getHeight(t));
+            t.render(VertexConsumer.FONT, matrices, 4, height - 4, Alignment.BOTTOM_LEFT);
         }
 
         //draw children

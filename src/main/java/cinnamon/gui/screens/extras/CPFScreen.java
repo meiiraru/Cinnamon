@@ -7,6 +7,7 @@ import cinnamon.gui.widgets.WidgetList;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.TextField;
 import cinnamon.text.Text;
+import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
 
 import java.util.regex.Matcher;
@@ -22,7 +23,9 @@ public class CPFScreen extends ParentedScreen {
 
     @Override
     public void init() {
-        WidgetList list = new WidgetList(0, 0, 0, 0, 4);
+        WidgetList list = new WidgetList(width / 2, height / 2, width - 8, height - 8, 4);
+        list.setAlignment(Alignment.CENTER);
+        addWidget(list);
 
         //field
         TextField field = new TextField(0, 0, 180, 20);
@@ -66,11 +69,6 @@ public class CPFScreen extends ParentedScreen {
         });
         list.addWidget(button);
         field.setEnterListener(tf -> button.onRun());
-
-        //add list to screen
-        list.setDimensions(width - 8, Math.min(list.getWidgetsHeight(), height - 8));
-        list.setPos(width / 2, (height - list.getHeight()) / 2);
-        this.addWidget(list);
 
         super.init();
     }

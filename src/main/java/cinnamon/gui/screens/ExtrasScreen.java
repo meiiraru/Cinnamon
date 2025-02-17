@@ -7,6 +7,7 @@ import cinnamon.gui.widgets.WidgetList;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Label;
 import cinnamon.text.Text;
+import cinnamon.utils.Alignment;
 import cinnamon.world.world.DiscoWorld;
 import cinnamon.world.world.MaterialPreviewWorld;
 import cinnamon.world.world.RollerCoasterWorld;
@@ -25,7 +26,9 @@ public class ExtrasScreen extends ParentedScreen {
     @Override
     public void init() {
         //buttons
-        WidgetList list = new WidgetList(0, 0, 0, 0, 4);
+        WidgetList list = new WidgetList(width / 2, height / 2, width - 8, height - 8, 4);
+        list.setAlignment(Alignment.CENTER);
+        addWidget(list);
 
         //title
         list.addWidget(new Label(0, 0, Text.of("Custom Worlds\n")));
@@ -83,11 +86,6 @@ public class ExtrasScreen extends ParentedScreen {
 
         //back
         list.addWidget(BUTTON_FACTORY.apply("Back", button -> close()));
-
-        //add list to screen
-        list.setDimensions(width - 8, Math.min(list.getWidgetsHeight(), height - 8));
-        list.setPos(width / 2, (height - list.getHeight()) / 2);
-        this.addWidget(list);
 
         super.init();
     }

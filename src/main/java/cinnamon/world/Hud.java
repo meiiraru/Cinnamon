@@ -102,19 +102,18 @@ public class Hud {
 
         //transform matrices
         matrices.push();
-        matrices.translate(12, window.scaledHeight - TextUtils.getHeight(text) - 12, 0f);
+        matrices.translate(12, window.scaledHeight - 12, 0f);
         matrices.push();
 
         matrices.rotate(Rotation.Y.rotationDeg(-20f));
         matrices.rotate(Rotation.Z.rotationDeg(-10f));
 
         //draw text
-        text.render(VertexConsumer.FONT, matrices, 0f, 0f);
+        text.render(VertexConsumer.FONT, matrices, 0f, 0f, Alignment.BOTTOM_LEFT);
 
         //health progress bar
         float hp = player.getHealthProgress();
         health.setProgress(hp);
-        health.setY(TextUtils.getHeight(text));
         health.render(matrices, 0, 0, delta);
 
         matrices.pop();
@@ -146,14 +145,12 @@ public class Hud {
         boolean onCooldown = item instanceof CooldownItem ci && ci.isOnCooldown();
 
         //item name
-        Text text = Text.of(item.getId()).withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE));
-        int y = TextUtils.getHeight(text);
+        Text text = Text.of(item.getId()).withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE)).append("\n");
 
         //item count
         if (!onCooldown) {
             Style style = Style.EMPTY.color(Colors.RED);
             text
-                    .append("\n")
                     .append(Text.of(item.getCount()).withStyle(style))
                     .append(" / ")
                     .append(Text.of(item.getStackCount()).withStyle(style));
@@ -161,18 +158,18 @@ public class Hud {
 
         //transform matrices
         matrices.push();
-        matrices.translate(window.scaledWidth - 12, window.scaledHeight - y - 12, 0f);
+        matrices.translate(window.scaledWidth - 12, window.scaledHeight - 12, 0f);
         matrices.push();
         matrices.rotate(Rotation.Y.rotationDeg(-20f));
         matrices.rotate(Rotation.Z.rotationDeg(10f));
 
         //draw text
-        text.render(VertexConsumer.FONT, matrices, 0f, 0f, Alignment.RIGHT);
+        text.render(VertexConsumer.FONT, matrices, 0f, 0f, Alignment.CENTER_RIGHT);
 
         //draw progressbar
         if (onCooldown) {
             itemCooldown.setProgressWithoutLerp(((CooldownItem) item).getCooldownProgress());
-            itemCooldown.setPos(-itemCooldown.getWidth(), y);
+            itemCooldown.setPos(-itemCooldown.getWidth(), 0);
             itemCooldown.render(matrices, 0, 0, delta);
         }
 
@@ -207,7 +204,7 @@ public class Hud {
 
         //render
         if (!text.asString().equals("\n"))
-            text.render(VertexConsumer.FONT, matrices, 0f, 0f, Alignment.RIGHT);
+            text.render(VertexConsumer.FONT, matrices, 0f, 0f, Alignment.TOP_RIGHT);
 
         matrices.pop();
     }
@@ -319,7 +316,7 @@ public class Hud {
 
         //render name
         String str = (material.name() + " " + registry.name()).replaceAll("_", " ");
-        Text.of(str).withStyle(Style.EMPTY.shadow(true).guiStyle(HUD_STYLE)).render(VertexConsumer.FONT, matrices, ww.scaledWidth * 0.5f, 16 + 4 + 4, Alignment.CENTER);
+        Text.of(str).withStyle(Style.EMPTY.shadow(true).guiStyle(HUD_STYLE)).render(VertexConsumer.FONT, matrices, ww.scaledWidth * 0.5f, 16 + 4 + 4, Alignment.TOP_CENTER);
     }
 
     private void drawCrosshair(MatrixStack matrices) {
@@ -344,7 +341,7 @@ public class Hud {
         //render debug text
         if (c.debug) {
             TextUtils.parseColorFormatting(Text.of(debugLeftText(c))).withStyle(style).render(VertexConsumer.FONT, matrices, 4, 4);
-            TextUtils.parseColorFormatting(Text.of(debugRightText(c))).withStyle(style).render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, Alignment.RIGHT);
+            TextUtils.parseColorFormatting(Text.of(debugRightText(c))).withStyle(style).render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, Alignment.TOP_RIGHT);
 
             //render crosshair
             renderDebugCrosshair(matrices);

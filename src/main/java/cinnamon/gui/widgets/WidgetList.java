@@ -21,6 +21,7 @@ public class WidgetList extends ContainerGrid {
     private final Scrollbar scrollbar;
     private boolean showScrollbar = true;
     private boolean hasBackground;
+    private boolean ignoreScrollbarOffset;
     private int widgetsWidth, widgetsHeight;
     private int lastY;
 
@@ -33,7 +34,7 @@ public class WidgetList extends ContainerGrid {
         scrollbar = new Scrollbar(0, 0, height - 2);
         scrollbar.setParent(this);
         setDimensions(width, height);
-        setAlignment(Alignment.CENTER);
+        setAlignment(Alignment.TOP_CENTER);
         listeners.add(scrollbar);
     }
 
@@ -44,7 +45,7 @@ public class WidgetList extends ContainerGrid {
 
         boolean scroll = shouldRenderScrollbar();
         if (scroll)
-            UIHelper.pushScissors(getAlignedX(), getY(), getWidth(), getHeight());
+            UIHelper.pushScissors(getAlignedX(), getAlignedY(), getWidth(), getHeight());
 
         for (Widget widget : updateList())
             widget.render(matrices, mouseX, mouseY, delta);
@@ -60,7 +61,7 @@ public class WidgetList extends ContainerGrid {
         //render background
         UIHelper.nineQuad(
                 VertexConsumer.GUI, matrices, TEXTURE,
-                getAlignedX() - 1, getY() - 1,
+                getAlignedX() - 1, getAlignedY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,
                 16, 16,
@@ -69,30 +70,29 @@ public class WidgetList extends ContainerGrid {
     }
 
     @Override
-    public void updateDimensions() {
+    protected void updateDimensions() {
         lastY = 0;
         super.updateDimensions();
 
-        //spacing
-        int width = getWidth();
-        if (shouldRenderScrollbar()) {
-            int remainingSpace = width - getWidgetsWidth();
-            remainingSpace += (int) alignment.getOffset(remainingSpace);
-            if (remainingSpace < getScrollbarWidth() + 3)
-                width -= getScrollbarWidth() + 3;
+        //scrollbar limit
+        if (!ignoreScrollbarOffset && shouldRenderScrollbar()) {
+            //grab the widgets initial X point
+            int x = getX() + widgetsWidth + Math.round(alignment.getWidthOffset(widgetsWidth));
+            if (x > scrollbar.getX() - 1) {
+                x -= scrollbar.getX() - 1;
+                for (Widget widget : widgets)
+                    widget.translate(-x, 1);
+            }
+        } else {
+            for (Widget widget : widgets)
+                widget.translate(0, 1);
         }
-        int x = -Math.round(alignment.getOffset(width - getWidgetsWidth()));
-        for (Widget widget : widgets)
-            widget.translate(x, 1);
 
         //update scrollbar
-        scrollbar.setHandlePercentage((float) scrollbar.getHeight() / getWidgetsHeight());
-
         updateList();
-        int remaining = widgets.size() - widgetsToRender.size();
+        scrollbar.setScrollAmount(3f / widgets.size()); //3 widgets per scroll
+        scrollbar.setHandleSize(scrollbar.getHeight() * getHeight() / getWidgetsHeight());
 
-        scrollbar.setScrollAmount(1f / remaining);
-        scrollbar.setMax(remaining);
         updateScrollbar();
     }
 
@@ -112,11 +112,12 @@ public class WidgetList extends ContainerGrid {
         widgetsToRender.clear();
 
         //grab height difference
-        int newY = Math.round((getWidgetsHeight() - getHeight()) * scrollbar.getAnimationValue());
+        int heightDiff = getWidgetsHeight() - getHeight();
+        int newY = Math.round(alignment.getHeightOffset(heightDiff) + heightDiff * scrollbar.getAnimationValue());
         int diff = lastY - newY;
         lastY = newY;
 
-        int thisY = this.getY();
+        int thisY = this.getAlignedY();
         int thisY2 = thisY + this.getHeight();
         boolean hovered = this.isHovered();
         Window w = Client.getInstance().window;
@@ -128,6 +129,9 @@ public class WidgetList extends ContainerGrid {
             widget.setY(y);
 
             //if widget is inside list, allow it for render
+            if (widget instanceof AlignedWidget aw)
+                y += Math.round(aw.getAlignment().getHeightOffset(widget.getHeight()));
+
             boolean isInside = y + widget.getHeight() >= thisY && y <= thisY2;
             if (isInside)
                 widgetsToRender.add(widget);
@@ -145,15 +149,10 @@ public class WidgetList extends ContainerGrid {
     }
 
     protected void updateScrollbar() {
-        if (!shouldRenderScrollbar()) {
-            scrollbar.setHeight(0);
-            return;
-        }
-
         scrollbar.setHeight(getHeight() - 2);
         scrollbar.setPos(
                 getAlignedX() + getWidth() - getScrollbarWidth() - 1,
-                getY() + 1
+                getAlignedY() + 1
         );
     }
 
@@ -202,7 +201,7 @@ public class WidgetList extends ContainerGrid {
 
     public boolean isHovered() {
         Window w = Client.getInstance().window;
-        return UIHelper.isMouseOver(getAlignedX(), getY(), getWidth(), getHeight(), w.mouseX, w.mouseY);
+        return UIHelper.isMouseOver(getAlignedX(), getAlignedY(), getWidth(), getHeight(), w.mouseX, w.mouseY);
     }
 
     public void setShowScrollbar(boolean showScrollbar) {
@@ -238,5 +237,9 @@ public class WidgetList extends ContainerGrid {
 
     public boolean shouldRenderScrollbar() {
         return showScrollbar && getWidgetsHeight() > getHeight();
+    }
+
+    public void setIgnoreScrollbarOffset(boolean bool) {
+        this.ignoreScrollbarOffset = bool;
     }
 }

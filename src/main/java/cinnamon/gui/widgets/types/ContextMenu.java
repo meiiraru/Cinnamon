@@ -9,6 +9,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
+import cinnamon.utils.Alignment;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextUtils;
@@ -40,8 +41,10 @@ public class ContextMenu extends PopupWidget {
         super(0, 0, 0);
         this.minWidth = this.totalWidth = Math.max(minWidth, 22);
         this.elementHeight = Math.max(elementHeight, 12);
-        addWidget(list);
         list.setDimensions(this.minWidth, this.elementHeight);
+        list.setAlignment(Alignment.TOP_LEFT);
+        list.setIgnoreScrollbarOffset(true);
+        addWidget(list);
     }
 
     @Override
@@ -109,12 +112,6 @@ public class ContextMenu extends PopupWidget {
 
     public Button getAction(int i) {
         return actions.get(i);
-    }
-
-    @Override
-    public void updateDimensions() {
-        list.updateDimensions();
-        super.updateDimensions();
     }
 
     @Override
@@ -202,8 +199,8 @@ public class ContextMenu extends PopupWidget {
         protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
             Text text = getFormattedMessage();
             int x = getX() + 2;
-            int y = getCenterY() - TextUtils.getHeight(text) / 2;
-            text.render(VertexConsumer.FONT, matrices, x, y);
+            int y = getCenterY();
+            text.render(VertexConsumer.FONT, matrices, x, y, Alignment.CENTER_LEFT);
         }
 
         @Override
@@ -287,14 +284,14 @@ public class ContextMenu extends PopupWidget {
 
             //render arrow
             Text arrow = Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(ARROW);
-            int x = getX() + getWidth() - 2 - TextUtils.getWidth(arrow);
-            int y = getCenterY() - TextUtils.getHeight(getFormattedMessage()) / 2;
+            int x = getX() + getWidth() - 2;
+            int y = getCenterY();
 
             //arrow animation :3
             float d = UIHelper.tickDelta(0.6f);
             arrowOffset = Maths.lerp(arrowOffset, isHoveredOrFocused() ? 2f : 0f, d);
 
-            arrow.render(VertexConsumer.FONT, matrices, x + arrowOffset, y);
+            arrow.render(VertexConsumer.FONT, matrices, x + arrowOffset, y, Alignment.CENTER_RIGHT);
         }
 
         @Override

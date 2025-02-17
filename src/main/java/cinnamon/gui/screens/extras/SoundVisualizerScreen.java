@@ -17,7 +17,11 @@ import cinnamon.settings.Settings;
 import cinnamon.sound.*;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.*;
+import cinnamon.utils.Alignment;
+import cinnamon.utils.ColorUtils;
+import cinnamon.utils.Colors;
+import cinnamon.utils.Maths;
+import cinnamon.utils.Resource;
 import org.joml.Vector3f;
 
 import java.nio.file.Path;
@@ -76,7 +80,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
         //buttons grid
         ContainerGrid buttons = new ContainerGrid(0, 0, 16, 3);
-        buttons.setAlignment(Alignment.CENTER);
+        buttons.setAlignment(Alignment.TOP_CENTER);
 
         //previous track button
         previousButton = new Button(0, 0, 16, 16, null, button -> {
@@ -91,7 +95,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
         //center buttons grid
         ContainerGrid centerButtons = new ContainerGrid(0, 0, 4, 3);
-        centerButtons.setAlignment(Alignment.CENTER);
+        centerButtons.setAlignment(Alignment.TOP_CENTER);
 
         //play/pause button
         playPauseButton = new Button(0, 0, 16, 16, null, button -> {
@@ -196,8 +200,10 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
         //output device
         ComboBox device = new ComboBox(4, volume.getY() - 4 - 16, 50, 16);
-        for (String string : SoundManager.getDevices())
+        List<String> devices = SoundManager.getDevices();
+        for (String string : devices)
             device.addEntry(Text.of(string));
+        device.setSelected(devices.indexOf(SoundManager.getCurrentDevice()));
         device.setChangeListener(i -> {
             boolean playing = soundData != null && soundData.isPlaying();
             float f = slider.getPercentage();
@@ -265,14 +271,14 @@ public class SoundVisualizerScreen extends ParentedScreen {
         float lineHeight = GUIStyle.getDefault().font.lineHeight;
 
         //draw top text
-        Text.of("Drop Ogg Vorbis files to play!").withStyle(Style.EMPTY.color(songCount > 0 ? Colors.LIGHT_GRAY : Colors.WHITE)).render(VertexConsumer.FONT, matrices, (int) (width / 2f), 4, Alignment.CENTER);
+        Text.of("Drop Ogg Vorbis files to play!").withStyle(Style.EMPTY.color(songCount > 0 ? Colors.LIGHT_GRAY : Colors.WHITE)).render(VertexConsumer.FONT, matrices, (int) (width / 2f), 4, Alignment.TOP_CENTER);
 
         //draw timers
         int x = slider.getX();
         int y = (int) (slider.getCenterY() - lineHeight / 2);
         int now = playTime / 1000;
         int max = slider.getMax() / 1000;
-        Text.of("%d:%02d".formatted(now / 60, now % 60)).render(VertexConsumer.FONT, matrices, x - 4, y, Alignment.RIGHT);
+        Text.of("%d:%02d".formatted(now / 60, now % 60)).render(VertexConsumer.FONT, matrices, x - 4, y, Alignment.TOP_RIGHT);
         Text.of("%d:%02d".formatted(max / 60, max % 60)).render(VertexConsumer.FONT, matrices, x + slider.getWidth() + 4, y);
 
         if (songCount == 0)
@@ -280,17 +286,17 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
         //song count
         if (songCount > 1)
-            Text.of("%d / %d".formatted(playlistIndex + 1, songCount)).render(VertexConsumer.FONT, matrices, (int) (width / 2f), playPauseButton.getY() - lineHeight - 4, Alignment.CENTER);
+            Text.of("%d / %d".formatted(playlistIndex + 1, songCount)).render(VertexConsumer.FONT, matrices, (int) (width / 2f), playPauseButton.getY() - lineHeight - 4, Alignment.TOP_CENTER);
 
         Track track = playlist.get(playlistIndex);
 
         //title
-        Text.of(track.title).render(VertexConsumer.FONT, matrices, (int) (width / 2f), playPauseButton.getY() - (lineHeight + 4) * (songCount > 1 ? 2 : 1), Alignment.CENTER);
+        Text.of(track.title).render(VertexConsumer.FONT, matrices, (int) (width / 2f), playPauseButton.getY() - (lineHeight + 4) * (songCount > 1 ? 2 : 1), Alignment.TOP_CENTER);
 
         //lyrics
         Text text = track.getLyrics(playTime);
         if (text != null)
-            text.render(VertexConsumer.FONT, matrices, (int) (width / 2f), (int) (height / 4f - TextUtils.getHeight(text) / 2f), Alignment.CENTER);
+            text.render(VertexConsumer.FONT, matrices, (int) (width / 2f), (int) (height / 4f), Alignment.CENTER);
     }
 
     private void drawBar(MatrixStack matrices, int i, int bars, float amplitude) {

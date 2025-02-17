@@ -21,10 +21,8 @@ public class Container extends Widget implements Tickable, GUIListener {
         this.widgets.add(wi, w);
         if (w instanceof GUIListener el)
             this.listeners.add(li, el);
-        if (w instanceof Container c)
-            c.updateDimensions();
-        updateDimensions();
         w.setParent(this);
+        w.updateDimensions();
     }
 
     public void addWidget(Widget widget) {
@@ -68,13 +66,13 @@ public class Container extends Widget implements Tickable, GUIListener {
         this.setDimensions(0, 0);
     }
 
-    public void updateDimensions() {
+    @Override
+    protected void updateDimensions() {
         int minX = getX(), maxX = minX;
         int minY = getY(), maxY = minY;
 
         for (Widget w : this.widgets) {
-            //if (w instanceof Container c)
-            //    c.updateDimensions();
+            //c.updateDimensions();
 
             int x = w.getX();
             minX = Math.min(minX, x);
@@ -86,6 +84,8 @@ public class Container extends Widget implements Tickable, GUIListener {
         }
 
         this.updateDimensions(maxX - minX, maxY - minY);
+
+        super.updateDimensions();
     }
 
     protected void updateDimensions(int width, int height) {
@@ -103,7 +103,8 @@ public class Container extends Widget implements Tickable, GUIListener {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //int x = this instanceof AlignedWidget aw ? aw.getAlignedX() : getX();
-        //VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, getY(), x + getWidth(), getY() + getHeight(), 0x88FF72AD));
+        //int y = this instanceof AlignedWidget aw ? aw.getAlignedY() : getY();
+        //VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y, x + getWidth(), y + getHeight(), 0x88FF72AD));
 
         for (Widget widget : this.widgets)
             widget.render(matrices, mouseX, mouseY, delta);

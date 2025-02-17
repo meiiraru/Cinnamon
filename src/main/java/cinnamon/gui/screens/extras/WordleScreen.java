@@ -18,7 +18,6 @@ import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
-import cinnamon.utils.TextUtils;
 import cinnamon.world.Hud;
 
 import java.nio.charset.StandardCharsets;
@@ -142,13 +141,13 @@ public class WordleScreen extends ParentedScreen {
 
         //stats
         stats = new Stats(0, 0, 4, TRIES);
-        stats.setAlignment(Alignment.CENTER);
+        stats.setAlignment(Alignment.TOP_CENTER);
         stats.setPos(grid.getX() / 2, (height - stats.getHeight()) / 2);
         addWidget(stats);
 
         //keyboard
         ContainerGrid keyboardGrid = new ContainerGrid(0, 0, 2);
-        keyboardGrid.setAlignment(Alignment.CENTER);
+        keyboardGrid.setAlignment(Alignment.TOP_CENTER);
 
         int gridXWidth = grid.getX() + grid.getWidth();
         keyboard = new Keyboard(0, 0, 2, c -> field.setString(field.getString() + c));
@@ -459,7 +458,7 @@ public class WordleScreen extends ParentedScreen {
             ));
 
             if (text != null)
-                text.render(VertexConsumer.FONT, matrices, getCenterX(), getCenterY() - Math.round(TextUtils.getHeight(text) / 2f), Alignment.CENTER);
+                text.render(VertexConsumer.FONT, matrices, getCenterX(), getCenterY(), Alignment.CENTER);
         }
 
         public void setColor(Colors color) {
@@ -494,9 +493,11 @@ public class WordleScreen extends ParentedScreen {
             super(x, y, spacing);
 
             lastWord = new Label(0, 0, Text.of("Last Word\n" + "???"));
+            lastWord.setAlignment(Alignment.TOP_CENTER);
             addWidget(lastWord);
 
             playCount = new Label(0, 0, Text.of("Games\n0"));
+            playCount.setAlignment(Alignment.TOP_CENTER);
             addWidget(playCount);
 
             Label triesLabel = new Label(0, 0, Text.of("Stats"));

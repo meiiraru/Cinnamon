@@ -4,6 +4,7 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
+import cinnamon.utils.Alignment;
 import cinnamon.utils.TextUtils;
 
 import java.util.function.Consumer;
@@ -38,8 +39,7 @@ public class Checkbox extends Button {
     @Override
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         Text text = getFormattedMessage();
-        int y = getCenterY() - TextUtils.getHeight(text) / 2;
-        text.render(VertexConsumer.FONT, matrices, getX() + 8 + textSpacing, y);
+        text.render(VertexConsumer.FONT, matrices, getX() + 8 + textSpacing, getCenterY(), Alignment.CENTER_LEFT);
     }
 
     @Override
@@ -59,11 +59,14 @@ public class Checkbox extends Button {
         updateDimensions();
     }
 
-    private void updateDimensions() {
+    @Override
+    protected void updateDimensions() {
         this.setDimensions(
                 Math.max(8, 8 + textSpacing + TextUtils.getWidth(message)),
                 Math.max(8, TextUtils.getHeight(message))
         );
+
+        super.updateDimensions();
     }
 
     public boolean isToggled() {

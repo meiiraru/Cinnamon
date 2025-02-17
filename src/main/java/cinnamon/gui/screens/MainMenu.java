@@ -34,10 +34,10 @@ public class MainMenu extends Screen {
         //bottom texts
         Style s = Style.EMPTY.italic(true).color(0x66FFFFFF).shadow(true).shadowColor(0x66161616).guiStyle(GUI_STYLE);
         Text bottomLeft = Text.of("Cinnamon v%s".formatted(Version.CLIENT_VERSION.toStringNoBuild())).withStyle(s);
-        this.addWidget(new Label(4, height - TextUtils.getHeight(bottomLeft) - 4, bottomLeft));
+        this.addWidget(new Label(4, height - 4, bottomLeft, Alignment.BOTTOM_LEFT));
 
         Text bottomRight = Text.of("\u00A9").withStyle(s.italic(false)).append(Text.of("Meiiraru").withStyle(s));
-        this.addWidget(new Label(width - TextUtils.getWidth(bottomRight) - 4, height - TextUtils.getHeight(bottomRight) - 4, bottomRight));
+        this.addWidget(new Label(width - 4, height - 4, bottomRight, Alignment.BOTTOM_RIGHT));
 
         //buttons
         ContainerGrid grid = new ContainerGrid(0, 0, 4);

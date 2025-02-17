@@ -58,9 +58,8 @@ public class Scrollbar extends Slider {
         }
     }
 
-    public void setHandlePercentage(float handleSize) {
-        int size = isVertical() ? getHeight() : getWidth();
-        this.handleSize = Math.max(8, Math.round(size * Math.min(handleSize, 1f)));
+    public void setHandleSize(int handleSize) {
+        this.handleSize = Math.max(8, handleSize);
     }
 
     @Override

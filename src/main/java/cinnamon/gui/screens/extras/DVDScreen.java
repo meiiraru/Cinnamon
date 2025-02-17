@@ -39,7 +39,7 @@ public class DVDScreen extends ParentedScreen {
     @Override
     public void added() {
         //fullscreen toast
-        Toast.addToast(Text.of("Press [F11] to toggle fullscreen"));
+        Toast.addToast(Text.of("Press [F11] to toggle fullscreen\nand [ESC] to go back"));
 
         //set color and position
         this.changeColor();
@@ -47,6 +47,11 @@ public class DVDScreen extends ParentedScreen {
 
         //get a random 45 degrees angle
         rot = (int) (Math.random() * 4) * 90 + 45;
+    }
+
+    @Override
+    protected void addBackButton() {
+        //super.addBackButton();
     }
 
     @Override
@@ -86,6 +91,11 @@ public class DVDScreen extends ParentedScreen {
 
         //update rotation
         rot = Maths.dirToRot(dir);
+    }
+
+    @Override
+    protected void renderBackground(MatrixStack matrices, float delta) {
+        //super.renderBackground(matrices, delta);
     }
 
     @Override

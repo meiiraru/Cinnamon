@@ -149,7 +149,7 @@ public class Toast {
         );
 
         //render text
-        Text.empty().withStyle(Style.EMPTY.guiStyle(this.style)).append(text).render(VertexConsumer.FONT, matrices, 0f, PADDING / 2f, Alignment.CENTER);
+        Text.empty().withStyle(Style.EMPTY.guiStyle(this.style)).append(text).render(VertexConsumer.FONT, matrices, 0f, PADDING / 2f, Alignment.TOP_CENTER);
 
         //return
         matrices.translate(0f, bgHeight, 0f);

@@ -46,6 +46,12 @@ public abstract class Widget {
         this.setHeight(height);
     }
 
+    protected void updateDimensions() {
+        Widget parent = getParent();
+        if (parent != null)
+            parent.updateDimensions();
+    }
+
     public void setWidth(int width) {
         this.width = width;
     }

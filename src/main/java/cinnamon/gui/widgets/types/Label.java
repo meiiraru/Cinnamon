@@ -1,6 +1,7 @@
 package cinnamon.gui.widgets.types;
 
 import cinnamon.gui.widgets.AlignedWidget;
+import cinnamon.gui.widgets.PopupWidget;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
@@ -14,12 +15,17 @@ import cinnamon.utils.UIHelper;
 public class Label extends SelectableWidget implements AlignedWidget {
 
     private Text text;
-    private Alignment alignment = Alignment.LEFT;
+    private Alignment alignment;
 
     public Label(int x, int y, Text text) {
+        this(x, y, text, Alignment.TOP_LEFT);
+    }
+
+    public Label(int x, int y, Text text, Alignment alignment) {
         super(x, y, 0, 0);
         this.setText(text);
         this.setSelectable(false);
+        this.setAlignment(alignment);
     }
 
     @Override
@@ -32,7 +38,7 @@ public class Label extends SelectableWidget implements AlignedWidget {
     protected void renderHover(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
                 VertexConsumer.GUI, matrices, getStyle().labelTex,
-                getAlignedX() - 1, getY() - 1,
+                getAlignedX() - 1, getAlignedY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,
                 15, 15,
@@ -53,25 +59,66 @@ public class Label extends SelectableWidget implements AlignedWidget {
         updateDimensions();
     }
 
-    private void updateDimensions() {
+    @Override
+    protected void updateDimensions() {
         Text text = Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(this.text);
-        setWidth(TextUtils.getWidth(text));
-        setHeight(TextUtils.getHeight(text));
+        setDimensions(TextUtils.getWidth(text), TextUtils.getHeight(text));
+        super.updateDimensions();
+    }
+
+    private void updateSelectable() {
+        setSelectable(getTooltip() != null || getPopup() != null);
     }
 
     @Override
     public void setAlignment(Alignment alignment) {
+        if (this.alignment == alignment)
+            return;
+
         this.alignment = alignment;
+        updateDimensions();
+    }
+
+    @Override
+    public Alignment getAlignment() {
+        return alignment;
     }
 
     @Override
     public int getAlignedX() {
-        return getX() + Math.round(alignment.getOffset(getWidth()));
+        return getX() + Math.round(alignment.getWidthOffset(getWidth()));
+    }
+
+    @Override
+    public int getAlignedY() {
+        return getY() + Math.round(alignment.getHeightOffset(getHeight()));
     }
 
     @Override
     public void setStyle(Resource style) {
         super.setStyle(style);
         updateDimensions();
+    }
+
+    @Override
+    public void setTooltip(Text tooltip) {
+        super.setTooltip(tooltip);
+        updateSelectable();
+    }
+
+    @Override
+    public void setPopup(PopupWidget popup) {
+        super.setPopup(popup);
+        updateSelectable();
+    }
+
+    @Override
+    public int getCenterX() {
+        return getAlignedX() + getWidth() / 2;
+    }
+
+    @Override
+    public int getCenterY() {
+        return getAlignedY() + getHeight() / 2;
     }
 }

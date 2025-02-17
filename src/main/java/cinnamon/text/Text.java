@@ -105,7 +105,7 @@ public class Text {
     }
 
     public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y) {
-        render(consumer, matrices, x, y, Alignment.LEFT);
+        render(consumer, matrices, x, y, Alignment.TOP_LEFT);
     }
 
     public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Alignment alignment) {
@@ -116,10 +116,13 @@ public class Text {
         List<Text> list = TextUtils.split(this, "\n");
         Font font = style.getGuiStyle().font;
 
-        for (int i = 0; i < list.size(); i++) {
+        int size = list.size();
+        float yOffset = alignment.getHeightOffset(font.lineHeight * size + font.lineGap * (size - 1));
+
+        for (int i = 0; i < size; i++) {
             Text t = list.get(i);
-            int x2 = Math.round(alignment.getOffset(font.width(t)));
-            int y2 = Math.round(font.lineHeight * (i + 1) + font.descent + font.lineGap * i);
+            int x2 = Math.round(alignment.getWidthOffset(font.width(t)));
+            int y2 = Math.round(font.lineHeight * (i + 1) + font.descent + font.lineGap * i + yOffset);
             font.bake(consumer, matrices, t, x + x2, y + y2, indexScaling * UIHelper.DEPTH_OFFSET);
         }
     }
