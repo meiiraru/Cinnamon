@@ -64,8 +64,8 @@ public class Client {
     private Client() {}
 
     public void init() {
-        SoundManager.init(-1);
         Settings.load();
+        SoundManager.init(Settings.soundDevice.get());
         this.windowResize(window.width, window.height);
         this.camera = new Camera();
         this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight, Settings.fov.get());

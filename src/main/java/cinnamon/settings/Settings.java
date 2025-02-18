@@ -38,6 +38,9 @@ public class Settings {
     //player
     public static final Setting.Enums<LivingModelRegistry> playermodel = new Setting.Enums<>("player.player_model", LivingModelRegistry.STRAWBERRY);
 
+    //sound device
+    public static final Setting.Strings soundDevice = new Setting.Strings("sound.device", "");
+
     static {
         //player name do not have a getter
         Setting.Strings player = new Setting.Strings("player.playername", Client.getInstance().name);

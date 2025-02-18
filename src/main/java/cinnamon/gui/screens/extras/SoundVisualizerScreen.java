@@ -57,7 +57,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
     private Button playPauseButton, nextButton, previousButton;
     private int repeat = 0; //0 = off, 1 = one, 2 = all
 
-    private final float initialVolume = SoundCategory.MUSIC.getVolume();
+    private boolean settingsDirty = false;
 
     public SoundVisualizerScreen(Screen parentScreen) {
         super(parentScreen);
@@ -69,8 +69,8 @@ public class SoundVisualizerScreen extends ParentedScreen {
         //stop the sound when the screen is closed
         if (soundData != null)
             soundData.stop();
-        //save settings if we changed the volume
-        if (initialVolume != SoundCategory.MUSIC.getVolume())
+        //save settings if we changed the volume or changed the default device
+        if (settingsDirty)
             Settings.save();
     }
 
@@ -194,26 +194,36 @@ public class SoundVisualizerScreen extends ParentedScreen {
         //volume slider
         Slider volume = new Slider(4, height - 8 - 4, 50);
         volume.updatePercentage(SoundCategory.MUSIC.getVolume());
-        volume.setUpdateListener((f, i) -> SoundCategory.MUSIC.setVolume(f));
+        volume.setUpdateListener((f, i) -> {
+            SoundCategory.MUSIC.setVolume(f);
+            settingsDirty = true;
+        });
         volume.setTooltipFunction((f, i) -> Text.of("Volume: " + i));
         addWidget(volume);
 
         //output device
         ComboBox device = new ComboBox(4, volume.getY() - 4 - 16, 50, 16);
+
+        device.addEntry(Text.of("Default"));
         List<String> devices = SoundManager.getDevices();
         for (String string : devices)
-            device.addEntry(Text.of(string));
-        device.setSelected(devices.indexOf(SoundManager.getCurrentDevice()));
+            device.addEntry(Text.of(string.replaceFirst("^OpenAL Soft on ", "")));
+
+        device.setSelected(devices.indexOf(SoundManager.getCurrentDevice()) + 1);
+
         device.setChangeListener(i -> {
             boolean playing = soundData != null && soundData.isPlaying();
             float f = slider.getPercentage();
 
-            SoundManager.swapDevice(i);
-            playSound(playlistIndex);
+            SoundManager.swapDevice(i == 0 ? "" : devices.get(i - 1));
+            Settings.soundDevice.set(SoundManager.getCurrentDevice());
+            settingsDirty = true;
 
+            playSound(playlistIndex);
             slider.setPercentage(f);
             if (!playing) playPauseButton.onRun();
         });
+
         addWidget(device);
 
         super.init();

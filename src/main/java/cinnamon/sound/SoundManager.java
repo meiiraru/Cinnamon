@@ -4,7 +4,11 @@ import cinnamon.render.Camera;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import org.joml.Vector3f;
-import org.lwjgl.openal.*;
+import org.lwjgl.openal.AL;
+import org.lwjgl.openal.ALC;
+import org.lwjgl.openal.ALCCapabilities;
+import org.lwjgl.openal.ALCapabilities;
+import org.lwjgl.openal.ALUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +25,12 @@ public class SoundManager {
 
     private static final List<SoundInstance> sounds = new ArrayList<>();
     private static final List<String> devices = new ArrayList<>();
-    private static int currentDevice = 0;
+    private static String currentDevice = "";
     private static long context;
     private static long device;
     private static boolean initialized;
 
-    public static void init(int deviceIndex) {
+    public static void init(String deviceName) {
         if (initialized)
             return;
 
@@ -49,15 +53,16 @@ public class SoundManager {
 
         //initialize audio device
         String deviceToUse;
-        if (deviceIndex >= 0 && deviceIndex < devices.size())
-            deviceToUse = devices.get(deviceIndex);
-        else {
+        if (deviceName != null && devices.contains(deviceName)) {
+            deviceToUse = deviceName;
+            currentDevice = deviceName;
+        } else {
             String defaultDevice = alcGetString(0, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
-            deviceToUse = defaultDevice != null ? defaultDevice : devices.getFirst();
+            deviceToUse = defaultDevice != null ? defaultDevice : newDevices.getFirst();
+            currentDevice = "";
         }
 
         device = alcOpenDevice(deviceToUse);
-        currentDevice = devices.indexOf(deviceToUse);
 
         try {
             checkALCError(device);
@@ -83,7 +88,7 @@ public class SoundManager {
         alSpeedOfSound(1f);
         initialized = true;
         LOGGER.info("OpenAL version: %s", alcGetInteger(0, ALC_MAJOR_VERSION) + "." + alcGetInteger(0, ALC_MINOR_VERSION));
-        LOGGER.info("OpenAL device: %s", deviceToUse.replaceFirst("^OpenAL Soft on ", ""));
+        LOGGER.info("OpenAL device: %s", deviceToUse);
     }
 
     public static void free() {
@@ -181,20 +186,16 @@ public class SoundManager {
         }
     }
 
-    public static void swapDevice(int deviceIndex) {
+    public static void swapDevice(String deviceName) {
         free();
-        init(deviceIndex);
+        init(deviceName);
     }
 
     public static List<String> getDevices() {
-        List<String> deviceList = new ArrayList<>();
-        for (String device : devices)
-            deviceList.add(device.replaceFirst("^OpenAL Soft on ", ""));
-
-        return deviceList;
+        return devices;
     }
 
     public static String getCurrentDevice() {
-        return currentDevice < 0 || currentDevice >= devices.size() ? "Unknown" : devices.get(currentDevice).replaceFirst("^OpenAL Soft on ", "");
+        return currentDevice;
     }
 }
