@@ -7,7 +7,7 @@ import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.utils.Resource;
-import org.lwjgl.Version;
+import cinnamon.utils.Version;
 import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -110,14 +110,14 @@ public class Cinnamon {
         // -- init -- //
 
         //initiate logger
-        LoggerConfig.initialize(LOGGER);
+        LoggerConfig.initialize();
 
         //opengl debug info
-        LOGGER.info("Welcome to Cinnamon!");
+        LOGGER.info("Welcome to Cinnamon! v%s", Version.CLIENT_VERSION);
         LOGGER.info("OS: %s", os);
         LOGGER.info("Renderer: %s", glGetString(GL_RENDERER));
         LOGGER.info("OpenGL Version: %s", glGetString(GL_VERSION));
-        LOGGER.info("LWJGL Version: %s", Version.getVersion());
+        LOGGER.info("LWJGL Version: %s", org.lwjgl.Version.getVersion());
 
         //finish init through the client
         client.window = new Window(window, width, height);

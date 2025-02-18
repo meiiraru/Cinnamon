@@ -7,6 +7,8 @@ import java.util.List;
 
 public class Logger {
 
+    private static final Logger ROOT_LOGGER = new Logger(Logger.class);
+
     private final String name;
     private final List<LogOutput> outputs = new ArrayList<>();
 
@@ -16,6 +18,10 @@ public class Logger {
 
     public Logger(String name) {
         this.name = name;
+    }
+
+    public static Logger getRootLogger() {
+        return ROOT_LOGGER;
     }
 
     public void addOutput(LogOutput output) {
@@ -38,6 +44,13 @@ public class Logger {
         Calendar calendar = Calendar.getInstance();
         String threadName = Thread.currentThread().getName();
 
+        log(calendar, threadName, level, name, msg, throwable);
+
+        if (this != ROOT_LOGGER)
+            ROOT_LOGGER.log(calendar, threadName, level, name, msg, throwable);
+    }
+
+    private void log(Calendar calendar, String threadName, Level level, String name, String msg, Throwable throwable) {
         for (LogOutput output : outputs) {
             if (output.shouldLog(level)) {
                 String logMessage = output.applyFormatting(calendar, threadName, level, name, msg);

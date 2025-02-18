@@ -7,28 +7,31 @@ import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static cinnamon.Client.LOGGER;
+
 public class LoggerConfig {
 
     public static final Path LOG_OUTPUT = IOUtils.ROOT_FOLDER.resolve("logs/log.log");
     private static final String PATTERN = "[%1$tT] [%2$s/%3$s] (%4$s) %5$s%n";
     private static final Level DEFAULT_LEVEL = Level.INFO;
 
-    public static void initialize(Logger logger) {
+    public static void initialize() {
         //save old log file
         Exception gzipException = saveOldLog();
 
         //configure logger
-        configureLogger(logger);
+        Logger root = Logger.getRootLogger();
+        configureLogger(root);
 
         //system out/err redirection
-        System.setOut(new LoggerStream(logger::info));
-        System.setErr(new LoggerStream(logger::error));
+        System.setOut(new LoggerStream(root::info));
+        System.setErr(new LoggerStream(root::error));
 
         //debugLogLevels(logger);
 
         //log any gzip exceptions
         if (gzipException != null)
-            logger.error("Failed to parse previous log file", gzipException);
+            LOGGER.error("Failed to parse previous log file", gzipException);
     }
 
     private static void configureLogger(Logger logger) {
