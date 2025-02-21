@@ -3,6 +3,7 @@ package cinnamon.model;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class GeometryHelper {
@@ -135,68 +136,52 @@ public class GeometryHelper {
         return ret;
     }
 
-    public static Vertex[] line(MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, float width, int color) {
-        Vector3f a = new Vector3f(x0, y0, z0);
-        Vector3f b = new Vector3f(x1, y1, z1);
+    public static Vertex[][] line(MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, float width, int color) {
+        //grab direction
+        Vector3f diff = new Vector3f(x1 - x0, y1 - y0, z1 - z0);
+        Vector3f dir = diff.normalize(new Vector3f());
 
-        //calculate perpendicular vector
-        Vector3f dir = b.sub(a, new Vector3f()).normalize();
-        Vector3f p = Maths.rotToDir(0, 90).cross(dir).normalize().mul(width * 0.5f);
+        //rotate matrices to align with direction
+        matrices.push();
+        matrices.translate(x0, y0, z0);
+
+        Vector2f rot = Maths.dirToRot(dir);
+        matrices.rotate(Rotation.Y.rotationDeg(-rot.y + 90));
+        matrices.rotate(Rotation.Z.rotationDeg(-rot.x));
+
+        //create line as cube
+        float w = width * 0.5f;
+        Vertex[][] line = cube(matrices, 0, -w, -w, diff.length(), w, w, color);
 
         //return
-        return new Vertex[]{
-                Vertex.of(a.x - p.x, a.y - p.y, a.z - p.z).color(color).mul(matrices),
-                Vertex.of(b.x - p.x, b.y - p.y, b.z - p.z).color(color).mul(matrices),
-                Vertex.of(b.x + p.x, b.y + p.y, b.z + p.z).color(color).mul(matrices),
-                Vertex.of(a.x + p.x, a.y + p.y, a.z + p.z).color(color).mul(matrices)
-        };
+        matrices.pop();
+        return line;
     }
 
     public static Vertex[][] cube(MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, int color) {
-        Vertex[][] cube = new Vertex[6][];
+        Vertex[][] cube = new Vertex[6][4];
+        Vertex
+                v0 = Vertex.of(x0, y1, z0).color(color).normal(-1,  1, -1).mul(matrices),
+                v1 = Vertex.of(x1, y1, z0).color(color).normal( 1,  1, -1).mul(matrices),
+                v2 = Vertex.of(x1, y0, z0).color(color).normal( 1, -1, -1).mul(matrices),
+                v3 = Vertex.of(x0, y0, z0).color(color).normal(-1, -1, -1).mul(matrices),
+                v4 = Vertex.of(x1, y1, z1).color(color).normal( 1,  1,  1).mul(matrices),
+                v5 = Vertex.of(x0, y1, z1).color(color).normal(-1,  1,  1).mul(matrices),
+                v6 = Vertex.of(x0, y0, z1).color(color).normal(-1, -1,  1).mul(matrices),
+                v7 = Vertex.of(x1, y0, z1).color(color).normal( 1, -1,  1).mul(matrices);
 
         //north
-        cube[0] = new Vertex[]{
-                Vertex.of(x0, y1, z0).color(color).normal(0, 0, -1).mul(matrices),
-                Vertex.of(x1, y1, z0).color(color).normal(0, 0, -1).mul(matrices),
-                Vertex.of(x1, y0, z0).color(color).normal(0, 0, -1).mul(matrices),
-                Vertex.of(x0, y0, z0).color(color).normal(0, 0, -1).mul(matrices),
-        };
+        cube[0] = new Vertex[]{v0, v1, v2, v3};
         //west
-        cube[1] = new Vertex[]{
-                Vertex.of(x0, y1, z0).color(color).normal(-1, 0, 0).mul(matrices),
-                Vertex.of(x0, y0, z0).color(color).normal(-1, 0, 0).mul(matrices),
-                Vertex.of(x0, y0, z1).color(color).normal(-1, 0, 0).mul(matrices),
-                Vertex.of(x0, y1, z1).color(color).normal(-1, 0, 0).mul(matrices),
-        };
+        cube[1] = new Vertex[]{v5, v0, v3, v6};
         //south
-        cube[2] = new Vertex[]{
-                Vertex.of(x1, y1, z1).color(color).normal(0, 0, 1).mul(matrices),
-                Vertex.of(x0, y1, z1).color(color).normal(0, 0, 1).mul(matrices),
-                Vertex.of(x0, y0, z1).color(color).normal(0, 0, 1).mul(matrices),
-                Vertex.of(x1, y0, z1).color(color).normal(0, 0, 1).mul(matrices),
-        };
+        cube[2] = new Vertex[]{v4, v5, v6, v7};
         //east
-        cube[3] = new Vertex[]{
-                Vertex.of(x1, y1, z0).color(color).normal(1, 0, 0).mul(matrices),
-                Vertex.of(x1, y1, z1).color(color).normal(1, 0, 0).mul(matrices),
-                Vertex.of(x1, y0, z1).color(color).normal(1, 0, 0).mul(matrices),
-                Vertex.of(x1, y0, z0).color(color).normal(1, 0, 0).mul(matrices),
-        };
+        cube[3] = new Vertex[]{v1, v4, v7, v2};
         //up
-        cube[4] = new Vertex[]{
-                Vertex.of(x1, y1, z0).color(color).normal(0, 1, 0).mul(matrices),
-                Vertex.of(x0, y1, z0).color(color).normal(0, 1, 0).mul(matrices),
-                Vertex.of(x0, y1, z1).color(color).normal(0, 1, 0).mul(matrices),
-                Vertex.of(x1, y1, z1).color(color).normal(0, 1, 0).mul(matrices),
-        };
+        cube[4] = new Vertex[]{v1, v0, v5, v4};
         //down
-        cube[5] = new Vertex[]{
-                Vertex.of(x0, y0, z0).color(color).normal(0, -1, 0).mul(matrices),
-                Vertex.of(x1, y0, z0).color(color).normal(0, -1, 0).mul(matrices),
-                Vertex.of(x1, y0, z1).color(color).normal(0, -1, 0).mul(matrices),
-                Vertex.of(x0, y0, z1).color(color).normal(0, -1, 0).mul(matrices),
-        };
+        cube[5] = new Vertex[]{v7, v6, v3, v2};
 
         return cube;
     }

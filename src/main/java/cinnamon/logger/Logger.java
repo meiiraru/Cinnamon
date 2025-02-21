@@ -28,6 +28,10 @@ public class Logger {
         outputs.add(output);
     }
 
+    public void clearOutputs() {
+        outputs.clear();
+    }
+
     private void log(Level level, Object message, Object... args) {
         Throwable throwable;
         String msg;

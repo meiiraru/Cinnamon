@@ -246,7 +246,7 @@ public class EasingScreen extends ParentedScreen {
             int size = points.size();
             for (int i = 0; i < size - 1; i++) {
                 float t = (float) i / (size - 1);
-                int color = ColorUtils.lerpHSVColor(Colors.WHITE.rgb, this.color, t);
+                int color = ColorUtils.lerpRGBColorThroughHSV(Colors.WHITE.rgb, this.color, t);
 
                 Vector2f a = points.get(i);
                 Vector2f b = points.get(i + 1);

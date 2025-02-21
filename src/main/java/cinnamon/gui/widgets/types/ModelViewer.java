@@ -96,6 +96,7 @@ public class ModelViewer extends SelectableWidget {
         s.setFloat("fogEnd", 2048);
         the_skybox.type = skybox;
         the_skybox.pushToShader(s, Texture.MAX_TEXTURES - 1);
+        glDisable(GL_CULL_FACE);
 
         //set up framebuffer
         modelBuffer.useClear();
@@ -117,9 +118,7 @@ public class ModelViewer extends SelectableWidget {
 
         //draw model
         matrices.translate(aabb.getCenter().mul(-1f));
-        glDisable(GL_CULL_FACE);
         model.render(matrices, selectedMaterial.material);
-        glEnable(GL_CULL_FACE);
 
         //draw bounding box
         if (renderBounds) {
@@ -133,6 +132,7 @@ public class ModelViewer extends SelectableWidget {
         Framebuffer.DEFAULT_FRAMEBUFFER.use();
 
         //cleanup
+        glEnable(GL_CULL_FACE);
         oldShader.use();
         matrices.pop();
         client.camera.useOrtho(true);

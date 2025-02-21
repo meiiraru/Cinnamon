@@ -192,7 +192,7 @@ public class CurvesScreen extends ParentedScreen {
         int size = curve.size();
         for (int i = 0; i < size - 1; i++) {
             float t = (float) i / (size - 1);
-            int color = ColorUtils.lerpHSVColor(colorA, colorB, t);
+            int color = ColorUtils.lerpRGBColorThroughHSV(colorA, colorB, t);
 
             Vector3f a = curve.get(i);
             Vector3f b = curve.get(i + 1);

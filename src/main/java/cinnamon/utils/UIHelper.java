@@ -345,11 +345,13 @@ public class UIHelper {
         }
     }
 
-    public static void prepareStencil() {
+    public static void prepareStencil(boolean allowDrawing) {
         VertexConsumer.finishAllBatches(Client.getInstance().camera);
 
-        glColorMask(false, false, false, false);
-        glDepthMask(false);
+        if (!allowDrawing) {
+            glColorMask(false, false, false, false);
+            glDepthMask(false);
+        }
         glStencilMask(0xFF);
 
         glEnable(GL_STENCIL_TEST);

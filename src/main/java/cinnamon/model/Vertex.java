@@ -49,8 +49,12 @@ public class Vertex implements Comparable<Vertex> {
     }
 
     public Vertex normal(float x, float y, float z) {
-        this.normal.set(x, y, z);
+        this.normal.set(x, y, z).normalize();
         return this;
+    }
+
+    public Vertex normal(Vector3f normal) {
+        return normal(normal.x, normal.y, normal.z);
     }
 
     public Vertex uv(float u, float v) {

@@ -11,6 +11,7 @@ import cinnamon.utils.Alignment;
 import cinnamon.world.world.DiscoWorld;
 import cinnamon.world.world.MaterialPreviewWorld;
 import cinnamon.world.world.RollerCoasterWorld;
+import cinnamon.world.world.TransparentWorld;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -41,6 +42,9 @@ public class ExtrasScreen extends ParentedScreen {
 
         //disco world
         list.addWidget(BUTTON_FACTORY.apply("Disco", button -> new DiscoWorld().init()));
+
+        //transparent world
+        list.addWidget(BUTTON_FACTORY.apply("Transparent", button -> new TransparentWorld().init()));
 
         //title
         list.addWidget(new Label(0, 0, Text.of("\nTech demos\n")));
