@@ -50,19 +50,19 @@ public class GeometryHelper {
     }
 
     public static Vertex[] circle(MatrixStack matrices, float x, float y, float radius, int sides, int color) {
-        return circle(matrices, x, y, radius, 1, sides, color);
+        return circle(matrices, x, y, radius, 1f, sides, color);
     }
 
-    public static Vertex[] circle(MatrixStack matrices, float x, float y, float radius, float completeness, int sides, int color) {
+    public static Vertex[] circle(MatrixStack matrices, float x, float y, float radius, float progress, int sides, int color) {
         //number of faces
-        int faceCount = (int) Math.ceil(sides * completeness);
+        int faceCount = (int) Math.ceil(sides * progress);
         if (faceCount <= 0)
             return new Vertex[0];
 
         //90 degrees offset
         float f = (float) Math.toRadians(-90f);
         //maximum allowed angle
-        float max = (float) Math.toRadians(360 * completeness) + f;
+        float max = (float) Math.toRadians(360 * progress) + f;
         //angle per step
         float aStep = (float) Math.toRadians(360f / sides);
 
@@ -95,6 +95,71 @@ public class GeometryHelper {
 
             x1 = x2; y1 = y2;
             vertices[j + 1] = Vertex.of(x1, y1, 0).color(color).mul(matrices);
+        }
+
+        //return
+        return vertices;
+    }
+
+    public static Vertex[] progressSquare(MatrixStack matrices, float x, float y, float radius, int color) {
+        return progressSquare(matrices, x, y, radius, 1f, color);
+    }
+
+    public static Vertex[] progressSquare(MatrixStack matrices, float x, float y, float radius, float progress, int color) {
+        //no progress, no vertices
+        if (progress <= 0f)
+            return new Vertex[0];
+
+        //generate mesh
+        float x0 = x - radius;
+        float y0 = y - radius;
+        float x1 = x + radius;
+        float y1 = y + radius;
+
+        //x y u v
+        float[][] mesh = new float[][]{
+                {x , y0, 0.5f, 0f  }, //top center
+                {x1, y0, 1f  , 0f  }, //top right
+                {x1, y , 1f  , 0.5f}, //center right
+                {x1, y1, 1f  , 1f  }, //bottom right
+                {x , y1, 0.5f, 1f  }, //bottom center
+                {x0, y1, 0f  , 1f  }, //bottom left
+                {x0, y , 0f  , 0.5f}, //center left
+                {x0, y0, 0f  , 0f  }, //top left
+        };
+
+        float max = mesh.length * progress;
+
+        //top center and the actual center are always present
+        int vertexCount = (int) Math.ceil(max) + 2;
+        Vertex[] vertices = new Vertex[vertexCount];
+
+        //center vertices
+        int j = vertexCount - 1;
+        vertices[0] = Vertex.of(x, y, 0).uv(0.5f, 0.5f).color(color).mul(matrices);
+        vertices[j] = Vertex.of(x, y0, 0).uv(0.5f, 0f).color(color).mul(matrices);
+
+        //generate the other vertices
+        for (int i = 1; i < j; i++) {
+            float xx, yy, u, v;
+
+            //if were over the max, interpolate the position with the previous one
+            if (i > max) {
+                float[] prev = mesh[(i - 1) % mesh.length];
+                float[] curr = mesh[i % mesh.length];
+                float t = max - (i - 1);
+                xx = Maths.lerp(prev[0], curr[0], t);
+                yy = Maths.lerp(prev[1], curr[1], t);
+                u  = Maths.lerp(prev[2], curr[2], t);
+                v  = Maths.lerp(prev[3], curr[3], t);
+            } else {
+                //just grab the position as is
+                float[] pos = mesh[i % mesh.length];
+                xx = pos[0]; yy = pos[1]; u = pos[2]; v = pos[3];
+            }
+
+            //backwards index - counter-clockwise
+            vertices[j - i] = Vertex.of(xx, yy, 0).uv(u, v).color(color).mul(matrices);
         }
 
         //return

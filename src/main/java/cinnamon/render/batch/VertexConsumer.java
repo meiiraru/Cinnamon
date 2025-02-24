@@ -27,6 +27,10 @@ public enum VertexConsumer {
         this.shader = shader;
     }
 
+    public void consume(Vertex[] vertices) {
+        consume(vertices, -1);
+    }
+
     public void consume(Vertex[] vertices, Resource texture) {
         consume(vertices, texture, false, false);
     }
@@ -35,17 +39,25 @@ public enum VertexConsumer {
         consume(vertices, Texture.of(texture, smooth, mipmap).getID());
     }
 
-    public void consume(Vertex[] vertices) {
-        consume(vertices, -1);
+    public void consume(Vertex[] vertices, int texture) {
+        renderer.consume(vertices, texture);
     }
 
     public void consume(Vertex[][] vertices) {
-        for (Vertex[] vertex : vertices)
-            consume(vertex);
+        consume(vertices, -1);
     }
 
-    public void consume(Vertex[] vertices, int texture) {
-        renderer.consume(vertices, texture);
+    public void consume(Vertex[][] vertices, Resource texture) {
+        consume(vertices, texture, false, false);
+    }
+
+    public void consume(Vertex[][] vertices, Resource texture, boolean smooth, boolean mipmap) {
+        consume(vertices, Texture.of(texture, smooth, mipmap).getID());
+    }
+
+    public void consume(Vertex[][] vertices, int texture) {
+        for (Vertex[] vertex : vertices)
+            consume(vertex, texture);
     }
 
     public int finishBatch(Camera camera) {

@@ -62,6 +62,10 @@ public class Vertex implements Comparable<Vertex> {
         return this;
     }
 
+    public Vertex uv(Vector2f uv) {
+        return uv(uv.x, uv.y);
+    }
+
     public Vertex index(int index) {
         this.index = index;
         return this;

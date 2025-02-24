@@ -140,10 +140,12 @@ public class ModelViewer extends SelectableWidget {
 
     private void renderBuffer(MatrixStack matrices) {
         //draw framebuffer result
-        float guiScale = Client.getInstance().window.guiScale;
+        Client c = Client.getInstance();
+        float guiScale = c.window.guiScale;
         float x = (1f - (getWidth() * guiScale) / modelBuffer.getWidth()) / 2f;
         float y = (1f - (getHeight() * guiScale) / modelBuffer.getHeight()) / 2f;
         VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, getX(), getY(), getWidth(), getHeight(), -1f, x, 1f - x, 1f - y, y), modelBuffer.getColorBuffer());
+        VertexConsumer.finishAllBatches(c.camera);
     }
 
     public void setMaterial(MaterialRegistry material) {

@@ -18,27 +18,16 @@ public class CircularProgressBar extends ProgressBar {
         int y = getCenterY();
         int r = getWidth() / 2;
 
-        Vertex[] vertices = GeometryHelper.circle(matrices, x, y, r, 1, 12, 0xFFFFFFFF);
-
         //background
-        for (int i = 0; i < vertices.length - 2; i += 3) {
-            vertices[i].uv(0.25f, 1f);
-            vertices[i + 1].uv(0.5f, 0f);
-            vertices[i + 2].uv(0f, 0f);
-        }
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, getX(), getY(), getWidth(), getHeight(), 2, 1), getStyle().circularProgressTex);
 
-        VertexConsumer.GUI.consume(vertices, getStyle().circularProgressTex);
-
+        //progress
         matrices.push();
         matrices.translate(0, 0, UIHelper.DEPTH_OFFSET);
 
-        vertices = GeometryHelper.circle(matrices, x, y, r, getProgress(), 12, color == null ? getStyle().accentColor : color);
-        for (int i = 0; i < vertices.length - 2; i += 3) {
-            vertices[i].uv(0.75f, 1f);
-            vertices[i + 1].uv(1f, 0f);
-            vertices[i + 2].uv(0.5f, 0f);
-        }
-
+        Vertex[] vertices = GeometryHelper.progressSquare(matrices, x, y, r, getProgress(), color == null ? getStyle().accentColor : color);
+        for (Vertex vertex : vertices)
+            vertex.uv(vertex.getUV().mul(0.5f, 1f).add(0.5f, 0f));
         VertexConsumer.GUI.consume(vertices, getStyle().circularProgressTex);
 
         matrices.pop();

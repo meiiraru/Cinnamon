@@ -78,7 +78,7 @@ public class WidgetTestScreen extends ParentedScreen {
         buttons.addWidget(disabledButt);
 
         //label
-        Label l = new Label(0, 0, Text.of("Label"));
+        Label l = new Label(0, 0, Text.of("Progress: "));
         grid.addWidget(l);
 
         //progress bar
@@ -121,7 +121,7 @@ public class WidgetTestScreen extends ParentedScreen {
         grid.addWidget(s);
 
         s.setUpdateListener((f, i) -> {
-            l.setText(Text.of("Label " + s.getStepIndex()));
+            l.setText(Text.of("Progress: " + s.getStepIndex()));
             pb.setProgress(f);
             cpb.setProgress(f);
         });
@@ -269,6 +269,19 @@ public class WidgetTestScreen extends ParentedScreen {
         Scrollbar bar2 = new Scrollbar(0, 0, 40);
         bar2.setVertical(false);
         grid2.addWidget(bar2);
+
+        //font test
+        grid2.addWidget(new Label(0, 0, Text.empty()
+                .append("Font Test:\n")
+                .append(Text.of("one ").withStyle(Style.EMPTY.bold(true)))
+                .append(Text.of("two ").withStyle(Style.EMPTY.italic(true)))
+                .append(Text.of("three\n").withStyle(Style.EMPTY.underlined(true)))
+                .append(Text.of("four ").withStyle(Style.EMPTY.obfuscated(true)))
+                .append(Text.of("five ").withStyle(Style.EMPTY.strikethrough(true)))
+                .append(Text.of("six\n").withStyle(Style.EMPTY.background(true)))
+                .append(Text.of("seven ").withStyle(Style.EMPTY.shadow(true)))
+                .append(Text.of("eight").withStyle(Style.EMPTY.outlined(true)))
+        ));
 
         //add lists
         addWidget(grid);
