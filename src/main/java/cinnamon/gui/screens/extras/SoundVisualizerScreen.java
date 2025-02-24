@@ -17,11 +17,7 @@ import cinnamon.settings.Settings;
 import cinnamon.sound.*;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.Alignment;
-import cinnamon.utils.ColorUtils;
-import cinnamon.utils.Colors;
-import cinnamon.utils.Maths;
-import cinnamon.utils.Resource;
+import cinnamon.utils.*;
 import org.joml.Vector3f;
 
 import java.nio.file.Path;
@@ -44,7 +40,9 @@ public class SoundVisualizerScreen extends ParentedScreen {
             REPEAT_ONE = new Resource("textures/gui/icons/repeat_one.png"),
             REPEAT_OFF = new Resource("textures/gui/icons/repeat_off.png"),
             PREVIOUS = new Resource("textures/gui/icons/previous.png"),
-            NEXT = new Resource("textures/gui/icons/next.png");
+            NEXT = new Resource("textures/gui/icons/next.png"),
+            OPEN = new Resource("textures/gui/icons/open.png"),
+            CLOSE = new Resource("textures/gui/icons/close.png");
 
     private final List<Track> playlist = new ArrayList<>();
     private int playlistIndex = -1;
@@ -77,6 +75,16 @@ public class SoundVisualizerScreen extends ParentedScreen {
     @Override
     public void init() {
         //widgets init
+
+        //open files
+        Button openButton = new Button(4, 4, 16, 16, null, button -> {
+            List<String> files = FileDialog.openFiles(FileDialog.Filter.AUDIO_FILES);
+            if (!files.isEmpty())
+                loadTracks(files.toArray(new String[0]));
+        });
+        openButton.setImage(OPEN);
+        openButton.setTooltip(Text.of("Load Songs"));
+        addWidget(openButton);
 
         //buttons grid
         ContainerGrid buttons = new ContainerGrid(0, 0, 16, 3);
@@ -230,6 +238,17 @@ public class SoundVisualizerScreen extends ParentedScreen {
     }
 
     @Override
+    protected void addBackButton() {
+        //super.addBackButton();
+
+        //close button
+        Button closeButton = new Button(width - 4 - 16, 4, 16, 16, null, button -> close());
+        closeButton.setImage(CLOSE);
+        closeButton.setTooltip(Text.of("Close"));
+        addWidget(closeButton);
+    }
+
+    @Override
     public void tick() {
         if (soundData != null) {
             if (!soundData.isRemoved()) {
@@ -245,7 +264,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
                     soundData = null;
                     playlistIndex = 0;
                     playPauseButton.setImage(PLAY);
-                    slider.updatePercentage(1f);
+                    slider.updatePercentage(0f);
                 }
             }
         }
@@ -281,7 +300,8 @@ public class SoundVisualizerScreen extends ParentedScreen {
         float lineHeight = GUIStyle.getDefault().font.lineHeight;
 
         //draw top text
-        Text.of("Drop Ogg Vorbis files to play!").withStyle(Style.EMPTY.color(songCount > 0 ? Colors.LIGHT_GRAY : Colors.WHITE)).render(VertexConsumer.FONT, matrices, (int) (width / 2f), 4, Alignment.TOP_CENTER);
+        if (songCount == 0)
+            Text.of("Click on the left to open song files\nor drop Ogg files here to play!").withStyle(Style.EMPTY.color(Colors.WHITE)).render(VertexConsumer.FONT, matrices, (int) (width / 2f), 4, Alignment.TOP_CENTER);
 
         //draw timers
         int x = slider.getX();
@@ -306,7 +326,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         //lyrics
         Text text = track.getLyrics(playTime);
         if (text != null)
-            text.render(VertexConsumer.FONT, matrices, (int) (width / 2f), (int) (height / 4f), Alignment.CENTER);
+            text.render(VertexConsumer.FONT, matrices, (int) (width / 2f), (int) (height * 0.1f), Alignment.TOP_CENTER);
     }
 
     private void drawBar(MatrixStack matrices, int i, int bars, float amplitude) {
@@ -379,6 +399,10 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
     @Override
     public boolean filesDropped(String[] files) {
+        return loadTracks(files) || super.filesDropped(files);
+    }
+
+    private boolean loadTracks(String[] files) {
         List<Track> newPlaylist = new ArrayList<>();
 
         //go through all .ogg files
@@ -445,7 +469,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
             return true;
         }
 
-        return super.filesDropped(files);
+        return false;
     }
 
     private record Track(Resource resource, Lyrics lyrics, String title) {

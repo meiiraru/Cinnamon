@@ -18,6 +18,7 @@ val lwjglModules = arrayOf(
     "lwjgl",
     "lwjgl-assimp",
     "lwjgl-glfw",
+    "lwjgl-nfd",
     "lwjgl-openal",
     "lwjgl-opengl",
     "lwjgl-openxr",
