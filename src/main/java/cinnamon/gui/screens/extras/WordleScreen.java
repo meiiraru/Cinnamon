@@ -167,6 +167,13 @@ public class WordleScreen extends ParentedScreen {
     }
 
     @Override
+    protected void addBackButton() {
+        Button b = new Button(width - 60 - 4, height - 20 - 4, 60, 20, Text.of("Back"), button -> close());
+        b.setStyle(Hud.HUD_STYLE);
+        this.addWidget(b);
+    }
+
+    @Override
     public void rebuild() {
         super.rebuild();
 

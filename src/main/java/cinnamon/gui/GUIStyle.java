@@ -104,10 +104,11 @@ public class GUIStyle {
     }
 
     public static GUIStyle of(Resource res) {
-        if (STYLES_CACHE.containsKey(res))
-            return STYLES_CACHE.get(res);
+        GUIStyle style = STYLES_CACHE.get(res);
+        if (style != null)
+            return style;
 
-        GUIStyle style = createStyle(res);
+        style = createStyle(res);
         style.font = Font.getFont(style.fontRes, style.fontSize, style.fontLineSpacing, style.fontSmooth);
 
         STYLES_CACHE.put(res, style);

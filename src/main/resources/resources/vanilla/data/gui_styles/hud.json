@@ -1,4 +1,6 @@
 {
   "parent": "data/gui_styles/default.json",
+  "pressed_y_offset": 0,
+  "button_tex": "textures/gui/hud/button.png",
   "progress_bar_tex": "textures/gui/hud/progress_bar.png"
 }
