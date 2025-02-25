@@ -43,9 +43,17 @@ public class Vertex implements Comparable<Vertex> {
         return this.color(r, g, b, 1f);
     }
 
+    public Vertex color(Vector3f color) {
+        return color(color.x, color.y, color.z);
+    }
+
     public Vertex color(float r, float g, float b, float a) {
         this.color.set(r, g, b, a);
         return this;
+    }
+
+    public Vertex color(Vector4f color) {
+        return color(color.x, color.y, color.z, color.w);
     }
 
     public Vertex normal(float x, float y, float z) {

@@ -65,6 +65,7 @@ public class GUIStyle {
             buttonTex              = new Resource("textures/gui/widgets/button.png"),
             checkboxTex            = new Resource("textures/gui/widgets/checkbox.png"),
             circularProgressTex    = new Resource("textures/gui/widgets/circular_progress_bar.png"),
+            colorPickerTex         = new Resource("textures/gui/widgets/color_picker.png"),
             containerBackgroundTex = new Resource("textures/gui/widgets/container_background.png"),
             contextMenuTex         = new Resource("textures/gui/widgets/context_menu.png"),
             labelTex               = new Resource("textures/gui/widgets/label.png"),
@@ -161,6 +162,7 @@ public class GUIStyle {
             Parser.RESOURCE.apply(json, "button_tex",               o -> style.buttonTex              = (Resource) o, p.buttonTex);
             Parser.RESOURCE.apply(json, "checkbox_tex",             o -> style.checkboxTex            = (Resource) o, p.checkboxTex);
             Parser.RESOURCE.apply(json, "circular_progress_tex",    o -> style.circularProgressTex    = (Resource) o, p.circularProgressTex);
+            Parser.RESOURCE.apply(json, "color_picker_tex",         o -> style.colorPickerTex         = (Resource) o, p.colorPickerTex);
             Parser.RESOURCE.apply(json, "container_background_tex", o -> style.containerBackgroundTex = (Resource) o, p.containerBackgroundTex);
             Parser.RESOURCE.apply(json, "context_menu_tex",         o -> style.contextMenuTex         = (Resource) o, p.contextMenuTex);
             Parser.RESOURCE.apply(json, "label_tex",                o -> style.labelTex               = (Resource) o, p.labelTex);

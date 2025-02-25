@@ -23,6 +23,10 @@ public class PopupWidget extends ContainerGrid {
         super(x, y, spacing);
     }
 
+    public PopupWidget(int x, int y, int spacing, int columns) {
+        super(x, y, spacing, columns);
+    }
+
     public boolean isOpen() {
         return open;
     }

@@ -298,8 +298,22 @@ public class UIHelper {
 
     public static void fitInsideBoundaries(Widget w, int x0, int y0, int x1, int y1) {
         //fix widget pos
-        int x = Maths.clamp(w.getX(), x0, x1 - w.getWidth());
-        int y = Maths.clamp(w.getY(), y0, y1 - w.getHeight());
+        int x, y;
+        int ww = w.getWidth();
+        int wh = w.getHeight();
+
+        if (w instanceof AlignedWidget aw) {
+            int wwo = (int) aw.getAlignment().getWidthOffset(ww);
+            int who = (int) aw.getAlignment().getHeightOffset(wh);
+            int maxx = ww + wwo;
+            int maxy = wh + who;
+            x = Maths.clamp(w.getX(), x0 - wwo, x1 - maxx);
+            y = Maths.clamp(w.getY(), y0 - who, y1 - maxy);
+        } else {
+            x = Maths.clamp(w.getX(), x0, x1 - ww);
+            y = Maths.clamp(w.getY(), y0, y1 - wh);
+        }
+
         w.setPos(x, y);
     }
 

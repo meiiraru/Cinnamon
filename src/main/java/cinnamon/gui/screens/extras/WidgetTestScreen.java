@@ -283,6 +283,11 @@ public class WidgetTestScreen extends ParentedScreen {
                 .append(Text.of("eight").withStyle(Style.EMPTY.outlined(true)))
         ));
 
+        //color picker
+        ColorPicker cp = new ColorPicker(0, 0, 16, 16);
+        cp.setColor(Colors.randomRainbow());
+        grid2.addWidget(cp);
+
         //add lists
         addWidget(grid);
         addWidget(grid2);

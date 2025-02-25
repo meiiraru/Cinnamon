@@ -54,47 +54,37 @@ public class GeometryHelper {
     }
 
     public static Vertex[] circle(MatrixStack matrices, float x, float y, float radius, float progress, int sides, int color) {
-        //number of faces
-        int faceCount = (int) Math.ceil(sides * progress);
-        if (faceCount <= 0)
+        //number of vertices
+        int vertexCount = (int) Math.ceil(Math.max(sides, 3) * progress);
+        if (vertexCount <= 0)
             return new Vertex[0];
 
         //90 degrees offset
         float f = (float) Math.toRadians(-90f);
         //maximum allowed angle
-        float max = (float) Math.toRadians(360 * progress) + f;
+        float max = (float) Math.toRadians(360f * progress) + f;
         //angle per step
-        float aStep = (float) Math.toRadians(360f / sides);
+        float aStep = (float) Math.toRadians(360f / Math.max(sides, 3));
 
-        //first circle position
-        float x1 = x + (float) Math.cos(f) * radius;
-        float y1 = y + (float) Math.sin(f) * radius;
+        //center vertex
+        Vertex[] vertices = new Vertex[vertexCount + 2];
+        vertices[0] = Vertex.of(x, y, 0).color(color).mul(matrices);
 
-        Vertex[] vertices = new Vertex[faceCount * 3];
-        for (int i = 0; i < faceCount; i++) {
-            //vertex index
-            int j = i * 3;
+        for (int i = 1; i < vertices.length; i++) {
+            //pos
+            float angle = aStep * (i - 1) + f;
+            float x1 = x + (float) Math.cos(angle) * radius;
+            float y1 = y + (float) Math.sin(angle) * radius;
 
-            //center vertex
-            vertices[j] = Vertex.of(x, y, 0).color(color).mul(matrices);
-            //first pos
-            vertices[j + 2] = Vertex.of(x1, y1, 0).color(color).mul(matrices);
-
-            //second pos
-            float a = aStep * (i + 1) + f;
-            float x2 = x + (float) Math.cos(a) * radius;
-            float y2 = y + (float) Math.sin(a) * radius;
-
-            if (a > max) {
-                //linear interpolation between positions
-                float aOld = a - aStep;
-                float t = (max - aOld) / (a - aOld);
-                x2 = Maths.lerp(x1, x2, t);
-                y2 = Maths.lerp(y1, y2, t);
+            //over the max
+            if (angle > max) {
+                float prevAngle = aStep * (i - 2) + f;
+                float t = (max - prevAngle) / (angle - prevAngle);
+                x1 = Maths.lerp(x + (float) Math.cos(prevAngle) * radius, x1, t);
+                y1 = Maths.lerp(y + (float) Math.sin(prevAngle) * radius, y1, t);
             }
 
-            x1 = x2; y1 = y2;
-            vertices[j + 1] = Vertex.of(x1, y1, 0).color(color).mul(matrices);
+            vertices[vertices.length - i] = Vertex.of(x1, y1, 0).color(color).mul(matrices);
         }
 
         //return

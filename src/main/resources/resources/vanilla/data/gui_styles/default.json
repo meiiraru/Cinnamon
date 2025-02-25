@@ -27,6 +27,7 @@
   "button_tex": "textures/gui/widgets/button.png",
   "checkbox_tex": "textures/gui/widgets/checkbox.png",
   "circular_progress_tex": "textures/gui/widgets/circular_progress_bar.png",
+  "color_picker_tex": "textures/gui/widgets/color_picker.png",
   "container_background_tex": "textures/gui/widgets/container_background.png",
   "context_menu_tex": "textures/gui/widgets/context_menu.png",
   "label_tex": "textures/gui/widgets/label.png",

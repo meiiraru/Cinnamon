@@ -91,7 +91,7 @@ public class WidgetList extends ContainerGrid {
         //update scrollbar
         updateList();
         scrollbar.setScrollAmount(3f / widgets.size()); //3 widgets per scroll
-        scrollbar.setHandleSize(scrollbar.getHeight() * getHeight() / getWidgetsHeight());
+        scrollbar.setHandleSize((int) (scrollbar.getHeight() * getHeight() / (float) getWidgetsHeight()));
 
         updateScrollbar();
     }
