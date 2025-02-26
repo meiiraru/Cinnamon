@@ -54,9 +54,7 @@ public class GeometryHelper {
     }
 
     public static Vertex[] circle(MatrixStack matrices, float x, float y, float radius, float progress, int sides, int color) {
-        //number of vertices
-        int vertexCount = (int) Math.ceil(Math.max(sides, 3) * progress);
-        if (vertexCount <= 0)
+        if (progress <= 0)
             return new Vertex[0];
 
         //90 degrees offset
@@ -67,24 +65,102 @@ public class GeometryHelper {
         float aStep = (float) Math.toRadians(360f / Math.max(sides, 3));
 
         //center vertex
+        int vertexCount = (int) Math.ceil(Math.max(sides, 3) * progress);
         Vertex[] vertices = new Vertex[vertexCount + 2];
         vertices[0] = Vertex.of(x, y, 0).color(color).mul(matrices);
 
         for (int i = 1; i < vertices.length; i++) {
             //pos
             float angle = aStep * (i - 1) + f;
-            float x1 = x + (float) Math.cos(angle) * radius;
-            float y1 = y + (float) Math.sin(angle) * radius;
+            float x1 = (float) Math.cos(angle) * radius;
+            float y1 = (float) Math.sin(angle) * radius;
 
             //over the max
             if (angle > max) {
                 float prevAngle = aStep * (i - 2) + f;
                 float t = (max - prevAngle) / (angle - prevAngle);
-                x1 = Maths.lerp(x + (float) Math.cos(prevAngle) * radius, x1, t);
-                y1 = Maths.lerp(y + (float) Math.sin(prevAngle) * radius, y1, t);
+                x1 = Maths.lerp((float) Math.cos(prevAngle) * radius, x1, t);
+                y1 = Maths.lerp((float) Math.sin(prevAngle) * radius, y1, t);
             }
 
-            vertices[vertices.length - i] = Vertex.of(x1, y1, 0).color(color).mul(matrices);
+            vertices[vertices.length - i] = Vertex.of(x + x1, y + y1, 0).color(color).mul(matrices);
+        }
+
+        //return
+        return vertices;
+    }
+
+    public static Vertex[][] arc(MatrixStack matrices, float x, float y, float radius, float start, float end, float thickness, int sides, int color) {
+        if (start >= end)
+            return new Vertex[0][];
+
+        //90 degrees offset
+        float f = (float) Math.toRadians(-90f);
+        //minimum allowed angle
+        float min = (float) Math.toRadians(360f * start) + f;
+        //maximum allowed angle
+        float max = (float) Math.toRadians(360f * end) + f;
+        //angle per step
+        float aStep = (float) Math.toRadians(360f / Math.max(sides, 3));
+
+        //find the first and last valid polygon steps
+        float firstStep = (float) (Math.floor((min - f) / aStep) * aStep) + f;
+        float lastStep = (float) (Math.ceil((max - f) / aStep) * aStep) + f;
+
+        //thickness radius
+        float iRadius = radius - thickness;
+
+        //vertices
+        Vertex[][] vertices = new Vertex[(int) Math.ceil((lastStep - firstStep) / aStep)][4];
+
+        for (int i = 0; i < vertices.length; i++) {
+            float angle1 = firstStep + aStep * i;
+            float angle2 = angle1 + aStep;
+
+            float cos1 = (float) Math.cos(angle1);
+            float sin1 = (float) Math.sin(angle1);
+            float cos2 = (float) Math.cos(angle2);
+            float sin2 = (float) Math.sin(angle2);
+
+            //outer pos
+            float x1 = cos1 * radius;
+            float y1 = sin1 * radius;
+            //inner pos
+            float x3 = cos1 * iRadius;
+            float y3 = sin1 * iRadius;
+
+            //under the min
+            if (angle1 < min) {
+                float t = (min - angle1) / (angle2 - angle1);
+                x1 = Maths.lerp(x1, cos2 * radius, t);
+                y1 = Maths.lerp(y1, sin2 * radius, t);
+                x3 = Maths.lerp(x3, cos2 * iRadius, t);
+                y3 = Maths.lerp(y3, sin2 * iRadius, t);
+            }
+
+            //outer pos
+            float x2 = cos2 * radius;
+            float y2 = sin2 * radius;
+            //inner pos
+            float x4 = cos2 * iRadius;
+            float y4 = sin2 * iRadius;
+
+            //over the max
+            if (angle2 > max) {
+                float t = (max - angle1) / (angle2 - angle1);
+                x2 = Maths.lerp(cos1 * radius, x2, t);
+                y2 = Maths.lerp(sin1 * radius, y2, t);
+                x4 = Maths.lerp(cos1 * iRadius, x4, t);
+                y4 = Maths.lerp(sin1 * iRadius, y4, t);
+            }
+
+            //create the quad
+            vertices[i] = new Vertex[]{
+                    Vertex.of(x + x1, y + y1, 0).color(color).mul(matrices),
+                    Vertex.of(x + x3, y + y3, 0).color(color).mul(matrices),
+                    Vertex.of(x + x4, y + y4, 0).color(color).mul(matrices),
+                    Vertex.of(x + x2, y + y2, 0).color(color).mul(matrices),
+            };
         }
 
         //return
@@ -107,7 +183,7 @@ public class GeometryHelper {
         float y1 = y + radius;
 
         //x y u v
-        float[][] mesh = new float[][]{
+        final float[][] mesh = new float[][]{
                 {x , y0, 0.5f, 0f  }, //top center
                 {x1, y0, 1f  , 0f  }, //top right
                 {x1, y , 1f  , 0.5f}, //center right

@@ -12,11 +12,11 @@ import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Colors;
+import cinnamon.utils.Maths;
 import cinnamon.utils.UIHelper;
 import org.joml.Vector3f;
 
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_1;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class ColorPicker extends Button {
 
@@ -37,6 +37,7 @@ public class ColorPicker extends Button {
                 UIHelper.nineQuad(VertexConsumer.GUI, matrices, getStyle().colorPickerTex, getAlignedX(), getAlignedY(), getWidth(), getHeight(), 32, 0, 16, 16, 48, 16);
             }
         };
+        picker.closeOnSelect(false);
         picker.setAlignment(Alignment.CENTER);
         picker.addWidget(new ColorWheel(0, 0, 64, this));
     }
@@ -79,7 +80,10 @@ public class ColorPicker extends Button {
     private static class ColorWheel extends SelectableWidget {
 
         private final ColorPicker parent;
+        private final Vector3f hsv = new Vector3f(0f, 1f, 1f);
         private boolean pressed;
+        private boolean shift, ctrl, alt;
+        private float altHue = 0f;
 
         public ColorWheel(int x, int y, int size, ColorPicker parent) {
             super(x, y, size, size);
@@ -90,8 +94,11 @@ public class ColorPicker extends Button {
         @Override
         public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
             float radius = getWidth() / 2f - 4f;
+            int cx = getCenterX();
+            int cy = getCenterY();
 
-            Vertex[] vertices = GeometryHelper.circle(matrices, getCenterX(), getCenterY(), radius, 24, 0);
+            //wheel
+            Vertex[] vertices = GeometryHelper.circle(matrices, cx, cy, radius, 24, 0);
             vertices[0].color(0xFFFFFFFF);
 
             for (int i = 1; i < vertices.length; i++) {
@@ -101,14 +108,47 @@ public class ColorPicker extends Button {
 
             VertexConsumer.GUI.consume(vertices);
 
-            Vector3f hsv = ColorUtils.rgbToHSV(ColorUtils.intToRGB(parent.getColor()));
+            //cross-hair
             float angle = (float) Math.toRadians(hsv.x * 360f);
             float r = hsv.y * radius;
-            float x = getCenterX() + (float) Math.cos(angle) * r;
-            float y = getCenterY() + (float) Math.sin(angle) * r;
+            float x = cx + (float) Math.cos(angle) * r;
+            float y = cy + (float) Math.sin(angle) * r;
 
-            VertexConsumer.GUI.consume(GeometryHelper.circle(matrices, x, y, 3, 8, 0x88000000));
-            VertexConsumer.GUI.consume(GeometryHelper.circle(matrices, x, y, 2, 8, 0xFFFFFFFF));
+            VertexConsumer.GUI.consume(GeometryHelper.arc(matrices, x, y, 3, 0, 1, 1, 8, 0xFF000000));
+
+            //snap lines
+            if (shift) {
+                for (int i = 0; i < 16; i++) {
+                    float ang = i * (float) Math.PI / 8;
+                    float x1 = cx + (float) Math.cos(ang) * 3;
+                    float y1 = cy + (float) Math.sin(ang) * 3;
+                    float x2 = cx + (float) Math.cos(ang) * radius;
+                    float y2 = cy + (float) Math.sin(ang) * radius;
+                    VertexConsumer.GUI.consume(GeometryHelper.arc(matrices, cx, cy, 3, 0, 1, 1, 24, 0xFF000000));
+                    VertexConsumer.GUI.consume(GeometryHelper.line(matrices, x1, y1, x2, y2, 1, 0xFF000000));
+                }
+            }
+            //snap hue circle
+            if (ctrl)
+                VertexConsumer.GUI.consume(GeometryHelper.arc(matrices, cx, cy, r, 0, 1, 1, 24, 0xFF000000));
+            //snap saturation line
+            if (alt) {
+                float x2 = cx + (float) Math.cos(angle) * radius;
+                float y2 = cy + (float) Math.sin(angle) * radius;
+                VertexConsumer.GUI.consume(GeometryHelper.line(matrices, cx, cy, x2, y2, 1, 0xFF000000));
+            }
+        }
+
+        @Override
+        public GUIListener keyPress(int key, int scancode, int action, int mods) {
+            shift = (mods & GLFW_MOD_SHIFT) != 0;
+            ctrl = (mods & GLFW_MOD_CONTROL) != 0;
+            boolean alt = (mods & GLFW_MOD_ALT) != 0;
+            if (alt != this.alt) {
+                this.alt = alt;
+                altHue = hsv.x;
+            }
+            return super.keyPress(key, scancode, action, mods);
         }
 
         @Override
@@ -135,15 +175,33 @@ public class ColorPicker extends Button {
         }
 
         private void setColorAtPos(int x, int y) {
-            float radius = getWidth() / 2f - 4f;
-            float dx = x - getCenterX();
-            float dy = y - getCenterY();
+            int dx = x - getCenterX();
+            int dy = y - getCenterY();
             float angle = (float) Math.atan2(dy, -dx);
-            float r = (float) Math.sqrt(dx * dx + dy * dy);
-            float hue = 1f - (angle + (float) Math.PI) / (2f * (float) Math.PI);
-            float sat = Math.min(1f, r / radius);
+            if (shift) angle = (float) Math.round(angle / (Math.PI / 8)) * (float) Math.PI / 8;
+            float hue = alt ? altHue : 1f - (angle + (float) Math.PI) / (2f * (float) Math.PI);
+            float sat = calculateSaturation(dx, dy, x, y);
 
-            parent.setColor(ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f(hue, sat, 1f))) + 0xFF000000);
+            hsv.set(hue, sat, 1f);
+            parent.setColor(ColorUtils.rgbToInt(ColorUtils.hsvToRGB(hsv)) + 0xFF000000);
+        }
+
+        private float calculateSaturation(int dx, int dy, int x, int y) {
+            if (ctrl)
+                return hsv.y;
+
+            float radius = getWidth() / 2f - 4f;
+            if (alt) {
+                int cx = getCenterX();
+                int cy = getCenterY();
+                float ang = (float) Math.toRadians(hsv.x * 360f);
+                float x2 = (cx + (float) Math.cos(ang) * radius) - cx;
+                float y2 = (cy + (float) Math.sin(ang) * radius) - cy;
+                return Maths.clamp((x2 * (x - cx) + y2 * (y - cy)) / (x2 * x2 + y2 * y2), 0f, 1f);
+            }
+
+            float r = (float) Math.sqrt(dx * dx + dy * dy);
+            return Math.min(r / radius, 1f);
         }
     }
 }

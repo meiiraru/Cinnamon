@@ -105,7 +105,7 @@ public class PopupWidget extends ContainerGrid {
         }
 
         //close popup when clicked outside it, but do not void the mouse click
-        if (!this.isHovered()) {
+        if (action != GLFW_RELEASE && !this.isHovered()) {
             this.close();
             return null;
         }
