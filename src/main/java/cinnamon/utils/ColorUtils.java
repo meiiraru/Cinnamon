@@ -9,8 +9,8 @@ public class ColorUtils {
 
     /**
      * splits a color integer into its channels
-     * @param color - integer to split
-     * @param len - channels length
+     * @param color integer to split
+     * @param len channels length
      * @return an int array of the split int
      */
     public static int[] split(int color, int len) {
@@ -25,7 +25,7 @@ public class ColorUtils {
 
     /**
      * converts an RGB integer color (0 - 255) to an RGB (0 - 1) {@link org.joml.Vector3f}
-     * @param color - the RGB integer color
+     * @param color the RGB integer color
      * @return an RGB {@link org.joml.Vector3f} of that color
      */
     public static Vector3f intToRGB(int color) {
@@ -35,7 +35,7 @@ public class ColorUtils {
 
     /**
      * converts an RGB (0 - 1) {@link org.joml.Vector3f} to an RGB integer color (0 - 255)
-     * @param color - the RGB {@link org.joml.Vector3f} color
+     * @param color the RGB {@link org.joml.Vector3f} color
      * @return an RGB integer of that color
      */
     public static int rgbToInt(Vector3f color) {
@@ -47,7 +47,7 @@ public class ColorUtils {
 
     /**
      * converts an RGBA (0 - 1) {@link org.joml.Vector4f} to an ARGB integer color (0 - 255)
-     * @param color - the RGBA {@link org.joml.Vector4f} color
+     * @param color the RGBA {@link org.joml.Vector4f} color
      * @return an ARGB integer of that color
      */
     public static int rgbaToIntARGB(Vector4f color) {
@@ -60,7 +60,7 @@ public class ColorUtils {
 
     /**
      * converts an RGBA integer color (0 - 255) to an RGBA (0 - 1) {@link org.joml.Vector4f}
-     * @param color - the RGBA integer color
+     * @param color the RGBA integer color
      * @return an RGBA {@link org.joml.Vector4f} of that color
      */
     public static Vector4f intToRGBA(int color) {
@@ -70,7 +70,7 @@ public class ColorUtils {
 
     /**
      * converts an ARGB integer color (0 - 255) to an RGBA (0 - 1) {@link org.joml.Vector4f}
-     * @param color - the ARGB integer color
+     * @param color the ARGB integer color
      * @return an RGBA {@link org.joml.Vector4f} of that color
      */
     public static Vector4f argbIntToRGBA(int color) {
@@ -80,7 +80,7 @@ public class ColorUtils {
 
     /**
      * converts an HSV (0 - 1) {@link org.joml.Vector3f} to an RGB (0 - 1) {@link org.joml.Vector3f}
-     * @param color - the HSV {@link org.joml.Vector3f} color
+     * @param color the HSV {@link org.joml.Vector3f} color
      * @return an RGB {@link org.joml.Vector3f} of that color
      */
     public static Vector3f hsvToRGB(Vector3f color) {
@@ -90,7 +90,7 @@ public class ColorUtils {
 
     /**
      * converts an RGB (0 - 1) {@link org.joml.Vector3f} to an HSV (0 - 1) {@link org.joml.Vector3f}
-     * @param color - the RGB {@link org.joml.Vector3f} color
+     * @param color the RGB {@link org.joml.Vector3f} color
      * @return an HSV {@link org.joml.Vector3f} of that color
      */
     public static Vector3f rgbToHSV(Vector3f color) {
@@ -101,7 +101,7 @@ public class ColorUtils {
     /**
      * converts an RGB (0 - 1) {@link org.joml.Vector3f} to a Hexadecimal (00 - FF) string
      * the return string will always be 6 characters long without the "#" prefix
-     * @param color - the RGB {@link org.joml.Vector3f} color
+     * @param color the RGB {@link org.joml.Vector3f} color
      * @return a Hexadecimal string of that color
      */
     public static String rgbToHex(Vector3f color) {
@@ -113,7 +113,7 @@ public class ColorUtils {
      * converts a Hexadecimal (00 - FF) string to an RGB (0 - 1) {@link org.joml.Vector3f}
      * <p>
      * if the string is invalid, it will return an empty {@link org.joml.Vector3f}
-     * @param color - the Hexadecimal string color
+     * @param color the Hexadecimal string color
      * @return an RGB {@link org.joml.Vector3f} of that color
      * @see ColorUtils#hexStringToRGB(String, org.joml.Vector3f)
      */
@@ -130,8 +130,8 @@ public class ColorUtils {
      * <p>
      * it is also accepted to have a short (RGB) for the string, having 3 characters in total,
      * this short string will be expanded to a full (RRGGBB) 6 characters string
-     * @param color - the Hexadecimal string color
-     * @param fallbackColor - the fallback color if the string is invalid
+     * @param color the Hexadecimal string color
+     * @param fallbackColor the fallback color if the string is invalid
      * @return an RGB {@link org.joml.Vector3f} of that color
      */
     public static Vector3f hexStringToRGB(String color, Vector3f fallbackColor) {
@@ -161,9 +161,9 @@ public class ColorUtils {
 
     /**
      * computes a linear interpolation between two ARGB integer colors (0 - 255)
-     * @param a - the first ARGB integer color
-     * @param b - the second ARGB integer color
-     * @param t - the interpolation value
+     * @param a the first ARGB integer color
+     * @param b the second ARGB integer color
+     * @param t the interpolation value
      * @return the interpolated ARGB integer color
      */
     public static int lerpARGBColor(int a, int b, float t) {
@@ -175,9 +175,9 @@ public class ColorUtils {
 
     /**
      * computes a linear interpolation between two RGB integer colors (0 - 255)
-     * @param a - the first RGB integer color
-     * @param b - the second RGB integer color
-     * @param t - the interpolation value
+     * @param a the first RGB integer color
+     * @param b the second RGB integer color
+     * @param t the interpolation value
      * @return the interpolated RGB integer color
      */
     public static int lerpRGBColor(int a, int b, float t) {
@@ -244,5 +244,31 @@ public class ColorUtils {
 
         float v = Maths.lerp(cA.z, cB.z, t);
         return rgbToInt(hsvToRGB(new Vector3f(h, s, v)));
+    }
+
+    /**
+     * find the closest {@link Colors} to a given RGB integer color (0 - 255)
+     * @param color the RGB integer color
+     * @return the closest {@link Colors} to that color
+     */
+    public static Colors findColor(int color) {
+        int[] rgb = split(color, 3);
+
+        int minDist = Integer.MAX_VALUE;
+        Colors closestColor = Colors.BLACK;
+
+        for (Colors c : Colors.values()) {
+            int r = rgb[0] - c.r;
+            int g = rgb[1] - c.g;
+            int b = rgb[2] - c.b;
+            int dist = r * r + g * g + b * b;
+
+            if (dist < minDist) {
+                minDist = dist;
+                closestColor = c;
+            }
+        }
+
+        return closestColor;
     }
 }
