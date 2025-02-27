@@ -96,19 +96,37 @@ public class IOUtils {
         }
     }
 
-    //https://stackoverflow.com/a/49570879
     public static List<String> listResources(Resource res, boolean includeDirectories) {
         try {
+            String path = resolveResourcePath(res);
             URL url = res.getNamespace().isEmpty() ?
                     Path.of(res.getPath()).toUri().toURL() :
-                    Thread.currentThread().getContextClassLoader().getResource(resolveResourcePath(res));
-            if (url == null)
-                return null;
+                    Thread.currentThread().getContextClassLoader().getResource(path);
+            return listResources(url, path, includeDirectories);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    public static List<String> listNamespaces() {
+        try {
+            URL url = Thread.currentThread().getContextClassLoader().getResource("resources");
+            return listResources(url, "resources", true);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    //https://stackoverflow.com/a/49570879
+    private static List<String> listResources(URL url, String pathStr, boolean includeDirectories) {
+        if (url == null)
+            return null;
+
+        try {
             URI uri = url.toURI();
             if (uri.getScheme().equals("jar")) { //jar packed resource
                 try (FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
-                    Path path = fileSystem.getPath(resolveResourcePath(res));
+                    Path path = fileSystem.getPath(pathStr);
 
                     //get all contents of a resource (skip resource itself)
                     try (Stream<Path> stream = Files.walk(path, 1).skip(1)) {

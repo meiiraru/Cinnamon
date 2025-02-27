@@ -1,5 +1,6 @@
 package cinnamon.text;
 
+import cinnamon.lang.LangManager;
 import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
@@ -16,14 +17,16 @@ public class Text {
 
     private final List<Text> children = new ArrayList<>();
     private final String text;
+    private final boolean translatable;
     private Style style;
 
-    private Text(String text) {
-        this(text, Style.EMPTY);
+    private Text(String text, boolean translatable) {
+        this(text, translatable, Style.EMPTY);
     }
 
-    private Text(String text, Style style) {
+    private Text(String text, boolean translatable, Style style) {
         this.text = text;
+        this.translatable = translatable;
         this.style = style;
     }
 
@@ -32,11 +35,15 @@ public class Text {
     }
 
     public static Text of(Object text) {
-        return new Text(String.valueOf(text));
+        return new Text(String.valueOf(text), false);
+    }
+
+    public static Text translated(String translation) {
+        return new Text(translation, true);
     }
 
     public Text copy() {
-        Text t = new Text(text, style);
+        Text t = new Text(text, translatable, style);
         for (Text child : children)
             t.children.add(child.copy());
         return t;
@@ -64,12 +71,16 @@ public class Text {
         return this.append(Text.of(String.format(text, args)));
     }
 
-    public String getText() {
+    public String getRawText() {
         return text;
     }
 
+    public String getTranslatedText() {
+        return !translatable ? text : LangManager.get(text);
+    }
+
     public String asString() {
-        StringBuilder sb = new StringBuilder(text);
+        StringBuilder sb = new StringBuilder(getTranslatedText());
         for (Text child : children)
             sb.append(child.asString());
         return sb.toString();
@@ -85,7 +96,7 @@ public class Text {
 
     public void visit(BiConsumer<String, Style> consumer, Style initialStyle) {
         Style s = style.applyParent(initialStyle);
-        consumer.accept(text, s);
+        consumer.accept(getTranslatedText(), s);
         for (Text child : children)
             child.visit(consumer, s);
     }
@@ -93,7 +104,7 @@ public class Text {
     public boolean visit(BiFunction<String, Style, Boolean> function, Style initialStyle) {
         Style s = style.applyParent(initialStyle);
 
-        Boolean bool = function.apply(text, s);
+        Boolean bool = function.apply(getTranslatedText(), s);
         if (bool != null && bool)
             return true;
 

@@ -1,6 +1,7 @@
 package cinnamon.settings;
 
 import cinnamon.Client;
+import cinnamon.lang.LangManager;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.IOUtils;
@@ -24,6 +25,9 @@ public class Settings {
 
 
     private static final int VERSION = 1;
+
+    //lang
+    public static final Setting.Strings lang = new Setting.Strings("lang.lang", LangManager.MAIN_LANG);
 
     //screen
     public static final Setting.Ints fov = new Setting.Ints("screen.fov", 70);
