@@ -32,7 +32,7 @@ public class ColorWheel extends SelectableWidget {
 
     @Override
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        float radius = getWidth() / 2f - 4f;
+        float radius = getRadius();
         int cx = getCenterX();
         int cy = getCenterY();
 
@@ -97,6 +97,10 @@ public class ColorWheel extends SelectableWidget {
             changeListener.accept(hsv);
     }
 
+    public float getRadius() {
+        return getWidth() / 2f - 4f;
+    }
+
     @Override
     public GUIListener keyPress(int key, int scancode, int action, int mods) {
         shift = (mods & GLFW_MOD_SHIFT) != 0;
@@ -150,14 +154,14 @@ public class ColorWheel extends SelectableWidget {
     }
 
     private float calculateSaturation(int dx, int dy, int x, int y) {
-        float radius = getWidth() / 2f - 4f;
+        float radius = getRadius();
         if (alt) {
-            int cx = getCenterX();
-            int cy = getCenterY();
+            float cx = (x - getCenterX()) / radius;
+            float cy = (y - getCenterY()) / radius;
             float ang = (float) Math.toRadians(hsv.x * 360f);
-            float x2 = (cx + (float) Math.cos(ang) * radius) - cx;
-            float y2 = (cy + (float) Math.sin(ang) * radius) - cy;
-            return Maths.clamp((x2 * (x - cx) + y2 * (y - cy)) / (x2 * x2 + y2 * y2), 0f, 1f);
+            float px = (float) Math.cos(ang);
+            float py = (float) Math.sin(ang);
+            return Maths.clamp(cx * px + cy * py, 0f, 1f);
         }
 
         if (ctrl)
