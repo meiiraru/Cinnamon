@@ -1,5 +1,6 @@
 package cinnamon.parsers;
 
+import cinnamon.lang.LangManager;
 import cinnamon.model.material.MaterialTexture;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
@@ -37,10 +38,10 @@ public class CurveToMesh {
         //check sizes
         int size = internal.size();
         if (size != external.size())
-            throw new Exception("Curve internal size is different than external size");
+            throw new Exception(LangManager.get("curve.error.internal_size"));
 
         if (size < 1)
-            throw new Exception("Cannot create empty curve");
+            throw new Exception(LangManager.get("curve.error.empty"));
 
         //create mesh
         Mesh mesh = new Mesh();

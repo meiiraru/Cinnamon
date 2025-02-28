@@ -84,7 +84,7 @@ public class ColorPicker extends Button {
     public void setTooltip(Text tooltip) {
         customTooltip = tooltip != null;
         if (!customTooltip) {
-            super.setTooltip(Text.of("#" + ColorUtils.rgbToHex(ColorUtils.intToRGB(color))).append("\n" + ColorUtils.findColor(color)));
+            super.setTooltip(Text.of("#" + ColorUtils.rgbToHex(ColorUtils.intToRGB(color))).append("\n").appendTranslated("color." + ColorUtils.findColor(color).name().toLowerCase()));
         } else {
             super.setTooltip(tooltip);
         }

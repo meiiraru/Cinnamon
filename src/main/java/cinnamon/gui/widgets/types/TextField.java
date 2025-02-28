@@ -70,14 +70,14 @@ public class TextField extends SelectableWidget implements Tickable {
         super(x, y, width, height);
 
         contextMenu = new ContextMenu()
-                .addAction(Text.of("Cut"), null, b -> cut())
-                .addAction(Text.of("Copy"), null, b -> copy())
-                .addAction(Text.of("Paste"), null, b -> paste())
+                .addAction(Text.translated("gui.text_field.cut"), null, b -> cut())
+                .addAction(Text.translated("gui.text_field.copy"), null, b -> copy())
+                .addAction(Text.translated("gui.text_field.paste"), null, b -> paste())
                 .addDivider()
-                .addAction(Text.of("Select All"), null, b -> selectAll())
+                .addAction(Text.translated("gui.text_field.select_all"), null, b -> selectAll())
                 .addDivider()
-                .addAction(Text.of("Undo"), null, b -> undo())
-                .addAction(Text.of("Redo"), null, b -> redo());
+                .addAction(Text.translated("gui.text_field.undo"), null, b -> undo())
+                .addAction(Text.translated("gui.text_field.redo"), null, b -> redo());
         contextMenu.setOpenListener(ctx -> updateContext());
         contextMenu.setForceFocusParent(true);
         this.setPopup(contextMenu);
@@ -259,10 +259,6 @@ public class TextField extends SelectableWidget implements Tickable {
 
     // -- getters and setters -- //
 
-
-    public void setHintText(String hintText) {
-        setHintText(hintText == null ? null : Text.of(hintText));
-    }
 
     public void setHintText(Text hintText) {
         this.hintText = hintText;

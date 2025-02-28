@@ -105,7 +105,7 @@ public class WorldClient extends World {
         hud.init();
 
         //tutorial toast
-        Toast.addToast(Text.of("WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person")).length(200).type(Toast.ToastType.WORLD).style(Hud.HUD_STYLE);
+        Toast.addToast(Text.translated("world.keybinds_help")).length(200).type(Toast.ToastType.WORLD).style(Hud.HUD_STYLE);
 
         //sun light
         //addLight(sunLight);
@@ -688,7 +688,7 @@ public class WorldClient extends World {
 
             case GLFW_KEY_SLASH -> {
                 skyBox.type = SkyBox.Type.values()[(skyBox.type.ordinal() + 1) % SkyBox.Type.values().length];
-                Toast.addToast(Text.of(skyBox.type.name())).type(Toast.ToastType.WORLD);
+                Toast.addToast(Text.translated("skybox." + skyBox.type.name().toLowerCase())).type(Toast.ToastType.WORLD);
             }
             case GLFW_KEY_COMMA -> selectedTerrain = (selectedTerrain + 1) % (TerrainRegistry.values().length);
             case GLFW_KEY_PERIOD -> selectedMaterial = Maths.modulo((selectedMaterial + (shift ? -1 : 1)), MaterialRegistry.values().length);

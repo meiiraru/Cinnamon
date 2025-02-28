@@ -66,7 +66,8 @@ public class LangManager {
         }
     }
 
-    public static String get(String key) {
-        return LANG.getOrDefault(key, key);
+    public static String get(String key, Object... args) {
+        String value = LANG.getOrDefault(key, key);
+        return args == null || args.length == 0 ? value : String.format(value, args);
     }
 }

@@ -8,6 +8,7 @@ import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.ComboBox;
 import cinnamon.gui.widgets.types.Label;
 import cinnamon.gui.widgets.types.ModelViewer;
+import cinnamon.lang.LangManager;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.*;
 import cinnamon.render.MatrixStack;
@@ -44,28 +45,28 @@ public class ModelViewerScreen extends ParentedScreen {
 
         //button common function
         BiFunction<Resource, String, Button> createButton = (model, name) ->
-                new Button(0, 0, models.getWidth() - models.getScrollbarWidth() - 4, 16, Text.of(name), b -> setModel(model, name));
+                new Button(0, 0, models.getWidth() - models.getScrollbarWidth() - 4, 16, Text.translated(name), b -> setModel(model, LangManager.get(name)));
 
         //add models
-        models.addWidget(new Label(0, 0, Text.of("Entity")));
+        models.addWidget(new Label(0, 0, Text.translated("entity")));
         for (EntityModelRegistry value : EntityModelRegistry.values())
-            models.addWidget(createButton.apply(value.resource, value.name()));
+            models.addWidget(createButton.apply(value.resource, "entity." + value.name().toLowerCase()));
 
-        models.addWidget(new Label(0, 0, Text.of("Living Entity")));
+        models.addWidget(new Label(0, 0, Text.translated("living_entity")));
         for (LivingModelRegistry value : LivingModelRegistry.values())
-            models.addWidget(createButton.apply(value.resource, value.name()));
+            models.addWidget(createButton.apply(value.resource, "living_entity." + value.name().toLowerCase()));
 
-        models.addWidget(new Label(0, 0, Text.of("Terrain")));
+        models.addWidget(new Label(0, 0, Text.translated("terrain")));
         for (TerrainRegistry value : TerrainRegistry.values())
-            models.addWidget(createButton.apply(value.resource, value.name()));
+            models.addWidget(createButton.apply(value.resource, "terrain." + value.name().toLowerCase()));
 
-        models.addWidget(new Label(0, 0, Text.of("Terrain Entities")));
+        models.addWidget(new Label(0, 0, Text.translated("terrain_entity")));
         for (TerrainEntityRegistry value : TerrainEntityRegistry.values())
-            models.addWidget(createButton.apply(value.resource, value.name()));
+            models.addWidget(createButton.apply(value.resource, "terrain_entity." + value.name().toLowerCase()));
 
-        models.addWidget(new Label(0, 0, Text.of("Items")));
+        models.addWidget(new Label(0, 0, Text.translated("item")));
         for (ItemModelRegistry value : ItemModelRegistry.values())
-            models.addWidget(createButton.apply(value.resource, value.name()));
+            models.addWidget(createButton.apply(value.resource, "item." + value.name().toLowerCase()));
 
         //add widget to the list
         addWidget(models);
@@ -73,21 +74,21 @@ public class ModelViewerScreen extends ParentedScreen {
         //add material list
         ComboBox materials = new ComboBox(width - animationList.getWidth() - 4, 4, animationList.getWidth(), animationList.getHeight());
         for (MaterialRegistry value : MaterialRegistry.values())
-            materials.addEntry(Text.of(value.name()), null, b -> modelViewer.setMaterial(value));
-        materials.setTooltip(Text.of("Materials"));
+            materials.addEntry(Text.translated("material." + value.name().toLowerCase()), null, b -> modelViewer.setMaterial(value));
+        materials.setTooltip(Text.translated("material"));
         materials.setSelected(modelViewer.getMaterial().ordinal());
         addWidget(materials);
 
         //prepare animations list
         animationList.setPos(materials.getX(), materials.getY() + materials.getHeight() + 4);
-        animationList.setTooltip(Text.of("Animations"));
+        animationList.setTooltip(Text.translated("animation"));
         addWidget(animationList);
 
         //skyboxes
         ComboBox skyboxes = new ComboBox(materials.getX(), animationList.getY() + animationList.getHeight() + 4, animationList.getWidth(), animationList.getHeight());
         for (SkyBox.Type value : SkyBox.Type.values())
-            skyboxes.addEntry(Text.of(value.name()), null, b -> modelViewer.setSkybox(value));
-        skyboxes.setTooltip(Text.of("Skybox"));
+            skyboxes.addEntry(Text.translated("skybox." + value.name().toLowerCase()), null, b -> modelViewer.setSkybox(value));
+        skyboxes.setTooltip(Text.translated("skybox"));
         skyboxes.setSelected(modelViewer.getSkybox().ordinal());
         addWidget(skyboxes);
 
@@ -102,7 +103,7 @@ public class ModelViewerScreen extends ParentedScreen {
 
         //set initial model
         if (!modelViewer.hasModel())
-            setModel(LivingModelRegistry.STRAWBERRY.resource, LivingModelRegistry.STRAWBERRY.name());
+            setModel(LivingModelRegistry.STRAWBERRY.resource, LangManager.get("living_entity." + LivingModelRegistry.STRAWBERRY.name().toLowerCase()));
     }
 
     @Override
@@ -120,14 +121,14 @@ public class ModelViewerScreen extends ParentedScreen {
         animationList.clearEntries();
         List<String> animations = modelViewer.getAnimations();
         if (!animations.isEmpty()) {
-            animationList.addEntry(Text.of("None"), null, b -> modelViewer.stopAllAnimations());
+            animationList.addEntry(Text.translated("gui.none"), null, b -> modelViewer.stopAllAnimations());
             for (String animation : animations)
                 animationList.addEntry(Text.of(animation), null, b -> {
                     modelViewer.stopAllAnimations();
                     modelViewer.getAnimation(animation).setLoop(Animation.Loop.LOOP).play();
                 });
         } else {
-            animationList.addEntry(Text.of("None"), null, null);
+            animationList.addEntry(Text.translated("gui.none"), null, null);
         }
         animationList.setSelected(0);
     }

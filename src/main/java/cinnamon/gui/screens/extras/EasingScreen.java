@@ -30,11 +30,11 @@ public class EasingScreen extends ParentedScreen {
     }
 
     private static final List<String> EASING_TYPES = List.of(
-            "Sine",         "Quadratic",
-            "Cubic",        "Quartic",
-            "Quintic",      "Exponential",
-            "Circular",     "Back",
-            "Elastic",      "Bounce"
+            "easing.sine",         "easing.quad",
+            "easing.cubic",        "easing.quart",
+            "easing.quint",        "easing.expo",
+            "easing.circ",         "easing.back",
+            "easing.elastic",      "easing.bounce"
     );
 
     private static final List<Maths.Easing> EASINGS = List.of(
@@ -77,14 +77,14 @@ public class EasingScreen extends ParentedScreen {
         playButton.setImage(PLAY_IMG);
         controllers.addWidget(playButton);
 
-        Checkbox loop = new Checkbox(0, 0, Text.of("Loop"));
+        Checkbox loop = new Checkbox(0, 0, Text.translated("gui.easing_screen.loop"));
         loop.setAction(button -> {
             for (EasingWidget widget : widgets)
                 widget.loop(loop.isToggled());
         });
         controllers.addWidget(loop);
 
-        Checkbox lines = new Checkbox(0, 0, Text.of("Show Lines"));
+        Checkbox lines = new Checkbox(0, 0, Text.translated("gui.easing_screen.show_lines"));
         lines.setAction(button -> {
             for (EasingWidget widget : widgets)
                 widget.setRenderLines(lines.isToggled());
@@ -101,7 +101,7 @@ public class EasingScreen extends ParentedScreen {
             if (i % 3 == 0) {
                 ContainerGrid category = new ContainerGrid(0, 0, 4);
                 category.setAlignment(Alignment.CENTER);
-                category.addWidget(new Label(0, 0, Text.of(EASING_TYPES.get(i / 3)).withStyle(Style.EMPTY.outlined(true))));
+                category.addWidget(new Label(0, 0, Text.translated(EASING_TYPES.get(i / 3)).withStyle(Style.EMPTY.outlined(true))));
 
                 group = new ContainerGrid(0, 0, 4, 3);
                 category.addWidget(group);
@@ -110,7 +110,7 @@ public class EasingScreen extends ParentedScreen {
             }
 
             widgets[i] = new EasingWidget(35, 35, EASINGS.get(i));
-            widgets[i].setTooltip(Text.of(EASINGS.get(i).name()));
+            widgets[i].setTooltip(Text.translated("easing." + EASINGS.get(i).name().toLowerCase()));
             group.addWidget(widgets[i]);
         }
 

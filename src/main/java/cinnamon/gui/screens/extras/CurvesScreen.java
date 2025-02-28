@@ -53,22 +53,8 @@ public class CurvesScreen extends ParentedScreen {
         ContainerGrid grid = new ContainerGrid(4, 4, 4);
 
         //help label
-        Label help = new Label(0, 0, Text.of("\u2753 Help"));
-        help.setTooltip(Text.of("""
-                Mouse 1
-                    Add control point
-
-                Mouse 1 (select and drag)
-                    Move control point
-
-                Mouse 2
-                    Remove control point
-
-                Mouse 3 (drag)
-                    Move all points
-
-                Scroll
-                    Change curve quality"""));
+        Label help = new Label(0, 0, Text.of("\u2753 ").appendTranslated("gui.help"));
+        help.setTooltip(Text.translated("gui.curves_screen.help"));
         grid.addWidget(help);
 
         //selection box
@@ -96,28 +82,28 @@ public class CurvesScreen extends ParentedScreen {
         grid.addWidget(box);
 
         //points button
-        Checkbox pointsButton = new Checkbox(0, 0, Text.of("Render points index"));
+        Checkbox pointsButton = new Checkbox(0, 0, Text.translated("gui.curves_screen.render_points"));
         pointsButton.setAction(button -> renderPointsText = pointsButton.isToggled());
         pointsButton.setToggled(renderPointsText);
         grid.addWidget(pointsButton);
 
         //lines button
-        Checkbox linesButton = new Checkbox(0, 0, Text.of("Render lines"));
+        Checkbox linesButton = new Checkbox(0, 0, Text.translated("gui.curves_screen.render_lines"));
         linesButton.setAction(button -> renderLines = linesButton.isToggled());
         linesButton.setToggled(renderLines);
         grid.addWidget(linesButton);
 
         //loop button
-        Checkbox loopButton = new Checkbox(0, 0, Text.of("Loop"));
+        Checkbox loopButton = new Checkbox(0, 0, Text.translated("gui.curves_screen.loop"));
         loopButton.setAction(button -> curve.loop(!curve.isLooping()));
         loopButton.setToggled(curve.isLooping());
         grid.addWidget(loopButton);
 
         //export button
-        Button exportCurve = new Button(0, 0, 60, 12, Text.of("Export"), button -> {
+        Button exportCurve = new Button(0, 0, 60, 12, Text.translated("gui.curves_screen.export"), button -> {
             try {
                 ObjExporter.export("curve", CurveToMesh.generateMesh(curve, true, false));
-                Toast.addToast(Text.of("Curve exported!"));
+                Toast.addToast(Text.translated("gui.curves_screen.export_success"));
                 if (!exported) {
                     exported = true;
                     grid.insertWidget(openFolder, button);
@@ -130,7 +116,7 @@ public class CurvesScreen extends ParentedScreen {
         grid.addWidget(exportCurve);
 
         //
-        openFolder = new Button(0, 0, 60, 12, Text.of("Open Folder"), button -> {
+        openFolder = new Button(0, 0, 60, 12, Text.translated("gui.curves_screen.open_export_folder"), button -> {
             try {
                 IOUtils.openInExplorer(ObjExporter.EXPORT_FOLDER.resolve("curve"));
             } catch (Exception e) {
@@ -177,7 +163,7 @@ public class CurvesScreen extends ParentedScreen {
         renderCurve(matrices, curve.getInternalCurve(), 0xFF7272, 0xFFFF72);
 
         //draw texts
-        Text.of("Curve quality: " + this.curve.getSteps() + "\nCurve Size: " + this.curve.getCurve().size()).render(VertexConsumer.FONT, matrices, width / 2f, 4, Alignment.TOP_CENTER);
+        Text.translated("gui.curves_screen.curve_quality", this.curve.getSteps()).append("\n").appendTranslated("gui.curves_screen.curve_size", this.curve.getCurve().size()).render(VertexConsumer.FONT, matrices, width / 2f, 4, Alignment.TOP_CENTER);
 
         if (focused instanceof Point selected) {
             Text t = Text.of("x" + selected.getX() + " y" + selected.getY());

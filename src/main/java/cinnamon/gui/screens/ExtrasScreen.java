@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 
 public class ExtrasScreen extends ParentedScreen {
 
-    private static final BiFunction<String, Consumer<Button>, Button> BUTTON_FACTORY = (s, a) -> new Button(0, 0, 180, 20, Text.of(s), a);
+    private static final BiFunction<String, Consumer<Button>, Button> BUTTON_FACTORY = (s, a) -> new Button(0, 0, 180, 20, Text.translated(s), a);
 
     public ExtrasScreen(Screen parentScreen) {
         super(parentScreen);
@@ -32,64 +32,64 @@ public class ExtrasScreen extends ParentedScreen {
         addWidget(list);
 
         //title
-        list.addWidget(new Label(0, 0, Text.of("Custom Worlds\n")));
+        list.addWidget(new Label(0, 0, Text.translated("gui.extras_screen.custom_worlds").append("\n")));
 
         //material debug world
-        list.addWidget(BUTTON_FACTORY.apply("Material Debug", button -> new MaterialPreviewWorld().init()));
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.custom_worlds.material_test", button -> new MaterialPreviewWorld().init()));
 
         //roller coaster world
-        list.addWidget(BUTTON_FACTORY.apply("Roller Coaster", button -> new RollerCoasterWorld().init()));
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.custom_worlds.rollercoaster", button -> new RollerCoasterWorld().init()));
 
         //disco world
-        list.addWidget(BUTTON_FACTORY.apply("Disco", button -> new DiscoWorld().init()));
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.custom_worlds.disco", button -> new DiscoWorld().init()));
 
         //transparent world
-        list.addWidget(BUTTON_FACTORY.apply("Transparent", button -> new TransparentWorld().init()));
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.custom_worlds.transparent", button -> new TransparentWorld().init()));
 
         //title
-        list.addWidget(new Label(0, 0, Text.of("\nTech demos\n")));
+        list.addWidget(new Label(0, 0, Text.of("\n").appendTranslated("gui.extras_screen.tech_demos").append("\n")));
 
         //collision screen
-        list.addWidget(BUTTON_FACTORY.apply("Collision Test", button -> client.setScreen(new CollisionScreen(this))));
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.collision_test", button -> client.setScreen(new CollisionScreen(this))));
 
         //curves screen
-        list.addWidget(BUTTON_FACTORY.apply("Curves", button -> client.setScreen(new CurvesScreen(this))));
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.curves", button -> client.setScreen(new CurvesScreen(this))));
 
         //widgets test
-        list.addWidget(BUTTON_FACTORY.apply("GUI Test", button -> client.setScreen(new WidgetTestScreen(this))));
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.gui_test", button -> client.setScreen(new WidgetTestScreen(this))));
 
         //balls
-        list.addWidget(BUTTON_FACTORY.apply("Balls", button -> client.setScreen(new BallsScreen(this))));
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.balls", button -> client.setScreen(new BallsScreen(this))));
 
         //easings
-        list.addWidget(BUTTON_FACTORY.apply("Easings", button -> client.setScreen(new EasingScreen(this))));
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.easings", button -> client.setScreen(new EasingScreen(this))));
 
         //sound visualizer
-        list.addWidget(BUTTON_FACTORY.apply("Sound Visualizer", button -> client.setScreen(new SoundVisualizerScreen(this))));
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.sound_visualizer", button -> client.setScreen(new SoundVisualizerScreen(this))));
 
         //model viewer
-        list.addWidget(BUTTON_FACTORY.apply("Model Viewer", button -> client.setScreen(new ModelViewerScreen(this))));
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.model_viewer", button -> client.setScreen(new ModelViewerScreen(this))));
 
         //title
-        list.addWidget(new Label(0, 0, Text.of("\nGames\n")));
+        list.addWidget(new Label(0, 0, Text.of("\n").appendTranslated("gui.extras_screen.games").append("\n")));
 
         //dvd screen
-        list.addWidget(BUTTON_FACTORY.apply("DVD screensaver", button -> client.setScreen(new DVDScreen(this))));
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.games.dvd_screensaver", button -> client.setScreen(new DVDScreen(this))));
 
         //wordle
-        list.addWidget(BUTTON_FACTORY.apply("Wordle", button -> client.setScreen(new WordleScreen(this))));
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.games.wordle", button -> client.setScreen(new WordleScreen(this))));
 
         //title
-        list.addWidget(new Label(0, 0, Text.of("\nOther\n")));
+        list.addWidget(new Label(0, 0, Text.of("\n").appendTranslated("gui.extras_screen.other").append("\n")));
 
         //CPF validator
-        list.addWidget(BUTTON_FACTORY.apply("CPF Validator", button -> client.setScreen(new CPFScreen(this))));
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.other.cpf_validator", button -> client.setScreen(new CPFScreen(this))));
 
         //spacing (literally)
         list.addWidget(new Label(0, 0, Text.of("\n")));
 
         //back
-        list.addWidget(BUTTON_FACTORY.apply("Back", button -> close()));
+        list.addWidget(BUTTON_FACTORY.apply("gui.back", button -> close()));
 
         super.init();
     }

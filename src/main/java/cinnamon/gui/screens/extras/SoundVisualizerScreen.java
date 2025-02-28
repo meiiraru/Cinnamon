@@ -83,7 +83,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
                 loadTracks(files.toArray(new String[0]));
         });
         openButton.setImage(OPEN);
-        openButton.setTooltip(Text.of("Load Songs"));
+        openButton.setTooltip(Text.translated("gui.music_screen.load"));
         addWidget(openButton);
 
         //buttons grid
@@ -96,7 +96,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
                 playSound((playlistIndex - 1 + playlist.size()) % playlist.size());
         });
         previousButton.setImage(PREVIOUS);
-        previousButton.setTooltip(Text.of("Previous Song"));
+        previousButton.setTooltip(Text.translated("gui.music_screen.previous"));
         previousButton.setSilent(true);
         previousButton.setActive(playlist.size() > 1);
         buttons.addWidget(previousButton);
@@ -111,11 +111,11 @@ public class SoundVisualizerScreen extends ParentedScreen {
                 if (soundData.isPlaying()) {
                     soundData.pause();
                     button.setImage(PLAY);
-                    button.setTooltip(Text.of("Play"));
+                    button.setTooltip(Text.translated("gui.music_screen.play"));
                 } else {
                     soundData.play();
                     button.setImage(PAUSE);
-                    button.setTooltip(Text.of("Pause"));
+                    button.setTooltip(Text.translated("gui.music_screen.pause"));
                 }
             } else {
                 playSound(playlistIndex);
@@ -123,7 +123,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         });
         boolean pause = soundData != null && soundData.isPlaying();
         playPauseButton.setImage(pause ? PAUSE : PLAY);
-        playPauseButton.setTooltip(Text.of(pause ? "Pause" : "Play"));
+        playPauseButton.setTooltip(Text.translated(pause ? "gui.music_screen.pause" : "gui.music_screen.play"));
         playPauseButton.setSilent(true);
         centerButtons.addWidget(playPauseButton);
 
@@ -136,7 +136,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
             }
         });
         stopButton.setImage(STOP);
-        stopButton.setTooltip(Text.of("Stop"));
+        stopButton.setTooltip(Text.translated("gui.music_screen.stop"));
         stopButton.setSilent(true);
         centerButtons.addWidget(stopButton);
 
@@ -148,15 +148,15 @@ public class SoundVisualizerScreen extends ParentedScreen {
             switch (repeat) {
                 case 1 -> {
                     button.setImage(REPEAT_ONE);
-                    button.setTooltip(Text.of("Repeat One"));
+                    button.setTooltip(Text.translated("gui.music_screen.repeat_one"));
                 }
                 case 2 -> {
                     button.setImage(REPEAT);
-                    button.setTooltip(Text.of("Repeat All"));
+                    button.setTooltip(Text.translated("gui.music_screen.repeat_all"));
                 }
                 default -> {
                     button.setImage(REPEAT_OFF);
-                    button.setTooltip(Text.of("Repeat Off"));
+                    button.setTooltip(Text.translated("gui.music_screen.repeat_off"));
                 }
             }
         });
@@ -174,7 +174,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
                 playSound((playlistIndex + 1) % playlist.size());
         });
         nextButton.setImage(NEXT);
-        nextButton.setTooltip(Text.of("Next Song"));
+        nextButton.setTooltip(Text.translated("gui.music_screen.next"));
         nextButton.setSilent(true);
         nextButton.setActive(playlist.size() > 1);
         buttons.addWidget(nextButton);
@@ -206,13 +206,13 @@ public class SoundVisualizerScreen extends ParentedScreen {
             SoundCategory.MUSIC.setVolume(f);
             settingsDirty = true;
         });
-        volume.setTooltipFunction((f, i) -> Text.of("Volume: " + i));
+        volume.setTooltipFunction((f, i) -> Text.translated("gui.music_screen.volume", i));
         addWidget(volume);
 
         //output device
         ComboBox device = new ComboBox(4, volume.getY() - 4 - 16, 50, 16);
 
-        device.addEntry(Text.of("Default"));
+        device.addEntry(Text.translated("gui.default"));
         List<String> devices = SoundManager.getDevices();
         for (String string : devices)
             device.addEntry(Text.of(string.replaceFirst("^OpenAL Soft on ", "")));
@@ -244,7 +244,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         //close button
         Button closeButton = new Button(width - 4 - 16, 4, 16, 16, null, button -> close());
         closeButton.setImage(CLOSE);
-        closeButton.setTooltip(Text.of("Close"));
+        closeButton.setTooltip(Text.translated("gui.close"));
         addWidget(closeButton);
     }
 
@@ -301,7 +301,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
         //draw top text
         if (songCount == 0)
-            Text.of("Click on the left to open song files\nor drop Ogg files here to play!").withStyle(Style.EMPTY.color(Colors.WHITE)).render(VertexConsumer.FONT, matrices, (int) (width / 2f), 4, Alignment.TOP_CENTER);
+            Text.translated("gui.music_screen.help").withStyle(Style.EMPTY.color(Colors.WHITE)).render(VertexConsumer.FONT, matrices, (int) (width / 2f), 4, Alignment.TOP_CENTER);
 
         //draw timers
         int x = slider.getX();
@@ -394,7 +394,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         playPauseButton.setImage(PAUSE);
 
         //notify the user
-        Toast.addToast(Text.of("Now playing: %s".formatted(track.title)));
+        Toast.addToast(Text.translated("gui.music_screen.now_playing", track.title));
     }
 
     @Override
@@ -462,7 +462,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
             previousButton.setActive(size > 1);
 
             //feebdback to the user
-            Toast.addToast(Text.of("Loaded %d song%s!".formatted(size, size > 1 ? "s" : "")));
+            Toast.addToast(Text.translated(size == 1 ? "gui.music_screen.load_end" : "gui.music_screen.load_end_plural", size));
 
             //automatically play the first song
             playSound(0);

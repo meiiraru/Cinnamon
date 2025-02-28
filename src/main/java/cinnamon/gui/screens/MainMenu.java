@@ -43,7 +43,7 @@ public class MainMenu extends Screen {
         ContainerGrid grid = new ContainerGrid(0, 0, 4);
 
         //open world
-        Button worldButton = new MainButton(Text.of("Singleplayer"), button -> {
+        Button worldButton = new MainButton(Text.translated("gui.main_menu.singleplayer"), button -> {
             //init client
             //if (ServerConnection.open()) {
                 WorldClient world = new WorldClient();
@@ -55,18 +55,18 @@ public class MainMenu extends Screen {
         grid.addWidget(worldButton);
 
         //multiplayer
-        Button joinWorld = new MainButton(Text.of("Multiplayer"), button -> client.setScreen(new MultiplayerJoinScreen(this)));
-        joinWorld.setTooltip(Text.of("Sorry, not available yet! ").append(Text.of("\u2764").withStyle(Style.EMPTY.color(Colors.PINK))));
+        Button joinWorld = new MainButton(Text.translated("gui.main_menu.multiplayer"), button -> client.setScreen(new MultiplayerJoinScreen(this)));
+        joinWorld.setTooltip(Text.translated("gui.main_menu.multiplayer.not_available").append(Text.of(" \u2764").withStyle(Style.EMPTY.color(Colors.PINK))));
         joinWorld.setActive(false);
         grid.addWidget(joinWorld);
 
         //extra stuff
-        Button extras = new MainButton(Text.of("Extras"), button -> client.setScreen(new ExtrasScreen(this)));
+        Button extras = new MainButton(Text.translated("gui.main_menu.extras"), button -> client.setScreen(new ExtrasScreen(this)));
         grid.addWidget(extras);
 
         //exit
-        Button exitButton = new MainButton(Text.of("Exit"), button -> client.window.exit());
-        exitButton.setTooltip(Text.of("bye~"));
+        Button exitButton = new MainButton(Text.translated("gui.main_menu.exit"), button -> client.window.exit());
+        exitButton.setTooltip(Text.translated("gui.main_menu.exit.tooltip"));
         grid.addWidget(exitButton);
 
         //add grid to screen

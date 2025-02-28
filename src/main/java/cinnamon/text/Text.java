@@ -18,15 +18,17 @@ public class Text {
     private final List<Text> children = new ArrayList<>();
     private final String text;
     private final boolean translatable;
+    private final Object[] translationArgs;
     private Style style;
 
-    private Text(String text, boolean translatable) {
-        this(text, translatable, Style.EMPTY);
+    private Text(String text) {
+        this(text, false, null, Style.EMPTY);
     }
 
-    private Text(String text, boolean translatable, Style style) {
+    private Text(String text, boolean translatable, Object[] translationArgs, Style style) {
         this.text = text;
         this.translatable = translatable;
+        this.translationArgs = translationArgs;
         this.style = style;
     }
 
@@ -35,15 +37,15 @@ public class Text {
     }
 
     public static Text of(Object text) {
-        return new Text(String.valueOf(text), false);
+        return new Text(String.valueOf(text));
     }
 
-    public static Text translated(String translation) {
-        return new Text(translation, true);
+    public static Text translated(String translation, Object... args) {
+        return new Text(translation, true, args, Style.EMPTY);
     }
 
     public Text copy() {
-        Text t = new Text(text, translatable, style);
+        Text t = new Text(text, translatable, translationArgs, style);
         for (Text child : children)
             t.children.add(child.copy());
         return t;
@@ -67,8 +69,8 @@ public class Text {
         return this.append(Text.of(text));
     }
 
-    public Text append(String text, Object... args) {
-        return this.append(Text.of(String.format(text, args)));
+    public Text appendTranslated(String text, Object... args) {
+        return this.append(Text.translated(text, args));
     }
 
     public String getRawText() {
@@ -76,7 +78,7 @@ public class Text {
     }
 
     public String getTranslatedText() {
-        return !translatable ? text : LangManager.get(text);
+        return !translatable ? text : LangManager.get(text, translationArgs);
     }
 
     public String asString() {

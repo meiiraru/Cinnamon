@@ -145,7 +145,7 @@ public class Hud {
         boolean onCooldown = item instanceof CooldownItem ci && ci.isOnCooldown();
 
         //item name
-        Text text = Text.of(item.getId()).withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE)).append("\n");
+        Text text = Text.translated(item.getId()).withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE)).append("\n");
 
         //item count
         if (!onCooldown) {
@@ -186,7 +186,7 @@ public class Hud {
 
         for (Effect effect : player.getActiveEffects()) {
             //name
-            text.append(effect.getType().name());
+            text.append(Text.translated("effect." + effect.getType().name().toLowerCase()));
 
             //amplitude
             int amplitude = effect.getAmplitude();
@@ -315,8 +315,9 @@ public class Hud {
         matrices.pop();
 
         //render name
-        String str = (material.name() + " " + registry.name()).replaceAll("_", " ");
-        Text.of(str).withStyle(Style.EMPTY.shadow(true).guiStyle(HUD_STYLE)).render(VertexConsumer.FONT, matrices, ww.scaledWidth * 0.5f, 16 + 4 + 4, Alignment.TOP_CENTER);
+        Text mat = Text.translated("material." + material.name().toLowerCase());
+        Text ter = Text.translated("terrain." + registry.name().toLowerCase());
+        mat.append(" ").append(ter).withStyle(Style.EMPTY.shadow(true).guiStyle(HUD_STYLE)).render(VertexConsumer.FONT, matrices, ww.scaledWidth * 0.5f, 16 + 4 + 4, Alignment.TOP_CENTER);
     }
 
     private void drawCrosshair(MatrixStack matrices) {

@@ -226,7 +226,7 @@ public class Client {
             events.runEvents(EventType.RESOURCE_FREE);
             events.runEvents(EventType.RESOURCE_INIT);
             Toast.clearAll();
-            Toast.addToast(Text.of("Reloaded assets"));
+            Toast.addToast(Text.translated("debug.assets_reloaded"));
         });
     }
 

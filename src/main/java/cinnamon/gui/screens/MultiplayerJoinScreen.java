@@ -32,24 +32,24 @@ public class MultiplayerJoinScreen extends ParentedScreen {
         //name field
         nameField = new TextField(x - 50, y - 15 - 4 - (int) GUIStyle.getDefault().font.lineHeight - 4 - 15, 100, 15);
         nameField.setListener(string -> name = string);
-        nameField.setHintText("name...");
+        nameField.setHintText(Text.translated("gui.multiplayer.name_hint"));
         nameField.setText(name);
         addWidget(nameField);
 
         //ip field
         ipField = new TextField(x - 50, y - 15, 100, 15);
         ipField.setListener(string -> ip = string);
-        ipField.setHintText("ip...");
+        ipField.setHintText(Text.translated("gui.multiplayer.ip_hint"));
         ipField.setText(ip);
         addWidget(ipField);
 
         ContainerGrid grid = new ContainerGrid(0, y + 4, 4, 2);
 
         //connect button
-        grid.addWidget(new Button(0, 0, 80, 20, Text.of("Connect"), button -> connect(name, ip)));
+        grid.addWidget(new Button(0, 0, 80, 20, Text.translated("gui.multiplayer.connect"), button -> connect(name, ip)));
 
         //back button
-        grid.addWidget(new Button(0, 0, 80, 20, Text.of("Back"), button -> close()));
+        grid.addWidget(new Button(0, 0, 80, 20, Text.translated("gui.back"), button -> close()));
 
         grid.setX(x - grid.getWidth() / 2);
         addWidget(grid);
@@ -66,17 +66,17 @@ public class MultiplayerJoinScreen extends ParentedScreen {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //name text
-        Text.of("Enter your name:").render(VertexConsumer.FONT, matrices, width / 2f,  nameField.getY() - 4 - GUIStyle.getDefault().font.lineHeight, Alignment.TOP_CENTER);
+        Text.translated("gui.multiplayer.name").render(VertexConsumer.FONT, matrices, width / 2f,  nameField.getY() - 4 - GUIStyle.getDefault().font.lineHeight, Alignment.TOP_CENTER);
 
         //ip text
-        Text.of("Enter server IP:").render(VertexConsumer.FONT, matrices, width / 2f, ipField.getY() - 4 - GUIStyle.getDefault().font.lineHeight, Alignment.TOP_CENTER);
+        Text.translated("gui.multiplayer.ip").render(VertexConsumer.FONT, matrices, width / 2f, ipField.getY() - 4 - GUIStyle.getDefault().font.lineHeight, Alignment.TOP_CENTER);
 
         super.render(matrices, mouseX, mouseY, delta);
     }
 
     private void connect(String name, String ip) {
         if (name.isBlank()) {
-            Toast.addToast(Text.of("Invalid name"));
+            Toast.addToast(Text.translated("gui.multiplayer.name_invalid"));
             return;
         }
 
@@ -86,7 +86,7 @@ public class MultiplayerJoinScreen extends ParentedScreen {
             WorldClient world = new WorldClient();
             world.init();
         } else {
-            Toast.addToast(Text.of("Unable to connect to server"));
+            Toast.addToast(Text.translated("gui.multiplayer.connect_error"));
         }
     }
 }

@@ -72,7 +72,7 @@ public class MaterialPreviewWorld extends WorldClient {
                 matrices.translate(-1.5f, 1.5f, 0f);
                 matrices.scale(-1 / 48f);
                 camera.billboard(matrices);
-                Text.of(values[i].name()).withStyle(Style.EMPTY.shadow(true).shadowColor(Colors.PURPLE)).render(VertexConsumer.WORLD_FONT, matrices, 0f, 0f, Alignment.BOTTOM_CENTER);
+                Text.translated("material." + values[i].name().toLowerCase()).withStyle(Style.EMPTY.shadow(true).shadowColor(Colors.PURPLE)).render(VertexConsumer.WORLD_FONT, matrices, 0f, 0f, Alignment.BOTTOM_CENTER);
             }
 
             Texture.unbindAll(texCount);

@@ -13,7 +13,7 @@ import cinnamon.utils.TextUtils;
 
 public class DeathScreen extends Screen {
 
-    private static final Text YOU_DIED = Text.of("YOU DIED").withStyle(Style.EMPTY.outlined(true).outlineColor(0xFF440000).underlined(true));
+    private static final Text YOU_DIED = Text.translated("gui.death_screen.died").withStyle(Style.EMPTY.outlined(true).outlineColor(0xFF440000).underlined(true));
 
     private Button respawn;
 
@@ -21,12 +21,12 @@ public class DeathScreen extends Screen {
     public void init() {
         super.init();
 
-        this.addWidget(respawn = new Button((width - 180) / 2, height / 2 + 8, 180, 20, Text.of("Respawn"), button -> {
+        this.addWidget(respawn = new Button((width - 180) / 2, height / 2 + 8, 180, 20, Text.translated("gui.death_screen.respawn"), button -> {
             client.world.respawn(false);
             client.setScreen(null);
         }));
 
-        Button menu = new Button(respawn.getX(), respawn.getY() + respawn.getHeight() + 16, 180, 20, Text.of("Main menu"), button -> client.world.close());
+        Button menu = new Button(respawn.getX(), respawn.getY() + respawn.getHeight() + 16, 180, 20, Text.translated("gui.death_screen.main_menu"), button -> client.world.close());
         this.addWidget(menu);
     }
 

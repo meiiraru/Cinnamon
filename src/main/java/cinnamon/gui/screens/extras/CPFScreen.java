@@ -29,7 +29,7 @@ public class CPFScreen extends ParentedScreen {
 
         //field
         TextField field = new TextField(0, 0, 180, 20);
-        field.setHintText("CPF...");
+        field.setHintText(Text.translated("gui.cpf_screen.hint"));
         field.setCharLimit(11);
         field.setFilter(TextField.Filter.NUMBERS);
         field.setListener(s -> {
@@ -43,11 +43,11 @@ public class CPFScreen extends ParentedScreen {
             switch (checkCPF(cpf)) {
                 case 1 -> {
                     field.setBorderColor(Colors.LIME);
-                    field.setTooltip(Text.of("Valid CPF"));
+                    field.setTooltip(Text.translated("gui.cpf_screen.valid"));
                 }
                 case 2 -> {
                     field.setBorderColor(Colors.RED);
-                    field.setTooltip(Text.of("Invalid CPF"));
+                    field.setTooltip(Text.translated("gui.cpf_screen.invalid"));
                 }
             }
         });
@@ -55,15 +55,15 @@ public class CPFScreen extends ParentedScreen {
         list.addWidget(field);
 
         //validate button
-        Button button = new Button(0, 0, 180, 20, Text.of("Validate"), b -> {
+        Button button = new Button(0, 0, 180, 20, Text.translated("gui.cpf_screen.validate"), b -> {
             String cpf = field.getFormattedText();
-            Toast.addToast(Text.of("Checking...")).length(5);
+            Toast.addToast(Text.translated("gui.cpf_screen.checking")).length(5);
             switch (checkCPF(cpf)) {
-                case 1 -> field.setTooltip(Text.of("Valid CPF"));
-                case 2 -> field.setTooltip(Text.of("Invalid CPF"));
+                case 1 -> field.setTooltip(Text.translated("gui.cpf_screen.valid"));
+                case 2 -> field.setTooltip(Text.translated("gui.cpf_screen.invalid"));
                 case -1 -> {
                     field.setBorderColor(Colors.YELLOW);
-                    field.setTooltip(Text.of("Malformed CPF"));
+                    field.setTooltip(Text.translated("gui.cpf_screen.malformed_cpf"));
                 }
             }
         });

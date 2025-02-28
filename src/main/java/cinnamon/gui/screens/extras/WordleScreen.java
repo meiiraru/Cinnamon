@@ -168,7 +168,7 @@ public class WordleScreen extends ParentedScreen {
 
     @Override
     protected void addBackButton() {
-        Button b = new Button(width - 60 - 4, height - 20 - 4, 60, 20, Text.of("Back"), button -> close());
+        Button b = new Button(width - 60 - 4, height - 20 - 4, 60, 20, Text.translated("gui.back"), button -> close());
         b.setStyle(Hud.HUD_STYLE);
         this.addWidget(b);
     }
@@ -286,14 +286,14 @@ public class WordleScreen extends ParentedScreen {
         }
 
         if (attempt.length() != WORD_LENGTH) {
-            Toast.addToast(Text.of("Word too small"));
+            Toast.addToast(Text.translated("gui.wordle.error.word_small"));
             playAnimBadWord();
             return;
         } else if (word.equals(attempt)) {
-            Toast.addToast(Text.of("Congrats!"));
+            Toast.addToast(Text.translated("gui.wordle.success"));
             gameOver = true;
         } else if (!guesses.contains(attempt) && !answers.contains(attempt)) {
-            Toast.addToast(Text.of("Word not in the word list!"));
+            Toast.addToast(Text.translated("gui.wordle.error.word_not_found"));
             playAnimBadWord();
             return;
         }
@@ -306,7 +306,7 @@ public class WordleScreen extends ParentedScreen {
         tries++;
 
         if (!gameOver && tries >= TRIES) {
-            Toast.addToast(Text.of("Game Over\nThe word was " + word));
+            Toast.addToast(Text.translated("gui.wordle.game_over", word));
             gameOver = true;
             tries++;
         }
@@ -499,15 +499,16 @@ public class WordleScreen extends ParentedScreen {
         public Stats(int x, int y, int spacing, int tries) {
             super(x, y, spacing);
 
-            lastWord = new Label(0, 0, Text.of("Last Word\n" + "???"));
+            lastWord = new Label(0, 0, Text.translated("gui.wordle.last_word", "???"));
             lastWord.setAlignment(Alignment.TOP_CENTER);
             addWidget(lastWord);
 
-            playCount = new Label(0, 0, Text.of("Games\n0"));
+            playCount = new Label(0, 0, Text.translated("gui.wordle.game_count", 0));
             playCount.setAlignment(Alignment.TOP_CENTER);
             addWidget(playCount);
 
-            Label triesLabel = new Label(0, 0, Text.of("Stats"));
+            Label triesLabel = new Label(0, 0, Text.translated("gui.wordle.stats"));
+            triesLabel.setAlignment(Alignment.TOP_CENTER);
             addWidget(triesLabel);
 
             ContainerGrid bars = new ContainerGrid(0, 0, spacing, 3);
@@ -534,9 +535,9 @@ public class WordleScreen extends ParentedScreen {
         }
 
         public void update(String lastWord, int playCount, int[] results) {
-            this.lastWord.setText(Text.of("Last Word\n" + (lastWord == null ? "???" : lastWord)));
+            this.lastWord.setText(Text.translated("gui.wordle.last_word", lastWord == null ? "???" : lastWord));
 
-            this.playCount.setText(Text.of("Games\n" + playCount));
+            this.playCount.setText(Text.translated("gui.wordle.game_count", playCount));
 
             for (int i = 0; i < results.length; i++) {
                 triesBar[i].setProgress(playCount == 0 ? 0 : (float) results[i] / playCount);
