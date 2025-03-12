@@ -39,7 +39,7 @@ public class SoundManager {
         devices.clear();
         List<String> newDevices = ALUtil.getStringList(0, ALC_ALL_DEVICES_SPECIFIER);
 
-        if (newDevices == null) {
+        if (newDevices == null || newDevices.isEmpty()) {
             LOGGER.warn("No devices found! Disabling all sounds...");
             return;
         }
@@ -92,6 +92,9 @@ public class SoundManager {
     }
 
     public static void free() {
+        if (!initialized)
+            return;
+
         stopAll();
         alcDestroyContext(context);
         alcCloseDevice(device);
@@ -197,5 +200,9 @@ public class SoundManager {
 
     public static String getCurrentDevice() {
         return currentDevice;
+    }
+
+    public static boolean isInitialized() {
+        return initialized;
     }
 }

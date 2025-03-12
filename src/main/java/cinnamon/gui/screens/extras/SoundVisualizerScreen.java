@@ -390,7 +390,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         soundData.loop(repeat == 1);
 
         //update widgets
-        slider.setMax(sound.duration);
+        slider.setMax(sound != null ? sound.duration : 1);
         playPauseButton.setImage(PAUSE);
 
         //notify the user

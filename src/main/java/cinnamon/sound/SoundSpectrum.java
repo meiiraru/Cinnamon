@@ -25,7 +25,7 @@ public class SoundSpectrum {
     }
 
     public float[] getSoundSamples(Sound sound, SoundInstance soundData) {
-        if (soundData == null)
+        if (sound == null || soundData == null)
             return null;
 
         //convert current time to sample index

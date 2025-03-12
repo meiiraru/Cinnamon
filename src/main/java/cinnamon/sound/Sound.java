@@ -31,6 +31,9 @@ public class Sound {
     }
 
     public static Sound of(Resource resource) {
+        if (!SoundManager.isInitialized())
+            return null;
+
         Sound saved = SOUNDS_MAP.get(resource);
         if (saved != null)
             return saved;
