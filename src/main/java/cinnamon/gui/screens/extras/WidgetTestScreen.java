@@ -162,10 +162,10 @@ public class WidgetTestScreen extends ParentedScreen {
         Button viewPassword = new Button(0, 0, 16, 16, null, button -> {
             showing[0] = !showing[0];
             tf4.setPassword(!showing[0]);
-            button.setImage(showing[0] ? password2 : password1);
+            button.setIcon(showing[0] ? password2 : password1);
             button.setTooltip(Text.of(showing[0] ? "Hide Password" : "Show Password"));
         });
-        viewPassword.setImage(password1);
+        viewPassword.setIcon(password1);
         viewPassword.setTooltip(Text.of("Show Password"));
         password.addWidget(viewPassword);
 

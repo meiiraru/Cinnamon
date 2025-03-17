@@ -265,7 +265,17 @@ public class Client {
                 case GLFW_KEY_F10 -> anaglyph3D = !anaglyph3D;
                 case GLFW_KEY_F11 -> window.toggleFullScreen();
                 case GLFW_KEY_ENTER -> {if ((mods & GLFW_MOD_ALT) != 0) window.toggleFullScreen();}
-                case GLFW_KEY_F12 -> reloadAssets();
+                case GLFW_KEY_F12 -> {
+                    boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
+                    if (shift) {
+                        queueTick(() -> {
+                            if (screen != null)
+                                screen.resize(window.scaledWidth, window.scaledHeight);
+                        });
+                    } else {
+                        reloadAssets();
+                    }
+                }
             }
         }
 

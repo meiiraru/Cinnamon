@@ -48,8 +48,8 @@ public class EasingScreen extends ParentedScreen {
     private final EasingWidget[] widgets = new EasingWidget[EASINGS.size()];
 
     private static final Resource
-            PLAY_IMG = new Resource("textures/gui/icons/play.png"),
-            PAUSE_IMG = new Resource("textures/gui/icons/pause.png");
+            PLAY_ICON = new Resource("textures/gui/icons/play.png"),
+            PAUSE_ICON = new Resource("textures/gui/icons/pause.png");
     private Slider slider;
     private Button playButton;
     private boolean playing;
@@ -61,7 +61,7 @@ public class EasingScreen extends ParentedScreen {
 
         //back button
         Button back = new Button(0, 0, 16, 16, null, button -> close());
-        back.setImage(new Resource("textures/gui/icons/back.png"));
+        back.setIcon(new Resource("textures/gui/icons/back.png"));
         buttons.addWidget(back);
 
         //controllers
@@ -72,9 +72,9 @@ public class EasingScreen extends ParentedScreen {
             playing = !playing;
             for (EasingWidget widget : widgets)
                 widget.setPlaying(playing);
-            button.setImage(playing ? PAUSE_IMG : PLAY_IMG);
+            button.setIcon(playing ? PAUSE_ICON : PLAY_ICON);
         });
-        playButton.setImage(PLAY_IMG);
+        playButton.setIcon(PLAY_ICON);
         controllers.addWidget(playButton);
 
         Checkbox loop = new Checkbox(0, 0, Text.translated("gui.easing_screen.loop"));
@@ -158,7 +158,7 @@ public class EasingScreen extends ParentedScreen {
             updateSlider = true;
             slider.updateValue(widgets[0].playTime);
             playing = widgets[0].playing;
-            playButton.setImage(playing ? PAUSE_IMG : PLAY_IMG);
+            playButton.setIcon(playing ? PAUSE_ICON : PLAY_ICON);
         }
     }
 

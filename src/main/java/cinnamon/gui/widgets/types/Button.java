@@ -28,7 +28,7 @@ public class Button extends SelectableWidget {
 
     protected Text message;
     protected Consumer<Button> action;
-    protected Resource image;
+    protected Resource icon;
 
     public Button(int x, int y, int width, int height, Text message, Consumer<Button> action) {
         super(x, y, width, height);
@@ -41,10 +41,10 @@ public class Button extends SelectableWidget {
         if (invisible)
             return;
 
-        if (image == null)
+        if (icon == null)
             renderBackground(matrices, mouseX, mouseY, delta);
         else
-            renderImage(matrices, mouseX, mouseY, delta);
+            renderIcon(matrices, mouseX, mouseY, delta);
         if (message != null)
             renderText(matrices, mouseX, mouseY, delta);
     }
@@ -67,7 +67,7 @@ public class Button extends SelectableWidget {
         text.render(VertexConsumer.FONT, matrices, x, y, Alignment.CENTER);
     }
 
-    protected void renderImage(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    protected void renderIcon(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         int size = Math.min(getWidth(), getHeight());
         VertexConsumer.GUI.consume(GeometryHelper.quad(
                 matrices,
@@ -76,7 +76,7 @@ public class Button extends SelectableWidget {
                 getState(), 0f,
                 1f, 1f,
                 4, 1
-        ), image);
+        ), icon);
     }
 
     @Override
@@ -203,12 +203,12 @@ public class Button extends SelectableWidget {
         return holding;
     }
 
-    public void setImage(Resource image) {
-        this.image = image;
+    public void setIcon(Resource icon) {
+        this.icon = icon;
     }
 
-    public Resource getImage() {
-        return image;
+    public Resource getIcon() {
+        return icon;
     }
 
     public boolean isInvisible() {

@@ -1,5 +1,6 @@
 package cinnamon.gui.widgets.types;
 
+import cinnamon.gui.widgets.Container;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.PopupWidget;
 import cinnamon.gui.widgets.Widget;
@@ -9,6 +10,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
+import cinnamon.utils.ColorNameFinder;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Colors;
 import cinnamon.utils.UIHelper;
@@ -43,21 +45,32 @@ public class ColorPicker extends Button {
 
         //left panel
         ContainerGrid leftSide = new ContainerGrid(0, 0, 0);
-        leftSide.setAlignment(Alignment.CENTER);
+        leftSide.setAlignment(Alignment.CENTER_LEFT);
         picker.addWidget(leftSide);
 
         //buttons
-        ContainerGrid confirmButtons = new ContainerGrid(0, 0, 1, 2);
-        leftSide.addWidget(confirmButtons);
+        Container buttons = new Container(0, 0);
 
-        confirmButtons.addWidget(new ConfirmButton(Colors.RED.rgba, "\u2715", b -> picker.close()));
-        confirmButtons.addWidget(new ConfirmButton(Colors.GREEN.rgba, "\u2713", b -> {
+        ContainerGrid confirmButtons = new ContainerGrid(0, 0, 1, 2);
+        buttons.addWidget(confirmButtons);
+
+        confirmButtons.addWidget(new ConfirmButton(26, Colors.RED.rgba, "\u2715", b -> picker.close()));
+        confirmButtons.addWidget(new ConfirmButton(26, Colors.GREEN.rgba, "\u2713", b -> {
             setColor(changeColor);
             picker.close();
         }));
+        confirmButtons.translate(Math.round((64 - confirmButtons.getWidth()) / 2f), 0);
+
+        Button more = new ConfirmButton(12, 0, ">", b -> {
+            System.out.println("test");
+        });
+        more.setX(confirmButtons.getX() + confirmButtons.getWidth() + 4);
+        //buttons.addWidget(more);
+
+        leftSide.addWidget(buttons);
 
         //colour wheel
-        Rectangle newColor = new Rectangle(changeColor);
+        Rectangle newColor = new Rectangle(26, changeColor);
 
         wheel = new ColorWheel(0, 0, 64);
         wheel.setUpdateListener(hsv -> {
@@ -67,11 +80,15 @@ public class ColorPicker extends Button {
         leftSide.addWidget(wheel);
 
         //rectangles
-        ContainerGrid rectangles = new ContainerGrid(0, 0, 1, 2);
-        leftSide.addWidget(rectangles);
+        Container rectangles = new Container(0, 0);
+        ContainerGrid colors = new ContainerGrid(0, 0, 1, 2);
+        rectangles.addWidget(colors);
 
-        rectangles.addWidget(old = new Rectangle(color));
-        rectangles.addWidget(newColor);
+        colors.addWidget(old = new Rectangle(26, color));
+        colors.addWidget(newColor);
+        colors.translate(Math.round((64 - colors.getWidth()) / 2f), 0);
+
+        leftSide.addWidget(rectangles);
     }
 
     @Override
@@ -84,7 +101,7 @@ public class ColorPicker extends Button {
     public void setTooltip(Text tooltip) {
         customTooltip = tooltip != null;
         if (!customTooltip) {
-            super.setTooltip(Text.of("#" + ColorUtils.rgbToHex(ColorUtils.intToRGB(color))).append("\n").appendTranslated("color." + ColorUtils.findColor(color).name().toLowerCase()));
+            super.setTooltip(Text.of("#" + ColorUtils.rgbToHex(ColorUtils.intToRGB(color))).append("\n").appendTranslated(ColorNameFinder.getColorName(ColorUtils.hsvToHSL(ColorUtils.rgbToHSV(ColorUtils.intToRGB(color))))));
         } else {
             super.setTooltip(tooltip);
         }
@@ -118,8 +135,8 @@ public class ColorPicker extends Button {
     private static class ConfirmButton extends Button {
         private final int color;
 
-        public ConfirmButton(int color, String text, Consumer<Button> action) {
-            super(0, 0, 24, 12, Text.of(text).withStyle(Style.EMPTY.outlined(true)), action);
+        public ConfirmButton(int width, int color, String text, Consumer<Button> action) {
+            super(0, 0, width, 12, Text.of(text).withStyle(Style.EMPTY.outlined(true)), action);
             this.color = color;
         }
 
@@ -132,8 +149,8 @@ public class ColorPicker extends Button {
     private static class Rectangle extends Widget {
         private int color;
 
-        public Rectangle(int color) {
-            super(0, 0, 24, 8);
+        public Rectangle(int width, int color) {
+            super(0, 0, width, 8);
             this.color = color;
         }
 

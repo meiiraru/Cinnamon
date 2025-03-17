@@ -160,6 +160,27 @@ public class ColorUtils {
     }
 
     /**
+     * converts an HSV (0 - 1) {@link org.joml.Vector3f} to an HSL (0 - 1) {@link org.joml.Vector3f}
+     * @param color the HSV {@link org.joml.Vector3f} color
+     * @return an HSL {@link org.joml.Vector3f} of that color
+     */
+    public static Vector3f hsvToHSL(Vector3f color) {
+        float l = (2f - color.y) * color.z / 2f;
+        float s = color.y;
+
+        if (l > 0f) {
+            if (l == 1f)
+                s = 0;
+            else if (l < 0.5f)
+                s = s * color.z / (l * 2);
+            else
+                s = s * color.z / (2 - l * 2);
+        }
+
+        return new Vector3f(color.x, s, l);
+    }
+
+    /**
      * computes a linear interpolation between two ARGB integer colors (0 - 255)
      * @param a the first ARGB integer color
      * @param b the second ARGB integer color

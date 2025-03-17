@@ -82,7 +82,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
             if (!files.isEmpty())
                 loadTracks(files.toArray(new String[0]));
         });
-        openButton.setImage(OPEN);
+        openButton.setIcon(OPEN);
         openButton.setTooltip(Text.translated("gui.music_screen.load"));
         addWidget(openButton);
 
@@ -95,7 +95,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
             if (playlistIndex >= 0)
                 playSound((playlistIndex - 1 + playlist.size()) % playlist.size());
         });
-        previousButton.setImage(PREVIOUS);
+        previousButton.setIcon(PREVIOUS);
         previousButton.setTooltip(Text.translated("gui.music_screen.previous"));
         previousButton.setSilent(true);
         previousButton.setActive(playlist.size() > 1);
@@ -110,11 +110,11 @@ public class SoundVisualizerScreen extends ParentedScreen {
             if (soundData != null) {
                 if (soundData.isPlaying()) {
                     soundData.pause();
-                    button.setImage(PLAY);
+                    button.setIcon(PLAY);
                     button.setTooltip(Text.translated("gui.music_screen.play"));
                 } else {
                     soundData.play();
-                    button.setImage(PAUSE);
+                    button.setIcon(PAUSE);
                     button.setTooltip(Text.translated("gui.music_screen.pause"));
                 }
             } else {
@@ -122,7 +122,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
             }
         });
         boolean pause = soundData != null && soundData.isPlaying();
-        playPauseButton.setImage(pause ? PAUSE : PLAY);
+        playPauseButton.setIcon(pause ? PAUSE : PLAY);
         playPauseButton.setTooltip(Text.translated(pause ? "gui.music_screen.pause" : "gui.music_screen.play"));
         playPauseButton.setSilent(true);
         centerButtons.addWidget(playPauseButton);
@@ -131,11 +131,11 @@ public class SoundVisualizerScreen extends ParentedScreen {
         Button stopButton = new Button(0, 0, 16, 16, null, button -> {
             if (soundData != null) {
                 soundData.pause();
-                playPauseButton.setImage(PLAY);
+                playPauseButton.setIcon(PLAY);
                 slider.updateValue(0);
             }
         });
-        stopButton.setImage(STOP);
+        stopButton.setIcon(STOP);
         stopButton.setTooltip(Text.translated("gui.music_screen.stop"));
         stopButton.setSilent(true);
         centerButtons.addWidget(stopButton);
@@ -147,15 +147,15 @@ public class SoundVisualizerScreen extends ParentedScreen {
                 soundData.loop(repeat == 1);
             switch (repeat) {
                 case 1 -> {
-                    button.setImage(REPEAT_ONE);
+                    button.setIcon(REPEAT_ONE);
                     button.setTooltip(Text.translated("gui.music_screen.repeat_one"));
                 }
                 case 2 -> {
-                    button.setImage(REPEAT);
+                    button.setIcon(REPEAT);
                     button.setTooltip(Text.translated("gui.music_screen.repeat_all"));
                 }
                 default -> {
-                    button.setImage(REPEAT_OFF);
+                    button.setIcon(REPEAT_OFF);
                     button.setTooltip(Text.translated("gui.music_screen.repeat_off"));
                 }
             }
@@ -173,7 +173,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
             if (playlistIndex >= 0)
                 playSound((playlistIndex + 1) % playlist.size());
         });
-        nextButton.setImage(NEXT);
+        nextButton.setIcon(NEXT);
         nextButton.setTooltip(Text.translated("gui.music_screen.next"));
         nextButton.setSilent(true);
         nextButton.setActive(playlist.size() > 1);
@@ -243,7 +243,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
         //close button
         Button closeButton = new Button(width - 4 - 16, 4, 16, 16, null, button -> close());
-        closeButton.setImage(CLOSE);
+        closeButton.setIcon(CLOSE);
         closeButton.setTooltip(Text.translated("gui.close"));
         addWidget(closeButton);
     }
@@ -263,7 +263,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
                 else {
                     soundData = null;
                     playlistIndex = 0;
-                    playPauseButton.setImage(PLAY);
+                    playPauseButton.setIcon(PLAY);
                     slider.updatePercentage(0f);
                 }
             }
@@ -391,7 +391,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
         //update widgets
         slider.setMax(sound != null ? sound.duration : 1);
-        playPauseButton.setImage(PAUSE);
+        playPauseButton.setIcon(PAUSE);
 
         //notify the user
         Toast.addToast(Text.translated("gui.music_screen.now_playing", track.title));
