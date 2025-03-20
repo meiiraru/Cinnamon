@@ -69,9 +69,16 @@ public class RollerCoasterWorld extends WorldClient {
             t = Maths.map(t, 0f, 1f, 0f, oldDistance / distance);
         }
 
+        //pos
         cart.moveTo(Maths.lerp(path[p0], path[p1], t));
-        cart.rotateToWithRiders(Maths.dirToRot(path[p1].sub(path[p0], new Vector3f()).normalize()));
 
+        //rot
+        Vector3f p00 = p0 - 1 < 0 ? path[path.length - 2] : path[p0 - 1]; //last entry is the same as the first
+        Vector3f p0Dir = path[p0].sub(p00, new Vector3f()).normalize();
+        Vector3f p1Dir = path[p1].sub(path[p0], new Vector3f()).normalize();
+        cart.rotateToWithRiders(Maths.dirToRot(Maths.lerp(p0Dir, p1Dir, t)));
+
+        //speed
         speed = Maths.lerp(speed, Math.max(0.3f + 0.3f * Math.max(cart.getRot().x, -22.5f) / 45f, 0.01f), 0.1f);
     }
 
