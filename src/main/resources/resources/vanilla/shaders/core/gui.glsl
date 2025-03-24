@@ -11,9 +11,10 @@ out vec2 texCoords;
 out vec4 color;
 
 uniform mat4 projection;
+uniform mat4 view;
 
 void main() {
-    gl_Position = projection * vec4(aPosition, 1.0f);
+    gl_Position = projection * view * vec4(aPosition, 1.0f);
     texID = int(aTexID);
     texCoords = aTexCoords;
     color = aColor;

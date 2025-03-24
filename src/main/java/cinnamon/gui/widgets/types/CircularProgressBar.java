@@ -23,7 +23,7 @@ public class CircularProgressBar extends ProgressBar {
 
         //progress
         matrices.push();
-        matrices.translate(0, 0, UIHelper.DEPTH_OFFSET);
+        matrices.translate(0, 0, UIHelper.getDepthOffset());
 
         Vertex[] vertices = GeometryHelper.progressSquare(matrices, x, y, r, getProgress(), color == null ? getStyle().accentColor : color);
         for (Vertex vertex : vertices)

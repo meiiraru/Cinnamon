@@ -1,5 +1,6 @@
 package cinnamon.render;
 
+import cinnamon.Client;
 import cinnamon.model.Vertex;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
@@ -37,7 +38,7 @@ public class Font {
     public static final float Z_DEPTH = 3;
 
     private static final Random RANDOM = new Random();
-    private static int SEED = 42;
+    private static long SEED = 42;
 
     //buffers
     private final STBTTAlignedQuad q = STBTTAlignedQuad.malloc();
@@ -154,7 +155,7 @@ public class Font {
         //prepare vars
         boolean[] prevItalic = {false};
         xb.put(0, 0f); yb.put(0, 0f);
-        SEED = RANDOM.nextInt();
+        SEED = Client.getInstance().ticks;
 
         //iterate text and children
         text.visit((s, style) -> {

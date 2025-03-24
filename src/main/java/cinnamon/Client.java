@@ -89,11 +89,6 @@ public class Client {
     // -- events -- //
 
     public void render(MatrixStack matrices) {
-        //tick
-        int ticksToUpdate = timer.update();
-        for (int j = 0; j < Math.min(20, ticksToUpdate); j++)
-            tick();
-
         float delta = timer.partialTick;
 
         matrices.push();
@@ -150,7 +145,7 @@ public class Client {
         matrices.pop();
     }
 
-    private void tick() {
+    public void tick() {
         ticks++;
 
         runScheduledTicks();

@@ -24,6 +24,9 @@ val lwjglModules = arrayOf(
     "lwjgl-openxr",
     "lwjgl-stb"
 )
+val lwjglApiOnly = arrayOf(
+    "lwjgl-egl"
+)
 
 val os = Pair(
     System.getProperty("os.name")!!,
@@ -69,6 +72,10 @@ dependencies {
     lwjglModules.forEach {
         api("org.lwjgl", it)
         runtimeOnly("org.lwjgl", it, classifier = lwjglNatives)
+    }
+    //api only
+    lwjglApiOnly.forEach {
+        api("org.lwjgl", it)
     }
 
     //extra libraries

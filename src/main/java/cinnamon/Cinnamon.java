@@ -8,10 +8,12 @@ import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Version;
+import cinnamon.vr.XrManager;
 import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.system.Platform;
 
 import static cinnamon.Client.LOGGER;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -26,6 +28,7 @@ public class Cinnamon {
     public static int WIDTH = 854, HEIGHT = 480;
     public static String TITLE = "Cinnamon";
     public static Resource ICON = new Resource("textures/icon.png");
+    public static Platform PLATFORM = Platform.get();
 
     public static void main(String[] args) {
         //System.load("D:\\apps\\RenderDoc_1.32_64\\renderdoc.dll");
@@ -54,8 +57,7 @@ public class Cinnamon {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         //enable only if we are on apple
-        String os = System.getProperty("os.name");
-        if (os != null && os.toLowerCase().contains("mac"))
+        if (PLATFORM == Platform.MACOSX)
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
         //create window
@@ -114,10 +116,13 @@ public class Cinnamon {
 
         //opengl debug info
         LOGGER.info("Welcome to Cinnamon! v%s", Version.CLIENT_VERSION);
-        LOGGER.info("OS: %s", os);
+        LOGGER.info("OS: %s %s", PLATFORM.getName(), Platform.getArchitecture().name());
         LOGGER.info("Renderer: %s", glGetString(GL_RENDERER));
         LOGGER.info("OpenGL Version: %s", glGetString(GL_VERSION));
         LOGGER.info("LWJGL Version: %s", org.lwjgl.Version.getVersion());
+
+        //init open xr
+        //XrManager.init(window);
 
         //finish init through the client
         client.window = new Window(window, width, height);
@@ -166,13 +171,22 @@ public class Cinnamon {
             //process input events
             glfwPollEvents();
 
+            //tick client
+            int ticksToUpdate = client.timer.update();
+            for (int j = 0; j < Math.min(20, ticksToUpdate); j++)
+                client.tick();
+
             //render client
-            Framebuffer.DEFAULT_FRAMEBUFFER.useClear();
-            Framebuffer.DEFAULT_FRAMEBUFFER.adjustViewPort();
-            client.render(matrices);
-            Blit.copy(Framebuffer.DEFAULT_FRAMEBUFFER, 0, PostProcess.BLIT);
+            if (XrManager.shouldRender()) {
+                XrManager.render(() -> client.render(matrices));
+            } else {
+                Framebuffer.DEFAULT_FRAMEBUFFER.useClear();
+                Framebuffer.DEFAULT_FRAMEBUFFER.adjustViewPort();
+                client.render(matrices);
+            }
 
             //end render
+            Blit.copy(Framebuffer.DEFAULT_FRAMEBUFFER, 0, PostProcess.BLIT);
             glfwSwapBuffers(window);
 
             if (!matrices.isEmpty()) {
@@ -183,11 +197,15 @@ public class Cinnamon {
     }
 
     private void close() {
-        Client client = Client.getInstance();
+        glFinish();
 
         //close client
+        Client client = Client.getInstance();
         client.close();
         LOGGER.info("Now leaving... bye!");
+
+        //close xr
+        XrManager.close();
 
         //free the window callbacks and destroy the window
         long window = client.window.getHandle();

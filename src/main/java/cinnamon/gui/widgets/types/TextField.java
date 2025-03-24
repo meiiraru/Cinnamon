@@ -243,7 +243,7 @@ public class TextField extends SelectableWidget implements Tickable {
         if (isActive() && isFocused() && blinkTime % getStyle().blinkSpeed < getStyle().blinkSpeed / 2) {
             matrices.push();
             //translate matrices so we can render on top of text
-            matrices.translate(0, 0, UIHelper.DEPTH_OFFSET * Font.Z_DEPTH);
+            matrices.translate(0, 0, UIHelper.getDepthOffset() * Font.Z_DEPTH);
             VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y, x + (insert ? getStyle().insertWidth : getStyle().cursorWidth), y + height, borderColor == null ? 0xFFFFFFFF : borderColor));
             matrices.pop();
         }

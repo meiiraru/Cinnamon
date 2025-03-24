@@ -136,7 +136,7 @@ public class Text {
             Text t = list.get(i);
             int x2 = Math.round(alignment.getWidthOffset(font.width(t)));
             int y2 = Math.round(font.lineHeight * (i + 1) + font.descent + font.lineGap * i + yOffset);
-            font.bake(consumer, matrices, t, x + x2, y + y2, indexScaling * UIHelper.DEPTH_OFFSET);
+            font.bake(consumer, matrices, t, x + x2, y + y2, indexScaling * UIHelper.getDepthOffset());
         }
     }
 }

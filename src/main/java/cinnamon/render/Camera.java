@@ -3,6 +3,8 @@ package cinnamon.render;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
+import cinnamon.vr.XrManager;
+import cinnamon.vr.XrRenderer;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import org.joml.*;
@@ -89,12 +91,15 @@ public class Camera {
     public Matrix4f getViewMatrix() {
         viewMatrix.identity();
 
-        if (isOrtho)
+        if (isOrtho())
             return viewMatrix;
 
         viewMatrix.rotate(Rotation.X.rotationDeg(rot.x));
         viewMatrix.rotate(Rotation.Y.rotationDeg(rot.y));
         viewMatrix.translate(-pos.x, -pos.y, -pos.z);
+
+        if (XrManager.isInXR())
+            XrRenderer.applyViewMatrix(viewMatrix);
 
         return viewMatrix;
     }
@@ -224,7 +229,11 @@ public class Camera {
     }
 
     public Matrix4f getProjectionMatrix() {
-        return isOrtho ? orthoMatrix : perspMatrix;
+        return isOrtho() ? orthoMatrix : perspMatrix;
+    }
+
+    public boolean isOrtho() {
+        return isOrtho && !XrManager.isInXR();
     }
 
     public Entity getEntity() {

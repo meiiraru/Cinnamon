@@ -12,6 +12,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
+import cinnamon.vr.XrManager;
 
 import java.util.Stack;
 
@@ -21,7 +22,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class UIHelper {
 
     public static final Resource TOOLTIP_TEXTURE = new Resource("textures/gui/widgets/tooltip.png");
-    public static final float DEPTH_OFFSET = 0.01f;
+    private static final float DEPTH_OFFSET = 0.01f, VR_DEPTH_OFFSET = 1f;
     private static final Stack<Region2D> SCISSORS_STACK = new Stack<>();
 
     public static void renderBackground(MatrixStack matrices, int width, int height, float delta, Resource... background) {
@@ -341,6 +342,9 @@ public class UIHelper {
 
         VertexConsumer.finishAllBatches(Client.getInstance().camera);
 
+        if (XrManager.isInXR())
+            return;
+
         glEnable(GL_SCISSOR_TEST);
         glScissor(region.getX(), region.getY(), region.getWidth(), region.getHeight());
     }
@@ -349,6 +353,9 @@ public class UIHelper {
         SCISSORS_STACK.pop();
 
         VertexConsumer.finishAllBatches(Client.getInstance().camera);
+
+        if (XrManager.isInXR())
+            return;
 
         if (!SCISSORS_STACK.isEmpty()) {
             Region2D peek = SCISSORS_STACK.peek();
@@ -385,5 +392,9 @@ public class UIHelper {
     public static void disableStencil() {
         VertexConsumer.finishAllBatches(Client.getInstance().camera);
         glDisable(GL_STENCIL_TEST);
+    }
+
+    public static float getDepthOffset() {
+        return XrManager.isInXR() ? VR_DEPTH_OFFSET : DEPTH_OFFSET;
     }
 }

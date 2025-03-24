@@ -60,7 +60,7 @@ public class Spawner extends Entity {
         Vertex[] vertices = GeometryHelper.circle(matrices, 0, 0, 0.15f, 1, 16, 0x88000000);
         VertexConsumer.MAIN.consume(vertices);
 
-        matrices.translate(0, 0, UIHelper.DEPTH_OFFSET);
+        matrices.translate(0, 0, UIHelper.getDepthOffset());
 
         vertices = GeometryHelper.circle(matrices, 0, 0, 0.15f * 0.85f, 1f - (float) time / delay, 16, 0xAAFFFFFF);
         VertexConsumer.MAIN.consume(vertices);

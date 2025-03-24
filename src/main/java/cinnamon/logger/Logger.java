@@ -32,7 +32,7 @@ public class Logger {
         outputs.clear();
     }
 
-    private void log(Level level, Object message, Object... args) {
+    public void log(Level level, Object message, Object... args) {
         Throwable throwable;
         String msg;
 

@@ -123,6 +123,22 @@ public class Version implements Comparable<Version> {
         return 0;
     }
 
+    public int major() {
+        return major;
+    }
+
+    public int minor() {
+        return minor;
+    }
+
+    public int patch() {
+        return patch;
+    }
+
+    public String prerelease() {
+        return pre;
+    }
+
     public String toStringNoPre() {
         return invalid ? src : major + "." + minor + "." + patch;
     }
