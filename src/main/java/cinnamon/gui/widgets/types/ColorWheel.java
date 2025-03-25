@@ -9,6 +9,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Maths;
+import cinnamon.utils.UIHelper;
 import org.joml.Vector3f;
 
 import java.util.function.Consumer;
@@ -48,6 +49,9 @@ public class ColorWheel extends SelectableWidget {
         VertexConsumer.GUI.consume(vertices);
 
         //cross-hair
+        matrices.push();
+        matrices.translate(0f, 0f, UIHelper.getDepthOffset());
+
         float angle = (float) Math.toRadians(hsv.x * 360f);
         float r = hsv.y * radius;
         float x = cx + (float) Math.cos(angle) * r;
@@ -79,6 +83,8 @@ public class ColorWheel extends SelectableWidget {
             if (ctrl)
                 VertexConsumer.GUI.consume(GeometryHelper.arc(matrices, cx, cy, r, 0, 1, 1, 24, modColor));
         }
+
+        matrices.pop();
     }
 
     public void setChangeListener(Consumer<Vector3f> changeListener) {

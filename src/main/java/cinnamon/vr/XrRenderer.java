@@ -59,10 +59,13 @@ public class XrRenderer {
             Framebuffer.DEFAULT_FRAMEBUFFER.useClear();
             Framebuffer.DEFAULT_FRAMEBUFFER.adjustViewPort();
 
-            Shader s = PostProcess.BLIT.getShader().use();
+            Shader old = Shader.activeShader;
+            Shader s = PostProcess.BLIT_GAMMA.getShader().use();
             s.setTexture("colorTex", swapchainImage.image(), 0);
 
             SimpleGeometry.QUAD.render();
+
+            old.use();
         }
     }
 

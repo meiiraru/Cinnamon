@@ -246,7 +246,10 @@ public class Client {
     public void keyPress(int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS) {
             switch (key) {
-                case GLFW_KEY_F2 -> TextureIO.screenshot(window.width, window.height);
+                case GLFW_KEY_F2 -> {
+                    TextureIO.screenshot(window.width, window.height);
+                    Toast.addToast(Text.of("Screenshot Taken!"));
+                }
                 case GLFW_KEY_F3 -> debug = !debug;
                 case GLFW_KEY_F9 -> {
                     boolean shift = (mods & GLFW_MOD_SHIFT) != 0;

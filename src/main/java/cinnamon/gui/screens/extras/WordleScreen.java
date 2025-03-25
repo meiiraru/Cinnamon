@@ -18,6 +18,7 @@ import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
+import cinnamon.utils.UIHelper;
 import cinnamon.world.Hud;
 
 import java.nio.charset.StandardCharsets;
@@ -342,7 +343,7 @@ public class WordleScreen extends ParentedScreen {
                 matrices,
                 0, 0,
                 width, height,
-                -999, 0xFF202020
+                -UIHelper.getDepthOffset(), 0xFF202020
         ));
     }
 

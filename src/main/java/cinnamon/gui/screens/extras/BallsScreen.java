@@ -65,12 +65,7 @@ public class BallsScreen extends ParentedScreen {
 
     @Override
     protected void renderBackground(MatrixStack matrices, float delta) {
-        VertexConsumer.GUI.consume(GeometryHelper.rectangle(
-                matrices,
-                0, 0,
-                width, height,
-                -999, 0
-        ));
+        //super.renderBackground(matrices, delta);
     }
 
     @Override

@@ -196,7 +196,7 @@ public class UIHelper {
 
     public static void renderTooltip(MatrixStack matrices, int x, int y, int width, int height, int centerX, int centerY, byte arrowSide, Text tooltip, GUIStyle style) {
         matrices.push();
-        matrices.translate(x, y, 998f);
+        matrices.translate(x, y, 0);
 
         //background
         int b = style.tooltipBorder;
@@ -219,8 +219,11 @@ public class UIHelper {
         VertexConsumer.GUI.consume(vertices, TOOLTIP_TEXTURE);
 
         //render text
+        matrices.push();
+        matrices.translate(0, 0, getDepthOffset());
         tooltip.render(VertexConsumer.FONT, matrices, 0, 0);
 
+        matrices.pop();
         matrices.pop();
     }
 

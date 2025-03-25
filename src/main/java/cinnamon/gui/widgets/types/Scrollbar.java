@@ -38,6 +38,9 @@ public class Scrollbar extends Slider {
                 24, 16
         );
 
+        matrices.push();
+        matrices.translate(0, 0, UIHelper.getDepthOffset());
+
         float anim = getAnimationValue();
         if (isVertical()) {
             UIHelper.verticalQuad(VertexConsumer.GUI, matrices, getStyle().scrollbarTex,
@@ -56,6 +59,8 @@ public class Scrollbar extends Slider {
                     24, 16
             );
         }
+
+        matrices.pop();
     }
 
     public void setHandleSize(int handleSize) {

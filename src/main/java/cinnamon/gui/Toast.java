@@ -39,7 +39,7 @@ public class Toast {
             return;
 
         matrices.push();
-        matrices.translate(Math.round(width / 2f), 4f - 1f, 999f);
+        matrices.translate(Math.round(width / 2f), 4f - 1f, 100f);
 
         Iterator<Toast> iterator = TOASTS.iterator();
         for (int i = 0; i < TOASTS_LIMIT && iterator.hasNext(); i++) {
@@ -149,10 +149,12 @@ public class Toast {
         );
 
         //render text
+        float d = UIHelper.getDepthOffset();
+        matrices.translate(0f, 0f, d);
         Text.empty().withStyle(Style.EMPTY.guiStyle(this.style)).append(text).render(VertexConsumer.FONT, matrices, 0f, PADDING / 2f, Alignment.TOP_CENTER);
 
         //return
-        matrices.translate(0f, bgHeight, 0f);
+        matrices.translate(0f, bgHeight, -d);
         return false;
     }
 

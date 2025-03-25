@@ -137,6 +137,8 @@ public class TextField extends SelectableWidget implements Tickable {
         xAnim = Maths.lerp(xAnim, xOffset, d);
         matrices.translate(xAnim, 0, 0);
 
+        if (!textOnly)
+            matrices.translate(0, 0, UIHelper.getDepthOffset());
         renderText(matrices, mouseX, mouseY, delta);
 
         matrices.pop();
@@ -161,6 +163,8 @@ public class TextField extends SelectableWidget implements Tickable {
         if (borderColor == null || (this.isHovered() && !this.isFocused()))
             return;
 
+        matrices.push();
+        matrices.translate(0, 0, UIHelper.getDepthOffset());
         UIHelper.nineQuad(
                 VertexConsumer.GUI, matrices, getStyle().textFieldTex,
                 getX(), getY(),
@@ -170,6 +174,7 @@ public class TextField extends SelectableWidget implements Tickable {
                 64, 16,
                 borderColor
         );
+        matrices.pop();
     }
 
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -220,6 +225,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
             //render selection
             renderSelection(matrices, x0, x1, y - 1, height);
+            matrices.translate(0, 0, UIHelper.getDepthOffset());
 
             //text
             int start = Math.min(skipped, extra);
@@ -242,8 +248,7 @@ public class TextField extends SelectableWidget implements Tickable {
     protected void renderCursor(MatrixStack matrices, float x, float y, float height) {
         if (isActive() && isFocused() && blinkTime % getStyle().blinkSpeed < getStyle().blinkSpeed / 2) {
             matrices.push();
-            //translate matrices so we can render on top of text
-            matrices.translate(0, 0, UIHelper.getDepthOffset() * Font.Z_DEPTH);
+            matrices.translate(0, 0, UIHelper.getDepthOffset() * (Font.Z_DEPTH + 2));
             VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y, x + (insert ? getStyle().insertWidth : getStyle().cursorWidth), y + height, borderColor == null ? 0xFFFFFFFF : borderColor));
             matrices.pop();
         }

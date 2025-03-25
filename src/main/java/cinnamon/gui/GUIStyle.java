@@ -75,7 +75,8 @@ public class GUIStyle {
             sliderTex              = new Resource("textures/gui/widgets/slider.png"),
             textFieldTex           = new Resource("textures/gui/widgets/text_field.png"),
             toastTex               = new Resource("textures/gui/widgets/toast.png"),
-            tooltipTex             = new Resource("textures/gui/widgets/tooltip.png");
+            tooltipTex             = new Resource("textures/gui/widgets/tooltip.png"),
+            cursor                 = new Resource("textures/gui/cursor.png");
 
     //font
     public Resource
@@ -173,6 +174,7 @@ public class GUIStyle {
             Parser.RESOURCE.apply(json, "text_field_tex",           o -> style.textFieldTex           = (Resource) o, p.textFieldTex);
             Parser.RESOURCE.apply(json, "toast_tex",                o -> style.toastTex               = (Resource) o, p.toastTex);
             Parser.RESOURCE.apply(json, "tooltip_tex",              o -> style.tooltipTex             = (Resource) o, p.tooltipTex);
+            Parser.RESOURCE.apply(json, "cursor",                   o -> style.cursor                 = (Resource) o, p.cursor);
 
             //font
             Parser.RESOURCE.apply(json, "font",              o -> style.fontRes         = (Resource) o, p.fontRes);

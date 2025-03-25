@@ -38,6 +38,7 @@
   "text_field_tex": "textures/gui/widgets/text_field.png",
   "toast_tex": "textures/gui/widgets/toast.png",
   "tooltip_tex": "textures/gui/widgets/tooltip.png",
+  "cursor": "textures/gui/cursor.png",
 
   "font": "fonts/mayonnaise.ttf",
   "font_size": 8,

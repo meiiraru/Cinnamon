@@ -14,6 +14,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.utils.Resource;
+import cinnamon.utils.UIHelper;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.glDepthMask;
@@ -178,7 +179,7 @@ public abstract class Screen {
 
     protected void renderTranslucentBackground(MatrixStack matrices, float delta) {
         matrices.push();
-        matrices.translate(0f, 0f, -999f);
+        matrices.translate(0f, 0f, -UIHelper.getDepthOffset());
 
         Vertex[] vertices = GeometryHelper.quad(matrices, 0, 0, width, height);
         for (Vertex vertex : vertices)
@@ -197,9 +198,22 @@ public abstract class Screen {
     }
 
     protected void postRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        if (tooltip != null) {
+        boolean hasTooltip = tooltip != null;
+        float d = UIHelper.getDepthOffset();
+
+        if (hasTooltip) {
+            matrices.push();
+            matrices.translate(0, 0, 5f);
             tooltip.renderTooltip(matrices);
             tooltip = null;
+            matrices.pop();
+        }
+
+        if (!client.camera.isOrtho()) {
+            matrices.push();
+            matrices.translate(0f, 0f, 3f);
+            VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, mouseX - 16, mouseY - 16, 32, 32), GUIStyle.getDefault().cursor);
+            matrices.pop();
         }
     }
 

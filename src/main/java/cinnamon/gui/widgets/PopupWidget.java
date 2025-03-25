@@ -76,12 +76,14 @@ public class PopupWidget extends ContainerGrid {
             return;
 
         matrices.push();
-        matrices.translate(0f, 0f, getParent() instanceof PopupWidget ? 1f : 500f);
+        float d = UIHelper.getDepthOffset();
+        matrices.translate(0f, 0f, getParent() instanceof PopupWidget ? d * 2f : d * 5f);
 
         //render this
         renderWidget(matrices, mouseX, mouseY, delta);
 
         //render child
+        matrices.translate(0f, 0f, d);
         super.render(matrices, mouseX, mouseY, delta);
 
         matrices.pop();

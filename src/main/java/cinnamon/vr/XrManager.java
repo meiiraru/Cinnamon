@@ -26,6 +26,7 @@ import static org.lwjgl.glfw.GLFWNativeWin32.glfwGetWin32Window;
 import static org.lwjgl.glfw.GLFWNativeX11.glfwGetX11Display;
 import static org.lwjgl.opengl.GL11.GL_RGB10_A2;
 import static org.lwjgl.opengl.GL11.GL_RGBA8;
+import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
 import static org.lwjgl.opengl.GL30.GL_RGBA16F;
 import static org.lwjgl.opengl.GL31.GL_RGBA8_SNORM;
 import static org.lwjgl.opengl.GLX.glXGetCurrentDrawable;
@@ -40,16 +41,19 @@ import static org.lwjgl.system.windows.User32.GetDC;
 
 public class XrManager {
 
+    //instance
     private static XrInstance instance;
     private static long systemId;
     private static XrSession session;
-    private static XrSpace space;
+    private static XrSpace headspace;
 
+    //session
     private static boolean missingXrDebug, useEgl;
     private static XrDebugUtilsMessengerEXT debugMessenger;
     private static XrEventDataBuffer eventDataBuffer;
     private static int sessionState;
 
+    //render
     private static XrView.Buffer views;
     private static final int viewConfigType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
     private static XrViewConfigurationView.Buffer viewConfigs;
@@ -62,7 +66,7 @@ public class XrManager {
         if (initialized)
             return;
 
-        if (initializeInstance() || initializeSystem() || initializeSession(window) || initializeSpace() || initializeSwapChains()) {
+        if (initializeInstance() || initializeSystem() || initializeSession(window) || initializeSpaces() || initializeSwapChains()) {
             internalClose();
             return;
         }
@@ -82,7 +86,7 @@ public class XrManager {
         if (views != null) views.free();
         if (viewConfigs != null) viewConfigs.free();
         if (swapchains != null) for (Swapchain swapchain : swapchains) swapchain.destroy();
-        if (space != null) xrDestroySpace(space);
+        if (headspace != null) xrDestroySpace(headspace);
         if (debugMessenger != null) xrDestroyDebugUtilsMessengerEXT(debugMessenger);
         if (session != null) xrDestroySession(session);
         if (instance != null) xrDestroyInstance(instance);
@@ -194,7 +198,11 @@ public class XrManager {
             return null;
 
         int numExtensions = pi.get(0);
-        XrExtensionProperties.Buffer properties = prepareExtensionProperties(stack, numExtensions);
+        XrExtensionProperties.Buffer properties = fill(
+                XrExtensionProperties.calloc(numExtensions, stack),
+                XrExtensionProperties.TYPE,
+                XR_TYPE_EXTENSION_PROPERTIES
+        );
         if (check(xrEnumerateInstanceExtensionProperties((ByteBuffer) null, pi, properties), "Failed to get OpenXR instance extensions: error code %s"))
             return null;
 
@@ -232,7 +240,11 @@ public class XrManager {
             return null;
 
         int numLayers = pi.get(0);
-        XrApiLayerProperties.Buffer pLayers = prepareApiLayerProperties(stack, numLayers);
+        XrApiLayerProperties.Buffer pLayers = fill(
+                XrApiLayerProperties.calloc(numLayers, stack),
+                XrApiLayerProperties.TYPE,
+                XR_TYPE_API_LAYER_PROPERTIES
+        );
         if (check(xrEnumerateApiLayerProperties(pi, pLayers), "Failed to get OpenXR layers: error code %s"))
             return null;
 
@@ -255,22 +267,6 @@ public class XrManager {
         }
 
         return new Pair<>(extensions, layers);
-    }
-
-    private static XrApiLayerProperties.Buffer prepareApiLayerProperties(MemoryStack stack, int numLayers) {
-        return fill(
-                XrApiLayerProperties.calloc(numLayers, stack),
-                XrApiLayerProperties.TYPE,
-                XR_TYPE_API_LAYER_PROPERTIES
-        );
-    }
-
-    private static XrExtensionProperties.Buffer prepareExtensionProperties(MemoryStack stack, int numExtensions) {
-        return fill(
-                XrExtensionProperties.calloc(numExtensions, stack),
-                XrExtensionProperties.TYPE,
-                XR_TYPE_EXTENSION_PROPERTIES
-        );
     }
 
     private static boolean initializeSystem() {
@@ -353,7 +349,7 @@ public class XrManager {
         }
     }
 
-    private static boolean initializeSpace() {
+    private static boolean initializeSpaces() {
         try (MemoryStack stack = stackPush()) {
             PointerBuffer spacePtr = stack.mallocPointer(1);
 
@@ -370,7 +366,7 @@ public class XrManager {
                 return true;
 
             LOGGER.debug("Created local xr reference space");
-            space = new XrSpace(spacePtr.get(0), session);
+            headspace = new XrSpace(spacePtr.get(0), session);
             return false;
         }
     }
@@ -419,9 +415,9 @@ public class XrManager {
                 return true;
 
             long[] desiredSwapchainFormats = {
+                    GL_SRGB8_ALPHA8,
                     GL_RGB10_A2,
                     GL_RGBA16F,
-                    //fallback
                     GL_RGBA8,
                     GL_RGBA8_SNORM
             };
@@ -629,7 +625,7 @@ public class XrManager {
                 .next(NULL)
                 .viewConfigurationType(viewConfigType)
                 .displayTime(displayTime)
-                .space(space);
+                .space(headspace);
 
         IntBuffer pi = stack.mallocInt(1);
         if (check(xrLocateViews(session, viewLocateInfo, viewState, pi, views), "Failed to locate views: error code %s")) {
@@ -687,7 +683,7 @@ public class XrManager {
             }
         }
 
-        layerProjection.space(space);
+        layerProjection.space(headspace);
         layerProjection.views(projectionLayerViews);
         return true;
     }

@@ -45,8 +45,12 @@ public class Button extends SelectableWidget {
             renderBackground(matrices, mouseX, mouseY, delta);
         else
             renderIcon(matrices, mouseX, mouseY, delta);
-        if (message != null)
+        if (message != null) {
+            matrices.push();
+            matrices.translate(0, 0, UIHelper.getDepthOffset());
             renderText(matrices, mouseX, mouseY, delta);
+            matrices.pop();
+        }
     }
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {

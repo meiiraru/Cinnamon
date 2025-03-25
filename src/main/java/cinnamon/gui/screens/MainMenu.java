@@ -78,18 +78,23 @@ public class MainMenu extends Screen {
 
     @Override
     protected void renderBackground(MatrixStack matrices, float delta) {
+        float d = UIHelper.getDepthOffset();
+
         //background
         Texture bg = Texture.of(BACKGROUND);
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, (float) width / bg.getWidth(), 0f, (float) height / bg.getHeight()), BACKGROUND, true, false);
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -d * 3, 0f, (float) width / bg.getWidth(), 0f, (float) height / bg.getHeight()), BACKGROUND, true, false);
 
         //bottom
         Texture bottom = Texture.of(BOTTOM);
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, height - bottom.getHeight(), width, bottom.getHeight(), -999, 0f, (float) width / bottom.getWidth(), 0f, 1f), BOTTOM, true, false);
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, height - bottom.getHeight(), width, bottom.getHeight(), -d * 2, 0f, (float) width / bottom.getWidth(), 0f, 1f), BOTTOM, true, false);
 
         //overlay
         Texture overlay = Texture.of(OVERLAY);
+        matrices.push();
+        matrices.translate(0, 0, -d);
         UIHelper.nineQuad(VertexConsumer.GUI, matrices, OVERLAY, 0, 0, width, height, 0f, 0f, overlay.getWidth(), overlay.getHeight(), overlay.getWidth(), overlay.getHeight());
-        //VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -999, 0f, 1f, 0f, 1f), OVERLAY, true, false);
+        matrices.pop();
+        //VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -d, 0f, 1f, 0f, 1f), OVERLAY, true, false);
 
         //title
         renderTitle(matrices, delta);
