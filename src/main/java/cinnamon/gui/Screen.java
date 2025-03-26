@@ -8,16 +8,14 @@ import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.Widget;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.SimpleGeometry;
-import cinnamon.model.Vertex;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.utils.Resource;
-import cinnamon.utils.UIHelper;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.glDepthMask;
+import static org.lwjgl.opengl.GL11.*;
 
 public abstract class Screen {
 
@@ -142,25 +140,8 @@ public abstract class Screen {
     }
 
     protected void renderBackground(MatrixStack matrices, float delta) {
-        //UIHelper.renderBackground(matrices, width, height, delta, BACKGROUND);
-
-        /*
-        int c1 = 0xFF9875C9;
-        int c2 = 0xFFFEE9CC;
-        int c3 = 0xFF8CD7F7;
-        int c4 = 0xFF6D5DDA;
-
-        float t = (float) Math.sin((client.ticks + delta) * 0.01f) * 0.5f + 0.5f;
-        int a = ColorUtils.lerpARGBColor(c1, c3, t);
-        int b = ColorUtils.lerpARGBColor(c2, c4, t);
-        int c = ColorUtils.lerpARGBColor(c3, c2, t);
-        int d = ColorUtils.lerpARGBColor(c4, c1, t);
-
-        GeometryHelper.drawRectangle(VertexConsumer.GUI, matrices, 0, 0, width, height, -999, a, b, c, d);
-         */
-
         Shader oldShader = Shader.activeShader;
-        Shader s = Shaders.MAIN_MENU.getShader().use();
+        Shader s = Shaders.BACKGROUND_NOISE.getShader().use();
         float time = (client.ticks + delta) * 0.05f;
         s.setFloat("time", time);
         s.setFloat("scale", (float) Math.sin(time * 0.5f) * 0.5f + 1f);
@@ -177,16 +158,17 @@ public abstract class Screen {
             oldShader.use();
     }
 
-    protected void renderTranslucentBackground(MatrixStack matrices, float delta) {
-        matrices.push();
-        matrices.translate(0f, 0f, -UIHelper.getDepthOffset());
+    protected void renderSolidBackground(int color) {
+        Shader oldShader = Shader.activeShader;
+        Shader s = Shaders.BACKGROUND.getShader().use();
+        s.setColorRGBA("color", color);
 
-        Vertex[] vertices = GeometryHelper.quad(matrices, 0, 0, width, height);
-        for (Vertex vertex : vertices)
-            vertex.color(0x88 << 24);
-        VertexConsumer.GUI.consume(vertices);
+        glDepthMask(false);
+        SimpleGeometry.QUAD.render();
+        glDepthMask(true);
 
-        matrices.pop();
+        if (oldShader != null)
+            oldShader.use();
     }
 
     protected void preRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -198,10 +180,9 @@ public abstract class Screen {
     }
 
     protected void postRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        boolean hasTooltip = tooltip != null;
-        float d = UIHelper.getDepthOffset();
+        VertexConsumer.finishAllBatches(client.camera);
 
-        if (hasTooltip) {
+        if (tooltip != null) {
             matrices.push();
             matrices.translate(0, 0, 5f);
             tooltip.renderTooltip(matrices);
@@ -209,12 +190,20 @@ public abstract class Screen {
             matrices.pop();
         }
 
-        if (!client.camera.isOrtho()) {
+        if (shouldRenderMouse()) {
             matrices.push();
             matrices.translate(0f, 0f, 3f);
             VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, mouseX - 16, mouseY - 16, 32, 32), GUIStyle.getDefault().cursor);
             matrices.pop();
         }
+
+        glDisable(GL_DEPTH_TEST);
+        VertexConsumer.finishAllBatches(client.camera);
+        glEnable(GL_DEPTH_TEST);
+    }
+
+    protected boolean shouldRenderMouse() {
+        return !client.camera.isOrtho();
     }
 
 

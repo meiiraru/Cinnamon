@@ -43,6 +43,6 @@ public class PauseScreen extends Screen {
 
     @Override
     protected void renderBackground(MatrixStack matrices, float delta) {
-        renderTranslucentBackground(matrices, delta);
+        renderSolidBackground(0x88 << 24);
     }
 }

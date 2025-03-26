@@ -4,7 +4,6 @@ import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
 import cinnamon.vr.XrManager;
-import cinnamon.vr.XrRenderer;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import org.joml.*;
@@ -27,10 +26,14 @@ public class Camera {
             up = new Vector3f(0f, 1f, 0f),
             left = new Vector3f(1f, 0f, 0f);
 
-    private final Vector2f rot = new Vector2f();
+    private final Vector3f rot = new Vector3f();
     private final Quaternionf rotation = new Quaternionf();
 
+    private final Vector3f xrPos = new Vector3f();
+    private final Quaternionf xrRot = new Quaternionf();
+
     private final Matrix4f
+            identity = new Matrix4f(),
             viewMatrix = new Matrix4f(),
             orthoMatrix = new Matrix4f(),
             perspMatrix = new Matrix4f();
@@ -44,7 +47,7 @@ public class Camera {
 
         //rotation
         Vector2f rot = entity.getRot(delta);
-        setRot(rot.x, rot.y);
+        setRot(rot.x, rot.y, 0f);
 
         //position
         Vector3f pos = entity.getEyePos(delta);
@@ -55,21 +58,27 @@ public class Camera {
             move(0f, 0f, Math.max(entity.getEyeHeight(), 1f) * 3f);
         //third person front
         else if (mode == 2) {
-            setRot(-rot.x, rot.y + 180);
+            setRot(-rot.x, rot.y + 180, 0f);
             move(0f, 0f, Math.max(entity.getEyeHeight(), 1f) * 3f);
         }
     }
 
     public void setPos(float x, float y, float z) {
         pos.set(x, y, z);
+        if (XrManager.isInXR())
+            pos.add(xrPos);
     }
 
-    public void setRot(float pitch, float yaw) {
-        this.rot.set(pitch, yaw);
-        this.rotation.rotationYXZ((float) Math.toRadians(-yaw), (float) Math.toRadians(-pitch), 0f);
+    public void setRot(float pitch, float yaw, float roll) {
+        this.rot.set(pitch, yaw, roll);
+
+        this.rotation.rotationZYX((float) Math.toRadians(-roll), (float) Math.toRadians(-yaw), (float) Math.toRadians(-pitch));
+        if (XrManager.isInXR())
+            this.rotation.mul(xrRot);
+
         this.forwards.set(0f, 0f, -1f).rotate(this.rotation);
         this.up.set(0f, 1f, 0f).rotate(this.rotation);
-        this.left.set(1f, 0f, 0f).rotate(this.rotation);
+        this.left.set(-1f, 0f, 0f).rotate(this.rotation);
     }
 
     public void move(float x, float y, float z) {
@@ -85,40 +94,38 @@ public class Camera {
                 move.mul(hit.collision().near());
         }
 
-        pos.add(move.mul(epsilon));
-    }
-
-    public Matrix4f getViewMatrix() {
-        viewMatrix.identity();
-
-        if (isOrtho())
-            return viewMatrix;
-
-        viewMatrix.rotate(Rotation.X.rotationDeg(rot.x));
-        viewMatrix.rotate(Rotation.Y.rotationDeg(rot.y));
-        viewMatrix.translate(-pos.x, -pos.y, -pos.z);
-
-        if (XrManager.isInXR())
-            XrRenderer.applyViewMatrix(viewMatrix);
-
-        return viewMatrix;
+        move.mul(epsilon);
+        setPos(pos.x + move.x, pos.y + move.y, pos.z + move.z);
     }
 
     public void updateProjMatrix(int width, int height, float fov) {
-        perspMatrix.set(new Matrix4f().perspective((float) Math.toRadians(fov), (float) width / height, NEAR_PLANE, FAR_PLANE));
-        orthoMatrix.set(new Matrix4f().ortho(0, width, height, 0, -1000, 1000));
+        perspMatrix.identity().perspective((float) Math.toRadians(fov), (float) width / height, NEAR_PLANE, FAR_PLANE);
+        orthoMatrix.identity().ortho(0, width, height, 0, -1000, 1000);
+    }
+
+    public void setProjFrustum(float left, float right, float bottom, float top) {
+        perspMatrix.identity().frustum(left * NEAR_PLANE, right * NEAR_PLANE, bottom * NEAR_PLANE, top * NEAR_PLANE, NEAR_PLANE, FAR_PLANE, false);
+    }
+
+    public void setXrTransform(float x, float y, float z, float qx, float qy, float qz, float qw) {
+        xrPos.set(x, y, z);
+        xrRot.set(qx, qy, qz, qw);
+        reset();
     }
 
     public void billboard(MatrixStack matrices) {
-        horizontalBillboard(matrices);
-        verticalBillboard(matrices);
+        matrices.rotate(Rotation.Z.rotationDeg(-rot.z));
+        matrices.rotate(Rotation.Y.rotationDeg(180f - rot.y));
+        matrices.rotate(Rotation.X.rotationDeg(rot.x));
     }
 
     public void horizontalBillboard(MatrixStack matrices) {
+        matrices.rotate(Rotation.Z.rotationDeg(-rot.z));
         matrices.rotate(Rotation.Y.rotationDeg(180f - rot.y));
     }
 
     public void verticalBillboard(MatrixStack matrices) {
+        matrices.rotate(Rotation.Z.rotationDeg(-rot.z));
         matrices.rotate(Rotation.X.rotationDeg(rot.x));
     }
 
@@ -147,12 +154,12 @@ public class Camera {
     public void lookAt(float x, float y, float z) {
         Vector3f direction = new Vector3f(x, y, z).sub(pos).normalize();
         Vector2f rot = Maths.dirToRot(direction);
-        setRot(rot.x, rot.y);
+        setRot(rot.x, rot.y, 0f);
     }
 
     public void updateFrustum() {
         Matrix4f proj = getProjectionMatrix();
-        Matrix4f mvp = getViewMatrix().mulLocal(proj);
+        Matrix4f mvp = getViewMatrix().mulLocal(proj, new Matrix4f());
         frustum.updateFrustum(mvp);
     }
 
@@ -197,7 +204,7 @@ public class Camera {
 
     public void reset() {
         setPos(0f, 0f, 0f);
-        setRot(0f, 0f);
+        setRot(0f, 0f, 0f);
     }
 
     public void useOrtho(boolean ortho) {
@@ -208,7 +215,7 @@ public class Camera {
         return pos;
     }
 
-    public Vector2f getRot() {
+    public Vector3f getRot() {
         return rot;
     }
 
@@ -230,6 +237,10 @@ public class Camera {
 
     public Matrix4f getProjectionMatrix() {
         return isOrtho() ? orthoMatrix : perspMatrix;
+    }
+
+    public Matrix4f getViewMatrix() {
+        return isOrtho() ? identity : viewMatrix.translationRotateScaleInvert(pos, rotation, 1f);
     }
 
     public boolean isOrtho() {

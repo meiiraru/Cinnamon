@@ -18,7 +18,6 @@ import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
-import cinnamon.utils.UIHelper;
 import cinnamon.world.Hud;
 
 import java.nio.charset.StandardCharsets;
@@ -339,12 +338,7 @@ public class WordleScreen extends ParentedScreen {
 
     @Override
     protected void renderBackground(MatrixStack matrices, float delta) {
-        VertexConsumer.GUI.consume(GeometryHelper.rectangle(
-                matrices,
-                0, 0,
-                width, height,
-                -UIHelper.getDepthOffset(), 0xFF202020
-        ));
+        renderSolidBackground(0xFF202020);
     }
 
     private void saveGame() {

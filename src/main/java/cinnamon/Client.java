@@ -20,6 +20,8 @@ import cinnamon.sound.SoundManager;
 import cinnamon.text.Text;
 import cinnamon.utils.TextureIO;
 import cinnamon.utils.Timer;
+import cinnamon.vr.XrManager;
+import cinnamon.vr.XrRenderer;
 import cinnamon.world.Hud;
 import cinnamon.world.world.WorldClient;
 
@@ -115,6 +117,10 @@ public class Client {
 
         //top of world hud
         glClear(GL_DEPTH_BUFFER_BIT);
+
+        //xr GUI transform
+        if (XrManager.isInXR())
+            XrRenderer.applyGUITransform(matrices);
 
         //run gui events
         events.runEvents(EventType.RENDER_BEFORE_GUI);

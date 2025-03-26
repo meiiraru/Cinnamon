@@ -22,7 +22,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class UIHelper {
 
     public static final Resource TOOLTIP_TEXTURE = new Resource("textures/gui/widgets/tooltip.png");
-    private static final float DEPTH_OFFSET = 0.01f, VR_DEPTH_OFFSET = 1f;
+    private static final float DEPTH_OFFSET = 0.01f, VR_DEPTH_OFFSET = 0.01f;
     private static final Stack<Region2D> SCISSORS_STACK = new Stack<>();
 
     public static void renderBackground(MatrixStack matrices, int width, int height, float delta, Resource... background) {

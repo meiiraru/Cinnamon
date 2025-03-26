@@ -116,4 +116,9 @@ public class DVDScreen extends ParentedScreen {
             temp = Colors.randomRainbow();
         this.color = temp;
     }
+
+    @Override
+    protected boolean shouldRenderMouse() {
+        return false;
+    }
 }

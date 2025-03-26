@@ -336,6 +336,9 @@ public class Hud {
 
 
     public static void renderDebug(MatrixStack matrices) {
+        matrices.push();
+        matrices.translate(0f, 0f, 20f);
+
         Client c = Client.getInstance();
         Style style = Style.EMPTY.background(true).guiStyle(DEBUG_STYLE);
 
@@ -350,6 +353,8 @@ public class Hud {
             //Style style = Style.EMPTY.shadow(true);
             Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(style).render(VertexConsumer.FONT, matrices, 4, 4);
         }
+
+        matrices.pop();
     }
 
     private static void renderDebugCrosshair(MatrixStack matrices) {
@@ -359,9 +364,10 @@ public class Hud {
         matrices.translate(c.window.scaledWidth / 2f, c.window.scaledHeight / 2f, 0);
         matrices.scale(1, c.world == null ? -1 : 1, -1);
 
-        Vector2f rot = c.camera.getRot();
+        Vector3f rot = c.camera.getRot();
         matrices.rotate(Rotation.X.rotationDeg(rot.x));
         matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
+        matrices.rotate(Rotation.Z.rotationDeg(-rot.z));
 
         float len = 10;
         VertexConsumer.GUI.consume(GeometryHelper.cube(matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000));
@@ -391,7 +397,7 @@ public class Hud {
         Vector2f erot = p.getRot();
         Vector3f emot = p.getMotion();
         Vector3f cpos = c.camera.getPos();
-        Vector2f crot = c.camera.getRot();
+        Vector3f crot = c.camera.getRot();
 
         Vector3f chunk = new Vector3f(w.getChunkGridPos(epos));
 
@@ -429,7 +435,7 @@ public class Hud {
 
                         [&bcamera&r]
                          xyz &c%.3f &a%.3f &b%.3f&r
-                         pitch &e%.3f&r yaw &e%.3f&r
+                         pitch &e%.3f&r yaw &e%.3f&r roll &e%.3f&r
                          facing &e%s&r
                          mode &e%s&r
 
@@ -455,7 +461,7 @@ public class Hud {
                 chunk.x, chunk.y, chunk.z,
 
                 cpos.x, cpos.y, cpos.z,
-                crot.x, crot.y,
+                crot.x, crot.y, crot.z,
                 face,
                 camera,
 

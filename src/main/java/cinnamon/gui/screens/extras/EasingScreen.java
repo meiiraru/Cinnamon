@@ -240,8 +240,9 @@ public class EasingScreen extends ParentedScreen {
             VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x88000000));
 
             //graph
+            float d = UIHelper.getDepthOffset();
             matrices.push();
-            matrices.translate(getX(), getY(), 0);
+            matrices.translate(getX(), getY(), d);
 
             int size = points.size();
             for (int i = 0; i < size - 1; i++) {

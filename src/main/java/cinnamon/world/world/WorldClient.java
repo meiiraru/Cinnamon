@@ -52,7 +52,6 @@ import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.Chunk;
 import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -286,7 +285,7 @@ public class WorldClient extends World {
         //setup camera
         Vector3f dir = skyBox.getSunDirection();
         Vector3f pos = new Vector3f(camera.getPos());
-        Vector2f rot = new Vector2f(camera.getRot());
+        Vector3f rot = new Vector3f(camera.getRot());
 
         camera.setPos(pos.x + dir.x, pos.y + dir.y, pos.z + dir.z);
         camera.lookAt(pos.x, pos.y, pos.z);
@@ -322,7 +321,7 @@ public class WorldClient extends World {
 
         //restore camera
         camera.setPos(pos.x, pos.y, pos.z);
-        camera.setRot(rot.x, rot.y);
+        camera.setRot(rot.x, rot.y, rot.z);
         camera.updateFrustum();
     }
 
