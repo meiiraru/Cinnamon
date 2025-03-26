@@ -18,6 +18,8 @@ import cinnamon.sound.*;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
+import cinnamon.vr.XrManager;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.nio.file.Path;
@@ -339,31 +341,57 @@ public class SoundVisualizerScreen extends ParentedScreen {
         float y = height - height / 3f;
         float height = (int) Math.max(amplitude, 1f);
         int color = ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f((x - 10f) / (width - 20f), 0.5f, 1f))) + (0xFF << 24);
+        float d = UIHelper.getDepthOffset();
 
-        //front
-        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y - height, x + w, y, color));
+        if (XrManager.isInXR()) {
+            //main
+            Vertex[][] cube = GeometryHelper.cube(matrices, x, y - height, -d, x + w, y, -10f, color);
+            int dark = color - 0x222222;
+            cube[0][3].color(dark);
+            cube[2][0].color(dark);
+            cube[2][1].color(dark);
+            cube[2][2].color(dark);
+            cube[2][3].color(dark);
+            VertexConsumer.GUI.consume(cube);
 
-        float top = w * 0.5f;
-        float side = w * 0.4f;
+            //mirror
+            cube = GeometryHelper.cube(matrices, x, y, -d, x + w, y + height, -10f, color - (0x88 << 24));
+            int alpha = (int) Math.min(Maths.lerp(0x00, 0xFF, height / 30f), 0xFF);
+            int transparent = color - (alpha << 24);
+            cube[0][0].color(transparent);
+            cube[0][1].color(transparent);
+            cube[2][0].color(transparent);
+            cube[2][1].color(transparent);
+            VertexConsumer.GUI.consume(cube);
+        } else {
+            float top = w * 0.5f;
+            float side = w * 0.4f;
+            Matrix4f pos = matrices.peek().pos();
 
-        //top
-        Vertex[] vertices = GeometryHelper.rectangle(matrices, x, y - height - top, x + w, y - height, color - 0x222222);
-        vertices[2].getPosition().add(-side, 0, -side);
-        vertices[3].getPosition().add(-side, 0, -side);
-        VertexConsumer.GUI.consume(vertices);
+            //front
+            VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y - height, x + w, y, -d, color));
 
-        //side
-        vertices = GeometryHelper.rectangle(matrices, x - side, y - height - top, x, y, color - 0x111111);
-        vertices[0].getPosition().add(0, -top, -side);
-        vertices[3].getPosition().add(0, 0, -side);
-        vertices[2].getPosition().add(0, top, 0);
-        VertexConsumer.GUI.consume(vertices);
+            //top
+            Vertex[] vertices = GeometryHelper.rectangle(matrices, x, y - height - top, x + w, y - height, -d, color - 0x222222);
+            Vector3f add = new Vector3f(-side, 0, -side).mulDirection(pos);
+            vertices[2].getPosition().add(add);
+            vertices[3].getPosition().add(add);
+            VertexConsumer.GUI.consume(vertices);
 
-        //mirror
-        vertices = GeometryHelper.rectangle(matrices, x, y, x + w, y + height, color - (0x88 << 24));
-        vertices[0].getPosition().add(0.75f * height, 0, 0);
-        vertices[1].getPosition().add(0.75f * height, 0, 0);
-        VertexConsumer.GUI.consume(vertices);
+            //side
+            vertices = GeometryHelper.rectangle(matrices, x - side, y - height - top, x, y, -d, color - 0x111111);
+            vertices[0].getPosition().add(add.set(0, -top, -side).mulDirection(pos));
+            vertices[3].getPosition().add(add.set(0, 0, -side).mulDirection(pos));
+            vertices[2].getPosition().add(add.set(0, top, 0).mulDirection(pos));
+            VertexConsumer.GUI.consume(vertices);
+
+            //mirror
+            vertices = GeometryHelper.rectangle(matrices, x, y, x + w, y + height, -d, color - (0x88 << 24));
+            add.set(0.75f * height, 0, 0).mulDirection(pos);
+            vertices[0].getPosition().add(add);
+            vertices[1].getPosition().add(add);
+            VertexConsumer.GUI.consume(vertices);
+        }
     }
 
 
