@@ -17,6 +17,7 @@ public class Framebuffer {
     private final int flags;
     private final int fbo;
     private int color, depth, stencil;
+    private int x, y;
     private int width, height;
 
     public static final Framebuffer DEFAULT_FRAMEBUFFER;
@@ -110,7 +111,7 @@ public class Framebuffer {
     }
 
     public void adjustViewPort() {
-        glViewport(0, 0, width, height);
+        glViewport(x, y, width, height);
     }
 
     public static void clear() {
@@ -144,9 +145,9 @@ public class Framebuffer {
     public void blit(int targetFramebuffer, boolean color, boolean depth, boolean stencil) {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, id());
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetFramebuffer);
-        if (color) glBlitFramebuffer(0, 0, getWidth(), getHeight(), 0, 0, getWidth(), getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
-        if (depth) glBlitFramebuffer(0, 0, getWidth(), getHeight(), 0, 0, getWidth(), getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-        if (stencil) glBlitFramebuffer(0, 0, getWidth(), getHeight(), 0, 0, getWidth(), getHeight(), GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+        if (color) glBlitFramebuffer(getX(), getY(), getWidth(), getHeight(), getX(), getY(), getWidth(), getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        if (depth) glBlitFramebuffer(getX(), getY(), getWidth(), getHeight(), getX(), getY(), getWidth(), getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        if (stencil) glBlitFramebuffer(getX(), getY(), getWidth(), getHeight(), getX(), getY(), getWidth(), getHeight(), GL_STENCIL_BUFFER_BIT, GL_NEAREST);
         glBindFramebuffer(GL_FRAMEBUFFER, targetFramebuffer);
     }
 
@@ -169,10 +170,19 @@ public class Framebuffer {
     public void resize(int width, int height) {
         if (width == this.width && height == this.height)
             return;
-        this.width = width;
-        this.height = height;
+        setSize(width, height);
         freeTextures();
         genBuffers();
+    }
+
+    public void setPos(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    protected void setSize(int width, int height) {
+        this.width = width;
+        this.height = height;
     }
 
     public int getWidth() {
@@ -181,6 +191,14 @@ public class Framebuffer {
 
     public int getHeight() {
         return height;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 
     public int id() {

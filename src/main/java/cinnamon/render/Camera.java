@@ -65,20 +65,11 @@ public class Camera {
 
     public void setPos(float x, float y, float z) {
         pos.set(x, y, z);
-        if (XrManager.isInXR())
-            pos.add(xrPos);
     }
 
     public void setRot(float pitch, float yaw, float roll) {
         this.rot.set(pitch, yaw, roll);
-
         this.rotation.rotationZYX((float) Math.toRadians(-roll), (float) Math.toRadians(-yaw), (float) Math.toRadians(-pitch));
-        if (XrManager.isInXR())
-            this.rotation.mul(xrRot);
-
-        this.forwards.set(0f, 0f, -1f).rotate(this.rotation);
-        this.up.set(0f, 1f, 0f).rotate(this.rotation);
-        this.left.set(-1f, 0f, 0f).rotate(this.rotation);
     }
 
     public void move(float x, float y, float z) {
@@ -103,8 +94,8 @@ public class Camera {
         orthoMatrix.identity().ortho(0, width, height, 0, -1000, 1000);
     }
 
-    public void setProjFrustum(float left, float right, float bottom, float top) {
-        perspMatrix.identity().frustum(left * NEAR_PLANE, right * NEAR_PLANE, bottom * NEAR_PLANE, top * NEAR_PLANE, NEAR_PLANE, FAR_PLANE, false);
+    public void setProjFrustum(float left, float right, float bottom, float top, float near, float far) {
+        perspMatrix.identity().frustum(left * near, right * near, bottom * near, top * near, near, far, false);
     }
 
     public void setXrTransform(float x, float y, float z, float qx, float qy, float qz, float qw) {
@@ -138,10 +129,10 @@ public class Camera {
     }
 
     public Vector4f worldToScreenSpace(float x, float y, float z) {
-        Matrix3f transformMatrix = new Matrix3f().rotation(rotation);
+        Matrix3f transformMatrix = new Matrix3f().rotation(getRotation());
         transformMatrix.invert();
 
-        Vector3f posDiff = new Vector3f(x, y, z).sub(pos);
+        Vector3f posDiff = new Vector3f(x, y, z).sub(getPosition());
         transformMatrix.transform(posDiff);
 
         Vector4f projectiveCamSpace = new Vector4f(posDiff, 1f);
@@ -152,7 +143,7 @@ public class Camera {
     }
 
     public void lookAt(float x, float y, float z) {
-        Vector3f direction = new Vector3f(x, y, z).sub(pos).normalize();
+        Vector3f direction = new Vector3f(x, y, z).sub(getPosition()).normalize();
         Vector2f rot = Maths.dirToRot(direction);
         setRot(rot.x, rot.y, 0f);
     }
@@ -173,10 +164,13 @@ public class Camera {
 
         for (int i = 0; i < 2; i++) {
             //move and rotate matrices to eye position
+            Vector3f up = getUp();
+            Quaternionf rotation = getRotation();
             Quaternionf rot = new Quaternionf().setAngleAxis(left ? -angleRad : angleRad, up.x, up.y, up.z);
             Vector3f offset = new Vector3f(left ? -eyeDistance : eyeDistance, 0, 0).rotate(rotation);
 
             matrices.push();
+            Vector3f pos = getPosition();
             matrices.translate(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
             matrices.rotate(rot);
             matrices.translate(-pos.x, -pos.y, -pos.z);
@@ -220,19 +214,35 @@ public class Camera {
     }
 
     public Vector3f getForwards() {
-        return forwards;
+        return forwards.set(0f, 0f, -1f).rotate(getRotation());
     }
 
     public Vector3f getLeft() {
-        return left;
+        return left.set(-1f, 0f, 0f).rotate(getRotation());
     }
 
     public Vector3f getUp() {
-        return up;
+        return up.set(0f, 1f, 0f).rotate(getRotation());
+    }
+
+    public Vector3f getPosition() {
+        if (!XrManager.isInXR())
+            return pos;
+
+        if (isActuallyInOrtho())
+            return xrPos;
+
+        return xrPos.rotate(rotation, new Vector3f()).add(pos);
     }
 
     public Quaternionf getRotation() {
-        return rotation;
+        if (!XrManager.isInXR())
+            return rotation;
+
+        if (isActuallyInOrtho())
+            return xrRot;
+
+        return rotation.mul(xrRot, new Quaternionf());
     }
 
     public Matrix4f getProjectionMatrix() {
@@ -240,11 +250,15 @@ public class Camera {
     }
 
     public Matrix4f getViewMatrix() {
-        return isOrtho() ? identity : viewMatrix.translationRotateScaleInvert(pos, rotation, 1f);
+        return isOrtho() ? identity : viewMatrix.translationRotateScaleInvert(getPosition(), getRotation(), 1f);
     }
 
     public boolean isOrtho() {
         return isOrtho && !XrManager.isInXR();
+    }
+
+    private boolean isActuallyInOrtho() {
+        return isOrtho;
     }
 
     public Entity getEntity() {

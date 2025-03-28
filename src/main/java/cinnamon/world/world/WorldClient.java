@@ -112,9 +112,6 @@ public class WorldClient extends World {
         //create player
         respawn(true);
 
-        //prepare renderer
-        WorldRenderer.resize(client.window.width, client.window.height);
-
         //SERVER STUFF
         tempLoad();
 
@@ -299,6 +296,7 @@ public class WorldClient extends World {
         s.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
         //framebuffer
+        Framebuffer old = Framebuffer.activeFramebuffer;
         shadowBuffer.useClear();
         shadowBuffer.adjustViewPort();
 
@@ -316,8 +314,8 @@ public class WorldClient extends World {
         matrices.pop();
 
         //restore to default framebuffer
-        Framebuffer.DEFAULT_FRAMEBUFFER.use();
-        Framebuffer.DEFAULT_FRAMEBUFFER.adjustViewPort();
+        old.use();
+        old.adjustViewPort();
 
         //restore camera
         camera.setPos(pos.x, pos.y, pos.z);
@@ -429,8 +427,8 @@ public class WorldClient extends World {
 
     protected void renderShadowBuffer(int x, int y, int size) {
         glViewport(x, y, size, size);
-        Blit.copy(shadowBuffer, Framebuffer.DEFAULT_FRAMEBUFFER.id(), Shaders.DEPTH_BLIT.getShader(), Blit.DEPTH_UNIFORM);
-        Framebuffer.DEFAULT_FRAMEBUFFER.adjustViewPort();
+        Blit.copy(shadowBuffer, Framebuffer.activeFramebuffer.id(), Shaders.DEPTH_BLIT.getShader(), Blit.DEPTH_UNIFORM);
+        Framebuffer.activeFramebuffer.adjustViewPort();
     }
 
     protected void renderHitboxes(Camera camera, MatrixStack matrices, float delta) {
@@ -503,7 +501,7 @@ public class WorldClient extends World {
 
     public void applyWorldUniforms(Shader s) {
         //camera
-        s.setVec3("camPos", client.camera.getPos());
+        s.setVec3("camPos", client.camera.getPosition());
 
         //fog
         s.setFloat("fogStart", Chunk.getFogStart(this));
@@ -699,7 +697,6 @@ public class WorldClient extends World {
 
     public void onWindowResize(int width, int height) {
         resetMovement();
-        WorldRenderer.resize(width, height);
     }
 
     public void resetMovement() {

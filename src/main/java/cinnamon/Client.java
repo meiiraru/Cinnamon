@@ -9,6 +9,7 @@ import cinnamon.gui.screens.MainMenu;
 import cinnamon.gui.screens.world.PauseScreen;
 //import cinnamon.networking.ServerConnection;
 import cinnamon.logger.Logger;
+import cinnamon.logger.LoggerConfig;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
@@ -20,10 +21,12 @@ import cinnamon.sound.SoundManager;
 import cinnamon.text.Text;
 import cinnamon.utils.TextureIO;
 import cinnamon.utils.Timer;
+import cinnamon.utils.Version;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.Hud;
 import cinnamon.world.world.WorldClient;
+import org.lwjgl.system.Platform;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -31,8 +34,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.*;
 
 public class Client {
 
@@ -59,21 +61,44 @@ public class Client {
 
     //objects
     public Window window;
-    public Camera camera;
+    public Camera camera = new Camera();
     public Screen screen;
     public WorldClient world;
 
     private Client() {}
 
     public void init() {
-        Settings.load();
-        SoundManager.init(Settings.soundDevice.get());
+        //queue window first update
         this.windowResize(window.width, window.height);
-        this.camera = new Camera();
+
+        //update camera
         this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight, Settings.fov.get());
+
+        //initiate logger
+        LoggerConfig.initialize();
+
+        //opengl debug info
+        LOGGER.info("Welcome to Cinnamon! v%s", Version.CLIENT_VERSION);
+        LOGGER.info("OS: %s %s", Cinnamon.PLATFORM.getName(), Platform.getArchitecture().name());
+        LOGGER.info("Renderer: %s", glGetString(GL_RENDERER));
+        LOGGER.info("OpenGL Version: %s", glGetString(GL_VERSION));
+        LOGGER.info("LWJGL Version: %s", org.lwjgl.Version.getVersion());
+
+        //init settings
+        Settings.load();
+
+        //init sounds
+        SoundManager.init(Settings.soundDevice.get());
+
+        //init open xr
+        //XrManager.init(window.getHandle());
+
+        //register and run init events
         events.registerClientEvents();
         events.runEvents(EventType.RESOURCE_INIT);
         events.runEvents(EventType.CLIENT_INIT);
+
+        //open main menu
         this.setScreen(mainScreen.get());
     }
 
@@ -89,67 +114,6 @@ public class Client {
     }
 
     // -- events -- //
-
-    public void render(MatrixStack matrices) {
-        float delta = timer.partialTick;
-
-        matrices.push();
-
-        //run render events
-        events.runEvents(EventType.RENDER_BEFORE_WORLD);
-
-        //render world
-        if (world != null) {
-            world.render(matrices, delta);
-
-            if (!world.hideHUD()) {
-                //render first person hand
-                if (!world.isThirdPerson()) {
-                    glClear(GL_DEPTH_BUFFER_BIT); //top of world
-                    world.renderHand(camera, matrices, delta);
-                }
-
-                //render world hud
-                glClear(GL_DEPTH_BUFFER_BIT); //top of hand
-                world.hud.render(matrices, delta);
-            }
-        }
-
-        //top of world hud
-        glClear(GL_DEPTH_BUFFER_BIT);
-
-        //xr GUI transform
-        if (XrManager.isInXR())
-            XrRenderer.applyGUITransform(matrices);
-
-        //run gui events
-        events.runEvents(EventType.RENDER_BEFORE_GUI);
-
-        //render screen
-        if (this.screen != null)
-            screen.render(matrices, window.mouseX, window.mouseY, delta);
-
-        //render toasts
-        if (world == null || !world.hideHUD())
-            Toast.renderToasts(matrices, window.scaledWidth, window.scaledHeight, delta);
-
-        //finish hud
-        VertexConsumer.finishAllBatches(camera);
-
-        //apply global post process
-        if (postProcess != -1)
-            PostProcess.apply(PostProcess.EFFECTS[postProcess]);
-
-        //run post render events
-        events.runEvents(EventType.RENDER_END);
-
-        //debug hud always on top
-        Hud.renderDebug(matrices);
-        VertexConsumer.finishAllBatches(camera);
-
-        //finish rendering
-        matrices.pop();
-    }
 
     public void tick() {
         ticks++;
@@ -183,6 +147,77 @@ public class Client {
         scheduledTicks.add(toRun);
     }
 
+    public void render(MatrixStack matrices) {
+        float delta = timer.partialTick;
+
+        matrices.push();
+
+        //run render events
+        events.runEvents(EventType.RENDER_BEFORE_WORLD);
+
+        //render world
+        if (world != null) {
+            world.render(matrices, delta);
+
+            if (!world.hideHUD()) {
+                //render first person hand
+                if (!world.isThirdPerson()) {
+                    glClear(GL_DEPTH_BUFFER_BIT); //top of world
+                    world.renderHand(camera, matrices, delta);
+                }
+
+                //render world hud
+                glClear(GL_DEPTH_BUFFER_BIT); //top of hand
+
+                matrices.push();
+                if (XrManager.isInXR())
+                    XrRenderer.applyGUITransform(matrices);
+
+                world.hud.render(matrices, delta);
+
+                matrices.pop();
+            }
+        }
+
+        //top of world hud
+        glClear(GL_DEPTH_BUFFER_BIT);
+
+        //xr GUI transform
+        if (XrManager.isInXR())
+            XrRenderer.applyGUITransform(matrices);
+
+        //run gui events
+        events.runEvents(EventType.RENDER_BEFORE_GUI);
+
+        //render screen
+        if (this.screen != null)
+            screen.render(matrices, window.mouseX, window.mouseY, delta);
+
+        //render toasts
+        if (world == null || !world.hideHUD()) {
+            int w = XrManager.isInXR() ? XrRenderer.XR_WIDTH : window.scaledWidth;
+            int h = XrManager.isInXR() ? XrRenderer.XR_HEIGHT : window.scaledHeight;
+            Toast.renderToasts(matrices, w, h, delta);
+        }
+
+        //finish hud
+        VertexConsumer.finishAllBatches(camera);
+
+        //apply global post process
+        if (postProcess != -1)
+            PostProcess.apply(PostProcess.EFFECTS[postProcess]);
+
+        //run post render events
+        events.runEvents(EventType.RENDER_END);
+
+        //debug hud always on top
+        Hud.renderDebug(matrices);
+        VertexConsumer.finishAllBatches(camera);
+
+        //finish rendering
+        matrices.pop();
+    }
+
     public void setScreen(Screen s) {
         //remove previous screen
         if (screen != null)
@@ -193,7 +228,9 @@ public class Client {
 
         if (s != null) {
             //init the new screen
-            s.init(this, window.scaledWidth, window.scaledHeight);
+            int w = XrManager.isInXR() ? XrRenderer.XR_WIDTH : window.scaledWidth;
+            int h = XrManager.isInXR() ? XrRenderer.XR_HEIGHT : window.scaledHeight;
+            s.init(this, w, h);
 
             //screen has been added
             screen.added();
@@ -274,7 +311,7 @@ public class Client {
                     if (shift) {
                         queueTick(() -> {
                             if (screen != null)
-                                screen.resize(window.scaledWidth, window.scaledHeight);
+                                screen.rebuild();
                         });
                     } else {
                         reloadAssets();
@@ -339,8 +376,12 @@ public class Client {
             if (camera != null)
                 camera.updateProjMatrix(window.scaledWidth, window.scaledHeight, Settings.fov.get());
 
-            if (screen != null)
-                screen.resize(window.scaledWidth, window.scaledHeight);
+            if (screen != null) {
+                if (XrManager.isInXR())
+                    screen.rebuild();
+                else
+                    screen.resize(window.scaledWidth, window.scaledHeight);
+            }
         });
 
         events.runEvents(EventType.WINDOW_RESIZE, width, height);

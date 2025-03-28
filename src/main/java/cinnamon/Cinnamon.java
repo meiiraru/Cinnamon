@@ -1,13 +1,11 @@
 package cinnamon;
 
-import cinnamon.logger.LoggerConfig;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.utils.Resource;
-import cinnamon.utils.Version;
 import cinnamon.vr.XrManager;
 import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -109,22 +107,8 @@ public class Cinnamon {
         //finishes the initialization process
         GL.createCapabilities();
 
-        // -- init -- //
+        // -- client init -- //
 
-        //initiate logger
-        LoggerConfig.initialize();
-
-        //opengl debug info
-        LOGGER.info("Welcome to Cinnamon! v%s", Version.CLIENT_VERSION);
-        LOGGER.info("OS: %s %s", PLATFORM.getName(), Platform.getArchitecture().name());
-        LOGGER.info("Renderer: %s", glGetString(GL_RENDERER));
-        LOGGER.info("OpenGL Version: %s", glGetString(GL_VERSION));
-        LOGGER.info("LWJGL Version: %s", org.lwjgl.Version.getVersion());
-
-        //init open xr
-        //XrManager.init(window);
-
-        //finish init through the client
         client.window = new Window(window, width, height);
         client.window.setIcon(ICON);
         client.init();

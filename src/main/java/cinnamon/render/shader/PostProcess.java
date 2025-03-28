@@ -9,7 +9,6 @@ import cinnamon.utils.Resource;
 import java.util.function.BiFunction;
 
 import static cinnamon.render.framebuffer.Blit.COLOR_UNIFORM;
-import static cinnamon.render.framebuffer.Framebuffer.DEFAULT_FRAMEBUFFER;
 import static org.lwjgl.glfw.GLFW.glfwGetTime;
 
 public enum PostProcess {
@@ -218,8 +217,9 @@ public enum PostProcess {
             return;
 
         //prepare framebuffer
+        Framebuffer old = Framebuffer.activeFramebuffer;
         FB.POST_FRAMEBUFFER.useClear();
-        FB.POST_FRAMEBUFFER.resizeTo(DEFAULT_FRAMEBUFFER);
+        FB.POST_FRAMEBUFFER.resizeTo(old);
 
         boolean savePrevColor = false;
 
@@ -229,21 +229,21 @@ public enum PostProcess {
 
             //render post effect
             FB.POST_FRAMEBUFFER.use();
-            int tex = postProcess.uniformFunction.apply(DEFAULT_FRAMEBUFFER, postProcess.shader.use());
+            int tex = postProcess.uniformFunction.apply(old, postProcess.shader.use());
             Blit.renderQuad();
             Texture.unbindAll(tex);
 
             savePrevColor |= postProcess.usesPrevColor;
 
             //blit to main framebuffer
-            Blit.copy(FB.POST_FRAMEBUFFER, DEFAULT_FRAMEBUFFER.id(), BLIT);
+            Blit.copy(FB.POST_FRAMEBUFFER, old.id(), BLIT);
         }
 
         //if any effect uses the previous color buffer, copy buffers again
         if (savePrevColor) {
-            FB.PREVIOUS_COLOR_FRAMEBUFFER.resizeTo(DEFAULT_FRAMEBUFFER);
-            Blit.copy(DEFAULT_FRAMEBUFFER, FB.PREVIOUS_COLOR_FRAMEBUFFER.id(), BLIT);
-            DEFAULT_FRAMEBUFFER.use();
+            FB.PREVIOUS_COLOR_FRAMEBUFFER.resizeTo(old);
+            Blit.copy(old, FB.PREVIOUS_COLOR_FRAMEBUFFER.id(), BLIT);
+            old.use();
         }
     }
 

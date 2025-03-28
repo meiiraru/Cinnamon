@@ -1,10 +1,10 @@
 package cinnamon.vr;
 
+import cinnamon.Cinnamon;
 import cinnamon.Client;
 import cinnamon.model.SimpleGeometry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.Window;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
@@ -13,10 +13,16 @@ import org.lwjgl.openxr.*;
 
 public class XrRenderer {
 
+    public static final float XR_DEPTH_OFFSET = 0.01f;
+    public static final int XR_WIDTH = Cinnamon.WIDTH / 2;
+    public static final int XR_HEIGHT = Cinnamon.HEIGHT / 2;
+    public static final float XR_NEAR = 0.1f;
+    public static final float XR_FAR = 100f;
+
     private static XrFramebuffer framebuffer;
 
     public static void prepare(XrManager.Swapchain[] swapChains) {
-        framebuffer = new XrFramebuffer(swapChains);
+        framebuffer = new XrFramebuffer(swapChains, swapChains[0].width, swapChains[0].height);
     }
 
     public static void free() {
@@ -27,7 +33,7 @@ public class XrRenderer {
     public static void render(XrCompositionLayerProjectionView layerView, XrSwapchainImageOpenGLKHR swapchainImage, boolean isLastView, Runnable toRender) {
         framebuffer.use();
         framebuffer.bindTextures(swapchainImage);
-        framebuffer.clear();
+        Framebuffer.clear();
         framebuffer.adjustViewPort(layerView.subImage().imageRect());
 
         XrPosef pose = layerView.pose();
@@ -42,7 +48,7 @@ public class XrRenderer {
 
         //update camera matrices
         Camera camera = Client.getInstance().camera;
-        camera.setProjFrustum(distToLeftPlane, distToRightPlane, distToBottomPlane, distToTopPlane);
+        camera.setProjFrustum(distToLeftPlane, distToRightPlane, distToBottomPlane, distToTopPlane, XR_NEAR, XR_FAR);
         camera.setXrTransform(pos.x(), pos.y(), pos.z(), orientation.x(), orientation.y(), orientation.z(), orientation.w());
 
         toRender.run();
@@ -63,12 +69,9 @@ public class XrRenderer {
 
     public static void applyGUITransform(MatrixStack matrices) {
         matrices.translate(0, 0, -0.5f);
-
         float s = 1f / 1024f;
         matrices.scale(s, -s, s);
-
-        Window w = Client.getInstance().window;
-        matrices.translate(-w.scaledWidth / 2f, -w.scaledHeight / 2f, 0);
+        matrices.translate(-XR_WIDTH / 2f, -XR_HEIGHT / 2f, 0);
     }
 
     public static void bindFramebuffer() {

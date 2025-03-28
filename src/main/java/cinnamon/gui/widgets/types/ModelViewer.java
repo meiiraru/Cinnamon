@@ -99,8 +99,9 @@ public class ModelViewer extends SelectableWidget {
         glDisable(GL_CULL_FACE);
 
         //set up framebuffer
+        Framebuffer old = Framebuffer.activeFramebuffer;
         modelBuffer.useClear();
-        modelBuffer.resizeTo(Framebuffer.DEFAULT_FRAMEBUFFER);
+        modelBuffer.resizeTo(old);
 
         //position
         matrices.translate(posX, -posY, -200);
@@ -129,7 +130,7 @@ public class ModelViewer extends SelectableWidget {
 
         //finish render
         VertexConsumer.finishAllBatches(client.camera);
-        Framebuffer.DEFAULT_FRAMEBUFFER.use();
+        old.use();
 
         //cleanup
         glEnable(GL_CULL_FACE);

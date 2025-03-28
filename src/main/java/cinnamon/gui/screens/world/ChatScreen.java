@@ -9,6 +9,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Colors;
+import cinnamon.utils.UIHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +49,7 @@ public class ChatScreen extends Screen {
     @Override
     protected void renderBackground(MatrixStack matrices, float delta) {
         //super.renderBackground(matrices, delta);
-        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, field.getX(), field.getY(), field.getX() + field.getWidth(), field.getY() + field.getHeight(), 0x80000000));
+        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, field.getX(), field.getY(), field.getX() + field.getWidth(), field.getY() + field.getHeight(), -UIHelper.getDepthOffset(), 0x80000000));
     }
 
     @Override

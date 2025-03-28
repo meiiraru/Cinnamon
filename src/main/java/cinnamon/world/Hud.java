@@ -16,6 +16,7 @@ import cinnamon.sound.SoundManager;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
+import cinnamon.vr.XrManager;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.Entity;
@@ -66,7 +67,7 @@ public class Hud {
         VertexConsumer.finishAllBatches(c.camera);
 
         //draw crosshair separated
-        if (!c.debug)
+        if (!c.debug && !XrManager.isInXR())
             drawCrosshair(matrices);
     }
 
@@ -105,7 +106,7 @@ public class Hud {
         matrices.translate(12, window.scaledHeight - 12, 0f);
         matrices.push();
 
-        matrices.rotate(Rotation.Y.rotationDeg(-20f));
+        matrices.rotate(Rotation.Y.rotationDeg(20f));
         matrices.rotate(Rotation.Z.rotationDeg(-10f));
 
         //draw text
@@ -238,7 +239,7 @@ public class Hud {
             Item item = inventory.getItem(i);
             if (item != null) {
                 matrices.push();
-                matrices.translate(x + 8, y + 8, 500);
+                matrices.translate(x + 8, y + 8, 5f);
                 matrices.rotate(Rotation.Y.rotationDeg(-90));
                 matrices.rotate(Rotation.X.rotationDeg(35));
                 matrices.scale(-8);
