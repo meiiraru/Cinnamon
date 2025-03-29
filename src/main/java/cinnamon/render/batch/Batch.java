@@ -179,12 +179,6 @@ public abstract class Batch { //vertex consumer
         }
     }
 
-    public static class GUIBatch extends Batch {
-        public GUIBatch() {
-            super(6, Attributes.POS, Attributes.TEXTURE_ID, Attributes.UV, Attributes.COLOR_RGBA);
-        }
-    }
-
     public static class MainFlatBatch extends Batch {
         public MainFlatBatch() {
             super(6, Attributes.POS, Attributes.TEXTURE_ID, Attributes.UV, Attributes.COLOR_RGBA);

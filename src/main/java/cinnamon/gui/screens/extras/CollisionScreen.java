@@ -67,23 +67,23 @@ public class CollisionScreen extends ParentedScreen {
         boolean collided = collision != null;
 
         //draw box
-        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, aabb.minX(), aabb.minY(), aabb.maxX(), aabb.maxY(), collided ? 0xFFFF72AD : 0xFFAD72FF));
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, aabb.minX(), aabb.minY(), aabb.maxX(), aabb.maxY(), collided ? 0xFFFF72AD : 0xFFAD72FF));
 
         if (collided) {
             float n = collision.near();
             Vector3f near = new Vector3f(pos).add(len.x * n, len.y * n, len.z * n);
-            VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, near.x - 3, near.y - 3, near.x + 3, near.y + 3, 0xFF72ADFF));
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, near.x - 3, near.y - 3, near.x + 3, near.y + 3, 0xFF72ADFF));
 
             float f = collision.far();
             Vector3f far = new Vector3f(pos).add(len.x * f, len.y * f, len.z * f);
-            VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, far.x - 3, far.y - 3, far.x + 3, far.y + 3, 0xFFFFAD72));
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, far.x - 3, far.y - 3, far.x + 3, far.y + 3, 0xFFFFAD72));
 
             Vector3f normal = collision.normal();
-            VertexConsumer.GUI.consume(GeometryHelper.line(matrices, near.x, near.y, near.x + normal.x * 10, near.y + normal.y * 10, 1, 0xFF72FF72));
+            VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, near.x, near.y, near.x + normal.x * 10, near.y + normal.y * 10, 1, 0xFF72FF72));
         }
 
         //draw line
-        VertexConsumer.GUI.consume(GeometryHelper.line(matrices, pos.x, pos.y, mouseX, mouseY, 1, collided ? 0xFFFFFF00 : 0xFFFFFFFF));
+        VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, pos.x, pos.y, mouseX, mouseY, 1, collided ? 0xFFFFFF00 : 0xFFFFFFFF));
     }
 
     private void aabbVsAABB(MatrixStack matrices) {
@@ -92,7 +92,7 @@ public class CollisionScreen extends ParentedScreen {
             VertexConsumer.LINES.consume(GeometryHelper.rectangle(matrices, aabb.minX(), aabb.minY(), aabb.maxX(), aabb.maxY(), 0xFFFFFF00));
 
         //draw player
-        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, player.minX(), player.minY(), player.maxX(), player.maxY(), 0xFFFF72AD));
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, player.minX(), player.minY(), player.maxX(), player.maxY(), 0xFFFF72AD));
     }
 
     @Override

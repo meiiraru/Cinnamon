@@ -352,7 +352,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
             cube[2][1].color(dark);
             cube[2][2].color(dark);
             cube[2][3].color(dark);
-            VertexConsumer.GUI.consume(cube);
+            VertexConsumer.MAIN.consume(cube);
 
             //mirror
             cube = GeometryHelper.cube(matrices, x, y, -d, x + w, y + height, -10f, color - (0x88 << 24));
@@ -362,35 +362,35 @@ public class SoundVisualizerScreen extends ParentedScreen {
             cube[0][1].color(transparent);
             cube[2][0].color(transparent);
             cube[2][1].color(transparent);
-            VertexConsumer.GUI.consume(cube);
+            VertexConsumer.MAIN.consume(cube);
         } else {
             float top = w * 0.5f;
             float side = w * 0.4f;
             Matrix4f pos = matrices.peek().pos();
 
             //front
-            VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y - height, x + w, y, -d, color));
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x, y - height, x + w, y, -d, color));
 
             //top
             Vertex[] vertices = GeometryHelper.rectangle(matrices, x, y - height - top, x + w, y - height, -d, color - 0x222222);
             Vector3f add = new Vector3f(-side, 0, -side).mulDirection(pos);
             vertices[2].getPosition().add(add);
             vertices[3].getPosition().add(add);
-            VertexConsumer.GUI.consume(vertices);
+            VertexConsumer.MAIN.consume(vertices);
 
             //side
             vertices = GeometryHelper.rectangle(matrices, x - side, y - height - top, x, y, -d, color - 0x111111);
             vertices[0].getPosition().add(add.set(0, -top, -side).mulDirection(pos));
             vertices[3].getPosition().add(add.set(0, 0, -side).mulDirection(pos));
             vertices[2].getPosition().add(add.set(0, top, 0).mulDirection(pos));
-            VertexConsumer.GUI.consume(vertices);
+            VertexConsumer.MAIN.consume(vertices);
 
             //mirror
             vertices = GeometryHelper.rectangle(matrices, x, y, x + w, y + height, -d, color - (0x88 << 24));
             add.set(0.75f * height, 0, 0).mulDirection(pos);
             vertices[0].getPosition().add(add);
             vertices[1].getPosition().add(add);
-            VertexConsumer.GUI.consume(vertices);
+            VertexConsumer.MAIN.consume(vertices);
         }
     }
 

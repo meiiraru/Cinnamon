@@ -3,7 +3,6 @@ package cinnamon.render.shader;
 import cinnamon.utils.Resource;
 
 public enum Shaders {
-    GUI,
     WORLD_FONT,
     FONT,
     WORLD_MODEL,

@@ -104,7 +104,7 @@ public class BallsScreen extends ParentedScreen {
         }
 
         public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            VertexConsumer.GUI.consume(GeometryHelper.circle(matrices, pos.x, pos.y, radius, 12, color));
+            VertexConsumer.MAIN.consume(GeometryHelper.circle(matrices, pos.x, pos.y, radius, 12, color));
         }
 
         public void applyForce(Vector2f force) {

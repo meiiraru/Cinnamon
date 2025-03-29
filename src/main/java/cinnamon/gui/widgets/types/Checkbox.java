@@ -24,7 +24,7 @@ public class Checkbox extends Button {
 
     @Override
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        VertexConsumer.GUI.consume(
+        VertexConsumer.MAIN.consume(
                 GeometryHelper.quad(
                         matrices,
                         getX(), getCenterY() - 5,

@@ -11,12 +11,11 @@ import cinnamon.utils.Resource;
 import java.util.function.Supplier;
 
 public enum VertexConsumer {
-    GUI(GUIBatch::new, Shaders.GUI),
-    LINES(LinesBatch::new, Shaders.LINES),
-    WORLD_FONT(FontBatch::new, Shaders.WORLD_FONT),
+    MAIN(MainFlatBatch::new, Shaders.MAIN),
     FONT(FontFlatBatch::new, Shaders.FONT),
     WORLD_MAIN(MainBatch::new, Shaders.WORLD_MAIN),
-    MAIN(MainFlatBatch::new, Shaders.MAIN),
+    WORLD_FONT(FontBatch::new, Shaders.WORLD_FONT),
+    LINES(LinesBatch::new, Shaders.LINES),
     SCREEN_UV(ScreenSpaceUVBatch::new, Shaders.SCREEN_SPACE_UV);
 
     private final BatchRenderer<Batch> renderer;

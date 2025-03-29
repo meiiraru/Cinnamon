@@ -46,7 +46,7 @@ public class ColorWheel extends SelectableWidget {
             vertices[i].color(ColorUtils.hsvToRGB(new Vector3f(hue, 1f, 1f)));
         }
 
-        VertexConsumer.GUI.consume(vertices);
+        VertexConsumer.MAIN.consume(vertices);
 
         //cross-hair
         matrices.push();
@@ -57,7 +57,7 @@ public class ColorWheel extends SelectableWidget {
         float x = cx + (float) Math.cos(angle) * r;
         float y = cy + (float) Math.sin(angle) * r;
 
-        VertexConsumer.GUI.consume(GeometryHelper.arc(matrices, x, y, 3, 0, 1, 1, 8, 0xFF000000));
+        VertexConsumer.MAIN.consume(GeometryHelper.arc(matrices, x, y, 3, 0, 1, 1, 8, 0xFF000000));
 
         final int modColor = 0x44000000;
 
@@ -65,7 +65,7 @@ public class ColorWheel extends SelectableWidget {
         if (alt) {
             float x2 = cx + (float) Math.cos(angle) * radius;
             float y2 = cy + (float) Math.sin(angle) * radius;
-            VertexConsumer.GUI.consume(GeometryHelper.line(matrices, cx, cy, x2, y2, 1, modColor));
+            VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, cx, cy, x2, y2, 1, modColor));
         } else {
             //snap lines
             if (shift) {
@@ -75,13 +75,13 @@ public class ColorWheel extends SelectableWidget {
                     float y1 = cy + (float) Math.sin(ang) * 3;
                     float x2 = cx + (float) Math.cos(ang) * radius;
                     float y2 = cy + (float) Math.sin(ang) * radius;
-                    VertexConsumer.GUI.consume(GeometryHelper.line(matrices, x1, y1, x2, y2, 1, modColor));
+                    VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, x1, y1, x2, y2, 1, modColor));
                 }
-                VertexConsumer.GUI.consume(GeometryHelper.arc(matrices, cx, cy, 3, 0, 1, 1, 24, modColor));
+                VertexConsumer.MAIN.consume(GeometryHelper.arc(matrices, cx, cy, 3, 0, 1, 1, 24, modColor));
             }
             //snap hue circle
             if (ctrl)
-                VertexConsumer.GUI.consume(GeometryHelper.arc(matrices, cx, cy, r, 0, 1, 1, 24, modColor));
+                VertexConsumer.MAIN.consume(GeometryHelper.arc(matrices, cx, cy, r, 0, 1, 1, 24, modColor));
         }
 
         matrices.pop();

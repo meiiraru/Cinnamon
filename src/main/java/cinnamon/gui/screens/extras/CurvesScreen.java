@@ -153,7 +153,7 @@ public class CurvesScreen extends ParentedScreen {
                 Point a = points.get(i);
                 Point b = points.get((i + 1) % size);
 
-                VertexConsumer.GUI.consume(GeometryHelper.line(matrices, a.getX() + R, a.getY() + R, b.getX() + R, b.getY() + R, 2, 0x88FF72AD));
+                VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, a.getX() + R, a.getY() + R, b.getX() + R, b.getY() + R, 2, 0x88FF72AD));
             }
         }
 
@@ -182,7 +182,7 @@ public class CurvesScreen extends ParentedScreen {
 
             Vector3f a = curve.get(i);
             Vector3f b = curve.get(i + 1);
-            VertexConsumer.GUI.consume(GeometryHelper.line(matrices, a.x, a.z, b.x, b.z, 1, color + (0xFF << 24)));
+            VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, a.x, a.z, b.x, b.z, 1, color + (0xFF << 24)));
         }
     }
 
@@ -301,7 +301,7 @@ public class CurvesScreen extends ParentedScreen {
         public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
             float d = UIHelper.tickDelta(0.6f);
             alpha = Maths.lerp(alpha, this.isHoveredOrFocused() ? 1f : 0.5f, d);
-            VertexConsumer.GUI.consume(GeometryHelper.circle(matrices, getX() + R, getY() + R, R, 12, 0xAD72FF + ((int) (alpha * 255) << 24)));
+            VertexConsumer.MAIN.consume(GeometryHelper.circle(matrices, getX() + R, getY() + R, R, 12, 0xAD72FF + ((int) (alpha * 255) << 24)));
         }
 
         @Override

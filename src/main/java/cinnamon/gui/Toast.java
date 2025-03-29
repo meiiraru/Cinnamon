@@ -134,14 +134,14 @@ public class Toast {
         GUIStyle style = GUIStyle.of(this.style);
         int color = this.color == null ? style.accentColor : this.color;
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, style.toastTex,
+                VertexConsumer.MAIN, matrices, style.toastTex,
                 pos, 0f, bgWidth, bgHeight,
                 16f, 0f,
                 16, 16, 48, 16,
                 color
         );
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, style.toastTex,
+                VertexConsumer.MAIN, matrices, style.toastTex,
                 pos, 0f, bgWidth, bgHeight,
                 32f, 0f,
                 16, 16, 48, 16,

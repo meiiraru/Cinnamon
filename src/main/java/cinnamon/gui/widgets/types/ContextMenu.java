@@ -148,7 +148,7 @@ public class ContextMenu extends PopupWidget {
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //render background
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, getStyle().contextMenuTex,
+                VertexConsumer.MAIN, matrices, getStyle().contextMenuTex,
                 getX() - 1, getY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,
@@ -159,14 +159,14 @@ public class ContextMenu extends PopupWidget {
 
     private static void renderBackground(MatrixStack matrices, int x, int y, int width, int height, boolean hover, int index, Resource texture) {
         //bg
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, x, y, width, height, (index % 2) * 16, 16f, 16, 16, 32, 35), texture);
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, x, y, width, height, (index % 2) * 16, 16f, 16, 16, 32, 35), texture);
 
         //hover
         if (hover) {
             matrices.push();
             matrices.translate(0f, 0f, UIHelper.getDepthOffset());
             UIHelper.nineQuad(
-                    VertexConsumer.GUI, matrices, texture,
+                    VertexConsumer.MAIN, matrices, texture,
                     x, y,
                     width, height,
                     16f, 0f,
@@ -238,7 +238,7 @@ public class ContextMenu extends PopupWidget {
             matrices.push();
             matrices.translate(0f, 0f, UIHelper.getDepthOffset());
             UIHelper.horizontalQuad(
-                    VertexConsumer.GUI, matrices, getStyle().contextMenuTex,
+                    VertexConsumer.MAIN, matrices, getStyle().contextMenuTex,
                     getX() + 1, Math.round(getCenterY() - 1.5f),
                     getWidth() - 2, 3,
                     0f, 32f,

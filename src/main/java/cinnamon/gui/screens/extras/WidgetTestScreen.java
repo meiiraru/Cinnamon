@@ -174,7 +174,7 @@ public class WidgetTestScreen extends ParentedScreen {
             @Override
             public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
                 setPos(mouseX - getWidth() / 2, mouseY - getHeight() / 2);
-                VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x88 << 24));
+                VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x88 << 24));
             }
         };
         empty.setTooltip(Text.of("Tooltip!"));

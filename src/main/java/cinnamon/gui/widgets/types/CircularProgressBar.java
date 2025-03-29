@@ -19,7 +19,7 @@ public class CircularProgressBar extends ProgressBar {
         int r = getWidth() / 2;
 
         //background
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, getX(), getY(), getWidth(), getHeight(), 2, 1), getStyle().circularProgressTex);
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, getX(), getY(), getWidth(), getHeight(), 2, 1), getStyle().circularProgressTex);
 
         //progress
         matrices.push();
@@ -28,7 +28,7 @@ public class CircularProgressBar extends ProgressBar {
         Vertex[] vertices = GeometryHelper.progressSquare(matrices, x, y, r, getProgress(), color == null ? getStyle().accentColor : color);
         for (Vertex vertex : vertices)
             vertex.uv(vertex.getUV().mul(0.5f, 1f).add(0.5f, 0f));
-        VertexConsumer.GUI.consume(vertices, getStyle().circularProgressTex);
+        VertexConsumer.MAIN.consume(vertices, getStyle().circularProgressTex);
 
         matrices.pop();
     }

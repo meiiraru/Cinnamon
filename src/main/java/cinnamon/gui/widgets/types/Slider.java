@@ -105,7 +105,7 @@ public class Slider extends SelectableWidget {
     }
 
     protected void renderHorizontalBar(MatrixStack matrices, int x, int y, int width, float u, float v, int color) {
-        UIHelper.horizontalQuad(VertexConsumer.GUI, matrices, getStyle().sliderTex,
+        UIHelper.horizontalQuad(VertexConsumer.MAIN, matrices, getStyle().sliderTex,
                 x, y, width, 4,
                 u, v,
                 9, 4,
@@ -147,7 +147,7 @@ public class Slider extends SelectableWidget {
     }
 
     protected void renderVerticalBar(MatrixStack matrices, int x, int y, int height, float u, float v, int color) {
-        UIHelper.verticalQuad(VertexConsumer.GUI, matrices, getStyle().sliderTex,
+        UIHelper.verticalQuad(VertexConsumer.MAIN, matrices, getStyle().sliderTex,
                 x, y, 4, height,
                 u, v,
                 4, 9,
@@ -171,7 +171,7 @@ public class Slider extends SelectableWidget {
             if (vertical) y2 = y + pos;
             else x2 = x + pos;
 
-            VertexConsumer.GUI.consume(GeometryHelper.quad(
+            VertexConsumer.MAIN.consume(GeometryHelper.quad(
                     matrices, x2, y2, width, height,
                     u, v,
                     width, height,
@@ -182,7 +182,7 @@ public class Slider extends SelectableWidget {
 
     protected void renderButton(MatrixStack matrices, int x, int y, int state) {
         //button
-        VertexConsumer.GUI.consume(GeometryHelper.quad(
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(
                 matrices, x, y, 8, 8,
                 state * 8, 18f,
                 8, 8,
@@ -201,7 +201,7 @@ public class Slider extends SelectableWidget {
         for (Vertex vertex : vertices)
             vertex.color(color);
 
-        VertexConsumer.GUI.consume(vertices, getStyle().sliderTex);
+        VertexConsumer.MAIN.consume(vertices, getStyle().sliderTex);
     }
 
     @Override

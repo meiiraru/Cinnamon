@@ -31,7 +31,7 @@ public class Scrollbar extends Slider {
         int s = 8 * getState();
 
         //background
-        UIHelper.nineQuad(VertexConsumer.GUI, matrices, getStyle().scrollbarTex,
+        UIHelper.nineQuad(VertexConsumer.MAIN, matrices, getStyle().scrollbarTex,
                 x, y, w, h,
                 s, 0f,
                 8, 8,
@@ -43,7 +43,7 @@ public class Scrollbar extends Slider {
 
         float anim = getAnimationValue();
         if (isVertical()) {
-            UIHelper.verticalQuad(VertexConsumer.GUI, matrices, getStyle().scrollbarTex,
+            UIHelper.verticalQuad(VertexConsumer.MAIN, matrices, getStyle().scrollbarTex,
                     x, y + Math.round((h - handleSize) * anim),
                     8, handleSize,
                     s, 8f,
@@ -51,7 +51,7 @@ public class Scrollbar extends Slider {
                     24, 16
             );
         } else {
-            UIHelper.horizontalQuad(VertexConsumer.GUI, matrices, getStyle().scrollbarTex,
+            UIHelper.horizontalQuad(VertexConsumer.MAIN, matrices, getStyle().scrollbarTex,
                     x + Math.round((w - handleSize) * anim), y,
                     handleSize, 8,
                     s, 8f,

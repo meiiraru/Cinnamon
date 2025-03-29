@@ -452,7 +452,7 @@ public class WordleScreen extends ParentedScreen {
 
         @Override
         public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            VertexConsumer.GUI.consume(GeometryHelper.rectangle(
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(
                     matrices,
                     getX(), getY(),
                     getX() + getWidth(), getY() + getHeight(),
@@ -594,7 +594,7 @@ public class WordleScreen extends ParentedScreen {
 
         @Override
         protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            VertexConsumer.GUI.consume(GeometryHelper.rectangle(
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(
                     matrices,
                     getX(), getY(),
                     getX() + getWidth(), getY() + getHeight(),

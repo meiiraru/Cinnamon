@@ -145,7 +145,7 @@ public class ModelViewer extends SelectableWidget {
         float guiScale = c.window.guiScale;
         float x = (1f - (getWidth() * guiScale) / modelBuffer.getWidth()) / 2f;
         float y = (1f - (getHeight() * guiScale) / modelBuffer.getHeight()) / 2f;
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, getX(), getY(), getWidth(), getHeight(), -1f, x, 1f - x, 1f - y, y), modelBuffer.getColorBuffer());
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, getX(), getY(), getWidth(), getHeight(), -1f, x, 1f - x, 1f - y, y), modelBuffer.getColorBuffer());
         VertexConsumer.finishAllBatches(c.camera);
     }
 

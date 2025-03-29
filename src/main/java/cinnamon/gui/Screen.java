@@ -193,7 +193,7 @@ public abstract class Screen {
         if (shouldRenderMouse()) {
             matrices.push();
             matrices.translate(0f, 0f, 3f);
-            VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, mouseX - 16, mouseY - 16, 32, 32), GUIStyle.getDefault().cursor);
+            VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, mouseX - 16, mouseY - 16, 32, 32), GUIStyle.getDefault().cursor);
             matrices.pop();
         }
 

@@ -136,7 +136,7 @@ public class Hud {
         for (Vertex vertex : vertices)
             vertex.color(color);
 
-        VertexConsumer.GUI.consume(vertices, VIGNETTE);
+        VertexConsumer.MAIN.consume(vertices, VIGNETTE);
     }
 
     private void drawItemStats(MatrixStack matrices, Item item, float delta) {
@@ -227,7 +227,7 @@ public class Hud {
         //render items
         for (int i = 0; i < count; i++, x += 16) {
             //render slot
-            VertexConsumer.GUI.consume(GeometryHelper.quad(
+            VertexConsumer.MAIN.consume(GeometryHelper.quad(
                             matrices,
                             x, y, 16, 16,
                             i == selected ? 16f : 0f, 0f,
@@ -278,7 +278,7 @@ public class Hud {
         for (Vertex vertex : vertices)
             vertex.color(color);
 
-        VertexConsumer.GUI.consume(vertices, HIT_DIRECTION);
+        VertexConsumer.MAIN.consume(vertices, HIT_DIRECTION);
 
         matrices.pop();
     }
@@ -327,8 +327,8 @@ public class Hud {
 
         glBlendFuncSeparate(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_ONE, GL_ZERO);
 
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, Math.round(c.window.getGUIWidth() / 2f - 8), Math.round(c.window.getGUIHeight() / 2f - 8), 16, 16), CROSSHAIR);
-        VertexConsumer.GUI.finishBatch(c.camera);
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, Math.round(c.window.getGUIWidth() / 2f - 8), Math.round(c.window.getGUIHeight() / 2f - 8), 16, 16), CROSSHAIR);
+        VertexConsumer.MAIN.finishBatch(c.camera);
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
@@ -372,9 +372,9 @@ public class Hud {
         matrices.rotate(Rotation.Z.rotationDeg(-rot.z));
 
         float len = 10;
-        VertexConsumer.GUI.consume(GeometryHelper.cube(matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000));
-        VertexConsumer.GUI.consume(GeometryHelper.cube(matrices, 0, 0, 0, 1, -len, 1, 0xFF00FF00));
-        VertexConsumer.GUI.consume(GeometryHelper.cube(matrices, 0, 0, 0, 1, 1, -len, 0xFF0000FF));
+        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000));
+        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 0, 0, 0, 1, -len, 1, 0xFF00FF00));
+        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 0, 0, 0, 1, 1, -len, 0xFF0000FF));
 
         matrices.pop();
     }

@@ -44,7 +44,7 @@ public class UIHelper {
             float u1 = (float) width / textureSize;
             float v1 = (float) height / textureSize;
 
-            VertexConsumer.GUI.consume(quad(
+            VertexConsumer.MAIN.consume(quad(
                     matrices,
                     x, y,
                     width, height,
@@ -201,7 +201,7 @@ public class UIHelper {
 
         //background
         int b = style.tooltipBorder;
-        UIHelper.nineQuad(VertexConsumer.GUI, matrices, TOOLTIP_TEXTURE, -b, -b, width + b + b, height + b + b, 0, 0, 16, 16, 20, 20, style.accentColor);
+        UIHelper.nineQuad(VertexConsumer.MAIN, matrices, TOOLTIP_TEXTURE, -b, -b, width + b + b, height + b + b, 0, 0, 16, 16, 20, 20, style.accentColor);
 
         //arrow
         Vertex[] vertices = switch (arrowSide) {
@@ -217,7 +217,7 @@ public class UIHelper {
 
         for (Vertex vertex : vertices)
             vertex.color(style.accentColor);
-        VertexConsumer.GUI.consume(vertices, TOOLTIP_TEXTURE);
+        VertexConsumer.MAIN.consume(vertices, TOOLTIP_TEXTURE);
 
         //render text
         matrices.push();

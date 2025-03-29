@@ -104,7 +104,7 @@ public class DVDScreen extends ParentedScreen {
         Vertex[] vertices = GeometryHelper.quad(matrices, p.x, p.y, w, h);
         for (Vertex vertex : vertices)
             vertex.color(color.rgba);
-        VertexConsumer.GUI.consume(vertices, DVD_TEX);
+        VertexConsumer.MAIN.consume(vertices, DVD_TEX);
 
         //render children on top
         super.render(matrices, mouseX, mouseY, delta);

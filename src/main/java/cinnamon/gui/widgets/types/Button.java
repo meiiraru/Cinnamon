@@ -55,7 +55,7 @@ public class Button extends SelectableWidget {
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, getStyle().buttonTex,
+                VertexConsumer.MAIN, matrices, getStyle().buttonTex,
                 getX(), getY(),
                 getWidth(), getHeight(),
                 getState() * 16f, 0f,
@@ -73,7 +73,7 @@ public class Button extends SelectableWidget {
 
     protected void renderIcon(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         int size = Math.min(getWidth(), getHeight());
-        VertexConsumer.GUI.consume(GeometryHelper.quad(
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(
                 matrices,
                 getCenterX() - (int) (size / 2f), getCenterY() - (int) (size / 2f),
                 size, size,

@@ -25,7 +25,7 @@ public class ProgressBar extends Widget {
 
         //draw background
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, getStyle().progressbarTex,
+                VertexConsumer.MAIN, matrices, getStyle().progressbarTex,
                 getX(), getY(),
                 getWidth(), getHeight(),
                 0f, 0f,
@@ -37,7 +37,7 @@ public class ProgressBar extends Widget {
         matrices.push();
         matrices.translate(0, 0, UIHelper.getDepthOffset());
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, getStyle().progressbarTex,
+                VertexConsumer.MAIN, matrices, getStyle().progressbarTex,
                 getX(), getY(),
                 Math.round(getWidth() * getAnimationValue()), getHeight(),
                 16f, 0f,

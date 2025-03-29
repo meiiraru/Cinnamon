@@ -85,6 +85,9 @@ public class Shader {
         for (String s : vInclude) {
             //separate include from the shader
             int index = s.indexOf("\n");
+            if (index == -1)
+                index = s.length();
+
             String toInclude = s.substring(0, index).trim();
 
             //check for cache and append to the final shader

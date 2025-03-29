@@ -150,7 +150,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, getStyle().textFieldTex,
+                VertexConsumer.MAIN, matrices, getStyle().textFieldTex,
                 getX(), getY(),
                 getWidth(), getHeight(),
                 getState() * 16f, 0f,
@@ -166,7 +166,7 @@ public class TextField extends SelectableWidget implements Tickable {
         matrices.push();
         matrices.translate(0, 0, UIHelper.getDepthOffset());
         UIHelper.nineQuad(
-                VertexConsumer.GUI, matrices, getStyle().textFieldTex,
+                VertexConsumer.MAIN, matrices, getStyle().textFieldTex,
                 getX(), getY(),
                 getWidth(), getHeight(),
                 48f, 0f,
@@ -249,7 +249,7 @@ public class TextField extends SelectableWidget implements Tickable {
         if (isActive() && isFocused() && blinkTime % getStyle().blinkSpeed < getStyle().blinkSpeed / 2) {
             matrices.push();
             matrices.translate(0, 0, UIHelper.getDepthOffset() * (Font.Z_DEPTH + 2));
-            VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y, x + (insert ? getStyle().insertWidth : getStyle().cursorWidth), y + height, borderColor == null ? 0xFFFFFFFF : borderColor));
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x, y, x + (insert ? getStyle().insertWidth : getStyle().cursorWidth), y + height, borderColor == null ? 0xFFFFFFFF : borderColor));
             matrices.pop();
         }
     }
@@ -258,7 +258,7 @@ public class TextField extends SelectableWidget implements Tickable {
         float t = x0;
         x0 = Math.min(x0, x1);
         x1 = Math.max(t, x1);
-        VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x0, y, x1, y + height, selectionColor == null ? getStyle().accentColor : selectionColor));
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x0, y, x1, y + height, selectionColor == null ? getStyle().accentColor : selectionColor));
     }
 
 

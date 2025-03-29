@@ -82,17 +82,17 @@ public class MainMenu extends Screen {
 
         //background
         Texture bg = Texture.of(BACKGROUND);
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -d * 3, 0f, (float) width / bg.getWidth(), 0f, (float) height / bg.getHeight()), BACKGROUND, true, false);
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -d * 3, 0f, (float) width / bg.getWidth(), 0f, (float) height / bg.getHeight()), BACKGROUND, true, false);
 
         //bottom
         Texture bottom = Texture.of(BOTTOM);
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, height - bottom.getHeight(), width, bottom.getHeight(), -d * 2, 0f, (float) width / bottom.getWidth(), 0f, 1f), BOTTOM, true, false);
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, 0, height - bottom.getHeight(), width, bottom.getHeight(), -d * 2, 0f, (float) width / bottom.getWidth(), 0f, 1f), BOTTOM, true, false);
 
         //overlay
         Texture overlay = Texture.of(OVERLAY);
         matrices.push();
         matrices.translate(0, 0, -d);
-        UIHelper.nineQuad(VertexConsumer.GUI, matrices, OVERLAY, 0, 0, width, height, 0f, 0f, overlay.getWidth(), overlay.getHeight(), overlay.getWidth(), overlay.getHeight());
+        UIHelper.nineQuad(VertexConsumer.MAIN, matrices, OVERLAY, 0, 0, width, height, 0f, 0f, overlay.getWidth(), overlay.getHeight(), overlay.getWidth(), overlay.getHeight());
         matrices.pop();
         //VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -d, 0f, 1f, 0f, 1f), OVERLAY, true, false);
 
@@ -116,7 +116,7 @@ public class MainMenu extends Screen {
             int h = texture.getHeight();
 
             float y2 = (float) Math.sin(deltaTick * 0.1f + i % 2) * 2f - h * 0.5f;
-            VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, x, y + y2, w, h), res);
+            VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, x, y + y2, w, h), res);
             x += w + 1;
         }
     }
@@ -162,7 +162,7 @@ public class MainMenu extends Screen {
         protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
             if (!this.isHoveredOrFocused())
                 return;
-            VertexConsumer.GUI.consume(GeometryHelper.quad(
+            VertexConsumer.MAIN.consume(GeometryHelper.quad(
                     matrices, getCenterX() - 64, getY(),
                     128, 32
             ), LINE);
