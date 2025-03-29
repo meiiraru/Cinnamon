@@ -5,11 +5,14 @@ import cinnamon.Client;
 import cinnamon.model.SimpleGeometry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.Window;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
 import org.joml.Math;
 import org.lwjgl.openxr.*;
+
+import static org.lwjgl.opengl.GL11.glViewport;
 
 public class XrRenderer {
 
@@ -30,7 +33,7 @@ public class XrRenderer {
             framebuffer.free();
     }
 
-    public static void render(XrCompositionLayerProjectionView layerView, XrSwapchainImageOpenGLKHR swapchainImage, boolean isLastView, Runnable toRender) {
+    public static void render(XrCompositionLayerProjectionView layerView, XrSwapchainImageOpenGLKHR swapchainImage, XrManager.Swapchain[] swapchains, int index, Runnable toRender) {
         framebuffer.use();
         framebuffer.bindTextures(swapchainImage);
         Framebuffer.clear();
@@ -53,18 +56,40 @@ public class XrRenderer {
 
         toRender.run();
 
-        if (isLastView) {
-            Framebuffer.DEFAULT_FRAMEBUFFER.useClear();
-            Framebuffer.DEFAULT_FRAMEBUFFER.adjustViewPort();
+        if (index == swapchains.length - 1)
+            renderBuffer(swapchains[index].width, swapchains[index].height, swapchainImage.image());
+    }
 
-            Shader old = Shader.activeShader;
-            Shader s = PostProcess.BLIT_GAMMA.getShader().use();
-            s.setTexture("colorTex", swapchainImage.image(), 0);
+    private static void renderBuffer(int width, int height, int image) {
+        Framebuffer oldBuffer = Framebuffer.activeFramebuffer;
+        Framebuffer.DEFAULT_FRAMEBUFFER.useClear();
 
-            SimpleGeometry.QUAD.render();
+        //grab aspect ratio
+        Window window = Client.getInstance().window;
+        float aspect = (float) width / height;
+        float windowAspect = (float) window.width / window.height;
 
-            old.use();
+        //adjust view port to match the aspect ratio
+        float x = 0, y = 0;
+        float w = window.width, h = window.height;
+        if (windowAspect > aspect) {
+            w = window.height * aspect;
+            x = (window.width - w) / 2f;
+        } else {
+            h = window.width / aspect;
+            y = (window.height - h) / 2f;
         }
+        glViewport((int) x, (int) y, (int) w, (int) h);
+
+        //render the buffer
+        Shader old = Shader.activeShader;
+        Shader s = PostProcess.BLIT_GAMMA.getShader().use();
+        s.setTexture("colorTex", image, 0);
+
+        SimpleGeometry.QUAD.render();
+
+        old.use();
+        oldBuffer.use();
     }
 
     public static void applyGUITransform(MatrixStack matrices) {

@@ -675,7 +675,7 @@ public class XrManager {
                                             .height(viewSwapchain.height)
                                     )));
 
-            XrRenderer.render(projectionLayerView, viewSwapchain.images.get(imageIndex), i == viewCount - 1, toRender);
+            XrRenderer.render(projectionLayerView, viewSwapchain.images.get(imageIndex), swapchains, i, toRender);
 
             if (check(xrReleaseSwapchainImage(viewSwapchain.handle, XrSwapchainImageReleaseInfo.calloc(stack).type$Default()), "Failed to release swapchain image: error code %s")) {
                 close();

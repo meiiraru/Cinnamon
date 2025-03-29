@@ -194,11 +194,8 @@ public class Client {
             screen.render(matrices, window.mouseX, window.mouseY, delta);
 
         //render toasts
-        if (world == null || !world.hideHUD()) {
-            int w = XrManager.isInXR() ? XrRenderer.XR_WIDTH : window.scaledWidth;
-            int h = XrManager.isInXR() ? XrRenderer.XR_HEIGHT : window.scaledHeight;
-            Toast.renderToasts(matrices, w, h, delta);
-        }
+        if (world == null || !world.hideHUD())
+            Toast.renderToasts(matrices, window.getGUIWidth(), window.getGUIHeight(), delta);
 
         //finish hud
         VertexConsumer.finishAllBatches(camera);
@@ -228,9 +225,7 @@ public class Client {
 
         if (s != null) {
             //init the new screen
-            int w = XrManager.isInXR() ? XrRenderer.XR_WIDTH : window.scaledWidth;
-            int h = XrManager.isInXR() ? XrRenderer.XR_HEIGHT : window.scaledHeight;
-            s.init(this, w, h);
+            s.init(this, window.getGUIWidth(), window.getGUIHeight());
 
             //screen has been added
             screen.added();

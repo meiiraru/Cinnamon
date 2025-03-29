@@ -250,9 +250,9 @@ public class UIHelper {
         Window window = Client.getInstance().window;
 
         popup.setPos(x, y);
-        popup.fitToScreen(window.scaledWidth, window.scaledHeight);
+        popup.fitToScreen(window.getGUIWidth(), window.getGUIHeight());
 
-        fitInsideBoundaries(popup, 0, 0, window.scaledWidth, window.scaledHeight);
+        fitInsideBoundaries(popup, 0, 0, window.getGUIWidth(), window.getGUIHeight());
 
         if (sPopup != popup) {
             s.popup = popup;
@@ -291,13 +291,13 @@ public class UIHelper {
         Window window = Client.getInstance().window;
 
         if (toMove instanceof PopupWidget popup)
-            popup.fitToScreen(window.scaledWidth, window.scaledHeight);
+            popup.fitToScreen(window.getGUIWidth(), window.getGUIHeight());
 
-        fitInsideBoundaries(toMove, 0, 0, window.scaledWidth, window.scaledHeight);
+        fitInsideBoundaries(toMove, 0, 0, window.getGUIWidth(), window.getGUIHeight());
 
         if (toMove.getX() < x) {
             toMove.setX(source.getX() - toMove.getWidth() - hOffset);
-            fitInsideBoundaries(toMove, 0, 0, window.scaledWidth, window.scaledHeight);
+            fitInsideBoundaries(toMove, 0, 0, window.getGUIWidth(), window.getGUIHeight());
         }
     }
 

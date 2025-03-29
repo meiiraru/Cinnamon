@@ -158,7 +158,7 @@ public abstract class Screen {
             oldShader.use();
     }
 
-    protected void renderSolidBackground(int color) {
+    protected static void renderSolidBackground(int color) {
         Shader oldShader = Shader.activeShader;
         Shader s = Shaders.BACKGROUND.getShader().use();
         s.setColorRGBA("color", color);

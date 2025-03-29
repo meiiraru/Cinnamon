@@ -172,8 +172,8 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
         int cy = getCenterY();
 
         Window window = Client.getInstance().window;
-        int screenW = window.scaledWidth;
-        int screenH = window.scaledHeight;
+        int screenW = window.getGUIWidth();
+        int screenH = window.getGUIHeight();
 
         int b = getStyle().tooltipBorder;
         boolean left = false;

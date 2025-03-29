@@ -2,6 +2,8 @@ package cinnamon.render;
 
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
+import cinnamon.vr.XrManager;
+import cinnamon.vr.XrRenderer;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -225,6 +227,22 @@ public class Window {
     public void updatePos(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    /**
+     * Get the window's width in the GUI space
+     * @return the window's GUI width
+     */
+    public int getGUIWidth() {
+        return XrManager.isInXR() ? XrRenderer.XR_WIDTH : scaledWidth;
+    }
+
+    /**
+     * Get the window's height in the GUI space
+     * @return the window's GUI height
+     */
+    public int getGUIHeight() {
+        return XrManager.isInXR() ? XrRenderer.XR_HEIGHT : scaledHeight;
     }
 
     /**

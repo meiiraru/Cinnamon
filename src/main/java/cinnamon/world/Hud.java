@@ -103,7 +103,7 @@ public class Hud {
 
         //transform matrices
         matrices.push();
-        matrices.translate(12, window.scaledHeight - 12, 0f);
+        matrices.translate(12, window.getGUIHeight() - 12, 0f);
         matrices.push();
 
         matrices.rotate(Rotation.Y.rotationDeg(20f));
@@ -121,19 +121,20 @@ public class Hud {
         matrices.pop();
 
         //vignette
+        matrices.push();
+        matrices.translate(0f, 0f, -UIHelper.getDepthOffset());
         Vertex[] vertices = GeometryHelper.quad(
                 matrices,
                 0, 0,
                 window.scaledWidth, window.scaledHeight
         );
+        matrices.pop();
 
         float vignette = 1 - Math.min(hp, 0.3f) / 0.3f;
         int color = ((int) (vignette * 0xFF) << 24) + 0xFF0000;
 
-        for (Vertex vertex : vertices) {
+        for (Vertex vertex : vertices)
             vertex.color(color);
-            vertex.getPosition().z = -999;
-        }
 
         VertexConsumer.GUI.consume(vertices, VIGNETTE);
     }
@@ -159,7 +160,7 @@ public class Hud {
 
         //transform matrices
         matrices.push();
-        matrices.translate(window.scaledWidth - 12, window.scaledHeight - 12, 0f);
+        matrices.translate(window.getGUIWidth() - 12, window.getGUIHeight() - 12, 0f);
         matrices.push();
         matrices.rotate(Rotation.Y.rotationDeg(-20f));
         matrices.rotate(Rotation.Z.rotationDeg(10f));
@@ -181,7 +182,7 @@ public class Hud {
     private void drawEffects(MatrixStack matrices, Player player, float delta) {
         //transform matrices
         matrices.push();
-        matrices.translate(Client.getInstance().window.scaledWidth - 12, 12, 0f);
+        matrices.translate(Client.getInstance().window.getGUIWidth() - 12, 12, 0f);
 
         Text text = Text.empty().withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE));
 
@@ -220,8 +221,8 @@ public class Hud {
         int count = inventory.getSize();
         int selected = inventory.getSelectedIndex();
 
-        float x = (window.scaledWidth - 16 * count) / 2f;
-        float y = window.scaledHeight - 16 - 4f;
+        float x = (window.getGUIWidth() - 16 * count) / 2f;
+        float y = window.getGUIHeight() - 16 - 4f;
 
         //render items
         for (int i = 0; i < count; i++, x += 16) {
@@ -262,8 +263,8 @@ public class Hud {
 
         //window
         Client c = Client.getInstance();
-        int w = c.window.scaledWidth;
-        int h = c.window.scaledHeight;
+        int w = c.window.getGUIWidth();
+        int h = c.window.getGUIHeight();
 
         //rotate
         matrices.push();
@@ -301,7 +302,7 @@ public class Hud {
         Window ww = c.window;
 
         //translate to the top center of the screen
-        matrices.translate(ww.scaledWidth * 0.5f, 4 + bounds.y * s * 0.5f, 0);
+        matrices.translate(ww.getGUIWidth() * 0.5f, 4 + bounds.y * s * 0.5f, 0);
         matrices.scale(s, -s, s);
 
         //apply rotation for a better view angle of the model
@@ -318,7 +319,7 @@ public class Hud {
         //render name
         Text mat = Text.translated("material." + material.name().toLowerCase());
         Text ter = Text.translated("terrain." + registry.name().toLowerCase());
-        mat.append(" ").append(ter).withStyle(Style.EMPTY.shadow(true).guiStyle(HUD_STYLE)).render(VertexConsumer.FONT, matrices, ww.scaledWidth * 0.5f, 16 + 4 + 4, Alignment.TOP_CENTER);
+        mat.append(" ").append(ter).withStyle(Style.EMPTY.shadow(true).guiStyle(HUD_STYLE)).render(VertexConsumer.FONT, matrices, ww.getGUIWidth() * 0.5f, 16 + 4 + 4, Alignment.TOP_CENTER);
     }
 
     private void drawCrosshair(MatrixStack matrices) {
@@ -326,7 +327,7 @@ public class Hud {
 
         glBlendFuncSeparate(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_ONE, GL_ZERO);
 
-        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, Math.round(c.window.scaledWidth / 2f - 8), Math.round(c.window.scaledHeight / 2f - 8), 16, 16), CROSSHAIR);
+        VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, Math.round(c.window.getGUIWidth() / 2f - 8), Math.round(c.window.getGUIHeight() / 2f - 8), 16, 16), CROSSHAIR);
         VertexConsumer.GUI.finishBatch(c.camera);
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -346,7 +347,7 @@ public class Hud {
         //render debug text
         if (c.debug) {
             TextUtils.parseColorFormatting(Text.of(debugLeftText(c))).withStyle(style).render(VertexConsumer.FONT, matrices, 4, 4);
-            TextUtils.parseColorFormatting(Text.of(debugRightText(c))).withStyle(style).render(VertexConsumer.FONT, matrices, c.window.scaledWidth - 4, 4, Alignment.TOP_RIGHT);
+            TextUtils.parseColorFormatting(Text.of(debugRightText(c))).withStyle(style).render(VertexConsumer.FONT, matrices, c.window.getGUIWidth() - 4, 4, Alignment.TOP_RIGHT);
 
             //render crosshair
             renderDebugCrosshair(matrices);
@@ -362,7 +363,7 @@ public class Hud {
         Client c = Client.getInstance();
 
         matrices.push();
-        matrices.translate(c.window.scaledWidth / 2f, c.window.scaledHeight / 2f, 0);
+        matrices.translate(c.window.getGUIWidth() / 2f, c.window.getGUIHeight() / 2f, 0);
         matrices.scale(1, c.world == null ? -1 : 1, -1);
 
         Vector3f rot = c.camera.getRot();

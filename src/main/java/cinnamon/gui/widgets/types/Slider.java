@@ -528,8 +528,8 @@ public class Slider extends SelectableWidget {
         int cx = getCenterX();
         int cy = getCenterY();
 
-        int screenW = window.scaledWidth;
-        int screenH = window.scaledHeight;
+        int screenW = window.getGUIWidth();
+        int screenH = window.getGUIHeight();
 
         int b = getStyle().tooltipBorder;
 
