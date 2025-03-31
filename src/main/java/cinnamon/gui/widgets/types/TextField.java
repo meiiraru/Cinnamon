@@ -129,7 +129,7 @@ public class TextField extends SelectableWidget implements Tickable {
         if (!textOnly)
             renderBackground(matrices, mouseX, mouseY, delta);
 
-        UIHelper.pushScissors(getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
+        UIHelper.pushStencil(matrices, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
         matrices.pushMatrix();
 
         //smooth and apply the offset
@@ -141,8 +141,8 @@ public class TextField extends SelectableWidget implements Tickable {
             matrices.translate(0, 0, UIHelper.getDepthOffset());
         renderText(matrices, mouseX, mouseY, delta);
 
-        UIHelper.popScissors();
         matrices.popMatrix();
+        UIHelper.popStencil();
 
         if (!textOnly)
             renderOverlay(matrices, mouseX, mouseY, delta);

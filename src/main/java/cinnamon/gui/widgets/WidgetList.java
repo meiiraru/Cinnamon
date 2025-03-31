@@ -45,7 +45,7 @@ public class WidgetList extends ContainerGrid {
 
         boolean scroll = shouldRenderScrollbar();
         if (scroll)
-            UIHelper.pushScissors(getAlignedX(), getAlignedY(), getWidth(), getHeight());
+            UIHelper.pushStencil(matrices, getAlignedX(), getAlignedY(), getWidth(), getHeight());
 
         for (Widget widget : updateList())
             widget.render(matrices, mouseX, mouseY, delta);
@@ -53,7 +53,7 @@ public class WidgetList extends ContainerGrid {
         if (scroll) {
             if (showScrollbar)
                 scrollbar.render(matrices, mouseX, mouseY, delta);
-            UIHelper.popScissors();
+            UIHelper.popStencil();
         }
     }
 

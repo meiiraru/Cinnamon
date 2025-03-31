@@ -24,7 +24,7 @@ public class UIHelper {
 
     public static final Resource TOOLTIP_TEXTURE = new Resource("textures/gui/widgets/tooltip.png");
     private static final float DEPTH_OFFSET = 0.01f;
-    private static final Stack<Region2D> SCISSORS_STACK = new Stack<>();
+    private static final Stack<Vertex[]> STENCIL_STACK = new Stack<>();
 
     public static void renderBackground(MatrixStack matrices, int width, int height, float delta, Resource... background) {
         Client c = Client.getInstance();
@@ -326,51 +326,32 @@ public class UIHelper {
         return (float) (1f - Math.pow(speed, Client.getInstance().timer.tickDelta));
     }
 
-    public static void pushScissors(int x, int y, int width, int height) {
-        Window w = Client.getInstance().window;
-        float guiScale = w.guiScale;
-
-        int x2 = Math.round(x * guiScale);
-        int y2 = w.height - Math.round(y * guiScale);
-        int w2 = Math.round(width * guiScale);
-        int h2 = Math.round(height * guiScale);
-
-        Region2D region = new Region2D(x2, y2 - h2, x2 + w2, y2);
-
-        if (!SCISSORS_STACK.isEmpty()) {
-            Region2D peek = SCISSORS_STACK.peek();
-            region.clip(peek);
-        }
-
-        SCISSORS_STACK.push(region);
-
-        VertexConsumer.finishAllBatches(Client.getInstance().camera);
-
-        if (XrManager.isInXR())
-            return;
-
-        glEnable(GL_SCISSOR_TEST);
-        glScissor(region.getX(), region.getY(), region.getWidth(), region.getHeight());
+    public static void pushStencil(MatrixStack matrices, int x, int y, int width, int height) {
+        Vertex[] vertices = quad(matrices, x, y, width, height);
+        STENCIL_STACK.push(vertices);
+        pushStencil(vertices);
     }
 
-    public static void popScissors() {
-        SCISSORS_STACK.pop();
+    private static void pushStencil(Vertex[] vertices) {
+        prepareStencil(false, true);
+        glDisable(GL_DEPTH_TEST);
 
-        VertexConsumer.finishAllBatches(Client.getInstance().camera);
+        VertexConsumer.MAIN.consume(vertices);
+        VertexConsumer.MAIN.finishBatch(Client.getInstance().camera);
 
-        if (XrManager.isInXR())
-            return;
-
-        if (!SCISSORS_STACK.isEmpty()) {
-            Region2D peek = SCISSORS_STACK.peek();
-            glEnable(GL_SCISSOR_TEST);
-            glScissor(peek.getX(), peek.getY(), peek.getWidth(), peek.getHeight());
-        } else {
-            glDisable(GL_SCISSOR_TEST);
-        }
+        glEnable(GL_DEPTH_TEST);
+        lockStencil(false);
     }
 
-    public static void prepareStencil(boolean allowDrawing) {
+    public static void popStencil() {
+        STENCIL_STACK.pop();
+        if (STENCIL_STACK.isEmpty())
+            disableStencil();
+        else
+            pushStencil(STENCIL_STACK.peek());
+    }
+
+    public static void prepareStencil(boolean allowDrawing, boolean clear) {
         VertexConsumer.finishAllBatches(Client.getInstance().camera);
 
         if (!allowDrawing) {
@@ -380,7 +361,7 @@ public class UIHelper {
         glStencilMask(0xFF);
 
         glEnable(GL_STENCIL_TEST);
-        glClear(GL_STENCIL_BUFFER_BIT);
+        if (clear) glClear(GL_STENCIL_BUFFER_BIT);
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
     }
