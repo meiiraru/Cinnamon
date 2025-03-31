@@ -474,7 +474,6 @@ public class XrManager {
                 swapchains[i] = swapchain;
             }
 
-            XrRenderer.prepare(swapchains);
             return false;
         }
     }
@@ -587,6 +586,14 @@ public class XrManager {
                     sessionRunning = true;
                     yield false;
                 }
+            }
+            case XR_SESSION_STATE_SYNCHRONIZED, XR_SESSION_STATE_VISIBLE -> {
+                sessionRunning = false;
+                yield false;
+            }
+            case XR_SESSION_STATE_FOCUSED -> {
+                sessionRunning = true;
+                yield false;
             }
             case XR_SESSION_STATE_STOPPING -> {
                 sessionRunning = false;

@@ -2,13 +2,12 @@ package cinnamon.vr;
 
 import cinnamon.Cinnamon;
 import cinnamon.Client;
-import cinnamon.model.SimpleGeometry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
+import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
-import cinnamon.render.shader.Shader;
 import org.joml.Math;
 import org.lwjgl.openxr.*;
 
@@ -22,23 +21,22 @@ public class XrRenderer {
     public static final float XR_NEAR = 0.1f;
     public static final float XR_FAR = 100f;
 
-    private static XrFramebuffer framebuffer;
-
-    public static void prepare(XrManager.Swapchain[] swapChains) {
-        framebuffer = new XrFramebuffer(swapChains, swapChains[0].width, swapChains[0].height);
-    }
+    private static final XrFramebuffer framebuffer = new XrFramebuffer();
 
     public static void free() {
-        if (framebuffer != null)
-            framebuffer.free();
+        framebuffer.free();
     }
 
     public static void render(XrCompositionLayerProjectionView layerView, XrSwapchainImageOpenGLKHR swapchainImage, XrManager.Swapchain[] swapchains, int index, Runnable toRender) {
-        framebuffer.use();
-        framebuffer.bindTextures(swapchainImage);
-        Framebuffer.clear();
-        framebuffer.adjustViewPort(layerView.subImage().imageRect());
+        //prepare framebuffer
+        Framebuffer fb = Framebuffer.DEFAULT_FRAMEBUFFER;
+        fb.useClear();
+        XrRect2Di imageRect = layerView.subImage().imageRect();
+        fb.setPos(imageRect.offset().x(), imageRect.offset().y());
+        fb.resize(imageRect.extent().width(), imageRect.extent().height());
+        fb.adjustViewPort();
 
+        //update camera matrices
         XrPosef pose = layerView.pose();
         XrFovf fov = layerView.fov();
         float distToLeftPlane = Math.tan(fov.angleLeft());
@@ -49,21 +47,24 @@ public class XrRenderer {
         XrVector3f pos = pose.position$();
         XrQuaternionf orientation = pose.orientation();
 
-        //update camera matrices
         Camera camera = Client.getInstance().camera;
         camera.setProjFrustum(distToLeftPlane, distToRightPlane, distToBottomPlane, distToTopPlane, XR_NEAR, XR_FAR);
         camera.setXrTransform(pos.x(), pos.y(), pos.z(), orientation.x(), orientation.y(), orientation.z(), orientation.w());
 
+        //render whatever it is going to render
         toRender.run();
 
+        //blit framebuffer back
+        framebuffer.use();
+        framebuffer.bindColorTexture(swapchainImage);
+        Framebuffer.clear();
+        Blit.copy(Framebuffer.DEFAULT_FRAMEBUFFER, framebuffer.id(), PostProcess.BLIT);
+
         if (index == swapchains.length - 1)
-            renderBuffer(swapchains[index].width, swapchains[index].height, swapchainImage.image());
+            renderBuffer(swapchains[index].width, swapchains[index].height);
     }
 
-    private static void renderBuffer(int width, int height, int image) {
-        Framebuffer oldBuffer = Framebuffer.activeFramebuffer;
-        Framebuffer.DEFAULT_FRAMEBUFFER.useClear();
-
+    private static void renderBuffer(int width, int height) {
         //grab aspect ratio
         Window window = Client.getInstance().window;
         float aspect = (float) width / height;
@@ -82,14 +83,8 @@ public class XrRenderer {
         glViewport((int) x, (int) y, (int) w, (int) h);
 
         //render the buffer
-        Shader old = Shader.activeShader;
-        Shader s = PostProcess.BLIT_GAMMA.getShader().use();
-        s.setTexture("colorTex", image, 0);
-
-        SimpleGeometry.QUAD.render();
-
-        old.use();
-        oldBuffer.use();
+        Framebuffer.DEFAULT_FRAMEBUFFER.useClear();
+        Blit.copy(framebuffer, Framebuffer.DEFAULT_FRAMEBUFFER.id(), PostProcess.BLIT_GAMMA);
     }
 
     public static void applyGUITransform(MatrixStack matrices) {
@@ -97,10 +92,5 @@ public class XrRenderer {
         float s = 1f / 1024f;
         matrices.scale(s, -s, s);
         matrices.translate(-XR_WIDTH / 2f, -XR_HEIGHT / 2f, 0);
-    }
-
-    public static void bindFramebuffer() {
-        if (framebuffer != null)
-            framebuffer.use();
     }
 }

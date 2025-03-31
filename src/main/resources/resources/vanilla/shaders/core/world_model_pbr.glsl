@@ -17,9 +17,9 @@ uniform mat4 model;
 uniform mat3 normalMat;
 
 void main() {
-    vec4 posVec = model * vec4(aPosition, 1.0f);
-    gl_Position = projection * view * posVec;
-    pos = posVec.xyz;
+    vec4 worldPos = model * vec4(aPosition, 1.0f);
+    gl_Position = projection * view * worldPos;
+    pos = worldPos.xyz;
     texCoords = aTexCoords;
 
     vec3 T = normalize(normalMat * aTangent);
@@ -58,7 +58,6 @@ out vec4 fragColor;
 
 uniform vec3 color;
 uniform vec3 camPos;
-
 uniform Material material;
 
 const int MAX_LIGHTS = 128;
