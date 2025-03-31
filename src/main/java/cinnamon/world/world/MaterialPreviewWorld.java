@@ -44,7 +44,7 @@ public class MaterialPreviewWorld extends WorldClient {
 
         //render
         for (int i = 0; i < values.length; i++) {
-            matrices.push();
+            matrices.pushMatrix();
             matrices.translate(i % grid * 6f, 0f, (float) (i / grid * 3));
 
             int texCount = MaterialApplier.applyMaterial(values[i].material);
@@ -76,7 +76,7 @@ public class MaterialPreviewWorld extends WorldClient {
             }
 
             Texture.unbindAll(texCount);
-            matrices.pop();
+            matrices.popMatrix();
         }
 
         super.renderWorld(camera, matrices, delta);

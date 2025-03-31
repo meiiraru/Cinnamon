@@ -174,8 +174,8 @@ public class Cinnamon {
             glfwSwapBuffers(window);
 
             if (!matrices.isEmpty()) {
-                LOGGER.error("Forgot to pop the matrix stack! - Popping it for you!");
-                while (!matrices.isEmpty()) matrices.pop();
+                LOGGER.warn("Forgot to pop the matrix stack! - Popping it for you!");
+                while (!matrices.isEmpty()) matrices.popMatrix();
             }
         }
     }

@@ -86,7 +86,7 @@ public class ModelViewer extends SelectableWidget {
         Shader oldShader = Shader.activeShader;
         client.camera.useOrtho(false);
         AABB aabb = model.getAABB();
-        matrices.push();
+        matrices.pushMatrix();
 
         //setup shader
         Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
@@ -135,7 +135,7 @@ public class ModelViewer extends SelectableWidget {
         //cleanup
         glEnable(GL_CULL_FACE);
         oldShader.use();
-        matrices.pop();
+        matrices.popMatrix();
         client.camera.useOrtho(true);
     }
 

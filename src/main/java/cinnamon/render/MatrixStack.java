@@ -1,7 +1,10 @@
 package cinnamon.render;
 
-import cinnamon.utils.Maths;
-import org.joml.*;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.util.Stack;
 
@@ -10,18 +13,15 @@ public class MatrixStack {
         add(new Matrices(new Matrix4f(), new Matrix3f()));
     }};
 
-    public void push() {
+    public MatrixStack pushMatrix() {
         Matrices mat = stack.peek();
         stack.push(new Matrices(new Matrix4f(mat.pos), new Matrix3f(mat.normal)));
+        return this;
     }
 
-    public void pop() {
+    public MatrixStack popMatrix() {
         stack.pop();
-    }
-
-    public void popPush() {
-        pop();
-        push();
+        return this;
     }
 
     public Matrices peek() {
@@ -32,55 +32,54 @@ public class MatrixStack {
         return stack.size() == 1;
     }
 
-    public void translate(float x, float y, float z) {
+    public MatrixStack translate(float x, float y, float z) {
         stack.peek().pos.translate(x, y, z);
+        return this;
     }
 
-    public void translate(Vector3f vector) {
-        translate(vector.x, vector.y, vector.z);
+    public MatrixStack translate(Vector3f vector) {
+        return translate(vector.x, vector.y, vector.z);
     }
 
-    public void translate(Vector3i vector) {
-        translate(vector.x, vector.y, vector.z);
+    public MatrixStack translate(Vector3i vector) {
+        return translate(vector.x, vector.y, vector.z);
     }
 
-    public void rotate(Quaternionf quaternion) {
+    public MatrixStack rotate(Quaternionf quaternion) {
         Matrices mat = stack.peek();
         mat.pos.rotate(quaternion);
         mat.normal.rotate(quaternion);
+        return this;
     }
 
-    public void scale(float x, float y, float z) {
+    public MatrixStack scale(float x, float y, float z) {
         Matrices mat = stack.peek();
         mat.pos.scale(x, y, z);
-        if (x == y && y == z) {
-            if (x > 0f)
-                return;
 
-            mat.normal.scale(-1f);
+        if (x != y || y != z) {
+            mat.normal.set(new Matrix3f(mat.pos).invert().transpose());
+            if (mat.pos.determinant() < 0f)
+                mat.normal.scale(-1f);
         }
 
-        float rX = 1f / x, rY = 1f / y, rZ = 1f / z;
-        float i = Maths.fastInvCubeRoot(rX * rY * rZ);
-        mat.normal.scale(i * rX, i * rY, i * rZ);
+        return this;
     }
 
-    public void scale(float scalar) {
+    public MatrixStack scale(float scalar) {
         scale(scalar, scalar, scalar);
+        return this;
     }
 
-    public void scale(Vector3f vector) {
+    public MatrixStack scale(Vector3f vector) {
         scale(vector.x, vector.y, vector.z);
+        return this;
     }
 
-    public void identity() {
+    public MatrixStack identity() {
         Matrices mat = stack.peek();
         mat.pos.identity();
         mat.normal.identity();
-    }
-
-    public void mulPos(Matrix4f matrix) {
-        stack.peek().pos.mul(matrix);
+        return this;
     }
 
     public record Matrices(Matrix4f pos, Matrix3f normal) {}

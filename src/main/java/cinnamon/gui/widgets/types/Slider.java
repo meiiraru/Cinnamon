@@ -62,14 +62,14 @@ public class Slider extends SelectableWidget {
         float d = UIHelper.tickDelta(0.4f);
         animationValue = Maths.lerp(animationValue, value, d);
 
-        matrices.push();
+        matrices.pushMatrix();
 
         if (isVertical())
             renderVertical(matrices, mouseX, mouseY, delta);
         else
             renderHorizontal(matrices, mouseX, mouseY, delta);
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     protected void renderHorizontal(MatrixStack matrices, int mouseX, int mouseY, float delta) {

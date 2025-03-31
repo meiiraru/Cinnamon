@@ -38,7 +38,7 @@ public class Toast {
         if (TOASTS.isEmpty())
             return;
 
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(Math.round(width / 2f), 4f - 1f, 100f);
 
         Iterator<Toast> iterator = TOASTS.iterator();
@@ -54,7 +54,7 @@ public class Toast {
                 iterator.remove();
         }
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     public static void clearAll() {

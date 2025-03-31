@@ -241,7 +241,7 @@ public class EasingScreen extends ParentedScreen {
 
             //graph
             float d = UIHelper.getDepthOffset();
-            matrices.push();
+            matrices.pushMatrix();
             matrices.translate(getX(), getY(), d);
 
             int size = points.size();
@@ -265,7 +265,7 @@ public class EasingScreen extends ParentedScreen {
                 VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, a.x, 0f, a.x + 1, getHeight(), color));
             }
 
-            matrices.pop();
+            matrices.popMatrix();
         }
 
         public void setPlaying(boolean bool) {

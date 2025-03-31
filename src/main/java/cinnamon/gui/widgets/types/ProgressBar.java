@@ -34,7 +34,7 @@ public class ProgressBar extends Widget {
         );
 
         //draw progress
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(0, 0, UIHelper.getDepthOffset());
         UIHelper.nineQuad(
                 VertexConsumer.MAIN, matrices, getStyle().progressbarTex,
@@ -45,7 +45,7 @@ public class ProgressBar extends Widget {
                 32, 16,
                 color == null ? getStyle().accentColor : color
         );
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     public void setProgress(float progress) {

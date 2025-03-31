@@ -52,7 +52,7 @@ public class Spawner extends Entity {
         if (entity != null && !entity.isRemoved())
             return;
 
-        matrices.push();
+        matrices.pushMatrix();
         matrices.scale(1f, -1f, 1f);
         matrices.rotate(Rotation.Y.rotationDeg(180f));
         Client.getInstance().camera.billboard(matrices);
@@ -65,7 +65,7 @@ public class Spawner extends Entity {
         vertices = GeometryHelper.circle(matrices, 0, 0, 0.15f * 0.85f, 1f - (float) time / delay, 16, 0xAAFFFFFF);
         VertexConsumer.MAIN.consume(vertices);
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     @Override

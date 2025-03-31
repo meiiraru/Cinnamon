@@ -34,7 +34,7 @@ public class DeathScreen extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
 
-        matrices.push();
+        matrices.pushMatrix();
 
         float textSize = TextUtils.getHeight(YOU_DIED) * 5f;
         matrices.translate(width / 2f, (respawn.getY() - textSize) / 2f, 0f);
@@ -44,7 +44,7 @@ public class DeathScreen extends Screen {
         int color = ColorUtils.lerpARGBColor(Colors.RED.rgba, 0xFF880000, dc);
         YOU_DIED.withStyle(Style.EMPTY.color(color)).render(VertexConsumer.FONT, matrices, 0f, 0f, Alignment.TOP_CENTER);
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     @Override

@@ -54,13 +54,13 @@ public class BallsScreen extends ParentedScreen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
 
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(width / 2f, height / 2f, 0f);
 
         for (Ball ball : balls)
             ball.render(matrices, mouseX, mouseY, delta);
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     @Override

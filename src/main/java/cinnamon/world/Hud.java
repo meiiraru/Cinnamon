@@ -75,6 +75,9 @@ public class Hud {
         if (player == null)
             return;
 
+        //draw vignette
+        drawVignette(matrices, player, delta);
+
         //hotbar
         drawHotbar(matrices, player, delta);
 
@@ -94,6 +97,30 @@ public class Hud {
         drawSelectedTerrain(matrices, delta);
     }
 
+    private void drawVignette(MatrixStack matrices, Player player, float delta) {
+        Client c = Client.getInstance();
+
+        float vignette = 1 - Math.min(player.getHealthProgress(), 0.3f) / 0.3f;
+        int color = ((int) (vignette * 0xFF) << 24) + 0xFF0000;
+
+        matrices.pushMatrix();
+        matrices.translate(0f, 0f, -UIHelper.getDepthOffset());
+        Vertex[] vertices = GeometryHelper.quad(
+                matrices,
+                0, 0,
+                c.window.getGUIWidth(), c.window.getGUIHeight()
+        );
+        matrices.popMatrix();
+
+        for (Vertex vertex : vertices)
+            vertex.color(color);
+
+        glDepthMask(false);
+        VertexConsumer.MAIN.consume(vertices, VIGNETTE);
+        VertexConsumer.MAIN.finishBatch(c.camera);
+        glDepthMask(true);
+    }
+
     private void drawHealth(MatrixStack matrices, Player player, float delta) {
         Window window = Client.getInstance().window;
 
@@ -102,9 +129,9 @@ public class Hud {
                 .append(Text.of("\u2764").withStyle(Style.EMPTY.color(Colors.RED)));
 
         //transform matrices
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(12, window.getGUIHeight() - 12, 0f);
-        matrices.push();
+        matrices.pushMatrix();
 
         matrices.rotate(Rotation.Y.rotationDeg(20f));
         matrices.rotate(Rotation.Z.rotationDeg(-10f));
@@ -117,26 +144,8 @@ public class Hud {
         health.setProgress(hp);
         health.render(matrices, 0, 0, delta);
 
-        matrices.pop();
-        matrices.pop();
-
-        //vignette
-        matrices.push();
-        matrices.translate(0f, 0f, -UIHelper.getDepthOffset());
-        Vertex[] vertices = GeometryHelper.quad(
-                matrices,
-                0, 0,
-                window.scaledWidth, window.scaledHeight
-        );
-        matrices.pop();
-
-        float vignette = 1 - Math.min(hp, 0.3f) / 0.3f;
-        int color = ((int) (vignette * 0xFF) << 24) + 0xFF0000;
-
-        for (Vertex vertex : vertices)
-            vertex.color(color);
-
-        VertexConsumer.MAIN.consume(vertices, VIGNETTE);
+        matrices.popMatrix();
+        matrices.popMatrix();
     }
 
     private void drawItemStats(MatrixStack matrices, Item item, float delta) {
@@ -159,9 +168,9 @@ public class Hud {
         }
 
         //transform matrices
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(window.getGUIWidth() - 12, window.getGUIHeight() - 12, 0f);
-        matrices.push();
+        matrices.pushMatrix();
         matrices.rotate(Rotation.Y.rotationDeg(-20f));
         matrices.rotate(Rotation.Z.rotationDeg(10f));
 
@@ -175,13 +184,13 @@ public class Hud {
             itemCooldown.render(matrices, 0, 0, delta);
         }
 
-        matrices.pop();
-        matrices.pop();
+        matrices.popMatrix();
+        matrices.popMatrix();
     }
 
     private void drawEffects(MatrixStack matrices, Player player, float delta) {
         //transform matrices
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(Client.getInstance().window.getGUIWidth() - 12, 12, 0f);
 
         Text text = Text.empty().withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE));
@@ -208,7 +217,7 @@ public class Hud {
         if (!text.asString().equals("\n"))
             text.render(VertexConsumer.FONT, matrices, 0f, 0f, Alignment.TOP_RIGHT);
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     private void drawHotbar(MatrixStack matrices, Player player, float delta) {
@@ -239,7 +248,7 @@ public class Hud {
             //render item model
             Item item = inventory.getItem(i);
             if (item != null) {
-                matrices.push();
+                matrices.pushMatrix();
                 matrices.translate(x + 8, y + 8, 5f);
                 matrices.rotate(Rotation.Y.rotationDeg(-90));
                 matrices.rotate(Rotation.X.rotationDeg(35));
@@ -247,7 +256,7 @@ public class Hud {
 
                 item.render(ItemRenderContext.HUD, matrices, delta);
 
-                matrices.pop();
+                matrices.popMatrix();
             }
         }
     }
@@ -267,7 +276,7 @@ public class Hud {
         int h = c.window.getGUIHeight();
 
         //rotate
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(Math.round(w / 2f), Math.round(h / 2f), 0f);
         matrices.rotate(Rotation.Z.rotationDeg(angle));
 
@@ -280,7 +289,7 @@ public class Hud {
 
         VertexConsumer.MAIN.consume(vertices, HIT_DIRECTION);
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     private void drawSelectedTerrain(MatrixStack matrices, float delta) {
@@ -298,7 +307,7 @@ public class Hud {
         Vector3f center = terr.getAABB().getCenter();
         float s = 16f / bounds.y;
 
-        matrices.push();
+        matrices.pushMatrix();
         Window ww = c.window;
 
         //translate to the top center of the screen
@@ -314,7 +323,7 @@ public class Hud {
 
         //render terrain
         terr.render(matrices, delta);
-        matrices.pop();
+        matrices.popMatrix();
 
         //render name
         Text mat = Text.translated("material." + material.name().toLowerCase());
@@ -338,7 +347,7 @@ public class Hud {
 
 
     public static void renderDebug(MatrixStack matrices) {
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(0f, 0f, 20f);
 
         Client c = Client.getInstance();
@@ -356,27 +365,28 @@ public class Hud {
             Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(style).render(VertexConsumer.FONT, matrices, 4, 4);
         }
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     private static void renderDebugCrosshair(MatrixStack matrices) {
         Client c = Client.getInstance();
 
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(c.window.getGUIWidth() / 2f, c.window.getGUIHeight() / 2f, 0);
-        matrices.scale(1, c.world == null ? -1 : 1, -1);
+        if (c.world != null)
+            matrices.scale(1, -1, 1);
 
         Vector3f rot = c.camera.getRot();
         matrices.rotate(Rotation.X.rotationDeg(rot.x));
-        matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
+        matrices.rotate(Rotation.Y.rotationDeg(rot.y));
         matrices.rotate(Rotation.Z.rotationDeg(-rot.z));
 
         float len = 10;
         VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000));
-        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 0, 0, 0, 1, -len, 1, 0xFF00FF00));
-        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 0, 0, 0, 1, 1, -len, 0xFF0000FF));
+        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 0, 1, 0, 1, len, 1, 0xFF00FF00));
+        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 0, 0, 1, 1, 1, len, 0xFF0000FF));
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     private static String debugLeftText(Client c) {

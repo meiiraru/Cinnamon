@@ -53,7 +53,7 @@ public class SkyBox {
 
     private void renderSun(Camera camera, MatrixStack matrices) {
         //move to camera position
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(camera.getPos());
 
         //translate sun
@@ -67,7 +67,7 @@ public class SkyBox {
         VertexConsumer.MAIN.finishBatch(camera);
 
         //cleanup rendering
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     public void setSunAngle(float angle) {

@@ -66,14 +66,14 @@ public class AnimatedObjRenderer extends ObjRenderer {
         if (bone.getChildren().isEmpty())
             return;
 
-        matrices.push();
+        matrices.pushMatrix();
         bone.getTransform().applyTransform(matrices);
         Shader.activeShader.applyMatrixStack(matrices);
 
         for (Bone child : bone.getChildren())
             renderBone(child, matrices, renderFunction);
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     public Animation getAnimation(String name) {

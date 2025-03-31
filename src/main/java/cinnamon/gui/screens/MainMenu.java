@@ -90,10 +90,10 @@ public class MainMenu extends Screen {
 
         //overlay
         Texture overlay = Texture.of(OVERLAY);
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(0, 0, -d);
         UIHelper.nineQuad(VertexConsumer.MAIN, matrices, OVERLAY, 0, 0, width, height, 0f, 0f, overlay.getWidth(), overlay.getHeight(), overlay.getWidth(), overlay.getHeight());
-        matrices.pop();
+        matrices.popMatrix();
         //VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -d, 0f, 1f, 0f, 1f), OVERLAY, true, false);
 
         //title
@@ -147,7 +147,7 @@ public class MainMenu extends Screen {
 
         @Override
         public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            matrices.push();
+            matrices.pushMatrix();
 
             float d = UIHelper.tickDelta(0.6f);
             hoverY = Maths.lerp(hoverY, isHoveredOrFocused() ? -5 : 0, d);
@@ -155,7 +155,7 @@ public class MainMenu extends Screen {
 
             super.renderWidget(matrices, mouseX, mouseY, delta);
 
-            matrices.pop();
+            matrices.popMatrix();
         }
 
         @Override

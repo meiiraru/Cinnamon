@@ -1,12 +1,12 @@
 package cinnamon.world.entity.projectile;
 
+import cinnamon.events.Await;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.AABB;
-import cinnamon.events.Await;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Maths;
 import cinnamon.world.DamageType;
@@ -73,7 +73,7 @@ public class Potato extends Projectile {
     protected void renderModel(MatrixStack matrices, float delta) {
         //scale
         float t = (easing + delta) > 10 ? 1f : Maths.Easing.OUT_ELASTIC.get((easing + delta) / 10);
-        matrices.push();
+        matrices.pushMatrix();
         matrices.scale(Maths.lerp(oScale, scale, t));
 
         //color
@@ -86,7 +86,7 @@ public class Potato extends Projectile {
         super.renderModel(matrices, delta);
 
         //reset
-        matrices.pop();
+        matrices.popMatrix();
         Shader.activeShader.applyColor(0xFFFFFF);
     }
 

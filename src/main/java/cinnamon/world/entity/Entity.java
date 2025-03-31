@@ -59,13 +59,13 @@ public abstract class Entity extends WorldObject {
     }
 
     public void render(MatrixStack matrices, float delta) {
-        matrices.push();
+        matrices.pushMatrix();
 
         //apply pos
         matrices.translate(getPos(delta));
 
         //apply model pose
-        matrices.push();
+        matrices.pushMatrix();
         applyModelPose(matrices, delta);
 
         //render model
@@ -74,16 +74,16 @@ public abstract class Entity extends WorldObject {
         //render features
         renderFeatures(matrices, delta);
 
-        matrices.pop();
+        matrices.popMatrix();
 
         //render head text
         if (shouldRenderText()) {
-            matrices.push();
+            matrices.pushMatrix();
             renderTexts(matrices, delta);
-            matrices.pop();
+            matrices.popMatrix();
         }
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     protected void renderModel(MatrixStack matrices, float delta) {
@@ -114,7 +114,7 @@ public abstract class Entity extends WorldObject {
 
         matrices.translate(0f, aabb.getHeight() + 0.15f, 0f);
         c.camera.billboard(matrices);
-        matrices.peek().pos().scale(-s);
+        matrices.scale(-s);
 
         text.render(VertexConsumer.WORLD_FONT, matrices, 0, 0, Alignment.BOTTOM_CENTER, 50);
     }
@@ -146,7 +146,7 @@ public abstract class Entity extends WorldObject {
         }
 
         //looking dir
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(eye);
         matrices.rotate(Rotation.Y.rotationDeg(-rot.y + 90));
         matrices.rotate(Rotation.Z.rotationDeg(-rot.x));
@@ -159,7 +159,7 @@ public abstract class Entity extends WorldObject {
 
         ));
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     public boolean shouldRenderOutline() {

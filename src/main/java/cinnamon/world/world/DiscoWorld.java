@@ -11,7 +11,11 @@ import cinnamon.sound.SoundInstance;
 import cinnamon.sound.SoundSpectrum;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Resource;
-import cinnamon.world.entity.terrain.*;
+import cinnamon.world.entity.terrain.DiscoBall;
+import cinnamon.world.entity.terrain.DiscoFloor;
+import cinnamon.world.entity.terrain.FloorLight;
+import cinnamon.world.entity.terrain.ParticleSpawner;
+import cinnamon.world.entity.terrain.Speaker;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -143,12 +147,12 @@ public class DiscoWorld extends WorldClient {
         float[] amplitudes = spectrum.getAmplitudes();
 
         //draw bars
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(0, 2f, -2f);
         int bars = amplitudes.length;
         for (int i = 0; i < bars; i++)
             drawBar(matrices, i, bars, amplitudes[i] * BOOST * WEIGHTING_FUNCTION.apply((float) i / bars * spectrum.getMaxFrequency()));
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     private void drawBar(MatrixStack matrices, int index, int bars, float amplitude) {

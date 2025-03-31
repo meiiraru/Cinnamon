@@ -307,11 +307,11 @@ public class WorldClient extends World {
             camera.getEntity().render(matrices, delta);
 
         //finish rendering
-        matrices.push();
+        matrices.pushMatrix();
         matrices.identity();
         s.applyMatrixStack(matrices);
         VertexConsumer.finishAllBatches(s);
-        matrices.pop();
+        matrices.popMatrix();
 
         //restore to default framebuffer
         old.use();
@@ -407,7 +407,7 @@ public class WorldClient extends World {
         applyWorldUniforms(s);
         skyBox.pushToShader(s, Texture.MAX_TEXTURES - 1);
 
-        matrices.push();
+        matrices.pushMatrix();
 
         //camera transforms
         matrices.translate(camera.getPos());
@@ -419,7 +419,7 @@ public class WorldClient extends World {
         //render item
         item.render(ItemRenderContext.FIRST_PERSON, matrices, delta);
 
-        matrices.pop();
+        matrices.popMatrix();
 
         //finish rendering
         client.camera.useOrtho(true);

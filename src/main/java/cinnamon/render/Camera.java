@@ -104,10 +104,9 @@ public class Camera {
         reset();
     }
 
-    public void billboard(MatrixStack matrices) {
-        matrices.rotate(Rotation.Z.rotationDeg(-rot.z));
-        matrices.rotate(Rotation.Y.rotationDeg(180f - rot.y));
-        matrices.rotate(Rotation.X.rotationDeg(rot.x));
+    public void billboard(MatrixStack modelMatrix) {
+        modelMatrix.rotate(getRotation());
+        modelMatrix.rotate(Rotation.Y.rotationDeg(180f));
     }
 
     public void horizontalBillboard(MatrixStack matrices) {
@@ -169,7 +168,7 @@ public class Camera {
             Quaternionf rot = new Quaternionf().setAngleAxis(left ? -angleRad : angleRad, up.x, up.y, up.z);
             Vector3f offset = new Vector3f(left ? -eyeDistance : eyeDistance, 0, 0).rotate(rotation);
 
-            matrices.push();
+            matrices.pushMatrix();
             Vector3f pos = getPosition();
             matrices.translate(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
             matrices.rotate(rot);
@@ -186,7 +185,7 @@ public class Camera {
             mainBufferRenderer.run();
 
             //cleanup
-            matrices.pop();
+            matrices.popMatrix();
             glColorMask(true, true, true, true);
             left = !left;
         }

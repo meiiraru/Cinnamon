@@ -183,18 +183,18 @@ public abstract class Screen {
         VertexConsumer.finishAllBatches(client.camera);
 
         if (tooltip != null) {
-            matrices.push();
+            matrices.pushMatrix();
             matrices.translate(0, 0, 5f);
             tooltip.renderTooltip(matrices);
             tooltip = null;
-            matrices.pop();
+            matrices.popMatrix();
         }
 
         if (shouldRenderMouse()) {
-            matrices.push();
+            matrices.pushMatrix();
             matrices.translate(0f, 0f, 3f);
             VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, mouseX - 16, mouseY - 16, 32, 32), GUIStyle.getDefault().cursor);
-            matrices.pop();
+            matrices.popMatrix();
         }
 
         glDisable(GL_DEPTH_TEST);

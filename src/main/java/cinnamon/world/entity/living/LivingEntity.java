@@ -88,13 +88,13 @@ public abstract class LivingEntity extends PhysEntity {
         if (item == null)
             return;
 
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(aabb.getWidth() * 0.5f + 0.1f, getEyeHeight() - 0.25f, -0.25f);
         matrices.scale(0.75f);
 
         item.render(ItemRenderContext.THIRD_PERSON, matrices, delta);
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     @Override

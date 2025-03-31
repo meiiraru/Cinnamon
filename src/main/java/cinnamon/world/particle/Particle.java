@@ -39,7 +39,7 @@ public abstract class Particle extends WorldObject {
     }
 
     public void render(MatrixStack matrices, float delta) {
-        matrices.push();
+        matrices.pushMatrix();
 
         //apply pos
         matrices.translate(Maths.lerp(oPos, pos, delta));
@@ -48,11 +48,11 @@ public abstract class Particle extends WorldObject {
         Client.getInstance().camera.billboard(matrices);
 
         //actual render
-        matrices.push();
+        matrices.pushMatrix();
         renderParticle(matrices, delta);
-        matrices.pop();
+        matrices.popMatrix();
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     @Override

@@ -38,7 +38,7 @@ public class Scrollbar extends Slider {
                 24, 16
         );
 
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(0, 0, UIHelper.getDepthOffset());
 
         float anim = getAnimationValue();
@@ -60,7 +60,7 @@ public class Scrollbar extends Slider {
             );
         }
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     public void setHandleSize(int handleSize) {

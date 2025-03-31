@@ -36,14 +36,14 @@ public class Terrain extends WorldObject {
     public void tick() {}
 
     public void render(MatrixStack matrices, float delta) {
-        matrices.push();
+        matrices.pushMatrix();
 
         matrices.translate(pos.x + 0.5f, pos.y, pos.z + 0.5f);
         matrices.rotate(Rotation.Y.rotationDeg(getRotationAngle()));
 
         renderModel(matrices, delta);
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     protected void renderModel(MatrixStack matrices, float delta) {

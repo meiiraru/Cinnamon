@@ -163,7 +163,7 @@ public class ContextMenu extends PopupWidget {
 
         //hover
         if (hover) {
-            matrices.push();
+            matrices.pushMatrix();
             matrices.translate(0f, 0f, UIHelper.getDepthOffset());
             UIHelper.nineQuad(
                     VertexConsumer.MAIN, matrices, texture,
@@ -173,7 +173,7 @@ public class ContextMenu extends PopupWidget {
                     16, 16,
                     32, 35
             );
-            matrices.pop();
+            matrices.popMatrix();
         }
     }
 
@@ -235,7 +235,7 @@ public class ContextMenu extends PopupWidget {
         public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
             ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), false, index, getStyle().contextMenuTex);
 
-            matrices.push();
+            matrices.pushMatrix();
             matrices.translate(0f, 0f, UIHelper.getDepthOffset());
             UIHelper.horizontalQuad(
                     VertexConsumer.MAIN, matrices, getStyle().contextMenuTex,
@@ -245,7 +245,7 @@ public class ContextMenu extends PopupWidget {
                     32, 3,
                     32, 35
             );
-            matrices.pop();
+            matrices.popMatrix();
         }
     }
 

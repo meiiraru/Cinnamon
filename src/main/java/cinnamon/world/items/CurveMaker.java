@@ -31,7 +31,7 @@ public class CurveMaker extends CooldownItem {
         boolean changed = context == ItemRenderContext.HUD;
 
         if (changed) {
-            matrices.push();
+            matrices.pushMatrix();
             matrices.rotate(Rotation.X.rotationDeg(-35));
             matrices.rotate(Rotation.Y.rotationDeg(90));
         }
@@ -39,7 +39,7 @@ public class CurveMaker extends CooldownItem {
         super.render(context, matrices, delta);
 
         if (changed)
-            matrices.pop();
+            matrices.popMatrix();
     }
 
     @Override

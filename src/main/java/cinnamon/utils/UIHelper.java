@@ -196,7 +196,7 @@ public class UIHelper {
     }
 
     public static void renderTooltip(MatrixStack matrices, int x, int y, int width, int height, int centerX, int centerY, byte arrowSide, Text tooltip, GUIStyle style) {
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(x, y, 0);
 
         //background
@@ -220,12 +220,12 @@ public class UIHelper {
         VertexConsumer.MAIN.consume(vertices, TOOLTIP_TEXTURE);
 
         //render text
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(0, 0, getDepthOffset());
         tooltip.render(VertexConsumer.FONT, matrices, 0, 0);
 
-        matrices.pop();
-        matrices.pop();
+        matrices.popMatrix();
+        matrices.popMatrix();
     }
 
     public static void setTooltip(SelectableWidget tooltip) {

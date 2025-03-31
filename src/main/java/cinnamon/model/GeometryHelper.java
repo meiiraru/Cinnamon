@@ -224,7 +224,7 @@ public class GeometryHelper {
                 xx = pos[0]; yy = pos[1]; u = pos[2]; v = pos[3];
             }
 
-            //backwards index - counter-clockwise
+            //backwards index
             vertices[j - i] = Vertex.of(xx, yy, 0).uv(u, v).color(color).mul(matrices);
         }
 
@@ -250,7 +250,7 @@ public class GeometryHelper {
     }
 
     public static Vertex[] line(MatrixStack matrices, float x0, float y0, float x1, float y1, float size, int color) {
-        matrices.push();
+        matrices.pushMatrix();
 
         float dx = x1 - x0;
         float dy = y1 - y0;
@@ -262,7 +262,7 @@ public class GeometryHelper {
         size *= 0.5f;
         Vertex[] ret = rectangle(matrices, 0, -size, len, size, color);
 
-        matrices.pop();
+        matrices.popMatrix();
 
         return ret;
     }
@@ -273,7 +273,7 @@ public class GeometryHelper {
         Vector3f dir = diff.normalize(new Vector3f());
 
         //rotate matrices to align with direction
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(x0, y0, z0);
 
         Vector2f rot = Maths.dirToRot(dir);
@@ -285,7 +285,7 @@ public class GeometryHelper {
         Vertex[][] line = cube(matrices, 0, -w, -w, diff.length(), w, w, color);
 
         //return
-        matrices.pop();
+        matrices.popMatrix();
         return line;
     }
 

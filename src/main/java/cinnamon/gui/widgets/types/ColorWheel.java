@@ -49,7 +49,7 @@ public class ColorWheel extends SelectableWidget {
         VertexConsumer.MAIN.consume(vertices);
 
         //cross-hair
-        matrices.push();
+        matrices.pushMatrix();
         matrices.translate(0f, 0f, UIHelper.getDepthOffset());
 
         float angle = (float) Math.toRadians(hsv.x * 360f);
@@ -84,7 +84,7 @@ public class ColorWheel extends SelectableWidget {
                 VertexConsumer.MAIN.consume(GeometryHelper.arc(matrices, cx, cy, r, 0, 1, 1, 24, modColor));
         }
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     public void setChangeListener(Consumer<Vector3f> changeListener) {

@@ -34,14 +34,14 @@ public class MagicWand extends Item {
         boolean change = context == ItemRenderContext.FIRST_PERSON;
 
         if (change) {
-            matrices.push();
+            matrices.pushMatrix();
             matrices.rotate(Rotation.X.rotationDeg(50));
         }
 
         super.render(context, matrices, delta);
 
         if (change)
-            matrices.pop();
+            matrices.popMatrix();
     }
 
     @Override

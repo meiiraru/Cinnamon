@@ -150,7 +150,7 @@ public class Client {
     public void render(MatrixStack matrices) {
         float delta = timer.partialTick;
 
-        matrices.push();
+        matrices.pushMatrix();
 
         //run render events
         events.runEvents(EventType.RENDER_BEFORE_WORLD);
@@ -169,13 +169,13 @@ public class Client {
                 //render world hud
                 glClear(GL_DEPTH_BUFFER_BIT); //top of hand
 
-                matrices.push();
+                matrices.pushMatrix();
                 if (XrManager.isInXR())
                     XrRenderer.applyGUITransform(matrices);
 
                 world.hud.render(matrices, delta);
 
-                matrices.pop();
+                matrices.popMatrix();
             }
         }
 
@@ -212,7 +212,7 @@ public class Client {
         VertexConsumer.finishAllBatches(camera);
 
         //finish rendering
-        matrices.pop();
+        matrices.popMatrix();
     }
 
     public void setScreen(Screen s) {
