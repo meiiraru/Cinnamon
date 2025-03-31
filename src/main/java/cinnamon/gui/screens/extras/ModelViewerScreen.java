@@ -35,6 +35,8 @@ public class ModelViewerScreen extends ParentedScreen {
 
     public ModelViewerScreen(Screen parentScreen) {
         super(parentScreen);
+        modelViewer.setSkybox(SkyBox.Type.CLOUDS);
+        modelViewer.setRenderSkybox(true);
     }
 
     @Override

@@ -73,7 +73,7 @@ public class ComboBox extends Button {
         return selected;
     }
 
-    public void select(int index) {
+    private void select(int index) {
         if (index < 0 || index >= indexes.size() || index == selected)
             return;
 

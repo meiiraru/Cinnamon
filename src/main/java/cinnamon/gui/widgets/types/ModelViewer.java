@@ -18,6 +18,7 @@ import cinnamon.render.texture.Texture;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
+import cinnamon.vr.XrManager;
 import cinnamon.world.SkyBox;
 import org.joml.Vector3f;
 
@@ -37,11 +38,11 @@ public class ModelViewer extends SelectableWidget {
     private MaterialRegistry selectedMaterial = MaterialRegistry.DEFAULT;
     private SkyBox.Type skybox = SkyBox.Type.WHITE;
 
-    private boolean renderBounds;
+    private boolean renderBounds, renderSkybox;
     private Consumer<MatrixStack> extraRendering;
 
     private float defaultScale = 128f, scaleFactor = 0.1f;
-    private float defaultRotX = -22.5f, defaultRotY = 30f;
+    private float defaultRotX = XrManager.isInXR() ? 0f : -22.5f, defaultRotY = 30f;
 
     //view transforms
     private float posX = 0, posY = 0;
@@ -53,6 +54,10 @@ public class ModelViewer extends SelectableWidget {
     private int anchorX = 0, anchorY = 0;
     private float anchorRotX = 0, anchorRotY = 0;
     private float anchorPosX = 0, anchorPosY = 0;
+
+    static {
+        the_skybox.renderSun = false;
+    }
 
     public ModelViewer(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -81,33 +86,44 @@ public class ModelViewer extends SelectableWidget {
 
         //prepare render
         Client client = Client.getInstance();
+        boolean xr = XrManager.isInXR();
         VertexConsumer.finishAllBatches(client.camera);
 
         Shader oldShader = Shader.activeShader;
         client.camera.useOrtho(false);
         AABB aabb = model.getAABB();
         matrices.pushMatrix();
-
-        //setup shader
-        Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
-        s.setup(client.camera);
-        s.setVec3("camPos", 0, 0, 0);
-        s.setFloat("fogStart", 1024);
-        s.setFloat("fogEnd", 2048);
-        the_skybox.type = skybox;
-        the_skybox.pushToShader(s, Texture.MAX_TEXTURES - 1);
         glDisable(GL_CULL_FACE);
 
         //set up framebuffer
         Framebuffer old = Framebuffer.activeFramebuffer;
-        modelBuffer.useClear();
-        modelBuffer.resizeTo(old);
+        if (!xr) {
+            modelBuffer.useClear();
+            modelBuffer.resizeTo(old);
+        }
+
+        //render skybox
+        if (renderSkybox) {
+            Shaders.SKYBOX.getShader().use().setup(client.camera);
+            the_skybox.render(client.camera, matrices);
+        }
+
+        //setup shader
+        Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
+        s.setup(client.camera);
+        s.setVec3("camPos", client.camera.getPosition());
+        s.setFloat("fogStart", 1024);
+        s.setFloat("fogEnd", 2048);
+        s.setInt("lightCount", 0);
+        the_skybox.type = skybox;
+        the_skybox.pushToShader(s, Texture.MAX_TEXTURES - 1);
 
         //position
-        matrices.translate(posX, -posY, -200);
+        matrices.translate(posX, posY, -200f);
+        if (xr) matrices.translate(getCenterX(), getCenterY(), 200f);
 
         //scale
-        matrices.scale(scale, scale, scale);
+        matrices.scale(scale, xr ? -scale : scale, scale);
 
         //rotate model
         matrices.rotate(Rotation.X.rotationDeg(-rotX));
@@ -182,6 +198,14 @@ public class ModelViewer extends SelectableWidget {
 
     public void setRenderBounds(boolean renderBounds) {
         this.renderBounds = renderBounds;
+    }
+
+    public boolean shouldRenderSkybox() {
+        return renderSkybox;
+    }
+
+    public void setRenderSkybox(boolean renderSkybox) {
+        this.renderSkybox = renderSkybox;
     }
 
     public void setExtraRendering(Consumer<MatrixStack> extraRendering) {
