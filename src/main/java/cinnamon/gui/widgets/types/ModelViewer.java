@@ -42,7 +42,7 @@ public class ModelViewer extends SelectableWidget {
     private Consumer<MatrixStack> extraRendering;
 
     private float defaultScale = 128f, scaleFactor = 0.1f;
-    private float defaultRotX = XrManager.isInXR() ? 0f : -22.5f, defaultRotY = 30f;
+    private float defaultRotX = -22.5f, defaultRotY = 30f;
 
     //view transforms
     private float posX = 0, posY = 0;
@@ -62,6 +62,8 @@ public class ModelViewer extends SelectableWidget {
     public ModelViewer(int x, int y, int width, int height) {
         super(x, y, width, height);
         setSelectable(false);
+        if (XrManager.isInXR())
+            setDefaultRot(0f, 0f);
     }
 
     public static void free() {
@@ -119,8 +121,8 @@ public class ModelViewer extends SelectableWidget {
         the_skybox.pushToShader(s, Texture.MAX_TEXTURES - 1);
 
         //position
-        matrices.translate(posX, posY, -200f);
-        if (xr) matrices.translate(getCenterX(), getCenterY(), 200f);
+        matrices.translate(posX, -posY, -200f);
+        if (xr) matrices.translate(getCenterX(), getCenterY() + posY + posY, 200f);
 
         //scale
         matrices.scale(scale, xr ? -scale : scale, scale);

@@ -1,6 +1,7 @@
 package cinnamon.vr;
 
 import cinnamon.Cinnamon;
+import cinnamon.Client;
 import cinnamon.utils.Pair;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.egl.EGL;
@@ -24,11 +25,9 @@ import static org.lwjgl.glfw.GLFWNativeGLX.glfwGetGLXFBConfig;
 import static org.lwjgl.glfw.GLFWNativeWGL.glfwGetWGLContext;
 import static org.lwjgl.glfw.GLFWNativeWin32.glfwGetWin32Window;
 import static org.lwjgl.glfw.GLFWNativeX11.glfwGetX11Display;
-import static org.lwjgl.opengl.GL11.GL_RGB10_A2;
-import static org.lwjgl.opengl.GL11.GL_RGBA8;
+import static org.lwjgl.opengl.GL21.GL_SRGB8;
 import static org.lwjgl.opengl.GL21.GL_SRGB8_ALPHA8;
 import static org.lwjgl.opengl.GL30.GL_RGBA16F;
-import static org.lwjgl.opengl.GL31.GL_RGBA8_SNORM;
 import static org.lwjgl.opengl.GLX.glXGetCurrentDrawable;
 import static org.lwjgl.opengl.GLX13.glXGetVisualFromFBConfig;
 import static org.lwjgl.openxr.EXTDebugUtils.*;
@@ -42,10 +41,10 @@ import static org.lwjgl.system.windows.User32.GetDC;
 public class XrManager {
 
     //instance
-    private static XrInstance instance;
+    static XrInstance instance;
     private static long systemId;
-    private static XrSession session;
-    private static XrSpace headspace;
+    static XrSession session;
+    static XrSpace headspace;
 
     //session
     private static boolean missingXrDebug, useEgl;
@@ -53,12 +52,15 @@ public class XrManager {
     private static XrEventDataBuffer eventDataBuffer;
     private static int sessionState;
 
+    //input
+    static XrActionSet actionSet;
+
     //render
     private static XrView.Buffer views;
     private static final int viewConfigType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
     private static XrViewConfigurationView.Buffer viewConfigs;
-    private static long glColorFormat;
-    private static Swapchain[] swapchains;
+    static Swapchain[] swapchains;
+    static long displayTime;
 
     private static boolean initialized, sessionRunning;
 
@@ -66,14 +68,14 @@ public class XrManager {
         if (initialized)
             return;
 
-        if (initializeInstance() || initializeSystem() || initializeSession(window) || initializeSpaces() || initializeSwapChains()) {
-            internalClose();
-            return;
+        try (MemoryStack stack = stackPush()) {
+            if (initializeInstance(stack) || initializeSystem(stack) || initializeSession(stack, window) || initializeSwapChains(stack) || initializeReferenceSpace(stack) || initInput(stack)) {
+                internalClose();
+                return;
+            }
+            eventDataBuffer = XrEventDataBuffer.calloc().type$Default();
+            initialized = true;
         }
-
-        eventDataBuffer = XrEventDataBuffer.calloc().type$Default();
-
-        initialized = true;
     }
 
     public static void close() {
@@ -82,6 +84,8 @@ public class XrManager {
     }
 
     private static void internalClose() {
+        XrInput.free();
+        if (actionSet != null) xrDestroyActionSet(actionSet);
         if (eventDataBuffer != null) eventDataBuffer.free();
         if (views != null) views.free();
         if (viewConfigs != null) viewConfigs.free();
@@ -91,59 +95,35 @@ public class XrManager {
         if (session != null) xrDestroySession(session);
         if (instance != null) xrDestroyInstance(instance);
         XrRenderer.free();
-        initialized = sessionRunning = false;
+        initialized = false;
+        setSessionRunning(false);
     }
 
     public static boolean isInXR() {
         return sessionRunning;
     }
 
-    public static boolean shouldRender() {
-        return initialized && !pollEvents() && sessionRunning;
+    private static void setSessionRunning(boolean bool) {
+        if (sessionRunning && !bool) {
+            Client c = Client.getInstance();
+            c.windowResize(c.window.width, c.window.height);
+        }
+        sessionRunning = bool;
     }
 
-    public static void render(Runnable toRender) {
+    public static boolean render(Runnable toRender) {
+        if (!initialized || pollEvents() || !sessionRunning)
+            return false;
+
         try (MemoryStack stack = stackPush()) {
-            XrFrameState frameState = XrFrameState.calloc(stack).type$Default();
+            if (XrInput.poll(stack))
+                return false;
 
-            if (check(xrWaitFrame(session, XrFrameWaitInfo.calloc(stack).type$Default(), frameState), "Failed to wait for frame: error code %s") ||
-                    check(xrBeginFrame(session, XrFrameBeginInfo.calloc(stack).type$Default()), "Failed to begin frame: error code %s")) {
-                close();
-                return;
-            }
-
-            XrCompositionLayerProjection layerProjection = XrCompositionLayerProjection.calloc(stack).type$Default();
-            PointerBuffer layers = stack.callocPointer(1);
-            long displayTime = frameState.predictedDisplayTime();
-
-            boolean didRender = false;
-            if (frameState.shouldRender()) {
-                if (renderLayer(stack, displayTime, layerProjection, toRender)) {
-                    layers.put(0, layerProjection);
-                    didRender = true;
-                } else if (!initialized) {
-                    return;
-                } else {
-                    LOGGER.debug("Not rendering xr frame - no valid tracking poses for the views");
-                }
-            } else {
-                LOGGER.debug("Skipping xr frame");
-            }
-
-            XrFrameEndInfo endInfo = XrFrameEndInfo.malloc(stack)
-                    .type$Default()
-                    .next(NULL)
-                    .displayTime(displayTime)
-                    .environmentBlendMode(XR_ENVIRONMENT_BLEND_MODE_OPAQUE)
-                    .layers(didRender ? layers : null)
-                    .layerCount(didRender ? layers.remaining() : 0);
-
-            if (check(xrEndFrame(session, endInfo), "Failed to end frame: error code %s"))
-                close();
+            return render(stack, toRender);
         }
     }
 
-    private static boolean check(int error, String msg) {
+    static boolean check(int error, String msg) {
         if (error == XR_SUCCESS)
             return false;
 
@@ -151,7 +131,7 @@ public class XrManager {
         return true;
     }
 
-    private static <S extends Struct<S>, T extends StructBuffer<S, T>> T fill(T buffer, int offset, int value) {
+    static <S extends Struct<S>, T extends StructBuffer<S, T>> T fill(T buffer, int offset, int value) {
         long ptr = buffer.address() + offset;
         int stride = buffer.sizeof();
         for (int i = 0; i < buffer.limit(); i++)
@@ -161,34 +141,32 @@ public class XrManager {
 
     // -- init functions -- //
 
-    private static boolean initializeInstance() {
-        try (MemoryStack stack = stackPush()) {
-            //extensions
-            Pair<PointerBuffer, PointerBuffer> extensions = grabExtensionsAndLayers(stack);
-            if (extensions == null)
-                return true;
+    private static boolean initializeInstance(MemoryStack stack) {
+        //extensions
+        Pair<PointerBuffer, PointerBuffer> extensions = grabExtensionsAndLayers(stack);
+        if (extensions == null)
+            return true;
 
-            //setup xr instance
-            XrInstanceCreateInfo instanceInfo = XrInstanceCreateInfo.malloc(stack)
-                    .type$Default()
-                    .next(NULL)
-                    .createFlags(0)
-                    .applicationInfo(XrApplicationInfo.calloc(stack)
-                            .applicationName(stack.UTF8(Cinnamon.TITLE))
-                            .apiVersion(XR_API_VERSION_1_0))
-                    .enabledApiLayerNames(extensions.second())
-                    .enabledExtensionNames(extensions.first());
+        //setup xr instance
+        XrInstanceCreateInfo instanceInfo = XrInstanceCreateInfo.malloc(stack)
+                .type$Default()
+                .next(NULL)
+                .createFlags(0)
+                .applicationInfo(XrApplicationInfo.calloc(stack)
+                        .applicationName(stack.UTF8(Cinnamon.TITLE))
+                        .apiVersion(XR_API_VERSION_1_0))
+                .enabledApiLayerNames(extensions.second())
+                .enabledExtensionNames(extensions.first());
 
-            //create xr instance
-            PointerBuffer instancePtr = stack.mallocPointer(1);
-            if (check(xrCreateInstance(instanceInfo, instancePtr), "Failed to create OpenXR instance: error code %s"))
-                return true;
+        //create xr instance
+        PointerBuffer instancePtr = stack.mallocPointer(1);
+        if (check(xrCreateInstance(instanceInfo, instancePtr), "Failed to create OpenXR instance: error code %s"))
+            return true;
 
-            LOGGER.debug("Created OpenXR instance");
-            LOGGER.info("OpenXR version: %s", XR_VERSION_MAJOR(XR_API_VERSION_1_0) + "." + XR_VERSION_MINOR(XR_API_VERSION_1_0) + "." + XR_VERSION_PATCH(XR_API_VERSION_1_0));
-            instance = new XrInstance(instancePtr.get(0), instanceInfo);
-            return false;
-        }
+        LOGGER.debug("Created OpenXR instance");
+        LOGGER.info("OpenXR version: %s", XR_VERSION_MAJOR(XR_API_VERSION_1_0) + "." + XR_VERSION_MINOR(XR_API_VERSION_1_0) + "." + XR_VERSION_PATCH(XR_API_VERSION_1_0));
+        instance = new XrInstance(instancePtr.get(0), instanceInfo);
+        return false;
     }
 
     private static Pair<PointerBuffer, PointerBuffer> grabExtensionsAndLayers(MemoryStack stack) {
@@ -227,7 +205,7 @@ public class XrManager {
             return null;
         }
 
-        PointerBuffer extensions = stack.mallocPointer(2);
+        PointerBuffer extensions = stack.mallocPointer(3);
         extensions.put(stack.UTF8(XR_KHR_OPENGL_ENABLE_EXTENSION_NAME));
         if (useEgl) extensions.put(stack.UTF8(XR_MNDX_EGL_ENABLE_EXTENSION_NAME));
         else if (!missingXrDebug) extensions.put(stack.UTF8(XR_EXT_DEBUG_UTILS_EXTENSION_NAME));
@@ -269,216 +247,187 @@ public class XrManager {
         return new Pair<>(extensions, layers);
     }
 
-    private static boolean initializeSystem() {
-        try (MemoryStack stack = stackPush()) {
-            LongBuffer systemIdBuffer = stack.longs(0);
-            XrSystemGetInfo systemInfo = XrSystemGetInfo.malloc(stack)
-                    .type$Default()
-                    .next(NULL)
-                    .formFactor(XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY);
+    private static boolean initializeSystem(MemoryStack stack) {
+        LongBuffer systemIdBuffer = stack.longs(0);
+        XrSystemGetInfo systemInfo = XrSystemGetInfo.malloc(stack)
+                .type$Default()
+                .next(NULL)
+                .formFactor(XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY);
 
-            if (check(xrGetSystem(instance, systemInfo, systemIdBuffer), "Failed to get OpenXR system: error code %s"))
-                return true;
+        if (check(xrGetSystem(instance, systemInfo, systemIdBuffer), "Failed to get OpenXR system: error code %s"))
+            return true;
 
-            systemId = systemIdBuffer.get(0);
-            if (systemId == 0) {
-                LOGGER.error("No compatible headset detected");
-                return true;
-            }
-
-            LOGGER.debug("Found headset with system id %s", systemId);
-            return false;
+        systemId = systemIdBuffer.get(0);
+        if (systemId == 0) {
+            LOGGER.error("No compatible headset detected");
+            return true;
         }
+
+        LOGGER.debug("Found headset with system id %s", systemId);
+        return false;
     }
 
-    private static boolean initializeSession(long window) {
-        try (MemoryStack stack = stackPush()) {
-            //open gl compatibility
-            XrGraphicsRequirementsOpenGLKHR graphicsRequirements = XrGraphicsRequirementsOpenGLKHR.malloc(stack)
-                    .type$Default()
-                    .next(NULL)
-                    .minApiVersionSupported(0)
-                    .maxApiVersionSupported(0);
+    private static boolean initializeSession(MemoryStack stack, long window) {
+        //open gl compatibility
+        XrGraphicsRequirementsOpenGLKHR graphicsRequirements = XrGraphicsRequirementsOpenGLKHR.malloc(stack)
+                .type$Default()
+                .next(NULL)
+                .minApiVersionSupported(0)
+                .maxApiVersionSupported(0);
 
-            xrGetOpenGLGraphicsRequirementsKHR(instance, systemId, graphicsRequirements);
+        xrGetOpenGLGraphicsRequirementsKHR(instance, systemId, graphicsRequirements);
 
-            //create session
-            XrSessionCreateInfo sessionInfo = XrSessionCreateInfo.malloc(stack)
+        //create session
+        XrSessionCreateInfo sessionInfo = XrSessionCreateInfo.malloc(stack)
+                .type$Default()
+                .next(NULL)
+                .createFlags(0)
+                .systemId(systemId);
+        if (createGraphicsBindingOpenGL(stack, window, sessionInfo, useEgl)) {
+            LOGGER.error("Failed to create graphics binding");
+            return true;
+        }
+
+        PointerBuffer sessionPtr = stack.mallocPointer(1);
+        if (check(xrCreateSession(instance, sessionInfo, sessionPtr), "Failed to create OpenXR session: error code %s"))
+            return true;
+
+        LOGGER.debug("Created OpenXR session");
+        session = new XrSession(sessionPtr.get(0), instance);
+
+        if (missingXrDebug || useEgl)
+            return false;
+
+        //use debug utils when available
+        XrDebugUtilsMessengerCreateInfoEXT ciDebugUtils = XrDebugUtilsMessengerCreateInfoEXT.calloc(stack)
+                .type$Default()
+                .messageSeverities(XR_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+                        XR_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                        XR_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+                .messageTypes(XR_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                        XR_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                        XR_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT |
+                        XR_DEBUG_UTILS_MESSAGE_TYPE_CONFORMANCE_BIT_EXT)
+                .userCallback((messageSeverity, messageTypes, pCallbackData, userData) -> {
+                    XrDebugUtilsMessengerCallbackDataEXT callbackData = XrDebugUtilsMessengerCallbackDataEXT.create(pCallbackData);
+                    LOGGER.debug("XR Debug Utils: %s", callbackData.messageString());
+                    return 0;
+                });
+
+        if (check(xrCreateDebugUtilsMessengerEXT(instance, ciDebugUtils, sessionPtr), "Failed to create debug utils messenger: error code %s"))
+            return true;
+
+        LOGGER.debug("Enabling OpenXR debug utils");
+        debugMessenger = new XrDebugUtilsMessengerEXT(sessionPtr.get(0), instance);
+
+        return false;
+    }
+
+    private static boolean initializeSwapChains(MemoryStack stack) {
+        //headset info
+        XrSystemProperties systemProperties = XrSystemProperties.calloc(stack).type$Default();
+        if (check(xrGetSystemProperties(instance, systemId, systemProperties), "Failed to get system properties: error code %s"))
+            return true;
+
+        LOGGER.info("Headset %s", memUTF8(memAddress(systemProperties.systemName())));
+        LOGGER.debug("Vendor %s", systemProperties.vendorId());
+
+        XrSystemTrackingProperties trackingProperties = systemProperties.trackingProperties();
+        LOGGER.debug("Orientation tracking: %s", trackingProperties.orientationTracking());
+        LOGGER.debug("Position tracking: %s", trackingProperties.positionTracking());
+
+        XrSystemGraphicsProperties graphicsProperties = systemProperties.graphicsProperties();
+        LOGGER.debug("Max swapchain width: %s", graphicsProperties.maxSwapchainImageWidth());
+        LOGGER.debug("Max swapchain height: %s", graphicsProperties.maxSwapchainImageHeight());
+        LOGGER.debug("Max layers: %s", graphicsProperties.maxLayerCount());
+
+        //view config
+        IntBuffer pi = stack.mallocInt(1);
+        if (check(xrEnumerateViewConfigurationViews(instance, systemId, viewConfigType, pi, null), "Failed to get view configuration view count: error code %s"))
+            return true;
+
+        viewConfigs = fill(XrViewConfigurationView.calloc(pi.get(0)), XrViewConfigurationView.TYPE, XR_TYPE_VIEW_CONFIGURATION_VIEW);
+        if (check(xrEnumerateViewConfigurationViews(instance, systemId, viewConfigType, pi, viewConfigs), "Failed to get view configuration views: error code %s"))
+            return true;
+
+        int viewCountNumber = pi.get(0);
+        if (viewCountNumber <= 0) {
+            LOGGER.error("No views found");
+            return true;
+        }
+
+        views = fill(XrView.calloc(viewCountNumber), XrView.TYPE, XR_TYPE_VIEW);
+
+        if (check(xrEnumerateSwapchainFormats(session, pi, null), "Failed to get swapchain formats: error code %s"))
+            return true;
+
+        LongBuffer swapchainFormats = stack.mallocLong(pi.get(0));
+        if (check(xrEnumerateSwapchainFormats(session, pi, swapchainFormats), "Failed to get swapchain formats: error code %s"))
+            return true;
+
+        long glColorFormat = 0;
+        long[] desiredSwapchainFormats = {
+                GL_SRGB8_ALPHA8,
+                GL_SRGB8,
+                GL_RGBA16F,
+        };
+
+        label:
+        for (long glFormatIter : desiredSwapchainFormats) {
+            for (int i = 0; i < swapchainFormats.limit(); i++) {
+                if (glFormatIter == swapchainFormats.get(i)) {
+                    glColorFormat = glFormatIter;
+                    break label;
+                }
+            }
+        }
+
+        if (glColorFormat == 0) {
+            LOGGER.error("No compatable swapchain / framebuffer format availible");
+            return true;
+        }
+
+        swapchains = new Swapchain[viewCountNumber];
+        for (int i = 0; i < viewCountNumber; i++) {
+            XrViewConfigurationView viewConfig = viewConfigs.get(i);
+            Swapchain swapchain = new Swapchain();
+            XrSwapchainCreateInfo swapchainCreateInfo = XrSwapchainCreateInfo.malloc(stack)
                     .type$Default()
                     .next(NULL)
                     .createFlags(0)
-                    .systemId(systemId);
-            if (createGraphicsBindingOpenGL(sessionInfo, stack, window, useEgl)) {
-                LOGGER.error("Failed to create graphics binding");
-                return true;
-            }
+                    .usageFlags(XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT)
+                    .format(glColorFormat)
+                    .sampleCount(viewConfig.recommendedSwapchainSampleCount())
+                    .width(viewConfig.recommendedImageRectWidth())
+                    .height(viewConfig.recommendedImageRectHeight())
+                    .faceCount(1)
+                    .arraySize(1)
+                    .mipCount(1);
 
-            PointerBuffer sessionPtr = stack.mallocPointer(1);
-            if (check(xrCreateSession(instance, sessionInfo, sessionPtr), "Failed to create OpenXR session: error code %s"))
-                return true;
-
-            LOGGER.debug("Created OpenXR session");
-            session = new XrSession(sessionPtr.get(0), instance);
-
-            if (missingXrDebug || useEgl)
-                return false;
-
-            //use debug utils when available
-            XrDebugUtilsMessengerCreateInfoEXT ciDebugUtils = XrDebugUtilsMessengerCreateInfoEXT.calloc(stack)
-                    .type$Default()
-                    .messageSeverities(XR_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
-                            XR_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                            XR_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
-                    .messageTypes(XR_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                            XR_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                            XR_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT |
-                            XR_DEBUG_UTILS_MESSAGE_TYPE_CONFORMANCE_BIT_EXT)
-                    .userCallback((messageSeverity, messageTypes, pCallbackData, userData) -> {
-                        XrDebugUtilsMessengerCallbackDataEXT callbackData = XrDebugUtilsMessengerCallbackDataEXT.create(pCallbackData);
-                        LOGGER.debug("XR Debug Utils: %s", callbackData.messageString());
-                        return 0;
-                    });
-
-            if (check(xrCreateDebugUtilsMessengerEXT(instance, ciDebugUtils, sessionPtr), "Failed to create debug utils messenger: error code %s"))
+            PointerBuffer pp = stack.mallocPointer(1);
+            if (check(xrCreateSwapchain(session, swapchainCreateInfo, pp), "Failed to create swapchain: error code %s"))
                 return true;
 
-            LOGGER.debug("Enabling OpenXR debug utils");
-            debugMessenger = new XrDebugUtilsMessengerEXT(sessionPtr.get(0), instance);
+            swapchain.handle = new XrSwapchain(pp.get(0), session);
+            swapchain.width = swapchainCreateInfo.width();
+            swapchain.height = swapchainCreateInfo.height();
 
-            return false;
+            if (check(xrEnumerateSwapchainImages(swapchain.handle, pi, null), "Failed to get swapchain image count: error code %s"))
+                return true;
+
+            int imageCount = pi.get(0);
+            XrSwapchainImageOpenGLKHR.Buffer swapchainImageBuffer = fill(XrSwapchainImageOpenGLKHR.calloc(imageCount), XrSwapchainImageOpenGLKHR.TYPE, XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR);
+            if (check(xrEnumerateSwapchainImages(swapchain.handle, pi, XrSwapchainImageBaseHeader.create(swapchainImageBuffer)), "Failed to get swapchain images: error code %s"))
+                return true;
+
+            swapchain.images = swapchainImageBuffer;
+            swapchains[i] = swapchain;
         }
+
+        return false;
     }
 
-    private static boolean initializeSpaces() {
-        try (MemoryStack stack = stackPush()) {
-            PointerBuffer spacePtr = stack.mallocPointer(1);
-
-            XrReferenceSpaceCreateInfo referenceSpace = XrReferenceSpaceCreateInfo.malloc(stack)
-                    .type$Default()
-                    .next(NULL)
-                    .referenceSpaceType(XR_REFERENCE_SPACE_TYPE_LOCAL)
-                    .poseInReferenceSpace(XrPosef.malloc(stack)
-                            .orientation(XrQuaternionf.malloc(stack)
-                                    .x(0).y(0).z(0).w(1))
-                            .position$(XrVector3f.calloc(stack)));
-
-            if (check(xrCreateReferenceSpace(session, referenceSpace, spacePtr), "Failed to create reference space: error code %s"))
-                return true;
-
-            LOGGER.debug("Created local xr reference space");
-            headspace = new XrSpace(spacePtr.get(0), session);
-            return false;
-        }
-    }
-
-    private static boolean initializeSwapChains() {
-        try (MemoryStack stack = stackPush()) {
-            //headset info
-            XrSystemProperties systemProperties = XrSystemProperties.calloc(stack).type$Default();
-            if (check(xrGetSystemProperties(instance, systemId, systemProperties), "Failed to get system properties: error code %s"))
-                return true;
-
-            LOGGER.info("Headset %s", memUTF8(memAddress(systemProperties.systemName())));
-            LOGGER.debug("Vendor %s", systemProperties.vendorId());
-
-            XrSystemTrackingProperties trackingProperties = systemProperties.trackingProperties();
-            LOGGER.debug("Orientation tracking: %s", trackingProperties.orientationTracking());
-            LOGGER.debug("Position tracking: %s", trackingProperties.positionTracking());
-
-            XrSystemGraphicsProperties graphicsProperties = systemProperties.graphicsProperties();
-            LOGGER.debug("Max swapchain width: %s", graphicsProperties.maxSwapchainImageWidth());
-            LOGGER.debug("Max swapchain height: %s", graphicsProperties.maxSwapchainImageHeight());
-            LOGGER.debug("Max layers: %s", graphicsProperties.maxLayerCount());
-
-            //view config
-            IntBuffer pi = stack.mallocInt(1);
-            if (check(xrEnumerateViewConfigurationViews(instance, systemId, viewConfigType, pi, null), "Failed to get view configuration view count: error code %s"))
-                return true;
-
-            viewConfigs = fill(XrViewConfigurationView.calloc(pi.get(0)), XrViewConfigurationView.TYPE, XR_TYPE_VIEW_CONFIGURATION_VIEW);
-            if (check(xrEnumerateViewConfigurationViews(instance, systemId, viewConfigType, pi, viewConfigs), "Failed to get view configuration views: error code %s"))
-                return true;
-
-            int viewCountNumber = pi.get(0);
-            if (viewCountNumber <= 0) {
-                LOGGER.error("No views found");
-                return true;
-            }
-
-            views = fill(XrView.calloc(viewCountNumber), XrView.TYPE, XR_TYPE_VIEW);
-
-            if (check(xrEnumerateSwapchainFormats(session, pi, null), "Failed to get swapchain formats: error code %s"))
-                return true;
-
-            LongBuffer swapchainFormats = stack.mallocLong(pi.get(0));
-            if (check(xrEnumerateSwapchainFormats(session, pi, swapchainFormats), "Failed to get swapchain formats: error code %s"))
-                return true;
-
-            long[] desiredSwapchainFormats = {
-                    GL_SRGB8_ALPHA8,
-                    GL_RGB10_A2,
-                    GL_RGBA16F,
-                    GL_RGBA8,
-                    GL_RGBA8_SNORM
-            };
-
-            label:
-            for (long glFormatIter : desiredSwapchainFormats) {
-                for (int i = 0; i < swapchainFormats.limit(); i++) {
-                    if (glFormatIter == swapchainFormats.get(i)) {
-                        glColorFormat = glFormatIter;
-                        break label;
-                    }
-                }
-            }
-
-            if (glColorFormat == 0) {
-                LOGGER.error("No compatable swapchain / framebuffer format availible");
-                return true;
-            }
-
-            swapchains = new Swapchain[viewCountNumber];
-            for (int i = 0; i < viewCountNumber; i++) {
-                XrViewConfigurationView viewConfig = viewConfigs.get(i);
-                Swapchain swapchain = new Swapchain();
-                XrSwapchainCreateInfo swapchainCreateInfo = XrSwapchainCreateInfo.malloc(stack)
-                        .type$Default()
-                        .next(NULL)
-                        .createFlags(0)
-                        .usageFlags(XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT)
-                        .format(glColorFormat)
-                        .sampleCount(viewConfig.recommendedSwapchainSampleCount())
-                        .width(viewConfig.recommendedImageRectWidth())
-                        .height(viewConfig.recommendedImageRectHeight())
-                        .faceCount(1)
-                        .arraySize(1)
-                        .mipCount(1);
-
-                PointerBuffer pp = stack.mallocPointer(1);
-                if (check(xrCreateSwapchain(session, swapchainCreateInfo, pp), "Failed to create swapchain: error code %s"))
-                    return true;
-
-                swapchain.handle = new XrSwapchain(pp.get(0), session);
-                swapchain.width = swapchainCreateInfo.width();
-                swapchain.height = swapchainCreateInfo.height();
-
-                if (check(xrEnumerateSwapchainImages(swapchain.handle, pi, null), "Failed to get swapchain image count: error code %s"))
-                    return true;
-
-                int imageCount = pi.get(0);
-                XrSwapchainImageOpenGLKHR.Buffer swapchainImageBuffer = fill(XrSwapchainImageOpenGLKHR.calloc(imageCount), XrSwapchainImageOpenGLKHR.TYPE, XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR);
-                if (check(xrEnumerateSwapchainImages(swapchain.handle, pi, XrSwapchainImageBaseHeader.create(swapchainImageBuffer)), "Failed to get swapchain images: error code %s"))
-                    return true;
-
-                swapchain.images = swapchainImageBuffer;
-                swapchains[i] = swapchain;
-            }
-
-            return false;
-        }
-    }
-
-    private static boolean createGraphicsBindingOpenGL(XrSessionCreateInfo sessionCreateInfo, MemoryStack stack, long window, boolean useEGL) {
+    private static boolean createGraphicsBindingOpenGL(MemoryStack stack, long window, XrSessionCreateInfo sessionCreateInfo, boolean useEGL) {
         if (useEGL) {
             LOGGER.debug("Using XrGraphicsBindingEGLMNDX to create the session...");
             sessionCreateInfo.next(XrGraphicsBindingEGLMNDX.malloc(stack)
@@ -534,18 +483,72 @@ public class XrManager {
         };
     }
 
+    private static boolean initializeReferenceSpace(MemoryStack stack) {
+        PointerBuffer spacePtr = stack.mallocPointer(1);
+
+        XrReferenceSpaceCreateInfo referenceSpace = XrReferenceSpaceCreateInfo.malloc(stack)
+                .type$Default()
+                .next(NULL)
+                .referenceSpaceType(XR_REFERENCE_SPACE_TYPE_LOCAL)
+                .poseInReferenceSpace(XrPosef.malloc(stack)
+                        .position$(XrVector3f.calloc(stack)
+                                .x(0).y(0).z(0))
+                        .orientation(XrQuaternionf.malloc(stack)
+                                .x(0).y(0).z(0).w(1)));
+
+        if (check(xrCreateReferenceSpace(session, referenceSpace, spacePtr), "Failed to create reference space: error code %s"))
+            return true;
+
+        LOGGER.debug("Created local xr reference space");
+        headspace = new XrSpace(spacePtr.get(0), session);
+        return false;
+    }
+
+    private static boolean initInput(MemoryStack stack) {
+        //create the action set
+        XrActionSetCreateInfo actionInfo = XrActionSetCreateInfo.malloc(stack)
+                .type$Default()
+                .next(NULL)
+                .actionSetName(stack.UTF8(Cinnamon.NAMESPACE))
+                .localizedActionSetName(stack.UTF8(Cinnamon.TITLE))
+                .priority(0);
+
+        PointerBuffer actionSetPtr = stack.mallocPointer(1);
+        if (check(xrCreateActionSet(instance, actionInfo, actionSetPtr), "Failed to create action set: error code %s"))
+            return true;
+
+        actionSet = new XrActionSet(actionSetPtr.get(0), instance);
+        LOGGER.debug("Created action set");
+
+        //init input
+        if (XrInput.init(stack))
+            return true;
+
+        //attach action set to the session
+        XrSessionActionSetsAttachInfo attachInfo = XrSessionActionSetsAttachInfo.malloc(stack)
+                .type$Default()
+                .next(NULL)
+                .actionSets(actionSetPtr);
+
+        if (check(xrAttachSessionActionSets(session, attachInfo), "Failed to attach action set: error code %s"))
+            return true;
+
+        LOGGER.debug("Attached action set");
+        return false;
+    }
+
     // -- xr event -- //
 
     private static boolean pollEvents() {
         XrEventDataBaseHeader event;
         while ((event = getXrEvent()) != null) {
             switch (event.type()) {
-                case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING: {
+                case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING -> {
                     XrEventDataInstanceLossPending instanceLossPending = XrEventDataInstanceLossPending.create(event);
                     LOGGER.error("XrEventDataInstanceLossPending by %s", instanceLossPending.lossTime());
                     return true;
                 }
-                case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED: {
+                case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED -> {
                     XrEventDataSessionStateChanged state = XrEventDataSessionStateChanged.create(event);
 
                     int oldState = sessionState;
@@ -560,13 +563,7 @@ public class XrManager {
 
                     return checkSessionState();
                 }
-                case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
-                    break;
-                case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
-                default: {
-                    LOGGER.debug("Ignoring xr event type %s", event.type());
-                    break;
-                }
+                default -> LOGGER.debug("Ignoring xr event type %s", event.type());
             }
         }
 
@@ -583,23 +580,27 @@ public class XrManager {
                             .primaryViewConfigurationType(viewConfigType);
                     if (check(xrBeginSession(session, sessionBeginInfo), "Failed to begin OpenXR session: error code %s"))
                         yield true;
-                    sessionRunning = true;
+                    setSessionRunning(true);
                     yield false;
                 }
             }
-            case XR_SESSION_STATE_SYNCHRONIZED, XR_SESSION_STATE_VISIBLE -> {
-                sessionRunning = false;
+            case XR_SESSION_STATE_IDLE -> {
+                setSessionRunning(false);
                 yield false;
             }
-            case XR_SESSION_STATE_FOCUSED -> {
-                sessionRunning = true;
+            case XR_SESSION_STATE_SYNCHRONIZED, XR_SESSION_STATE_VISIBLE, XR_SESSION_STATE_FOCUSED -> {
+                setSessionRunning(true);
                 yield false;
             }
             case XR_SESSION_STATE_STOPPING -> {
-                sessionRunning = false;
+                setSessionRunning(false);
                 yield check(xrEndSession(session), "Failed to end OpenXR session: error code %s");
             }
-            case XR_SESSION_STATE_EXITING, XR_SESSION_STATE_LOSS_PENDING -> true;
+            case XR_SESSION_STATE_EXITING, XR_SESSION_STATE_LOSS_PENDING -> {
+                setSessionRunning(false);
+                close();
+                yield true;
+            }
             default -> false;
         };
     }
@@ -625,7 +626,58 @@ public class XrManager {
 
     // -- render -- //
 
-    private static boolean renderLayer(MemoryStack stack, long displayTime, XrCompositionLayerProjection layerProjection, Runnable toRender) {
+    private static boolean render(MemoryStack stack, Runnable toRender) {
+        XrFrameState frameState = XrFrameState.calloc(stack).type$Default();
+
+        int wait = xrWaitFrame(session, XrFrameWaitInfo.calloc(stack).type$Default(), frameState);
+        if (wait == XR_SESSION_LOSS_PENDING) {
+            return false;
+        } else if (check(wait, "Failed to wait for frame: error code %s")) {
+            close();
+            return false;
+        }
+
+        int begin = xrBeginFrame(session, XrFrameBeginInfo.calloc(stack).type$Default());
+        if (begin == XR_SESSION_LOSS_PENDING || begin == XR_FRAME_DISCARDED) {
+            return false;
+        } else if (check(begin, "Failed to begin frame: error code %s")) {
+            close();
+            return false;
+        }
+
+        XrCompositionLayerProjection layerProjection = XrCompositionLayerProjection.calloc(stack).type$Default();
+        PointerBuffer layers = stack.callocPointer(1);
+        displayTime = frameState.predictedDisplayTime();
+
+        boolean didRender = false;
+        if (frameState.shouldRender()) {
+            if (renderLayer(stack, layerProjection, toRender)) {
+                layers.put(0, layerProjection);
+                didRender = true;
+            } else if (!initialized) {
+                return false;
+            } else {
+                LOGGER.debug("Not rendering xr frame - no valid tracking poses for the views");
+            }
+        }
+
+        XrFrameEndInfo endInfo = XrFrameEndInfo.malloc(stack)
+                .type$Default()
+                .next(NULL)
+                .displayTime(displayTime)
+                .environmentBlendMode(XR_ENVIRONMENT_BLEND_MODE_OPAQUE)
+                .layers(didRender ? layers : null)
+                .layerCount(didRender ? layers.remaining() : 0);
+
+        if (check(xrEndFrame(session, endInfo), "Failed to end frame: error code %s")) {
+            close();
+            return false;
+        }
+
+        return didRender;
+    }
+
+    private static boolean renderLayer(MemoryStack stack, XrCompositionLayerProjection layerProjection, Runnable toRender) {
         XrViewState viewState = XrViewState.calloc(stack).type$Default();
         XrViewLocateInfo viewLocateInfo = XrViewLocateInfo.malloc(stack)
                 .type$Default()
@@ -682,7 +734,7 @@ public class XrManager {
                                             .height(viewSwapchain.height)
                                     )));
 
-            XrRenderer.render(projectionLayerView, viewSwapchain.images.get(imageIndex), swapchains, i, toRender);
+            XrRenderer.render(projectionLayerView, viewSwapchain.images.get(imageIndex), i, toRender);
 
             if (check(xrReleaseSwapchainImage(viewSwapchain.handle, XrSwapchainImageReleaseInfo.calloc(stack).type$Default()), "Failed to release swapchain image: error code %s")) {
                 close();
@@ -697,7 +749,7 @@ public class XrManager {
 
     // -- internal structures -- //
 
-    public static class Swapchain {
+    static class Swapchain {
         public XrSwapchain handle;
         public int width, height;
         public XrSwapchainImageOpenGLKHR.Buffer images;

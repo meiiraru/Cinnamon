@@ -25,6 +25,7 @@ public class Cinnamon {
     //window settings
     public static int WIDTH = 854, HEIGHT = 480;
     public static String TITLE = "Cinnamon";
+    public static String NAMESPACE = "cinnamon";
     public static Resource ICON = new Resource("textures/icon.png");
     public static Platform PLATFORM = Platform.get();
 
@@ -161,9 +162,7 @@ public class Cinnamon {
                 client.tick();
 
             //render client
-            if (XrManager.shouldRender()) {
-                XrManager.render(() -> client.render(matrices));
-            } else {
+            if (!XrManager.render(() -> client.render(matrices))) {
                 Framebuffer.DEFAULT_FRAMEBUFFER.useClear();
                 Framebuffer.DEFAULT_FRAMEBUFFER.adjustViewPort();
                 client.render(matrices);

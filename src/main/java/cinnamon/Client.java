@@ -68,12 +68,6 @@ public class Client {
     private Client() {}
 
     public void init() {
-        //queue window first update
-        this.windowResize(window.width, window.height);
-
-        //update camera
-        this.camera.updateProjMatrix(this.window.scaledWidth, this.window.scaledHeight, Settings.fov.get());
-
         //initiate logger
         LoggerConfig.initialize();
 
@@ -86,6 +80,9 @@ public class Client {
 
         //init settings
         Settings.load();
+
+        //queue window first update
+        this.windowResize(window.width, window.height);
 
         //init sounds
         SoundManager.init(Settings.soundDevice.get());
@@ -183,8 +180,10 @@ public class Client {
         glClear(GL_DEPTH_BUFFER_BIT);
 
         //xr GUI transform
-        if (XrManager.isInXR())
+        if (XrManager.isInXR()) {
+            XrRenderer.renderHands(matrices);
             XrRenderer.applyGUITransform(matrices);
+        }
 
         //run gui events
         events.runEvents(EventType.RENDER_BEFORE_GUI);

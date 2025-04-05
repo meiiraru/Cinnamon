@@ -1,5 +1,6 @@
 package cinnamon.utils;
 
+import cinnamon.Cinnamon;
 import org.lwjgl.BufferUtils;
 
 import javax.imageio.ImageIO;
@@ -32,8 +33,7 @@ import static org.lwjgl.system.MemoryUtil.memSlice;
 
 public class IOUtils {
 
-    public static final String VANILLA_FOLDER = "cinnamon";
-    public static final Path ROOT_FOLDER = Path.of("./" + VANILLA_FOLDER);
+    public static final Path ROOT_FOLDER = Path.of("./" + Cinnamon.NAMESPACE);
 
     private static String resolveResourcePath(Resource res) {
         return "resources/" + res.getNamespace() + "/" + res.getPath();

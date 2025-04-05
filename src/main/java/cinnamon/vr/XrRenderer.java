@@ -2,15 +2,19 @@ package cinnamon.vr;
 
 import cinnamon.Cinnamon;
 import cinnamon.Client;
+import cinnamon.model.GeometryHelper;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
+import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import org.joml.Math;
+import org.joml.Quaternionf;
 import org.lwjgl.openxr.*;
 
+import static cinnamon.vr.XrManager.swapchains;
 import static org.lwjgl.opengl.GL11.glViewport;
 
 public class XrRenderer {
@@ -22,12 +26,13 @@ public class XrRenderer {
     public static final float XR_FAR = 100f;
 
     private static final XrFramebuffer framebuffer = new XrFramebuffer();
+    static XrPosef leftHandPose, rightHandPose;
 
-    public static void free() {
+    static void free() {
         framebuffer.free();
     }
 
-    public static void render(XrCompositionLayerProjectionView layerView, XrSwapchainImageOpenGLKHR swapchainImage, XrManager.Swapchain[] swapchains, int index, Runnable toRender) {
+    static void render(XrCompositionLayerProjectionView layerView, XrSwapchainImageOpenGLKHR swapchainImage, int index, Runnable toRender) {
         //prepare framebuffer
         Framebuffer fb = Framebuffer.DEFAULT_FRAMEBUFFER;
         fb.useClear();
@@ -38,6 +43,7 @@ public class XrRenderer {
 
         //update camera matrices
         XrPosef pose = layerView.pose();
+        leftHandPose = pose;
         XrFovf fov = layerView.fov();
         float distToLeftPlane = Math.tan(fov.angleLeft());
         float distToRightPlane = Math.tan(fov.angleRight());
@@ -92,5 +98,32 @@ public class XrRenderer {
         float s = 1f / 1024f;
         matrices.scale(s, -s, s);
         matrices.translate(-XR_WIDTH / 2f, -XR_HEIGHT / 2f, 0);
+    }
+
+    public static void applyHandTransform(MatrixStack matrices, boolean leftHand) {
+        XrPosef pose = leftHand ? leftHandPose : rightHandPose;
+        if (pose == null)
+            return;
+
+        XrVector3f pos = pose.position$();
+        XrQuaternionf rot = pose.orientation();
+
+        matrices.translate(pos.x(), pos.y(), pos.z());
+        matrices.rotate(new Quaternionf(rot.x(), rot.y(), rot.z(), rot.w()));
+    }
+
+    public static void renderHands(MatrixStack matrices) {
+        for (int i = 0; i < 2; i++) {
+            matrices.pushMatrix();
+
+            applyHandTransform(matrices, i == 0);
+            matrices.scale(0.02f);
+
+            VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, -1, -1, -1, 1, 1, 1, 0xFFFF72AD));
+
+            matrices.popMatrix();
+        }
+
+        VertexConsumer.finishAllBatches(Client.getInstance().camera);
     }
 }

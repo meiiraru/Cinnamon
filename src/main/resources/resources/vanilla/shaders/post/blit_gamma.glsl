@@ -9,10 +9,10 @@ in vec2 texCoords;
 out vec4 fragColor;
 
 uniform sampler2D colorTex;
-uniform float gamma = 2.2f;
+uniform float gamma = 1.0f / 2.2f;
 
 void main() {
     vec4 col = texture(colorTex, texCoords);
-    col.rgb = pow(col.rgb, vec3(1.0f / gamma));
+    col.rgb = pow(col.rgb, vec3(gamma));
     fragColor = col;
 }
