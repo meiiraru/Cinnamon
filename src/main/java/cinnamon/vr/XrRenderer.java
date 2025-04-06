@@ -43,7 +43,6 @@ public class XrRenderer {
 
         //update camera matrices
         XrPosef pose = layerView.pose();
-        leftHandPose = pose;
         XrFovf fov = layerView.fov();
         float distToLeftPlane = Math.tan(fov.angleLeft());
         float distToRightPlane = Math.tan(fov.angleRight());
@@ -124,6 +123,6 @@ public class XrRenderer {
             matrices.popMatrix();
         }
 
-        VertexConsumer.finishAllBatches(Client.getInstance().camera);
+        VertexConsumer.MAIN.finishBatch(Client.getInstance().camera);
     }
 }

@@ -4,161 +4,81 @@ import org.lwjgl.PointerBuffer;
 import org.lwjgl.openxr.*;
 import org.lwjgl.system.MemoryStack;
 
+import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
+import static cinnamon.Client.LOGGER;
 import static cinnamon.vr.XrManager.*;
 import static org.lwjgl.openxr.XR10.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class XrInput {
 
-    private static XrAction[] actions;
-    private static XrSpace[] actionSpaces;
-    private static LongBuffer leftHand, rightHand;
+    private static final Map<String, XrKeybind> actions = new HashMap<>();
 
     static boolean init(MemoryStack stack) {
-        LongBuffer oculusProfilePath = stack.mallocLong(1);
-        if (check(xrStringToPath(instance, "/interaction_profiles/oculus/touch_controller", oculusProfilePath), "Failed to create path: error code %s"))
-            return true;
+        LongBuffer profilePath = stringToPath(stack, "/interaction_profiles/oculus/touch_controller");
+        LongBuffer leftHand =    stringToPath(stack, "/user/hand/left");
+        LongBuffer rightHand =   stringToPath(stack, "/user/hand/right");
 
-        leftHand = stack.mallocLong(1);
-        if (check(xrStringToPath(instance, "/user/hand/left", leftHand), "Failed to create path: error code %s"))
-            return true;
+        actions.put("left_pose",     new XrKeybind("left_pose",     "/user/hand/left/input/grip/pose",      leftHand,  XR_ACTION_TYPE_POSE_INPUT,       stack));
+        actions.put("right_pose",    new XrKeybind("right_pose",    "/user/hand/right/input/grip/pose",     rightHand, XR_ACTION_TYPE_POSE_INPUT,       stack));
+        actions.put("left_click",    new XrKeybind("left_click",    "/user/hand/left/input/x/click",        leftHand,  XR_ACTION_TYPE_BOOLEAN_INPUT,    stack));
+        actions.put("right_click",   new XrKeybind("right_click",   "/user/hand/right/input/a/click",       rightHand, XR_ACTION_TYPE_BOOLEAN_INPUT,    stack));
+        actions.put("left_vibrate",  new XrKeybind("left_vibrate",  "/user/hand/left/output/haptic",        leftHand,  XR_ACTION_TYPE_VIBRATION_OUTPUT, stack));
+        actions.put("right_vibrate", new XrKeybind("right_vibrate", "/user/hand/right/output/haptic",       rightHand, XR_ACTION_TYPE_VIBRATION_OUTPUT, stack));
+        actions.put("left_squeeze",  new XrKeybind("left_squeeze",  "/user/hand/left/input/squeeze/value",  leftHand,  XR_ACTION_TYPE_FLOAT_INPUT,      stack));
+        actions.put("right_squeeze", new XrKeybind("right_squeeze", "/user/hand/right/input/squeeze/value", rightHand, XR_ACTION_TYPE_FLOAT_INPUT,      stack));
 
-        rightHand = stack.mallocLong(1);
-        if (check(xrStringToPath(instance, "/user/hand/right", rightHand), "Failed to create path: error code %s"))
-            return true;
+        return suggestBindings(stack, profilePath);
+    }
 
-        LongBuffer xClickPath = stack.mallocLong(1);
-        if (check(xrStringToPath(instance, "/user/hand/left/input/x/click", xClickPath), "Failed to create path: error code %s"))
-            return true;
+    static void free() {
+        for (XrKeybind action : actions.values())
+            action.free();
+        actions.clear();
+    }
 
-        LongBuffer leftVibratePath = stack.mallocLong(1);
-        if (check(xrStringToPath(instance, "/user/hand/left/output/haptic", leftVibratePath), "Failed to create path: error code %s"))
-            return true;
+    // -- init -- //
 
-        LongBuffer rightPosePath = stack.mallocLong(1);
-        if (check(xrStringToPath(instance, "/user/hand/right/input/grip/pose", rightPosePath), "Failed to create path: error code %s"))
-            return true;
+    static LongBuffer stringToPath(MemoryStack stack, String path) {
+        LongBuffer buffer = stack.mallocLong(1);
+        check(xrStringToPath(instance, path, buffer), "Failed to create path: error code %s");
+        return buffer;
+    }
 
-        LongBuffer rightSqueezePath = stack.mallocLong(1);
-        if (check(xrStringToPath(instance, "/user/hand/right/input/squeeze/value", rightSqueezePath), "Failed to create path: error code %s"))
-            return true;
-
-
-        XrActionCreateInfo createInfo = XrActionCreateInfo.malloc(stack)
-                .type$Default()
-                .next(NULL)
-                .actionName(stack.UTF8("test"))
-                .localizedActionName(stack.UTF8("test"))
-                .actionType(XR_ACTION_TYPE_BOOLEAN_INPUT)
-                .countSubactionPaths(1)
-                .subactionPaths(leftHand);
-
-        PointerBuffer actionPtr = stack.mallocPointer(1);
-        if (check(xrCreateAction(actionSet, createInfo, actionPtr), "Failed to create action: error code %s"))
-            return true;
-
-        XrAction action = new XrAction(actionPtr.get(), actionSet);
-
-
-        XrActionCreateInfo vibrateInfo = XrActionCreateInfo.malloc(stack)
-                .type$Default()
-                .next(NULL)
-                .actionName(stack.UTF8("vibrate"))
-                .localizedActionName(stack.UTF8("vibrate"))
-                .actionType(XR_ACTION_TYPE_VIBRATION_OUTPUT)
-                .countSubactionPaths(1)
-                .subactionPaths(leftHand);
-
-        PointerBuffer vibratePtr = stack.mallocPointer(1);
-        if (check(xrCreateAction(actionSet, vibrateInfo, vibratePtr), "Failed to create action: error code %s"))
-            return true;
-
-        XrAction vibrateAction = new XrAction(vibratePtr.get(), actionSet);
-
-
-        XrActionCreateInfo rightPoseInfo = XrActionCreateInfo.malloc(stack)
-                .type$Default()
-                .next(NULL)
-                .actionName(stack.UTF8("right_hand_pose"))
-                .localizedActionName(stack.UTF8("right_hand_pose"))
-                .actionType(XR_ACTION_TYPE_POSE_INPUT)
-                .countSubactionPaths(1)
-                .subactionPaths(rightHand);
-
-        PointerBuffer rightPosePtr = stack.mallocPointer(1);
-        if (check(xrCreateAction(actionSet, rightPoseInfo, rightPosePtr), "Failed to create action: error code %s"))
-            return true;
-
-        XrAction rightPoseAction = new XrAction(rightPosePtr.get(), actionSet);
-
-
-
-        XrActionCreateInfo rightSqueezeInfo = XrActionCreateInfo.malloc(stack)
-                .type$Default()
-                .next(NULL)
-                .actionName(stack.UTF8("right_hand_squeeze"))
-                .localizedActionName(stack.UTF8("right_hand_squeeze"))
-                .actionType(XR_ACTION_TYPE_FLOAT_INPUT)
-                .countSubactionPaths(1)
-                .subactionPaths(rightHand);
-
-        PointerBuffer rightSqueezePtr = stack.mallocPointer(1);
-        if (check(xrCreateAction(actionSet, rightSqueezeInfo, rightSqueezePtr), "Failed to create action: error code %s"))
-            return true;
-
-        XrAction rightSqueezeAction = new XrAction(rightSqueezePtr.get(), actionSet);
-
-
-        actions = new XrAction[]{action, vibrateAction, rightPoseAction, rightSqueezeAction};
-        LongBuffer[] paths = new LongBuffer[]{xClickPath, leftVibratePath, rightPosePath, rightSqueezePath};
-
-        XrActionSuggestedBinding.Buffer suggestedBindingsBuffer = XrActionSuggestedBinding.calloc(actions.length, stack);
-        for (int i = 0; i < actions.length; i++) {
+    private static boolean suggestBindings(MemoryStack stack, LongBuffer profilePath) {
+        XrActionSuggestedBinding.Buffer suggestedBindingsBuffer = XrActionSuggestedBinding.calloc(actions.size(), stack);
+        int i = 0;
+        for (XrKeybind action : actions.values()) {
             suggestedBindingsBuffer.get(i)
-                    .action(actions[i])
-                    .binding(paths[i].get(0));
+                    .action(action.action)
+                    .binding(action.xrPath.get(0));
+            i++;
         }
 
         XrInteractionProfileSuggestedBinding suggestedBindings = XrInteractionProfileSuggestedBinding.calloc(stack)
                 .type$Default()
                 .next(NULL)
-                .interactionProfile(oculusProfilePath.get())
+                .interactionProfile(profilePath.get(0))
                 .suggestedBindings(suggestedBindingsBuffer);
 
         if (check(xrSuggestInteractionProfileBindings(instance, suggestedBindings), "Failed to suggest interaction profile bindings: error code %s"))
             return true;
 
-
-        PointerBuffer actionSpacePtr = stack.mallocPointer(1);
-        XrActionSpaceCreateInfo actionSpaceInfo = XrActionSpaceCreateInfo.malloc(stack)
-                .type$Default()
-                .next(NULL)
-                .action(rightPoseAction)
-                .subactionPath(rightHand.get(0))
-                .poseInActionSpace(XrPosef.calloc(stack)
-                        .position$(XrVector3f.calloc(stack)
-                                .set(0f, 0f, 0f))
-                        .orientation(XrQuaternionf.calloc(stack)
-                                .set(0f, 0f, 0f, 1f)));
-        if (check(xrCreateActionSpace(session, actionSpaceInfo, actionSpacePtr), "Failed to create action space: error code %s"))
-            return true;
-        actionSpaces = new XrSpace[]{new XrSpace(actionSpacePtr.get(), session)};
-
+        LOGGER.debug("Set suggested xr bindings");
         return false;
     }
 
-    static void free() {
-        if (actions != null) for (XrAction action : actions) xrDestroyAction(action);
-        if (actionSpaces != null) for (XrSpace actionSpace : actionSpaces) xrDestroySpace(actionSpace);
-    }
+    // -- poll -- //
 
     static boolean poll(MemoryStack stack) {
         //sync actions
         XrActiveActionSet.Buffer actionSetBuffer = XrActiveActionSet.calloc(1, stack)
-            .actionSet(actionSet)
-            .subactionPath(XR_NULL_PATH);
+                .actionSet(actionSet)
+                .subactionPath(XR_NULL_PATH);
 
         XrActionsSyncInfo syncInfo = XrActionsSyncInfo.malloc(stack)
                 .type$Default()
@@ -178,84 +98,159 @@ public class XrInput {
         return false;
     }
 
-    // -- init -- //
-
     private static void processInput(MemoryStack stack) {
-        XrRenderer.rightHandPose = getActionPose(stack, rightHand, actions[2], actionSpaces[0]);
-        boolean leftButton = getActionBoolean(stack, leftHand, actions[0]);
-        if (leftButton) {
-            sendHapticsFeedback(stack, leftHand, actions[1]);
-            System.out.println("left button " + displayTime);
+        XrRenderer.leftHandPose = actions.get("left_pose").getAsPose(stack);
+        XrRenderer.rightHandPose = actions.get("right_pose").getAsPose(stack);
+
+        boolean leftClick = actions.get("left_click").getAsBoolean(stack);
+        if (leftClick) {
+            actions.get("left_vibrate").vibrate(stack);
+            System.out.println("left click " + displayTime);
         }
 
-        float squeezeValue = getActionFloat(stack, rightHand, actions[3]);
-        if (squeezeValue >= 0.9f)
-            System.out.println("SQUEEZE: " + squeezeValue);
-        else if (squeezeValue > 0f)
-            System.out.println("squeeze: " + squeezeValue);
-    }
-
-    private static boolean getActionBoolean(MemoryStack stack, LongBuffer hand, XrAction action) {
-        XrActionStateBoolean actionState = XrActionStateBoolean.malloc(stack).type$Default().next(NULL);
-        XrActionStateGetInfo actionStateInfo = XrActionStateGetInfo.malloc(stack)
-                .type$Default()
-                .action(action)
-                .subactionPath(hand.get(0));
-
-        if (check(xrGetActionStateBoolean(session, actionStateInfo, actionState), "Failed to get boolean action state: error code %s"))
-            return false;
-
-        return actionState.currentState();
-    }
-
-    private static float getActionFloat(MemoryStack stack, LongBuffer hand, XrAction action) {
-        XrActionStateFloat actionState = XrActionStateFloat.malloc(stack).type$Default().next(NULL);
-        XrActionStateGetInfo actionStateInfo = XrActionStateGetInfo.malloc(stack)
-                .type$Default()
-                .action(action)
-                .subactionPath(hand.get(0));
-
-        if (check(xrGetActionStateFloat(session, actionStateInfo, actionState), "Failed to get action state: error code %s"))
-            return 0f;
-
-        return actionState.currentState();
-    }
-
-    private static XrPosef getActionPose(MemoryStack stack, LongBuffer hand, XrAction action, XrSpace space) {
-        XrActionStatePose actionState = XrActionStatePose.malloc(stack).type$Default().next(NULL);
-        XrActionStateGetInfo actionStateInfo = XrActionStateGetInfo.malloc(stack)
-                .type$Default()
-                .action(action)
-                .subactionPath(hand.get(0));
-
-        if (check(xrGetActionStatePose(session, actionStateInfo, actionState), "Failed to get action state: error code %s"))
-            return null;
-
-        XrSpaceLocation actionSpaceLocation = XrSpaceLocation.malloc(stack).type$Default().next(NULL);
-        if (check(xrLocateSpace(space, headspace, displayTime, actionSpaceLocation), "Failed to locate space: error code %s"))
-            return null;
-
-        if ((actionSpaceLocation.locationFlags() & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
-                (actionSpaceLocation.locationFlags() & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) {
-            return actionSpaceLocation.pose();
+        boolean rightClick = actions.get("right_click").getAsBoolean(stack);
+        if (rightClick) {
+            actions.get("right_vibrate").vibrate(stack);
+            System.out.println("right click " + displayTime);
         }
 
-        return null;
+        float lSqueeze = actions.get("left_squeeze").getAsFloat(stack);
+        if (lSqueeze >= 0.9f) {
+            actions.get("left_vibrate").vibrate(stack);
+            System.out.println("left SQUEEZE: " + lSqueeze);
+        }
+        else if (lSqueeze > 0f)
+            System.out.println("left squeeze: " + lSqueeze);
+
+        float rSqueeze = actions.get("right_squeeze").getAsFloat(stack);
+        if (rSqueeze >= 0.9f) {
+            actions.get("right_vibrate").vibrate(stack);
+            System.out.println("right SQUEEZE: " + rSqueeze);
+        }
+        else if (rSqueeze > 0f)
+            System.out.println("right squeeze: " + rSqueeze);
     }
 
-    private static void sendHapticsFeedback(MemoryStack stack, LongBuffer hand, XrAction action) {
-        XrHapticVibration hapticVibration = XrHapticVibration.malloc(stack)
-                .type$Default()
-                .next(NULL)
-                .amplitude(0.5f)
-                .duration(1_000_000_000L) //1s
-                .frequency(XR_FREQUENCY_UNSPECIFIED);
+    private static class XrKeybind {
 
-        XrHapticActionInfo hapticActionInfo = XrHapticActionInfo.malloc(stack)
-                .type$Default()
-                .action(action)
-                .subactionPath(hand.get(0));
+        private final LongBuffer xrPath;
+        private final long hand;
+        private final XrAction action;
+        private final XrSpace actionSpace;
 
-        check(xrApplyHapticFeedback(session, hapticActionInfo, XrHapticBaseHeader.create(hapticVibration)), "Failed to apply haptic feedback: error code %s");
+        public XrKeybind(String name, String xrPath, LongBuffer hand, int actionType, MemoryStack stack) {
+            this.xrPath = stringToPath(stack, xrPath);
+            this.hand = hand.get(0);
+
+            ByteBuffer nameBfr = stack.UTF8(name);
+            XrActionCreateInfo rightSqueezeInfo = XrActionCreateInfo.malloc(stack)
+                    .type$Default()
+                    .next(NULL)
+                    .actionName(nameBfr)
+                    .localizedActionName(nameBfr)
+                    .actionType(actionType)
+                    .countSubactionPaths(1)
+                    .subactionPaths(hand);
+
+            PointerBuffer ptr = stack.mallocPointer(1);
+            check(xrCreateAction(actionSet, rightSqueezeInfo, ptr), "Failed to create action: error code %s");
+            this.action = new XrAction(ptr.get(0), actionSet);
+
+            this.actionSpace = genActionSpace(stack, actionType);
+        }
+
+        void free() {
+            xrDestroyAction(action);
+            if (actionSpace != null)
+                xrDestroySpace(actionSpace);
+        }
+
+        private XrSpace genActionSpace(MemoryStack stack, int actionType) {
+            if (actionType != XR_ACTION_TYPE_POSE_INPUT)
+                return null;
+
+            PointerBuffer actionSpacePtr = stack.mallocPointer(1);
+            XrActionSpaceCreateInfo actionSpaceInfo = XrActionSpaceCreateInfo.malloc(stack)
+                    .type$Default()
+                    .next(NULL)
+                    .action(action)
+                    .subactionPath(hand)
+                    .poseInActionSpace(XrPosef.malloc(stack)
+                            .position$(XrVector3f.calloc(stack)
+                                    .set(0f, 0f, 0f))
+                            .orientation(XrQuaternionf.calloc(stack)
+                                    .set(0f, 0f, 0f, 1f)));
+
+            check(xrCreateActionSpace(session, actionSpaceInfo, actionSpacePtr), "Failed to create action space: error code %s");
+            return new XrSpace(actionSpacePtr.get(0), session);
+        }
+
+        public boolean getAsBoolean(MemoryStack stack) {
+            XrActionStateBoolean actionState = XrActionStateBoolean.malloc(stack).type$Default().next(NULL);
+            XrActionStateGetInfo actionStateInfo = XrActionStateGetInfo.malloc(stack)
+                    .type$Default()
+                    .action(action)
+                    .subactionPath(hand);
+
+            if (check(xrGetActionStateBoolean(session, actionStateInfo, actionState), "Failed to get boolean action state: error code %s"))
+                return false;
+
+            return actionState.currentState();
+        }
+
+        public float getAsFloat(MemoryStack stack) {
+            XrActionStateFloat actionState = XrActionStateFloat.malloc(stack).type$Default().next(NULL);
+            XrActionStateGetInfo actionStateInfo = XrActionStateGetInfo.malloc(stack)
+                    .type$Default()
+                    .action(action)
+                    .subactionPath(hand);
+
+            if (check(xrGetActionStateFloat(session, actionStateInfo, actionState), "Failed to get float action state: error code %s"))
+                return 0f;
+
+            return actionState.currentState();
+        }
+
+        public XrPosef getAsPose(MemoryStack stack) {
+            XrActionStatePose actionState = XrActionStatePose.malloc(stack).type$Default().next(NULL);
+            XrActionStateGetInfo actionStateInfo = XrActionStateGetInfo.malloc(stack)
+                    .type$Default()
+                    .action(action)
+                    .subactionPath(hand);
+
+            if (check(xrGetActionStatePose(session, actionStateInfo, actionState), "Failed to get action state: error code %s"))
+                return null;
+
+            XrSpaceLocation actionSpaceLocation = XrSpaceLocation.malloc(stack).type$Default().next(NULL);
+            if (check(xrLocateSpace(actionSpace, headspace, displayTime, actionSpaceLocation), "Failed to locate space: error code %s"))
+                return null;
+
+            if ((actionSpaceLocation.locationFlags() & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
+                    (actionSpaceLocation.locationFlags() & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) {
+                return actionSpaceLocation.pose();
+            }
+
+            return null;
+        }
+
+        public void vibrate(MemoryStack stack) {
+            vibrate(stack, 0.5f, XR_MIN_HAPTIC_DURATION / 1_000_000);
+        }
+
+        public void vibrate(MemoryStack stack, float amplitude, long duration) {
+            XrHapticVibration hapticVibration = XrHapticVibration.malloc(stack)
+                    .type$Default()
+                    .next(NULL)
+                    .amplitude(amplitude)
+                    .duration(duration * 1_000_000)
+                    .frequency(XR_FREQUENCY_UNSPECIFIED);
+
+            XrHapticActionInfo hapticActionInfo = XrHapticActionInfo.malloc(stack)
+                    .type$Default()
+                    .action(action)
+                    .subactionPath(hand);
+
+            check(xrApplyHapticFeedback(session, hapticActionInfo, XrHapticBaseHeader.create(hapticVibration)), "Failed to apply haptic feedback: error code %s");
+        }
     }
 }

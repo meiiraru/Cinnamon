@@ -492,9 +492,9 @@ public class XrManager {
                 .referenceSpaceType(XR_REFERENCE_SPACE_TYPE_LOCAL)
                 .poseInReferenceSpace(XrPosef.malloc(stack)
                         .position$(XrVector3f.calloc(stack)
-                                .x(0).y(0).z(0))
-                        .orientation(XrQuaternionf.malloc(stack)
-                                .x(0).y(0).z(0).w(1)));
+                                .set(0f, 0f, 0f))
+                        .orientation(XrQuaternionf.calloc(stack)
+                                .set(0f, 0f, 0f, 1f)));
 
         if (check(xrCreateReferenceSpace(session, referenceSpace, spacePtr), "Failed to create reference space: error code %s"))
             return true;
