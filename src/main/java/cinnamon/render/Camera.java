@@ -22,15 +22,15 @@ public class Camera {
 
     private final Vector3f
             pos = new Vector3f(),
+            xrPos = new Vector3f(),
+
             forwards = new Vector3f(0f, 0f, -1f),
             up = new Vector3f(0f, 1f, 0f),
             left = new Vector3f(1f, 0f, 0f);
 
-    private final Vector3f rot = new Vector3f();
-    private final Quaternionf rotation = new Quaternionf();
-
-    private final Vector3f xrPos = new Vector3f();
-    private final Quaternionf xrRot = new Quaternionf();
+    private final Quaternionf
+            rotation = new Quaternionf(),
+            xrRot = new Quaternionf();
 
     private final Matrix4f
             identity = new Matrix4f(),
@@ -68,8 +68,11 @@ public class Camera {
     }
 
     public void setRot(float pitch, float yaw, float roll) {
-        this.rot.set(pitch, yaw, roll);
         this.rotation.rotationZYX((float) Math.toRadians(-roll), (float) Math.toRadians(-yaw), (float) Math.toRadians(-pitch));
+    }
+
+    public void setRot(Quaternionf quaternion) {
+        this.rotation.set(quaternion);
     }
 
     public void move(float x, float y, float z) {
@@ -110,13 +113,13 @@ public class Camera {
     }
 
     public void horizontalBillboard(MatrixStack matrices) {
-        matrices.rotate(Rotation.Z.rotationDeg(-rot.z));
-        matrices.rotate(Rotation.Y.rotationDeg(180f - rot.y));
+        //matrices.rotate(Rotation.Z.rotationDeg(-rot.z));
+        //matrices.rotate(Rotation.Y.rotationDeg(180f - rot.y));
     }
 
     public void verticalBillboard(MatrixStack matrices) {
-        matrices.rotate(Rotation.Z.rotationDeg(-rot.z));
-        matrices.rotate(Rotation.X.rotationDeg(rot.x));
+        //matrices.rotate(Rotation.Z.rotationDeg(-rot.z));
+        //matrices.rotate(Rotation.X.rotationDeg(rot.x));
     }
 
     public boolean isInsideFrustum(AABB aabb) {
@@ -208,8 +211,8 @@ public class Camera {
         return pos;
     }
 
-    public Vector3f getRot() {
-        return rot;
+    public Quaternionf getRot() {
+        return rotation;
     }
 
     public Vector3f getForwards() {

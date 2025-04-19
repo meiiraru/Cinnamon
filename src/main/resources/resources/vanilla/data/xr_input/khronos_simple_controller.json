@@ -1,0 +1,18 @@
+{
+  "path": "/interaction_profiles/khr/simple_controller",
+  "user_paths": {
+    "left_hand": { "path": "/user/hand/left" },
+    "right_hand": { "path": "/user/hand/right" }
+  },
+  "all_user_paths": {
+    "haptics": [ "/output/haptic" ],
+    "poses": [
+      "/input/grip/pose",
+      "/input/aim/pose"
+    ],
+    "buttons": [
+      "/input/select/click",
+      "/input/menu/click"
+    ]
+  }
+}

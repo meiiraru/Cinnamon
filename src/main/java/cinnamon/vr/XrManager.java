@@ -64,12 +64,12 @@ public class XrManager {
 
     private static boolean initialized, sessionRunning;
 
-    public static void init(long window) {
+    public static void init() {
         if (initialized)
             return;
 
         try (MemoryStack stack = stackPush()) {
-            if (initializeInstance(stack) || initializeSystem(stack) || initializeSession(stack, window) || initializeSwapChains(stack) || initializeReferenceSpace(stack) || initInput(stack)) {
+            if (initializeInstance(stack) || initializeSystem(stack) || initializeSession(stack) || initializeSwapChains(stack) || initializeReferenceSpace(stack) || initInput(stack)) {
                 internalClose();
                 return;
             }
@@ -267,7 +267,7 @@ public class XrManager {
         return false;
     }
 
-    private static boolean initializeSession(MemoryStack stack, long window) {
+    private static boolean initializeSession(MemoryStack stack) {
         //open gl compatibility
         XrGraphicsRequirementsOpenGLKHR graphicsRequirements = XrGraphicsRequirementsOpenGLKHR.malloc(stack)
                 .type$Default()
@@ -283,7 +283,7 @@ public class XrManager {
                 .next(NULL)
                 .createFlags(0)
                 .systemId(systemId);
-        if (createGraphicsBindingOpenGL(stack, window, sessionInfo, useEgl)) {
+        if (createGraphicsBindingOpenGL(stack, Client.getInstance().window.getHandle(), sessionInfo, useEgl)) {
             LOGGER.error("Failed to create graphics binding");
             return true;
         }

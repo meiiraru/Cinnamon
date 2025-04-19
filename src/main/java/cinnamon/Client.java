@@ -22,6 +22,7 @@ import cinnamon.text.Text;
 import cinnamon.utils.TextureIO;
 import cinnamon.utils.Timer;
 import cinnamon.utils.Version;
+import cinnamon.vr.XrInput;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.Hud;
@@ -88,7 +89,7 @@ public class Client {
         SoundManager.init(Settings.soundDevice.get());
 
         //init open xr
-        //XrManager.init(window.getHandle());
+        //XrManager.init();
 
         //register and run init events
         events.registerClientEvents();
@@ -181,7 +182,8 @@ public class Client {
 
         //xr GUI transform
         if (XrManager.isInXR()) {
-            XrRenderer.renderHands(matrices);
+            if (this.screen != null)
+                XrRenderer.renderHands(matrices);
             XrRenderer.applyGUITransform(matrices);
         }
 
@@ -207,6 +209,7 @@ public class Client {
         events.runEvents(EventType.RENDER_END);
 
         //debug hud always on top
+        glClear(GL_DEPTH_BUFFER_BIT);
         Hud.renderDebug(matrices);
         VertexConsumer.finishAllBatches(camera);
 
@@ -396,5 +399,20 @@ public class Client {
             screen.filesDropped(files);
 
         events.runEvents(EventType.FILES_DROPPED, (Object) files);
+    }
+
+    // -- xr events -- //
+
+    public void xrButtonPress(int button, boolean pressed, int hand) {
+        System.out.println("Button: " + button + " Hand: " + hand + " Pressed: " + pressed);
+    }
+
+    public void xrTriggerPress(int button, float value, int hand) {
+        System.out.println("Trigger: " + button + " Hand: " + hand + " Value: " + value);
+        if (value == 1f) XrInput.vibrate(hand);
+    }
+
+    public void xrJoystickMove(float x, float y, int hand) {
+        System.out.println("Hand: " + hand + " X: " + x + " Y: " + y);
     }
 }

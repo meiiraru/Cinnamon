@@ -10,9 +10,14 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
+import cinnamon.utils.Pair;
 import org.joml.Math;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.lwjgl.openxr.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static cinnamon.vr.XrManager.swapchains;
 import static org.lwjgl.opengl.GL11.glViewport;
@@ -26,7 +31,9 @@ public class XrRenderer {
     public static final float XR_FAR = 100f;
 
     private static final XrFramebuffer framebuffer = new XrFramebuffer();
-    static XrPosef leftHandPose, rightHandPose;
+    private static final List<Pair<Vector3f, Quaternionf>> userPoses = new ArrayList<>();
+
+    static float screenCollision = -1f;
 
     static void free() {
         framebuffer.free();
@@ -99,26 +106,56 @@ public class XrRenderer {
         matrices.translate(-XR_WIDTH / 2f, -XR_HEIGHT / 2f, 0);
     }
 
-    public static void applyHandTransform(MatrixStack matrices, boolean leftHand) {
-        XrPosef pose = leftHand ? leftHandPose : rightHandPose;
+    static void setHands(int size) {
+        userPoses.clear();
+        for (int i = 0; i < size; i++)
+            userPoses.add(new Pair<>(new Vector3f(), new Quaternionf()));
+    }
+
+    static void updateHand(int hand, XrPosef pose) {
         if (pose == null)
             return;
 
-        XrVector3f pos = pose.position$();
-        XrQuaternionf rot = pose.orientation();
+        Pair<Vector3f, Quaternionf> pair = userPoses.get(hand);
 
-        matrices.translate(pos.x(), pos.y(), pos.z());
-        matrices.rotate(new Quaternionf(rot.x(), rot.y(), rot.z(), rot.w()));
+        XrVector3f pos = pose.position$();
+        pair.first().set(pos.x(), pos.y(), pos.z());
+
+        XrQuaternionf rot = pose.orientation();
+        pair.second().set(rot.x(), rot.y(), rot.z(), rot.w()).rotateX(Math.toRadians(-90f));
+    }
+
+    public static Vector3f getHandPos(int hand) {
+        return userPoses.get(hand).first();
+    }
+
+    public static Quaternionf getHandRot(int hand) {
+        return userPoses.get(hand).second();
     }
 
     public static void renderHands(MatrixStack matrices) {
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < userPoses.size(); i++) {
+            boolean activeHand = i == XrInput.getActiveHand();
+            Pair<Vector3f, Quaternionf> pair = userPoses.get(i);
+            Vector3f pos = pair.first();
+            Quaternionf rot = pair.second();
+
             matrices.pushMatrix();
 
-            applyHandTransform(matrices, i == 0);
+            matrices.translate(pos);
             matrices.scale(0.02f);
 
-            VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, -1, -1, -1, 1, 1, 1, 0xFFFF72AD));
+            matrices.pushMatrix();
+
+            matrices.rotate(rot);
+            VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, activeHand ? 0xFF72ADFF : 0xFFFF72AD));
+
+            matrices.popMatrix();
+
+            if (activeHand && screenCollision > 0f) {
+                Vector3f dir = new Vector3f(0, 0, -1).rotate(rot).mul(screenCollision * 512f).add(pos);
+                VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, pos.x, pos.y, pos.z, dir.x, dir.y, dir.z, 0.1f, 0xFF72ADFF));
+            }
 
             matrices.popMatrix();
         }

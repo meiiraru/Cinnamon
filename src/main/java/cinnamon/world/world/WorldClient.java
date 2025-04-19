@@ -24,6 +24,8 @@ import cinnamon.text.Text;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Direction;
 import cinnamon.utils.Maths;
+import cinnamon.vr.XrManager;
+import cinnamon.vr.XrRenderer;
 import cinnamon.world.Hud;
 import cinnamon.world.SkyBox;
 import cinnamon.world.collisions.Hit;
@@ -52,6 +54,7 @@ import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.Chunk;
 import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -282,7 +285,7 @@ public class WorldClient extends World {
         //setup camera
         Vector3f dir = skyBox.getSunDirection();
         Vector3f pos = new Vector3f(camera.getPos());
-        Vector3f rot = new Vector3f(camera.getRot());
+        Quaternionf rot = new Quaternionf(camera.getRot());
 
         camera.setPos(pos.x + dir.x, pos.y + dir.y, pos.z + dir.z);
         camera.lookAt(pos.x, pos.y, pos.z);
@@ -409,12 +412,24 @@ public class WorldClient extends World {
 
         matrices.pushMatrix();
 
-        //camera transforms
-        matrices.translate(camera.getPos());
-        matrices.rotate(camera.getRotation());
+        //transforms
+        if (XrManager.isInXR()) {
+            //camera transforms
+            matrices.translate(camera.getPos());
+            matrices.rotate(camera.getRot());
 
-        //screen transform
-        matrices.translate(0.75f, -0.5f, -1);
+            //xr transform
+            matrices.translate(XrRenderer.getHandPos(1));
+            matrices.rotate(XrRenderer.getHandRot(1));
+            matrices.scale(0.35f);
+        } else {
+            //camera transforms
+            matrices.translate(camera.getPosition());
+            matrices.rotate(camera.getRotation());
+
+            //screen transform
+            matrices.translate(0.75f, -0.5f, -1);
+        }
 
         //render item
         item.render(ItemRenderContext.FIRST_PERSON, matrices, delta);

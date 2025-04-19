@@ -27,6 +27,7 @@ import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
+import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -376,10 +377,7 @@ public class Hud {
         if (c.world != null)
             matrices.scale(1, -1, 1);
 
-        Vector3f rot = c.camera.getRot();
-        matrices.rotate(Rotation.X.rotationDeg(rot.x));
-        matrices.rotate(Rotation.Y.rotationDeg(rot.y));
-        matrices.rotate(Rotation.Z.rotationDeg(-rot.z));
+        matrices.rotate(c.camera.getRot().invert(new Quaternionf()));
 
         float len = 10;
         VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000));
@@ -408,12 +406,13 @@ public class Hud {
         Vector3f epos = p.getPos();
         Vector2f erot = p.getRot();
         Vector3f emot = p.getMotion();
-        Vector3f cpos = c.camera.getPos();
-        Vector3f crot = c.camera.getRot();
+        Vector3f cpos = c.camera.getPosition();
+        Quaternionf crot = c.camera.getRotation();
 
         Vector3f chunk = new Vector3f(w.getChunkGridPos(epos));
 
-        String face = Direction.fromRotation(crot.y).name;
+        float yaw = (float) Math.toDegrees(Math.asin(2f * (crot.x() * crot.z() - crot.w() * crot.y())));
+        String face = Direction.fromRotation(yaw).name;
 
         String camera;
         camera = switch (w.getCameraMode()) {
@@ -440,14 +439,14 @@ public class Hud {
  
                         [&bplayer&r]
                          &e%s&r %s
-                         xyz &c%.3f &a%.3f &b%.3f&r
+                         pos &c%.3f &a%.3f &b%.3f&r
                          pitch &e%.3f&r yaw &e%.3f&r
                          motion &c%.3f &a%.3f &b%.3f&r
                          chunk &c%.0f &a%.0f &b%.0f&r
 
                         [&bcamera&r]
-                         xyz &c%.3f &a%.3f &b%.3f&r
-                         pitch &e%.3f&r yaw &e%.3f&r roll &e%.3f&r
+                         pos &c%.3f &a%.3f &b%.3f&r
+                         rot &e%.3f&r &e%.3f&r &e%.3f&r &e%.3f&r
                          facing &e%s&r
                          mode &e%s&r
 
@@ -473,7 +472,7 @@ public class Hud {
                 chunk.x, chunk.y, chunk.z,
 
                 cpos.x, cpos.y, cpos.z,
-                crot.x, crot.y, crot.z,
+                crot.x, crot.y, crot.z, crot.w,
                 face,
                 camera,
 
