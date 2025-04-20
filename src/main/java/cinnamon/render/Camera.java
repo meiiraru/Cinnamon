@@ -68,7 +68,7 @@ public class Camera {
     }
 
     public void setRot(float pitch, float yaw, float roll) {
-        this.rotation.rotationZYX((float) Math.toRadians(-roll), (float) Math.toRadians(-yaw), (float) Math.toRadians(-pitch));
+        this.rotation.rotationYXZ((float) Math.toRadians(-yaw), (float) Math.toRadians(-pitch), (float) Math.toRadians(-roll));
     }
 
     public void setRot(Quaternionf quaternion) {
@@ -107,19 +107,27 @@ public class Camera {
         reset();
     }
 
-    public void billboard(MatrixStack modelMatrix) {
-        modelMatrix.rotate(getRotation());
-        modelMatrix.rotate(Rotation.Y.rotationDeg(180f));
+    /**
+     * Applies a billboard rotation of Pitch (X) and Yaw (Y) to the given matrices
+     * @param matrices the matrix stack to apply the rotation
+     */
+    public void billboard(MatrixStack matrices) {
+        billboard(matrices, (byte) (0x1 | 0x2));
     }
 
-    public void horizontalBillboard(MatrixStack matrices) {
-        //matrices.rotate(Rotation.Z.rotationDeg(-rot.z));
-        //matrices.rotate(Rotation.Y.rotationDeg(180f - rot.y));
-    }
-
-    public void verticalBillboard(MatrixStack matrices) {
-        //matrices.rotate(Rotation.Z.rotationDeg(-rot.z));
-        //matrices.rotate(Rotation.X.rotationDeg(rot.x));
+    /**
+     * Applies a billboard rotation to the given matrices
+     * @param matrices the matrix stack to apply the rotation
+     * @param rotationMask 0x1 = Pitch (X), 0x2 = Yaw (Y), 0x4 = Roll (Z)
+     */
+    public void billboard(MatrixStack matrices, byte rotationMask) {
+        Quaternionf rot = getRotation();
+        if ((rotationMask & 0x2) != 0)
+            matrices.rotate(Rotation.Y.rotationDeg(-Maths.getYaw(rot) + 180f));
+        if ((rotationMask & 0x1) != 0)
+            matrices.rotate(Rotation.X.rotationDeg(Maths.getPitch(rot)));
+        if ((rotationMask & 0x4) != 0)
+            matrices.rotate(Rotation.Z.rotationDeg(Maths.getRoll(rot)));
     }
 
     public boolean isInsideFrustum(AABB aabb) {
@@ -153,7 +161,7 @@ public class Camera {
     public void updateFrustum() {
         Matrix4f proj = getProjectionMatrix();
         Matrix4f mvp = getViewMatrix().mulLocal(proj, new Matrix4f());
-        frustum.updateFrustum(mvp);
+        updateFrustum(mvp);
     }
 
     public void updateFrustum(Matrix4f mvp) {

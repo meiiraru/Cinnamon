@@ -380,6 +380,6 @@ public class UIHelper {
     }
 
     public static float getDepthOffset() {
-        return XrManager.isInXR() ? XrRenderer.XR_DEPTH_OFFSET : DEPTH_OFFSET;
+        return XrManager.isInXR() ? XrRenderer.DEPTH_OFFSET : DEPTH_OFFSET;
     }
 }

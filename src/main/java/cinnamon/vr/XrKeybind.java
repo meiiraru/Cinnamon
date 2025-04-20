@@ -1,5 +1,9 @@
 package cinnamon.vr;
 
+import cinnamon.utils.Pair;
+import org.joml.Quaternionf;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.openxr.*;
 import org.lwjgl.system.MemoryStack;
@@ -18,7 +22,7 @@ abstract class XrKeybind<T> {
     protected final long user;
     protected final XrAction action;
 
-    protected T value;
+    protected T value, lastVal;
     protected boolean hasChanges;
 
     public XrKeybind(MemoryStack stack, XrInput.UserProfile user, String path, String name, int actionType) {
@@ -50,6 +54,10 @@ abstract class XrKeybind<T> {
         return value;
     }
 
+    public T getLastVal() {
+        return lastVal;
+    }
+
     public boolean hasChanges() {
         return hasChanges;
     }
@@ -60,6 +68,7 @@ abstract class XrKeybind<T> {
 
         public XrBooleanKeybind(MemoryStack stack, XrInput.UserProfile user, String path, String name) {
             super(stack, user, path, name, XR_ACTION_TYPE_BOOLEAN_INPUT);
+            lastVal = false;
         }
 
         @Override
@@ -72,20 +81,20 @@ abstract class XrKeybind<T> {
 
             if (check(xrGetActionStateBoolean(session, actionStateInfo, actionState), "Failed to get boolean action state: error code %s")) {
                 hasChanges = false;
-                value = false;
+                return;
             }
 
             hasChanges = actionState.isActive() && actionState.changedSinceLastSync();
+            lastVal = value;
             value = actionState.currentState();
         }
     }
 
     static class XrFloatKeybind extends XrKeybind<Float> {
 
-        private boolean increase;
-
         public XrFloatKeybind(MemoryStack stack, XrInput.UserProfile user, String path, String name) {
             super(stack, user, path, name, XR_ACTION_TYPE_FLOAT_INPUT);
+            lastVal = 0f;
         }
 
         @Override
@@ -97,25 +106,22 @@ abstract class XrKeybind<T> {
                     .subactionPath(user);
 
             if (check(xrGetActionStateFloat(session, actionStateInfo, actionState), "Failed to get float action state: error code %s")) {
-                hasChanges = increase = false;
-                value = 0f;
+                hasChanges = false;
+                return;
             }
 
             hasChanges = actionState.isActive() && actionState.changedSinceLastSync();
-            float oldVal = value == null ? 0f : value;
+            lastVal = value;
             value = actionState.currentState();
-            increase = value > oldVal;
-        }
-
-        public boolean hasIncreased() {
-            return increase;
         }
     }
 
-    static class XrVec2fKeybind extends XrKeybind<XrVector2f> {
+    static class XrVec2fKeybind extends XrKeybind<Vector2f> {
 
         public XrVec2fKeybind(MemoryStack stack, XrInput.UserProfile user, String path, String name) {
             super(stack, user, path, name, XR_ACTION_TYPE_VECTOR2F_INPUT);
+            value = new Vector2f();
+            lastVal = new Vector2f();
         }
 
         @Override
@@ -128,20 +134,23 @@ abstract class XrKeybind<T> {
 
             if (check(xrGetActionStateVector2f(session, actionStateInfo, actionState), "Failed to get vector2f action state: error code %s")) {
                 hasChanges = false;
-                value = null;
+                return;
             }
 
             hasChanges = actionState.isActive() && actionState.changedSinceLastSync();
-            value = actionState.currentState();
+            lastVal.set(value);
+            XrVector2f vec = actionState.currentState();
+            value.set(vec.x(), vec.y());
         }
     }
 
-    static class XrPoseKeybind extends XrKeybind<XrPosef> {
+    static class XrPoseKeybind extends XrKeybind<Pair<Vector3f, Quaternionf>> {
 
         private final XrSpace actionSpace;
 
         public XrPoseKeybind(MemoryStack stack, XrInput.UserProfile user, String path, String name) {
             super(stack, user, path, name, XR_ACTION_TYPE_POSE_INPUT);
+            value = new Pair<>(new Vector3f(), new Quaternionf());
 
             PointerBuffer actionSpacePtr = stack.mallocPointer(1);
             XrActionSpaceCreateInfo actionSpaceInfo = XrActionSpaceCreateInfo.malloc(stack)
@@ -174,26 +183,25 @@ abstract class XrKeybind<T> {
                     .action(action)
                     .subactionPath(user);
 
-            if (check(xrGetActionStatePose(session, actionStateInfo, actionState), "Failed to get pose action state: error code %s")) {
-                hasChanges = false;
-                value = null;
-            }
-
             XrSpaceLocation actionSpaceLocation = XrSpaceLocation.malloc(stack).type$Default().next(NULL);
-            if (check(xrLocateSpace(actionSpace, headspace, displayTime, actionSpaceLocation), "Failed to locate space: error code %s")) {
-                hasChanges = false;
-                value = null;
-            }
 
-            if ((actionSpaceLocation.locationFlags() & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
-                    (actionSpaceLocation.locationFlags() & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0) {
-                hasChanges = actionState.isActive();
-                value = actionSpaceLocation.pose();
+            if (check(xrGetActionStatePose(session, actionStateInfo, actionState), "Failed to get pose action state: error code %s") ||
+                    check(xrLocateSpace(actionSpace, headspace, displayTime, actionSpaceLocation), "Failed to locate space: error code %s") ||
+                    (actionSpaceLocation.locationFlags() & XR_SPACE_LOCATION_POSITION_VALID_BIT) == 0 ||
+                    (actionSpaceLocation.locationFlags() & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) == 0
+            ) {
+                hasChanges = false;
                 return;
             }
 
-            hasChanges = false;
-            value = null;
+            hasChanges = actionState.isActive();
+
+            XrPosef pose = actionSpaceLocation.pose();
+            XrVector3f pos = pose.position$();
+            XrQuaternionf rot = pose.orientation();
+
+            value.first().set(pos.x(), pos.y(), pos.z());
+            value.second().set(rot.x(), rot.y(), rot.z(), rot.w());
         }
     }
 

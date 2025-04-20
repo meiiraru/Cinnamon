@@ -6,11 +6,11 @@ import cinnamon.utils.Resource;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.joml.Vector2f;
 import org.lwjgl.openxr.XrActionSuggestedBinding;
 import org.lwjgl.openxr.XrActionsSyncInfo;
 import org.lwjgl.openxr.XrActiveActionSet;
 import org.lwjgl.openxr.XrInteractionProfileSuggestedBinding;
-import org.lwjgl.openxr.XrVector2f;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.InputStreamReader;
@@ -32,8 +32,7 @@ public class XrInput {
     private static final List<XrKeybind<?>> allButtons = new ArrayList<>();
     private static final List<UserProfile> profiles = new ArrayList<>();
     private static String profilePath;
-
-    private static int lastActiveHand = 1;
+    private static int lastActiveHand = 0;
 
 
     // -- init -- //
@@ -78,6 +77,7 @@ public class XrInput {
 
             loadUserPath(stack, json.getAsJsonObject("all_user_paths"), profiles);
             XrRenderer.setHands(profiles.size());
+            lastActiveHand = Math.min(1, profiles.size() - 1); //default to right hand
 
             return false;
         } catch (Exception e) {
@@ -178,14 +178,14 @@ public class XrInput {
 
     private static void processInput(MemoryStack stack) {
         Client c = Client.getInstance();
-        for (int i = 0; i < profiles.size(); i++) {
-            UserProfile profile = profiles.get(i);
+        for (int hand = 0; hand < profiles.size(); hand++) {
+            UserProfile profile = profiles.get(hand);
 
             //poses
             if (!profile.poses.isEmpty()) {
                 XrKeybind.XrPoseKeybind pose = profile.poses.getFirst();
                 pose.poll(stack);
-                if (pose.hasChanges()) XrRenderer.updateHand(i, pose.getValue());
+                if (pose.hasChanges()) XrRenderer.updateHand(hand, pose.getValue());
             }
 
             //analogs
@@ -193,33 +193,37 @@ public class XrInput {
                 XrKeybind.XrVec2fKeybind keybind = profile.analogs.getFirst();
                 keybind.poll(stack);
                 if (keybind.hasChanges()) {
-                    XrVector2f vec = keybind.getValue();
-                    c.xrJoystickMove(vec.x(), vec.y(), i);
+                    Vector2f vec = keybind.getValue();
+                    Vector2f old = keybind.getLastVal();
+                    c.xrJoystickMove(vec.x(), vec.y(), hand, old.x(), old.y());
                 }
             }
 
             //buttons
-            for (int j = 0; j < profile.buttons.size(); j++) {
-                XrKeybind.XrBooleanKeybind button = profile.buttons.get(j);
-                button.poll(stack);
-                if (button.hasChanges()) {
-                    boolean pressed = button.getValue();
-                    c.xrButtonPress(j, pressed, i);
-                    if (pressed) lastActiveHand = i;
+            for (int button = 0; button < profile.buttons.size(); button++) {
+                XrKeybind.XrBooleanKeybind keybind = profile.buttons.get(button);
+                keybind.poll(stack);
+                if (keybind.hasChanges()) {
+                    boolean pressed = keybind.getValue();
+                    if (pressed) lastActiveHand = hand;
+                    c.xrButtonPress(button, pressed, hand);
                 }
             }
 
             //triggers
-            for (int j = 0; j < profile.triggers.size(); j++) {
-                XrKeybind.XrFloatKeybind button = profile.triggers.get(j);
-                button.poll(stack);
-                if (button.hasChanges()) {
-                    boolean increase = button.hasIncreased();
-                    c.xrTriggerPress(j, button.getValue(), i);
-                    if (increase) lastActiveHand = i;
+            for (int button = 0; button < profile.triggers.size(); button++) {
+                XrKeybind.XrFloatKeybind keybind = profile.triggers.get(button);
+                keybind.poll(stack);
+                if (keybind.hasChanges()) {
+                    float lastVal = keybind.getLastVal();
+                    float val = keybind.getValue();
+                    if (val >= 1f && val > lastVal) lastActiveHand = hand;
+                    c.xrTriggerPress(button, val, hand, lastVal);
                 }
             }
         }
+
+        XrRenderer.updateScreenCollision();
     }
 
 
@@ -227,7 +231,7 @@ public class XrInput {
 
 
     public static void vibrate(int hand) {
-        vibrate(hand, 0.5f, XR_MIN_HAPTIC_DURATION / 1_000_000);
+        vibrate(hand, 0.1f, XR_MIN_HAPTIC_DURATION / 1_000_000);
     }
 
     public static void vibrate(int hand, float amplitude, long duration) {

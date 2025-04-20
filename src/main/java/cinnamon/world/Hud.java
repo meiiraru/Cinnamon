@@ -407,12 +407,10 @@ public class Hud {
         Vector2f erot = p.getRot();
         Vector3f emot = p.getMotion();
         Vector3f cpos = c.camera.getPosition();
-        Quaternionf crot = c.camera.getRotation();
+        Vector3f crot = Maths.quatToEuler(c.camera.getRotation());
 
         Vector3f chunk = new Vector3f(w.getChunkGridPos(epos));
-
-        float yaw = (float) Math.toDegrees(Math.asin(2f * (crot.x() * crot.z() - crot.w() * crot.y())));
-        String face = Direction.fromRotation(yaw).name;
+        String face = Direction.fromRotation(crot.y).name;
 
         String camera;
         camera = switch (w.getCameraMode()) {
@@ -439,14 +437,14 @@ public class Hud {
  
                         [&bplayer&r]
                          &e%s&r %s
-                         pos &c%.3f &a%.3f &b%.3f&r
+                         x &c%.3f&r y &a%.3f&r z &b%.3f&r
                          pitch &e%.3f&r yaw &e%.3f&r
                          motion &c%.3f &a%.3f &b%.3f&r
                          chunk &c%.0f &a%.0f &b%.0f&r
 
                         [&bcamera&r]
-                         pos &c%.3f &a%.3f &b%.3f&r
-                         rot &e%.3f&r &e%.3f&r &e%.3f&r &e%.3f&r
+                         x &c%.3f&r y &a%.3f&r z &b%.3f&r
+                         pitch &e%.3f&r yaw &e%.3f&r roll &e%.3f&r
                          facing &e%s&r
                          mode &e%s&r
 
@@ -472,7 +470,7 @@ public class Hud {
                 chunk.x, chunk.y, chunk.z,
 
                 cpos.x, cpos.y, cpos.z,
-                crot.x, crot.y, crot.z, crot.w,
+                crot.x, crot.y, crot.z,
                 face,
                 camera,
 
@@ -537,9 +535,9 @@ public class Hud {
         String type = hit.obj().getType().name();
         String extra = (hit.obj() instanceof Entity e) ? "\n uuid &e" + e.getUUID() + "&r" : "";
         return String.format("""
-                 pos &c%.3f &a%.3f &b%.3f&r
-                 hit pos &c%.3f &a%.3f &b%.3f&r
-                 hit normal &c%.3f &a%.3f &b%.3f&r
+                 x &c%.3f&r y &a%.3f&r z &b%.3f&r
+                 hit pos x &c%.3f&r y &a%.3f&r z &b%.3f&r
+                 hit normal x &c%.3f&r y &a%.3f&r z &b%.3f&r
                  hit distance &e%.3fm&r
                  type &e%s&r%s
                 """,

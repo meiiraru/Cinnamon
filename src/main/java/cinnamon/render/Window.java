@@ -234,7 +234,7 @@ public class Window {
      * @return the window's GUI width
      */
     public int getGUIWidth() {
-        return XrManager.isInXR() ? XrRenderer.XR_WIDTH : scaledWidth;
+        return XrManager.isInXR() ? XrRenderer.GUI_WIDTH : scaledWidth;
     }
 
     /**
@@ -242,7 +242,7 @@ public class Window {
      * @return the window's GUI height
      */
     public int getGUIHeight() {
-        return XrManager.isInXR() ? XrRenderer.XR_HEIGHT : scaledHeight;
+        return XrManager.isInXR() ? XrRenderer.GUI_HEIGHT : scaledHeight;
     }
 
     /**
@@ -309,6 +309,9 @@ public class Window {
      * @param deltaConsumer a consumer that takes how much the mouse was moved in x and y
      */
     public void warpMouse(BiConsumer<Integer, Integer> deltaConsumer) {
+        if (XrManager.isInXR())
+            return;
+
         long monitor = getCurrentMonitor();
         GLFWVidMode properties = glfwGetVideoMode(monitor);
         int screenW = properties.width();

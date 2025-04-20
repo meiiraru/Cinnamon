@@ -205,6 +205,22 @@ public class Maths {
         );
     }
 
+    public static Vector3f quatToEuler(Quaternionf quat) {
+        return new Vector3f(getPitch(quat), getYaw(quat), getRoll(quat));
+    }
+
+    public static float getPitch(Quaternionf quat) {
+        return (float) Math.toDegrees(Math.atan2(-2f * quat.x * quat.w + 2f * quat.y * quat.z, 1f - 2f * quat.x * quat.x - 2f * quat.z * quat.z));
+    }
+
+    public static float getYaw(Quaternionf quat) {
+        return (float) Math.toDegrees(Math.atan2(-2f * quat.y * quat.w + 2f * quat.x * quat.z, 1f - 2f * quat.y * quat.y - 2f * quat.z * quat.z));
+    }
+
+    public static float getRoll(Quaternionf quat) {
+        return (float) Math.toDegrees(Math.asin(-2f * quat.x * quat.y - 2f * quat.z * quat.w));
+    }
+
     public static Vector3f normal(Vector3f p1, Vector3f p2, Vector3f p3) {
         //calculate the cross product of two vectors to get the normal
         Vector3f edge1 = p2.sub(p1, new Vector3f());

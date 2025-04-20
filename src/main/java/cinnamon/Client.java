@@ -22,7 +22,6 @@ import cinnamon.text.Text;
 import cinnamon.utils.TextureIO;
 import cinnamon.utils.Timer;
 import cinnamon.utils.Version;
-import cinnamon.vr.XrInput;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.Hud;
@@ -404,15 +403,32 @@ public class Client {
     // -- xr events -- //
 
     public void xrButtonPress(int button, boolean pressed, int hand) {
-        System.out.println("Button: " + button + " Hand: " + hand + " Pressed: " + pressed);
+        if (screen != null) {
+            screen.xrButtonPress(button, pressed, hand);
+        } else if (world != null && window.isMouseLocked()) {
+            world.xrButtonPress(button, pressed, hand);
+        }
+
+        events.runEvents(EventType.XR_BUTTON_PRESS, button, pressed, hand);
     }
 
-    public void xrTriggerPress(int button, float value, int hand) {
-        System.out.println("Trigger: " + button + " Hand: " + hand + " Value: " + value);
-        if (value == 1f) XrInput.vibrate(hand);
+    public void xrTriggerPress(int button, float value, int hand, float lastValue) {
+        if (screen != null) {
+            screen.xrTriggerPress(button, value, hand, lastValue);
+        } else if (world != null && window.isMouseLocked()) {
+            world.xrTriggerPress(button, value, hand, lastValue);
+        }
+
+        events.runEvents(EventType.XR_TRIGGER_PRESS, button, value, hand, lastValue);
     }
 
-    public void xrJoystickMove(float x, float y, int hand) {
-        System.out.println("Hand: " + hand + " X: " + x + " Y: " + y);
+    public void xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
+        if (screen != null) {
+            screen.xrJoystickMove(x, y, hand, lastX, lastY);
+        } else if (world != null && window.isMouseLocked()) {
+            world.xrJoystickMove(x, y, hand, lastX, lastY);
+        }
+
+        events.runEvents(EventType.XR_JOYSTICK_MOVE, x, y, hand, lastX, lastY);
     }
 }

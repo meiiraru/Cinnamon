@@ -9,6 +9,8 @@ import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
+import cinnamon.vr.XrInput;
+import cinnamon.vr.XrManager;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -60,6 +62,8 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
     }
 
     protected void setHovered(boolean hovered) {
+        if (!this.hovered && hovered && XrManager.isInXR())
+            XrInput.vibrate(XrInput.getActiveHand());
         this.hovered = hovered;
     }
 

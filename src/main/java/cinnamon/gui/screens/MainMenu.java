@@ -78,6 +78,8 @@ public class MainMenu extends Screen {
 
     @Override
     protected void renderBackground(MatrixStack matrices, float delta) {
+        renderSolidBackground(0xFFD3AB7A);
+
         float d = UIHelper.getDepthOffset();
 
         //background

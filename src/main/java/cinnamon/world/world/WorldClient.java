@@ -661,7 +661,8 @@ public class WorldClient extends World {
     }
 
     public void mouseMove(double x, double y) {
-        movement.mouseMove(x, y);
+        if (!XrManager.isInXR())
+            movement.mouseMove(x, y);
     }
 
     public void scroll(double x, double y) {
@@ -712,6 +713,18 @@ public class WorldClient extends World {
 
     public void onWindowResize(int width, int height) {
         resetMovement();
+    }
+
+    public void xrButtonPress(int button, boolean pressed, int hand) {
+
+    }
+
+    public void xrTriggerPress(int button, float value, int hand, float lastValue) {
+
+    }
+
+    public void xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
+
     }
 
     public void resetMovement() {

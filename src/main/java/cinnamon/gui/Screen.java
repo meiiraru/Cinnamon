@@ -13,6 +13,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.utils.Resource;
+import cinnamon.vr.XrRenderer;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -203,7 +204,7 @@ public abstract class Screen {
     }
 
     protected boolean shouldRenderMouse() {
-        return !client.camera.isOrtho();
+        return XrRenderer.isScreenCollided() && !client.camera.isOrtho();
     }
 
 
@@ -253,5 +254,27 @@ public abstract class Screen {
 
     public boolean filesDropped(String[] files) {
         return this.mainContainer.filesDropped(files) != null;
+    }
+
+    public boolean xrButtonPress(int button, boolean pressed, int hand) {
+        if (button == 1)
+            return this.keyPress(GLFW_KEY_ESCAPE, 1, pressed ? GLFW_PRESS : GLFW_RELEASE, 0);
+        return this.mousePress(button, pressed ? GLFW_PRESS : GLFW_RELEASE, 0);
+    }
+
+    public boolean xrTriggerPress(int button, float value, int hand, float lastValue) {
+        if (lastValue < 1f && value >= 1f) {
+            return this.mousePress(button, GLFW_PRESS, 0);
+        } else if (lastValue >= 1f && value < 1f) {
+            return this.mousePress(button, GLFW_RELEASE, 0);
+        }
+        return false;
+    }
+
+    public boolean xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
+        float f = 0.9f; //dead zone
+        int dx = lastX < f && x >= f ? 1 : lastX > -f && x <= -f ? -1 : 0;
+        int dy = lastY < f && y >= f ? 1 : lastY > -f && y <= -f ? -1 : 0;
+        return (dx != 0 || dy != 0) && this.scroll(dx, dy);
     }
 }
