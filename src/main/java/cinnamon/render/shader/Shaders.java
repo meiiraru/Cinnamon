@@ -23,7 +23,8 @@ public enum Shaders {
     BACKGROUND_NOISE,
     SCREEN_SPACE_UV,
     OUTLINE,
-    MODEL_PASS;
+    MODEL_PASS,
+    MODEL_UV;
 
     private final Resource resource;
     private Shader shader;

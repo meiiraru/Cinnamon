@@ -70,6 +70,9 @@ public class ExtrasScreen extends ParentedScreen {
         //model viewer
         list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.model_viewer", button -> client.setScreen(new ModelViewerScreen(this))));
 
+        //panorama viewer
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.panorama_viewer", button -> client.setScreen(new PanoramaScreen(this))));
+
         //title
         list.addWidget(new Label(0, 0, Text.of("\n").appendTranslated("gui.extras_screen.games").append("\n")));
 

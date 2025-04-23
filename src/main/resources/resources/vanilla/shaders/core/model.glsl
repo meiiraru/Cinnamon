@@ -9,7 +9,7 @@ in vec2 texCoords;
 out vec4 fragColor;
 
 uniform sampler2D textureSampler;
-uniform vec3 color;
+uniform vec3 color = vec3(1.0f);
 
 void main() {
     vec4 tex = texture(textureSampler, texCoords);

@@ -289,6 +289,18 @@ public class Maths {
         );
     }
 
+    public static Matrix3f translateMat3(Matrix3f mat, float x, float y) {
+        mat.m00 += x * mat.m20;
+        mat.m01 += x * mat.m21;
+        mat.m02 += x * mat.m22;
+
+        mat.m10 += y * mat.m20;
+        mat.m11 += y * mat.m21;
+        mat.m12 += y * mat.m22;
+
+        return mat;
+    }
+
     private static final String[] SIZE_UNITS = {"b", "kb", "mb", "gb"};
     public static String prettyByteSize(double size) {
         int i = 0;

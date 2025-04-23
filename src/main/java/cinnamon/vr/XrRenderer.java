@@ -45,6 +45,8 @@ public class XrRenderer {
     private static final XrFramebuffer framebuffer = new XrFramebuffer();
     private static final List<Pair<Vector3f, Quaternionf>> userPoses = new ArrayList<>();
 
+    private static int swapchainIndex = 0;
+
     private static boolean screenCollided = false;
     private static float screenCollision = -1f;
 
@@ -53,6 +55,8 @@ public class XrRenderer {
     }
 
     static void render(XrCompositionLayerProjectionView layerView, XrSwapchainImageOpenGLKHR swapchainImage, int index, Runnable toRender) {
+        swapchainIndex = index;
+
         //prepare framebuffer
         Framebuffer fb = Framebuffer.DEFAULT_FRAMEBUFFER;
         fb.useClear();
@@ -87,6 +91,10 @@ public class XrRenderer {
 
         if (index == swapchains.length - 1)
             renderBuffer(swapchains[index].width, swapchains[index].height);
+    }
+
+    public static int getRenderIndex() {
+        return swapchainIndex;
     }
 
     private static void renderBuffer(int width, int height) {

@@ -34,6 +34,7 @@
   "gui.extras_screen.tech_demos.easings": "Easings",
   "gui.extras_screen.tech_demos.sound_visualizer": "Reprodutor de Música",
   "gui.extras_screen.tech_demos.model_viewer": "Visualizador de Modelos",
+  "gui.extras_screen.tech_demos.panorama_viewer": "Visualizador de Panorama",
   "gui.extras_screen.games": "Jogos",
   "gui.extras_screen.games.dvd_screensaver": "Protetor de Tela de DVD",
   "gui.extras_screen.games.wordle": "Wordle",
@@ -101,6 +102,8 @@
   "gui.cpf_screen.validate": "Validar",
   "gui.cpf_screen.checking": "Checando...",
   "gui.cpf_screen.malformed_cpf": "CPF com formato inválido",
+
+  "gui.panorama_viewer.help": "Arraste aqui arquivos de imagens de panorama (360°) para abrir",
 
   "easing.sine": "Seno",
   "easing.quad": "Quadrático",
