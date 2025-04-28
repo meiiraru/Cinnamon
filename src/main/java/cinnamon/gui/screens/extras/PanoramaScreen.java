@@ -22,14 +22,15 @@ import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 public class PanoramaScreen extends ParentedScreen {
 
     private static final Resource MODEL = new Resource("models/misc/inverted_sphere.obj");
-    private final ModelRenderer sphere;
+    private static final float ROTATION_SNAP = 45f;
 
+    private final ModelRenderer sphere;
     private Texture texture;
 
     private boolean dragged;
     private int anchorX, anchorY;
     private float anchorRotX, anchorRotY;
-    private float rotX, rotY;
+    private float rotX, rotY, xrRotY;
 
     public PanoramaScreen(Screen parentScreen) {
         super(parentScreen);
@@ -70,6 +71,8 @@ public class PanoramaScreen extends ParentedScreen {
         if (!xr) {
             matrices.rotate(Rotation.X.rotationDeg(rotX));
             matrices.rotate(Rotation.Y.rotationDeg(rotY));
+        } else {
+            matrices.rotate(Rotation.Y.rotationDeg(xrRotY));
         }
 
         Matrix3f uv = new Matrix3f();
@@ -139,6 +142,15 @@ public class PanoramaScreen extends ParentedScreen {
             anchorY += deltaY;
         });
 
+        return true;
+    }
+
+    @Override
+    public boolean scroll(double x, double y) {
+        if (super.scroll(x, y))
+            return true;
+
+        xrRotY += ROTATION_SNAP * (float) x;
         return true;
     }
 

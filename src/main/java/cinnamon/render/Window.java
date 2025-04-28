@@ -266,6 +266,12 @@ public class Window {
         this.guiScale = Math.max(scale, 1f);
         this.scaledWidth = (int) (this.width / this.guiScale);
         this.scaledHeight = (int) (this.height / this.guiScale);
+
+        if (XrManager.isInXR()) {
+            this.guiScale = 1f;
+            this.scaledWidth = XrRenderer.GUI_WIDTH;
+            this.scaledHeight = XrRenderer.GUI_HEIGHT;
+        }
     }
 
     /**

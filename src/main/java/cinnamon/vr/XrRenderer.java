@@ -1,6 +1,5 @@
 package cinnamon.vr;
 
-import cinnamon.Cinnamon;
 import cinnamon.Client;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.Camera;
@@ -35,8 +34,8 @@ public class XrRenderer {
 
     //gui
     public static final int
-            GUI_WIDTH = Cinnamon.WIDTH / 2,
-            GUI_HEIGHT = Cinnamon.HEIGHT / 2;
+            GUI_WIDTH = 427,
+            GUI_HEIGHT = 240;
     public static final float
             GUI_DISTANCE = 0.8f,
             GUI_SCALE = 1f / 512f,
@@ -194,13 +193,11 @@ public class XrRenderer {
             screenCollision = result.near() * RAYCAST_DISTANCE;
             screenCollided = true;
 
-            float halfScale = GUI_SCALE * 0.5f;
-
             Vector3f screen = dir
                     .mul(result.near())
                     .add(pos.x, pos.y, pos.z + GUI_DISTANCE)
-                    .div(halfScale, -halfScale, halfScale)
-                    .add(GUI_WIDTH, GUI_HEIGHT, 0);
+                    .div(GUI_SCALE, -GUI_SCALE, GUI_SCALE)
+                    .add(GUI_WIDTH * 0.5f, GUI_HEIGHT * 0.5f, 0);
             c.mouseMove(screen.x, screen.y);
         } else {
             screenCollided = false;

@@ -363,24 +363,20 @@ public class Client {
             return;
 
         window.updateSize(width, height, Settings.guiScale.get());
-        Framebuffer.DEFAULT_FRAMEBUFFER.resize(width, height);
+        Framebuffer.DEFAULT_FRAMEBUFFER.resize(window.width, window.height);
 
         if (world != null)
-            world.onWindowResize(width, height);
+            world.onWindowResize(window.width, window.height);
 
         queueTick(() -> {
             if (camera != null)
                 camera.updateProjMatrix(window.scaledWidth, window.scaledHeight, Settings.fov.get());
 
-            if (screen != null) {
-                if (XrManager.isInXR())
-                    screen.rebuild();
-                else
-                    screen.resize(window.scaledWidth, window.scaledHeight);
-            }
+            if (screen != null)
+                screen.resize(window.scaledWidth, window.scaledHeight);
         });
 
-        events.runEvents(EventType.WINDOW_RESIZE, width, height);
+        events.runEvents(EventType.WINDOW_RESIZE, window.width, window.height);
     }
 
     public void windowFocused(boolean focused) {

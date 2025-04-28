@@ -104,11 +104,12 @@ public class XrManager {
     }
 
     private static void setSessionRunning(boolean bool) {
-        if (sessionRunning && !bool) {
-            Client c = Client.getInstance();
-            c.windowResize(c.window.width, c.window.height);
-        }
+        if (sessionRunning == bool)
+            return;
+
         sessionRunning = bool;
+        Client c = Client.getInstance();
+        c.windowResize(c.window.width, c.window.height);
     }
 
     public static boolean render(Runnable toRender) {
