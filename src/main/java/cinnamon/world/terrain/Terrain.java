@@ -10,6 +10,7 @@ import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Rotation;
 import cinnamon.world.WorldObject;
+import cinnamon.world.entity.Entity;
 import cinnamon.world.world.World;
 import org.joml.Vector3f;
 
@@ -21,8 +22,8 @@ public class Terrain extends WorldObject {
     protected final ModelRenderer model;
     private final TerrainRegistry type;
 
-    private AABB aabb; //the entire model's AABB
-    private final List<AABB> preciseAABB = new ArrayList<>(); //group's AABB
+    protected AABB aabb; //the entire model's AABB
+    protected final List<AABB> preciseAABB = new ArrayList<>(); //group's AABB
 
     private byte rotation = 0;
     private MaterialRegistry overrideMaterial;
@@ -115,5 +116,9 @@ public class Terrain extends WorldObject {
     @Override
     public TerrainRegistry getType() {
         return type;
+    }
+
+    public boolean isSelectable(Entity entity) {
+        return true;
     }
 }

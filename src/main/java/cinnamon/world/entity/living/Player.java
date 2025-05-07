@@ -21,6 +21,8 @@ public class Player extends LivingEntity {
 
     private boolean sprinting, sneaking, flying;
 
+    private boolean godMode = false;
+
     public Player(String name, UUID uuid) {
         this(name, uuid, LivingModelRegistry.STRAWBERRY);
     }
@@ -151,5 +153,13 @@ public class Player extends LivingEntity {
 
     public boolean isFlying() {
         return flying;
+    }
+
+    public boolean isGod() {
+        return godMode;
+    }
+
+    public void setGodMode(boolean godMode) {
+        this.godMode = godMode;
     }
 }

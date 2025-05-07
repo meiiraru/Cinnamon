@@ -505,7 +505,7 @@ public class WorldClient extends World {
     protected void renderTargetedBlock(Entity cameraEntity, MatrixStack matrices, float delta) {
         Hit<Entity> entity = cameraEntity.getLookingEntity(cameraEntity.getPickRange());
         Hit<Terrain> terrain = cameraEntity.getLookingTerrain(cameraEntity.getPickRange());
-        if (terrain == null || (entity != null && entity.collision().near() < terrain.collision().near()))
+        if (terrain == null || (entity != null && entity.collision().near() < terrain.collision().near()) || !terrain.obj().isSelectable(cameraEntity))
             return;
 
         int alpha = (int) Maths.lerp(0x32, 0xFF, ((float) Math.sin((client.ticks + delta) * 0.15f) + 1f) * 0.5f);
@@ -754,6 +754,7 @@ public class WorldClient extends World {
     public void respawn(boolean init) {
         player = new LocalPlayer();
         player.setPos(0.5f, init ? 0f : 100f, 0.5f);
+        player.setGodMode(false);
         givePlayerItems(player);
         this.addEntity(player);
 

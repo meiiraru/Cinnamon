@@ -1,33 +1,28 @@
 package cinnamon.registry;
 
 import cinnamon.utils.Resource;
+import cinnamon.world.terrain.Barrier;
 import cinnamon.world.terrain.Teapot;
 import cinnamon.world.terrain.Terrain;
 
 import java.util.function.Supplier;
 
 public enum TerrainRegistry {
-    BOX,
-    SPHERE,
-    TEAPOT(Teapot::new),
-    GLTF_TEST;
-
-    private static final String MODELS_PATH = "models/terrain/";
+    BOX("models/terrain/box/box.obj"),
+    SPHERE("models/terrain/sphere/sphere.obj"),
+    TEAPOT("models/terrain/teapot/teapot.obj", Teapot::new),
+    GLTF_TEST("models/terrain/gltf_test/gltf_test.gltf"),
+    BARRIER(null, Barrier::new);
 
     public final Resource resource;
-
     private final Supplier<Terrain> factory;
 
-    TerrainRegistry() {
-        this(null);
+    TerrainRegistry(String path) {
+        this(path, null);
     }
 
-    TerrainRegistry(Supplier<Terrain> factory) {
-        //model
-        String name = name().toLowerCase();
-        this.resource = new Resource(MODELS_PATH + name + "/" + name + (name.contains("gltf") ? ".gltf" : ".obj"));
-
-        //factory
+    TerrainRegistry(String path, Supplier<Terrain> factory) {
+        this.resource = path == null ? null : new Resource(path);
         this.factory = factory != null ? factory : () -> new Terrain(this);
     }
 
