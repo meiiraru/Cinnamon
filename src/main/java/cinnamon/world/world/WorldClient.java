@@ -716,7 +716,7 @@ public class WorldClient extends World {
     }
 
     public void xrButtonPress(int button, boolean pressed, int hand) {
-
+        movement.xrButtonPress(button, pressed, hand);
     }
 
     public void xrTriggerPress(int button, float value, int hand, float lastValue) {
@@ -724,7 +724,7 @@ public class WorldClient extends World {
     }
 
     public void xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
-
+        movement.xrJoystickMove(x, y, hand, lastX, lastY);
     }
 
     public void resetMovement() {
