@@ -1,5 +1,5 @@
 newmtl volcanic_rock
-map_Kd -mip TCom_Rock_CliffVolcanic_512_albedo.png
+map_Kd -smooth_mip TCom_Rock_CliffVolcanic_512_albedo.png
 map_disp -smooth TCom_Rock_CliffVolcanic_512_height.png
 map_Bump TCom_Rock_CliffVolcanic_512_normal.png
 map_ao TCom_Rock_CliffVolcanic_512_ao.png

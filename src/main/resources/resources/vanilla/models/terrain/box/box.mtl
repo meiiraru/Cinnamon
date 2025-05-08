@@ -1,2 +1,2 @@
 newmtl box
-map_Kd -mip box.png
+map_Kd -smooth_mip box.png

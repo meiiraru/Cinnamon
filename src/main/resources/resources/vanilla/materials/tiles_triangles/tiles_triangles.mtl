@@ -1,5 +1,5 @@
 newmtl tiles_triangles
-map_Kd -mip Tiles_Triangles_001_basecolor.png
+map_Kd -smooth_mip Tiles_Triangles_001_basecolor.png
 map_disp -smooth Tiles_Triangles_001_height.png
 map_Bump Tiles_Triangles_001_normal.png
 map_ao Tiles_Triangles_001_ambientOcclusion.png

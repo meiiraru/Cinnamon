@@ -1,4 +1,4 @@
 # Made in Blockbench 4.8.3
 newmtl m_de33d659-09d9-0995-f43f-05105c3cd5af
-map_Kd -mip pancake.png
+map_Kd -smooth_mip pancake.png
 newmtl none

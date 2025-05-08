@@ -1,5 +1,5 @@
 newmtl paper_lantern
-map_Kd -mip Paper_Lantern_001_basecolor.png
+map_Kd -smooth_mip Paper_Lantern_001_basecolor.png
 map_disp -smooth Paper_Lantern_001_height.png
 map_Bump Paper_Lantern_001_normal.png
 map_ao Paper_Lantern_001_ambientOcclusion.png

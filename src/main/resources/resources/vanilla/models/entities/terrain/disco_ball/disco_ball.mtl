@@ -1,12 +1,12 @@
 # Made in Blockbench 4.11.1
 newmtl m_dec7b988-46fc-371e-cd72-5f3453a1a007
-map_Kd -mip Disco_Ball_001_basecolor.png
+map_Kd -smooth_mip Disco_Ball_001_basecolor.png
 map_disp -smooth Disco_Ball_001_height.png
 map_Bump Disco_Ball_001_normal.png
 map_ao Disco_Ball_001_ambientOcclusion.png
 map_Pr Disco_Ball_001_roughness.png
 map_Pm Disco_Ball_001_metallic.png
 newmtl m_8042ea31-8749-5656-2e56-3d6000aa4f10
-map_Kd -mip lights.png
-map_Ke -mip lights_e.png
+map_Kd -smooth_mip lights.png
+map_Ke -smooth_mip lights_e.png
 newmtl none

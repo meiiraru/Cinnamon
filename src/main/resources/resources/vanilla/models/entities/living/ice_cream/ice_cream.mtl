@@ -1,4 +1,4 @@
 # Made in Blockbench 4.8.3
 newmtl m_a00d58b1-e335-5ab3-cba3-89781c21f29c
-map_Kd -mip ice_cream.png
+map_Kd -smooth_mip ice_cream.png
 newmtl none

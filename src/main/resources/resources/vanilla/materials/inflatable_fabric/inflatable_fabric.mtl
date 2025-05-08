@@ -1,5 +1,5 @@
 newmtl inflatable_fabric
-map_Kd -mip Fabric_Padded_006_basecolor.png
+map_Kd -smooth_mip Fabric_Padded_006_basecolor.png
 map_disp -smooth Fabric_Padded_006_height.png
 map_Bump Fabric_Padded_006_normal.png
 map_ao Fabric_Padded_006_ambientOcclusion.png

@@ -1,5 +1,5 @@
 newmtl plaid_fabric
-map_Kd -mip fabrics_0083_color_1k.png
+map_Kd -smooth_mip fabrics_0083_color_1k.png
 map_disp -smooth fabrics_0083_height_1k.png
 map_Bump fabrics_0083_normal_opengl_1k.png
 map_ao fabrics_0083_ao_1k.png

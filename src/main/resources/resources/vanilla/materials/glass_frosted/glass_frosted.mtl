@@ -1,5 +1,5 @@
 newmtl glass_frosted
-map_Kd -mip Glass_Frosted_001_basecolor.png
+map_Kd -smooth_mip Glass_Frosted_001_basecolor.png
 map_disp -smooth Glass_Frosted_001_height.png
 map_Bump Glass_Frosted_001_normal.png
 map_ao Glass_Frosted_001_ambientOcclusion.png

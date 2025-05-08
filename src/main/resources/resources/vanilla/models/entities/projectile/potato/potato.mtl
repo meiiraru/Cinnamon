@@ -1,4 +1,4 @@
 # Made in Blockbench 4.8.3
 newmtl m_947ead89-60cf-10a0-2418-c056aabe99ff
-map_Kd -mip potato.png
+map_Kd -smooth_mip potato.png
 newmtl none

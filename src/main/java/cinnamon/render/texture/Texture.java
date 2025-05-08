@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static cinnamon.Client.LOGGER;
+import static cinnamon.render.texture.Texture.TextureParams.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
@@ -37,11 +38,7 @@ public class Texture {
         this.height = height;
     }
 
-    public static Texture of(Resource res) {
-        return of(res, false, false);
-    }
-
-    public static Texture of(Resource res, boolean smooth, boolean mipmap) {
+    public static Texture of(Resource res, TextureParams... params) {
         if (res == null)
             return MISSING;
 
@@ -51,7 +48,7 @@ public class Texture {
             return saved;
 
         //otherwise load a new texture and cache it
-        return cacheTexture(res, loadTexture(res, smooth, mipmap));
+        return cacheTexture(res, loadTexture(res, TextureParams.bake(params)));
     }
 
     private static Texture cacheTexture(Resource res, Texture tex) {
@@ -59,27 +56,27 @@ public class Texture {
         return tex;
     }
 
-    private static Texture loadTexture(Resource res, boolean smooth, boolean mipmap) {
+    private static Texture loadTexture(Resource res, int params) {
         try (TextureIO.ImageData image = TextureIO.load(res)) {
-            return new Texture(registerTexture(image.width, image.height, image.buffer, smooth, mipmap), image.width, image.height);
+            return new Texture(registerTexture(image.width, image.height, image.buffer, params), image.width, image.height);
         } catch (Exception e) {
             LOGGER.error("Failed to load texture \"%s\"", res, e);
             return MISSING;
         }
     }
 
-    protected static int registerTexture(int width, int height, ByteBuffer buffer, boolean smooth, boolean mipmap) {
+    protected static int registerTexture(int width, int height, ByteBuffer buffer, int params) {
         int id = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, id);
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, SMOOTH_SAMPLING.has(params) ? GL_LINEAR : GL_NEAREST);
 
-        if (mipmap) {
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, smooth ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST);
+        if (MIPMAP.has(params)) {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, MIPMAP_SMOOTH.has(params) ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST);
             glGenerateMipmap(GL_TEXTURE_2D);
         } else {
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, SMOOTH_SAMPLING.has(params) ? GL_LINEAR : GL_NEAREST);
         }
 
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -106,7 +103,7 @@ public class Texture {
         pixels.flip();
 
         //return a new texture
-        return new Texture(registerTexture(16, 16, pixels, false, true), 16, 16) {
+        return new Texture(registerTexture(16, 16, pixels, MIPMAP_SMOOTH.id), 16, 16) {
             @Override
             public void free() {
                 //do not free the missing texture
@@ -123,7 +120,7 @@ public class Texture {
         buffer.put((byte) (ARGB >> 24));
         buffer.flip();
 
-        int id = registerTexture(1, 1, buffer, false, false);
+        int id = registerTexture(1, 1, buffer, 0);
         return new Texture(id, 1, 1);
     }
 
@@ -180,5 +177,39 @@ public class Texture {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Texture t && t.ID == this.ID;
+    }
+
+    public enum TextureParams {
+        SMOOTH_SAMPLING(0x1, "smooth"),
+        MIPMAP(0x2, "mip", "mipmap"),
+        MIPMAP_SMOOTH(0x6, "smooth_mip"); //0x2 (mipmap) + 0x4 (self)
+
+        public final int id;
+        public final String[] aliases;
+
+        TextureParams(int id, String... aliases) {
+            this.id = id;
+            this.aliases = aliases;
+        }
+
+        public boolean has(int flags) {
+            return (flags & this.id) != 0;
+        }
+
+        public static int bake(TextureParams... params) {
+            int flags = 0;
+            for (TextureParams param : params)
+                flags |= param.id;
+            return flags;
+        }
+
+        public static TextureParams getByAlias(String alias) {
+            for (TextureParams param : values())
+                for (String a : param.aliases)
+                    if (a.equals(alias))
+                        return param;
+
+            return null;
+        }
     }
 }

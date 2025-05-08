@@ -1,5 +1,5 @@
 newmtl plastic
-map_Kd -mip plasticpattern1-albedo.png
+map_Kd -smooth_mip plasticpattern1-albedo.png
 map_Bump plasticpattern1-normal2-ogl.png
 map_ao plasticpattern1-ao.png
 map_Pr plasticpattern1-roughness2.png

@@ -1,5 +1,5 @@
 newmtl sand
-map_Kd -mip Stylized_Sand_001_basecolor.png
+map_Kd -smooth_mip Stylized_Sand_001_basecolor.png
 map_disp -smooth Stylized_Sand_001_height.png
 map_Bump Stylized_Sand_001_normal.png
 map_ao Stylized_Sand_001_ambientOcclusion.png

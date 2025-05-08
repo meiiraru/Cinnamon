@@ -1,4 +1,4 @@
 # Made in Blockbench 4.12.2
 newmtl m_e7da4106-971c-0baa-dd6f-9513db34f385
-map_Kd -mip tomato.png
+map_Kd -smooth_mip tomato.png
 newmtl none

@@ -1,5 +1,5 @@
 newmtl rug
-map_Kd -mip fabric_0026_color_1k.png
+map_Kd -smooth_mip fabric_0026_color_1k.png
 map_disp -smooth fabric_0026_height_1k.png
 map_Bump fabric_0026_normal_opengl_1k.png
 map_ao fabric_0026_ao_1k.png

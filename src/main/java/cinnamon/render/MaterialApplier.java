@@ -36,7 +36,7 @@ public class MaterialApplier {
         s.setInt(name, index);
         Texture tex;
 
-        if (texture == null || (tex = Texture.of(texture.texture(), texture.smooth(), texture.mipmap())) == null) {
+        if (texture == null || (tex = Texture.of(texture.texture(), texture.params())) == null) {
             if (fallback == null) {
                 Texture.unbindTex(index);
                 return;

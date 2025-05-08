@@ -17,6 +17,7 @@ import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import org.joml.Matrix3f;
 
+import static cinnamon.render.texture.Texture.TextureParams.SMOOTH_SAMPLING;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public class PanoramaScreen extends ParentedScreen {
@@ -156,7 +157,7 @@ public class PanoramaScreen extends ParentedScreen {
 
     @Override
     public boolean filesDropped(String[] files) {
-        texture = Texture.of(new Resource("", files[0]), true, false);
+        texture = Texture.of(new Resource("", files[0]), SMOOTH_SAMPLING);
         return true;
     }
 }

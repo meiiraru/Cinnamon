@@ -1,5 +1,5 @@
 newmtl disco_ball
-map_Kd -mip Disco_Ball_001_basecolor.png
+map_Kd -smooth_mip Disco_Ball_001_basecolor.png
 map_disp -smooth Disco_Ball_001_height.png
 map_Bump Disco_Ball_001_normal.png
 map_ao Disco_Ball_001_ambientOcclusion.png

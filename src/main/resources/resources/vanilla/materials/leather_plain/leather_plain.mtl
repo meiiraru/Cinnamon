@@ -1,5 +1,5 @@
 newmtl leather_plain
-map_Kd -mip TCom_Leather_Plain09_008x008_512_albedo.png
+map_Kd -smooth_mip TCom_Leather_Plain09_008x008_512_albedo.png
 map_disp -smooth TCom_Leather_Plain09_008x008_512_height.png
 map_Bump TCom_Leather_Plain09_008x008_512_normal.png
 map_ao TCom_Leather_Plain09_008x008_512_ao.png

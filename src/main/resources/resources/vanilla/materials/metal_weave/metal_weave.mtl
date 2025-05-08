@@ -1,5 +1,5 @@
 newmtl metal_weave
-map_Kd -mip MetalWeave02_1K_BaseColor.png
+map_Kd -smooth_mip MetalWeave02_1K_BaseColor.png
 map_disp -smooth MetalWeave02_1K_Height.png
 map_Bump MetalWeave02_1K_Normal.png
 map_ao MetalWeave02_1K_AO.png

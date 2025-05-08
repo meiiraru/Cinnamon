@@ -1,5 +1,5 @@
 newmtl bathroom_tiles
-map_Kd -mip BathroomTiles03_4K_BaseColor.png
+map_Kd -smooth_mip BathroomTiles03_4K_BaseColor.png
 map_disp -smooth BathroomTiles03_4K_Height.png
 map_Bump BathroomTiles03_4K_Normal.png
 map_ao BathroomTiles03_4K_AO.png

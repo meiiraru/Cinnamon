@@ -1,4 +1,4 @@
 # Made in Blockbench 4.12.2
 newmtl m_3db4134b-9206-851d-d710-82102cc0e5aa
-map_Kd -mip candy.png
+map_Kd -smooth_mip candy.png
 newmtl none

@@ -1,4 +1,4 @@
 # Made in Blockbench 4.12.2
 newmtl m_c264d719-7d90-f928-0e53-56318ee0e6ed
-map_Kd -mip dummy.png
+map_Kd -smooth_mip dummy.png
 newmtl none

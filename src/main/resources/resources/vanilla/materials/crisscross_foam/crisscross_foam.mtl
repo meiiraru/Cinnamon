@@ -1,5 +1,5 @@
 newmtl crisscross_foam
-map_Kd -mip crisscross-foam_albedo.png
+map_Kd -smooth_mip crisscross-foam_albedo.png
 map_disp -smooth crisscross-foam_height.png
 map_Bump crisscross-foam_normal-ogl.png
 map_ao crisscross-foam_ao.png

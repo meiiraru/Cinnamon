@@ -1,5 +1,5 @@
 newmtl milkshake_foam
-map_Kd -mip Strawberry_milkshake_foam_001_COLOR.png
+map_Kd -smooth_mip Strawberry_milkshake_foam_001_COLOR.png
 map_disp -smooth Strawberry_milkshake_foam_001_DISP.png
 map_Bump Strawberry_milkshake_foam_001_NORM.png
 map_ao Strawberry_milkshake_foam_001_OCC.png

@@ -1,5 +1,5 @@
 newmtl honeycomb
-map_Kd -mip others_0007_color_1k.png
+map_Kd -smooth_mip others_0007_color_1k.png
 map_disp -smooth others_0007_height_1k.png
 map_Bump others_0007_normal_opengl_1k.png
 map_ao others_0007_ao_1k.png

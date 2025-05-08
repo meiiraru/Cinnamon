@@ -1,5 +1,5 @@
 newmtl carbon_fiber
-map_Kd -mip carbon-fiber_smooth_albedo.png
+map_Kd -smooth_mip carbon-fiber_smooth_albedo.png
 map_disp -smooth carbon-fiber_smooth_height.png
 map_Bump carbon-fiber_smooth_normal-ogl.png
 map_ao carbon-fiber_smooth_ao.png

@@ -16,6 +16,7 @@ import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
 import static cinnamon.Client.LOGGER;
+import static cinnamon.render.texture.Texture.TextureParams.SMOOTH_SAMPLING;
 
 public class SkyBox {
 
@@ -131,7 +132,7 @@ public class SkyBox {
             LOGGER.debug("Loading skybox: %s", res);
 
             if (hdr) {
-                HDRTexture hdrTex = HDRTexture.of(res, true, false);
+                HDRTexture hdrTex = HDRTexture.of(res, SMOOTH_SAMPLING);
                 texture = IBLMap.hdrToCubemap(hdrTex);
             } else {
                 texture = CubeMap.of(res);

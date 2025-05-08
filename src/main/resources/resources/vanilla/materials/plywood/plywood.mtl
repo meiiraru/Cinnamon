@@ -1,5 +1,5 @@
 newmtl plywood
-map_Kd -mip Wood_Plywood_Front_001_basecolor.png
+map_Kd -smooth_mip Wood_Plywood_Front_001_basecolor.png
 map_disp -smooth Wood_Plywood_Front_001_height.png
 map_Bump Wood_Plywood_Front_001_normal.png
 map_ao Wood_Plywood_Front_001_ambientOcclusion.png

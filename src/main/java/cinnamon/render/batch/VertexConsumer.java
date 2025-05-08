@@ -30,12 +30,8 @@ public enum VertexConsumer {
         consume(vertices, -1);
     }
 
-    public void consume(Vertex[] vertices, Resource texture) {
-        consume(vertices, texture, false, false);
-    }
-
-    public void consume(Vertex[] vertices, Resource texture, boolean smooth, boolean mipmap) {
-        consume(vertices, Texture.of(texture, smooth, mipmap).getID());
+    public void consume(Vertex[] vertices, Resource texture, Texture.TextureParams... params) {
+        consume(vertices, Texture.of(texture, params).getID());
     }
 
     public void consume(Vertex[] vertices, int texture) {
@@ -46,12 +42,8 @@ public enum VertexConsumer {
         consume(vertices, -1);
     }
 
-    public void consume(Vertex[][] vertices, Resource texture) {
-        consume(vertices, texture, false, false);
-    }
-
-    public void consume(Vertex[][] vertices, Resource texture, boolean smooth, boolean mipmap) {
-        consume(vertices, Texture.of(texture, smooth, mipmap).getID());
+    public void consume(Vertex[][] vertices, Resource texture, Texture.TextureParams... params) {
+        consume(vertices, Texture.of(texture, params).getID());
     }
 
     public void consume(Vertex[][] vertices, int texture) {

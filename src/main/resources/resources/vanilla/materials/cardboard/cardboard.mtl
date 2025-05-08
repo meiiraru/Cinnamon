@@ -1,5 +1,5 @@
 newmtl cardboard
-map_Kd -mip paper_0025_color_1k.png
+map_Kd -smooth_mip paper_0025_color_1k.png
 map_disp -smooth paper_0025_height_1k.png
 map_Bump paper_0025_normal_opengl_1k.png
 map_ao paper_0025_ao_1k.png

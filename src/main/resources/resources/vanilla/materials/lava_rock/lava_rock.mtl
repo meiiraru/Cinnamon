@@ -1,5 +1,5 @@
 newmtl lava_rock
-map_Kd -mip columned-lava-rock_albedo.png
+map_Kd -smooth_mip columned-lava-rock_albedo.png
 map_disp -smooth columned-lava-rock_height.png
 map_Bump columned-lava-rock_normal-ogl.png
 map_ao columned-lava-rock_ao.png

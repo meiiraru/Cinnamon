@@ -2,6 +2,7 @@ package cinnamon.parsers;
 
 import cinnamon.model.material.Material;
 import cinnamon.model.material.MaterialTexture;
+import cinnamon.render.texture.Texture;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 
@@ -79,7 +80,13 @@ public class MaterialLoader {
 
     private static MaterialTexture parseTexture(String[] split, String folder, Resource res) {
         Resource path = new Resource(res.getNamespace(), folder + split[split.length - 1]);
-        Set<String> flags = new HashSet<>(Arrays.asList(split).subList(1, split.length - 1));
-        return new MaterialTexture(path, flags.contains("-smooth"), flags.contains("-mip") || flags.contains("-mipmap"));
+
+        Set<Texture.TextureParams> params = new HashSet<>();
+        for (int i = 1; i < split.length - 1; i++) {
+            Texture.TextureParams param = Texture.TextureParams.getByAlias(split[i].substring(1));
+            if (param != null) params.add(param);
+        }
+
+        return new MaterialTexture(path, params.toArray(new Texture.TextureParams[0]));
     }
 }

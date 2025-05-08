@@ -1,5 +1,5 @@
 newmtl raw_salmon
-map_Kd -mip food_0013_color_1k.png
+map_Kd -smooth_mip food_0013_color_1k.png
 map_disp -smooth food_0013_height_1k.png
 map_Bump food_0013_normal_opengl_1k.png
 map_ao food_0013_ao_1k.png

@@ -1,11 +1,11 @@
 package cinnamon.parsers;
 
 import cinnamon.lang.LangManager;
+import cinnamon.model.material.Material;
 import cinnamon.model.material.MaterialTexture;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
-import cinnamon.model.material.Material;
 import cinnamon.utils.Curve;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
@@ -15,10 +15,13 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
+import static cinnamon.render.texture.Texture.TextureParams.MIPMAP;
+import static cinnamon.render.texture.Texture.TextureParams.MIPMAP_SMOOTH;
+
 public class CurveToMesh {
 
     private static final MaterialTexture
-            TEXTURE_ALBEDO = new MaterialTexture(new Resource("textures/rollercoaster/albedo.png"), false, true),
+            TEXTURE_ALBEDO = new MaterialTexture(new Resource("textures/rollercoaster/albedo.png"), MIPMAP, MIPMAP_SMOOTH),
             TEXTURE_METALLIC = new MaterialTexture(new Resource("textures/rollercoaster/metallic.png")),
             TEXTURE_ROUGHNESS = new MaterialTexture(new Resource("textures/rollercoaster/roughness.png"));
 

@@ -1,5 +1,5 @@
 newmtl bacteria
-map_Kd -mip Bacteria_001_COLOR.png
+map_Kd -smooth_mip Bacteria_001_COLOR.png
 map_disp -smooth Bacteria_001_DISP.png
 map_Bump Bacteria_001_NORM.png
 map_ao Bacteria_001_OCC.png

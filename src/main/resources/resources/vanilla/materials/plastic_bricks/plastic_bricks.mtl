@@ -1,5 +1,5 @@
 newmtl plastic_bricks
-map_Kd -mip Blocks_001_COLOR_C.png
+map_Kd -smooth_mip Blocks_001_COLOR_C.png
 map_disp -smooth Blocks_001_DISP.png
 map_Bump Blocks_001_NORM.png
 map_ao Blocks_001_OCC.png

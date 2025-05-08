@@ -1,5 +1,5 @@
 newmtl brick_wall
-map_Kd -mip bricks2.png
+map_Kd -smooth_mip bricks2.png
 map_disp -smooth bricks2_disp.png
 map_Bump bricks2_normal.png
 map_ao bricks2_ao.png

@@ -1,5 +1,5 @@
 newmtl moss
-map_Kd -mip ground_0014_color_1k.png
+map_Kd -smooth_mip ground_0014_color_1k.png
 map_disp -smooth ground_0014_height_1k.png
 map_Bump ground_0014_normal_opengl_1k.png
 map_ao ground_0014_ao_1k.png

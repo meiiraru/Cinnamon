@@ -1,5 +1,5 @@
 newmtl ridged_foam
-map_Kd -mip ridged-foam1_albedo.png
+map_Kd -smooth_mip ridged-foam1_albedo.png
 map_disp -smooth ridged-foam1_height.png
 map_Bump ridged-foam1_normal-ogl.png
 map_ao ridged-foam1_ao.png

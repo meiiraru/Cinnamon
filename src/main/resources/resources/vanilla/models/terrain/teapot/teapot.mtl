@@ -1,2 +1,2 @@
 newmtl teapot
-map_Kd -mip teapot.png
+map_Kd -smooth_mip teapot.png

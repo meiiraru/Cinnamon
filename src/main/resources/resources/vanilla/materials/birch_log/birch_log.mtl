@@ -1,5 +1,5 @@
 newmtl birch_log
-map_Kd -mip wood_0027_color_1k.png
+map_Kd -smooth_mip wood_0027_color_1k.png
 map_disp -smooth wood_0027_height_1k.png
 map_Bump wood_0027_normal_opengl_1k.png
 map_ao wood_0027_ao_1k.png

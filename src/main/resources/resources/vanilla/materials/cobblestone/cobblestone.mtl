@@ -1,5 +1,5 @@
 newmtl cobblestone
-map_Kd -mip angled-blocks-vegetation_albedo.png
+map_Kd -smooth_mip angled-blocks-vegetation_albedo.png
 map_disp -smooth angled-blocks-vegetation_height.png
 map_Bump angled-blocks-vegetation_normal-ogl.png
 map_ao angled-blocks-vegetation_ao.png

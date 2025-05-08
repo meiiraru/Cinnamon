@@ -1,5 +1,5 @@
 newmtl foil
-map_Kd -mip metal_0005_color_1k.png
+map_Kd -smooth_mip metal_0005_color_1k.png
 map_disp -smooth metal_0005_height_1k.png
 map_Bump metal_0005_normal_opengl_1k.png
 map_ao metal_0005_ao_1k.png

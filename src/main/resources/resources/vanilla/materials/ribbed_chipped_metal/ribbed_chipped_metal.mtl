@@ -1,5 +1,5 @@
 newmtl ribbed_chipped_metal
-map_Kd -mip ribbed-chipped-metal_albedo.png
+map_Kd -smooth_mip ribbed-chipped-metal_albedo.png
 map_disp -smooth ribbed-chipped-metal_height.png
 map_Bump ribbed-chipped-metal_normal-ogl.png
 map_ao ribbed-chipped-metal_ao.png

@@ -1,5 +1,5 @@
 newmtl acoustic_foam
-map_Kd -mip TCom_Various_AcousticFoam_512_albedo.png
+map_Kd -smooth_mip TCom_Various_AcousticFoam_512_albedo.png
 map_disp -smooth TCom_Various_AcousticFoam_512_height.png
 map_Bump TCom_Various_AcousticFoam_512_normal.png
 map_ao TCom_Various_AcousticFoam_512_ao.png

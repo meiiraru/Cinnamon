@@ -5,6 +5,7 @@ import cinnamon.model.material.MaterialTexture;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
+import cinnamon.render.texture.Texture;
 import cinnamon.utils.IOUtils;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -147,7 +148,15 @@ public class ObjExporter {
         IOUtils.writeFile(path.resolve(textureName), input.readAllBytes());
 
         //write texture material
-        string.append(key);
-        string.append(" %s%s%s%s\n".formatted(extra, texture.smooth() ? "-smooth " : "", texture.mipmap() ? "-mip " : "", textureName));
+        string.append(key)
+            .append(" ")
+            .append(extra);
+
+        for (Texture.TextureParams param : texture.params())
+            string.append("-").append(param.aliases[0]).append(" ");
+
+        string
+                .append(textureName)
+                .append("\n");
     }
 }

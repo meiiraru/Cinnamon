@@ -1,5 +1,5 @@
 newmtl bamboo
-map_Kd -mip wood_0028_color_1k.png
+map_Kd -smooth_mip wood_0028_color_1k.png
 map_disp -smooth wood_0028_height_1k.png
 map_Bump wood_0028_normal_opengl_1k.png
 map_ao wood_0028_ao_1k.png

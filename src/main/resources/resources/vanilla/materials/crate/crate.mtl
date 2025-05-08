@@ -1,4 +1,4 @@
 newmtl crate
-map_Kd -mip kd.png
+map_Kd -smooth_mip kd.png
 map_Pr roughness.png
 map_Pm ks.png

@@ -1,5 +1,5 @@
 newmtl padded_leather
-map_Kd -mip older-padded-leather_albedo.png
+map_Kd -smooth_mip older-padded-leather_albedo.png
 map_disp -dm 0.05 -smooth older-padded-leather_height.png
 map_Bump older-padded-leather_normal-ogl.png
 map_ao older-padded-leather_ao.png

@@ -1,2 +1,2 @@
 newmtl debug
-map_Kd -mip debug.png
+map_Kd -smooth_mip debug.png

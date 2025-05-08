@@ -189,7 +189,7 @@ public class ModelViewer extends SelectableWidget {
 
     public void setModel(ModelRenderer model) {
         this.model = model;
-        float maxDimension = Maths.max(model.getAABB().getDimensions());
+        float maxDimension = model == null ? 1f : Maths.max(model.getAABB().getDimensions());
         scaleReset = defaultScale / maxDimension;
         resetView();
     }

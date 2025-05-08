@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static cinnamon.render.texture.Texture.TextureParams.SMOOTH_SAMPLING;
+
 public class MainMenu extends Screen {
 
     private static final Resource
@@ -84,11 +86,11 @@ public class MainMenu extends Screen {
 
         //background
         Texture bg = Texture.of(BACKGROUND);
-        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -d * 3, 0f, (float) width / bg.getWidth(), 0f, (float) height / bg.getHeight()), BACKGROUND, true, false);
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -d * 3, 0f, (float) width / bg.getWidth(), 0f, (float) height / bg.getHeight()), BACKGROUND, SMOOTH_SAMPLING);
 
         //bottom
         Texture bottom = Texture.of(BOTTOM);
-        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, 0, height - bottom.getHeight(), width, bottom.getHeight(), -d * 2, 0f, (float) width / bottom.getWidth(), 0f, 1f), BOTTOM, true, false);
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, 0, height - bottom.getHeight(), width, bottom.getHeight(), -d * 2, 0f, (float) width / bottom.getWidth(), 0f, 1f), BOTTOM, SMOOTH_SAMPLING);
 
         //overlay
         Texture overlay = Texture.of(OVERLAY);

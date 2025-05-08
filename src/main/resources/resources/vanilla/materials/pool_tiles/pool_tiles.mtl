@@ -1,5 +1,5 @@
 newmtl pool_tiles
-map_Kd -mip Tiles_008_COLOR.png
+map_Kd -smooth_mip Tiles_008_COLOR.png
 map_disp -smooth Tiles_008_DISP.png
 map_Bump Tiles_008_NORM.png
 map_ao Tiles_008_OCC.png

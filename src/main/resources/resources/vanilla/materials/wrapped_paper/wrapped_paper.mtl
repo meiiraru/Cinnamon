@@ -1,5 +1,5 @@
 newmtl wrapped_paper
-map_Kd -mip paper_0022_color_1k.png
+map_Kd -smooth_mip paper_0022_color_1k.png
 map_disp -smooth paper_0022_height_1k.png
 map_Bump paper_0022_normal_opengl_1k.png
 map_ao paper_0022_ao_1k.png

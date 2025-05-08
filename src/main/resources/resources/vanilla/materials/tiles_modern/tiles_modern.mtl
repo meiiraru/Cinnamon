@@ -1,5 +1,5 @@
 newmtl tiles_modern
-map_Kd -mip Tiles_Modern_002_basecolor.png
+map_Kd -smooth_mip Tiles_Modern_002_basecolor.png
 map_disp -smooth Tiles_Modern_002_height.png
 map_Bump Tiles_Modern_002_normal.png
 map_ao Tiles_Modern_002_ambientOcclusion.png

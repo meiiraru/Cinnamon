@@ -1,5 +1,5 @@
 newmtl leaf_vein
-map_Kd -mip plants_0007_color_1k.png
+map_Kd -smooth_mip plants_0007_color_1k.png
 map_disp -smooth plants_0007_height_1k.png
 map_Bump plants_0007_normal_opengl_1k.png
 map_ao plants_0007_ao_1k.png

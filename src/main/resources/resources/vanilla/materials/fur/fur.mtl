@@ -1,5 +1,5 @@
 newmtl fur
-map_Kd -mip stylized-animal-fur_albedo.png
+map_Kd -smooth_mip stylized-animal-fur_albedo.png
 map_disp -smooth stylized-animal-fur_height.png
 map_Bump stylized-animal-fur_normal-ogl.png
 map_ao stylized-animal-fur_ao.png

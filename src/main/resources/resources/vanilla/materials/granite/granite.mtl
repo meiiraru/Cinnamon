@@ -1,5 +1,5 @@
 newmtl granite
-map_Kd -mip Granite08small_1K_BaseColor.png
+map_Kd -smooth_mip Granite08small_1K_BaseColor.png
 map_disp -smooth Granite08small_1K_Height.png
 map_Bump Granite08small_1K_Normal.png
 map_Pr Granite08small_1K_Roughness.png

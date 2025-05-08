@@ -1,5 +1,5 @@
 newmtl blue_ice
-map_Kd -mip Blue_Ice_001_COLOR.png
+map_Kd -smooth_mip Blue_Ice_001_COLOR.png
 map_disp -smooth Blue_Ice_001_DISP.png
 map_Bump Blue_Ice_001_NORM.png
 map_ao Blue_Ice_001_OCC.png
