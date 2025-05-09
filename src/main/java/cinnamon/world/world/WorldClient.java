@@ -51,7 +51,7 @@ import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.terrain.Terrain;
-import cinnamon.world.worldgen.Chunk;
+import cinnamon.world.worldgen.chunk.Chunk;
 import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;

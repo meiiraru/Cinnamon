@@ -16,7 +16,8 @@ import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.particle.ExplosionParticle;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.terrain.Terrain;
-import cinnamon.world.worldgen.Chunk;
+import cinnamon.world.worldgen.TerrainGenerator;
+import cinnamon.world.worldgen.chunk.Chunk;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
@@ -124,11 +125,11 @@ public abstract class World {
 
         Chunk c = chunks.get(cPos);
         if (c == null) {
-            c = new Chunk(cPos);
+            c = TerrainGenerator.emptyChunk(cPos.x, cPos.y, cPos.z);
             addChunk(c);
         }
 
-        c.setTerrain(terrain, tPos);
+        c.setTerrain(terrain, tPos.x, tPos.y, tPos.z);
         if (terrain != null)
             scheduledTicks.add(() -> terrain.onAdded(this));
     }
