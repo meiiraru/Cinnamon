@@ -159,6 +159,22 @@
   "color.dark_gray": "Cinza Escuro",
   "color.black": "Preto",
 
+  "key.none": "Nenhum",
+  "key.keyboard": "Botão %s",
+  "key.scancode": "Botão %s",
+  "key.mouse": "Mouse %s",
+
+  "keybind.forward": "Mover para frente",
+  "keybind.backward": "Mover para trás",
+  "keybind.left": "Mover para a Eesquerda",
+  "keybind.right": "Mover para a Direita",
+  "keybind.jump": "Pular",
+  "keybind.sneak": "Agachar",
+  "keybind.sprint": "Correr",
+  "keybind.attack": "Atacar",
+  "keybind.use": "Usar",
+  "keybind.pick": "Pegar Terreno",
+
   "item": "Item",
   "item.magic_wand": "Varinha Mágica",
   "item.flashlight": "Lanterna",
@@ -209,6 +225,7 @@
   "terrain.box": "Caixa",
   "terrain.sphere": "Esfera",
   "terrain.teapot": "Bule",
+  "terrain.barrier": "Barreira",
 
   "material": "Material",
   "material.default": "Padrão",

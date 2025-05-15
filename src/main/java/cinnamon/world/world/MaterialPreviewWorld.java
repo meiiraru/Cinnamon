@@ -68,7 +68,7 @@ public class MaterialPreviewWorld extends WorldClient {
                 visible = true;
             }
 
-            if (visible && !hideHUD()) {
+            if (visible && !hudHidden()) {
                 matrices.translate(-1.5f, 1.5f, 0f);
                 matrices.scale(-1 / 48f);
                 camera.billboard(matrices);

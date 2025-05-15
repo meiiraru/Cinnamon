@@ -2,11 +2,23 @@ package cinnamon.world.entity.living;
 
 import cinnamon.Client;
 import cinnamon.registry.LivingModelRegistry;
+import cinnamon.registry.MaterialRegistry;
+import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.settings.Settings;
+import cinnamon.utils.AABB;
+import cinnamon.utils.Direction;
+import cinnamon.world.WorldObject;
+import cinnamon.world.collisions.Hit;
+import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
+import org.joml.Vector3f;
 
 public class LocalPlayer extends Player {
+
+    private int lastMouseTime = 0;
+    private int selectedTerrain = TerrainRegistry.BOX.ordinal();
+    private int selectedMaterial = MaterialRegistry.GRASS.ordinal();
 
     public LocalPlayer() {
         this(Settings.playermodel.get());
@@ -14,6 +26,14 @@ public class LocalPlayer extends Player {
 
     public LocalPlayer(LivingModelRegistry model) {
         super(Client.getInstance().name, Client.getInstance().playerUUID, model);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (lastMouseTime > 0)
+            lastMouseTime--;
     }
 
     @Override
@@ -42,5 +62,94 @@ public class LocalPlayer extends Player {
     @Override
     public boolean isRemoved() {
         return false;
+    }
+
+    public int getSelectedTerrain() {
+        return selectedTerrain;
+    }
+
+    public void setSelectedTerrain(int selectedTerrain) {
+        this.selectedTerrain = selectedTerrain;
+    }
+
+    public int getSelectedMaterial() {
+        return selectedMaterial;
+    }
+
+    public void setSelectedMaterial(int selectedMaterial) {
+        this.selectedMaterial = selectedMaterial;
+    }
+
+    @Override
+    public boolean attackAction() {
+        if (super.attackAction())
+            return true;
+
+        Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
+        if (hit != null && hit.obj() instanceof Terrain t && lastMouseTime <= 0) {
+            Vector3f pos = t.getPos();
+            getWorld().setTerrain(null, (int) pos.x, (int) pos.y, (int) pos.z);
+
+            lastMouseTime = getInteractionDelay();
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public void stopAttacking() {
+        super.stopAttacking();
+        lastMouseTime = 0;
+    }
+
+    @Override
+    public boolean useAction() {
+        if (super.useAction())
+            return true;
+
+        Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
+        if (hit != null && hit.obj() instanceof Terrain t && lastMouseTime <= 0) {
+            Vector3f dir = hit.collision().normal();
+            Vector3f tpos = new Vector3f(t.getPos()).add(dir);
+
+            AABB entities = new AABB().translate(tpos).expand(1f, 1f, 1f);
+            if (getWorld().getEntities(entities).isEmpty()) {
+                Terrain tt = TerrainRegistry.values()[selectedTerrain].getFactory().get();
+                tt.setMaterial(MaterialRegistry.values()[selectedMaterial]);
+                getWorld().setTerrain(tt, (int) tpos.x, (int) tpos.y, (int) tpos.z);
+                tt.setRotation(Direction.fromRotation(getRot().y).invRotation);
+
+                lastMouseTime = getInteractionDelay();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void stopUsing() {
+        super.stopUsing();
+        lastMouseTime = 0;
+    }
+
+    public void pick() {
+        Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
+        if (hit != null && hit.obj() instanceof Terrain t) {
+            selectedTerrain = t.getType().ordinal();
+            MaterialRegistry material = t.getMaterial();
+            if (material != null) selectedMaterial = material.ordinal();
+        }
+    }
+
+    @Override
+    public void setSelectedItem(int index) {
+        super.setSelectedItem(index);
+        lastMouseTime = 0;
+    }
+
+    private int getInteractionDelay() {
+        return isGod() ? 5 : 7;
     }
 }

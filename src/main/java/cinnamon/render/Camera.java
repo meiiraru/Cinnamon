@@ -219,8 +219,16 @@ public class Camera {
         return pos;
     }
 
+    public Vector3f getXrPos() {
+        return xrPos;
+    }
+
     public Quaternionf getRot() {
         return rotation;
+    }
+
+    public Quaternionf getXrRot() {
+        return xrRot;
     }
 
     public Vector3f getForwards() {

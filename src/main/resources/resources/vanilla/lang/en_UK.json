@@ -189,6 +189,22 @@
   "color.dark_gray": "Dark Grey",
   "color.black": "Black",
 
+  "key.none": "None",
+  "key.keyboard": "Key %s",
+  "key.scancode": "Key %s",
+  "key.mouse": "Mouse %s",
+
+  "keybind.forward": "Move Forward",
+  "keybind.backward": "Move Back",
+  "keybind.left": "Move Left",
+  "keybind.right": "Move Right",
+  "keybind.jump": "Jump",
+  "keybind.sneak": "Sneak",
+  "keybind.sprint": "Sprint",
+  "keybind.attack": "Attack",
+  "keybind.use": "Use",
+  "keybind.pick": "Pick Terrain",
+
   "item": "Item",
   "item.magic_wand": "Magic Wand",
   "item.flashlight": "Flashlight",
@@ -239,6 +255,7 @@
   "terrain.box": "Box",
   "terrain.sphere": "Sphere",
   "terrain.teapot": "Teapot",
+  "terrain.barrier": "Barrier",
 
   "material": "Material",
   "material.default": "Default",

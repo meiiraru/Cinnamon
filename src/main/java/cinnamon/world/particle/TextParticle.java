@@ -30,7 +30,7 @@ public class TextParticle extends Particle {
 
     @Override
     public boolean shouldRender(Camera camera) {
-        return !((WorldClient) world).hideHUD() && super.shouldRender(camera);
+        return !((WorldClient) world).hudHidden() && super.shouldRender(camera);
     }
 
     @Override

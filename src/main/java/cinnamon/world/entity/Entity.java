@@ -126,7 +126,7 @@ public abstract class Entity extends WorldObject {
     public boolean shouldRenderText() {
         Client client = Client.getInstance();
         return
-                !((WorldClient) world).hideHUD() &&
+                !((WorldClient) world).hudHidden() &&
                 (client.camera.getEntity() != this || client.debug) &&
                 !WorldRenderer.isRenderingOutlines() &&
                 client.camera.getPos().distanceSquared(pos) <= 1024;
@@ -354,6 +354,16 @@ public abstract class Entity extends WorldObject {
 
         //return hit
         return world.raycastEntity(area, pos, range, e -> e != this && e != this.riding && e.isTargetable());
+    }
+
+    public Hit<? extends WorldObject> getLookingObject(float distance) {
+        Hit<Entity> entityHit = getLookingEntity(distance);
+        Hit<Terrain> terrainHit = getLookingTerrain(distance);
+
+        if (entityHit != null && (terrainHit == null || entityHit.collision().near() < terrainHit.collision().near()))
+            return entityHit;
+
+        return terrainHit;
     }
 
     public Entity getRidingEntity() {

@@ -88,14 +88,15 @@ public class Client {
         SoundManager.init(Settings.soundDevice.get());
 
         //init open xr
-        //XrManager.init();
+        if (Cinnamon.ENABLE_XR)
+            XrManager.init();
 
         //register and run init events
         events.registerClientEvents();
         events.runEvents(EventType.RESOURCE_INIT);
         events.runEvents(EventType.CLIENT_INIT);
 
-        //open main menu
+        //open the main menu
         this.setScreen(mainScreen.get());
     }
 
@@ -156,8 +157,8 @@ public class Client {
         if (world != null) {
             world.render(matrices, delta);
 
-            if (!world.hideHUD()) {
-                //render first person hand
+            if (!world.hudHidden()) {
+                //render first-person hand
                 if (!world.isThirdPerson()) {
                     glClear(GL_DEPTH_BUFFER_BIT); //top of world
                     world.renderHand(camera, matrices, delta);
@@ -170,7 +171,7 @@ public class Client {
                 if (XrManager.isInXR())
                     XrRenderer.applyGUITransform(matrices);
 
-                world.hud.render(matrices, delta);
+                world.renderHUD(matrices, delta);
 
                 matrices.popMatrix();
             }
@@ -194,17 +195,17 @@ public class Client {
             screen.render(matrices, window.mouseX, window.mouseY, delta);
 
         //render toasts
-        if (world == null || !world.hideHUD())
+        if (world == null || !world.hudHidden())
             Toast.renderToasts(matrices, window.getGUIWidth(), window.getGUIHeight(), delta);
 
         //finish hud
         VertexConsumer.finishAllBatches(camera);
 
-        //apply global post process
+        //apply a global post-process
         if (postProcess != -1)
             PostProcess.apply(PostProcess.EFFECTS[postProcess]);
 
-        //run post render events
+        //run post-render events
         events.runEvents(EventType.RENDER_END);
 
         //debug hud always on top
@@ -217,7 +218,7 @@ public class Client {
     }
 
     public void setScreen(Screen s) {
-        //remove previous screen
+        //remove the previous screen
         if (screen != null)
             screen.removed();
 
@@ -228,7 +229,7 @@ public class Client {
             //init the new screen
             s.init(this, window.getGUIWidth(), window.getGUIHeight());
 
-            //screen has been added
+            //a screen has been added
             screen.added();
             LOGGER.debug("Set screen: %s", s.getClass().getSimpleName());
 
@@ -272,8 +273,6 @@ public class Client {
     // -- glfw events -- //
 
     public void mousePress(int button, int action, int mods) {
-        window.mousePress(button, action, mods);
-
         if (screen != null)
             screen.mousePress(button, action, mods);
         else if (world != null && window.isMouseLocked())

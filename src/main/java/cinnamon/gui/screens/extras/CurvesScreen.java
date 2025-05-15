@@ -10,6 +10,7 @@ import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Checkbox;
 import cinnamon.gui.widgets.types.ComboBox;
 import cinnamon.gui.widgets.types.Label;
+import cinnamon.input.InputManager;
 import cinnamon.model.GeometryHelper;
 import cinnamon.parsers.CurveToMesh;
 import cinnamon.parsers.ObjExporter;
@@ -223,18 +224,16 @@ public class CurvesScreen extends ParentedScreen {
 
     @Override
     public boolean mouseMove(int x, int y) {
-        Window w = client.window;
-
-        if (w.mouse1Press) {
+        if (InputManager.isMousePressed(GLFW_MOUSE_BUTTON_1)) {
             if (focused instanceof Point selected) {
                 selected.setPos(x - R, y - R);
                 int i = points.indexOf(selected);
                 if (i != -1)
                     curve.setPoint(i, x, randomHeight(), y);
             }
-        } else if (w.mouse2Press) {
+        } else if (InputManager.isMousePressed(GLFW_MOUSE_BUTTON_2)) {
             removePoint();
-        } else if (w.mouse3Press) {
+        } else if (InputManager.isMousePressed(GLFW_MOUSE_BUTTON_3)) {
             int dx = x - anchorX;
             int dy = y - anchorY;
             anchorX = x;

@@ -6,13 +6,14 @@ import cinnamon.gui.Toast;
 import cinnamon.gui.screens.world.ChatScreen;
 import cinnamon.gui.screens.world.DeathScreen;
 import cinnamon.gui.screens.world.PauseScreen;
+import cinnamon.input.Interaction;
+import cinnamon.input.Keybind;
 import cinnamon.input.Movement;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.Window;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Blit;
@@ -22,7 +23,6 @@ import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.text.Text;
 import cinnamon.utils.AABB;
-import cinnamon.utils.Direction;
 import cinnamon.utils.Maths;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
@@ -38,11 +38,7 @@ import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.living.LocalPlayer;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.entity.vehicle.Cart;
-import cinnamon.world.items.BubbleGun;
-import cinnamon.world.items.Flashlight;
-import cinnamon.world.items.Item;
-import cinnamon.world.items.ItemRenderContext;
-import cinnamon.world.items.MagicWand;
+import cinnamon.world.items.*;
 import cinnamon.world.items.weapons.CoilGun;
 import cinnamon.world.items.weapons.PotatoCannon;
 import cinnamon.world.items.weapons.RiceGun;
@@ -51,8 +47,8 @@ import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.terrain.Terrain;
-import cinnamon.world.worldgen.chunk.Chunk;
 import cinnamon.world.worldgen.TerrainGenerator;
+import cinnamon.world.worldgen.chunk.Chunk;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -67,8 +63,9 @@ import static org.lwjgl.opengl.GL11.glViewport;
 
 public class WorldClient extends World {
 
-    public final Hud hud = new Hud();
-    private final Movement movement = new Movement();
+    protected Hud hud = new Hud();
+    protected Movement movement = new Movement();
+    protected Interaction interaction = new Interaction();
 
     protected Client client;
     public LocalPlayer player;
@@ -91,10 +88,6 @@ public class WorldClient extends World {
 
     //counters
     private int renderedEntities, renderedChunks, renderedTerrain, renderedParticles;
-
-    //terrain
-    private int selectedTerrain = TerrainRegistry.BOX.ordinal();
-    private int selectedMaterial = MaterialRegistry.GRASS.ordinal();
 
     @Override
     public void init() {
@@ -192,8 +185,7 @@ public class WorldClient extends World {
             client.setScreen(new DeathScreen());
 
         //process input
-        this.movement.tick(player);
-        processMouseInput();
+        tickInput();
 
         //hud
         this.hud.tick();
@@ -440,6 +432,10 @@ public class WorldClient extends World {
         client.camera.useOrtho(true);
     }
 
+    public void renderHUD(MatrixStack matrices, float delta) {
+        this.hud.render(matrices, delta);
+    }
+
     protected void renderShadowBuffer(int x, int y, int size) {
         glViewport(x, y, size, size);
         Blit.copy(shadowBuffer, Framebuffer.activeFramebuffer.id(), Shaders.DEPTH_BLIT.getShader(), Blit.DEPTH_UNIFORM);
@@ -578,86 +574,16 @@ public class WorldClient extends World {
         return renderedParticles;
     }
 
-    public void mousePress(int button, int action, int mods) {
-        boolean press = action == GLFW_PRESS;
-        boolean release = action == GLFW_RELEASE;
-
-        //ClientEntityAction mouseAction = new ClientEntityAction();
-        //boolean used = false;
-
-        switch (button) {
-            case GLFW_MOUSE_BUTTON_1 -> {
-                if (release) {
-                    player.stopAttacking();
-                    //mouseAction.attack(false);
-                    //used = true;
-                } else if (press && player.getHoldingItem() == null) {
-                    Hit<Terrain> terrain = player.getLookingTerrain(player.getPickRange());
-                    if (terrain != null) {
-                        Vector3f pos = terrain.obj().getPos();
-                        setTerrain(null, (int) pos.x, (int) pos.y, (int) pos.z);
-                    }
-                }
-            }
-            case GLFW_MOUSE_BUTTON_2 -> {
-                if (release) {
-                    player.stopUsing();
-                    //mouseAction.use(false);
-                    //used = true;
-                } else if (press && player.getHoldingItem() == null) {
-                    Hit<Entity> entity = player.getLookingEntity(player.getPickRange());
-                    Hit<Terrain> terrain = player.getLookingTerrain(player.getPickRange());
-                    if (terrain != null && (entity == null || terrain.collision().near() < entity.collision().near())) {
-                        Vector3f dir = terrain.collision().normal();
-                        Vector3f tpos = new Vector3f(terrain.obj().getPos()).add(dir);
-
-                        AABB entities = new AABB().translate(tpos).expand(1f, 1f, 1f);
-                        if (getEntities(entities).isEmpty()) {
-                            Terrain t = TerrainRegistry.values()[selectedTerrain].getFactory().get();
-                            t.setMaterial(MaterialRegistry.values()[selectedMaterial]);
-                            setTerrain(t, (int) tpos.x, (int) tpos.y, (int) tpos.z);
-                            t.setRotation(Direction.fromRotation(player.getRot().y).invRotation);
-                        }
-                    }
-                }
-            }
-            case GLFW_MOUSE_BUTTON_3 -> {
-                if (press) {
-                    Hit<Terrain> terrain = player.getLookingTerrain(player.getPickRange());
-                    if (terrain != null) {
-                        selectedTerrain = terrain.obj().getType().ordinal();
-                        MaterialRegistry material = terrain.obj().getMaterial();
-                        if (material != null) selectedMaterial = material.ordinal();
-                    }
-                }
-            }
-        }
-
-        //if (used) connection.sendUDP(mouseAction);
-
-        processMouseInput();
-    }
-
-    private void processMouseInput() {
-        Window w = client.window;
-        if (!w.isMouseLocked())
+    protected void tickInput() {
+        if (!client.window.isMouseLocked())
             return;
 
-        //ClientEntityAction action = new ClientEntityAction();
-        //boolean used = false;
+        this.movement.tick(player);
+        this.interaction.tick(player);
+    }
 
-        if (w.mouse1Press) {
-            player.attackAction();
-            //action.attack(true);
-            //used = true;
-        }
-        if (w.mouse2Press) {
-            player.useAction();
-            //action.use(true);
-            //used = true;
-        }
-
-        //if (used) connection.sendUDP(action);
+    public void mousePress(int button, int action, int mods) {
+        Keybind.mousePress(button, action, mods);
     }
 
     public void mouseMove(double x, double y) {
@@ -666,13 +592,11 @@ public class WorldClient extends World {
     }
 
     public void scroll(double x, double y) {
-        int i = player.getInventory().getSelectedIndex() - (int) Math.signum(y);
-        player.setSelectedItem(i);
-        //connection.sendUDP(new SelectItem().index(i));
+        this.interaction.scrollItem((int) Math.signum(-y));
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
-        movement.keyPress(key, action);
+        Keybind.keyPress(key, scancode, action, mods);
 
         if (action == GLFW_RELEASE)
             return;
@@ -703,8 +627,8 @@ public class WorldClient extends World {
                 skyBox.type = SkyBox.Type.values()[(skyBox.type.ordinal() + 1) % SkyBox.Type.values().length];
                 Toast.addToast(Text.translated("skybox." + skyBox.type.name().toLowerCase())).type(Toast.ToastType.WORLD);
             }
-            case GLFW_KEY_COMMA -> selectedTerrain = (selectedTerrain + 1) % (TerrainRegistry.values().length);
-            case GLFW_KEY_PERIOD -> selectedMaterial = Maths.modulo((selectedMaterial + (shift ? -1 : 1)), MaterialRegistry.values().length);
+            case GLFW_KEY_COMMA -> player.setSelectedTerrain((player.getSelectedTerrain() + 1) % (TerrainRegistry.values().length));
+            case GLFW_KEY_PERIOD -> player.setSelectedMaterial(Maths.modulo((player.getSelectedMaterial() + (shift ? -1 : 1)), MaterialRegistry.values().length));
 
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
             //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));
@@ -720,7 +644,7 @@ public class WorldClient extends World {
     }
 
     public void xrTriggerPress(int button, float value, int hand, float lastValue) {
-
+        interaction.xrTriggerPress(button, value, hand, lastValue);
     }
 
     public void xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
@@ -729,6 +653,8 @@ public class WorldClient extends World {
 
     public void resetMovement() {
         this.movement.reset();
+        this.interaction.reset();
+        Keybind.releaseAll();
     }
 
     public int getCameraMode() {
@@ -739,22 +665,14 @@ public class WorldClient extends World {
         return cameraMode > 0;
     }
 
-    public boolean hideHUD() {
+    public boolean hudHidden() {
         return hideHUD;
-    }
-
-    public int getSelectedTerrain() {
-        return selectedTerrain;
-    }
-
-    public int getSelectedMaterial() {
-        return selectedMaterial;
     }
 
     public void respawn(boolean init) {
         player = new LocalPlayer();
         player.setPos(0.5f, init ? 0f : 100f, 0.5f);
-        player.setGodMode(false);
+        player.setGodMode(true);
         givePlayerItems(player);
         this.addEntity(player);
 

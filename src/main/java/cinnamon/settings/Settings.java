@@ -1,6 +1,7 @@
 package cinnamon.settings;
 
 import cinnamon.Client;
+import cinnamon.input.InputManager;
 import cinnamon.lang.LangManager;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.sound.SoundCategory;
@@ -14,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 import static cinnamon.Client.LOGGER;
+import static cinnamon.input.Keybind.KeyType.*;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class Settings {
 
@@ -45,10 +48,31 @@ public class Settings {
     //sound device
     public static final Setting.Strings soundDevice = new Setting.Strings("sound.device", "");
 
+    //keybinds
+    public static final Setting.Keybind
+            //movement
+            forward = new Setting.Keybind("keybind.forward", GLFW_KEY_W, KEY),
+            backward = new Setting.Keybind("keybind.backward", GLFW_KEY_S, KEY),
+            left = new Setting.Keybind("keybind.left", GLFW_KEY_A, KEY),
+            right = new Setting.Keybind("keybind.right", GLFW_KEY_D, KEY),
+
+            jump = new Setting.Keybind("keybind.jump", GLFW_KEY_SPACE, KEY),
+            sneak = new Setting.Keybind("keybind.sneak", GLFW_KEY_LEFT_SHIFT, KEY),
+            sprint = new Setting.Keybind("keybind.sprint", GLFW_KEY_TAB, KEY),
+
+            //item
+            attack = new Setting.Keybind("keybind.attack", GLFW_MOUSE_BUTTON_1, MOUSE),
+            use = new Setting.Keybind("keybind.use", GLFW_MOUSE_BUTTON_2, MOUSE),
+            pick = new Setting.Keybind("keybind.pick", GLFW_MOUSE_BUTTON_3, MOUSE);
+
     static {
         //player name do not have a getter
         Setting.Strings player = new Setting.Strings("player.playername", Client.getInstance().name);
         player.setListener(v -> Client.getInstance().setName(v));
+
+        //raw mouse
+        Setting.Bools rawMouse = new Setting.Bools("mouse.raw_mouse", true);
+        rawMouse.setListener(InputManager::setRawMouseInput);
 
         //wrapper for sound categories
         for (SoundCategory sound : SoundCategory.values()) {

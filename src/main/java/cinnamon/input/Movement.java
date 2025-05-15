@@ -8,15 +8,13 @@ import cinnamon.world.entity.living.Player;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import static org.lwjgl.glfw.GLFW.*;
-
 public class Movement {
 
     private static final int TICKS_TO_FLY = (int) (0.3f * Client.TPS);
 
     //pos
     private final Vector3f movement = new Vector3f();
-    private boolean sprint, sneak;
+    private boolean sprint, sneak, jump;
 
     //rot
     private final Vector2f rotation = new Vector2f();
@@ -31,29 +29,59 @@ public class Movement {
     private final Vector3f xrMovement = new Vector3f();
     private float xrRot = 0f;
 
-    public void keyPress(int key, int action) {
-        boolean pressed = action != GLFW_RELEASE;
-        switch (key) {
-            case GLFW_KEY_TAB -> sprint = pressed;
-            case GLFW_KEY_LEFT_CONTROL -> sneak = pressed;
+    public void tick(Entity target) {
+        if (flyTicks > 0)
+            flyTicks--;
+
+        if (XrManager.isInXR()) {
+            movement.add(xrMovement);
+            rotation.add(xrRot, 0);
+        } else {
+            if (!jump && Settings.jump.get().click())
+                attemptToFly();
+
+            jump = Settings.jump.get().isPressed();
+            sneak = Settings.sneak.get().isPressed();
+
+            if (Settings.left.get().isPressed()) movement.x -= 1;
+            if (Settings.right.get().isPressed()) movement.x += 1;
+            if (Settings.forward.get().isPressed()) movement.z += 1;
+            if (Settings.backward.get().isPressed()) movement.z -= 1;
+
+            if (sneak) movement.y -= 1;
+            if (jump) movement.y += 1;
+
+            sprint = !sneak && movement.z > 0 && (sprint || Settings.sprint.get().isPressed());
         }
 
-        if (!pressed)
-            return;
-
-        switch (key) {
-            //movement
-            case GLFW_KEY_W -> movement.z += 1;
-            case GLFW_KEY_A -> movement.x -= 1;
-            case GLFW_KEY_S -> movement.z -= 1;
-            case GLFW_KEY_D -> movement.x += 1;
-            case GLFW_KEY_SPACE -> {
-                movement.y += 1;
-                if (action == GLFW_PRESS)
-                    attemptToFly();
+        if (target instanceof Player p) {
+            boolean flying = p.isFlying();
+            if (flyingToggle) {
+                flyingToggle = false;
+                flying = !flying;
             }
-            case GLFW_KEY_LEFT_SHIFT -> movement.y -= 1;
+
+            p.updateMovementFlags(sneak, sprint, flying);
         }
+
+        if (movement.lengthSquared() > 0) {
+            target.move(movement.x, movement.y, movement.z);
+            movement.set(0);
+        }
+
+        if (rotation.lengthSquared() > 0) {
+            target.rotate(rotation.y, rotation.x);
+            rotation.set(0);
+        }
+    }
+
+    public void reset() {
+        this.firstMouse = true;
+        this.movement.set(0);
+        this.xrMovement.set(0);
+        this.rotation.set(0);
+        sprint = sneak = jump = false;
+        flyTicks = 0;
     }
 
     private void attemptToFly() {
@@ -88,51 +116,13 @@ public class Movement {
         offsetY = 0;
     }
 
-    public void tick(Entity target) {
-        if (flyTicks > 0)
-            flyTicks--;
-
-        if (XrManager.isInXR()) {
-            movement.add(xrMovement);
-            rotation.add(xrRot, 0);
-        }
-
-        if (movement.lengthSquared() > 0) {
-            target.move(movement.x, movement.y, movement.z);
-            movement.set(0);
-        }
-
-        if (rotation.lengthSquared() > 0) {
-            target.rotate(rotation.y, rotation.x);
-            rotation.set(0);
-        }
-
-        if (target instanceof Player p) {
-            boolean flying = p.isFlying();
-            if (flyingToggle) {
-                flyingToggle = false;
-                flying = !flying;
-            }
-
-            p.updateMovementFlags(sneak, sprint, flying);
-        }
-    }
-
-    public void reset() {
-        this.firstMouse = true;
-        this.movement.set(0);
-        this.xrMovement.set(0);
-        this.rotation.set(0);
-        sprint = sneak = flyingToggle = false;
-        flyTicks = 0;
-    }
-
     public void xrButtonPress(int button, boolean pressed, int hand) {
         switch (button) {
             case 0 -> {
                 xrMovement.y = pressed ? 1 : 0;
-                if (pressed)
+                if (!jump && pressed)
                     attemptToFly();
+                jump = pressed;
             }
             case 2 -> {
                 if (!pressed)
@@ -140,8 +130,10 @@ public class Movement {
 
                 if (hand == 0)
                     sprint = !sprint;
-                if (hand == 1)
+                if (hand == 1) {
                     sneak = !sneak;
+                    xrMovement.y = sneak ? -1 : 0;
+                }
             }
         }
     }
@@ -153,7 +145,7 @@ public class Movement {
 
         //movement
         if (hand == 0)
-            xrMovement.set(dx, 0, dy);
+            xrMovement.set(dx, xrMovement.y, dy);
         //rotation
         else if (hand == 1)
             xrRot = dx * 3f;

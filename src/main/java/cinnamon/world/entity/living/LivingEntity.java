@@ -9,6 +9,7 @@ import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
 import cinnamon.world.DamageType;
+import cinnamon.world.WorldObject;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.Entity;
@@ -247,9 +248,9 @@ public abstract class LivingEntity extends PhysEntity {
         }
 
         //attack entity
-        Hit<Entity> facingEntity = getLookingEntity(getPickRange());
-        if (facingEntity != null) {
-            facingEntity.get().onAttacked(this);
+        Hit<? extends WorldObject> facingEntity = getLookingObject(getPickRange());
+        if (facingEntity != null && facingEntity.get() instanceof Entity e) {
+            e.onAttacked(this);
             return true;
         }
 
@@ -262,18 +263,22 @@ public abstract class LivingEntity extends PhysEntity {
             i.stopAttacking(this);
     }
 
-    public void useAction() {
+    public boolean useAction() {
         //use holding item
         Item i = getHoldingItem();
         if (i != null) {
             i.use(this);
-            return;
+            return true;
         }
 
         //use entity
-        Hit<Entity> facingEntity = getLookingEntity(getPickRange());
-        if (facingEntity != null)
-            facingEntity.get().onUse(this);
+        Hit<? extends WorldObject> facingEntity = getLookingObject(getPickRange());
+        if (facingEntity != null && facingEntity.get() instanceof Entity e) {
+            e.onUse(this);
+            return true;
+        }
+
+        return false;
     }
 
     public void stopUsing() {

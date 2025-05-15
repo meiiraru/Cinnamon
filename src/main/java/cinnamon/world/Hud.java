@@ -296,8 +296,8 @@ public class Hud {
     private void drawSelectedTerrain(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
         WorldClient w = c.world;
-        int t = w.getSelectedTerrain();
-        int m = w.getSelectedMaterial();
+        int t = w.player.getSelectedTerrain();
+        int m = w.player.getSelectedMaterial();
 
         TerrainRegistry registry = TerrainRegistry.values()[t];
         Terrain terr = registry.getFactory().get();
@@ -361,7 +361,7 @@ public class Hud {
 
             //render crosshair
             renderDebugCrosshair(matrices);
-        } else if (Settings.showFPS.get() && (c.world == null || !c.world.hideHUD())) {
+        } else if (Settings.showFPS.get() && (c.world == null || !c.world.hudHidden())) {
             //Style style = Style.EMPTY.shadow(true);
             Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(style).render(VertexConsumer.FONT, matrices, 4, 4);
         }
@@ -533,7 +533,7 @@ public class Hud {
         Vector3f normal = hit.collision().normal();
         float distance = range * hit.collision().near();
         String type = hit.obj().getType().name();
-        String extra = (hit.obj() instanceof Entity e) ? "\n uuid &e" + e.getUUID() + "&r" : "";
+        String extra = (hit.obj() instanceof Entity e) ? "\n uuid &e" + e.getUUID() + "&r" : (hit.obj() instanceof Terrain t) ? "\n rotation &e" + (int) t.getRotationAngle() + "&r" : "";
         return String.format("""
                  x &c%.3f&r y &a%.3f&r z &b%.3f&r
                  hit pos x &c%.3f&r y &a%.3f&r z &b%.3f&r

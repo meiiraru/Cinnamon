@@ -1,7 +1,9 @@
 package cinnamon.settings;
 
+import cinnamon.input.Keybind.KeyType;
 import cinnamon.utils.Maths;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import java.util.function.Consumer;
@@ -166,6 +168,34 @@ public abstract class Setting<T> {
 
         public float getMax() {
             return max;
+        }
+    }
+
+    public static class Keybind extends Setting<cinnamon.input.Keybind> {
+        public Keybind(String name, int key, KeyType type) {
+            this(name, key, 0, type);
+        }
+
+        public Keybind(String name, int key, int mods, KeyType type) {
+            super(name, new cinnamon.input.Keybind(name, key, mods, type));
+        }
+
+        @Override
+        public void fromJson(JsonElement element) {
+            JsonObject obj = element.getAsJsonObject();
+            int key = obj.get("key").getAsInt();
+            int mods = obj.get("mods").getAsInt();
+            String type = obj.get("type").getAsString();
+            get().set(key, mods, KeyType.valueOf(type.toUpperCase()));
+        }
+
+        @Override
+        public JsonElement toJson() {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("key", get().getKey());
+            obj.addProperty("mods", get().getMods());
+            obj.addProperty("type", get().getType().name().toLowerCase());
+            return obj;
         }
     }
 }

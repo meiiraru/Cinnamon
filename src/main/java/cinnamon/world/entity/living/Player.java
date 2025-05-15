@@ -102,7 +102,7 @@ public class Player extends LivingEntity {
 
     public void updateMovementFlags(boolean sneaking, boolean sprinting, boolean flying) {
         this.sneaking = sneaking;
-        this.sprinting = !sneaking && (this.sprinting || sprinting);
+        this.sprinting = sprinting;
         this.flying = flying;
 
         if (this.isRiding() && sneaking)
@@ -112,9 +112,6 @@ public class Player extends LivingEntity {
     @Override
     public void move(float left, float up, float forwards) {
         super.move(left, up, forwards);
-
-        if (forwards <= 0f)
-            sprinting = false;
 
         if (flying)
             move.y = Math.signum(up) * 0.15f;
