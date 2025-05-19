@@ -42,7 +42,10 @@ public class Cart extends Vehicle {
 
     @Override
     public Vector3f getRiderOffset(Entity rider) {
-        return new Vector3f(0, 0.4f, 0);
+        Vector3f vec = new Vector3f(0, 0.4f, 0);
+        vec.rotate(Rotation.X.rotationDeg(-rot.x));
+        vec.rotate(Rotation.Y.rotationDeg(-rot.y));
+        return vec;
     }
 
     @Override

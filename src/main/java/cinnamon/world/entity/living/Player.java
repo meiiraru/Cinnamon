@@ -42,7 +42,7 @@ public class Player extends LivingEntity {
         if (damageSourceTicks > 0)
             damageSourceTicks--;
 
-        if (onGround)
+        if (flying && (onGround || isRiding()))
             flying = false;
     }
 

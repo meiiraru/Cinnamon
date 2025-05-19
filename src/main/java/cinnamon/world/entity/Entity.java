@@ -54,10 +54,12 @@ public abstract class Entity extends WorldObject {
         this.updateAABB();
     }
 
-    public void tick() {
+    public void preTick() {
         this.oPos.set(pos);
         this.oRot.set(rot);
     }
+
+    public void tick() {}
 
     public void render(MatrixStack matrices, float delta) {
         matrices.pushMatrix();
@@ -237,7 +239,7 @@ public abstract class Entity extends WorldObject {
 
     public void rotateToWithRiders(float pitch, float yaw) {
         this.rotateTo(pitch, yaw);
-        this.updateRidersRot();
+        this.updateRiders();
     }
 
     public void lookAt(Vector3f pos) {
@@ -379,26 +381,39 @@ public abstract class Entity extends WorldObject {
         return riders.isEmpty() ? this : riders.getFirst().getControllingEntity();
     }
 
+    public void updateRiders() {
+        updateRidersPos();
+        updateRidersRot();
+    }
+
     public void updateRidersPos() {
-        for (Entity rider : new ArrayList<>(riders))
+        for (Entity rider : new ArrayList<>(riders)) {
             rider.moveTo(getRiderOffset(rider).add(this.pos));
+            rider.updateRidersPos();
+        }
     }
 
     public void updateRidersRot() {
         float xDelta = rot.x - oRot.x;
         float yDelta = rot.y - oRot.y;
-        for (Entity rider : new ArrayList<>(riders))
+        for (Entity rider : new ArrayList<>(riders)) {
             rider.rotateTo(rider.rot.x + xDelta, rider.rot.y + yDelta);
+            rider.updateRidersRot();
+        }
     }
 
     public Vector3f getRiderOffset(Entity rider) {
-        return new Vector3f(0, aabb.getHeight(), 0);
+        Vector3f vec = new Vector3f(0, aabb.getHeight(), 0);
+        vec.rotate(Rotation.X.rotationDeg(-rot.x));
+        vec.rotate(Rotation.Y.rotationDeg(-rot.y));
+        return vec;
     }
 
     public void addRider(Entity e) {
         e.stopRiding();
         this.riders.add(e);
         e.riding = this;
+        updateRiders();
     }
 
     public void stopRiding() {

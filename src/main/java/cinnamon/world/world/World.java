@@ -56,6 +56,9 @@ public abstract class World {
             chunk.tick();
 
         //entities
+        for (Entity e : entities.values())
+            e.preTick();
+
         for (Iterator<Map.Entry<UUID, Entity>> iterator = entities.entrySet().iterator(); iterator.hasNext(); ) {
             Map.Entry<UUID, Entity> entry = iterator.next();
             Entity e = entry.getValue();
