@@ -5,6 +5,7 @@ import cinnamon.animation.Animation;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.EntityRegistry;
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
@@ -429,5 +430,15 @@ public abstract class Entity extends WorldObject {
     public void sendServerUpdate() {
         //if (!getWorld().isClientside())
         //    ServerConnection.connection.sendToAllUDP(new EntitySync().entity(this));
+    }
+
+    @Override
+    public boolean shouldRender(Camera camera) {
+        return camera.getPos().distanceSquared(getPos()) <= getRenderDistance() && super.shouldRender(camera);
+    }
+
+    public float getRenderDistance() {
+        float f = getWorld().entityRenderDistance;
+        return 1024f * f * f;
     }
 }

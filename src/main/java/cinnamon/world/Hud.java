@@ -27,6 +27,7 @@ import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
+import cinnamon.world.worldgen.chunk.Chunk;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -441,6 +442,7 @@ public class Hud {
                          pitch &e%.3f&r yaw &e%.3f&r
                          motion &c%.3f &a%.3f &b%.3f&r
                          chunk &c%.0f &a%.0f &b%.0f&r
+                         region x &c%.3f&r y &a%.3f&r z &b%.3f&r
 
                         [&bcamera&r]
                          x &c%.3f&r y &a%.3f&r z &b%.3f&r
@@ -468,6 +470,7 @@ public class Hud {
                 erot.x, erot.y,
                 emot.x, emot.y, emot.z,
                 chunk.x, chunk.y, chunk.z,
+                epos.x % Chunk.CHUNK_SIZE, epos.y % Chunk.CHUNK_SIZE, epos.z % Chunk.CHUNK_SIZE,
 
                 cpos.x, cpos.y, cpos.z,
                 crot.x, crot.y, crot.z,

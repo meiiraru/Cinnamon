@@ -38,6 +38,7 @@ public abstract class World {
     public final float gravity = 0.98f * updateTime;
 
     public final int renderDistance = 5;
+    public final int entityRenderDistance = 3;
     protected int timeOfTheDay = 0;
 
     public abstract void init();
