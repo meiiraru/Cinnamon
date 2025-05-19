@@ -48,8 +48,7 @@ public class Movement {
             if (Settings.forward.get().isPressed()) movement.z += 1;
             if (Settings.backward.get().isPressed()) movement.z -= 1;
 
-            if (sneak) movement.y -= 1;
-            if (jump) movement.y += 1;
+            movement.y = jump ? 1 : sneak ? -1 : 0;
 
             sprint = !sneak && movement.z > 0 && (sprint || Settings.sprint.get().isPressed());
         }
@@ -65,7 +64,7 @@ public class Movement {
         }
 
         if (movement.lengthSquared() > 0) {
-            target.move(movement.x, movement.y, movement.z);
+            target.impulse(movement.x, movement.y, movement.z);
             movement.set(0);
         }
 
@@ -119,7 +118,6 @@ public class Movement {
     public void xrButtonPress(int button, boolean pressed, int hand) {
         switch (button) {
             case 0 -> {
-                xrMovement.y = pressed ? 1 : 0;
                 if (!jump && pressed)
                     attemptToFly();
                 jump = pressed;
@@ -132,10 +130,10 @@ public class Movement {
                     sprint = !sprint;
                 if (hand == 1) {
                     sneak = !sneak;
-                    xrMovement.y = sneak ? -1 : 0;
                 }
             }
         }
+        xrMovement.y = jump ? 1 : sneak ? -1 : 0;
     }
 
     public void xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {

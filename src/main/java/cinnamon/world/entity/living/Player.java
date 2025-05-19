@@ -52,11 +52,12 @@ public class Player extends LivingEntity {
     }
 
     @Override
-    protected void applyMovement() {
+    protected void applyImpulse() {
         if (flying) {
-            this.motion.add(move);
+            this.motion.add(impulse);
+            this.impulse.set(0);
         } else {
-            super.applyMovement();
+            super.applyImpulse();
         }
     }
 
@@ -110,11 +111,11 @@ public class Player extends LivingEntity {
     }
 
     @Override
-    public void move(float left, float up, float forwards) {
-        super.move(left, up, forwards);
+    public void impulse(float left, float up, float forwards) {
+        super.impulse(left, up, forwards);
 
         if (flying)
-            move.y = Math.signum(up) * 0.15f;
+            impulse.y = Math.signum(up) * 0.15f;
     }
 
     @Override

@@ -14,7 +14,7 @@ public abstract class PhysEntity extends Entity {
 
     protected final Vector3f
             motion = new Vector3f(),
-            move = new Vector3f();
+            impulse = new Vector3f();
 
     protected boolean onGround;
 
@@ -43,8 +43,7 @@ public abstract class PhysEntity extends Entity {
         applyForces();
 
         //apply my current desired movement into my motion
-        applyMovement();
-        move.set(0);
+        applyImpulse();
         onGround = false;
 
         //check for terrain collisions
@@ -64,8 +63,9 @@ public abstract class PhysEntity extends Entity {
         this.motion.y -= world.gravity;
     }
 
-    protected void applyMovement() {
-        this.motion.add(move.mul(onGround ? 1 : 0.125f));
+    protected void applyImpulse() {
+        this.motion.add(impulse.mul(onGround ? 1 : 0.125f));
+        this.impulse.set(0);
     }
 
     protected void motionFallout() {
@@ -149,9 +149,9 @@ public abstract class PhysEntity extends Entity {
     // -- movement logic -- //
 
     @Override
-    public void move(float left, float up, float forwards) {
+    public void impulse(float left, float up, float forwards) {
         if (riding != null) {
-            riding.move(left, up, forwards);
+            riding.impulse(left, up, forwards);
             return;
         }
 
@@ -159,15 +159,15 @@ public abstract class PhysEntity extends Entity {
         float u = Math.signum(up);
         float f = Math.signum(forwards);
 
-        this.move.set(l, u, -f);
-        if (move.lengthSquared() > 1)
-            move.normalize();
+        this.impulse.set(l, u, -f);
+        if (impulse.lengthSquared() > 1)
+            impulse.normalize();
 
-        move.mul(getMoveSpeed());
+        impulse.mul(getMoveSpeed());
 
         //move the entity in facing direction
-        this.move.rotateX((float) Math.toRadians(-rot.x));
-        this.move.rotateY((float) Math.toRadians(-rot.y));
+        this.impulse.rotateX((float) Math.toRadians(-rot.x));
+        this.impulse.rotateY((float) Math.toRadians(-rot.y));
     }
 
     protected float getMoveSpeed() {

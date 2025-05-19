@@ -186,9 +186,9 @@ public abstract class Entity extends WorldObject {
         return false;
     }
 
-    public void move(float left, float up, float forwards) {
+    public void impulse(float left, float up, float forwards) {
         if (riding != null) {
-            riding.move(left, up, forwards);
+            riding.impulse(left, up, forwards);
             return;
         }
 
@@ -265,7 +265,7 @@ public abstract class Entity extends WorldObject {
             aabb.inflate(-diff, 0, 0);
 
         //add pos
-        aabb.translate(pos);
+        aabb.translate(getPos());
     }
 
     public Vector3f getPos(float delta) {

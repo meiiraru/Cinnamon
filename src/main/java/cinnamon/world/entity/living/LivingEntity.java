@@ -123,9 +123,9 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     @Override
-    public void move(float left, float up, float forwards) {
+    public void impulse(float left, float up, float forwards) {
         if (riding != null) {
-            riding.move(left, up, forwards);
+            riding.impulse(left, up, forwards);
             return;
         }
 
@@ -133,16 +133,16 @@ public abstract class LivingEntity extends PhysEntity {
         float u = this.onGround && up > 0 ? getJumpStrength() : 0f;
         float f = Math.signum(forwards);
 
-        this.move.set(l, 0, -f);
+        this.impulse.set(l, 0, -f);
 
-        if (move.lengthSquared() > 1)
-            move.normalize();
-        move.mul(getMoveSpeed());
+        if (impulse.lengthSquared() > 1)
+            impulse.normalize();
+        impulse.mul(getMoveSpeed());
 
-        move.y = u;
+        impulse.y = u;
 
         //move the entity in facing direction
-        this.move.rotateY((float) Math.toRadians(-rot.y));
+        this.impulse.rotateY((float) Math.toRadians(-rot.y));
     }
 
     protected float getJumpStrength() {

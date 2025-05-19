@@ -65,8 +65,9 @@ public abstract class Projectile extends PhysEntity {
     }
 
     @Override
-    protected void applyMovement() {
-        this.motion.add(move);
+    protected void applyImpulse() {
+        this.motion.add(impulse);
+        this.impulse.set(0);
     }
 
     @Override
@@ -81,7 +82,7 @@ public abstract class Projectile extends PhysEntity {
         //}
 
         //apply move
-        this.move(0, 0, 1);
+        this.impulse(0, 0, 1);
     }
 
     @Override
