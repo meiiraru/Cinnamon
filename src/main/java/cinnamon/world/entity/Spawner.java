@@ -69,11 +69,6 @@ public class Spawner extends Entity {
     }
 
     @Override
-    public boolean shouldRenderOutline() {
-        return false;
-    }
-
-    @Override
     protected void updateAABB() {
         this.aabb = new AABB().translate(getPos()).inflate(0.5f);
     }

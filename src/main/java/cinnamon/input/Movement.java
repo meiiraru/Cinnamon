@@ -10,24 +10,24 @@ import org.joml.Vector3f;
 
 public class Movement {
 
-    private static final int TICKS_TO_FLY = (int) (0.3f * Client.TPS);
+    public static final int TICKS_TO_FLY = (int) (0.3f * Client.TPS);
 
     //pos
-    private final Vector3f movement = new Vector3f();
-    private boolean sprint, sneak, jump;
+    protected final Vector3f movement = new Vector3f();
+    protected boolean sprint, sneak, jump;
 
     //rot
-    private final Vector2f rotation = new Vector2f();
-    private double mouseX, mouseY, offsetX, offsetY;
-    private boolean firstMouse = true;
+    protected final Vector2f rotation = new Vector2f();
+    protected double mouseX, mouseY, offsetX, offsetY;
+    protected boolean firstMouse = true;
 
     //flying
-    private int flyTicks = 0;
-    private boolean flyingToggle = false;
+    protected int flyTicks = 0;
+    protected boolean flyingToggle = false;
 
     //xr
-    private final Vector3f xrMovement = new Vector3f();
-    private float xrRot = 0f;
+    protected final Vector3f xrMovement = new Vector3f();
+    protected float xrRot = 0f;
 
     public void tick(Entity target) {
         if (flyTicks > 0)

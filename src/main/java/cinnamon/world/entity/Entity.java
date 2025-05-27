@@ -166,7 +166,7 @@ public abstract class Entity extends WorldObject {
     }
 
     public boolean shouldRenderOutline() {
-        return true;
+        return false;
     }
 
     public UUID getUUID() {

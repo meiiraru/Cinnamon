@@ -640,6 +640,11 @@ public class WorldClient extends World {
     }
 
     public void xrButtonPress(int button, boolean pressed, int hand) {
+        if (pressed && button == 1) {
+            client.setScreen(new PauseScreen());
+            return;
+        }
+
         movement.xrButtonPress(button, pressed, hand);
     }
 

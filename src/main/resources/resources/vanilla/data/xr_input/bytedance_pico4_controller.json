@@ -1,0 +1,32 @@
+{
+  "path": "/interaction_profiles/bytedance/pico4_controller",
+  "user_paths": {
+    "left_hand": {
+      "path": "/user/hand/left",
+      "buttons": [
+        "/input/x/click",
+        "/input/y/click"
+      ]
+    },
+    "right_hand": {
+      "path": "/user/hand/right",
+      "buttons": [
+        "/input/a/click",
+        "/input/b/click"
+      ]
+    }
+  },
+  "all_user_paths": {
+    "haptics": [ "/output/haptic" ],
+    "analogs": [ "/input/thumbstick" ],
+    "poses": [
+      "/input/grip/pose",
+      "/input/aim/pose"
+    ],
+    "buttons": [ "/input/thumbstick/click" ],
+    "triggers": [
+      "/input/trigger/value",
+      "/input/squeeze/value"
+    ]
+  }
+}

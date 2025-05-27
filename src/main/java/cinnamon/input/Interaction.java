@@ -7,10 +7,10 @@ import cinnamon.world.entity.living.LocalPlayer;
 
 public class Interaction {
 
-    private boolean attacking, using;
-    private boolean wasAttacking, wasUsing;
+    protected boolean attacking, using;
+    protected boolean wasAttacking, wasUsing;
 
-    private int scrollItem;
+    protected int scrollItem;
 
     public void tick(LivingEntity target) {
         if (!XrManager.isInXR()) {

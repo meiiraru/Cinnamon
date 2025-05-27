@@ -27,8 +27,9 @@ public class Cinnamon {
     public static String TITLE = "Cinnamon";
     public static String NAMESPACE = "cinnamon";
     public static Resource ICON = new Resource("textures/icon.png");
-    public static Platform PLATFORM = Platform.get();
     public static boolean ENABLE_XR = false;
+
+    public static final Platform PLATFORM = Platform.get();
 
     public static void main(String[] args) {
         //System.load("D:\\apps\\RenderDoc_1.32_64\\renderdoc.dll");

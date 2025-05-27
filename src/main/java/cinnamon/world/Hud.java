@@ -45,7 +45,7 @@ public class Hud {
             HUD_STYLE = new Resource("data/gui_styles/hud.json"),
             DEBUG_STYLE = new Resource("data/gui_styles/debug.json");
 
-    private ProgressBar health, itemCooldown;
+    protected ProgressBar health, itemCooldown;
 
     public void init() {
         health = new ProgressBar(0, 0, 60, 8, 1f);
@@ -73,7 +73,7 @@ public class Hud {
             drawCrosshair(matrices);
     }
 
-    private void drawPlayerStats(MatrixStack matrices, Player player, float delta) {
+    protected void drawPlayerStats(MatrixStack matrices, Player player, float delta) {
         if (player == null)
             return;
 
@@ -99,7 +99,7 @@ public class Hud {
         drawSelectedTerrain(matrices, delta);
     }
 
-    private void drawVignette(MatrixStack matrices, Player player, float delta) {
+    protected void drawVignette(MatrixStack matrices, Player player, float delta) {
         Client c = Client.getInstance();
 
         float vignette = 1 - Math.min(player.getHealthProgress(), 0.3f) / 0.3f;
@@ -123,7 +123,7 @@ public class Hud {
         glDepthMask(true);
     }
 
-    private void drawHealth(MatrixStack matrices, Player player, float delta) {
+    protected void drawHealth(MatrixStack matrices, Player player, float delta) {
         Window window = Client.getInstance().window;
 
         //health text
@@ -150,7 +150,7 @@ public class Hud {
         matrices.popMatrix();
     }
 
-    private void drawItemStats(MatrixStack matrices, Item item, float delta) {
+    protected void drawItemStats(MatrixStack matrices, Item item, float delta) {
         if (item == null)
             return;
 
@@ -190,7 +190,7 @@ public class Hud {
         matrices.popMatrix();
     }
 
-    private void drawEffects(MatrixStack matrices, Player player, float delta) {
+    protected void drawEffects(MatrixStack matrices, Player player, float delta) {
         //transform matrices
         matrices.pushMatrix();
         matrices.translate(Client.getInstance().window.getGUIWidth() - 12, 12, 0f);
@@ -222,7 +222,7 @@ public class Hud {
         matrices.popMatrix();
     }
 
-    private void drawHotbar(MatrixStack matrices, Player player, float delta) {
+    protected void drawHotbar(MatrixStack matrices, Player player, float delta) {
         //set shader
         Shaders.MODEL.getShader().use().setup(Client.getInstance().camera);
 
@@ -263,7 +263,7 @@ public class Hud {
         }
     }
 
-    private void drawHitDirection(MatrixStack matrices, Player player, float delta) {
+    protected void drawHitDirection(MatrixStack matrices, Player player, float delta) {
         int ticks = player.getDamageSourceTicks();
         if (ticks == 0)
             return;
@@ -294,7 +294,7 @@ public class Hud {
         matrices.popMatrix();
     }
 
-    private void drawSelectedTerrain(MatrixStack matrices, float delta) {
+    protected void drawSelectedTerrain(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
         WorldClient w = c.world;
         int t = w.player.getSelectedTerrain();
@@ -333,7 +333,7 @@ public class Hud {
         mat.append(" ").append(ter).withStyle(Style.EMPTY.shadow(true).guiStyle(HUD_STYLE)).render(VertexConsumer.FONT, matrices, ww.getGUIWidth() * 0.5f, 16 + 4 + 4, Alignment.TOP_CENTER);
     }
 
-    private void drawCrosshair(MatrixStack matrices) {
+    protected void drawCrosshair(MatrixStack matrices) {
         Client c = Client.getInstance();
 
         glBlendFuncSeparate(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_ONE, GL_ZERO);

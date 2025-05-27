@@ -8,6 +8,7 @@ import cinnamon.gui.Toast;
 import cinnamon.gui.screens.MainMenu;
 import cinnamon.gui.screens.world.PauseScreen;
 //import cinnamon.networking.ServerConnection;
+import cinnamon.input.InputManager;
 import cinnamon.logger.Logger;
 import cinnamon.logger.LoggerConfig;
 import cinnamon.render.Camera;
@@ -311,6 +312,10 @@ public class Client {
                     } else {
                         reloadAssets();
                     }
+                }
+                case GLFW_KEY_X -> {
+                    if (InputManager.isKeyPressed(GLFW_KEY_F3))
+                        XrManager.init();
                 }
             }
         }

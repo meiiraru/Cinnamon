@@ -28,6 +28,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class XrInput {
 
     public static final Resource DEFAULT_PROFILE = new Resource("data/xr_input/oculus_touch_controller.json");
+    public static Resource PROFILE = DEFAULT_PROFILE;
 
     private static final List<XrKeybind<?>> allButtons = new ArrayList<>();
     private static final List<UserProfile> profiles = new ArrayList<>();
@@ -60,7 +61,7 @@ public class XrInput {
     private static boolean loadProfile(MemoryStack stack) {
         try {
             free();
-            JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(DEFAULT_PROFILE))).getAsJsonObject();
+            JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(PROFILE))).getAsJsonObject();
 
             JsonObject userPaths = json.getAsJsonObject("user_paths");
             if (userPaths.isEmpty())

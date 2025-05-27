@@ -149,6 +149,14 @@ public class Player extends LivingEntity {
         return EntityRegistry.PLAYER;
     }
 
+    public boolean isSneaking() {
+        return sneaking;
+    }
+
+    public boolean isSprinting() {
+        return sprinting;
+    }
+
     public boolean isFlying() {
         return flying;
     }
