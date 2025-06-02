@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static cinnamon.Client.LOGGER;
+import static cinnamon.events.Events.LOGGER;
 
 public class GUIStyle {
 

@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import static cinnamon.Client.LOGGER;
 import static cinnamon.vr.XrManager.*;
 import static org.lwjgl.openxr.XR10.*;
 import static org.lwjgl.system.MemoryUtil.NULL;

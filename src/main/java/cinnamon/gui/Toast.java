@@ -1,6 +1,7 @@
 package cinnamon.gui;
 
 import cinnamon.Client;
+import cinnamon.logger.Logger;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
@@ -11,9 +12,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static cinnamon.Client.LOGGER;
-
 public class Toast {
+
+    private static final Logger LOGGER = new Logger("toast");
 
     // -- properties -- //
 
@@ -66,7 +67,10 @@ public class Toast {
     }
 
     private static void logToast(Toast toast) {
-        String log = "[Toast] " + toast.text.asString();
+        String log = toast.text.asString();
+        if (log.contains("\n"))
+            log = "\n" + log;
+
         switch (toast.type) {
             case WARN -> LOGGER.warn(log);
             case ERROR -> LOGGER.error(log);

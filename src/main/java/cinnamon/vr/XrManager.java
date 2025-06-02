@@ -2,6 +2,7 @@ package cinnamon.vr;
 
 import cinnamon.Cinnamon;
 import cinnamon.Client;
+import cinnamon.logger.Logger;
 import cinnamon.utils.Pair;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.egl.EGL;
@@ -16,7 +17,6 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
-import static cinnamon.Client.LOGGER;
 import static org.lwjgl.glfw.GLFW.GLFW_PLATFORM_X11;
 import static org.lwjgl.glfw.GLFW.glfwGetPlatform;
 import static org.lwjgl.glfw.GLFWNativeEGL.*;
@@ -39,6 +39,8 @@ import static org.lwjgl.system.MemoryUtil.*;
 import static org.lwjgl.system.windows.User32.GetDC;
 
 public class XrManager {
+
+    static Logger LOGGER = new Logger("xr");
 
     //instance
     static XrInstance instance;

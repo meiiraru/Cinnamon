@@ -3,6 +3,7 @@ package cinnamon.events;
 import cinnamon.gui.GUIStyle;
 import cinnamon.gui.screens.MainMenu;
 import cinnamon.lang.LangManager;
+import cinnamon.logger.Logger;
 import cinnamon.model.MaterialManager;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.MaterialRegistry;
@@ -23,11 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static cinnamon.Client.LOGGER;
 import static cinnamon.events.EventType.RESOURCE_FREE;
 import static cinnamon.events.EventType.RESOURCE_INIT;
 
 public class Events {
+
+    public static final Logger LOGGER = new Logger("resource");
 
     //event map
     private final Map<EventType, List<Consumer<Object[]>>> eventMap = new HashMap<>(EventType.values().length, 1f);

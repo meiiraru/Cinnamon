@@ -7,7 +7,7 @@ import cinnamon.utils.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
-import static cinnamon.Client.LOGGER;
+import static cinnamon.events.Events.LOGGER;
 
 public class MaterialManager {
 

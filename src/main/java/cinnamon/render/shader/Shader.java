@@ -11,7 +11,7 @@ import org.joml.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static cinnamon.Client.LOGGER;
+import static cinnamon.events.Events.LOGGER;
 import static org.lwjgl.opengl.GL30.*;
 
 public class Shader {

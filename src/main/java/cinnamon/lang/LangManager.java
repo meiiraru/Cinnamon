@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static cinnamon.Client.LOGGER;
+import static cinnamon.events.Events.LOGGER;
 
 public class LangManager {
 

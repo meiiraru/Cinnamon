@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import static cinnamon.Client.LOGGER;
+import static cinnamon.events.Events.LOGGER;
 import static cinnamon.model.GeometryHelper.quad;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.stb.STBTruetype.*;

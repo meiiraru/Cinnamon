@@ -1,5 +1,6 @@
 package cinnamon.sound;
 
+import cinnamon.logger.Logger;
 import cinnamon.render.Camera;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
@@ -13,7 +14,6 @@ import org.lwjgl.openal.ALUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-import static cinnamon.Client.LOGGER;
 import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.openal.AL11.AL_LINEAR_DISTANCE_CLAMPED;
 import static org.lwjgl.openal.AL11.alSpeedOfSound;
@@ -22,6 +22,8 @@ import static org.lwjgl.openal.ALC11.ALC_ALL_DEVICES_SPECIFIER;
 import static org.lwjgl.openal.ALC11.ALC_DEFAULT_ALL_DEVICES_SPECIFIER;
 
 public class SoundManager {
+
+    private static final Logger LOGGER = new Logger("sound");
 
     private static final List<SoundInstance> sounds = new ArrayList<>();
     private static final List<String> devices = new ArrayList<>();

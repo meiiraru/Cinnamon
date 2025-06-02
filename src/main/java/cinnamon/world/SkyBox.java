@@ -15,7 +15,7 @@ import cinnamon.utils.Rotation;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
-import static cinnamon.Client.LOGGER;
+import static cinnamon.events.Events.LOGGER;
 import static cinnamon.render.texture.Texture.TextureParams.SMOOTH_SAMPLING;
 
 public class SkyBox {

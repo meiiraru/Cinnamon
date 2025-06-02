@@ -40,7 +40,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class Client {
 
     private static final Client INSTANCE = new Client();
-    public static final Logger LOGGER = new Logger(Client.class);
+    public static final Logger LOGGER = Logger.getRootLogger();
 
     private final Queue<Runnable> scheduledTicks = new LinkedList<>();
 

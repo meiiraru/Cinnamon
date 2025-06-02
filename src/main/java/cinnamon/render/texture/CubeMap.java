@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import static cinnamon.Client.LOGGER;
+import static cinnamon.events.Events.LOGGER;
 import static org.lwjgl.opengl.GL13.*;
 
 public class CubeMap extends Texture {

@@ -7,17 +7,18 @@ import java.util.List;
 
 public class Logger {
 
-    private static final Logger ROOT_LOGGER = new Logger(Logger.class);
+    private static final String ROOT_NAMESPACE = "cinnamon";
+    private static final Logger ROOT_LOGGER = new Logger();
 
     private final String name;
     private final List<LogOutput> outputs = new ArrayList<>();
 
-    public Logger(Class<?> clazz) {
-        this(clazz.getName());
+    private Logger() {
+        this.name = ROOT_NAMESPACE;
     }
 
     public Logger(String name) {
-        this.name = name;
+        this.name = ROOT_LOGGER.name + "/" + name;
     }
 
     public static Logger getRootLogger() {
@@ -48,10 +49,10 @@ public class Logger {
         Calendar calendar = Calendar.getInstance();
         String threadName = Thread.currentThread().getName();
 
-        log(calendar, threadName, level, name, msg, throwable);
-
         if (this != ROOT_LOGGER)
             ROOT_LOGGER.log(calendar, threadName, level, name, msg, throwable);
+
+        log(calendar, threadName, level, name, msg, throwable);
     }
 
     private void log(Calendar calendar, String threadName, Level level, String name, String msg, Throwable throwable) {
