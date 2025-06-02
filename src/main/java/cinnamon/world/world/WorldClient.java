@@ -161,11 +161,11 @@ public class WorldClient extends World {
         d2.setPos(-15, 2, 10);
         this.addEntity(d2);
 
-        Spawner effectBox = new Spawner(UUID.randomUUID(), 100, () -> new EffectBox(UUID.randomUUID()));
+        Spawner<EffectBox> effectBox = new Spawner<>(UUID.randomUUID(), 100, () -> new EffectBox(UUID.randomUUID()));
         effectBox.setPos(-1.5f, 2f, 10f);
         this.addEntity(effectBox);
 
-        Spawner healthPack = new Spawner(UUID.randomUUID(), 100, () -> new HealthPack(UUID.randomUUID()));
+        Spawner<HealthPack> healthPack = new Spawner<>(UUID.randomUUID(), 100, () -> new HealthPack(UUID.randomUUID()));
         healthPack.setPos(2.5f, 2f, 10f);
         this.addEntity(healthPack);
     }

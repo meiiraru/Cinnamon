@@ -11,27 +11,36 @@ import cinnamon.utils.Rotation;
 import cinnamon.utils.UIHelper;
 
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class Spawner extends Entity {
+public class Spawner<E extends Entity> extends Entity {
 
     private final int delay;
-    private final Supplier<Entity> entitySupplier;
+    private final Supplier<E> entitySupplier;
+    private final Predicate<E> respawnPredicate;
 
     private int time;
-    private Entity entity;
+    private E entity;
 
-    public Spawner(UUID uuid, int delay, Supplier<Entity> entitySupplier) {
+    private boolean renderCooldown = true;
+
+    public Spawner(UUID uuid, int delay, Supplier<E> entitySupplier) {
+        this(uuid, delay, entitySupplier, Entity::isRemoved);
+    }
+
+    public Spawner(UUID uuid, int delay, Supplier<E> entitySupplier, Predicate<E> respawnPredicate) {
         super(uuid, null);
         this.delay = delay;
         this.entitySupplier = entitySupplier;
+        this.respawnPredicate = respawnPredicate;
     }
 
     @Override
     public void tick() {
         super.tick();
 
-        if ((entity == null || entity.isRemoved()) && time-- <= 0) {
+        if (checkRespawn() && time-- <= 0) {
             time = delay;
             entity = entitySupplier.get();
             entity.setPos(getPos());
@@ -49,7 +58,7 @@ public class Spawner extends Entity {
     protected void renderFeatures(MatrixStack matrices, float delta) {
         super.renderFeatures(matrices, delta);
 
-        if (entity != null && !entity.isRemoved())
+        if (entity != null || !renderCooldown)
             return;
 
         matrices.pushMatrix();
@@ -62,7 +71,7 @@ public class Spawner extends Entity {
 
         matrices.translate(0, 0, UIHelper.getDepthOffset());
 
-        vertices = GeometryHelper.circle(matrices, 0, 0, 0.15f * 0.85f, 1f - (float) time / delay, 16, 0xAAFFFFFF);
+        vertices = GeometryHelper.circle(matrices, 0, 0, 0.15f * 0.85f, 1f - (time - delta + 1) / delay, 16, 0xAAFFFFFF);
         VertexConsumer.MAIN.consume(vertices);
 
         matrices.popMatrix();
@@ -76,5 +85,15 @@ public class Spawner extends Entity {
     @Override
     public EntityRegistry getType() {
         return EntityRegistry.SPAWNER;
+    }
+
+    public void setRenderCooldown(boolean renderCooldown) {
+        this.renderCooldown = renderCooldown;
+    }
+
+    protected boolean checkRespawn() {
+        boolean predicate = entity == null || respawnPredicate.test(entity);
+        if (predicate) entity = null;
+        return predicate;
     }
 }
