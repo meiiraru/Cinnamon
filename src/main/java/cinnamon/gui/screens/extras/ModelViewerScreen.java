@@ -59,7 +59,7 @@ public class ModelViewerScreen extends ParentedScreen {
             models.addWidget(createButton.apply(value.resource, "living_entity." + value.name().toLowerCase()));
 
         models.addWidget(new Label(0, 0, Text.translated("terrain")));
-        for (TerrainRegistry value : TerrainRegistry.values())
+        for (TerrainModelRegistry value : TerrainModelRegistry.values())
             models.addWidget(createButton.apply(value.resource, "terrain." + value.name().toLowerCase()));
 
         models.addWidget(new Label(0, 0, Text.translated("terrain_entity")));

@@ -8,6 +8,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.AABB;
+import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.Entity;
@@ -26,11 +27,11 @@ public class Terrain extends WorldObject {
     protected final List<AABB> preciseAABB = new ArrayList<>(); //group's AABB
 
     private byte rotation = 0;
-    private MaterialRegistry overrideMaterial;
+    private MaterialRegistry overrideMaterial = MaterialRegistry.DEFAULT;
 
-    public Terrain(TerrainRegistry type) {
+    public Terrain(Resource model, TerrainRegistry type) {
         this.type = type;
-        this.model = ModelManager.load(getType().resource);
+        this.model = ModelManager.load(model);
         this.updateAABB();
     }
 
@@ -49,7 +50,8 @@ public class Terrain extends WorldObject {
 
     protected void renderModel(MatrixStack matrices, float delta) {
         //render model
-        model.render(matrices, overrideMaterial.material);
+        if (model != null)
+            model.render(matrices, overrideMaterial.material);
     }
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {
@@ -65,6 +67,13 @@ public class Terrain extends WorldObject {
     }
 
     protected void updateAABB() {
+        if (model == null) {
+            aabb = new AABB(pos, pos).expand(1f, 1f, 1f);
+            preciseAABB.clear();
+            preciseAABB.add(aabb);
+            return;
+        }
+
         float r = (float) Math.toRadians(getRotationAngle());
         this.aabb = this.model.getAABB().rotateY(r).translate(pos.x + 0.5f, pos.y, pos.z + 0.5f);
 

@@ -88,7 +88,7 @@ public class WorldClient extends World {
     private boolean renderShadowMap;
 
     //counters
-    private int renderedEntities, renderedChunks, renderedTerrain, renderedParticles;
+    protected int renderedEntities, renderedChunks, renderedTerrain, renderedParticles;
 
     @Override
     public void init() {

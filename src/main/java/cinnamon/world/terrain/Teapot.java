@@ -1,13 +1,14 @@
 package cinnamon.world.terrain;
 
 import cinnamon.Client;
+import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.world.particle.ElectroParticle;
 
 public class Teapot extends Terrain {
 
     public Teapot() {
-        super(TerrainRegistry.TEAPOT);
+        super(TerrainModelRegistry.TEAPOT.resource, TerrainRegistry.TEAPOT);
     }
 
     @Override
