@@ -7,6 +7,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.vr.XrHandTransform;
+import cinnamon.vr.XrInput;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
@@ -28,7 +29,7 @@ public class XrHand extends PhysEntity {
     @Override
     public void preTick() {
         super.preTick();
-        if (!isGrabbing)
+        if (!isGrabbing && targetEntity != null && !targetEntity.getAABB().intersects(getAABB()))
             targetEntity = null;
     }
 
@@ -65,8 +66,10 @@ public class XrHand extends PhysEntity {
 
     @Override
     protected void collide(Entity entity) {
-        if (targetEntity == null && entity instanceof XrGrabbable grabbable)
+        if (targetEntity == null && entity instanceof XrGrabbable grabbable && !grabbable.isGrabbed()) {
             targetEntity = grabbable;
+            XrInput.vibrate(hand);
+        }
     }
 
     @Override

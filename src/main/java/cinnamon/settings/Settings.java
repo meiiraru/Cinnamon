@@ -49,8 +49,9 @@ public class Settings {
     //sound device
     public static final Setting.Strings soundDevice = new Setting.Strings("sound.device", "");
 
-    //xr interaction profile
+    //xr
     public static final Setting.Strings xrInteractionProfile = new Setting.Strings("xr.interaction_profile", XrInput.DEFAULT_PROFILE.toString());
+    public static final Setting.Bools xrHapticFeedback = new Setting.Bools("xr.haptic_feedback", true);
 
     //keybinds
     public static final Setting.Keybind

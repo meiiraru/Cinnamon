@@ -240,6 +240,9 @@ public class XrInput {
     }
 
     public static void vibrate(int hand, float amplitude, long duration) {
+        if (!Settings.xrHapticFeedback.get())
+            return;
+
         List<XrKeybind.XrHapticsKeybind> haptics = profiles.get(hand).haptics;
         if (!haptics.isEmpty()) {
             try (MemoryStack stack = MemoryStack.stackPush()) {
