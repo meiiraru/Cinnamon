@@ -1,9 +1,6 @@
 package cinnamon.vr;
 
-import cinnamon.utils.Pair;
-import org.joml.Quaternionf;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.openxr.*;
 import org.lwjgl.system.MemoryStack;
@@ -30,7 +27,7 @@ abstract class XrKeybind<T> {
         this.user = user.pathBuffer.get(0);
 
         ByteBuffer nameBfr = stack.UTF8(user.name + "_" + name);
-        XrActionCreateInfo rightSqueezeInfo = XrActionCreateInfo.malloc(stack)
+        XrActionCreateInfo actionInfo = XrActionCreateInfo.malloc(stack)
                 .type$Default()
                 .next(NULL)
                 .actionName(nameBfr)
@@ -40,7 +37,7 @@ abstract class XrKeybind<T> {
                 .subactionPaths(user.pathBuffer);
 
         PointerBuffer ptr = stack.mallocPointer(1);
-        check(xrCreateAction(actionSet, rightSqueezeInfo, ptr), "Failed to create action: error code %s");
+        check(xrCreateAction(actionSet, actionInfo, ptr), "Failed to create action: error code %s");
         this.action = new XrAction(ptr.get(0), actionSet);
     }
 
@@ -68,7 +65,7 @@ abstract class XrKeybind<T> {
 
         public XrBooleanKeybind(MemoryStack stack, XrInput.UserProfile user, String path, String name) {
             super(stack, user, path, name, XR_ACTION_TYPE_BOOLEAN_INPUT);
-            lastVal = false;
+            lastVal = value = false;
         }
 
         @Override
@@ -94,7 +91,7 @@ abstract class XrKeybind<T> {
 
         public XrFloatKeybind(MemoryStack stack, XrInput.UserProfile user, String path, String name) {
             super(stack, user, path, name, XR_ACTION_TYPE_FLOAT_INPUT);
-            lastVal = 0f;
+            lastVal = value = 0f;
         }
 
         @Override
@@ -144,13 +141,13 @@ abstract class XrKeybind<T> {
         }
     }
 
-    static class XrPoseKeybind extends XrKeybind<Pair<Vector3f, Quaternionf>> {
+    static class XrPoseKeybind extends XrKeybind<XrHandTransform> {
 
         private final XrSpace actionSpace;
 
         public XrPoseKeybind(MemoryStack stack, XrInput.UserProfile user, String path, String name) {
             super(stack, user, path, name, XR_ACTION_TYPE_POSE_INPUT);
-            value = new Pair<>(new Vector3f(), new Quaternionf());
+            value = new XrHandTransform();
 
             PointerBuffer actionSpacePtr = stack.mallocPointer(1);
             XrActionSpaceCreateInfo actionSpaceInfo = XrActionSpaceCreateInfo.malloc(stack)
@@ -183,7 +180,13 @@ abstract class XrKeybind<T> {
                     .action(action)
                     .subactionPath(user);
 
-            XrSpaceLocation actionSpaceLocation = XrSpaceLocation.malloc(stack).type$Default().next(NULL);
+            XrSpaceVelocity velocityInfo = XrSpaceVelocity.malloc(stack)
+                    .type$Default()
+                    .next(NULL);
+
+            XrSpaceLocation actionSpaceLocation = XrSpaceLocation.malloc(stack)
+                    .type$Default()
+                    .next(velocityInfo);
 
             if (check(xrGetActionStatePose(session, actionStateInfo, actionState), "Failed to get pose action state: error code %s") ||
                     check(xrLocateSpace(actionSpace, headspace, displayTime, actionSpaceLocation), "Failed to locate space: error code %s") ||
@@ -200,8 +203,22 @@ abstract class XrKeybind<T> {
             XrVector3f pos = pose.position$();
             XrQuaternionf rot = pose.orientation();
 
-            value.first().set(pos.x(), pos.y(), pos.z());
-            value.second().set(rot.x(), rot.y(), rot.z(), rot.w());
+            value.pos().set(pos.x(), pos.y(), pos.z());
+            value.rot().set(rot.x(), rot.y(), rot.z(), rot.w());
+
+            long velocityFlags = velocityInfo.velocityFlags();
+            if ((velocityFlags & XR_SPACE_VELOCITY_LINEAR_VALID_BIT) == 0 ||
+                    (velocityFlags & XR_SPACE_VELOCITY_ANGULAR_VALID_BIT) == 0) {
+                value.vel().set(0);
+                value.angularVel().set(0);
+                return;
+            }
+
+            XrVector3f linearVel = velocityInfo.linearVelocity();
+            XrVector3f angularVel = velocityInfo.angularVelocity();
+
+            value.vel().set(linearVel.x(), linearVel.y(), linearVel.z());
+            value.angularVel().set(angularVel.x(), angularVel.y(), angularVel.z());
         }
     }
 

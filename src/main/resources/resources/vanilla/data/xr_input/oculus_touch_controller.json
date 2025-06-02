@@ -1,5 +1,6 @@
 {
   "path": "/interaction_profiles/oculus/touch_controller",
+  "name": "Oculus Touch Controller",
   "user_paths": {
     "left_hand": {
       "path": "/user/hand/left",

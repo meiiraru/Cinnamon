@@ -183,8 +183,10 @@ public class Client {
 
         //xr GUI transform
         if (XrManager.isInXR()) {
-            if (this.screen != null)
+            if (this.screen != null) {
                 XrRenderer.renderHands(matrices);
+                XrRenderer.renderHandLaser(matrices);
+            }
             XrRenderer.applyGUITransform(matrices);
         }
 

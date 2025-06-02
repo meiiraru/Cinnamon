@@ -6,6 +6,7 @@ import cinnamon.lang.LangManager;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.IOUtils;
+import cinnamon.vr.XrInput;
 import com.google.gson.*;
 
 import java.nio.file.Path;
@@ -47,6 +48,9 @@ public class Settings {
 
     //sound device
     public static final Setting.Strings soundDevice = new Setting.Strings("sound.device", "");
+
+    //xr interaction profile
+    public static final Setting.Strings xrInteractionProfile = new Setting.Strings("xr.interaction_profile", XrInput.DEFAULT_PROFILE.toString());
 
     //keybinds
     public static final Setting.Keybind

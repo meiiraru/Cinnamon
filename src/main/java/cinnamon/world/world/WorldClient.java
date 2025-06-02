@@ -24,6 +24,7 @@ import cinnamon.render.texture.Texture;
 import cinnamon.text.Text;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
+import cinnamon.vr.XrHandTransform;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.Hud;
@@ -260,7 +261,7 @@ public class WorldClient extends World {
 
         //render entities
         for (Entity entity : entitiesToOutline) {
-            s.applyColor(Math.abs(entity.getUUID().hashCode()));
+            s.applyColor(entity.getOutlineColor());
             entity.render(matrices, delta);
         }
 
@@ -411,8 +412,9 @@ public class WorldClient extends World {
             matrices.rotate(camera.getRot());
 
             //xr transform
-            matrices.translate(XrRenderer.getHandPos(1));
-            matrices.rotate(XrRenderer.getHandRot(1));
+            XrHandTransform transform = XrRenderer.getHandTransform(1);
+            matrices.translate(transform.pos());
+            matrices.rotate(transform.rot());
             matrices.scale(0.35f);
         } else {
             //camera transforms

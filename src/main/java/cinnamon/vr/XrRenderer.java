@@ -10,7 +10,6 @@ import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.utils.AABB;
-import cinnamon.utils.Pair;
 import cinnamon.world.collisions.CollisionDetector;
 import cinnamon.world.collisions.CollisionResult;
 import org.joml.Math;
@@ -42,7 +41,7 @@ public class XrRenderer {
             RAYCAST_DISTANCE = 10f;
 
     private static final XrFramebuffer framebuffer = new XrFramebuffer();
-    private static final List<Pair<Vector3f, Quaternionf>> userPoses = new ArrayList<>();
+    private static final List<XrHandTransform> userPoses = new ArrayList<>();
 
     private static int swapchainIndex = 0;
 
@@ -128,45 +127,48 @@ public class XrRenderer {
     static void setHands(int size) {
         userPoses.clear();
         for (int i = 0; i < size; i++)
-            userPoses.add(new Pair<>(new Vector3f(), new Quaternionf()));
+            userPoses.add(new XrHandTransform());
     }
 
-    static void updateHand(int hand, Pair<Vector3f, Quaternionf> pose) {
-        Pair<Vector3f, Quaternionf> pair = userPoses.get(hand);
-        pair.first().set(pose.first());
-        pair.second().set(pose.second()).rotateX(Math.toRadians(-90f));
+    static void updateHand(int hand, XrHandTransform transform) {
+        XrHandTransform t = userPoses.get(hand);
+        t.setFrom(transform);
+        t.rot().rotateX(Math.toRadians(-90f));
     }
 
-    public static Vector3f getHandPos(int hand) {
-        return userPoses.get(hand).first();
+    public static XrHandTransform getHandTransform(int hand) {
+        return userPoses.get(hand);
     }
 
-    public static Quaternionf getHandRot(int hand) {
-        return userPoses.get(hand).second();
+    private static void applyHandMatrix(XrHandTransform hand, MatrixStack matrices) {
+        matrices.translate(hand.pos());
+        matrices.scale(0.02f);
+        matrices.rotate(hand.rot());
     }
 
     public static void renderHands(MatrixStack matrices) {
-        for (int i = 0; i < userPoses.size(); i++) {
-            boolean activeHand = i == XrInput.getActiveHand();
-
-            Pair<Vector3f, Quaternionf> pair = userPoses.get(i);
-            Vector3f pos = pair.first();
-            Quaternionf rot = pair.second();
-
+        for (XrHandTransform hand : userPoses) {
             matrices.pushMatrix();
-
-            matrices.translate(pos);
-            matrices.scale(0.02f);
-            matrices.rotate(rot);
-
-            VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, activeHand ? 0xFF72ADFF : 0xFFFF72AD));
-
+            applyHandMatrix(hand, matrices);
+            VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 0.75f, 0.75f, 0.75f, -0.75f, -0.75f, -0.75f, 0xAAFF72AD));
+            VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, -0.4f, -0.4f, -0.4f, 0.4f, 0.4f, 0.4f, 0xFFFF72AD));
             matrices.popMatrix();
+        }
+    }
 
-            if (activeHand && isScreenCollided()) {
-                Vector3f dir = new Vector3f(0, 0, -1).mul(screenCollision).rotate(rot).add(pos);
-                VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, pos.x, pos.y, pos.z, dir.x, dir.y, dir.z, 0.002f, 0xFFFFFFFF));
-            }
+    public static void renderHandLaser(MatrixStack matrices) {
+        int activeHand = XrInput.getActiveHand();
+        XrHandTransform hand = userPoses.get(activeHand);
+
+        matrices.pushMatrix();
+        applyHandMatrix(hand, matrices);
+        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 0.8f, 0.8f, 0.8f, -0.8f, -0.8f, -0.8f, 0xAAFFFFFF));
+        matrices.popMatrix();
+
+        if (isScreenCollided()) {
+            Vector3f pos = hand.pos();
+            Vector3f dir = new Vector3f(0, 0, -1).mul(screenCollision).rotate(hand.rot()).add(pos);
+            VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, pos.x, pos.y, pos.z, dir.x, dir.y, dir.z, 0.002f, 0xFFFFFFFF));
         }
     }
 
@@ -179,9 +181,9 @@ public class XrRenderer {
         }
 
         //calculate mouse position from the current hand pose
-        Pair<Vector3f, Quaternionf> pair = userPoses.get(XrInput.getActiveHand());
-        Vector3f pos = pair.first();
-        Quaternionf rot = pair.second();
+        XrHandTransform transform = userPoses.get(XrInput.getActiveHand());
+        Vector3f pos = transform.pos();
+        Quaternionf rot = transform.rot();
         Vector3f dir = new Vector3f(0, 0, -1).rotate(rot).mul(RAYCAST_DISTANCE);
 
         //grab screen AABB in world space to raycast collision

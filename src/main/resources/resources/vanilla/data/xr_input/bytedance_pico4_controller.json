@@ -1,5 +1,6 @@
 {
   "path": "/interaction_profiles/bytedance/pico4_controller",
+  "name": "Bytedance Pico 4 Controller",
   "user_paths": {
     "left_hand": {
       "path": "/user/hand/left",

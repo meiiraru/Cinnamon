@@ -1,5 +1,6 @@
 {
   "path": "/interaction_profiles/khr/simple_controller",
+  "name": "Khronos Simple Controller",
   "user_paths": {
     "left_hand": { "path": "/user/hand/left" },
     "right_hand": { "path": "/user/hand/right" }

@@ -65,6 +65,14 @@ public class Maths {
         );
     }
 
+    public static Vector3f lerpAngle(Vector3f a, Vector3f b, float t) {
+        return new Vector3f(
+                lerpAngle(a.x, b.x, t),
+                lerpAngle(a.y, b.y, t),
+                lerpAngle(a.z, b.z, t)
+        );
+    }
+
     public static float lerpArray(float[] array, float t) {
         int len = array.length;
         if (len == 0)

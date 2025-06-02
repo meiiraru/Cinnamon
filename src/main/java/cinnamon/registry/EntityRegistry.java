@@ -22,5 +22,6 @@ public enum EntityRegistry {
     //other
     SPAWNER,
     TERRAIN,
+    XR_HAND,
     UNKNOWN
 }

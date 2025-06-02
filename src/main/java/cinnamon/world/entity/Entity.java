@@ -169,6 +169,10 @@ public abstract class Entity extends WorldObject {
         return false;
     }
 
+    public int getOutlineColor() {
+        return 0xFFFFFF;
+    }
+
     public UUID getUUID() {
         return uuid;
     }

@@ -1,6 +1,7 @@
 package cinnamon.vr;
 
 import cinnamon.Client;
+import cinnamon.settings.Settings;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 import com.google.gson.JsonElement;
@@ -27,8 +28,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class XrInput {
 
-    public static final Resource DEFAULT_PROFILE = new Resource("data/xr_input/oculus_touch_controller.json");
-    public static Resource PROFILE = DEFAULT_PROFILE;
+    public static final Resource DEFAULT_PROFILE = new Resource("data/xr_input/khronos_simple_controller.json");
 
     private static final List<XrKeybind<?>> allButtons = new ArrayList<>();
     private static final List<UserProfile> profiles = new ArrayList<>();
@@ -59,9 +59,13 @@ public class XrInput {
     }
 
     private static boolean loadProfile(MemoryStack stack) {
+        Resource profile = new Resource(Settings.xrInteractionProfile.get());
+        if (!IOUtils.hasResource(profile))
+            profile = DEFAULT_PROFILE;
+
         try {
             free();
-            JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(PROFILE))).getAsJsonObject();
+            JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(profile))).getAsJsonObject();
 
             JsonObject userPaths = json.getAsJsonObject("user_paths");
             if (userPaths.isEmpty())
@@ -80,9 +84,10 @@ public class XrInput {
             XrRenderer.setHands(profiles.size());
             lastActiveHand = Math.min(1, profiles.size() - 1); //default to right hand
 
+            LOGGER.info("Loaded xr input profile: %s", profile);
             return false;
         } catch (Exception e) {
-            LOGGER.error("Failed to load profile: %s", DEFAULT_PROFILE, e);
+            LOGGER.error("Failed to load profile: %s", profile, e);
             return true;
         }
     }
