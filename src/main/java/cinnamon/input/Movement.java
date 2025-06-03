@@ -27,7 +27,7 @@ public class Movement {
 
     //xr
     protected final Vector3f xrMovement = new Vector3f();
-    protected float xrRot = 0f;
+    protected float xrRot, snapRot;
 
     public void tick(Entity target) {
         if (flyTicks > 0)
@@ -35,7 +35,8 @@ public class Movement {
 
         if (XrManager.isInXR()) {
             movement.add(xrMovement);
-            rotation.add(xrRot, 0);
+            rotation.x += xrRot + snapRot;
+            snapRot = 0;
         } else {
             if (!jump && Settings.jump.get().click())
                 attemptToFly();
@@ -145,7 +146,14 @@ public class Movement {
         if (hand == 0)
             xrMovement.set(dx, xrMovement.y, dy);
         //rotation
-        else if (hand == 1)
-            xrRot = dx * 3f;
+        else if (hand == 1) {
+            if (!Settings.xrSnapTurn.get()) {
+                xrRot = dx * Settings.xrTurningAngle.get();
+            } else {
+                float f2 = 0.7f;
+                int dxx = lastX < f2 && x >= f2 ? 1 : lastX > -f2 && x <= -f2 ? -1 : 0;
+                if (dxx != 0) snapRot = dxx * Settings.xrSnapTurningAngle.get();
+            }
+        }
     }
 }

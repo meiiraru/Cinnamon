@@ -51,7 +51,12 @@ public class Settings {
 
     //xr
     public static final Setting.Strings xrInteractionProfile = new Setting.Strings("xr.interaction_profile", XrInput.DEFAULT_PROFILE.toString());
-    public static final Setting.Bools xrHapticFeedback = new Setting.Bools("xr.haptic_feedback", true);
+    public static final Setting.Bools
+            xrHapticFeedback = new Setting.Bools("xr.haptic_feedback", true),
+            xrSnapTurn       = new Setting.Bools("xr.snap_turn", false);
+    public static final Setting.Floats
+            xrTurningAngle = new Setting.Floats("xr.turning_angle", 3f),
+            xrSnapTurningAngle = new Setting.Floats("xr.snap_turning_angle", 30f);
 
     //keybinds
     public static final Setting.Keybind

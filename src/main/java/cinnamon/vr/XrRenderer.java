@@ -148,6 +148,8 @@ public class XrRenderer {
 
     public static void renderHands(MatrixStack matrices) {
         for (XrHandTransform hand : userPoses) {
+            if (hand.pos().lengthSquared() == 0)
+                continue;
             matrices.pushMatrix();
             applyHandMatrix(hand, matrices);
             VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 0.75f, 0.75f, 0.75f, -0.75f, -0.75f, -0.75f, 0xAAFF72AD));
