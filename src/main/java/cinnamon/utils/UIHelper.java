@@ -278,6 +278,11 @@ public class UIHelper {
         return s != null ? s.getFocusedWidget() : null;
     }
 
+    public static void xrWidgetHovered(SelectableWidget w) {
+        Screen s = Client.getInstance().screen;
+        if (s != null) s.xrWidgetHovered(w);
+    }
+
     public static boolean isPopupHovered() {
         Screen s = Client.getInstance().screen;
         return s != null && s.popup != null && s.popup.isOpen() && s.popup.isHovered();

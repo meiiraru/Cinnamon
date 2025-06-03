@@ -6,13 +6,17 @@ import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.PopupWidget;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.Widget;
+import cinnamon.gui.widgets.types.Button;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.SimpleGeometry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
+import cinnamon.settings.Settings;
 import cinnamon.utils.Resource;
+import cinnamon.utils.UIHelper;
+import cinnamon.vr.XrInput;
 import cinnamon.vr.XrRenderer;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -38,6 +42,10 @@ public abstract class Screen {
     //overlays
     public SelectableWidget tooltip;
     public PopupWidget popup;
+
+    //xr
+    protected SelectableWidget xrHovered;
+    protected int xrHoverTime = 0;
 
 
     // -- screen functions -- //
@@ -119,6 +127,14 @@ public abstract class Screen {
         return focused;
     }
 
+    public void xrWidgetHovered(SelectableWidget widget) {
+        XrInput.vibrate(XrInput.getActiveHand());
+        if (Settings.xrClickOnHover.get()) {
+            xrHovered = widget;
+            xrHoverTime = 0;
+        }
+    }
+
     public GUIListener getWidgetAt(int x, int y) {
         return mainContainer.getWidgetAt(x, y);
     }
@@ -127,7 +143,25 @@ public abstract class Screen {
 
 
     public void tick() {
+        tickXrHover();
         this.mainContainer.tick();
+    }
+
+    protected void tickXrHover() {
+        if (xrHovered == null)
+            return;
+
+        if (!UIHelper.isWidgetHovered(xrHovered)) {
+            xrHovered = null;
+            xrHoverTime = 0;
+            return;
+        }
+
+        if (xrHovered instanceof Button b) {
+            xrHoverTime++;
+            if (xrHoverTime == Settings.xrClickOnHoverDelay.get())
+                b.onRun();
+        }
     }
 
 
@@ -195,6 +229,8 @@ public abstract class Screen {
             matrices.pushMatrix();
             matrices.translate(0f, 0f, 3f);
             VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, mouseX - 16, mouseY - 16, 32, 32), GUIStyle.getDefault().getResource("cursor"));
+            if (Settings.xrClickOnHover.get())
+                VertexConsumer.MAIN.consume(GeometryHelper.progressSquare(matrices, mouseX, mouseY, 16, (xrHoverTime + 0.999f - 1f) / (Settings.xrClickOnHoverDelay.get() - 1f), 0xFFFFFFFF), GUIStyle.getDefault().getResource("cursor_hold"));
             matrices.popMatrix();
         }
 

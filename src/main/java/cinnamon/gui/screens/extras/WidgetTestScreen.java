@@ -4,6 +4,7 @@ import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.widgets.ContainerGrid;
+import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.types.*;
 import cinnamon.model.GeometryHelper;
@@ -175,6 +176,11 @@ public class WidgetTestScreen extends ParentedScreen {
             public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
                 setPos(mouseX - getWidth() / 2, mouseY - getHeight() / 2);
                 VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x88 << 24));
+            }
+            @Override
+            public GUIListener mouseMove(int x, int y) {
+                super.mouseMove(x, y);
+                return null;
             }
         };
         empty.setTooltip(Text.of("Tooltip!"));

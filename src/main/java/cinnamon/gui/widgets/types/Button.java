@@ -157,6 +157,8 @@ public class Button extends SelectableWidget {
     }
 
     public void onRun() {
+        if (!isActive())
+            return;
         if (!isSilent())
             playClickSound();
         if (action != null)

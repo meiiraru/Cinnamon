@@ -9,7 +9,6 @@ import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
-import cinnamon.vr.XrInput;
 import cinnamon.vr.XrManager;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -57,13 +56,15 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
         return isHovered() || isFocused();
     }
 
-    protected void updateHover(int x, int y) {
-        setHovered(UIHelper.isMouseOver(this, x, y));
+    protected boolean updateHover(int x, int y) {
+        boolean hovered = UIHelper.isMouseOver(this, x, y);
+        setHovered(hovered);
+        return hovered;
     }
 
     protected void setHovered(boolean hovered) {
         if (!this.hovered && hovered && XrManager.isInXR())
-            XrInput.vibrate(XrInput.getActiveHand());
+            UIHelper.xrWidgetHovered(this);
         this.hovered = hovered;
     }
 
@@ -104,8 +105,7 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
 
     @Override
     public GUIListener mouseMove(int x, int y) {
-        updateHover(x, y);
-        return GUIListener.super.mouseMove(x, y);
+        return updateHover(x, y) ? this : GUIListener.super.mouseMove(x, y);
     }
 
     @Override
