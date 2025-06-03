@@ -2,6 +2,7 @@ package cinnamon.gui.widgets.types;
 
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.utils.Resource;
 import cinnamon.utils.UIHelper;
 
 public class Scrollbar extends Slider {
@@ -29,9 +30,10 @@ public class Scrollbar extends Slider {
         int w = getWidth();
         int h = getHeight();
         int s = 8 * getState();
+        Resource tex = getStyle().getResource("scroll_bar_tex");
 
         //background
-        UIHelper.nineQuad(VertexConsumer.MAIN, matrices, getStyle().scrollbarTex,
+        UIHelper.nineQuad(VertexConsumer.MAIN, matrices, tex,
                 x, y, w, h,
                 s, 0f,
                 8, 8,
@@ -43,7 +45,7 @@ public class Scrollbar extends Slider {
 
         float anim = getAnimationValue();
         if (isVertical()) {
-            UIHelper.verticalQuad(VertexConsumer.MAIN, matrices, getStyle().scrollbarTex,
+            UIHelper.verticalQuad(VertexConsumer.MAIN, matrices, tex,
                     x, y + Math.round((h - handleSize) * anim),
                     8, handleSize,
                     s, 8f,
@@ -51,7 +53,7 @@ public class Scrollbar extends Slider {
                     24, 16
             );
         } else {
-            UIHelper.horizontalQuad(VertexConsumer.MAIN, matrices, getStyle().scrollbarTex,
+            UIHelper.horizontalQuad(VertexConsumer.MAIN, matrices, tex,
                     x + Math.round((w - handleSize) * anim), y,
                     handleSize, 8,
                     s, 8f,

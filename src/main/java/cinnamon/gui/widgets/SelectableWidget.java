@@ -179,7 +179,7 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
         int screenW = window.getGUIWidth();
         int screenH = window.getGUIHeight();
 
-        int b = getStyle().tooltipBorder;
+        int b = getStyle().getInt("tooltip_border");
         boolean left = false;
 
         int x = wx + getWidth() + b + 4;

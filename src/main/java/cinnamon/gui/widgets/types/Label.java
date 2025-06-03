@@ -37,7 +37,7 @@ public class Label extends SelectableWidget implements AlignedWidget {
 
     protected void renderHover(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, getStyle().labelTex,
+                VertexConsumer.MAIN, matrices, getStyle().getResource("label_tex"),
                 getAlignedX() - 1, getAlignedY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,

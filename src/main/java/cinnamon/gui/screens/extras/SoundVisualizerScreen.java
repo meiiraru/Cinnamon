@@ -299,7 +299,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         int songCount = playlist.size();
         int playTime = soundData != null ? (int) soundData.getPlaybackTime() : slider.getValue();
 
-        float lineHeight = GUIStyle.getDefault().font.lineHeight;
+        float lineHeight = GUIStyle.getDefault().getFont().lineHeight;
 
         //draw top text
         if (songCount == 0)

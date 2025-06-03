@@ -22,7 +22,6 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class UIHelper {
 
-    public static final Resource TOOLTIP_TEXTURE = new Resource("textures/gui/widgets/tooltip.png");
     private static final float DEPTH_OFFSET = 0.01f;
     private static final Stack<Vertex[]> STENCIL_STACK = new Stack<>();
 
@@ -200,8 +199,10 @@ public class UIHelper {
         matrices.translate(x, y, 0);
 
         //background
-        int b = style.tooltipBorder;
-        UIHelper.nineQuad(VertexConsumer.MAIN, matrices, TOOLTIP_TEXTURE, -b, -b, width + b + b, height + b + b, 0, 0, 16, 16, 20, 20, style.accentColor);
+        int b = style.getInt("tooltip_border");
+        int color = style.getInt("accent_color");
+        Resource tex = style.getResource("tooltip_tex");
+        UIHelper.nineQuad(VertexConsumer.MAIN, matrices, tex, -b, -b, width + b + b, height + b + b, 0, 0, 16, 16, 20, 20, color);
 
         //arrow
         Vertex[] vertices = switch (arrowSide) {
@@ -216,8 +217,8 @@ public class UIHelper {
         };
 
         for (Vertex vertex : vertices)
-            vertex.color(style.accentColor);
-        VertexConsumer.MAIN.consume(vertices, TOOLTIP_TEXTURE);
+            vertex.color(color);
+        VertexConsumer.MAIN.consume(vertices, tex);
 
         //render text
         matrices.pushMatrix();

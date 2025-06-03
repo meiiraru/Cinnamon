@@ -150,7 +150,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, getStyle().textFieldTex,
+                VertexConsumer.MAIN, matrices, getStyle().getResource("text_field_tex"),
                 getX(), getY(),
                 getWidth(), getHeight(),
                 getState() * 16f, 0f,
@@ -166,7 +166,7 @@ public class TextField extends SelectableWidget implements Tickable {
         matrices.pushMatrix();
         matrices.translate(0, 0, UIHelper.getDepthOffset());
         UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, getStyle().textFieldTex,
+                VertexConsumer.MAIN, matrices, getStyle().getResource("text_field_tex"),
                 getX(), getY(),
                 getWidth(), getHeight(),
                 48f, 0f,
@@ -179,8 +179,8 @@ public class TextField extends SelectableWidget implements Tickable {
 
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         int x = getX() + 2;
-        int y = getCenterY() - Math.round(getStyle().font.lineHeight * 0.5f);
-        int height = Math.round(getStyle().font.lineHeight) + 2;
+        int y = getCenterY() - Math.round(getStyle().getFont().lineHeight * 0.5f);
+        int height = Math.round(getStyle().getFont().lineHeight) + 2;
 
         //hint text
         if (currText.isEmpty()) {
@@ -188,7 +188,7 @@ public class TextField extends SelectableWidget implements Tickable {
                 Text.empty()
                         .withStyle(Style.EMPTY
                                 .italic(true)
-                                .color(isActive() ? getStyle().hintColor : getStyle().disabledHintColor)
+                                .color(getStyle().getInt(isActive() ? "hint_color" : "disabled_hint_color"))
                                 .guiStyle(getStyleRes()))
                         .append(hintText)
                         .render(VertexConsumer.FONT, matrices, x, y);
@@ -230,7 +230,7 @@ public class TextField extends SelectableWidget implements Tickable {
             //text
             int start = Math.min(skipped, extra);
             int end = Math.max(skipped, extra);
-            int color = selectedColor == null ? getStyle().selectedTextColor : selectedColor;
+            int color = selectedColor == null ? getStyle().getInt("selected_text_color") : selectedColor;
 
             text = Text.empty().withStyle(textStyle)
                     .append(Text.of(str.substring(0, start)))
@@ -246,10 +246,11 @@ public class TextField extends SelectableWidget implements Tickable {
     }
 
     protected void renderCursor(MatrixStack matrices, float x, float y, float height) {
-        if (isActive() && isFocused() && blinkTime % getStyle().blinkSpeed < getStyle().blinkSpeed / 2) {
+        int blinkSpeed = getStyle().getInt("cursor_blink_speed");
+        if (isActive() && isFocused() && blinkTime % blinkSpeed < blinkSpeed / 2) {
             matrices.pushMatrix();
             matrices.translate(0, 0, UIHelper.getDepthOffset() * (Font.Z_DEPTH + 2));
-            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x, y, x + (insert ? getStyle().insertWidth : getStyle().cursorWidth), y + height, borderColor == null ? 0xFFFFFFFF : borderColor));
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x, y, x + (getStyle().getInt(insert ? "cursor_insert_width" : "cursor_width")), y + height, borderColor == null ? 0xFFFFFFFF : borderColor));
             matrices.popMatrix();
         }
     }
@@ -258,7 +259,7 @@ public class TextField extends SelectableWidget implements Tickable {
         float t = x0;
         x0 = Math.min(x0, x1);
         x1 = Math.max(t, x1);
-        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x0, y, x1, y + height, selectionColor == null ? getStyle().accentColor : selectionColor));
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x0, y, x1, y + height, selectionColor == null ? getStyle().getInt("accent_color") : selectionColor));
     }
 
 
@@ -359,6 +360,7 @@ public class TextField extends SelectableWidget implements Tickable {
         int length = s.length();
         int chars = 0;
         StringBuilder build = new StringBuilder();
+        char pass = getStyle().getString("password_char").charAt(0);
 
         for (int i = 0; i < formatting.length() && chars < length; i++) {
             char c = formatting.charAt(i);
@@ -374,7 +376,7 @@ public class TextField extends SelectableWidget implements Tickable {
             }
 
             if (c == FORMATTING_CHAR) {
-                build.append(password ? getStyle().passwordChar : s.charAt(chars));
+                build.append(password ? pass : s.charAt(chars));
                 chars++;
                 continue;
             }
@@ -384,7 +386,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
         if (chars < length) {
             String str = s.substring(chars);
-            build.append(password ? String.valueOf(getStyle().passwordChar).repeat(str.length()) : str);
+            build.append(password ? String.valueOf(pass).repeat(str.length()) : str);
         }
 
         return build.toString();
@@ -451,7 +453,7 @@ public class TextField extends SelectableWidget implements Tickable {
         if (formatting != null)
             formattedText = applyFormatting(currText);
         else if (password)
-            formattedText = String.valueOf(getStyle().passwordChar).repeat(currText.length());
+            formattedText = String.valueOf(getStyle().getString("password_char").charAt(0)).repeat(currText.length());
         else
             formattedText = currText;
     }
@@ -656,7 +658,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
         //click count
         long now = Client.getInstance().ticks;
-        if (clickCount == 0 || (lastClickIndex == cursor && now - lastClickTime < getStyle().doubleClickDelay))
+        if (clickCount == 0 || (lastClickIndex == cursor && now - lastClickTime < getStyle().getInt("double_click_delay")))
             clickCount++;
         else
             clickCount = 1;
@@ -1010,7 +1012,7 @@ public class TextField extends SelectableWidget implements Tickable {
         //get the text
         Text text = Text.of(getFormattedText()).withStyle(Style.EMPTY.guiStyle(getStyleRes()).applyParent(textStyle));
         //convert the mouse pos to the text space and get the length at the position
-        Text clamped = getStyle().font.clampToWidth(text, mousePos - xOffset - x, true);
+        Text clamped = getStyle().getFont().clampToWidth(text, mousePos - xOffset - x, true);
         //grab the length of the text
         int length = clamped.asString().length();
         //since the length uses the formatting, we need to subtract the extra chars

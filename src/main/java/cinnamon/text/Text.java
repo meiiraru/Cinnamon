@@ -127,7 +127,7 @@ public class Text {
 
     public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y, Alignment alignment, int indexScaling) {
         List<Text> list = TextUtils.split(this, "\n");
-        Font font = style.getGuiStyle().font;
+        Font font = style.getGuiStyle().getFont();
 
         int size = list.size();
         float yOffset = alignment.getHeightOffset(font.lineHeight * size + font.lineGap * (size - 1));

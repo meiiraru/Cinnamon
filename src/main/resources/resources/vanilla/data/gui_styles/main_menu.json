@@ -1,4 +1,6 @@
 {
   "parent": "data/gui_styles/default.json",
-  "text_color": "FFF3EFEC"
+  "colors": {
+    "text_color": "FFF3EFEC"
+  }
 }

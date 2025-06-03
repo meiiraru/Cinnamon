@@ -199,31 +199,31 @@ public class Style {
     }
 
     public int getColor() {
-        return color == null ? getGuiStyle().textColor : color;
+        return color == null ? getGuiStyle().getInt("text_color") : color;
     }
 
     public int getBackgroundColor() {
-        return backgroundColor == null ? getGuiStyle().backgroundColor : backgroundColor;
+        return backgroundColor == null ? getGuiStyle().getInt("background_color") : backgroundColor;
     }
 
     public int getShadowColor() {
-        return shadowColor == null ? getGuiStyle().shadowColor : shadowColor;
+        return shadowColor == null ? getGuiStyle().getInt("shadow_color") : shadowColor;
     }
 
     public int getOutlineColor() {
-        return outlineColor == null ? getGuiStyle().shadowColor : outlineColor;
+        return outlineColor == null ? getGuiStyle().getInt("shadow_color") : outlineColor;
     }
 
     public int getItalicOffset() {
-        return italicOffset == null ? getGuiStyle().italicOffset : italicOffset;
+        return italicOffset == null ? getGuiStyle().getInt("italic_offset") : italicOffset;
     }
 
     public int getBoldOffset() {
-        return boldOffset == null ? getGuiStyle().boldOffset : boldOffset;
+        return boldOffset == null ? getGuiStyle().getInt("bold_offset") : boldOffset;
     }
 
     public int getShadowOffset() {
-        return shadowOffset == null ? getGuiStyle().shadowOffset : shadowOffset;
+        return shadowOffset == null ? getGuiStyle().getInt("shadow_offset") : shadowOffset;
     }
 
     public boolean isBold() {

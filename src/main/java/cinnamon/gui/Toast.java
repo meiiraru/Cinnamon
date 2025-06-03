@@ -136,16 +136,17 @@ public class Toast {
         int pos = Math.round(-bgWidth / 2f);
 
         GUIStyle style = GUIStyle.of(this.style);
-        int color = this.color == null ? style.accentColor : this.color;
+        int color = this.color == null ? style.getInt("accent_color") : this.color;
+        Resource tex = style.getResource("toast_tex");
         UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, style.toastTex,
+                VertexConsumer.MAIN, matrices, tex,
                 pos, 0f, bgWidth, bgHeight,
                 16f, 0f,
                 16, 16, 48, 16,
                 color
         );
         UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, style.toastTex,
+                VertexConsumer.MAIN, matrices, tex,
                 pos, 0f, bgWidth, bgHeight,
                 32f, 0f,
                 16, 16, 48, 16,

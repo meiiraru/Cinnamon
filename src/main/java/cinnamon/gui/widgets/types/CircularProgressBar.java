@@ -4,6 +4,7 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.utils.Resource;
 import cinnamon.utils.UIHelper;
 
 public class CircularProgressBar extends ProgressBar {
@@ -19,16 +20,17 @@ public class CircularProgressBar extends ProgressBar {
         int r = getWidth() / 2;
 
         //background
-        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, getX(), getY(), getWidth(), getHeight(), 2, 1), getStyle().circularProgressTex);
+        Resource tex = getStyle().getResource("circular_progress_tex");
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, getX(), getY(), getWidth(), getHeight(), 2, 1), tex);
 
         //progress
         matrices.pushMatrix();
         matrices.translate(0, 0, UIHelper.getDepthOffset());
 
-        Vertex[] vertices = GeometryHelper.progressSquare(matrices, x, y, r, getProgress(), color == null ? getStyle().accentColor : color);
+        Vertex[] vertices = GeometryHelper.progressSquare(matrices, x, y, r, getProgress(), color == null ? getStyle().getInt("accent_color") : color);
         for (Vertex vertex : vertices)
             vertex.uv(vertex.getUV().mul(0.5f, 1f).add(0.5f, 0f));
-        VertexConsumer.MAIN.consume(vertices, getStyle().circularProgressTex);
+        VertexConsumer.MAIN.consume(vertices, tex);
 
         matrices.popMatrix();
     }

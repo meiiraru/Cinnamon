@@ -79,7 +79,7 @@ public class ContextMenu extends PopupWidget {
     }
 
     public ContextMenu addDivider() {
-        addAction(new ContextDivider(totalWidth, getStyle().dividerSize, widgets.size()));
+        addAction(new ContextDivider(totalWidth, getStyle().getInt("context_menu_divider_size"), widgets.size()));
         return this;
     }
 
@@ -148,7 +148,7 @@ public class ContextMenu extends PopupWidget {
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //render background
         UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, getStyle().contextMenuTex,
+                VertexConsumer.MAIN, matrices, getStyle().getResource("context_menu_tex"),
                 getX() - 1, getY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,
@@ -197,7 +197,7 @@ public class ContextMenu extends PopupWidget {
 
         @Override
         protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), isHoveredOrFocused(), index, getStyle().contextMenuTex);
+            ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), isHoveredOrFocused(), index, getStyle().getResource("context_menu_tex"));
         }
 
         @Override
@@ -233,12 +233,13 @@ public class ContextMenu extends PopupWidget {
 
         @Override
         public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), false, index, getStyle().contextMenuTex);
+            Resource tex = getStyle().getResource("context_menu_tex");
+            ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), false, index, tex);
 
             matrices.pushMatrix();
             matrices.translate(0f, 0f, UIHelper.getDepthOffset());
             UIHelper.horizontalQuad(
-                    VertexConsumer.MAIN, matrices, getStyle().contextMenuTex,
+                    VertexConsumer.MAIN, matrices, tex,
                     getX() + 1, Math.round(getCenterY() - 1.5f),
                     getWidth() - 2, 3,
                     0f, 32f,

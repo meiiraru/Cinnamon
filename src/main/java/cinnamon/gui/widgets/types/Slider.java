@@ -12,6 +12,7 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
+import cinnamon.utils.Resource;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
 
@@ -94,7 +95,7 @@ public class Slider extends SelectableWidget {
 
         //progress
         matrices.translate(0, 0, d);
-        renderHorizontalBar(matrices, x, y, left, 0f, 12f, color == null ? getStyle().accentColor : color);
+        renderHorizontalBar(matrices, x, y, left, 0f, 12f, color == null ? getStyle().getInt("accent_color") : color);
 
         //steps
         renderSteps(matrices, x, y, width, 3, 4, state * 3f + 9f, 12f);
@@ -105,7 +106,7 @@ public class Slider extends SelectableWidget {
     }
 
     protected void renderHorizontalBar(MatrixStack matrices, int x, int y, int width, float u, float v, int color) {
-        UIHelper.horizontalQuad(VertexConsumer.MAIN, matrices, getStyle().sliderTex,
+        UIHelper.horizontalQuad(VertexConsumer.MAIN, matrices, getStyle().getResource("slider_tex"),
                 x, y, width, 4,
                 u, v,
                 9, 4,
@@ -136,7 +137,7 @@ public class Slider extends SelectableWidget {
 
         //progress
         matrices.translate(0, 0, d);
-        renderVerticalBar(matrices, x, y, up, 30f, 0f, color == null ? getStyle().accentColor : color);
+        renderVerticalBar(matrices, x, y, up, 30f, 0f, color == null ? getStyle().getInt("accent_color") : color);
 
         //steps
         renderSteps(matrices, x, y, height, 4, 3, 30f, state * 3f + 9f);
@@ -147,7 +148,7 @@ public class Slider extends SelectableWidget {
     }
 
     protected void renderVerticalBar(MatrixStack matrices, int x, int y, int height, float u, float v, int color) {
-        UIHelper.verticalQuad(VertexConsumer.MAIN, matrices, getStyle().sliderTex,
+        UIHelper.verticalQuad(VertexConsumer.MAIN, matrices, getStyle().getResource("slider_tex"),
                 x, y, 4, height,
                 u, v,
                 4, 9,
@@ -176,18 +177,19 @@ public class Slider extends SelectableWidget {
                     u, v,
                     width, height,
                     34, 26
-            ), getStyle().sliderTex);
+            ), getStyle().getResource("slider_tex"));
         }
     }
 
     protected void renderButton(MatrixStack matrices, int x, int y, int state) {
         //button
+        Resource tex = getStyle().getResource("slider_tex");
         VertexConsumer.MAIN.consume(GeometryHelper.quad(
                 matrices, x, y, 8, 8,
                 state * 8, 18f,
                 8, 8,
                 34, 26
-        ), getStyle().sliderTex);
+        ), tex);
 
         //color
         matrices.translate(0, 0, UIHelper.getDepthOffset());
@@ -197,11 +199,11 @@ public class Slider extends SelectableWidget {
                 8, 8,
                 34, 26
         );
-        int color = isActive() ? (this.color == null ? getStyle().accentColor : this.color) : getStyle().disabledColor;
+        int color = isActive() ? (this.color == null ? getStyle().getInt("accent_color") : this.color) : getStyle().getInt("disabled_color");
         for (Vertex vertex : vertices)
             vertex.color(color);
 
-        VertexConsumer.MAIN.consume(vertices, getStyle().sliderTex);
+        VertexConsumer.MAIN.consume(vertices, tex);
     }
 
     @Override
@@ -531,7 +533,7 @@ public class Slider extends SelectableWidget {
         int screenW = window.getGUIWidth();
         int screenH = window.getGUIHeight();
 
-        int b = getStyle().tooltipBorder;
+        int b = getStyle().getInt("tooltip_border");
 
         if (isVertical()) {
             int animY = (int) ((getHeight() - handleSize) * value) + handleSize / 2;
@@ -557,7 +559,7 @@ public class Slider extends SelectableWidget {
 
             //boundaries test
             if (y < b && cy < screenH / 2) {
-                y = wy + (int) getStyle().font.lineHeight + b + 4;
+                y = wy + (int) getStyle().getFont().lineHeight + b + 4;
                 bottom = true;
             }
             x = Maths.clamp(x, b, screenW - w - b);

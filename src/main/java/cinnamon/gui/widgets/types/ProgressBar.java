@@ -5,6 +5,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
+import cinnamon.utils.Resource;
 import cinnamon.utils.UIHelper;
 
 public class ProgressBar extends Widget {
@@ -22,10 +23,11 @@ public class ProgressBar extends Widget {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         float d = UIHelper.tickDelta(0.4f);
         animationValue = Maths.lerp(animationValue, getProgress(), d);
+        Resource tex = getStyle().getResource("progress_bar_tex");
 
         //draw background
         UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, getStyle().progressbarTex,
+                VertexConsumer.MAIN, matrices, tex,
                 getX(), getY(),
                 getWidth(), getHeight(),
                 0f, 0f,
@@ -37,13 +39,13 @@ public class ProgressBar extends Widget {
         matrices.pushMatrix();
         matrices.translate(0, 0, UIHelper.getDepthOffset());
         UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, getStyle().progressbarTex,
+                VertexConsumer.MAIN, matrices, tex,
                 getX(), getY(),
                 Math.round(getWidth() * getAnimationValue()), getHeight(),
                 16f, 0f,
                 16, 16,
                 32, 16,
-                color == null ? getStyle().accentColor : color
+                color == null ? getStyle().getInt("accent_color") : color
         );
         matrices.popMatrix();
     }

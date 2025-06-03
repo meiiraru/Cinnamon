@@ -51,12 +51,12 @@ public class ComboBox extends Button {
 
     @Override
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        Style style = Style.EMPTY.guiStyle(getStyleRes()).color(!isActive() ? getStyle().disabledColor : null);
+        Style style = Style.EMPTY.guiStyle(getStyleRes()).color(!isActive() ? getStyle().getInt("disabled_color") : null);
 
         //render arrow
         Text text = Text.of(isExpanded() ? "\u23F6" : "\u23F7").withStyle(style);
         int x = getX() + getWidth() - 2;
-        int y = getCenterY() + (isHolding() ? getStyle().pressYOffset : 0);
+        int y = getCenterY() + (isHolding() ? getStyle().getInt("pressed_y_offset") : 0);
         text.render(VertexConsumer.FONT, matrices, x, y, Alignment.CENTER_RIGHT);
 
         //render selected text
@@ -156,7 +156,7 @@ public class ComboBox extends Button {
 
             //selected entry
             if (i == selected)
-                text = Text.empty().withStyle(Style.EMPTY.color(getStyle().accentColor)).append(text);
+                text = Text.empty().withStyle(Style.EMPTY.color(getStyle().getInt("accent_color"))).append(text);
 
             //apply text
             contextMenu.getAction(i).setMessage(text);

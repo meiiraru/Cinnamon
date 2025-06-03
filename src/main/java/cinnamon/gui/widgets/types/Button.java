@@ -55,7 +55,7 @@ public class Button extends SelectableWidget {
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, getStyle().buttonTex,
+                VertexConsumer.MAIN, matrices, getStyle().getResource("button_tex"),
                 getX(), getY(),
                 getWidth(), getHeight(),
                 getState() * 16f, 0f,
@@ -67,7 +67,7 @@ public class Button extends SelectableWidget {
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         Text text = getFormattedMessage();
         int x = getCenterX();
-        int y = getCenterY() + (isHolding() ? getStyle().pressYOffset : 0);
+        int y = getCenterY() + (isHolding() ? getStyle().getInt("pressed_y_offset") : 0);
         text.render(VertexConsumer.FONT, matrices, x, y, Alignment.CENTER);
     }
 
@@ -178,7 +178,7 @@ public class Button extends SelectableWidget {
         Style style = Style.EMPTY.guiStyle(getStyleRes());
 
         if (getState() == 0)
-            style = style.color(style.getGuiStyle().disabledColor);
+            style = style.color(style.getGuiStyle().getInt("disabled_color"));
 
         return Text.empty().withStyle(style).append(message);
     }

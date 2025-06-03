@@ -1,47 +1,55 @@
 {
-  "text_color": "FFFFFFFF",
-  "shadow_color": "FF161616",
-  "background_color": "44000000",
-  "accent_color": "FFAD72FF",
-  "disabled_color": "FF666666",
-  "selected_text_color": "FF000000",
-  "hint_color": "FF5B8CCC",
-  "disabled_hint_color": "FF404040",
+  "font": {
+    "path": "fonts/mayonnaise.ttf",
+    "size": 8,
+    "line_spacing": 0,
+    "smooth": false
+  },
 
-  "pressed_y_offset": 2,
-  "shadow_offset": 1,
-  "bold_offset": 1,
-  "italic_offset": 3,
+  "colors": {
+    "text_color":          "FFFFFFFF",
+    "shadow_color":        "FF161616",
+    "background_color":    "44000000",
+    "accent_color":        "FFAD72FF",
+    "disabled_color":      "FF666666",
+    "selected_text_color": "FF000000",
+    "hint_color":          "FF5B8CCC",
+    "disabled_hint_color": "FF404040"
+  },
 
-  "double_click_delay": 500,
-  "cursor_blink_speed": 1000,
+  "resources": {
+    "button_tex":               "textures/gui/widgets/button.png",
+    "checkbox_tex":             "textures/gui/widgets/checkbox.png",
+    "circular_progress_tex":    "textures/gui/widgets/circular_progress_bar.png",
+    "color_picker_tex":         "textures/gui/widgets/color_picker.png",
+    "container_background_tex": "textures/gui/widgets/container_background.png",
+    "context_menu_tex":         "textures/gui/widgets/context_menu.png",
+    "label_tex":                "textures/gui/widgets/label.png",
+    "loading_tex":              "textures/gui/widgets/loading.png",
+    "progress_bar_tex":         "textures/gui/widgets/progress_bar.png",
+    "scroll_bar_tex":           "textures/gui/widgets/scrollbar.png",
+    "slider_tex":               "textures/gui/widgets/slider.png",
+    "text_field_tex":           "textures/gui/widgets/text_field.png",
+    "toast_tex":                "textures/gui/widgets/toast.png",
+    "tooltip_tex":              "textures/gui/widgets/tooltip.png",
+    "cursor":                   "textures/gui/cursor.png"
+  },
 
-  "password_char": "\u2022",
-  "cursor_width": 1,
-  "cursor_insert_width": 4,
+  "primitives": {
+    "pressed_y_offset": 2,
+    "shadow_offset": 1,
+    "bold_offset": 1,
+    "italic_offset": 3,
 
-  "context_menu_divider_size": 5,
+    "double_click_delay": 10,
+    "cursor_blink_speed": 20,
 
-  "tooltip_border": 4,
+    "password_char": "\u2022",
+    "cursor_width": 1,
+    "cursor_insert_width": 4,
 
-  "button_tex": "textures/gui/widgets/button.png",
-  "checkbox_tex": "textures/gui/widgets/checkbox.png",
-  "circular_progress_tex": "textures/gui/widgets/circular_progress_bar.png",
-  "color_picker_tex": "textures/gui/widgets/color_picker.png",
-  "container_background_tex": "textures/gui/widgets/container_background.png",
-  "context_menu_tex": "textures/gui/widgets/context_menu.png",
-  "label_tex": "textures/gui/widgets/label.png",
-  "loading_tex": "textures/gui/widgets/loading.png",
-  "progress_bar_tex": "textures/gui/widgets/progress_bar.png",
-  "scroll_bar_tex": "textures/gui/widgets/scrollbar.png",
-  "slider_tex": "textures/gui/widgets/slider.png",
-  "text_field_tex": "textures/gui/widgets/text_field.png",
-  "toast_tex": "textures/gui/widgets/toast.png",
-  "tooltip_tex": "textures/gui/widgets/tooltip.png",
-  "cursor": "textures/gui/cursor.png",
+    "context_menu_divider_size": 5,
 
-  "font": "fonts/mayonnaise.ttf",
-  "font_size": 8,
-  "font_line_spacing": 0,
-  "font_smooth": false
+    "tooltip_border": 4
+  }
 }

@@ -29,7 +29,7 @@ public class ChatScreen extends Screen {
     @Override
     public void init() {
         super.init();
-        int fh = (int) (GUIStyle.getDefault().font.lineHeight + 2);
+        int fh = (int) (GUIStyle.getDefault().getFont().lineHeight + 2);
         field = new TextField(0, height - fh - 20, width, fh);
         field.setHintText(Text.translated("gui.chat.type_message").withStyle(Style.EMPTY.color(Colors.LIGHT_GRAY)));
         field.setTextOnly(true);

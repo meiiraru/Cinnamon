@@ -6,15 +6,12 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Alignment;
-import cinnamon.utils.Resource;
 import cinnamon.utils.UIHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class WidgetList extends ContainerGrid {
-
-    private static final Resource TEXTURE = new Resource("textures/gui/widgets/container_background.png");
 
     private final List<Widget> widgetsToRender = new ArrayList<>();
 
@@ -60,7 +57,7 @@ public class WidgetList extends ContainerGrid {
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //render background
         UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, TEXTURE,
+                VertexConsumer.MAIN, matrices, getStyle().getResource("container_background_tex"),
                 getAlignedX() - 1, getAlignedY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,

@@ -1,4 +1,6 @@
 {
   "parent": "data/gui_styles/default.json",
-  "background_color": "88000000"
+  "colors": {
+    "background_color": "88000000"
+  }
 }
