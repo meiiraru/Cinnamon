@@ -20,9 +20,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -99,10 +97,18 @@ public class IOUtils {
     public static List<String> listResources(Resource res, boolean includeDirectories) {
         try {
             String path = resolveResourcePath(res);
-            URL url = res.getNamespace().isEmpty() ?
-                    Path.of(res.getPath()).toUri().toURL() :
-                    Thread.currentThread().getContextClassLoader().getResource(path);
-            return listResources(url, path, includeDirectories);
+            if (res.getNamespace().isEmpty())
+                return listResources(Path.of(res.getPath()).toUri().toURL(), path, includeDirectories);
+
+            Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(path);
+            List<String> result = new ArrayList<>();
+            while (urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                List<String> entries = listResources(url, path, includeDirectories);
+                if (entries != null)
+                    result.addAll(entries);
+            }
+            return result;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -110,8 +116,15 @@ public class IOUtils {
 
     public static List<String> listNamespaces() {
         try {
-            URL url = Thread.currentThread().getContextClassLoader().getResource("resources");
-            return listResources(url, "resources", true);
+            Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources("resources");
+            List<String> result = new ArrayList<>();
+            while (urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                List<String> entries = listResources(url, "resources", true);
+                if (entries != null)
+                    result.addAll(entries);
+            }
+            return result;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
