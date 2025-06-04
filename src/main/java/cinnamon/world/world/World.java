@@ -119,12 +119,12 @@ public abstract class World {
         setTerrain(terrain, pos.x, pos.y, pos.z);
     }
 
-    public void setTerrain(Terrain terrain, int x, int y, int z) {
+    public void setTerrain(Terrain terrain, float x, float y, float z) {
         Vector3i cPos = getChunkGridPos(x, y, z);
         Vector3i tPos = new Vector3i(
-                x - cPos.x * Chunk.CHUNK_SIZE,
-                y - cPos.y * Chunk.CHUNK_SIZE,
-                z - cPos.z * Chunk.CHUNK_SIZE
+                (int) x - cPos.x * Chunk.CHUNK_SIZE,
+                (int) y - cPos.y * Chunk.CHUNK_SIZE,
+                (int) z - cPos.z * Chunk.CHUNK_SIZE
         );
 
         Chunk c = chunks.get(cPos);

@@ -58,7 +58,7 @@ public class Spawner<E extends Entity> extends Entity {
     protected void renderFeatures(MatrixStack matrices, float delta) {
         super.renderFeatures(matrices, delta);
 
-        if (entity != null || !renderCooldown)
+        if (entity != null || (!renderCooldown && ! Client.getInstance().debug))
             return;
 
         matrices.pushMatrix();
