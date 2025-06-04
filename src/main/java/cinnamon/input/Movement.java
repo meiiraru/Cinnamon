@@ -1,6 +1,5 @@
 package cinnamon.input;
 
-import cinnamon.Client;
 import cinnamon.settings.Settings;
 import cinnamon.vr.XrManager;
 import cinnamon.world.entity.Entity;
@@ -9,8 +8,6 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class Movement {
-
-    public static final int TICKS_TO_FLY = (int) (0.3f * Client.TPS);
 
     //pos
     protected final Vector3f movement = new Vector3f();
@@ -89,7 +86,7 @@ public class Movement {
             flyingToggle = true;
             flyTicks = 0;
         } else {
-            flyTicks = TICKS_TO_FLY;
+            flyTicks = Settings.flyingToggleTime.get();
         }
     }
 

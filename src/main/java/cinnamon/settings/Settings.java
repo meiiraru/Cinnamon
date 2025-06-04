@@ -6,7 +6,6 @@ import cinnamon.lang.LangManager;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.IOUtils;
-import cinnamon.vr.XrInput;
 import com.google.gson.*;
 
 import java.nio.file.Path;
@@ -43,6 +42,12 @@ public class Settings {
     public static final Setting.Bools invertX = new Setting.Bools("mouse.invert_mouse_x", false);
     public static final Setting.Bools invertY = new Setting.Bools("mouse.invert_mouse_y", false);
 
+    //accessibility
+    public static final Setting.Ints
+            flyingToggleTime = new Setting.Ints("accessibility.flying_toggle_time", 10),
+            doubleClickTime  = new Setting.Ints("accessibility.double_click_time", 10),
+            cursorBlinkDelay = new Setting.Ints("accessibility.cursor_blink_delay", 20);
+
     //player
     public static final Setting.Enums<LivingModelRegistry> playermodel = new Setting.Enums<>("player.player_model", LivingModelRegistry.STRAWBERRY);
 
@@ -52,7 +57,7 @@ public class Settings {
     //xr
     public static final Setting.Bools
             xrHapticFeedback = new Setting.Bools("xr.haptic_feedback", true),
-            xrSnapTurn       = new Setting.Bools("xr.snap_turn", false),
+            xrSnapTurn       = new Setting.Bools("xr.snap_turn", true),
             xrClickOnHover   = new Setting.Bools("xr.click_on_hover", true);
     public static final Setting.Floats
             xrTurningAngle = new Setting.Floats("xr.turning_angle", 3f),

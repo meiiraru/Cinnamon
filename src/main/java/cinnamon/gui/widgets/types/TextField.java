@@ -8,6 +8,7 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.settings.Settings;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Colors;
@@ -246,8 +247,8 @@ public class TextField extends SelectableWidget implements Tickable {
     }
 
     protected void renderCursor(MatrixStack matrices, float x, float y, float height) {
-        int blinkSpeed = getStyle().getInt("cursor_blink_speed");
-        if (isActive() && isFocused() && blinkTime % blinkSpeed < blinkSpeed / 2) {
+        int blinkSpeed = Settings.cursorBlinkDelay.get();
+        if (isActive() && isFocused() && (blinkSpeed <= 1 || blinkTime % blinkSpeed < blinkSpeed / 2)) {
             matrices.pushMatrix();
             matrices.translate(0, 0, UIHelper.getDepthOffset() * (Font.Z_DEPTH + 2));
             VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x, y, x + (getStyle().getInt(insert ? "cursor_insert_width" : "cursor_width")), y + height, borderColor == null ? 0xFFFFFFFF : borderColor));
@@ -658,7 +659,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
         //click count
         long now = Client.getInstance().ticks;
-        if (clickCount == 0 || (lastClickIndex == cursor && now - lastClickTime < getStyle().getInt("double_click_delay")))
+        if (clickCount == 0 || (lastClickIndex == cursor && now - lastClickTime < Settings.doubleClickTime.get()))
             clickCount++;
         else
             clickCount = 1;

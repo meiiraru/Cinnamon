@@ -42,9 +42,6 @@
     "bold_offset": 1,
     "italic_offset": 3,
 
-    "double_click_delay": 10,
-    "cursor_blink_speed": 20,
-
     "password_char": "\u2022",
     "cursor_width": 1,
     "cursor_insert_width": 4,
