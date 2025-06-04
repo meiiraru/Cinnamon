@@ -50,7 +50,6 @@ public class Settings {
     public static final Setting.Strings soundDevice = new Setting.Strings("sound.device", "");
 
     //xr
-    public static final Setting.Strings xrInteractionProfile = new Setting.Strings("xr.interaction_profile", XrInput.DEFAULT_PROFILE.toString());
     public static final Setting.Bools
             xrHapticFeedback = new Setting.Bools("xr.haptic_feedback", true),
             xrSnapTurn       = new Setting.Bools("xr.snap_turn", false),

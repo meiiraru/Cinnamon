@@ -26,7 +26,7 @@ abstract class XrKeybind<T> {
         this.xrPath = stringToPath(stack, user.path + path);
         this.user = user.pathBuffer.get(0);
 
-        ByteBuffer nameBfr = stack.UTF8(user.name + "_" + name);
+        ByteBuffer nameBfr = stack.UTF8(user.id + "_" + user.name + "_" + name);
         XrActionCreateInfo actionInfo = XrActionCreateInfo.malloc(stack)
                 .type$Default()
                 .next(NULL)
@@ -37,7 +37,9 @@ abstract class XrKeybind<T> {
                 .subactionPaths(user.pathBuffer);
 
         PointerBuffer ptr = stack.mallocPointer(1);
-        check(xrCreateAction(actionSet, actionInfo, ptr), "Failed to create action: error code %s");
+        int check = xrCreateAction(actionSet, actionInfo, ptr);
+        if (check != XR_SUCCESS)
+            throw new RuntimeException("Failed to create action: error code " + check);
         this.action = new XrAction(ptr.get(0), actionSet);
     }
 
