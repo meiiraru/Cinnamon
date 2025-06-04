@@ -23,7 +23,7 @@ import static org.lwjgl.openal.ALC11.ALC_DEFAULT_ALL_DEVICES_SPECIFIER;
 
 public class SoundManager {
 
-    private static final Logger LOGGER = new Logger("sound");
+    private static final Logger LOGGER = new Logger(Logger.ROOT_NAMESPACE + "/sound");
 
     private static final List<SoundInstance> sounds = new ArrayList<>();
     private static final List<String> devices = new ArrayList<>();

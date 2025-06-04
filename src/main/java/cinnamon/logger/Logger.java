@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Logger {
 
-    private static final String ROOT_NAMESPACE = "cinnamon";
+    public static final String ROOT_NAMESPACE = "cinnamon";
     private static final Logger ROOT_LOGGER = new Logger();
 
     private final String name;
@@ -18,7 +18,7 @@ public class Logger {
     }
 
     public Logger(String name) {
-        this.name = ROOT_LOGGER.name + "/" + name;
+        this.name = name;
     }
 
     public static Logger getRootLogger() {

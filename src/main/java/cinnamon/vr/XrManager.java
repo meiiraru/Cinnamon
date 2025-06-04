@@ -40,7 +40,7 @@ import static org.lwjgl.system.windows.User32.GetDC;
 
 public class XrManager {
 
-    static Logger LOGGER = new Logger("xr");
+    static Logger LOGGER = new Logger(Logger.ROOT_NAMESPACE + "/xr");
 
     //instance
     static XrInstance instance;

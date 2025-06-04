@@ -29,7 +29,7 @@ import static cinnamon.events.EventType.RESOURCE_INIT;
 
 public class Events {
 
-    public static final Logger LOGGER = new Logger("resource");
+    public static final Logger LOGGER = new Logger(Logger.ROOT_NAMESPACE + "/resource");
 
     //event map
     private final Map<EventType, List<Consumer<Object[]>>> eventMap = new HashMap<>(EventType.values().length, 1f);

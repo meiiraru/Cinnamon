@@ -14,7 +14,7 @@ import java.util.List;
 
 public class Toast {
 
-    private static final Logger LOGGER = new Logger("toast");
+    private static final Logger LOGGER = new Logger(Logger.ROOT_NAMESPACE + "/toast");
 
     // -- properties -- //
 
