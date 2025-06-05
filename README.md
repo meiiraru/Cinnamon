@@ -1,20 +1,28 @@
 # Cinnamon Game Engine
-The purpose of this engine is to learn how game engines work. I hope it can be used in production one day, but for now, it's only a playground for me to have fun and build stuff I like and dream of.
+The purpose of this engine is to learn how game engines work. For now, it's only a playground for me to have fun and build stuff I like and a place to do my uni assignments
 
-# Features I want to implement
-- [x] Rendering Pipeline
-- [x] GUI
-- [ ] Animations
-- [x] Sound System
-- [x] Entity System
+# Features
+- [x] OpenGL Rendering Pipeline
+- [ ] Vulkan Rendering Pipeline
+- [ ] glTF Model Loading
+- [x] GUI System
+- [x] Animations
+- [ ] Animation Blending
+- [x] Sounds System
 - [x] AABB Collisions
-- [ ] Better Collisions
+- [ ] OBB Collisions
+- [x] Entity System
+- [x] Physics System
+- [ ] Better Physics System
 - [x] Items
 - [x] Inventory
 - [x] Particles
 - [x] World System
-- [x] Networking
-- [ ] What else comes into my very flat brain
+- [ ] Networking
+- [x] Settings File
+- [x] OpenXR Integration
+- [x] Keybinds
+- [ ] What else comes into my very flat brain (burgers)
 
 # Controls
 | ACTION         |      BIND | ACTION             |   BIND |
@@ -29,5 +37,21 @@ The purpose of this engine is to learn how game engines work. I hope it can be u
 | Fly            |  2x Space |                    |        |
 
 # How to compile
-Dunno, I just let Gradle do its thing and it kinda works
+Let Gradle do its thing
 
+# To use as a library
+Were going jitpack route here,
+
+On the Gradle build file, add:
+```kt
+repositories {
+    maven("https://jitpack.io")
+}
+```
+and
+```kt
+dependencies {
+    implementation("com.github.meiiraru", "Cinnamon", cinnamonVersion)
+}
+```
+dont forgor to include the LWJGL modules (and natives) you're going to use
