@@ -268,7 +268,9 @@ public class Slider extends SelectableWidget {
     public GUIListener forceScroll(double x, double y) {
         showCurrentTooltip = true;
         float val = steps == 1 ? scrollAmount : stepValue;
-        setPercentage(value + (Math.signum(invertY ? -y : y) < 0 ? -val : val));
+        float xx = (float) Math.signum(x) * val;
+        float yy = (float) Math.signum(invertY ? -y : y) * val;
+        setPercentage(value + xx + yy);
         return this;
     }
 

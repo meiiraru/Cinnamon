@@ -16,6 +16,7 @@ import cinnamon.render.shader.Shaders;
 import cinnamon.settings.Settings;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrInput;
+import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -45,6 +46,7 @@ public abstract class Screen {
     //xr
     protected SelectableWidget xrHovered, oldXrHovered;
     protected int xrHoverTime = 0;
+    protected int xrScrollX, xrScrollY;
 
 
     // -- screen functions -- //
@@ -152,11 +154,19 @@ public abstract class Screen {
 
 
     public void tick() {
-        tickXr();
+        this.tickXr();
         this.mainContainer.tick();
     }
 
     protected void tickXr() {
+        if (!XrManager.isInXR())
+            return;
+
+        //tick scroll
+        if (xrScrollX != 0 || xrScrollY != 0)
+            this.scroll(xrScrollX, xrScrollY);
+
+        //tick hover
         if (xrHovered == null || !(xrHovered instanceof Button b)) {
             xrHoverTime = 0;
             return;
@@ -312,9 +322,9 @@ public abstract class Screen {
     }
 
     public boolean xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
-        float f = 0.9f; //dead zone
-        int dx = lastX < f && x >= f ? 1 : lastX > -f && x <= -f ? -1 : 0;
-        int dy = lastY < f && y >= f ? 1 : lastY > -f && y <= -f ? -1 : 0;
-        return (dx != 0 || dy != 0) && this.scroll(dx, dy);
+        float f = 0.5f; //dead zone
+        xrScrollX = x >= f ? 1 : x <= -f ? -1 : 0;
+        xrScrollY = y >= f ? 1 : y <= -f ? -1 : 0;
+        return xrScrollX != 0 || xrScrollY != 0;
     }
 }

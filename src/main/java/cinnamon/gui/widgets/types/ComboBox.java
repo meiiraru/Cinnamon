@@ -167,7 +167,7 @@ public class ComboBox extends Button {
 
     @Override
     public GUIListener scroll(double x, double y) {
-        if (UIHelper.isWidgetHovered(this)) {
+        if (isActive() && UIHelper.isWidgetHovered(this)) {
             int i = selected;
             i += (int) Math.signum(-y);
             i = Maths.modulo(i, indexes.size());
