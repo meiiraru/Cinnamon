@@ -15,7 +15,6 @@ import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.settings.Settings;
 import cinnamon.utils.Resource;
-import cinnamon.utils.UIHelper;
 import cinnamon.vr.XrInput;
 import cinnamon.vr.XrRenderer;
 
@@ -44,7 +43,7 @@ public abstract class Screen {
     public PopupWidget popup;
 
     //xr
-    protected SelectableWidget xrHovered;
+    protected SelectableWidget xrHovered, oldXrHovered;
     protected int xrHoverTime = 0;
 
 
@@ -88,6 +87,8 @@ public abstract class Screen {
         if (this.popup != null)
             this.popup.close();
         this.popup = null;
+        this.xrHovered = null;
+        this.xrHoverTime = 0;
         this.init();
     }
 
@@ -128,10 +129,18 @@ public abstract class Screen {
     }
 
     public void xrWidgetHovered(SelectableWidget widget) {
-        XrInput.vibrate(XrInput.getActiveHand());
-        if (Settings.xrClickOnHover.get()) {
-            xrHovered = widget;
+        if (xrHovered != null || !Settings.xrClickOnHover.get())
+            return;
+
+        xrHovered = widget;
+        if (oldXrHovered != xrHovered) {
+            //reset hover time
             xrHoverTime = 0;
+            oldXrHovered = xrHovered;
+
+            //haptics
+            if (xrHovered != null)
+                XrInput.vibrate(XrInput.getActiveHand());
         }
     }
 
@@ -143,25 +152,19 @@ public abstract class Screen {
 
 
     public void tick() {
-        tickXrHover();
+        tickXr();
         this.mainContainer.tick();
     }
 
-    protected void tickXrHover() {
-        if (xrHovered == null)
-            return;
-
-        if (!UIHelper.isWidgetHovered(xrHovered)) {
-            xrHovered = null;
+    protected void tickXr() {
+        if (xrHovered == null || !(xrHovered instanceof Button b)) {
             xrHoverTime = 0;
             return;
         }
 
-        if (xrHovered instanceof Button b) {
-            xrHoverTime++;
-            if (xrHoverTime == Settings.xrClickOnHoverDelay.get())
-                b.onRun();
-        }
+        xrHoverTime++;
+        if (xrHoverTime == Settings.xrClickOnHoverDelay.get())
+            b.onRun();
     }
 
 
@@ -277,6 +280,7 @@ public abstract class Screen {
     }
 
     public boolean mouseMove(int x, int y) {
+        xrHovered = null;
         return this.mainContainer.mouseMove(x, y) != null;
     }
 

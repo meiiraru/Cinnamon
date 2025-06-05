@@ -74,13 +74,15 @@ public class ComboBox extends Button {
     }
 
     private void select(int index) {
-        if (index < 0 || index >= indexes.size() || index == selected)
+        if (index < 0 || index >= indexes.size())
             return;
 
-        setSelected(index);
+        if (index != selected) {
+            setSelected(index);
+            if (changeListener != null)
+                changeListener.accept(index);
+        }
 
-        if (changeListener != null)
-            changeListener.accept(index);
         if (closeOnSelect)
             getPopup().close();
     }

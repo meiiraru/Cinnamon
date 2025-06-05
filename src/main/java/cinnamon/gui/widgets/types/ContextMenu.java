@@ -219,10 +219,9 @@ public class ContextMenu extends PopupWidget {
         }
 
         @Override
-        protected boolean updateHover(int x, int y) {
+        protected void updateHover(int x, int y) {
             boolean hovered = UIHelper.isMouseOver(getX(), getY(), getWidth(), getHeight(), x, y);
             setHovered(hovered);
-            return hovered;
         }
     }
 

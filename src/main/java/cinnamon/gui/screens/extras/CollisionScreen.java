@@ -32,6 +32,8 @@ public class CollisionScreen extends ParentedScreen {
 
     @Override
     public void tick() {
+        super.tick();
+
         float sp = 3;
         if (l) motion.x -= sp;
         if (r) motion.x += sp;
