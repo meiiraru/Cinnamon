@@ -313,9 +313,10 @@ public abstract class Screen {
     }
 
     public boolean xrTriggerPress(int button, float value, int hand, float lastValue) {
-        if (lastValue < 1f && value >= 1f) {
+        float f = 0.5f;
+        if (lastValue < f && value >= f) {
             return this.mousePress(button, GLFW_PRESS, 0);
-        } else if (lastValue >= 1f && value < 1f) {
+        } else if (lastValue >= f && value < f) {
             return this.mousePress(button, GLFW_RELEASE, 0);
         }
         return false;
