@@ -31,11 +31,6 @@ public abstract class PhysEntity extends Entity {
         } else {
             setMotion(0, 0, 0);
         }
-
-        //entity collisions
-        for (Entity entity : world.getEntities(aabb))
-            if (entity != this && !entity.isRemoved())
-                collide(entity);
     }
 
     protected void tickPhysics() {
@@ -47,10 +42,14 @@ public abstract class PhysEntity extends Entity {
         onGround = false;
 
         //check for terrain collisions
-        Vector3f toMove = tickCollisions();
+        Vector3f toMove = tickTerrainCollisions();
+
+        //entity collisions
+        tickEntityCollisions(toMove);
 
         //move entity
-        moveTo(pos.x + toMove.x, pos.y + toMove.y, pos.z + toMove.z);
+        if (toMove.lengthSquared() > 0f)
+            moveTo(pos.x + toMove.x, pos.y + toMove.y, pos.z + toMove.z);
 
         //decrease motion
         motionFallout();
@@ -81,7 +80,7 @@ public abstract class PhysEntity extends Entity {
 
     // -- terrain collisions -- //
 
-    protected Vector3f tickCollisions() {
+    protected Vector3f tickTerrainCollisions() {
         //early exit
         if (motion.lengthSquared() < 0.001f)
             return motion.mul(0, new Vector3f());
@@ -131,6 +130,12 @@ public abstract class PhysEntity extends Entity {
     }
 
     // -- entity collisions -- //
+
+    protected void tickEntityCollisions(Vector3f toMove) {
+        for (Entity entity : world.getEntities(new AABB(aabb).expand(toMove)))
+            if (entity != this && !entity.isRemoved())
+                collide(entity);
+    }
 
     protected Vector3f checkEntityCollision(Entity entity) {
         //get AABB

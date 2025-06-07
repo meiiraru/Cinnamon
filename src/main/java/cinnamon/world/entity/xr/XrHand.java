@@ -42,6 +42,8 @@ public class XrHand extends PhysEntity {
 
     @Override
     protected void tickPhysics() {
+        super.tickPhysics();
+
         XrHandTransform transform = XrRenderer.getHandTransform(hand);
 
         Camera c = Client.getInstance().camera;

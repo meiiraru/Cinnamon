@@ -33,9 +33,6 @@ public class XrRenderer {
 
     //rendering
     public static final float DEPTH_OFFSET = 0.01f;
-    public static final float
-            NEAR_PLANE = 0.1f,
-            FAR_PLANE = 100f;
 
     //gui
     public static final int
@@ -83,7 +80,7 @@ public class XrRenderer {
         XrQuaternionf orientation = pose.orientation();
 
         Camera camera = Client.getInstance().camera;
-        camera.setProjFrustum(distToLeftPlane, distToRightPlane, distToBottomPlane, distToTopPlane, NEAR_PLANE, FAR_PLANE);
+        camera.setProjFrustum(distToLeftPlane, distToRightPlane, distToBottomPlane, distToTopPlane, Camera.NEAR_PLANE, Camera.FAR_PLANE);
         camera.setXrTransform(pos.x(), pos.y(), pos.z(), orientation.x(), orientation.y(), orientation.z(), orientation.w());
 
         //render whatever it is going to render
@@ -175,7 +172,8 @@ public class XrRenderer {
             //flip the model for the left hand
             boolean lefty = i % 2 == 0;
             if (lefty) {
-                matrices.scale(-1, 1, 1);
+                matrices.peek().pos().scale(-1, 1, 1);
+                matrices.peek().normal().scale(-1, 1, 1);
                 glFrontFace(GL_CW);
             }
 
@@ -193,6 +191,10 @@ public class XrRenderer {
         int activeHand = XrInput.getActiveHand();
         XrHandTransform hand = userPoses.get(activeHand);
 
+        //skip unmoved hand
+        if (hand.pos().lengthSquared() == 0)
+            return;
+
         //prepare the renderer
         boolean lefty = activeHand % 2 == 0;
         WorldRenderer.prepareOutlineBuffer(Client.getInstance().camera);
@@ -201,7 +203,8 @@ public class XrRenderer {
         matrices.pushMatrix();
         applyHandMatrix(hand, matrices);
         if (lefty) {
-            matrices.scale(-1, 1, 1);
+            matrices.peek().pos().scale(-1, 1, 1);
+            matrices.peek().normal().scale(-1, 1, 1);
             glFrontFace(GL_CW);
         }
 
@@ -225,13 +228,20 @@ public class XrRenderer {
         Client c = Client.getInstance();
         //no screen - no collision
         if (c.screen == null) {
-            screenCollision = -1f;
+            screenCollided = false;
             return;
         }
 
         //calculate mouse position from the current hand pose
         XrHandTransform transform = userPoses.get(XrInput.getActiveHand());
         Vector3f pos = transform.pos();
+
+        //do not collide if the hand is not moved
+        if (pos.lengthSquared() == 0) {
+            screenCollided = false;
+            return;
+        }
+
         Quaternionf rot = transform.rot();
         Vector3f dir = new Vector3f(0, 0, -1).rotate(rot).mul(RAYCAST_DISTANCE);
 
@@ -252,7 +262,6 @@ public class XrRenderer {
             c.mouseMove(screen.x, screen.y);
         } else {
             screenCollided = false;
-            screenCollision = 0.5f;
         }
     }
 
