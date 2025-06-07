@@ -4,12 +4,14 @@ import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.DamageType;
+import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.particle.DustParticle;
 import cinnamon.world.world.World;
+import org.joml.Vector3f;
 
 import java.util.UUID;
 
@@ -92,8 +94,8 @@ public abstract class Projectile extends PhysEntity {
     }
 
     @Override
-    protected void collide(Entity entity) {
-        super.collide(entity);
+    protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {
+        super.collide(entity, result, toMove);
 
         if (isRemoved() || entity.getUUID().equals(getOwner()))
             return;

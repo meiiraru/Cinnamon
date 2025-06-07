@@ -132,9 +132,18 @@ public abstract class PhysEntity extends Entity {
     // -- entity collisions -- //
 
     protected void tickEntityCollisions(Vector3f toMove) {
-        for (Entity entity : world.getEntities(new AABB(aabb).expand(toMove)))
-            if (entity != this && !entity.isRemoved())
-                collide(entity);
+        Vector3f pos = aabb.getCenter();
+        Vector3f inflate = aabb.getDimensions().mul(0.5f);
+
+        for (Entity entity : world.getEntities(new AABB(aabb).expand(toMove))) {
+            if (entity == this || entity.isRemoved())
+                continue;
+
+            AABB temp = new AABB(entity.getAABB()).inflate(inflate);
+            CollisionResult result = CollisionDetector.collisionRay(temp, pos, toMove);
+            if (result != null)
+                collide(entity, result, toMove);
+        }
     }
 
     protected Vector3f checkEntityCollision(Entity entity) {
@@ -149,7 +158,7 @@ public abstract class PhysEntity extends Entity {
         );
     }
 
-    protected void collide(Entity entity) {}
+    protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {}
 
     // -- movement logic -- //
 

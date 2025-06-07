@@ -4,7 +4,9 @@ import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.world.AIBehaviour;
 import cinnamon.world.DamageType;
+import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.Entity;
+import org.joml.Vector3f;
 
 import java.util.UUID;
 
@@ -35,8 +37,8 @@ public class Enemy extends LivingEntity {
     }
 
     @Override
-    protected void collide(Entity entity) {
-        super.collide(entity);
+    protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {
+        super.collide(entity, result, toMove);
         if (entity instanceof Player p)
             p.damage(this, DamageType.MELEE, MELEE_DAMAGE, false);
     }

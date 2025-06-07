@@ -4,7 +4,9 @@ import cinnamon.Client;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.world.DamageType;
+import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.Entity;
+import org.joml.Vector3f;
 
 import java.util.UUID;
 
@@ -17,9 +19,9 @@ public class Dummy extends LivingEntity {
     }
 
     @Override
-    protected void collide(Entity entity) {
+    protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {
         //do nothing
-        //super.collide(entity);
+        //super.collide(entity, result, toMove);
     }
 
     @Override

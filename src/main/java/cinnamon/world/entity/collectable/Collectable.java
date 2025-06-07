@@ -32,8 +32,8 @@ public abstract class Collectable extends PhysEntity {
     }
 
     @Override
-    protected void collide(Entity entity) {
-        super.collide(entity);
+    protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {
+        super.collide(entity, result, toMove);
         if (!isRemoved() && onPickUp(entity))
             this.remove();
     }
