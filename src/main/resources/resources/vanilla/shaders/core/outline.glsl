@@ -12,7 +12,7 @@ uniform sampler2D outlineTex;
 uniform vec2 textelSize;
 
 uniform int numSteps = 12;
-uniform float radius = 3.0f;
+uniform float radius = 4.0f;
 
 const float TAU = 6.28318530;
 

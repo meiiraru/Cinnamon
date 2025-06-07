@@ -109,4 +109,17 @@ public class XrHand extends PhysEntity {
     public int getHand() {
         return hand;
     }
+
+    public void applyTransform(XrGrabbable grabbable) {
+        XrHandTransform transform = XrRenderer.getHandTransform(hand);
+
+        Camera c = Client.getInstance().camera;
+        Vector3f pos = new Vector3f(transform.pos());
+        pos.add(new Vector3f(hand % 2 == 0 ? 0.05f : -0.05f, 0, 0).rotate(transform.rot()));
+        pos.rotate(c.getRot());
+        pos.add(c.getPos());
+
+        grabbable.moveTo(pos);
+        grabbable.rotateToWithRiders(getRot());
+    }
 }

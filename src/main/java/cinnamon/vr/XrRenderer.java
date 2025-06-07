@@ -2,14 +2,18 @@ package cinnamon.vr;
 
 import cinnamon.Client;
 import cinnamon.model.GeometryHelper;
+import cinnamon.model.ModelManager;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
+import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.utils.AABB;
+import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionDetector;
 import cinnamon.world.collisions.CollisionResult;
 import org.joml.Math;
@@ -21,9 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static cinnamon.vr.XrManager.swapchains;
-import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.opengl.GL11.*;
 
 public class XrRenderer {
+
+    public static final Resource HAND_PATH = new Resource("models/xr/hands/paw.obj");
 
     //rendering
     public static final float DEPTH_OFFSET = 0.01f;
@@ -47,6 +53,8 @@ public class XrRenderer {
 
     private static boolean screenCollided = false;
     private static float screenCollision = -1f;
+
+    private static ModelRenderer handModel;
 
     static void free() {
         framebuffer.free();
@@ -124,10 +132,17 @@ public class XrRenderer {
         matrices.translate(-GUI_WIDTH / 2f, -GUI_HEIGHT / 2f, 0);
     }
 
+    public static void removeGUITransform(MatrixStack matrices) {
+        matrices.translate(GUI_WIDTH / 2f, GUI_HEIGHT / 2f, 0);
+        matrices.scale(1f / GUI_SCALE, 1f / -GUI_SCALE, 1f / GUI_SCALE);
+        matrices.translate(0, 0, GUI_DISTANCE);
+    }
+
     static void setHands(int size) {
         userPoses.clear();
         for (int i = 0; i < size; i++)
             userPoses.add(new XrHandTransform());
+        handModel = ModelManager.load(HAND_PATH);
     }
 
     static void updateHand(int hand, XrHandTransform transform) {
@@ -142,31 +157,63 @@ public class XrRenderer {
 
     private static void applyHandMatrix(XrHandTransform hand, MatrixStack matrices) {
         matrices.translate(hand.pos());
-        matrices.scale(0.02f);
+        matrices.scale(0.1f);
         matrices.rotate(hand.rot());
     }
 
     public static void renderHands(MatrixStack matrices) {
-        for (XrHandTransform hand : userPoses) {
+        for (int i = 0; i < userPoses.size(); i++) {
+            //skip unmoved hands
+            XrHandTransform hand = userPoses.get(i);
             if (hand.pos().lengthSquared() == 0)
                 continue;
+
+            //apply the hand matrix
             matrices.pushMatrix();
             applyHandMatrix(hand, matrices);
-            VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 0.75f, 0.75f, 0.75f, -0.75f, -0.75f, -0.75f, 0xAAFF72AD));
-            VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, -0.4f, -0.4f, -0.4f, 0.4f, 0.4f, 0.4f, 0xFFFF72AD));
+
+            //flip the model for the left hand
+            boolean lefty = i % 2 == 0;
+            if (lefty) {
+                matrices.scale(-1, 1, 1);
+                glFrontFace(GL_CW);
+            }
+
+            //render
+            handModel.render(matrices);
+
+            //clear the rendering
             matrices.popMatrix();
+            if (lefty) glFrontFace(GL_CCW);
         }
     }
 
     public static void renderHandLaser(MatrixStack matrices) {
+        //grab the active hand
         int activeHand = XrInput.getActiveHand();
         XrHandTransform hand = userPoses.get(activeHand);
 
+        //prepare the renderer
+        boolean lefty = activeHand % 2 == 0;
+        WorldRenderer.prepareOutlineBuffer(Client.getInstance().camera);
+
+        //apply the hand matrices
         matrices.pushMatrix();
         applyHandMatrix(hand, matrices);
-        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 0.8f, 0.8f, 0.8f, -0.8f, -0.8f, -0.8f, 0xAAFFFFFF));
-        matrices.popMatrix();
+        if (lefty) {
+            matrices.scale(-1, 1, 1);
+            glFrontFace(GL_CW);
+        }
 
+        //render
+        handModel.render(matrices);
+
+        //cleanup
+        matrices.popMatrix();
+        WorldRenderer.finishOutlines(s -> s.setFloat("radius", 8f));
+        if (lefty) glFrontFace(GL_CCW);
+
+        //render the laser
         if (isScreenCollided()) {
             Vector3f pos = hand.pos();
             Vector3f dir = new Vector3f(0, 0, -1).mul(screenCollision).rotate(hand.rot()).add(pos);

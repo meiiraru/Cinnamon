@@ -1,0 +1,8 @@
+# Blender 4.4.3 MTL File: 'None'
+# www.blender.org
+
+newmtl Material
+map_Kd -smooth texture_diffuse.png
+map_Pm -smooth texture_metallic.png
+map_Pr -smooth texture_roughness.png
+map_Bump -smooth texture_normal.png

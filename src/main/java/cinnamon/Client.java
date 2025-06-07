@@ -182,13 +182,8 @@ public class Client {
         glClear(GL_DEPTH_BUFFER_BIT);
 
         //xr GUI transform
-        if (XrManager.isInXR()) {
-            if (this.screen != null) {
-                XrRenderer.renderHands(matrices);
-                XrRenderer.renderHandLaser(matrices);
-            }
+        if (XrManager.isInXR())
             XrRenderer.applyGUITransform(matrices);
-        }
 
         //run gui events
         events.runEvents(EventType.RENDER_BEFORE_GUI);
@@ -388,7 +383,7 @@ public class Client {
     public void windowFocused(boolean focused) {
         if (screen != null) {
             screen.windowFocused(focused);
-        } else if (world != null && !focused) {
+        } else if (world != null && !focused && !XrManager.isInXR()) {
             this.setScreen(new PauseScreen());
         }
 

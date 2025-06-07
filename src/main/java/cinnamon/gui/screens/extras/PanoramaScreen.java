@@ -10,6 +10,7 @@ import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
+import cinnamon.settings.Settings;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
@@ -23,7 +24,6 @@ import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 public class PanoramaScreen extends ParentedScreen {
 
     private static final Resource MODEL = new Resource("models/misc/inverted_sphere.obj");
-    private static final float ROTATION_SNAP = 45f;
 
     private final ModelRenderer sphere;
     private Texture texture;
@@ -105,6 +105,11 @@ public class PanoramaScreen extends ParentedScreen {
     }
 
     @Override
+    protected void renderXrHands(MatrixStack matrices, float delta) {
+        //nope
+    }
+
+    @Override
     public boolean mousePress(int button, int action, int mods) {
         boolean sup = super.mousePress(button, action, mods);
         if (sup || dragged) {
@@ -147,17 +152,16 @@ public class PanoramaScreen extends ParentedScreen {
     }
 
     @Override
-    public boolean scroll(double x, double y) {
-        if (super.scroll(x, y))
-            return true;
-
-        xrRotY += ROTATION_SNAP * (float) x;
+    public boolean filesDropped(String[] files) {
+        texture = Texture.of(new Resource("", files[0]), SMOOTH_SAMPLING);
         return true;
     }
 
     @Override
-    public boolean filesDropped(String[] files) {
-        texture = Texture.of(new Resource("", files[0]), SMOOTH_SAMPLING);
+    public boolean xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
+        float f2 = 0.7f;
+        int dxx = lastX < f2 && x >= f2 ? 1 : lastX > -f2 && x <= -f2 ? -1 : 0;
+        if (dxx != 0) xrRotY += dxx * Settings.xrSnapTurningAngle.get();
         return true;
     }
 }

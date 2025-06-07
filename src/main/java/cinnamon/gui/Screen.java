@@ -15,6 +15,7 @@ import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.settings.Settings;
 import cinnamon.utils.Resource;
+import cinnamon.utils.UIHelper;
 import cinnamon.vr.XrInput;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
@@ -238,18 +239,41 @@ public abstract class Screen {
             matrices.popMatrix();
         }
 
-        if (shouldRenderMouse()) {
-            matrices.pushMatrix();
-            matrices.translate(0f, 0f, 3f);
-            VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, mouseX - 16, mouseY - 16, 32, 32), GUIStyle.getDefault().getResource("cursor"));
-            if (Settings.xrClickOnHover.get())
-                VertexConsumer.MAIN.consume(GeometryHelper.progressSquare(matrices, mouseX, mouseY, 16, (xrHoverTime + 0.999f - 1f) / (Settings.xrClickOnHoverDelay.get() - 1f), 0xFFFFFFFF), GUIStyle.getDefault().getResource("cursor_hold"));
-            matrices.popMatrix();
+        if (shouldRenderMouse())
+            renderMouse(matrices, mouseX, mouseY, delta);
+
+        if (XrManager.isInXR())
+            renderXrHands(matrices, delta);
+
+        VertexConsumer.finishAllBatches(client.camera);
+    }
+
+    protected void renderMouse(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        matrices.pushMatrix();
+        matrices.translate(0f, 0f, 3f);
+
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, mouseX - 16, mouseY - 16, 32, 32), GUIStyle.getDefault().getResource("cursor"));
+        if (Settings.xrClickOnHover.get()) {
+            matrices.translate(0, 0, UIHelper.getDepthOffset());
+            VertexConsumer.MAIN.consume(GeometryHelper.progressSquare(matrices, mouseX, mouseY, 16, (xrHoverTime + delta - 1f) / (Settings.xrClickOnHoverDelay.get() - 1f), 0xFFFFFFFF), GUIStyle.getDefault().getResource("cursor_hold"));
         }
 
-        glDisable(GL_DEPTH_TEST);
-        VertexConsumer.finishAllBatches(client.camera);
-        glEnable(GL_DEPTH_TEST);
+        matrices.popMatrix();
+    }
+
+    protected void renderXrHands(MatrixStack matrices, float delta) {
+        Shader old = Shader.activeShader;
+        Shaders.MODEL.getShader().use().setup(Client.getInstance().camera);
+        matrices.pushMatrix();
+
+        XrRenderer.removeGUITransform(matrices);
+        XrRenderer.renderHands(matrices);
+
+        Shaders.OUTLINE.getShader().use();
+        XrRenderer.renderHandLaser(matrices);
+
+        matrices.popMatrix();
+        old.use();
     }
 
     protected boolean shouldRenderMouse() {

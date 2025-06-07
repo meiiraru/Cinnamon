@@ -1,5 +1,6 @@
 package cinnamon.world.entity.xr;
 
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.PhysEntity;
@@ -34,12 +35,14 @@ public abstract class XrGrabbable extends PhysEntity {
         super.render(matrices, delta);
     }
 
-    protected void moveToHand() {
-        if (hand == null)
-            return;
+    @Override
+    public boolean shouldRender(Camera camera) {
+        return isGrabbed() || super.shouldRender(camera);
+    }
 
-        moveTo(hand.getPos());
-        rotateToWithRiders(hand.getRot());
+    protected void moveToHand() {
+        if (hand != null)
+            hand.applyTransform(this);
     }
 
     public void grab(XrHand hand) {

@@ -9,6 +9,8 @@ import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.world.world.WorldClient;
 
+import java.util.function.Consumer;
+
 public class WorldRenderer {
 
     public static final PBRDeferredFramebuffer PBRFrameBuffer = new PBRDeferredFramebuffer(1, 1);
@@ -65,12 +67,15 @@ public class WorldRenderer {
         return s;
     }
 
-    public static void finishOutlines() {
+    public static void finishOutlines(Consumer<Shader> outlineConsumer) {
         //prepare outline
         previousFramebuffer.use();
         Shader outline = Shaders.OUTLINE.getShader().use();
         outline.setVec2("textelSize", 1f / WorldRenderer.outlineFramebuffer.getWidth(), 1f / WorldRenderer.outlineFramebuffer.getHeight());
         outline.setTexture("outlineTex", WorldRenderer.outlineFramebuffer.getColorBuffer(), 0);
+        outline.setFloat("radius", 4f);
+        if (outlineConsumer != null)
+            outlineConsumer.accept(outline);
 
         //render outline
         Blit.renderQuad();

@@ -266,7 +266,7 @@ public class WorldClient extends World {
         }
 
         //finish rendering
-        WorldRenderer.finishOutlines();
+        WorldRenderer.finishOutlines(null);
         VertexConsumer.clearBatches();
     }
 
