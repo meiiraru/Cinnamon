@@ -68,6 +68,11 @@ public class XrHand extends PhysEntity {
     }
 
     @Override
+    protected Vector3f tickTerrainCollisions() {
+        return new Vector3f();
+    }
+
+    @Override
     protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {
         if (targetEntity == null && entity instanceof XrGrabbable grabbable && !grabbable.isGrabbed()) {
             targetEntity = grabbable;

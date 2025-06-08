@@ -338,6 +338,9 @@ public class WorldClient extends World {
     }
 
     protected void renderWorld(Camera camera, MatrixStack matrices, float delta) {
+        if (XrManager.isInXR() && client.screen == null)
+            renderXrHands(camera, matrices);
+
         //render terrain
         renderedChunks = 0;
         renderedTerrain = 0;
@@ -432,6 +435,14 @@ public class WorldClient extends World {
 
         //finish rendering
         client.camera.useOrtho(true);
+    }
+
+    protected void renderXrHands(Camera camera, MatrixStack matrices) {
+        matrices.pushMatrix();
+        matrices.translate(camera.getPos());
+        matrices.rotate(camera.getRot());
+        XrRenderer.renderHands(matrices);
+        matrices.popMatrix();
     }
 
     public void renderHUD(MatrixStack matrices, float delta) {
