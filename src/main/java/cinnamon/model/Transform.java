@@ -32,7 +32,9 @@ public class Transform {
                 pos.y - pivot.y,
                 pos.z - pivot.z
         );
+    }
 
+    public void reset() {
         scale.set(1f);
         rot.set(0f);
         pos.set(0f);

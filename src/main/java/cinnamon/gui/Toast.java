@@ -29,6 +29,10 @@ public class Toast {
     // -- toast functions -- //
 
 
+    public static Toast addToast(String text) {
+        return addToast(Text.of(text));
+    }
+
     public static Toast addToast(Text text) {
         Toast toast = new Toast(text);
         TOASTS.add(toast);

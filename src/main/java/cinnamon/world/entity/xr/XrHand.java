@@ -74,7 +74,7 @@ public class XrHand extends PhysEntity {
 
     @Override
     protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {
-        if (targetEntity == null && entity instanceof XrGrabbable grabbable && !grabbable.isGrabbed()) {
+        if (targetEntity == null && entity instanceof XrGrabbable grabbable) {
             targetEntity = grabbable;
             XrInput.vibrate(hand);
         }
@@ -101,7 +101,9 @@ public class XrHand extends PhysEntity {
     }
 
     public void grab() {
-        if (targetEntity != null && !targetEntity.isGrabbed()) {
+        if (targetEntity != null) {
+            if (targetEntity.isGrabbed())
+                targetEntity.getHand().yoink();
             isGrabbing = true;
             targetEntity.grab(this);
         }
@@ -110,6 +112,11 @@ public class XrHand extends PhysEntity {
     public void release() {
         if (targetEntity != null && targetEntity.getHand() == this)
             targetEntity.release();
+        targetEntity = null;
+        isGrabbing = false;
+    }
+
+    protected void yoink() {
         targetEntity = null;
         isGrabbing = false;
     }

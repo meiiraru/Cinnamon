@@ -10,7 +10,7 @@ public class Resource {
 
     public Resource(String path) {
         int index = path.indexOf(":");
-        if (index > 0) {
+        if (index > -1) {
             this.namespace = path.substring(0, index);
             this.path = path.substring(index + 1);
         } else {
