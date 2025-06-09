@@ -82,14 +82,20 @@ public class AABB {
         return maxZ >= other.minZ && minZ <= other.maxZ;
     }
 
+    public boolean isInside(AABB other) {
+        return other.minX >= minX && other.maxX <= maxX &&
+               other.minY >= minY && other.maxY <= maxY &&
+               other.minZ >= minZ && other.maxZ <= maxZ;
+    }
+
     public boolean isInside(Vector3f point) {
         return this.isInside(point.x, point.y, point.z);
     }
 
     public boolean isInside(float x, float y, float z) {
-        return  x >= minX && x <= maxX &&
-                y >= minY && y <= maxY &&
-                z >= minZ && z <= maxZ;
+        return x >= minX && x <= maxX &&
+               y >= minY && y <= maxY &&
+               z >= minZ && z <= maxZ;
     }
 
     public AABB translate(Vector3f vec) {

@@ -27,7 +27,6 @@ import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
-import cinnamon.world.worldgen.chunk.Chunk;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -410,7 +409,6 @@ public class Hud {
         Vector3f cpos = c.camera.getPosition();
         Vector3f crot = Maths.quatToEuler(c.camera.getRotation());
 
-        Vector3f chunk = new Vector3f(w.getChunkGridPos(epos));
         String face = Direction.fromRotation(crot.y).name;
 
         String camera;
@@ -431,8 +429,7 @@ public class Hud {
 
                         [&bworld&r]
                          &e%s&r/&e%s&r entities &e%s&r/&e%s&r particles
-                         &e%s&r/&e%s&r chunks &e%s&r terrain
-                         &e%s&r light sources
+                         &e%s&r/&e%s&r terrain &e%s&r light sources
                          &e%s&r sounds
                          time &e%s&r
  
@@ -441,8 +438,6 @@ public class Hud {
                          x &c%.3f&r y &a%.3f&r z &b%.3f&r
                          pitch &e%.3f&r yaw &e%.3f&r
                          motion &c%.3f &a%.3f &b%.3f&r
-                         chunk &c%.0f &a%.0f &b%.0f&r
-                         region x &c%.3f&r y &a%.3f&r z &b%.3f&r
 
                         [&bcamera&r]
                          x &c%.3f&r y &a%.3f&r z &b%.3f&r
@@ -460,8 +455,7 @@ public class Hud {
                 c.fps, c.ms,
 
                 w.getRenderedEntities(), w.entityCount(), w.getRenderedParticles(), w.particleCount(),
-                w.getRenderedChunks(), w.chunkCount(), w.getRenderedTerrain(),
-                w.lightCount(),
+                w.getRenderedTerrain(), w.getExpectedRenderedTerrain(), w.lightCount(),
                 soundCount,
                 w.getTime(),
 
@@ -469,8 +463,6 @@ public class Hud {
                 epos.x, epos.y, epos.z,
                 erot.x, erot.y,
                 emot.x, emot.y, emot.z,
-                chunk.x, chunk.y, chunk.z,
-                epos.x % Chunk.CHUNK_SIZE, epos.y % Chunk.CHUNK_SIZE, epos.z % Chunk.CHUNK_SIZE,
 
                 cpos.x, cpos.y, cpos.z,
                 crot.x, crot.y, crot.z,

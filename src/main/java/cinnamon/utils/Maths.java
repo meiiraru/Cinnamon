@@ -309,6 +309,14 @@ public class Maths {
         return mat;
     }
 
+    public static int nextPowerOfTwo(float x) {
+        int value = (int) Math.ceil(x);
+        int power = 1;
+        while (power < value)
+            power <<= 1;
+        return power;
+    }
+
     private static final String[] SIZE_UNITS = {"b", "kb", "mb", "gb"};
     public static String prettyByteSize(double size) {
         int i = 0;

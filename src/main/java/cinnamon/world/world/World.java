@@ -16,10 +16,9 @@ import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.particle.ExplosionParticle;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.terrain.Terrain;
-import cinnamon.world.worldgen.TerrainGenerator;
-import cinnamon.world.worldgen.chunk.Chunk;
+import cinnamon.world.worldgen.OctreeTerrain;
+import cinnamon.world.worldgen.TerrainManager;
 import org.joml.Vector3f;
-import org.joml.Vector3i;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -30,15 +29,15 @@ public abstract class World {
 
     protected final Queue<Runnable> scheduledTicks = new LinkedList<>();
 
-    protected final Map<Vector3i, Chunk> chunks = new HashMap<>();
+    protected final TerrainManager terrainManager = new OctreeTerrain(new AABB().inflate(16));
     protected final Map<UUID, Entity> entities = new HashMap<>();
     protected final List<Particle> particles = new ArrayList<>();
 
     public final float updateTime = 1f / Client.TPS;
     public final float gravity = 0.98f * updateTime;
 
-    public final int renderDistance = 5;
-    public final int entityRenderDistance = 3;
+    public final int renderDistance = 192;
+    public final int entityRenderDistance = 96;
     protected int timeOfTheDay = 0;
 
     public abstract void init();
@@ -52,8 +51,7 @@ public abstract class World {
         runScheduledTicks();
 
         //terrain
-        for (Chunk chunk : chunks.values())
-            chunk.tick();
+        terrainManager.tick();
 
         //entities
         for (Entity e : entities.values())
@@ -84,23 +82,6 @@ public abstract class World {
             toRun.run();
     }
 
-    public Vector3i getChunkGridPos(Vector3f worldPos) {
-        return getChunkGridPos(worldPos.x, worldPos.y, worldPos.z);
-    }
-
-    public Vector3i getChunkGridPos(float x, float y, float z) {
-        return new Vector3i(
-                (int) Math.floor(x / Chunk.CHUNK_SIZE),
-                (int) Math.floor(y / Chunk.CHUNK_SIZE),
-                (int) Math.floor(z / Chunk.CHUNK_SIZE)
-        );
-    }
-
-    public void addChunk(Chunk chunk) {
-        this.chunks.put(chunk.getGridPos(), chunk);
-        chunk.onAdded(this);
-    }
-
     public void addEntity(Entity entity) {
         scheduledTicks.add(() -> {
             this.entities.put(entity.getUUID(), entity);
@@ -115,27 +96,15 @@ public abstract class World {
         });
     }
 
-    public void setTerrain(Terrain terrain, Vector3i pos) {
-        setTerrain(terrain, pos.x, pos.y, pos.z);
-    }
-
     public void setTerrain(Terrain terrain, float x, float y, float z) {
-        Vector3i cPos = getChunkGridPos(x, y, z);
-        Vector3i tPos = new Vector3i(
-                (int) x - cPos.x * Chunk.CHUNK_SIZE,
-                (int) y - cPos.y * Chunk.CHUNK_SIZE,
-                (int) z - cPos.z * Chunk.CHUNK_SIZE
-        );
-
-        Chunk c = chunks.get(cPos);
-        if (c == null) {
-            c = TerrainGenerator.emptyChunk(cPos.x, cPos.y, cPos.z);
-            addChunk(c);
-        }
-
-        c.setTerrain(terrain, tPos.x, tPos.y, tPos.z);
-        if (terrain != null)
+        if (terrain != null) {
+            terrain.setPos(x, y, z);
             scheduledTicks.add(() -> terrain.onAdded(this));
+            terrainManager.insert(terrain);
+        } else {
+            //remove terrain if it is null
+            terrainManager.remove(new AABB(x, y, z, x, y, z).translate(0.5f, 0.5f, 0.5f));
+        }
     }
 
     public SoundInstance playSound(Resource sound, SoundCategory category, Vector3f position) {
@@ -148,39 +117,8 @@ public abstract class World {
         return entities.size();
     }
 
-    public int chunkCount() {
-        return chunks.size();
-    }
-
     public int particleCount() {
         return particles.size();
-    }
-
-    public Chunk getChunk(Vector3i pos) {
-        return chunks.get(pos);
-    }
-
-    public Chunk getChunk(int x, int y, int z) {
-        return getChunk(new Vector3i(x, y, z));
-    }
-
-    public List<Chunk> getChunks(AABB region) {
-        List<Chunk> list = new ArrayList<>();
-
-        Vector3i min = getChunkGridPos(region.getMin());
-        Vector3i max = getChunkGridPos(region.getMax());
-
-        for (int x = min.x; x <= max.x; x++) {
-            for (int y = min.y; y <= max.y; y++) {
-                for (int z = min.z; z <= max.z; z++) {
-                    Chunk chunk = getChunk(x, y, z);
-                    if (chunk != null)
-                        list.add(chunk);
-                }
-            }
-        }
-
-        return list;
     }
 
     public List<Entity> getEntities(AABB region) {
@@ -189,18 +127,6 @@ public abstract class World {
             if (region.intersects(entity.getAABB()))
                 list.add(entity);
         }
-        return list;
-    }
-
-    public List<Terrain> getTerrain(AABB region) {
-        List<Terrain> list = new ArrayList<>();
-
-        for (Chunk chunk : getChunks(region)) {
-            Vector3i pos = chunk.getGridPos();
-            AABB aabb = new AABB(region).translate(-pos.x * Chunk.CHUNK_SIZE, -pos.y * Chunk.CHUNK_SIZE, -pos.z * Chunk.CHUNK_SIZE);
-            list.addAll(chunk.getTerrainInArea(aabb));
-        }
-
         return list;
     }
 
@@ -215,7 +141,7 @@ public abstract class World {
 
     public List<AABB> getTerrainCollisions(AABB region) {
         List<AABB> list = new ArrayList<>();
-        for (Terrain terrain : getTerrain(region))
+        for (Terrain terrain : terrainManager.query(region))
             list.addAll(terrain.getPreciseAABB());
         return list;
     }
@@ -260,7 +186,7 @@ public abstract class World {
         Terrain tempTerrain = null;
 
         //loop through terrain in area
-        for (Terrain t : getTerrain(area)) {
+        for (Terrain t : terrainManager.query(area)) {
             //loop through its groups AABBs
             for (AABB aabb : t.getPreciseAABB()) {
                 //check for collision

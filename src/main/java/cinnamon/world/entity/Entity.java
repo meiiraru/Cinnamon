@@ -456,7 +456,6 @@ public abstract class Entity extends WorldObject {
     }
 
     public float getRenderDistance() {
-        float f = getWorld().entityRenderDistance;
-        return 1024f * f * f;
+        return 1024f * getWorld().entityRenderDistance;
     }
 }

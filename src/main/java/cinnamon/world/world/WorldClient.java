@@ -49,11 +49,9 @@ import cinnamon.world.light.Light;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.TerrainGenerator;
-import cinnamon.world.worldgen.chunk.Chunk;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import org.joml.Vector3i;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,7 +86,7 @@ public class WorldClient extends World {
     private boolean renderShadowMap;
 
     //counters
-    protected int renderedEntities, renderedChunks, renderedTerrain, renderedParticles;
+    protected int renderedEntities, renderedTerrain, expectedRenderedTerrain, renderedParticles;
 
     @Override
     public void init() {
@@ -120,13 +118,13 @@ public class WorldClient extends World {
 
     protected void tempLoad() {
         //load level
-        int radius = 1;
-        for (int i = -radius; i < radius; i++) {
-            for (int j = -radius; j < radius; j++) {
-                Chunk c = TerrainGenerator.generatePlain(i, 0, j);
-                chunks.put(c.getGridPos(), c);
-            }
-        }
+        int r = 32;
+        TerrainGenerator.fill(this, -r, 0, -r, r, 0, r, MaterialRegistry.GRASS);
+
+        //0, 0
+        Terrain t = TerrainRegistry.BOX.getFactory().get();
+        t.setMaterial(MaterialRegistry.COBBLESTONE);
+        setTerrain(t, 0, 0, 0);
 
         //menger sponge
         TerrainGenerator.generateMengerSponge(this, 2, -23, 1, -23);
@@ -272,7 +270,7 @@ public class WorldClient extends World {
 
     protected void renderShadows(Camera camera, MatrixStack matrices, float delta) {
         //prepare matrix
-        float r = Chunk.CHUNK_SIZE * 2 * 0.5f;
+        float r = renderDistance * 0.5f;
         Matrix4f lightProjection = new Matrix4f().ortho(-r, r, -r, r, -r, r);
 
         //setup camera
@@ -319,35 +317,18 @@ public class WorldClient extends World {
         camera.updateFrustum();
     }
 
-    protected List<Chunk> getChunksToRender(Camera camera) {
-        List<Chunk> list = new ArrayList<>();
-
-        Vector3i startingPoint = getChunkGridPos(camera.getPos());
-        for (int x = -renderDistance; x <= renderDistance; x++) {
-            for (int y = -renderDistance; y <= renderDistance; y++) {
-                for (int z = -renderDistance; z <= renderDistance; z++) {
-                    Vector3i pos = new Vector3i(startingPoint).add(x, y, z);
-                    Chunk c = chunks.get(pos);
-                    if (c != null)
-                        list.add(c);
-                }
-            }
-        }
-
-        return list;
-    }
-
     protected void renderWorld(Camera camera, MatrixStack matrices, float delta) {
         if (XrManager.isInXR() && client.screen == null)
             renderXrHands(camera, matrices);
 
         //render terrain
-        renderedChunks = 0;
+        List<Terrain> query = terrainManager.queryCustom(camera::isInsideFrustum);
         renderedTerrain = 0;
-        for (Chunk chunk : getChunksToRender(camera)) {
-            if (chunk.shouldRender(camera)) {
-                renderedTerrain += chunk.render(camera, matrices, delta);
-                renderedChunks++;
+        expectedRenderedTerrain = query.size();
+        for (Terrain terrain : query) {
+            if (terrain.shouldRender(camera)) {
+                terrain.render(matrices, delta);
+                renderedTerrain++;
             }
         }
 
@@ -461,8 +442,14 @@ public class WorldClient extends World {
         area.translate(cameraPos);
         area.inflate(8f);
 
-        for (Terrain t : getTerrain(area))
+        for (Terrain t : terrainManager.query(area))
             t.renderDebugHitbox(matrices, delta);
+
+        //debug octree bounds
+        for (AABB aabb : terrainManager.getBounds()) {
+            Vector3f min = aabb.getMin(); Vector3f max = aabb.getMax();
+            VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFF00FF00));
+        }
 
         Entity cameraEntity = camera.getEntity();
         for (Entity e : getEntities(area)) {
@@ -528,12 +515,12 @@ public class WorldClient extends World {
         s.setVec3("camPos", client.camera.getPosition());
 
         //fog
-        s.setFloat("fogStart", Chunk.getFogStart(this));
-        s.setFloat("fogEnd", Chunk.getFogEnd(this));
-        s.setColor("fogColor", Chunk.fogColor);
+        s.setFloat("fogStart", renderDistance * 0.5f);
+        s.setFloat("fogEnd", renderDistance);
+        s.setColor("fogColor", 0xBFD3DE);
 
         //lighting
-        s.setColor("ambient", 0xFFFFFF);//Chunk.ambientLight);
+        s.setColor("ambient", 0xFFFFFF);
 
         s.setInt("lightCount", lights.size());
         for (int i = 0; i < lights.size(); i++)
@@ -571,12 +558,12 @@ public class WorldClient extends World {
         return list;
     }
 
-    public int getRenderedChunks() {
-        return renderedChunks;
-    }
-
     public int getRenderedTerrain() {
         return renderedTerrain;
+    }
+
+    public int getExpectedRenderedTerrain() {
+        return expectedRenderedTerrain;
     }
 
     public int getRenderedEntities() {

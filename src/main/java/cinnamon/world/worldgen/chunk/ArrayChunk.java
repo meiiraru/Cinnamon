@@ -6,10 +6,8 @@ import cinnamon.utils.AABB;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class ArrayChunk extends Chunk {
