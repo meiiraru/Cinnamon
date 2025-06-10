@@ -103,8 +103,12 @@ public abstract class World {
             terrainManager.insert(terrain);
         } else {
             //remove terrain if it is null
-            terrainManager.remove(new AABB(x, y, z, x, y, z).translate(0.5f, 0.5f, 0.5f));
+            terrainManager.remove(new AABB(x, y, z, x, y, z));
         }
+    }
+
+    public void removeTerrain(Terrain terrain) {
+        terrainManager.remove(terrain);
     }
 
     public SoundInstance playSound(Resource sound, SoundCategory category, Vector3f position) {

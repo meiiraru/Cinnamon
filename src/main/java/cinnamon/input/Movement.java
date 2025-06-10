@@ -43,10 +43,10 @@ public class Movement {
 
             if (Settings.left.get().isPressed()) movement.x -= 1;
             if (Settings.right.get().isPressed()) movement.x += 1;
+            if (jump) movement.y += 1;
+            if (sneak) movement.y -= 1;
             if (Settings.forward.get().isPressed()) movement.z += 1;
             if (Settings.backward.get().isPressed()) movement.z -= 1;
-
-            movement.y = jump ? 1 : sneak ? -1 : 0;
 
             sprint = !sneak && movement.z > 0 && (sprint || Settings.sprint.get().isPressed());
         }

@@ -37,7 +37,7 @@ public class TerrainGenerator {
                 for (int y = 0; y < size; y++) {
                     for (int z = 0; z < size; z++) {
                         if (mod[x] + mod[y] + mod[z] > 1) {
-                            world.setTerrain(null, x + xOffset, y + yOffset, z + zOffset);
+                            world.setTerrain(null, x + xOffset + 0.5f, y + yOffset + 0.5f, z + zOffset + 0.5f);
                         } else if (i == 1) {
                             Terrain terr = TerrainRegistry.BOX.getFactory().get();
                             terr.setMaterial(MaterialRegistry.GOLD);

@@ -39,6 +39,11 @@ public class OctreeTerrain extends TerrainManager {
         root.clearRegion(region);
     }
 
+    @Override
+    public void remove(Terrain terrain) {
+        root.removeElement(terrain);
+    }
+
     public boolean isEmpty() {
         return root.isEmpty();
     }
@@ -148,6 +153,19 @@ public class OctreeTerrain extends TerrainManager {
                 if (!added)
                     contents.add(terrain);
             }
+        }
+
+        public void removeElement(Terrain terrain) {
+            if (contents.remove(terrain))
+                return;
+
+            if (children != null)
+                for (OctreeNode child : children)
+                    child.removeElement(terrain);
+
+            //remove children if they are empty
+            if (isChildEmpty())
+                children = null;
         }
 
         public void clearRegion(AABB region) {

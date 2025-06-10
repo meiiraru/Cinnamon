@@ -437,26 +437,39 @@ public class WorldClient extends World {
     }
 
     protected void renderHitboxes(Camera camera, MatrixStack matrices, float delta) {
+        Entity cameraEntity = camera.getEntity();
         Vector3f cameraPos = camera.getPos();
         AABB area = new AABB();
         area.translate(cameraPos);
         area.inflate(8f);
 
-        for (Terrain t : terrainManager.query(area))
-            t.renderDebugHitbox(matrices, delta);
-
-        //debug octree bounds
+        //octree
         for (AABB aabb : terrainManager.getBounds()) {
             Vector3f min = aabb.getMin(); Vector3f max = aabb.getMax();
             VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFF00FF00));
         }
 
-        Entity cameraEntity = camera.getEntity();
+        //terrain
+        for (Terrain t : terrainManager.query(area))
+            t.renderDebugHitbox(matrices, delta);
+
+        //placement terrain
+        Hit<Terrain> hit = cameraEntity.getLookingTerrain(cameraEntity.getPickRange());
+        if (hit != null) {
+            Vector3f pos = new Vector3f(hit.pos()).floor();
+            if (hit.get() != null && pos.equals(hit.get().getPos()))
+                pos.add(hit.collision().normal());
+
+            VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, pos.x, pos.y, pos.z, pos.x + 1, pos.y + 1, pos.z + 1, 0xFFFF0000));
+        }
+
+        //entities
         for (Entity e : getEntities(area)) {
             if (e != cameraEntity || isThirdPerson())
                 e.renderDebugHitbox(matrices, delta);
         }
 
+        //particles
         for (Particle p : getParticles(area))
             p.renderDebugHitbox(matrices, delta);
 
@@ -584,6 +597,7 @@ public class WorldClient extends World {
 
     public void mousePress(int button, int action, int mods) {
         Keybind.mousePress(button, action, mods);
+        this.interaction.tick(player);
     }
 
     public void mouseMove(double x, double y) {

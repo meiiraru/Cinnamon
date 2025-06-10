@@ -87,9 +87,7 @@ public class LocalPlayer extends Player {
 
         Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
         if (hit != null && hit.obj() instanceof Terrain t && lastMouseTime <= 0) {
-            Vector3f pos = t.getPos();
-            getWorld().setTerrain(null, (int) pos.x, (int) pos.y, (int) pos.z);
-
+            getWorld().removeTerrain(t);
             lastMouseTime = getInteractionDelay();
             return true;
         }
@@ -110,14 +108,15 @@ public class LocalPlayer extends Player {
 
         Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
         if (hit != null && hit.obj() instanceof Terrain t && lastMouseTime <= 0) {
-            Vector3f dir = hit.collision().normal();
-            Vector3f tpos = new Vector3f(t.getPos()).add(dir);
+            Vector3f tpos = new Vector3f(hit.pos()).floor();
+            if (tpos.equals(t.getPos()))
+                tpos.add(hit.collision().normal());
 
             AABB entities = new AABB().translate(tpos).expand(1f, 1f, 1f);
             if (getWorld().getEntities(entities).isEmpty()) {
                 Terrain tt = TerrainRegistry.values()[selectedTerrain].getFactory().get();
                 tt.setMaterial(MaterialRegistry.values()[selectedMaterial]);
-                getWorld().setTerrain(tt, (int) tpos.x, (int) tpos.y, (int) tpos.z);
+                getWorld().setTerrain(tt, tpos.x, tpos.y, tpos.z);
                 tt.setRotation(Direction.fromRotation(getRot().y).invRotation);
 
                 lastMouseTime = getInteractionDelay();
