@@ -86,6 +86,9 @@ public class ExtrasScreen extends ParentedScreen {
         list.addWidget(new Label(0, 0, Text.of("\n").appendTranslated("gui.extras_screen.other").append("\n")));
 
         //CPF validator
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.other.hdr_fix", button -> client.setScreen(new HDRFixScreen(this))));
+
+        //CPF validator
         list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.other.cpf_validator", button -> client.setScreen(new CPFScreen(this))));
 
         //spacing (literally)

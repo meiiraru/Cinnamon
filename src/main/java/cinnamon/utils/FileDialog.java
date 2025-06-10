@@ -209,7 +209,7 @@ public class FileDialog {
     public static class Filter {
         public static final Filter
                 TEXT_FILES = new Filter("Text files", "txt"),
-                IMAGE_FILES = new Filter("Image files", "png,jpg,jpeg,bmp,gif"),
+                IMAGE_FILES = new Filter("Image files", "png,jpg,jpeg,bmp,gif,hdr"),
                 AUDIO_FILES = new Filter("Audio files", "ogg");
 
         private final String description, fileTypes;

@@ -4,6 +4,9 @@
   "gui.default": "Padrão",
   "gui.none": "Nenhum",
   "gui.help": "Ajuda",
+  "gui.open": "Abrir",
+  "gui.save": "Salvar",
+  "gui.ok": "Ok",
 
   "gui.main_menu.singleplayer": "Um Jogador",
   "gui.main_menu.multiplayer": "Multijogador",
@@ -39,6 +42,7 @@
   "gui.extras_screen.games.dvd_screensaver": "Protetor de Tela de DVD",
   "gui.extras_screen.games.wordle": "Wordle",
   "gui.extras_screen.other": "Outros",
+  "gui.extras_screen.other.hdr_fix": "Ajuste HDR",
   "gui.extras_screen.other.cpf_validator": "Validador de CPF",
 
   "gui.death_screen.died": "VOCÊ MORREU",
@@ -95,6 +99,11 @@
   "gui.wordle.stats": "Estatísticas",
   "gui.wordle.last_word": "Última Palavra\n%1$s",
   "gui.wordle.game_count": "Jogo\n%1$s",
+
+  "gui.hdr_fix_screen.gamma": "Gamma %1$s\npadrão %2$s",
+  "gui.hdr_fix_screen.saved": "Imagem salva!",
+  "gui.hdr_fix_screen.error.load": "Falha ao abrir imagem",
+  "gui.hdr_fix_screen.error.save": "Falha ao salvar imagem",
 
   "gui.cpf_screen.hint": "CPF...",
   "gui.cpf_screen.valid": "CPF Válido",

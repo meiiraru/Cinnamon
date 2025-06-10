@@ -84,7 +84,7 @@ public class TextureIO {
             }
 
             //write file
-            outputPath = IOUtils.parseNonDuplicatePath(outputPath);
+            IOUtils.createOrGetPath(outputPath);
             IOUtils.writeImage(outputPath, img);
 
             //unbind texture
