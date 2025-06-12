@@ -3,6 +3,7 @@ package cinnamon.world.entity.living;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.utils.Maths;
+import cinnamon.world.Abilities;
 import cinnamon.world.DamageType;
 import cinnamon.world.entity.Entity;
 import org.joml.Vector3f;
@@ -15,13 +16,13 @@ public class Player extends LivingEntity {
     private static final int INVULNERABILITY_TIME = 10;
     private static final int INVENTORY_SIZE = 9;
 
+    private final Abilities abilities = new Abilities();
+
     private int invulnerability = 0;
     private Entity damageSource;
     private int damageSourceTicks = 0;
 
     private boolean sprinting, sneaking, flying;
-
-    private boolean godMode = false;
 
     public Player(String name, UUID uuid) {
         this(name, uuid, LivingModelRegistry.STRAWBERRY);
@@ -71,7 +72,21 @@ public class Player extends LivingEntity {
     }
 
     @Override
+    protected Vector3f tickTerrainCollisions() {
+        return abilities.noclip() ? new Vector3f(motion) : super.tickTerrainCollisions();
+    }
+
+    @Override
+    protected void tickEntityCollisions(Vector3f toMove) {
+        if (!abilities.noclip())
+            super.tickEntityCollisions(toMove);
+    }
+
+    @Override
     public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
+        if (getAbilities().godMode())
+            return false;
+
         if (type == DamageType.MELEE) {
             if (invulnerability > 0)
                 return false;
@@ -104,7 +119,7 @@ public class Player extends LivingEntity {
     public void updateMovementFlags(boolean sneaking, boolean sprinting, boolean flying) {
         this.sneaking = sneaking;
         this.sprinting = sprinting;
-        this.flying = flying;
+        this.flying = (flying && abilities.canFly()) || abilities.noclip();
 
         if (this.isRiding() && sneaking)
             this.stopRiding();
@@ -161,11 +176,7 @@ public class Player extends LivingEntity {
         return flying;
     }
 
-    public boolean isGod() {
-        return godMode;
-    }
-
-    public void setGodMode(boolean godMode) {
-        this.godMode = godMode;
+    public Abilities getAbilities() {
+        return abilities;
     }
 }

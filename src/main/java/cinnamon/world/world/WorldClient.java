@@ -362,7 +362,8 @@ public class WorldClient extends World {
                 renderHitResults(cameraEntity, matrices);
             }
 
-            renderTargetedBlock(cameraEntity, matrices, delta);
+            if (player.getAbilities().canBuild())
+                renderTargetedBlock(cameraEntity, matrices, delta);
         }
     }
 
@@ -610,6 +611,15 @@ public class WorldClient extends World {
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
+        if (key == GLFW_KEY_LEFT_ALT) {
+            if (action == GLFW_PRESS) {
+                client.window.unlockMouse();
+            } else if (action == GLFW_RELEASE) {
+                client.window.lockMouse();
+                resetMovement();
+            }
+        }
+
         Keybind.keyPress(key, scancode, action, mods);
 
         if (action == GLFW_RELEASE)
@@ -624,6 +634,7 @@ public class WorldClient extends World {
         boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
 
         switch (key) {
+            case GLFW_KEY_N -> player.getAbilities().noclip(!player.getAbilities().noclip());
             case GLFW_KEY_R -> {
                 Item i = player.getHoldingItem();
                 if (i instanceof Weapon weapon && !weapon.isOnCooldown() && i.getCount() < i.getStackCount())
@@ -691,7 +702,7 @@ public class WorldClient extends World {
     public void respawn(boolean init) {
         player = new LocalPlayer();
         player.setPos(0.5f, init ? 0f : 100f, 0.5f);
-        player.setGodMode(true);
+        player.getAbilities().godMode(true).canFly(true);
         givePlayerItems(player);
         this.addEntity(player);
 

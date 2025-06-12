@@ -319,7 +319,7 @@ public class Client {
 
         if (screen != null) {
             screen.keyPress(key, scancode, action, mods);
-        } else if (world != null && window.isMouseLocked()) {
+        } else if (world != null) {
             world.keyPress(key, scancode, action, mods);
         }
 

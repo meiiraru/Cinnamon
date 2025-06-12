@@ -85,6 +85,9 @@ public class LocalPlayer extends Player {
         if (super.attackAction())
             return true;
 
+        if (!getAbilities().canBuild())
+            return false;
+
         Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
         if (hit != null && hit.obj() instanceof Terrain t && lastMouseTime <= 0) {
             getWorld().removeTerrain(t);
@@ -105,6 +108,9 @@ public class LocalPlayer extends Player {
     public boolean useAction() {
         if (super.useAction())
             return true;
+
+        if (!getAbilities().canBuild())
+            return false;
 
         Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
         if (hit != null && hit.obj() instanceof Terrain t && lastMouseTime <= 0) {
@@ -134,6 +140,9 @@ public class LocalPlayer extends Player {
     }
 
     public void pick() {
+        if (!getAbilities().canBuild())
+            return;
+
         Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
         if (hit != null && hit.obj() instanceof Terrain t) {
             selectedTerrain = t.getType().ordinal();
@@ -149,6 +158,6 @@ public class LocalPlayer extends Player {
     }
 
     private int getInteractionDelay() {
-        return isGod() ? 5 : 7;
+        return getAbilities().godMode() ? 5 : 7;
     }
 }
