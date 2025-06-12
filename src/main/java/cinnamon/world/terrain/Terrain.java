@@ -74,7 +74,7 @@ public class Terrain extends WorldObject {
             return;
         }
 
-        float r = (float) Math.toRadians(getRotationAngle());
+        float r = getRotationAngle();
         this.aabb = this.model.getAABB().rotateY(r).translate(pos.x + 0.5f, pos.y, pos.z + 0.5f);
 
         this.preciseAABB.clear();

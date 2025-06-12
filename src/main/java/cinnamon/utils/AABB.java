@@ -125,13 +125,14 @@ public class AABB {
     }
 
     public AABB inflate(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {
-        this.minX -= minX;
-        this.minY -= minY;
-        this.minZ -= minZ;
-        this.maxX += maxX;
-        this.maxY += maxY;
-        this.maxZ += maxZ;
-        return this;
+        return this.set(
+                this.minX - minX,
+                this.minY - minY,
+                this.minZ - minZ,
+                this.maxX + maxX,
+                this.maxY + maxY,
+                this.maxZ + maxZ
+        );
     }
 
     public AABB expand(Vector3f vec) {
@@ -161,13 +162,14 @@ public class AABB {
 
     public AABB scale(float x, float y, float z) {
         Vector3f center = getCenter();
-        minX = (minX - center.x) * x + center.x;
-        minY = (minY - center.y) * y + center.y;
-        minZ = (minZ - center.z) * z + center.z;
-        maxX = (maxX - center.x) * x + center.x;
-        maxY = (maxY - center.y) * y + center.y;
-        maxZ = (maxZ - center.z) * z + center.z;
-        return this;
+        return set(
+                (minX - center.x) * x + center.x,
+                (minY - center.y) * y + center.y,
+                (minZ - center.z) * z + center.z,
+                (maxX - center.x) * x + center.x,
+                (maxY - center.y) * y + center.y,
+                (maxZ - center.z) * z + center.z
+        );
     }
 
     public float minX() {
@@ -269,33 +271,54 @@ public class AABB {
     }
 
     public AABB rotateX(float angle) {
-        Vector3f min = getMin();
-        Vector3f max = getMax();
+        if (angle == 0f)
+            return this;
 
-        min.rotateX(angle);
-        max.rotateX(angle);
+        double a = Math.toRadians(angle);
+        double sin = Math.sin(a), cos = Math.cos(a);
 
-        return this.set(min, max);
+        return set(
+                minX,
+                (float) (minY * cos - minZ * sin),
+                (float) (minY * sin + minZ * cos),
+                maxX,
+                (float) (maxY * cos - maxZ * sin),
+                (float) (maxY * sin + maxZ * cos)
+        );
     }
 
     public AABB rotateY(float angle) {
-        Vector3f min = getMin();
-        Vector3f max = getMax();
+        if (angle == 0f)
+            return this;
 
-        min.rotateY(angle);
-        max.rotateY(angle);
+        double a = Math.toRadians(angle);
+        double sin = Math.sin(a), cos = Math.cos(a);
 
-        return this.set(min, max);
+        return set(
+                (float) (minX * cos + minZ * sin),
+                minY,
+                (float) (-minX * sin + minZ * cos),
+                (float) (maxX * cos + maxZ * sin),
+                maxY,
+                (float) (-maxX * sin + maxZ * cos)
+        );
     }
 
     public AABB rotateZ(float angle) {
-        Vector3f min = getMin();
-        Vector3f max = getMax();
+        if (angle == 0f)
+            return this;
 
-        min.rotateZ(angle);
-        max.rotateZ(angle);
+        double a = Math.toRadians(angle);
+        double sin = Math.sin(a), cos = Math.cos(a);
 
-        return this.set(min, max);
+        return set(
+                (float) (minX * cos - minY * sin),
+                (float) (minX * sin + minY * cos),
+                minZ,
+                (float) (maxX * cos - maxY * sin),
+                (float) (maxX * sin + maxY * cos),
+                maxZ
+        );
     }
 
     public AABB applyMatrix(Matrix4f matrix) {
@@ -306,5 +329,10 @@ public class AABB {
         max.mulPosition(matrix);
 
         return this.set(min, max);
+    }
+
+    @Override
+    public String toString() {
+        return "(minX=" + minX + " minY=" + minY + " minZ=" + minZ + " maxX=" + maxX + " maxY=" + maxY + " maxZ=" + maxZ + ")";
     }
 }

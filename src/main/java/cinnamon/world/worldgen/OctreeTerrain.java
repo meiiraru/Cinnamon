@@ -19,42 +19,51 @@ public class OctreeTerrain extends TerrainManager {
 
     @Override
     public void tick() {
+        //tick the root node and all its children
         root.tick();
     }
 
     @Override
     public void insert(Terrain terrain) {
+        //nothing to insert
         if (terrain == null)
             return;
 
+        //if the octree is smaller than the terrain general bounds, grow the root node
         AABB terrainBB = terrain.getAABB();
         while (!root.bounds.isInside(terrainBB))
             growRoot(terrainBB);
 
+        //insert the terrain into the octree
         root.insert(terrain);
     }
 
     @Override
     public void remove(AABB region) {
+        //remove all terrains that intersect with the given region (loosely)
         root.clearRegion(region);
     }
 
     @Override
     public void remove(Terrain terrain) {
+        //remove the terrain from the octree
         root.removeElement(terrain);
     }
 
     public boolean isEmpty() {
+        //check if the root node is empty
         return root.isEmpty();
     }
 
     @Override
     public void clear() {
+        //clear the octree by clearing the root node
         root.clear();
     }
 
     @Override
     public List<Terrain> query(AABB region) {
+        //collect all the terrains that intersect with the given region (loosely)
         List<Terrain> result = new ArrayList<>();
         root.query(region, result);
         return result;
@@ -62,6 +71,7 @@ public class OctreeTerrain extends TerrainManager {
 
     @Override
     public List<Terrain> queryCustom(Predicate<AABB> aabbPredicate) {
+        //collect all the terrains that match the custom predicate of the node bounds
         List<Terrain> result = new ArrayList<>();
         root.queryCustom(aabbPredicate, result);
         return result;
@@ -69,12 +79,14 @@ public class OctreeTerrain extends TerrainManager {
 
     @Override
     public List<AABB> getBounds() {
+        //collect all the bounds from the octree
         List<AABB> boundsList = new ArrayList<>();
         collectBounds(root, boundsList);
         return boundsList;
     }
 
     private void collectBounds(OctreeNode node, List<AABB> boundsList) {
+        //add the boundaries to the list
         boundsList.add(node.bounds);
         if (node.children != null)
             for (OctreeNode child : node.children)
@@ -82,28 +94,22 @@ public class OctreeTerrain extends TerrainManager {
     }
 
     private void growRoot(AABB newBounds) {
-        Vector3f min = new Vector3f(
-                Math.min(root.bounds.minX(), newBounds.minX()),
-                Math.min(root.bounds.minY(), newBounds.minY()),
-                Math.min(root.bounds.minZ(), newBounds.minZ())
-        );
-        Vector3f max = new Vector3f(
-                Math.max(root.bounds.maxX(), newBounds.maxX()),
-                Math.max(root.bounds.maxY(), newBounds.maxY()),
-                Math.max(root.bounds.maxZ(), newBounds.maxZ())
-        );
+        //grab the new min/max bounds
+        Vector3f min = root.bounds.getMin().min(newBounds.getMin());
+        Vector3f max = root.bounds.getMax().max(newBounds.getMax());
 
-        //make cube bounds for the new root
+        //calculate the next power of two from the bounds size
         Vector3f size = max.sub(min);
         float half = Maths.nextPowerOfTwo(Maths.max(size) * 0.5f);
 
-        Vector3f center = min.add(size.x * 0.5f, size.y * 0.5f, size.z * 0.5f);
-        center.floor();
-
+        //create a new AABB that is centered around the old center and has expanded the new size
+        Vector3f center = root.bounds.getCenter();
         AABB biggerBounds = new AABB(center, center).inflate(half);
 
+        //create a new root node with the bigger bounds
+        //and move the old contents into it
         OctreeNode newRoot = new OctreeNode(biggerBounds);
-        newRoot.moveFromNode(root); //move everything into new root
+        newRoot.moveFromNode(root);
         this.root = newRoot;
     }
 
@@ -119,9 +125,11 @@ public class OctreeTerrain extends TerrainManager {
         }
 
         public void tick() {
+            //tick terrain
             for (Terrain terrain : contents)
                 terrain.tick();
 
+            //tick children
             if (children != null) {
                 for (OctreeNode child : children)
                     child.tick();
@@ -129,11 +137,14 @@ public class OctreeTerrain extends TerrainManager {
         }
 
         public void insert(Terrain terrain) {
+            //not on this bounds, skip
             if (!bounds.intersects(terrain.getAABB()))
                 return;
 
+            //if we have no children, we can add the terrain directly
             if (children == null) {
                 contents.add(terrain);
+                //however, if we have too many contents, we subdivide
                 if (contents.size() > MAX_CONTENTS) {
                     subdivide();
                     redistribute();
@@ -141,6 +152,7 @@ public class OctreeTerrain extends TerrainManager {
             } else {
                 boolean added = false;
 
+                //try to insert into a children if it fits
                 for (OctreeNode child : children) {
                     if (child.bounds.isInside(terrain.getAABB())) {
                         child.insert(terrain);
@@ -149,7 +161,7 @@ public class OctreeTerrain extends TerrainManager {
                     }
                 }
 
-                //it is too big or spans multiple children
+                //it did not fit, it is too big or spans multiple children
                 if (!added)
                     contents.add(terrain);
             }
@@ -169,11 +181,14 @@ public class OctreeTerrain extends TerrainManager {
         }
 
         public void clearRegion(AABB region) {
+            //not in region, skip
             if (!bounds.intersects(region))
                 return;
 
+            //remove all terrain that intersects with the region
             contents.removeIf(terrain -> terrain.getAABB().intersects(region));
 
+            //including children
             if (children != null)
                 for (OctreeNode child : children)
                     child.clearRegion(region);
@@ -184,10 +199,12 @@ public class OctreeTerrain extends TerrainManager {
         }
 
         public boolean isEmpty() {
+            //no contents and children all empty
             return contents.isEmpty() && isChildEmpty();
         }
 
         private boolean isChildEmpty() {
+            //we have a children, so check them
             if (children != null) {
                 for (OctreeNode child : children) {
                     if (!child.isEmpty())
@@ -195,37 +212,45 @@ public class OctreeTerrain extends TerrainManager {
                 }
             }
 
+            //nothing on here!
             return true;
         }
 
         public void clear() {
+            //wipe contents
             contents.clear();
 
+            //wipe children
             if (children != null) {
                 for (OctreeNode child : children)
                     child.clear();
-
                 children = null;
             }
         }
 
         public void query(AABB region, List<Terrain> result) {
+            //failed the bounds check, skip
             if (!bounds.intersects(region))
                 return;
 
+            //try adding all terrain from this node
+            //and check for the terrain bounds
             for (Terrain terrain : contents)
                 if (terrain.getAABB().intersects(region))
                     result.add(terrain);
 
+            //add from children
             if (children != null)
                 for (OctreeNode child : children)
                     child.query(region, result);
         }
 
         public void queryCustom(Predicate<AABB> aabbPredicate, List<Terrain> result) {
+            //failed the predicate, skip
             if (!aabbPredicate.test(bounds))
                 return;
 
+            //success, add all
             result.addAll(contents);
             if (children != null)
                 for (OctreeNode child : children)
@@ -248,6 +273,7 @@ public class OctreeTerrain extends TerrainManager {
         }
 
         private void redistribute() {
+            //readd the contents of this node into itself
             List<Terrain> oldContents = new ArrayList<>(contents);
             contents.clear();
             for (Terrain terrain : oldContents)
@@ -255,9 +281,11 @@ public class OctreeTerrain extends TerrainManager {
         }
 
         public void moveFromNode(OctreeNode node) {
+            //take all contents from the given node and insert them into this node
             for (Terrain terrain : node.contents)
                 insert(terrain);
 
+            //including the children
             if (node.children != null)
                 for (OctreeNode child : node.children)
                     moveFromNode(child);
