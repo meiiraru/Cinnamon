@@ -1,6 +1,6 @@
 package cinnamon.world.entity.living;
 
-import cinnamon.Client;
+import cinnamon.gui.DebugScreen;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.world.DamageType;
@@ -26,7 +26,7 @@ public class Dummy extends LivingEntity {
 
     @Override
     public boolean shouldRenderText() {
-        return super.shouldRenderText() && Client.getInstance().debug;
+        return super.shouldRenderText() && DebugScreen.isEntityTab();
     }
 
     @Override

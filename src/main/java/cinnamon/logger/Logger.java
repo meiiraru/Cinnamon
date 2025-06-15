@@ -59,7 +59,7 @@ public class Logger {
         for (LogOutput output : outputs) {
             if (output.shouldLog(level)) {
                 String logMessage = output.applyFormatting(calendar, threadName, level, name, msg);
-                output.write(logMessage, throwable);
+                output.write(level, logMessage, throwable);
             }
         }
     }

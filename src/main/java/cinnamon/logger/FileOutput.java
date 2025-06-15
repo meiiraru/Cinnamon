@@ -17,7 +17,7 @@ public class FileOutput extends LogOutput {
     }
 
     @Override
-    public void write(String message, Throwable throwable) {
+    public void write(Level level, String message, Throwable throwable) {
         fileWriter.print(message);
         if (throwable != null)
             throwable.printStackTrace(fileWriter);

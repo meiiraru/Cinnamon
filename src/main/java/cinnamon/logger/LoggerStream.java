@@ -21,13 +21,11 @@ public class LoggerStream extends PrintStream {
         @Override
         public void write(int b) {
             char c = (char) b;
-            if (c == '\n') {
-                if (!buffer.isEmpty()) {
-                    stringConsumer.accept(buffer.toString());
-                    buffer.setLength(0);
-                }
-            } else {
+            if (c != '\n') {
                 buffer.append(c);
+            } else if (!buffer.isEmpty()) {
+                stringConsumer.accept(buffer.toString());
+                buffer.setLength(0);
             }
         }
     }

@@ -1,6 +1,7 @@
 package cinnamon.world.entity;
 
 import cinnamon.Client;
+import cinnamon.gui.DebugScreen;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.registry.EntityRegistry;
@@ -58,7 +59,7 @@ public class Spawner<E extends Entity> extends Entity {
     protected void renderFeatures(MatrixStack matrices, float delta) {
         super.renderFeatures(matrices, delta);
 
-        if (entity != null || (!renderCooldown && ! Client.getInstance().debug))
+        if (entity != null || (!renderCooldown && !DebugScreen.isEntityTab()))
             return;
 
         matrices.pushMatrix();

@@ -2,6 +2,7 @@ package cinnamon.world.world;
 
 import cinnamon.Client;
 import cinnamon.animation.Animation;
+import cinnamon.gui.DebugScreen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.screens.world.ChatScreen;
 import cinnamon.gui.screens.world.DeathScreen;
@@ -357,10 +358,11 @@ public class WorldClient extends World {
 
         //render debug
         if (!hideHUD) {
-            if (client.debug) {
-                renderHitboxes(camera, matrices, delta);
+            if (DebugScreen.isPlayerTab())
                 renderHitResults(cameraEntity, matrices);
-            }
+
+            if (DebugScreen.isWorldRelatedTab())
+                renderHitboxes(camera, matrices, delta);
 
             if (player.getAbilities().canBuild())
                 renderTargetedBlock(cameraEntity, matrices, delta);
@@ -444,37 +446,45 @@ public class WorldClient extends World {
         area.translate(cameraPos);
         area.inflate(8f);
 
-        //octree
-        for (AABB aabb : terrainManager.getBounds()) {
-            Vector3f min = aabb.getMin(); Vector3f max = aabb.getMax();
-            VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFF00FF00));
+        if (DebugScreen.getSelectedTab() == 3) {
+            //lights
+            renderLights(area, cameraPos, matrices);
+
+            //particles
+            for (Particle p : getParticles(area))
+                p.renderDebugHitbox(matrices, delta);
         }
 
-        //terrain
-        for (Terrain t : terrainManager.query(area))
-            t.renderDebugHitbox(matrices, delta);
+        else if (DebugScreen.getSelectedTab() == 4) {
+            //octree
+            for (AABB aabb : terrainManager.getBounds()) {
+                Vector3f min = aabb.getMin();
+                Vector3f max = aabb.getMax();
+                VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFF00FF00));
+            }
 
-        //placement terrain
-        Hit<Terrain> hit = cameraEntity.getLookingTerrain(cameraEntity.getPickRange());
-        if (hit != null) {
-            Vector3f pos = new Vector3f(hit.pos()).floor();
-            if (hit.get() != null && pos.equals(hit.get().getPos()))
-                pos.add(hit.collision().normal());
+            //terrain
+            for (Terrain t : terrainManager.query(area))
+                t.renderDebugHitbox(matrices, delta);
 
-            VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, pos.x, pos.y, pos.z, pos.x + 1, pos.y + 1, pos.z + 1, 0xFFFF0000));
+            //placement terrain
+            Hit<Terrain> hit = cameraEntity.getLookingTerrain(cameraEntity.getPickRange());
+            if (hit != null) {
+                Vector3f pos = new Vector3f(hit.pos()).floor();
+                if (hit.get() != null && pos.equals(hit.get().getPos()))
+                    pos.add(hit.collision().normal());
+
+                VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, pos.x, pos.y, pos.z, pos.x + 1, pos.y + 1, pos.z + 1, 0xFFFF0000));
+            }
         }
 
-        //entities
-        for (Entity e : getEntities(area)) {
-            if (e != cameraEntity || isThirdPerson())
-                e.renderDebugHitbox(matrices, delta);
+        else if (DebugScreen.getSelectedTab() == 5) {
+            //entities
+            for (Entity e : getEntities(area)) {
+                if (e != cameraEntity || isThirdPerson())
+                    e.renderDebugHitbox(matrices, delta);
+            }
         }
-
-        //particles
-        for (Particle p : getParticles(area))
-            p.renderDebugHitbox(matrices, delta);
-
-        renderLights(area, cameraPos, matrices);
     }
 
     protected void renderLights(AABB area, Vector3f cameraPos, MatrixStack matrices) {

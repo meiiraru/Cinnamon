@@ -11,7 +11,7 @@ public class ConsoleOutput extends LogOutput {
     }
 
     @Override
-    public void write(String message, Throwable throwable) {
+    public void write(Level level, String message, Throwable throwable) {
         out.print(message);
         if (throwable != null)
             throwable.printStackTrace(out);

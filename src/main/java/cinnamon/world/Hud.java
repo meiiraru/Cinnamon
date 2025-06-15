@@ -1,6 +1,7 @@
 package cinnamon.world;
 
 import cinnamon.Client;
+import cinnamon.gui.DebugScreen;
 import cinnamon.gui.widgets.types.ProgressBar;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
@@ -9,17 +10,12 @@ import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shaders;
-import cinnamon.settings.Settings;
-import cinnamon.sound.SoundManager;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
 import cinnamon.vr.XrManager;
-import cinnamon.world.collisions.Hit;
 import cinnamon.world.effects.Effect;
-import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.items.CooldownItem;
 import cinnamon.world.items.Inventory;
@@ -27,8 +23,6 @@ import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
-import org.joml.Quaternionf;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -41,8 +35,7 @@ public class Hud {
             HOTBAR = new Resource("textures/gui/hud/hotbar.png"),
             VIGNETTE = new Resource("textures/gui/hud/vignette.png"),
             HIT_DIRECTION = new Resource("textures/gui/hud/hit_direction.png"),
-            HUD_STYLE = new Resource("data/gui_styles/hud.json"),
-            DEBUG_STYLE = new Resource("data/gui_styles/debug.json");
+            HUD_STYLE = new Resource("data/gui_styles/hud.json");
 
     protected ProgressBar health, itemCooldown;
 
@@ -68,7 +61,7 @@ public class Hud {
         VertexConsumer.finishAllBatches(c.camera);
 
         //draw crosshair separated
-        if (!c.debug && !XrManager.isInXR())
+        if (!DebugScreen.isActive() && !XrManager.isInXR())
             drawCrosshair(matrices);
     }
 
@@ -341,207 +334,5 @@ public class Hud {
         VertexConsumer.MAIN.finishBatch(c.camera);
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    }
-
-
-    // -- debug -- //
-
-
-    public static void renderDebug(MatrixStack matrices) {
-        matrices.pushMatrix();
-        matrices.translate(0f, 0f, 20f);
-
-        Client c = Client.getInstance();
-        Style style = Style.EMPTY.background(true).guiStyle(DEBUG_STYLE);
-
-        //render debug text
-        if (c.debug) {
-            TextUtils.parseColorFormatting(Text.of(debugLeftText(c))).withStyle(style).render(VertexConsumer.FONT, matrices, 4, 4);
-            TextUtils.parseColorFormatting(Text.of(debugRightText(c))).withStyle(style).render(VertexConsumer.FONT, matrices, c.window.getGUIWidth() - 4, 4, Alignment.TOP_RIGHT);
-
-            //render crosshair
-            renderDebugCrosshair(matrices);
-        } else if (Settings.showFPS.get() && (c.world == null || !c.world.hudHidden())) {
-            //Style style = Style.EMPTY.shadow(true);
-            Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(style).render(VertexConsumer.FONT, matrices, 4, 4);
-        }
-
-        matrices.popMatrix();
-    }
-
-    private static void renderDebugCrosshair(MatrixStack matrices) {
-        Client c = Client.getInstance();
-
-        matrices.pushMatrix();
-        matrices.translate(c.window.getGUIWidth() / 2f, c.window.getGUIHeight() / 2f, 0);
-        if (c.world != null)
-            matrices.scale(1, -1, 1);
-
-        matrices.rotate(c.camera.getRot().invert(new Quaternionf()));
-
-        float len = 10;
-        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000));
-        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 0, 1, 0, 1, len, 1, 0xFF00FF00));
-        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 0, 0, 1, 1, 1, len, 0xFF0000FF));
-
-        matrices.popMatrix();
-    }
-
-    private static String debugLeftText(Client c) {
-        int soundCount = SoundManager.getSoundCount();
-
-        WorldClient w = c.world;
-        if (w == null) {
-            return String.format("""
-                    Cinnamon v&e%s&r
-                    &e%s&r fps @ &e%s&r ms
-
-                    [&bworld&r]
-                     &cNo world loaded&r
-                    """, Version.CLIENT_VERSION, c.fps, c.ms);
-        }
-
-        Player p = w.player;
-
-        Vector3f epos = p.getPos();
-        Vector2f erot = p.getRot();
-        Vector3f emot = p.getMotion();
-        Vector3f cpos = c.camera.getPosition();
-        Vector3f crot = Maths.quatToEuler(c.camera.getRotation());
-
-        String face = Direction.fromRotation(crot.y).name;
-
-        String camera;
-        camera = switch (w.getCameraMode()) {
-            case 0 -> "First Person";
-            case 1 -> "Third Person (back)";
-            case 2 -> "Third Person (front)";
-            default -> "unknown";
-        };
-
-        float range = p.getPickRange();
-        String entity = getTargetedObjString(p.getLookingEntity(range), range);
-        String terrain = getTargetedObjString(p.getLookingTerrain(range), range);
-
-        return String.format("""
-                        Cinnamon v&e%s&r
-                        &e%s&r fps @ &e%s&r ms
-
-                        [&bworld&r]
-                         &e%s&r/&e%s&r entities &e%s&r/&e%s&r particles
-                         &e%s&r/&e%s&r terrain &e%s&r light sources
-                         &e%s&r sounds
-                         time &e%s&r
- 
-                        [&bplayer&r]
-                         &e%s&r %s
-                         x &c%.3f&r y &a%.3f&r z &b%.3f&r
-                         pitch &e%.3f&r yaw &e%.3f&r
-                         motion &c%.3f &a%.3f &b%.3f&r
-
-                        [&bcamera&r]
-                         x &c%.3f&r y &a%.3f&r z &b%.3f&r
-                         pitch &e%.3f&r yaw &e%.3f&r roll &e%.3f&r
-                         facing &e%s&r
-                         mode &e%s&r
-
-                        [&btargeted entity&r]
-                        %s
-
-                        [&btargeted terrain&r]
-                        %s
-                        """,
-                Version.CLIENT_VERSION,
-                c.fps, c.ms,
-
-                w.getRenderedEntities(), w.entityCount(), w.getRenderedParticles(), w.particleCount(),
-                w.getRenderedTerrain(), w.getExpectedRenderedTerrain(), w.lightCount(),
-                soundCount,
-                w.getTime(),
-
-                p.getName(), p.getUUID(),
-                epos.x, epos.y, epos.z,
-                erot.x, erot.y,
-                emot.x, emot.y, emot.z,
-
-                cpos.x, cpos.y, cpos.z,
-                crot.x, crot.y, crot.z,
-                face,
-                camera,
-
-                entity,
-                terrain
-        );
-    }
-
-    private static String debugRightText(Client c) {
-        Runtime r = Runtime.getRuntime();
-        long max = r.maxMemory();
-        long total = r.totalMemory();
-        long free = r.freeMemory();
-        long used = total - free;
-
-        Window w = c.window;
-        PostProcess post = c.postProcess == -1 ? null : PostProcess.EFFECTS[c.postProcess];
-
-        return String.format("""
-                [&bjava&r]
-                version &e%s&r\s
-                mem &e%s&r%% &e%s&r/&e%s&r\s
-                allocated &e%s&r%% &e%s&r\s
-
-                [&bsystem&r]
-                OS &e%s&r\s
-                %s\s
-                OpenGL &e%s&r\s
-
-                [&bwindow&r]
-                &e%s&r x &e%s&r\s
-                gui scale &e%s&r\s
-
-                [&beffects&r]
-                post process &e%s&r\s
-                3D anaglyph &e%s&r\s
-                """,
-                System.getProperty("java.version"),
-                used * 100 / max, Maths.prettyByteSize(used), Maths.prettyByteSize(max),
-                total * 100 / max, Maths.prettyByteSize(total),
-
-                System.getProperty("os.name"),
-                glGetString(GL_RENDERER),
-                glGetString(GL_VERSION),
-
-                w.width, w.height,
-                w.guiScale,
-
-                post == null ? "none" : post.name(),
-                c.anaglyph3D ? "on" : "off"
-        );
-    }
-
-    private static String getTargetedObjString(Hit<? extends WorldObject> hit, float range) {
-        if (hit == null)
-            return " ---";
-
-        Vector3f pos = hit.obj().getPos();
-        Vector3f hPos = hit.pos();
-        Vector3f normal = hit.collision().normal();
-        float distance = range * hit.collision().near();
-        String type = hit.obj().getType().name();
-        String extra = (hit.obj() instanceof Entity e) ? "\n uuid &e" + e.getUUID() + "&r" : (hit.obj() instanceof Terrain t) ? "\n rotation &e" + (int) t.getRotationAngle() + "&r" : "";
-        return String.format("""
-                 x &c%.3f&r y &a%.3f&r z &b%.3f&r
-                 hit pos x &c%.3f&r y &a%.3f&r z &b%.3f&r
-                 hit normal x &c%.3f&r y &a%.3f&r z &b%.3f&r
-                 hit distance &e%.3fm&r
-                 type &e%s&r%s
-                """,
-                pos.x, pos.y, pos.z,
-                hPos.x, hPos.y, hPos.z,
-                normal.x, normal.y, normal.z,
-                distance,
-                type,
-                extra
-        );
     }
 }

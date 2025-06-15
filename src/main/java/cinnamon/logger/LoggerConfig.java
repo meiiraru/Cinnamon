@@ -1,5 +1,6 @@
 package cinnamon.logger;
 
+import cinnamon.gui.DebugScreen;
 import cinnamon.utils.IOUtils;
 
 import java.nio.file.Files;
@@ -12,8 +13,8 @@ import static cinnamon.Client.LOGGER;
 public class LoggerConfig {
 
     public static final Path LOG_OUTPUT = IOUtils.ROOT_FOLDER.resolve("logs/log.log");
-    private static final String PATTERN = "[%1$tT] [%2$s/%3$s] (%4$s) %5$s%n";
-    private static final Level DEFAULT_LEVEL = Level.INFO;
+    public static final String PATTERN = "[%1$tT] [%2$s/%3$s] (%4$s) %5$s\n";
+    public static final Level DEFAULT_LEVEL = Level.INFO;
 
     public static void initialize() {
         //save old log file
@@ -27,7 +28,7 @@ public class LoggerConfig {
         System.setOut(new LoggerStream(LOGGER::info));
         System.setErr(new LoggerStream(LOGGER::error));
 
-        //debugLogLevels(logger);
+        //debugLogLevels(root);
 
         //log any gzip exceptions
         if (gzipException != null)
@@ -50,6 +51,9 @@ public class LoggerConfig {
         } catch (Exception e) {
             logger.error("Failed to create log file", e);
         }
+
+        //debug output
+        logger.addOutput(DebugScreen.LOG_OUTPUT);
     }
 
     private static Exception saveOldLog() {

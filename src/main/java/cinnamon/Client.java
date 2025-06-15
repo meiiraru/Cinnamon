@@ -3,12 +3,11 @@ package cinnamon;
 import cinnamon.events.Await;
 import cinnamon.events.EventType;
 import cinnamon.events.Events;
+import cinnamon.gui.DebugScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.screens.MainMenu;
 import cinnamon.gui.screens.world.PauseScreen;
-//import cinnamon.networking.ServerConnection;
-import cinnamon.input.InputManager;
 import cinnamon.logger.Logger;
 import cinnamon.logger.LoggerConfig;
 import cinnamon.render.Camera;
@@ -25,7 +24,6 @@ import cinnamon.utils.Timer;
 import cinnamon.utils.Version;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
-import cinnamon.world.Hud;
 import cinnamon.world.world.WorldClient;
 import org.lwjgl.system.Platform;
 
@@ -52,7 +50,6 @@ public class Client {
     public String name = "Player" + (int) (Math.random() * 1000);
     public UUID playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
 
-    public boolean debug;
     public int postProcess = -1;
     public boolean anaglyph3D = false;
 
@@ -208,10 +205,10 @@ public class Client {
 
         //debug hud always on top
         glClear(GL_DEPTH_BUFFER_BIT);
-        Hud.renderDebug(matrices);
-        VertexConsumer.finishAllBatches(camera);
+        DebugScreen.render(matrices, delta);
 
         //finish rendering
+        VertexConsumer.finishAllBatches(camera);
         matrices.popMatrix();
     }
 
@@ -271,6 +268,8 @@ public class Client {
     // -- glfw events -- //
 
     public void mousePress(int button, int action, int mods) {
+        if (DebugScreen.isActive() && DebugScreen.mousePress(button, action, mods))
+            return;
         if (screen != null)
             screen.mousePress(button, action, mods);
         else if (world != null && window.isMouseLocked())
@@ -280,13 +279,15 @@ public class Client {
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
+        if (DebugScreen.keyPress(key, scancode, action, mods))
+            return;
+
         if (action == GLFW_PRESS) {
             switch (key) {
                 case GLFW_KEY_F2 -> {
                     TextureIO.screenshot(window.width, window.height);
                     Toast.addToast(Text.of("Screenshot Taken!"));
                 }
-                case GLFW_KEY_F3 -> debug = !debug;
                 case GLFW_KEY_F9 -> {
                     boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
                     if (postProcess == -1)
@@ -299,21 +300,6 @@ public class Client {
                 case GLFW_KEY_F10 -> anaglyph3D = !anaglyph3D;
                 case GLFW_KEY_F11 -> window.toggleFullScreen();
                 case GLFW_KEY_ENTER -> {if ((mods & GLFW_MOD_ALT) != 0) window.toggleFullScreen();}
-                case GLFW_KEY_F12 -> {
-                    boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
-                    if (shift) {
-                        queueTick(() -> {
-                            if (screen != null)
-                                screen.rebuild();
-                        });
-                    } else {
-                        reloadAssets();
-                    }
-                }
-                case GLFW_KEY_X -> {
-                    if (InputManager.isKeyPressed(GLFW_KEY_F3))
-                        XrManager.init();
-                }
             }
         }
 
@@ -410,6 +396,8 @@ public class Client {
     }
 
     public void xrTriggerPress(int button, float value, int hand, float lastValue) {
+        if (DebugScreen.isActive() && DebugScreen.xrTriggerPress(button, value, hand, lastValue))
+            return;
         if (screen != null) {
             screen.xrTriggerPress(button, value, hand, lastValue);
         } else if (world != null && window.isMouseLocked()) {

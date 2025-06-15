@@ -2,6 +2,7 @@ package cinnamon.world.entity;
 
 import cinnamon.Client;
 import cinnamon.animation.Animation;
+import cinnamon.gui.DebugScreen;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.EntityRegistry;
@@ -129,7 +130,7 @@ public abstract class Entity extends WorldObject {
         Client client = Client.getInstance();
         return
                 !((WorldClient) world).hudHidden() &&
-                (client.camera.getEntity() != this || client.debug) &&
+                (client.camera.getEntity() != this || DebugScreen.isEntityTab()) &&
                 !WorldRenderer.isRenderingOutlines() &&
                 client.camera.getPos().distanceSquared(pos) <= 1024;
     }
