@@ -14,7 +14,8 @@
     "disabled_color":      "FF666666",
     "selected_text_color": "FF000000",
     "hint_color":          "FF5B8CCC",
-    "disabled_hint_color": "FF404040"
+    "disabled_hint_color": "FF404040",
+    "xr_interact_color":   "FFFFFFFF"
   },
 
   "resources": {

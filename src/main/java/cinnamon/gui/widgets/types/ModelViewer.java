@@ -6,6 +6,7 @@ import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.MaterialRegistry;
+import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
@@ -19,7 +20,7 @@ import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
 import cinnamon.vr.XrManager;
-import cinnamon.world.SkyBox;
+import cinnamon.world.Sky;
 import org.joml.Vector3f;
 
 import java.util.List;
@@ -31,12 +32,12 @@ import static org.lwjgl.opengl.GL11.*;
 public class ModelViewer extends SelectableWidget {
 
     private static final Framebuffer modelBuffer = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
-    private static final SkyBox the_skybox = new SkyBox();
+    private static final Sky theSky = new Sky();
 
     //properties
     private ModelRenderer model = null;
     private MaterialRegistry selectedMaterial = MaterialRegistry.DEFAULT;
-    private SkyBox.Type skybox = SkyBox.Type.WHITE;
+    private SkyBoxRegistry skybox = SkyBoxRegistry.WHITE;
 
     private boolean renderBounds, renderSkybox;
     private Consumer<MatrixStack> extraRendering;
@@ -54,10 +55,6 @@ public class ModelViewer extends SelectableWidget {
     private int anchorX = 0, anchorY = 0;
     private float anchorRotX = 0, anchorRotY = 0;
     private float anchorPosX = 0, anchorPosY = 0;
-
-    static {
-        the_skybox.renderSun = false;
-    }
 
     public ModelViewer(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -107,7 +104,7 @@ public class ModelViewer extends SelectableWidget {
         //render skybox
         if (renderSkybox) {
             Shaders.SKYBOX.getShader().use().setup(client.camera);
-            the_skybox.render(client.camera, matrices);
+            theSky.render(client.camera, matrices);
         }
 
         //setup shader
@@ -117,8 +114,8 @@ public class ModelViewer extends SelectableWidget {
         s.setFloat("fogStart", 1024);
         s.setFloat("fogEnd", 2048);
         s.setInt("lightCount", 0);
-        the_skybox.type = skybox;
-        the_skybox.pushToShader(s, Texture.MAX_TEXTURES - 1);
+        theSky.setSkyBox(skybox.resource);
+        theSky.pushToShader(s, Texture.MAX_TEXTURES - 1);
 
         //position
         matrices.translate(posX, -posY, -200f);
@@ -171,7 +168,7 @@ public class ModelViewer extends SelectableWidget {
         this.selectedMaterial = material;
     }
 
-    public void setSkybox(SkyBox.Type type) {
+    public void setSkybox(SkyBoxRegistry type) {
         skybox = type;
     }
 
@@ -179,7 +176,7 @@ public class ModelViewer extends SelectableWidget {
         return selectedMaterial;
     }
 
-    public SkyBox.Type getSkybox() {
+    public SkyBoxRegistry getSkybox() {
         return skybox;
     }
 

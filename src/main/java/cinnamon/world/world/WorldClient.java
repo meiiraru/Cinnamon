@@ -29,7 +29,7 @@ import cinnamon.vr.XrHandTransform;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.Hud;
-import cinnamon.world.SkyBox;
+import cinnamon.world.Sky;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.Spawner;
@@ -79,7 +79,7 @@ public class WorldClient extends World {
     protected final DirectionalLight sunLight = new DirectionalLight();
 
     //skybox
-    protected final SkyBox skyBox = new SkyBox();
+    protected final Sky sky = new Sky();
 
     //shadows
     private final Framebuffer shadowBuffer = new Framebuffer(2048, 2048, Framebuffer.DEPTH_BUFFER);
@@ -202,8 +202,8 @@ public class WorldClient extends World {
         client.camera.updateFrustum();
 
         //prepare sun
-        skyBox.setSunAngle(Maths.map(timeOfTheDay + delta, 0, 24000, 0, 360));
-        sunLight.direction(skyBox.getSunDirection());
+        sky.setSunAngle(Maths.map(timeOfTheDay + delta, 0, 24000, 0, 360));
+        sunLight.direction(sky.getSunDirection());
 
         //render shadows
         //renderShadows(client.camera, matrices, delta);
@@ -242,7 +242,7 @@ public class WorldClient extends World {
     protected void renderSky(MatrixStack matrices, float delta) {
         Shader s = Shaders.SKYBOX.getShader();
         s.use().setup(client.camera);
-        skyBox.render(client.camera, matrices);
+        sky.render(client.camera, matrices);
     }
 
     protected void renderOutlines(MatrixStack matrices, float delta) {
@@ -275,7 +275,7 @@ public class WorldClient extends World {
         Matrix4f lightProjection = new Matrix4f().ortho(-r, r, -r, r, -r, r);
 
         //setup camera
-        Vector3f dir = skyBox.getSunDirection();
+        Vector3f dir = sky.getSunDirection();
         Vector3f pos = new Vector3f(camera.getPos());
         Quaternionf rot = new Quaternionf(camera.getRot());
 
@@ -388,7 +388,7 @@ public class WorldClient extends World {
         Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
         s.setup(camera);
         applyWorldUniforms(s);
-        skyBox.pushToShader(s, Texture.MAX_TEXTURES - 1);
+        sky.pushToShader(s, Texture.MAX_TEXTURES - 1);
 
         matrices.pushMatrix();
 
@@ -541,7 +541,7 @@ public class WorldClient extends World {
         //fog
         s.setFloat("fogStart", renderDistance * 0.5f);
         s.setFloat("fogEnd", renderDistance);
-        s.setColor("fogColor", 0xBFD3DE);
+        s.setColor("fogColor", Sky.fogColor);
 
         //lighting
         s.setColor("ambient", 0xFFFFFF);
@@ -553,12 +553,12 @@ public class WorldClient extends World {
 
     public void applyShadowUniforms(Shader s) {
         s.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-        s.setVec3("shadowDir", skyBox.getSunDirection());
+        s.setVec3("shadowDir", sky.getSunDirection());
         s.setTexture("shadowMap", shadowBuffer.getDepthBuffer(), Texture.MAX_TEXTURES - 1);
     }
 
-    public SkyBox getSkyBox() {
-        return skyBox;
+    public Sky getSky() {
+        return sky;
     }
 
     public void addLight(Light light) {
@@ -658,10 +658,6 @@ public class WorldClient extends World {
             case GLFW_KEY_F7 -> this.timeOfTheDay -= 100;
             case GLFW_KEY_F8 -> this.timeOfTheDay += 100;
 
-            case GLFW_KEY_SLASH -> {
-                skyBox.type = SkyBox.Type.values()[(skyBox.type.ordinal() + 1) % SkyBox.Type.values().length];
-                Toast.addToast(Text.translated("skybox." + skyBox.type.name().toLowerCase())).type(Toast.ToastType.WORLD);
-            }
             case GLFW_KEY_COMMA -> player.setSelectedTerrain((player.getSelectedTerrain() + 1) % (TerrainRegistry.values().length));
             case GLFW_KEY_PERIOD -> player.setSelectedMaterial(Maths.modulo((player.getSelectedMaterial() + (shift ? -1 : 1)), MaterialRegistry.values().length));
 

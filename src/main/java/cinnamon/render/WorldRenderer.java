@@ -38,7 +38,7 @@ public class WorldRenderer {
         //world uniforms
         world.applyWorldUniforms(s);
         //world.applyShadowUniforms(s);
-        world.getSkyBox().pushToShader(s, Texture.MAX_TEXTURES - 1);
+        world.getSky().pushToShader(s, Texture.MAX_TEXTURES - 1);
 
         //gbuffer textures
         s.setInt("gPosition", 0);

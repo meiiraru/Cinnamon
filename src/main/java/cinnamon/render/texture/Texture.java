@@ -84,17 +84,20 @@ public class Texture {
     }
 
     private static Texture generateMissingTex() {
+        int w = 2, h = 2;
+
         //w * h * rgba
-        ByteBuffer pixels = MemoryUtil.memAlloc(16 * 16 * 4);
+        ByteBuffer pixels = MemoryUtil.memAlloc(w * h * 4);
 
         //paint texture
         //  Pink Black
         //  Black Pink
-        for (int y = 0; y < 16; y++) {
-            for (int x = 0; x < 16; x++) {
+        int hw = w / 2, hh = h / 2;
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
                 //x + y * w * rgba
-                int i = (x + y * 16) * 4;
-                boolean b = (x < 8 && y < 8) || (y >= 8 && x >= 8);
+                int i = (x + y * w) * 4;
+                boolean b = (x < hw && y < hh) || (y >= hh && x >= hw);
                 int col = b ? 0xFF << 24 : 0xFFAD72FF; //ABGR
                 pixels.putInt(i, col);
             }
@@ -103,12 +106,7 @@ public class Texture {
         pixels.flip();
 
         //return a new texture
-        return new Texture(registerTexture(16, 16, pixels, MIPMAP_SMOOTH.id), 16, 16) {
-            @Override
-            public void free() {
-                //do not free the missing texture
-            }
-        };
+        return new Texture(registerTexture(w, h, pixels, MIPMAP_SMOOTH.id), w, h);
     }
 
     //returns a 1x1 texture with a solid color

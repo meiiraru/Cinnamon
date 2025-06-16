@@ -24,6 +24,7 @@ import static org.lwjgl.openal.ALC11.ALC_DEFAULT_ALL_DEVICES_SPECIFIER;
 public class SoundManager {
 
     private static final Logger LOGGER = new Logger(Logger.ROOT_NAMESPACE + "/sound");
+    public static final int MAX_SOUND_INSTANCES = 256;
 
     private static final List<SoundInstance> sounds = new ArrayList<>();
     private static final List<String> devices = new ArrayList<>();
@@ -150,10 +151,17 @@ public class SoundManager {
     }
 
     public static SoundInstance playSound(Resource resource, SoundCategory category, Vector3f position) {
-        LOGGER.debug("Playing sound: %s", resource.getPath());
-
-        if (!initialized)
+        if (sounds.size() >= MAX_SOUND_INSTANCES) {
+            LOGGER.debug("Reached %s sound instances! Skipping sound \"%s\"", MAX_SOUND_INSTANCES, resource.getPath());
             return new SoundInstance(category);
+        }
+
+        if (!initialized) {
+            LOGGER.debug("Sound engine is not initialized! Skipping sound \"%s\"", resource.getPath());
+            return new SoundInstance(category);
+        }
+
+        LOGGER.debug("Playing sound \"%s\"", resource.getPath());
 
         SoundSource source = new SoundSource(resource, category, position);
         sounds.add(source);

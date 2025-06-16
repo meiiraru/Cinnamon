@@ -13,10 +13,10 @@ import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.CubeMap;
+import cinnamon.render.texture.SkyBox;
 import cinnamon.render.texture.Texture;
 import cinnamon.sound.Sound;
 import cinnamon.sound.SoundManager;
-import cinnamon.world.SkyBox;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +53,6 @@ public class Events {
         registerEvent(RESOURCE_INIT, o -> Shaders.loadAll());
         registerEvent(RESOURCE_INIT, o -> PostProcess.loadAllShaders());
         registerEvent(RESOURCE_INIT, o -> MaterialRegistry.loadAllMaterials());
-        registerEvent(RESOURCE_INIT, o -> SkyBox.Type.loadAll());
         registerEvent(RESOURCE_INIT, o -> MainMenu.initTextures());
         registerEvent(RESOURCE_INIT, o -> LangManager.init());
 
@@ -66,7 +65,7 @@ public class Events {
         registerEvent(RESOURCE_FREE, o -> PostProcess.free());
         registerEvent(RESOURCE_FREE, o -> ModelManager.free());
         registerEvent(RESOURCE_FREE, o -> MaterialManager.free());
-        registerEvent(RESOURCE_FREE, o -> SkyBox.Type.freeAll());
+        registerEvent(RESOURCE_FREE, o -> SkyBox.freeAll());
         registerEvent(RESOURCE_FREE, o -> VertexConsumer.freeBatches());
         registerEvent(RESOURCE_FREE, o -> GUIStyle.free());
         registerEvent(RESOURCE_FREE, o -> Font.freeAll());

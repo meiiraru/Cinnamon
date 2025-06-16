@@ -75,8 +75,8 @@ public class CubeMap extends Texture {
 
         //grab missing tex data
         glBindTexture(GL_TEXTURE_2D, Texture.MISSING.getID());
-        int width = glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH);
-        int height = glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT);
+        int width = Texture.MISSING.getWidth();
+        int height = Texture.MISSING.getHeight();
 
         ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * 4);
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
@@ -95,7 +95,7 @@ public class CubeMap extends Texture {
 
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-        return cacheCubemap(res, new CubeMap(id, 16, 16));
+        return cacheCubemap(res, new CubeMap(id, width, height));
     }
 
     public static void freeAll() {

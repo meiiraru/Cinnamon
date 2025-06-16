@@ -1,6 +1,7 @@
 package cinnamon.vr;
 
 import cinnamon.Client;
+import cinnamon.gui.GUIStyle;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.render.Camera;
@@ -12,6 +13,7 @@ import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.shader.PostProcess;
+import cinnamon.render.shader.Shader;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionDetector;
@@ -197,7 +199,7 @@ public class XrRenderer {
 
         //prepare the renderer
         boolean lefty = activeHand % 2 == 0;
-        WorldRenderer.prepareOutlineBuffer(Client.getInstance().camera);
+        Shader sh = WorldRenderer.prepareOutlineBuffer(Client.getInstance().camera);
 
         //apply the hand matrices
         matrices.pushMatrix();
@@ -207,6 +209,9 @@ public class XrRenderer {
             matrices.peek().normal().scale(-1, 1, 1);
             glFrontFace(GL_CW);
         }
+
+        int color = GUIStyle.getDefault().getInt("xr_interact_color");
+        sh.applyColor(color);
 
         //render
         handModel.render(matrices);
@@ -220,7 +225,7 @@ public class XrRenderer {
         if (isScreenCollided()) {
             Vector3f pos = hand.pos();
             Vector3f dir = new Vector3f(0, 0, -1).mul(screenCollision).rotate(hand.rot()).add(pos);
-            VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, pos.x, pos.y, pos.z, dir.x, dir.y, dir.z, 0.002f, 0xFFFFFFFF));
+            VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, pos.x, pos.y, pos.z, dir.x, dir.y, dir.z, 0.002f, color));
         }
     }
 

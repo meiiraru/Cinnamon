@@ -70,7 +70,7 @@ const int minParallax = 16;
 const int maxParallax = 64;
 
 //IBL
-const int MAX_REFLECTION_LOD = 4;
+const int MAX_REFLECTION_LOD = 7;
 uniform mat3 cubemapRotation;
 uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
@@ -224,7 +224,7 @@ vec4 applyLighting() {
     vec3 diffuse = irradiance * albedo;
 
     //sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part
-    vec3 prefilteredColor = textureLod(prefilterMap, R * cubemapRotation, roughness * MAX_REFLECTION_LOD).rgb;
+    vec3 prefilteredColor = textureLod(prefilterMap, R * cubemapRotation, roughness * (MAX_REFLECTION_LOD - 1)).rgb;
     vec2 brdf = texture(brdfLUT, vec2(NdotV, roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 

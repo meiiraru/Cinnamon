@@ -16,6 +16,7 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
 import cinnamon.vr.XrManager;
+import cinnamon.world.Abilities;
 import cinnamon.world.WorldObject;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
@@ -135,6 +136,7 @@ public class DebugScreen {
                 return "&cNo world loaded&r";
 
             Player p = w.player;
+            Abilities abilities = p.getAbilities();
 
             Vector3f epos = p.getPos();
             Vector2f erot = p.getRot();
@@ -150,6 +152,8 @@ public class DebugScreen {
                     x &c%.3f&r y &a%.3f&r z &b%.3f&r
                     pitch &e%.3f&r yaw &e%.3f&r
                     motion &c%.3f &a%.3f &b%.3f&r
+                    noclip &e%s&r god mode &e%s&r
+                    can fly &e%s&r can build &e%s&r
 
                     [&btargeted object&r]
                     %s""",
@@ -158,6 +162,11 @@ public class DebugScreen {
                     epos.x, epos.y, epos.z,
                     erot.x, erot.y,
                     emot.x, emot.y, emot.z,
+
+                    abilities.noclip() ? "on" : "off",
+                    abilities.godMode() ? "on" : "off",
+                    abilities.canFly() ? "on" : "off",
+                    abilities.canBuild() ? "on" : "off",
 
                     object
             );

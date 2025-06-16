@@ -18,12 +18,13 @@ public class IBLMap {
     private static final int captureFBO = glGenFramebuffers();
     private static final Matrix4f CAPTURE_PROJECTION = new Matrix4f().perspective((float) Math.toRadians(90f), 1f, 0.1f, 10f);
 
-    public static CubeMap hdrToCubemap(HDRTexture hdr) {
+    public static CubeMap hdrToCubemap(Texture texture, boolean hdr) {
         int id = generateEmptyMap(512, false);
 
         Shader s = Shaders.EQUIRECTANGULAR_TO_CUBEMAP.getShader().use();
-        s.setTexture("equirectangularMap", hdr, 0);
+        s.setTexture("equirectangularMap", texture, 0);
         s.setMat4("projection", CAPTURE_PROJECTION);
+        s.setBool("hdr", hdr);
 
         glViewport(0, 0, 512, 512);
         glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
@@ -61,16 +62,16 @@ public class IBLMap {
     }
 
     public static CubeMap generatePrefilterMap(CubeMap cubemap) {
-        int id = generateEmptyMap(128, true);
+        int id = generateEmptyMap(1024, true);
 
         Shader s = Shaders.PREFILTER.getShader().use();
         s.setTexture("environmentMap", cubemap, 0);
         s.setMat4("projection", CAPTURE_PROJECTION);
 
         glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-        int maxMipLevels = 5;
+        int maxMipLevels = 7;
         for (int mip = 0; mip < maxMipLevels; mip++) {
-            int mipSize = (int) (128 * Math.pow(0.5f, mip));
+            int mipSize = (int) (1024 * Math.pow(0.5f, mip));
             glViewport(0, 0, mipSize, mipSize);
 
             float roughness = (float) mip / (maxMipLevels - 1f);
@@ -85,7 +86,7 @@ public class IBLMap {
         }
 
         Framebuffer.DEFAULT_FRAMEBUFFER.use();
-        return new CubeMap(id, 128, 128);
+        return new CubeMap(id, 1024, 1024);
     }
 
     public static Texture brdfLUT(int size) {

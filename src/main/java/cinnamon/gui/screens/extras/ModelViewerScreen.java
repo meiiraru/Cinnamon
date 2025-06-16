@@ -17,7 +17,6 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Resource;
-import cinnamon.world.SkyBox;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -35,7 +34,7 @@ public class ModelViewerScreen extends ParentedScreen {
 
     public ModelViewerScreen(Screen parentScreen) {
         super(parentScreen);
-        modelViewer.setSkybox(SkyBox.Type.CLOUDS);
+        modelViewer.setSkybox(SkyBoxRegistry.CLOUDS);
         modelViewer.setRenderSkybox(true);
     }
 
@@ -88,7 +87,7 @@ public class ModelViewerScreen extends ParentedScreen {
 
         //skyboxes
         ComboBox skyboxes = new ComboBox(materials.getX(), animationList.getY() + animationList.getHeight() + 4, animationList.getWidth(), animationList.getHeight());
-        for (SkyBox.Type value : SkyBox.Type.values())
+        for (SkyBoxRegistry value : SkyBoxRegistry.values())
             skyboxes.addEntry(Text.translated("skybox." + value.name().toLowerCase()), null, b -> modelViewer.setSkybox(value));
         skyboxes.setTooltip(Text.translated("skybox"));
         skyboxes.setSelected(modelViewer.getSkybox().ordinal());

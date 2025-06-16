@@ -20,10 +20,11 @@ in vec3 pos;
 out vec4 fragColor;
 
 uniform sampler2D equirectangularMap;
+uniform bool hdr;
 
 const vec2 invAtan = vec2(0.1591f, 0.3183f);
 const float gamma = 2.2f;
-const float exposure = 0.3f;
+const float exposure = 1.5f;
 
 vec2 sampleSphericalMap(vec3 v) {
     vec2 uv = vec2(atan(v.z, v.x), asin(v.y));
@@ -35,7 +36,10 @@ vec2 sampleSphericalMap(vec3 v) {
 void main() {
     vec2 uv = sampleSphericalMap(normalize(pos));
     vec3 color = texture(equirectangularMap, uv).rgb;
-    color = vec3(1.0f) - exp(-color * exposure);
-    color = pow(color, vec3(1.0f / gamma));
+    if (hdr) {
+        color = vec3(1.0f) - exp(-color * exposure);
+        color = pow(color, vec3(1.0f / gamma));
+        color = clamp(color, 0.0f, 1.0f);
+    }
     fragColor = vec4(color, 1.0f);
 }
