@@ -218,6 +218,7 @@ public abstract class Entity extends WorldObject {
         this.pos.set(x, y, z);
         this.updateAABB();
         this.updateRidersPos();
+        this.checkWorldVoid();
         sendServerUpdate();
     }
 
@@ -283,6 +284,7 @@ public abstract class Entity extends WorldObject {
         this.oPos.set(x, y, z);
         this.updateAABB();
         this.updateRidersPos();
+        this.checkWorldVoid();
     }
 
     public Vector2f getRot(float delta) {
@@ -458,5 +460,10 @@ public abstract class Entity extends WorldObject {
 
     public float getRenderDistance() {
         return 1024f * getWorld().entityRenderDistance;
+    }
+
+    protected void checkWorldVoid() {
+        if (getWorld() != null && pos.y < getWorld().bottomOfTheWorld)
+            remove();
     }
 }

@@ -84,7 +84,7 @@ public class Player extends LivingEntity {
 
     @Override
     public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
-        if (getAbilities().godMode())
+        if (getAbilities().godMode() && type != DamageType.GOD)
             return false;
 
         if (type == DamageType.MELEE) {

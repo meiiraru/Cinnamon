@@ -381,4 +381,10 @@ public abstract class LivingEntity extends PhysEntity {
     public Collection<Effect> getActiveEffects() {
         return activeEffects.values();
     }
+
+    @Override
+    protected void checkWorldVoid() {
+        if (getWorld() != null && getPos().y < getWorld().bottomOfTheWorld)
+            damage(null, DamageType.GOD, Integer.MAX_VALUE, false);
+    }
 }
