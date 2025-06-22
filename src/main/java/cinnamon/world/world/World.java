@@ -155,7 +155,7 @@ public abstract class World {
         return entities.get(uuid);
     }
 
-    public void explode(Vector3f pos, float range, float strength, Entity source) {
+    public void explode(Vector3f pos, float range, float strength, Entity source, boolean invisible) {
         AABB explosionBB = new AABB().inflate(range).translate(pos);
         int damage = (int) (4 * strength);
 
@@ -172,6 +172,9 @@ public abstract class World {
                 e.knockback(dir, 0.5f * strength);
             }
         }
+
+        if (invisible)
+            return;
 
         //particles
         for (int i = 0; i < 30 * range; i++) {

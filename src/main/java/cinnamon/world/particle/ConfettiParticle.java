@@ -5,7 +5,7 @@ import cinnamon.registry.ParticlesRegistry;
 public class ConfettiParticle extends SpriteParticle {
 
     public ConfettiParticle(int lifetime, int color) {
-        super(lifetime, color);
+        super(ParticlesRegistry.CONFETTI.texture, lifetime, color);
     }
 
     @Override

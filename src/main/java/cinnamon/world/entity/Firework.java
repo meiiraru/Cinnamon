@@ -1,0 +1,136 @@
+package cinnamon.world.entity;
+
+import cinnamon.registry.EntityModelRegistry;
+import cinnamon.registry.EntityRegistry;
+import cinnamon.sound.SoundCategory;
+import cinnamon.utils.AABB;
+import cinnamon.utils.Maths;
+import cinnamon.utils.Resource;
+import cinnamon.world.DamageType;
+import cinnamon.world.collisions.CollisionResult;
+import cinnamon.world.entity.living.LivingEntity;
+import cinnamon.world.particle.FireParticle;
+import cinnamon.world.particle.SmokeParticle;
+import cinnamon.world.particle.StarParticle;
+import cinnamon.world.world.World;
+import org.joml.Vector3f;
+
+import java.util.UUID;
+
+public class Firework extends PhysEntity {
+
+    public static final Resource
+        EXPLOSION_SOUND = new Resource("sounds/entity/misc/firework/explosion.ogg"),
+        LAUNCH_SOUND = new Resource("sounds/entity/misc/firework/launch.ogg");
+
+    protected final int color;
+
+    protected int life;
+
+    public Firework(UUID uuid, int lifetime, Vector3f velocity, int color) {
+        super(uuid, EntityModelRegistry.FIREWORK.resource);
+        this.life = lifetime;
+        this.color = color;
+        setMotion(velocity);
+    }
+
+    @Override
+    public void onAdded(World world) {
+        super.onAdded(world);
+        world.playSound(LAUNCH_SOUND, SoundCategory.ENTITY, getPos()).pitch(Maths.range(0.8f, 1.2f)).volume(0.3f);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        life--;
+        if (life <= 0)
+            explode();
+
+        flyParticles();
+
+        Vector3f vec = new Vector3f(motion);
+        if (vec.lengthSquared() > 0f)
+            vec.normalize();
+
+        this.rotateTo(Maths.dirToRot(vec));
+    }
+
+    @Override
+    protected void applyForces() {
+        //super.applyForces();
+    }
+
+    @Override
+    protected void applyImpulse() {
+        this.motion.add(impulse);
+        this.impulse.set(0);
+    }
+
+    @Override
+    protected void motionFallout() {
+        //super.motionFallout();
+    }
+
+    @Override
+    protected void resolveCollision(CollisionResult collision, Vector3f motion, Vector3f move) {
+        explode();
+    }
+
+    @Override
+    protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {
+        if (entity instanceof LivingEntity)
+            explode();
+    }
+
+    @Override
+    public EntityRegistry getType() {
+        return EntityRegistry.FIREWORK;
+    }
+
+    protected void flyParticles() {
+        World w = getWorld();
+        Vector3f pos = getPos();
+
+        FireParticle fire = new FireParticle(5);
+        fire.setPos(pos);
+        w.addParticle(fire);
+
+        for (int i = 0; i < 3; i++) {
+            SmokeParticle smoke = new SmokeParticle(10, 0xFF888888);
+            smoke.setPos(pos);
+            Vector3f dir = Maths.spread(new Vector3f(0, -1, 0), 45, 45);
+            smoke.setMotion(dir.mul((float) Math.random() * 0.05f + 0.05f));
+            w.addParticle(smoke);
+        }
+    }
+
+    protected void explode() {
+        World w = getWorld();
+        Vector3f pos = getPos();
+
+        AABB explosionBB = new AABB().inflate(3f).translate(pos);
+        for (Entity entity : w.getEntities(explosionBB)) {
+            if (entity != this && !entity.isRemoved())
+                entity.damage(this, DamageType.EXPLOSION, 2, false);
+        }
+
+        remove();
+
+        w.playSound(EXPLOSION_SOUND, SoundCategory.ENTITY, pos).pitch(Maths.range(0.8f, 1.2f)).volume(0.3f).distance(128).maxDistance(160);
+
+        for (int i = 0; i < 100; i++) {
+            StarParticle star = new StarParticle(20, color) {
+                @Override
+                protected int getRenderDistance() {
+                    return 25600; //160 * 160;
+                }
+            };
+            star.setScale(2f);
+            star.setPos(pos);
+            star.setMotion(Maths.randomDir().mul((float) Math.random() * 0.2f + 0.2f));
+            w.addParticle(star);
+        }
+    }
+}

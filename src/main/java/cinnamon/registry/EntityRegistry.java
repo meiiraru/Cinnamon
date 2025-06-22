@@ -23,5 +23,6 @@ public enum EntityRegistry {
     SPAWNER,
     TERRAIN,
     XR_HAND,
+    FIREWORK,
     UNKNOWN
 }

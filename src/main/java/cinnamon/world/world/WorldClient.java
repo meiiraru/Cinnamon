@@ -12,6 +12,7 @@ import cinnamon.input.Keybind;
 import cinnamon.input.Movement;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.MaterialRegistry;
+import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -24,6 +25,7 @@ import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.text.Text;
 import cinnamon.utils.AABB;
+import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
 import cinnamon.vr.XrHandTransform;
 import cinnamon.vr.XrManager;
@@ -32,6 +34,7 @@ import cinnamon.world.Hud;
 import cinnamon.world.Sky;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.Firework;
 import cinnamon.world.entity.Spawner;
 import cinnamon.world.entity.collectable.EffectBox;
 import cinnamon.world.entity.collectable.HealthPack;
@@ -660,6 +663,14 @@ public class WorldClient extends World {
 
             case GLFW_KEY_COMMA -> player.setSelectedTerrain((player.getSelectedTerrain() + 1) % (TerrainRegistry.values().length));
             case GLFW_KEY_PERIOD -> player.setSelectedMaterial(Maths.modulo((player.getSelectedMaterial() + (shift ? -1 : 1)), MaterialRegistry.values().length));
+            case GLFW_KEY_SLASH -> sky.setSkyBox(SkyBoxRegistry.values()[(int) (Math.random() * SkyBoxRegistry.values().length)].resource);
+
+            case GLFW_KEY_Z -> {
+                Vector3f dir = new Vector3f(0, 1.5f, 0);
+                Firework f = new Firework(UUID.randomUUID(), (int) (Math.random() * 40) + 20, Maths.spread(dir, 90, 90), Colors.randomRainbow().rgba);
+                f.setPos(0, 1.5f, 0);
+                addEntity(f);
+            }
 
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
             //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));

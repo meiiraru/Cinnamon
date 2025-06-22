@@ -18,6 +18,6 @@ public class SoapParticle extends BubbleParticle {
         Vector3f pos = getPos(delta);
         Vector4f screenSpace = Client.getInstance().camera.worldToScreenSpace(pos.x, pos.y, pos.z);
         vertices[3].color(ColorUtils.lerpRGBColorThroughHSV(0xFF0000, 0xFF0000, screenSpace.x * 0.5f + 0.5f, true) + (0xFF << 24));
-        consumer.consume(vertices, texture.getResource());
+        consumer.consume(vertices, texture);
     }
 }

@@ -100,9 +100,14 @@ public class XrHand extends PhysEntity {
         return EntityRegistry.XR_HAND;
     }
 
+    public void grab(XrGrabbable grabbable) {
+        targetEntity = grabbable;
+        grab();
+    }
+
     public void grab() {
         if (targetEntity != null) {
-            if (targetEntity.isGrabbed())
+            if (targetEntity.isGrabbed() && targetEntity.getHand() != this)
                 targetEntity.getHand().yoink();
             isGrabbing = true;
             targetEntity.grab(this);
@@ -136,5 +141,9 @@ public class XrHand extends PhysEntity {
 
         grabbable.moveTo(pos);
         grabbable.rotateToWithRiders(getRot());
+    }
+
+    public boolean isGrabbing() {
+        return isGrabbing;
     }
 }

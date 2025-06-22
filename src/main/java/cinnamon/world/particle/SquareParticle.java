@@ -5,7 +5,7 @@ import cinnamon.registry.ParticlesRegistry;
 public class SquareParticle extends SpriteParticle {
 
     public SquareParticle(int lifetime, int color) {
-        super(lifetime, color);
+        super(ParticlesRegistry.SQUARE.texture, lifetime, color);
     }
 
     @Override

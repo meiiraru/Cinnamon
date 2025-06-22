@@ -11,7 +11,7 @@ public class BubbleParticle extends SpriteParticle {
     private static final Resource POP_SOUND = new Resource("sounds/particle/bubble/pop.ogg");
 
     public BubbleParticle(int lifetime, int color) {
-        super(lifetime, color);
+        super(ParticlesRegistry.BUBBLE.texture, lifetime, color);
     }
 
     private boolean collided;
@@ -27,7 +27,7 @@ public class BubbleParticle extends SpriteParticle {
                 if (aabb.intersects(terrain)) {
                     getMotion().zero();
                     collided = true;
-                    age = lifetime - (texture.getUFrames() - 1);
+                    age = lifetime - (getFrameCount() - 1);
                 }
             }
         }
@@ -35,7 +35,7 @@ public class BubbleParticle extends SpriteParticle {
 
     @Override
     public int getCurrentFrame() {
-        int frames = texture.getUFrames() - 1;
+        int frames = getFrameCount() - 1;
         return Maths.clamp(getAge() - getLifetime() + frames, 0, frames);
     }
 

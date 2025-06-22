@@ -5,13 +5,13 @@ import cinnamon.registry.ParticlesRegistry;
 public class FireParticle extends SpriteParticle {
 
     public FireParticle(int lifetime) {
-        super(lifetime, 0xFFFFFFFF);
+        super(ParticlesRegistry.FIRE.texture, lifetime, 0xFFFFFFFF);
         setEmissive(true);
     }
 
     @Override
     public int getCurrentFrame() {
-        return getAge() % texture.getUFrames();
+        return getAge() % getFrameCount();
     }
 
     @Override

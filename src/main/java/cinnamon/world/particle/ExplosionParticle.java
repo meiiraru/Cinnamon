@@ -8,7 +8,7 @@ public class ExplosionParticle extends SpriteParticle {
     private static final Vector3f DEFAULT_MOTION = new Vector3f(0, 0.01f, 0);
 
     public ExplosionParticle(int lifetime) {
-        super(lifetime, 0xFFFFFFFF);
+        super(ParticlesRegistry.EXPLOSION.texture, lifetime, 0xFFFFFFFF);
         setEmissive(true);
         setMotion(DEFAULT_MOTION);
     }

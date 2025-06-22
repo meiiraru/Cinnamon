@@ -93,7 +93,7 @@ public class Potato extends Projectile {
     @Override
     public void remove() {
         super.remove();
-        world.explode(pos, EXPLOSION_RANGE, EXPLOSION_STRENGTH, this);
+        world.explode(pos, EXPLOSION_RANGE, EXPLOSION_STRENGTH, this, false);
     }
 
     @Override

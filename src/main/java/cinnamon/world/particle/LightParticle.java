@@ -13,7 +13,7 @@ public class LightParticle extends SpriteParticle {
     private float speed = 1f;
 
     public LightParticle(int lifetime, int color) {
-        super(lifetime, color);
+        super(ParticlesRegistry.LIGHT.texture, lifetime, color);
         this.setEmissive(true);
         this.seed = (int) (Client.getInstance().ticks & (~0L >> 32));
     }

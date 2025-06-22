@@ -15,7 +15,10 @@ public enum EntityModelRegistry {
     RICE_BALL("models/entities/projectile/rice_ball/rice_ball.obj"),
 
     //vehicles
-    CART("models/entities/vehicle/cart/cart.obj");
+    CART("models/entities/vehicle/cart/cart.obj"),
+
+    //misc
+    FIREWORK("models/entities/misc/firework/firework.obj");
 
     public final Resource resource;
 

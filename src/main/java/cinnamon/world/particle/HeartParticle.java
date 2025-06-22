@@ -5,7 +5,7 @@ import cinnamon.registry.ParticlesRegistry;
 public class HeartParticle extends SpriteParticle {
 
     public HeartParticle(int lifetime, int color) {
-        super(lifetime, color);
+        super(ParticlesRegistry.HEARTH.texture, lifetime, color);
     }
 
     @Override

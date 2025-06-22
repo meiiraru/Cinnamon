@@ -2,23 +2,22 @@ package cinnamon.world.particle;
 
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
-import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.texture.SpriteTexture;
+import cinnamon.render.texture.Texture;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
+import cinnamon.utils.Resource;
 
 public abstract class SpriteParticle extends Particle {
 
-    protected final SpriteTexture texture;
+    protected final Resource texture;
     protected int color;
     protected float scale = 1f;
 
-    public SpriteParticle(int lifetime, int color) {
+    public SpriteParticle(Resource texture, int lifetime, int color) {
         super(lifetime);
-        ParticlesRegistry type = getType();
-        this.texture = type.getTexture();
+        this.texture = texture;
         this.color = color;
     }
 
@@ -33,7 +32,7 @@ public abstract class SpriteParticle extends Particle {
                 16, 16,
                 getCurrentFrame(), 0f,
                 1, 1,
-                texture.getUFrames(), texture.getVFrames()
+                getFrameCount(), 1
         );
 
         drawParticle(delta, isEmissive() ? VertexConsumer.MAIN : VertexConsumer.WORLD_MAIN, vertices);
@@ -44,11 +43,11 @@ public abstract class SpriteParticle extends Particle {
         for (Vertex vertex : vertices)
             vertex.color(color);
 
-        consumer.consume(vertices, texture.getResource());
+        consumer.consume(vertices, texture);
     }
 
     public int getCurrentFrame() {
-        return Math.round(Maths.lerp(0, texture.getUFrames() - 1, (float) getAge() / getLifetime()));
+        return Math.round(Maths.lerp(0, getFrameCount() - 1, (float) getAge() / getLifetime()));
     }
 
     public void setColor(int color) {
@@ -65,6 +64,11 @@ public abstract class SpriteParticle extends Particle {
 
     public float getScale() {
         return scale;
+    }
+
+    public int getFrameCount() {
+        Texture tex = Texture.of(texture);
+        return Math.max(tex.getWidth() / tex.getHeight(), 1);
     }
 
     @Override

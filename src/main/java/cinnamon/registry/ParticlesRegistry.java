@@ -1,31 +1,26 @@
 package cinnamon.registry;
 
-import cinnamon.render.texture.SpriteTexture;
 import cinnamon.utils.Resource;
 
 public enum ParticlesRegistry {
-    BROKEN_HEARTH("textures/particles/broken_heart.png", 1),
-    BUBBLE("textures/particles/bubble.png", 3),
-    CONFETTI("textures/particles/confetti.png", 2),
-    DUST("textures/particles/dust.png", 4),
-    ELECTRO("textures/particles/electro.png", 4),
-    EXPLOSION("textures/particles/explosion.png", 6),
-    FIRE("textures/particles/fire.png", 3),
-    HEARTH("textures/particles/heart.png", 1),
-    LIGHT("textures/particles/light.png", 4),
-    SMOKE("textures/particles/smoke.png", 5),
-    SQUARE("textures/particles/square.png", 1),
-    STAR("textures/particles/star.png", 8),
-    STEAM("textures/particles/steam.png", 5),
-    TEXT(null, -1);
+    BROKEN_HEARTH(new Resource("textures/particles/broken_heart.png")),
+    BUBBLE(new Resource("textures/particles/bubble.png")),
+    CONFETTI(new Resource("textures/particles/confetti.png")),
+    DUST(new Resource("textures/particles/dust.png")),
+    ELECTRO(new Resource("textures/particles/electro.png")),
+    EXPLOSION(new Resource("textures/particles/explosion.png")),
+    FIRE(new Resource("textures/particles/fire.png")),
+    HEARTH(new Resource("textures/particles/heart.png")),
+    LIGHT(new Resource("textures/particles/light.png")),
+    SMOKE(new Resource("textures/particles/smoke.png")),
+    SQUARE(new Resource("textures/particles/square.png")),
+    STAR(new Resource("textures/particles/star.png")),
+    STEAM(new Resource("textures/particles/steam.png")),
+    TEXT(null);
 
-    private final SpriteTexture texture;
+    public final Resource texture;
 
-    ParticlesRegistry(String texture, int hFrames) {
-        this.texture = texture == null ? null : new SpriteTexture(new Resource(texture), hFrames, 1);
-    }
-
-    public SpriteTexture getTexture() {
-        return texture;
+    ParticlesRegistry(Resource texture) {
+        this.texture = texture;
     }
 }
