@@ -1,4 +1,4 @@
-package cinnamon.world.entity;
+package cinnamon.world.entity.misc;
 
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
@@ -8,10 +8,11 @@ import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.DamageType;
 import cinnamon.world.collisions.CollisionResult;
+import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.particle.FireParticle;
 import cinnamon.world.particle.SmokeParticle;
-import cinnamon.world.particle.StarParticle;
 import cinnamon.world.world.World;
 import org.joml.Vector3f;
 
@@ -23,21 +24,21 @@ public class Firework extends PhysEntity {
         EXPLOSION_SOUND = new Resource("sounds/entity/misc/firework/explosion.ogg"),
         LAUNCH_SOUND = new Resource("sounds/entity/misc/firework/launch.ogg");
 
-    protected final int color;
-
+    protected final FireworkStar[] stars;
     protected int life;
 
-    public Firework(UUID uuid, int lifetime, Vector3f velocity, int color) {
+    public Firework(UUID uuid, int lifetime, Vector3f velocity, FireworkStar... stars) {
         super(uuid, EntityModelRegistry.FIREWORK.resource);
         this.life = lifetime;
-        this.color = color;
+        this.stars = stars;
         setMotion(velocity);
     }
 
     @Override
     public void onAdded(World world) {
         super.onAdded(world);
-        world.playSound(LAUNCH_SOUND, SoundCategory.ENTITY, getPos()).pitch(Maths.range(0.8f, 1.2f)).volume(0.3f);
+        if (!isSilent())
+            world.playSound(LAUNCH_SOUND, SoundCategory.ENTITY, getPos()).pitch(Maths.range(0.8f, 1.2f)).volume(0.3f);
     }
 
     @Override
@@ -107,30 +108,23 @@ public class Firework extends PhysEntity {
     }
 
     protected void explode() {
-        World w = getWorld();
-        Vector3f pos = getPos();
+        if (stars.length > 0) {
+            World w = getWorld();
+            Vector3f pos = getPos();
 
-        AABB explosionBB = new AABB().inflate(3f).translate(pos);
-        for (Entity entity : w.getEntities(explosionBB)) {
-            if (entity != this && !entity.isRemoved())
-                entity.damage(this, DamageType.EXPLOSION, 2, false);
+            AABB explosionBB = new AABB().inflate(2f).translate(pos);
+            for (Entity entity : w.getEntities(explosionBB)) {
+                if (entity != this && !entity.isRemoved())
+                    entity.damage(this, DamageType.EXPLOSION, 2 * stars.length, false);
+            }
+
+            if (!isSilent())
+                w.playSound(EXPLOSION_SOUND, SoundCategory.ENTITY, pos).pitch(Maths.range(0.8f, 1.2f)).volume(0.3f).distance(128).maxDistance(160);
         }
+
+        for (FireworkStar star : stars)
+            star.explode(this);
 
         remove();
-
-        w.playSound(EXPLOSION_SOUND, SoundCategory.ENTITY, pos).pitch(Maths.range(0.8f, 1.2f)).volume(0.3f).distance(128).maxDistance(160);
-
-        for (int i = 0; i < 100; i++) {
-            StarParticle star = new StarParticle(20, color) {
-                @Override
-                protected int getRenderDistance() {
-                    return 25600; //160 * 160;
-                }
-            };
-            star.setScale(2f);
-            star.setPos(pos);
-            star.setMotion(Maths.randomDir().mul((float) Math.random() * 0.2f + 0.2f));
-            w.addParticle(star);
-        }
     }
 }

@@ -34,7 +34,6 @@ import cinnamon.world.Hud;
 import cinnamon.world.Sky;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
-import cinnamon.world.entity.Firework;
 import cinnamon.world.entity.Spawner;
 import cinnamon.world.entity.collectable.EffectBox;
 import cinnamon.world.entity.collectable.HealthPack;
@@ -42,8 +41,14 @@ import cinnamon.world.entity.living.Dummy;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.living.LocalPlayer;
 import cinnamon.world.entity.living.Player;
+import cinnamon.world.entity.misc.Firework;
+import cinnamon.world.entity.misc.FireworkStar;
 import cinnamon.world.entity.vehicle.Cart;
-import cinnamon.world.items.*;
+import cinnamon.world.items.BubbleGun;
+import cinnamon.world.items.Flashlight;
+import cinnamon.world.items.Item;
+import cinnamon.world.items.ItemRenderContext;
+import cinnamon.world.items.MagicWand;
 import cinnamon.world.items.weapons.CoilGun;
 import cinnamon.world.items.weapons.PotatoCannon;
 import cinnamon.world.items.weapons.RiceGun;
@@ -666,8 +671,7 @@ public class WorldClient extends World {
             case GLFW_KEY_SLASH -> sky.setSkyBox(SkyBoxRegistry.values()[(int) (Math.random() * SkyBoxRegistry.values().length)].resource);
 
             case GLFW_KEY_Z -> {
-                Vector3f dir = new Vector3f(0, 1.5f, 0);
-                Firework f = new Firework(UUID.randomUUID(), (int) (Math.random() * 40) + 20, Maths.spread(dir, 90, 90), Colors.randomRainbow().rgba);
+                Firework f = new Firework(UUID.randomUUID(), (int) Maths.range(20, 60), Maths.spread(new Vector3f(0, 1f, 0), 15, 15), new FireworkStar(Colors.randomRainbow().rgba));
                 f.setPos(0, 1.5f, 0);
                 addEntity(f);
             }

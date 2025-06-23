@@ -49,6 +49,8 @@ public abstract class Entity extends WorldObject {
 
     private String name;
 
+    private boolean silent;
+
     public Entity(UUID uuid, Resource model) {
         this.model = ModelManager.load(model);
         this.uuid = uuid;
@@ -465,5 +467,13 @@ public abstract class Entity extends WorldObject {
     protected void checkWorldVoid() {
         if (getWorld() != null && pos.y < getWorld().bottomOfTheWorld)
             remove();
+    }
+
+    public boolean isSilent() {
+        return silent;
+    }
+
+    public void setSilent(boolean silent) {
+        this.silent = silent;
     }
 }

@@ -26,6 +26,7 @@ public class CoilGun extends Weapon {
     @Override
     protected void spawnBullet(Entity source) {
         super.spawnBullet(source);
-        source.getWorld().playSound(SHOOT_SOUND, SoundCategory.ENTITY, source.getPos()).pitch(Maths.range(0.8f, 1.2f));
+        if (!source.isSilent())
+            source.getWorld().playSound(SHOOT_SOUND, SoundCategory.ENTITY, source.getPos()).pitch(Maths.range(0.8f, 1.2f));
     }
 }
