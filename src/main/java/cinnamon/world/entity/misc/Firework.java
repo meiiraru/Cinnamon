@@ -119,7 +119,7 @@ public class Firework extends PhysEntity {
             }
 
             if (!isSilent())
-                w.playSound(EXPLOSION_SOUND, SoundCategory.ENTITY, pos).pitch(Maths.range(0.8f, 1.2f)).volume(0.3f).distance(128).maxDistance(160);
+                w.playSound(EXPLOSION_SOUND, SoundCategory.ENTITY, pos).pitch(Maths.range(0.8f, 1.2f)).volume(0.3f).distance(96).maxDistance(160);
         }
 
         for (FireworkStar star : stars)

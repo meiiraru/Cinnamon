@@ -11,6 +11,7 @@ public enum Colors {
     LIME(0x72FF72),
     GREEN(0x6AA84F),
     YELLOW(0xFFFF72),
+    GOLD(0xB39B5B),
     ORANGE(0xFFAD72),
     RED(0xFF7272),
     BROWN(0x8E625F),
@@ -39,11 +40,6 @@ public enum Colors {
     }
 
     public static Colors randomRainbow() {
-        return RAINBOW[(int) (Math.random() * RAINBOW.length)];
-    }
-
-    public static Colors random() {
-        Colors[] colors = values();
-        return colors[(int) (Math.random() * colors.length)];
+        return Maths.randomArr(RAINBOW);
     }
 }

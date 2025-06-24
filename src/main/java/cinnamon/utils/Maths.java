@@ -317,6 +317,10 @@ public class Maths {
         return power;
     }
 
+    public static <T> T randomArr(T[] arr) {
+        return arr[(int) (Math.random() * arr.length)];
+    }
+
     private static final String[] SIZE_UNITS = {"b", "kb", "mb", "gb"};
     public static String prettyByteSize(double size) {
         int i = 0;

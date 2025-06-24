@@ -668,10 +668,23 @@ public class WorldClient extends World {
 
             case GLFW_KEY_COMMA -> player.setSelectedTerrain((player.getSelectedTerrain() + 1) % (TerrainRegistry.values().length));
             case GLFW_KEY_PERIOD -> player.setSelectedMaterial(Maths.modulo((player.getSelectedMaterial() + (shift ? -1 : 1)), MaterialRegistry.values().length));
-            case GLFW_KEY_SLASH -> sky.setSkyBox(SkyBoxRegistry.values()[(int) (Math.random() * SkyBoxRegistry.values().length)].resource);
+            case GLFW_KEY_SLASH -> sky.setSkyBox(Maths.randomArr(SkyBoxRegistry.values()).resource);
 
             case GLFW_KEY_Z -> {
-                Firework f = new Firework(UUID.randomUUID(), (int) Maths.range(20, 60), Maths.spread(new Vector3f(0, 1f, 0), 15, 15), new FireworkStar(Colors.randomRainbow().rgba));
+                Firework f = new Firework(UUID.randomUUID(), (int) Maths.range(30, 60), Maths.spread(new Vector3f(0, 1f, 0), 30, 30).mul(2f),
+                        new FireworkStar(
+                                new Integer[]{0xFFa19f7f, 0xFFcfa959, 0xFF9b8136, 0xFF908264, 0xFFebc789, 0xFFb39b5b},
+                                null,
+                                true, true,
+                                FireworkStar.Shape.BALL
+                        ),
+                        new FireworkStar(
+                                new Integer[]{Colors.WHITE.rgba},
+                                null,
+                                false, true,
+                                FireworkStar.Shape.STAR
+                        )
+                );
                 f.setPos(0, 1.5f, 0);
                 addEntity(f);
             }

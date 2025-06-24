@@ -62,9 +62,9 @@ public class ChatScreen extends Screen {
         if (action == GLFW_PRESS && (key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER)) {
             String s = field.getText();
             field.setText(fieldMsg = "");
+            close();
             if (!s.isBlank()) {
                 addMessage(s);
-                //close();
                 return true;
             }
         }
