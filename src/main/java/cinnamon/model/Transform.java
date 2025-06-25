@@ -88,6 +88,15 @@ public class Transform {
         this.pivot.set(x, y, z);
     }
 
+    public void setPosPivot(Vector3f vec) {
+        this.setPosPivot(vec.x, vec.y, vec.z);
+    }
+
+    public void setPosPivot(float x, float y, float z) {
+        this.pivot.set(x, y, z);
+        this.pos.set(x, y, z);
+    }
+
     public void setScale(float scalar) {
         this.setScale(scalar, scalar, scalar);
     }

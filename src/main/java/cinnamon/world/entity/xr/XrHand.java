@@ -146,4 +146,8 @@ public class XrHand extends PhysEntity {
     public boolean isGrabbing() {
         return isGrabbing;
     }
+
+    public XrGrabbable getTargetEntity() {
+        return targetEntity;
+    }
 }
