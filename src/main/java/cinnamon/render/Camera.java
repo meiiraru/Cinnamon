@@ -232,15 +232,15 @@ public class Camera {
     }
 
     public Vector3f getForwards() {
-        return forwards.set(0f, 0f, -1f).rotate(getRotation());
+        return forwards.set(0f, 0f, -1f).rotate(getXrRot()).rotate(getRot());
     }
 
     public Vector3f getLeft() {
-        return left.set(-1f, 0f, 0f).rotate(getRotation());
+        return left.set(-1f, 0f, 0f).rotate(getXrRot()).rotate(getRot());
     }
 
     public Vector3f getUp() {
-        return up.set(0f, 1f, 0f).rotate(getRotation());
+        return up.set(0f, 1f, 0f).rotate(getXrRot()).rotate(getRot());
     }
 
     public Vector3f getPosition() {

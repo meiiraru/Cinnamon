@@ -101,6 +101,8 @@ public class DebugScreen {
 
             Quaternionf crot = c.camera.getRotation();
             Vector3f cpos = c.camera.getPosition();
+            Vector3f forwards = c.camera.getForwards();
+            Vector3f up = c.camera.getUp();
             String face = Direction.fromRotation(crot.y).name;
 
             return String.format("""
@@ -116,6 +118,8 @@ public class DebugScreen {
                     [&bcamera&r]
                     x &c%.3f&r y &a%.3f&r z &b%.3f&r
                     x &e%.3f&r y &e%.3f&r z &e%.3f&r w &e%.3f&r
+                    forwards x &c%.3f&r y &a%.3f&r z &b%.3f&r
+                    up x &c%.3f&r y &a%.3f&r z &b%.3f&r
                     facing &e%s&r""",
 
                     w.width, w.height,
@@ -127,6 +131,9 @@ public class DebugScreen {
 
                     cpos.x, cpos.y, cpos.z,
                     crot.x, crot.y, crot.z, crot.w,
+                    forwards.x, forwards.y, forwards.z,
+                    up.x, up.y, up.z,
+
                     face
             );
         }));
