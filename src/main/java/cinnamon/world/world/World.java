@@ -97,19 +97,17 @@ public abstract class World {
         });
     }
 
-    public void setTerrain(Terrain terrain, float x, float y, float z) {
-        if (terrain != null) {
-            terrain.setPos(x, y, z);
-            scheduledTicks.add(() -> terrain.onAdded(this));
-            terrainManager.insert(terrain);
-        } else {
-            //remove terrain if it is null
-            terrainManager.remove(new AABB(x, y, z, x, y, z));
-        }
+    public void addTerrain(Terrain terrain) {
+        scheduledTicks.add(() -> terrain.onAdded(this));
+        terrainManager.insert(terrain);
     }
 
     public void removeTerrain(Terrain terrain) {
         terrainManager.remove(terrain);
+    }
+
+    public void removeTerrain(AABB aabb) {
+        terrainManager.remove(aabb);
     }
 
     public SoundInstance playSound(Resource sound, SoundCategory category, Vector3f position) {

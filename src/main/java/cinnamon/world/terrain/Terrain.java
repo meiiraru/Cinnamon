@@ -80,6 +80,12 @@ public class Terrain extends WorldObject {
         this.preciseAABB.clear();
         for (AABB group : this.model.getPreciseAABB())
             preciseAABB.add(group.rotateY(r).translate(pos.x + 0.5f, pos.y, pos.z + 0.5f));
+
+        World w = getWorld();
+        if (w != null) {
+            w.removeTerrain(this);
+            w.addTerrain(this);
+        }
     }
 
     @Override

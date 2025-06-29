@@ -122,8 +122,9 @@ public class LocalPlayer extends Player {
             if (getWorld().getEntities(entities).isEmpty()) {
                 Terrain tt = TerrainRegistry.values()[selectedTerrain].getFactory().get();
                 tt.setMaterial(MaterialRegistry.values()[selectedMaterial]);
-                getWorld().setTerrain(tt, tpos.x, tpos.y, tpos.z);
                 tt.setRotation(Direction.fromRotation(getRot().y).invRotation);
+                tt.setPos(tpos.x, tpos.y, tpos.z);
+                getWorld().addTerrain(tt);
 
                 lastMouseTime = getInteractionDelay();
                 return true;

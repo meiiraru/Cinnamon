@@ -133,7 +133,8 @@ public class WorldClient extends World {
         //0, 0
         Terrain t = TerrainRegistry.BOX.getFactory().get();
         t.setMaterial(MaterialRegistry.COBBLESTONE);
-        setTerrain(t, 0, 0, 0);
+        removeTerrain(new AABB().translate(0.5f, 0.5f, 0.5f));
+        addTerrain(t);
 
         //menger sponge
         TerrainGenerator.generateMengerSponge(this, 2, -23, 1, -23);

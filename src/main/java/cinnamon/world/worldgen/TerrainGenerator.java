@@ -2,6 +2,7 @@ package cinnamon.world.worldgen;
 
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
+import cinnamon.utils.AABB;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
 
@@ -13,7 +14,8 @@ public class TerrainGenerator {
                 for (int z = minZ; z <= maxZ; z++) {
                     Terrain terrain = TerrainRegistry.BOX.getFactory().get();
                     terrain.setMaterial(material);
-                    world.setTerrain(terrain, x, y, z);
+                    terrain.setPos(x, y, z);
+                    world.addTerrain(terrain);
                 }
             }
         }
@@ -37,11 +39,12 @@ public class TerrainGenerator {
                 for (int y = 0; y < size; y++) {
                     for (int z = 0; z < size; z++) {
                         if (mod[x] + mod[y] + mod[z] > 1) {
-                            world.setTerrain(null, x + xOffset + 0.5f, y + yOffset + 0.5f, z + zOffset + 0.5f);
+                            world.removeTerrain(new AABB().translate(x + xOffset + 0.5f, y + yOffset + 0.5f, z + zOffset + 0.5f));
                         } else if (i == 1) {
                             Terrain terr = TerrainRegistry.BOX.getFactory().get();
                             terr.setMaterial(MaterialRegistry.GOLD);
-                            world.setTerrain(terr, x + xOffset, y + yOffset, z + zOffset);
+                            terr.setPos(x + xOffset, y + yOffset, z + zOffset);
+                            world.addTerrain(terr);
                         }
                     }
                 }
