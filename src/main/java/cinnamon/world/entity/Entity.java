@@ -71,6 +71,7 @@ public abstract class Entity extends WorldObject {
         matrices.translate(getPos(delta));
 
         //apply model pose
+        matrices.pushMatrix();
         applyModelPose(matrices, delta);
 
         //render model
@@ -84,6 +85,8 @@ public abstract class Entity extends WorldObject {
         //render head text
         if (shouldRenderText())
             renderTexts(matrices, delta);
+
+        matrices.popMatrix();
     }
 
     protected void renderModel(MatrixStack matrices, float delta) {
@@ -114,8 +117,7 @@ public abstract class Entity extends WorldObject {
         Client c = Client.getInstance();
         float s = 1 / 48f;
 
-        matrices.translate(aabb.getCenter());
-        matrices.translate(0f, aabb.getHeight() * 0.5f + 0.15f, 0f);
+        matrices.translate(0f, aabb.getHeight() + 0.15f, 0f);
         c.camera.billboard(matrices);
         matrices.scale(-s);
 
