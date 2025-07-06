@@ -82,14 +82,19 @@ public class LocalPlayer extends Player {
 
     @Override
     public boolean attackAction() {
-        if (super.attackAction())
+        if (lastMouseTime > 0)
+            return false;
+
+        if (super.attackAction()) {
+            lastMouseTime = getInteractionDelay();
             return true;
+        }
 
         if (!getAbilities().canBuild())
             return false;
 
         Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
-        if (hit != null && hit.obj() instanceof Terrain t && lastMouseTime <= 0) {
+        if (hit != null && hit.obj() instanceof Terrain t) {
             getWorld().removeTerrain(t);
             lastMouseTime = getInteractionDelay();
             return true;
@@ -106,14 +111,19 @@ public class LocalPlayer extends Player {
 
     @Override
     public boolean useAction() {
-        if (super.useAction())
+        if (lastMouseTime > 0)
+            return false;
+
+        if (super.useAction()) {
+            lastMouseTime = getInteractionDelay();
             return true;
+        }
 
         if (!getAbilities().canBuild())
             return false;
 
         Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
-        if (hit != null && hit.obj() instanceof Terrain t && lastMouseTime <= 0) {
+        if (hit != null && hit.obj() instanceof Terrain t) {
             Vector3f tpos = new Vector3f(hit.pos()).floor();
             if (tpos.equals(t.getPos()))
                 tpos.add(hit.collision().normal());
