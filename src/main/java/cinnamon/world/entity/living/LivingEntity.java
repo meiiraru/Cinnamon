@@ -15,7 +15,6 @@ import cinnamon.world.collisions.Hit;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
-import cinnamon.world.entity.vehicle.Vehicle;
 import cinnamon.world.items.Inventory;
 import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
@@ -109,11 +108,6 @@ public abstract class LivingEntity extends PhysEntity {
     @Override
     protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {
         super.collide(entity, result, toMove);
-
-        if (!(this instanceof Player) && entity instanceof Vehicle v && !this.isRiding()) {
-            v.addRider(this);
-            return;
-        }
 
         if (!(entity instanceof LivingEntity l) || this.isRiding() || entity.isRiding())
             return;

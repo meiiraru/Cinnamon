@@ -426,11 +426,15 @@ public abstract class Entity extends WorldObject {
         updateRiders();
     }
 
+    protected void removeRider(Entity e) {
+        e.riding = null;
+        this.riders.remove(e);
+        updateRiders();
+    }
+
     public void stopRiding() {
-        if (isRiding()) {
-            this.riding.riders.remove(this);
-            this.riding = null;
-        }
+        if (isRiding())
+            this.riding.removeRider(this);
     }
 
     public boolean isRiding() {

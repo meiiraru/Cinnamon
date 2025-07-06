@@ -44,6 +44,7 @@ import cinnamon.world.entity.living.Player;
 import cinnamon.world.entity.misc.Firework;
 import cinnamon.world.entity.misc.FireworkStar;
 import cinnamon.world.entity.vehicle.Cart;
+import cinnamon.world.entity.vehicle.ShoppingCart;
 import cinnamon.world.items.BubbleGun;
 import cinnamon.world.items.Flashlight;
 import cinnamon.world.items.Item;
@@ -130,6 +131,11 @@ public class WorldClient extends World {
         int r = 32;
         TerrainGenerator.fill(this, -r, 0, -r, r, 0, r, MaterialRegistry.GRASS);
 
+        //TerrainGenerator.fill(this, -r, 1, -r, r, 1, -r, MaterialRegistry.BRICK_WALL);
+        //TerrainGenerator.fill(this, -r, 1, r, r, 1, r, MaterialRegistry.BRICK_WALL);
+        //TerrainGenerator.fill(this, -r, 1, -r, -r, 1, r, MaterialRegistry.BRICK_WALL);
+        //TerrainGenerator.fill(this, r, 1, -r, r, 1, r, MaterialRegistry.BRICK_WALL);
+
         //0, 0
         Terrain t = TerrainRegistry.BOX.getFactory().get();
         t.setMaterial(MaterialRegistry.COBBLESTONE);
@@ -157,9 +163,17 @@ public class WorldClient extends World {
         c.setPos(10, 2, 10);
         this.addEntity(c);
 
-        Cart c2 = new Cart(UUID.randomUUID());
-        c2.setPos(15, 2, 10);
-        this.addEntity(c2);
+        ShoppingCart s = new ShoppingCart(UUID.randomUUID());
+        s.setPos(15, 2, 10);
+        this.addEntity(s);
+
+        ShoppingCart s2 = new ShoppingCart(UUID.randomUUID());
+        s2.setPos(15, 2, 8);
+        this.addEntity(s2);
+
+        ShoppingCart s3 = new ShoppingCart(UUID.randomUUID());
+        s3.setPos(15, 2, 6);
+        this.addEntity(s3);
 
         Dummy d = new Dummy(UUID.randomUUID());
         d.setPos(-10, 2, 10);

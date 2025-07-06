@@ -10,12 +10,12 @@ import org.joml.Vector3f;
 
 import java.util.UUID;
 
-public class Cart extends Vehicle {
+public class Cart extends Car {
 
     private boolean isRailed;
 
     public Cart(UUID uuid) {
-        super(uuid, EntityModelRegistry.CART.resource, 1);
+        super(uuid, EntityModelRegistry.CART.resource, 1, 10f, 0.0003f, 0.008f, 0.003f, 0.9f);
     }
 
     @Override
@@ -46,16 +46,6 @@ public class Cart extends Vehicle {
         vec.rotate(Rotation.X.rotationDeg(-rot.x));
         vec.rotate(Rotation.Y.rotationDeg(-rot.y));
         return vec;
-    }
-
-    @Override
-    protected float getMoveSpeed() {
-        return 0.08f;
-    }
-
-    @Override
-    protected void motionFallout() {
-        this.motion.mul(0.9f, 1f, 0.9f);
     }
 
     @Override

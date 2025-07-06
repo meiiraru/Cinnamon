@@ -16,6 +16,7 @@ public enum EntityModelRegistry {
 
     //vehicles
     CART("models/entities/vehicle/cart/cart.obj"),
+    SHOPPING_CART("models/entities/vehicle/shopping_cart/shoppingcart.obj"),
 
     //misc
     FIREWORK("models/entities/misc/firework/firework.obj");
