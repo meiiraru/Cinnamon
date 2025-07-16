@@ -47,7 +47,7 @@ public class Client {
     public long ticks;
     public int fps, ms;
 
-    public String name = "Player" + (int) (Math.random() * 1000);
+    public String name = "Player" + (int) (Math.random() * 456) + 1;
     public UUID playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
 
     public int postProcess = -1;
