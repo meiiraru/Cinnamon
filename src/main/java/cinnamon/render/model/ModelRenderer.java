@@ -11,8 +11,7 @@ import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
@@ -33,10 +32,9 @@ public abstract class ModelRenderer {
 
     public abstract List<AABB> getPreciseAABB();
 
-    protected static Pair<Integer, Integer> generateBuffers(List<VertexData> vertexData) {
-        Attributes[] flags = {Attributes.POS, Attributes.UV, Attributes.NORMAL, Attributes.TANGENTS};
-        int capacity = vertexData.size() * (3 + 2 + 3 + 3); //pos, uv, norm, tangent
+    protected static Pair<Integer, Integer> generateBuffers(List<VertexData> vertexData, Attributes... flags) {
         int vertexSize = Attributes.getVertexSize(flags);
+        int capacity = vertexData.size() * vertexSize;
 
         //vao
         int vao = glGenVertexArrays();
@@ -69,7 +67,9 @@ public abstract class ModelRenderer {
     }
 
     protected static final class VertexData {
-        public static final Vector3f DEFAULT_TANGENT = new Vector3f(0, 0, -1);
+        public static final Vector3f DEFAULT_TANGENT = new Vector3f(0, 0, 1);
+        public static final Vector3f DEFAULT_NORMAL = new Vector3f(0, 0, 1);
+        public static final Vector2f DEFAULT_UV = new Vector2f(0, 0);
 
         public final Vector3f pos;
         public final Vector2f uv;
@@ -89,13 +89,8 @@ public abstract class ModelRenderer {
             buffer.put(pos.z);
 
             //push uv
-            if (uv != null) {
-                buffer.put(uv.x);
-                buffer.put(1 - uv.y); //invert Y
-            } else {
-                buffer.put(0);
-                buffer.put(0);
-            }
+            buffer.put(uv.x);
+            buffer.put(1 - uv.y); //invert Y
 
             //push normal
             buffer.put(norm.x);
@@ -165,7 +160,7 @@ public abstract class ModelRenderer {
             return true;
         }
 
-        public static void calculateNormals(List<VertexData> list) {
+        public static void calculateFlatNormals(List<VertexData> list) {
             for (int i = 0; i < list.size(); i += 3) {
                 VertexData v0 = list.get(i);
                 VertexData v1 = list.get(i + 1);
@@ -178,36 +173,44 @@ public abstract class ModelRenderer {
                         .cross(v2.pos.x - v0.pos.x, v2.pos.y - v0.pos.y, v2.pos.z - v0.pos.z).normalize();
 
                 //set normal to the vertices
-                if (v0.norm == null) v0.norm = normal;
-                if (v1.norm == null) v1.norm = normal;
-                if (v2.norm == null) v2.norm = normal;
+                v0.norm = normal;
+                v1.norm = normal;
+                v2.norm = normal;
             }
-
-            //average normals
-            /*
-            for (int i = 0; i < list.size(); i++) {
-                VertexData v = list.get(i);
-                Vector3f normal = new Vector3f();
-
-                for (VertexData other : list)
-                    if (v.pos.equals(other.pos))
-                        normal.add(other.norm);
-
-                //normalize
-                v.norm = normal.normalize();
-            }
-             */
         }
 
-        public static void calculateTangents(List<VertexData> list) {
+        public static void smoothNormals(List<VertexData> list, float angleThreshold) {
+            //find the smoothing groups based on the angle threshold
+            List<List<Integer>> smoothingGroups = findSmoothingGroups(list, angleThreshold);
+            Vector3f[] newNormals = new Vector3f[list.size()];
+
+            //sum and smooth out the normals for each group
+            for (List<Integer> group : smoothingGroups) {
+                Vector3f accumulatedNormal = new Vector3f();
+                for (int vertexIndex : group)
+                    accumulatedNormal.add(list.get(vertexIndex).norm);
+                accumulatedNormal.normalize();
+
+                //update the normals for each vertex in the group
+                for (int vertexIndex : group)
+                    newNormals[vertexIndex] = accumulatedNormal;
+            }
+
+            //apply the new normals to the vertex data
+            for (int i = 0; i < list.size(); i++)
+                list.get(i).norm = newNormals[i];
+        }
+
+        public static void calculateTangents(List<VertexData> list, float angleThreshold) {
+            //find the smoothing groups based on the angle threshold
+            List<List<Integer>> smoothingGroups = findSmoothingGroups(list, angleThreshold);
+
+            //calculate per-triangle tangents first
+            List<Vector3f> triangleTangents = new ArrayList<>();
             for (int i = 0; i < list.size(); i += 3) {
                 VertexData v0 = list.get(i);
                 VertexData v1 = list.get(i + 1);
                 VertexData v2 = list.get(i + 2);
-
-                //vertex uv may be null
-                if (v0.uv == null || v1.uv == null || v2.uv == null)
-                    continue;
 
                 //calculate tangent vector
                 Vector3f edge1 = new Vector3f(v1.pos).sub(v0.pos);
@@ -219,33 +222,103 @@ public abstract class ModelRenderer {
                 float deltaV2 = v2.uv.y - v0.uv.y;
 
                 float f = 1f / (deltaU1 * deltaV2 - deltaU2 * deltaV1);
-                Vector3f tangent = new Vector3f(
+                f = (Float.isInfinite(f) || Float.isNaN(f)) ? 0f : f;
+
+                //the tangent vector
+                triangleTangents.add(new Vector3f(
                         f * (deltaV2 * edge1.x - deltaV1 * edge2.x),
                         f * (deltaV2 * edge1.y - deltaV1 * edge2.y),
                         f * (deltaV2 * edge1.z - deltaV1 * edge2.z)
-                ).normalize();
-
-                //set tangent to the vertices
-                v0.tangent = tangent;
-                v1.tangent = tangent;
-                v2.tangent = tangent;
+                ));
             }
 
-            //average tangents
-            /*
-            for (int i = 0; i < list.size(); i++) {
-                VertexData v = list.get(i);
-                Vector3f tangent = new Vector3f();
+            //now smooth the tangents based on the smoothing groups
+            Vector3f[] newTangents = new Vector3f[list.size()];
+            for (List<Integer> group : smoothingGroups) {
+                //accumulate only if the triangle was not processed yet
+                Vector3f accumulatedTangent = new Vector3f();
+                Set<Integer> processedTriangles = new HashSet<>();
 
-                for (VertexData other : list) {
-                    if (v.pos.equals(other.pos))
-                        tangent.add(other.tangent);
+                for (int vertexIndex : group) {
+                    int triangleIndex = vertexIndex / 3;
+                    if (processedTriangles.add(triangleIndex))
+                        accumulatedTangent.add(triangleTangents.get(triangleIndex));
                 }
 
-                //normalize
-                v.tangent = tangent.normalize();
+                //use the vertex normal to orthogonalize the tangent
+                for (int vertexIndex : group) {
+                    Vector3f t = new Vector3f(accumulatedTangent);
+                    Vector3f n = list.get(vertexIndex).norm;
+
+                    //if we had a valid tangent, orthogonalize it
+                    if (t.lengthSquared() > 1e-6f) {
+                        float dot = n.dot(t);
+                        t.sub(n.x * dot, n.y * dot, n.z * dot).normalize();
+                    } else {
+                        //otherwise use the default tangent
+                        t = DEFAULT_TANGENT;
+                    }
+
+                    newTangents[vertexIndex] = t;
+                }
             }
-             */
+
+            //apply the new tangents to the vertex data
+            for (int i = 0; i < list.size(); i++)
+                list.get(i).tangent = newTangents[i];
+        }
+
+        private static List<List<Integer>> findSmoothingGroups(List<VertexData> list, float angleThreshold) {
+            //create a map of positions to indices
+            Map<Vector3f, List<Integer>> posMap = new HashMap<>();
+            for (int i = 0; i < list.size(); i++)
+                posMap.computeIfAbsent(list.get(i).pos, k -> new ArrayList<>()).add(i);
+
+            //create a list of smoothing groups and a visited array
+            List<List<Integer>> smoothingGroups = new ArrayList<>();
+            boolean[] visited = new boolean[list.size()];
+            float cosThreshold = (float) Math.cos(Math.toRadians(angleThreshold));
+
+            //now over all the vertices
+            for (int i = 0; i < list.size(); i++) {
+                //skip if already visited
+                if (visited[i])
+                    continue;
+
+                //use BFS to find all connected vertices
+                List<Integer> currentGroup = new ArrayList<>();
+                Queue<Integer> toProcess = new LinkedList<>();
+                toProcess.add(i);
+                visited[i] = true;
+
+                while (!toProcess.isEmpty()) {
+                    //get the current index and add it to the group
+                    int currentIndex = toProcess.poll();
+                    currentGroup.add(currentIndex);
+
+                    //get the potential matches for the current vertex position
+                    List<Integer> potentialMatches = posMap.get(list.get(currentIndex).pos);
+                    if (potentialMatches == null)
+                        continue;
+
+                    //for all the potential matches, check if they are connected, but only if not visited
+                    for (int otherIndex : potentialMatches) {
+                        if (!visited[otherIndex]) {
+                            //check if the normals are within the angle threshold
+                            if (Math.abs(list.get(currentIndex).norm.dot(list.get(otherIndex).norm)) >= cosThreshold - 1e-6f) {
+                                //mark as visited and add to the queue
+                                visited[otherIndex] = true;
+                                toProcess.add(otherIndex);
+                            }
+                        }
+                    }
+                }
+
+                //add the current group to the list
+                smoothingGroups.add(currentGroup);
+            }
+
+            return smoothingGroups;
         }
     }
 }

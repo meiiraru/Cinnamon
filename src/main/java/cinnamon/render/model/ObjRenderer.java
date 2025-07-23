@@ -7,6 +7,7 @@ import cinnamon.model.obj.Mesh;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.MaterialApplier;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.shader.Attributes;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.AABB;
@@ -71,19 +72,14 @@ public class ObjRenderer extends ModelRenderer {
                 for (int i = 0; i < v.size(); i++) {
                     //parse indexes to their actual values
                     Vector3f a = vertices.get(v.get(i));
-                    Vector2f b = null;
-                    Vector3f c = null;
+                    Vector2f b = !vt.isEmpty() ? uvs.get(vt.get(i)) : VertexData.DEFAULT_UV;
+                    Vector3f c = !vn.isEmpty() ? normals.get(vn.get(i)) : VertexData.DEFAULT_NORMAL;
 
                     //calculate min and max
                     this.bbMin.min(a);
                     this.bbMax.max(a);
                     groupMin.min(a);
                     groupMax.max(a);
-
-                    if (!vt.isEmpty())
-                        b = uvs.get(vt.get(i));
-                    if (!vn.isEmpty())
-                        c = normals.get(vn.get(i));
 
                     //add to vertex list
                     data.add(new VertexData(a, b, c));
@@ -92,18 +88,28 @@ public class ObjRenderer extends ModelRenderer {
                 //triangulate the faces using ear clipping
                 List<VertexData> sorted = VertexData.triangulate(data);
 
-                //generate normals when missing
-                if (normals.isEmpty())
-                    VertexData.calculateNormals(sorted);
-
-                //calculate tangents
-                VertexData.calculateTangents(sorted);
-
                 //add data to the vertex list
                 sortedVertices.addAll(sorted);
             }
 
-            //create a new group - the group contains the OpenGL attributes
+            //skip empty groups
+            if (sortedVertices.isEmpty())
+                continue;
+
+            //default angle threshold for smoothing
+            float angleThreshold = 45f;
+
+            //generate normals when missing
+            if (normals.isEmpty()) {
+                VertexData.calculateFlatNormals(sortedVertices);
+                VertexData.smoothNormals(sortedVertices, angleThreshold);
+            }
+
+            //calculate tangents
+            if (!uvs.isEmpty())
+                VertexData.calculateTangents(sortedVertices, angleThreshold);
+
+            //create a new group with the OpenGL attributes
             GroupData groupData = new GroupData(group, sortedVertices, groupMin, groupMax);
 
             String groupName = group.getName();
@@ -187,7 +193,7 @@ public class ObjRenderer extends ModelRenderer {
             this.material = group.getMaterial();
             this.bbMin = bbMin;
             this.bbMax = bbMax;
-            Pair<Integer, Integer> buffers = generateBuffers(sortedVertices);
+            Pair<Integer, Integer> buffers = generateBuffers(sortedVertices, Attributes.POS, Attributes.UV, Attributes.NORMAL, Attributes.TANGENTS);
             this.vao = buffers.first();
             this.vbo = buffers.second();
         }
