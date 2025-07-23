@@ -19,11 +19,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static cinnamon.events.Events.LOGGER;
+
 public class AnimationLoader {
 
     public static final float POS_RATIO = 1 / 16f;
 
     public static Pair<Bone, List<Animation>> load(Resource res) {
+        LOGGER.debug("Loading animation %s", res.getPath());
+
         InputStream stream = IOUtils.getResource(res);
         if (stream == null)
             throw new RuntimeException("Resource not found: " + res);

@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import static cinnamon.events.Events.LOGGER;
 import static java.lang.Integer.parseInt;
 import static cinnamon.utils.Maths.parseVec2;
 import static cinnamon.utils.Maths.parseVec3;
@@ -20,6 +21,8 @@ import static cinnamon.utils.Maths.parseVec3;
 public class ObjLoader {
 
     public static Mesh load(Resource res) {
+        LOGGER.debug("Loading model %s", res.getPath());
+
         InputStream stream = IOUtils.getResource(res);
         if (stream == null)
             throw new RuntimeException("Resource not found: " + res);

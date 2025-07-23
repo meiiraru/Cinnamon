@@ -172,6 +172,17 @@ public class AABB {
         );
     }
 
+    public AABB merge(AABB other) {
+        return set(
+                Math.min(minX, other.minX),
+                Math.min(minY, other.minY),
+                Math.min(minZ, other.minZ),
+                Math.max(maxX, other.maxX),
+                Math.max(maxY, other.maxY),
+                Math.max(maxZ, other.maxZ)
+        );
+    }
+
     public float minX() {
         return minX;
     }

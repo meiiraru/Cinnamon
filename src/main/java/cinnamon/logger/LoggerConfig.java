@@ -25,8 +25,8 @@ public class LoggerConfig {
         configureLogger(root);
 
         //system out/err redirection
-        System.setOut(new LoggerStream(LOGGER::info));
-        System.setErr(new LoggerStream(LOGGER::error));
+        System.setOut(new LoggerStream(new Logger("System.out")::info));
+        System.setErr(new LoggerStream(new Logger("System.err")::error));
 
         //debugLogLevels(root);
 

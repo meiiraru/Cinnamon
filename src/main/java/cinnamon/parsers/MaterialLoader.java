@@ -15,9 +15,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static cinnamon.events.Events.LOGGER;
+
 public class MaterialLoader {
 
     public static Map<String, Material> load(Resource res) {
+        LOGGER.debug("Loading material %s", res.getPath());
+
         InputStream stream = IOUtils.getResource(res);
         Map<String, Material> map = new HashMap<>();
 

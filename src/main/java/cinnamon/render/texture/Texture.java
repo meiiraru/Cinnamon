@@ -21,7 +21,7 @@ public class Texture {
     private static final Map<Resource, Texture> TEXTURE_MAP = new HashMap<>();
 
     //the missing texture
-    public static final Texture MISSING = generateMissingTex();
+    public static final Texture MISSING = /*generateSolid(0xFFEDEDED);*/ generateMissingTex();
 
     public static final int MAX_TEXTURES = 16;
 
