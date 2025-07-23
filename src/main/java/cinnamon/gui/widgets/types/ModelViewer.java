@@ -39,7 +39,7 @@ public class ModelViewer extends SelectableWidget {
     private MaterialRegistry selectedMaterial = MaterialRegistry.DEFAULT;
     private SkyBoxRegistry skybox = SkyBoxRegistry.WHITE;
 
-    private boolean renderBounds, renderSkybox;
+    private boolean renderBounds, renderSkybox, renderWireframe;
     private Consumer<MatrixStack> extraRendering;
 
     private float defaultScale = 128f, scaleFactor = 0.1f;
@@ -92,7 +92,6 @@ public class ModelViewer extends SelectableWidget {
         client.camera.useOrtho(false);
         AABB aabb = model.getAABB();
         matrices.pushMatrix();
-        glDisable(GL_CULL_FACE);
 
         //set up framebuffer
         Framebuffer old = Framebuffer.activeFramebuffer;
@@ -116,6 +115,10 @@ public class ModelViewer extends SelectableWidget {
         s.setInt("lightCount", 0);
         theSky.setSkyBox(skybox.resource);
         theSky.pushToShader(s, Texture.MAX_TEXTURES - 1);
+
+        glDisable(GL_CULL_FACE);
+        if (renderWireframe)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         //position
         matrices.translate(posX, -posY, -200f);
@@ -149,6 +152,7 @@ public class ModelViewer extends SelectableWidget {
 
         //cleanup
         glEnable(GL_CULL_FACE);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         oldShader.use();
         matrices.popMatrix();
         client.camera.useOrtho(true);
@@ -205,6 +209,14 @@ public class ModelViewer extends SelectableWidget {
 
     public void setRenderSkybox(boolean renderSkybox) {
         this.renderSkybox = renderSkybox;
+    }
+
+    public boolean shouldRenderWireframe() {
+        return renderWireframe;
+    }
+
+    public void setRenderWireframe(boolean renderWireframe) {
+        this.renderWireframe = renderWireframe;
     }
 
     public void setExtraRendering(Consumer<MatrixStack> extraRendering) {

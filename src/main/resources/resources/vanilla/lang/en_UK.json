@@ -92,6 +92,8 @@
   "gui.music_screen.load_end": "Loaded %1$s song!",
   "gui.music_screen.load_end_plural": "Loaded %1$s songs!",
 
+  "gui.model_viewer_screen.load_error": "Failed to load model!",
+
   "gui.wordle.success": "Congrats!",
   "gui.wordle.error.word_small": "Word too small",
   "gui.wordle.error.word_not_found": "Word not in the word list!",

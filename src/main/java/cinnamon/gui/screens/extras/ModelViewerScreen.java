@@ -3,6 +3,7 @@ package cinnamon.gui.screens.extras;
 import cinnamon.animation.Animation;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
+import cinnamon.gui.Toast;
 import cinnamon.gui.widgets.WidgetList;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.ComboBox;
@@ -143,6 +144,7 @@ public class ModelViewerScreen extends ParentedScreen {
             setModel(new Resource("", file), file);
             return true;
         } catch (Exception e) {
+            Toast.addToast(Text.translated("gui.model_viewer_screen.load_error")).type(Toast.ToastType.ERROR);
             LOGGER.error("Failed to load model", e);
         }
 
