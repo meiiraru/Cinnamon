@@ -12,7 +12,8 @@ public enum TerrainRegistry {
     BOX(TerrainModelRegistry.BOX.resource),
     SPHERE(TerrainModelRegistry.SPHERE.resource),
     TEAPOT(Teapot::new),
-    BARRIER(Barrier::new);
+    BARRIER(Barrier::new),
+    GLTF(TerrainModelRegistry.GLTF_TEST.resource);
 
     private final Supplier<Terrain> factory;
 

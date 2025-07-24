@@ -13,8 +13,6 @@ import cinnamon.utils.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
-import static cinnamon.events.Events.LOGGER;
-
 public class ModelManager {
 
     private static final Map<Resource, ModelRenderer> MODEL_MAP = new HashMap<>();
@@ -38,11 +36,9 @@ public class ModelManager {
         ModelRenderer model;
 
         //check model type
-        String path = resource.getPath();
-        if (path.endsWith(".obj")) { //prefer built-in OBJ loader
+        if (resource.getExtension().equalsIgnoreCase("obj")) { //prefer built-in OBJ loader
             //load animations, if any
-            String folder = path.substring(0, path.lastIndexOf("/") + 1);
-            Resource anim = new Resource(resource.getNamespace(), folder + "animations.json");
+            Resource anim = resource.resolveSibling("animations.json");
             if (IOUtils.hasResource(anim)) {
                 model = new AnimatedObjRenderer(ObjLoader.load(resource), AnimationLoader.load(anim));
             } else {

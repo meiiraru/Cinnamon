@@ -55,7 +55,7 @@ public class SkyBox {
         CubeMap texture;
         boolean hdr = testHdr(resource);
         if (hdr) {
-            boolean isTrulyHdr = resource.getPath().endsWith(".hdr");
+            boolean isTrulyHdr = resource.getExtension().equalsIgnoreCase("hdr");
             Texture hdrTex = HDRTexture.of(resource, isTrulyHdr, SMOOTH_SAMPLING);
             texture = IBLMap.hdrToCubemap(hdrTex, isTrulyHdr);
             hdrTex.free();

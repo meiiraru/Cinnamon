@@ -27,9 +27,6 @@ public class ObjLoader {
         if (stream == null)
             throw new RuntimeException("Resource not found: " + res);
 
-        String path = res.getPath();
-        String folder = path.substring(0, path.lastIndexOf("/") + 1);
-
         try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
             Mesh theMesh = new Mesh();
             Group currentGroup = new Group("default");
@@ -44,7 +41,7 @@ public class ObjLoader {
                 String[] split = line.trim().replaceAll(" +", " ").split(" ");
                 switch (split[0]) {
                     //material file
-                    case "mtllib" -> theMesh.getMaterials().putAll(MaterialLoader.load(new Resource(res.getNamespace(), folder + split[1])));
+                    case "mtllib" -> theMesh.getMaterials().putAll(MaterialLoader.load(res.resolveSibling(split[1])));
 
                     //group
                     case "g", "o" -> {
@@ -103,7 +100,7 @@ public class ObjLoader {
             //return the mesh
             return theMesh;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load obj \"" + path + "\"", e);
+            throw new RuntimeException("Failed to load obj \"" + res.getPath() + "\"", e);
         }
     }
 

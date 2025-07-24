@@ -9,7 +9,6 @@ import cinnamon.utils.Resource;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -27,9 +26,6 @@ public class MaterialLoader {
 
         if (stream == null)
             return map;
-
-        String path = res.getPath();
-        String folder = path.substring(0, path.lastIndexOf("/") + 1);
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
             Material material = new Material("");
@@ -57,7 +53,7 @@ public class MaterialLoader {
                     }
 
                     //textures
-                    case "map_Kd", "albedo", "diffuse" -> material.setAlbedo(parseTexture(split, folder, res));
+                    case "map_Kd", "albedo", "diffuse" -> material.setAlbedo(parseTexture(split, res));
                     case "map_disp", "bump", "height" -> {
                         for (int i = 1; i < split.length; i++) {
                             if (split[i].equals("-dm")) {
@@ -65,25 +61,25 @@ public class MaterialLoader {
                                 break;
                             }
                         }
-                        material.setHeight(parseTexture(split, folder, res));
+                        material.setHeight(parseTexture(split, res));
                     }
-                    case "map_Bump", "norm", "normal", "map_Kn" -> material.setNormal(parseTexture(split, folder, res));
-                    case "map_ao", "map_AO", "ao", "ambient_occlusion" -> material.setAO(parseTexture(split, folder, res));
-                    case "map_Pr", "roughness" -> material.setRoughness(parseTexture(split, folder, res));
-                    case "map_Pm", "metallic" -> material.setMetallic(parseTexture(split, folder, res));
-                    case "map_Ke", "emissive" -> material.setEmissive(parseTexture(split, folder, res));
+                    case "map_Bump", "norm", "normal", "map_Kn" -> material.setNormal(parseTexture(split, res));
+                    case "map_ao", "map_AO", "ao", "ambient_occlusion" -> material.setAO(parseTexture(split, res));
+                    case "map_Pr", "roughness" -> material.setRoughness(parseTexture(split, res));
+                    case "map_Pm", "metallic" -> material.setMetallic(parseTexture(split, res));
+                    case "map_Ke", "emissive" -> material.setEmissive(parseTexture(split, res));
                 }
             }
 
             map.put(material.getName(), material);
             return map;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load material \"" + path + "\"", e);
+            throw new RuntimeException("Failed to load material \"" + res.getPath() + "\"", e);
         }
     }
 
-    private static MaterialTexture parseTexture(String[] split, String folder, Resource res) {
-        Resource path = new Resource(res.getNamespace(), folder + split[split.length - 1]);
+    private static MaterialTexture parseTexture(String[] split, Resource res) {
+        Resource path = res.resolveSibling(split[split.length - 1]);
 
         Set<Texture.TextureParams> params = new HashSet<>();
         for (int i = 1; i < split.length - 1; i++) {

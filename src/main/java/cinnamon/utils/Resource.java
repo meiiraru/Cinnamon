@@ -28,6 +28,26 @@ public class Resource {
         return new Resource(this.namespace, this.path.endsWith("/") ? this.path + path : this.path + "/" + path);
     }
 
+    public Resource resolveSibling(String path) {
+        return new Resource(this.namespace, this.path.substring(0, this.path.lastIndexOf("/") + 1) + path);
+    }
+
+    public String getFileName() {
+        int index = path.lastIndexOf("/");
+        return index > -1 ? path.substring(index + 1) : path;
+    }
+
+    public String getFileNameWithoutExtension() {
+        String fileName = getFileName();
+        int index = fileName.lastIndexOf(".");
+        return index > -1 ? fileName.substring(0, index) : fileName;
+    }
+
+    public String getExtension() {
+        int index = path.lastIndexOf(".");
+        return index > -1 ? path.substring(index + 1) : "";
+    }
+
     public String getNamespace() {
         return namespace;
     }
