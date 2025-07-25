@@ -1,8 +1,8 @@
 package cinnamon.render.texture;
 
+import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
-import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -21,7 +21,7 @@ public class Texture {
     private static final Map<Resource, Texture> TEXTURE_MAP = new HashMap<>();
 
     //the missing texture
-    public static final Texture MISSING = /*generateSolid(0xFFEDEDED);*/ generateMissingTex();
+    public static final Texture MISSING = /*generateSolid(0xFFEDEDED);*/ generateMissingTex(2, 2);
 
     public static final int MAX_TEXTURES = 16;
 
@@ -58,6 +58,13 @@ public class Texture {
 
     private static Texture loadTexture(Resource res, int params) {
         try (TextureIO.ImageData image = TextureIO.load(res)) {
+            Resource anim = res.resolveSibling(res.getFileName() + ".json");
+            if (IOUtils.hasResource(anim)) {
+                Texture animTex = AnimatedTexture.loadTexture(image, anim, params);
+                if (animTex != null)
+                    return animTex;
+            }
+
             return new Texture(registerTexture(image.width, image.height, image.buffer, params), image.width, image.height);
         } catch (Exception e) {
             LOGGER.error("Failed to load texture \"%s\"", res, e);
@@ -68,26 +75,26 @@ public class Texture {
     protected static int registerTexture(int width, int height, ByteBuffer buffer, int params) {
         int id = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, id);
-
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, SMOOTH_SAMPLING.has(params) ? GL_LINEAR : GL_NEAREST);
-
-        if (MIPMAP.has(params)) {
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, MIPMAP_SMOOTH.has(params) ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST);
-            glGenerateMipmap(GL_TEXTURE_2D);
-        } else {
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, SMOOTH_SAMPLING.has(params) ? GL_LINEAR : GL_NEAREST);
-        }
-
+        applyParams(params);
         glBindTexture(GL_TEXTURE_2D, 0);
         return id;
     }
 
-    private static Texture generateMissingTex() {
-        int w = 2, h = 2;
+    protected static void applyParams(int params) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, SMOOTH_SAMPLING.has(params) ? GL_LINEAR : GL_NEAREST);
 
+        if (MIPMAP.has(params)) {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, MIPMAP_SMOOTH.has(params) ? GL_NEAREST_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        } else {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, SMOOTH_SAMPLING.has(params) ? GL_LINEAR : GL_NEAREST);
+        }
+    }
+
+    private static Texture generateMissingTex(int w, int h) {
         //w * h * rgba
-        ByteBuffer pixels = MemoryUtil.memAlloc(w * h * 4);
+        ByteBuffer pixels = ByteBuffer.allocateDirect(w * h * 4);
 
         //paint texture
         //  Pink Black
@@ -111,7 +118,7 @@ public class Texture {
 
     //returns a 1x1 texture with a solid color
     public static Texture generateSolid(int ARGB) {
-        ByteBuffer buffer = MemoryUtil.memAlloc(4);
+        ByteBuffer buffer = ByteBuffer.allocateDirect(4);
         buffer.put((byte) (ARGB >> 16));
         buffer.put((byte) (ARGB >> 8));
         buffer.put((byte) ARGB);
@@ -157,7 +164,7 @@ public class Texture {
 
 
     public int bind(int index) {
-        return bind(this.ID, index);
+        return bind(getID(), index);
     }
 
     public int getID() {

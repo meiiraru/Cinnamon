@@ -16,6 +16,7 @@ import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
+import cinnamon.render.texture.AnimatedTexture;
 import cinnamon.settings.Settings;
 import cinnamon.sound.SoundManager;
 import cinnamon.text.Text;
@@ -119,6 +120,7 @@ public class Client {
         Await.tick();
 
         SoundManager.tick(camera);
+        AnimatedTexture.tickAll();
 
         events.runEvents(EventType.TICK_BEFORE_WORLD);
 

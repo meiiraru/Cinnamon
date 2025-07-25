@@ -1,0 +1,14 @@
+{
+  "width": 16,
+  "height": 16,
+  "interpolate": true,
+  "frames": [
+    {"frame": 0, "time": 20},
+    {"frame": 1, "time": 20},
+    {"frame": 2, "time": 20},
+    {"frame": 3, "time": 20},
+    {"frame": 4, "time": 20},
+    {"frame": 5, "time": 20},
+    {"frame": 6, "time": 20}
+  ]
+}

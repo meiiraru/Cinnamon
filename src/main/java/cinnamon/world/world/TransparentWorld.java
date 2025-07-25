@@ -16,7 +16,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class TransparentWorld extends WorldClient {
 
-    private static final Resource IMAGE = new Resource("textures/shader/cat-cat-jumping.png");
+    private static final Resource IMAGE = new Resource("textures/misc/cat-jumping.png");
 
     private final List<Vertex[][]> vertices = new ArrayList<>();
     private boolean renderNormals;
@@ -40,7 +40,7 @@ public class TransparentWorld extends WorldClient {
         matrices.pushMatrix();
         matrices.translate(20, 20, 0);
         camera.billboard(matrices);
-        Vertex[] v = GeometryHelper.quad(matrices, -0.5f, -0.5f, 1, 1);
+        Vertex[] v = GeometryHelper.quad(matrices, -1, -1, 2, 2);
         matrices.popMatrix();
 
         if (renderNormals)

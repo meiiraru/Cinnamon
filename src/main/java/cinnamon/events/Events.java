@@ -12,6 +12,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
+import cinnamon.render.texture.AnimatedTexture;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.SkyBox;
 import cinnamon.render.texture.Texture;
@@ -57,6 +58,7 @@ public class Events {
         registerEvent(RESOURCE_INIT, o -> LangManager.init());
 
         registerEvent(RESOURCE_FREE, o -> Texture.freeAll());
+        registerEvent(RESOURCE_FREE, o -> AnimatedTexture.freeAll());
         registerEvent(RESOURCE_FREE, o -> CubeMap.freeAll());
         registerEvent(RESOURCE_FREE, o -> SoundManager.stopAll());
         registerEvent(RESOURCE_FREE, o -> Sound.freeAllSounds());

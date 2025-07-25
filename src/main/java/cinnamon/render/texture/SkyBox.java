@@ -148,14 +148,8 @@ public class SkyBox {
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, SMOOTH_SAMPLING.has(params) ? GL_LINEAR : GL_NEAREST);
 
-            if (MIPMAP.has(params)) {
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, MIPMAP_SMOOTH.has(params) ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST);
-                glGenerateMipmap(GL_TEXTURE_2D);
-            } else {
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, SMOOTH_SAMPLING.has(params) ? GL_LINEAR : GL_NEAREST);
-            }
+            applyParams(params);
 
             glBindTexture(GL_TEXTURE_2D, 0);
             return id;
