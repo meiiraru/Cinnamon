@@ -131,10 +131,6 @@ public class Animation {
         return this;
     }
 
-    public State getState() {
-        return state;
-    }
-
     private void setState(State state) {
         if (state == this.state)
             return;
@@ -159,6 +155,18 @@ public class Animation {
         setState(State.STOPPED);
     }
 
+    public boolean isPlaying() {
+        return state == State.PLAYING;
+    }
+
+    public boolean isPaused() {
+        return state == State.PAUSED;
+    }
+
+    public boolean isStopped() {
+        return state == State.STOPPED;
+    }
+
     public Loop getLoop() {
         return loop;
     }
@@ -176,7 +184,7 @@ public class Animation {
         return duration;
     }
 
-    public enum State {
+    private enum State {
         STOPPED,
         PAUSED,
         PLAYING

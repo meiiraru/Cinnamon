@@ -19,6 +19,7 @@ import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Resource;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -123,16 +124,33 @@ public class ModelViewerScreen extends ParentedScreen {
         animationList.clearEntries();
         List<String> animations = modelViewer.getAnimations();
         if (!animations.isEmpty()) {
-            animationList.addEntry(Text.translated("gui.none"), null, b -> modelViewer.stopAllAnimations());
-            for (String animation : animations)
-                animationList.addEntry(Text.of(animation), null, b -> {
-                    modelViewer.stopAllAnimations();
-                    modelViewer.getAnimation(animation).setLoop(Animation.Loop.LOOP).play();
+            List<Text> animationTexts = new ArrayList<>();
+            Style defaultStyle = Style.EMPTY.color(animationList.getStyle().getInt("text_color"));
+            Style selectedStyle = Style.EMPTY.color(animationList.getStyle().getInt("accent_color"));
+            modelViewer.stopAllAnimations();
+            animationList.addEntry(Text.translated("gui.none"), null, b -> {
+                modelViewer.stopAllAnimations();
+                for (Text text : animationTexts)
+                    text.withStyle(defaultStyle);
+            });
+            for (String animation : animations) {
+                Text text = Text.of(animation);
+                animationTexts.add(text);
+                animationList.addEntry(text, null, b -> {
+                    Animation anim = modelViewer.getAnimation(animation);
+                    if (anim.isPlaying()) {
+                        anim.stop();
+                        text.withStyle(defaultStyle);
+                    } else {
+                        anim.setLoop(Animation.Loop.LOOP).play();
+                        text.withStyle(selectedStyle);
+                    }
                 });
+            }
         } else {
             animationList.addEntry(Text.translated("gui.none"), null, null);
         }
-        animationList.setSelected(0);
+        animationList.select(1);
     }
 
     public boolean filesDropped(String[] files) {

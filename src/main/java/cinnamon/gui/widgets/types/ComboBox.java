@@ -73,7 +73,17 @@ public class ComboBox extends Button {
         return selected;
     }
 
-    private void select(int index) {
+    public void select(int index) {
+        if (index >= 0 && index < indexes.size()) {
+            Button b = contextMenu.getAction(index);
+            boolean wasSilent = b.isSilent();
+            b.setSilent(true);
+            b.onRun();
+            b.setSilent(wasSilent);
+        }
+    }
+
+    private void updateSelect(int index) {
         if (index < 0 || index >= indexes.size())
             return;
 
@@ -120,7 +130,7 @@ public class ComboBox extends Button {
 
         super.setPopup(contextMenu);
         contextMenu.addAction(name, tooltip, button -> {
-            select(index);
+            updateSelect(index);
             if (action != null)
                 action.accept(button);
         });
@@ -171,7 +181,6 @@ public class ComboBox extends Button {
             int i = selected;
             i += (int) Math.signum(-y);
             i = Maths.modulo(i, indexes.size());
-            select(i);
             contextMenu.getAction(i).onRun();
             return this;
         }
