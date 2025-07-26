@@ -84,7 +84,7 @@ public class GUIStyle {
     }
 
     private static GUIStyle createStyle(Resource res) {
-        LOGGER.debug("Loading gui style for %s", res);
+        LOGGER.debug("Loading gui style \"%s\"", res);
         GUIStyle style = new GUIStyle();
 
         try {
@@ -132,7 +132,7 @@ public class GUIStyle {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("Failed to load gui style for %s", res, e);
+            LOGGER.error("Failed to load gui style \"%s\"", res, e);
         }
 
         return style;

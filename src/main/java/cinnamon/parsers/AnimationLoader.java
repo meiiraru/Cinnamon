@@ -26,7 +26,7 @@ public class AnimationLoader {
     public static final float POS_RATIO = 1 / 16f;
 
     public static Pair<Bone, List<Animation>> load(Resource res) {
-        LOGGER.debug("Loading animation %s", res.getPath());
+        LOGGER.debug("Loading animation \"%s\"", res);
 
         InputStream stream = IOUtils.getResource(res);
         if (stream == null)

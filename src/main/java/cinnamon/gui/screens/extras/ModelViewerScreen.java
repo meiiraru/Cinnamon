@@ -150,7 +150,7 @@ public class ModelViewerScreen extends ParentedScreen {
         } else {
             animationList.addEntry(Text.translated("gui.none"), null, null);
         }
-        animationList.select(1);
+        animationList.select(Math.min(1, animations.size()));
     }
 
     public boolean filesDropped(String[] files) {

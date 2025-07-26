@@ -52,7 +52,7 @@ public class HDRFixScreen extends ParentedScreen {
                     Toast.addToast(Text.translated("gui.hdr_fix_screen.saved")).type(Toast.ToastType.SUCCESS);
                 } catch (Exception e) {
                     Toast.addToast(Text.translated("gui.hdr_fix_screen.error.save")).type(Toast.ToastType.ERROR);
-                    LOGGER.error("Failed to save image: " + imagePath, e);
+                    LOGGER.error("Failed to save image \"%s\"", imagePath, e);
                 }
             }
         });
@@ -71,7 +71,7 @@ public class HDRFixScreen extends ParentedScreen {
                     save.setActive(true);
                 } catch (Exception e) {
                     Toast.addToast(Text.translated("gui.hdr_fix_screen.error.load")).type(Toast.ToastType.ERROR);
-                    LOGGER.error("Failed to load image: " + imagePath, e);
+                    LOGGER.error("Failed to load image \"%s\"", imagePath, e);
                 }
             }
         });

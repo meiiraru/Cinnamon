@@ -3,6 +3,8 @@ package cinnamon.render.texture;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
+import org.lwjgl.assimp.AITexture;
+import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -39,16 +41,24 @@ public class Texture {
     }
 
     public static Texture of(Resource res, TextureParams... params) {
-        if (res == null)
-            return MISSING;
-
-        //returns an already registered texture, if any
-        Texture saved = TEXTURE_MAP.get(res);
-        if (saved != null)
-            return saved;
+        Texture tex = getCachedTexture(res);
+        if (tex != null)
+            return tex;
 
         //otherwise load a new texture and cache it
         return cacheTexture(res, loadTexture(res, TextureParams.bake(params)));
+    }
+
+    public static Texture of(Resource res, AITexture assimpTexture, TextureParams... params) {
+        Texture tex = getCachedTexture(res);
+        if (tex != null)
+            return tex;
+
+        return cacheTexture(res, loadTexture(res, assimpTexture, TextureParams.bake(params)));
+    }
+
+    private static Texture getCachedTexture(Resource res) {
+        return res == null ? MISSING : TEXTURE_MAP.get(res);
     }
 
     private static Texture cacheTexture(Resource res, Texture tex) {
@@ -57,6 +67,8 @@ public class Texture {
     }
 
     private static Texture loadTexture(Resource res, int params) {
+        LOGGER.debug("Loading texture \"%s\" with params %s", res, params);
+
         try (TextureIO.ImageData image = TextureIO.load(res)) {
             Resource anim = res.resolveSibling(res.getFileName() + ".json");
             if (IOUtils.hasResource(anim)) {
@@ -65,6 +77,17 @@ public class Texture {
                     return animTex;
             }
 
+            return new Texture(registerTexture(image.width, image.height, image.buffer, params), image.width, image.height);
+        } catch (Exception e) {
+            LOGGER.error("Failed to load texture \"%s\"", res, e);
+            return MISSING;
+        }
+    }
+
+    private static Texture loadTexture(Resource res, AITexture texture, int params) {
+        LOGGER.debug("Loading texture \"%s\" with params %s", res, params);
+
+        try (TextureIO.ImageData image = TextureIO.load(texture)) {
             return new Texture(registerTexture(image.width, image.height, image.buffer, params), image.width, image.height);
         } catch (Exception e) {
             LOGGER.error("Failed to load texture \"%s\"", res, e);
@@ -94,7 +117,7 @@ public class Texture {
 
     private static Texture generateMissingTex(int w, int h) {
         //w * h * rgba
-        ByteBuffer pixels = ByteBuffer.allocateDirect(w * h * 4);
+        ByteBuffer pixels = MemoryUtil.memAlloc(w * h * 4);
 
         //paint texture
         //  Pink Black
@@ -113,12 +136,14 @@ public class Texture {
         pixels.flip();
 
         //return a new texture
-        return new Texture(registerTexture(w, h, pixels, MIPMAP_SMOOTH.id), w, h);
+        int id = registerTexture(w, h, pixels, MIPMAP_SMOOTH.id);
+        MemoryUtil.memFree(pixels);
+        return new Texture(id, w, h);
     }
 
     //returns a 1x1 texture with a solid color
     public static Texture generateSolid(int ARGB) {
-        ByteBuffer buffer = ByteBuffer.allocateDirect(4);
+        ByteBuffer buffer = MemoryUtil.memAlloc(4);
         buffer.put((byte) (ARGB >> 16));
         buffer.put((byte) (ARGB >> 8));
         buffer.put((byte) ARGB);
@@ -126,6 +151,7 @@ public class Texture {
         buffer.flip();
 
         int id = registerTexture(1, 1, buffer, 0);
+        MemoryUtil.memFree(buffer);
         return new Texture(id, 1, 1);
     }
 

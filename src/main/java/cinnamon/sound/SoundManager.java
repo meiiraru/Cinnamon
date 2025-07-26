@@ -152,16 +152,16 @@ public class SoundManager {
 
     public static SoundInstance playSound(Resource resource, SoundCategory category, Vector3f position) {
         if (sounds.size() >= MAX_SOUND_INSTANCES) {
-            LOGGER.debug("Reached %s sound instances! Skipping sound \"%s\"", MAX_SOUND_INSTANCES, resource.getPath());
+            LOGGER.debug("Reached %s sound instances! Skipping sound \"%s\"", MAX_SOUND_INSTANCES, resource);
             return new SoundInstance(category);
         }
 
         if (!initialized) {
-            LOGGER.debug("Sound engine is not initialized! Skipping sound \"%s\"", resource.getPath());
+            LOGGER.debug("Sound engine is not initialized! Skipping sound \"%s\"", resource);
             return new SoundInstance(category);
         }
 
-        LOGGER.debug("Playing sound \"%s\"", resource.getPath());
+        LOGGER.debug("Playing sound \"%s\"", resource);
 
         SoundSource source = new SoundSource(resource, category, position);
         sounds.add(source);

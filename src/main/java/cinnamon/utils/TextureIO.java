@@ -1,8 +1,11 @@
 package cinnamon.utils;
 
 import cinnamon.render.texture.Texture;
+import org.lwjgl.assimp.AIString;
+import org.lwjgl.assimp.AITexture;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
@@ -19,7 +22,7 @@ public class TextureIO {
     public static void screenshot(int width, int height) {
         try {
             //allocate buffer
-            ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * 4);
+            ByteBuffer buffer = MemoryUtil.memAlloc(width * height * 4);
 
             //copy current frame data
             glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
@@ -45,7 +48,8 @@ public class TextureIO {
             //write file
             IOUtils.writeImage(path, img);
 
-            LOGGER.info("Saved screenshot as %s", path.getFileName());
+            MemoryUtil.memFree(buffer);
+            LOGGER.info("Saved screenshot as \"%s\"", path.getFileName());
         } catch (Exception e) {
             LOGGER.error("Failed to save screenshot!", e);
         }
@@ -65,7 +69,7 @@ public class TextureIO {
             int height = glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT);
 
             //allocate buffer
-            ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * 4);
+            ByteBuffer buffer = MemoryUtil.memAlloc(width * height * 4);
 
             //copy texture data
             glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
@@ -90,7 +94,8 @@ public class TextureIO {
             //unbind texture
             glBindTexture(GL_TEXTURE_2D, 0);
 
-            LOGGER.info("Exported texture to %s", outputPath.getFileName());
+            MemoryUtil.memFree(buffer);
+            LOGGER.info("Exported texture to \"%s\"", outputPath.getFileName());
         } catch (Exception e) {
             LOGGER.error("Failed to save texture!", e);
         }
@@ -113,6 +118,31 @@ public class TextureIO {
 
             if (buffer == null)
                 throw new Exception("Failed to load image \"" + resource + "\", " + STBImage.stbi_failure_reason());
+
+            return new ImageData(w.get(), h.get(), buffer);
+        }
+    }
+
+    public static ImageData load(AITexture texture) throws Exception {
+        return load(texture, false, 4);
+    }
+
+    public static ImageData load(AITexture texture, boolean flip, int desiredChannels) throws Exception {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer w = stack.mallocInt(1);
+            IntBuffer h = stack.mallocInt(1);
+            IntBuffer channels = stack.mallocInt(1);
+
+            STBImage.stbi_set_flip_vertically_on_load(flip);
+            ByteBuffer imageBuffer = texture.pcDataCompressed();
+            ByteBuffer buffer = STBImage.stbi_load_from_memory(imageBuffer, w, h, channels, desiredChannels);
+            STBImage.stbi_set_flip_vertically_on_load(false);
+
+            if (buffer == null) {
+                try (AIString name = texture.mFilename()) {
+                    throw new Exception("Failed to load image \"" + name.dataString() + "\", " + STBImage.stbi_failure_reason());
+                }
+            }
 
             return new ImageData(w.get(), h.get(), buffer);
         }

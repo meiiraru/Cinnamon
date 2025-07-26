@@ -14,11 +14,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static cinnamon.events.Events.LOGGER;
-import static cinnamon.render.texture.Texture.TextureParams.*;
+import static cinnamon.render.texture.Texture.TextureParams.SMOOTH_SAMPLING;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL30.GL_RGB16F;
-import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 import static org.lwjgl.stb.STBImage.stbi_image_free;
 
 public class SkyBox {
@@ -52,6 +51,8 @@ public class SkyBox {
     }
 
     private static SkyBox loadSkybox(Resource resource) {
+        LOGGER.debug("Loading skybox \"%s\"", resource);
+
         CubeMap texture;
         boolean hdr = testHdr(resource);
         if (hdr) {

@@ -27,15 +27,7 @@ public class IBLMap {
         s.setBool("hdr", hdr);
 
         glViewport(0, 0, 512, 512);
-        glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-        for (CubeMap.Face face : CubeMap.Face.values()) {
-            s.setMat4("view", face.viewMatrix);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, face.GLTarget, id, 0);
-            glClear(GL_COLOR_BUFFER_BIT);
-            SimpleGeometry.INVERTED_CUBE.render();
-        }
-
-        Framebuffer.DEFAULT_FRAMEBUFFER.use();
+        renderInvertedCube(id, s);
         return new CubeMap(id, 512, 512);
     }
 
@@ -49,6 +41,11 @@ public class IBLMap {
         s.setMat4("projection", CAPTURE_PROJECTION);
 
         glViewport(0, 0, 32, 32);
+        renderInvertedCube(id, s);
+        return new CubeMap(id, 32, 32);
+    }
+
+    private static void renderInvertedCube(int id, Shader s) {
         glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
         for (CubeMap.Face face : CubeMap.Face.values()) {
             s.setMat4("view", face.viewMatrix);
@@ -58,7 +55,6 @@ public class IBLMap {
         }
 
         Framebuffer.DEFAULT_FRAMEBUFFER.use();
-        return new CubeMap(id, 32, 32);
     }
 
     public static CubeMap generatePrefilterMap(CubeMap cubemap) {

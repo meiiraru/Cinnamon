@@ -21,7 +21,7 @@ import static cinnamon.utils.Maths.parseVec3;
 public class ObjLoader {
 
     public static Mesh load(Resource res) {
-        LOGGER.debug("Loading model %s", res.getPath());
+        LOGGER.debug("Loading model \"%s\"", res);
 
         InputStream stream = IOUtils.getResource(res);
         if (stream == null)
@@ -100,7 +100,7 @@ public class ObjLoader {
             //return the mesh
             return theMesh;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load obj \"" + res.getPath() + "\"", e);
+            throw new RuntimeException("Failed to load obj \"" + res + "\"", e);
         }
     }
 

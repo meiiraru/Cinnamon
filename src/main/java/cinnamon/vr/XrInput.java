@@ -82,7 +82,7 @@ public class XrInput {
 
     private static void loadProfile(int id, Resource profile, MemoryStack stack) {
         try {
-            LOGGER.debug("Loading xr input profile: %s", profile);
+            LOGGER.debug("Loading xr input profile \"%s\"", profile);
             JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(profile))).getAsJsonObject();
 
             JsonObject userPaths = json.getAsJsonObject("user_paths");
@@ -101,7 +101,7 @@ public class XrInput {
             loadUserPath(stack, json.getAsJsonObject("all_user_paths"), interactionProfile.profiles, interactionProfile);
             allProfiles.add(interactionProfile);
         } catch (Exception e) {
-            LOGGER.error("Failed to load profile: %s", profile, e);
+            LOGGER.error("Failed to load profile \"%s\"", profile, e);
         }
     }
 
@@ -144,7 +144,7 @@ public class XrInput {
     }
 
     private static boolean suggestBindings(MemoryStack stack, InteractionProfile profile) {
-        LOGGER.debug("Suggesting xr input bindings for profile: %s", profile.name);
+        LOGGER.debug("Suggesting xr input bindings for profile \"%s\"", profile.name);
         XrActionSuggestedBinding.Buffer suggestedBindingsBuffer = XrActionSuggestedBinding.calloc(profile.allButtons.size(), stack);
         int i = 0;
         for (XrKeybind<?> action : profile.allButtons) {

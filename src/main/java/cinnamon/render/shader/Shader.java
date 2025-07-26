@@ -27,7 +27,7 @@ public class Shader {
     }
 
     private static int loadShader(Resource res) {
-        LOGGER.debug("Loading shader %s", res);
+        LOGGER.debug("Loading shader \"%s\"", res);
         String src = IOUtils.readString(res);
         String[] split = src.split("#type ");
         //[0] = empty string
@@ -107,7 +107,7 @@ public class Shader {
         int status = glGetShaderi(id, GL_COMPILE_STATUS);
         if (status == GL_FALSE) {
             int i = glGetShaderi(id, GL_INFO_LOG_LENGTH);
-            LOGGER.fatal("Error compiling shader: %s", res);
+            LOGGER.fatal("Error compiling shader \"%s\"", res);
             throw new RuntimeException(glGetShaderInfoLog(id, i));
         }
     }
@@ -116,7 +116,7 @@ public class Shader {
         int status = glGetProgrami(id, GL_LINK_STATUS);
         if (status == GL_FALSE) {
             int i = glGetProgrami(id, GL_INFO_LOG_LENGTH);
-            LOGGER.fatal("Error linking shader program: %s", res);
+            LOGGER.fatal("Error linking shader program \"%s\"", res);
             throw new RuntimeException(glGetProgramInfoLog(id, i));
         }
     }

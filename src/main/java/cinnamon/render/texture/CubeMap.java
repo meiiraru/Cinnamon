@@ -4,6 +4,7 @@ import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -71,14 +72,13 @@ public class CubeMap extends Texture {
 
     private static CubeMap generateMissingMap() {
         int id = glGenTextures();
-        Resource res = new Resource("generated/missing_cubemap");
 
         //grab missing tex data
         glBindTexture(GL_TEXTURE_2D, Texture.MISSING.getID());
         int width = Texture.MISSING.getWidth();
         int height = Texture.MISSING.getHeight();
 
-        ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * 4);
+        ByteBuffer buffer = MemoryUtil.memAlloc(width * height * 4);
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
         buffer.flip();
 
@@ -95,7 +95,8 @@ public class CubeMap extends Texture {
 
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-        return cacheCubemap(res, new CubeMap(id, width, height));
+        MemoryUtil.memFree(buffer);
+        return new CubeMap(id, width, height);
     }
 
     public static void freeAll() {

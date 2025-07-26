@@ -228,7 +228,7 @@ public class Client {
 
             //a screen has been added
             screen.added();
-            LOGGER.debug("Set screen: %s", s.getClass().getSimpleName());
+            LOGGER.debug("Set screen to \"%s\"", s.getClass().getSimpleName());
 
             //unlock mouse
             window.unlockMouse();

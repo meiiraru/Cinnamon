@@ -36,7 +36,7 @@ public class AssimpLoader {
             aiProcess_GenBoundingBoxes;
 
     public static Model load(Resource res) {
-        LOGGER.debug("Loading model %s", res);
+        LOGGER.debug("Loading model \"%s\"", res);
 
         AIFileIO fileIO = AIFileIO.create()
                 .OpenProc((pFileIO, fileName, openMode) -> {
@@ -44,7 +44,7 @@ public class AssimpLoader {
                     String file = memUTF8(fileName);
                     try {
                         Resource resource = new Resource(res.getNamespace(), file);
-                        LOGGER.debug("Opening file %s", resource);
+                        LOGGER.debug("Opening file \"%s\"", resource);
                         data = IOUtils.getResourceBuffer(resource);
                     } catch (Exception e) {
                         throw new RuntimeException("Could not open file: " + file);
@@ -111,7 +111,7 @@ public class AssimpLoader {
             LOGGER.debug("Model has %s materials", numMaterials);
             for (int i = 0; i < numMaterials; i++) {
                 AIMaterial aimaterial = AIMaterial.create(material.get(i));
-                parseMaterial(aimaterial, model, res);
+                parseMaterial(scene, aimaterial, model, res);
             }
 
             aiReleaseImport(scene);
@@ -139,7 +139,7 @@ public class AssimpLoader {
     }
 
     private static void parseNode(AINode node, PointerBuffer meshes, Matrix4f transform, Model model) {
-        LOGGER.debug("Parsing node %s", node.mName().dataString());
+        LOGGER.debug("Parsing node \"%s\"", node.mName().dataString());
 
         //parse node transformation
         Matrix4f matrix = transform.mul(parseMatrix4f(node.mTransformation()), new Matrix4f());
@@ -227,10 +227,10 @@ public class AssimpLoader {
         }
 
         if (skips > 0)
-            LOGGER.debug("Skipped %d faces for group %s with less than 3 indices", skips, mesh.name);
+            LOGGER.debug("Skipped %d faces for group \"%s\" with less than 3 indices", skips, mesh.name);
     }
 
-    private static void parseMaterial(AIMaterial aimaterial, Model model, Resource res) {
+    private static void parseMaterial(AIScene scene, AIMaterial aimaterial, Model model, Resource res) {
         AIString name = AIString.malloc();
         aiGetMaterialString(aimaterial, AI_MATKEY_NAME, 0, 0, name);
 
@@ -238,16 +238,16 @@ public class AssimpLoader {
         model.materials.add(material);
 
         //parse textures
-        material.setAlbedo(parseTexture(aimaterial, aiTextureType_DIFFUSE, res, Texture.TextureParams.MIPMAP_SMOOTH));
-        material.setHeight(parseTexture(aimaterial, aiTextureType_HEIGHT, res));
-        material.setNormal(parseTexture(aimaterial, aiTextureType_NORMALS, res, Texture.TextureParams.SMOOTH_SAMPLING));
-        material.setAO(parseTexture(aimaterial, aiTextureType_AMBIENT_OCCLUSION, res));
-        material.setRoughness(parseTexture(aimaterial, aiTextureType_SHININESS, res));
-        material.setMetallic(parseTexture(aimaterial, aiTextureType_METALNESS, res));
-        material.setEmissive(parseTexture(aimaterial, aiTextureType_EMISSIVE, res));
+        material.setAlbedo(parseTexture(scene, aimaterial, aiTextureType_DIFFUSE, res, Texture.TextureParams.MIPMAP_SMOOTH));
+        material.setHeight(parseTexture(scene, aimaterial, aiTextureType_HEIGHT, res));
+        material.setNormal(parseTexture(scene, aimaterial, aiTextureType_NORMALS, res, Texture.TextureParams.SMOOTH_SAMPLING));
+        material.setAO(parseTexture(scene, aimaterial, aiTextureType_AMBIENT_OCCLUSION, res));
+        material.setRoughness(parseTexture(scene, aimaterial, aiTextureType_SHININESS, res));
+        material.setMetallic(parseTexture(scene, aimaterial, aiTextureType_METALNESS, res));
+        material.setEmissive(parseTexture(scene, aimaterial, aiTextureType_EMISSIVE, res));
     }
 
-    private static MaterialTexture parseTexture(AIMaterial aimaterial, int type, Resource res, Texture.TextureParams... params) {
+    private static MaterialTexture parseTexture(AIScene scene, AIMaterial aimaterial, int type, Resource res, Texture.TextureParams... params) {
         if (aiGetMaterialTextureCount(aimaterial, type) == 0)
             return null;
 
@@ -258,9 +258,21 @@ public class AssimpLoader {
             return null;
         }
 
+        String path = aipath.dataString();
+        Resource texture;
+        AITexture embedded = aiGetEmbeddedTexture(scene, path);
+
+        LOGGER.debug("Found material (type %s) texture \"%s\"%s", type, path, embedded == null ? "" : " (embedded)");
+
+        if (embedded != null) {
+            texture = new Resource("assimp/" + res + "/" + path);
+            //force load of embedded texture to assign the resource path
+            Texture.of(texture, embedded, params);
+        } else {
+            texture = res.resolveSibling(path);
+        }
+
         //create texture
-        Resource texture = res.resolveSibling(aipath.dataString());
-        LOGGER.debug("Found material (type %s) texture: %s", type, texture);
         return new MaterialTexture(texture, params);
     }
 }

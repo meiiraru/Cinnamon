@@ -9,10 +9,14 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import static cinnamon.events.Events.LOGGER;
+
 public class LrcLoader {
 
     //load a lyrics file using the LRC file standard
     public static Lyrics loadLyrics(Resource res) {
+        LOGGER.debug("Loading lyrics \"%s\"", res);
+        
         InputStream stream = IOUtils.getResource(res);
         if (stream == null)
             throw new RuntimeException("Resource not found: " + res);

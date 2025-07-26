@@ -33,7 +33,7 @@ public class LangManager {
         LANG.clear();
 
         //get the current lang
-        LOGGER.info("Initializing lang for: " + lang);
+        LOGGER.info("Initializing lang for: %s", lang);
 
         //load the namespaces lang
         for (String s : getNamespaces()) {
@@ -50,7 +50,7 @@ public class LangManager {
         if (!IOUtils.hasResource(res))
             return;
 
-        LOGGER.debug("Loading lang file: " + res);
+        LOGGER.debug("Loading lang \"%s\"", res);
 
         try {
             JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(res))).getAsJsonObject();
@@ -60,7 +60,7 @@ public class LangManager {
                 LANG.put(key, value);
             }
         } catch (Exception e) {
-            LOGGER.error("Failed to load lang file: " + res, e);
+            LOGGER.error("Failed to load lang \"%s\"", res, e);
         }
     }
 
@@ -83,7 +83,7 @@ public class LangManager {
                 for (Map.Entry<String, JsonElement> entry : json.asMap().entrySet())
                     LANG_LIST.put(entry.getKey(), entry.getValue().getAsString());
             } catch (Exception e) {
-                LOGGER.error("Failed to load lang data: " + res, e);
+                LOGGER.error("Failed to load lang \"%s\"", res, e);
             }
         }
     }

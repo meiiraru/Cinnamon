@@ -8,13 +8,14 @@ import cinnamon.utils.TextureIO;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.lwjgl.system.MemoryUtil;
 
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static cinnamon.Client.LOGGER;
+import static cinnamon.events.Events.LOGGER;
 import static cinnamon.render.texture.Texture.TextureParams.MIPMAP;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL30.glGenerateMipmap;
@@ -23,14 +24,14 @@ public class AnimatedTexture extends Texture {
 
     private static final List<AnimatedTexture> ANIMATED_TEXTURES = new ArrayList<>();
 
-    private final AnimationData animationData;
-    private final ByteBuffer imgBuffer, frameBuffer;
-    private final int totalWidth;
-    private final boolean mipmap;
+    protected final AnimationData animationData;
+    protected final ByteBuffer imgBuffer, frameBuffer;
+    protected final int totalWidth;
+    protected final boolean mipmap;
 
-    private boolean tick = false;
+    protected boolean tick = false;
 
-    private AnimatedTexture(int id, int width, int height, int totalWidth, boolean mipmap, ByteBuffer imgBuffer, ByteBuffer frameBuffer, AnimationData animationData) {
+    protected AnimatedTexture(int id, int width, int height, int totalWidth, boolean mipmap, ByteBuffer imgBuffer, ByteBuffer frameBuffer, AnimationData animationData) {
         super(id, width, height);
         this.totalWidth = totalWidth;
         this.mipmap = mipmap;
@@ -45,8 +46,8 @@ public class AnimatedTexture extends Texture {
         if (anim == null)
             return null;
 
-        ByteBuffer buffer = ByteBuffer.allocateDirect(4 * anim.frameWidth * anim.frameHeight);
-        ByteBuffer imgBuffer = ByteBuffer.allocateDirect(image.buffer.capacity());
+        ByteBuffer buffer = MemoryUtil.memAlloc(4 * anim.frameWidth * anim.frameHeight);
+        ByteBuffer imgBuffer = MemoryUtil.memAlloc(image.buffer.capacity());
         imgBuffer.put(image.buffer);
         imgBuffer.rewind();
         image.buffer.rewind();
@@ -96,6 +97,13 @@ public class AnimatedTexture extends Texture {
         tick = false;
     }
 
+    @Override
+    public void free() {
+        MemoryUtil.memFree(imgBuffer);
+        MemoryUtil.memFree(frameBuffer);
+        super.free();
+    }
+
     protected void applyFrame(int currentFrame, int nextFrame, float delta) {
         int width = getWidth() * 4;
         int totalWidth = this.totalWidth * 4;
@@ -128,24 +136,24 @@ public class AnimatedTexture extends Texture {
         updateBuffer();
     }
 
-    private void updateBuffer() {
+    protected void updateBuffer() {
         glBindTexture(GL_TEXTURE_2D, getID());
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, getWidth(), getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, frameBuffer);
         if (mipmap) glGenerateMipmap(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    private record AnimationData(int frameWidth, int frameHeight, boolean interpolate, int totalTime, List<Pair<Integer, Integer>> framesIDTime) {
+    protected record AnimationData(int frameWidth, int frameHeight, boolean interpolate, int totalTime, List<Pair<Integer, Integer>> framesIDTime) {
         public static AnimationData load(Resource res, int width, int height) {
             try {
-                LOGGER.debug("Loading animation data for %s", res);
+                LOGGER.debug("Loading animation data \"%s\"", res);
                 JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(res))).getAsJsonObject();
 
                 int frameWidth = json.has("width") ? json.get("width").getAsInt() : width;
                 int frameHeight = json.has("height") ? json.get("height").getAsInt() : height;
 
                 if (frameWidth <= 0 || width % frameWidth != 0 || frameHeight <= 0 || height % frameHeight != 0) {
-                    LOGGER.error("Invalid animation frame size (%d x %d) for %s", frameWidth, frameHeight, res);
+                    LOGGER.error("Invalid animation frame size (%d x %d) for \"%s\"", frameWidth, frameHeight, res);
                     return null;
                 }
 
@@ -196,7 +204,7 @@ public class AnimatedTexture extends Texture {
 
                 return new AnimationData(frameWidth, frameHeight, interpolate, totalTime, framesIDTime);
             } catch (Exception e) {
-                LOGGER.error("Failed to load animation data from %s", res, e);
+                LOGGER.error("Failed to load animation data \"%s\"", res, e);
                 return null;
             }
         }

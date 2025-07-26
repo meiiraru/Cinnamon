@@ -19,7 +19,7 @@ import static cinnamon.events.Events.LOGGER;
 public class MaterialLoader {
 
     public static Map<String, Material> load(Resource res) {
-        LOGGER.debug("Loading material %s", res.getPath());
+        LOGGER.debug("Loading material \"%s\"", res);
 
         InputStream stream = IOUtils.getResource(res);
         Map<String, Material> map = new HashMap<>();
@@ -74,7 +74,7 @@ public class MaterialLoader {
             map.put(material.getName(), material);
             return map;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load material \"" + res.getPath() + "\"", e);
+            throw new RuntimeException("Failed to load material \"" + res + "\"", e);
         }
     }
 
