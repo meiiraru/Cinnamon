@@ -14,6 +14,7 @@ import cinnamon.model.ModelManager;
 import cinnamon.registry.*;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
@@ -22,8 +23,6 @@ import cinnamon.utils.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
-
-import static cinnamon.Client.LOGGER;
 
 public class ModelViewerScreen extends ParentedScreen {
 
@@ -117,8 +116,14 @@ public class ModelViewerScreen extends ParentedScreen {
         Text.of(modelName).withStyle(Style.EMPTY.outlined(true)).render(VertexConsumer.FONT, matrices, (width - listWidth) / 2f + listWidth, 4, Alignment.TOP_CENTER);
     }
 
-    private void setModel(Resource model, String name) {
-        modelViewer.setModel(ModelManager.load(model));
+    private boolean setModel(Resource model, String name) {
+        ModelRenderer renderer = ModelManager.load(model);
+        if (renderer == null) {
+            Toast.addToast(Text.translated("gui.model_viewer_screen.load_error")).type(Toast.ToastType.ERROR);
+            return false;
+        }
+
+        modelViewer.setModel(renderer);
         modelName = name;
 
         animationList.clearEntries();
@@ -151,21 +156,14 @@ public class ModelViewerScreen extends ParentedScreen {
             animationList.addEntry(Text.translated("gui.none"), null, null);
         }
         animationList.select(Math.min(1, animations.size()));
+        return true;
     }
 
     public boolean filesDropped(String[] files) {
         if (files.length == 0)
             return false;
 
-        try {
-            String file = files[0].replaceAll("\\\\", "/");
-            setModel(new Resource("", file), file);
-            return true;
-        } catch (Exception e) {
-            Toast.addToast(Text.translated("gui.model_viewer_screen.load_error")).type(Toast.ToastType.ERROR);
-            LOGGER.error("Failed to load model", e);
-        }
-
-        return false;
+        String file = files[0].replaceAll("\\\\", "/");
+        return setModel(new Resource("", file), file);
     }
 }

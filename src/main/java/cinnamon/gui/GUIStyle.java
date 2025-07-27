@@ -3,10 +3,12 @@ package cinnamon.gui;
 import cinnamon.render.Font;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
+import cinnamon.vr.XrManager;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
@@ -87,8 +89,14 @@ public class GUIStyle {
         LOGGER.debug("Loading gui style \"%s\"", res);
         GUIStyle style = new GUIStyle();
 
-        try {
-            JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(res))).getAsJsonObject();
+        InputStream stream = IOUtils.getResource(res);
+        if (stream == null) {
+            LOGGER.error("Resource not found: %s", res);
+            return style;
+        }
+
+        try (stream; InputStreamReader reader = new InputStreamReader(stream)) {
+            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
 
             //parent
             if (json.has("parent"))

@@ -146,6 +146,7 @@ public class ObjExporter {
         //write texture file
         InputStream input = IOUtils.getResource(texture.texture());
         IOUtils.writeFile(path.resolve(textureName), input.readAllBytes());
+        input.close();
 
         //write texture material
         string.append(key)

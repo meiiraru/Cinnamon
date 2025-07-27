@@ -6,6 +6,7 @@ import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -14,14 +15,14 @@ import static cinnamon.events.Events.LOGGER;
 public class LrcLoader {
 
     //load a lyrics file using the LRC file standard
-    public static Lyrics loadLyrics(Resource res) {
+    public static Lyrics loadLyrics(Resource res) throws IOException {
         LOGGER.debug("Loading lyrics \"%s\"", res);
-        
+
         InputStream stream = IOUtils.getResource(res);
         if (stream == null)
             throw new RuntimeException("Resource not found: " + res);
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
+        try (stream; InputStreamReader reader = new InputStreamReader(stream); BufferedReader br = new BufferedReader(reader)) {
             Lyrics lyrics = new Lyrics();
 
             for (String line; (line = br.readLine()) != null; ) {
@@ -69,8 +70,6 @@ public class LrcLoader {
             }
 
             return lyrics;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load lyrics file \"" + res + "\"", e);
         }
     }
 }

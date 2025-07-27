@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
@@ -52,8 +53,8 @@ public class LangManager {
 
         LOGGER.debug("Loading lang \"%s\"", res);
 
-        try {
-            JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(res))).getAsJsonObject();
+        try (InputStream stream = IOUtils.getResource(res); InputStreamReader reader = new InputStreamReader(stream)) {
+            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
             for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue().getAsString();
@@ -78,8 +79,8 @@ public class LangManager {
             if (!IOUtils.hasResource(res))
                 continue;
 
-            try {
-                JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(res))).getAsJsonObject();
+            try (InputStream stream = IOUtils.getResource(res); InputStreamReader reader = new InputStreamReader(stream)) {
+                JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
                 for (Map.Entry<String, JsonElement> entry : json.asMap().entrySet())
                     LANG_LIST.put(entry.getKey(), entry.getValue().getAsString());
             } catch (Exception e) {

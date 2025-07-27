@@ -6,8 +6,11 @@ import cinnamon.lang.LangManager;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.IOUtils;
+import cinnamon.utils.Resource;
 import com.google.gson.*;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,23 +117,23 @@ public class Settings {
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 
     public static void load() {
-        JsonObject json;
+        Resource options = new Resource("", OPTIONS_FILE.toString());
+        if (!IOUtils.hasResource(options)) {
+            save();
+            return;
+        }
 
         //read the settings file
-        try {
-            byte[] bytes = IOUtils.readFile(OPTIONS_FILE);
-            if (bytes == null) {
-                save();
-                return;
-            }
-            json = JsonParser.parseString(new String(bytes)).getAsJsonObject();
+        LOGGER.info("Loading settings file...");
+
+        JsonObject json;
+        try (InputStream stream = IOUtils.getResource(options); InputStreamReader reader = new InputStreamReader(stream)) {
+            json = JsonParser.parseReader(reader).getAsJsonObject();
         } catch (Exception e) {
             LOGGER.error("Failed to load saved settings", e);
             save();
             return;
         }
-
-        LOGGER.info("Loading settings file...");
 
         //versioning
         Map<Setting<?>, String> versionMap;

@@ -128,7 +128,7 @@ public class Texture {
                 //x + y * w * rgba
                 int i = (x + y * w) * 4;
                 boolean b = (x < hw && y < hh) || (y >= hh && x >= hw);
-                int col = b ? 0xFF << 24 : 0xFFAD72FF; //ABGR
+                int col = b ? 0xFF202020 : 0xFFAD72FF; //ABGR
                 pixels.putInt(i, col);
             }
         }

@@ -1,7 +1,5 @@
 package cinnamon.utils;
 
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,10 +16,7 @@ public class Version implements Comparable<Version> {
     static {
         String ver;
         try {
-            InputStream stream = IOUtils.getResource(VERSION);
-            if (stream == null)
-                throw new RuntimeException("Version file not found");
-            ver = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            ver = IOUtils.readString(VERSION);
         } catch (Exception e) {
             LOGGER.error("Unable to get client version", e);
             ver = "0.0.0";

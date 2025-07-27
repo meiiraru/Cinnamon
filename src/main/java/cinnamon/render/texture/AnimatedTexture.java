@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.lwjgl.system.MemoryUtil;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ public class AnimatedTexture extends Texture {
         this.frameBuffer = frameBuffer;
         this.animationData = animationData;
         ANIMATED_TEXTURES.add(this);
+        applyFrame(0, 0, 0f);
     }
 
     protected static Texture loadTexture(TextureIO.ImageData image, Resource animation, int params) {
@@ -145,9 +147,16 @@ public class AnimatedTexture extends Texture {
 
     protected record AnimationData(int frameWidth, int frameHeight, boolean interpolate, int totalTime, List<Pair<Integer, Integer>> framesIDTime) {
         public static AnimationData load(Resource res, int width, int height) {
-            try {
-                LOGGER.debug("Loading animation data \"%s\"", res);
-                JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(res))).getAsJsonObject();
+            LOGGER.debug("Loading animation data \"%s\"", res);
+
+            InputStream stream = IOUtils.getResource(res);
+            if (stream == null) {
+                LOGGER.error("Resource not found \"%s\"", res);
+                return null;
+            }
+
+            try (stream; InputStreamReader reader = new InputStreamReader(stream)) {
+                JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
 
                 int frameWidth = json.has("width") ? json.get("width").getAsInt() : width;
                 int frameHeight = json.has("height") ? json.get("height").getAsInt() : height;

@@ -7,6 +7,7 @@ import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
@@ -18,16 +19,15 @@ import static cinnamon.events.Events.LOGGER;
 
 public class MaterialLoader {
 
-    public static Map<String, Material> load(Resource res) {
+    public static Map<String, Material> load(Resource res) throws IOException {
         LOGGER.debug("Loading material \"%s\"", res);
 
         InputStream stream = IOUtils.getResource(res);
-        Map<String, Material> map = new HashMap<>();
-
         if (stream == null)
-            return map;
+            throw new RuntimeException("Resource not found: " + res);
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
+        Map<String, Material> map = new HashMap<>();
+        try (stream; InputStreamReader reader = new InputStreamReader(stream); BufferedReader br = new BufferedReader(reader)) {
             Material material = new Material("");
 
             for (String line; (line = br.readLine()) != null; ) {
@@ -73,8 +73,6 @@ public class MaterialLoader {
 
             map.put(material.getName(), material);
             return map;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load material \"" + res + "\"", e);
         }
     }
 

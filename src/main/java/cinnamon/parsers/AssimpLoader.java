@@ -35,90 +35,45 @@ public class AssimpLoader {
             aiProcess_OptimizeGraph |
             aiProcess_GenBoundingBoxes;
 
-    public static Model load(Resource res) {
-        LOGGER.debug("Loading model \"%s\"", res);
+    public static Model load(Resource res) throws Exception {
+        LOGGER.debug("Loading model \"%s\"", res);        
 
-        AIFileIO fileIO = AIFileIO.create()
-                .OpenProc((pFileIO, fileName, openMode) -> {
-                    ByteBuffer data;
-                    String file = memUTF8(fileName);
-                    try {
-                        Resource resource = new Resource(res.getNamespace(), file);
-                        LOGGER.debug("Opening file \"%s\"", resource);
-                        data = IOUtils.getResourceBuffer(resource);
-                    } catch (Exception e) {
-                        throw new RuntimeException("Could not open file: " + file);
-                    }
+        AIScene scene = getSceneFor(res);
+        if (scene == null)
+            throw new Exception(aiGetErrorString());
 
-                    return AIFile.create()
-                            .ReadProc((pFile, pBuffer, size, count) -> {
-                                long max = Math.min(data.remaining() / size, count);
-                                memCopy(memAddress(data), pBuffer, max * size);
-                                data.position(data.position() + (int) (max * size));
-                                return max;
-                            })
-                            .SeekProc((pFile, offset, origin) -> {
-                                if (origin == Assimp.aiOrigin_CUR)
-                                    data.position(data.position() + (int) offset);
-                                else if (origin == Assimp.aiOrigin_SET)
-                                    data.position((int) offset);
-                                else if (origin == Assimp.aiOrigin_END)
-                                    data.position(data.limit() + (int) offset);
-                                return 0;
-                            })
-                            .FileSizeProc(pFile -> data.limit())
-                            .address();
-                })
-                .CloseProc((pFileIO, pFile) -> {
-                    AIFile aiFile = AIFile.create(pFile);
-                    aiFile.ReadProc().free();
-                    aiFile.SeekProc().free();
-                    aiFile.FileSizeProc().free();
-                });
+        Model model = new Model();
 
-        try {
-            AIScene scene = aiImportFileEx(res.getPath(), DEFAULT_FLAGS, fileIO);
-            String error = aiGetErrorString();
-            if (error != null && !error.isEmpty() || scene == null) {
-                aiReleaseImport(scene);
-                throw new Exception(error);
-            }
+        PointerBuffer meshes = scene.mMeshes();
+        int numMeshes = meshes == null ? 0 : meshes.limit();
+        LOGGER.debug("Model has %s meshes", numMeshes);
 
-            Model model = new Model();
-
-            PointerBuffer meshes = scene.mMeshes();
-            int numMeshes = meshes == null ? 0 : meshes.limit();
-            LOGGER.debug("Model has %s meshes", numMeshes);
-
-            if (numMeshes == 0) {
-                aiReleaseImport(scene);
-                return model;
-            }
-
-            AINode root = scene.mRootNode();
-            if (root == null) {
-                LOGGER.debug("Model has no root node");
-                aiReleaseImport(scene);
-                return model;
-            }
-
-            //parse nodes and meshes
-            parseNode(root, meshes, new Matrix4f(), model);
-
-            //parse materials
-            PointerBuffer material = scene.mMaterials();
-            int numMaterials = material == null ? 0 : material.limit();
-            LOGGER.debug("Model has %s materials", numMaterials);
-            for (int i = 0; i < numMaterials; i++) {
-                AIMaterial aimaterial = AIMaterial.create(material.get(i));
-                parseMaterial(scene, aimaterial, model, res);
-            }
-
+        if (numMeshes == 0) {
             aiReleaseImport(scene);
             return model;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load model \"" + res + "\"", e);
         }
+
+        AINode root = scene.mRootNode();
+        if (root == null) {
+            LOGGER.debug("Model has no root node");
+            aiReleaseImport(scene);
+            return model;
+        }
+
+        //parse nodes and meshes
+        parseNode(root, meshes, new Matrix4f(), model);
+
+        //parse materials
+        PointerBuffer material = scene.mMaterials();
+        int numMaterials = material == null ? 0 : material.limit();
+        LOGGER.debug("Model has %s materials", numMaterials);
+        for (int i = 0; i < numMaterials; i++) {
+            AIMaterial aimaterial = AIMaterial.create(material.get(i));
+            parseMaterial(scene, aimaterial, model, res);
+        }
+
+        aiReleaseImport(scene);
+        return model;
     }
 
     private static Vector3f parseVec3(AIVector3D vec) {
@@ -136,6 +91,57 @@ public class AssimpLoader {
                 mat.a3(), mat.b3(), mat.c3(), mat.d3(),
                 mat.a4(), mat.b4(), mat.c4(), mat.d4()
         );
+    }
+
+    private static AIScene getSceneFor(Resource res) {
+        if (res.getNamespace().isEmpty())
+            return aiImportFileEx(res.getPath(), DEFAULT_FLAGS, null);
+
+        AIFileIO fileIO = AIFileIO.create()
+                .OpenProc((pFileIO, fileName, openMode) -> {
+                    ByteBuffer data;
+                    String file = memUTF8(fileName);
+                    try {
+                        Resource resource = new Resource(res.getNamespace(), file);
+                        LOGGER.debug("Opening file \"%s\"", resource);
+                        data = IOUtils.getResourceBuffer(resource);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Could not open file: " + file);
+                    }
+
+                    return AIFile.create()
+                            .ReadProc((pFile, pBuffer, size, count) -> {
+                                long bytesToRead = size * count;
+                                if (data.position() + bytesToRead > data.limit())
+                                    bytesToRead = data.limit() - data.position();
+
+                                memCopy(memAddress(data), pBuffer + data.position(), bytesToRead);
+                                data.position((int) (data.position() + bytesToRead));
+                                return bytesToRead / size;
+                            })
+                            .SeekProc((pFile, offset, origin) -> {
+                                switch (origin) {
+                                    case aiOrigin_SET -> data.position((int) offset);
+                                    case aiOrigin_CUR -> data.position((int) (data.position() + offset));
+                                    case aiOrigin_END -> data.position((int) (data.limit() + offset));
+                                }
+                                return data.position() > data.limit() ? aiReturn_FAILURE : aiReturn_SUCCESS;
+                            })
+                            .FileSizeProc(pFile -> data.limit())
+                            .address();
+                })
+                .CloseProc((pFileIO, pFile) -> {
+                    AIFile aiFile = AIFile.create(pFile);
+                    aiFile.ReadProc().free();
+                    aiFile.SeekProc().free();
+                    aiFile.FileSizeProc().free();
+                });
+
+        AIScene scene = aiImportFileEx(res.getPath(), DEFAULT_FLAGS, fileIO);
+        fileIO.OpenProc().free();
+        fileIO.CloseProc().free();
+
+        return scene;
     }
 
     private static void parseNode(AINode node, PointerBuffer meshes, Matrix4f transform, Model model) {
@@ -231,7 +237,7 @@ public class AssimpLoader {
     }
 
     private static void parseMaterial(AIScene scene, AIMaterial aimaterial, Model model, Resource res) {
-        AIString name = AIString.malloc();
+        AIString name = AIString.create();
         aiGetMaterialString(aimaterial, AI_MATKEY_NAME, 0, 0, name);
 
         Material material = new Material(name.dataString());
@@ -251,7 +257,7 @@ public class AssimpLoader {
         if (aiGetMaterialTextureCount(aimaterial, type) == 0)
             return null;
 
-        AIString aipath = AIString.malloc();
+        AIString aipath = AIString.create();
         int result = aiGetMaterialTexture(aimaterial, type, 0, aipath, null, null, null, null, null, (IntBuffer) null);
         if (result != aiReturn_SUCCESS) {
             LOGGER.error("Failed to get material texture of type %d: %s", type, aiGetErrorString());

@@ -7,6 +7,8 @@ import cinnamon.utils.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
+import static cinnamon.events.Events.LOGGER;
+
 public class MaterialManager {
 
     private static final Map<Resource, Map<String, Material>> MATERIAL_MAP = new HashMap<>();
@@ -17,7 +19,12 @@ public class MaterialManager {
         //then return the material even if it is null
         Map<String, Material> materialMap = MATERIAL_MAP.get(resource);
         if (materialMap == null) {
-            materialMap = MaterialLoader.load(resource);
+            try {
+                materialMap = MaterialLoader.load(resource);
+            } catch (Exception e) {
+                LOGGER.error("Failed to load material \"%s\"", resource, e);
+                materialMap = new HashMap<>();
+            }
             MATERIAL_MAP.put(resource, materialMap);
         }
         return materialMap.get(id);

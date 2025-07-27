@@ -14,6 +14,7 @@ import com.google.gson.JsonParser;
 import org.joml.Vector3f;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,17 +26,15 @@ public class AnimationLoader {
 
     public static final float POS_RATIO = 1 / 16f;
 
-    public static Pair<Bone, List<Animation>> load(Resource res) {
+    public static Pair<Bone, List<Animation>> load(Resource res) throws Exception {
         LOGGER.debug("Loading animation \"%s\"", res);
 
         InputStream stream = IOUtils.getResource(res);
         if (stream == null)
             throw new RuntimeException("Resource not found: " + res);
 
-        //read stream as string
-        try {
-            String string = new String(stream.readAllBytes());
-            JsonObject json = JsonParser.parseString(string).getAsJsonObject();
+        try (stream; InputStreamReader reader = new InputStreamReader(stream)) {
+            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
 
             //root bone
             Bone root = new Bone("root");
@@ -50,8 +49,6 @@ public class AnimationLoader {
             List<Animation> animations = parseAnimations(animationsObject, boneMap);
 
             return new Pair<>(root, animations);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load animation \"" + res + "\"", e);
         }
     }
 

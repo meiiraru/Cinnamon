@@ -8,6 +8,7 @@ import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -20,14 +21,14 @@ import static cinnamon.utils.Maths.parseVec3;
 
 public class ObjLoader {
 
-    public static Mesh load(Resource res) {
+    public static Mesh load(Resource res) throws IOException {
         LOGGER.debug("Loading model \"%s\"", res);
 
         InputStream stream = IOUtils.getResource(res);
         if (stream == null)
             throw new RuntimeException("Resource not found: " + res);
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
+        try (stream; InputStreamReader reader = new InputStreamReader(stream); BufferedReader br = new BufferedReader(reader)) {
             Mesh theMesh = new Mesh();
             Group currentGroup = new Group("default");
             Material currentMaterial = null;
@@ -41,7 +42,14 @@ public class ObjLoader {
                 String[] split = line.trim().replaceAll(" +", " ").split(" ");
                 switch (split[0]) {
                     //material file
-                    case "mtllib" -> theMesh.getMaterials().putAll(MaterialLoader.load(res.resolveSibling(split[1])));
+                    case "mtllib" -> {
+                        Resource material = res.resolveSibling(split[1]);
+                        try {
+                            theMesh.getMaterials().putAll(MaterialLoader.load(material));
+                        } catch (Exception e) {
+                            throw new RuntimeException("Failed to load material file: " + material, e);
+                        }
+                    }
 
                     //group
                     case "g", "o" -> {
@@ -99,8 +107,6 @@ public class ObjLoader {
 
             //return the mesh
             return theMesh;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load obj \"" + res + "\"", e);
         }
     }
 

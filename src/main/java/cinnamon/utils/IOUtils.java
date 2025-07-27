@@ -13,7 +13,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystem;
@@ -26,8 +25,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
-import static org.lwjgl.system.MemoryUtil.memSlice;
 
 public class IOUtils {
 
@@ -53,16 +50,32 @@ public class IOUtils {
     }
 
     public static boolean hasResource(Resource res) {
-        return getResource(res) != null;
+        if (res.getNamespace().isEmpty())
+            return Files.exists(Path.of(res.getPath()));
+
+        String resourcePath = resolveResourcePath(res);
+        return Thread.currentThread().getContextClassLoader().getResource(resourcePath) != null;
     }
 
     public static ByteBuffer getBufferForStream(InputStream stream) {
-        try {
-            ByteBuffer fontBuffer = BufferUtils.createByteBuffer(stream.available() + 1);
-            Channels.newChannel(stream).read(fontBuffer);
+        try (stream) {
+            ByteBuffer buffer = BufferUtils.createByteBuffer(8192);
+            byte[] chunk = new byte[8192];
 
-            fontBuffer.flip();
-            return memSlice(fontBuffer);
+            int bytesRead;
+            while ((bytesRead = stream.read(chunk)) != -1) {
+                if (buffer.remaining() < bytesRead) {
+                    int newCapacity = Math.max(buffer.capacity() * 2, buffer.capacity() - buffer.remaining() + bytesRead);
+                    ByteBuffer newBuffer = BufferUtils.createByteBuffer(newCapacity);
+                    buffer.flip();
+                    newBuffer.put(buffer);
+                    buffer = newBuffer;
+                }
+                buffer.put(chunk, 0, bytesRead);
+            }
+
+            buffer.flip();
+            return buffer;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -73,7 +86,7 @@ public class IOUtils {
         if (stream == null)
             throw new RuntimeException("Resource not found: " + res);
 
-        try {
+        try (stream) {
             return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -85,10 +98,8 @@ public class IOUtils {
         if (stream == null)
             throw new RuntimeException("Resource not found: " + res);
 
-        try {
-            try (GZIPInputStream gzip = new GZIPInputStream(stream)) {
-                return gzip.readAllBytes();
-            }
+        try (stream; GZIPInputStream gzip = new GZIPInputStream(stream)) {
+            return gzip.readAllBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -14,6 +14,7 @@ import org.lwjgl.openxr.XrActiveActionSet;
 import org.lwjgl.openxr.XrInteractionProfileSuggestedBinding;
 import org.lwjgl.system.MemoryStack;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
@@ -81,9 +82,16 @@ public class XrInput {
     }
 
     private static void loadProfile(int id, Resource profile, MemoryStack stack) {
-        try {
-            LOGGER.debug("Loading xr input profile \"%s\"", profile);
-            JsonObject json = JsonParser.parseReader(new InputStreamReader(IOUtils.getResource(profile))).getAsJsonObject();
+        LOGGER.debug("Loading xr input profile \"%s\"", profile);
+
+        InputStream stream = IOUtils.getResource(profile);
+        if (stream == null) {
+            LOGGER.error("Resource not found: %s", profile);
+            return;
+        }
+
+        try (stream; InputStreamReader reader = new InputStreamReader(stream)) {
+            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
 
             JsonObject userPaths = json.getAsJsonObject("user_paths");
             if (userPaths.isEmpty())

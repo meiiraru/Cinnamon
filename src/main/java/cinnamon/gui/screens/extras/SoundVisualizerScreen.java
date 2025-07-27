@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import static cinnamon.Client.LOGGER;
+
 public class SoundVisualizerScreen extends ParentedScreen {
 
     private static final float
@@ -445,13 +447,16 @@ public class SoundVisualizerScreen extends ParentedScreen {
             String filename = path.getFileName().toString();
             filename = filename.substring(0, filename.length() - 4);
 
-            Lyrics lyrics;
+            Lyrics lyrics = null;
 
             //also .lrc lyrics with the same filename as the song
-            try {
-                lyrics = LrcLoader.loadLyrics(new Resource("", path.getParent().resolve(filename + ".lrc").toString()));
-            } catch (Exception ignored) {
-                lyrics = null;
+            Resource res = new Resource("", path.getParent().resolve(filename + ".lrc").toString());
+            if (IOUtils.hasResource(res)) {
+                try {
+                    lyrics = LrcLoader.loadLyrics(res);
+                } catch (Exception e) {
+                    LOGGER.error("Failed to load lyrics file \"%s\"", res, e);
+                }
             }
 
             //grab title from the lyrics data
