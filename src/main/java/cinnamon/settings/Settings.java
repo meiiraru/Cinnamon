@@ -1,6 +1,5 @@
 package cinnamon.settings;
 
-import cinnamon.Client;
 import cinnamon.input.InputManager;
 import cinnamon.lang.LangManager;
 import cinnamon.registry.LivingModelRegistry;
@@ -85,10 +84,6 @@ public class Settings {
             pick = new Setting.Keybind("keybind.pick", GLFW_MOUSE_BUTTON_3, MOUSE);
 
     static {
-        //player name do not have a getter
-        Setting.Strings player = new Setting.Strings("player.playername", Client.getInstance().name);
-        player.setListener(v -> Client.getInstance().setName(v));
-
         //raw mouse
         Setting.Bools rawMouse = new Setting.Bools("mouse.raw_mouse", true);
         rawMouse.setListener(InputManager::setRawMouseInput);

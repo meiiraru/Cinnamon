@@ -1,6 +1,7 @@
 package cinnamon.utils;
 
 import cinnamon.Cinnamon;
+import cinnamon.settings.ArgsOptions;
 import org.lwjgl.BufferUtils;
 
 import javax.imageio.ImageIO;
@@ -28,7 +29,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class IOUtils {
 
-    public static final Path ROOT_FOLDER = Path.of("./" + Cinnamon.NAMESPACE);
+    public static final Path ROOT_FOLDER = Path.of(ArgsOptions.WORKING_DIR.getAsString()).resolve(Cinnamon.NAMESPACE);
 
     private static String resolveResourcePath(Resource res) {
         return "resources/" + res.getNamespace() + "/" + res.getPath();

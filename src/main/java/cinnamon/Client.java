@@ -17,6 +17,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.texture.AnimatedTexture;
+import cinnamon.settings.ArgsOptions;
 import cinnamon.settings.Settings;
 import cinnamon.sound.SoundManager;
 import cinnamon.text.Text;
@@ -48,7 +49,7 @@ public class Client {
     public long ticks;
     public int fps, ms;
 
-    public String name = "Player" + (int) (Math.random() * 456) + 1;
+    public String name = ArgsOptions.PLAYERNAME.getAsString();
     public UUID playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
 
     public int postProcess = -1;
@@ -87,7 +88,7 @@ public class Client {
         SoundManager.init(Settings.soundDevice.get());
 
         //init open xr
-        if (Cinnamon.ENABLE_XR)
+        if (Cinnamon.ENABLE_XR && !ArgsOptions.FORCE_DISABLE_XR.getAsBool())
             XrManager.init();
 
         //register and run init events

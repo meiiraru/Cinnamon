@@ -1,6 +1,7 @@
 package cinnamon.logger;
 
 import cinnamon.gui.DebugScreen;
+import cinnamon.settings.ArgsOptions;
 import cinnamon.utils.IOUtils;
 
 import java.nio.file.Files;
@@ -13,16 +14,23 @@ import static cinnamon.Client.LOGGER;
 public class LoggerConfig {
 
     public static final Path LOG_OUTPUT = IOUtils.ROOT_FOLDER.resolve("logs/log.log");
-    public static final String PATTERN = "[%1$tT] [%2$s/%3$s] (%4$s) %5$s\n";
-    public static final Level DEFAULT_LEVEL = Level.INFO;
 
     public static void initialize() {
         //save old log file
         Exception gzipException = saveOldLog();
 
+        //variables
+        Level level;
+        String pattern = ArgsOptions.LOGGER_PATTERN.getAsString() + "\n";
+        try {
+            level = Level.valueOf(ArgsOptions.LOGGER_LEVEL.getAsString());
+        } catch (Exception ignored) {
+            level = Level.INFO; //default level
+        }
+
         //configure logger
         Logger root = Logger.getRootLogger();
-        configureLogger(root);
+        configureLogger(root, level, pattern);
 
         //system out/err redirection
         System.setOut(new LoggerStream(new Logger("System.out")::info));
@@ -35,18 +43,18 @@ public class LoggerConfig {
             LOGGER.error("Failed to parse previous log file", gzipException);
     }
 
-    private static void configureLogger(Logger logger) {
+    private static void configureLogger(Logger logger, Level level, String pattern) {
         //add console output
         ConsoleOutput consoleOutput = new ConsoleOutput(System.out);
-        consoleOutput.setFormatting(PATTERN);
-        consoleOutput.setLevel(DEFAULT_LEVEL);
+        consoleOutput.setFormatting(pattern);
+        consoleOutput.setLevel(level);
         logger.addOutput(consoleOutput);
 
         //add file output
         try {
             FileOutput fileOutput = new FileOutput(LOG_OUTPUT);
-            fileOutput.setFormatting(PATTERN);
-            fileOutput.setLevel(DEFAULT_LEVEL);
+            fileOutput.setFormatting(pattern);
+            fileOutput.setLevel(level);
             logger.addOutput(fileOutput);
         } catch (Exception e) {
             logger.error("Failed to create log file", e);

@@ -5,6 +5,7 @@ import cinnamon.render.Window;
 import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
+import cinnamon.settings.ArgsOptions;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
 import org.lwjgl.glfw.GLFWDropCallback;
@@ -31,9 +32,14 @@ public class Cinnamon {
 
     public static final Platform PLATFORM = Platform.get();
 
-    public static void main(String[] args) {
+    public static void main(String... args) {
         //System.load("D:\\apps\\RenderDoc_1.32_64\\renderdoc.dll");
-        new Cinnamon().run();
+        new Cinnamon(args).run();
+    }
+
+    public Cinnamon(String... args) {
+        //parse command line arguments
+        ArgsOptions.parse(args);
     }
 
     public void run() {
