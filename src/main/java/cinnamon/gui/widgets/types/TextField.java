@@ -1013,7 +1013,7 @@ public class TextField extends SelectableWidget implements Tickable {
         //get the text
         Text text = Text.of(getFormattedText()).withStyle(Style.EMPTY.guiStyle(getStyleRes()).applyParent(textStyle));
         //convert the mouse pos to the text space and get the length at the position
-        Text clamped = getStyle().getFont().clampToWidth(text, mousePos - xOffset - x, true);
+        Text clamped = TextUtils.clampToWidth(text, mousePos - xOffset - x, true);
         //grab the length of the text
         int length = clamped.asString().length();
         //since the length uses the formatting, we need to subtract the extra chars

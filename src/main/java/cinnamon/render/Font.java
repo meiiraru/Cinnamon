@@ -74,7 +74,8 @@ public class Font {
     }
 
     private Font(Resource res, float height, float lineSpacing, boolean smooth) {
-        this.ttf = IOUtils.getResourceBuffer(res);
+        ByteBuffer buffer = IOUtils.getResourceBuffer(res);
+        this.ttf = memAlloc(buffer.capacity()).put(buffer).flip();
         this.lineHeight = height;
         this.lineGap = lineSpacing;
         this.charData = STBTTPackedchar.malloc(0x10FFFF + 3 + 1); //".notdef" ".null" "nonmarkingreturn"
@@ -141,6 +142,7 @@ public class Font {
         q.free();
         memFree(xb);
         memFree(yb);
+        memFree(ttf);
     }
 
     private void getCharData(int c) {
@@ -366,66 +368,5 @@ public class Font {
         }, Style.EMPTY);
 
         return x[0];
-    }
-
-    public Text clampToWidth(Text text, int width) {
-        return clampToWidth(text, width, false);
-    }
-
-    public Text clampToWidth(Text text, int width, boolean roundToClosest) {
-        //prepare vars
-        Text builder = Text.empty();
-        boolean[] prevItalic = {false};
-        float[] x = {0f, 0f};
-
-        //iterate text
-        text.visit((s, style) -> {
-            boolean bold = style.isBold();
-            boolean italic = style.isItalic();
-
-            //italic
-            if (!prevItalic[0] && italic)
-                x[0] += style.getItalicOffset();
-            prevItalic[0] = italic;
-
-            //text allowed to add
-            StringBuilder current = new StringBuilder();
-            boolean stop = false;
-
-            //iterate over the text
-            for (int i = 0; i < s.length(); ) {
-                //char
-                int c = s.codePointAt(i);
-                i += Character.charCount(c);
-                x[0] += width(c);
-
-                //kerning
-                if (i < s.length())
-                    x[0] += getKerning(c, s.codePointAt(i));
-
-                //bold special
-                if (bold)
-                    x[0] += style.getBoldOffset();
-
-                //check width
-                if (x[0] <= width) {
-                    current.appendCodePoint(c);
-                } else {
-                    if (roundToClosest && x[0] - width < width - x[1])
-                        current.appendCodePoint(c);
-                    stop = true;
-                    break;
-                }
-
-                x[1] = x[0];
-            }
-
-            //append allowed text
-            builder.append(Text.of(current.toString()).withStyle(style));
-            return stop;
-        }, Style.EMPTY);
-
-        //return
-        return builder;
     }
 }

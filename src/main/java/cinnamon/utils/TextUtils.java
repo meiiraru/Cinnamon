@@ -76,13 +76,13 @@ public class TextUtils {
         return substring(text, start, end);
     }
 
-    public static Text addEllipsis(Text text, int width) {
+    public static Text addEllipsis(Text text, float width) {
         if (getWidth(text) <= width)
             return text;
 
         int ellipsisWidth = getWidth(ELLIPSIS);
 
-        Text clamped = text.getStyle().getGuiStyle().getFont().clampToWidth(text, width - ellipsisWidth);
+        Text clamped = clampToWidth(text, width - ellipsisWidth);
         clamped.append(ELLIPSIS);
 
         return clamped;
@@ -142,6 +142,160 @@ public class TextUtils {
             result.append(newText);
         }, Style.EMPTY);
 
+        return result;
+    }
+
+    public static Text clampToWidth(Text text, float width) {
+        return clampToWidth(text, width, false);
+    }
+
+    public static Text clampToWidth(Text text, float width, boolean roundToClosest) {
+        //prepare vars
+        Text builder = Text.empty();
+        boolean[] prevItalic = {false};
+        float[] x = {0f, 0f};
+
+        //iterate text
+        text.visit((s, style) -> {
+            boolean bold = style.isBold();
+            boolean italic = style.isItalic();
+
+            //italic
+            if (!prevItalic[0] && italic)
+                x[0] += style.getItalicOffset();
+            prevItalic[0] = italic;
+
+            //text allowed to add
+            StringBuilder current = new StringBuilder();
+            boolean stop = false;
+            Font f = style.getGuiStyle().getFont();
+
+            //iterate over the text
+            for (int i = 0; i < s.length(); ) {
+                //char
+                int c = s.codePointAt(i);
+                i += Character.charCount(c);
+                x[0] += f.width(c);
+
+                //kerning
+                if (i < s.length())
+                    x[0] += f.getKerning(c, s.codePointAt(i));
+
+                //bold special
+                if (bold)
+                    x[0] += style.getBoldOffset();
+
+                //check width
+                if (x[0] <= width) {
+                    current.appendCodePoint(c);
+                } else {
+                    if (roundToClosest && x[0] - width < width - x[1])
+                        current.appendCodePoint(c);
+                    stop = true;
+                    break;
+                }
+
+                x[1] = x[0];
+            }
+
+            //append allowed text
+            builder.append(Text.of(current.toString()).withStyle(style));
+            return stop;
+        }, Style.EMPTY);
+
+        //return
+        return builder;
+    }
+
+    public static List<Text> warpToWidth(Text text, float width) {
+        List<Text> list = new ArrayList<>();
+        Text toVisit = Text.empty().append(text).append(" ");
+
+        //[0] word buffer, [1] line buffer
+        Text[] textBuffer = {Text.empty(), Text.empty()};
+        float[] widthBuffer = {0f, 0f};
+
+        //iterate text
+        toVisit.visit((s, style) -> {
+            Font f = style.getGuiStyle().getFont();
+
+            String[] words = s.split("((?<= )|(?= ))");
+            for (String word : words) {
+                Text t = Text.of(word).withStyle(style);
+                float w = f.width(t);
+
+                //just append when not a space
+                if (!word.equals(" ")) {
+                    //append text to the current word
+                    textBuffer[0].append(t);
+                    widthBuffer[0] += w;
+
+                    //finish iteration
+                    continue;
+                }
+
+                //feed word to the line at spaces
+
+                //if the word do not fit in the line
+                if (widthBuffer[1] + widthBuffer[0] > width && widthBuffer[1] > 0f) {
+                    //empty the line buffer to the list
+                    list.add(textBuffer[1]);
+                    //reset the line buffer
+                    textBuffer[1] = Text.empty();
+                    widthBuffer[1] = 0f;
+                }
+
+                //skip if the word is empty in an empty line
+                if (widthBuffer[0] <= 0f && widthBuffer[1] <= 0f)
+                    continue;
+
+                //word is too big!
+                while (widthBuffer[0] > width) {
+                    //if the word is longer than the width, we need to split it
+                    Text subText = TextUtils.clampToWidth(textBuffer[0], width);
+
+                    //if the subtext is empty, add only one char
+                    if (subText.asString().isEmpty())
+                        subText = substring(textBuffer[0], 0, 1);
+
+                    //if the subtext (trimmed) is empty, skip this line
+                    if (subText.asString().trim().isEmpty())
+                        continue;
+
+                    //add the subtext to the list as a line
+                    list.add(subText);
+
+                    //add the rest of the word to the current text
+                    textBuffer[0] = substring(textBuffer[0], subText.asString().length(), textBuffer[0].asString().length());
+                    widthBuffer[0] = f.width(textBuffer[0]);
+                }
+
+                //if we added all the word, skip
+                if (widthBuffer[0] <= 0f)
+                    continue;
+
+                //add the word
+                textBuffer[1].append(textBuffer[0]).append(t);
+                widthBuffer[1] += widthBuffer[0] + w; //include the space
+
+                //reset the word buffer
+                textBuffer[0] = Text.empty();
+                widthBuffer[0] = 0f;
+            }
+        }, Style.EMPTY);
+
+        //append last line
+        list.add(textBuffer[1]);
+        return list;
+    }
+
+    public static Text join(List<Text> texts, Text separator) {
+        if (texts.isEmpty())
+            return Text.empty();
+
+        Text result = texts.getFirst();
+        for (int i = 1; i < texts.size(); i++)
+            result.append(separator).append(texts.get(i));
         return result;
     }
 

@@ -16,6 +16,7 @@ import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
+import cinnamon.utils.TextUtils;
 import cinnamon.world.Hud;
 
 import static cinnamon.Client.LOGGER;
@@ -279,14 +280,19 @@ public class WidgetTestScreen extends ParentedScreen {
         //font test
         grid2.addWidget(new Label(0, 0, Text.empty()
                 .append("Font Test:\n")
-                .append(Text.of("one ").withStyle(Style.EMPTY.bold(true)))
-                .append(Text.of("two ").withStyle(Style.EMPTY.italic(true)))
-                .append(Text.of("three\n").withStyle(Style.EMPTY.underlined(true)))
-                .append(Text.of("four ").withStyle(Style.EMPTY.obfuscated(true)))
-                .append(Text.of("five ").withStyle(Style.EMPTY.strikethrough(true)))
-                .append(Text.of("six\n").withStyle(Style.EMPTY.background(true)))
-                .append(Text.of("seven ").withStyle(Style.EMPTY.shadow(true)))
-                .append(Text.of("eight").withStyle(Style.EMPTY.outlined(true)))
+                .append(TextUtils.join(
+                        TextUtils.warpToWidth(Text.empty()
+                                .append(Text.of("one ")  .withStyle(Style.EMPTY.bold(true)))
+                                .append(Text.of("two ")  .withStyle(Style.EMPTY.italic(true)))
+                                .append(Text.of("three ").withStyle(Style.EMPTY.underlined(true)))
+                                .append(Text.of("four ") .withStyle(Style.EMPTY.obfuscated(true)))
+                                .append(Text.of("five ") .withStyle(Style.EMPTY.strikethrough(true)))
+                                .append(Text.of("six ")  .withStyle(Style.EMPTY.background(true)))
+                                .append(Text.of("seven ").withStyle(Style.EMPTY.shadow(true)))
+                                .append(Text.of("eight") .withStyle(Style.EMPTY.outlined(true))),
+                                96),
+                        Text.of("\n"))
+                )
         ));
 
         //color picker
