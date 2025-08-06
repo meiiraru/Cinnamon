@@ -75,8 +75,8 @@ public class Settings {
             right = new Setting.Keybind("keybind.right", GLFW_KEY_D, KEY),
 
             jump = new Setting.Keybind("keybind.jump", GLFW_KEY_SPACE, KEY),
-            sneak = new Setting.Keybind("keybind.sneak", GLFW_KEY_LEFT_SHIFT, KEY),
-            sprint = new Setting.Keybind("keybind.sprint", GLFW_KEY_TAB, KEY),
+            sneak = new Setting.Keybind("keybind.sneak", GLFW_KEY_LEFT_CONTROL, KEY),
+            sprint = new Setting.Keybind("keybind.sprint", GLFW_KEY_LEFT_SHIFT, KEY),
 
             //item
             attack = new Setting.Keybind("keybind.attack", GLFW_MOUSE_BUTTON_1, MOUSE),
