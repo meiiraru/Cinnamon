@@ -5,6 +5,8 @@ import cinnamon.sound.SoundCategory;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
+import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.PhysEntity;
 
 public class BubbleParticle extends SpriteParticle {
 
@@ -27,9 +29,22 @@ public class BubbleParticle extends SpriteParticle {
                 if (aabb.intersects(terrain)) {
                     getMotion().zero();
                     collided = true;
-                    age = lifetime - (getFrameCount() - 1);
+                    break;
                 }
             }
+
+            if (!collided) {
+                for (Entity entity : world.getEntities(aabb)) {
+                    if (entity instanceof PhysEntity && aabb.intersects(entity.getAABB())) {
+                        getMotion().zero();
+                        collided = true;
+                        break;
+                    }
+                }
+            }
+
+            if (collided)
+                age = lifetime - (getFrameCount() - 1);
         }
     }
 

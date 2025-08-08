@@ -4,7 +4,6 @@ import cinnamon.registry.ItemModelRegistry;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
-import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.projectile.Potato;
 import cinnamon.world.entity.projectile.Projectile;
 
@@ -14,8 +13,8 @@ public class PotatoCannon extends Weapon {
 
     private static final Resource SHOOT_SOUND = new Resource("sounds/item/weapon/potato_cannon/shoot.ogg");
 
-    public PotatoCannon(int maxRounds, int reloadTime, int useCooldown) {
-        super(ItemModelRegistry.POTATO_CANNON.id, ItemModelRegistry.POTATO_CANNON.resource, maxRounds, reloadTime, useCooldown);
+    public PotatoCannon(int maxRounds, int fireCooldown, int reloadCooldown) {
+        super(ItemModelRegistry.POTATO_CANNON.id, ItemModelRegistry.POTATO_CANNON.resource, maxRounds, fireCooldown, reloadCooldown);
     }
 
     @Override
@@ -24,9 +23,9 @@ public class PotatoCannon extends Weapon {
     }
 
     @Override
-    protected void spawnBullet(Entity source) {
-        super.spawnBullet(source);
-        if (!source.isSilent())
-            source.getWorld().playSound(SHOOT_SOUND, SoundCategory.ENTITY, source.getPos()).pitch(Maths.range(0.5f, 0.8f));
+    protected void spawnBullet() {
+        super.spawnBullet();
+        if (!getSource().isSilent())
+            getSource().getWorld().playSound(SHOOT_SOUND, SoundCategory.ENTITY, getSource().getPos()).pitch(Maths.range(0.5f, 0.8f));
     }
 }

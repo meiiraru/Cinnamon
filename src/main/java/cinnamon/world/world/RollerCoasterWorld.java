@@ -112,7 +112,7 @@ public class RollerCoasterWorld extends WorldClient {
 
     @Override
     public void givePlayerItems(Player player) {
-        player.giveItem(new CurveMaker(1, 10, 10));
+        player.giveItem(new CurveMaker(1));
         super.givePlayerItems(player);
     }
 }

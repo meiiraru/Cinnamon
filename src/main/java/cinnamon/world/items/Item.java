@@ -11,12 +11,14 @@ public abstract class Item {
     private final String id;
     protected final int stackCount;
     protected final ModelRenderer model;
-    protected int count = 1;
 
-    private boolean isUsing, isAttacking;
+    private int count;
+    private boolean isFiring, isUsing;
+    private Entity source;
 
-    public Item(String id, int stackCount, Resource model) {
+    public Item(String id, int count, int stackCount, Resource model) {
         this.id = id;
+        this.count = count;
         this.stackCount = stackCount;
         this.model = ModelManager.load(model);
     }
@@ -30,25 +32,32 @@ public abstract class Item {
 
     public void worldRender(MatrixStack matrices, float delta) {}
 
-    public void attack(Entity source) {
-        this.isAttacking = true;
+    public boolean fire() {
+        this.isFiring = true;
+        return true;
     }
 
-    public void stopAttacking(Entity source) {
-        this.isAttacking = false;
+    public void stopFiring() {
+        this.isFiring = false;
     }
 
-    public void use(Entity source) {
+    public boolean use() {
         this.isUsing = true;
+        return true;
     }
 
-    public void stopUsing(Entity source) {
+    public void stopUsing() {
         this.isUsing = false;
     }
 
-    public void unselect(Entity source) {
-        stopAttacking(source);
-        stopUsing(source);
+    public void select(Entity source) {
+        this.source = source;
+    }
+
+    public void unselect() {
+        stopFiring();
+        stopUsing();
+        source = null;
     }
 
     public String getId() {
@@ -63,11 +72,23 @@ public abstract class Item {
         return count;
     }
 
+    public void setCount(int count) {
+        this.count = count;
+    }
+
     public boolean isUsing() {
         return isUsing;
     }
 
-    public boolean isAttacking() {
-        return isAttacking;
+    public boolean isFiring() {
+        return isFiring;
+    }
+
+    protected Entity getSource() {
+        return source;
+    }
+
+    public Object getCountText() {
+        return count;
     }
 }

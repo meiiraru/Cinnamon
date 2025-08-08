@@ -8,8 +8,8 @@ import java.util.UUID;
 
 public class RiceGun extends Weapon {
 
-    public RiceGun(int maxRounds, int reloadTime, int useCooldown) {
-        super(ItemModelRegistry.RICE_GUN.id, ItemModelRegistry.RICE_GUN.resource, maxRounds, reloadTime, useCooldown);
+    public RiceGun(int maxRounds, int fireCooldown, int reloadCooldown) {
+        super(ItemModelRegistry.RICE_GUN.id, ItemModelRegistry.RICE_GUN.resource, maxRounds, fireCooldown, reloadCooldown);
     }
 
     @Override

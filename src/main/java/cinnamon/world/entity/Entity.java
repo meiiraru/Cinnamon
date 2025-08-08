@@ -419,11 +419,12 @@ public abstract class Entity extends WorldObject {
         return vec;
     }
 
-    public void addRider(Entity e) {
+    public boolean addRider(Entity e) {
         e.stopRiding();
         this.riders.add(e);
         e.riding = this;
         updateRiders();
+        return true;
     }
 
     protected void removeRider(Entity e) {
@@ -449,9 +450,13 @@ public abstract class Entity extends WorldObject {
         return this.name;
     }
 
-    public void onUse(LivingEntity source) {}
+    public boolean onUse(LivingEntity source) {
+        return false;
+    }
 
-    public void onAttacked(LivingEntity source) {}
+    public boolean onAttacked(LivingEntity source) {
+        return false;
+    }
 
     @Override
     public abstract EntityRegistry getType();

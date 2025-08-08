@@ -4,60 +4,58 @@ import cinnamon.utils.Resource;
 
 public abstract class CooldownItem extends Item {
 
-    private final int depleatCooldown, useCooldown;
-    private int depleat, use;
+    private final int cooldownTime;
+    protected int cooldown;
 
-    public CooldownItem(String id, int stackCount, Resource model, int depleatCooldown, int useCooldown) {
-        super(id, stackCount, model);
-        this.depleatCooldown = depleatCooldown;
-        this.useCooldown = useCooldown;
+    public CooldownItem(String id, int count, int stackCount, Resource model, int cooldown) {
+        super(id, count, stackCount, model);
+        this.cooldownTime = cooldown;
     }
 
     @Override
     public void tick() {
         super.tick();
         if (isOnCooldown()) {
-            depleat--;
+            cooldown--;
             if (!isOnCooldown())
                 onCooldownEnd();
-        } else if (!canUse()) {
-            use--;
         }
     }
 
-    public void onCooldownEnd() {
-        use = 0;
+    @Override
+    public boolean isFiring() {
+        return !isOnCooldown() && super.isFiring();
     }
 
+    @Override
+    public boolean isUsing() {
+        return !isOnCooldown() && super.isUsing();
+    }
+
+    public void onCooldownEnd() {}
+
     public int getCooldown() {
-        return depleat;
+        return cooldown;
     }
 
     public int getCooldownTime() {
-        return depleatCooldown;
+        return cooldownTime;
     }
 
     public void setOnCooldown() {
-        this.depleat = depleatCooldown;
+        this.cooldown = cooldownTime;
+    }
+
+    protected void breakCooldown() {
+        if (isOnCooldown())
+            this.cooldown = 0;
     }
 
     public boolean isOnCooldown() {
-        return this.depleat > 0;
+        return this.cooldown > 0;
     }
 
     public float getCooldownProgress() {
         return 1 - (float) getCooldown() / getCooldownTime();
-    }
-
-    public int getUseCooldown() {
-        return this.useCooldown;
-    }
-
-    public boolean canUse() {
-        return this.use <= 0;
-    }
-
-    public void setUseCooldown() {
-        this.use = this.useCooldown;
     }
 }

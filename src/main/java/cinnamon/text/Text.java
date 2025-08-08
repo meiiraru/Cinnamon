@@ -65,7 +65,7 @@ public class Text {
         return this;
     }
 
-    public Text append(String text) {
+    public Text append(Object text) {
         return this.append(Text.of(text));
     }
 

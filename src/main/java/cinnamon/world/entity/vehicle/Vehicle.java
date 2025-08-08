@@ -39,17 +39,18 @@ public abstract class Vehicle extends PhysEntity {
     }
 
     @Override
-    public void onUse(LivingEntity source) {
-        this.addRider(source);
-        super.onUse(source);
+    public boolean onUse(LivingEntity source) {
+        return this.addRider(source) || super.onUse(source);
     }
 
     @Override
-    public void addRider(Entity e) {
+    public boolean addRider(Entity e) {
         if (this.riders.size() < maxRiders) {
             super.addRider(e);
             e.rotateTo(this.getRot());
+            return true;
         }
+        return false;
     }
 
     @Override

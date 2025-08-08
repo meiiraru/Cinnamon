@@ -5,7 +5,6 @@ import cinnamon.animation.Animation;
 import cinnamon.gui.DebugScreen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.screens.world.ChatScreen;
-import cinnamon.gui.screens.world.DeathScreen;
 import cinnamon.gui.screens.world.PauseScreen;
 import cinnamon.input.Interaction;
 import cinnamon.input.Keybind;
@@ -202,10 +201,6 @@ public class WorldClient extends World {
     @Override
     public void tick() {
         super.tick();
-
-        //if the player is dead, show death screen
-        if (player.isDead() && client.screen == null)
-            client.setScreen(new DeathScreen());
 
         //process input
         tickInput();
@@ -670,8 +665,8 @@ public class WorldClient extends World {
             case GLFW_KEY_N -> player.getAbilities().noclip(!player.getAbilities().noclip());
             case GLFW_KEY_R -> {
                 Item i = player.getHoldingItem();
-                if (i instanceof Weapon weapon && !weapon.isOnCooldown() && i.getCount() < i.getStackCount())
-                    weapon.setOnCooldown();
+                if (i instanceof Weapon weapon)
+                    weapon.reload();
             }
             case GLFW_KEY_ESCAPE -> client.setScreen(new PauseScreen());
             case GLFW_KEY_ENTER -> client.setScreen(new ChatScreen());
@@ -764,12 +759,12 @@ public class WorldClient extends World {
     }
 
     public void givePlayerItems(Player player) {
-        player.giveItem(new CoilGun(1, 5, 0));
-        player.giveItem(new PotatoCannon(3, 40, 30));
-        player.giveItem(new RiceGun(8, 80, 60));
-        player.giveItem(new BubbleGun(1));
-        player.getInventory().setItem(player.getInventory().getFreeIndex() + 1, new Flashlight(1, 0xFFFFCC));
-        player.getInventory().setItem(player.getInventory().getSize() - 1, new MagicWand(1));
+        player.giveItem(new CoilGun(30, 3, 100));
+        player.giveItem(new PotatoCannon(3, 60, 200));
+        player.giveItem(new RiceGun(8, 40, 150));
+        player.giveItem(new BubbleGun());
+        player.getInventory().setItem(player.getInventory().getFreeIndex() + 1, new Flashlight(0xFFFFCC));
+        player.getInventory().setItem(player.getInventory().getSize() - 1, new MagicWand());
     }
 
     @Override

@@ -18,12 +18,12 @@ import java.util.List;
 
 import static cinnamon.Client.LOGGER;
 
-public class CurveMaker extends CooldownItem {
+public class CurveMaker extends Item {
 
     private final Curve curve = new Curve.BSpline().loop(true).steps(10);
 
-    public CurveMaker(int stackCount, int depleatCooldown, int useCooldown) {
-        super(ItemModelRegistry.CURVE_MAKER.id, stackCount, ItemModelRegistry.CURVE_MAKER.resource, depleatCooldown, useCooldown);
+    public CurveMaker(int count) {
+        super(ItemModelRegistry.CURVE_MAKER.id, count, 1, ItemModelRegistry.CURVE_MAKER.resource);
     }
 
     @Override
@@ -75,23 +75,16 @@ public class CurveMaker extends CooldownItem {
     }
 
     @Override
-    public void attack(Entity source) {
-        super.attack(source);
-
-        if (!canUse())
-            return;
-
-        Vector3f pos = getPos(source);
+    public boolean fire() {
+        Vector3f pos = getPos(getSource());
         curve.addPoint(pos.x, pos.y, pos.z);
-        setUseCooldown();
+        return super.fire();
     }
 
     @Override
-    public void use(Entity source) {
-        super.use(source);
-
-        if (!canUse() || !(source.getWorld() instanceof RollerCoasterWorld rc))
-            return;
+    public boolean use() {
+        if (!(getSource().getWorld() instanceof RollerCoasterWorld rc))
+            return false;
 
         try {
             rc.setCurve(this.curve);
@@ -101,12 +94,16 @@ public class CurveMaker extends CooldownItem {
             Toast.addToast(Text.of(e.getMessage())).type(Toast.ToastType.ERROR);
         }
 
-        setUseCooldown();
+        return super.use();
     }
 
     @Override
-    public void unselect(Entity source) {
-        super.unselect(source);
+    public void unselect() {
+        super.unselect();
         curve.clear();
+    }
+
+    public Object getCountText() {
+        return "";
     }
 }

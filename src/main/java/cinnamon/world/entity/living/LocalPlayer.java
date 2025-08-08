@@ -1,6 +1,7 @@
 package cinnamon.world.entity.living;
 
 import cinnamon.Client;
+import cinnamon.gui.screens.world.DeathScreen;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
@@ -170,5 +171,11 @@ public class LocalPlayer extends Player {
 
     private int getInteractionDelay() {
         return getAbilities().godMode() ? 5 : 7;
+    }
+
+    @Override
+    protected void onDeath() {
+        super.onDeath();
+        Client.getInstance().setScreen(new DeathScreen());
     }
 }

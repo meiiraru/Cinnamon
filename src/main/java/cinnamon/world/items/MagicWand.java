@@ -25,8 +25,32 @@ public class MagicWand extends Item {
     private Vector3f lastPos;
     private boolean drawing;
 
-    public MagicWand(int stackCount) {
-        super(ItemModelRegistry.MAGIC_WAND.id, stackCount, ItemModelRegistry.MAGIC_WAND.resource);
+    public MagicWand() {
+        super(ItemModelRegistry.MAGIC_WAND.id, 1, 1, ItemModelRegistry.MAGIC_WAND.resource);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (isFiring()) {
+            //draw line
+            Vector3f pos = spawnPos(getSource());
+            drawing |= drawLine(lastPos, pos, getSource().getWorld());
+            //save pos
+            lastPos.set(pos);
+        }
+
+        if (isUsing()) {
+            //get area
+            AABB aabb = new AABB().inflate(ERASER_RANGE).translate(spawnPos(getSource()));
+
+            //remove particles in range
+            for (Particle particle : getSource().getWorld().getParticles(aabb)) {
+                if (particle instanceof SquareParticle)
+                    particle.remove();
+            }
+        }
     }
 
     @Override
@@ -45,49 +69,20 @@ public class MagicWand extends Item {
     }
 
     @Override
-    public void attack(Entity source) {
-        super.attack(source);
-
+    public boolean fire() {
         //calculate new pos
-        Vector3f pos = spawnPos(source);
-
-        //first use
-        if (lastPos == null) {
-            lastPos = pos;
-            return;
-        }
-
-        //draw line
-        drawing |= drawLine(lastPos, pos, source.getWorld());
-        //save pos
-        lastPos.set(pos);
+        if (!drawing || lastPos == null)
+            lastPos = spawnPos(getSource());
+        return super.fire();
     }
 
     @Override
-    public void stopAttacking(Entity source) {
-        super.stopAttacking(source);
-
-        //draw a point if it was not drawing
+    public void stopFiring() {
+        super.stopFiring();
+        //draw a point if not drawn anything
         if (!drawing && lastPos != null)
-            drawParticle(lastPos, getColor(source.getWorld().getTime()), source.getWorld());
-
-        //reset
-        lastPos = null;
+            drawParticle(lastPos, getColor(getSource().getWorld().getTime()), getSource().getWorld());
         drawing = false;
-    }
-
-    @Override
-    public void use(Entity source) {
-        super.use(source);
-
-        //get area
-        AABB aabb = new AABB().inflate(ERASER_RANGE).translate(spawnPos(source));
-
-        //remove particles in range
-        for (Particle particle : source.getWorld().getParticles(aabb)) {
-            if (particle instanceof SquareParticle)
-                particle.remove();
-        }
     }
 
     private static Vector3f spawnPos(Entity source) {
@@ -124,5 +119,9 @@ public class MagicWand extends Item {
         particle.setPos(pos);
         particle.setEmissive(true);
         world.addParticle(particle);
+    }
+
+    public Object getCountText() {
+        return "";
     }
 }

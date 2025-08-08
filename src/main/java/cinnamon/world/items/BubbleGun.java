@@ -13,14 +13,24 @@ public class BubbleGun extends Item {
 
     private static final float DISTANCE = 1f;
 
-    public BubbleGun(int stackCount) {
-        super(ItemModelRegistry.BUBBLE_GUN.id, stackCount, ItemModelRegistry.BUBBLE_GUN.resource);
+    public BubbleGun() {
+        super(ItemModelRegistry.BUBBLE_GUN.id, 1, 1, ItemModelRegistry.BUBBLE_GUN.resource);
     }
 
     @Override
-    public void attack(Entity source) {
-        super.attack(source);
+    public void tick() {
+        if (isFiring())
+            shoot(getSource());
+        super.tick();
+    }
 
+    @Override
+    public boolean fire() {
+        shoot(getSource());
+        return super.fire();
+    }
+
+    private static void shoot(Entity source) {
         //pos
         SoapParticle particle = new SoapParticle((int) (Math.random() * 400) + 100);
         particle.setEmissive(true);
@@ -46,5 +56,9 @@ public class BubbleGun extends Item {
             return terrain.pos();
 
         return source.getLookDir().mul(DISTANCE).add(source.getEyePos());
+    }
+
+    public Object getCountText() {
+        return "";
     }
 }

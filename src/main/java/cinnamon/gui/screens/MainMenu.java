@@ -67,7 +67,7 @@ public class MainMenu extends Screen {
         grid.addWidget(extras);
 
         //exit
-        Button exitButton = new MainButton(Text.translated("gui.main_menu.exit"), button -> client.window.exit());
+        Button exitButton = new MainButton(Text.translated("gui.exit"), button -> client.window.exit());
         exitButton.setTooltip(Text.translated("gui.main_menu.exit.tooltip"));
         grid.addWidget(exitButton);
 

@@ -237,53 +237,42 @@ public abstract class LivingEntity extends PhysEntity {
 
     public boolean attackAction() {
         //attack using holding item
-        if (getHoldingItem() != null) {
-            getHoldingItem().attack(this);
+        if (getHoldingItem() != null && getHoldingItem().fire())
             return true;
-        }
 
         //attack entity
         Hit<? extends WorldObject> facingEntity = getLookingObject(getPickRange());
-        if (facingEntity != null && facingEntity.get() instanceof Entity e) {
-            e.onAttacked(this);
-            return true;
-        }
-
-        return false;
+        return facingEntity != null && facingEntity.get() instanceof Entity e && e.onAttacked(this);
     }
 
     public void stopAttacking() {
         Item i = getHoldingItem();
-        if (i != null && i.isAttacking())
-            i.stopAttacking(this);
+        if (i != null)
+            i.stopFiring();
     }
 
     public boolean useAction() {
         //use holding item
         Item i = getHoldingItem();
-        if (i != null) {
-            i.use(this);
+        if (i != null && i.use())
             return true;
-        }
 
         //use entity
         Hit<? extends WorldObject> facingEntity = getLookingObject(getPickRange());
-        if (facingEntity != null && facingEntity.get() instanceof Entity e) {
-            e.onUse(this);
-            return true;
-        }
-
-        return false;
+        return facingEntity != null && facingEntity.get() instanceof Entity e && e.onUse(this);
     }
 
     public void stopUsing() {
         Item i = getHoldingItem();
-        if (i != null && i.isUsing())
-            i.stopUsing(this);
+        if (i != null)
+            i.stopUsing();
     }
 
     public boolean giveItem(Item item) {
-        return inventory.putItem(item);
+        int i = inventory.putItem(item);
+        if (i == inventory.getSelectedIndex()) 
+            item.select(this);
+        return i >= 0;
     }
 
     @Override
@@ -305,8 +294,11 @@ public abstract class LivingEntity extends PhysEntity {
 
     public void setSelectedItem(int index) {
         if (index != inventory.getSelectedIndex() && getHoldingItem() != null)
-            getHoldingItem().unselect(this);
+            getHoldingItem().unselect();
+
         inventory.setSelectedIndex(index);
+        if (getHoldingItem() != null)
+            getHoldingItem().select(this);
     }
 
     public Item getHoldingItem() {

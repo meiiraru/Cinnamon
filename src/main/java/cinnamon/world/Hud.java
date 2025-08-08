@@ -153,13 +153,8 @@ public class Hud {
         Text text = Text.translated(item.getId()).withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE)).append("\n");
 
         //item count
-        if (!onCooldown) {
-            Style style = Style.EMPTY.color(Colors.RED);
-            text
-                    .append(Text.of(item.getCount()).withStyle(style))
-                    .append(" / ")
-                    .append(Text.of(item.getStackCount()).withStyle(style));
-        }
+        if (!onCooldown)
+            text.append(Text.empty().append(item.getCountText()).withStyle(Style.EMPTY.color(Colors.RED)));
 
         //transform matrices
         matrices.pushMatrix();

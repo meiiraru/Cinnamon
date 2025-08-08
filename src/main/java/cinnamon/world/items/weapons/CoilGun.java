@@ -14,8 +14,8 @@ public class CoilGun extends Weapon {
 
     private static final Resource SHOOT_SOUND = new Resource("sounds/item/weapon/coil_gun/shoot.ogg");
 
-    public CoilGun(int maxRounds, int reloadTime, int useCooldown) {
-        super(ItemModelRegistry.COIL_GUN.id, ItemModelRegistry.COIL_GUN.resource, maxRounds, reloadTime, useCooldown);
+    public CoilGun(int maxRounds, int fireCooldown, int reloadCooldown) {
+        super(ItemModelRegistry.COIL_GUN.id, ItemModelRegistry.COIL_GUN.resource, maxRounds, fireCooldown, reloadCooldown);
     }
 
     @Override
@@ -24,9 +24,9 @@ public class CoilGun extends Weapon {
     }
 
     @Override
-    protected void spawnBullet(Entity source) {
-        super.spawnBullet(source);
-        if (!source.isSilent())
-            source.getWorld().playSound(SHOOT_SOUND, SoundCategory.ENTITY, source.getPos()).pitch(Maths.range(0.8f, 1.2f));
+    protected void spawnBullet() {
+        super.spawnBullet();
+        if (!getSource().isSilent())
+            getSource().getWorld().playSound(SHOOT_SOUND, SoundCategory.ENTITY, getSource().getPos()).pitch(Maths.range(0.8f, 1.2f));
     }
 }

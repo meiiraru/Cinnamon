@@ -18,13 +18,11 @@ public class Inventory {
         }
     }
 
-    public boolean putItem(Item item) {
+    public int putItem(Item item) {
         int i = getFreeIndex();
-        if (i == -1)
-            return false;
-
-        setItem(i, item);
-        return true;
+        if (i >= 0)
+            setItem(i, item);
+        return i;
     }
 
     public void setItem(int slot, Item item) {
