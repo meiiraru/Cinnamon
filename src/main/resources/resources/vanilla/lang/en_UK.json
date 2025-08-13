@@ -38,6 +38,7 @@
   "gui.extras_screen.custom_worlds.transparent": "Transparent",
   "gui.extras_screen.tech_demos": "Tech Demos",
   "gui.extras_screen.tech_demos.collision_test": "Collision Test",
+  "gui.extras_screen.tech_demos.new_collision_test": "GJK Collision Test",
   "gui.extras_screen.tech_demos.curves": "Curves",
   "gui.extras_screen.tech_demos.gui_test": "GUI Test",
   "gui.extras_screen.tech_demos.balls": "Balls",
@@ -70,6 +71,9 @@
   "gui.text_field.redo": "Redo",
 
   "gui.dvd_screen.help": "Press [F11] to toggle fullscreen\nand [ESC] to go back",
+
+  "gui.new_collision_test_screen.colliding": "Colliding",
+  "gui.new_collision_test_screen.not_colliding": "Not colliding",
 
   "gui.curves_screen.help": "Mouse 1\n  Add control point\n\nMouse 1 (select and drag)\n  Move control point\n\nMouse 2\n  Remove control point\n\nMouse 3 (drag)\n  Move all points\n\nScroll\n  Change curve quality",
   "gui.curves_screen.render_points": "Render points index",

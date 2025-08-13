@@ -38,6 +38,7 @@
   "gui.extras_screen.custom_worlds.transparent": "Transparente",
   "gui.extras_screen.tech_demos": "Demonstrações Técnicas",
   "gui.extras_screen.tech_demos.collision_test": "Teste de Colisão",
+  "gui.extras_screen.tech_demos.new_collision_test": "Teste de colisão GJK",
   "gui.extras_screen.tech_demos.curves": "Curvas",
   "gui.extras_screen.tech_demos.gui_test": "Teste de GUI",
   "gui.extras_screen.tech_demos.balls": "Bolas",
@@ -70,6 +71,9 @@
   "gui.text_field.redo": "Refazer",
 
   "gui.dvd_screen.help": "Pressione [F11] para alternar tela cheia\ne [ESC] para voltar",
+
+  "gui.new_collision_test_screen.colliding": "Colidindo",
+  "gui.new_collision_test_screen.not_colliding": "Não Colidindo",
 
   "gui.curves_screen.help": "Mouse 1\n  Adicionar ponto de controle\n\nMouse 1 (selecionar e arrastar)\n  Mover ponto de controle\n\nMouse 2\n  Remover ponto de controle\n\nMouse 3 (arrastar)\n  Mover todos os pontos\n\nRolar do Mouse\n  Alterar qualidade da curva",
   "gui.curves_screen.render_points": "Renderizar pontos",
