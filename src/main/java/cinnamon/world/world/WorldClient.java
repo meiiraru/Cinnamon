@@ -55,6 +55,7 @@ import cinnamon.world.items.weapons.RiceGun;
 import cinnamon.world.items.weapons.Weapon;
 import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
+import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.TerrainGenerator;
@@ -110,7 +111,7 @@ public class WorldClient extends World {
         //tutorial toast
         Toast.addToast(Text.translated("world.keybinds_help")).length(200).type(Toast.ToastType.WORLD).style(Hud.HUD_STYLE);
 
-        //sun light
+        //sunlight
         //addLight(sunLight);
 
         //create player
@@ -146,17 +147,12 @@ public class WorldClient extends World {
 
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
 
-        /*
-        //rip for-loop
-        addLight(new Light().pos(-5.5f, 0.5f, 2f).color(0x000000));
-        addLight(new Light().pos(-3.5f, 0.5f, 2f).color(0xFF0000));
-        addLight(new Light().pos(-1.5f, 0.5f, 2f).color(0x00FF00));
-        addLight(new Light().pos(0.5f, 0.5f, 2f).color(0x0000FF));
-        addLight(new Light().pos(2.5f, 0.5f, 2f).color(0x00FFFF));
-        addLight(new Light().pos(4.5f, 0.5f, 2f).color(0xFF00FF));
-        addLight(new Light().pos(6.5f, 0.5f, 2f).color(0xFFFF00));
-        addLight(new Light().pos(8.5f, 0.5f, 2f).color(0xFFFFFF));
-        */
+        //for (int i = 0; i < 5; i++)
+        //    addLight(new Light().pos(-5.5f + i * 3f, 5f, 2.5f).color(Colors.randomRainbow().rgb));
+
+        addLight(new Spotlight().pos(-0.5f, 5f, -2.5f).color(0xFF0000));
+        addLight(new Spotlight().pos( 0.5f, 5f, -2.5f).color(0x00FF00));
+        addLight(new Spotlight().pos( 0f, 5f, -3.5f).color(0x0000FF));
 
         Cart c = new Cart(UUID.randomUUID());
         c.setPos(10, 2, 10);
@@ -224,7 +220,8 @@ public class WorldClient extends World {
         sunLight.direction(sky.getSunDirection());
 
         //render shadows
-        //renderShadows(client.camera, matrices, delta);
+        if (renderShadowMap)
+            renderShadows(client.camera, matrices, delta);
 
         //render skybox
         renderSky(matrices, delta);
@@ -332,7 +329,7 @@ public class WorldClient extends World {
 
         //restore camera
         camera.setPos(pos.x, pos.y, pos.z);
-        camera.setRot(rot.x, rot.y, rot.z);
+        camera.setRot(rot);
         camera.updateFrustum();
     }
 
@@ -466,7 +463,7 @@ public class WorldClient extends World {
 
         if (DebugScreen.getSelectedTab() == 3) {
             //lights
-            renderLights(area, cameraPos, matrices);
+            renderLights(cameraPos, matrices);
 
             //particles
             for (Particle p : getParticles(area))
@@ -505,11 +502,8 @@ public class WorldClient extends World {
         }
     }
 
-    protected void renderLights(AABB area, Vector3f cameraPos, MatrixStack matrices) {
-        for (Light l : getLights(area)) {
-            if (l instanceof DirectionalLight)
-                continue;
-
+    protected void renderLights(Vector3f cameraPos, MatrixStack matrices) {
+        for (Light l : this.lights) {
             Vector3f pos = l.getPos();
             if (cameraPos.distanceSquared(pos) <= 0.1f)
                 continue;
@@ -517,6 +511,12 @@ public class WorldClient extends World {
             float r = 0.125f;
             int color = l.getColor() + (0xFF << 24);
             VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, pos.x - r, pos.y - r, pos.z - r, pos.x + r, pos.y + r, pos.z + r, color));
+
+            if (l instanceof Spotlight s) {
+                float d = 0.5f;
+                Vector3f dir = s.getDirection();
+                VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, pos.x, pos.y, pos.z, pos.x + dir.x * d, pos.y + dir.y * d, pos.z + dir.z * d, 0.01f, color));
+            }
         }
     }
 

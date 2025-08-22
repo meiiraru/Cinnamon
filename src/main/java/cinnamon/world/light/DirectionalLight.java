@@ -10,7 +10,8 @@ public class DirectionalLight extends Light {
     @Override
     protected void pushToShader(Shader shader, String prefix) {
         super.pushToShader(shader, prefix);
-        shader.setVec3(prefix + "dir", dir);
+        shader.setInt(prefix + "type", 3);
+        shader.setVec3(prefix + "direction", dir);
     }
 
     public Vector3f getDirection() {

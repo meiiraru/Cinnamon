@@ -5,11 +5,9 @@ import org.joml.Vector3f;
 
 public class Light {
 
-    private final Vector3f
-            pos = new Vector3f(),
-            attenuation = new Vector3f(1f, 4.5f / 16f, 75 / (16f * 16f));
-    private float brightness = 16f;
+    private final Vector3f pos = new Vector3f();
     private int color = 0xFFFFFF;
+    private float intensity = 5f, falloffStart = 3f, falloffEnd = 5f;
 
     public void pushToShader(Shader shader, int index) {
         String prefix = "lights[" + index + "].";
@@ -19,10 +17,11 @@ public class Light {
     protected void pushToShader(Shader shader, String prefix) {
         shader.setVec3(prefix + "pos", pos);
         shader.setColor(prefix + "color", color);
-        shader.setVec3(prefix + "attenuation", attenuation);
+        shader.setInt(prefix + "type", 1);
 
-        shader.setBool(prefix + "directional", this instanceof DirectionalLight);
-        shader.setBool(prefix + "spotlight", this instanceof Spotlight);
+        shader.setFloat(prefix + "intensity", intensity);
+        shader.setFloat(prefix + "falloffStart", falloffStart);
+        shader.setFloat(prefix + "falloffEnd", falloffEnd);
     }
 
     public Vector3f getPos() {
@@ -38,25 +37,8 @@ public class Light {
         return this;
     }
 
-    public float getBrightness() {
-        return brightness;
-    }
-
-    public Vector3f getAttenuation() {
-        return attenuation;
-    }
-
-    public Light brightness(float brightness) {
-        return this.brightness(brightness, 1f, 4.5f, 75f);
-    }
-
-    public Light brightness(float brightness, float constant, float linear, float quadratic) {
-        this.brightness = brightness;
-        this.attenuation.set(
-                constant,
-                linear / brightness,
-                quadratic / (brightness * brightness)
-        );
+    public Light color(int color) {
+        this.color = color;
         return this;
     }
 
@@ -64,8 +46,30 @@ public class Light {
         return color;
     }
 
-    public Light color(int color) {
-        this.color = color;
+    public Light intensity(float intensity) {
+        this.intensity = intensity;
         return this;
+    }
+
+    public float getIntensity() {
+        return intensity;
+    }
+
+    public Light falloff(float falloff) {
+        return falloff(falloff, falloff + 5f);
+    }
+
+    public Light falloff(float falloffStart, float falloffEnd) {
+        this.falloffStart = falloffStart;
+        this.falloffEnd = falloffEnd;
+        return this;
+    }
+
+    public float getFalloffStart() {
+        return falloffStart;
+    }
+
+    public float getFalloffEnd() {
+        return falloffEnd;
     }
 }

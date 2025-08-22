@@ -5,16 +5,16 @@ import org.joml.Vector3f;
 
 public class Spotlight extends Light {
 
-    private final Vector3f dir = new Vector3f(0, -1, 0);
-    private float cutOff = 15f;
-    private float outerCutOff = cutOff + 5f;
+    private final Vector3f dir = new Vector3f(0f, -1f, 0f);
+    private float innerCutOff = 0.9659f, outerCutOff = 0.9397f; // cos(15) and cos(20)
 
     @Override
     protected void pushToShader(Shader shader, String prefix) {
         super.pushToShader(shader, prefix);
-        shader.setVec3(prefix + "dir", dir);
-        shader.setFloat(prefix + "cutOff", (float) Math.cos(Math.toRadians(cutOff)));
-        shader.setFloat(prefix + "outerCutOff", (float) Math.cos(Math.toRadians(outerCutOff)));
+        shader.setInt(prefix + "type", 2);
+        shader.setVec3(prefix + "direction", dir);
+        shader.setFloat(prefix + "innerCutOff", innerCutOff);
+        shader.setFloat(prefix + "outerCutOff", outerCutOff);
     }
 
     public Vector3f getDirection() {
@@ -26,21 +26,17 @@ public class Spotlight extends Light {
     }
 
     public Spotlight direction(float x, float y, float z) {
-        this.dir.set(x, y, z);
+        this.dir.set(x, y, z).normalize();
         return this;
-    }
-
-    public float getCutOff() {
-        return cutOff;
     }
 
     public Spotlight cutOff(float cutOff) {
         return cutOff(cutOff, cutOff + 5f);
     }
 
-    public Spotlight cutOff(float cutOff, float outerCutOff) {
-        this.cutOff = cutOff;
-        this.outerCutOff = outerCutOff;
+    public Spotlight cutOff(float innerCutOff, float outerCutOff) {
+        this.innerCutOff = (float) Math.cos(Math.toRadians(innerCutOff));
+        this.outerCutOff = (float) Math.cos(Math.toRadians(outerCutOff));
         return this;
     }
 }

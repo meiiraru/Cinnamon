@@ -8,6 +8,18 @@
 struct Light {
     vec3 pos;
     vec3 color;
+
+    float intensity;
+    float falloffStart;
+    float falloffEnd;
+
+    //1 = point, 2 = spot, 3 = directional
+    int type;
+
+    //spotlights
+    vec3 direction;
+    float innerCutOff;
+    float outerCutOff;
 };
 
 in vec2 texCoords;
@@ -23,7 +35,7 @@ uniform sampler2D gEmissive;
 
 uniform vec3 camPos;
 
-const int MAX_LIGHTS = 128;
+const int MAX_LIGHTS = 64;
 uniform int lightCount;
 uniform Light lights[MAX_LIGHTS];
 
@@ -79,9 +91,10 @@ vec4 applyLighting(vec3 pos) {
     vec4 albedo4 = texture(gAlbedo, texCoords);
     vec3 albedo = albedo4.rgb;
 
-    float ao        = texture(gORM, texCoords).r;
-    float roughness = texture(gORM, texCoords).g;
-    float metallic  = texture(gORM, texCoords).b;
+    vec4 gORM = texture(gORM, texCoords);
+    float ao        = gORM.r;
+    float roughness = gORM.g;
+    float metallic  = gORM.b;
 
     //normal mapping
     vec3 N = texture(gNormal, texCoords).rgb;
@@ -98,13 +111,43 @@ vec4 applyLighting(vec3 pos) {
         Light light = lights[i];
 
         //light radiance
-        //L = light direction; H = half vector
-        vec3 L = normalize(light.pos - pos);
-        vec3 H = normalize(V + L);
+        //L = light direction
+        vec3 L;
+        float attenuation = 1.0f;
 
-        float distance = length(light.pos - pos);
-        float attenuation = 1.0f / (distance * distance);
-        vec3 radiance = light.color * attenuation;
+        if (light.type == 3) {
+            L = normalize(-light.direction);
+        } else {
+            L = light.pos - pos;
+            float distance = length(L);
+            L = normalize(L);
+
+            //calculate distance-based attenuation
+            float distanceAttenuation = smoothstep(light.falloffEnd, light.falloffStart, distance);
+
+            //spotlight
+            float spotEffect = 1.0f;
+            if (light.type == 2) {
+                //dot product between light-to-fragment vector and the light's forward direction
+                //L points TOWARDS the light, so we use its inverse, light.direction points AWAY
+                float theta = dot(-L, normalize(light.direction));
+
+                //use smoothstep again for a soft cone edge
+                spotEffect = smoothstep(light.outerCutOff, light.innerCutOff, theta);
+            }
+
+            attenuation = distanceAttenuation * spotEffect;
+        }
+
+        //final radiance
+        vec3 radiance = light.color * light.intensity * attenuation;
+
+        //if light has no effect, skip the expensive PBR calculations
+        if (dot(radiance, radiance) < 0.00001f)
+            continue;
+
+        //H = half vector
+        vec3 H = normalize(V + L);
 
         //cook torrance BRDF
         float D = distributionGGX(N, H, roughness);

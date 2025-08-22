@@ -9,7 +9,7 @@ import cinnamon.world.world.WorldClient;
 
 public class Flashlight extends Item {
 
-    private final Spotlight light = (Spotlight) new Spotlight().cutOff(25f, 45f).brightness(64);
+    private final Spotlight light = (Spotlight) new Spotlight().falloff(0f, 20f);
     private boolean active = false;
 
     public Flashlight(int color) {
