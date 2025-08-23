@@ -83,6 +83,7 @@ public class MagicWand extends Item {
         if (!drawing && lastPos != null)
             drawParticle(lastPos, getColor(getSource().getWorld().getTime()), getSource().getWorld());
         drawing = false;
+        lastPos = null;
     }
 
     private static Vector3f spawnPos(Entity source) {

@@ -1,33 +1,31 @@
 package cinnamon.world.light;
 
 import cinnamon.render.shader.Shader;
-import org.joml.Vector3f;
 
-public class Spotlight extends Light {
+public class Spotlight extends PointLight {
 
-    private final Vector3f dir = new Vector3f(0f, -1f, 0f);
     private float innerCutOff = 0.9659f, outerCutOff = 0.9397f; // cos(15) and cos(20)
+
+    public Spotlight() {
+        super();
+        castsShadows(true);
+    }
 
     @Override
     protected void pushToShader(Shader shader, String prefix) {
         super.pushToShader(shader, prefix);
         shader.setInt(prefix + "type", 2);
-        shader.setVec3(prefix + "direction", dir);
         shader.setFloat(prefix + "innerCutOff", innerCutOff);
         shader.setFloat(prefix + "outerCutOff", outerCutOff);
     }
 
-    public Vector3f getDirection() {
-        return dir;
-    }
-
-    public Spotlight direction(Vector3f direction) {
-        return direction(direction.x, direction.y, direction.z);
-    }
-
-    public Spotlight direction(float x, float y, float z) {
-        this.dir.set(x, y, z).normalize();
-        return this;
+    @Override
+    public void calculateLightSpaceMatrix() {
+        super.calculateLightViewMatrix();
+        float near = 0.5f, far = getFalloffEnd();
+        float fov = (float) Math.acos(outerCutOff) * 2f;
+        lightSpaceMatrix.identity().perspective(fov, 1f, near, far);
+        lightSpaceMatrix.mul(lightView);
     }
 
     public Spotlight cutOff(float cutOff) {

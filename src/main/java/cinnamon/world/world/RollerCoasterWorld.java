@@ -10,7 +10,7 @@ import cinnamon.utils.Maths;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.items.CurveMaker;
-import cinnamon.world.light.Light;
+import cinnamon.world.light.Spotlight;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -29,7 +29,7 @@ public class RollerCoasterWorld extends WorldClient {
     @Override
     protected void tempLoad() {
         super.tempLoad();
-        addLight(new Light().pos(0f, 5f, 0f).color(0xAD72FF));
+        addLight(new Spotlight().pos(0f, 5f, 0f).color(0xAD72FF));
     }
 
     @Override

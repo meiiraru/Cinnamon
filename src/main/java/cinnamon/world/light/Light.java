@@ -1,27 +1,89 @@
 package cinnamon.world.light;
 
+import cinnamon.model.GeometryHelper;
+import cinnamon.model.Vertex;
+import cinnamon.render.Camera;
+import cinnamon.render.MatrixStack;
+import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
+import cinnamon.utils.Resource;
+import cinnamon.utils.Rotation;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public class Light {
+public abstract class Light {
 
-    private final Vector3f pos = new Vector3f();
+    private static final Resource
+        LAMP = new Resource("textures/environment/lamp.png"),
+        LAMP_OVERLAY = new Resource("textures/environment/lamp_overlay.png");
+
+    protected final Vector3f
+            pos = new Vector3f(),
+            dir = new Vector3f(0f, -1f, 0f);
     private int color = 0xFFFFFF;
-    private float intensity = 5f, falloffStart = 3f, falloffEnd = 5f;
+    private float intensity = 5f;
+
+    protected final Matrix4f
+            lightSpaceMatrix = new Matrix4f(),
+            lightView = new Matrix4f();
+    private boolean castsShadows = false;
 
     public void pushToShader(Shader shader, int index) {
         String prefix = "lights[" + index + "].";
+        shader.setVec3(prefix + "pos", pos);
+        shader.setVec3(prefix + "direction", dir);
+        shader.setColor(prefix + "color", color);
+        shader.setFloat(prefix + "intensity", intensity);
+        shader.setMat4(prefix + "lightSpaceMatrix", lightSpaceMatrix);
         pushToShader(shader, prefix);
     }
 
-    protected void pushToShader(Shader shader, String prefix) {
-        shader.setVec3(prefix + "pos", pos);
-        shader.setColor(prefix + "color", color);
-        shader.setInt(prefix + "type", 1);
+    protected abstract void pushToShader(Shader shader, String prefix);
 
-        shader.setFloat(prefix + "intensity", intensity);
-        shader.setFloat(prefix + "falloffStart", falloffStart);
-        shader.setFloat(prefix + "falloffEnd", falloffEnd);
+    public void calculateLightSpaceMatrix() {
+        calculateLightViewMatrix();
+    }
+
+    protected void calculateLightViewMatrix() {
+        float x = 0f, y = 1f;
+
+        if (Math.abs(dir.dot(0f, 1f, 0f)) > 0.999f) {
+            x = 1f;
+            y = 0f;
+        }
+
+        lightView.identity().lookAt(
+                pos.x, pos.y, pos.z,
+                pos.x + dir.x, pos.y + dir.y, pos.z + dir.z,
+                x, y, 0f
+        );
+    }
+
+    public void renderDebug(Camera camera, MatrixStack matrices) {
+        if (camera.getPos().distanceSquared(pos) <= 0.1f)
+            return;
+
+        matrices.pushMatrix();
+        matrices.translate(pos);
+        camera.billboard(matrices);
+        matrices.rotate(Rotation.Z.rotationDeg(180f));
+
+        Vertex[] v = GeometryHelper.quad(matrices, -0.5f, -0.5f, 1f, 1f);
+        VertexConsumer.MAIN.consume(v, LAMP);
+
+        int c = color | 0xFF000000;
+        for (Vertex vertex : v)
+            vertex.color(c);
+        VertexConsumer.MAIN.consume(v, LAMP_OVERLAY);
+
+        matrices.popMatrix();
+
+        VertexConsumer.MAIN.consume(GeometryHelper.line(
+                matrices,
+                pos.x, pos.y, pos.z,
+                pos.x + dir.x, pos.y + dir.y, pos.z + dir.z,
+                0.025f, c
+        ));
     }
 
     public Vector3f getPos() {
@@ -34,6 +96,19 @@ public class Light {
 
     public Light pos(float x, float y, float z) {
         this.pos.set(x, y, z);
+        return this;
+    }
+
+    public Vector3f getDirection() {
+        return dir;
+    }
+
+    public Light direction(Vector3f direction) {
+        return direction(direction.x, direction.y, direction.z);
+    }
+
+    public Light direction(float x, float y, float z) {
+        this.dir.set(x, y, z).normalize();
         return this;
     }
 
@@ -55,21 +130,16 @@ public class Light {
         return intensity;
     }
 
-    public Light falloff(float falloff) {
-        return falloff(falloff, falloff + 5f);
+    public Matrix4f getLightSpaceMatrix() {
+        return lightSpaceMatrix;
     }
 
-    public Light falloff(float falloffStart, float falloffEnd) {
-        this.falloffStart = falloffStart;
-        this.falloffEnd = falloffEnd;
+    public boolean castsShadows() {
+        return castsShadows;
+    }
+
+    public Light castsShadows(boolean bool) {
+        this.castsShadows = bool;
         return this;
-    }
-
-    public float getFalloffStart() {
-        return falloffStart;
-    }
-
-    public float getFalloffEnd() {
-        return falloffEnd;
     }
 }

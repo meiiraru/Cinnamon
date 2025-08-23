@@ -37,7 +37,6 @@ public class WorldRenderer {
 
         //world uniforms
         world.applyWorldUniforms(s);
-        //world.applyShadowUniforms(s);
         world.getSky().pushToShader(s, Texture.MAX_TEXTURES - 1);
 
         //gbuffer textures
@@ -47,6 +46,10 @@ public class WorldRenderer {
         s.setInt("gNormal", 3);
         s.setInt("gEmissive", 4);
         int tex = PBRFrameBuffer.bindTextures();
+
+        //shadows
+        s.setTexture("shadowMap", world.getShadowMapTex(), tex);
+        tex++;
 
         //render and blit to main framebuffer
         SimpleGeometry.QUAD.render();

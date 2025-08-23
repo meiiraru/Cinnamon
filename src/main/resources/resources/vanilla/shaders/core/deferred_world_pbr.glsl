@@ -20,6 +20,9 @@ struct Light {
     vec3 direction;
     float innerCutOff;
     float outerCutOff;
+
+    //shadow
+    mat4 lightSpaceMatrix;
 };
 
 in vec2 texCoords;
@@ -35,9 +38,10 @@ uniform sampler2D gEmissive;
 
 uniform vec3 camPos;
 
-const int MAX_LIGHTS = 64;
+const int MAX_LIGHTS = 32;
 uniform int lightCount;
 uniform Light lights[MAX_LIGHTS];
+uniform sampler2D shadowMap;
 
 const float PI = 3.14159265359f;
 
@@ -86,6 +90,33 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) {
     return F0 + (max(vec3(1.0f - roughness), F0) - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
 }
 
+float calculateShadow(mat4 lightMatrix, vec3 lightDir, vec3 fragPosWorld, vec3 normal) {
+    //transform fragment position to light clip space
+    vec4 fragPosLightSpace = lightMatrix * vec4(fragPosWorld, 1.0f);
+
+    //normalize to [0,1] range
+    vec3 lightCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    lightCoords = lightCoords * 0.5f + 0.5f;
+
+    //get the closest depth from the light perspective
+    float closestDepth = texture(shadowMap, lightCoords.xy).r;
+
+    //get the current fragment depth from the light perspective
+    float currentDepth = lightCoords.z;
+
+    //shadow acne prevention bias
+    //the bias is larger for surfaces that are steeply angled to the light
+    float bias = max(0.01f * (1.0f - dot(normal, lightDir)), 0.001f);
+
+    //check if the current fragment is behind the closest one recorded in the shadow map
+    //the 1.0 check is for the border color - fragments outside the frustum are not in shadow
+    float shadow = 1.0f;
+    if (currentDepth - bias > closestDepth && lightCoords.z < 1.0f)
+        shadow = 0.0f; //the fragment is in shadow
+
+    return shadow;
+}
+
 vec4 applyLighting(vec3 pos) {
     //grab textures
     vec4 albedo4 = texture(gAlbedo, texCoords);
@@ -116,7 +147,7 @@ vec4 applyLighting(vec3 pos) {
         float attenuation = 1.0f;
 
         if (light.type == 3) {
-            L = normalize(-light.direction);
+            L = -light.direction;
         } else {
             L = light.pos - pos;
             float distance = length(L);
@@ -130,7 +161,7 @@ vec4 applyLighting(vec3 pos) {
             if (light.type == 2) {
                 //dot product between light-to-fragment vector and the light's forward direction
                 //L points TOWARDS the light, so we use its inverse, light.direction points AWAY
-                float theta = dot(-L, normalize(light.direction));
+                float theta = dot(-L, light.direction);
 
                 //use smoothstep again for a soft cone edge
                 spotEffect = smoothstep(light.outerCutOff, light.innerCutOff, theta);
@@ -141,6 +172,10 @@ vec4 applyLighting(vec3 pos) {
 
         //final radiance
         vec3 radiance = light.color * light.intensity * attenuation;
+
+        //shadow
+        float shadow = calculateShadow(light.lightSpaceMatrix, L, pos, N);
+        radiance *= shadow;
 
         //if light has no effect, skip the expensive PBR calculations
         if (dot(radiance, radiance) < 0.00001f)
