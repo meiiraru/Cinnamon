@@ -5,7 +5,6 @@ import cinnamon.gui.screens.world.DeathScreen;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
-import cinnamon.render.Camera;
 import cinnamon.settings.Settings;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Direction;
@@ -41,11 +40,6 @@ public class LocalPlayer extends Player {
     public void tickPhysics() {
         if (!super.isRemoved())
             super.tickPhysics();
-    }
-
-    @Override
-    public boolean shouldRender(Camera camera) {
-        return (camera.getEntity() != this || ((WorldClient) getWorld()).isThirdPerson()) && super.shouldRender(camera);
     }
 
     @Override

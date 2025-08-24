@@ -219,7 +219,7 @@ public class XrRenderer {
         //cleanup
         matrices.popMatrix();
         if (lefty) glFrontFace(GL_CCW);
-        WorldRenderer.finishOutlines(s -> s.setFloat("radius", 8f));
+        WorldRenderer.bakeOutlines(s -> s.setFloat("radius", 8f));
 
         //render the laser
         if (isScreenCollided()) {

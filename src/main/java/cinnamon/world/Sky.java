@@ -73,7 +73,7 @@ public class Sky {
     public void setSunAngle(float angle) {
         this.sunAngle = angle;
 
-        this.sunDir.set(1, 0, 0);
+        this.sunDir.set(-1, 0, 0);
         this.sunDir.rotateZ((float) Math.toRadians(sunAngle));
         this.sunDir.rotateX(SUN_ROLL);
 

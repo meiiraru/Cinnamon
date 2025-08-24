@@ -7,32 +7,45 @@ import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
+import cinnamon.world.light.Light;
 import cinnamon.world.world.WorldClient;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
+import java.util.Stack;
 import java.util.function.Consumer;
+
+import static org.lwjgl.opengl.GL11.*;
 
 public class WorldRenderer {
 
     public static final PBRDeferredFramebuffer PBRFrameBuffer = new PBRDeferredFramebuffer(1, 1);
     public static final Framebuffer outlineFramebuffer = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER);
+    public static final Framebuffer vertexConsumerFramebuffer = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
+    public static final Framebuffer lightingMultiPassBuffer = new Framebuffer(1, 1, Framebuffer.HDR_COLOR_BUFFER);
+    private static final Framebuffer shadowBuffer = new Framebuffer(2048, 2048, Framebuffer.DEPTH_BUFFER);
 
     private static boolean outlineRendering = false;
-    private static Framebuffer previousFramebuffer;
+    private static boolean shadowRendering = false;
+
+    private static final Vector3f cameraPos = new Vector3f();
+    private static final Quaternionf cameraRot = new Quaternionf();
+    private static final Stack<Framebuffer> bufferStack = new Stack<>();
 
     //public static final Material TERRAIN_MATERIAL = MaterialManager.load(new Resource("textures/terrain/terrain.pbr"), "terrain");
 
-    public static void prepare(Camera camera) {
-        previousFramebuffer = Framebuffer.activeFramebuffer;
+    public static void prepareWorld(Camera camera) {
+        Framebuffer prevFB = bufferStack.push(Framebuffer.activeFramebuffer);
         PBRFrameBuffer.useClear();
-        PBRFrameBuffer.resizeTo(previousFramebuffer);
-        previousFramebuffer.blit(PBRFrameBuffer.id(), false, false, true);
+        PBRFrameBuffer.resizeTo(prevFB);
+        prevFB.blit(PBRFrameBuffer.id(), false, false, true);
         Shader s = Shaders.GBUFFER_WORLD_PBR.getShader().use();
         s.setup(camera);
         s.setVec3("camPos", camera.getPosition());
     }
 
-    public static void finish(WorldClient world) {
-        previousFramebuffer.use();
+    public static void bakeWorld(WorldClient world, boolean hasConsumerPass) {
+        Framebuffer prevFB = bufferStack.pop().use();
         Shader s = Shaders.DEFERRED_WORLD_PBR.getShader().use();
 
         //world uniforms
@@ -45,51 +58,164 @@ public class WorldRenderer {
         s.setInt("gORM", 2);
         s.setInt("gNormal", 3);
         s.setInt("gEmissive", 4);
-        int tex = PBRFrameBuffer.bindTextures();
+        PBRFrameBuffer.bindTextures();
 
-        //shadows
-        s.setTexture("shadowMap", world.getShadowMapTex(), tex);
-        tex++;
+        //lights
+        s.setTexture("lightTex", lightingMultiPassBuffer.getColorBuffer(), 5);
 
         //render and blit to main framebuffer
-        SimpleGeometry.QUAD.render();
-        PBRFrameBuffer.blit(previousFramebuffer.id(), false, true, true);
+        renderQuad();
+        PBRFrameBuffer.blit(prevFB.id(), false, true, true);
 
         //cleanup textures
-        Texture.unbindAll(tex);
-        previousFramebuffer = null;
+        Texture.unbindAll(6);
+
+        //render vertex consumer stuff
+        if (!hasConsumerPass)
+            return;
+
+        Shader blit = Shaders.BLIT_COLOR_DEPTH.getShader().use();
+        blit.setTexture("colorTexA", prevFB.getColorBuffer(), 0);
+        blit.setTexture("depthTexA", prevFB.getDepthBuffer(), 1);
+        blit.setTexture("colorTexB", vertexConsumerFramebuffer.getColorBuffer(), 2);
+        blit.setTexture("depthTexB", vertexConsumerFramebuffer.getDepthBuffer(), 3);
+
+        //render quad
+        SimpleGeometry.QUAD.render();
+
+        //free textures
+        Texture.unbindAll(4);
+    }
+
+    public static void vertexConsumerPass() {
+        vertexConsumerFramebuffer.resizeTo(Framebuffer.activeFramebuffer);
+        vertexConsumerFramebuffer.useClear();
+        vertexConsumerFramebuffer.adjustViewPort();
+    }
+
+    public static void renderQuad() {
+        Blit.renderQuad();
     }
 
     public static Shader prepareOutlineBuffer(Camera camera) {
         outlineRendering = true;
-        previousFramebuffer = Framebuffer.activeFramebuffer;
+        Framebuffer prevFB = bufferStack.push(Framebuffer.activeFramebuffer);
         outlineFramebuffer.useClear();
-        outlineFramebuffer.resizeTo(previousFramebuffer);
+        outlineFramebuffer.resizeTo(prevFB);
         Shader s = Shaders.MODEL_PASS.getShader().use();
         s.setup(camera);
         return s;
     }
 
-    public static void finishOutlines(Consumer<Shader> outlineConsumer) {
+    public static void bakeOutlines(Consumer<Shader> outlineConsumer) {
         //prepare outline
-        previousFramebuffer.use();
+        bufferStack.pop().use();
         Shader outline = Shaders.OUTLINE.getShader().use();
-        outline.setVec2("textelSize", 1f / WorldRenderer.outlineFramebuffer.getWidth(), 1f / WorldRenderer.outlineFramebuffer.getHeight());
-        outline.setTexture("outlineTex", WorldRenderer.outlineFramebuffer.getColorBuffer(), 0);
+        outline.setVec2("textelSize", 1f / outlineFramebuffer.getWidth(), 1f / outlineFramebuffer.getHeight());
+        outline.setTexture("outlineTex", outlineFramebuffer.getColorBuffer(), 0);
         outline.setFloat("radius", 4f);
         if (outlineConsumer != null)
             outlineConsumer.accept(outline);
 
         //render outline
-        Blit.renderQuad();
+        renderQuad();
 
         //cleanup
         Texture.unbindAll(1);
         outlineRendering = false;
-        previousFramebuffer = null;
     }
 
     public static boolean isRenderingOutlines() {
         return outlineRendering;
+    }
+
+    public static Shader prepareLightPass(Camera camera) {
+        Framebuffer prevFB = bufferStack.push(Framebuffer.activeFramebuffer);
+        lightingMultiPassBuffer.useClear();
+        lightingMultiPassBuffer.resizeTo(prevFB);
+
+        //backup camera
+        cameraPos.set(camera.getPos());
+        cameraRot.set(camera.getRot());
+
+        //set up the camera pos
+        Shader s = Shaders.LIGHTING_PASS.getShader().use();
+        s.setVec3("camPos", camera.getPosition());
+
+        //apply g-buffer textures
+        s.setInt("gPosition", 0);
+        s.setInt("gAlbedo", 1);
+        s.setInt("gORM", 2);
+        s.setInt("gNormal", 3);
+        PBRFrameBuffer.bindTextures();
+
+        //custom blending for lights
+        glBlendFunc(GL_ONE, GL_ONE);
+        glDisable(GL_CULL_FACE);
+
+        return s;
+    }
+
+    public static void bakeLights(Camera camera) {
+        //restore gl flags
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_CULL_FACE);
+
+        //unbind textures
+        Texture.unbindAll(5);
+
+        //use previous framebuffer
+        bufferStack.pop().use();
+
+        //restore camera
+        camera.setPos(cameraPos.x, cameraPos.y, cameraPos.z);
+        camera.setRot(cameraRot);
+        camera.updateFrustum();
+    }
+
+    public static Shader prepareShadow(Camera camera, Light light) {
+        shadowRendering = true;
+
+        //prepare the shadow buffer
+        shadowBuffer.useClear();
+        shadowBuffer.adjustViewPort();
+
+        //calculate light matrix
+        light.calculateLightSpaceMatrix();
+        camera.updateFrustum(light.getLightSpaceMatrix());
+
+        //update camera
+        Vector3f p = light.getPos();
+        Vector3f dir = light.getDirection();
+        camera.setPos(p.x, p.y, p.z);
+        camera.lookAt(p.x + dir.x, p.y + dir.y, p.z + dir.z);
+
+        //apply the light matrix to the depth shader
+        Shader s = Shaders.MAIN_DEPTH.getShader().use();
+        s.setMat4("lightSpaceMatrix", light.getLightSpaceMatrix());
+
+        Shader sh = Shaders.DEPTH.getShader().use();
+        sh.setMat4("lightSpaceMatrix", light.getLightSpaceMatrix());
+
+        return s;
+    }
+
+    public static void bindShadow(Shader lightShader) {
+        //bind the shadow map to the light shader
+        lightShader.use();
+
+        //bind textures
+        PBRFrameBuffer.bindTextures();
+        lightShader.setTexture("shadowMap", shadowBuffer.getDepthBuffer(), 4);
+
+        //since shadows have a custom viewport, we need to reset it too
+        lightingMultiPassBuffer.use();
+        lightingMultiPassBuffer.adjustViewPort();
+
+        shadowRendering = false;
+    }
+
+    public static boolean isRenderingShadows() {
+        return shadowRendering;
     }
 }

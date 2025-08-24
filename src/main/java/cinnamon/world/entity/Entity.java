@@ -468,7 +468,9 @@ public abstract class Entity extends WorldObject {
 
     @Override
     public boolean shouldRender(Camera camera) {
-        return camera.getPos().distanceSquared(getPos()) <= getRenderDistance() && super.shouldRender(camera);
+        return(camera.getEntity() != this || ((WorldClient) getWorld()).isThirdPerson() || WorldRenderer.isRenderingShadows())
+                && camera.getPos().distanceSquared(getPos()) <= getRenderDistance()
+                && super.shouldRender(camera);
     }
 
     public float getRenderDistance() {

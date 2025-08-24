@@ -103,7 +103,8 @@ public class DebugScreen {
             Vector3f cpos = c.camera.getPosition();
             Vector3f forwards = c.camera.getForwards();
             Vector3f up = c.camera.getUp();
-            String face = Direction.fromRotation(crot.y).name;
+            float yaw = Maths.getYaw(crot);
+            String face = Direction.fromRotation(yaw).name;
 
             return String.format("""
                     [&bwindow&r]
@@ -191,16 +192,18 @@ public class DebugScreen {
             };
 
             return String.format("""
-                    time &e%s&r
+                    time &e%s&r (&e%s&r)
                     camera &e%s&r
                     &e%s&r sounds
-                    &e%s&r light sources
+                    &e%s&r/&e%s&r light sources
+                    &e%s&r shadow casters
                     &e%s&r/&e%s&r particles""",
 
-                    w.getTime(),
+                    w.getTime(), w.getTimeOfTheDay(),
                     camera,
                     SoundManager.getSoundCount(),
-                    w.lightCount(),
+                    w.getRenderedLights(), w.lightCount(),
+                    w.getRenderedShadows(),
                     w.getRenderedParticles(), w.particleCount()
             );
         }));
@@ -210,11 +213,11 @@ public class DebugScreen {
                 return "&cNo world loaded&r";
 
             return String.format("""
-                    rendered &e%s&r terrain
-                    queued &e%s&r terrain""",
+                    queried &e%s&r terrain
+                    rendered &e%s&r terrain""",
 
-                    w.getRenderedTerrain(),
-                    w.getExpectedRenderedTerrain()
+                    w.getExpectedRenderedTerrain(),
+                    w.getRenderedTerrain()
             );
         }));
         TABS.add(Pair.of("Entities", c -> {
@@ -223,11 +226,11 @@ public class DebugScreen {
                 return "&cNo world loaded&r";
 
             return String.format("""
-                    rendered &e%s&r entities
-                    total &e%s&r entities""",
+                    queried &e%s&r entities
+                    rendered &e%s&r entities""",
 
-                    w.getRenderedEntities(),
-                    w.entityCount()
+                    w.entityCount(),
+                    w.getRenderedEntities()
             );
         }));
         TABS.add(Pair.of("Logger", c -> {

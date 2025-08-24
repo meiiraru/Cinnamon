@@ -39,14 +39,14 @@ public abstract class World {
 
     public final int renderDistance = 192;
     public final int entityRenderDistance = 96;
-    protected int timeOfTheDay = 0;
+    protected int worldTime = 1000;
 
     public abstract void init();
 
     public abstract void close();
 
     public void tick() {
-        timeOfTheDay++;
+        worldTime++;
 
         //run scheduled ticks
         runScheduledTicks();
@@ -243,7 +243,14 @@ public abstract class World {
     }
 
     public int getTime() {
-        return timeOfTheDay;
+        return worldTime;
+    }
+
+    public String getTimeOfTheDay() {
+        float time = ((worldTime + 6000) % 24000) / 1000f;
+        int timeHors = (int) time;
+        int timeMinutes = (int) ((time - timeHors) * 60);
+        return String.format("%02d:%02d", timeHors, timeMinutes);
     }
 
     public boolean isClientside() {

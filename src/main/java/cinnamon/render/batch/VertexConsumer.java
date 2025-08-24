@@ -66,14 +66,14 @@ public enum VertexConsumer {
         return count;
     }
 
-    public static int finishAllBatches(Shader shader) {
+    public static int finishAllBatches(Shader shader, Camera camera) {
         int count = 0;
         for (VertexConsumer consumer : VertexConsumer.values())
-            count += consumer.finishBatch(shader, null);
+            count += consumer.finishBatch(shader, camera);
         return count;
     }
 
-    public static void clearBatches() {
+    public static void discardBatches() {
         for (VertexConsumer consumer : VertexConsumer.values())
             consumer.renderer.clear();
     }

@@ -57,7 +57,7 @@ public abstract class Particle extends WorldObject {
 
     @Override
     public boolean shouldRender(Camera camera) {
-        return camera.getPos().distanceSquared(pos) <= getRenderDistance() && camera.isInsideFrustum(pos.x, pos.y, pos.z);
+        return camera.getPos().distanceSquared(pos) <= getRenderDistance() && super.shouldRender(camera);
     }
 
     protected int getRenderDistance() {

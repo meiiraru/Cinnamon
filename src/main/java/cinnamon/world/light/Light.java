@@ -28,13 +28,18 @@ public abstract class Light {
             lightView = new Matrix4f();
     private boolean castsShadows = false;
 
+    public void pushToShader(Shader shader) {
+        pushToShader(shader, -1);
+    }
+
     public void pushToShader(Shader shader, int index) {
-        String prefix = "lights[" + index + "].";
+        String prefix = index < 0 ? "light." : "lights[" + index + "].";
         shader.setVec3(prefix + "pos", pos);
         shader.setVec3(prefix + "direction", dir);
         shader.setColor(prefix + "color", color);
         shader.setFloat(prefix + "intensity", intensity);
         shader.setMat4(prefix + "lightSpaceMatrix", lightSpaceMatrix);
+        shader.setBool(prefix + "castsShadows", castsShadows);
         pushToShader(shader, prefix);
     }
 

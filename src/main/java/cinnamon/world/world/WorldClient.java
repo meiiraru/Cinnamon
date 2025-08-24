@@ -17,8 +17,6 @@ import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.framebuffer.Blit;
-import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
@@ -59,7 +57,6 @@ import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.TerrainGenerator;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -67,7 +64,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.glViewport;
 
 public class WorldClient extends World {
 
@@ -84,17 +80,14 @@ public class WorldClient extends World {
 
     //lights
     protected final List<Light> lights = new ArrayList<>();
-    protected final Light sunLight = new DirectionalLight().pos(0f, 5f, 0f).intensity(1f);
+    protected final Light sunLight = new DirectionalLight().intensity(1f).castsShadows(false);
 
     //skybox
     protected final Sky sky = new Sky();
 
-    //shadows
-    private final Framebuffer shadowBuffer = new Framebuffer(2048, 2048, Framebuffer.DEPTH_BUFFER);
-    private boolean renderShadowMap;
-
     //counters
-    protected int renderedEntities, renderedTerrain, expectedRenderedTerrain, renderedParticles;
+    protected int renderedEntitiesTemp, renderedTerrainTemp, expectedRenderedTerrainTemp, renderedParticlesTemp;
+    protected int renderedEntities, renderedTerrain, expectedRenderedTerrain, renderedParticles, renderedLights, renderedShadows;
 
     @Override
     public void init() {
@@ -110,7 +103,7 @@ public class WorldClient extends World {
         Toast.addToast(Text.translated("world.keybinds_help")).length(200).type(Toast.ToastType.WORLD).style(Hud.HUD_STYLE);
 
         //sunlight
-        //addLight(sunLight);
+        addLight(sunLight);
 
         //create player
         respawn(true);
@@ -148,9 +141,9 @@ public class WorldClient extends World {
         //for (int i = 0; i < 5; i++)
         //    addLight(new PointLight().pos(-5.5f + i * 3f, 5f, 2.5f).color(Colors.randomRainbow().rgb));
 
-        addLight(new Spotlight().pos(-0.5f, 5f, -2.5f).color(0xFF0000));
-        addLight(new Spotlight().pos( 0.5f, 5f, -2.5f).color(0x00FF00));
-        addLight(new Spotlight().pos( 0f, 5f, -3.5f).color(0x0000FF));
+        addLight(new Spotlight().pos(1f, 5f, -3.0f).color(0xFF0000));
+        addLight(new Spotlight().pos(0.25f, 5f, -2.567f).color(0x00FF00));
+        addLight(new Spotlight().pos(0.25f, 5f, -3.433f).color(0x0000FF));
 
         Cart c = new Cart(UUID.randomUUID());
         c.setPos(10, 2, 10);
@@ -188,7 +181,6 @@ public class WorldClient extends World {
     @Override
     public void close() {
         //ServerConnection.close();
-        shadowBuffer.free();
         client.disconnect();
     }
 
@@ -214,48 +206,67 @@ public class WorldClient extends World {
         client.camera.updateFrustum();
 
         //prepare sun
-        sky.setSunAngle(Maths.map(timeOfTheDay + delta, 0, 24000, 0, 360));
+        float deltaDayTime = (worldTime + delta) % 24000;
+        sky.setSunAngle(Maths.map(worldTime + delta, 0, 24000, 0, 360));
 
         Vector3f sunPos = client.camera.getPosition();
         Vector3f sunDir = sky.getSunDirection();
         sunLight.pos(sunPos.x + sunDir.x * -50f, sunPos.y + sunDir.y * -50f, sunPos.z + sunDir.z * -50f);
         sunLight.direction(sunDir);
 
-        //render shadows
-        //if (renderShadowMap)
-        renderShadows(client.camera, matrices, delta);
+        float intensity = (deltaDayTime < 1000) ? (deltaDayTime - 100) / 900f //sunrise
+                : (deltaDayTime > 11000) ? 1f - (deltaDayTime - 11000) / 900f //sunset
+                : 1f; //day
+        sunLight.intensity(intensity);
 
-        //render skybox
-        renderSky(matrices, delta);
-
+        //render our stuff
         if (client.anaglyph3D) {
+            boolean[] hasConsumerPass = {false};
             client.camera.anaglyph3D(matrices, -1f / 64f, -1f, () -> {
-                WorldRenderer.prepare(client.camera);
+                //render world
+                WorldRenderer.prepareWorld(client.camera);
                 renderWorld(client.camera, matrices, delta);
+                applyTempCounters();
+
+                //world vertex consumer
+                WorldRenderer.vertexConsumerPass();
+                hasConsumerPass[0] = VertexConsumer.finishAllBatches(client.camera) > 0;
+
+                //lights and shadows
+                renderLights(client.camera, matrices, delta);
             }, () -> {
-                WorldRenderer.finish(this);
-                renderDebug(client.camera, matrices, delta);
-                VertexConsumer.finishAllBatches(client.camera);
+                //bake world
+                WorldRenderer.bakeWorld(this, hasConsumerPass[0]);
+
+                //render other stuff
+                renderSky(matrices, delta);
                 renderOutlines(matrices, delta);
+                renderDebug(client.camera, matrices, delta);
             });
         } else {
             //render world
-            WorldRenderer.prepare(client.camera);
+            WorldRenderer.prepareWorld(client.camera);
             renderWorld(client.camera, matrices, delta);
-            WorldRenderer.finish(this);
-            renderDebug(client.camera, matrices, delta);
-            VertexConsumer.finishAllBatches(client.camera);
+            applyTempCounters();
+
+            //world vertex consumer
+            WorldRenderer.vertexConsumerPass();
+            boolean hasConsumerPass = VertexConsumer.finishAllBatches(client.camera) > 0;
+
+            //lights and shadows
+            renderLights(client.camera, matrices, delta);
+
+            //bake world
+            WorldRenderer.bakeWorld(this, hasConsumerPass);
+
+            //render other stuff
+            renderSky(matrices, delta);
             renderOutlines(matrices, delta);
+            renderDebug(client.camera, matrices, delta);
         }
 
         //finish world rendering
         client.camera.useOrtho(true);
-
-        //debug shadows
-        if (renderShadowMap) {
-            int size = Math.min(client.window.width, client.window.height) / 4;
-            renderShadowBuffer(client.window.width - size, client.window.height - size, size);
-        }
     }
 
     protected void renderSky(MatrixStack matrices, float delta) {
@@ -284,62 +295,43 @@ public class WorldClient extends World {
         }
 
         //finish rendering
-        WorldRenderer.finishOutlines(null);
-        VertexConsumer.clearBatches();
+        WorldRenderer.bakeOutlines(null);
+        VertexConsumer.discardBatches();
     }
 
-    protected void renderShadows(Camera camera, MatrixStack matrices, float delta) {
+    protected void renderLights(Camera camera, MatrixStack matrices, float delta) {
+        renderedLights = renderedShadows = 0;
+        //no lights to render!
         if (lights.isEmpty())
             return;
 
-        Vector3f pos = new Vector3f(camera.getPos());
-        Quaternionf rot = new Quaternionf(camera.getRot());
+        //set up the light framebuffer and shader
+        Shader lightPassShader = WorldRenderer.prepareLightPass(camera);
 
-        //framebuffer
-        Framebuffer old = Framebuffer.activeFramebuffer;
-        shadowBuffer.useClear();
-        shadowBuffer.adjustViewPort();
+        for (Light light : lights) {
+            if (light.getIntensity() <= 0f)
+                continue;
 
-        //shader
-        Shader s = Shaders.DEPTH.getShader().use();
+            if (light.castsShadows()) {
+                //prepare shadow buffer
+                Shader shadow = WorldRenderer.prepareShadow(camera, light);
 
-        //for (Light light : lights) {
-            //if (!light.castsShadows())
-            //    continue;
-        {
-            Light light = lights.getFirst();
+                //render the world
+                renderWorld(camera, matrices, delta);
+                VertexConsumer.finishAllBatches(shadow, camera);
 
-            Vector3f p = light.getPos();
-            Vector3f dir = light.getDirection();
+                //finish shadow rendering (restore to the light framebuffer)
+                WorldRenderer.bindShadow(lightPassShader);
+                renderedShadows++;
+            }
 
-            camera.setPos(p.x, p.y, p.z);
-            camera.lookAt(p.x + dir.x, p.y + dir.y, p.z + dir.z);
-
-            //calculate light matrix
-            light.calculateLightSpaceMatrix();
-            s.setMat4("lightSpaceMatrix", light.getLightSpaceMatrix());
-
-            camera.updateFrustum(light.getLightSpaceMatrix());
-
-            //render the world
-            renderWorld(camera, matrices, delta);
-            //render camera entity when in first person
-            if (!isThirdPerson() && camera.getEntity() != null)
-                camera.getEntity().render(matrices, delta);
-
-            matrices.pushMatrix();
-            matrices.identity();
-            s.applyMatrixStack(matrices);
-            VertexConsumer.finishAllBatches(s);
-            matrices.popMatrix();
+            //render light
+            light.pushToShader(lightPassShader);
+            WorldRenderer.renderQuad();
+            renderedLights++;
         }
 
-        //restore rendering
-        old.use();
-        old.adjustViewPort();
-        camera.setPos(pos.x, pos.y, pos.z);
-        camera.setRot(rot);
-        camera.updateFrustum();
+        WorldRenderer.bakeLights(camera);
     }
 
     protected void renderWorld(Camera camera, MatrixStack matrices, float delta) {
@@ -348,30 +340,30 @@ public class WorldClient extends World {
 
         //render terrain
         List<Terrain> query = terrainManager.queryCustom(camera::isInsideFrustum);
-        renderedTerrain = 0;
-        expectedRenderedTerrain = query.size();
+        renderedTerrainTemp = 0;
+        expectedRenderedTerrainTemp = query.size();
         for (Terrain terrain : query) {
             if (terrain.shouldRender(camera)) {
                 terrain.render(matrices, delta);
-                renderedTerrain++;
+                renderedTerrainTemp++;
             }
         }
 
         //render entities
-        renderedEntities = 0;
+        renderedEntitiesTemp = 0;
         for (Entity entity : entities.values()) {
             if (entity.shouldRender(camera)) {
                 entity.render(matrices, delta);
-                renderedEntities++;
+                renderedEntitiesTemp++;
             }
         }
 
         //render particles
-        renderedParticles = 0;
+        renderedParticlesTemp = 0;
         for (Particle particle : particles) {
             if (particle.shouldRender(camera)) {
                 particle.render(matrices, delta);
-                renderedParticles++;
+                renderedParticlesTemp++;
             }
         }
 
@@ -445,12 +437,6 @@ public class WorldClient extends World {
         this.hud.render(matrices, delta);
     }
 
-    protected void renderShadowBuffer(int x, int y, int size) {
-        glViewport(x, y, size, size);
-        Blit.copy(shadowBuffer, Framebuffer.activeFramebuffer.id(), Shaders.DEPTH_BLIT.getShader(), Blit.DEPTH_UNIFORM);
-        Framebuffer.activeFramebuffer.adjustViewPort();
-    }
-
     protected void renderDebug(Camera camera, MatrixStack matrices, float delta) {
         if (hudHidden())
             return;
@@ -465,6 +451,8 @@ public class WorldClient extends World {
 
         if (player.getAbilities().canBuild())
             renderTargetedBlock(cameraEntity, matrices, delta);
+
+        VertexConsumer.finishAllBatches(camera);
     }
 
     protected void renderHitboxes(Camera camera, MatrixStack matrices, float delta) {
@@ -559,14 +547,6 @@ public class WorldClient extends World {
 
         //lighting
         s.setColor("ambient", 0xFFFFFF);
-
-        s.setInt("lightCount", lights.size());
-        for (int i = 0; i < lights.size(); i++)
-            lights.get(i).pushToShader(s, i);
-    }
-
-    public int getShadowMapTex() {
-        return shadowBuffer.getDepthBuffer();
     }
 
     public Sky getSky() {
@@ -608,6 +588,21 @@ public class WorldClient extends World {
 
     public int getRenderedParticles() {
         return renderedParticles;
+    }
+
+    public int getRenderedLights() {
+        return renderedLights;
+    }
+
+    public int getRenderedShadows() {
+        return renderedShadows;
+    }
+
+    protected void applyTempCounters() {
+        this.renderedTerrain = this.renderedTerrainTemp;
+        this.expectedRenderedTerrain = this.expectedRenderedTerrainTemp;
+        this.renderedEntities = this.renderedEntitiesTemp;
+        this.renderedParticles = this.renderedParticlesTemp;
     }
 
     protected void tickInput() {
@@ -665,10 +660,9 @@ public class WorldClient extends World {
             case GLFW_KEY_ESCAPE -> client.setScreen(new PauseScreen());
             case GLFW_KEY_ENTER -> client.setScreen(new ChatScreen());
             case GLFW_KEY_F1 -> this.hideHUD = !this.hideHUD;
-            case GLFW_KEY_F4 -> this.renderShadowMap = !this.renderShadowMap;
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
-            case GLFW_KEY_F7 -> this.timeOfTheDay -= 100;
-            case GLFW_KEY_F8 -> this.timeOfTheDay += 100;
+            case GLFW_KEY_F7 -> this.worldTime -= 100;
+            case GLFW_KEY_F8 -> this.worldTime += 100;
 
             case GLFW_KEY_COMMA -> player.setSelectedTerrain((player.getSelectedTerrain() + 1) % (TerrainRegistry.values().length));
             case GLFW_KEY_PERIOD -> player.setSelectedMaterial(Maths.modulo((player.getSelectedMaterial() + (shift ? -1 : 1)), MaterialRegistry.values().length));
