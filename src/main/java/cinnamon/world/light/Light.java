@@ -7,6 +7,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
 import cinnamon.settings.Settings;
+import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
 import org.joml.Matrix4f;
@@ -24,6 +25,7 @@ public abstract class Light {
     private int color = 0xFFFFFF;
     private float intensity = 5f;
 
+    protected final AABB aabb = new AABB();
     protected final Matrix4f
             lightSpaceMatrix = new Matrix4f(),
             lightView = new Matrix4f();
@@ -45,6 +47,12 @@ public abstract class Light {
     }
 
     protected abstract void pushToShader(Shader shader, String prefix);
+
+    protected abstract void updateAABB();
+
+    public boolean shouldRender(Camera camera) {
+        return intensity > 0f && camera.getPos().distanceSquared(getPos()) <= 9216 && camera.isInsideFrustum(aabb); //96 * 96
+    }
 
     public void calculateLightSpaceMatrix() {
         calculateLightViewMatrix();
@@ -102,6 +110,7 @@ public abstract class Light {
 
     public Light pos(float x, float y, float z) {
         this.pos.set(x, y, z);
+        updateAABB();
         return this;
     }
 
@@ -115,6 +124,7 @@ public abstract class Light {
 
     public Light direction(float x, float y, float z) {
         this.dir.set(x, y, z).normalize();
+        updateAABB();
         return this;
     }
 
@@ -134,6 +144,10 @@ public abstract class Light {
 
     public float getIntensity() {
         return intensity;
+    }
+
+    public AABB getAABB() {
+        return aabb;
     }
 
     public Matrix4f getLightSpaceMatrix() {

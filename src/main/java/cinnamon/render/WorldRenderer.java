@@ -8,6 +8,7 @@ import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.settings.Settings;
+import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
 import cinnamon.world.world.WorldClient;
 import org.joml.Quaternionf;
@@ -183,13 +184,17 @@ public class WorldRenderer {
         shadowBuffer.resize(w, w);
         shadowBuffer.adjustViewPort();
 
+        //move the directional lights away from the camera
+        Vector3f dir = light.getDirection();
+        if (light instanceof DirectionalLight)
+            light.pos(cameraPos.x + dir.x * -50f, cameraPos.y + dir.y * -50f, cameraPos.z + dir.z * -50f);
+
         //calculate light matrix
         light.calculateLightSpaceMatrix();
         camera.updateFrustum(light.getLightSpaceMatrix());
 
         //update camera
         Vector3f p = light.getPos();
-        Vector3f dir = light.getDirection();
         camera.setPos(p.x, p.y, p.z);
         camera.lookAt(p.x + dir.x, p.y + dir.y, p.z + dir.z);
 

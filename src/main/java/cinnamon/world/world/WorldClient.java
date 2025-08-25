@@ -78,9 +78,12 @@ public class WorldClient extends World {
 
     private boolean hideHUD;
 
+    public final int renderDistance = 192;
+    public final int entityRenderDistance = 144;
+
     //lights
     protected final List<Light> lights = new ArrayList<>();
-    protected final Light sunLight = new DirectionalLight().intensity(1f).castsShadows(true);
+    protected final Light sunLight = new DirectionalLight().pos(0.5f, 5f, 0.5f).intensity(1f).castsShadows(true);
 
     //skybox
     protected final Sky sky = new Sky();
@@ -213,15 +216,11 @@ public class WorldClient extends World {
         float deltaDayTime = (worldTime + delta) % 24000;
         sky.setSunAngle(Maths.map(worldTime + delta, 0, 24000, 0, 360));
 
-        Vector3f sunPos = client.camera.getPosition();
-        Vector3f sunDir = sky.getSunDirection();
-        sunLight.pos(sunPos.x + sunDir.x * -50f, sunPos.y + sunDir.y * -50f, sunPos.z + sunDir.z * -50f);
-        sunLight.direction(sunDir);
-
         float intensity = (deltaDayTime < 1000) ? (deltaDayTime - 100) / 900f //sunrise
                 : (deltaDayTime > 11000) ? 1f - (deltaDayTime - 11000) / 900f //sunset
                 : 1f; //day
         sunLight.intensity(intensity);
+        sunLight.direction(sky.getSunDirection());
 
         //render our stuff
         if (client.anaglyph3D) {
@@ -305,17 +304,20 @@ public class WorldClient extends World {
 
     protected void renderLights(Camera camera, MatrixStack matrices, float delta) {
         renderedLights = renderedShadows = 0;
+
+        List<Light> lightsToRender = new ArrayList<>();
+        for (Light l : lights)
+            if (l.shouldRender(camera))
+                lightsToRender.add(l);
+
         //no lights to render!
-        if (lights.isEmpty())
+        if (lightsToRender.isEmpty())
             return;
 
         //set up the light framebuffer and shader
         Shader lightPassShader = WorldRenderer.prepareLightPass(camera);
 
-        for (Light light : lights) {
-            if (light.getIntensity() <= 0f)
-                continue;
-
+        for (Light light : lightsToRender) {
             if (light.castsShadows()) {
                 //prepare shadow buffer
                 Shader shadow = WorldRenderer.prepareShadow(camera, light);
@@ -469,7 +471,8 @@ public class WorldClient extends World {
         if (DebugScreen.getSelectedTab() == 3) {
             //lights
             for (Light light : lights)
-                light.renderDebug(camera, matrices);
+                if (light.shouldRender(camera))
+                    light.renderDebug(camera, matrices);
 
             //particles
             for (Particle p : getParticles(area))

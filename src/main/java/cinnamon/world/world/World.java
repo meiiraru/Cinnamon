@@ -36,9 +36,6 @@ public abstract class World {
     public final float updateTime = 1f / Client.TPS;
     public final float gravity = 0.98f * updateTime;
     public final float bottomOfTheWorld = -512f;
-
-    public final int renderDistance = 192;
-    public final int entityRenderDistance = 96;
     protected int worldTime = 1000;
 
     public abstract void init();

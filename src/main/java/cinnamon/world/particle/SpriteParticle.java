@@ -5,7 +5,6 @@ import cinnamon.model.Vertex;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.texture.Texture;
-import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 
@@ -72,7 +71,8 @@ public abstract class SpriteParticle extends Particle {
     }
 
     @Override
-    public AABB getAABB() {
-        return super.getAABB().inflate(8 * PARTICLE_SCALING * scale);
+    protected void updateAABB() {
+        super.updateAABB();
+        aabb.inflate(8 * PARTICLE_SCALING * scale);
     }
 }

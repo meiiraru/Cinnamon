@@ -7,7 +7,6 @@ import cinnamon.model.Vertex;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.utils.AABB;
 import cinnamon.utils.Rotation;
 import cinnamon.utils.UIHelper;
 
@@ -80,7 +79,7 @@ public class Spawner<E extends Entity> extends Entity {
 
     @Override
     protected void updateAABB() {
-        this.aabb = new AABB().translate(getPos()).inflate(0.5f);
+        this.aabb.set(getPos()).inflate(0.5f);
     }
 
     @Override

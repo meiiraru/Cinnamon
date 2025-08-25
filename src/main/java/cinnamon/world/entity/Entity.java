@@ -40,8 +40,6 @@ public abstract class Entity extends WorldObject {
             oRot = new Vector2f(),
             rot = new Vector2f();
 
-    protected AABB aabb;
-
     protected final List<Entity> riders = new ArrayList<>();
     protected Entity riding;
 
@@ -266,7 +264,7 @@ public abstract class Entity extends WorldObject {
 
     protected void updateAABB() {
         //set AABB
-        this.aabb = this.model.getAABB();
+        this.aabb.set(this.model.getAABB());
 
         //make it square
         float diff = (aabb.getWidth() - aabb.getDepth()) * 0.5f;
@@ -326,11 +324,6 @@ public abstract class Entity extends WorldObject {
     public Vector3f getLookDir(float delta) {
         Vector2f rot = getRot(delta);
         return Maths.rotToDir(rot.x, rot.y);
-    }
-
-    @Override
-    public AABB getAABB() {
-        return aabb;
     }
 
     public World getWorld() {
@@ -473,8 +466,9 @@ public abstract class Entity extends WorldObject {
                 && super.shouldRender(camera);
     }
 
-    public float getRenderDistance() {
-        return 1024f * getWorld().entityRenderDistance;
+    public int getRenderDistance() {
+        int dist = ((WorldClient) getWorld()).entityRenderDistance;
+        return dist * dist;
     }
 
     protected void checkWorldVoid() {

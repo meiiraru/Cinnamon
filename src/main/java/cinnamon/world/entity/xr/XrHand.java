@@ -4,7 +4,6 @@ import cinnamon.Client;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
-import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.vr.XrHandTransform;
 import cinnamon.vr.XrInput;
@@ -87,7 +86,7 @@ public class XrHand extends PhysEntity {
 
     @Override
     protected void updateAABB() {
-        this.aabb = new AABB().translate(getPos()).inflate(0.05f);
+        this.aabb.set(getPos()).inflate(0.05f);
     }
 
     @Override

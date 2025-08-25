@@ -35,7 +35,7 @@ public class TextParticle extends Particle {
 
     @Override
     protected int getRenderDistance() {
-        return 256;
+        return 256; //16 * 16
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.joml.Vector3f;
 public abstract class WorldObject {
 
     protected final Vector3f pos = new Vector3f();
+    protected final AABB aabb = new AABB();
     protected World world;
 
     public void onAdded(World world) {
@@ -26,11 +27,15 @@ public abstract class WorldObject {
         return pos;
     }
 
+    public AABB getAABB() {
+        return aabb;
+    }
+
+    protected abstract void updateAABB();
+
     public boolean shouldRender(Camera camera) {
         return camera.isInsideFrustum(getAABB());
     }
-
-    public abstract AABB getAABB();
 
     public abstract Enum<?> getType();
 }

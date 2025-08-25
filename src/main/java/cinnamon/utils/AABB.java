@@ -36,13 +36,15 @@ public class AABB {
     }
 
     public AABB set(AABB aabb) {
-        this.set(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
-        return this;
+        return this.set(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
+    }
+
+    public AABB set(Vector3f position) {
+        return this.set(position.x, position.y, position.z, position.x, position.y, position.z);
     }
 
     public AABB set(Vector3f min, Vector3f max) {
-        this.set(min.x, min.y, min.z, max.x, max.y, max.z);
-        return this;
+        return this.set(min.x, min.y, min.z, max.x, max.y, max.z);
     }
 
     public AABB set(float minX, float minY, float minZ, float maxX, float maxY, float maxZ) {

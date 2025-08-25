@@ -4,6 +4,7 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.ModelRenderer;
@@ -13,6 +14,7 @@ import cinnamon.utils.Rotation;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.world.World;
+import cinnamon.world.world.WorldClient;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -23,7 +25,6 @@ public class Terrain extends WorldObject {
     protected final ModelRenderer model;
     private final TerrainRegistry type;
 
-    protected AABB aabb; //the entire model's AABB
     protected final List<AABB> preciseAABB = new ArrayList<>(); //group's AABB
 
     private byte rotation = 0;
@@ -68,14 +69,14 @@ public class Terrain extends WorldObject {
 
     protected void updateAABB() {
         if (model == null) {
-            aabb = new AABB(pos, pos).expand(1f, 1f, 1f);
+            aabb.set(pos).expand(1f, 1f, 1f);
             preciseAABB.clear();
             preciseAABB.add(aabb);
             return;
         }
 
         float r = getRotationAngle();
-        this.aabb = this.model.getAABB().rotateY(r).translate(pos.x + 0.5f, pos.y, pos.z + 0.5f);
+        this.aabb.set(this.model.getAABB()).rotateY(r).translate(pos.x + 0.5f, pos.y, pos.z + 0.5f);
 
         this.preciseAABB.clear();
         for (AABB group : this.model.getPreciseAABB())
@@ -89,6 +90,16 @@ public class Terrain extends WorldObject {
     }
 
     @Override
+    public boolean shouldRender(Camera camera) {
+        return camera.getPos().distanceSquared(getPos()) <= getRenderDistance() && super.shouldRender(camera);
+    }
+
+    public int getRenderDistance() {
+        int dist = ((WorldClient) getWorld()).renderDistance;
+        return dist * dist;
+    }
+
+    @Override
     public void setPos(float x, float y, float z) {
         super.setPos(x, y, z);
         this.updateAABB();
@@ -96,11 +107,6 @@ public class Terrain extends WorldObject {
 
     public World getWorld() {
         return world;
-    }
-
-    @Override
-    public AABB getAABB() {
-        return aabb;
     }
 
     public List<AABB> getPreciseAABB() {

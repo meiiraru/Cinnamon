@@ -1,5 +1,6 @@
 package cinnamon.world.light;
 
+import cinnamon.render.Camera;
 import cinnamon.render.shader.Shader;
 
 public class DirectionalLight extends Light {
@@ -20,5 +21,15 @@ public class DirectionalLight extends Light {
         float len = 20f, near = 1f, far = 100f;
         lightSpaceMatrix.identity().ortho(-len, len, -len, len, near, far);
         lightSpaceMatrix.mul(lightView);
+    }
+
+    @Override
+    protected void updateAABB() {
+        aabb.set(pos).inflate(0.5f);
+    }
+
+    @Override
+    public boolean shouldRender(Camera camera) {
+        return getIntensity() > 0f;
     }
 }

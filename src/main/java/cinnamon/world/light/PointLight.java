@@ -20,6 +20,7 @@ public class PointLight extends Light {
     public PointLight falloff(float falloffStart, float falloffEnd) {
         this.falloffStart = falloffStart;
         this.falloffEnd = falloffEnd;
+        updateAABB();
         return this;
     }
 
@@ -29,5 +30,10 @@ public class PointLight extends Light {
 
     public float getFalloffEnd() {
         return falloffEnd;
+    }
+
+    @Override
+    protected void updateAABB() {
+        aabb.set(pos).inflate(falloffEnd);
     }
 }

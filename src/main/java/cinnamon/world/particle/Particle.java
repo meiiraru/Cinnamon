@@ -61,7 +61,7 @@ public abstract class Particle extends WorldObject {
     }
 
     protected int getRenderDistance() {
-        return 4098;
+        return 4098; //64 * 64;
     }
 
     protected abstract void renderParticle(MatrixStack matrices, float delta);
@@ -82,11 +82,12 @@ public abstract class Particle extends WorldObject {
 
     public void move(float x, float y, float z) {
         this.pos.add(x, y, z);
+        updateAABB();
     }
 
     @Override
-    public AABB getAABB() {
-        return new AABB(pos, pos);
+    protected void updateAABB() {
+        aabb.set(pos);
     }
 
     public boolean isRemoved() {
