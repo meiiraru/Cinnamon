@@ -66,6 +66,9 @@ public class Settings {
             xrSnapTurningAngle = new Setting.Floats("xr.snap_turning_angle", 30f);
     public static final Setting.Ints xrClickOnHoverDelay = new Setting.Ints("xr.click_on_hover_delay", 30);
 
+    //rendering
+    public static final Setting.IntRanges shadowQuality = new Setting.IntRanges("rendering.shadow_quality", 2, -1, 3);
+
     //keybinds
     public static final Setting.Keybind
             //movement

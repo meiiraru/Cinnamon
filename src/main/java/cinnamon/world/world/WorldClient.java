@@ -80,7 +80,7 @@ public class WorldClient extends World {
 
     //lights
     protected final List<Light> lights = new ArrayList<>();
-    protected final Light sunLight = new DirectionalLight().intensity(1f).castsShadows(false);
+    protected final Light sunLight = new DirectionalLight().intensity(1f).castsShadows(true);
 
     //skybox
     protected final Sky sky = new Sky();
@@ -138,6 +138,9 @@ public class WorldClient extends World {
 
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
 
+        //lights
+        sunLight.castsShadows(false);
+
         //for (int i = 0; i < 5; i++)
         //    addLight(new PointLight().pos(-5.5f + i * 3f, 5f, 2.5f).color(Colors.randomRainbow().rgb));
 
@@ -145,6 +148,7 @@ public class WorldClient extends World {
         addLight(new Spotlight().pos(0.25f, 5f, -2.567f).color(0x00FF00));
         addLight(new Spotlight().pos(0.25f, 5f, -3.433f).color(0x0000FF));
 
+        //entities
         Cart c = new Cart(UUID.randomUUID());
         c.setPos(10, 2, 10);
         this.addEntity(c);

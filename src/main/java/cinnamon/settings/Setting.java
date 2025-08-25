@@ -171,6 +171,40 @@ public abstract class Setting<T> {
         }
     }
 
+    public static class IntRanges extends Setting<Integer> {
+        private final int min;
+        private final int max;
+
+        public IntRanges(String name, Integer defaultValue, int min, int max) {
+            super(name, Maths.clamp(defaultValue, min, max));
+            this.min = min;
+            this.max = max;
+        }
+
+        @Override
+        public void set(Integer value) {
+            super.set(Maths.clamp(value, min, max));
+        }
+
+        @Override
+        public void fromJson(JsonElement element) {
+            set(element.getAsInt());
+        }
+
+        @Override
+        public JsonElement toJson() {
+            return new JsonPrimitive(get());
+        }
+
+        public int getMin() {
+            return min;
+        }
+
+        public int getMax() {
+            return max;
+        }
+    }
+
     public static class Keybind extends Setting<cinnamon.input.Keybind> {
         public Keybind(String name, int key, KeyType type) {
             this(name, key, 0, type);

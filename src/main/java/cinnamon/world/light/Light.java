@@ -6,6 +6,7 @@ import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
+import cinnamon.settings.Settings;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
 import org.joml.Matrix4f;
@@ -39,7 +40,7 @@ public abstract class Light {
         shader.setColor(prefix + "color", color);
         shader.setFloat(prefix + "intensity", intensity);
         shader.setMat4(prefix + "lightSpaceMatrix", lightSpaceMatrix);
-        shader.setBool(prefix + "castsShadows", castsShadows);
+        shader.setBool(prefix + "castsShadows", castsShadows());
         pushToShader(shader, prefix);
     }
 
@@ -140,7 +141,7 @@ public abstract class Light {
     }
 
     public boolean castsShadows() {
-        return castsShadows;
+        return castsShadows && Settings.shadowQuality.get() != -1;
     }
 
     public Light castsShadows(boolean bool) {
