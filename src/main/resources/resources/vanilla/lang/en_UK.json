@@ -274,6 +274,7 @@
   "effect.heal": "Heal",
   "effect.speed": "Speed",
   "effect.explosion_immunity": "Explosion Immunity",
+  "effect.glowing": "Glowing",
 
   "terrain": "Terrain",
   "terrain.box": "Box",

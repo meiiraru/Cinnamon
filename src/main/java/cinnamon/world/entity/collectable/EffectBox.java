@@ -23,7 +23,8 @@ public class EffectBox extends Collectable {
             () -> Effect.Type.DAMAGE_BOOST.create(200, 1),
             () -> Effect.Type.HEAL.create(200, 2),
             () -> Effect.Type.SPEED.create(300),
-            () -> Effect.Type.EXPLOSION_IMMUNITY.create(200)
+            () -> Effect.Type.EXPLOSION_IMMUNITY.create(200),
+            () -> Effect.Type.GLOWING.create(600)
     );
     private static final Resource[] PICKUP_SOUND = {
             new Resource("sounds/entity/effect/1.ogg"),

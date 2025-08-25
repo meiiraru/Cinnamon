@@ -99,6 +99,11 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     @Override
+    public boolean shouldRenderOutline() {
+        return activeEffects.containsKey(Effect.Type.GLOWING) || super.shouldRenderOutline();
+    }
+
+    @Override
     protected Text getHeadText() {
         Text sup = super.getHeadText();
         Text health = Text.of(getHealth()).append(Text.of(" \u2764").withStyle(Style.EMPTY.color(Colors.RED)));

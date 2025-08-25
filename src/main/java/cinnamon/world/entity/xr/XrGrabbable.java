@@ -64,7 +64,7 @@ public abstract class XrGrabbable extends PhysEntity {
 
     @Override
     public boolean shouldRenderOutline() {
-        return suggestGrab;
+        return suggestGrab || super.shouldRenderOutline();
     }
 
     public void suggestGrab() {

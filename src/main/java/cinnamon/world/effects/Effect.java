@@ -56,7 +56,8 @@ public class Effect {
         DAMAGE_BOOST,
         HEAL,
         SPEED,
-        EXPLOSION_IMMUNITY;
+        EXPLOSION_IMMUNITY,
+        GLOWING;
 
         private final BiFunction<Integer, Integer, Effect> function = (i, ii) -> new Effect(this, i, ii);
 
