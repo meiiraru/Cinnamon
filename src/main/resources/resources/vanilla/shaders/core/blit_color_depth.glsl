@@ -7,6 +7,7 @@
 in vec2 texCoords;
 
 out vec4 fragColor;
+out highp float gl_FragDepth;
 
 uniform sampler2D colorTexA;
 uniform sampler2D depthTexA;
