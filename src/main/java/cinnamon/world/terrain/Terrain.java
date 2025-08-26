@@ -6,6 +6,7 @@ import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.AABB;
@@ -14,7 +15,6 @@ import cinnamon.utils.Rotation;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.world.World;
-import cinnamon.world.world.WorldClient;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -95,7 +95,7 @@ public class Terrain extends WorldObject {
     }
 
     public int getRenderDistance() {
-        int dist = ((WorldClient) getWorld()).renderDistance;
+        int dist = WorldRenderer.renderDistance;
         return dist * dist;
     }
 

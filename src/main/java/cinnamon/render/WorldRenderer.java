@@ -21,6 +21,9 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class WorldRenderer {
 
+    public static final int renderDistance = 192;
+    public static final int entityRenderDistance = 144;
+
     public static final PBRDeferredFramebuffer PBRFrameBuffer = new PBRDeferredFramebuffer(1, 1);
     public static final Framebuffer outlineFramebuffer = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER);
     public static final Framebuffer vertexConsumerFramebuffer = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
@@ -55,22 +58,24 @@ public class WorldRenderer {
         world.getSky().pushToShader(s, Texture.MAX_TEXTURES - 1);
 
         //gbuffer textures
-        s.setInt("gPosition", 0);
-        s.setInt("gAlbedo", 1);
-        s.setInt("gORM", 2);
-        s.setInt("gNormal", 3);
-        s.setInt("gEmissive", 4);
+        int i = 0;
+        s.setInt("gPosition", i++);
+        s.setInt("gAlbedo", i++);
+        s.setInt("gORM", i++);
+        s.setInt("gNormal", i++);
+        s.setInt("gEmissive", i++);
         PBRFrameBuffer.bindTextures();
 
         //lights
-        s.setTexture("lightTex", lightingMultiPassBuffer.getColorBuffer(), 5);
+        if (world.getRenderedLights() > 0)
+            s.setTexture("lightTex", lightingMultiPassBuffer.getColorBuffer(), i++);
 
         //render and blit to main framebuffer
         renderQuad();
         PBRFrameBuffer.blit(prevFB.id(), false, true, true);
 
         //cleanup textures
-        Texture.unbindAll(6);
+        Texture.unbindAll(i);
 
         //render vertex consumer stuff
         if (!hasConsumerPass)

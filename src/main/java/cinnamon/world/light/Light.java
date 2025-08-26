@@ -15,7 +15,7 @@ import org.joml.Vector3f;
 
 public abstract class Light {
 
-    private static final Resource
+    public static final Resource
         LAMP = new Resource("textures/environment/lamp.png"),
         LAMP_OVERLAY = new Resource("textures/environment/lamp_overlay.png");
 
@@ -48,14 +48,12 @@ public abstract class Light {
 
     protected abstract void pushToShader(Shader shader, String prefix);
 
+    public abstract void calculateLightSpaceMatrix();
+
     protected abstract void updateAABB();
 
     public boolean shouldRender(Camera camera) {
         return intensity > 0f && camera.getPos().distanceSquared(getPos()) <= 9216 && camera.isInsideFrustum(aabb); //96 * 96
-    }
-
-    public void calculateLightSpaceMatrix() {
-        calculateLightViewMatrix();
     }
 
     protected void calculateLightViewMatrix() {

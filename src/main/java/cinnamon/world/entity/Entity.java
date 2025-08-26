@@ -467,7 +467,7 @@ public abstract class Entity extends WorldObject {
     }
 
     public int getRenderDistance() {
-        int dist = ((WorldClient) getWorld()).entityRenderDistance;
+        int dist = WorldRenderer.entityRenderDistance;
         return dist * dist;
     }
 

@@ -37,5 +37,9 @@ public abstract class WorldObject {
         return camera.isInsideFrustum(getAABB());
     }
 
+    public boolean isAdded() {
+        return world != null;
+    }
+
     public abstract Enum<?> getType();
 }

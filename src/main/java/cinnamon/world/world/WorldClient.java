@@ -78,9 +78,6 @@ public class WorldClient extends World {
 
     private boolean hideHUD;
 
-    public final int renderDistance = 192;
-    public final int entityRenderDistance = 144;
-
     //lights
     protected final List<Light> lights = new ArrayList<>();
     protected final Light sunLight = new DirectionalLight().pos(0.5f, 5f, 0.5f).intensity(1f).castsShadows(true);
@@ -548,8 +545,9 @@ public class WorldClient extends World {
         s.setVec3("camPos", client.camera.getPosition());
 
         //fog
-        s.setFloat("fogStart", renderDistance * 0.5f);
-        s.setFloat("fogEnd", renderDistance);
+        float fogDensity = 0.5f;
+        s.setFloat("fogStart", WorldRenderer.renderDistance * fogDensity);
+        s.setFloat("fogEnd", WorldRenderer.renderDistance);
         s.setColor("fogColor", Sky.fogColor);
 
         //lighting

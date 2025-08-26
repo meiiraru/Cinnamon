@@ -243,6 +243,14 @@ public abstract class World {
         return worldTime;
     }
 
+    public int getDay() {
+        return worldTime / 24000;
+    }
+
+    public float getTimeOfDayProgress() {
+        return ((worldTime + 6000) % 24000) / 24000f;
+    }
+
     public String getTimeOfTheDay() {
         float time = ((worldTime + 6000) % 24000) / 1000f;
         int timeHors = (int) time;

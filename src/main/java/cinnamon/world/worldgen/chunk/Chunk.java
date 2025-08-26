@@ -2,10 +2,10 @@ package cinnamon.world.worldgen.chunk;
 
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.WorldRenderer;
 import cinnamon.utils.AABB;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
-import cinnamon.world.world.WorldClient;
 import org.joml.Vector3i;
 
 import java.util.Collection;
@@ -21,11 +21,11 @@ public abstract class Chunk {
     public static final int fogColor = 0xC1E7FF;
     public static final int ambientLight = 0xFFFFFF;
 
-    public static float getFogStart(WorldClient world) {
-        return CHUNK_SIZE * (world.renderDistance - 2);
+    public static float getFogStart() {
+        return CHUNK_SIZE * (WorldRenderer.renderDistance - 2);
     }
-    public static float getFogEnd(WorldClient world) {
-        return CHUNK_SIZE * (world.renderDistance - 2) + (CHUNK_SIZE / fogDensity);
+    public static float getFogEnd() {
+        return CHUNK_SIZE * (WorldRenderer.renderDistance - 2) + (CHUNK_SIZE / fogDensity);
     }
 
     protected final Vector3i gridPos;

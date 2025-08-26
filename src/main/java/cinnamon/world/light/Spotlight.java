@@ -22,9 +22,7 @@ public class Spotlight extends PointLight {
     @Override
     public void calculateLightSpaceMatrix() {
         super.calculateLightViewMatrix();
-        float near = 0.5f, far = getFalloffEnd();
-        float fov = (float) Math.acos(outerCutOff) * 2f;
-        lightSpaceMatrix.identity().perspective(fov, 1f, near, far);
+        super.calculateLightSpaceMatrix();
         lightSpaceMatrix.mul(lightView);
     }
 
@@ -33,8 +31,10 @@ public class Spotlight extends PointLight {
     }
 
     public Spotlight cutOff(float innerCutOff, float outerCutOff) {
+        float radiOuter = (float) Math.toRadians(outerCutOff);
         this.innerCutOff = (float) Math.cos(Math.toRadians(innerCutOff));
-        this.outerCutOff = (float) Math.cos(Math.toRadians(outerCutOff));
+        this.outerCutOff = (float) Math.cos(radiOuter);
+        this.fov = radiOuter * 2f;
         return this;
     }
 }

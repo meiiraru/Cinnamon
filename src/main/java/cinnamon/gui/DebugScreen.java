@@ -193,6 +193,7 @@ public class DebugScreen {
 
             return String.format("""
                     time &e%s&r (&e%s&r)
+                    day &e%s&r
                     camera &e%s&r
                     &e%s&r sounds
                     &e%s&r/&e%s&r light sources
@@ -200,6 +201,7 @@ public class DebugScreen {
                     &e%s&r/&e%s&r particles""",
 
                     w.getTime(), w.getTimeOfTheDay(),
+                    w.getDay(),
                     camera,
                     SoundManager.getSoundCount(),
                     w.getRenderedLights(), w.lightCount(),
