@@ -37,7 +37,7 @@ public class MaterialPreviewWorld extends WorldClient {
     }
 
     @Override
-    protected void renderWorld(Camera camera, MatrixStack matrices, float delta) {
+    public void renderWorld(Camera camera, MatrixStack matrices, float delta) {
         //render materials
         MaterialRegistry[] values = MaterialRegistry.values();
         int grid = (int) Math.ceil(Math.sqrt(values.length));

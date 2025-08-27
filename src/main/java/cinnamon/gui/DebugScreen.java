@@ -7,6 +7,7 @@ import cinnamon.logger.LoggerConfig;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
+import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.settings.Settings;
@@ -204,8 +205,8 @@ public class DebugScreen {
                     w.getDay(),
                     camera,
                     SoundManager.getSoundCount(),
-                    w.getRenderedLights(), w.lightCount(),
-                    w.getRenderedShadows(),
+                    WorldRenderer.getLightsCount(), w.lightCount(),
+                    WorldRenderer.getShadowsCount(),
                     w.getRenderedParticles(), w.particleCount()
             );
         }));

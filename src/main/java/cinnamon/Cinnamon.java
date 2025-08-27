@@ -33,13 +33,17 @@ public class Cinnamon {
     public static final Platform PLATFORM = Platform.get();
 
     public static void main(String... args) {
-        //System.load("D:\\apps\\RenderDoc_1.32_64\\renderdoc.dll");
         new Cinnamon(args).run();
     }
 
     public Cinnamon(String... args) {
         //parse command line arguments
         ArgsOptions.parse(args);
+
+        //render doc
+        String doc = ArgsOptions.RENDER_DOC.getAsString();
+        if (!doc.isBlank())
+            System.load(doc);
     }
 
     public void run() {

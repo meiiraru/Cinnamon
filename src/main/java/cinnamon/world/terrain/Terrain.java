@@ -36,8 +36,7 @@ public class Terrain extends WorldObject {
         this.updateAABB();
     }
 
-    public void tick() {}
-
+    @Override
     public void render(MatrixStack matrices, float delta) {
         matrices.pushMatrix();
 

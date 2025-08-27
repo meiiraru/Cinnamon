@@ -60,12 +60,14 @@ public class PBRDeferredFramebuffer extends Framebuffer {
         glDeleteTextures(gEmissive);
     }
 
-    public int bindTextures() {
-        Texture.bind(gPosition, 0);
-        Texture.bind(gAlbedo, 1);
-        Texture.bind(gORM, 2);
-        Texture.bind(gNormal, 3);
-        Texture.bind(gEmissive, 4);
-        return 5;
+    public int getTexture(int index) {
+        return switch (index) {
+            case 0 -> gPosition;
+            case 1 -> gAlbedo;
+            case 2 -> gORM;
+            case 3 -> gNormal;
+            case 4 -> gEmissive;
+            default -> 0;
+        };
     }
 }

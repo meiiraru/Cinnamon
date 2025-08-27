@@ -15,7 +15,8 @@ public enum ArgsOptions {
     //other
     PLAYERNAME("Player%03d".formatted((int) (Math.random() * 456) + 1), "--player-name"),
     FORCE_DISABLE_XR(null, "--force-disable-xr"),
-    EXPERIMENTAL_OPENGL_ES(null, "--experimental-opengl-es");
+    EXPERIMENTAL_OPENGL_ES(null, "--experimental-opengl-es"),
+    RENDER_DOC("", "--render_doc"),;
 
     private final String[] aliases;
     private final String defaultValue;

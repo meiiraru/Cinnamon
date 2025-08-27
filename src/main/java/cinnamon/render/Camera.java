@@ -168,7 +168,7 @@ public class Camera {
         frustum.updateFrustum(mvp);
     }
 
-    public void anaglyph3D(MatrixStack matrices, float eyeDistance, float angle, Runnable customBufferRenderer, Runnable mainBufferRenderer) {
+    public void anaglyph3D(MatrixStack matrices, float eyeDistance, float angle, Runnable beforeColor, Runnable targetRender) {
         boolean left = angle < 0;
         float angleRad = (float) Math.toRadians(angle);
 
@@ -185,15 +185,15 @@ public class Camera {
             matrices.rotate(rot);
             matrices.translate(-pos.x, -pos.y, -pos.z);
 
-            //custom renderer
-            if (customBufferRenderer != null)
-                customBufferRenderer.run();
+            //renderer
+            if (beforeColor != null)
+                beforeColor.run();
 
             //apply eye color mask
             glColorMask(left, !left, !left, true);
 
             //finish rendering
-            mainBufferRenderer.run();
+            targetRender.run();
 
             //cleanup
             matrices.popMatrix();

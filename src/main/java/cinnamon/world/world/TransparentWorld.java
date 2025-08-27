@@ -4,6 +4,7 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
@@ -29,7 +30,14 @@ public class TransparentWorld extends WorldClient {
     }
 
     @Override
-    protected void renderWorld(Camera camera, MatrixStack matrices, float delta) {
+    public void render(MatrixStack matrices, float delta) {
+        WorldRenderer.renderSky = false;
+        super.render(matrices, delta);
+        WorldRenderer.renderSky = true;
+    }
+
+    @Override
+    public void renderWorld(Camera camera, MatrixStack matrices, float delta) {
         for (Vertex[][] v : vertices)
             VertexConsumer.WORLD_MAIN.consume(v);
 
@@ -49,11 +57,6 @@ public class TransparentWorld extends WorldClient {
         VertexConsumer.SCREEN_UV.consume(v, IMAGE);
 
         super.renderWorld(camera, matrices, delta);
-    }
-
-    @Override
-    protected void renderSky(MatrixStack matrices, float delta) {
-        //super.renderSky(matrices, delta);
     }
 
     private void gen() {

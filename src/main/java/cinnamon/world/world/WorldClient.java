@@ -87,7 +87,7 @@ public class WorldClient extends World {
 
     //counters
     protected int renderedEntitiesTemp, renderedTerrainTemp, expectedRenderedTerrainTemp, renderedParticlesTemp;
-    protected int renderedEntities, renderedTerrain, expectedRenderedTerrain, renderedParticles, renderedLights, renderedShadows;
+    protected int renderedEntities, renderedTerrain, expectedRenderedTerrain, renderedParticles;
 
     @Override
     public void init() {
@@ -220,124 +220,13 @@ public class WorldClient extends World {
         sunLight.direction(sky.getSunDirection());
 
         //render our stuff
-        if (client.anaglyph3D) {
-            boolean[] hasConsumerPass = {false};
-            client.camera.anaglyph3D(matrices, -1f / 64f, -1f, () -> {
-                //render world
-                WorldRenderer.prepareWorld(client.camera);
-                renderWorld(client.camera, matrices, delta);
-                applyTempCounters();
+        WorldRenderer.renderWorld(this, client.camera, matrices, delta);
 
-                //world vertex consumer
-                WorldRenderer.vertexConsumerPass();
-                hasConsumerPass[0] = VertexConsumer.finishAllBatches(client.camera) > 0;
-
-                //lights and shadows
-                renderLights(client.camera, matrices, delta);
-            }, () -> {
-                //bake world
-                WorldRenderer.bakeWorld(this, hasConsumerPass[0]);
-
-                //render other stuff
-                renderSky(matrices, delta);
-                renderOutlines(matrices, delta);
-                renderDebug(client.camera, matrices, delta);
-            });
-        } else {
-            //render world
-            WorldRenderer.prepareWorld(client.camera);
-            renderWorld(client.camera, matrices, delta);
-            applyTempCounters();
-
-            //world vertex consumer
-            WorldRenderer.vertexConsumerPass();
-            boolean hasConsumerPass = VertexConsumer.finishAllBatches(client.camera) > 0;
-
-            //lights and shadows
-            renderLights(client.camera, matrices, delta);
-
-            //bake world
-            WorldRenderer.bakeWorld(this, hasConsumerPass);
-
-            //render other stuff
-            renderSky(matrices, delta);
-            renderOutlines(matrices, delta);
-            renderDebug(client.camera, matrices, delta);
-        }
-
-        //finish world rendering
+        //finish rendering
         client.camera.useOrtho(true);
     }
 
-    protected void renderSky(MatrixStack matrices, float delta) {
-        Shader s = Shaders.SKYBOX.getShader();
-        s.use().setup(client.camera);
-        sky.render(client.camera, matrices);
-    }
-
-    protected void renderOutlines(MatrixStack matrices, float delta) {
-        List<Entity> entitiesToOutline = new ArrayList<>();
-        for (Entity e : entities.values())
-            if (e.shouldRender(client.camera) && e.shouldRenderOutline())
-                entitiesToOutline.add(e);
-
-        //no entities to outline
-        if (entitiesToOutline.isEmpty())
-            return;
-
-        //prepare framebuffer
-        Shader s = WorldRenderer.prepareOutlineBuffer(client.camera);
-
-        //render entities
-        for (Entity entity : entitiesToOutline) {
-            s.applyColor(entity.getOutlineColor());
-            entity.render(matrices, delta);
-        }
-
-        //finish rendering
-        WorldRenderer.bakeOutlines(null);
-        VertexConsumer.discardBatches();
-    }
-
-    protected void renderLights(Camera camera, MatrixStack matrices, float delta) {
-        renderedLights = renderedShadows = 0;
-
-        List<Light> lightsToRender = new ArrayList<>();
-        for (Light l : lights)
-            if (l.shouldRender(camera))
-                lightsToRender.add(l);
-
-        //no lights to render!
-        if (lightsToRender.isEmpty())
-            return;
-
-        //set up the light framebuffer and shader
-        Shader lightPassShader = WorldRenderer.prepareLightPass(camera);
-
-        for (Light light : lightsToRender) {
-            if (light.castsShadows()) {
-                //prepare shadow buffer
-                Shader shadow = WorldRenderer.prepareShadow(camera, light);
-
-                //render the world
-                renderWorld(camera, matrices, delta);
-                VertexConsumer.finishAllBatches(shadow, camera);
-
-                //finish shadow rendering (restore to the light framebuffer)
-                WorldRenderer.bindShadow(lightPassShader);
-                renderedShadows++;
-            }
-
-            //render light
-            light.pushToShader(lightPassShader);
-            WorldRenderer.renderQuad();
-            renderedLights++;
-        }
-
-        WorldRenderer.bakeLights(camera);
-    }
-
-    protected void renderWorld(Camera camera, MatrixStack matrices, float delta) {
+    public void renderWorld(Camera camera, MatrixStack matrices, float delta) {
         if (XrManager.isInXR() && client.screen == null)
             renderXrHands(camera, matrices);
 
@@ -440,7 +329,7 @@ public class WorldClient extends World {
         this.hud.render(matrices, delta);
     }
 
-    protected void renderDebug(Camera camera, MatrixStack matrices, float delta) {
+    public void renderDebug(Camera camera, MatrixStack matrices, float delta) {
         if (hudHidden())
             return;
 
@@ -452,7 +341,7 @@ public class WorldClient extends World {
         if (DebugScreen.isWorldRelatedTab())
             renderHitboxes(camera, matrices, delta);
 
-        if (player.getAbilities().canBuild())
+        if (cameraEntity instanceof Player p && p.getAbilities().canBuild())
             renderTargetedBlock(cameraEntity, matrices, delta);
 
         VertexConsumer.finishAllBatches(camera);
@@ -508,7 +397,7 @@ public class WorldClient extends World {
         }
     }
 
-    protected void renderHitResults(Entity cameraEntity, MatrixStack matrices) {
+    protected static void renderHitResults(Entity cameraEntity, MatrixStack matrices) {
         float f = 0.025f;
         float r = cameraEntity.getPickRange();
 
@@ -528,13 +417,13 @@ public class WorldClient extends World {
         }
     }
 
-    protected void renderTargetedBlock(Entity cameraEntity, MatrixStack matrices, float delta) {
+    protected static void renderTargetedBlock(Entity cameraEntity, MatrixStack matrices, float delta) {
         Hit<Entity> entity = cameraEntity.getLookingEntity(cameraEntity.getPickRange());
         Hit<Terrain> terrain = cameraEntity.getLookingTerrain(cameraEntity.getPickRange());
         if (terrain == null || (entity != null && entity.collision().near() < terrain.collision().near()) || !terrain.obj().isSelectable(cameraEntity))
             return;
 
-        int alpha = (int) Maths.lerp(0x32, 0xFF, ((float) Math.sin((client.ticks + delta) * 0.15f) + 1f) * 0.5f);
+        int alpha = (int) Maths.lerp(0x32, 0xFF, ((float) Math.sin((Client.getInstance().ticks + delta) * 0.15f) + 1f) * 0.5f);
 
         for (AABB aabb : terrain.obj().getPreciseAABB())
             VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF + (alpha << 24)));
@@ -570,6 +459,22 @@ public class WorldClient extends World {
         return lights.size();
     }
 
+    public List<Light> getLights(Camera camera) {
+        List<Light> lightsToRender = new ArrayList<>();
+        for (Light l : lights)
+            if (l.shouldRender(camera))
+                lightsToRender.add(l);
+        return lightsToRender;
+    }
+
+    public List<Entity> getOutlines(Camera camera) {
+        List<Entity> entitiesToOutline = new ArrayList<>();
+        for (Entity e : entities.values())
+            if (e.shouldRender(camera) && e.shouldRenderOutline())
+                entitiesToOutline.add(e);
+        return entitiesToOutline;
+    }
+
     public List<Light> getLights(AABB region) {
         List<Light> list = new ArrayList<>();
         for (Light light : this.lights) {
@@ -595,15 +500,7 @@ public class WorldClient extends World {
         return renderedParticles;
     }
 
-    public int getRenderedLights() {
-        return renderedLights;
-    }
-
-    public int getRenderedShadows() {
-        return renderedShadows;
-    }
-
-    protected void applyTempCounters() {
+    public void applyTempCounters() {
         this.renderedTerrain = this.renderedTerrainTemp;
         this.expectedRenderedTerrain = this.expectedRenderedTerrainTemp;
         this.renderedEntities = this.renderedEntitiesTemp;

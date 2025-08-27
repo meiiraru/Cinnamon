@@ -27,7 +27,10 @@ public abstract class Particle extends WorldObject {
         this.lifetime = lifetime;
     }
 
+    @Override
     public void tick() {
+        super.tick();
+
         oPos.set(pos);
         //change pos
         move(motion);
@@ -38,6 +41,7 @@ public abstract class Particle extends WorldObject {
             remove();
     }
 
+    @Override
     public void render(MatrixStack matrices, float delta) {
         matrices.pushMatrix();
 

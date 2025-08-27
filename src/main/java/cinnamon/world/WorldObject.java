@@ -1,6 +1,7 @@
 package cinnamon.world;
 
 import cinnamon.render.Camera;
+import cinnamon.render.MatrixStack;
 import cinnamon.utils.AABB;
 import cinnamon.world.world.World;
 import org.joml.Vector3f;
@@ -10,6 +11,10 @@ public abstract class WorldObject {
     protected final Vector3f pos = new Vector3f();
     protected final AABB aabb = new AABB();
     protected World world;
+
+    public void tick() {}
+
+    public void render(MatrixStack matrices, float delta) {}
 
     public void onAdded(World world) {
         this.world = world;

@@ -60,9 +60,10 @@ public abstract class Entity extends WorldObject {
         this.oRot.set(rot);
     }
 
-    public void tick() {}
-
+    @Override
     public void render(MatrixStack matrices, float delta) {
+        super.render(matrices, delta);
+
         matrices.pushMatrix();
 
         //apply pos
@@ -133,7 +134,7 @@ public abstract class Entity extends WorldObject {
         return
                 !((WorldClient) world).hudHidden() &&
                 (client.camera.getEntity() != this || DebugScreen.isEntityTab()) &&
-                !WorldRenderer.isRenderingOutlines() &&
+                !WorldRenderer.isOutlineRendering() &&
                 client.camera.getPos().distanceSquared(pos) <= 1024;
     }
 
@@ -461,7 +462,7 @@ public abstract class Entity extends WorldObject {
 
     @Override
     public boolean shouldRender(Camera camera) {
-        return(camera.getEntity() != this || ((WorldClient) getWorld()).isThirdPerson() || WorldRenderer.isRenderingShadows())
+        return(camera.getEntity() != this || ((WorldClient) getWorld()).isThirdPerson() || WorldRenderer.isShadowRendering())
                 && camera.getPos().distanceSquared(getPos()) <= getRenderDistance()
                 && super.shouldRender(camera);
     }

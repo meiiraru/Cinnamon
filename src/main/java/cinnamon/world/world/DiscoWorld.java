@@ -139,7 +139,7 @@ public class DiscoWorld extends WorldClient {
     }
 
     @Override
-    protected void renderWorld(Camera camera, MatrixStack matrices, float delta) {
+    public void renderWorld(Camera camera, MatrixStack matrices, float delta) {
         super.renderWorld(camera, matrices, delta);
 
         //grab the audio spectrum and calculate the amplitudes

@@ -77,7 +77,7 @@ public class Potato extends Projectile {
         matrices.scale(Maths.lerp(oScale, scale, t));
 
         //color
-        if (!WorldRenderer.isRenderingOutlines()) {
+        if (!WorldRenderer.isOutlineRendering()) {
             float t2 = Math.min(lifetime / 30f, 1f);
             Shader.activeShader.applyColor(ColorUtils.lerpRGBColor(0xFF8888, 0xFFFFFF, t2));
         }
