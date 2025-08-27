@@ -29,6 +29,11 @@ public class DirectionalLight extends Light {
     }
 
     @Override
+    public boolean isDirectional() {
+        return true;
+    }
+
+    @Override
     public boolean shouldRender(Camera camera) {
         return getIntensity() > 0f;
     }

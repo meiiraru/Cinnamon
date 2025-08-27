@@ -52,6 +52,8 @@ public abstract class Light {
 
     protected abstract void updateAABB();
 
+    public abstract boolean isDirectional();
+
     public boolean shouldRender(Camera camera) {
         return intensity > 0f && camera.getPos().distanceSquared(getPos()) <= 9216 && camera.isInsideFrustum(aabb); //96 * 96
     }
@@ -90,12 +92,13 @@ public abstract class Light {
 
         matrices.popMatrix();
 
-        VertexConsumer.MAIN.consume(GeometryHelper.line(
-                matrices,
-                pos.x, pos.y, pos.z,
-                pos.x + dir.x, pos.y + dir.y, pos.z + dir.z,
-                0.025f, c
-        ));
+        if (isDirectional())
+            VertexConsumer.MAIN.consume(GeometryHelper.line(
+                    matrices,
+                    pos.x, pos.y, pos.z,
+                    pos.x + dir.x, pos.y + dir.y, pos.z + dir.z,
+                    0.025f, c
+            ));
     }
 
     public Vector3f getPos() {

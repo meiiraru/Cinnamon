@@ -26,6 +26,11 @@ public class Spotlight extends PointLight {
         lightSpaceMatrix.mul(lightView);
     }
 
+    @Override
+    public boolean isDirectional() {
+        return true;
+    }
+
     public Spotlight cutOff(float cutOff) {
         return cutOff(cutOff, cutOff + 5f);
     }

@@ -19,6 +19,11 @@ public class PointLight extends Light {
         lightSpaceMatrix.identity().perspective(fov, 1f, 0.5f, falloffEnd);
     }
 
+    @Override
+    public boolean isDirectional() {
+        return false;
+    }
+
     public PointLight falloff(float falloff) {
         return falloff(falloff, falloff + 5f);
     }

@@ -130,11 +130,15 @@ public class CubeMap extends Texture {
 
         public final int GLTarget;
         public final String path;
+        public final Vector3f direction;
+        public final Vector3f up;
         public final Matrix4f viewMatrix;
 
         Face(int textureTarget, Vector3f center, Vector3f up) {
             this.GLTarget = textureTarget;
             this.path = this.name().toLowerCase() + ".png";
+            this.direction = center;
+            this.up = up;
             this.viewMatrix = new Matrix4f().lookAt(0f, 0f, 0f, center.x, center.y, center.z, up.x, up.y, up.z);
         }
     }

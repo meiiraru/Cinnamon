@@ -2,6 +2,7 @@ package cinnamon.render.shader;
 
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.IOUtils;
@@ -213,6 +214,10 @@ public class Shader {
 
     public void setTexture(String name, int texture, int index) {
         this.setInt(name, Texture.bind(texture, index));
+    }
+
+    public void setCubeMap(String name, int cubemap, int index) {
+        this.setInt(name, CubeMap.bind(cubemap, index));
     }
 
     // -- common functions -- //
