@@ -24,7 +24,7 @@ import static cinnamon.Client.LOGGER;
 
 public class HDRFixScreen extends ParentedScreen {
 
-    private static final Framebuffer framebuffer = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER);
+    private static final Framebuffer framebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
     private static final Resource
             OPEN_TEX = new Resource("textures/gui/icons/open.png"),
             CLOSE_TEX = new Resource("textures/gui/icons/close.png"),

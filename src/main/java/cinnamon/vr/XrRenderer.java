@@ -64,10 +64,10 @@ public class XrRenderer {
 
         //prepare framebuffer
         Framebuffer fb = Framebuffer.DEFAULT_FRAMEBUFFER;
-        fb.useClear();
         XrRect2Di imageRect = layerView.subImage().imageRect();
         fb.setPos(imageRect.offset().x(), imageRect.offset().y());
         fb.resize(imageRect.extent().width(), imageRect.extent().height());
+        fb.useClear();
         fb.adjustViewPort();
 
         //update camera matrices

@@ -1,8 +1,5 @@
 package cinnamon.render.framebuffer;
 
-import cinnamon.Client;
-import cinnamon.render.Window;
-
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -15,7 +12,7 @@ public class Framebuffer {
             HDR_COLOR_BUFFER = 0x8;
 
     private final int flags;
-    private final int fbo;
+    private int fbo;
     private int color, depth, stencil;
     private int x, y;
     private int width, height;
@@ -25,17 +22,11 @@ public class Framebuffer {
     public static Framebuffer activeFramebuffer;
 
     static {
-        Window w = Client.getInstance().window;
-        DEFAULT_FRAMEBUFFER = new Framebuffer(w.width, w.height, COLOR_BUFFER | DEPTH_BUFFER | STENCIL_BUFFER);
+        DEFAULT_FRAMEBUFFER = new Framebuffer(COLOR_BUFFER | DEPTH_BUFFER | STENCIL_BUFFER);
     }
 
-    public Framebuffer(int width, int height, int flags) {
-        //generate and use a new framebuffer
-        this.fbo = glGenFramebuffers();
-        this.width = width;
-        this.height = height;
+    public Framebuffer(int flags) {
         this.flags = flags;
-        genBuffers();
     }
 
     protected void genBuffers() {
@@ -78,9 +69,8 @@ public class Framebuffer {
         //check for completeness
         checkForErrors();
 
-        //unbind this - unless when we're creating the default framebuffer
-        if (DEFAULT_FRAMEBUFFER != null)
-            DEFAULT_FRAMEBUFFER.use();
+        //unbind this
+        DEFAULT_FRAMEBUFFER.use();
     }
 
     protected static void checkForErrors() {
@@ -105,6 +95,11 @@ public class Framebuffer {
     }
 
     public Framebuffer use() {
+        if (this.fbo == 0) {
+            this.fbo = glGenFramebuffers();
+            genBuffers();
+        }
+
         glBindFramebuffer(GL_FRAMEBUFFER, this.fbo);
         activeFramebuffer = this;
         return this;
@@ -134,6 +129,13 @@ public class Framebuffer {
     }
 
     public void free() {
+        if (this.fbo == 0)
+            return;
+
+        this.fbo = 0;
+        if (activeFramebuffer == this)
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
         glDeleteFramebuffers(this.fbo);
         freeTextures();
     }
@@ -170,19 +172,14 @@ public class Framebuffer {
     public void resize(int width, int height) {
         if (width == this.width && height == this.height)
             return;
-        setSize(width, height);
-        freeTextures();
-        genBuffers();
+
+        this.width = width; this.height = height;
+        free();
     }
 
     public void setPos(int x, int y) {
         this.x = x;
         this.y = y;
-    }
-
-    protected void setSize(int width, int height) {
-        this.width = width;
-        this.height = height;
     }
 
     public int getWidth() {

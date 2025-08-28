@@ -29,11 +29,11 @@ public class WorldRenderer {
     public static final int renderDistance = 192;
     public static final int entityRenderDistance = 144;
 
-    public static final PBRDeferredFramebuffer PBRFrameBuffer = new PBRDeferredFramebuffer(1, 1);
-    public static final Framebuffer outlineFramebuffer = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER);
-    public static final Framebuffer vertexConsumerFramebuffer = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
-    public static final Framebuffer lightingMultiPassBuffer = new Framebuffer(1, 1, Framebuffer.HDR_COLOR_BUFFER);
-    private static final Framebuffer shadowBuffer = new Framebuffer(1, 1, Framebuffer.DEPTH_BUFFER);
+    public static final PBRDeferredFramebuffer PBRFrameBuffer = new PBRDeferredFramebuffer();
+    public static final Framebuffer outlineFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
+    public static final Framebuffer vertexConsumerFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
+    public static final Framebuffer lightingMultiPassBuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
+    private static final Framebuffer shadowBuffer = new Framebuffer(Framebuffer.DEPTH_BUFFER);
 
     private static boolean outlineRendering = false;
     private static boolean shadowRendering = false;
@@ -138,8 +138,8 @@ public class WorldRenderer {
 
     public static void initGBuffer(Camera camera) {
         //setup pbr framebuffer
-        PBRFrameBuffer.useClear();
         PBRFrameBuffer.resizeTo(targetBuffer);
+        PBRFrameBuffer.useClear();
         targetBuffer.blit(PBRFrameBuffer.id(), false, false, true);
 
         //setup gbuffer shader
@@ -149,8 +149,8 @@ public class WorldRenderer {
     }
 
     public static void initVertexConsumerBuffer() {
-        vertexConsumerFramebuffer.useClear();
         vertexConsumerFramebuffer.resizeTo(targetBuffer);
+        vertexConsumerFramebuffer.useClear();
         vertexConsumerFramebuffer.adjustViewPort();
     }
 
@@ -185,8 +185,8 @@ public class WorldRenderer {
     }
 
     public static void initLightBuffer(Camera camera) {
-        lightingMultiPassBuffer.useClear();
         lightingMultiPassBuffer.resizeTo(targetBuffer);
+        lightingMultiPassBuffer.useClear();
 
         //backup camera
         cameraPos.set(camera.getPos());
@@ -199,9 +199,9 @@ public class WorldRenderer {
 
     public static void initShadowBuffer() {
         //prepare the shadow buffer
-        shadowBuffer.useClear();
         int w = (int) Math.pow(2, Settings.shadowQuality.get() + 9); //min is 512
         shadowBuffer.resize(w, w);
+        shadowBuffer.useClear();
         shadowBuffer.adjustViewPort();
     }
 
@@ -346,8 +346,8 @@ public class WorldRenderer {
 
     public static Shader initOutlineBatch(Camera camera) {
         outlineRendering = true;
-        outlineFramebuffer.useClear();
         outlineFramebuffer.resizeTo(targetBuffer);
+        outlineFramebuffer.useClear();
 
         Shader s = Shaders.MODEL_PASS.getShader().use();
         s.setup(camera);

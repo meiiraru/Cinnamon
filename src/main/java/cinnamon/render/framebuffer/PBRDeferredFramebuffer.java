@@ -1,7 +1,5 @@
 package cinnamon.render.framebuffer;
 
-import cinnamon.render.texture.Texture;
-
 import static org.lwjgl.opengl.GL30.*;
 
 public class PBRDeferredFramebuffer extends Framebuffer {
@@ -24,14 +22,13 @@ public class PBRDeferredFramebuffer extends Framebuffer {
 
     public int gPosition, gAlbedo, gORM, gNormal, gEmissive;
 
-    public PBRDeferredFramebuffer(int width, int height) {
-        super(width, height, DEPTH_BUFFER | STENCIL_BUFFER);
+    public PBRDeferredFramebuffer() {
+        super(DEPTH_BUFFER | STENCIL_BUFFER);
     }
 
     @Override
     protected void genBuffers() {
         super.genBuffers();
-
         use();
 
         int width = getWidth();

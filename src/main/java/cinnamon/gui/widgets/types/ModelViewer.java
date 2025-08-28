@@ -31,7 +31,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class ModelViewer extends SelectableWidget {
 
-    private static final Framebuffer modelBuffer = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
+    private static final Framebuffer modelBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
     private static final Sky theSky = new Sky();
 
     //properties
@@ -96,8 +96,8 @@ public class ModelViewer extends SelectableWidget {
         //set up framebuffer
         Framebuffer old = Framebuffer.activeFramebuffer;
         if (!xr) {
-            modelBuffer.useClear();
             modelBuffer.resizeTo(old);
+            modelBuffer.useClear();
         }
 
         //render skybox

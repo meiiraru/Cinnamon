@@ -218,8 +218,8 @@ public enum PostProcess {
 
         //prepare framebuffer
         Framebuffer old = Framebuffer.activeFramebuffer;
-        FB.POST_FRAMEBUFFER.useClear();
         FB.POST_FRAMEBUFFER.resizeTo(old);
+        FB.POST_FRAMEBUFFER.useClear();
 
         boolean savePrevColor = false;
 
@@ -242,6 +242,7 @@ public enum PostProcess {
         //if any effect uses the previous color buffer, copy buffers again
         if (savePrevColor) {
             FB.PREVIOUS_COLOR_FRAMEBUFFER.resizeTo(old);
+            FB.PREVIOUS_COLOR_FRAMEBUFFER.use();
             Blit.copy(old, FB.PREVIOUS_COLOR_FRAMEBUFFER.id(), BLIT);
             old.use();
         }
@@ -250,7 +251,7 @@ public enum PostProcess {
     //wacky hack
     private static final class FB {
         private static final Framebuffer
-                POST_FRAMEBUFFER = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER),
-                PREVIOUS_COLOR_FRAMEBUFFER = new Framebuffer(1, 1, Framebuffer.COLOR_BUFFER);
+                POST_FRAMEBUFFER = new Framebuffer(Framebuffer.COLOR_BUFFER),
+                PREVIOUS_COLOR_FRAMEBUFFER = new Framebuffer(Framebuffer.COLOR_BUFFER);
     }
 }
