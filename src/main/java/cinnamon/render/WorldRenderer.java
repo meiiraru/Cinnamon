@@ -10,6 +10,7 @@ import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.settings.Settings;
+import cinnamon.world.Sky;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
@@ -51,7 +52,7 @@ public class WorldRenderer {
 
     public static void renderWorld(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
         //prepare for world rendering
-        targetBuffer = Framebuffer.activeFramebuffer;
+        setupFramebuffer();
 
         //3d anaglyph rendering
         if (Client.getInstance().anaglyph3D) {
@@ -61,7 +62,8 @@ public class WorldRenderer {
 
         //render world
         initGBuffer(camera);
-        world.renderWorld(camera, matrices, delta);
+        Runnable renderFunc = () -> world.renderWorld(camera, matrices, delta);
+        renderFunc.run();
 
         //set world rendering counts
         world.applyTempCounters();
@@ -71,20 +73,24 @@ public class WorldRenderer {
         boolean hasConsumerPass = VertexConsumer.finishAllBatches(camera) > 0;
 
         //render the world lights
-        renderLights(world, camera, matrices, delta);
+        renderedLights = renderedShadows = 0;
+        if (renderLights)
+            renderLights(world.getLights(camera), camera, renderFunc);
 
         //bake world
-        bakeDeferred(world);
+        bakeDeferred(world.getSky());
 
         //merge vertex consumer buffer to the main buffer
         if (hasConsumerPass)
             mergeVertexConsumerBuffer();
 
         //render the sky
-        renderSky(world, camera, matrices);
+        if (renderSky)
+            renderSky(world.getSky(), camera, matrices);
 
         //render outlines
-        renderOutlines(world, camera, matrices, delta);
+        if (renderOutlines)
+            renderOutlines(world.getOutlines(camera), camera, matrices, delta);
 
         //render debug stuff
         if (renderDebug)
@@ -92,11 +98,13 @@ public class WorldRenderer {
     }
 
     private static void renderAsAnaglyph(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
+        Runnable renderFunc = () -> world.renderWorld(camera, matrices, delta);
         boolean[] hasConsumerPass = {false};
+
         camera.anaglyph3D(matrices, -1f / 64f, -1f, () -> {
             //render world
             initGBuffer(camera);
-            world.renderWorld(camera, matrices, delta);
+            renderFunc.run();
             world.applyTempCounters();
 
             //vertex consumer
@@ -104,23 +112,31 @@ public class WorldRenderer {
             hasConsumerPass[0] = VertexConsumer.finishAllBatches(camera) > 0;
 
             //lights and shadows
-            renderLights(world, camera, matrices, delta);
+            renderedLights = renderedShadows = 0;
+            if (renderLights)
+                renderLights(world.getLights(camera), camera, renderFunc);
         }, () -> {
             //bake world
-            bakeDeferred(world);
+            bakeDeferred(world.getSky());
             if (hasConsumerPass[0])
                 mergeVertexConsumerBuffer();
 
             //render other stuff
-            renderSky(world, camera, matrices);
-            renderOutlines(world, camera, matrices, delta);
+            if (renderSky) renderSky(world.getSky(), camera, matrices);
+            if (renderOutlines) renderOutlines(world.getOutlines(camera), camera, matrices, delta);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
         });
     }
 
-    public static void initGBuffer(Camera camera) {
-        targetBuffer = Framebuffer.activeFramebuffer;
+    public static void setupFramebuffer() {
+        setupFramebuffer(Framebuffer.activeFramebuffer);
+    }
 
+    public static void setupFramebuffer(Framebuffer targetBuffer) {
+        WorldRenderer.targetBuffer = targetBuffer;
+    }
+
+    public static void initGBuffer(Camera camera) {
         //setup pbr framebuffer
         PBRFrameBuffer.useClear();
         PBRFrameBuffer.resizeTo(targetBuffer);
@@ -138,13 +154,7 @@ public class WorldRenderer {
         vertexConsumerFramebuffer.adjustViewPort();
     }
 
-    private static void renderLights(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
-        renderedLights = renderedShadows = 0;
-        if (!renderLights)
-            return;
-
-        //get the world lights
-        List<Light> lights = world.getLights(camera);
+    public static void renderLights(List<Light> lights, Camera camera, Runnable renderFunction) {
         if (lights.isEmpty())
             return;
 
@@ -160,7 +170,7 @@ public class WorldRenderer {
                 initShadowBuffer();
 
                 //render the light shadow
-                renderLightShadow(light, world, camera, matrices, delta);
+                renderLightShadow(light, camera, renderFunction);
                 shadowRendering = false;
                 renderedShadows++;
             }
@@ -174,7 +184,7 @@ public class WorldRenderer {
         resetLightState(camera);
     }
 
-    private static void initLightBuffer(Camera camera) {
+    public static void initLightBuffer(Camera camera) {
         lightingMultiPassBuffer.useClear();
         lightingMultiPassBuffer.resizeTo(targetBuffer);
 
@@ -187,7 +197,7 @@ public class WorldRenderer {
         glDisable(GL_CULL_FACE);
     }
 
-    private static void initShadowBuffer() {
+    public static void initShadowBuffer() {
         //prepare the shadow buffer
         shadowBuffer.useClear();
         int w = (int) Math.pow(2, Settings.shadowQuality.get() + 9); //min is 512
@@ -195,7 +205,7 @@ public class WorldRenderer {
         shadowBuffer.adjustViewPort();
     }
 
-    private static void renderLightShadow(Light light, WorldClient world, Camera camera, MatrixStack matrices, float delta) {
+    public static void renderLightShadow(Light light, Camera camera, Runnable renderFunction) {
         //move the directional lights away from the camera
         Vector3f dir = light.getDirection();
         if (light instanceof DirectionalLight)
@@ -213,7 +223,7 @@ public class WorldRenderer {
 
         //render world
         Shaders.DEPTH.getShader().use().setMat4("lightSpaceMatrix", lightSpaceMatrix);
-        world.renderWorld(camera, matrices, delta);
+        renderFunction.run();
 
         //render vertex consumer
         Shader s = Shaders.MAIN_DEPTH.getShader().use();
@@ -221,7 +231,7 @@ public class WorldRenderer {
         VertexConsumer.finishAllBatches(s, camera);
     }
 
-    private static void bakeLight(Light light) {
+    public static void bakeLight(Light light) {
         //since shadows have a custom viewport, we need to adjust its view too
         lightingMultiPassBuffer.use();
         lightingMultiPassBuffer.adjustViewPort();
@@ -247,7 +257,7 @@ public class WorldRenderer {
         Texture.unbindAll(5);
     }
 
-    private static void resetLightState(Camera camera) {
+    public static void resetLightState(Camera camera) {
         //reset gl
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_CULL_FACE);
@@ -258,12 +268,12 @@ public class WorldRenderer {
         camera.updateFrustum();
     }
 
-    private static void bakeDeferred(WorldClient world) {
+    public static void bakeDeferred(Sky sky) {
         //world uniforms
         targetBuffer.use();
         Shader s = Shaders.DEFERRED_WORLD_PBR.getShader().use();
-        world.applyWorldUniforms(s);
-        world.getSky().pushToShader(s, Texture.MAX_TEXTURES - 1);
+        setSkyUniforms(s);
+        sky.pushToShader(s, Texture.MAX_TEXTURES - 1);
 
         //apply gbuffer textures and the lightmap
         s.setTexture("gPosition", PBRFrameBuffer.getTexture(0), 0);
@@ -284,6 +294,19 @@ public class WorldRenderer {
         Texture.unbindAll(i);
     }
 
+    public static void setSkyUniforms(Shader shader) {
+        //camera
+        shader.setVec3("camPos", Client.getInstance().camera.getPosition());
+
+        //fog
+        shader.setFloat("fogStart", renderDistance * Sky.fogDensity);
+        shader.setFloat("fogEnd", renderDistance);
+        shader.setColor("fogColor", Sky.fogColor);
+
+        //lighting
+        shader.setColor("ambient", 0xFFFFFF);
+    }
+
     private static void mergeVertexConsumerBuffer() {
         Shader blit = Shaders.BLIT_COLOR_DEPTH.getShader().use();
         blit.setTexture("colorTexA", targetBuffer.getColorBuffer(), 0);
@@ -298,19 +321,12 @@ public class WorldRenderer {
         Texture.unbindAll(4);
     }
 
-    private static void renderSky(WorldClient world, Camera camera, MatrixStack matrices) {
-        if (!renderSky)
-            return;
-
+    public static void renderSky(Sky sky, Camera camera, MatrixStack matrices) {
         Shaders.SKYBOX.getShader().use().setup(camera);
-        world.getSky().render(camera, matrices);
+        sky.render(camera, matrices);
     }
 
-    private static void renderOutlines(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
-        if (!renderOutlines)
-            return;
-
-        List<Entity> entitiesToOutline = world.getOutlines(camera);
+    public static void renderOutlines(List<Entity> entitiesToOutline, Camera camera, MatrixStack matrices, float delta) {
         if (entitiesToOutline.isEmpty())
             return;
 
@@ -329,7 +345,6 @@ public class WorldRenderer {
     }
 
     public static Shader initOutlineBatch(Camera camera) {
-        targetBuffer = Framebuffer.activeFramebuffer;
         outlineRendering = true;
         outlineFramebuffer.useClear();
         outlineFramebuffer.resizeTo(targetBuffer);

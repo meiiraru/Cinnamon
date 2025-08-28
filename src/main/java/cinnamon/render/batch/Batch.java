@@ -1,11 +1,10 @@
 package cinnamon.render.batch;
 
-import cinnamon.Client;
 import cinnamon.model.Vertex;
+import cinnamon.render.WorldRenderer;
 import cinnamon.render.shader.Attributes;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
-import cinnamon.world.world.WorldClient;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -173,9 +172,7 @@ public abstract class Batch { //vertex consumer
         @Override
         protected void preRender(Shader shader) {
             super.preRender(shader);
-            WorldClient wc = Client.getInstance().world;
-            if (wc != null)
-                wc.applyWorldUniforms(shader);
+            WorldRenderer.setSkyUniforms(shader);
         }
     }
 
@@ -193,9 +190,7 @@ public abstract class Batch { //vertex consumer
         @Override
         protected void preRender(Shader shader) {
             super.preRender(shader);
-            WorldClient wc = Client.getInstance().world;
-            if (wc != null)
-                wc.applyWorldUniforms(shader);
+            WorldRenderer.setSkyUniforms(shader);
         }
     }
 

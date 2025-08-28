@@ -21,6 +21,7 @@ public class Sky {
     public static final float CLOUD_SPEED = (float) Math.PI / 2f;
 
     public static final int fogColor = 0xBFD3DE;
+    public static final float fogDensity = 0.5f;
 
     private final Vector3f sunDir = new Vector3f(1, 0, 0);
     private final Matrix3f skyRotation = new Matrix3f();

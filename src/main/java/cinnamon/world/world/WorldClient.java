@@ -283,7 +283,7 @@ public class WorldClient extends World {
 
         Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
         s.setup(camera);
-        applyWorldUniforms(s);
+        WorldRenderer.setSkyUniforms(s);
         sky.pushToShader(s, Texture.MAX_TEXTURES - 1);
 
         matrices.pushMatrix();
@@ -427,20 +427,6 @@ public class WorldClient extends World {
 
         for (AABB aabb : terrain.obj().getPreciseAABB())
             VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF + (alpha << 24)));
-    }
-
-    public void applyWorldUniforms(Shader s) {
-        //camera
-        s.setVec3("camPos", client.camera.getPosition());
-
-        //fog
-        float fogDensity = 0.5f;
-        s.setFloat("fogStart", WorldRenderer.renderDistance * fogDensity);
-        s.setFloat("fogEnd", WorldRenderer.renderDistance);
-        s.setColor("fogColor", Sky.fogColor);
-
-        //lighting
-        s.setColor("ambient", 0xFFFFFF);
     }
 
     public Sky getSky() {

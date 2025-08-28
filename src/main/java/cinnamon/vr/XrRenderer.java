@@ -199,6 +199,7 @@ public class XrRenderer {
 
         //prepare the renderer
         boolean lefty = activeHand % 2 == 0;
+        WorldRenderer.setupFramebuffer();
         Shader sh = WorldRenderer.initOutlineBatch(Client.getInstance().camera);
 
         //apply the hand matrices
