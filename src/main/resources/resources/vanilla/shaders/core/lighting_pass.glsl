@@ -12,13 +12,16 @@ struct Light {
     float falloffStart;
     float falloffEnd;
 
-    //1 = point, 2 = spot, 3 = directional
+    //1 = point, 2 = spot, 3 = directional, 4 = cookie
     int type;
 
     //spotlights
     vec3 direction;
-    float innerCutOff;
-    float outerCutOff;
+    float innerAngle;
+    float outerAngle;
+
+    //cookie
+    sampler2D cookieMap;
 
     //shadow
     mat4 lightSpaceMatrix;
@@ -77,22 +80,11 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0f - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
 }
 
-float calculateDirectionalShadow(mat4 lightMatrix, vec3 lightDir, vec3 fragPosWorld, vec3 normal) {
-    //transform fragment position to light clip space
-    vec4 fragPosLightSpace = lightMatrix * vec4(fragPosWorld, 1.0f);
-
-    //normalize to [0,1] range
-    vec3 lightCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    lightCoords = lightCoords * 0.5f + 0.5f;
-
+float calculateDirectionalShadow(vec3 lightCoords, vec3 lightDir, vec3 normal) {
     //get the current fragment depth from the light perspective
     float currentDepth = lightCoords.z;
 
-    //early exit if outside the light frustum
-    if (currentDepth > 1.0f)
-        return 1.0f;
-
-    //get the closest depth from the light perspective
+    //get the closest depth from the shadow map
     float closestDepth = texture(shadowMap, lightCoords.xy).r;
 
     //shadow acne prevention bias
@@ -123,16 +115,42 @@ float calculatePointShadow(vec3 fragPosWorld) {
     return shadow;
 }
 
+vec3 getCookieColor(vec3 lightCoords) {
+    //transform to UV coordinates
+    vec2 cookieCoords = lightCoords.xy;
+    cookieCoords.y = 1.0f - cookieCoords.y;
+
+    //sample the cookie texture if inside the projection area
+    if (cookieCoords.x >= 0.0f && cookieCoords.x <= 1.0f && cookieCoords.y >= 0.0f && cookieCoords.y <= 1.0f)
+        return texture(light.cookieMap, cookieCoords).rgb;
+    else
+        return vec3(0.0f);
+}
+
 void main() {
     //pos
     vec3 pos = texture(gPosition, texCoords).rgb;
+    vec3 lightCoords;
 
     //discard fragments outside the light volume
     //TODO change to a mesh-based light volume
-    if (light.type == 1 || light.type == 2) {
+    if (light.type != 3) {
         float distanceToLight = length(light.pos - pos);
         if (distanceToLight > light.falloffEnd)
             discard;
+
+        if (light.type != 1) {
+            //transform fragment position to light clip space
+            vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(pos, 1.0f);
+
+            //normalize to [0,1] range
+            lightCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+            lightCoords = lightCoords * 0.5f + 0.5f;
+
+            //early exit if outside the light frustum
+            if (lightCoords.z > 1.0f)
+                discard;
+        }
     }
 
     //color
@@ -159,13 +177,13 @@ void main() {
 
         //spotlight
         float spotEffect = 1.0f;
-        if (light.type == 2) {
+        if (light.type == 2 || light.type == 4) {
             //dot product between light-to-fragment vector and the light's forward direction
             //L points TOWARDS the light, so we use its inverse, light.direction points AWAY
             float theta = dot(-L, light.direction);
 
             //use smoothstep again for a soft cone edge
-            spotEffect = smoothstep(light.outerCutOff, light.innerCutOff, theta);
+            spotEffect = smoothstep(light.outerAngle, light.innerAngle, theta);
         }
 
         attenuation = distanceAttenuation * spotEffect;
@@ -174,9 +192,13 @@ void main() {
     //final radiance
     vec3 radiance = light.color * light.intensity * attenuation;
 
+    //cookie
+    if (light.type == 4)
+        radiance *= getCookieColor(lightCoords);
+
     //shadow
     if (light.castsShadows) {
-        float shadow = light.type == 1 ? calculatePointShadow(pos) : calculateDirectionalShadow(light.lightSpaceMatrix, L, pos, N);
+        float shadow = light.type == 1 ? calculatePointShadow(pos) : calculateDirectionalShadow(lightCoords, L, N);
         radiance *= shadow;
     }
 

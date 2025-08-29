@@ -51,6 +51,7 @@ import cinnamon.world.items.weapons.CoilGun;
 import cinnamon.world.items.weapons.PotatoCannon;
 import cinnamon.world.items.weapons.RiceGun;
 import cinnamon.world.items.weapons.Weapon;
+import cinnamon.world.light.CookieLight;
 import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.Spotlight;
@@ -144,9 +145,9 @@ public class WorldClient extends World {
         //for (int i = 0; i < 5; i++)
         //    addLight(new PointLight().pos(-5.5f + i * 3f, 3f, 2.5f).color(Colors.randomRainbow().rgb));
 
-        addLight(new Spotlight().cutOff(60f).pos(1f, 3f, 10.0f).color(0xFF0000));
-        addLight(new Spotlight().cutOff(60f).pos(0.25f, 3f, 9.567f).color(0x00FF00));
-        addLight(new Spotlight().cutOff(60f).pos(0.25f, 3f, 10.433f).color(0x0000FF));
+        addLight(new Spotlight().angle(60f).pos(1f, 3f, 10.0f).color(0xFF0000));
+        addLight(new Spotlight().angle(60f).pos(0.25f, 3f, 9.567f).color(0x00FF00));
+        addLight(new Spotlight().angle(60f).pos(0.25f, 3f, 10.433f).color(0x0000FF));
 
         //entities
         Cart c = new Cart(UUID.randomUUID());
@@ -574,6 +575,7 @@ public class WorldClient extends World {
                 f.setPos(0, 1.5f, 0);
                 addEntity(f);
             }
+            case GLFW_KEY_X -> addLight(new CookieLight().falloff(0f, 20f).castsShadows(false).pos(player.getEyePos()).direction(player.getLookDir()));
 
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
             //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));

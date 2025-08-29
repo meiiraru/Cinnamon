@@ -3,13 +3,16 @@ package cinnamon.world.items;
 import cinnamon.lang.LangManager;
 import cinnamon.registry.ItemModelRegistry;
 import cinnamon.render.MatrixStack;
-import cinnamon.world.light.Spotlight;
+import cinnamon.utils.Resource;
+import cinnamon.world.light.CookieLight;
 import cinnamon.world.world.World;
 import cinnamon.world.world.WorldClient;
 
 public class Flashlight extends Item {
 
-    private final Spotlight light = (Spotlight) new Spotlight().falloff(0f, 20f);
+    private static final Resource FLASHLIGHT_COOKIE = new Resource("textures/environment/light/flashlight_cookie.png");
+
+    private final CookieLight light = (CookieLight) new CookieLight().texture(FLASHLIGHT_COOKIE).falloff(0f, 20f);
     private boolean active = false;
 
     public Flashlight(int color) {

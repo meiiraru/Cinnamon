@@ -304,8 +304,10 @@ public class DebugScreen {
         }
 
         else if (action == GLFW_RELEASE && key == GLFW_KEY_F3) {
-            if (f3Pressed && !f3Voided) {
-                f3Pressed = false;
+            boolean wasPressed = f3Pressed;
+            f3Pressed = false;
+
+            if (wasPressed && !f3Voided) {
                 active = !active;
                 return true;
             }

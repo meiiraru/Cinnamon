@@ -5,7 +5,7 @@ import cinnamon.render.shader.Shader;
 public class PointLight extends Light {
 
     private float falloffStart = 3f, falloffEnd = 5f;
-    protected float fov = (float) Math.toRadians(90f);
+    private float fov = 1.5707f; //90 degrees
 
     @Override
     protected void pushToShader(Shader shader, String prefix) {
@@ -41,6 +41,10 @@ public class PointLight extends Light {
 
     public float getFalloffEnd() {
         return falloffEnd;
+    }
+
+    protected void setFOV(float fov) {
+        this.fov = fov;
     }
 
     public float getFOV() {

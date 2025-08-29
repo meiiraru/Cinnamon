@@ -14,6 +14,7 @@ import cinnamon.render.texture.Texture;
 import cinnamon.settings.Settings;
 import cinnamon.world.Sky;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.light.CookieLight;
 import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.PointLight;
@@ -300,16 +301,21 @@ public class WorldRenderer {
 
         int i = 4;
         if (hasShadow) {
-            s.setTexture("shadowMap", shadowBuffer.getDepthBuffer(), i++);
-            s.setCubeMap("shadowCubeMap", cubeShadowBuffer.getCubemap(), 5);
+            s.setTexture("shadowMap", shadowBuffer.getDepthBuffer(), i++); //4
+            s.setCubeMap("shadowCubeMap", cubeShadowBuffer.getCubemap(), i++); //5
         }
 
         //set up the camera position
         s.setVec3("camPos", cameraPos.x, cameraPos.y, cameraPos.z);
 
         //set up the light properties
-        light.pushToShader(s);
+        if (!hasShadow)
+            light.calculateLightSpaceMatrix();
+        if (light instanceof CookieLight cookie)
+            s.setTexture("light.cookieMap", Texture.of(cookie.getTexture()), i++); //6
+
         s.setBool("light.castsShadows", hasShadow);
+        light.pushToShader(s);
 
         //then render the light volume
         Blit.renderQuad();

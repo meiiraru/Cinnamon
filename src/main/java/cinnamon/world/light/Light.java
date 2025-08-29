@@ -15,8 +15,8 @@ import org.joml.Vector3f;
 public abstract class Light {
 
     public static final Resource
-        LAMP = new Resource("textures/environment/lamp.png"),
-        LAMP_OVERLAY = new Resource("textures/environment/lamp_overlay.png");
+        LAMP = new Resource("textures/environment/light/lamp.png"),
+        LAMP_OVERLAY = new Resource("textures/environment/light/lamp_overlay.png");
 
     protected final Vector3f
             pos = new Vector3f(),
@@ -41,7 +41,6 @@ public abstract class Light {
         shader.setColor(prefix + "color", color);
         shader.setFloat(prefix + "intensity", intensity);
         shader.setMat4(prefix + "lightSpaceMatrix", lightSpaceMatrix);
-        shader.setBool(prefix + "castsShadows", castsShadows);
         pushToShader(shader, prefix);
     }
 
@@ -58,17 +57,17 @@ public abstract class Light {
     }
 
     protected void calculateLightViewMatrix() {
-        float x = 0f, y = 1f;
+        float y = 1f, z = 0f;
 
-        if (Math.abs(dir.dot(0f, 1f, 0f)) > 0.999f) {
-            x = 1f;
+        if (Math.abs(dir.dot(0f, 1f, 0f)) > 0.9999f) {
             y = 0f;
+            z = -1f;
         }
 
         lightView.identity().lookAt(
                 pos.x, pos.y, pos.z,
                 pos.x + dir.x, pos.y + dir.y, pos.z + dir.z,
-                x, y, 0f
+                0f, y, z
         );
     }
 
