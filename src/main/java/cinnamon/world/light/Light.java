@@ -6,7 +6,6 @@ import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
-import cinnamon.settings.Settings;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
@@ -42,7 +41,7 @@ public abstract class Light {
         shader.setColor(prefix + "color", color);
         shader.setFloat(prefix + "intensity", intensity);
         shader.setMat4(prefix + "lightSpaceMatrix", lightSpaceMatrix);
-        shader.setBool(prefix + "castsShadows", castsShadows());
+        shader.setBool(prefix + "castsShadows", castsShadows);
         pushToShader(shader, prefix);
     }
 
@@ -82,7 +81,7 @@ public abstract class Light {
         camera.billboard(matrices);
         matrices.rotate(Rotation.Z.rotationDeg(180f));
 
-        Vertex[] v = GeometryHelper.quad(matrices, -0.5f, -0.5f, 1f, 1f);
+        Vertex[] v = GeometryHelper.quad(matrices, -0.25f, -0.25f, 0.5f, 0.5f);
         VertexConsumer.MAIN.consume(v, LAMP);
 
         int c = color | 0xFF000000;
@@ -156,7 +155,7 @@ public abstract class Light {
     }
 
     public boolean castsShadows() {
-        return castsShadows && Settings.shadowQuality.get() != -1;
+        return castsShadows;
     }
 
     public Light castsShadows(boolean bool) {

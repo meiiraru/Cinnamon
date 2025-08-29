@@ -84,9 +84,6 @@ public class Client {
         //queue window first update
         this.windowResize(window.width, window.height);
 
-        //init sounds
-        SoundManager.init(Settings.soundDevice.get());
-
         //init open xr
         if (Cinnamon.ENABLE_XR && !ArgsOptions.FORCE_DISABLE_XR.getAsBool())
             XrManager.init();

@@ -142,11 +142,11 @@ public class WorldClient extends World {
         sunLight.castsShadows(false);
 
         //for (int i = 0; i < 5; i++)
-        //    addLight(new PointLight().pos(-5.5f + i * 3f, 5f, 2.5f).color(Colors.randomRainbow().rgb));
+        //    addLight(new PointLight().pos(-5.5f + i * 3f, 3f, 2.5f).color(Colors.randomRainbow().rgb));
 
-        addLight(new Spotlight().pos(1f, 5f, -3.0f).color(0xFF0000));
-        addLight(new Spotlight().pos(0.25f, 5f, -2.567f).color(0x00FF00));
-        addLight(new Spotlight().pos(0.25f, 5f, -3.433f).color(0x0000FF));
+        addLight(new Spotlight().cutOff(60f).pos(1f, 3f, 10.0f).color(0xFF0000));
+        addLight(new Spotlight().cutOff(60f).pos(0.25f, 3f, 9.567f).color(0x00FF00));
+        addLight(new Spotlight().cutOff(60f).pos(0.25f, 3f, 10.433f).color(0x0000FF));
 
         //entities
         Cart c = new Cart(UUID.randomUUID());

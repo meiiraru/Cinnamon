@@ -16,6 +16,7 @@ import cinnamon.render.texture.AnimatedTexture;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.SkyBox;
 import cinnamon.render.texture.Texture;
+import cinnamon.settings.Settings;
 import cinnamon.sound.Sound;
 import cinnamon.sound.SoundManager;
 
@@ -51,7 +52,7 @@ public class Events {
     public void registerClientEvents() {
         LOGGER.info("Registering client resource events");
 
-        registerEvent(RESOURCE_INIT, o -> SoundManager.swapDevice(SoundManager.getCurrentDevice()));
+        registerEvent(RESOURCE_INIT, o -> SoundManager.swapDevice(Settings.soundDevice.get()));
         registerEvent(RESOURCE_INIT, o -> Shaders.loadAll());
         registerEvent(RESOURCE_INIT, o -> PostProcess.loadAllShaders());
         registerEvent(RESOURCE_INIT, o -> MaterialRegistry.loadAllMaterials());

@@ -6,14 +6,17 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
+import cinnamon.render.framebuffer.ShadowMapFramebuffer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
+import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.Texture;
 import cinnamon.settings.Settings;
 import cinnamon.world.Sky;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
+import cinnamon.world.light.PointLight;
 import cinnamon.world.world.WorldClient;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -30,13 +33,14 @@ public class WorldRenderer {
     public static final int entityRenderDistance = 144;
 
     public static final PBRDeferredFramebuffer PBRFrameBuffer = new PBRDeferredFramebuffer();
-    public static final Framebuffer outlineFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
     public static final Framebuffer vertexConsumerFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
     public static final Framebuffer lightingMultiPassBuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
-    private static final Framebuffer shadowBuffer = new Framebuffer(Framebuffer.DEPTH_BUFFER);
+    public static final Framebuffer shadowBuffer = new Framebuffer(Framebuffer.DEPTH_BUFFER);
+    public static final ShadowMapFramebuffer cubeShadowBuffer = new ShadowMapFramebuffer();
+    public static final Framebuffer outlineFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
 
-    private static boolean outlineRendering = false;
     private static boolean shadowRendering = false;
+    private static boolean outlineRendering = false;
     private static int renderedLights, renderedShadows;
 
     private static final Vector3f cameraPos = new Vector3f();
@@ -164,19 +168,24 @@ public class WorldRenderer {
 
         //render the lights
         for (Light light : lights) {
-            if (hasShadows && light.castsShadows()) {
+            boolean shadow = hasShadows && light.castsShadows();
+            if (shadow) {
                 //init the shadow buffer
                 shadowRendering = true;
                 initShadowBuffer();
 
                 //render the light shadow
-                renderLightShadow(light, camera, renderFunction);
+                if (light.isDirectional())
+                    renderDirectionalLightShadow(light, camera, renderFunction);
+                else
+                    renderLightShadowToCubeMap((PointLight) light, camera, renderFunction);
+
                 shadowRendering = false;
                 renderedShadows++;
             }
 
             //bake this light
-            bakeLight(light);
+            bakeLight(light, shadow);
             renderedLights++;
         }
 
@@ -200,12 +209,12 @@ public class WorldRenderer {
     public static void initShadowBuffer() {
         //prepare the shadow buffer
         int w = (int) Math.pow(2, Settings.shadowQuality.get() + 9); //min is 512
+        cubeShadowBuffer.resize(w, w);
         shadowBuffer.resize(w, w);
-        shadowBuffer.useClear();
         shadowBuffer.adjustViewPort();
     }
 
-    public static void renderLightShadow(Light light, Camera camera, Runnable renderFunction) {
+    public static void renderDirectionalLightShadow(Light light, Camera camera, Runnable renderFunction) {
         //move the directional lights away from the camera
         Vector3f dir = light.getDirection();
         if (light instanceof DirectionalLight)
@@ -222,6 +231,7 @@ public class WorldRenderer {
         camera.lookAt(p.x + dir.x, p.y + dir.y, p.z + dir.z);
 
         //render world
+        shadowBuffer.useClear();
         Shaders.DEPTH.getShader().use().setMat4("lightSpaceMatrix", lightSpaceMatrix);
         renderFunction.run();
 
@@ -231,7 +241,52 @@ public class WorldRenderer {
         VertexConsumer.finishAllBatches(s, camera);
     }
 
-    public static void bakeLight(Light light) {
+    public static void renderLightShadowToCubeMap(PointLight light, Camera camera, Runnable renderFunction) {
+        //calculate light matrix
+        light.calculateLightSpaceMatrix();
+        Matrix4f lightSpaceMatrix = light.getLightSpaceMatrix();
+        Vector3f pos = light.getPos();
+        float farPlane = light.getFalloffEnd();
+
+        //setup the shaders
+        Shader s = Shaders.POINT_DEPTH.getShader().use();
+        s.setVec3("lightPos", pos);
+        s.setFloat("farPlane", farPlane);
+
+        Shader sh = Shaders.POINT_MAIN_DEPTH.getShader().use();
+        sh.setVec3("lightPos", pos);
+        sh.setFloat("farPlane", farPlane);
+
+        //render the scene for each cube map face
+        cubeShadowBuffer.use();
+        for (CubeMap.Face face : CubeMap.Face.values()) {
+            //bind the face
+            cubeShadowBuffer.bindCubemap(face.GLTarget);
+
+            //calculate look at matrix
+            Vector3f dir = face.direction;
+            Vector3f up = face.up;
+            Matrix4f look = new Matrix4f().lookAt(pos.x, pos.y, pos.z, pos.x + dir.x, pos.y + dir.y, pos.z + dir.z, up.x, up.y, up.z);
+            lightSpaceMatrix.mul(look, look);
+
+            //update the camera
+            camera.setPos(pos.x, pos.y, pos.z);
+            camera.setRot(new Quaternionf().lookAlong(dir, up));
+            camera.updateFrustum(look);
+
+            //render the world
+            s.use();
+            s.setMat4("lightSpaceMatrix", look);
+            renderFunction.run();
+
+            //render vertex consumer
+            sh.use();
+            sh.setMat4("lightSpaceMatrix", look);
+            VertexConsumer.finishAllBatches(sh, camera);
+        }
+    }
+
+    public static void bakeLight(Light light, boolean hasShadow) {
         //since shadows have a custom viewport, we need to adjust its view too
         lightingMultiPassBuffer.use();
         lightingMultiPassBuffer.adjustViewPort();
@@ -242,19 +297,27 @@ public class WorldRenderer {
         s.setTexture("gAlbedo",   PBRFrameBuffer.getTexture(1), 1);
         s.setTexture("gORM",      PBRFrameBuffer.getTexture(2), 2);
         s.setTexture("gNormal",   PBRFrameBuffer.getTexture(3), 3);
-        s.setTexture("shadowMap", shadowBuffer.getDepthBuffer(),      4);
+
+        int i = 4;
+        if (hasShadow) {
+            s.setTexture("shadowMap", shadowBuffer.getDepthBuffer(), i++);
+            s.setCubeMap("shadowCubeMap", cubeShadowBuffer.getCubemap(), 5);
+        }
 
         //set up the camera position
         s.setVec3("camPos", cameraPos.x, cameraPos.y, cameraPos.z);
 
         //set up the light properties
         light.pushToShader(s);
+        s.setBool("light.castsShadows", hasShadow);
 
         //then render the light volume
         Blit.renderQuad();
 
         //unbind textures
-        Texture.unbindAll(5);
+        Texture.unbindAll(i);
+        if (hasShadow)
+            CubeMap.unbindTex(5);
     }
 
     public static void resetLightState(Camera camera) {

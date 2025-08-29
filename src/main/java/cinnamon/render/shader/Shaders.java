@@ -27,7 +27,9 @@ public enum Shaders {
     MODEL_UV,
     LIGHTING_PASS,
     BLIT_COLOR_DEPTH,
-    MAIN_DEPTH;
+    MAIN_DEPTH,
+    POINT_DEPTH,
+    POINT_MAIN_DEPTH;
 
     private final Resource resource;
     private Shader shader;

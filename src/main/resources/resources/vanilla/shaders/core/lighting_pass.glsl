@@ -41,6 +41,7 @@ uniform sampler2D gNormal;
 uniform vec3 camPos;
 uniform Light light;
 uniform sampler2D shadowMap;
+uniform samplerCube shadowCubeMap;
 
 //Trowbridge-Reitz GGX
 //D (NDF Normal Distribution Function)
@@ -76,7 +77,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0f - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
 }
 
-float calculateShadow(mat4 lightMatrix, vec3 lightDir, vec3 fragPosWorld, vec3 normal) {
+float calculateDirectionalShadow(mat4 lightMatrix, vec3 lightDir, vec3 fragPosWorld, vec3 normal) {
     //transform fragment position to light clip space
     vec4 fragPosLightSpace = lightMatrix * vec4(fragPosWorld, 1.0f);
 
@@ -87,6 +88,10 @@ float calculateShadow(mat4 lightMatrix, vec3 lightDir, vec3 fragPosWorld, vec3 n
     //get the current fragment depth from the light perspective
     float currentDepth = lightCoords.z;
 
+    //early exit if outside the light frustum
+    if (currentDepth > 1.0f)
+        return 1.0f;
+
     //get the closest depth from the light perspective
     float closestDepth = texture(shadowMap, lightCoords.xy).r;
 
@@ -95,11 +100,26 @@ float calculateShadow(mat4 lightMatrix, vec3 lightDir, vec3 fragPosWorld, vec3 n
     float bias = max(0.01f * (1.0f - dot(normal, lightDir)), 0.001f);
 
     //check if the current fragment is behind the closest one recorded in the shadow map
-    //the 1.0 check is for the border color - fragments outside the frustum are not in shadow
-    float shadow = 1.0f;
-    if (currentDepth - bias > closestDepth && lightCoords.z < 1.0f)
-        shadow = 0.0f; //the fragment is in shadow
+    float shadow = currentDepth - bias > closestDepth ? 0.0f : 1.0f;
+    return shadow;
+}
 
+float calculatePointShadow(vec3 fragPosWorld) {
+    //direction from light to fragment
+    vec3 lightDir = fragPosWorld - light.pos;
+
+    //current distance from light to fragment
+    float currentDepth = length(lightDir);
+
+    //sample closest depth from cubemap
+    float closestDepth = texture(shadowCubeMap, lightDir).r;
+    closestDepth *= light.falloffEnd; // stored depth was normalized
+
+    //bias to prevent shadow acne
+    const float bias = 0.05f;
+
+    //check if the current fragment is in shadow
+    float shadow = currentDepth - bias > closestDepth ? 0.0f : 1.0f;
     return shadow;
 }
 
@@ -156,7 +176,7 @@ void main() {
 
     //shadow
     if (light.castsShadows) {
-        float shadow = calculateShadow(light.lightSpaceMatrix, L, pos, N);
+        float shadow = light.type == 1 ? calculatePointShadow(pos) : calculateDirectionalShadow(light.lightSpaceMatrix, L, pos, N);
         radiance *= shadow;
     }
 
