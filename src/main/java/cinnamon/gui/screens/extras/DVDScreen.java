@@ -1,23 +1,32 @@
 package cinnamon.gui.screens.extras;
 
+import cinnamon.Client;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import org.joml.Vector2f;
+import org.lwjgl.glfw.GLFW;
+
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_1;
 
 public class DVDScreen extends ParentedScreen {
 
     private static final Resource DVD_TEX = new Resource("textures/gui/dvd.png");
     private static final int w = 58, h = 40;
-    private static final float speed = 2f;
+    private static float speed = 2f;
+
+    private static boolean mousePressed = false;
+    private static int anchorX, anchorY;
+    private static int directionX, directionY;
 
     //normals
     private static final Vector2f
@@ -64,6 +73,9 @@ public class DVDScreen extends ParentedScreen {
         Vector2f dir = Maths.rotToDir(rot); //already normalized
         pos.add(dir.x * speed, dir.y * speed);
 
+        if (mousePressed)
+            pos.set(anchorX - w / 2f, anchorY - h / 2f);
+
         //up
         if (pos.y <= 0f) {
             dir.set(Maths.reflect(dir, UP));
@@ -106,6 +118,9 @@ public class DVDScreen extends ParentedScreen {
             vertex.color(color.rgba);
         VertexConsumer.MAIN.consume(vertices, DVD_TEX);
 
+        if (mousePressed)
+            VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, anchorX, anchorY, anchorX + directionX, anchorY + directionY, 1f, Colors.WHITE.rgba));
+
         //render children on top
         super.render(matrices, mouseX, mouseY, delta);
     }
@@ -119,6 +134,42 @@ public class DVDScreen extends ParentedScreen {
 
     @Override
     protected boolean shouldRenderMouse() {
+        return false;
+    }
+
+    @Override
+    public boolean mousePress(int button, int action, int mods) {
+        if (super.mousePress(button, action, mods))
+            return true;
+
+        if (button == GLFW_MOUSE_BUTTON_1) {
+            mousePressed = action == GLFW.GLFW_PRESS;
+            if (mousePressed) {
+                Window w = Client.getInstance().window;
+                anchorX = w.mouseX;
+                anchorY = w.mouseY;
+            } else {
+                pos.set(anchorX - w / 2f, anchorY - h / 2f);
+                rot = Maths.dirToRot((float) Math.toRadians(directionX), (float) Math.toRadians(directionY));
+                speed = (float) Math.sqrt(directionX * directionX + directionY * directionY) * 0.1f;
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean mouseMove(int x, int y) {
+        if (super.mouseMove(x, y))
+            return true;
+
+        if (mousePressed) {
+            directionX = x - anchorX;
+            directionY = y - anchorY;
+            return true;
+        }
+
         return false;
     }
 }
