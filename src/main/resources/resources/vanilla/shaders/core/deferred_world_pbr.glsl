@@ -10,10 +10,10 @@ in vec2 texCoords;
 out vec4 fragColor;
 
 //gBuffer
-uniform sampler2D gPosition;
 uniform sampler2D gAlbedo;
-uniform sampler2D gORM;
+uniform sampler2D gPosition;
 uniform sampler2D gNormal;
+uniform sampler2D gORM;
 uniform sampler2D gEmissive;
 
 uniform sampler2D lightTex;

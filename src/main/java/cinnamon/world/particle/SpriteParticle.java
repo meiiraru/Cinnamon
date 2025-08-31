@@ -34,7 +34,7 @@ public abstract class SpriteParticle extends Particle {
                 getFrameCount(), 1
         );
 
-        drawParticle(delta, isEmissive() ? VertexConsumer.MAIN : VertexConsumer.WORLD_MAIN, vertices);
+        drawParticle(delta, isEmissive() ? VertexConsumer.WORLD_MAIN_EMISSIVE : VertexConsumer.WORLD_MAIN, vertices);
     }
 
     protected void drawParticle(float delta, VertexConsumer consumer, Vertex[] vertices) {

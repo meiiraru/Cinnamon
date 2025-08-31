@@ -33,7 +33,6 @@ public class HealthPack extends Collectable {
 
             p.setPos(pos);
             p.setScale(2f);
-            p.setEmissive(true);
 
             world.addParticle(p);
         }

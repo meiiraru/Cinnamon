@@ -21,5 +21,5 @@ void main() {
     texCoords = aTexCoords;
     pos = aPosition;
     color = aColor;
-    normal = aNormal;
+    normal = normalize(aNormal);
 }

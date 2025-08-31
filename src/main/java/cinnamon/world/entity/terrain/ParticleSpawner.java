@@ -24,7 +24,6 @@ public class ParticleSpawner extends TerrainEntity {
         if (bubbles > 0) {
             bubbles--;
             SoapParticle p = new SoapParticle((int) (Math.random() * 100) + 100);
-            p.setEmissive(true);
             p.setPos(spawnPos());
             p.setMotion((float) (Math.random() * 0.05f) - 0.025f, (float) (Math.random() * 0.05f) + 0.001f, (float) (Math.random() * 0.05f) - 0.025f);
             getWorld().addParticle(p);

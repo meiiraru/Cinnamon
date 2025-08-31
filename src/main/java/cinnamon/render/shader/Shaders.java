@@ -4,9 +4,11 @@ import cinnamon.utils.Resource;
 
 public enum Shaders {
     WORLD_FONT,
+    WORLD_FONT_EMISSIVE,
     FONT,
     WORLD_MODEL_PBR,
     MODEL,
+    WORLD_MAIN_EMISSIVE,
     WORLD_MAIN,
     MAIN,
     LINES,

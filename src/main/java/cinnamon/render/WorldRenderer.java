@@ -1,7 +1,6 @@
 package cinnamon.render;
 
 import cinnamon.Client;
-import cinnamon.model.SimpleGeometry;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
@@ -34,8 +33,7 @@ public class WorldRenderer {
     public static final int entityRenderDistance = 144;
 
     public static final PBRDeferredFramebuffer PBRFrameBuffer = new PBRDeferredFramebuffer();
-    public static final Framebuffer vertexConsumerFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
-    public static final Framebuffer lightingMultiPassBuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
+    public static final Framebuffer lightingMultiPassBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
     public static final Framebuffer shadowBuffer = new Framebuffer(Framebuffer.DEPTH_BUFFER);
     public static final ShadowMapFramebuffer cubeShadowBuffer = new ShadowMapFramebuffer();
     public static final Framebuffer outlineFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
@@ -74,8 +72,7 @@ public class WorldRenderer {
         world.applyTempCounters();
 
         //world vertex consumer
-        initVertexConsumerBuffer();
-        boolean hasConsumerPass = VertexConsumer.finishAllBatches(camera) > 0;
+        VertexConsumer.finishAllBatches(camera);
 
         //render the world lights
         renderedLights = renderedShadows = 0;
@@ -84,10 +81,6 @@ public class WorldRenderer {
 
         //bake world
         bakeDeferred(world.getSky());
-
-        //merge vertex consumer buffer to the main buffer
-        if (hasConsumerPass)
-            mergeVertexConsumerBuffer();
 
         //render the sky
         if (renderSky)
@@ -104,8 +97,6 @@ public class WorldRenderer {
 
     private static void renderAsAnaglyph(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
         Runnable renderFunc = () -> world.renderWorld(camera, matrices, delta);
-        boolean[] hasConsumerPass = {false};
-
         camera.anaglyph3D(matrices, -1f / 64f, -1f, () -> {
             //render world
             initGBuffer(camera);
@@ -113,8 +104,7 @@ public class WorldRenderer {
             world.applyTempCounters();
 
             //vertex consumer
-            initVertexConsumerBuffer();
-            hasConsumerPass[0] = VertexConsumer.finishAllBatches(camera) > 0;
+            VertexConsumer.finishAllBatches(camera);
 
             //lights and shadows
             renderedLights = renderedShadows = 0;
@@ -123,8 +113,6 @@ public class WorldRenderer {
         }, () -> {
             //bake world
             bakeDeferred(world.getSky());
-            if (hasConsumerPass[0])
-                mergeVertexConsumerBuffer();
 
             //render other stuff
             if (renderSky) renderSky(world.getSky(), camera, matrices);
@@ -151,12 +139,6 @@ public class WorldRenderer {
         Shader s = Shaders.GBUFFER_WORLD_PBR.getShader().use();
         s.setup(camera);
         s.setVec3("camPos", camera.getPosition());
-    }
-
-    public static void initVertexConsumerBuffer() {
-        vertexConsumerFramebuffer.resizeTo(targetBuffer);
-        vertexConsumerFramebuffer.useClear();
-        vertexConsumerFramebuffer.adjustViewPort();
     }
 
     public static void renderLights(List<Light> lights, Camera camera, Runnable renderFunction) {
@@ -294,15 +276,15 @@ public class WorldRenderer {
 
         //bind the shadow map and gbuffer textures to the light shader
         Shader s = Shaders.LIGHTING_PASS.getShader().use();
-        s.setTexture("gPosition", PBRFrameBuffer.getTexture(0), 0);
-        s.setTexture("gAlbedo",   PBRFrameBuffer.getTexture(1), 1);
-        s.setTexture("gORM",      PBRFrameBuffer.getTexture(2), 2);
-        s.setTexture("gNormal",   PBRFrameBuffer.getTexture(3), 3);
+        s.setTexture("gAlbedo",   PBRFrameBuffer.getTexture(0), 0);
+        s.setTexture("gPosition", PBRFrameBuffer.getTexture(1), 1);
+        s.setTexture("gNormal",   PBRFrameBuffer.getTexture(2), 2);
+        s.setTexture("gORM",      PBRFrameBuffer.getTexture(3), 3);
 
         int i = 4;
         if (hasShadow) {
             s.setTexture("shadowMap", shadowBuffer.getDepthBuffer(), i++); //4
-            s.setCubeMap("shadowCubeMap", cubeShadowBuffer.getCubemap(), i++); //5
+            s.setCubeMap("shadowCubeMap", cubeShadowBuffer.getCubemap(), 6);
         }
 
         //set up the camera position
@@ -312,7 +294,7 @@ public class WorldRenderer {
         if (!hasShadow)
             light.calculateLightSpaceMatrix();
         if (light instanceof CookieLight cookie)
-            s.setTexture("light.cookieMap", Texture.of(cookie.getTexture()), i++); //6
+            s.setTexture("cookieMap", Texture.of(cookie.getTexture()), i++); //5
 
         s.setBool("light.castsShadows", hasShadow);
         light.pushToShader(s);
@@ -323,7 +305,7 @@ public class WorldRenderer {
         //unbind textures
         Texture.unbindAll(i);
         if (hasShadow)
-            CubeMap.unbindTex(5);
+            CubeMap.unbindTex(6);
     }
 
     public static void resetLightState(Camera camera) {
@@ -345,10 +327,10 @@ public class WorldRenderer {
         sky.pushToShader(s, Texture.MAX_TEXTURES - 1);
 
         //apply gbuffer textures and the lightmap
-        s.setTexture("gPosition", PBRFrameBuffer.getTexture(0), 0);
-        s.setTexture("gAlbedo",   PBRFrameBuffer.getTexture(1), 1);
-        s.setTexture("gORM",      PBRFrameBuffer.getTexture(2), 2);
-        s.setTexture("gNormal",   PBRFrameBuffer.getTexture(3), 3);
+        s.setTexture("gAlbedo",   PBRFrameBuffer.getTexture(0), 0);
+        s.setTexture("gPosition", PBRFrameBuffer.getTexture(1), 1);
+        s.setTexture("gNormal",   PBRFrameBuffer.getTexture(2), 2);
+        s.setTexture("gORM",      PBRFrameBuffer.getTexture(3), 3);
         s.setTexture("gEmissive", PBRFrameBuffer.getTexture(4), 4);
 
         int i = 5;
@@ -371,23 +353,6 @@ public class WorldRenderer {
         shader.setFloat("fogStart", renderDistance * Sky.fogDensity);
         shader.setFloat("fogEnd", renderDistance);
         shader.setColor("fogColor", Sky.fogColor);
-
-        //lighting
-        shader.setColor("ambient", 0xFFFFFF);
-    }
-
-    private static void mergeVertexConsumerBuffer() {
-        Shader blit = Shaders.BLIT_COLOR_DEPTH.getShader().use();
-        blit.setTexture("colorTexA", targetBuffer.getColorBuffer(), 0);
-        blit.setTexture("depthTexA", targetBuffer.getDepthBuffer(), 1);
-        blit.setTexture("colorTexB", vertexConsumerFramebuffer.getColorBuffer(), 2);
-        blit.setTexture("depthTexB", vertexConsumerFramebuffer.getDepthBuffer(), 3);
-
-        //render quad with depth testing
-        SimpleGeometry.QUAD.render();
-
-        //free textures
-        Texture.unbindAll(4);
     }
 
     public static void renderSky(Sky sky, Camera camera, MatrixStack matrices) {

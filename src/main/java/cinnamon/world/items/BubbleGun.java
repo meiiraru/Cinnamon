@@ -33,7 +33,6 @@ public class BubbleGun extends Item {
     private static void shoot(Entity source) {
         //pos
         SoapParticle particle = new SoapParticle((int) (Math.random() * 400) + 100);
-        particle.setEmissive(true);
         particle.setPos(spawnPos(source));
 
         //motion

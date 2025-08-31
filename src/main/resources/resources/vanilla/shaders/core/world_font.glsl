@@ -3,8 +3,6 @@
 
 #type fragment
 #version 330 core
-#include shaders/libs/light.glsl
-#include shaders/libs/fog.glsl
 
 flat in int texID;
 in vec2 texCoords;
@@ -12,7 +10,10 @@ in vec3 pos;
 in vec4 color;
 in vec3 normal;
 
-out vec4 fragColor;
+layout (location = 0) out vec4 gAlbedo;
+layout (location = 1) out vec4 gPosition;
+layout (location = 2) out vec4 gNormal;
+layout (location = 3) out vec4 gORM;
 
 uniform sampler2D textures[16];
 uniform vec3 camPos;
@@ -30,12 +31,9 @@ void main() {
         col = vec4(col.rgb, col.a * tex.r);
     }
 
-    //light
-    col *= calculateLight(pos, normal);
-
-    //fog
-    col = calculateFog(pos, camPos, col);
-
-    //final color
-    fragColor = col;
+    //gBuffer outputs
+    gAlbedo = col;
+    gPosition = vec4(pos, 1.0f);
+    gNormal = vec4(normal, 1.0f);
+    gORM = vec4(1.0f, 1.0f, 0.0f, 1.0f);
 }

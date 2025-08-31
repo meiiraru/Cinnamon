@@ -32,10 +32,10 @@ void main() {
 #type fragment
 #version 330 core
 
-layout (location = 0) out vec4 gPosition;
-layout (location = 1) out vec4 gAlbedo;
-layout (location = 2) out vec4 gORM;
-layout (location = 3) out vec4 gNormal;
+layout (location = 0) out vec4 gAlbedo;
+layout (location = 1) out vec4 gPosition;
+layout (location = 2) out vec4 gNormal;
+layout (location = 3) out vec4 gORM;
 layout (location = 4) out vec4 gEmissive;
 
 struct Material {
@@ -124,9 +124,9 @@ void main() {
     vec3 normal     = getNormalFromMap(material.normalTex, texCoords, TBN);
 
     //write to gBuffer
-    gPosition = vec4(pos, 1.0f);
     gAlbedo = albedo * vec4(color, 1.0f);
-    gORM = vec4(ao, roughness, metallic, 1.0f);
+    gPosition = vec4(pos, 1.0f);
     gNormal = vec4(normal, 1.0f);
+    gORM = vec4(ao, roughness, metallic, 1.0f);
     gEmissive = vec4(emissive, 1.0f);
 }

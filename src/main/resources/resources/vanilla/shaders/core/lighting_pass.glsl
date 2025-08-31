@@ -5,25 +5,9 @@
 #version 330 core
 
 struct Light {
-    vec3 pos;
-    vec3 color;
-
-    float intensity;
-    float falloffStart;
-    float falloffEnd;
-
-    //1 = point, 2 = spot, 3 = directional, 4 = cookie
-    int type;
-
-    //spotlights
-    vec3 direction;
-    float innerAngle;
-    float outerAngle;
-
-    //cookie
-    sampler2D cookieMap;
-
-    //shadow
+    vec3 pos, color, direction;
+    float intensity, falloffStart, falloffEnd, innerAngle, outerAngle;
+    int type; //1 = point, 2 = spot, 3 = directional, 4 = cookie
     mat4 lightSpaceMatrix;
     bool castsShadows;
 };
@@ -45,6 +29,7 @@ uniform vec3 camPos;
 uniform Light light;
 uniform sampler2D shadowMap;
 uniform samplerCube shadowCubeMap;
+uniform sampler2D cookieMap;
 
 //Trowbridge-Reitz GGX
 //D (NDF Normal Distribution Function)
@@ -59,19 +44,16 @@ float distributionGGX(vec3 N, vec3 H, float roughness) {
     return a2 / (PI * (denom * denom));
 }
 
-float geometrySchlickGGX(float NdotV, float roughness) {
+float geometrySchlickGGX(float angle, float roughness) {
     float r = (roughness + 1.0f);
     float k = (r * r) / 8.0f;
-    return NdotV / (NdotV * (1.0f - k) + k);
+    return angle / (angle * (1.0f - k) + k);
 }
 
 //G (Geometry function)
-float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
-    float NdotV = max(dot(N, V), 0.0f);
-    float NdotL = max(dot(N, L), 0.0f);
+float geometrySmith(float NdotV, float NdotL, float roughness) {
     float ggx2 = geometrySchlickGGX(NdotV, roughness);
     float ggx1 = geometrySchlickGGX(NdotL, roughness);
-
     return ggx1 * ggx2;
 }
 
@@ -122,7 +104,7 @@ vec3 getCookieColor(vec3 lightCoords) {
 
     //sample the cookie texture if inside the projection area
     if (cookieCoords.x >= 0.0f && cookieCoords.x <= 1.0f && cookieCoords.y >= 0.0f && cookieCoords.y <= 1.0f)
-        return texture(light.cookieMap, cookieCoords).rgb;
+        return texture(cookieMap, cookieCoords).rgb;
     else
         return vec3(0.0f);
 }
@@ -130,7 +112,7 @@ vec3 getCookieColor(vec3 lightCoords) {
 void main() {
     //pos
     vec3 pos = texture(gPosition, texCoords).rgb;
-    vec3 lightCoords;
+    vec3 lightCoords = vec3(0.0f);
 
     //discard fragments outside the light volume
     //TODO change to a mesh-based light volume
@@ -155,10 +137,7 @@ void main() {
 
     //color
     vec3 albedo = texture(gAlbedo, texCoords).rgb;
-
-    //normal map
     vec3 N = texture(gNormal, texCoords).rgb;
-    vec3 V = normalize(camPos - pos);
 
     //light radiance
     //L = light direction
@@ -210,6 +189,7 @@ void main() {
     vec3 Lo = vec3(0.0f);
 
     //H = half vector
+    vec3 V = normalize(camPos - pos);
     vec3 H = normalize(V + L);
 
     //ao, roughness, metallic
@@ -222,16 +202,17 @@ void main() {
     F0 = mix(F0, albedo, metallic);
 
     //cook torrance BRDF
+    float NdotV = max(dot(N, V), 0.0f);
+    float NdotL = max(dot(N, L), 0.0f);
+
     float D = distributionGGX(N, H, roughness);
-    float G = geometrySmith(N, V, L, roughness);
+    float G = geometrySmith(NdotV, NdotL, roughness);
     vec3 F = fresnelSchlick(max(dot(H, V), 0.0f), F0);
 
     //calculate specular and diffuse
     vec3 kS = F;
     vec3 kD = (vec3(1.0f) - kS) * (1.0f - metallic);
-
-    float NdotL = max(dot(N, L), 0.0f);
-    vec3 specular = (D * F * G) / (4.0f * max(dot(N, V), 0.0f) * NdotL + 0.0001f);
+    vec3 specular = (D * F * G) / (4.0f * NdotV * NdotL + 0.0001f);
 
     //calculate radiance and add to Lo
     Lo += (kD * albedo / PI + specular) * radiance * NdotL;
