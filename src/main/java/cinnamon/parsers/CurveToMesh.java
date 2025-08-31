@@ -79,8 +79,8 @@ public class CurveToMesh {
             uv += Math.max(a.distance(c) / curveWidth, b.distance(d) / curveWidth);
 
             //calculate normals
-            mesh.getNormals().add(Maths.normal(a, b, c));
-            mesh.getNormals().add(Maths.normal(b, d, a));
+            mesh.getNormals().add(Maths.normal(a, b, c).mul(-1));
+            mesh.getNormals().add(Maths.normal(b, d, a).mul(-1));
 
             if (i == max - 1)
                 continue;

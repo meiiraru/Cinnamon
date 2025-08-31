@@ -2,15 +2,25 @@ package cinnamon.world.entity.vehicle;
 
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
+import cinnamon.render.MatrixStack;
 import cinnamon.utils.ColorUtils;
+import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.light.Light;
+import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.StarParticle;
+import cinnamon.world.world.WorldClient;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.UUID;
 
 public class Cart extends Car {
+
+    private final Light
+            headlight = new Spotlight().angle(40f, 60f).falloff(0f, 10f).intensity(10f),
+            taillight = new Spotlight().angle(40f, 60f).falloff(0f, 5f).intensity(10f).castsShadows(false).color(0xFF5555);
 
     private boolean isRailed;
 
@@ -41,6 +51,32 @@ public class Cart extends Car {
     }
 
     @Override
+    public void render(MatrixStack matrices, float delta) {
+        super.render(matrices, delta);
+
+        if (!riders.isEmpty())
+            updateLights(delta);
+    }
+
+    protected void updateLights(float delta) {
+        Vector3f pos = getPos(delta);
+        Vector2f rot = getRot(delta);
+        Vector3f dir = Maths.rotToDir(rot.x + 15f, rot.y);
+
+        Vector3f offset = new Vector3f(0f, 0.5f, -0.8f);
+        offset.rotate(Rotation.X.rotationDeg(-rot.x));
+        offset.rotate(Rotation.Y.rotationDeg(-rot.y));
+
+        //front light
+        headlight.pos(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
+        headlight.direction(dir);
+
+        //back light
+        taillight.pos(pos.x - offset.x, pos.y + offset.y, pos.z - offset.z);
+        taillight.direction(-dir.x, dir.y, -dir.z);
+    }
+
+    @Override
     public Vector3f getRiderOffset(Entity rider) {
         Vector3f vec = new Vector3f(0, 0.4f, 0);
         vec.rotate(Rotation.X.rotationDeg(-rot.x));
@@ -60,5 +96,27 @@ public class Cart extends Car {
     @Override
     public EntityRegistry getType() {
         return EntityRegistry.CART;
+    }
+
+    @Override
+    public boolean addRider(Entity e) {
+        int riderCount = riders.size();
+        boolean success = super.addRider(e);
+
+        if (success && riderCount == 0 && world instanceof WorldClient w) {
+            w.addLight(headlight);
+            w.addLight(taillight);
+        }
+
+        return success;
+    }
+
+    @Override
+    protected void removeRider(Entity e) {
+        super.removeRider(e);
+        if (riders.isEmpty() && world instanceof WorldClient w) {
+            w.removeLight(headlight);
+            w.removeLight(taillight);
+        }
     }
 }
