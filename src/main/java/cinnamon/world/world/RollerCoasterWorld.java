@@ -104,10 +104,15 @@ public class RollerCoasterWorld extends WorldClient {
     }
 
     @Override
-    public void renderWorld(Camera camera, MatrixStack matrices, float delta) {
-        super.renderWorld(camera, matrices, delta);
-        if (model != null)
+    public int renderTerrain(Camera camera, MatrixStack matrices, float delta) {
+        int count = super.renderTerrain(camera, matrices, delta);
+
+        if (model != null) {
             model.render(matrices);
+            count++;
+        }
+
+        return count;
     }
 
     @Override

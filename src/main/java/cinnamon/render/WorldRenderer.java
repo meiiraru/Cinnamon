@@ -11,8 +11,10 @@ import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.Texture;
 import cinnamon.settings.Settings;
+import cinnamon.vr.XrManager;
 import cinnamon.world.Sky;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.light.CookieLight;
 import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
@@ -40,7 +42,8 @@ public class WorldRenderer {
 
     private static boolean shadowRendering = false;
     private static boolean outlineRendering = false;
-    private static int renderedLights, renderedShadows;
+
+    private static int renderedEntities, renderedTerrain, renderedParticles, renderedLights, renderedShadows;
 
     private static final Vector3f cameraPos = new Vector3f();
     private static final Quaternionf cameraRot = new Quaternionf();
@@ -57,27 +60,47 @@ public class WorldRenderer {
         //prepare for world rendering
         setupFramebuffer();
 
+        Runnable[] renderFunc = {
+                () -> {
+                    if (XrManager.isInXR() && Client.getInstance().screen == null)
+                        world.renderXrHands(camera, matrices);
+                },
+                () -> world.renderTerrain(camera, matrices, delta),
+                () -> world.renderEntities(camera, matrices, delta),
+                () -> world.renderParticles(camera, matrices, delta),
+                () -> {
+                    if (camera.getEntity() instanceof LivingEntity le)
+                        world.renderItemExtra(le, matrices, delta);
+                }
+        };
+
         //3d anaglyph rendering
         if (Client.getInstance().anaglyph3D) {
-            renderAsAnaglyph(world, camera, matrices, delta);
+            renderAsAnaglyph(world, camera, matrices, delta, renderFunc);
             return;
         }
 
-        //render world
+        //prepare world renderer
         initGBuffer(camera);
-        Runnable renderFunc = () -> world.renderWorld(camera, matrices, delta);
-        renderFunc.run();
 
-        //set world rendering counts
-        world.applyTempCounters();
+        //render world
+        renderFunc[0].run(); //xr hands
+        renderedTerrain   = world.renderTerrain(camera, matrices, delta);
+        renderedEntities  = world.renderEntities(camera, matrices, delta);
+        renderedParticles = world.renderParticles(camera, matrices, delta);
+        renderFunc[4].run(); //item extra
 
         //world vertex consumer
         VertexConsumer.finishAllBatches(camera);
 
         //render the world lights
         renderedLights = renderedShadows = 0;
-        if (renderLights)
-            renderLights(world.getLights(camera), camera, renderFunc);
+        if (renderLights) {
+            renderLights(world.getLights(camera), camera, () -> {
+                for (Runnable r : renderFunc)
+                    r.run();
+            });
+        }
 
         //bake world
         bakeDeferred(world.getSky());
@@ -95,13 +118,20 @@ public class WorldRenderer {
             world.renderDebug(camera, matrices, delta);
     }
 
-    private static void renderAsAnaglyph(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
-        Runnable renderFunc = () -> world.renderWorld(camera, matrices, delta);
+    private static void renderAsAnaglyph(WorldClient world, Camera camera, MatrixStack matrices, float delta, Runnable[] renderFunc) {
+        Runnable renderWorld = () -> {
+            for (Runnable r : renderFunc)
+                r.run();
+        };
+
         camera.anaglyph3D(matrices, -1f / 64f, -1f, () -> {
             //render world
             initGBuffer(camera);
-            renderFunc.run();
-            world.applyTempCounters();
+            renderFunc[0].run(); //xr hands
+            renderedTerrain   = world.renderTerrain(camera, matrices, delta);
+            renderedEntities  = world.renderEntities(camera, matrices, delta);
+            renderedParticles = world.renderParticles(camera, matrices, delta);
+            renderFunc[4].run(); //item extra
 
             //vertex consumer
             VertexConsumer.finishAllBatches(camera);
@@ -109,7 +139,7 @@ public class WorldRenderer {
             //lights and shadows
             renderedLights = renderedShadows = 0;
             if (renderLights)
-                renderLights(world.getLights(camera), camera, renderFunc);
+                renderLights(world.getLights(camera), camera, renderWorld);
         }, () -> {
             //bake world
             bakeDeferred(world.getSky());
@@ -425,6 +455,18 @@ public class WorldRenderer {
 
     public static boolean isOutlineRendering() {
         return outlineRendering;
+    }
+
+    public static int getRenderedTerrain() {
+        return renderedTerrain;
+    }
+
+    public static int getRenderedEntities() {
+        return renderedEntities;
+    }
+
+    public static int getRenderedParticles() {
+        return renderedParticles;
     }
 
     public static int getLightsCount() {

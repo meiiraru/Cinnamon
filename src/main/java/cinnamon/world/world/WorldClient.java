@@ -86,10 +86,6 @@ public class WorldClient extends World {
     //skybox
     protected final Sky sky = new Sky();
 
-    //counters
-    protected int renderedEntitiesTemp, renderedTerrainTemp, expectedRenderedTerrainTemp, renderedParticlesTemp;
-    protected int renderedEntities, renderedTerrain, expectedRenderedTerrain, renderedParticles;
-
     @Override
     public void init() {
         //set client
@@ -227,46 +223,41 @@ public class WorldClient extends World {
         client.camera.useOrtho(true);
     }
 
-    public void renderWorld(Camera camera, MatrixStack matrices, float delta) {
-        if (XrManager.isInXR() && client.screen == null)
-            renderXrHands(camera, matrices);
-
-        //render terrain
+    public int renderTerrain(Camera camera, MatrixStack matrices, float delta) {
+        int count = 0;
         List<Terrain> query = terrainManager.queryCustom(camera::isInsideFrustum);
-        renderedTerrainTemp = 0;
-        expectedRenderedTerrainTemp = query.size();
         for (Terrain terrain : query) {
             if (terrain.shouldRender(camera)) {
                 terrain.render(matrices, delta);
-                renderedTerrainTemp++;
+                count++;
             }
         }
+        return count;
+    }
 
-        //render entities
-        renderedEntitiesTemp = 0;
+    public int renderEntities(Camera camera, MatrixStack matrices, float delta) {
+        int count = 0;
         for (Entity entity : entities.values()) {
             if (entity.shouldRender(camera)) {
                 entity.render(matrices, delta);
-                renderedEntitiesTemp++;
+                count++;
             }
         }
+        return count;
+    }
 
-        //render particles
-        renderedParticlesTemp = 0;
+    public int renderParticles(Camera camera, MatrixStack matrices, float delta) {
+        int count = 0;
         for (Particle particle : particles) {
             if (particle.shouldRender(camera)) {
                 particle.render(matrices, delta);
-                renderedParticlesTemp++;
+                count++;
             }
         }
-
-        //render camera entity item effects
-        Entity cameraEntity = camera.getEntity();
-        if (cameraEntity instanceof LivingEntity le)
-            renderItemExtra(le, matrices, delta);
+        return count;
     }
 
-    protected void renderItemExtra(LivingEntity entity, MatrixStack matrices, float delta) {
+    public void renderItemExtra(LivingEntity entity, MatrixStack matrices, float delta) {
         Item item = entity.getHoldingItem();
         if (item == null)
             return;
@@ -318,7 +309,7 @@ public class WorldClient extends World {
         client.camera.useOrtho(true);
     }
 
-    protected void renderXrHands(Camera camera, MatrixStack matrices) {
+    public void renderXrHands(Camera camera, MatrixStack matrices) {
         matrices.pushMatrix();
         matrices.translate(camera.getPos());
         matrices.rotate(camera.getRot());
@@ -442,10 +433,6 @@ public class WorldClient extends World {
         scheduledTicks.add(() -> this.lights.remove(light));
     }
 
-    public int lightCount() {
-        return lights.size();
-    }
-
     public List<Light> getLights(Camera camera) {
         List<Light> lightsToRender = new ArrayList<>();
         for (Light l : lights)
@@ -469,29 +456,6 @@ public class WorldClient extends World {
                 list.add(light);
         }
         return list;
-    }
-
-    public int getRenderedTerrain() {
-        return renderedTerrain;
-    }
-
-    public int getExpectedRenderedTerrain() {
-        return expectedRenderedTerrain;
-    }
-
-    public int getRenderedEntities() {
-        return renderedEntities;
-    }
-
-    public int getRenderedParticles() {
-        return renderedParticles;
-    }
-
-    public void applyTempCounters() {
-        this.renderedTerrain = this.renderedTerrainTemp;
-        this.expectedRenderedTerrain = this.expectedRenderedTerrainTemp;
-        this.renderedEntities = this.renderedEntitiesTemp;
-        this.renderedParticles = this.renderedParticlesTemp;
     }
 
     protected void tickInput() {

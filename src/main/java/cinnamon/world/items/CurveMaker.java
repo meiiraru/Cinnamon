@@ -49,7 +49,7 @@ public class CurveMaker extends Item {
         //control points
         float s = 0.25f;
         for (Vector3f vec : curve.getControlPoints())
-            VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, vec.x - s, vec.y - s, vec.z - s, vec.x + s, vec.y + s, vec.z + s, 0xFFFFFFFF));
+            VertexConsumer.WORLD_MAIN_EMISSIVE.consume(GeometryHelper.cube(matrices, vec.x - s, vec.y - s, vec.z - s, vec.x + s, vec.y + s, vec.z + s, 0xFFFFFFFF));
 
         //curves
         renderCurve(matrices, curve.getInternalCurve(), 0x8888FF);

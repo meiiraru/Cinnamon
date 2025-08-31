@@ -37,12 +37,13 @@ public class MaterialPreviewWorld extends WorldClient {
     }
 
     @Override
-    public void renderWorld(Camera camera, MatrixStack matrices, float delta) {
+    public int renderTerrain(Camera camera, MatrixStack matrices, float delta) {
         //render materials
         MaterialRegistry[] values = MaterialRegistry.values();
         int grid = (int) Math.ceil(Math.sqrt(values.length));
 
         //render
+        int count = 0;
         for (int i = 0; i < values.length; i++) {
             matrices.pushMatrix();
             matrices.translate(i % grid * 6f, 0f, (float) (i / grid * 3));
@@ -56,6 +57,7 @@ public class MaterialPreviewWorld extends WorldClient {
                 if (texCount == -1) SPHERE.render(matrices);
                 else SPHERE.renderWithoutMaterial(matrices);
                 visible = true;
+                count++;
             }
 
             matrices.translate(3f, 0f, 0f);
@@ -66,6 +68,7 @@ public class MaterialPreviewWorld extends WorldClient {
                 if (texCount == -1) BOX.render(matrices);
                 else BOX.renderWithoutMaterial(matrices);
                 visible = true;
+                count++;
             }
 
             if (visible && !hudHidden()) {
@@ -79,6 +82,6 @@ public class MaterialPreviewWorld extends WorldClient {
             matrices.popMatrix();
         }
 
-        super.renderWorld(camera, matrices, delta);
+        return super.renderTerrain(camera, matrices, delta) + count;
     }
 }

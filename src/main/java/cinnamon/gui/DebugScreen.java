@@ -197,17 +197,17 @@ public class DebugScreen {
                     day &e%s&r
                     camera &e%s&r
                     &e%s&r sounds
-                    &e%s&r/&e%s&r light sources
+                    &e%s&r light sources
                     &e%s&r shadow casters
-                    &e%s&r/&e%s&r particles""",
+                    &e%s&r particles""",
 
                     w.getTime(), w.getTimeOfTheDay(),
                     w.getDay(),
                     camera,
                     SoundManager.getSoundCount(),
-                    WorldRenderer.getLightsCount(), w.lightCount(),
+                    WorldRenderer.getLightsCount(),
                     WorldRenderer.getShadowsCount(),
-                    w.getRenderedParticles(), w.particleCount()
+                    WorldRenderer.getRenderedParticles()
             );
         }));
         TABS.add(Pair.of("Terrain", c -> {
@@ -216,11 +216,8 @@ public class DebugScreen {
                 return "&cNo world loaded&r";
 
             return String.format("""
-                    queried &e%s&r terrain
-                    rendered &e%s&r terrain""",
-
-                    w.getExpectedRenderedTerrain(),
-                    w.getRenderedTerrain()
+                    &e%s&r terrain""",
+                    WorldRenderer.getRenderedTerrain()
             );
         }));
         TABS.add(Pair.of("Entities", c -> {
@@ -229,11 +226,8 @@ public class DebugScreen {
                 return "&cNo world loaded&r";
 
             return String.format("""
-                    queried &e%s&r entities
-                    rendered &e%s&r entities""",
-
-                    w.entityCount(),
-                    w.getRenderedEntities()
+                    &e%s&r entities""",
+                    WorldRenderer.getRenderedEntities()
             );
         }));
         TABS.add(Pair.of("Logger", c -> {

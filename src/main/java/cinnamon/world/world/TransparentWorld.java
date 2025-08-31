@@ -37,7 +37,7 @@ public class TransparentWorld extends WorldClient {
     }
 
     @Override
-    public void renderWorld(Camera camera, MatrixStack matrices, float delta) {
+    public int renderTerrain(Camera camera, MatrixStack matrices, float delta) {
         for (Vertex[][] v : vertices)
             VertexConsumer.WORLD_MAIN.consume(v);
 
@@ -56,7 +56,7 @@ public class TransparentWorld extends WorldClient {
 
         VertexConsumer.SCREEN_UV.consume(v, IMAGE);
 
-        super.renderWorld(camera, matrices, delta);
+        return super.renderTerrain(camera, matrices, delta) + vertices.size();
     }
 
     private void gen() {

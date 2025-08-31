@@ -113,14 +113,6 @@ public abstract class World {
 
     public void entityRemoved(UUID uuid) {}
 
-    public int entityCount() {
-        return entities.size();
-    }
-
-    public int particleCount() {
-        return particles.size();
-    }
-
     public List<Entity> getEntities(AABB region) {
         List<Entity> list = new ArrayList<>();
         for (Entity entity : entities.values()) {

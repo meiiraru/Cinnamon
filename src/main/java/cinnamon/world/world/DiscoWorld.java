@@ -139,8 +139,8 @@ public class DiscoWorld extends WorldClient {
     }
 
     @Override
-    public void renderWorld(Camera camera, MatrixStack matrices, float delta) {
-        super.renderWorld(camera, matrices, delta);
+    public int renderParticles(Camera camera, MatrixStack matrices, float delta) {
+        int count = super.renderParticles(camera, matrices, delta);
 
         //grab the audio spectrum and calculate the amplitudes
         spectrum.updateAmplitudes(sound, soundData, true);
@@ -153,6 +153,8 @@ public class DiscoWorld extends WorldClient {
         for (int i = 0; i < bars; i++)
             drawBar(matrices, i, bars, amplitudes[i] * BOOST * WEIGHTING_FUNCTION.apply((float) i / bars * spectrum.getMaxFrequency()));
         matrices.popMatrix();
+
+        return count + 1;
     }
 
     private void drawBar(MatrixStack matrices, int index, int bars, float amplitude) {
@@ -160,6 +162,6 @@ public class DiscoWorld extends WorldClient {
         float y = Math.max(amplitude, 0.05f);
 
         int color = ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f(index / (float) bars, 0.6f, 1f)));
-        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, x, 0, 0, x + 0.1f, y, 0.1f, color + (0xFF << 24)));
+        VertexConsumer.WORLD_MAIN_EMISSIVE.consume(GeometryHelper.cube(matrices, x, 0, 0, x + 0.1f, y, 0.1f, color + (0xFF << 24)));
     }
 }
