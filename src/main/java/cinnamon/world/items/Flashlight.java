@@ -12,7 +12,7 @@ public class Flashlight extends Item {
 
     private static final Resource FLASHLIGHT_COOKIE = new Resource("textures/environment/light/flashlight_cookie.png");
 
-    private final CookieLight light = (CookieLight) new CookieLight().texture(FLASHLIGHT_COOKIE).angle(17.5f, 20f).falloff(0f, 20f);
+    private final CookieLight light = (CookieLight) new CookieLight().texture(FLASHLIGHT_COOKIE).angle(15f, 20f).falloff(0f, 20f);
     private boolean active = false;
 
     public Flashlight(int color) {

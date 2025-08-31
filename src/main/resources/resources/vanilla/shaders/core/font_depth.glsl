@@ -14,6 +14,6 @@ void main() {
         return;
 
     vec4 tex = texture(textures[texID], texCoords);
-    if (tex.a < 0.01f)
+    if (tex.r < 0.01f)
         discard;
 }

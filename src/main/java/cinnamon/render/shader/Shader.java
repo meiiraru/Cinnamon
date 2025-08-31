@@ -14,6 +14,7 @@ import java.util.Map;
 
 import static cinnamon.events.Events.LOGGER;
 import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL32.GL_GEOMETRY_SHADER;
 
 public class Shader {
 
@@ -31,41 +32,19 @@ public class Shader {
         LOGGER.debug("Loading shader \"%s\"", res);
         String src = IOUtils.readString(res);
         String[] split = src.split("#type ");
-        //[0] = empty string
-        //[1] = first type (frag/vertex)
-        //[2] = second type (frag/vertex)
-        if (split.length != 3 || (!split[1].startsWith("vertex") && !split[1].startsWith("fragment")) || (!split[2].startsWith("vertex") && !split[2].startsWith("fragment")))
-            throw new RuntimeException("Invalid shader type");
-
-        String vertexSource, fragmentSource;
-
-        int i = split[1].startsWith("vertex") ? 1 : 2;
-        vertexSource = split[i].substring("vertex".length());
-        fragmentSource = split[i % 2 + 1].substring("fragment".length());
-
-        //process includes
-        String[] vInclude = vertexSource.split("#include ");
-        if (vInclude.length > 1)
-            vertexSource = processInclude(vInclude);
-
-        String[] fInclude = fragmentSource.split("#include ");
-        if (fInclude.length > 1)
-            fragmentSource = processInclude(fInclude);
 
         //create shaders
-        int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, vertexSource);
-        glCompileShader(vertexShader);
-        checkCompileErrors(res, vertexShader);
+        int vertexShader = readShader(res, split, Type.VERTEX);
+        int geometryShader = readShader(res, split, Type.GEOMETRY); //optional
+        int fragmentShader = readShader(res, split, Type.FRAGMENT);
 
-        int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, fragmentSource);
-        glCompileShader(fragmentShader);
-        checkCompileErrors(res, fragmentShader);
+        if (vertexShader == -1 || fragmentShader == -1)
+            throw new RuntimeException("Error loading shader \"" + res + "\" - missing vertex or fragment shader");
 
         //create program
         int program = glCreateProgram();
         glAttachShader(program, vertexShader);
+        if (geometryShader != -1) glAttachShader(program, geometryShader);
         glAttachShader(program, fragmentShader);
         glLinkProgram(program);
         checkProgramErrors(res, program);
@@ -77,7 +56,41 @@ public class Shader {
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
 
+        if (geometryShader != -1) {
+            glDetachShader(program, geometryShader);
+            glDeleteShader(geometryShader);
+        }
+
         return program;
+    }
+
+    private static int readShader(Resource res, String[] split, Type type) {
+        //find the correct string index for the shader type
+        String typeName = type.name().toLowerCase();
+
+        String src = null;
+        for (String s : split) {
+            if (s.startsWith(typeName)) {
+                src = s.substring(typeName.length());
+                break;
+            }
+        }
+
+        if (src == null)
+            return -1;
+
+        //process includes
+        String[] include = src.split("#include ");
+        if (include.length > 1)
+            src = processInclude(include);
+
+        //create shader
+        int shader = glCreateShader(type.glBind);
+        glShaderSource(shader, src);
+        glCompileShader(shader);
+        checkCompileErrors(res, shader);
+
+        return shader;
     }
 
     private static String processInclude(String[] vInclude) {
@@ -269,5 +282,17 @@ public class Shader {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Shader s && s.ID == this.ID;
+    }
+
+    private enum Type {
+        VERTEX(GL_VERTEX_SHADER),
+        GEOMETRY(GL_GEOMETRY_SHADER),
+        FRAGMENT(GL_FRAGMENT_SHADER);
+
+        public final int glBind;
+
+        Type(int bind) {
+            this.glBind = bind;
+        }
     }
 }

@@ -219,9 +219,14 @@ public class WorldRenderer {
         renderFunction.run();
 
         //render vertex consumer
-        Shader s = Shaders.MAIN_DEPTH.getShader().use();
-        s.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-        VertexConsumer.finishAllBatches(s, camera);
+        Shader font = Shaders.FONT_DEPTH.getShader().use();
+        font.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        VertexConsumer.WORLD_FONT.finishBatch(font, camera);
+        VertexConsumer.WORLD_FONT_EMISSIVE.finishBatch(font, camera);
+
+        Shader main = Shaders.MAIN_DEPTH.getShader().use();
+        main.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        VertexConsumer.finishAllBatches(main, camera);
     }
 
     public static void renderLightShadowToCubeMap(PointLight light, Camera camera, Runnable renderFunction) {

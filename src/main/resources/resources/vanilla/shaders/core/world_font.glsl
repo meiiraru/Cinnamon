@@ -14,6 +14,7 @@ layout (location = 0) out vec4 gAlbedo;
 layout (location = 1) out vec4 gPosition;
 layout (location = 2) out vec4 gNormal;
 layout (location = 3) out vec4 gORM;
+layout (location = 4) out vec4 gEmissive;
 
 uniform sampler2D textures[16];
 uniform vec3 camPos;
@@ -36,4 +37,5 @@ void main() {
     gPosition = vec4(pos, 1.0f);
     gNormal = vec4(normal, 1.0f);
     gORM = vec4(1.0f, 1.0f, 0.0f, 1.0f);
+    gEmissive = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 }

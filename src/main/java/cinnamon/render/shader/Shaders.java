@@ -30,6 +30,7 @@ public enum Shaders {
     LIGHTING_PASS,
     BLIT_COLOR_DEPTH,
     MAIN_DEPTH,
+    FONT_DEPTH,
     POINT_DEPTH,
     POINT_MAIN_DEPTH;
 
