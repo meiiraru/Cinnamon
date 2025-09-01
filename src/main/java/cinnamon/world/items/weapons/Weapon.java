@@ -1,7 +1,8 @@
 package cinnamon.world.items.weapons;
 
+import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
-import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.projectile.Projectile;
 import cinnamon.world.items.CooldownItem;
 import cinnamon.world.world.World;
@@ -54,12 +55,12 @@ public abstract class Weapon extends CooldownItem {
     protected abstract Projectile newProjectile(UUID entity);
 
     protected void spawnBullet() {
-        Entity source = getSource();
+        LivingEntity source = getSource();
         World world = source.getWorld();
         Projectile projectile = newProjectile(source.getUUID());
 
-        projectile.setPos(source.getEyePos().add(source.getLookDir().mul(0.5f)));
-        projectile.setRot(source.getRot());
+        projectile.setPos(source.getHandPos(false, 1f));
+        projectile.setRot(Maths.dirToRot(source.getHandDir(false, 1f)));
 
         world.addEntity(projectile);
     }

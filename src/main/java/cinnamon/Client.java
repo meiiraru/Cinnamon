@@ -145,6 +145,7 @@ public class Client {
 
     public void render(MatrixStack matrices) {
         float delta = timer.partialTick;
+        boolean xr = XrManager.isInXR();
 
         matrices.pushMatrix();
 
@@ -158,12 +159,12 @@ public class Client {
             if (!world.hudHidden()) {
                 //render first-person hand
                 if (!world.isThirdPerson()) {
-                    glClear(GL_DEPTH_BUFFER_BIT); //top of world
-                    world.renderHand(camera, matrices, delta);
+                    if (!xr) glClear(GL_DEPTH_BUFFER_BIT); //top of world
+                    world.renderHoldingItem(camera, matrices, delta);
                 }
 
                 //render world hud
-                glClear(GL_DEPTH_BUFFER_BIT); //top of hand
+                if (!xr) glClear(GL_DEPTH_BUFFER_BIT); //top of hand
 
                 matrices.pushMatrix();
                 if (XrManager.isInXR())
@@ -179,8 +180,7 @@ public class Client {
         glClear(GL_DEPTH_BUFFER_BIT);
 
         //xr GUI transform
-        if (XrManager.isInXR())
-            XrRenderer.applyGUITransform(matrices);
+        if (xr) XrRenderer.applyGUITransform(matrices);
 
         //run gui events
         events.runEvents(EventType.RENDER_BEFORE_GUI);

@@ -55,13 +55,13 @@ public class Interaction {
         boolean left = hand == 0;
         boolean pressed = value > 0.5f;
 
-        if (button == 0) {
-            if (left) using = pressed;
+        if (!left) {
+            if (button == 1) using = pressed;
             else attacking = pressed;
         }
 
-        else if (button == 1 && pressed && lastValue < 0.5f) {
-            scrollItem(left ? -1 : 1);
+        else if (pressed && lastValue < 0.5f) {
+            scrollItem(button == 0 ? 1 : -1);
         }
     }
 }

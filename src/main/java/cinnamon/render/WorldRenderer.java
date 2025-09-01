@@ -11,7 +11,9 @@ import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.Texture;
 import cinnamon.settings.Settings;
+import cinnamon.utils.Rotation;
 import cinnamon.vr.XrManager;
+import cinnamon.vr.XrRenderer;
 import cinnamon.world.Sky;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.LivingEntity;
@@ -22,6 +24,7 @@ import cinnamon.world.light.PointLight;
 import cinnamon.world.world.WorldClient;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.List;
@@ -63,7 +66,7 @@ public class WorldRenderer {
         Runnable[] renderFunc = {
                 () -> {
                     if (XrManager.isInXR() && Client.getInstance().screen == null)
-                        world.renderXrHands(camera, matrices);
+                        renderXrHands(camera, matrices, delta);
                 },
                 () -> world.renderTerrain(camera, matrices, delta),
                 () -> world.renderEntities(camera, matrices, delta),
@@ -443,6 +446,16 @@ public class WorldRenderer {
         //cleanup
         Texture.unbindTex(0);
         outlineRendering = false;
+    }
+
+    public static void renderXrHands(Camera camera, MatrixStack matrices, float delta) {
+        matrices.pushMatrix();
+        matrices.translate(camera.getEntity().getEyePos(delta));
+        Vector2f rot = camera.getEntity().getRot(delta);
+        matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
+        matrices.rotate(Rotation.X.rotationDeg(rot.x));
+        XrRenderer.renderHands(matrices);
+        matrices.popMatrix();
     }
 
 

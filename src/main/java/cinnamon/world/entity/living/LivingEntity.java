@@ -5,6 +5,7 @@ import cinnamon.registry.LivingModelRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
+import cinnamon.utils.AABB;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
@@ -20,6 +21,8 @@ import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.particle.SmokeParticle;
 import cinnamon.world.particle.TextParticle;
+import cinnamon.world.terrain.Terrain;
+import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -84,16 +87,20 @@ public abstract class LivingEntity extends PhysEntity {
 
     @Override
     protected void renderFeatures(MatrixStack matrices, float delta) {
-        //holding item
+        super.renderFeatures(matrices, delta);
+        renderHandItem(ItemRenderContext.THIRD_PERSON, matrices, delta);
+    }
+
+    public void renderHandItem(ItemRenderContext context, MatrixStack matrices, float delta) {
         Item item = getHoldingItem();
         if (item == null)
             return;
 
         matrices.pushMatrix();
-        matrices.translate(aabb.getWidth() * 0.5f + 0.1f, getEyeHeight() - 0.25f, -0.25f);
-        matrices.scale(0.75f);
+        matrices.translate(getHandPos(false, delta));
+        matrices.rotate(getHandRot(false, delta));
 
-        item.render(ItemRenderContext.THIRD_PERSON, matrices, delta);
+        item.render(context, matrices, delta);
 
         matrices.popMatrix();
     }
@@ -377,5 +384,63 @@ public abstract class LivingEntity extends PhysEntity {
     protected void checkWorldVoid() {
         if (getWorld() != null && getPos().y < getWorld().bottomOfTheWorld)
             damage(null, DamageType.GOD, Integer.MAX_VALUE, false);
+    }
+
+    public Vector3f getHandPos(boolean left, float delta) {
+        Vector3f pos = getEyePos(delta);
+        float x = aabb.getWidth() * 0.5f - 0.125f;
+
+        Vector3f offset = new Vector3f(left ? -x : x, -0.25f, -0.5f);
+        offset.rotate(getHandRot(left, delta));
+        pos.add(offset);
+
+        return pos;
+    }
+
+    public Quaternionf getHandRot(boolean left, float delta) {
+        Vector2f rot = getRot(delta);
+
+        float yaw = 1;
+        Quaternionf offset = new Quaternionf()
+                .rotateY((float) Math.toRadians(left ? -yaw : yaw));
+
+        return new Quaternionf()
+                .rotateY((float) Math.toRadians(-rot.y))
+                .rotateX((float) Math.toRadians(-rot.x))
+                .mul(offset);
+    }
+
+    public Vector3f getHandDir(boolean left, float delta) {
+        return new Vector3f(0, 0, -1).rotate(getHandRot(left, delta));
+    }
+
+    public Hit<Terrain> raycastHandTerrain(boolean left, float delta, float distance) {
+        //prepare positions
+        Vector3f pos = getHandPos(left, delta);
+        Vector3f range = getHandDir(left, delta).mul(distance);
+        AABB area = new AABB(pos).expand(range);
+
+        //return hit
+        return world.raycastTerrain(area, pos, range);
+    }
+
+    public Hit<Entity> raycastHandEntity(boolean left, float delta, float distance) {
+        //prepare positions
+        Vector3f pos = getHandPos(left, delta);
+        Vector3f range = getHandDir(left, delta).mul(distance);
+        AABB area = new AABB(pos).expand(range);
+
+        //return hit
+        return world.raycastEntity(area, pos, range, e -> e != this && e != this.riding && e.isTargetable());
+    }
+
+    public Hit<? extends WorldObject> raycastHand(boolean left, float delta,float distance) {
+        Hit<Entity> entityHit = raycastHandEntity(left, delta, distance);
+        Hit<Terrain> terrainHit = raycastHandTerrain(left, delta, distance);
+
+        if (entityHit != null && (terrainHit == null || entityHit.collision().near() < terrainHit.collision().near()))
+            return entityHit;
+
+        return terrainHit;
     }
 }

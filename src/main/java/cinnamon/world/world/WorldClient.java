@@ -24,9 +24,7 @@ import cinnamon.text.Text;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
-import cinnamon.vr.XrHandTransform;
 import cinnamon.vr.XrManager;
-import cinnamon.vr.XrRenderer;
 import cinnamon.world.Hud;
 import cinnamon.world.Sky;
 import cinnamon.world.collisions.Hit;
@@ -265,9 +263,8 @@ public class WorldClient extends World {
         item.worldRender(matrices, delta);
     }
 
-    public void renderHand(Camera camera, MatrixStack matrices, float delta) {
-        Item item;
-        if (!(camera.getEntity() instanceof LivingEntity le) || (item = le.getHoldingItem()) == null)
+    public void renderHoldingItem(Camera camera, MatrixStack matrices, float delta) {
+        if (!(camera.getEntity() instanceof LivingEntity le))
             return;
 
         //setup rendering
@@ -278,43 +275,10 @@ public class WorldClient extends World {
         WorldRenderer.setSkyUniforms(s);
         sky.pushToShader(s, Texture.MAX_TEXTURES - 1);
 
-        matrices.pushMatrix();
-
-        //transforms
-        if (XrManager.isInXR()) {
-            //camera transforms
-            matrices.translate(camera.getPos());
-            matrices.rotate(camera.getRot());
-
-            //xr transform
-            XrHandTransform transform = XrRenderer.getHandTransform(1);
-            matrices.translate(transform.pos());
-            matrices.rotate(transform.rot());
-            matrices.scale(0.35f);
-        } else {
-            //camera transforms
-            matrices.translate(camera.getPosition());
-            matrices.rotate(camera.getRotation());
-
-            //screen transform
-            matrices.translate(0.75f, -0.5f, -1);
-        }
-
-        //render item
-        item.render(ItemRenderContext.FIRST_PERSON, matrices, delta);
-
-        matrices.popMatrix();
+        le.renderHandItem(XrManager.isInXR() ? ItemRenderContext.XR : ItemRenderContext.FIRST_PERSON, matrices, delta);
 
         //finish rendering
         client.camera.useOrtho(true);
-    }
-
-    public void renderXrHands(Camera camera, MatrixStack matrices) {
-        matrices.pushMatrix();
-        matrices.translate(camera.getPos());
-        matrices.rotate(camera.getRot());
-        XrRenderer.renderHands(matrices);
-        matrices.popMatrix();
     }
 
     public void renderHUD(MatrixStack matrices, float delta) {
@@ -334,7 +298,7 @@ public class WorldClient extends World {
             renderHitboxes(camera, matrices, delta);
 
         if (cameraEntity instanceof Player p && p.getAbilities().canBuild())
-            renderTargetedBlock(cameraEntity, matrices, delta);
+            renderTargetedBlock(p, matrices, delta);
 
         VertexConsumer.finishAllBatches(camera);
     }
@@ -409,10 +373,18 @@ public class WorldClient extends World {
         }
     }
 
-    protected static void renderTargetedBlock(Entity cameraEntity, MatrixStack matrices, float delta) {
-        Hit<Entity> entity = cameraEntity.getLookingEntity(cameraEntity.getPickRange());
-        Hit<Terrain> terrain = cameraEntity.getLookingTerrain(cameraEntity.getPickRange());
-        if (terrain == null || (entity != null && entity.collision().near() < terrain.collision().near()) || !terrain.obj().isSelectable(cameraEntity))
+    protected static void renderTargetedBlock(Player player, MatrixStack matrices, float delta) {
+        float range = player.getPickRange();
+        Hit<Entity> entity; Hit<Terrain> terrain;
+        if (XrManager.isInXR()) {
+            entity = player.raycastHandEntity(false, 1f, range);
+            terrain = player.raycastHandTerrain(false, 1f, range);
+        } else {
+            entity = player.getLookingEntity(range);
+            terrain = player.getLookingTerrain(range);
+        }
+
+        if (terrain == null || (entity != null && entity.collision().near() < terrain.collision().near()) || !terrain.obj().isSelectable(player))
             return;
 
         int alpha = (int) Maths.lerp(0x32, 0xFF, ((float) Math.sin((Client.getInstance().ticks + delta) * 0.15f) + 1f) * 0.5f);

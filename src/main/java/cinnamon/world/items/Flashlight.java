@@ -3,10 +3,13 @@ package cinnamon.world.items;
 import cinnamon.lang.LangManager;
 import cinnamon.registry.ItemModelRegistry;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.WorldRenderer;
 import cinnamon.utils.Resource;
+import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.light.CookieLight;
 import cinnamon.world.world.World;
 import cinnamon.world.world.WorldClient;
+import org.joml.Vector3f;
 
 public class Flashlight extends Item {
 
@@ -23,11 +26,15 @@ public class Flashlight extends Item {
     @Override
     public void render(ItemRenderContext context, MatrixStack matrices, float delta) {
         super.render(context, matrices, delta);
+        if (context == ItemRenderContext.HUD || !active || getSource() == null || WorldRenderer.isShadowRendering())
+            return;
 
-        if (context != ItemRenderContext.HUD && getSource() != null && getSource().getWorld().isClientside()) {
-            light.pos(getSource().getEyePos(delta));
-            light.direction(getSource().getLookDir(delta));
-        }
+        LivingEntity entity = getSource();
+        Vector3f pos = entity.getHandPos(false, delta);
+        Vector3f dir = entity.getHandDir(false, delta);
+
+        light.pos(pos);
+        light.direction(dir);
     }
 
     @Override

@@ -57,11 +57,13 @@ public class Spawner<E extends Entity> extends Entity {
     @Override
     protected void renderFeatures(MatrixStack matrices, float delta) {
         super.renderFeatures(matrices, delta);
+        if (entity == null && (renderCooldown || DebugScreen.isEntityTab()))
+            renderCountdowns(matrices, delta);
+    }
 
-        if (entity != null || (!renderCooldown && !DebugScreen.isEntityTab()))
-            return;
-
+    public void renderCountdowns(MatrixStack matrices, float delta) {
         matrices.pushMatrix();
+        matrices.translate(getPos(delta));
         matrices.scale(1f, -1f, 1f);
         matrices.rotate(Rotation.Y.rotationDeg(180f));
         Client.getInstance().camera.billboard(matrices);

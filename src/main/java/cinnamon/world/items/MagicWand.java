@@ -6,8 +6,10 @@ import cinnamon.utils.AABB;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
+import cinnamon.vr.XrManager;
 import cinnamon.world.collisions.Hit;
-import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.living.LivingEntity;
+import cinnamon.world.entity.living.LocalPlayer;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.particle.SquareParticle;
 import cinnamon.world.terrain.Terrain;
@@ -20,7 +22,7 @@ public class MagicWand extends Item {
     private static final float DISTANCE = 3f;
     private static final float STEP = 1 / 4f;
     private static final int LIFETIME = 6000;
-    private static final float ERASER_RANGE = 0.5f;
+    private static final float ERASER_RANGE = 0.25f;
 
     private Vector3f lastPos;
     private boolean drawing;
@@ -36,14 +38,14 @@ public class MagicWand extends Item {
         if (isFiring()) {
             //draw line
             Vector3f pos = spawnPos(getSource());
-            drawing |= drawLine(lastPos, pos, getSource().getWorld());
+            drawing |= drawLine(lastPos, pos, getSource().getWorld(), getScale(getSource()));
             //save pos
             lastPos.set(pos);
         }
 
         if (isUsing()) {
             //get area
-            AABB aabb = new AABB().inflate(ERASER_RANGE).translate(spawnPos(getSource()));
+            AABB aabb = new AABB().inflate(ERASER_RANGE * getScale(getSource())).translate(spawnPos(getSource()));
 
             //remove particles in range
             for (Particle particle : getSource().getWorld().getParticles(aabb)) {
@@ -81,12 +83,21 @@ public class MagicWand extends Item {
         super.stopFiring();
         //draw a point if not drawn anything
         if (!drawing && lastPos != null)
-            drawParticle(lastPos, getColor(getSource().getWorld().getTime()), getSource().getWorld());
+            drawParticle(lastPos, getColor(getSource().getWorld().getTime()), getSource().getWorld(), getScale(getSource()));
         drawing = false;
         lastPos = null;
     }
 
-    private static Vector3f spawnPos(Entity source) {
+    private static float getScale(LivingEntity source) {
+        if (source instanceof LocalPlayer && XrManager.isInXR())
+            return 0.2f;
+        return 1f;
+    }
+
+    private static Vector3f spawnPos(LivingEntity source) {
+        if (source instanceof LocalPlayer && XrManager.isInXR())
+            return source.getHandDir(false, 1f).mul(0.25f).add(source.getHandPos(false, 1f));
+
         Hit<Terrain> terrain = source.getLookingTerrain(DISTANCE);
         if (terrain != null)
             return terrain.pos();
@@ -98,27 +109,29 @@ public class MagicWand extends Item {
         return ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f(((time * 3) % 360) / 360f, 0.7f, 1))) + (0xFF << 24);
     }
 
-    private static boolean drawLine(Vector3f a, Vector3f b, World world) {
+    private static boolean drawLine(Vector3f a, Vector3f b, World world, float scale) {
         boolean ret = false;
         //rainbow color
         int color = getColor(world.getTime());
         //draw line
         float len = (int) (b.distance(a) * 1000) / 1000f;
-        for (float i = 0; i < len; i += STEP) {
+        for (float i = 0; i < len; i += STEP * scale) {
+            
             ret = true;
             //pos
             float d = i / len;
             Vector3f pos = Maths.lerp(a, b, d);
             //draw particle
-            drawParticle(pos, color, world);
+            drawParticle(pos, color, world, scale);
         }
         return ret;
     }
 
-    private static void drawParticle(Vector3f pos, int color, World world) {
+    private static void drawParticle(Vector3f pos, int color, World world, float scale) {
         SquareParticle particle = new SquareParticle(LIFETIME, color);
         particle.setPos(pos);
         particle.setEmissive(true);
+        particle.setScale(scale);
         world.addParticle(particle);
     }
 

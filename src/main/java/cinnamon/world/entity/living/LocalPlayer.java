@@ -8,10 +8,15 @@ import cinnamon.registry.TerrainRegistry;
 import cinnamon.settings.Settings;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Direction;
+import cinnamon.vr.XrHandTransform;
+import cinnamon.vr.XrManager;
+import cinnamon.vr.XrRenderer;
 import cinnamon.world.WorldObject;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
+import org.joml.Quaternionf;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class LocalPlayer extends Player {
@@ -88,7 +93,7 @@ public class LocalPlayer extends Player {
         if (!getAbilities().canBuild())
             return false;
 
-        Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
+        Hit<? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(false, 1f, getPickRange()) : getLookingObject(getPickRange());
         if (hit != null && hit.obj() instanceof Terrain t) {
             getWorld().removeTerrain(t);
             lastMouseTime = getInteractionDelay();
@@ -117,7 +122,7 @@ public class LocalPlayer extends Player {
         if (!getAbilities().canBuild())
             return false;
 
-        Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
+        Hit<? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(false, 1f, getPickRange()) : getLookingObject(getPickRange());
         if (hit != null && hit.obj() instanceof Terrain t) {
             Vector3f tpos = new Vector3f(hit.pos()).floor();
             if (tpos.equals(t.getPos()))
@@ -171,5 +176,41 @@ public class LocalPlayer extends Player {
     protected void onDeath() {
         super.onDeath();
         Client.getInstance().setScreen(new DeathScreen());
+    }
+
+    @Override
+    public Vector3f getLookDir() {
+        Vector3f dir = super.getLookDir();
+        return XrManager.isInXR() ? dir.rotate(Client.getInstance().camera.getXrRot()) : dir;
+    }
+
+    @Override
+    public Vector3f getLookDir(float delta) {
+        Vector3f dir = super.getLookDir(delta);
+        return XrManager.isInXR() ? dir.rotate(Client.getInstance().camera.getXrRot()) : dir;
+    }
+
+    public Vector3f getHandPos(boolean left, float delta) {
+        if (!XrManager.isInXR())
+            return super.getHandPos(left, delta);
+
+        XrHandTransform transform = XrRenderer.getHandTransform(left ? 0 : 1);
+        Vector3f tPos = new Vector3f(transform.pos());
+        Quaternionf rot = getHandRot(left, delta).mul(new Quaternionf(transform.rot()).invert());
+        tPos.rotate(rot);
+        return getEyePos(delta).add(tPos);
+
+    }
+
+    public Quaternionf getHandRot(boolean left, float delta) {
+        if (!XrManager.isInXR())
+            return super.getHandRot(left, delta);
+
+        XrHandTransform transform = XrRenderer.getHandTransform(left ? 0 : 1);
+        Vector2f rot = getRot(delta);
+        return new Quaternionf()
+                .rotateY((float) Math.toRadians(-rot.y))
+                .rotateX((float) Math.toRadians(-rot.x))
+                .mul(transform.rot());
     }
 }

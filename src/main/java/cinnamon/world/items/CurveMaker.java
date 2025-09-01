@@ -8,8 +8,10 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
 import cinnamon.utils.Curve;
 import cinnamon.utils.Rotation;
+import cinnamon.vr.XrManager;
 import cinnamon.world.collisions.Hit;
-import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.living.LivingEntity;
+import cinnamon.world.entity.living.LocalPlayer;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.RollerCoasterWorld;
 import org.joml.Vector3f;
@@ -57,7 +59,10 @@ public class CurveMaker extends Item {
         renderCurve(matrices, curve.getCurve(), 0xFFFFFF);
     }
 
-    private static Vector3f getPos(Entity source) {
+    private static Vector3f getPos(LivingEntity source) {
+        if (source instanceof LocalPlayer && XrManager.isInXR())
+            return source.getHandDir(false, 1f).mul(0.5f).add(source.getHandPos(false, 1f));
+
         Hit<Terrain> terrain = source.getLookingTerrain(source.getPickRange());
         if (terrain != null)
             return terrain.pos();

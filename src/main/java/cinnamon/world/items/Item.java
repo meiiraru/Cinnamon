@@ -4,7 +4,7 @@ import cinnamon.model.ModelManager;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.Resource;
-import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.living.LivingEntity;
 
 public abstract class Item {
 
@@ -14,7 +14,7 @@ public abstract class Item {
 
     private int count;
     private boolean isFiring, isUsing;
-    private Entity source;
+    private LivingEntity source;
 
     public Item(String id, int count, int stackCount, Resource model) {
         this.id = id;
@@ -26,8 +26,10 @@ public abstract class Item {
     public void tick() {}
 
     public void render(ItemRenderContext context, MatrixStack matrices, float delta) {
-        //render model
+        matrices.pushMatrix();
+        matrices.scale(context.scale);
         model.render(matrices);
+        matrices.popMatrix();
     }
 
     public void worldRender(MatrixStack matrices, float delta) {}
@@ -50,7 +52,7 @@ public abstract class Item {
         this.isUsing = false;
     }
 
-    public void select(Entity source) {
+    public void select(LivingEntity source) {
         this.source = source;
     }
 
@@ -84,7 +86,7 @@ public abstract class Item {
         return isFiring;
     }
 
-    protected Entity getSource() {
+    protected LivingEntity getSource() {
         return source;
     }
 

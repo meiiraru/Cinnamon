@@ -66,26 +66,17 @@ public abstract class Entity extends WorldObject {
 
         matrices.pushMatrix();
 
-        //apply pos
-        matrices.translate(getPos(delta));
-
         //apply model pose
-        matrices.pushMatrix();
+        matrices.translate(getPos(delta));
         applyModelPose(matrices, delta);
 
         //render model
         renderModel(matrices, delta);
 
+        matrices.popMatrix();
+
         //render features
         renderFeatures(matrices, delta);
-
-        matrices.popMatrix();
-
-        //render head text
-        if (shouldRenderText())
-            renderTexts(matrices, delta);
-
-        matrices.popMatrix();
     }
 
     protected void renderModel(MatrixStack matrices, float delta) {
@@ -102,7 +93,11 @@ public abstract class Entity extends WorldObject {
         matrices.rotate(Rotation.X.rotationDeg(-rot.x));
     }
 
-    protected void renderFeatures(MatrixStack matrices, float delta) {}
+    protected void renderFeatures(MatrixStack matrices, float delta) {
+        //render head text
+        if (shouldRenderText())
+            renderTexts(matrices, delta);
+    }
 
     protected void renderTexts(MatrixStack matrices, float delta) {
         Text text = getHeadText();
@@ -116,6 +111,7 @@ public abstract class Entity extends WorldObject {
         Client c = Client.getInstance();
         float s = 1 / 48f;
 
+        matrices.translate(getPos(delta));
         matrices.translate(0f, aabb.getHeight() + 0.15f, 0f);
         c.camera.billboard(matrices);
         matrices.scale(-s);
@@ -154,13 +150,13 @@ public abstract class Entity extends WorldObject {
         //looking dir
         matrices.pushMatrix();
         matrices.translate(eye);
-        matrices.rotate(Rotation.Y.rotationDeg(-rot.y + 90));
-        matrices.rotate(Rotation.Z.rotationDeg(-rot.x));
+        Vector3f dir = getLookDir(delta);
 
-        VertexConsumer.LINES.consume(GeometryHelper.quad(
+        VertexConsumer.LINES.consume(GeometryHelper.line(
                 matrices,
                 0f, 0f, 0f,
-                aabb.getWidth() + 1f, 0f,
+                dir.x, dir.y, dir.z,
+                0.001f,
                 0xFF0000FF
 
         ));
@@ -347,7 +343,7 @@ public abstract class Entity extends WorldObject {
         //prepare positions
         Vector3f pos = getEyePos();
         Vector3f range = getLookDir().mul(distance);
-        AABB area = new AABB(aabb).expand(range);
+        AABB area = new AABB(pos).expand(range);
 
         //return hit
         return world.raycastTerrain(area, pos, range);
@@ -357,7 +353,7 @@ public abstract class Entity extends WorldObject {
         //prepare positions
         Vector3f pos = getEyePos();
         Vector3f range = getLookDir().mul(distance);
-        AABB area = new AABB(aabb).expand(range);
+        AABB area = new AABB(pos).expand(range);
 
         //return hit
         return world.raycastEntity(area, pos, range, e -> e != this && e != this.riding && e.isTargetable());
