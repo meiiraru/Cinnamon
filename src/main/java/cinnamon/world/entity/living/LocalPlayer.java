@@ -213,4 +213,14 @@ public class LocalPlayer extends Player {
                 .rotateX((float) Math.toRadians(-rot.x))
                 .mul(transform.rot());
     }
+
+    @Override
+    public boolean shouldRenderOutline() {
+        return true;
+    }
+
+    @Override
+    public int getOutlineColor() {
+        return super.shouldRenderOutline() ? super.getOutlineColor() : 0x000000;
+    }
 }
