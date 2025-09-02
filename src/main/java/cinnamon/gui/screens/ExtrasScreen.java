@@ -10,6 +10,7 @@ import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.world.world.DiscoWorld;
 import cinnamon.world.world.MaterialPreviewWorld;
+import cinnamon.world.world.PrimitiveTestWorld;
 import cinnamon.world.world.RollerCoasterWorld;
 import cinnamon.world.world.TransparentWorld;
 
@@ -45,6 +46,9 @@ public class ExtrasScreen extends ParentedScreen {
 
         //transparent world
         list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.custom_worlds.transparent", button -> new TransparentWorld().init()));
+
+        //primitive debug world
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.custom_worlds.primitive_test", button -> new PrimitiveTestWorld().init()));
 
         //title
         list.addWidget(new Label(0, 0, Text.of("\n").appendTranslated("gui.extras_screen.tech_demos").append("\n")));

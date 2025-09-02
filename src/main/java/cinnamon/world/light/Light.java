@@ -97,6 +97,15 @@ public abstract class Light {
                     pos.x + dir.x, pos.y + dir.y, pos.z + dir.z,
                     0.025f, c
             ));
+
+        /*
+        VertexConsumer.LINES.consume(GeometryHelper.cube(
+                matrices,
+                aabb.minX(), aabb.minY(), aabb.minZ(),
+                aabb.maxX(), aabb.maxY(), aabb.maxZ(),
+                c
+        ));
+        */
     }
 
     public Vector3f getPos() {

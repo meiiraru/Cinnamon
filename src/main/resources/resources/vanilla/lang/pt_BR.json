@@ -36,6 +36,7 @@
   "gui.extras_screen.custom_worlds.rollercoaster": "Montanha Russa",
   "gui.extras_screen.custom_worlds.disco": "Festa",
   "gui.extras_screen.custom_worlds.transparent": "Transparente",
+  "gui.extras_screen.custom_worlds.primitive_test": "Teste de Primitivas",
   "gui.extras_screen.tech_demos": "Demonstrações Técnicas",
   "gui.extras_screen.tech_demos.collision_test": "Teste de Colisão",
   "gui.extras_screen.tech_demos.new_collision_test": "Teste de colisão GJK",
