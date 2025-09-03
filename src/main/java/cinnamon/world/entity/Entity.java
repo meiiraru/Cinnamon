@@ -48,6 +48,7 @@ public abstract class Entity extends WorldObject {
     private String name;
 
     private boolean silent;
+    private boolean visible = true;
 
     public Entity(UUID uuid, Resource model) {
         this.model = ModelManager.load(model);
@@ -458,7 +459,7 @@ public abstract class Entity extends WorldObject {
 
     @Override
     public boolean shouldRender(Camera camera) {
-        return(camera.getEntity() != this || ((WorldClient) getWorld()).isThirdPerson() || WorldRenderer.isShadowRendering())
+        return isVisible() && (camera.getEntity() != this || ((WorldClient) getWorld()).isThirdPerson() || WorldRenderer.isShadowRendering())
                 && camera.getPos().distanceSquared(getPos()) <= getRenderDistance()
                 && super.shouldRender(camera);
     }
@@ -479,5 +480,13 @@ public abstract class Entity extends WorldObject {
 
     public void setSilent(boolean silent) {
         this.silent = silent;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 }
