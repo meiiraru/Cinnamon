@@ -20,7 +20,7 @@ public class PrimitiveTestWorld extends WorldClient {
     private static final MatrixStack mat = new MatrixStack(); //dummy matrix stack
     private static final PrimitiveTerrain floor = new PrimitiveTerrain(new Vertex[][]{GeometryHelper.plane(mat, -1000f, 0f, -1000f, 1000f, 1000f, Colors.GREEN.argb)});
 
-    private static boolean renderNormals;
+    private boolean renderNormals;
 
     @Override
     protected void tempLoad() {
@@ -72,15 +72,22 @@ public class PrimitiveTestWorld extends WorldClient {
         //player
         Vector3f playerPos = player.getPos(delta);
         Vector3f playerDim = player.getAABB().getDimensions();
-        render(matrices, GeometryHelper.capsule(matrices, playerPos.x, playerPos.y, playerPos.z, playerDim.x / 2f, playerDim.y, 12, Colors.PINK.argb));
+        VertexConsumer.WORLD_MAIN.consume(GeometryHelper.capsule(matrices, playerPos.x, playerPos.y, playerPos.z, playerDim.x / 2f, playerDim.y, 12, Colors.PINK.argb));
 
         return super.renderEntities(camera, matrices, delta);
     }
 
-    private static void render(MatrixStack matrices, Vertex[][] vertices) {
-        VertexConsumer.WORLD_MAIN.consume(vertices);
-        if (renderNormals)
-            TransparentWorld.renderNormals(matrices, vertices);
+    @Override
+    public void renderDebug(Camera camera, MatrixStack matrices, float delta) {
+        super.renderDebug(camera, matrices, delta);
+
+        if (renderNormals) {
+            for (Terrain terrain : terrainManager.queryCustom(camera::isInsideFrustum)) {
+                if (terrain instanceof PrimitiveTerrain pt)
+                    TransparentWorld.renderNormals(matrices, pt.vertices);
+            }
+            VertexConsumer.WORLD_MAIN.finishBatch(camera);
+        }
     }
 
     private void house(float x, float y, float z, float rotY, int colA, int colB) {
@@ -227,7 +234,7 @@ public class PrimitiveTestWorld extends WorldClient {
 
         @Override
         public void render(MatrixStack matrices, float delta) {
-            PrimitiveTestWorld.render(matrices, vertices);
+            VertexConsumer.WORLD_MAIN.consume(vertices);
         }
 
         @Override
