@@ -57,7 +57,7 @@ public class Spawner<E extends Entity> extends Entity {
     @Override
     protected void renderFeatures(MatrixStack matrices, float delta) {
         super.renderFeatures(matrices, delta);
-        if (entity == null && (renderCooldown || DebugScreen.isEntityTab()))
+        if (entity == null && (renderCooldown || DebugScreen.isTabOpen(DebugScreen.Tab.ENTITIES)))
             renderCountdowns(matrices, delta);
     }
 

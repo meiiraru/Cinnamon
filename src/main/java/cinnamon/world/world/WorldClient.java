@@ -291,10 +291,10 @@ public class WorldClient extends World {
 
         Entity cameraEntity = camera.getEntity();
 
-        if (DebugScreen.isPlayerTab())
+        if (DebugScreen.isTabOpen(DebugScreen.Tab.PLAYER))
             renderHitResults(cameraEntity, matrices);
 
-        if (DebugScreen.isWorldRelatedTab())
+        if (DebugScreen.isTabOpen(DebugScreen.Tab.WORLD, DebugScreen.Tab.TERRAIN, DebugScreen.Tab.ENTITIES))
             renderHitboxes(camera, matrices, delta);
 
         if (cameraEntity instanceof Player p && p.getAbilities().canBuild())
@@ -310,7 +310,7 @@ public class WorldClient extends World {
         area.translate(cameraPos);
         area.inflate(8f);
 
-        if (DebugScreen.getSelectedTab() == 3) {
+        if (DebugScreen.isTabOpen(DebugScreen.Tab.WORLD)) {
             //lights
             for (Light light : lights)
                 if (light.shouldRender(camera))
@@ -321,7 +321,7 @@ public class WorldClient extends World {
                 p.renderDebugHitbox(matrices, delta);
         }
 
-        else if (DebugScreen.getSelectedTab() == 4) {
+        if (DebugScreen.isTabOpen(DebugScreen.Tab.TERRAIN)) {
             //octree
             for (AABB aabb : terrainManager.getBounds()) {
                 Vector3f min = aabb.getMin();
@@ -344,7 +344,7 @@ public class WorldClient extends World {
             }
         }
 
-        else if (DebugScreen.getSelectedTab() == 5) {
+        if (DebugScreen.isTabOpen(DebugScreen.Tab.ENTITIES)) {
             //entities
             for (Entity e : getEntities(area)) {
                 if (e != cameraEntity || isThirdPerson())

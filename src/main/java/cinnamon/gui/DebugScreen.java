@@ -65,183 +65,11 @@ public class DebugScreen {
         LOG_OUTPUT.setFormatting("[%1$tT] [%2$s/%3$s] (%4$s) %5$s\n");
     }
 
-    private static final List<Pair<String, Function<Client, String>>> TABS = new ArrayList<>();
+    private static final List<Tab> selectedTabs = new ArrayList<>(Tab.values().length);
     static {
-        TABS.add(Pair.of("System", c -> {
-            Runtime r = Runtime.getRuntime();
-            long max = r.maxMemory();
-            long total = r.totalMemory();
-            long free = r.freeMemory();
-            long used = total - free;
-
-            return String.format("""
-                    [&bjava&r]
-                    java version &e%s&r
-                    mem &e%s&r%% &e%s&r/&e%s&r
-                    allocated &e%s&r%% &e%s&r
-
-                    [&bproperties&r]
-                    OS &e%s&r
-                    %s
-                    LWJGL &e%s&r
-                    OpenGL &e%s&r""",
-
-                    System.getProperty("java.version"),
-                    used * 100 / max, Maths.prettyByteSize(used), Maths.prettyByteSize(max),
-                    total * 100 / max, Maths.prettyByteSize(total),
-
-                    System.getProperty("os.name"),
-                    glGetString(GL_RENDERER),
-                    org.lwjgl.Version.getVersion(),
-                    glGetString(GL_VERSION)
-            );
-        }));
-        TABS.add(Pair.of("Render", c -> {
-            Window w = c.window;
-            PostProcess post = c.postProcess == -1 ? null : PostProcess.EFFECTS[c.postProcess];
-
-            Quaternionf crot = c.camera.getRotation();
-            Vector3f cpos = c.camera.getPosition();
-            Vector3f forwards = c.camera.getForwards();
-            Vector3f up = c.camera.getUp();
-            float yaw = Maths.getYaw(crot);
-            String face = Direction.fromRotation(yaw).name;
-
-            return String.format("""
-                    [&bwindow&r]
-                    &e%s&r x &e%s&r
-                    gui scale &e%s&r
-
-                    [&beffects&r]
-                    post process &e%s&r
-                    3D anaglyph &e%s&r
-                    XR &e%s&r
-                    
-                    [&bcamera&r]
-                    x &c%.3f&r y &a%.3f&r z &b%.3f&r
-                    x &e%.3f&r y &e%.3f&r z &e%.3f&r w &e%.3f&r
-                    forwards x &c%.3f&r y &a%.3f&r z &b%.3f&r
-                    up x &c%.3f&r y &a%.3f&r z &b%.3f&r
-                    facing &e%s&r""",
-
-                    w.width, w.height,
-                    w.guiScale,
-
-                    post == null ? "none" : post.name(),
-                    c.anaglyph3D ? "on" : "off",
-                    XrManager.isInXR() ? "on" : "off",
-
-                    cpos.x, cpos.y, cpos.z,
-                    crot.x, crot.y, crot.z, crot.w,
-                    forwards.x, forwards.y, forwards.z,
-                    up.x, up.y, up.z,
-
-                    face
-            );
-        }));
-        TABS.add(Pair.of("Player", c -> {
-            WorldClient w = c.world;
-            if (w == null)
-                return "&cNo world loaded&r";
-
-            Player p = w.player;
-            Abilities abilities = p.getAbilities();
-
-            Vector3f epos = p.getPos();
-            Vector2f erot = p.getRot();
-            Vector3f emot = p.getMotion();
-
-            float range = p.getPickRange();
-            String object = getTargetedObjString(p.getLookingObject(range), range);
-
-            return String.format("""
-                    [&bentity&r]
-                    &e%s&r
-                    %s
-                    x &c%.3f&r y &a%.3f&r z &b%.3f&r
-                    pitch &e%.3f&r yaw &e%.3f&r
-                    motion &c%.3f &a%.3f &b%.3f&r
-                    noclip &e%s&r god mode &e%s&r
-                    can fly &e%s&r can build &e%s&r
-
-                    [&btargeted object&r]
-                    %s""",
-
-                    p.getName(), p.getUUID(),
-                    epos.x, epos.y, epos.z,
-                    erot.x, erot.y,
-                    emot.x, emot.y, emot.z,
-
-                    abilities.noclip() ? "on" : "off",
-                    abilities.godMode() ? "on" : "off",
-                    abilities.canFly() ? "on" : "off",
-                    abilities.canBuild() ? "on" : "off",
-
-                    object
-            );
-        }));
-        TABS.add(Pair.of("World", c -> {
-                WorldClient w = c.world;
-                if (w == null)
-                    return "&cNo world loaded&r";
-
-            String camera = switch (w.getCameraMode()) {
-                case 0 -> "First Person";
-                case 1 -> "Third Person (back)";
-                case 2 -> "Third Person (front)";
-                default -> "unknown";
-            };
-
-            return String.format("""
-                    time &e%s&r (&e%s&r)
-                    day &e%s&r
-                    camera &e%s&r
-                    &e%s&r sounds
-                    &e%s&r light sources
-                    &e%s&r shadow casters
-                    &e%s&r particles""",
-
-                    w.getTime(), w.getTimeOfTheDay(),
-                    w.getDay(),
-                    camera,
-                    SoundManager.getSoundCount(),
-                    WorldRenderer.getLightsCount(),
-                    WorldRenderer.getShadowsCount(),
-                    WorldRenderer.getRenderedParticles()
-            );
-        }));
-        TABS.add(Pair.of("Terrain", c -> {
-            WorldClient w = c.world;
-            if (w == null)
-                return "&cNo world loaded&r";
-
-            return String.format("""
-                    &e%s&r terrain""",
-                    WorldRenderer.getRenderedTerrain()
-            );
-        }));
-        TABS.add(Pair.of("Entities", c -> {
-            WorldClient w = c.world;
-            if (w == null)
-                return "&cNo world loaded&r";
-
-            return String.format("""
-                    &e%s&r entities""",
-                    WorldRenderer.getRenderedEntities()
-            );
-        }));
-        TABS.add(Pair.of("Logger", c -> {
-            StringBuilder sb = new StringBuilder();
-            for (String log : LOG) {
-                if (!sb.isEmpty())
-                    sb.append('\n');
-                sb.append(log);
-            }
-            return sb.toString();
-        }));
+        selectedTabs.add(Tab.SYSTEM);
     }
 
-    private static int selectedTab;
     private static int hoveredTab;
     private static boolean active;
     private static boolean f3Pressed, f3Voided;
@@ -331,7 +159,11 @@ public class DebugScreen {
         if (hoveredTab < 0) { //close button -2
             active = false;
         } else {
-            selectedTab = hoveredTab;
+            Tab tab = Tab.values()[hoveredTab];
+            if (selectedTabs.contains(tab))
+                selectedTabs.remove(tab);
+            else
+                selectedTabs.addFirst(tab);
         }
     }
 
@@ -381,8 +213,9 @@ public class DebugScreen {
         int mouseY = c.window.mouseY;
 
         hoveredTab = -1;
-        for (int i = 0; i < TABS.size(); i++) {
-            Text tabText = Text.of(TABS.get(i).first());
+        Tab[] tabs = Tab.values();
+        for (int i = 0; i < tabs.length; i++) {
+            Text tabText = Text.of(tabs[i].name);
             float yy = y + i * spacing;
             if (hoveredTab == -1 &&
                     mouseX >= x && mouseX <= x + TextUtils.getWidth(tabText) &&
@@ -392,7 +225,7 @@ public class DebugScreen {
 
             Style s = STYLE.shadow(true);
             if (i == hoveredTab) s = s.backgroundColor(0xAAFFFFFF);
-            if (i == selectedTab) s = s.formatted(Formatting.YELLOW);
+            if (selectedTabs.contains(tabs[i])) s = s.formatted(Formatting.YELLOW);
             tabText.withStyle(s).render(VertexConsumer.FONT, matrices, x, yy);
         }
 
@@ -410,29 +243,34 @@ public class DebugScreen {
     }
 
     private static void renderContent(MatrixStack matrices, Client c) {
-        if (selectedTab == -1)
+        if (selectedTabs.isEmpty())
             return;
 
-        String result = TABS.get(selectedTab).second().apply(c);
-        if (result == null)
-            return;
-
-        Text text = TextUtils
-                .parseColorFormatting(Text.of(result))
-                .withStyle(STYLE.background(false));
-
-        int bg = GUIStyle.of(STYLE_PATH).getInt("background_color");
         float x = 8 + 50;
         float y = 8 + 20;
-        float w = TextUtils.getWidth(text);
-        float h = TextUtils.getHeight(text);
 
-        VertexConsumer.FONT.consume(GeometryHelper.rectangle(matrices, x - 4, y - 4, x + w + 4, y + h + 4, bg));
+        for (Tab selectedTab : selectedTabs) {
+            String result = selectedTab.function.apply(c);
+            if (result == null)
+                continue;
 
-        matrices.pushMatrix();
-        matrices.translate(0, 0, UIHelper.getDepthOffset());
-        text.render(VertexConsumer.FONT, matrices, x, y);
-        matrices.popMatrix();
+            Text text = TextUtils
+                    .parseColorFormatting(Text.of(result))
+                    .withStyle(STYLE.background(false));
+
+            int bg = GUIStyle.of(STYLE_PATH).getInt("background_color");
+            float w = TextUtils.getWidth(text);
+            float h = TextUtils.getHeight(text);
+
+            VertexConsumer.FONT.consume(GeometryHelper.rectangle(matrices, x - 4, y - 4, x + w + 4, y + h + 4, bg));
+
+            matrices.pushMatrix();
+            matrices.translate(0, 0, UIHelper.getDepthOffset());
+            text.render(VertexConsumer.FONT, matrices, x, y);
+            matrices.popMatrix();
+
+            y += h + 8 + 4; //height + border + spacing
+        }
     }
 
     private static String getTargetedObjString(Hit<? extends WorldObject> hit, float range) {
@@ -466,19 +304,195 @@ public class DebugScreen {
         return active;
     }
 
-    public static int getSelectedTab() {
-        return selectedTab;
+    public static boolean isTabOpen(Tab... tabs) {
+        if (!active)
+            return false;
+        for (Tab tab : tabs)
+            if (selectedTabs.contains(tab))
+                return true;
+        return false;
     }
 
-    public static boolean isWorldRelatedTab() {
-        return active && selectedTab > 2 && selectedTab < 6;
-    }
+    public enum Tab {
+        SYSTEM(c -> {
+            Runtime r = Runtime.getRuntime();
+            long max = r.maxMemory();
+            long total = r.totalMemory();
+            long free = r.freeMemory();
+            long used = total - free;
 
-    public static boolean isPlayerTab() {
-        return active && selectedTab == 2;
-    }
+            return String.format("""
+                    [&bjava&r]
+                    java version &e%s&r
+                    mem &e%s&r%% &e%s&r/&e%s&r
+                    allocated &e%s&r%% &e%s&r
 
-    public static boolean isEntityTab() {
-        return active && selectedTab == 5;
+                    [&bproperties&r]
+                    OS &e%s&r
+                    %s
+                    LWJGL &e%s&r
+                    OpenGL &e%s&r""",
+
+                    System.getProperty("java.version"),
+                    used * 100 / max, Maths.prettyByteSize(used), Maths.prettyByteSize(max),
+                    total * 100 / max, Maths.prettyByteSize(total),
+
+                    System.getProperty("os.name"),
+                    glGetString(GL_RENDERER),
+                    org.lwjgl.Version.getVersion(),
+                    glGetString(GL_VERSION)
+            );
+        }),
+        RENDER(c -> {
+            Window w = c.window;
+            PostProcess post = c.postProcess == -1 ? null : PostProcess.EFFECTS[c.postProcess];
+
+            Quaternionf crot = c.camera.getRotation();
+            Vector3f cpos = c.camera.getPosition();
+            Vector3f forwards = c.camera.getForwards();
+            Vector3f up = c.camera.getUp();
+            float yaw = Maths.getYaw(crot);
+            String face = Direction.fromRotation(yaw).name;
+
+            return String.format("""
+                    [&bwindow&r]
+                    &e%s&r x &e%s&r
+                    gui scale &e%s&r
+
+                    [&beffects&r]
+                    post process &e%s&r
+                    3D anaglyph &e%s&r
+                    XR &e%s&r
+                    
+                    [&bcamera&r]
+                    x &c%.3f&r y &a%.3f&r z &b%.3f&r
+                    x &e%.3f&r y &e%.3f&r z &e%.3f&r w &e%.3f&r
+                    forwards x &c%.3f&r y &a%.3f&r z &b%.3f&r
+                    up x &c%.3f&r y &a%.3f&r z &b%.3f&r
+                    facing &e%s&r""",
+
+                    w.width, w.height,
+                    w.guiScale,
+
+                    post == null ? "none" : post.name(),
+                    c.anaglyph3D ? "on" : "off",
+                    XrManager.isInXR() ? "on" : "off",
+
+                    cpos.x, cpos.y, cpos.z,
+                    crot.x, crot.y, crot.z, crot.w,
+                    forwards.x, forwards.y, forwards.z,
+                    up.x, up.y, up.z,
+
+                    face
+            );
+        }),
+        PLAYER(c -> {
+            WorldClient w = c.world;
+            if (w == null)
+                return "&cNo world loaded&r";
+
+            Player p = w.player;
+            Abilities abilities = p.getAbilities();
+
+            Vector3f epos = p.getPos();
+            Vector2f erot = p.getRot();
+            Vector3f emot = p.getMotion();
+
+            float range = p.getPickRange();
+            String object = getTargetedObjString(p.getLookingObject(range), range);
+
+            return String.format("""
+                    [&bentity&r]
+                    &e%s&r
+                    %s
+                    x &c%.3f&r y &a%.3f&r z &b%.3f&r
+                    pitch &e%.3f&r yaw &e%.3f&r
+                    motion &c%.3f &a%.3f &b%.3f&r
+                    noclip &e%s&r god mode &e%s&r
+                    can fly &e%s&r can build &e%s&r
+
+                    [&btargeted object&r]
+                    %s""",
+
+                    p.getName(), p.getUUID(),
+                    epos.x, epos.y, epos.z,
+                    erot.x, erot.y,
+                    emot.x, emot.y, emot.z,
+
+                    abilities.noclip() ? "on" : "off",
+                    abilities.godMode() ? "on" : "off",
+                    abilities.canFly() ? "on" : "off",
+                    abilities.canBuild() ? "on" : "off",
+
+                    object
+            );
+        }),
+        WORLD(c -> {
+            WorldClient w = c.world;
+            if (w == null)
+                return "&cNo world loaded&r";
+
+            String camera = switch (w.getCameraMode()) {
+                case 0 -> "First Person";
+                case 1 -> "Third Person (back)";
+                case 2 -> "Third Person (front)";
+                default -> "unknown";
+            };
+
+            return String.format("""
+                    time &e%s&r (&e%s&r)
+                    day &e%s&r
+                    camera &e%s&r
+                    &e%s&r sounds
+                    &e%s&r light sources
+                    &e%s&r shadow casters
+                    &e%s&r particles""",
+
+                    w.getTime(), w.getTimeOfTheDay(),
+                    w.getDay(),
+                    camera,
+                    SoundManager.getSoundCount(),
+                    WorldRenderer.getLightsCount(),
+                    WorldRenderer.getShadowsCount(),
+                    WorldRenderer.getRenderedParticles()
+            );
+        }),
+        TERRAIN(c -> {
+            WorldClient w = c.world;
+            if (w == null)
+                return "&cNo world loaded&r";
+
+            return String.format("""
+                    &e%s&r terrain""",
+                    WorldRenderer.getRenderedTerrain()
+            );
+        }),
+        ENTITIES(c -> {
+            WorldClient w = c.world;
+            if (w == null)
+                return "&cNo world loaded&r";
+
+            return String.format("""
+                    &e%s&r entities""",
+                    WorldRenderer.getRenderedEntities()
+            );
+        }),
+        LOGGER(c -> {
+            StringBuilder sb = new StringBuilder();
+            for (String log : LOG) {
+                if (!sb.isEmpty())
+                    sb.append('\n');
+                sb.append(log);
+            }
+            return sb.toString();
+        });
+
+        public final String name;
+        private final Function<Client, String> function;
+
+        Tab(Function<Client, String> function) {
+            this.name = this.name().charAt(0) + this.name().substring(1).toLowerCase();
+            this.function = function;
+        }
     }
 }

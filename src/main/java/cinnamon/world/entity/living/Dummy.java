@@ -26,7 +26,7 @@ public class Dummy extends LivingEntity {
 
     @Override
     public boolean shouldRenderText() {
-        return super.shouldRenderText() && DebugScreen.isEntityTab();
+        return super.shouldRenderText() && DebugScreen.isTabOpen(DebugScreen.Tab.ENTITIES);
     }
 
     @Override

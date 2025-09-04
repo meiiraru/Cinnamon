@@ -130,7 +130,7 @@ public abstract class Entity extends WorldObject {
         Client client = Client.getInstance();
         return
                 !((WorldClient) world).hudHidden() &&
-                (client.camera.getEntity() != this || DebugScreen.isEntityTab()) &&
+                (client.camera.getEntity() != this || DebugScreen.isTabOpen(DebugScreen.Tab.ENTITIES)) &&
                 !WorldRenderer.isOutlineRendering() &&
                 client.camera.getPos().distanceSquared(pos) <= 1024;
     }
