@@ -2,16 +2,15 @@ package cinnamon.world.world;
 
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
+import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.utils.AABB;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Rotation;
+import cinnamon.world.entity.Entity;
+import cinnamon.world.terrain.Terrain;
 import org.joml.Vector3f;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_G;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
@@ -21,14 +20,12 @@ public class PrimitiveTestWorld extends WorldClient {
     private static final MatrixStack mat = new MatrixStack(); //dummy matrix stack
     private static final PrimitiveTerrain floor = new PrimitiveTerrain(new Vertex[][]{GeometryHelper.plane(mat, -1000f, 0f, -1000f, 1000f, 1000f, Colors.GREEN.rgba)});
 
-    private final List<PrimitiveTerrain> terrains = new ArrayList<>();
-
-    private boolean renderNormals;
+    private static boolean renderNormals;
 
     @Override
     protected void tempLoad() {
         //floor
-        terrains.add(floor);
+        addTerrain(floor);
 
         //houses
         house(0, 0, -10, 0, 0xFFcac5b8, 0xFF866451);
@@ -71,18 +68,6 @@ public class PrimitiveTestWorld extends WorldClient {
     }
 
     @Override
-    public int renderTerrain(Camera camera, MatrixStack matrices, float delta) {
-        //terrains
-        for (PrimitiveTerrain terrain : terrains) {
-            AABB aabb = terrain.getAabb();
-            if (camera.isInsideFrustum(aabb))
-                render(matrices, terrain.getVertices());
-        }
-
-        return super.renderTerrain(camera, matrices, delta);
-    }
-
-    @Override
     public int renderEntities(Camera camera, MatrixStack matrices, float delta) {
         //player
         Vector3f playerPos = player.getPos(delta);
@@ -92,7 +77,7 @@ public class PrimitiveTestWorld extends WorldClient {
         return super.renderEntities(camera, matrices, delta);
     }
 
-    private void render(MatrixStack matrices, Vertex[][] vertices) {
+    private static void render(MatrixStack matrices, Vertex[][] vertices) {
         VertexConsumer.WORLD_MAIN.consume(vertices);
         if (renderNormals)
             TransparentWorld.renderNormals(matrices, vertices);
@@ -107,7 +92,7 @@ public class PrimitiveTestWorld extends WorldClient {
         mat.translate(- w / 2f, - h / 2f, - d / 2f);
 
         //base
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, 0, 0, 0, w, h, d, colA)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, 0, 0, 0, w, h, d, colA)));
 
         mat.translate(0f, h, d / 2f);
         mat.rotate(Rotation.X.rotationDeg(45f));
@@ -116,20 +101,20 @@ public class PrimitiveTestWorld extends WorldClient {
         float r = (float) Math.sqrt(d * d + d * d) / 4f;
 
         //base 2
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, eps, -r, -r, w - eps, r, r, colA)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, eps, -r, -r, w - eps, r, r, colA)));
 
         //roof
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, -0.5f, r, -r - 0.5f + eps, w + 0.5f, r + 0.5f, r + 0.5f, colB)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, -0.5f, r, -r - 0.5f + eps, w + 0.5f, r + 0.5f, r + 0.5f, colB)));
         //roof 2
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, -0.5f + eps, -r - 0.5f, -r - 0.5f, w + 0.5f - eps, r + 0.5f - eps, -r, colB)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, -0.5f + eps, -r - 0.5f, -r - 0.5f, w + 0.5f - eps, r + 0.5f - eps, -r, colB)));
 
         //windows
         mat.rotate(Rotation.X.rotationDeg(-45f));
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, 4, -h + 1, -d / 2f - eps, 5, -h + 2, d / 2f + eps, 0xFF444444)));
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, 6, -h + 1, -d / 2f - eps, 7, -h + 2, d / 2f + eps, 0xFF444444)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, 4, -h + 1, -d / 2f - eps, 5, -h + 2, d / 2f + eps, 0xFF444444)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, 6, -h + 1, -d / 2f - eps, 7, -h + 2, d / 2f + eps, 0xFF444444)));
 
         //door
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, 1, -h, 1, 2.5f, -h + 2f, d / 2f + eps, colB)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, 1, -h, 1, 2.5f, -h + 2f, d / 2f + eps, colB)));
 
         mat.popMatrix();
     }
@@ -143,21 +128,21 @@ public class PrimitiveTestWorld extends WorldClient {
         mat.translate(x + 1.5f, y, z - 1.5f - 5f);
 
         //base
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, 0, 0, 0, w, h, d, 0xFF808080)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, 0, 0, 0, w, h, d, 0xFF808080)));
 
         //roof
-        terrains.add(new PrimitiveTerrain(GeometryHelper.pyramid(mat, -0.5f, h, -0.5f, w + 0.5f, h + 4, d + 0.5f, 0xFF1d1119)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.pyramid(mat, -0.5f, h, -0.5f, w + 0.5f, h + 4, d + 0.5f, 0xFF1d1119)));
 
         //cross
         float eps = 0.01f;
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, w / 2f - 0.25f, h + 3.5f, d / 2f - 0.25f, w / 2f + 0.25f, h + 6.5f, d / 2f + 0.25f, 0xFFd4af37)));
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, w / 2f - 0.25f - eps, h + 5.5f, d / 2f - 1f, w / 2f + 0.25f + eps, h + 6f, d / 2f + 1f, 0xFFd4af37)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, w / 2f - 0.25f, h + 3.5f, d / 2f - 0.25f, w / 2f + 0.25f, h + 6.5f, d / 2f + 0.25f, 0xFFd4af37)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, w / 2f - 0.25f - eps, h + 5.5f, d / 2f - 1f, w / 2f + 0.25f + eps, h + 6f, d / 2f + 1f, 0xFFd4af37)));
 
         //windows
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, w / 2f - 0.5f, 1, -eps, w / 2f + 0.5f, 3, d + eps, 0xFF444444)));
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, w / 2f - 0.5f, 5, -eps, w / 2f + 0.5f, 7, d + eps, 0xFF444444)));
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, -eps, 1, d / 2f - 0.5f, w + eps, 3, d / 2f + 0.5f, 0xFF444444)));
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, -eps, 5, d / 2f - 0.5f, w + eps, 7, d / 2f + 0.5f, 0xFF444444)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, w / 2f - 0.5f, 1, -eps, w / 2f + 0.5f, 3, d + eps, 0xFF444444)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, w / 2f - 0.5f, 5, -eps, w / 2f + 0.5f, 7, d + eps, 0xFF444444)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, -eps, 1, d / 2f - 0.5f, w + eps, 3, d / 2f + 0.5f, 0xFF444444)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, -eps, 5, d / 2f - 0.5f, w + eps, 7, d / 2f + 0.5f, 0xFF444444)));
 
         mat.popMatrix();
     }
@@ -171,11 +156,11 @@ public class PrimitiveTestWorld extends WorldClient {
         mat.rotate(Rotation.Y.rotationDeg(rotY));
 
         //center wall
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, 0, 0, -d / 2f, len, h - 1f, d / 2f, 0xFF808080)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, 0, 0, -d / 2f, len, h - 1f, d / 2f, 0xFF808080)));
         //left wall
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, 0, 0, -d / 2f - 0.5f, len, h, -d / 2f, 0xFF808080)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, 0, 0, -d / 2f - 0.5f, len, h, -d / 2f, 0xFF808080)));
         //right wall
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, 0, 0, d / 2f, len, h, d / 2f + 0.5f, 0xFF808080)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, 0, 0, d / 2f, len, h, d / 2f + 0.5f, 0xFF808080)));
         
         mat.popMatrix();
     }
@@ -187,21 +172,21 @@ public class PrimitiveTestWorld extends WorldClient {
         mat.translate(x, y, z);
 
         //base
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cylinder(mat, 0, 0, 0, r, h, 12, 0xFF808080)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cylinder(mat, 0, 0, 0, r, h, 12, 0xFF808080)));
 
         //roof
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cone(mat, 0, h, 0, r + 0.5f, 4f, 12, 0xFFff5252)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cone(mat, 0, h, 0, r + 0.5f, 4f, 12, 0xFFff5252)));
 
         mat.popMatrix();
     }
 
     private void fountain(float x, float y, float z) {
         float r = 2f, h = 0.5f;
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cylinder(mat, x, y, z, r, h, 12, 0xFF808080)));
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cylinder(mat, x, y, z, r - 0.5f, h * 2, 8, 0xFF80a0a0)));
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cylinder(mat, x, y, z, r - 1f, h * 3, 6, 0xFF80c0e0)));
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cylinder(mat, x, y, z, r - 1.5f, h * 4, 5, 0xFF80e0f0)));
-        terrains.add(new PrimitiveTerrain(GeometryHelper.sphere(mat, x, y + h * 5, z, r - 1.5f, 8, 0xFF80e0f0)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cylinder(mat, x, y, z, r, h, 8, 0xFF808080)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cylinder(mat, x, y, z, r - 0.5f, h * 2, 6, 0xFF80a0a0)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cylinder(mat, x, y, z, r - 1f, h * 3, 5, 0xFF80c0e0)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cylinder(mat, x, y, z, r - 1.5f, h * 4, 4, 0xFF80e0f0)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.sphere(mat, x, y + h * 5, z, r - 1.5f, 8, 0xFF80e0f0)));
     }
 
     private void gateway(float x, float y, float z) {
@@ -210,25 +195,12 @@ public class PrimitiveTestWorld extends WorldClient {
 
         float eps = 0.01f;
         //cube - bottom
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cube(mat, -2f, -2f, -eps * 2f, 2f, 0f, 3f + eps * 2f, 0xFF202020)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, -2f, -2f, -eps * 2f, 2f, 0f, 3f + eps * 2f, 0xFF202020)));
 
         //cylinder - top
         mat.rotate(Rotation.X.rotationDeg(90f));
-        terrains.add(new PrimitiveTerrain(GeometryHelper.cylinder(mat, 0, -eps, 0, 2f, 3f + eps * 2f, 12, 0xFF202020)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cylinder(mat, 0, -eps, 0, 2f, 3f + eps * 2f, 12, 0xFF202020)));
         mat.popMatrix();
-    }
-
-    @Override
-    public List<AABB> getTerrainCollisions(AABB region) {
-        List<AABB> list = super.getTerrainCollisions(region);
-
-        for (PrimitiveTerrain terrain : terrains) {
-            AABB aabb = terrain.getAabb();
-            if (region.intersects(aabb))
-                list.add(aabb);
-        }
-
-        return list;
     }
 
     @Override
@@ -238,12 +210,32 @@ public class PrimitiveTestWorld extends WorldClient {
         super.keyPress(key, scancode, action, mods);
     }
 
-    private static class PrimitiveTerrain {
-        private final AABB aabb = new AABB();
+    private static class PrimitiveTerrain extends Terrain {
         private final Vertex[][] vertices;
 
         public PrimitiveTerrain(Vertex[][] vertices) {
+            super(null, TerrainRegistry.CUSTOM);
             this.vertices = vertices;
+            this.preciseAABB.add(aabb);
+            updateAABB();
+        }
+
+        @Override
+        public boolean isSelectable(Entity entity) {
+            return false;
+        }
+
+        @Override
+        public void render(MatrixStack matrices, float delta) {
+            PrimitiveTestWorld.render(matrices, vertices);
+        }
+
+        @Override
+        protected void updateAABB() {
+            if (vertices == null || vertices.length == 0 || vertices[0].length == 0) {
+                super.updateAABB();
+                return;
+            }
 
             float minX = Integer.MAX_VALUE; float maxX = Integer.MIN_VALUE;
             float minY = Integer.MAX_VALUE; float maxY = Integer.MIN_VALUE;
@@ -262,14 +254,6 @@ public class PrimitiveTestWorld extends WorldClient {
             }
 
             this.aabb.set(minX, minY, minZ, maxX, maxY, maxZ);
-        }
-
-        public AABB getAabb() {
-            return aabb;
-        }
-
-        public Vertex[][] getVertices() {
-            return vertices;
         }
     }
 }

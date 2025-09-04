@@ -489,7 +489,7 @@ public class WorldClient extends World {
             case GLFW_KEY_F7 -> this.worldTime -= 100;
             case GLFW_KEY_F8 -> this.worldTime += 100;
 
-            case GLFW_KEY_COMMA -> player.setSelectedTerrain((player.getSelectedTerrain() + 1) % (TerrainRegistry.values().length));
+            case GLFW_KEY_COMMA -> player.setSelectedTerrain((player.getSelectedTerrain() + 1) % (TerrainRegistry.values().length - 1));
             case GLFW_KEY_PERIOD -> player.setSelectedMaterial(Maths.modulo((player.getSelectedMaterial() + (shift ? -1 : 1)), MaterialRegistry.values().length));
             case GLFW_KEY_SLASH -> sky.setSkyBox(Maths.randomArr(SkyBoxRegistry.values()).resource);
 

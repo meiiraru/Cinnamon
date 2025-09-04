@@ -94,7 +94,7 @@ public class LocalPlayer extends Player {
             return false;
 
         Hit<? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(false, 1f, getPickRange()) : getLookingObject(getPickRange());
-        if (hit != null && hit.obj() instanceof Terrain t) {
+        if (hit != null && hit.obj() instanceof Terrain t && t.isSelectable(this)) {
             getWorld().removeTerrain(t);
             lastMouseTime = getInteractionDelay();
             return true;
@@ -155,7 +155,7 @@ public class LocalPlayer extends Player {
             return;
 
         Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
-        if (hit != null && hit.obj() instanceof Terrain t) {
+        if (hit != null && hit.obj() instanceof Terrain t && t.isSelectable(this)) {
             selectedTerrain = t.getType().ordinal();
             MaterialRegistry material = t.getMaterial();
             if (material != null) selectedMaterial = material.ordinal();
