@@ -10,6 +10,7 @@ import java.util.function.BiFunction;
 
 import static cinnamon.render.framebuffer.Blit.COLOR_UNIFORM;
 import static org.lwjgl.glfw.GLFW.glfwGetTime;
+import static org.lwjgl.opengl.GL11.*;
 
 public enum PostProcess {
 
@@ -107,7 +108,7 @@ public enum PostProcess {
         s.setFloat("intensity", 0.2f);
         s.setFloat("maskSize", 0.5f);
         s.setFloat("maskStrength", 0.5f);
-        s.applyColor(0xFFFFFF);
+        s.applyColorRGBA(0xFFFFFFFF);
         return COLOR_UNIFORM.apply(fb, s);
     }),
     DOT_GRID((fb, s) -> {
@@ -216,6 +217,9 @@ public enum PostProcess {
         if (postProcesses.length == 0)
             return;
 
+        //disable alpha blending
+        glDisable(GL_BLEND);
+
         //prepare framebuffer
         Framebuffer old = Framebuffer.activeFramebuffer;
         FB.POST_FRAMEBUFFER.resizeTo(old);
@@ -246,6 +250,9 @@ public enum PostProcess {
             Blit.copy(old, FB.PREVIOUS_COLOR_FRAMEBUFFER.id(), BLIT);
             old.use();
         }
+
+        //re-enable alpha blending
+        glEnable(GL_BLEND);
     }
 
     //wacky hack

@@ -84,9 +84,9 @@ public class Toast {
 
     public enum ToastType {
         INFO(null),
-        SUCCESS(Colors.LIME.rgba),
-        WARN(Colors.YELLOW.rgba),
-        ERROR(Colors.RED.rgba),
+        SUCCESS(Colors.LIME.argb),
+        WARN(Colors.YELLOW.argb),
+        ERROR(Colors.RED.argb),
         WORLD(null);
 
         public final Integer color;

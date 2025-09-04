@@ -23,7 +23,8 @@ void main() {
     float cellSize = ditherTexSize.y;
     vec2 uv = mod(scrCoords, vec2(cellSize)) / cellSize;
 
-    vec3 color = texture(colorTex, texCoords).rgb;
+    vec4 tex = texture(colorTex, texCoords);
+    vec3 color = tex.rgb;
     float brightness = floor(rgb2hsv(color).b * ditherSteps) / ditherSteps;
 
     float offset = max(brightness - 1.0f / ditherSteps, 0.0f);
@@ -31,5 +32,5 @@ void main() {
     vec2 f = vec2(uv.x / ditherSteps + offset, 1.0f - uv.y);
     vec3 d = texture(ditherTex, f).rgb;
 
-    fragColor = vec4(mix(d, d * color, colorMask), 1.0f);
+    fragColor = vec4(mix(d, d * color, colorMask), tex.a);
 }

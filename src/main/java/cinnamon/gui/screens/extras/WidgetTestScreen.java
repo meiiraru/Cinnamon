@@ -209,7 +209,7 @@ public class WidgetTestScreen extends ParentedScreen {
         grid.addWidget(toast2);
 
         //toast 3
-        Button toast3 = new Button(0, 0, 60, 12, Text.of("Toast 3"), button -> Toast.addToast(Text.of("Oopsie daisy")).style(button.getStyleRes()).type(Toast.ToastType.ERROR).color(Colors.randomRainbow().rgba));
+        Button toast3 = new Button(0, 0, 60, 12, Text.of("Toast 3"), button -> Toast.addToast(Text.of("Oopsie daisy")).style(button.getStyleRes()).type(Toast.ToastType.ERROR).color(Colors.randomRainbow().argb));
         grid.addWidget(toast3);
 
         //right panel

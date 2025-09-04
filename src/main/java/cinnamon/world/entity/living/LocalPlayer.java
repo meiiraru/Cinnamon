@@ -221,6 +221,6 @@ public class LocalPlayer extends Player {
 
     @Override
     public int getOutlineColor() {
-        return super.shouldRenderOutline() ? super.getOutlineColor() : 0x000000;
+        return super.shouldRenderOutline() ? super.getOutlineColor() : 0xFF000000;
     }
 }

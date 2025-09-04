@@ -19,12 +19,12 @@ public class DiscoFloor extends TerrainEntity {
     @Override
     protected void renderModel(MatrixStack matrices, float delta) {
         if (!WorldRenderer.isOutlineRendering())
-            Shader.activeShader.applyColor(ColorUtils.hsvToRGB(new Vector3f((Client.getInstance().ticks + delta) % 255 / 255f, 1f, 1f)));
+            Shader.activeShader.applyColorRGBA(ColorUtils.hsvToRGB(new Vector3f((Client.getInstance().ticks + delta) % 255 / 255f, 1f, 1f)));
 
         //render
         super.renderModel(matrices, delta);
 
         //reset
-        Shader.activeShader.applyColor(0xFFFFFF);
+        Shader.activeShader.applyColorRGBA(0xFFFFFFFF);
     }
 }

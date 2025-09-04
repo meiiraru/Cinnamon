@@ -200,7 +200,7 @@ public class XrRenderer {
         //prepare the renderer
         boolean lefty = activeHand % 2 == 0;
         WorldRenderer.setupFramebuffer();
-        Shader sh = WorldRenderer.initOutlineBatch(Client.getInstance().camera);
+        WorldRenderer.initOutlineBatch(Client.getInstance().camera);
 
         //apply the hand matrices
         matrices.pushMatrix();
@@ -212,7 +212,7 @@ public class XrRenderer {
         }
 
         int color = GUIStyle.getDefault().getInt("xr_interact_color");
-        sh.applyColor(color);
+        Shader.activeShader.applyColorRGBA(color);
 
         //render
         handModel.render(matrices);

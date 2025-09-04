@@ -68,7 +68,7 @@ public class ProgressBar extends Widget {
     }
 
     public void setColor(Colors color) {
-        this.setColor(color.rgba);
+        this.setColor(color.argb);
     }
 
     public void setColor(Integer color) {

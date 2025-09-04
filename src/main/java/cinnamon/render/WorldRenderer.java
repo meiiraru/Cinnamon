@@ -403,11 +403,11 @@ public class WorldRenderer {
             return;
 
         //prepare outline
-        Shader s = initOutlineBatch(camera);
+        initOutlineBatch(camera);
 
         //render entities
         for (Entity entity : entitiesToOutline) {
-            s.applyColor(entity.getOutlineColor());
+            Shader.activeShader.applyColorRGBA(entity.getOutlineColor());
             entity.render(matrices, delta);
         }
         VertexConsumer.discardBatches();
@@ -416,15 +416,13 @@ public class WorldRenderer {
         bakeOutlines(null);
     }
 
-    public static Shader initOutlineBatch(Camera camera) {
+    public static void initOutlineBatch(Camera camera) {
         outlineRendering = true;
         outlineFramebuffer.resizeTo(targetBuffer);
         outlineFramebuffer.useClear();
 
         Shader s = Shaders.MODEL_PASS.getShader().use();
         s.setup(camera);
-
-        return s;
     }
 
     public static void bakeOutlines(Consumer<Shader> shaderConsumer) {

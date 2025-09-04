@@ -50,8 +50,8 @@ public class ColorPicker extends Button {
         ContainerGrid confirmButtons = new ContainerGrid(0, 0, 1, 2);
         buttons.addWidget(confirmButtons);
 
-        confirmButtons.addWidget(new ConfirmButton(26, Colors.RED.rgba, "\u2715", b -> picker.close()));
-        confirmButtons.addWidget(new ConfirmButton(26, Colors.GREEN.rgba, "\u2713", b -> {
+        confirmButtons.addWidget(new ConfirmButton(26, Colors.RED.argb, "\u2715", b -> picker.close()));
+        confirmButtons.addWidget(new ConfirmButton(26, Colors.GREEN.argb, "\u2713", b -> {
             setColor(changeColor);
             picker.close();
         }));
@@ -109,7 +109,7 @@ public class ColorPicker extends Button {
     }
 
     public void setColor(Colors color) {
-        setColor(color.rgba);
+        setColor(color.argb);
     }
 
     public void setColor(int color) {

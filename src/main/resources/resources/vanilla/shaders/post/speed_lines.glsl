@@ -16,7 +16,7 @@ uniform float rotationSpeed;
 uniform float intensity;
 uniform float maskSize;
 uniform float maskStrength;
-uniform vec3 color;
+uniform vec4 color = vec4(1.0f);
 
 const float TWO_PI = 6.28318548202515f;
 
@@ -57,5 +57,5 @@ void main() {
 
     float mask = smoothstep(maskSize, maskSize + maskStrength, length(uv));
 
-    fragColor = mix(texture(colorTex, texCoords), vec4(color, 1.0f), speedLines * mask);
+    fragColor = mix(texture(colorTex, texCoords), vec4(color.rgb, 1.0f), speedLines * mask * color.a);
 } 

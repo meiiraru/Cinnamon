@@ -74,7 +74,7 @@ public class BallsScreen extends ParentedScreen {
         if (sup) return true;
 
         if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1) {
-            Ball ball = new Ball(client.window.mouseX - width / 2f, client.window.mouseY - height / 2f, (float) (Math.random() * 5) + 5f, Colors.randomRainbow().rgba);
+            Ball ball = new Ball(client.window.mouseX - width / 2f, client.window.mouseY - height / 2f, (float) (Math.random() * 5) + 5f, Colors.randomRainbow().argb);
             balls.add(ball);
             return true;
         }

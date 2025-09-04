@@ -18,7 +18,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 public class PrimitiveTestWorld extends WorldClient {
 
     private static final MatrixStack mat = new MatrixStack(); //dummy matrix stack
-    private static final PrimitiveTerrain floor = new PrimitiveTerrain(new Vertex[][]{GeometryHelper.plane(mat, -1000f, 0f, -1000f, 1000f, 1000f, Colors.GREEN.rgba)});
+    private static final PrimitiveTerrain floor = new PrimitiveTerrain(new Vertex[][]{GeometryHelper.plane(mat, -1000f, 0f, -1000f, 1000f, 1000f, Colors.GREEN.argb)});
 
     private static boolean renderNormals;
 
@@ -72,7 +72,7 @@ public class PrimitiveTestWorld extends WorldClient {
         //player
         Vector3f playerPos = player.getPos(delta);
         Vector3f playerDim = player.getAABB().getDimensions();
-        render(matrices, GeometryHelper.capsule(matrices, playerPos.x, playerPos.y, playerPos.z, playerDim.x / 2f, playerDim.y, 12, Colors.PINK.rgba));
+        render(matrices, GeometryHelper.capsule(matrices, playerPos.x, playerPos.y, playerPos.z, playerDim.x / 2f, playerDim.y, 12, Colors.PINK.argb));
 
         return super.renderEntities(camera, matrices, delta);
     }

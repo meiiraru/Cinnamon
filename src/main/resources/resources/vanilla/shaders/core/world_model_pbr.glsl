@@ -56,7 +56,7 @@ in mat3 pTBN;
 
 out vec4 fragColor;
 
-uniform vec3 color;
+uniform vec4 color = vec4(1.0f);
 uniform vec3 camPos;
 uniform Material material;
 
@@ -240,7 +240,7 @@ void main() {
     //if (true) {fragColor = vec4(getNormalFromMap(material.normalTex, texCoords, TBN), 1); return;}
 
     //color
-    vec4 col = vec4(color, 1.0f);
+    vec4 col = color;
 
     //lighting
     col *= applyLighting();

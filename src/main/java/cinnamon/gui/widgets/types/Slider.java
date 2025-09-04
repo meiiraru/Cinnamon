@@ -407,7 +407,7 @@ public class Slider extends SelectableWidget {
     }
 
     public void setColor(Colors color) {
-        this.setColor(color.rgba);
+        this.setColor(color.argb);
     }
 
     public void setColor(Integer color) {

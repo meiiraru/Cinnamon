@@ -14,7 +14,7 @@ uniform vec2 textelSize;
 uniform int numSteps = 12;
 uniform float radius = 4.0f;
 
-const float TAU = 6.28318530;
+const float TAU = 6.28318530f;
 
 void main() {
     //if (true) {fragColor = vec4(texture(outlineTex, texCoords).rgb, 1.0f); return;}

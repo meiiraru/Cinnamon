@@ -502,7 +502,7 @@ public class WorldClient extends World {
                                 FireworkStar.Shape.BALL
                         ),
                         new FireworkStar(
-                                new Integer[]{Colors.WHITE.rgba},
+                                new Integer[]{Colors.WHITE.argb},
                                 null,
                                 false, true,
                                 FireworkStar.Shape.STAR

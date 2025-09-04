@@ -27,12 +27,12 @@ public enum Colors {
             RAINBOW = {PINK, PURPLE, BLUE, CYAN, LIME, YELLOW, ORANGE, RED},
             GRAYSCALE = {BLACK, LIGHT_BLACK, DARK_GRAY, LIGHT_GRAY, WHITE};
 
-    public final int rgb, rgba, r, g, b;
+    public final int rgb, argb, r, g, b;
     public final Vector3f vec;
 
     Colors(int rgb) {
         this.rgb = rgb;
-        this.rgba = rgb | 0xFF000000;
+        this.argb = rgb | 0xFF000000;
         this.r = (rgb >> 16) & 0xFF;
         this.g = (rgb >> 8) & 0xFF;
         this.b = rgb & 0xFF;

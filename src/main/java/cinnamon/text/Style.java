@@ -80,7 +80,7 @@ public class Style {
     }
 
     public Style color(Colors color) {
-        return this.color(color.rgba);
+        return this.color(color.argb);
     }
 
     public Style color(Integer color) {
@@ -90,7 +90,7 @@ public class Style {
     }
 
     public Style backgroundColor(Colors color) {
-        return this.backgroundColor(color.rgba);
+        return this.backgroundColor(color.argb);
     }
 
     public Style backgroundColor(Integer backgroundColor) {
@@ -100,7 +100,7 @@ public class Style {
     }
 
     public Style shadowColor(Colors color) {
-        return this.shadowColor(color.rgba);
+        return this.shadowColor(color.argb);
     }
 
     public Style shadowColor(Integer shadowColor) {
@@ -110,7 +110,7 @@ public class Style {
     }
 
     public Style outlineColor(Colors color) {
-        return this.outlineColor(color.rgba);
+        return this.outlineColor(color.argb);
     }
 
     public Style outlineColor(Integer outlineColor) {

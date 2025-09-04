@@ -35,11 +35,12 @@ vec2 sampleSphericalMap(vec3 v) {
 
 void main() {
     vec2 uv = sampleSphericalMap(normalize(pos));
-    vec3 color = texture(equirectangularMap, uv).rgb;
+    vec4 tex = texture(equirectangularMap, uv);
+    vec3 color = tex.rgb;
     if (hdr) {
         color = vec3(1.0f) - exp(-color * exposure);
         color = pow(color, vec3(1.0f / gamma));
         color = clamp(color, 0.0f, 1.0f);
     }
-    fragColor = vec4(color, 1.0f);
+    fragColor = vec4(color, tex.a);
 }

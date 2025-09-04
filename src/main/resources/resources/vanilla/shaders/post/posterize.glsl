@@ -13,9 +13,10 @@ uniform sampler2D colorTex;
 uniform int colorCount;
 
 void main() {
-    vec3 color = texture(colorTex, texCoords).rgb;
+    vec4 tex = texture(colorTex, texCoords);
+    vec3 color = tex.rgb;
     color = rgb2hsv(color);
     color.gb = floor(color.gb * colorCount) / colorCount;
     color = hsv2rgb(color);
-    fragColor = vec4(color, 1.0f);
+    fragColor = vec4(color, tex.a);
 }

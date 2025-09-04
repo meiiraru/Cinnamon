@@ -238,7 +238,6 @@ public class Shader {
     public void setup(Matrix4f proj, Matrix4f view) {
         applyProjectionMatrix(proj);
         applyViewMatrix(view);
-        applyColor(0xFFFFFF);
     }
 
     public void setup(Camera camera) {
@@ -249,12 +248,28 @@ public class Shader {
         this.setColor("color", color);
     }
 
+    public void applyColorRGBA(int colorARGB) {
+        this.setColorRGBA("color", colorARGB);
+    }
+
     public void applyColor(Vector3f rgb) {
         this.applyColor(rgb.x, rgb.y, rgb.z);
     }
 
-    public void applyColor(float x, float y, float z) {
-        this.setVec3("color", x, y, z);
+    public void applyColorRGBA(Vector3f rgb) {
+        this.applyColor(rgb.x, rgb.y, rgb.z, 1f);
+    }
+
+    public void applyColor(Vector4f rgba) {
+        this.applyColor(rgba.x, rgba.y, rgba.z, rgba.w);
+    }
+
+    public void applyColor(float r, float g, float b) {
+        this.setVec3("color", r, g, b);
+    }
+
+    public void applyColor(float r, float g, float b, float a) {
+        this.setVec4("color", r, g, b, a);
     }
 
     public void applyProjectionMatrix(Matrix4f matrix) {

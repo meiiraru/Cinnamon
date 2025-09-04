@@ -79,7 +79,7 @@ public class Potato extends Projectile {
         //color
         if (!WorldRenderer.isOutlineRendering()) {
             float t2 = Math.min(lifetime / 30f, 1f);
-            Shader.activeShader.applyColor(ColorUtils.lerpRGBColor(0xFF8888, 0xFFFFFF, t2));
+            Shader.activeShader.applyColorRGBA(ColorUtils.lerpARGBColor(0xFFFF8888, 0xFFFFFFFF, t2));
         }
 
         //render
@@ -87,7 +87,7 @@ public class Potato extends Projectile {
 
         //reset
         matrices.popMatrix();
-        Shader.activeShader.applyColor(0xFFFFFF);
+        Shader.activeShader.applyColorRGBA(0xFFFFFFFF);
     }
 
     @Override

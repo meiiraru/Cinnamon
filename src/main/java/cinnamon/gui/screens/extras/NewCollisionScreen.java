@@ -67,24 +67,24 @@ public class NewCollisionScreen extends ParentedScreen {
         matrices.translate(width / 2f, height / 2f, 0f);
 
         //render lines
-        VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, -width, 0, width, 0, 1f, Colors.DARK_GRAY.rgba));
-        VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, 0, -height, 0, height, 1f, Colors.DARK_GRAY.rgba));
+        VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, -width, 0, width, 0, 1f, Colors.DARK_GRAY.argb));
+        VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, 0, -height, 0, height, 1f, Colors.DARK_GRAY.argb));
 
         //minkowski difference
         for (Vector3f p : player)
             for (Vector3f t : terrain)
-                VertexConsumer.MAIN.consume(GeometryHelper.circle(matrices, p.x - t.x, p.y - t.y, 1.5f, 1f, 12, Colors.CYAN.rgba));
+                VertexConsumer.MAIN.consume(GeometryHelper.circle(matrices, p.x - t.x, p.y - t.y, 1.5f, 1f, 12, Colors.CYAN.argb));
 
         //render terrain
         Vertex[] v = new Vertex[terrain.length];
         for (int i = 0; i < terrain.length; i++)
-            v[i] = Vertex.of(terrain[i]).mul(matrices).color(Colors.YELLOW.rgba);
+            v[i] = Vertex.of(terrain[i]).mul(matrices).color(Colors.YELLOW.argb);
         VertexConsumer.LINES.consume(v);
 
         //render player
         v = new Vertex[player.length];
         for (int i = 0; i < player.length; i++)
-            v[i] = Vertex.of(player[i]).mul(matrices).color(colliding ? 0xFFFFFFFF : Colors.PINK.rgba);
+            v[i] = Vertex.of(player[i]).mul(matrices).color(colliding ? 0xFFFFFFFF : Colors.PINK.argb);
         VertexConsumer.LINES.consume(v);
 
         matrices.popMatrix();

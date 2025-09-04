@@ -280,7 +280,7 @@ public class TextField extends SelectableWidget implements Tickable {
     }
 
     public void setBorderColor(Colors color) {
-        this.setBorderColor(color.rgba);
+        this.setBorderColor(color.argb);
     }
 
     public void setBorderColor(Integer color) {
@@ -332,7 +332,7 @@ public class TextField extends SelectableWidget implements Tickable {
     }
 
     public void setSelectionColor(Colors color) {
-        setSelectionColor(color.rgba);
+        setSelectionColor(color.argb);
     }
 
     public void setSelectionColor(Integer color) {
@@ -340,7 +340,7 @@ public class TextField extends SelectableWidget implements Tickable {
     }
 
     public void setSelectedTextColor(Colors color) {
-        setSelectedTextColor(color.rgba);
+        setSelectedTextColor(color.argb);
     }
 
     public void setSelectedTextColor(Integer color) {

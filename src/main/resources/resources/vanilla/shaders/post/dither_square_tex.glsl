@@ -17,7 +17,8 @@ uniform float colorMask = 1.0f;
 uniform vec3 dither = vec3(0.75f, 0.5f, 0.25f);
 
 void main() {
-    vec3 color = texture(colorTex, texCoords).rgb;
+    vec4 tex = texture(colorTex, texCoords);
+    vec3 color = tex.rgb;
     float brightness = rgb2hsv(color).b;
 
     vec2 ditherSize = textureSize(ditherTex, 0);
@@ -35,5 +36,5 @@ void main() {
         f += d.b;
 
     f = 1.0f - min(f, 1.0f);
-    fragColor = vec4(mix(vec3(f), color * f, colorMask), 1.0f);
+    fragColor = vec4(mix(vec3(f), color * f, colorMask), tex.a);
 }

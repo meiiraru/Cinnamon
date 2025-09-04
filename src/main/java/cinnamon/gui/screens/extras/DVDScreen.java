@@ -115,11 +115,11 @@ public class DVDScreen extends ParentedScreen {
         Vector2f p = Maths.lerp(oPos, pos, delta);
         Vertex[] vertices = GeometryHelper.quad(matrices, p.x, p.y, w, h);
         for (Vertex vertex : vertices)
-            vertex.color(color.rgba);
+            vertex.color(color.argb);
         VertexConsumer.MAIN.consume(vertices, DVD_TEX);
 
         if (mousePressed)
-            VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, anchorX, anchorY, anchorX + directionX, anchorY + directionY, 1f, Colors.WHITE.rgba));
+            VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, anchorX, anchorY, anchorX + directionX, anchorY + directionY, 1f, Colors.WHITE.argb));
 
         //render children on top
         super.render(matrices, mouseX, mouseY, delta);

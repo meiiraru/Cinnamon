@@ -41,7 +41,7 @@ public class DeathScreen extends Screen {
         matrices.scale(5f);
 
         float dc = (float) (Math.sin((client.ticks + delta) * 0.1f) + 1) * 0.5f;
-        int color = ColorUtils.lerpARGBColor(Colors.RED.rgba, 0xFF880000, dc);
+        int color = ColorUtils.lerpARGBColor(Colors.RED.argb, 0xFF880000, dc);
         YOU_DIED.withStyle(Style.EMPTY.color(color)).render(VertexConsumer.FONT, matrices, 0f, 0f, Alignment.TOP_CENTER);
 
         matrices.popMatrix();

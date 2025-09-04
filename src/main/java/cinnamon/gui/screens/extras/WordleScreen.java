@@ -456,7 +456,7 @@ public class WordleScreen extends ParentedScreen {
                     matrices,
                     getX(), getY(),
                     getX() + getWidth(), getY() + getHeight(),
-                    -1, color.rgba
+                    -1, color.argb
             ));
 
             if (text != null)
@@ -598,7 +598,7 @@ public class WordleScreen extends ParentedScreen {
                     matrices,
                     getX(), getY(),
                     getX() + getWidth(), getY() + getHeight(),
-                    -1, COLORS[isHoveredOrFocused() ? 6 : status].rgba
+                    -1, COLORS[isHoveredOrFocused() ? 6 : status].argb
             ));
         }
 

@@ -54,7 +54,7 @@ in vec3 pos;
 in mat3 TBN;
 in mat3 pTBN;
 
-uniform vec3 color;
+uniform vec4 color = vec4(1.0f);
 uniform vec3 camPos;
 uniform Material material;
 
@@ -124,7 +124,7 @@ void main() {
     vec3 normal     = getNormalFromMap(material.normalTex, texCoords, TBN);
 
     //write to gBuffer
-    gAlbedo = albedo * vec4(color, 1.0f);
+    gAlbedo = albedo * color;
     gPosition = vec4(pos, 1.0f);
     gNormal = vec4(normal, 1.0f);
     gORM = vec4(ao, roughness, metallic, 1.0f);
