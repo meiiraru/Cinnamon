@@ -13,6 +13,8 @@ import cinnamon.world.Mask;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import java.util.UUID;
+
 public abstract class Light {
 
     public static final Resource
@@ -31,6 +33,7 @@ public abstract class Light {
             lightView = new Matrix4f();
     private boolean castsShadows = false;
     protected final Mask shadowMask = new Mask(0b1, 0b10);
+    protected UUID source;
 
     public void pushToShader(Shader shader) {
         pushToShader(shader, -1);
@@ -177,5 +180,14 @@ public abstract class Light {
 
     public Mask getShadowMask() {
         return shadowMask;
+    }
+
+    public UUID getSource() {
+        return source;
+    }
+
+    public Light source(UUID source) {
+        this.source = source;
+        return this;
     }
 }

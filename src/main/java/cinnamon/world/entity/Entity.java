@@ -463,7 +463,8 @@ public abstract class Entity extends WorldObject {
     @Override
     public boolean shouldRender(Camera camera) {
         return isVisible() && (camera.getEntity() != this || ((WorldClient) getWorld()).isThirdPerson() || WorldRenderer.isShadowRendering())
-                && WorldRenderer.activeMask.test(renderMask)
+                && WorldRenderer.activeMask.test(getRenderMask())
+                && !(WorldRenderer.isShadowRendering() && getUUID().equals(WorldRenderer.shadowLight.getSource()))
                 && camera.getPos().distanceSquared(getPos()) <= getRenderDistance()
                 && super.shouldRender(camera);
     }

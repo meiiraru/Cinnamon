@@ -44,7 +44,7 @@ public class WorldRenderer {
     public static final ShadowMapFramebuffer cubeShadowBuffer = new ShadowMapFramebuffer();
     public static final Framebuffer outlineFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
 
-    private static boolean shadowRendering = false;
+    public static Light shadowLight = null;
     private static boolean outlineRendering = false;
 
     private static int renderedEntities, renderedTerrain, renderedParticles, renderedLights, renderedShadows;
@@ -234,7 +234,7 @@ public class WorldRenderer {
 
     public static void renderDirectionalLightShadow(Light light, Camera camera, Runnable renderFunction) {
         //set rendering state
-        shadowRendering = true;
+        shadowLight = light;
         activeMask = light.getShadowMask();
 
         //move the directional lights away from the camera
@@ -268,13 +268,13 @@ public class WorldRenderer {
         VertexConsumer.finishAllBatches(main, camera);
 
         //reset state
-        shadowRendering = false;
+        shadowLight = null;
         activeMask = passMask;
     }
 
     public static void renderLightShadowToCubeMap(PointLight light, Camera camera, Runnable renderFunction) {
         //set rendering state
-        shadowRendering = true;
+        shadowLight = light;
         activeMask = light.getShadowMask();
 
         //calculate light matrix
@@ -321,7 +321,7 @@ public class WorldRenderer {
         }
 
         //reset state
-        shadowRendering = false;
+        shadowLight = null;
         activeMask = passMask;
     }
 
@@ -479,7 +479,7 @@ public class WorldRenderer {
 
 
     public static boolean isShadowRendering() {
-        return shadowRendering;
+        return shadowLight != null;
     }
 
     public static boolean isOutlineRendering() {

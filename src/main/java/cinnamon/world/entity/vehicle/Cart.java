@@ -19,8 +19,8 @@ import java.util.UUID;
 public class Cart extends Car {
 
     private final Light
-            headlight = new Spotlight().angle(40f, 60f).falloff(0f, 10f).intensity(10f),
-            taillight = new Spotlight().angle(40f, 60f).falloff(0f, 5f).intensity(10f).castsShadows(false).color(0xFF5555);
+            headlight = new Spotlight().angle(40f, 60f).falloff(0f, 10f).intensity(10f).source(getUUID()),
+            taillight = new Spotlight().angle(40f, 60f).falloff(0f, 5f).intensity(10f).source(getUUID()).castsShadows(false).color(0xFF5555);
 
     private boolean isRailed;
 

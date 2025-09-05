@@ -16,7 +16,7 @@ public class Flashlight extends Item {
     private final CookieLight light = new CookieLight() {
         @Override
         public void calculateLightSpaceMatrix() {
-            LivingEntity entity = getSource();
+            LivingEntity entity = Flashlight.this.getSource();
             if (entity != null) {
                 float delta = Client.getInstance().timer.partialTick;
                 pos(entity.getHandPos(false, delta));
@@ -35,7 +35,6 @@ public class Flashlight extends Item {
                 .angle(15f, 20f)
                 .falloff(0f, 20f)
                 .color(color);
-        light.getShadowMask().setExcludeMask(2, true);
     }
 
     @Override
@@ -45,8 +44,15 @@ public class Flashlight extends Item {
     }
 
     @Override
+    public void select(LivingEntity source) {
+        super.select(source);
+        light.source(source.getUUID());
+    }
+
+    @Override
     public void unselect() {
         setActive(false);
+        light.source(null);
         super.unselect();
     }
 
@@ -60,7 +66,6 @@ public class Flashlight extends Item {
 
         if (active) wc.addLight(light);
         else wc.removeLight(light);
-        source.getRenderMask().setMask(2, active);
     }
 
     public Object getCountText() {
