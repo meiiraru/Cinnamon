@@ -53,10 +53,15 @@ public abstract class Entity extends WorldObject {
 
     protected Mask renderMask = new Mask();
 
+    private final List<FeatureRenderer> renderFeatures = new ArrayList<>();
+
     public Entity(UUID uuid, Resource model) {
         this.model = ModelManager.load(model);
         this.uuid = uuid;
         this.updateAABB();
+        this.addRenderFeature((source, matrices, delta) -> {
+            if (shouldRenderText()) renderTexts(matrices, delta);
+        });
     }
 
     public void preTick() {
@@ -68,19 +73,20 @@ public abstract class Entity extends WorldObject {
     public void render(MatrixStack matrices, float delta) {
         super.render(matrices, delta);
 
-        matrices.pushMatrix();
+        if (isVisible()) {
+            //apply model pose
+            matrices.pushMatrix();
+            matrices.translate(getPos(delta));
+            applyModelPose(matrices, delta);
 
-        //apply model pose
-        matrices.translate(getPos(delta));
-        applyModelPose(matrices, delta);
-
-        //render model
-        renderModel(matrices, delta);
-
-        matrices.popMatrix();
+            //render model
+            renderModel(matrices, delta);
+            matrices.popMatrix();
+        }
 
         //render features
-        renderFeatures(matrices, delta);
+        for (FeatureRenderer renderFeature : renderFeatures)
+            renderFeature.render(this, matrices, delta);
     }
 
     protected void renderModel(MatrixStack matrices, float delta) {
@@ -95,12 +101,6 @@ public abstract class Entity extends WorldObject {
         Vector2f rot = getRot(delta);
         matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
         matrices.rotate(Rotation.X.rotationDeg(-rot.x));
-    }
-
-    protected void renderFeatures(MatrixStack matrices, float delta) {
-        //render head text
-        if (shouldRenderText())
-            renderTexts(matrices, delta);
     }
 
     protected void renderTexts(MatrixStack matrices, float delta) {
@@ -462,7 +462,7 @@ public abstract class Entity extends WorldObject {
 
     @Override
     public boolean shouldRender(Camera camera) {
-        return isVisible() && (camera.getEntity() != this || ((WorldClient) getWorld()).isThirdPerson() || WorldRenderer.isShadowRendering())
+        return (camera.getEntity() != this || ((WorldClient) getWorld()).isThirdPerson() || WorldRenderer.isShadowRendering())
                 && WorldRenderer.activeMask.test(getRenderMask())
                 && !(WorldRenderer.isShadowRendering() && getUUID().equals(WorldRenderer.shadowLight.getSource()))
                 && camera.getPos().distanceSquared(getPos()) <= getRenderDistance()
@@ -497,5 +497,9 @@ public abstract class Entity extends WorldObject {
 
     public Mask getRenderMask() {
         return renderMask;
+    }
+
+    public void addRenderFeature(FeatureRenderer feature) {
+        this.renderFeatures.add(feature);
     }
 }

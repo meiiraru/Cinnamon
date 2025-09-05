@@ -34,6 +34,10 @@ public class Spawner<E extends Entity> extends Entity {
         this.delay = Math.max(delay, 1);
         this.entitySupplier = entitySupplier;
         this.respawnPredicate = respawnPredicate;
+        this.addRenderFeature((source, matrices, delta) -> {
+            if (entity == null && (renderCooldown || DebugScreen.isTabOpen(DebugScreen.Tab.ENTITIES)))
+                renderCountdowns(matrices, delta);
+        });
     }
 
     @Override
@@ -52,13 +56,6 @@ public class Spawner<E extends Entity> extends Entity {
     @Override
     protected void renderModel(MatrixStack matrices, float delta) {
         //no model to render
-    }
-
-    @Override
-    protected void renderFeatures(MatrixStack matrices, float delta) {
-        super.renderFeatures(matrices, delta);
-        if (entity == null && (renderCooldown || DebugScreen.isTabOpen(DebugScreen.Tab.ENTITIES)))
-            renderCountdowns(matrices, delta);
     }
 
     public void renderCountdowns(MatrixStack matrices, float delta) {

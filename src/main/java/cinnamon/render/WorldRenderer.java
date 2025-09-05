@@ -427,8 +427,10 @@ public class WorldRenderer {
         for (Entity entity : entitiesToOutline) {
             Shader.activeShader.applyColorRGBA(entity.getOutlineColor());
             entity.render(matrices, delta);
+
+            Shader.activeShader.applyMatrixStack(matrices);
+            VertexConsumer.finishAllBatches(Shader.activeShader, camera); //finish here because color
         }
-        VertexConsumer.discardBatches();
 
         //apply outlines to the main buffer
         bakeOutlines(null);

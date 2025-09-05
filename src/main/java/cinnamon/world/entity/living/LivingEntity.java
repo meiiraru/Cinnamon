@@ -45,6 +45,7 @@ public abstract class LivingEntity extends PhysEntity {
         this.health = this.maxHealth = maxHealth;
         this.eyeHeight = eyeHeight;
         this.inventory = new Inventory(inventorySize);
+        this.addRenderFeature((source, matrices, delta) -> renderHandItem(ItemRenderContext.THIRD_PERSON, matrices, delta));
     }
 
     public LivingEntity(UUID uuid, LivingModelRegistry entityModel, int maxHealth, int inventorySize) {
@@ -83,12 +84,6 @@ public abstract class LivingEntity extends PhysEntity {
             matrices.rotate(Rotation.Y.rotationDeg(rot.y));
         }
         matrices.rotate(Rotation.Y.rotationDeg(-getRot(delta).y));
-    }
-
-    @Override
-    protected void renderFeatures(MatrixStack matrices, float delta) {
-        super.renderFeatures(matrices, delta);
-        renderHandItem(ItemRenderContext.THIRD_PERSON, matrices, delta);
     }
 
     public void renderHandItem(ItemRenderContext context, MatrixStack matrices, float delta) {
