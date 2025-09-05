@@ -30,7 +30,7 @@ public abstract class Light {
             lightSpaceMatrix = new Matrix4f(),
             lightView = new Matrix4f();
     private boolean castsShadows = false;
-    protected final Mask shadowMask = new Mask();
+    protected final Mask shadowMask = new Mask(0b1, 0b10);
 
     public void pushToShader(Shader shader) {
         pushToShader(shader, -1);

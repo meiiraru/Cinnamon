@@ -35,28 +35,32 @@ public class Flashlight extends Item {
                 .angle(15f, 20f)
                 .falloff(0f, 20f)
                 .color(color);
-        light.getShadowMask().setExcludeMask(1, true);
+        light.getShadowMask().setExcludeMask(2, true);
     }
 
     @Override
     public boolean use() {
-        active = !active;
-        World world = getSource().getWorld();
-        if (world.isClientside()) {
-            if (active) ((WorldClient) world).addLight(light);
-            else ((WorldClient) world).removeLight(light);
-        }
+        setActive(!active);
         return super.use();
     }
 
     @Override
     public void unselect() {
-        World world = getSource().getWorld();
-        if (world.isClientside())
-            ((WorldClient) world).removeLight(light);
-
-        active = false;
+        setActive(false);
         super.unselect();
+    }
+
+    private void setActive(boolean active) {
+        this.active = active;
+
+        LivingEntity source;
+        World world;
+        if ((source = getSource()) == null || (world = source.getWorld()) == null || !(world instanceof WorldClient wc))
+            return;
+
+        if (active) wc.addLight(light);
+        else wc.removeLight(light);
+        source.getRenderMask().setMask(2, active);
     }
 
     public Object getCountText() {

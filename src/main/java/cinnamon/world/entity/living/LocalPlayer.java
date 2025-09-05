@@ -27,7 +27,6 @@ public class LocalPlayer extends Player {
 
     public LocalPlayer() {
         this(Settings.playermodel.get());
-        renderMask.setMask(1, true);
     }
 
     public LocalPlayer(LivingModelRegistry model) {
