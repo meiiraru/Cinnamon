@@ -174,6 +174,23 @@ public class AABB {
         );
     }
 
+    public AABB include(Vector3f point) {
+        return include(point.x, point.y, point.z);
+    }
+
+    public AABB include(float x, float y, float z) {
+        if (x < minX) minX = x;
+        else if (x > maxX) maxX = x;
+
+        if (y < minY) minY = y;
+        else if (y > maxY) maxY = y;
+
+        if (z < minZ) minZ = z;
+        else if (z > maxZ) maxZ = z;
+
+        return this;
+    }
+
     public AABB merge(AABB other) {
         return set(
                 Math.min(minX, other.minX),

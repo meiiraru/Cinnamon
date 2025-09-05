@@ -14,6 +14,7 @@ import cinnamon.settings.Settings;
 import cinnamon.utils.Rotation;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
+import cinnamon.world.Mask;
 import cinnamon.world.Sky;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.LivingEntity;
@@ -51,6 +52,9 @@ public class WorldRenderer {
     private static final Vector3f cameraPos = new Vector3f();
     private static final Quaternionf cameraRot = new Quaternionf();
     private static Framebuffer targetBuffer;
+
+    private static final Mask passMask = new Mask(-1);
+    public static Mask activeMask = passMask;
 
     public static boolean
             renderSky = true,
@@ -187,16 +191,14 @@ public class WorldRenderer {
             boolean shadow = hasShadows && light.castsShadows();
             if (shadow) {
                 //init the shadow buffer
-                shadowRendering = true;
                 initShadowBuffer();
 
                 //render the light shadow
-                if (light.isDirectional())
+                if (light.getType() != 1) //only point lights use cube maps
                     renderDirectionalLightShadow(light, camera, renderFunction);
                 else
                     renderLightShadowToCubeMap((PointLight) light, camera, renderFunction);
 
-                shadowRendering = false;
                 renderedShadows++;
             }
 
@@ -231,6 +233,10 @@ public class WorldRenderer {
     }
 
     public static void renderDirectionalLightShadow(Light light, Camera camera, Runnable renderFunction) {
+        //set rendering state
+        shadowRendering = true;
+        activeMask = light.getShadowMask();
+
         //move the directional lights away from the camera
         Vector3f dir = light.getDirection();
         if (light instanceof DirectionalLight)
@@ -260,9 +266,17 @@ public class WorldRenderer {
         Shader main = Shaders.MAIN_DEPTH.getShader().use();
         main.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         VertexConsumer.finishAllBatches(main, camera);
+
+        //reset state
+        shadowRendering = false;
+        activeMask = passMask;
     }
 
     public static void renderLightShadowToCubeMap(PointLight light, Camera camera, Runnable renderFunction) {
+        //set rendering state
+        shadowRendering = true;
+        activeMask = light.getShadowMask();
+
         //calculate light matrix
         light.calculateLightSpaceMatrix();
         Matrix4f lightSpaceMatrix = light.getLightSpaceMatrix();
@@ -305,6 +319,10 @@ public class WorldRenderer {
             sh.setMat4("lightSpaceMatrix", look);
             VertexConsumer.finishAllBatches(sh, camera);
         }
+
+        //reset state
+        shadowRendering = false;
+        activeMask = passMask;
     }
 
     public static void bakeLight(Light light, boolean hasShadow) {

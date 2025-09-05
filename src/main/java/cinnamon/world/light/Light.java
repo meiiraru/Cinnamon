@@ -9,6 +9,7 @@ import cinnamon.render.shader.Shader;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
+import cinnamon.world.Mask;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -29,6 +30,7 @@ public abstract class Light {
             lightSpaceMatrix = new Matrix4f(),
             lightView = new Matrix4f();
     private boolean castsShadows = false;
+    protected final Mask shadowMask = new Mask();
 
     public void pushToShader(Shader shader) {
         pushToShader(shader, -1);
@@ -36,21 +38,23 @@ public abstract class Light {
 
     public void pushToShader(Shader shader, int index) {
         String prefix = index < 0 ? "light." : "lights[" + index + "].";
+        pushToShader(shader, prefix);
+    }
+
+    protected void pushToShader(Shader shader, String prefix) {
+        shader.setInt(prefix + "type", getType());
         shader.setVec3(prefix + "pos", pos);
         shader.setVec3(prefix + "direction", dir);
         shader.setColor(prefix + "color", color);
         shader.setFloat(prefix + "intensity", intensity);
         shader.setMat4(prefix + "lightSpaceMatrix", lightSpaceMatrix);
-        pushToShader(shader, prefix);
     }
-
-    protected abstract void pushToShader(Shader shader, String prefix);
 
     public abstract void calculateLightSpaceMatrix();
 
     protected abstract void updateAABB();
 
-    public abstract boolean isDirectional();
+    public abstract int getType();
 
     public boolean shouldRender(Camera camera) {
         return intensity > 0f && camera.getPos().distanceSquared(getPos()) <= 9216 && camera.isInsideFrustum(aabb); //96 * 96
@@ -90,7 +94,7 @@ public abstract class Light {
 
         matrices.popMatrix();
 
-        if (isDirectional())
+        if (getType() != 1) //point lights have no direction
             VertexConsumer.MAIN.consume(GeometryHelper.line(
                     matrices,
                     pos.x, pos.y, pos.z,
@@ -169,5 +173,9 @@ public abstract class Light {
     public Light castsShadows(boolean bool) {
         this.castsShadows = bool;
         return this;
+    }
+
+    public Mask getShadowMask() {
+        return shadowMask;
     }
 }

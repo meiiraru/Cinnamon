@@ -9,7 +9,7 @@ public class PointLight extends Light {
 
     @Override
     protected void pushToShader(Shader shader, String prefix) {
-        shader.setInt(prefix + "type", 1);
+        super.pushToShader(shader, prefix);
         shader.setFloat(prefix + "falloffStart", falloffStart);
         shader.setFloat(prefix + "falloffEnd", falloffEnd);
     }
@@ -20,8 +20,8 @@ public class PointLight extends Light {
     }
 
     @Override
-    public boolean isDirectional() {
-        return false;
+    public int getType() {
+        return 1;
     }
 
     public PointLight falloff(float falloff) {

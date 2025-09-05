@@ -16,6 +16,7 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
 import cinnamon.world.DamageType;
+import cinnamon.world.Mask;
 import cinnamon.world.WorldObject;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.living.LivingEntity;
@@ -49,6 +50,8 @@ public abstract class Entity extends WorldObject {
 
     private boolean silent;
     private boolean visible = true;
+
+    protected Mask renderMask = new Mask();
 
     public Entity(UUID uuid, Resource model) {
         this.model = ModelManager.load(model);
@@ -460,6 +463,7 @@ public abstract class Entity extends WorldObject {
     @Override
     public boolean shouldRender(Camera camera) {
         return isVisible() && (camera.getEntity() != this || ((WorldClient) getWorld()).isThirdPerson() || WorldRenderer.isShadowRendering())
+                && WorldRenderer.activeMask.test(renderMask)
                 && camera.getPos().distanceSquared(getPos()) <= getRenderDistance()
                 && super.shouldRender(camera);
     }
@@ -488,5 +492,9 @@ public abstract class Entity extends WorldObject {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
+    }
+
+    public Mask getRenderMask() {
+        return renderMask;
     }
 }

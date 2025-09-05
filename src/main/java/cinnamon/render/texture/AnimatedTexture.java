@@ -31,6 +31,7 @@ public class AnimatedTexture extends Texture {
     protected final boolean mipmap;
 
     protected boolean tick = false;
+    private int currentFrame;
 
     protected AnimatedTexture(int id, int width, int height, int totalWidth, boolean mipmap, ByteBuffer imgBuffer, ByteBuffer frameBuffer, AnimationData animationData) {
         super(id, width, height);
@@ -95,8 +96,11 @@ public class AnimatedTexture extends Texture {
             }
         }
 
-        applyFrame(currentFrame, nextFrame, delta);
-        tick = false;
+        if (this.currentFrame != currentFrame || animationData.interpolate)
+            applyFrame(currentFrame, nextFrame, delta);
+
+        this.currentFrame = currentFrame;
+        this.tick = false;
     }
 
     @Override

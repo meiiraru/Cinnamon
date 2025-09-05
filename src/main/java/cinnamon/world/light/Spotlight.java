@@ -15,7 +15,6 @@ public class Spotlight extends PointLight {
     @Override
     protected void pushToShader(Shader shader, String prefix) {
         super.pushToShader(shader, prefix);
-        shader.setInt(prefix + "type", 2);
         shader.setFloat(prefix + "innerAngle", innerAngle);
         shader.setFloat(prefix + "outerAngle", outerAngle);
     }
@@ -28,8 +27,8 @@ public class Spotlight extends PointLight {
     }
 
     @Override
-    public boolean isDirectional() {
-        return true;
+    public int getType() {
+        return 2;
     }
 
     public Spotlight angle(float angle) {

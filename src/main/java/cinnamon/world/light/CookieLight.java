@@ -1,6 +1,5 @@
 package cinnamon.world.light;
 
-import cinnamon.render.shader.Shader;
 import cinnamon.utils.Resource;
 
 public class CookieLight extends Spotlight {
@@ -15,9 +14,8 @@ public class CookieLight extends Spotlight {
     }
 
     @Override
-    protected void pushToShader(Shader shader, String prefix) {
-        super.pushToShader(shader, prefix);
-        shader.setInt(prefix + "type", 4);
+    public int getType() {
+        return 4;
     }
 
     public Resource getTexture() {

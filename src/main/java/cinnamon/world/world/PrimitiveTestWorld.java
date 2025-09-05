@@ -5,6 +5,7 @@ import cinnamon.model.Vertex;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Rotation;
@@ -70,9 +71,11 @@ public class PrimitiveTestWorld extends WorldClient {
     @Override
     public int renderEntities(Camera camera, MatrixStack matrices, float delta) {
         //player
-        Vector3f playerPos = player.getPos(delta);
-        Vector3f playerDim = player.getAABB().getDimensions();
-        VertexConsumer.WORLD_MAIN.consume(GeometryHelper.capsule(matrices, playerPos.x, playerPos.y, playerPos.z, playerDim.x / 2f, playerDim.y, 12, Colors.PINK.argb));
+        if (WorldRenderer.activeMask.test(player.getRenderMask())) {
+            Vector3f playerPos = player.getPos(delta);
+            Vector3f playerDim = player.getAABB().getDimensions();
+            VertexConsumer.WORLD_MAIN.consume(GeometryHelper.capsule(matrices, playerPos.x, playerPos.y, playerPos.z, playerDim.x / 2f, playerDim.y, 12, Colors.PINK.argb));
+        }
 
         return super.renderEntities(camera, matrices, delta);
     }

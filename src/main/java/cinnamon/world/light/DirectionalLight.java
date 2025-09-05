@@ -1,18 +1,12 @@
 package cinnamon.world.light;
 
 import cinnamon.render.Camera;
-import cinnamon.render.shader.Shader;
 
 public class DirectionalLight extends Light {
 
     public DirectionalLight() {
         super();
         castsShadows(true);
-    }
-
-    @Override
-    protected void pushToShader(Shader shader, String prefix) {
-        shader.setInt(prefix + "type", 3);
     }
 
     @Override
@@ -29,8 +23,8 @@ public class DirectionalLight extends Light {
     }
 
     @Override
-    public boolean isDirectional() {
-        return true;
+    public int getType() {
+        return 3;
     }
 
     @Override
