@@ -2,7 +2,6 @@ package cinnamon;
 
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
-import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.settings.ArgsOptions;
@@ -188,7 +187,8 @@ public class Cinnamon {
             }
 
             //end render
-            Blit.copy(Framebuffer.DEFAULT_FRAMEBUFFER, 0, PostProcess.BLIT);
+            Framebuffer.DEFAULT_FRAMEBUFFER.blit(0);
+            PostProcess.finishFrame();
             glfwSwapBuffers(window);
 
             if (!matrices.isEmpty()) {

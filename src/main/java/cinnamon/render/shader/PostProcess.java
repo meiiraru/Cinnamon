@@ -1,14 +1,14 @@
 package cinnamon.render.shader;
 
+import cinnamon.model.SimpleGeometry;
 import cinnamon.render.WorldRenderer;
-import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.Resource;
 
 import java.util.function.BiFunction;
 
-import static cinnamon.render.framebuffer.Blit.COLOR_UNIFORM;
+import static cinnamon.render.shader.PostProcess.FB.COLOR_UNIFORM;
 import static org.lwjgl.glfw.GLFW.glfwGetTime;
 import static org.lwjgl.opengl.GL11.*;
 
@@ -168,6 +168,8 @@ public enum PostProcess {
             TOON_OUTLINE
     };
 
+    public static boolean saveLastColor = false;
+
     private final Resource resource;
     private final BiFunction<Framebuffer, Shader, Integer> uniformFunction;
     private final boolean usesPrevColor;
@@ -217,48 +219,77 @@ public enum PostProcess {
         if (postProcesses.length == 0)
             return;
 
-        //disable alpha blending
+        //disable alpha blending and depth test
         glDisable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
 
         //prepare framebuffer
-        Framebuffer old = Framebuffer.activeFramebuffer;
-        FB.POST_FRAMEBUFFER.resizeTo(old);
-        FB.POST_FRAMEBUFFER.useClear();
+        Framebuffer originalFb = Framebuffer.activeFramebuffer;
+        FB.PING.resizeTo(originalFb);
+        FB.PONG.resizeTo(originalFb);
 
-        boolean savePrevColor = false;
+        Framebuffer source = originalFb;
+        Framebuffer destination = FB.PING;
 
         for (PostProcess postProcess : postProcesses) {
             if (postProcess == null)
                 continue;
 
             //render post effect
-            FB.POST_FRAMEBUFFER.use();
-            int tex = postProcess.uniformFunction.apply(old, postProcess.shader.use());
-            Blit.renderQuad();
+            destination.useClear();
+            int tex = postProcess.uniformFunction.apply(source, postProcess.shader.use());
+            SimpleGeometry.QUAD.render();
             Texture.unbindAll(tex);
 
-            savePrevColor |= postProcess.usesPrevColor;
+            PostProcess.saveLastColor |= postProcess.usesPrevColor;
 
-            //blit to main framebuffer
-            Blit.copy(FB.POST_FRAMEBUFFER, old.id(), BLIT);
+            //ping pong
+            source = destination;
+            destination = source == FB.PING ? FB.PONG : FB.PING;
         }
 
-        //if any effect uses the previous color buffer, copy buffers again
-        if (savePrevColor) {
-            FB.PREVIOUS_COLOR_FRAMEBUFFER.resizeTo(old);
-            FB.PREVIOUS_COLOR_FRAMEBUFFER.use();
-            Blit.copy(old, FB.PREVIOUS_COLOR_FRAMEBUFFER.id(), BLIT);
-            old.use();
-        }
+        source.blit(originalFb.id());
+        originalFb.use();
 
-        //re-enable alpha blending
+        //restore state
         glEnable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+    }
+
+    public static void finishFrame() {
+        if (!saveLastColor)
+            return;
+
+        //copy from main buffer to previous color buffer
+        Framebuffer main = Framebuffer.DEFAULT_FRAMEBUFFER;
+        FB.PREVIOUS_COLOR_FRAMEBUFFER.resizeTo(main);
+        FB.PREVIOUS_COLOR_FRAMEBUFFER.useClear();
+
+        main.blit(FB.PREVIOUS_COLOR_FRAMEBUFFER.id());
+        main.use();
+        saveLastColor = false;
     }
 
     //wacky hack
-    private static final class FB {
-        private static final Framebuffer
-                POST_FRAMEBUFFER = new Framebuffer(Framebuffer.COLOR_BUFFER),
+    protected static final class FB {
+        protected static final Framebuffer
+                PING = new Framebuffer(Framebuffer.COLOR_BUFFER),
+                PONG = new Framebuffer(Framebuffer.COLOR_BUFFER),
                 PREVIOUS_COLOR_FRAMEBUFFER = new Framebuffer(Framebuffer.COLOR_BUFFER);
+
+        protected static final BiFunction<Framebuffer, Shader, Integer>
+                DEPTH_UNIFORM = (fb, s) -> {
+                    s.setTexture("depthTex", fb.getDepthBuffer(), 0);
+                    return 1;
+                },
+                COLOR_UNIFORM = (fb, s) -> {
+                    s.setTexture("colorTex", fb.getColorBuffer(), 0);
+                    return 1;
+                },
+                COLOR_AND_DEPTH_UNIFORM = (fb, s) -> {
+                    s.setTexture("colorTex", fb.getColorBuffer(), 0);
+                    s.setTexture("depthTex", fb.getDepthBuffer(), 1);
+                    return 2;
+                };
     }
 }

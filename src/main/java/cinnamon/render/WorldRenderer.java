@@ -1,8 +1,8 @@
 package cinnamon.render;
 
 import cinnamon.Client;
+import cinnamon.model.SimpleGeometry;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.framebuffer.Blit;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
 import cinnamon.render.framebuffer.ShadowMapFramebuffer;
@@ -164,6 +164,12 @@ public class WorldRenderer {
 
     public static void setupFramebuffer(Framebuffer targetBuffer) {
         WorldRenderer.targetBuffer = targetBuffer;
+    }
+
+    public static void renderQuad() {
+        glDisable(GL_DEPTH_TEST);
+        SimpleGeometry.QUAD.render();
+        glEnable(GL_DEPTH_TEST);
     }
 
     public static void initGBuffer(Camera camera) {
@@ -351,7 +357,7 @@ public class WorldRenderer {
         light.pushToShader(s);
 
         //then render the light volume
-        Blit.renderQuad();
+        renderQuad();
 
         //unbind textures
         Texture.unbindAll(i);
@@ -389,7 +395,7 @@ public class WorldRenderer {
             s.setTexture("lightTex",  lightingMultiPassBuffer.getColorBuffer(), i++);
 
         //render and blit to main framebuffer
-        Blit.renderQuad();
+        renderQuad();
         PBRFrameBuffer.blit(targetBuffer.id(), false, true, true);
 
         //cleanup textures
@@ -458,7 +464,7 @@ public class WorldRenderer {
             shaderConsumer.accept(s);
 
         //render outline
-        Blit.renderQuad();
+        renderQuad();
 
         //cleanup
         Texture.unbindTex(0);

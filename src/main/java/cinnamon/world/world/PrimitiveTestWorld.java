@@ -73,6 +73,12 @@ public class PrimitiveTestWorld extends WorldClient {
     }
 
     @Override
+    public void render(MatrixStack matrices, float delta) {
+        super.render(matrices, delta);
+        PostProcess.apply(PostProcess.TOON_OUTLINE, PostProcess.POSTERIZE);
+    }
+
+    @Override
     public void renderDebug(Camera camera, MatrixStack matrices, float delta) {
         super.renderDebug(camera, matrices, delta);
 
