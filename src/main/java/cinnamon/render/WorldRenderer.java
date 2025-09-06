@@ -417,14 +417,18 @@ public class WorldRenderer {
 
         //prepare outline
         initOutlineBatch(camera);
+        Shader main = Shaders.MAIN_PASS.getShader();
+        Shader model = Shaders.MODEL_PASS.getShader();
 
         //render entities
         for (Entity entity : entitiesToOutline) {
-            Shader.activeShader.applyColorRGBA(entity.getOutlineColor());
+            int color = entity.getOutlineColor();
+            model.use().applyColorRGBA(color);
             entity.render(matrices, delta);
 
-            Shader.activeShader.applyMatrixStack(matrices);
-            VertexConsumer.finishAllBatches(Shader.activeShader, camera); //finish here because color
+            //finish vertex consumers here because color
+            main.use().applyColorRGBA(color);
+            VertexConsumer.finishAllBatches(main, camera);
         }
 
         //apply outlines to the main buffer
@@ -436,8 +440,8 @@ public class WorldRenderer {
         outlineFramebuffer.resizeTo(targetBuffer);
         outlineFramebuffer.useClear();
 
-        Shader s = Shaders.MODEL_PASS.getShader().use();
-        s.setup(camera);
+        Shaders.MAIN_PASS.getShader().use().setup(camera);
+        Shaders.MODEL_PASS.getShader().use().setup(camera);
     }
 
     public static void bakeOutlines(Consumer<Shader> shaderConsumer) {

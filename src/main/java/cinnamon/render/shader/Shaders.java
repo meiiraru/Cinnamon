@@ -23,6 +23,7 @@ public enum Shaders {
     SCREEN_SPACE_UV,
     OUTLINE,
     MODEL_PASS,
+    MAIN_PASS,
     MODEL_UV,
     LIGHTING_PASS,
     BLIT_COLOR_DEPTH,
