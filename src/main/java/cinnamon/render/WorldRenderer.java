@@ -35,8 +35,8 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class WorldRenderer {
 
-    public static final int renderDistance = 192;
-    public static final int entityRenderDistance = 144;
+    public static int renderDistance = 192;
+    public static int entityRenderDistance = 144;
 
     public static final PBRDeferredFramebuffer PBRFrameBuffer = new PBRDeferredFramebuffer();
     public static final Framebuffer lightingMultiPassBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
@@ -407,9 +407,10 @@ public class WorldRenderer {
         shader.setVec3("camPos", Client.getInstance().camera.getPosition());
 
         //fog
-        shader.setFloat("fogStart", renderDistance * Sky.fogDensity);
-        shader.setFloat("fogEnd", renderDistance);
-        shader.setColor("fogColor", Sky.fogColor);
+        Sky sky = Client.getInstance().world.getSky();
+        shader.setFloat("fogStart", sky.fogStart);
+        shader.setFloat("fogEnd", sky.fogEnd);
+        shader.setColor("fogColor", sky.fogColor);
     }
 
     public static void renderSky(Sky sky, Camera camera, MatrixStack matrices) {

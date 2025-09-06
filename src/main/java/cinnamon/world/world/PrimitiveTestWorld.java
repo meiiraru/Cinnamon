@@ -6,6 +6,7 @@ import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.render.shader.PostProcess;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Rotation;
 import cinnamon.world.entity.Entity;
@@ -70,6 +71,9 @@ public class PrimitiveTestWorld extends WorldClient {
             Vector3f playerDim = source.getAABB().getDimensions();
             VertexConsumer.WORLD_MAIN.consume(GeometryHelper.capsule(matrices, playerPos.x, playerPos.y, playerPos.z, playerDim.x / 2f, playerDim.y, 12, Colors.PINK.argb));
         });
+
+        //set sky fog
+        getSky().fogStart = 0; getSky().fogEnd = 8; getSky().fogColor = 0x121212;
     }
 
     @Override
