@@ -160,7 +160,7 @@ public class Toast {
         //render text
         float d = UIHelper.getDepthOffset();
         matrices.translate(0f, 0f, d);
-        Text.empty().withStyle(Style.EMPTY.guiStyle(this.style)).append(text).render(VertexConsumer.FONT, matrices, 0f, PADDING / 2f, Alignment.TOP_CENTER);
+        Text.empty().withStyle(Style.EMPTY.guiStyle(this.style)).append(text).render(VertexConsumer.MAIN, matrices, 0f, PADDING / 2f, Alignment.TOP_CENTER);
 
         //return
         matrices.translate(0f, bgHeight, -d);

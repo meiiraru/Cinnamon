@@ -66,10 +66,10 @@ public class MultiplayerJoinScreen extends ParentedScreen {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //name text
-        Text.translated("gui.multiplayer.name").render(VertexConsumer.FONT, matrices, width / 2f,  nameField.getY() - 4 - GUIStyle.getDefault().getFont().lineHeight, Alignment.TOP_CENTER);
+        Text.translated("gui.multiplayer.name").render(VertexConsumer.MAIN, matrices, width / 2f,  nameField.getY() - 4 - GUIStyle.getDefault().getFont().lineHeight, Alignment.TOP_CENTER);
 
         //ip text
-        Text.translated("gui.multiplayer.ip").render(VertexConsumer.FONT, matrices, width / 2f, ipField.getY() - 4 - GUIStyle.getDefault().getFont().lineHeight, Alignment.TOP_CENTER);
+        Text.translated("gui.multiplayer.ip").render(VertexConsumer.MAIN, matrices, width / 2f, ipField.getY() - 4 - GUIStyle.getDefault().getFont().lineHeight, Alignment.TOP_CENTER);
 
         super.render(matrices, mouseX, mouseY, delta);
     }

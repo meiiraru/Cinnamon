@@ -223,7 +223,7 @@ public class UIHelper {
         //render text
         matrices.pushMatrix();
         matrices.translate(0, 0, getDepthOffset());
-        tooltip.render(VertexConsumer.FONT, matrices, 0, 0);
+        tooltip.render(VertexConsumer.MAIN, matrices, 0, 0);
 
         matrices.popMatrix();
         matrices.popMatrix();

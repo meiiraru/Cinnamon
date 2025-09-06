@@ -131,7 +131,7 @@ public class Hud {
         matrices.rotate(Rotation.Z.rotationDeg(-10f));
 
         //draw text
-        text.render(VertexConsumer.FONT, matrices, 0f, 0f, Alignment.BOTTOM_LEFT);
+        text.render(VertexConsumer.MAIN, matrices, 0f, 0f, Alignment.BOTTOM_LEFT);
 
         //health progress bar
         float hp = player.getHealthProgress();
@@ -164,7 +164,7 @@ public class Hud {
         matrices.rotate(Rotation.Z.rotationDeg(10f));
 
         //draw text
-        text.render(VertexConsumer.FONT, matrices, 0f, 0f, Alignment.CENTER_RIGHT);
+        text.render(VertexConsumer.MAIN, matrices, 0f, 0f, Alignment.CENTER_RIGHT);
 
         //draw progressbar
         if (onCooldown) {
@@ -204,7 +204,7 @@ public class Hud {
 
         //render
         if (!text.asString().equals("\n"))
-            text.render(VertexConsumer.FONT, matrices, 0f, 0f, Alignment.TOP_RIGHT);
+            text.render(VertexConsumer.MAIN, matrices, 0f, 0f, Alignment.TOP_RIGHT);
 
         matrices.popMatrix();
     }
@@ -317,7 +317,7 @@ public class Hud {
         //render name
         Text mat = Text.translated("material." + material.name().toLowerCase());
         Text ter = Text.translated("terrain." + registry.name().toLowerCase());
-        mat.append(" ").append(ter).withStyle(Style.EMPTY.shadow(true).guiStyle(HUD_STYLE)).render(VertexConsumer.FONT, matrices, ww.getGUIWidth() * 0.5f, 16 + 4 + 4, Alignment.TOP_CENTER);
+        mat.append(" ").append(ter).withStyle(Style.EMPTY.shadow(true).guiStyle(HUD_STYLE)).render(VertexConsumer.MAIN, matrices, ww.getGUIWidth() * 0.5f, 16 + 4 + 4, Alignment.TOP_CENTER);
     }
 
     protected void drawCrosshair(MatrixStack matrices) {

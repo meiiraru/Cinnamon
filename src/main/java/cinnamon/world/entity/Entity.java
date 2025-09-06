@@ -120,7 +120,7 @@ public abstract class Entity extends WorldObject {
         c.camera.billboard(matrices);
         matrices.scale(-s);
 
-        text.render(VertexConsumer.WORLD_FONT, matrices, 0, 0, Alignment.BOTTOM_CENTER, 50);
+        text.render(VertexConsumer.WORLD_MAIN, matrices, 0, 0, Alignment.BOTTOM_CENTER, 50);
 
         matrices.popMatrix();
     }

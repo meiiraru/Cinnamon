@@ -68,7 +68,7 @@ public class Button extends SelectableWidget {
         Text text = getFormattedMessage();
         int x = getCenterX();
         int y = getCenterY() + (isHolding() ? getStyle().getInt("pressed_y_offset") : 0);
-        text.render(VertexConsumer.FONT, matrices, x, y, Alignment.CENTER);
+        text.render(VertexConsumer.MAIN, matrices, x, y, Alignment.CENTER);
     }
 
     protected void renderIcon(MatrixStack matrices, int mouseX, int mouseY, float delta) {

@@ -25,6 +25,7 @@ import java.util.Random;
 import static cinnamon.events.Events.LOGGER;
 import static cinnamon.model.GeometryHelper.quad;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL33.GL_TEXTURE_SWIZZLE_RGBA;
 import static org.lwjgl.stb.STBTruetype.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
@@ -106,10 +107,13 @@ public class Font {
 
             glBindTexture(GL_TEXTURE_2D, textureID);
 
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, TEXTURE_W, TEXTURE_H, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap);
+
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
 
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, TEXTURE_W, TEXTURE_H, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap);
+            int[] swizzleMask = {GL_RED, GL_RED, GL_RED, GL_RED};
+            glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
 
             glBindTexture(GL_TEXTURE_2D, 0);
         }

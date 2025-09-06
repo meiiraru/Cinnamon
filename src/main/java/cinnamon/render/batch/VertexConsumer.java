@@ -12,11 +12,8 @@ import java.util.function.Supplier;
 
 public enum VertexConsumer {
     MAIN(MainFlatBatch::new, Shaders.MAIN),
-    FONT(FontFlatBatch::new, Shaders.FONT),
     WORLD_MAIN(MainBatch::new, Shaders.WORLD_MAIN),
-    WORLD_FONT(FontBatch::new, Shaders.WORLD_FONT),
     WORLD_MAIN_EMISSIVE(MainBatch::new, Shaders.WORLD_MAIN_EMISSIVE),
-    WORLD_FONT_EMISSIVE(FontBatch::new, Shaders.WORLD_FONT_EMISSIVE),
     LINES(LinesBatch::new, Shaders.LINES),
     SCREEN_UV(ScreenSpaceUVBatch::new, Shaders.SCREEN_SPACE_UV);
 

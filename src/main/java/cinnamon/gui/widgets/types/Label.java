@@ -47,7 +47,7 @@ public class Label extends SelectableWidget implements AlignedWidget {
     }
 
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(text).render(VertexConsumer.FONT, matrices, getX(), getY(), alignment);
+        Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(text).render(VertexConsumer.MAIN, matrices, getX(), getY(), alignment);
     }
 
     public Text getText() {

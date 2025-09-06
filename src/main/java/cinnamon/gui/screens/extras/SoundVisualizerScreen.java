@@ -305,32 +305,32 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
         //draw top text
         if (songCount == 0)
-            Text.translated("gui.music_screen.help").withStyle(Style.EMPTY.color(Colors.WHITE)).render(VertexConsumer.FONT, matrices, (int) (width / 2f), 4, Alignment.TOP_CENTER);
+            Text.translated("gui.music_screen.help").withStyle(Style.EMPTY.color(Colors.WHITE)).render(VertexConsumer.MAIN, matrices, (int) (width / 2f), 4, Alignment.TOP_CENTER);
 
         //draw timers
         int x = slider.getX();
         int y = (int) (slider.getCenterY() - lineHeight / 2);
         int now = playTime / 1000;
         int max = slider.getMax() / 1000;
-        Text.of("%d:%02d".formatted(now / 60, now % 60)).render(VertexConsumer.FONT, matrices, x - 4, y, Alignment.TOP_RIGHT);
-        Text.of("%d:%02d".formatted(max / 60, max % 60)).render(VertexConsumer.FONT, matrices, x + slider.getWidth() + 4, y);
+        Text.of("%d:%02d".formatted(now / 60, now % 60)).render(VertexConsumer.MAIN, matrices, x - 4, y, Alignment.TOP_RIGHT);
+        Text.of("%d:%02d".formatted(max / 60, max % 60)).render(VertexConsumer.MAIN, matrices, x + slider.getWidth() + 4, y);
 
         if (songCount == 0)
             return;
 
         //song count
         if (songCount > 1)
-            Text.of("%d / %d".formatted(playlistIndex + 1, songCount)).render(VertexConsumer.FONT, matrices, (int) (width / 2f), playPauseButton.getY() - lineHeight - 4, Alignment.TOP_CENTER);
+            Text.of("%d / %d".formatted(playlistIndex + 1, songCount)).render(VertexConsumer.MAIN, matrices, (int) (width / 2f), playPauseButton.getY() - lineHeight - 4, Alignment.TOP_CENTER);
 
         Track track = playlist.get(playlistIndex);
 
         //title
-        Text.of(track.title).render(VertexConsumer.FONT, matrices, (int) (width / 2f), playPauseButton.getY() - (lineHeight + 4) * (songCount > 1 ? 2 : 1), Alignment.TOP_CENTER);
+        Text.of(track.title).render(VertexConsumer.MAIN, matrices, (int) (width / 2f), playPauseButton.getY() - (lineHeight + 4) * (songCount > 1 ? 2 : 1), Alignment.TOP_CENTER);
 
         //lyrics
         Text text = track.getLyrics(playTime);
         if (text != null)
-            text.render(VertexConsumer.FONT, matrices, (int) (width / 2f), (int) (height * 0.1f), Alignment.TOP_CENTER);
+            text.render(VertexConsumer.MAIN, matrices, (int) (width / 2f), (int) (height * 0.1f), Alignment.TOP_CENTER);
     }
 
     private void drawBar(MatrixStack matrices, int i, int bars, float amplitude) {

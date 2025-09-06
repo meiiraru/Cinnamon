@@ -61,7 +61,7 @@ public class NewCollisionScreen extends ParentedScreen {
 
         boolean colliding = ColliderChecker.collides2D(new MeshCollider(player), new MeshCollider(terrain));
         Text.translated(colliding ? "gui.new_collision_test_screen.colliding" : "gui.new_collision_test_screen.not_colliding")
-                .render(VertexConsumer.FONT, matrices, width / 2f, 4, Alignment.TOP_CENTER);
+                .render(VertexConsumer.MAIN, matrices, width / 2f, 4, Alignment.TOP_CENTER);
 
         matrices.pushMatrix();
         matrices.translate(width / 2f, height / 2f, 0f);

@@ -57,12 +57,12 @@ public class ComboBox extends Button {
         Text text = Text.of(isExpanded() ? "\u23F6" : "\u23F7").withStyle(style);
         int x = getX() + getWidth() - 2;
         int y = getCenterY() + (isHolding() ? getStyle().getInt("pressed_y_offset") : 0);
-        text.render(VertexConsumer.FONT, matrices, x, y, Alignment.CENTER_RIGHT);
+        text.render(VertexConsumer.MAIN, matrices, x, y, Alignment.CENTER_RIGHT);
 
         //render selected text
         text = TextUtils.addEllipsis(Text.empty().withStyle(style).append(selectedText), getWidth() - TextUtils.getWidth(text) - 4);
         x = getX() + 2;
-        text.render(VertexConsumer.FONT, matrices, x, y, Alignment.CENTER_LEFT);
+        text.render(VertexConsumer.MAIN, matrices, x, y, Alignment.CENTER_LEFT);
     }
 
     public boolean isExpanded() {

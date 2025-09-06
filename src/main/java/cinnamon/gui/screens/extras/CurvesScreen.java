@@ -143,7 +143,7 @@ public class CurvesScreen extends ParentedScreen {
         if (renderPointsText) {
             for (int i = 0; i < size; i++) {
                 Point p = points.get(i);
-                Text.of("p" + i).render(VertexConsumer.FONT, matrices, p.getX() + POINT_SIZE, p.getY() + POINT_SIZE);
+                Text.of("p" + i).render(VertexConsumer.MAIN, matrices, p.getX() + POINT_SIZE, p.getY() + POINT_SIZE);
             }
         }
 
@@ -164,11 +164,11 @@ public class CurvesScreen extends ParentedScreen {
         renderCurve(matrices, curve.getInternalCurve(), 0xFF7272, 0xFFFF72);
 
         //draw texts
-        Text.translated("gui.curves_screen.curve_quality", this.curve.getSteps()).append("\n").appendTranslated("gui.curves_screen.curve_size", this.curve.getCurve().size()).render(VertexConsumer.FONT, matrices, width / 2f, 4, Alignment.TOP_CENTER);
+        Text.translated("gui.curves_screen.curve_quality", this.curve.getSteps()).append("\n").appendTranslated("gui.curves_screen.curve_size", this.curve.getCurve().size()).render(VertexConsumer.MAIN, matrices, width / 2f, 4, Alignment.TOP_CENTER);
 
         if (focused instanceof Point selected) {
             Text t = Text.of("x" + selected.getX() + " y" + selected.getY());
-            t.render(VertexConsumer.FONT, matrices, 4, height - 4, Alignment.BOTTOM_LEFT);
+            t.render(VertexConsumer.MAIN, matrices, 4, height - 4, Alignment.BOTTOM_LEFT);
         }
 
         //draw children

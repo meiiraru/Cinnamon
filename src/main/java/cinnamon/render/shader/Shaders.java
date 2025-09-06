@@ -3,9 +3,6 @@ package cinnamon.render.shader;
 import cinnamon.utils.Resource;
 
 public enum Shaders {
-    WORLD_FONT,
-    WORLD_FONT_EMISSIVE,
-    FONT,
     WORLD_MODEL_PBR,
     MODEL,
     WORLD_MAIN_EMISSIVE,
@@ -30,7 +27,6 @@ public enum Shaders {
     LIGHTING_PASS,
     BLIT_COLOR_DEPTH,
     MAIN_DEPTH,
-    FONT_DEPTH,
     POINT_DEPTH,
     POINT_MAIN_DEPTH;
 

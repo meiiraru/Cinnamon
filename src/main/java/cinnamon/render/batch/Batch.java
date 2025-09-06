@@ -155,26 +155,9 @@ public abstract class Batch { //vertex consumer
         return faceCount > 0;
     }
 
+
     // -- children types -- //
 
-
-    public static class FontFlatBatch extends Batch {
-        public FontFlatBatch() {
-            super(6, Attributes.POS, Attributes.TEXTURE_ID, Attributes.UV, Attributes.COLOR_RGBA);
-        }
-    }
-
-    public static class FontBatch extends Batch {
-        public FontBatch() {
-            super(6, Attributes.POS, Attributes.TEXTURE_ID, Attributes.UV, Attributes.COLOR_RGBA, Attributes.NORMAL);
-        }
-
-        @Override
-        protected void preRender(Shader shader) {
-            super.preRender(shader);
-            WorldRenderer.setSkyUniforms(shader);
-        }
-    }
 
     public static class MainFlatBatch extends Batch {
         public MainFlatBatch() {

@@ -192,7 +192,7 @@ public class TextField extends SelectableWidget implements Tickable {
                                 .color(getStyle().getInt(isActive() ? "hint_color" : "disabled_hint_color"))
                                 .guiStyle(getStyleRes()))
                         .append(hintText)
-                        .render(VertexConsumer.FONT, matrices, x, y);
+                        .render(VertexConsumer.MAIN, matrices, x, y);
 
             //render cursor
             renderCursor(matrices, x, y - 1, height);
@@ -243,7 +243,7 @@ public class TextField extends SelectableWidget implements Tickable {
         }
 
         //render text
-        text.render(VertexConsumer.FONT, matrices, x, y);
+        text.render(VertexConsumer.MAIN, matrices, x, y);
     }
 
     protected void renderCursor(MatrixStack matrices, float x, float y, float height) {

@@ -85,7 +85,7 @@ public class DebugScreen {
         matrices.translate(0f, 0f, 20f);
 
         if (fpsOnly) {
-            Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(STYLE).render(VertexConsumer.FONT, matrices, 4, 4);
+            Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(STYLE).render(VertexConsumer.MAIN, matrices, 4, 4);
             matrices.popMatrix();
             return;
         }
@@ -196,11 +196,11 @@ public class DebugScreen {
         float w = TextUtils.getWidth(text);
         float h = TextUtils.getHeight(text);
 
-        VertexConsumer.FONT.consume(GeometryHelper.rectangle(matrices, x, y, x + w, y + h, bg));
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x, y, x + w, y + h, bg));
 
         matrices.pushMatrix();
         matrices.translate(0, 0, UIHelper.getDepthOffset());
-        text.render(VertexConsumer.FONT, matrices, x, y);
+        text.render(VertexConsumer.MAIN, matrices, x, y);
         matrices.popMatrix();
     }
 
@@ -226,7 +226,7 @@ public class DebugScreen {
             Style s = STYLE.shadow(true);
             if (i == hoveredTab) s = s.backgroundColor(0xAAFFFFFF);
             if (selectedTabs.contains(tabs[i])) s = s.formatted(Formatting.YELLOW);
-            tabText.withStyle(s).render(VertexConsumer.FONT, matrices, x, yy);
+            tabText.withStyle(s).render(VertexConsumer.MAIN, matrices, x, yy);
         }
 
         //special case for the "close" button
@@ -239,7 +239,7 @@ public class DebugScreen {
             hoveredTab = -2;
             s = s.backgroundColor(0xAAFFFFFF);
         }
-        close.withStyle(s).render(VertexConsumer.FONT, matrices, xx, 8);
+        close.withStyle(s).render(VertexConsumer.MAIN, matrices, xx, 8);
     }
 
     private static void renderContent(MatrixStack matrices, Client c) {
@@ -262,11 +262,11 @@ public class DebugScreen {
             float w = TextUtils.getWidth(text);
             float h = TextUtils.getHeight(text);
 
-            VertexConsumer.FONT.consume(GeometryHelper.rectangle(matrices, x - 4, y - 4, x + w + 4, y + h + 4, bg));
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x - 4, y - 4, x + w + 4, y + h + 4, bg));
 
             matrices.pushMatrix();
             matrices.translate(0, 0, UIHelper.getDepthOffset());
-            text.render(VertexConsumer.FONT, matrices, x, y);
+            text.render(VertexConsumer.MAIN, matrices, x, y);
             matrices.popMatrix();
 
             y += h + 8 + 4; //height + border + spacing

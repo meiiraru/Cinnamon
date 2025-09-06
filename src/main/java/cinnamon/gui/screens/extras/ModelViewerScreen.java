@@ -113,7 +113,7 @@ public class ModelViewerScreen extends ParentedScreen {
         super.render(matrices, mouseX, mouseY, delta);
 
         //render title
-        Text.of(modelName).withStyle(Style.EMPTY.outlined(true)).render(VertexConsumer.FONT, matrices, (width - listWidth) / 2f + listWidth, 4, Alignment.TOP_CENTER);
+        Text.of(modelName).withStyle(Style.EMPTY.outlined(true)).render(VertexConsumer.MAIN, matrices, (width - listWidth) / 2f + listWidth, 4, Alignment.TOP_CENTER);
     }
 
     private boolean setModel(Resource model, String name) {

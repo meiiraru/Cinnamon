@@ -58,7 +58,7 @@ public class PanoramaScreen extends ParentedScreen {
     protected void preRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.preRender(matrices, mouseX, mouseY, delta);
         if (texture == null) {
-            Text.translated("gui.panorama_viewer.help").withStyle(Style.EMPTY.shadow(true)).render(VertexConsumer.FONT, matrices, width / 2f, 4f, Alignment.TOP_CENTER);
+            Text.translated("gui.panorama_viewer.help").withStyle(Style.EMPTY.shadow(true)).render(VertexConsumer.MAIN, matrices, width / 2f, 4f, Alignment.TOP_CENTER);
             return;
         }
 

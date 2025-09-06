@@ -39,7 +39,7 @@ public class Checkbox extends Button {
     @Override
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         Text text = getFormattedMessage();
-        text.render(VertexConsumer.FONT, matrices, getX() + 8 + textSpacing, getCenterY(), Alignment.CENTER_LEFT);
+        text.render(VertexConsumer.MAIN, matrices, getX() + 8 + textSpacing, getCenterY(), Alignment.CENTER_LEFT);
     }
 
     @Override

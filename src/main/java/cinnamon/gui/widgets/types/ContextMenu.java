@@ -205,7 +205,7 @@ public class ContextMenu extends PopupWidget {
             Text text = getFormattedMessage();
             int x = getX() + 2;
             int y = getCenterY();
-            text.render(VertexConsumer.FONT, matrices, x, y, Alignment.CENTER_LEFT);
+            text.render(VertexConsumer.MAIN, matrices, x, y, Alignment.CENTER_LEFT);
         }
 
         @Override
@@ -301,7 +301,7 @@ public class ContextMenu extends PopupWidget {
             float d = UIHelper.tickDelta(0.6f);
             arrowOffset = Maths.lerp(arrowOffset, isHoveredOrFocused() ? 2f : 0f, d);
 
-            arrow.render(VertexConsumer.FONT, matrices, x + arrowOffset, y, Alignment.CENTER_RIGHT);
+            arrow.render(VertexConsumer.MAIN, matrices, x + arrowOffset, y, Alignment.CENTER_RIGHT);
         }
 
         @Override

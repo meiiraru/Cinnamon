@@ -460,7 +460,7 @@ public class WordleScreen extends ParentedScreen {
             ));
 
             if (text != null)
-                text.render(VertexConsumer.FONT, matrices, getCenterX(), getCenterY(), Alignment.CENTER);
+                text.render(VertexConsumer.MAIN, matrices, getCenterX(), getCenterY(), Alignment.CENTER);
         }
 
         public void setColor(Colors color) {
