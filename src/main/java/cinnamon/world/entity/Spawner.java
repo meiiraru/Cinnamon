@@ -16,6 +16,7 @@ import java.util.function.Supplier;
 
 public class Spawner<E extends Entity> extends Entity {
 
+    private final float radius;
     private final int delay;
     private final Supplier<E> entitySupplier;
     private final Predicate<E> respawnPredicate;
@@ -23,14 +24,15 @@ public class Spawner<E extends Entity> extends Entity {
     private int time;
     private E entity;
 
-    private boolean renderCooldown = true;
+    private boolean renderCooldown = false;
 
-    public Spawner(UUID uuid, int delay, Supplier<E> entitySupplier) {
-        this(uuid, delay, entitySupplier, Entity::isRemoved);
+    public Spawner(UUID uuid, float radius, int delay, Supplier<E> entitySupplier) {
+        this(uuid, radius, delay, entitySupplier, Entity::isRemoved);
     }
 
-    public Spawner(UUID uuid, int delay, Supplier<E> entitySupplier, Predicate<E> respawnPredicate) {
+    public Spawner(UUID uuid, float radius, int delay, Supplier<E> entitySupplier, Predicate<E> respawnPredicate) {
         super(uuid, null);
+        this.radius = Math.max(radius, 1);
         this.delay = Math.max(delay, 1);
         this.entitySupplier = entitySupplier;
         this.respawnPredicate = respawnPredicate;
@@ -47,7 +49,7 @@ public class Spawner<E extends Entity> extends Entity {
         if (checkRespawn() && time-- <= 0) {
             time = delay;
             entity = entitySupplier.get();
-            entity.setPos(getPos());
+            entity.setPos(aabb.getRandomPoint());
             entity.setRot(getRot());
             getWorld().addEntity(entity);
         }
@@ -78,7 +80,7 @@ public class Spawner<E extends Entity> extends Entity {
 
     @Override
     protected void updateAABB() {
-        this.aabb.set(getPos()).inflate(0.5f);
+        this.aabb.set(getPos()).inflate(radius);
     }
 
     @Override

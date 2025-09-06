@@ -15,7 +15,7 @@ public class Dummy extends LivingEntity {
     private static final int MAX_HEALTH = 2147483647;
 
     public Dummy(UUID uuid) {
-        super(uuid, LivingModelRegistry.DUMMY, MAX_HEALTH, 1);
+        super(uuid, LivingModelRegistry.DUMMY.resource, LivingModelRegistry.DUMMY.eyeHeight, MAX_HEALTH, 1);
     }
 
     @Override

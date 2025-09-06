@@ -15,6 +15,8 @@ public class Player extends LivingEntity {
     private static final int MAX_HEALTH = 100;
     private static final int INVULNERABILITY_TIME = 10;
     private static final int INVENTORY_SIZE = 9;
+    private static final float EYE_HEIGHT = 1.6f;
+    private static final Vector3f DIMENSIONS = new Vector3f(0.6f, 1.8f, 0.6f);
 
     private final Abilities abilities = new Abilities();
 
@@ -29,7 +31,7 @@ public class Player extends LivingEntity {
     }
 
     public Player(String name, UUID uuid, LivingModelRegistry model) {
-        super(uuid, model == null ? LivingModelRegistry.random() : model, MAX_HEALTH, INVENTORY_SIZE);
+        super(uuid, model.resource, model.eyeHeight, MAX_HEALTH, INVENTORY_SIZE);
         this.setName(name);
     }
 
@@ -178,5 +180,13 @@ public class Player extends LivingEntity {
 
     public Abilities getAbilities() {
         return abilities;
+    }
+
+    @Override
+    protected void updateAABB() {
+        aabb.set(getPos());
+        float w = Math.max(DIMENSIONS.x, DIMENSIONS.z) * 0.5f;
+        float y = model.getAABB().getHeight(); //Math.min(, DIMENSIONS.y);
+        aabb.inflate(w, 0, w, w, y, w);
     }
 }

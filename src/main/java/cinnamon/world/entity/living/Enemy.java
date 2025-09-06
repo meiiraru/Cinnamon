@@ -22,7 +22,7 @@ public class Enemy extends LivingEntity {
     }
 
     private Enemy(UUID uuid, LivingModelRegistry entityModel, AIBehaviour... behaviours) {
-        super(uuid, entityModel, MAX_HEALTH, INVENTORY_SIZE);
+        super(uuid, entityModel.resource, entityModel.eyeHeight, MAX_HEALTH, INVENTORY_SIZE);
         this.behaviours = behaviours;
     }
 

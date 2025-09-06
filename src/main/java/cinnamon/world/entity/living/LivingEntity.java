@@ -1,7 +1,6 @@
 package cinnamon.world.entity.living;
 
 import cinnamon.Client;
-import cinnamon.registry.LivingModelRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
@@ -40,16 +39,12 @@ public abstract class LivingEntity extends PhysEntity {
     private int health;
     private int maxHealth;
 
-    public LivingEntity(UUID uuid, Resource model, int maxHealth, float eyeHeight, int inventorySize) {
+    public LivingEntity(UUID uuid, Resource model, float eyeHeight, int maxHealth, int inventorySize) {
         super(uuid, model);
         this.health = this.maxHealth = maxHealth;
         this.eyeHeight = eyeHeight;
         this.inventory = new Inventory(inventorySize);
         this.addRenderFeature((source, matrices, delta) -> renderHandItem(ItemRenderContext.THIRD_PERSON, matrices, delta));
-    }
-
-    public LivingEntity(UUID uuid, LivingModelRegistry entityModel, int maxHealth, int inventorySize) {
-        this(uuid, entityModel.resource, maxHealth, entityModel.eyeHeight, inventorySize);
     }
 
     @Override
@@ -94,6 +89,7 @@ public abstract class LivingEntity extends PhysEntity {
         matrices.pushMatrix();
         matrices.translate(getHandPos(false, delta));
         matrices.rotate(getHandRot(false, delta));
+        matrices.scale(0.75f);
 
         item.render(context, matrices, delta);
 
@@ -383,7 +379,7 @@ public abstract class LivingEntity extends PhysEntity {
 
     public Vector3f getHandPos(boolean left, float delta) {
         Vector3f pos = getEyePos(delta);
-        float x = aabb.getWidth() * 0.5f - 0.125f;
+        float x = aabb.getWidth() * 0.5f + 0.15f;
 
         Vector3f offset = new Vector3f(left ? -x : x, -0.25f, -0.5f);
         offset.rotate(getHandRot(left, delta));
@@ -395,14 +391,13 @@ public abstract class LivingEntity extends PhysEntity {
     public Quaternionf getHandRot(boolean left, float delta) {
         Vector2f rot = getRot(delta);
 
-        float yaw = 1;
-        Quaternionf offset = new Quaternionf()
-                .rotateY((float) Math.toRadians(left ? -yaw : yaw));
+        //float yaw = 1;
+        //Quaternionf offset = new Quaternionf()
+        //        .rotateY((float) Math.toRadians(left ? -yaw : yaw));
 
         return new Quaternionf()
                 .rotateY((float) Math.toRadians(-rot.y))
-                .rotateX((float) Math.toRadians(-rot.x))
-                .mul(offset);
+                .rotateX((float) Math.toRadians(-rot.x));//.mul(offset);
     }
 
     public Vector3f getHandDir(boolean left, float delta) {
