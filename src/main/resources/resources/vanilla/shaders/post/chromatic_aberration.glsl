@@ -9,11 +9,11 @@ in vec2 texCoords;
 out vec4 fragColor;
 
 uniform sampler2D colorTex;
-uniform vec2 textelSize;
+uniform vec2 texelSize;
 uniform float intensity;
 
 void main() {
-    vec2 offset = vec2(textelSize.x, textelSize.y) * intensity;
+    vec2 offset = vec2(texelSize.x, texelSize.y) * intensity;
     fragColor = vec4(
         texture(colorTex, texCoords + offset).r,
         texture(colorTex, texCoords - offset).gb,

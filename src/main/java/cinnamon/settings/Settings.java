@@ -68,6 +68,7 @@ public class Settings {
 
     //rendering
     public static final Setting.IntRanges shadowQuality = new Setting.IntRanges("rendering.shadow_quality", 2, -1, 3);
+    public static final Setting.Ranges bloomStrength = new Setting.Ranges("rendering.bloom_strength", 1f, 0f, 5f);
 
     //keybinds
     public static final Setting.Keybind

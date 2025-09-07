@@ -9,7 +9,7 @@ in vec2 texCoords;
 out vec4 fragColor;
 
 uniform sampler2D outlineTex;
-uniform vec2 textelSize;
+uniform vec2 texelSize;
 
 uniform int numSteps = 12;
 uniform float radius = 4.0f;
@@ -23,7 +23,7 @@ void main() {
     vec4 outlinemask = vec4(0.0f);
 
     for (float i = 0.0f; i < TAU; i += TAU / numSteps) {
-        vec2 offset = vec2(sin(i), cos(i)) * textelSize * radius;
+        vec2 offset = vec2(sin(i), cos(i)) * texelSize * radius;
         vec4 col = texture(outlineTex, texCoords + offset);
         outlinemask = mix(outlinemask, vec4(col.rgb, 1.0f), col.a);
     }

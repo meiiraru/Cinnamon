@@ -12,7 +12,7 @@ uniform sampler2D colorTex;
 uniform sampler2D depthTex;
 uniform sampler2D normalTex;
 
-uniform vec2 textelSize;
+uniform vec2 texelSize;
 uniform vec3 outlineColor = vec3(1.0f);
 uniform vec2 depthBias = vec2(1.0f);
 uniform vec2 normalBias = vec2(1.0f);
@@ -26,10 +26,10 @@ void main() {
 
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
-            float neighborDepth = texture(depthTex, texCoords + vec2(x, y) * textelSize).r;
+            float neighborDepth = texture(depthTex, texCoords + vec2(x, y) * texelSize).r;
             depthDiff = abs(depth - neighborDepth);
 
-            vec3 neighborNormal = texture(normalTex, texCoords + vec2(x, y) * textelSize).xyz;
+            vec3 neighborNormal = texture(normalTex, texCoords + vec2(x, y) * texelSize).xyz;
             normalDiff = distance(normal, neighborNormal);
         }
     }

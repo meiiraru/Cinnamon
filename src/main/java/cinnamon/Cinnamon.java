@@ -187,8 +187,8 @@ public class Cinnamon {
             }
 
             //end render
-            Framebuffer.DEFAULT_FRAMEBUFFER.blit(0);
             PostProcess.finishFrame();
+            Framebuffer.DEFAULT_FRAMEBUFFER.blit(0);
             glfwSwapBuffers(window);
 
             if (!matrices.isEmpty()) {

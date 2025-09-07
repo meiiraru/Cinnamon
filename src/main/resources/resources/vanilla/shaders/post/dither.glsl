@@ -23,7 +23,7 @@ void main() {
     float cellSize = ditherTexSize.y;
     vec2 uv = mod(scrCoords, vec2(cellSize)) / cellSize;
 
-    vec4 tex = texture(colorTex, texCoords);
+    vec4 tex = clamp(texture(colorTex, texCoords), 0.0f, 1.0f);
     vec3 color = tex.rgb;
     float brightness = floor(rgb2hsv(color).b * ditherSteps) / ditherSteps;
 

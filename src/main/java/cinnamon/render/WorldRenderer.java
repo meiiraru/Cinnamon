@@ -39,6 +39,7 @@ public class WorldRenderer {
     public static int entityRenderDistance = 144;
 
     public static final PBRDeferredFramebuffer PBRFrameBuffer = new PBRDeferredFramebuffer();
+    public static final Framebuffer outputBuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER | Framebuffer.DEPTH_BUFFER | Framebuffer.STENCIL_BUFFER);
     public static final Framebuffer lightingMultiPassBuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
     public static final Framebuffer shadowBuffer = new Framebuffer(Framebuffer.DEPTH_BUFFER);
     public static final ShadowMapFramebuffer cubeShadowBuffer = new ShadowMapFramebuffer();
@@ -116,13 +117,22 @@ public class WorldRenderer {
         if (renderSky)
             renderSky(world.getSky(), camera, matrices);
 
-        //render outlines
-        if (renderOutlines)
-            renderOutlines(world.getOutlines(camera), camera, matrices, delta);
+        //apply bloom
+        float bloom = Settings.bloomStrength.get();
+        if (bloom > 0f)
+            BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getTexture(4), 1.5f, bloom);
+
+        //bake output buffer to the target buffer
+        outputBuffer.blit(targetBuffer.id());
+        targetBuffer.use();
 
         //render debug stuff
         if (renderDebug)
             world.renderDebug(camera, matrices, delta);
+
+        //render outlines
+        if (renderOutlines)
+            renderOutlines(world.getOutlines(camera), camera, matrices, delta);
     }
 
     private static void renderAsAnaglyph(WorldClient world, Camera camera, MatrixStack matrices, float delta, Runnable[] renderFunc) {
@@ -155,8 +165,17 @@ public class WorldRenderer {
             if (renderSky) renderSky(world.getSky(), camera, matrices);
             if (renderOutlines) renderOutlines(world.getOutlines(camera), camera, matrices, delta);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
+
+            //apply bloom
+            float bloom = Settings.bloomStrength.get();
+            if (bloom > 0f)
+                BloomRenderer.applyBloom(targetBuffer, PBRFrameBuffer.getTexture(4), 1.5f, bloom);
         });
     }
+
+
+    // -- framebuffer -- //
+
 
     public static void setupFramebuffer() {
         setupFramebuffer(Framebuffer.activeFramebuffer);
@@ -172,6 +191,10 @@ public class WorldRenderer {
         glEnable(GL_DEPTH_TEST);
     }
 
+
+    // -- deferred rendering -- //
+
+
     public static void initGBuffer(Camera camera) {
         //setup pbr framebuffer
         PBRFrameBuffer.resizeTo(targetBuffer);
@@ -183,6 +206,39 @@ public class WorldRenderer {
         s.setup(camera);
         s.setVec3("camPos", camera.getPosition());
     }
+
+    public static void bakeDeferred(Sky sky) {
+        //world uniforms
+        outputBuffer.resizeTo(targetBuffer);
+        outputBuffer.useClear();
+        Shader s = Shaders.DEFERRED_WORLD_PBR.getShader().use();
+        setSkyUniforms(s);
+        sky.pushToShader(s, Texture.MAX_TEXTURES - 1);
+
+        //apply gbuffer textures and the lightmap
+        s.setTexture("gAlbedo",   PBRFrameBuffer.getTexture(0), 0);
+        s.setTexture("gPosition", PBRFrameBuffer.getTexture(1), 1);
+        s.setTexture("gNormal",   PBRFrameBuffer.getTexture(2), 2);
+        s.setTexture("gORM",      PBRFrameBuffer.getTexture(3), 3);
+        s.setTexture("gEmissive", PBRFrameBuffer.getTexture(4), 4);
+
+        int i = 5;
+        if (renderedLights > 0)
+            s.setTexture("lightTex",  lightingMultiPassBuffer.getColorBuffer(), i++);
+
+        //render to the output framebuffer the final scene
+        //and blit the remaining depth and stencil to the main
+        renderQuad();
+        PBRFrameBuffer.blit(outputBuffer.id(), false, true, true);
+        outputBuffer.use();
+
+        //cleanup textures
+        Texture.unbindAll(i);
+    }
+
+
+    // -- lights -- //
+
 
     public static void renderLights(List<Light> lights, Camera camera, Runnable renderFunction) {
         if (lights.isEmpty())
@@ -376,32 +432,9 @@ public class WorldRenderer {
         camera.updateFrustum();
     }
 
-    public static void bakeDeferred(Sky sky) {
-        //world uniforms
-        targetBuffer.use();
-        Shader s = Shaders.DEFERRED_WORLD_PBR.getShader().use();
-        setSkyUniforms(s);
-        sky.pushToShader(s, Texture.MAX_TEXTURES - 1);
 
-        //apply gbuffer textures and the lightmap
-        s.setTexture("gAlbedo",   PBRFrameBuffer.getTexture(0), 0);
-        s.setTexture("gPosition", PBRFrameBuffer.getTexture(1), 1);
-        s.setTexture("gNormal",   PBRFrameBuffer.getTexture(2), 2);
-        s.setTexture("gORM",      PBRFrameBuffer.getTexture(3), 3);
-        s.setTexture("gEmissive", PBRFrameBuffer.getTexture(4), 4);
+    // -- sky -- //
 
-        int i = 5;
-        if (renderedLights > 0)
-            s.setTexture("lightTex",  lightingMultiPassBuffer.getColorBuffer(), i++);
-
-        //render to the main framebuffer the final scene
-        //and blit the remaining depth and stencil
-        renderQuad();
-        PBRFrameBuffer.blit(targetBuffer.id(), false, true, true);
-
-        //cleanup textures
-        Texture.unbindAll(i);
-    }
 
     public static void setSkyUniforms(Shader shader) {
         //camera
@@ -418,6 +451,10 @@ public class WorldRenderer {
         Shaders.SKYBOX.getShader().use().setup(camera);
         sky.render(camera, matrices);
     }
+
+
+    // -- outlines -- //
+
 
     public static void renderOutlines(List<Entity> entitiesToOutline, Camera camera, MatrixStack matrices, float delta) {
         if (entitiesToOutline.isEmpty())
@@ -458,7 +495,7 @@ public class WorldRenderer {
 
         //prepare shader
         Shader s = Shaders.OUTLINE.getShader().use();
-        s.setVec2("textelSize", 1f / outlineFramebuffer.getWidth(), 1f / outlineFramebuffer.getHeight());
+        s.setVec2("texelSize", 1f / outlineFramebuffer.getWidth(), 1f / outlineFramebuffer.getHeight());
         s.setTexture("outlineTex", outlineFramebuffer.getColorBuffer(), 0);
         s.setFloat("radius", 4f);
 
@@ -472,6 +509,10 @@ public class WorldRenderer {
         Texture.unbindTex(0);
         outlineRendering = false;
     }
+
+
+    // -- other -- //
+
 
     public static void renderXrHands(Camera camera, MatrixStack matrices, float delta) {
         matrices.pushMatrix();

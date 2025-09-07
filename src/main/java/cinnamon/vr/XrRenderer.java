@@ -95,6 +95,8 @@ public class XrRenderer {
 
         if (index == swapchains.length - 1)
             renderBuffer(swapchains[index].width, swapchains[index].height);
+
+        Framebuffer.DEFAULT_FRAMEBUFFER.use();
     }
 
     public static int getRenderIndex() {

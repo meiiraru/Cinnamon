@@ -9,7 +9,7 @@ in vec2 texCoords;
 out vec4 fragColor;
 
 uniform sampler2D colorTex;
-uniform vec2 textelSize;
+uniform vec2 texelSize;
 uniform float radius;
 
 void main() {
@@ -20,10 +20,10 @@ void main() {
         for (float v = 0.0f; v <= radius; v++) {
             float weight = (((sqrt(u * u + v * v) / radius) > 1.0f) ? 0.0f : 1.0f);
 
-            vec4 s0 = texture(colorTex, texCoords + vec2(-u * textelSize.x, -v * textelSize.y));
-            vec4 s1 = texture(colorTex, texCoords + vec2( u * textelSize.x,  v * textelSize.y));
-            vec4 s2 = texture(colorTex, texCoords + vec2(-u * textelSize.x,  v * textelSize.y));
-            vec4 s3 = texture(colorTex, texCoords + vec2( u * textelSize.x, -v * textelSize.y));
+            vec4 s0 = texture(colorTex, texCoords + vec2(-u * texelSize.x, -v * texelSize.y));
+            vec4 s1 = texture(colorTex, texCoords + vec2( u * texelSize.x,  v * texelSize.y));
+            vec4 s2 = texture(colorTex, texCoords + vec2(-u * texelSize.x,  v * texelSize.y));
+            vec4 s3 = texture(colorTex, texCoords + vec2( u * texelSize.x, -v * texelSize.y));
 
             vec4 o0 = max(s0, s1);
             vec4 o1 = max(s2, s3);

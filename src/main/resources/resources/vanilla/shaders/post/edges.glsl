@@ -9,14 +9,14 @@ in vec2 texCoords;
 out vec4 fragColor;
 
 uniform sampler2D colorTex;
-uniform vec2 textelSize;
+uniform vec2 texelSize;
 
 void main() {
     vec4 center = texture(colorTex, texCoords);
-    vec4 left   = texture(colorTex, texCoords - vec2(textelSize.x, 0.0f));
-    vec4 right  = texture(colorTex, texCoords + vec2(textelSize.x, 0.0f));
-    vec4 up     = texture(colorTex, texCoords - vec2(0.0f, textelSize.y));
-    vec4 down   = texture(colorTex, texCoords + vec2(0.0f, textelSize.y));
+    vec4 left   = texture(colorTex, texCoords - vec2(texelSize.x, 0.0f));
+    vec4 right  = texture(colorTex, texCoords + vec2(texelSize.x, 0.0f));
+    vec4 up     = texture(colorTex, texCoords - vec2(0.0f, texelSize.y));
+    vec4 down   = texture(colorTex, texCoords + vec2(0.0f, texelSize.y));
 
     vec4 leftDiff  = center - left;
     vec4 rightDiff = center - right;

@@ -17,7 +17,7 @@ uniform float colorMask = 1.0f;
 uniform vec3 dither = vec3(0.75f, 0.5f, 0.25f);
 
 void main() {
-    vec4 tex = texture(colorTex, texCoords);
+    vec4 tex = clamp(texture(colorTex, texCoords), 0.0f, 1.0f);
     vec3 color = tex.rgb;
     float brightness = rgb2hsv(color).b;
 

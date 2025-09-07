@@ -17,7 +17,7 @@ public class Framebuffer {
     private int x, y;
     private int width, height;
 
-    public static final Framebuffer DEFAULT_FRAMEBUFFER = new Framebuffer(HDR_COLOR_BUFFER | DEPTH_BUFFER | STENCIL_BUFFER);
+    public static final Framebuffer DEFAULT_FRAMEBUFFER = new Framebuffer(COLOR_BUFFER | DEPTH_BUFFER | STENCIL_BUFFER);
 
     public static Framebuffer activeFramebuffer;
 
@@ -146,7 +146,6 @@ public class Framebuffer {
         if (color) glBlitFramebuffer(getX(), getY(), getWidth(), getHeight(), getX(), getY(), getWidth(), getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
         if (depth) glBlitFramebuffer(getX(), getY(), getWidth(), getHeight(), getX(), getY(), getWidth(), getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
         if (stencil) glBlitFramebuffer(getX(), getY(), getWidth(), getHeight(), getX(), getY(), getWidth(), getHeight(), GL_STENCIL_BUFFER_BIT, GL_NEAREST);
-        glBindFramebuffer(GL_FRAMEBUFFER, targetFramebuffer);
     }
 
     public int getColorBuffer() {
@@ -163,6 +162,9 @@ public class Framebuffer {
 
     public void resizeTo(Framebuffer other) {
         resize(other.getWidth(), other.getHeight());
+    }
+    public void resizeTo(Framebuffer other, float scale) {
+        resize((int) (other.getWidth() * scale), (int) (other.getHeight() * scale));
     }
 
     public void resize(int width, int height) {

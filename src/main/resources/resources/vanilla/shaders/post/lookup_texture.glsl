@@ -16,7 +16,7 @@ vec2 cellSize = textureSize(lutTex, 0) / lutGrid;
 
 void main() {
     //original color
-    vec4 color = texture(colorTex, texCoords);
+    vec4 color = clamp(texture(colorTex, texCoords), 0.0f, 1.0f);
 
     //get channels values
     vec3 channels = vec3(

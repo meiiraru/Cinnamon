@@ -19,25 +19,30 @@ public enum PostProcess {
     BLIT_GAMMA(COLOR_UNIFORM),
     HDR(COLOR_UNIFORM),
     KERNEL((fb, s) -> {
-        s.setVec2("textelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
+        s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
         return COLOR_UNIFORM.apply(fb, s);
     }),
     LOOKUP_TEXTURE(COLOR_UNIFORM),
+    GAUSSIAN_BLUR((fb, s) -> {
+        s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
+        s.setVec2("dir", 1f, 1f);
+        return COLOR_UNIFORM.apply(fb, s);
+    }),
 
     //effects
     INVERT(COLOR_UNIFORM),
     BLUR((fb, s) -> {
-        s.setVec2("textelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
+        s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
         s.setVec2("dir", 1f, 1f);
         s.setFloat("radius", 5f);
         return COLOR_UNIFORM.apply(fb, s);
     }),
     EDGES((fb, s) -> {
-        s.setVec2("textelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
+        s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
         return COLOR_UNIFORM.apply(fb, s);
     }),
     CHROMATIC_ABERRATION((fb, s) -> {
-        s.setVec2("textelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
+        s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
         s.setFloat("intensity", 2.5f);
         return COLOR_UNIFORM.apply(fb, s);
     }),
@@ -90,7 +95,7 @@ public enum PostProcess {
         return COLOR_UNIFORM.apply(fb, s);
     }),
     BLOBS((fb, s) -> {
-        s.setVec2("textelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
+        s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
         s.setFloat("radius", 7f);
         return COLOR_UNIFORM.apply(fb, s);
     }),
@@ -151,7 +156,7 @@ public enum PostProcess {
         int i = COLOR_UNIFORM.apply(fb, s);
         s.setTexture("depthTex", WorldRenderer.PBRFrameBuffer.getDepthBuffer(), i++);
         s.setTexture("normalTex", WorldRenderer.PBRFrameBuffer.gNormal, i++);
-        s.setVec2("textelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
+        s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
         s.setVec2("depthBias", 64f, 1f);
         s.setVec2("normalBias", 1f, 16f);
         s.setVec3("outlineColor", 0f, 0f, 0f);
@@ -271,13 +276,13 @@ public enum PostProcess {
     }
 
     //wacky hack
-    protected static final class FB {
-        protected static final Framebuffer
+    public static final class FB {
+        public static final Framebuffer
                 PING = new Framebuffer(Framebuffer.COLOR_BUFFER),
                 PONG = new Framebuffer(Framebuffer.COLOR_BUFFER),
                 PREVIOUS_COLOR_FRAMEBUFFER = new Framebuffer(Framebuffer.COLOR_BUFFER);
 
-        protected static final BiFunction<Framebuffer, Shader, Integer>
+        public static final BiFunction<Framebuffer, Shader, Integer>
                 DEPTH_UNIFORM = (fb, s) -> {
                     s.setTexture("depthTex", fb.getDepthBuffer(), 0);
                     return 1;
