@@ -211,13 +211,14 @@ public class DebugScreen {
 
         int mouseX = c.window.mouseX;
         int mouseY = c.window.mouseY;
+        boolean hasMouse = !c.window.isMouseLocked();
 
         hoveredTab = -1;
         Tab[] tabs = Tab.values();
         for (int i = 0; i < tabs.length; i++) {
             Text tabText = Text.of(tabs[i].name);
             float yy = y + i * spacing;
-            if (hoveredTab == -1 &&
+            if (hoveredTab == -1 && hasMouse &&
                     mouseX >= x && mouseX <= x + TextUtils.getWidth(tabText) &&
                     mouseY >= yy && mouseY <= yy + TextUtils.getHeight(tabText)) {
                 hoveredTab = i;
@@ -233,7 +234,7 @@ public class DebugScreen {
         Style s = STYLE.outlined(true).formatted(Formatting.RED);
         Text close = Text.of(" x ");
         int xx = 100;
-        if (hoveredTab == -1 &&
+        if (hoveredTab == -1 && hasMouse &&
                 mouseX >= xx && mouseX <= xx + TextUtils.getWidth(close) &&
                 mouseY >= 8 && mouseY <= 8 + TextUtils.getHeight(close)) {
             hoveredTab = -2;

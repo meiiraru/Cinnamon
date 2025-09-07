@@ -80,7 +80,7 @@ public class Window {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
         //move cursor to the window's center
-        glfwSetCursorPos(window, width / 2f, height / 2f);
+        setMousePos(width / 2f, height / 2f);
 
         //save state
         this.mouseLocked = false;
@@ -191,6 +191,16 @@ public class Window {
      */
     public void setTitle(String title) {
         glfwSetWindowTitle(window, title);
+    }
+
+    /**
+     * Set the mouse's position
+     * @param x the mouse x position
+     * @param y the mouse y position
+     */
+    public void setMousePos(double x, double y) {
+        glfwSetCursorPos(window, x, y);
+        updateMosuePos(x, y);
     }
 
     /**
@@ -324,19 +334,19 @@ public class Window {
 
             if (actualX <= 10) {
                 LOGGER.debug("mouse warp left");
-                glfwSetCursorPos(window, screenX[0] + screenW - x - 20, my);
+                setMousePos(screenX[0] + screenW - x - 20, my);
                 deltaConsumer.accept(dx, 0);
             } else if (actualX >= screenW - 10) {
                 LOGGER.debug("mouse warp right");
-                glfwSetCursorPos(window, screenX[0] - x + 20, my);
+                setMousePos(screenX[0] - x + 20, my);
                 deltaConsumer.accept(-dx, 0);
             } else if (actualY <= 10) {
                 LOGGER.debug("mouse warp up");
-                glfwSetCursorPos(window, mx, screenY[0] + screenH - y - 20);
+                setMousePos(mx, screenY[0] + screenH - y - 20);
                 deltaConsumer.accept(0, dy);
             } else { //if (actualY >= screenH - 10)
                 LOGGER.debug("mouse warp down");
-                glfwSetCursorPos(window, mx, screenY[0] - y + 20);
+                setMousePos(mx, screenY[0] - y + 20);
                 deltaConsumer.accept(0, -dy);
             }
         } catch (Exception ignored) {}
