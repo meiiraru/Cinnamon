@@ -249,5 +249,6 @@ void main() {
     col = calculateFog(pos, camPos, col);
 
     //final color
+    col.a = clamp(col.a, 0.0f, 1.0f);
     fragColor = col;
 }

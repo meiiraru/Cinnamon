@@ -89,7 +89,6 @@ public abstract class LivingEntity extends PhysEntity {
         matrices.pushMatrix();
         matrices.translate(getHandPos(false, delta));
         matrices.rotate(getHandRot(false, delta));
-        matrices.scale(0.75f);
 
         item.render(context, matrices, delta);
 

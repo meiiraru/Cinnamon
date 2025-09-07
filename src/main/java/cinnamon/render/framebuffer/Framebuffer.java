@@ -17,13 +17,9 @@ public class Framebuffer {
     private int x, y;
     private int width, height;
 
-    public static final Framebuffer DEFAULT_FRAMEBUFFER;
+    public static final Framebuffer DEFAULT_FRAMEBUFFER = new Framebuffer(HDR_COLOR_BUFFER | DEPTH_BUFFER | STENCIL_BUFFER);
 
     public static Framebuffer activeFramebuffer;
-
-    static {
-        DEFAULT_FRAMEBUFFER = new Framebuffer(COLOR_BUFFER | DEPTH_BUFFER | STENCIL_BUFFER);
-    }
 
     public Framebuffer(int flags) {
         this.flags = flags;

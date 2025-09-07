@@ -39,7 +39,7 @@ public class WorldRenderer {
     public static int entityRenderDistance = 144;
 
     public static final PBRDeferredFramebuffer PBRFrameBuffer = new PBRDeferredFramebuffer();
-    public static final Framebuffer lightingMultiPassBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
+    public static final Framebuffer lightingMultiPassBuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
     public static final Framebuffer shadowBuffer = new Framebuffer(Framebuffer.DEPTH_BUFFER);
     public static final ShadowMapFramebuffer cubeShadowBuffer = new ShadowMapFramebuffer();
     public static final Framebuffer outlineFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
@@ -394,7 +394,8 @@ public class WorldRenderer {
         if (renderedLights > 0)
             s.setTexture("lightTex",  lightingMultiPassBuffer.getColorBuffer(), i++);
 
-        //render and blit to main framebuffer
+        //render to the main framebuffer the final scene
+        //and blit the remaining depth and stencil
         renderQuad();
         PBRFrameBuffer.blit(targetBuffer.id(), false, true, true);
 
