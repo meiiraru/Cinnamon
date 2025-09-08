@@ -19,7 +19,6 @@ import cinnamon.world.Sky;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.light.CookieLight;
-import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.PointLight;
 import cinnamon.world.world.WorldClient;
@@ -120,7 +119,7 @@ public class WorldRenderer {
         //apply bloom
         float bloom = Settings.bloomStrength.get();
         if (bloom > 0f)
-            BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getTexture(4), 1.5f, bloom);
+            BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getTexture(4), 0.8f, bloom);
 
         //bake output buffer to the target buffer
         outputBuffer.blit(targetBuffer.id());
@@ -169,7 +168,7 @@ public class WorldRenderer {
             //apply bloom
             float bloom = Settings.bloomStrength.get();
             if (bloom > 0f)
-                BloomRenderer.applyBloom(targetBuffer, PBRFrameBuffer.getTexture(4), 1.5f, bloom);
+                BloomRenderer.applyBloom(targetBuffer, PBRFrameBuffer.getTexture(4), 0.8f, bloom);
         });
     }
 
@@ -299,11 +298,6 @@ public class WorldRenderer {
         shadowLight = light;
         activeMask = light.getShadowMask();
 
-        //move the directional lights away from the camera
-        Vector3f dir = light.getDirection();
-        if (light instanceof DirectionalLight)
-            light.pos(cameraPos.x + dir.x * -50f, cameraPos.y + dir.y * -50f, cameraPos.z + dir.z * -50f);
-
         //calculate light matrix
         light.calculateLightSpaceMatrix();
         Matrix4f lightSpaceMatrix = light.getLightSpaceMatrix();
@@ -311,6 +305,7 @@ public class WorldRenderer {
 
         //update camera
         Vector3f p = light.getPos();
+        Vector3f dir = light.getDirection();
         camera.setPos(p.x, p.y, p.z);
         camera.lookAt(p.x + dir.x, p.y + dir.y, p.z + dir.z);
 

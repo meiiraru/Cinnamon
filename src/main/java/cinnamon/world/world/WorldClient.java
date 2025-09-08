@@ -214,7 +214,11 @@ public class WorldClient extends World {
                 : (deltaDayTime > 11000) ? 1f - (deltaDayTime - 11000) / 900f //sunset
                 : 1f; //day
         sunLight.intensity(intensity);
-        sunLight.direction(sky.getSunDirection());
+
+        Vector3f dir = sky.getSunDirection();
+        Vector3f pos = client.camera.getPos();
+        sunLight.direction(dir);
+        sunLight.pos(pos.x + dir.x * -50f, pos.y + dir.y * -50f, pos.z + dir.z * -50f);
 
         //render our stuff
         WorldRenderer.renderWorld(this, client.camera, matrices, delta);

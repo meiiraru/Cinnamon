@@ -21,7 +21,7 @@ public class BloomRenderer {
 
         Shader s = Shaders.BRIGHT_PASS.getShader().use();
         s.setTexture("colorTex", targetBuffer.getColorBuffer(), 0);
-        s.setTexture("emissiveTex", emissiveTex, 1);
+        s.setTexture("gEmissiveTex", emissiveTex, 1);
         s.setFloat("threshold", threshold);
         renderQuad();
 

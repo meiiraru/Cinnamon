@@ -8,6 +8,7 @@ import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.light.CookieLight;
 import cinnamon.world.world.World;
 import cinnamon.world.world.WorldClient;
+import org.joml.Vector3f;
 
 public class Flashlight extends Item {
 
@@ -19,8 +20,11 @@ public class Flashlight extends Item {
             LivingEntity entity = Flashlight.this.getSource();
             if (entity != null) {
                 float delta = Client.getInstance().timer.partialTick;
-                pos(entity.getHandPos(false, delta));
-                direction(entity.getHandDir(false, delta));
+                Vector3f pos = entity.getHandPos(false, delta);
+                Vector3f dir = entity.getHandDir(false, delta);
+                direction(dir);
+                float f = 0.2f;
+                pos(pos.x + dir.x * f, pos.y + dir.y * f, pos.z + dir.z * f);
             }
             super.calculateLightSpaceMatrix();
         }

@@ -4,6 +4,7 @@ public class Timer {
 
     private final float tickMs;
     private long lastMs;
+    public float deltaTime;
     public float tickDelta;
     public float partialTick;
 
@@ -16,6 +17,7 @@ public class Timer {
         long CurrMs = getTime();
         long diffMs = CurrMs - lastMs;
 
+        deltaTime = diffMs / 1000.0f;
         tickDelta = diffMs / tickMs;
         lastMs = CurrMs;
 

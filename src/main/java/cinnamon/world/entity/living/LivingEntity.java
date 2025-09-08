@@ -380,7 +380,7 @@ public abstract class LivingEntity extends PhysEntity {
         Vector3f pos = getEyePos(delta);
         float x = aabb.getWidth() * 0.5f + 0.15f;
 
-        Vector3f offset = new Vector3f(left ? -x : x, -0.25f, -0.5f);
+        Vector3f offset = new Vector3f(left ? -x : x, -0.25f, -0.4f);
         offset.rotate(getHandRot(left, delta));
         pos.add(offset);
 
