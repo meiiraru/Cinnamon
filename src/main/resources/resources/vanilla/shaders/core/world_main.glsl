@@ -17,7 +17,6 @@ layout (location = 3) out vec4 gORM;
 layout (location = 4) out vec4 gEmissive;
 
 uniform sampler2D textures[16];
-uniform vec3 camPos;
 
 void main() {
     //color

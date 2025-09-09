@@ -1,5 +1,6 @@
 package cinnamon.world.light;
 
+import cinnamon.render.Camera;
 import cinnamon.render.shader.Shader;
 
 public class PointLight extends Light {
@@ -54,5 +55,10 @@ public class PointLight extends Light {
     @Override
     protected void updateAABB() {
         aabb.set(pos).inflate(falloffEnd);
+    }
+
+    @Override
+    public boolean shouldRenderFlare(Camera camera) {
+        return getFlareIntensity() > 0f;
     }
 }

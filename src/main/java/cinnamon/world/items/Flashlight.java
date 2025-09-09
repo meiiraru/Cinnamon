@@ -23,7 +23,7 @@ public class Flashlight extends Item {
                 Vector3f pos = entity.getHandPos(false, delta);
                 Vector3f dir = entity.getHandDir(false, delta);
                 direction(dir);
-                float f = 0.2f;
+                float f = 0.25f;
                 pos(pos.x + dir.x * f, pos.y + dir.y * f, pos.z + dir.z * f);
             }
             super.calculateLightSpaceMatrix();
@@ -35,7 +35,7 @@ public class Flashlight extends Item {
     public Flashlight(int color) {
         super(ItemModelRegistry.FLASHLIGHT.id, 1, 1, ItemModelRegistry.FLASHLIGHT.resource);
         light
-                .texture(FLASHLIGHT_COOKIE)
+                .cookieTexture(FLASHLIGHT_COOKIE)
                 .angle(15f, 20f)
                 .falloff(0f, 20f)
                 .color(color);

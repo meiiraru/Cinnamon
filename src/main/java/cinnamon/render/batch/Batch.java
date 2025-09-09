@@ -210,7 +210,7 @@ public abstract class Batch { //vertex consumer
 
     public static class ScreenSpaceUVBatch extends Batch {
         public ScreenSpaceUVBatch() {
-            super(6, Attributes.POS, Attributes.TEXTURE_ID, Attributes.COLOR_RGBA);
+            super(6, Attributes.POS, Attributes.TEXTURE_ID, Attributes.COLOR_RGBA, Attributes.NORMAL);
         }
     }
 }

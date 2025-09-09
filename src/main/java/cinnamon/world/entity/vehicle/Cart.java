@@ -63,7 +63,7 @@ public class Cart extends Car {
         Vector2f rot = getRot(delta);
         Vector3f dir = Maths.rotToDir(rot.x + 15f, rot.y);
 
-        Vector3f offset = new Vector3f(0f, 0.5f, -0.8f);
+        Vector3f offset = new Vector3f(0f, 0.5f, -0.85f);
         offset.rotate(Rotation.X.rotationDeg(-rot.x));
         offset.rotate(Rotation.Y.rotationDeg(-rot.y));
 
@@ -72,8 +72,14 @@ public class Cart extends Car {
         headlight.direction(dir);
 
         //back light
-        taillight.pos(pos.x - offset.x, pos.y + offset.y, pos.z - offset.z);
-        taillight.direction(-dir.x, dir.y, -dir.z);
+        dir.set(Maths.rotToDir(rot.x - 15f, rot.y));
+
+        offset.set(0f, 0.5f, 0.85f);
+        offset.rotate(Rotation.X.rotationDeg(-rot.x));
+        offset.rotate(Rotation.Y.rotationDeg(-rot.y));
+
+        taillight.pos(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
+        taillight.direction(-dir.x, -dir.y, -dir.z);
     }
 
     @Override

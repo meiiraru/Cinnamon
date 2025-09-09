@@ -116,6 +116,10 @@ public class WorldRenderer {
         if (renderSky)
             renderSky(world.getSky(), camera, matrices);
 
+        //render lens flare
+        if (renderLights)
+            renderLightsFlare(world.getLights(camera), camera, matrices);
+
         //apply bloom
         float bloom = Settings.bloomStrength.get();
         if (bloom > 0f)
@@ -165,7 +169,11 @@ public class WorldRenderer {
             if (renderOutlines) renderOutlines(world.getOutlines(camera), camera, matrices, delta);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
 
-            //apply bloom
+            //lens flare
+            if (renderLights)
+                renderLightsFlare(world.getLights(camera), camera, matrices);
+
+            //bloom
             float bloom = Settings.bloomStrength.get();
             if (bloom > 0f)
                 BloomRenderer.applyBloom(targetBuffer, PBRFrameBuffer.getTexture(4), 0.8f, bloom);
@@ -402,7 +410,7 @@ public class WorldRenderer {
         if (!hasShadow)
             light.calculateLightSpaceMatrix();
         if (light instanceof CookieLight cookie)
-            s.setTexture("cookieMap", Texture.of(cookie.getTexture()), i++); //5
+            s.setTexture("cookieMap", Texture.of(cookie.getCookieTexture()), i++); //5
 
         s.setBool("light.castsShadows", hasShadow);
         light.pushToShader(s);
@@ -425,6 +433,38 @@ public class WorldRenderer {
         camera.setPos(cameraPos.x, cameraPos.y, cameraPos.z);
         camera.setRot(cameraRot);
         camera.updateFrustum();
+    }
+
+    public static void renderLightsFlare(List<Light> lights, Camera camera, MatrixStack matrices) {
+        if (lights.isEmpty())
+            return;
+
+        //prepare the flare buffer
+        outputBuffer.use();
+        glBlendFunc(GL_ONE, GL_ONE);
+
+        //set up the flare shader
+        Shader s = Shaders.LENS_FLARE.getShader().use();
+        s.setup(camera);
+        s.setVec3("camPos", camera.getPosition());
+        s.setFloat("aspectRatio", (float) outputBuffer.getWidth() / outputBuffer.getHeight());
+        s.setTexture("gDepth", PBRFrameBuffer.getDepthBuffer(), 0);
+        s.setBool("hasFlares", Settings.lensFlare.get());
+
+        //render the flares
+        for (Light light : lights) {
+            if (!light.shouldRenderFlare(camera))
+                continue;
+
+            light.pushToShader(s);
+            s.setFloat("light.flareIntensity", light.getFlareIntensity());
+            s.setFloat("light.flareFalloff", light.getFlareFalloff());
+            renderQuad();
+        }
+
+        //reset state
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        Texture.unbindTex(0);
     }
 
 

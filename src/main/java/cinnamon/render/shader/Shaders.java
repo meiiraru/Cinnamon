@@ -31,7 +31,8 @@ public enum Shaders {
     POINT_DEPTH,
     POINT_MAIN_DEPTH,
     BRIGHT_PASS,
-    BLOOM_COMPOSITE;
+    BLOOM_COMPOSITE,
+    LENS_FLARE;
 
     private final Resource resource;
     private Shader shader;

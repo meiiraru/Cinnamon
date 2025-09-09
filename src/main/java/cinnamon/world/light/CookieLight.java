@@ -4,9 +4,9 @@ import cinnamon.utils.Resource;
 
 public class CookieLight extends Spotlight {
 
-    public static final Resource DEFAULT_TEX = new Resource("textures/environment/light/cookie_debug.png");
+    public static final Resource COOKIE = new Resource("textures/environment/light/cookie_debug.png");
 
-    private Resource texture = DEFAULT_TEX;
+    private Resource cookieTexture = COOKIE;
 
     public CookieLight() {
         super();
@@ -18,12 +18,12 @@ public class CookieLight extends Spotlight {
         return 4;
     }
 
-    public Resource getTexture() {
-        return texture;
+    public Resource getCookieTexture() {
+        return cookieTexture;
     }
 
-    public CookieLight texture(Resource texture) {
-        this.texture = texture;
+    public CookieLight cookieTexture(Resource cookieTexture) {
+        this.cookieTexture = cookieTexture;
         return this;
     }
 }

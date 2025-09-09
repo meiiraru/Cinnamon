@@ -35,6 +35,9 @@ public abstract class Light {
     protected final Mask shadowMask = new Mask(0b1, 0b10);
     protected UUID source;
 
+    private float flareIntensity = 1f;
+    private float flareFalloff = 15f;
+
     public void pushToShader(Shader shader) {
         pushToShader(shader, -1);
     }
@@ -188,6 +191,29 @@ public abstract class Light {
 
     public Light source(UUID source) {
         this.source = source;
+        return this;
+    }
+
+    public boolean shouldRenderFlare(Camera camera) {
+        //check if camera dir is facing the light
+        return flareIntensity > 0f && camera.getForwards().dot(dir) < -0.5f;
+    }
+
+    public float getFlareIntensity() {
+        return flareIntensity;
+    }
+
+    public Light flareIntensity(float flareIntensity) {
+        this.flareIntensity = flareIntensity;
+        return this;
+    }
+
+    public float getFlareFalloff() {
+        return flareFalloff;
+    }
+
+    public Light flareFalloff(float flareFalloff) {
+        this.flareFalloff = flareFalloff;
         return this;
     }
 }
