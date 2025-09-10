@@ -80,6 +80,9 @@ public class ExtrasScreen extends ParentedScreen {
         //panorama viewer
         list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.panorama_viewer", button -> client.setScreen(new PanoramaScreen(this))));
 
+        //vec sum screen
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.vec_sum", button -> client.setScreen(new VecScreen(this))));
+
         //title
         list.addWidget(new Label(0, 0, Text.of("\n").appendTranslated("gui.extras_screen.games").append("\n")));
 

@@ -194,6 +194,21 @@ public class UIHelper {
         return vertices;
     }
 
+    public static void renderTooltip(MatrixStack matrices, int x, int y, Text tooltip) {
+        int xx = x + 12;
+        int yy = y + 12;
+        int w = TextUtils.getWidth(tooltip);
+        int h = TextUtils.getHeight(tooltip);
+        Window win = Client.getInstance().window;
+
+        if (xx + w > win.getGUIWidth())
+            xx = x - 12 - w;
+        if (yy + h > win.getGUIHeight())
+            yy = y - 12 - h;
+
+        renderTooltip(matrices, xx, yy, w, h, xx, yy, (byte) -1, tooltip, tooltip.getStyle().getGuiStyle());
+    }
+
     public static void renderTooltip(MatrixStack matrices, int x, int y, int width, int height, int centerX, int centerY, byte arrowSide, Text tooltip, GUIStyle style) {
         matrices.pushMatrix();
         matrices.translate(x, y, 0);
@@ -213,12 +228,15 @@ public class UIHelper {
             //up
             case 2 -> quad(matrices, -x + centerX - 8, height + b, 16, 4, 0, 16, 16, 4, 20, 20);
             //down
-            default -> quad(matrices, -x + centerX - 8, -b - 4, 16, 4, 0, 20, 16, -4, 20, 20);
+            case 3 -> quad(matrices, -x + centerX - 8, -b - 4, 16, 4, 0, 20, 16, -4, 20, 20);
+            default -> null;
         };
 
-        for (Vertex vertex : vertices)
-            vertex.color(color);
-        VertexConsumer.MAIN.consume(vertices, tex);
+        if (vertices != null) {
+            for (Vertex vertex : vertices)
+                vertex.color(color);
+            VertexConsumer.MAIN.consume(vertices, tex);
+        }
 
         //render text
         matrices.pushMatrix();
