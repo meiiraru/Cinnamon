@@ -132,9 +132,15 @@ public class MainMenu extends Screen {
         if (titles == null)
             return;
 
+        //1 in 10000 chance
+        boolean funny = Math.random() < 0.0001f; 
+
         titles.sort(IOUtils.FilenameComparator::compareTo);
-        for (String title : titles)
-            TITLE.add(TITLE_ROOT.resolve(title));
+        for (String title : titles) {
+            Resource res = TITLE_ROOT.resolve(title);
+            TITLE.add(res);
+            if (funny) TITLE.add(res);
+        }
     }
 
     private static class MainButton extends Button {
