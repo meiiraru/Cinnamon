@@ -85,7 +85,8 @@ public class DebugScreen {
         matrices.translate(0f, 0f, 20f);
 
         if (fpsOnly) {
-            Text.of(c.fps + " fps @ " + c.ms + " ms").withStyle(STYLE).render(VertexConsumer.MAIN, matrices, 4, 4);
+            String vsync = Settings.vsync.get() ? " (vsync)" : "";
+            Text.of(c.fps + " fps @ " + c.ms + " ms" + vsync).withStyle(STYLE).render(VertexConsumer.MAIN, matrices, 4, 4);
             matrices.popMatrix();
             return;
         }
@@ -359,6 +360,9 @@ public class DebugScreen {
                     [&bwindow&r]
                     &e%s&r x &e%s&r
                     gui scale &e%s&r
+                    fullscreen &e%s&r
+                    vsync &e%s&r
+                    FPS limit &e%s&r
 
                     [&beffects&r]
                     post process &e%s&r
@@ -374,6 +378,9 @@ public class DebugScreen {
 
                     w.width, w.height,
                     w.guiScale,
+                    w.isFullscreen() ? "on" : "off",
+                    Settings.vsync.get() ? "on" : "off",
+                    Settings.fpsLimit.get() <= 0 ? "unlimited" : Settings.fpsLimit.get() + " fps",
 
                     post == null ? "none" : post.name(),
                     c.anaglyph3D ? "on" : "off",

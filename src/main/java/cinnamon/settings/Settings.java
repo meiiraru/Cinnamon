@@ -1,5 +1,6 @@
 package cinnamon.settings;
 
+import cinnamon.Client;
 import cinnamon.input.InputManager;
 import cinnamon.lang.LangManager;
 import cinnamon.registry.LivingModelRegistry;
@@ -38,6 +39,8 @@ public class Settings {
     public static final Setting.Ints fov = new Setting.Ints("screen.fov", 70);
     public static final Setting.Floats guiScale = new Setting.Floats("screen.guiScale", 0f);
     public static final Setting.Bools showFPS = new Setting.Bools("screen.show_fps", false);
+    public static final Setting.Bools vsync = new Setting.Bools("screen.vsync", false);
+    public static final Setting.Ints fpsLimit = new Setting.Ints("screen.fps_limit", 0);
 
     //mouse
     public static final Setting.Floats sensibility = new Setting.Floats("mouse.sensibility", 0.27f);
@@ -89,6 +92,9 @@ public class Settings {
             pick = new Setting.Keybind("keybind.pick", GLFW_MOUSE_BUTTON_3, MOUSE);
 
     static {
+        //screen
+        vsync.setListener(v -> Client.getInstance().window.toggleVsync(v));
+
         //raw mouse
         Setting.Bools rawMouse = new Setting.Bools("mouse.raw_mouse", true);
         rawMouse.setListener(InputManager::setRawMouseInput);

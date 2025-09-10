@@ -150,6 +150,14 @@ public class Window {
     }
 
     /**
+     * Check if the window is in fullscreen mode
+     * @return true if the window is in fullscreen
+     */
+    public boolean isFullscreen() {
+        return fullscreen;
+    }
+
+    /**
      * Get the monitor that has the most overlap with the window
      * @return the monitor's GLFW handle
      */
@@ -401,6 +409,14 @@ public class Window {
         }
 
         glfwSetCursor(window, cur);
+    }
+
+    /**
+     * Enable or disable VSync
+     * @param enabled true to enable VSync, false to disable it
+     */
+    public void toggleVsync(boolean enabled) {
+        glfwSwapInterval(enabled ? 1 : 0);
     }
 
     /**

@@ -5,6 +5,7 @@ import cinnamon.render.Window;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.settings.ArgsOptions;
+import cinnamon.settings.Settings;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
 import org.lwjgl.glfw.GLFWDropCallback;
@@ -155,21 +156,20 @@ public class Cinnamon {
 
         //fps count
         double prevSecond = glfwGetTime();
-        double prevTime = prevSecond;
         int fps = 0;
+        int ms = 0;
 
         //render loop
         while (!glfwWindowShouldClose(window)) {
+            double frameStartTime = glfwGetTime();
+
             //fps counter
-            double currentTime = glfwGetTime();
-            fps++;
-            if (currentTime - prevSecond >= 1) {
+            if (frameStartTime - prevSecond >= 1) {
                 client.fps = fps;
-                client.ms = (int) ((currentTime - prevTime) * 1000);
-                fps = 0;
-                prevSecond = currentTime;
+                client.ms = ms / fps; //average ms per second
+                fps = ms = 0;
+                prevSecond = frameStartTime;
             }
-            prevTime = currentTime;
 
             //process input events
             glfwPollEvents();
@@ -194,6 +194,22 @@ public class Cinnamon {
             if (!matrices.isEmpty()) {
                 LOGGER.warn("Forgot to pop the matrix stack! - Popping it for you!");
                 while (!matrices.isEmpty()) matrices.popMatrix();
+            }
+
+            //ms counter
+            double frameEndTime = glfwGetTime();
+            double frameDuration = frameEndTime - frameStartTime;
+            ms += (int) (frameDuration * 1000);
+            fps++;
+
+            //limit fps
+            int frameCap = Settings.fpsLimit.get();
+            if (frameCap > 0 && frameDuration < 1d / frameCap) {
+                try {
+                    Thread.sleep((long) ((1d / frameCap - frameDuration) * 1000));
+                } catch (InterruptedException e) {
+                    LOGGER.warn("Thread interrupted while sleeping to limit FPS", e);
+                }
             }
         }
     }
