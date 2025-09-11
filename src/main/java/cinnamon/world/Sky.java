@@ -17,8 +17,6 @@ import org.joml.Vector3f;
 public class Sky {
 
     public static final Resource SUN = new Resource("textures/environment/sun.png");
-    public static final float SUN_ROLL = (float) Math.toRadians(30f);
-    public static final float CLOUD_SPEED = (float) Math.PI / 2f;
 
     public int fogColor = 0xBFD3DE;
     public float fogStart = 96;
@@ -27,6 +25,8 @@ public class Sky {
     private final Vector3f sunDir = new Vector3f(1, 0, 0);
     private final Matrix3f skyRotation = new Matrix3f();
     private float sunAngle;
+    private float sunRoll = (float) Math.toRadians(30f);
+    private float cloudSpeed = (float) Math.PI / 2f;
 
     private Resource skyBox = SkyBoxRegistry.CLOUDS.resource;
 
@@ -60,7 +60,7 @@ public class Sky {
 
         //translate sun
         matrices.rotate(Rotation.Y.rotationDeg(90f));
-        matrices.rotate(Rotation.Z.rotation(SUN_ROLL));
+        matrices.rotate(Rotation.Z.rotation(sunRoll));
         matrices.rotate(Rotation.X.rotationDeg(-sunAngle));
         matrices.translate(0, 0, 512);
 
@@ -72,14 +72,27 @@ public class Sky {
         matrices.popMatrix();
     }
 
-    public void setSunAngle(float angle) {
-        this.sunAngle = angle;
-
+    protected void updateSunDir() {
         this.sunDir.set(-1, 0, 0);
         this.sunDir.rotateZ((float) Math.toRadians(sunAngle));
-        this.sunDir.rotateX(SUN_ROLL);
+        this.sunDir.rotateX(sunRoll);
 
-        Rotation.Y.rotationDeg(sunAngle * CLOUD_SPEED).get(this.skyRotation);
+        Rotation.Y.rotationDeg(sunAngle * cloudSpeed).get(this.skyRotation);
+    }
+
+    public void setSunAngle(float angle) {
+        this.sunAngle = angle;
+        updateSunDir();
+    }
+
+    public void setSunRoll(float roll) {
+        this.sunRoll = (float) Math.toRadians(roll);
+        updateSunDir();
+    }
+
+    public void setCloudSpeed(float cloudSpeed) {
+        this.cloudSpeed = cloudSpeed;
+        updateSunDir();
     }
 
     public Vector3f getSunDirection() {
