@@ -78,14 +78,14 @@ public class PrimitiveTestWorld extends WorldClient {
         });
 
         //set sky fog
-        sky.fogStart = 0; sky.fogEnd = 8; sky.fogColor = 0x121212;
+        sky.fogStart = 0; sky.fogEnd = 8; sky.fogColor = 0;
         sky.setSkyBox(SkyBoxRegistry.SPACE.resource);
     }
 
     @Override
     public void render(MatrixStack matrices, float delta) {
         super.render(matrices, delta);
-        PostProcess.apply(PostProcess.TOON_OUTLINE, PostProcess.POSTERIZE);
+        PostProcess.apply(PostProcess.TOON_OUTLINE);
     }
 
     @Override

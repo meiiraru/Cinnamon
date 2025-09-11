@@ -53,9 +53,7 @@ void main() {
 
     //project a light 3D world position to 2D screen space
     vec3 lightScreen = projectToScreen(light.pos);
-    if (lightScreen.x < -0.25f || lightScreen.x > 1.25f ||
-        lightScreen.y < -0.25f || lightScreen.y > 1.25f ||
-        lightScreen.z < 0.0f || lightScreen.z > 1.0f)
+    if (lightScreen.z < 0.0f || lightScreen.z > 1.0f)
         discard; //clipped by near/far plane
 
     //occlusion test
@@ -63,7 +61,7 @@ void main() {
     bool pixelOccluded = pixelDepth < lightScreen.z - 0.0001f;
 
     float sceneDepth = texture(gDepth, lightScreen.xy).r;
-    bool lightOccluded = sceneDepth < lightScreen.z - 0.0001f;
+    bool lightOccluded = lightScreen.x < 0.0f || lightScreen.x > 1.0f || lightScreen.y < 0.0f || lightScreen.y > 1.0f || sceneDepth < lightScreen.z - 0.0001f;
 
     //directional fade for spotlights and cookies
     float directionalFade = 1.0f;
