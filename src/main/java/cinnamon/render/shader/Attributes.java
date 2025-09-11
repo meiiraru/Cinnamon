@@ -36,6 +36,11 @@ public enum Attributes {
         b.put(uv.x);
         b.put(uv.y);
     }),
+    UV_FLIP(2, (v, b) -> {
+        Vector2f uv = v.getUV();
+        b.put(uv.x);
+        b.put(1 - uv.y);
+    }),
     COLOR(3, (v, b) -> {
         Vector4f color = v.getColor();
         b.put(color.x);
@@ -56,7 +61,12 @@ public enum Attributes {
         b.put(normal.z);
     }),
     INDEX(1, (v, b) -> b.put(v.getIndex()), true),
-    TANGENTS(3, null);
+    TANGENTS(3, (v, b) -> {
+        Vector3f tangent = v.getTangent();
+        b.put(tangent.x);
+        b.put(tangent.y);
+        b.put(tangent.z);
+    });
 
     private final int size;
     private final int sizeInBytes;

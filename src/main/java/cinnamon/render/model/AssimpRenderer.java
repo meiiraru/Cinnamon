@@ -1,5 +1,6 @@
 package cinnamon.render.model;
 
+import cinnamon.model.Vertex;
 import cinnamon.model.assimp.Mesh;
 import cinnamon.model.assimp.Model;
 import cinnamon.model.material.Material;
@@ -47,7 +48,7 @@ public class AssimpRenderer extends ModelRenderer {
         //iterate over meshes
         for (Mesh mesh : model.meshes) {
             //vertex list
-            List<VertexData> vertices = new ArrayList<>();
+            List<Vertex> vertices = new ArrayList<>();
 
             this.aabb.merge(mesh.aabb);
 
@@ -56,14 +57,12 @@ public class AssimpRenderer extends ModelRenderer {
             for (int i : indices) {
                 //parse indexes to their actual values
                 Vector3f v = mesh.vertices.get(i);
-                Vector2f u = mesh.hasUVs ? mesh.uvs.get(i) : VertexData.DEFAULT_UV;
-                Vector3f n = mesh.hasNormals ? mesh.normals.get(i) : VertexData.DEFAULT_NORMAL;
-                Vector3f t = mesh.hasTangents ? mesh.tangents.get(i) : VertexData.DEFAULT_TANGENT;
+                Vector2f u = mesh.hasUVs ? mesh.uvs.get(i) : Vertex.DEFAULT_UV;
+                Vector3f n = mesh.hasNormals ? mesh.normals.get(i) : Vertex.DEFAULT_NORMAL;
+                Vector3f t = mesh.hasTangents ? mesh.tangents.get(i) : Vertex.DEFAULT_TANGENT;
 
                 //add to vertex list
-                VertexData data = new VertexData(v, u, n);
-                data.tangent = t;
-                vertices.add(data);
+                vertices.add(Vertex.of(v).uv(u).normal(n).tangent(t));
             }
 
             //create a new mesh data with the OpenGL attributes
@@ -146,11 +145,11 @@ public class AssimpRenderer extends ModelRenderer {
         private final Material material;
         private final AABB aabb;
 
-        public MeshData(Mesh mesh, List<VertexData> vertices, Material material) {
+        public MeshData(Mesh mesh, List<Vertex> vertices, Material material) {
             this.vertexCount = vertices.size();
             this.material = material;
             this.aabb = new AABB(mesh.aabb);
-            Pair<Integer, Integer> buffers = generateBuffers(vertices, Attributes.POS, Attributes.UV, Attributes.NORMAL, Attributes.TANGENTS);
+            Pair<Integer, Integer> buffers = generateBuffers(vertices, Attributes.POS, Attributes.UV_FLIP, Attributes.NORMAL, Attributes.TANGENTS);
             this.vao = buffers.first();
             this.vbo = buffers.second();
         }

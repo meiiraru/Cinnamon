@@ -1,5 +1,7 @@
 package cinnamon.render.model;
 
+import cinnamon.model.Vertex;
+import cinnamon.model.VertexHelper;
 import cinnamon.model.material.Material;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
@@ -53,7 +55,7 @@ public class ObjRenderer extends ModelRenderer {
         //iterate groups
         for (Group group : mesh.getGroups()) {
             //vertex list and capacity
-            List<VertexData> sortedVertices = new ArrayList<>();
+            List<Vertex> sortedVertices = new ArrayList<>();
 
             //group min and max
             Vector3f groupMin = new Vector3f(Integer.MAX_VALUE);
@@ -67,13 +69,13 @@ public class ObjRenderer extends ModelRenderer {
                 List<Integer> vn = face.getNormals();
 
                 //vertex list
-                List<VertexData> data = new ArrayList<>();
+                List<Vertex> data = new ArrayList<>();
 
                 for (int i = 0; i < v.size(); i++) {
                     //parse indexes to their actual values
                     Vector3f a = vertices.get(v.get(i));
-                    Vector2f b = !vt.isEmpty() ? uvs.get(vt.get(i)) : VertexData.DEFAULT_UV;
-                    Vector3f c = !vn.isEmpty() ? normals.get(vn.get(i)) : VertexData.DEFAULT_NORMAL;
+                    Vector2f b = !vt.isEmpty() ? uvs.get(vt.get(i)) : Vertex.DEFAULT_UV;
+                    Vector3f c = !vn.isEmpty() ? normals.get(vn.get(i)) : Vertex.DEFAULT_NORMAL;
 
                     //calculate min and max
                     this.bbMin.min(a);
@@ -82,11 +84,11 @@ public class ObjRenderer extends ModelRenderer {
                     groupMax.max(a);
 
                     //add to vertex list
-                    data.add(new VertexData(a, b, c));
+                    data.add(Vertex.of(a).uv(b).normal(c));
                 }
 
                 //triangulate the faces using ear clipping
-                List<VertexData> sorted = VertexData.triangulate(data);
+                List<Vertex> sorted = VertexHelper.triangulate(data);
 
                 //add data to the vertex list
                 sortedVertices.addAll(sorted);
@@ -101,13 +103,13 @@ public class ObjRenderer extends ModelRenderer {
 
             //generate normals when missing
             if (normals.isEmpty()) {
-                VertexData.calculateFlatNormals(sortedVertices);
-                VertexData.smoothNormals(sortedVertices, angleThreshold);
+                VertexHelper.calculateFlatNormals(sortedVertices);
+                VertexHelper.smoothNormals(sortedVertices, angleThreshold);
             }
 
             //calculate tangents
             if (!uvs.isEmpty())
-                VertexData.calculateTangents(sortedVertices, angleThreshold);
+                VertexHelper.calculateTangents(sortedVertices, angleThreshold);
 
             //create a new group with the OpenGL attributes
             GroupData groupData = new GroupData(group, sortedVertices, groupMin, groupMax);
@@ -188,12 +190,12 @@ public class ObjRenderer extends ModelRenderer {
         private final Material material;
         private final Vector3f bbMin, bbMax;
 
-        public GroupData(Group group, List<VertexData> sortedVertices, Vector3f bbMin, Vector3f bbMax) {
+        public GroupData(Group group, List<Vertex> sortedVertices, Vector3f bbMin, Vector3f bbMax) {
             this.vertexCount = sortedVertices.size();
             this.material = group.getMaterial();
             this.bbMin = bbMin;
             this.bbMax = bbMax;
-            Pair<Integer, Integer> buffers = generateBuffers(sortedVertices, Attributes.POS, Attributes.UV, Attributes.NORMAL, Attributes.TANGENTS);
+            Pair<Integer, Integer> buffers = generateBuffers(sortedVertices, Attributes.POS, Attributes.UV_FLIP, Attributes.NORMAL, Attributes.TANGENTS);
             this.vao = buffers.first();
             this.vbo = buffers.second();
         }

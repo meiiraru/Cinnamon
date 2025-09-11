@@ -5,12 +5,17 @@ import cinnamon.utils.ColorUtils;
 import org.joml.*;
 
 public class Vertex implements Comparable<Vertex> {
+    public static final Vector3f DEFAULT_TANGENT = new Vector3f(0, 0, 1);
+    public static final Vector3f DEFAULT_NORMAL = new Vector3f(0, 0, 1);
+    public static final Vector2f DEFAULT_UV = new Vector2f(0, 0);
+    public static final Vector4f DEFAULT_COLOR = new Vector4f(1, 1, 1, 1);
 
     private final Vector4f
-            color = new Vector4f(1f, 1f, 1f, 1f);
+            color = new Vector4f(1, 1, 1, 1);
     private final Vector3f
             pos = new Vector3f(),
-            normal = new Vector3f(0f, 0f, -1f);
+            normal = new Vector3f(0, 0, -1),
+            tangent = new Vector3f(0, 0, 1);
     private final Vector2f uv = new Vector2f();
     private int index = -1;
 
@@ -65,6 +70,15 @@ public class Vertex implements Comparable<Vertex> {
         return normal(normal.x, normal.y, normal.z);
     }
 
+    public Vertex tangent(float x, float y, float z) {
+        this.tangent.set(x, y, z).normalize();
+        return this;
+    }
+
+    public Vertex tangent(Vector3f tangent) {
+        return tangent(tangent.x, tangent.y, tangent.z);
+    }
+
     public Vertex uv(float u, float v) {
         this.uv.set(u, v);
         return this;
@@ -110,14 +124,18 @@ public class Vertex implements Comparable<Vertex> {
         return this.normal;
     }
 
+    public Vector3f getTangent() {
+        return tangent;
+    }
+
     public int getIndex() {
         return index;
     }
 
     @Override
     public String toString() {
-        return String.format("[Pos]: %s, %s, %s [UV]: %s, %s [Color]: %s, %s, %s [Normal] %s, %s, %s",
-                pos.x, pos.y, pos.z, uv.x, uv.y, color.x, color.y, color.z, normal.x, normal.y, normal.z);
+        return String.format("[Pos]: %s, %s, %s [UV]: %s, %s [Color]: %s, %s, %s [Normal]: %s, %s, %s [Tangent]: %s, %s, %s",
+                pos.x, pos.y, pos.z, uv.x, uv.y, color.x, color.y, color.z, normal.x, normal.y, normal.z, tangent.x, tangent.y, tangent.z);
     }
 
     @Override

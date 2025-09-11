@@ -2,6 +2,8 @@ package cinnamon.world.world;
 
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
+import cinnamon.model.VertexHelper;
+import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -12,6 +14,9 @@ import cinnamon.utils.Rotation;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.terrain.Terrain;
 import org.joml.Vector3f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_G;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
@@ -73,7 +78,8 @@ public class PrimitiveTestWorld extends WorldClient {
         });
 
         //set sky fog
-        getSky().fogStart = 0; getSky().fogEnd = 8; getSky().fogColor = 0x121212;
+        sky.fogStart = 0; sky.fogEnd = 8; sky.fogColor = 0x121212;
+        sky.setSkyBox(SkyBoxRegistry.SPACE.resource);
     }
 
     @Override
@@ -113,12 +119,12 @@ public class PrimitiveTestWorld extends WorldClient {
         float r = (float) Math.sqrt(d * d + d * d) / 4f;
 
         //base 2
-        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, eps, -r, -r, w - eps, r, r, colA)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, 0, -r, -r, w, r, r, colA)));
 
         //roof
-        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, -0.5f, r, -r - 0.5f + eps, w + 0.5f, r + 0.5f, r + 0.5f, colB)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, -0.5f, r, -r - 0.5f, w + 0.5f, r + 0.5f, r + 0.5f, colB)));
         //roof 2
-        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, -0.5f + eps, -r - 0.5f, -r - 0.5f, w + 0.5f - eps, r + 0.5f - eps, -r, colB)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, -0.5f, -r - 0.5f, -r - 0.5f, w + 0.5f, r + 0.5f, -r, colB)));
 
         //windows
         mat.rotate(Rotation.X.rotationDeg(-45f));
@@ -135,7 +141,7 @@ public class PrimitiveTestWorld extends WorldClient {
         house(x, y, z, 90, 0xFF808080, 0xFF1d1119);
 
         float w = 5, h = 8f, d = 5f;
-        
+
         mat.pushMatrix();
         mat.translate(x + 1.5f, y, z - 1.5f - 5f);
 
@@ -146,11 +152,11 @@ public class PrimitiveTestWorld extends WorldClient {
         addTerrain(new PrimitiveTerrain(GeometryHelper.pyramid(mat, -0.5f, h, -0.5f, w + 0.5f, h + 4, d + 0.5f, 0xFF1d1119)));
 
         //cross
-        float eps = 0.01f;
         addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, w / 2f - 0.25f, h + 3.5f, d / 2f - 0.25f, w / 2f + 0.25f, h + 6.5f, d / 2f + 0.25f, 0xFFd4af37)));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, w / 2f - 0.25f - eps, h + 5.5f, d / 2f - 1f, w / 2f + 0.25f + eps, h + 6f, d / 2f + 1f, 0xFFd4af37)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, w / 2f - 0.25f, h + 5.5f, d / 2f - 1f, w / 2f + 0.25f, h + 6f, d / 2f + 1f, 0xFFd4af37)));
 
         //windows
+        float eps = 0.01f;
         addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, w / 2f - 0.5f, 1, -eps, w / 2f + 0.5f, 3, d + eps, 0xFF444444)));
         addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, w / 2f - 0.5f, 5, -eps, w / 2f + 0.5f, 7, d + eps, 0xFF444444)));
         addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, -eps, 1, d / 2f - 0.5f, w + eps, 3, d / 2f + 0.5f, 0xFF444444)));
@@ -173,13 +179,13 @@ public class PrimitiveTestWorld extends WorldClient {
         addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, 0, 0, -d / 2f - 0.5f, len, h, -d / 2f, 0xFF808080)));
         //right wall
         addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, 0, 0, d / 2f, len, h, d / 2f + 0.5f, 0xFF808080)));
-        
+
         mat.popMatrix();
     }
 
     private void tower(float x, float y, float z) {
         float r = 3f, h = 8f;
-        
+
         mat.pushMatrix();
         mat.translate(x, y, z);
 
@@ -198,7 +204,7 @@ public class PrimitiveTestWorld extends WorldClient {
         addTerrain(new PrimitiveTerrain(GeometryHelper.cylinder(mat, x, y, z, r - 0.5f, h * 2, 6, 0xFF80a0a0)));
         addTerrain(new PrimitiveTerrain(GeometryHelper.cylinder(mat, x, y, z, r - 1f, h * 3, 5, 0xFF80c0e0)));
         addTerrain(new PrimitiveTerrain(GeometryHelper.cylinder(mat, x, y, z, r - 1.5f, h * 4, 4, 0xFF80e0f0)));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.sphere(mat, x, y + h * 5, z, r - 1.5f, 8, 0xFF80e0f0)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.sphere(mat, x, y + h * 5, z, r - 1.5f, 8, 0xFF80e0f0), false));
     }
 
     private void gateway(float x, float y, float z) {
@@ -207,7 +213,7 @@ public class PrimitiveTestWorld extends WorldClient {
 
         float eps = 0.01f;
         //cube - bottom
-        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, -2f, -2f, -eps * 2f, 2f, 0f, 3f + eps * 2f, 0xFF202020)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.cube(mat, -2f, -2f, -eps, 2f, 0f, 3f + eps, 0xFF202020)));
 
         //cylinder - top
         mat.rotate(Rotation.X.rotationDeg(90f));
@@ -226,8 +232,12 @@ public class PrimitiveTestWorld extends WorldClient {
         private final Vertex[][] vertices;
 
         public PrimitiveTerrain(Vertex[][] vertices) {
+            this(vertices, true);
+        }
+
+        public PrimitiveTerrain(Vertex[][] vertices, boolean smooth) {
             super(null, TerrainRegistry.CUSTOM);
-            this.vertices = vertices;
+            this.vertices = smooth ? recalculateNormals(vertices) : vertices;
             this.preciseAABB.add(aabb);
             updateAABB();
         }
@@ -266,6 +276,33 @@ public class PrimitiveTestWorld extends WorldClient {
             }
 
             this.aabb.set(minX, minY, minZ, maxX, maxY, maxZ);
+        }
+
+        private static Vertex[][] recalculateNormals(Vertex[][] vertices) {
+            Vertex[][] newVertices = new Vertex[vertices.length][];
+            List<Vertex> vertexList = new ArrayList<>();
+
+            //extract the vertices into a list
+            for (int i = 0; i < vertices.length; i++) {
+                Vertex[] face = vertices[i];
+                newVertices[i] = new Vertex[face.length];
+
+                for (int j = 0; j < face.length; j++) {
+                    Vertex vertex = face[j];
+                    Vertex newVertex = Vertex.of(vertex.getPosition()).color(vertex.getColor()).normal(vertex.getNormal());
+                    newVertices[i][j] = newVertex;
+                }
+
+                //triangulate because the normal calculation is based on triangles
+                vertexList.addAll(VertexHelper.triangulate(new ArrayList<>(List.of(newVertices[i]))));
+            }
+
+            //smooth normals
+            VertexHelper.calculateFlatNormals(vertexList);
+            VertexHelper.smoothNormals(vertexList, 45f);
+
+            //new vertices will update with the same references as the vertexList, so just return it
+            return newVertices;
         }
     }
 }
