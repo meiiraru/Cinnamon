@@ -110,7 +110,7 @@ public class WorldRenderer {
         }
 
         //bake world
-        bakeDeferred(world.getSky());
+        bakeDeferred(camera, world.getSky(), renderedLights > 0);
 
         //render the sky
         if (renderSky)
@@ -126,8 +126,7 @@ public class WorldRenderer {
             BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getTexture(4), 0.8f, bloom);
 
         //bake output buffer to the target buffer
-        outputBuffer.blit(targetBuffer.id());
-        targetBuffer.use();
+        bake();
 
         //render debug stuff
         if (renderDebug)
@@ -162,7 +161,7 @@ public class WorldRenderer {
                 renderLights(world.getLights(camera), camera, renderWorld);
         }, () -> {
             //bake world
-            bakeDeferred(world.getSky());
+            bakeDeferred(camera, world.getSky(), renderedLights > 0);
 
             //render other stuff
             if (renderSky) renderSky(world.getSky(), camera, matrices);
@@ -192,6 +191,11 @@ public class WorldRenderer {
         WorldRenderer.targetBuffer = targetBuffer;
     }
 
+    public static void bake() {
+        outputBuffer.blit(targetBuffer.id());
+        targetBuffer.use();
+    }
+
     public static void renderQuad() {
         glDisable(GL_DEPTH_TEST);
         SimpleGeometry.QUAD.render();
@@ -214,12 +218,12 @@ public class WorldRenderer {
         s.setVec3("camPos", camera.getPosition());
     }
 
-    public static void bakeDeferred(Sky sky) {
+    public static void bakeDeferred(Camera camera, Sky sky, boolean hasLights) {
         //world uniforms
         outputBuffer.resizeTo(targetBuffer);
         outputBuffer.useClear();
         Shader s = Shaders.DEFERRED_WORLD_PBR.getShader().use();
-        setSkyUniforms(s);
+        setSkyUniforms(s, camera, sky);
         sky.pushToShader(s, Texture.MAX_TEXTURES - 1);
 
         //apply gbuffer textures and the lightmap
@@ -228,10 +232,7 @@ public class WorldRenderer {
         s.setTexture("gNormal",   PBRFrameBuffer.getTexture(2), 2);
         s.setTexture("gORM",      PBRFrameBuffer.getTexture(3), 3);
         s.setTexture("gEmissive", PBRFrameBuffer.getTexture(4), 4);
-
-        int i = 5;
-        if (renderedLights > 0)
-            s.setTexture("lightTex",  lightingMultiPassBuffer.getColorBuffer(), i++);
+        s.setTexture("lightTex",  hasLights ? lightingMultiPassBuffer.getColorBuffer() : 0, 5);
 
         //render to the output framebuffer the final scene
         //and blit the remaining depth and stencil to the main
@@ -240,7 +241,7 @@ public class WorldRenderer {
         outputBuffer.use();
 
         //cleanup textures
-        Texture.unbindAll(i);
+        Texture.unbindAll(6);
     }
 
 
@@ -396,22 +397,15 @@ public class WorldRenderer {
         s.setTexture("gPosition", PBRFrameBuffer.getTexture(1), 1);
         s.setTexture("gNormal",   PBRFrameBuffer.getTexture(2), 2);
         s.setTexture("gORM",      PBRFrameBuffer.getTexture(3), 3);
-
-        int i = 4;
-        if (hasShadow) {
-            s.setTexture("shadowMap", shadowBuffer.getDepthBuffer(), i++); //4
-            s.setCubeMap("shadowCubeMap", cubeShadowBuffer.getCubemap(), 6);
-        }
+        s.setTexture("shadowMap", hasShadow ? shadowBuffer.getDepthBuffer() : 0, 4);
+        s.setTexture("cookieMap", light instanceof CookieLight cookie ? Texture.of(cookie.getCookieTexture()).getID() : 0, 5);
+        s.setCubeMap("shadowCubeMap", hasShadow ? cubeShadowBuffer.getCubemap() : 0, 6);
 
         //set up the camera position
         s.setVec3("camPos", cameraPos.x, cameraPos.y, cameraPos.z);
 
         //set up the light properties
-        if (!hasShadow)
-            light.calculateLightSpaceMatrix();
-        if (light instanceof CookieLight cookie)
-            s.setTexture("cookieMap", Texture.of(cookie.getCookieTexture()), i++); //5
-
+        if (!hasShadow) light.calculateLightSpaceMatrix();
         s.setBool("light.castsShadows", hasShadow);
         light.pushToShader(s);
 
@@ -419,9 +413,8 @@ public class WorldRenderer {
         renderQuad();
 
         //unbind textures
-        Texture.unbindAll(i);
-        if (hasShadow)
-            CubeMap.unbindTex(6);
+        Texture.unbindAll(6);
+        CubeMap.unbindTex(6);
     }
 
     public static void resetLightState(Camera camera) {
@@ -470,13 +463,11 @@ public class WorldRenderer {
 
     // -- sky -- //
 
-
-    public static void setSkyUniforms(Shader shader) {
+    public static void setSkyUniforms(Shader shader, Camera camera, Sky sky) {
         //camera
-        shader.setVec3("camPos", Client.getInstance().camera.getPosition());
+        shader.setVec3("camPos", camera.getPosition());
 
         //fog
-        Sky sky = Client.getInstance().world.getSky();
         shader.setFloat("fogStart", sky.fogStart);
         shader.setFloat("fogEnd", sky.fogEnd);
         shader.setColor("fogColor", sky.fogColor);

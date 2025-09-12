@@ -4,8 +4,10 @@ import cinnamon.animation.Animation;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
+import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.WidgetList;
 import cinnamon.gui.widgets.types.Button;
+import cinnamon.gui.widgets.types.Checkbox;
 import cinnamon.gui.widgets.types.ComboBox;
 import cinnamon.gui.widgets.types.Label;
 import cinnamon.gui.widgets.types.ModelViewer;
@@ -73,18 +75,23 @@ public class ModelViewerScreen extends ParentedScreen {
         //add widget to the list
         addWidget(models);
 
+        ContainerGrid properties = new ContainerGrid(0, 0, 4);
+        properties.setAlignment(Alignment.TOP_RIGHT);
+        properties.setPos(width - 4, 4);
+        addWidget(properties);
+
         //add material list
         ComboBox materials = new ComboBox(width - animationList.getWidth() - 4, 4, animationList.getWidth(), animationList.getHeight());
         for (MaterialRegistry value : MaterialRegistry.values())
             materials.addEntry(Text.translated("material." + value.name().toLowerCase()), null, b -> modelViewer.setMaterial(value));
         materials.setTooltip(Text.translated("material"));
         materials.setSelected(modelViewer.getMaterial().ordinal());
-        addWidget(materials);
+        properties.addWidget(materials);
 
         //prepare animations list
         animationList.setPos(materials.getX(), materials.getY() + materials.getHeight() + 4);
         animationList.setTooltip(Text.translated("animation"));
-        addWidget(animationList);
+        properties.addWidget(animationList);
 
         //skyboxes
         ComboBox skyboxes = new ComboBox(materials.getX(), animationList.getY() + animationList.getHeight() + 4, animationList.getWidth(), animationList.getHeight());
@@ -92,7 +99,28 @@ public class ModelViewerScreen extends ParentedScreen {
             skyboxes.addEntry(Text.translated("skybox." + value.name().toLowerCase()), null, b -> modelViewer.setSkybox(value));
         skyboxes.setTooltip(Text.translated("skybox"));
         skyboxes.setSelected(modelViewer.getSkybox().ordinal());
-        addWidget(skyboxes);
+        properties.addWidget(skyboxes);
+
+        //toggle skybox
+        Checkbox toggleSkybox = new Checkbox(skyboxes.getX(), skyboxes.getY() + skyboxes.getHeight() + 4, Text.translated("gui.model_viewer_screen.toggle_skybox"));
+        toggleSkybox.setToggled(modelViewer.shouldRenderSkybox());
+        toggleSkybox.setAction(b -> modelViewer.setRenderSkybox(((Checkbox) b).isToggled()));
+        toggleSkybox.setRightToLeft(true);
+        properties.addWidget(toggleSkybox);
+
+        //toggle wireframe
+        Checkbox toggleWireframe = new Checkbox(skyboxes.getX(), toggleSkybox.getY() + toggleSkybox.getHeight() + 4, Text.translated("gui.model_viewer_screen.toggle_wireframe"));
+        toggleWireframe.setToggled(modelViewer.shouldRenderWireframe());
+        toggleWireframe.setAction(b -> modelViewer.setRenderWireframe(((Checkbox) b).isToggled()));
+        toggleWireframe.setRightToLeft(true);
+        properties.addWidget(toggleWireframe);
+
+        //toggle bounds
+        Checkbox toggleBounds = new Checkbox(skyboxes.getX(), toggleWireframe.getY() + toggleWireframe.getHeight() + 4, Text.translated("gui.model_viewer_screen.toggle_bounds"));
+        toggleBounds.setToggled(modelViewer.shouldRenderBounds());
+        toggleBounds.setAction(b -> modelViewer.setRenderBounds(((Checkbox) b).isToggled()));
+        toggleBounds.setRightToLeft(true);
+        properties.addWidget(toggleBounds);
 
         //add model viewer
         modelViewer.setPos(listWidth + 4, 4);

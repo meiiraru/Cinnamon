@@ -7,15 +7,15 @@ import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.SkyBoxRegistry;
+import cinnamon.render.BloomRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
+import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.model.AnimatedObjRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.shader.Shader;
-import cinnamon.render.shader.Shaders;
-import cinnamon.render.texture.Texture;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
@@ -33,6 +33,10 @@ public class ModelViewer extends SelectableWidget {
 
     private static final Framebuffer modelBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
     private static final Sky theSky = new Sky();
+    static {
+        theSky.fogStart = 1024f;
+        theSky.fogEnd = 2048f;
+    }
 
     //properties
     private ModelRenderer model = null;
@@ -83,7 +87,7 @@ public class ModelViewer extends SelectableWidget {
         if (model == null)
             return;
 
-        //prepare render
+        //prepare renderer
         Client client = Client.getInstance();
         boolean xr = XrManager.isInXR();
         VertexConsumer.finishAllBatches(client.camera);
@@ -100,25 +104,9 @@ public class ModelViewer extends SelectableWidget {
             modelBuffer.useClear();
         }
 
-        //render skybox
-        if (renderSkybox) {
-            Shaders.SKYBOX.getShader().use().setup(client.camera);
-            theSky.render(client.camera, matrices);
-        }
-
-        //setup shader
-        Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
-        s.setup(client.camera);
-        s.setVec3("camPos", client.camera.getPosition());
-        s.setFloat("fogStart", 1024);
-        s.setFloat("fogEnd", 2048);
-        s.setInt("lightCount", 0);
-        theSky.setSkyBox(skybox.resource);
-        theSky.pushToShader(s, Texture.MAX_TEXTURES - 1);
-
-        glDisable(GL_CULL_FACE);
-        if (renderWireframe)
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //set up world renderer
+        WorldRenderer.setupFramebuffer();
+        WorldRenderer.initGBuffer(client.camera);
 
         //position
         matrices.translate(posX, -posY, -200f);
@@ -135,24 +123,47 @@ public class ModelViewer extends SelectableWidget {
         if (extraRendering != null)
             extraRendering.accept(matrices);
 
+        //apply model-only render state
+        if (renderWireframe)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDisable(GL_CULL_FACE);
+
         //draw model
         matrices.translate(aabb.getCenter().mul(-1f));
         model.render(matrices, selectedMaterial.material);
+
+        //restore model-only render state
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glEnable(GL_CULL_FACE);
+
+        //finish render
+        VertexConsumer.finishAllBatches(client.camera);
+
+        //bake the model renderer
+        theSky.setSkyBox(skybox.resource);
+        WorldRenderer.bakeDeferred(client.camera, theSky, false);
+
+        //skybox + bloom
+        if (renderSkybox) {
+            WorldRenderer.renderSky(theSky, client.camera, matrices);
+            BloomRenderer.applyBloom(WorldRenderer.outputBuffer, WorldRenderer.PBRFrameBuffer.getTexture(4), 0.8f, 1f);
+        }
 
         //draw bounding box
         if (renderBounds) {
             Vector3f min = aabb.getMin();
             Vector3f max = aabb.getMax();
             VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFFFFFFFF));
+            VertexConsumer.LINES.finishBatch(client.camera);
         }
 
-        //finish render
-        VertexConsumer.finishAllBatches(client.camera);
+        //finish world render
+        WorldRenderer.bake();
+
+        //return to old framebuffer
         old.use();
 
         //cleanup
-        glEnable(GL_CULL_FACE);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         oldShader.use();
         matrices.popMatrix();
         client.camera.useOrtho(true);

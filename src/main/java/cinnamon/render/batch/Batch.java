@@ -1,5 +1,6 @@
 package cinnamon.render.batch;
 
+import cinnamon.Client;
 import cinnamon.model.Vertex;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.shader.Attributes;
@@ -173,7 +174,7 @@ public abstract class Batch { //vertex consumer
         @Override
         protected void preRender(Shader shader) {
             super.preRender(shader);
-            WorldRenderer.setSkyUniforms(shader);
+            WorldRenderer.setSkyUniforms(shader, Client.getInstance().camera, Client.getInstance().world.getSky());
         }
     }
 

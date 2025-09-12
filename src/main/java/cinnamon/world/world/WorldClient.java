@@ -278,7 +278,7 @@ public class WorldClient extends World {
 
         Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
         s.setup(camera);
-        WorldRenderer.setSkyUniforms(s);
+        WorldRenderer.setSkyUniforms(s, camera, sky);
         sky.pushToShader(s, Texture.MAX_TEXTURES - 1);
 
         le.renderHandItem(XrManager.isInXR() ? ItemRenderContext.XR : ItemRenderContext.FIRST_PERSON, matrices, delta);

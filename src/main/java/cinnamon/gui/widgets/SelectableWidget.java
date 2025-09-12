@@ -92,9 +92,11 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
 
     @Override
     public GUIListener mousePress(int button, int action, int mods) {
-        if (isActive() && isHovered() && action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_2 && popup != null) {
-            Window w = Client.getInstance().window;
-            openPopup(w.mouseX, w.mouseY);
+        if (isActive() && isHovered() && button == GLFW_MOUSE_BUTTON_2 && popup != null) {
+            if (action == GLFW_RELEASE) {
+                Window w = Client.getInstance().window;
+                openPopup(w.mouseX, w.mouseY);
+            }
             return this;
         }
 

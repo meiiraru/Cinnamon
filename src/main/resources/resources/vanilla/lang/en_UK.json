@@ -106,6 +106,9 @@
   "gui.music_screen.load_end_plural": "Loaded %1$s songs!",
 
   "gui.model_viewer_screen.load_error": "Failed to load model!",
+  "gui.model_viewer_screen.toggle_skybox": "Toggle Skybox",
+  "gui.model_viewer_screen.toggle_wireframe": "Toggle Wireframe",
+  "gui.model_viewer_screen.toggle_bounds": "Toggle Bounds",
 
   "gui.wordle.success": "Congrats!",
   "gui.wordle.error.word_small": "Word too small",

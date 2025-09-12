@@ -28,7 +28,7 @@ public class BloomRenderer {
         blurBufferA.resizeTo(brightPass, 0.5f);
         blurBufferA.useClear();
         blurBufferB.resizeTo(brightPass, 0.5f);
-        blurBufferA.useClear();
+        blurBufferB.useClear();
 
         Shader sh = PostProcess.GAUSSIAN_BLUR.getShader().use();
         sh.setVec2("texelSize", 1f / blurBufferA.getWidth(), 1f / blurBufferA.getHeight());

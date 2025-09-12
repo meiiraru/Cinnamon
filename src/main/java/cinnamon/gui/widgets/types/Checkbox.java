@@ -13,6 +13,7 @@ public class Checkbox extends Button {
 
     protected boolean toggled;
     protected int textSpacing = 4;
+    private boolean rtl;
 
     public Checkbox(int x, int y, Text message) {
         super(x, y, 0, 0, message, null);
@@ -27,7 +28,7 @@ public class Checkbox extends Button {
         VertexConsumer.MAIN.consume(
                 GeometryHelper.quad(
                         matrices,
-                        getX(), getCenterY() - 5,
+                        rtl ? getX() + getWidth() - 8 : getX(), getCenterY() - 5,
                         8, 9,
                         getState() * 8f, toggled ? 9f : 0f,
                         8, 9,
@@ -38,8 +39,9 @@ public class Checkbox extends Button {
 
     @Override
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        float x = rtl ? getX() : getX() + 8 + textSpacing;
         Text text = getFormattedMessage();
-        text.render(VertexConsumer.MAIN, matrices, getX() + 8 + textSpacing, getCenterY(), Alignment.CENTER_LEFT);
+        text.render(VertexConsumer.MAIN, matrices, x, getCenterY(), Alignment.CENTER_LEFT);
     }
 
     @Override
@@ -84,5 +86,13 @@ public class Checkbox extends Button {
     public void setTextSpacing(int textSpacing) {
         this.textSpacing = textSpacing;
         updateDimensions();
+    }
+
+    public void setRightToLeft(boolean bool) {
+        this.rtl = bool;
+    }
+
+    public boolean isRightToLeft() {
+        return rtl;
     }
 }
