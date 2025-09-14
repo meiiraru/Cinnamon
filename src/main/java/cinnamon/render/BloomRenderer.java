@@ -21,7 +21,7 @@ public class BloomRenderer {
 
         Shader s = Shaders.BRIGHT_PASS.getShader().use();
         s.setTexture("colorTex", targetBuffer.getColorBuffer(), 0);
-        s.setTexture("gEmissiveTex", emissiveTex, 1);
+        s.setTexture("emissiveTex", emissiveTex, 1);
         s.setFloat("threshold", threshold);
         renderQuad();
 
@@ -51,21 +51,17 @@ public class BloomRenderer {
             target = target == blurBufferA ? blurBufferB : blurBufferA;
         }
 
-        //composite back to the bright buffer
-        brightPass.useClear();
-        brightPass.adjustViewPort();
+        //composite back to the target buffer
+        targetBuffer.use();
+        targetBuffer.adjustViewPort();
 
         Shader sc = Shaders.BLOOM_COMPOSITE.getShader().use();
         sc.setTexture("sceneTex", targetBuffer.getColorBuffer(), 0);
         sc.setTexture("bloomTex", source.getColorBuffer(), 1);
         sc.setFloat("bloomStrength", strength);
+
         renderQuad();
 
-        Shader blit = PostProcess.BLIT.getShader().use();
-        blit.setTexture("colorTex", brightPass.getColorBuffer(), 0);
-
-        targetBuffer.use();
-        renderQuad();
         Texture.unbindAll(2);
     }
 }
