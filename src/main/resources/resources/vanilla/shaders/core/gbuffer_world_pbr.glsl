@@ -9,7 +9,6 @@ layout (location = 3) in vec3 aTangent;
 out vec2 texCoords;
 out vec3 pos;
 out mat3 TBN;
-out mat3 pTBN;
 
 uniform mat4 projection;
 uniform mat4 view;
@@ -24,13 +23,13 @@ void main() {
 
     vec3 T = normalize(normalMat * aTangent);
     vec3 N = normalize(normalMat * aNormal);
-    vec3 B = cross(T, N);
-    TBN = mat3(T, B, N);
-    pTBN = transpose(TBN);
+    T = normalize(T - dot(T, N) * N);
+    TBN = mat3(T, cross(N, T), N);
 }
 
 #type fragment
 #version 330 core
+#include shaders/libs/parallax_mapping.glsl
 
 layout (location = 0) out vec4 gAlbedo;
 layout (location = 1) out vec4 gPosition;
@@ -52,67 +51,21 @@ struct Material {
 in vec2 texCoords;
 in vec3 pos;
 in mat3 TBN;
-in mat3 pTBN;
 
 uniform vec4 color = vec4(1.0f);
 uniform vec3 camPos;
 uniform Material material;
 
-const int minParallax = 16;
-const int maxParallax = 64;
-
-vec2 pallaxMapping(vec2 texCoords, vec3 viewDir, sampler2D depthMap, float heightScale) {
-    float currentDepthMapValue = 1.0f - texture(depthMap, texCoords).r;
-    if (currentDepthMapValue <= 0.01f)
-        return texCoords;
-
-    //calculate number of layers
-    float numLayers = mix(maxParallax, minParallax, max(dot(vec3(0.0f, 0.0f, 1.0f), viewDir), 0.0f));
-    float layerDepth = 1.0f / numLayers;
-    float currentLayerDepth = 0.0f;
-    vec2 textureSize = vec2(textureSize(depthMap, 0));
-    vec2 P = viewDir.xy / viewDir.z * heightScale * normalize(textureSize).yx;
-    vec2 deltaTexCoords = P / numLayers;
-
-    vec2 currentTexCoords = texCoords;
-    while(currentLayerDepth < currentDepthMapValue) {
-        //shift texture coordinates along direction of view
-        currentTexCoords -= deltaTexCoords;
-        currentDepthMapValue = 1.0f - texture(depthMap, currentTexCoords).r;
-        currentLayerDepth += layerDepth;
-    }
-
-    //get texture coordinates before collision
-    vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
-
-    //get depth between collision
-    float afterDepth  = currentDepthMapValue - currentLayerDepth;
-    float beforeDepth = 1.0f - texture(depthMap, prevTexCoords).r - currentLayerDepth + layerDepth;
-
-    //interpolate final texture coordinates
-    float weight = afterDepth / (afterDepth - beforeDepth);
-    vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0f - weight);
-
-    return finalTexCoords;
-}
-
-//normal mapping function from tangent space to world space
-vec3 getNormalFromMap(sampler2D normalTex, vec2 texCoords, mat3 TBN) {
-    vec3 normal = texture(normalTex, texCoords).rgb;
-    normal = normal * 2.0f - 1.0f;
-    normal = normalize(TBN * normal);
-    return normal;
-}
-
 void main() {
     //parallax mapping
-    vec3 parallaxDir = normalize(pTBN * (camPos - pos));
-    vec2 texCoords = pallaxMapping(texCoords, parallaxDir, material.heightTex, material.heightScale);
+    vec3 viewDir = normalize(transpose(TBN) * (camPos - pos));
+    viewDir.y = -viewDir.y; //flip y for opengl coordinate system
+    vec2 texCoords = parallaxMapping(texCoords, viewDir, material.heightTex, material.heightScale);
 
     //if (texCoords.x > 1.0f || texCoords.y > 1.0f || texCoords.x < 0.0f || texCoords.y < 0.0f)
     //    discard;
 
-    //grab textures
+    //sample textures
     vec4 albedo = texture(material.albedoTex, texCoords);
     if (albedo.a <= 0.01f)
         discard;
@@ -121,7 +74,11 @@ void main() {
     float roughness = texture(material.roughnessTex, texCoords).r;
     float metallic  = texture(material.metallicTex, texCoords).r;
     vec3 emissive   = texture(material.emissiveTex, texCoords).rgb;
-    vec3 normal     = getNormalFromMap(material.normalTex, texCoords, TBN);
+
+    //sample normal
+    vec3 normal = texture(material.normalTex, texCoords).rgb;
+    normal = normal * 2.0f - 1.0f;
+    normal = normalize(TBN * normal);
 
     //write to gBuffer
     gAlbedo = albedo * color;

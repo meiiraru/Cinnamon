@@ -6,6 +6,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
 import cinnamon.render.framebuffer.ShadowMapFramebuffer;
+import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.CubeMap;
@@ -62,6 +63,7 @@ public class WorldRenderer {
             renderShadows = true,
             renderOutlines = true,
             renderDebug = true;
+    public static int debugGBuffer = -1;
 
     public static void renderWorld(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
         //prepare for world rendering
@@ -112,6 +114,10 @@ public class WorldRenderer {
         //bake world
         bakeDeferred(camera, world.getSky(), renderedLights > 0);
 
+        //debug gbuffer
+        if (debugGBuffer >= 0)
+            debugRenderGBuffer(debugGBuffer);
+
         //render the sky
         if (renderSky)
             renderSky(world.getSky(), camera, matrices);
@@ -122,7 +128,7 @@ public class WorldRenderer {
 
         //apply bloom
         float bloom = Settings.bloomStrength.get();
-        if (bloom > 0f)
+        if (debugGBuffer < 0 && bloom > 0f)
             BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getTexture(4), 0.8f, bloom);
 
         //bake output buffer to the target buffer
@@ -162,6 +168,7 @@ public class WorldRenderer {
         }, () -> {
             //bake world
             bakeDeferred(camera, world.getSky(), renderedLights > 0);
+            if (debugGBuffer >= 0) debugRenderGBuffer(debugGBuffer);
 
             //render other stuff
             if (renderSky) renderSky(world.getSky(), camera, matrices);
@@ -174,7 +181,7 @@ public class WorldRenderer {
 
             //bloom
             float bloom = Settings.bloomStrength.get();
-            if (bloom > 0f)
+            if (debugGBuffer < 0 && bloom > 0f)
                 BloomRenderer.applyBloom(targetBuffer, PBRFrameBuffer.getTexture(4), 0.8f, bloom);
         });
     }
@@ -210,7 +217,7 @@ public class WorldRenderer {
         //setup pbr framebuffer
         PBRFrameBuffer.resizeTo(targetBuffer);
         PBRFrameBuffer.useClear();
-        targetBuffer.blit(PBRFrameBuffer.id(), false, false, true);
+        targetBuffer.blit(PBRFrameBuffer.id(), false, true, true);
 
         //setup gbuffer shader
         Shader s = Shaders.GBUFFER_WORLD_PBR.getShader().use();
@@ -242,6 +249,20 @@ public class WorldRenderer {
 
         //cleanup textures
         Texture.unbindAll(6);
+    }
+
+    public static void debugRenderGBuffer(int index) {
+        outputBuffer.resizeTo(targetBuffer);
+        outputBuffer.useClear();
+
+        Shader s = PostProcess.BLIT.getShader().use();
+        s.setTexture("colorTex", PBRFrameBuffer.getTexture(index), 0);
+
+        renderQuad();
+
+        PBRFrameBuffer.blit(outputBuffer.id(), false, true, true);
+        outputBuffer.use();
+        Texture.unbindTex(0);
     }
 
 

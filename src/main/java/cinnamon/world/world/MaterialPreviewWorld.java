@@ -31,9 +31,8 @@ public class MaterialPreviewWorld extends WorldClient {
         //MaterialRegistry[] values = MaterialRegistry.values();
         //int grid = (int) Math.ceil(Math.sqrt(values.length));
         //
-        //for (int i = 0; i < values.length; i++) {
-        //    addLight(new Light().pos(i % grid * 6f + 1f, 1f, (int) (i / grid * 3f) + 0.5f).color(Colors.randomRainbow().rgb));
-        //}
+        //for (int i = 0; i < values.length; i++)
+        //    addLight(new Spotlight().castsShadows(false).intensity(50).pos(i % grid * 6f + 2.5f, 1.5f, (int) ((float) i / grid) * 3f + 0.5f).color(Colors.WHITE.argb));
     }
 
     @Override

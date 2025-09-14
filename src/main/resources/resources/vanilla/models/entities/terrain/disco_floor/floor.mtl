@@ -1,7 +1,7 @@
 # Made in Blockbench 4.12.2
 newmtl m_19c6c0ec-c66a-3859-9285-acc85627ad5a
 map_Kd -smooth_mip floor.png
-map_disp -smooth height.png
+map_disp height.png
 map_Pr roughness.png
 map_Pm metallic.png
 map_Ke -smooth_mip emissive.png

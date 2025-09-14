@@ -5,18 +5,18 @@ import cinnamon.utils.ColorUtils;
 import org.joml.*;
 
 public class Vertex implements Comparable<Vertex> {
-    public static final Vector3f DEFAULT_TANGENT = new Vector3f(0, 0, 1);
-    public static final Vector3f DEFAULT_NORMAL = new Vector3f(0, 0, 1);
+    public static final Vector3f DEFAULT_TANGENT = new Vector3f(0, 0, -1);
+    public static final Vector3f DEFAULT_NORMAL = new Vector3f(0, 0, -1);
     public static final Vector2f DEFAULT_UV = new Vector2f(0, 0);
     public static final Vector4f DEFAULT_COLOR = new Vector4f(1, 1, 1, 1);
 
     private final Vector4f
-            color = new Vector4f(1, 1, 1, 1);
+            color = new Vector4f(DEFAULT_COLOR);
     private final Vector3f
             pos = new Vector3f(),
-            normal = new Vector3f(0, 0, -1),
-            tangent = new Vector3f(0, 0, 1);
-    private final Vector2f uv = new Vector2f();
+            normal = new Vector3f(DEFAULT_NORMAL),
+            tangent = new Vector3f(DEFAULT_TANGENT);
+    private final Vector2f uv = new Vector2f(DEFAULT_UV);
     private int index = -1;
 
     private Vertex(float x, float y, float z) {

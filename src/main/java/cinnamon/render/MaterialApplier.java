@@ -20,7 +20,7 @@ public class MaterialApplier {
         int i = 0;
 
         bindTex(s, material.getAlbedo(), i++, "material.albedoTex", Texture.MISSING);
-        bindTex(s, material.getHeight(), i++, "material.heightTex", WHITE_TEX);
+        bindTex(s, material.getHeight(), i++, "material.heightTex", BLACK_TEX);
         bindTex(s, material.getNormal(), i++, "material.normalTex", NORMAL_TEX);
         bindTex(s, material.getAO(), i++, "material.aoTex", WHITE_TEX);
         bindTex(s, material.getRoughness(), i++, "material.roughnessTex", WHITE_TEX);
