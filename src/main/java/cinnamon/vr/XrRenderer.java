@@ -4,6 +4,7 @@ import cinnamon.Client;
 import cinnamon.gui.GUIStyle;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
+import cinnamon.model.SimpleGeometry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
@@ -90,13 +91,11 @@ public class XrRenderer {
         //blit framebuffer back
         framebuffer.use();
         framebuffer.bindColorTexture(swapchainImage);
-        Framebuffer.clear();
         Framebuffer.DEFAULT_FRAMEBUFFER.blit(framebuffer.id());
+        Framebuffer.DEFAULT_FRAMEBUFFER.useClear();
 
         if (index == swapchains.length - 1)
             renderBuffer(swapchains[index].width, swapchains[index].height);
-
-        Framebuffer.DEFAULT_FRAMEBUFFER.use();
     }
 
     public static int getRenderIndex() {
@@ -122,8 +121,9 @@ public class XrRenderer {
         glViewport((int) x, (int) y, (int) w, (int) h);
 
         //render the buffer
-        PostProcess.apply(PostProcess.BLIT_GAMMA);
-        framebuffer.blit(Framebuffer.DEFAULT_FRAMEBUFFER.id());
+        Shader blit = PostProcess.BLIT_GAMMA.getShader().use();
+        blit.setTexture("colorTex", framebuffer.getColorBuffer(), 0);
+        SimpleGeometry.QUAD.render();
     }
 
     public static void applyGUITransform(MatrixStack matrices) {

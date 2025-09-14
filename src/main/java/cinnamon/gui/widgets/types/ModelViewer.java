@@ -15,6 +15,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.model.AnimatedObjRenderer;
 import cinnamon.render.model.ModelRenderer;
+import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
@@ -99,10 +100,9 @@ public class ModelViewer extends SelectableWidget {
 
         //set up framebuffer
         Framebuffer old = Framebuffer.activeFramebuffer;
-        if (!xr) {
-            modelBuffer.resizeTo(old);
-            modelBuffer.useClear();
-        }
+        modelBuffer.resizeTo(old);
+        modelBuffer.useClear();
+        if (xr) old.blit(modelBuffer.id(), false, true, true);
 
         //set up world renderer
         WorldRenderer.setupFramebuffer();
@@ -144,10 +144,9 @@ public class ModelViewer extends SelectableWidget {
         WorldRenderer.bakeDeferred(client.camera, theSky, false);
 
         //skybox + bloom
-        if (renderSkybox) {
+        if (renderSkybox)
             WorldRenderer.renderSky(theSky, client.camera, matrices);
-            BloomRenderer.applyBloom(WorldRenderer.outputBuffer, WorldRenderer.PBRFrameBuffer.getTexture(4), 0.8f, 1f);
-        }
+        BloomRenderer.applyBloom(WorldRenderer.outputBuffer, WorldRenderer.PBRFrameBuffer.getTexture(4), 0.8f, 1f);
 
         //draw bounding box
         if (renderBounds) {
@@ -170,13 +169,22 @@ public class ModelViewer extends SelectableWidget {
     }
 
     private void renderBuffer(MatrixStack matrices) {
+        if (XrManager.isInXR()) {
+            Shader old = Shader.activeShader;
+            Shader s = PostProcess.BLIT.getShader().use();
+            s.setTexture("colorTex", modelBuffer.getColorBuffer(), 0);
+            WorldRenderer.renderQuad();
+            old.use();
+            return;
+        }
+
         //draw framebuffer result
         Client c = Client.getInstance();
         float guiScale = c.window.guiScale;
         float x = (1f - (getWidth() * guiScale) / modelBuffer.getWidth()) / 2f;
         float y = (1f - (getHeight() * guiScale) / modelBuffer.getHeight()) / 2f;
         VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, getX(), getY(), getWidth(), getHeight(), -1f, x, 1f - x, 1f - y, y), modelBuffer.getColorBuffer());
-        VertexConsumer.finishAllBatches(c.camera);
+        VertexConsumer.MAIN.finishBatch(c.camera);
     }
 
     public void setMaterial(MaterialRegistry material) {
