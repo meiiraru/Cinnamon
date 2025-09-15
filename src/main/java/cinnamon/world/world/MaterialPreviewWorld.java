@@ -47,7 +47,7 @@ public class MaterialPreviewWorld extends WorldClient {
             matrices.pushMatrix();
             matrices.translate(i % grid * 6f, 0f, (float) (i / grid * 3));
 
-            int texCount = MaterialApplier.applyMaterial(values[i].material);
+            int texCount = MaterialApplier.applyMaterial(values[i].material, 0);
             boolean visible = false;
 
             AABB sphereBB = SPHERE.getAABB();

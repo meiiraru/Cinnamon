@@ -12,12 +12,12 @@ public class MaterialApplier {
             BLACK_TEX = Texture.generateSolid(0xFF000000),
             NORMAL_TEX = Texture.generateSolid(0xFF8080FF);
 
-    public static int applyMaterial(Material material) {
+    public static int applyMaterial(Material material, int offset) {
         if (material == null)
             return -1;
 
         Shader s = Shader.activeShader;
-        int i = 0;
+        int i = offset;
 
         bindTex(s, material.getAlbedo(), i++, "material.albedoTex", Texture.MISSING);
         bindTex(s, material.getHeight(), i++, "material.heightTex", BLACK_TEX);
@@ -29,7 +29,7 @@ public class MaterialApplier {
 
         s.setFloat("material.heightScale", material.getHeightScale());
 
-        return i;
+        return i - offset;
     }
 
     private static void bindTex(Shader s, MaterialTexture texture, int index, String name, Texture fallback) {

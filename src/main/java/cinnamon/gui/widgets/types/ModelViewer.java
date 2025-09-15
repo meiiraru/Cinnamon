@@ -17,6 +17,7 @@ import cinnamon.render.model.AnimatedObjRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
+import cinnamon.settings.Settings;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
@@ -144,9 +145,13 @@ public class ModelViewer extends SelectableWidget {
         WorldRenderer.bakeDeferred(client.camera, theSky, false);
 
         //skybox + bloom
-        if (renderSkybox)
+        if (renderSkybox) {
             WorldRenderer.renderSky(theSky, client.camera, matrices);
-        BloomRenderer.applyBloom(WorldRenderer.outputBuffer, WorldRenderer.PBRFrameBuffer.getTexture(4), 0.8f, 1f);
+
+            float bloom = Settings.bloomStrength.get();
+            if (bloom > 0f)
+                BloomRenderer.applyBloom(WorldRenderer.outputBuffer, WorldRenderer.PBRFrameBuffer.getTexture(4), 0.8f, bloom);
+        }
 
         //draw bounding box
         if (renderBounds) {

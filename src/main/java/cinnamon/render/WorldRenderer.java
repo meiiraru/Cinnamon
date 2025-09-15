@@ -230,8 +230,6 @@ public class WorldRenderer {
         outputBuffer.resizeTo(targetBuffer);
         outputBuffer.useClear();
         Shader s = Shaders.DEFERRED_WORLD_PBR.getShader().use();
-        setSkyUniforms(s, camera, sky);
-        sky.pushToShader(s, Texture.MAX_TEXTURES - 1);
 
         //apply gbuffer textures and the lightmap
         s.setTexture("gAlbedo",   PBRFrameBuffer.getTexture(0), 0);
@@ -241,6 +239,10 @@ public class WorldRenderer {
         s.setTexture("gEmissive", PBRFrameBuffer.getTexture(4), 4);
         s.setTexture("lightTex",  hasLights ? lightingMultiPassBuffer.getColorBuffer() : 0, 5);
 
+        //apply sky
+        setSkyUniforms(s, camera, sky);
+        sky.bind(s, 6);
+
         //render to the output framebuffer the final scene
         //and blit the remaining depth and stencil to the main
         renderQuad();
@@ -249,6 +251,7 @@ public class WorldRenderer {
 
         //cleanup textures
         Texture.unbindAll(6);
+        sky.unbind(6);
     }
 
     public static void debugRenderGBuffer(int index) {

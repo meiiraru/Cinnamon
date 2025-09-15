@@ -1,66 +1,75 @@
 package cinnamon.render.model;
 
-import cinnamon.model.Vertex;
 import cinnamon.model.material.Material;
+import cinnamon.registry.MaterialRegistry;
+import cinnamon.render.MaterialApplier;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.shader.Attributes;
+import cinnamon.render.shader.Shader;
+import cinnamon.render.texture.Texture;
 import cinnamon.utils.AABB;
-import cinnamon.utils.Pair;
-import org.lwjgl.BufferUtils;
 
-import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.List;
-
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+import java.util.Map;
 
 public abstract class ModelRenderer {
 
-    public abstract void free();
+    protected final Map<String, MeshData> meshes;
+    protected final AABB aabb = new AABB();
 
-    public abstract void render(MatrixStack matrices);
+    public ModelRenderer(Map<String, MeshData> meshes) {
+        this.meshes = meshes;
+    }
 
-    public abstract void render(MatrixStack matrices, Material material);
+    public void free() {
+        for (MeshData mesh : meshes.values())
+            mesh.free();
+    }
 
-    public abstract void renderWithoutMaterial(MatrixStack matrices);
+    public void render(MatrixStack matrices) {
+        render(matrices, null);
+    }
 
-    public abstract AABB getAABB();
+    public void render(MatrixStack matrices, Material material) {
+        Shader.activeShader.applyMatrixStack(matrices);
+        for (String mesh : meshes.keySet())
+            renderMesh(mesh, material);
+    }
 
-    public abstract List<AABB> getPreciseAABB();
+    public void renderWithoutMaterial(MatrixStack matrices) {
+        Shader.activeShader.applyMatrixStack(matrices);
+        for (String mesh : meshes.keySet())
+            renderMeshWithoutMaterial(mesh);
+    }
 
-    protected static Pair<Integer, Integer> generateBuffers(List<Vertex> vertices, Attributes... flags) {
-        int vertexSize = Attributes.getVertexSize(flags);
-        int capacity = vertices.size() * vertexSize;
+    protected void renderMesh(String name, Material material) {
+        MeshData mesh = meshes.get(name);
 
-        //vao
-        int vao = glGenVertexArrays();
-        glBindVertexArray(vao);
+        //bind material
+        Material mat = material == null ? mesh.getMaterial() : material;
+        int texCount;
+        if (mat == null || (texCount = MaterialApplier.applyMaterial(mat, 0)) == -1)
+            texCount = MaterialApplier.applyMaterial(MaterialRegistry.MISSING, 0);
 
-        //vbo
-        int vbo = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, (long) capacity * Float.BYTES, GL_STATIC_DRAW);
+        //render mesh
+        mesh.render();
 
-        //load vertex attributes
-        Attributes.load(flags, vertexSize);
+        //unbind all used textures
+        Texture.unbindAll(texCount);
+    }
 
-        //enable attributes
-        for (int i = 0; i < flags.length; i++)
-            glEnableVertexAttribArray(i);
+    protected void renderMeshWithoutMaterial(String name) {
+        meshes.get(name).render();
+    }
 
-        //different buffer per group
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(capacity);
+    public AABB getAABB() {
+        return new AABB(aabb);
+    }
 
-        //push vertices to buffer
-        for (Vertex vertex : vertices)
-            Attributes.pushVertex(buffer, vertex, 0, flags);
-
-        //bind buffer to the current VBO
-        buffer.rewind();
-        glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
-
-        return new Pair<>(vao, vbo);
+    public List<AABB> getPreciseAABB() {
+        List<AABB> list = new ArrayList<>();
+        for (MeshData mesh : meshes.values())
+            list.add(new AABB(mesh.getAabb()));
+        return list;
     }
 }

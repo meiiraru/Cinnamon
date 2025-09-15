@@ -80,7 +80,6 @@ public class CubeMap extends Texture {
 
         ByteBuffer buffer = MemoryUtil.memAlloc(width * height * 4);
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-        buffer.flip();
 
         glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -88,7 +87,7 @@ public class CubeMap extends Texture {
         glBindTexture(GL_TEXTURE_CUBE_MAP, id);
 
         for (Face face : Face.values())
-            glTexImage2D(face.GLTarget, 0, GL_RGBA, 16, 16, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+            glTexImage2D(face.GLTarget, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

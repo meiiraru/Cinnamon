@@ -133,8 +133,6 @@ public class Texture {
             }
         }
 
-        pixels.flip();
-
         //return a new texture
         int id = registerTexture(w, h, pixels, MIPMAP_SMOOTH.id);
         MemoryUtil.memFree(pixels);

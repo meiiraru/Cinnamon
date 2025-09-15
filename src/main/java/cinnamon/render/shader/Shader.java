@@ -8,7 +8,10 @@ import cinnamon.utils.ColorUtils;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 import org.joml.*;
+import org.lwjgl.system.MemoryStack;
 
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -158,15 +161,18 @@ public class Shader {
     }
 
     public void setInt(String name, int value) {
-        glUniform1i(get(name), value);
+        int i = get(name);
+        if (i != -1) glUniform1i(i, value);
     }
 
     public void setFloat(String name, float value) {
-        glUniform1f(get(name), value);
+        int i = get(name);
+        if (i != -1) glUniform1f(i, value);
     }
 
     public void setVec2(String name, float x, float y) {
-        glUniform2f(get(name), x, y);
+        int i = get(name);
+        if (i != -1) glUniform2f(i, x, y);
     }
 
     public void setVec2(String name, Vector2f vec) {
@@ -174,7 +180,8 @@ public class Shader {
     }
 
     public void setVec3(String name, float x, float y, float z) {
-        glUniform3f(get(name), x, y, z);
+        int i = get(name);
+        if (i != -1) glUniform3f(i, x, y, z);
     }
 
     public void setVec3(String name, Vector3f vec) {
@@ -182,7 +189,8 @@ public class Shader {
     }
 
     public void setVec4(String name, float x, float y, float z, float w) {
-        glUniform4f(get(name), x, y, z, w);
+        int i = get(name);
+        if (i != -1) glUniform4f(i, x, y, z, w);
     }
 
     public void setVec4(String name, Vector4f vec) {
@@ -194,23 +202,66 @@ public class Shader {
     }
 
     public void setMat3(String name, Matrix3f matrix3f) {
-        glUniformMatrix3fv(get(name), false, matrix3f.get(new float[3 * 3]));
+        int i = get(name);
+        if (i == -1)
+            return;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer buffer = stack.mallocFloat(9);
+            matrix3f.get(buffer);
+            glUniformMatrix3fv(i, false, buffer);
+        }
     }
 
     public void setMat3(String name, float... values) {
-        glUniformMatrix3fv(get(name), false, values);
+        if (values.length != 9)
+            throw new IllegalArgumentException("Matrix 3x3 needs 9 values");
+
+        int i = get(name);
+        if (i == -1)
+            return;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer buffer = stack.floats(values);
+            glUniformMatrix3fv(i, false, buffer);
+        }
     }
 
     public void setMat4(String name, Matrix4f matrix4f) {
-        glUniformMatrix4fv(get(name), false, matrix4f.get(new float[4 * 4]));
+        int i = get(name);
+        if (i == -1)
+            return;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer buffer = stack.mallocFloat(16);
+            matrix4f.get(buffer);
+            glUniformMatrix4fv(i, false, buffer);
+        }
     }
 
     public void setMat4(String name, float... values) {
-        glUniformMatrix4fv(get(name), false, values);
+        if (values.length != 16)
+            throw new IllegalArgumentException("Matrix 4x4 needs 16 values");
+
+        int i = get(name);
+        if (i == -1)
+            return;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer buffer = stack.floats(values);
+            glUniformMatrix4fv(i, false, buffer);
+        }
     }
 
-    public void setIntArray(String name, int[] array) {
-        glUniform1iv(get(name), array);
+    public void setIntArray(String name, int... array) {
+        int i = get(name);
+        if (i == -1)
+            return;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer buffer = stack.ints(array);
+            glUniform1iv(i, buffer);
+        }
     }
 
     public void setColor(String name, int color) {

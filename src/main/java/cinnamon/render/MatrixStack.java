@@ -56,23 +56,37 @@ public class MatrixStack {
         Matrices mat = stack.peek();
         mat.pos.scale(x, y, z);
 
-        if (x != y || y != z) {
-            mat.normal.set(new Matrix3f(mat.pos).invert().transpose());
-            if (mat.pos.determinant() < 0f)
-                mat.normal.scale(-1f);
+        if (Math.abs(x) == Math.abs(y) && Math.abs(y) == Math.abs(z)) {
+            if (x < 0f || y < 0f || z < 0f) {
+                float signX = Math.signum(x);
+                float signY = Math.signum(y);
+                float signZ = Math.signum(z);
+                mat.normal.scale(signX, signY, signZ);
+
+                float det = signX * signY * signZ;
+                if (det < 0f)
+                    mat.normal.scale(-1f);
+            }
+        } else {
+            float det = mat.pos.determinant();
+            if (det == 0f) {
+                mat.normal.identity();
+            } else {
+                mat.normal.set(mat.pos).invert().transpose();
+                if (det < 0f)
+                    mat.normal.scale(-1f);
+            }
         }
 
         return this;
     }
 
     public MatrixStack scale(float scalar) {
-        scale(scalar, scalar, scalar);
-        return this;
+        return scale(scalar, scalar, scalar);
     }
 
     public MatrixStack scale(Vector3f vector) {
-        scale(vector.x, vector.y, vector.z);
-        return this;
+        return scale(vector.x, vector.y, vector.z);
     }
 
     public MatrixStack identity() {

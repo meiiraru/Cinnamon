@@ -279,12 +279,13 @@ public class WorldClient extends World {
         Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
         s.setup(camera);
         WorldRenderer.setSkyUniforms(s, camera, sky);
-        sky.pushToShader(s, Texture.MAX_TEXTURES - 1);
+        sky.bind(s, Texture.MAX_TEXTURES - 3);
 
         le.renderHandItem(XrManager.isInXR() ? ItemRenderContext.XR : ItemRenderContext.FIRST_PERSON, matrices, delta);
 
         //finish rendering
         client.camera.useOrtho(true);
+        sky.unbind(Texture.MAX_TEXTURES - 3);
     }
 
     public void renderHUD(MatrixStack matrices, float delta) {

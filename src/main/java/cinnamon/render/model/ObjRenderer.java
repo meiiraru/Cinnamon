@@ -2,50 +2,33 @@ package cinnamon.render.model;
 
 import cinnamon.model.Vertex;
 import cinnamon.model.VertexHelper;
-import cinnamon.model.material.Material;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
-import cinnamon.registry.MaterialRegistry;
-import cinnamon.render.MaterialApplier;
-import cinnamon.render.MatrixStack;
-import cinnamon.render.shader.Attributes;
-import cinnamon.render.shader.Shader;
-import cinnamon.render.texture.Texture;
 import cinnamon.utils.AABB;
-import cinnamon.utils.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
-import static org.lwjgl.opengl.GL15.glDeleteBuffers;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 public class ObjRenderer extends ModelRenderer {
 
     private final Mesh mesh;
 
-    private final Map<String, GroupData> groups;
-    private final Vector3f
-            bbMin = new Vector3f(Integer.MAX_VALUE),
-            bbMax = new Vector3f(Integer.MIN_VALUE);
-
     public ObjRenderer(ObjRenderer other) {
+        super(other.meshes);
+        this.aabb.set(other.aabb);
         this.mesh = other.mesh;
-        this.groups = other.groups;
-        this.bbMin.set(other.bbMin);
-        this.bbMax.set(other.bbMax);
     }
 
     public ObjRenderer(Mesh mesh) {
+        super(new HashMap<>(mesh.getGroups().size(), 1f));
         this.mesh = mesh;
-        this.groups = new HashMap<>(mesh.getGroups().size(), 1f);
+
+        Vector3f bbMin = new Vector3f(Integer.MAX_VALUE);
+        Vector3f bbMax = new Vector3f(Integer.MIN_VALUE);
 
         //grab mesh data
         List<Vector3f> vertices = mesh.getVertices();
@@ -78,8 +61,8 @@ public class ObjRenderer extends ModelRenderer {
                     Vector3f c = !vn.isEmpty() ? normals.get(vn.get(i)) : Vertex.DEFAULT_NORMAL;
 
                     //calculate min and max
-                    this.bbMin.min(a);
-                    this.bbMax.max(a);
+                    bbMin.min(a);
+                    bbMax.max(a);
                     groupMin.min(a);
                     groupMax.max(a);
 
@@ -112,105 +95,20 @@ public class ObjRenderer extends ModelRenderer {
                 VertexHelper.calculateTangents(sortedVertices, angleThreshold);
 
             //create a new group with the OpenGL attributes
-            GroupData groupData = new GroupData(group, sortedVertices, groupMin, groupMax);
+            MeshData groupData = new MeshData(new AABB(groupMin, groupMax), sortedVertices, group.getMaterial());
 
             String groupName = group.getName();
             String newName = groupName;
-            for (int i = 1; this.groups.containsKey(newName); i++)
+            for (int i = 1; this.meshes.containsKey(newName); i++)
                 newName = groupName + "_" + i;
 
-            this.groups.put(newName, groupData);
+            this.meshes.put(newName, groupData);
         }
-    }
 
-    @Override
-    public void free() {
-        for (GroupData group : groups.values())
-            group.free();
-    }
-
-    @Override
-    public void render(MatrixStack matrices) {
-        render(matrices, null);
-    }
-
-    @Override
-    public void render(MatrixStack matrices, Material material) {
-        Shader.activeShader.applyMatrixStack(matrices);
-        for (String group : groups.keySet())
-            renderGroup(group, material);
-    }
-
-    @Override
-    public void renderWithoutMaterial(MatrixStack matrices) {
-        Shader.activeShader.applyMatrixStack(matrices);
-        for (String group : groups.keySet())
-            renderGroupWithoutMaterial(group);
-    }
-
-    @Override
-    public AABB getAABB() {
-        return new AABB(bbMin, bbMax);
-    }
-
-    @Override
-    public List<AABB> getPreciseAABB() {
-        List<AABB> list = new ArrayList<>();
-        for (GroupData data : groups.values())
-            list.add(new AABB(data.bbMin, data.bbMax));
-        return list;
+        this.aabb.set(bbMin, bbMax);
     }
 
     public Mesh getMesh() {
         return mesh;
-    }
-
-    protected void renderGroup(String name, Material material) {
-        GroupData group = groups.get(name);
-
-        //bind material
-        Material mat = material == null ? group.material : material;
-        int texCount;
-        if (mat == null || (texCount = MaterialApplier.applyMaterial(mat)) == -1)
-            texCount = MaterialApplier.applyMaterial(MaterialRegistry.MISSING);
-
-        //render group
-        group.render();
-
-        //unbind all used textures
-        Texture.unbindAll(texCount);
-    }
-
-    protected void renderGroupWithoutMaterial(String name) {
-        groups.get(name).render();
-    }
-
-    private static final class GroupData {
-        private final int vao, vbo, vertexCount;
-        private final Material material;
-        private final Vector3f bbMin, bbMax;
-
-        public GroupData(Group group, List<Vertex> sortedVertices, Vector3f bbMin, Vector3f bbMax) {
-            this.vertexCount = sortedVertices.size();
-            this.material = group.getMaterial();
-            this.bbMin = bbMin;
-            this.bbMax = bbMax;
-            Pair<Integer, Integer> buffers = generateBuffers(sortedVertices, Attributes.POS, Attributes.UV_FLIP, Attributes.NORMAL, Attributes.TANGENTS);
-            this.vao = buffers.first();
-            this.vbo = buffers.second();
-        }
-
-        public void render() {
-            //bind vao
-            glBindVertexArray(vao);
-
-            //draw
-            glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-        }
-
-        public void free() {
-            glDeleteBuffers(vao);
-            glDeleteBuffers(vbo);
-        }
     }
 }

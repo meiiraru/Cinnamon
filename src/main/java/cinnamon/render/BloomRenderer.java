@@ -26,9 +26,7 @@ public class BloomRenderer {
         renderQuad();
 
         blurBufferA.resizeTo(brightPass, 0.5f);
-        blurBufferA.useClear();
         blurBufferB.resizeTo(brightPass, 0.5f);
-        blurBufferB.useClear();
 
         Shader sh = PostProcess.GAUSSIAN_BLUR.getShader().use();
         sh.setVec2("texelSize", 1f / blurBufferA.getWidth(), 1f / blurBufferA.getHeight());
@@ -51,9 +49,9 @@ public class BloomRenderer {
             target = target == blurBufferA ? blurBufferB : blurBufferA;
         }
 
-        //composite back to the target buffer
-        targetBuffer.use();
-        targetBuffer.adjustViewPort();
+        //composite back to the bright buffer
+        brightPass.useClear();
+        brightPass.adjustViewPort();
 
         Shader sc = Shaders.BLOOM_COMPOSITE.getShader().use();
         sc.setTexture("sceneTex", targetBuffer.getColorBuffer(), 0);
@@ -62,6 +60,14 @@ public class BloomRenderer {
 
         renderQuad();
 
+        //and then blit to the target buffer
+        targetBuffer.use();
+        Shader blit = PostProcess.BLIT.getShader().use();
+        blit.setTexture("colorTex", brightPass.getColorBuffer(), 0);
+
+        renderQuad();
+
+        //cleanup
         Texture.unbindAll(2);
     }
 }

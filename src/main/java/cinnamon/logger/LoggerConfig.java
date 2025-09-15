@@ -33,8 +33,10 @@ public class LoggerConfig {
         configureLogger(root, level, pattern);
 
         //system out/err redirection
-        System.setOut(new LoggerStream(new Logger("System.out")::info));
-        System.setErr(new LoggerStream(new Logger("System.err")::error));
+        Logger systemOutLogger = new Logger("System.out");
+        Logger systemErrLogger = new Logger("System.err");
+        System.setOut(new LoggerStream(systemOutLogger::info));
+        System.setErr(new LoggerStream(systemErrLogger::error));
 
         //debugLogLevels(root);
 

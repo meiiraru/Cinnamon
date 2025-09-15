@@ -44,7 +44,7 @@ public class AnimatedObjRenderer extends ObjRenderer {
             animation.update();
 
         //render bone tree
-        renderBone(bone, matrices, s -> renderGroup(s, material));
+        renderBone(bone, matrices, s -> renderMesh(s, material));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class AnimatedObjRenderer extends ObjRenderer {
             animation.update();
 
         //render bone tree
-        renderBone(bone, matrices, this::renderGroupWithoutMaterial);
+        renderBone(bone, matrices, this::renderMeshWithoutMaterial);
     }
 
     private void renderBone(Bone bone, MatrixStack matrices, Consumer<String> renderFunction) {

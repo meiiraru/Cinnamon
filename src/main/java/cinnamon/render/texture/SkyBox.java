@@ -91,10 +91,16 @@ public class SkyBox {
         texture.bind(index);
     }
 
-    public void bindIBL(int index) {
+    public void bindIrradiance(int index) {
         irradiance.bind(index);
-        prefilter.bind(index + 1);
-        LUT_MAP.bind(index + 2);
+    }
+
+    public void bindPrefilter(int index) {
+        prefilter.bind(index);
+    }
+
+    public static void bindLUT(int index) {
+        LUT_MAP.bind(index);
     }
 
     private static class HDRTexture extends Texture {

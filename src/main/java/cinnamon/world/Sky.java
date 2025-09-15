@@ -9,6 +9,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.SkyBox;
+import cinnamon.render.texture.Texture;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
 import org.joml.Matrix3f;
@@ -103,14 +104,26 @@ public class Sky {
         return skyRotation;
     }
 
-    public void pushToShader(Shader shader, int lastTextureID) {
+    public int bind(Shader shader, int index) {
         SkyBox box = SkyBox.of(skyBox);
         shader.setMat3("cubemapRotation", getSkyRotation());
-        int i = lastTextureID - 3;
-        shader.setInt("irradianceMap", i);
-        shader.setInt("prefilterMap", i + 1);
-        shader.setInt("brdfLUT", i + 2);
-        box.bindIBL(i);
+
+        box.bindIrradiance(index);
+        shader.setInt("irradianceMap", index++);
+
+        box.bindPrefilter(index);
+        shader.setInt("prefilterMap", index++);
+
+        SkyBox.bindLUT(index);
+        shader.setInt("brdfLUT", index);
+
+        return 3;
+    }
+
+    public void unbind(int index) {
+        CubeMap.unbindTex(index++);
+        CubeMap.unbindTex(index++);
+        Texture.unbindTex(index);
     }
 
     public void setSkyBox(Resource resource) {
