@@ -3,7 +3,6 @@ package cinnamon.world.world;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.model.VertexHelper;
-import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -78,8 +77,8 @@ public class PrimitiveTestWorld extends WorldClient {
         });
 
         //set sky fog
-        sky.fogStart = 0; sky.fogEnd = 8; sky.fogColor = 0;
-        sky.setSkyBox(SkyBoxRegistry.SPACE.resource);
+        //sky.fogStart = 0; sky.fogEnd = 8; sky.fogColor = 0;
+        //sky.setSkyBox(SkyBoxRegistry.SPACE.resource);
     }
 
     @Override

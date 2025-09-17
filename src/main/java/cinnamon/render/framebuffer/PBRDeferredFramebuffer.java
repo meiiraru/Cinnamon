@@ -6,10 +6,10 @@ public class PBRDeferredFramebuffer extends Framebuffer {
 
     /**
      gAlbedo    - albedo (RGBA)                         - GL_RGBA
-     gPosition  - pos (RGB)                             - GL_RGBA32F
-     gNormal    - normal (RGB) + TBN                    - GL_RGBA32F
-     gORM       - ao (R) + roughness (G) + metallic (B) - GL_RGBA
-     gEmissive  - emissive (RGB)                        - GL_RGBA
+     gPosition  - pos (RGB)                             - GL_RGB16F
+     gNormal    - normal (RGB) + TBN                    - GL_RGB16F
+     gORM       - ao (R) + roughness (G) + metallic (B) - GL_RGB
+     gEmissive  - emissive (RGB)                        - GL_RGB
     **/
 
     private static final int[] ATTACHMENTS = {
@@ -34,11 +34,11 @@ public class PBRDeferredFramebuffer extends Framebuffer {
         int width = getWidth();
         int height = getHeight();
 
-        this.gAlbedo   = genTexture(GL_RGBA,    width, height, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, GL_REPEAT, ATTACHMENTS[0]);
-        this.gPosition = genTexture(GL_RGBA32F, width, height, GL_RGBA, GL_FLOAT,         GL_NEAREST, GL_REPEAT, ATTACHMENTS[1]);
-        this.gNormal   = genTexture(GL_RGBA32F, width, height, GL_RGBA, GL_FLOAT,         GL_NEAREST, GL_REPEAT, ATTACHMENTS[2]);
-        this.gORM      = genTexture(GL_RGBA,    width, height, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, GL_REPEAT, ATTACHMENTS[3]);
-        this.gEmissive = genTexture(GL_RGBA,    width, height, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, GL_REPEAT, ATTACHMENTS[4]);
+        this.gAlbedo   = genTexture(GL_RGBA,   width, height, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, GL_REPEAT, ATTACHMENTS[0]);
+        this.gPosition = genTexture(GL_RGB16F, width, height, GL_RGB,  GL_FLOAT,         GL_NEAREST, GL_REPEAT, ATTACHMENTS[1]);
+        this.gNormal   = genTexture(GL_RGB16F, width, height, GL_RGB,  GL_FLOAT,         GL_NEAREST, GL_REPEAT, ATTACHMENTS[2]);
+        this.gORM      = genTexture(GL_RGB,    width, height, GL_RGB,  GL_UNSIGNED_BYTE, GL_NEAREST, GL_REPEAT, ATTACHMENTS[3]);
+        this.gEmissive = genTexture(GL_RGB,    width, height, GL_RGB,  GL_UNSIGNED_BYTE, GL_NEAREST, GL_REPEAT, ATTACHMENTS[4]);
         glDrawBuffers(ATTACHMENTS);
 
         glBindTexture(GL_TEXTURE_2D, 0);

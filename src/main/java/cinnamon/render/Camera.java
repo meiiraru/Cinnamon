@@ -131,11 +131,11 @@ public class Camera {
     }
 
     public boolean isInsideFrustum(AABB aabb) {
-        return !frustum.culledXY(aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ());
+        return frustum.isBoxInside(aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ());
     }
 
     public boolean isInsideFrustum(float x, float y, float z) {
-        return !frustum.culledXY(x, y, z);
+        return frustum.isPointInside(x, y, z);
     }
 
     public Vector4f worldToScreenSpace(float x, float y, float z) {
@@ -160,12 +160,12 @@ public class Camera {
 
     public void updateFrustum() {
         Matrix4f proj = getProjectionMatrix();
-        Matrix4f mvp = getViewMatrix().mulLocal(proj, new Matrix4f());
-        updateFrustum(mvp);
+        Matrix4f viewProj = getViewMatrix().mulLocal(proj, new Matrix4f());
+        updateFrustum(viewProj);
     }
 
-    public void updateFrustum(Matrix4f mvp) {
-        frustum.updateFrustum(mvp);
+    public void updateFrustum(Matrix4f viewProj) {
+        frustum.update(viewProj);
     }
 
     public void anaglyph3D(MatrixStack matrices, float eyeDistance, float angle, Runnable beforeColor, Runnable targetRender) {
@@ -281,5 +281,9 @@ public class Camera {
 
     public Entity getEntity() {
         return entity;
+    }
+
+    public Frustum getFrustum() {
+        return frustum;
     }
 }

@@ -5,7 +5,7 @@ import cinnamon.model.SimpleGeometry;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
-import cinnamon.render.framebuffer.ShadowMapFramebuffer;
+import cinnamon.render.framebuffer.ShadowCubemapFramebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
@@ -42,7 +42,7 @@ public class WorldRenderer {
     public static final Framebuffer outputBuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER | Framebuffer.DEPTH_BUFFER | Framebuffer.STENCIL_BUFFER);
     public static final Framebuffer lightingMultiPassBuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
     public static final Framebuffer shadowBuffer = new Framebuffer(Framebuffer.DEPTH_BUFFER);
-    public static final ShadowMapFramebuffer cubeShadowBuffer = new ShadowMapFramebuffer();
+    public static final ShadowCubemapFramebuffer cubeShadowBuffer = new ShadowCubemapFramebuffer();
     public static final Framebuffer outlineFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
 
     public static Light shadowLight = null;
@@ -288,10 +288,10 @@ public class WorldRenderer {
                 initShadowBuffer();
 
                 //render the light shadow
-                if (light.getType() != 1) //only point lights use cube maps
-                    renderDirectionalLightShadow(light, camera, renderFunction);
+                if (light instanceof PointLight pl) //only point lights use cube maps
+                    renderLightShadowToCubeMap(pl, camera, renderFunction);
                 else
-                    renderLightShadowToCubeMap((PointLight) light, camera, renderFunction);
+                    renderDirectionalLightShadow(light, camera, renderFunction);
 
                 renderedShadows++;
             }
@@ -320,7 +320,7 @@ public class WorldRenderer {
 
     public static void initShadowBuffer() {
         //prepare the shadow buffer
-        int w = (int) Math.pow(2, Settings.shadowQuality.get() + 9); //min is 512
+        int w = (int) Math.pow(2, Settings.shadowQuality.get() + 8); //min is 256
         cubeShadowBuffer.resize(w, w);
         shadowBuffer.resize(w, w);
         shadowBuffer.adjustViewPort();

@@ -9,11 +9,11 @@ import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class ShadowMapFramebuffer extends Framebuffer {
+public class ShadowCubemapFramebuffer extends Framebuffer {
 
     private int depthCube;
 
-    public ShadowMapFramebuffer() {
+    public ShadowCubemapFramebuffer() {
         super(0);
     }
 

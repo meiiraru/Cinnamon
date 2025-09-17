@@ -120,20 +120,20 @@ void main() {
         float distanceToLight = length(light.pos - pos);
         if (distanceToLight > light.falloffEnd)
             discard;
+    }
 
-        //frustum culling for non-point lights
-        if (light.type != 1) {
-            //transform fragment position to light clip space
-            vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(pos, 1.0f);
+    //frustum culling for non-point lights
+    if (light.type != 1) {
+        //transform fragment position to light clip space
+        vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(pos, 1.0f);
 
-            //normalize to [0,1] range
-            lightCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-            lightCoords = lightCoords * 0.5f + 0.5f;
+        //normalize to [0,1] range
+        lightCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+        lightCoords = lightCoords * 0.5f + 0.5f;
 
-            //early exit if outside the light frustum
-            if (lightCoords.z > 1.0f)
-                discard;
-        }
+        //early exit if outside the light frustum
+        if (lightCoords.z > 1.0f)
+            discard;
     }
 
     //color
