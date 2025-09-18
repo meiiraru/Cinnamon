@@ -300,6 +300,11 @@ public class Shader {
         setup(camera.getProjectionMatrix(), camera.getViewMatrix());
     }
 
+    public void setupInverse(Camera camera) {
+        applyInverseProjectionMatrix(camera.getProjectionMatrix().invert(new Matrix4f()));
+        applyInverseViewMatrix(camera.getViewMatrix().invert(new Matrix4f()));
+    }
+
     public void applyColor(int color) {
         this.setColor("color", color);
     }
@@ -342,6 +347,18 @@ public class Shader {
 
     public void applyNormalMatrix(Matrix3f matrix) {
         this.setMat3("normalMat", matrix);
+    }
+
+    public void applyInverseProjectionMatrix(Matrix4f matrix) {
+        this.setMat4("invProjection", matrix);
+    }
+
+    public void applyInverseViewMatrix(Matrix4f matrix) {
+        this.setMat4("invView", matrix);
+    }
+
+    public void applyInverseModelMatrix(Matrix4f matrix) {
+        this.setMat4("invModel", matrix);
     }
 
     public void applyMatrixStack(MatrixStack matrices) {

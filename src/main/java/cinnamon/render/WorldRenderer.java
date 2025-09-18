@@ -129,7 +129,7 @@ public class WorldRenderer {
         //apply bloom
         float bloom = Settings.bloomStrength.get();
         if (debugGBuffer < 0 && bloom > 0f)
-            BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getTexture(4), 0.8f, bloom);
+            BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getEmissive(), 0.8f, bloom);
 
         //bake output buffer to the target buffer
         bake();
@@ -182,7 +182,7 @@ public class WorldRenderer {
             //bloom
             float bloom = Settings.bloomStrength.get();
             if (debugGBuffer < 0 && bloom > 0f)
-                BloomRenderer.applyBloom(targetBuffer, PBRFrameBuffer.getTexture(4), 0.8f, bloom);
+                BloomRenderer.applyBloom(targetBuffer, PBRFrameBuffer.getEmissive(), 0.8f, bloom);
         });
     }
 
@@ -231,12 +231,15 @@ public class WorldRenderer {
         outputBuffer.useClear();
         Shader s = Shaders.DEFERRED_WORLD_PBR.getShader().use();
 
+        //camera
+        s.setupInverse(camera);
+
         //apply gbuffer textures and the lightmap
-        s.setTexture("gAlbedo",   PBRFrameBuffer.getTexture(0), 0);
-        s.setTexture("gPosition", PBRFrameBuffer.getTexture(1), 1);
-        s.setTexture("gNormal",   PBRFrameBuffer.getTexture(2), 2);
-        s.setTexture("gORM",      PBRFrameBuffer.getTexture(3), 3);
-        s.setTexture("gEmissive", PBRFrameBuffer.getTexture(4), 4);
+        s.setTexture("gAlbedo",   PBRFrameBuffer.getAlbedo(),      0);
+        s.setTexture("gNormal",   PBRFrameBuffer.getNormal(),      1);
+        s.setTexture("gORM",      PBRFrameBuffer.getORM(),         2);
+        s.setTexture("gEmissive", PBRFrameBuffer.getEmissive(),    3);
+        s.setTexture("gDepth",    PBRFrameBuffer.getDepthBuffer(), 4);
         s.setTexture("lightTex",  hasLights ? lightingMultiPassBuffer.getColorBuffer() : 0, 5);
 
         //apply sky
@@ -288,8 +291,8 @@ public class WorldRenderer {
                 initShadowBuffer();
 
                 //render the light shadow
-                if (light instanceof PointLight pl) //only point lights use cube maps
-                    renderLightShadowToCubeMap(pl, camera, renderFunction);
+                if (light.getType() == 1) //only point lights use cube maps
+                    renderLightShadowToCubeMap((PointLight) light, camera, renderFunction);
                 else
                     renderDirectionalLightShadow(light, camera, renderFunction);
 
@@ -312,6 +315,11 @@ public class WorldRenderer {
         //backup camera
         cameraPos.set(camera.getPos());
         cameraRot.set(camera.getRot());
+
+        //set the light shader camera uniforms
+        Shader s = Shaders.LIGHTING_PASS.getShader().use();
+        s.setVec3("camPos", camera.getPosition());
+        s.setupInverse(camera);
 
         //custom blending for lights
         glBlendFunc(GL_ONE, GL_ONE);
@@ -417,16 +425,13 @@ public class WorldRenderer {
 
         //bind the shadow map and gbuffer textures to the light shader
         Shader s = Shaders.LIGHTING_PASS.getShader().use();
-        s.setTexture("gAlbedo",   PBRFrameBuffer.getTexture(0), 0);
-        s.setTexture("gPosition", PBRFrameBuffer.getTexture(1), 1);
-        s.setTexture("gNormal",   PBRFrameBuffer.getTexture(2), 2);
-        s.setTexture("gORM",      PBRFrameBuffer.getTexture(3), 3);
+        s.setTexture("gAlbedo", PBRFrameBuffer.getAlbedo(),      0);
+        s.setTexture("gNormal", PBRFrameBuffer.getNormal(),      1);
+        s.setTexture("gORM",    PBRFrameBuffer.getORM(),         2);
+        s.setTexture("gDepth",  PBRFrameBuffer.getDepthBuffer(), 3);
         s.setTexture("shadowMap", hasShadow ? shadowBuffer.getDepthBuffer() : 0, 4);
         s.setTexture("cookieMap", light instanceof CookieLight cookie ? Texture.of(cookie.getCookieTexture()).getID() : 0, 5);
         s.setCubeMap("shadowCubeMap", hasShadow ? cubeShadowBuffer.getCubemap() : 0, 6);
-
-        //set up the camera position
-        s.setVec3("camPos", cameraPos.x, cameraPos.y, cameraPos.z);
 
         //set up the light properties
         if (!hasShadow) light.calculateLightSpaceMatrix();

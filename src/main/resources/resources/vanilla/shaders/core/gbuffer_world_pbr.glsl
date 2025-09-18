@@ -32,10 +32,9 @@ void main() {
 #include shaders/libs/parallax_mapping.glsl
 
 layout (location = 0) out vec4 gAlbedo;
-layout (location = 1) out vec4 gPosition;
-layout (location = 2) out vec4 gNormal;
-layout (location = 3) out vec4 gORM;
-layout (location = 4) out vec4 gEmissive;
+layout (location = 1) out vec4 gNormal;
+layout (location = 2) out vec4 gORM;
+layout (location = 3) out vec4 gEmissive;
 
 struct Material {
     sampler2D albedoTex;
@@ -82,7 +81,6 @@ void main() {
 
     //write to gBuffer
     gAlbedo = albedo * color;
-    gPosition = vec4(pos, 1.0f);
     gNormal = vec4(normal, 1.0f);
     gORM = vec4(ao, roughness, metallic, 1.0f);
     gEmissive = vec4(emissive, 1.0f);

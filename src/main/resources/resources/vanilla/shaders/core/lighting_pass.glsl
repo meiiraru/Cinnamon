@@ -19,17 +19,38 @@ out vec4 fragColor;
 const float PI = 3.14159265359f;
 
 //gBuffer inputs
-uniform sampler2D gPosition;
 uniform sampler2D gAlbedo;
 uniform sampler2D gORM;
 uniform sampler2D gNormal;
+uniform sampler2D gDepth;
 
-//light and camera inputs
+//camera inputs
 uniform vec3 camPos;
+uniform mat4 invView;
+uniform mat4 invProjection;
+
+//light
 uniform Light light;
 uniform sampler2D shadowMap;
 uniform samplerCube shadowCubeMap;
 uniform sampler2D cookieMap;
+
+vec3 getPosFromDepth(vec2 texCoords) {
+    //normalized device coordinates
+    vec2 ndc = texCoords * 2.0f - 1.0f;
+
+    //clip space
+    float depth = texture(gDepth, texCoords).r;
+    vec4 clip = vec4(ndc, depth * 2.0f - 1.0f, 1.0f);
+
+    //view space
+    vec4 view = invProjection * clip;
+    view /= view.w;
+
+    //world space
+    vec4 world = invView * view;
+    return world.xyz;
+}
 
 //Trowbridge-Reitz GGX
 //D (NDF Normal Distribution Function)
@@ -111,7 +132,7 @@ vec3 getCookieColor(vec3 lightCoords) {
 
 void main() {
     //pos
-    vec3 pos = texture(gPosition, texCoords).rgb;
+    vec3 pos = getPosFromDepth(texCoords);
     vec3 lightCoords = vec3(0.0f);
 
     //discard fragments outside the light volume

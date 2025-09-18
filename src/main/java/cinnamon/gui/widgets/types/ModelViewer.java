@@ -150,7 +150,7 @@ public class ModelViewer extends SelectableWidget {
 
             float bloom = Settings.bloomStrength.get();
             if (bloom > 0f)
-                BloomRenderer.applyBloom(WorldRenderer.outputBuffer, WorldRenderer.PBRFrameBuffer.getTexture(4), 0.8f, bloom);
+                BloomRenderer.applyBloom(WorldRenderer.outputBuffer, WorldRenderer.PBRFrameBuffer.getEmissive(), 0.8f, bloom);
         }
 
         //draw bounding box
