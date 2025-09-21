@@ -9,6 +9,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.ModelRenderer;
+import cinnamon.render.model.CubeRenderer;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
@@ -29,6 +30,7 @@ public class Terrain extends WorldObject {
 
     private byte rotation = 0;
     private MaterialRegistry overrideMaterial = MaterialRegistry.DEFAULT;
+    private Byte faceMask = null; // if non-null, render as cube with mask
 
     public Terrain(Resource model, TerrainRegistry type) {
         this.type = type;
@@ -41,9 +43,17 @@ public class Terrain extends WorldObject {
         matrices.pushMatrix();
 
         matrices.translate(pos.x + 0.5f, pos.y, pos.z + 0.5f);
-        matrices.rotate(Rotation.Y.rotationDeg(getRotationAngle()));
 
-        renderModel(matrices, delta);
+        if (faceMask == null) {
+            matrices.rotate(Rotation.Y.rotationDeg(getRotationAngle()));
+            renderModel(matrices, delta);
+        } else {
+            // masked cube; ignore rotation to keep faces axis-aligned
+            if (overrideMaterial != null && overrideMaterial.material != null)
+                CubeRenderer.renderFaces(matrices, overrideMaterial.material, faceMask);
+            else
+                CubeRenderer.renderFaces(matrices, MaterialRegistry.MISSING, faceMask);
+        }
 
         matrices.popMatrix();
     }
@@ -131,6 +141,14 @@ public class Terrain extends WorldObject {
 
     public MaterialRegistry getMaterial() {
         return overrideMaterial;
+    }
+
+    public void setFaceMask(Byte mask) {
+        this.faceMask = mask;
+    }
+
+    public Byte getFaceMask() {
+        return faceMask;
     }
 
     @Override

@@ -3,6 +3,7 @@ package cinnamon.world.worldgen.chunk;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.AABB;
+import cinnamon.render.model.CubeRenderer;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
 
@@ -32,18 +33,33 @@ public class ArrayChunk extends Chunk {
 
     @Override
     public int render(Camera camera, MatrixStack matrices, float delta) {
-        int i = 0;
-        for (Terrain[][] tx : terrains) {
-            for (Terrain[] ty : tx) {
-                for (Terrain t : ty) {
-                    if (t != null && t.shouldRender(camera)) {
-                        t.render(matrices, delta);
-                        i++;
-                    }
+        int rendered = 0;
+        for (int x = 0; x < CHUNK_SIZE; x++) {
+            for (int y = 0; y < CHUNK_SIZE; y++) {
+                for (int z = 0; z < CHUNK_SIZE; z++) {
+                    Terrain t = terrains[x][y][z];
+                    if (t == null || !t.shouldRender(camera)) continue;
+
+                    // face mask: bit per face: 0:+X,1:-X,2:+Y,3:-Y,4:+Z,5:-Z (1 means hide)
+                    byte mask = 0;
+                    if (isSolid(x + 1, y, z)) mask |= 1 << 0;
+                    if (isSolid(x - 1, y, z)) mask |= 1 << 1;
+                    if (isSolid(x, y + 1, z)) mask |= 1 << 2;
+                    if (isSolid(x, y - 1, z)) mask |= 1 << 3;
+                    if (isSolid(x, y, z + 1)) mask |= 1 << 4;
+                    if (isSolid(x, y, z - 1)) mask |= 1 << 5;
+
+                    matrices.pushMatrix();
+                    matrices.translate(t.getPos().x + 0.5f - (int) (t.getPos().x) + (int) (t.getPos().x),
+                                       t.getPos().y,
+                                       t.getPos().z + 0.5f - (int) (t.getPos().z) + (int) (t.getPos().z));
+                    CubeRenderer.renderFaces(matrices, t.getMaterial().material, mask);
+                    matrices.popMatrix();
+                    rendered++;
                 }
             }
         }
-        return i;
+        return rendered;
     }
 
     @Override
@@ -96,5 +112,12 @@ public class ArrayChunk extends Chunk {
         }
 
         return set;
+    }
+
+    private boolean isSolid(int x, int y, int z) {
+        if (x >= 0 && x < CHUNK_SIZE && y >= 0 && y < CHUNK_SIZE && z >= 0 && z < CHUNK_SIZE)
+            return terrains[x][y][z] != null;
+        // neighbor chunk check would go here; fallback to non-solid if unknown
+        return false;
     }
 }

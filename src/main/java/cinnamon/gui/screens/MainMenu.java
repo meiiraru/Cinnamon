@@ -12,6 +12,7 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
 import cinnamon.world.world.WorldClient;
+import cinnamon.world.worldgen.GeneratedWorld;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,10 +46,11 @@ public class MainMenu extends Screen {
         ContainerGrid grid = new ContainerGrid(0, 0, 4);
 
         //open world
-        Button worldButton = new MainButton(Text.translated("gui.main_menu.singleplayer"), button -> {
+    Button worldButton = new MainButton(Text.translated("gui.main_menu.singleplayer"), button -> {
             //init client
             //if (ServerConnection.open()) {
-                WorldClient world = new WorldClient();
+        long seed = System.currentTimeMillis();
+        WorldClient world = new GeneratedWorld("world", seed);
                 world.init();
             //} else {
             //    Toast.addToast(Text.of("Unable to create the internal server"), client.font);
