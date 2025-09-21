@@ -1,7 +1,6 @@
 package cinnamon.world.entity.terrain;
 
 import cinnamon.registry.TerrainEntityRegistry;
-import cinnamon.utils.Resource;
 
 import java.util.UUID;
 

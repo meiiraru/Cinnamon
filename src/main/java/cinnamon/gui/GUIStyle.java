@@ -3,7 +3,6 @@ package cinnamon.gui;
 import cinnamon.render.Font;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
-import cinnamon.vr.XrManager;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
