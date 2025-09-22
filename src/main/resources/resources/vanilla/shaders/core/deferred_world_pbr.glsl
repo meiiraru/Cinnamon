@@ -55,7 +55,7 @@ vec4 applyLighting(vec3 pos) {
     vec4 albedo4 = texture(gAlbedo, texCoords);
     vec3 albedo = albedo4.rgb;
 
-    vec4 gORM = texture(gORM, texCoords);
+    vec3 gORM = texture(gORM, texCoords).rgb;
     float ao        = gORM.r;
     float roughness = gORM.g;
     float metallic  = gORM.b;
@@ -89,10 +89,10 @@ vec4 applyLighting(vec3 pos) {
 
     vec3 color = (kD * diffuse + specular) * ao + Lo;
 
-    vec4 emissive = texture(gEmissive, texCoords);
+    vec3 emissive = texture(gEmissive, texCoords).rgb;
 
     //output
-    return vec4(color, albedo4.a) + emissive;
+    return vec4(color + emissive, albedo4.a);
 }
 
 void main() {

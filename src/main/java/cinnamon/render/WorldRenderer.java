@@ -5,12 +5,14 @@ import cinnamon.model.SimpleGeometry;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
+import cinnamon.render.framebuffer.ShadowCascadeFramebuffer;
 import cinnamon.render.framebuffer.ShadowCubemapFramebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.Texture;
+import cinnamon.render.texture.TextureArray;
 import cinnamon.settings.Settings;
 import cinnamon.utils.Rotation;
 import cinnamon.vr.XrManager;
@@ -44,6 +46,9 @@ public class WorldRenderer {
     public static final Framebuffer shadowBuffer = new Framebuffer(Framebuffer.DEPTH_BUFFER);
     public static final ShadowCubemapFramebuffer cubeShadowBuffer = new ShadowCubemapFramebuffer();
     public static final Framebuffer outlineFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
+
+    public static final ShadowCascadeFramebuffer cascadeShadowBuffer = new ShadowCascadeFramebuffer(CascadedShadow.getNumCascades());
+    public static final CascadedShadow cascadedShadow = new CascadedShadow();
 
     public static Light shadowLight = null;
     private static boolean outlineRendering = false;
@@ -291,10 +296,11 @@ public class WorldRenderer {
                 initShadowBuffer();
 
                 //render the light shadow
-                if (light.getType() == 1) //only point lights use cube maps
-                    renderLightShadowToCubeMap((PointLight) light, camera, renderFunction);
-                else
-                    renderDirectionalLightShadow(light, camera, renderFunction);
+                switch (light.getType()) {
+                    case 1 -> renderLightShadowToCubeMap((PointLight) light, camera, renderFunction);
+                    case 3 -> renderDirectionalLightShadow(light, camera, renderFunction);
+                    default -> renderSpotLightShadow(light, camera, renderFunction);
+                }
 
                 renderedShadows++;
             }
@@ -319,6 +325,7 @@ public class WorldRenderer {
         //set the light shader camera uniforms
         Shader s = Shaders.LIGHTING_PASS.getShader().use();
         s.setVec3("camPos", camera.getPosition());
+        s.applyViewMatrix(camera.getViewMatrix());
         s.setupInverse(camera);
 
         //custom blending for lights
@@ -329,12 +336,54 @@ public class WorldRenderer {
     public static void initShadowBuffer() {
         //prepare the shadow buffer
         int w = (int) Math.pow(2, Settings.shadowQuality.get() + 8); //min is 256
+        cascadeShadowBuffer.resize(w, w);
         cubeShadowBuffer.resize(w, w);
         shadowBuffer.resize(w, w);
         shadowBuffer.adjustViewPort();
     }
 
     public static void renderDirectionalLightShadow(Light light, Camera camera, Runnable renderFunction) {
+        //set rendering state
+        shadowLight = light;
+        activeMask = light.getShadowMask();
+
+        //restore the camera because the light matrices requires the camera view
+        camera.setPos(cameraPos.x, cameraPos.y, cameraPos.z);
+        camera.setRot(cameraRot);
+
+        //calculate light space matrices for each cascade
+        Vector3f dir = light.getDirection();
+        cascadedShadow.calculateCascadeMatrices(camera, dir);
+        Matrix4f[] cascadeMatrices = cascadedShadow.getCascadeMatrices();
+
+        //update camera
+        camera.lookAt(cameraPos.x + dir.x, cameraPos.y + dir.y, cameraPos.z + dir.z);
+
+        //render world for each cascade
+        cascadeShadowBuffer.useClear();
+
+        //update camera frustum for culling
+        camera.updateFrustum(cascadedShadow.getCullingMatrix());
+
+        //prepare shader
+        Shader s = Shaders.DEPTH_DIR.getShader().use();
+        s.setMat4Array("cascadeMatrices", cascadeMatrices);
+
+        //render world
+        renderFunction.run();
+
+        //render vertex consumer
+        cascadeShadowBuffer.use();
+        Shader main = Shaders.MAIN_DEPTH_DIR.getShader().use();
+        main.setMat4Array("cascadeMatrices", cascadeMatrices);
+        VertexConsumer.finishAllBatches(main, camera);
+
+        //reset state
+        shadowLight = null;
+        activeMask = passMask;
+    }
+
+    public static void renderSpotLightShadow(Light light, Camera camera, Runnable renderFunction) {
         //set rendering state
         shadowLight = light;
         activeMask = light.getShadowMask();
@@ -429,13 +478,20 @@ public class WorldRenderer {
         s.setTexture("gNormal", PBRFrameBuffer.getNormal(),      1);
         s.setTexture("gORM",    PBRFrameBuffer.getORM(),         2);
         s.setTexture("gDepth",  PBRFrameBuffer.getDepthBuffer(), 3);
+
         s.setTexture("shadowMap", hasShadow ? shadowBuffer.getDepthBuffer() : 0, 4);
         s.setTexture("cookieMap", light instanceof CookieLight cookie ? Texture.of(cookie.getCookieTexture()).getID() : 0, 5);
         s.setCubeMap("shadowCubeMap", hasShadow ? cubeShadowBuffer.getCubemap() : 0, 6);
+        s.setTextureArray("shadowCascadeMap", hasShadow ? cascadeShadowBuffer.getDepthTextureArray() : 0, 7);
 
         //set up the light properties
         if (!hasShadow) light.calculateLightSpaceMatrix();
         s.setBool("light.castsShadows", hasShadow);
+
+        s.setInt("cascadeCount", CascadedShadow.getNumCascades());
+        s.setFloatArray("cascadeDistances", cascadedShadow.getCascadeDistances());
+        s.setMat4Array("cascadeMatrices", cascadedShadow.getCascadeMatrices());
+
         light.pushToShader(s);
 
         //then render the light volume
@@ -444,6 +500,7 @@ public class WorldRenderer {
         //unbind textures
         Texture.unbindAll(6);
         CubeMap.unbindTex(6);
+        TextureArray.unbindTex(7);
     }
 
     public static void resetLightState(Camera camera) {

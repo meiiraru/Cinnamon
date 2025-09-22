@@ -21,7 +21,7 @@ public class PBRDeferredFramebuffer extends Framebuffer {
     public int gAlbedo, gNormal, gORM, gEmissive;
 
     public PBRDeferredFramebuffer() {
-        super(DEPTH_BUFFER | STENCIL_BUFFER);
+        super(DEPTH_BUFFER | STENCIL_BUFFER, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
     @Override

@@ -139,6 +139,8 @@ public class WorldClient extends World {
         //for (int i = 0; i < 5; i++)
         //    addLight(new PointLight().pos(-5.5f + i * 3f, 3f, 2.5f).color(Colors.randomRainbow().rgb));
 
+        //addLight(new PointLight().pos(0.5f, 3.5f, 0.5f).color(0xFFFF44).castsShadows(true));
+
         addLight(new Spotlight().angle(60f).pos(1f, 3f, 10.0f).color(0xFF0000));
         addLight(new Spotlight().angle(60f).pos(0.25f, 3f, 9.567f).color(0x00FF00));
         addLight(new Spotlight().angle(60f).pos(0.25f, 3f, 10.433f).color(0x0000FF));
@@ -202,29 +204,35 @@ public class WorldClient extends World {
 
         //set camera
         client.camera.useOrtho(false);
-        client.camera.setEntity(player);
-        client.camera.setup(cameraMode, delta);
-        client.camera.updateFrustum();
+        updateCamera(player, cameraMode, delta);
 
         //prepare sun
-        float deltaDayTime = (worldTime + delta) % 24000;
-        sky.setSunAngle(Maths.map(worldTime + delta, 0, 24000, 0, 360));
+        updateSky(worldTime + delta);
 
-        float intensity = (deltaDayTime < 1000) ? (deltaDayTime - 100) / 900f //sunrise
-                : (deltaDayTime > 11000) ? 1f - (deltaDayTime - 11000) / 900f //sunset
+        //render our stuff
+        WorldRenderer.renderWorld(this, client.camera, matrices, delta);
+        client.camera.useOrtho(true);
+    }
+
+    protected void updateCamera(Entity camEntity, int cameraMode, float delta) {
+        client.camera.setEntity(camEntity);
+        client.camera.setup(cameraMode, delta);
+        client.camera.updateFrustum();
+    }
+
+    protected void updateSky(float worldTime) {
+        float dayTime = worldTime % 24000;
+        sky.setSunAngle(Maths.map(worldTime, 0, 24000, 0, 360));
+
+        float intensity = (dayTime < 1000) ? (dayTime - 100) / 900f //sunrise
+                : (dayTime > 11000) ? 1f - (dayTime - 11000) / 900f //sunset
                 : 1f; //day
         sunLight.intensity(intensity);
 
         Vector3f dir = sky.getSunDirection();
         Vector3f pos = client.camera.getPos();
         sunLight.direction(dir);
-        sunLight.pos(pos.x + dir.x * -50f, pos.y + dir.y * -50f, pos.z + dir.z * -50f);
-
-        //render our stuff
-        WorldRenderer.renderWorld(this, client.camera, matrices, delta);
-
-        //finish rendering
-        client.camera.useOrtho(true);
+        sunLight.pos(pos.x + dir.x * -500f, pos.y + dir.y * -500f, pos.z + dir.z * -500f);
     }
 
     public int renderTerrain(Camera camera, MatrixStack matrices, float delta) {

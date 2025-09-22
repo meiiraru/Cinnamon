@@ -10,7 +10,7 @@ public class XrFramebuffer extends Framebuffer {
     private int color;
 
     public XrFramebuffer() {
-        super(Framebuffer.COLOR_BUFFER);
+        super(COLOR_BUFFER);
     }
 
     @Override

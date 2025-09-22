@@ -11,7 +11,8 @@ public class Framebuffer {
             STENCIL_BUFFER = 0x4,
             HDR_COLOR_BUFFER = 0x8;
 
-    private final int flags;
+    protected final int flags;
+    protected final int clearMask;
     private int fbo;
     private int color, depth, stencil;
     private int x, y;
@@ -23,7 +24,17 @@ public class Framebuffer {
 
     public Framebuffer(int flags) {
         this.flags = flags;
+        int clearMask = 0;
+        if ((flags & COLOR_BUFFER) != 0 || (flags & HDR_COLOR_BUFFER) != 0) clearMask |= GL_COLOR_BUFFER_BIT;
+        if ((flags & DEPTH_BUFFER) != 0) clearMask |= GL_DEPTH_BUFFER_BIT;
+        if ((flags & STENCIL_BUFFER) != 0) clearMask |= GL_STENCIL_BUFFER_BIT;
+        this.clearMask = clearMask;
     }
+
+    protected Framebuffer(int flags, int clearMask) {
+        this.flags = flags;
+        this.clearMask = clearMask;
+    } 
 
     protected void genBuffers() {
         use();
@@ -105,9 +116,12 @@ public class Framebuffer {
         glViewport(x, y, width, height);
     }
 
-    public static void clear() {
+    public void clear() {
+        if (clearMask == 0)
+            return;
+
         glClearColor(0f, 0f, 0f, 0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glClear(clearMask);
     }
 
     public void useClear() {

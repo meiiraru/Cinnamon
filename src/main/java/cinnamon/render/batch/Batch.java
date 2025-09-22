@@ -94,7 +94,7 @@ public abstract class Batch { //vertex consumer
 
         //clear gl flags
         glBindVertexArray(0);
-        Texture.unbindAll(textures.size() - 1);
+        Texture.unbindAll(textures.size());
 
         //clear buffers
         clear();

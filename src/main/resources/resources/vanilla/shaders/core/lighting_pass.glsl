@@ -26,6 +26,7 @@ uniform sampler2D gDepth;
 
 //camera inputs
 uniform vec3 camPos;
+uniform mat4 view;
 uniform mat4 invView;
 uniform mat4 invProjection;
 
@@ -34,6 +35,12 @@ uniform Light light;
 uniform sampler2D shadowMap;
 uniform samplerCube shadowCubeMap;
 uniform sampler2D cookieMap;
+
+//cascaded shadow maps
+uniform int cascadeCount;
+uniform float cascadeDistances[16];
+uniform mat4 cascadeMatrices[16];
+uniform sampler2DArray shadowCascadeMap;
 
 vec3 getPosFromDepth(vec2 texCoords) {
     //normalized device coordinates
@@ -83,7 +90,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0f - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
 }
 
-float calculateDirectionalShadow(vec3 lightCoords, vec3 lightDir, vec3 normal) {
+float calculateSpotShadow(vec3 lightCoords, vec3 lightDir, vec3 normal) {
     //get the current fragment depth from the light perspective
     float currentDepth = lightCoords.z;
 
@@ -95,7 +102,7 @@ float calculateDirectionalShadow(vec3 lightCoords, vec3 lightDir, vec3 normal) {
     float bias = max(0.01f * (1.0f - dot(normal, lightDir)), 0.001f);
 
     //check if the current fragment is behind the closest one recorded in the shadow map
-    float shadow = currentDepth - bias > closestDepth ? 0.0f : 1.0f;
+    float shadow = currentDepth - bias > closestDepth ? 1.0f : 0.0f;
     return shadow;
 }
 
@@ -114,7 +121,7 @@ float calculatePointShadow(vec3 fragPosWorld) {
     const float bias = 0.05f;
 
     //check if the current fragment is in shadow
-    float shadow = currentDepth - bias > closestDepth ? 0.0f : 1.0f;
+    float shadow = currentDepth - bias > closestDepth ? 1.0f : 0.0f;
     return shadow;
 }
 
@@ -130,6 +137,56 @@ vec3 getCookieColor(vec3 lightCoords) {
         return vec3(0.0f);
 }
 
+float calculateDirectionalShadow(vec3 fragPosWorld, vec3 lightDir, vec3 normal) {
+    //select cascade layer
+    vec4 fragPosViewSpace = view * vec4(fragPosWorld, 1.0f);
+    float depthValue = abs(fragPosViewSpace.z);
+
+    int layer = cascadeCount - 1;
+    for (int i = 0; i < cascadeCount; i++) {
+        if (depthValue < cascadeDistances[i]) {
+            layer = i;
+            break;
+        }
+    }
+
+    //transform fragment position to light clip space
+    vec4 fragPosLightSpace = cascadeMatrices[layer] * vec4(fragPosWorld, 1.0f);
+    //perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    //transform to [0,1] range
+    projCoords = projCoords * 0.5f + 0.5f;
+
+    //get current light depth
+    float currentDepth = projCoords.z;
+
+    //dont cast shadow outside the light frustum
+    if (currentDepth > 1.0f)
+        return 0.0f;
+
+    //acne prevention bias
+    float bias = max(0.001f * (1.0f - dot(normal, lightDir)), 0.0001f);
+    //bias *= 1 / (cascadeDistances[layer] * 0.5f);
+
+    //get depth of closest fragment from light perspective
+    float closestDepth = texture(shadowCascadeMap, vec3(projCoords.xy, layer)).r;
+    float shadow = currentDepth - bias > closestDepth ? 1.0f : 0.0f;
+
+    //PCF
+    //float shadow = 0.0f;
+    //vec2 texelSize = 1.0f / vec2(textureSize(shadowCascadeMap, 0));
+    //const int r = 1;
+    //for(int x = -r; x <= r; x++) {
+    //    for(int y = -r; y <= r; ++y) {
+    //        float pcfDepth = texture(shadowCascadeMap, vec3(projCoords.xy + vec2(x, y) * texelSize, layer)).r;
+    //        shadow += currentDepth - bias > pcfDepth ? 1.0f : 0.0f;
+    //    }
+    //}
+    //shadow /= (float((r * 2 + 1) * (r * 2 + 1)));
+
+    return shadow;
+}
+
 void main() {
     //pos
     vec3 pos = getPosFromDepth(texCoords);
@@ -141,20 +198,19 @@ void main() {
         float distanceToLight = length(light.pos - pos);
         if (distanceToLight > light.falloffEnd)
             discard;
-    }
 
-    //frustum culling for non-point lights
-    if (light.type != 1) {
-        //transform fragment position to light clip space
-        vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(pos, 1.0f);
+        //frustum culling for non-point lights
+        if (light.type != 1) {
+            //transform fragment position to light clip space
+            vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(pos, 1.0f);
 
-        //normalize to [0,1] range
-        lightCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-        lightCoords = lightCoords * 0.5f + 0.5f;
-
-        //early exit if outside the light frustum
-        if (lightCoords.z > 1.0f)
-            discard;
+            //normalize to [0,1] range
+            lightCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+            lightCoords = lightCoords * 0.5f + 0.5f;
+            //early exit if outside the light frustum
+            if (lightCoords.z > 1.0f)
+                discard;
+        }
     }
 
     //color
@@ -199,8 +255,16 @@ void main() {
 
     //shadow
     if (light.castsShadows) {
-        float shadow = light.type == 1 ? calculatePointShadow(pos) : calculateDirectionalShadow(lightCoords, L, N);
-        radiance *= shadow;
+        float shadow = 0.0f;
+
+        if (light.type == 1)
+            shadow = calculatePointShadow(pos);
+        else if (light.type == 3)
+            shadow = calculateDirectionalShadow(pos, L, N);
+        else
+            shadow = calculateSpotShadow(lightCoords, L, N);
+
+        radiance *= 1.0f - shadow;
     }
 
     //if light has no effect, skip the expensive PBR calculations

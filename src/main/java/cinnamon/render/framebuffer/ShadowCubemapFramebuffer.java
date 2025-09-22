@@ -14,7 +14,7 @@ public class ShadowCubemapFramebuffer extends Framebuffer {
     private int depthCube;
 
     public ShadowCubemapFramebuffer() {
-        super(0);
+        super(0, GL_DEPTH_BUFFER_BIT);
     }
 
     @Override

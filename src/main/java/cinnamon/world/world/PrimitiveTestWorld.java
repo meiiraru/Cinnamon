@@ -89,15 +89,14 @@ public class PrimitiveTestWorld extends WorldClient {
 
     @Override
     public void renderDebug(Camera camera, MatrixStack matrices, float delta) {
-        super.renderDebug(camera, matrices, delta);
-
         if (renderNormals) {
             for (Terrain terrain : terrainManager.queryCustom(camera::isInsideFrustum)) {
                 if (terrain instanceof PrimitiveTerrain pt)
                     TransparentWorld.renderNormals(matrices, pt.vertices);
             }
-            VertexConsumer.WORLD_MAIN.finishBatch(camera);
         }
+
+        super.renderDebug(camera, matrices, delta);
     }
 
     private void house(float x, float y, float z, float rotY, int colA, int colB) {

@@ -1,10 +1,12 @@
 package cinnamon.render.shader;
 
+import cinnamon.Cinnamon;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.Texture;
 import cinnamon.render.texture.TextureArray;
+import cinnamon.settings.ArgsOptions;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
@@ -87,6 +89,10 @@ public class Shader {
         String[] include = src.split("#include ");
         if (include.length > 1)
             src = processInclude(include);
+
+        //apply opengl es compatibility extensions for geometry shader (if supported)
+        if (type == Type.GEOMETRY)
+            src = Type.fixGLESGeometryShader(src);
 
         //create shader
         int shader = glCreateShader(type.glBind);
@@ -265,6 +271,43 @@ public class Shader {
         }
     }
 
+    public void setFloatArray(String name, float... array) {
+        int i = get(name);
+        if (i == -1)
+            return;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer buffer = stack.floats(array);
+            glUniform1fv(i, buffer);
+        }
+    }
+
+    public void setMat3Array(String name, Matrix3f... matrices) {
+        int i = get(name);
+        if (i == -1)
+            return;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer buffer = stack.mallocFloat(matrices.length * 9);
+            for (int j = 0; j < matrices.length; j++)
+                matrices[j].get(j * 9, buffer);
+            glUniformMatrix3fv(i, false, buffer);
+        }
+    }
+
+    public void setMat4Array(String name, Matrix4f... matrices) {
+        int i = get(name);
+        if (i == -1)
+            return;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer buffer = stack.mallocFloat(matrices.length * 16);
+            for (int j = 0; j < matrices.length; j++)
+                matrices[j].get(j * 16, buffer);
+            glUniformMatrix4fv(i, false, buffer);
+        }
+    }
+
     public void setColor(String name, int color) {
         this.setVec3(name, ColorUtils.intToRGB(color));
     }
@@ -381,6 +424,41 @@ public class Shader {
 
         Type(int bind) {
             this.glBind = bind;
+        }
+
+        private static String fixGLESGeometryShader(String shaderSrc) {
+            //only apply if were using opengl es
+            if (!ArgsOptions.EXPERIMENTAL_OPENGL_ES.getAsBool())
+                return shaderSrc;
+
+            //check if extensions are supported
+            if (!Cinnamon.OPENGL_EXTENSIONS.contains("GL_EXT_geometry_shader") || !Cinnamon.OPENGL_EXTENSIONS.contains("GL_OES_geometry_shader")) {
+                LOGGER.warn("Could not enable OpenGL ES compatibility extensions to geometry shader");
+                return shaderSrc;
+            }
+
+            LOGGER.debug("Enabling OpenGL ES compatibility extensions to geometry shader");
+
+            //enable the GL_EXT_geometry_shader and GL_OES_geometry_shader extensions
+            final String ext = """
+                    #extension GL_EXT_geometry_shader : enable
+                    #extension GL_OES_geometry_shader : enable
+                    """;
+
+            //add extensions after version declaration
+            String[] versionSplit = shaderSrc.split("#version ", 2);
+            if (versionSplit.length > 1) {
+                int index = versionSplit[1].indexOf("\n");
+                if (index != -1) {
+                    shaderSrc = "#version " + versionSplit[1].substring(0, index) + "\n" + ext + versionSplit[1].substring(index + 1);
+                } else {
+                    shaderSrc = "#version " + versionSplit[1] + "\n" + ext;
+                }
+            } else {
+                shaderSrc = ext + shaderSrc;
+            }
+
+            return shaderSrc;
         }
     }
 }

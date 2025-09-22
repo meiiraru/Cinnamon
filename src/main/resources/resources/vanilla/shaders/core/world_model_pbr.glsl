@@ -186,10 +186,10 @@ vec4 applyLighting() {
 
     vec3 color = (kD * diffuse + specular) * ao + Lo;
 
-    vec4 emissive = texture(material.emissiveTex, texCoords);
+    vec3 emissive = texture(material.emissiveTex, texCoords).rgb;
 
     //output
-    return vec4(color, albedo4.a) + emissive;
+    return vec4(color + emissive, albedo4.a);
 }
 
 void main() {

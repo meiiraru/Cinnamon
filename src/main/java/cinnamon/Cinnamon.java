@@ -14,10 +14,15 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.Platform;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static cinnamon.Client.LOGGER;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL30.GL_NUM_EXTENSIONS;
+import static org.lwjgl.opengl.GL30.glGetStringi;
 import static org.lwjgl.opengl.GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -30,7 +35,9 @@ public class Cinnamon {
     public static Resource ICON = new Resource("textures/icon.png");
     public static boolean ENABLE_XR = false;
 
+    //system properties
     public static final Platform PLATFORM = Platform.get();
+    public static final Set<String> OPENGL_EXTENSIONS = new HashSet<>();
 
     public static void main(String... args) {
         new Cinnamon(args).run();
@@ -126,6 +133,11 @@ public class Cinnamon {
 
         //finishes the initialization process
         GL.createCapabilities();
+
+        //save detected extensions
+        int numExt = glGetInteger(GL_NUM_EXTENSIONS);
+        for (int i = 0; i < numExt; i++)
+            OPENGL_EXTENSIONS.add(glGetStringi(GL_EXTENSIONS, i));
 
         // -- client init -- //
 

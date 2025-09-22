@@ -78,6 +78,11 @@ public class Client {
         LOGGER.info("OpenGL Version: %s", glGetString(GL_VERSION));
         LOGGER.info("LWJGL Version: %s", org.lwjgl.Version.getVersion());
 
+        //log supported OpenGL extensions
+        LOGGER.debug("Supported OpenGL Extensions:");
+        for (String ext : Cinnamon.OPENGL_EXTENSIONS.stream().sorted(String::compareToIgnoreCase).toList())
+            LOGGER.debug("\u2022 %s", ext);
+
         //init settings
         Settings.load();
 

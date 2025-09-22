@@ -70,7 +70,7 @@ public class Settings {
     public static final Setting.Ints xrClickOnHoverDelay = new Setting.Ints("xr.click_on_hover_delay", 30);
 
     //rendering
-    public static final Setting.IntRanges shadowQuality = new Setting.IntRanges("rendering.shadow_quality", 2, -1, 3);
+    public static final Setting.IntRanges shadowQuality = new Setting.IntRanges("rendering.shadow_quality", 3, -1, 4);
     public static final Setting.Ranges bloomStrength = new Setting.Ranges("rendering.bloom_strength", 1f, 0f, 5f);
     public static final Setting.Bools lensFlare = new Setting.Bools("rendering.lens_flare", true);
 

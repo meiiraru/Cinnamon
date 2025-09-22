@@ -12,7 +12,7 @@ import org.joml.Vector3f;
 
 public class Flashlight extends Item {
 
-    private static final Resource FLASHLIGHT_COOKIE = new Resource("textures/environment/light/flashlight_cookie.png");
+    public static final Resource FLASHLIGHT_COOKIE = new Resource("textures/environment/light/flashlight_cookie.png");
 
     private final CookieLight light = new CookieLight() {
         @Override
@@ -36,7 +36,7 @@ public class Flashlight extends Item {
         super(ItemModelRegistry.FLASHLIGHT.id, 1, 1, ItemModelRegistry.FLASHLIGHT.resource);
         light
                 .cookieTexture(FLASHLIGHT_COOKIE)
-                .angle(15f, 20f)
+                .angle(25f, 30f)
                 .falloff(0f, 20f)
                 .color(color);
     }

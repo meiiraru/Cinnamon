@@ -1,7 +1,6 @@
 package cinnamon.render;
 
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 /**
@@ -123,39 +122,6 @@ public class Frustum {
     }
 
     /**
-     * Calculates the 8 corners of the frustum in world space
-     * <p>
-     * The corners are returned in the following order:
-     * <ul>
-     * <li>left-bottom-near
-     * <li>right-bottom-near
-     * <li>left-top-near
-     * <li>right-top-near
-     * <li>left-bottom-far
-     * <li>right-bottom-far
-     * <li>left-top-far
-     * <li>right-top-far
-     * </ul>
-     * @return An array of 8 {@link org.joml.Vector3f} representing the frustum corners
-     */
-    public Vector3f[] getCorners() {
-        Matrix4f inv = new Matrix4f(matrix).invert();
-        Vector3f[] corners = new Vector3f[8];
-        int i = 0;
-
-        for (int x = -1; x <= 1; x += 2) {
-            for (int y = -1; y <= 1; y += 2) {
-                for (int z = -1; z <= 1; z += 2) {
-                    Vector4f p = new Vector4f(x, y, z, 1f).mul(inv);
-                    corners[i++] = new Vector3f(p.x / p.w, p.y / p.w, p.z / p.w); //perspective divide
-                }
-            }
-        }
-
-        return corners;
-    }
-
-    /**
      * Gets the array of frustum planes
      * <p>
      * The order of the planes is:
@@ -174,6 +140,46 @@ public class Frustum {
      */
     public Vector4f[] getPlanes() {
         return planes;
+    }
+
+    /**
+     * Gets the combined projection-view matrix used to extract the frustum planes
+     * @return A {@link org.joml.Matrix4f} of the combined projection-view matrix
+     */
+    public Matrix4f getMatrix() {
+        return matrix;
+    }
+
+    /**
+     * Calculates the 8 corners of a matrix frustum
+     * <p>
+     * The corners are returned in the following order:
+     * <ul>
+     * <li>left-bottom-near
+     * <li>right-bottom-near
+     * <li>left-top-near
+     * <li>right-top-near
+     * <li>left-bottom-far
+     * <li>right-bottom-far
+     * <li>left-top-far
+     * <li>right-top-far
+     * </ul>
+     * @return An array of 8 {@link org.joml.Vector4f} representing the frustum corners
+     */
+    public static Vector4f[] calculateCorners(Matrix4f matrix) {
+        Matrix4f inv = new Matrix4f(matrix).invert();
+        Vector4f[] corners = new Vector4f[8];
+        int i = 0;
+
+        for (int x = -1; x <= 1; x += 2) {
+            for (int y = -1; y <= 1; y += 2) {
+                for (int z = -1; z <= 1; z += 2) {
+                    corners[i++] = new Vector4f(x, y, z, 1f).mulProject(inv);
+                }
+            }
+        }
+
+        return corners;
     }
 
     public enum Plane {
