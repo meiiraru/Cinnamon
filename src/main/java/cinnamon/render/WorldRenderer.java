@@ -57,6 +57,8 @@ public class WorldRenderer {
 
     private static final Vector3f cameraPos = new Vector3f();
     private static final Quaternionf cameraRot = new Quaternionf();
+    private static final Matrix4f pointLightMatrix = new Matrix4f();
+    private static final Quaternionf pointLightRotation = new Quaternionf();
     private static Framebuffer targetBuffer;
 
     private static final Mask passMask = new Mask(-1);
@@ -443,22 +445,22 @@ public class WorldRenderer {
             //calculate look at matrix
             Vector3f dir = face.direction;
             Vector3f up = face.up;
-            Matrix4f look = new Matrix4f().lookAt(pos.x, pos.y, pos.z, pos.x + dir.x, pos.y + dir.y, pos.z + dir.z, up.x, up.y, up.z);
-            lightSpaceMatrix.mul(look, look);
+            pointLightMatrix.setLookAt(pos.x, pos.y, pos.z, pos.x + dir.x, pos.y + dir.y, pos.z + dir.z, up.x, up.y, up.z);
+            lightSpaceMatrix.mul(pointLightMatrix, pointLightMatrix);
 
             //update the camera
             camera.setPos(pos.x, pos.y, pos.z);
-            camera.setRot(new Quaternionf().lookAlong(dir, up));
-            camera.updateFrustum(look);
+            camera.setRot(pointLightRotation.identity().lookAlong(dir, up));
+            camera.updateFrustum(pointLightMatrix);
 
             //render the world
             s.use();
-            s.setMat4("lightSpaceMatrix", look);
+            s.setMat4("lightSpaceMatrix", pointLightMatrix);
             renderFunction.run();
 
             //render vertex consumer
             sh.use();
-            sh.setMat4("lightSpaceMatrix", look);
+            sh.setMat4("lightSpaceMatrix", pointLightMatrix);
             VertexConsumer.finishAllBatches(sh, camera);
         }
 

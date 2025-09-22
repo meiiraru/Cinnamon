@@ -11,6 +11,13 @@ public class CascadedShadow {
     private final Matrix4f cullingMatrix = new Matrix4f();
     private final float[] cascadeDistances = new float[CASCADE_SPLITS.length];
 
+    //reusable objects to avoid allocations
+    protected final Matrix4f proj = new Matrix4f();
+    protected final Matrix4f lightView = new Matrix4f();
+    protected final Vector3f frustumCenter = new Vector3f();
+    protected final Vector4f trf = new Vector4f();
+    protected final float[] frustum = new float[6];
+
     public void calculateCascadeMatrices(Camera camera, Vector3f lightDir) {
         float nearClip = Camera.NEAR_PLANE;
         float farClip = WorldRenderer.renderDistance;
@@ -23,7 +30,7 @@ public class CascadedShadow {
             float cascadeFar = CASCADE_SPLITS[i] * farClip;
 
             //get frustum corners in world space
-            Matrix4f proj = new Matrix4f().perspective((float) Math.toRadians(camera.getFov()), camera.getAspectRatio(), cascadeNear, cascadeFar);
+            proj.setPerspective((float) Math.toRadians(camera.getFov()), camera.getAspectRatio(), cascadeNear, cascadeFar);
             proj.mul(camera.getViewMatrix());
             Vector4f[] frustumCorners = Frustum.calculateCorners(proj);
 
@@ -31,13 +38,13 @@ public class CascadedShadow {
                 allCorners[cornerIndex++] = corner;
 
             //find the center of the frustum
-            Vector3f frustumCenter = calculateCenter(frustumCorners);
+            calculateCenter(frustumCorners);
 
             //create light view matrix
-            Matrix4f lightView = createLookMatrix(frustumCenter, lightDir);
+            createLookMatrix(frustumCenter, lightDir);
 
             //transform frustum corners to light space and find the min/max extents
-            float[] frustum = findExtends(frustumCorners, lightView);
+            findExtends(frustumCorners, lightView);
 
             //extend z range to ensure objects slightly outside the frustum are included
             float zMult = 10f;
@@ -55,52 +62,49 @@ public class CascadedShadow {
 
     protected void calculateCullingMatrix(Vector4f[] corners, Vector3f lightDir) {
         //find the center of the entire bounding volume
-        Vector3f totalCenter = calculateCenter(corners);
+        calculateCenter(corners);
 
         //create a single view matrix looking at this center
-        Matrix4f lightView = createLookMatrix(totalCenter, lightDir);
+        createLookMatrix(frustumCenter, lightDir);
 
         //find the min/max extents of ALL corners in this new light space
-        float[] frustum = findExtends(corners, lightView);
+        findExtends(corners, lightView);
 
         //create a single orthographic projection containing everything
         cullingMatrix.setOrtho(frustum[0], frustum[1], frustum[2], frustum[3], frustum[4], frustum[5]).mul(lightView);
     }
 
-    protected static Vector3f calculateCenter(Vector4f[] corners) {
-        Vector3f center = new Vector3f();
+    protected void calculateCenter(Vector4f[] corners) {
+        frustumCenter.set(0f);
         for (Vector4f corner : corners)
-            center.add(corner.x, corner.y, corner.z);
-        return center.div(corners.length);
+            frustumCenter.add(corner.x, corner.y, corner.z);
+        frustumCenter.div(corners.length);
     }
 
-    protected static Matrix4f createLookMatrix(Vector3f center, Vector3f dir) {
+    protected void createLookMatrix(Vector3f center, Vector3f dir) {
         float x = 0f, y = 1f;
         if (Math.abs(dir.y()) > 0.99f) {
             x = 1f; y = 0f;
         }
 
-        return new Matrix4f().lookAt(
+        lightView.setLookAt(
                 center.x - dir.x, center.y - dir.y, center.z - dir.z,
                 center.x, center.y, center.z,
                 x, y, 0f);
     }
 
-    protected static float[] findExtends(Vector4f[] corners, Matrix4f transform) {
-        float[] extents = { //minX, maxX, minY, maxY, minZ, maxZ
-                Float.MAX_VALUE, Float.MIN_VALUE,
-                Float.MAX_VALUE, Float.MIN_VALUE,
-                Float.MAX_VALUE, Float.MIN_VALUE
-        };
+    protected void findExtends(Vector4f[] corners, Matrix4f transform) {
+        //minX, maxX, minY, maxY, minZ, maxZ
+        frustum[0] = Float.MAX_VALUE; frustum[1] = Float.MIN_VALUE;
+        frustum[2] = Float.MAX_VALUE; frustum[3] = Float.MIN_VALUE;
+        frustum[4] = Float.MAX_VALUE; frustum[5] = Float.MIN_VALUE;
 
         for (Vector4f corner : corners) {
-            Vector4f trf = new Vector4f(corner).mul(transform); //create a copy to multiply
-            extents[0] = Math.min(extents[0], trf.x); extents[1] = Math.max(extents[1], trf.x);
-            extents[2] = Math.min(extents[2], trf.y); extents[3] = Math.max(extents[3], trf.y);
-            extents[4] = Math.min(extents[4], trf.z); extents[5] = Math.max(extents[5], trf.z);
+            trf.set(corner).mul(transform);
+            frustum[0] = Math.min(frustum[0], trf.x); frustum[1] = Math.max(frustum[1], trf.x);
+            frustum[2] = Math.min(frustum[2], trf.y); frustum[3] = Math.max(frustum[3], trf.y);
+            frustum[4] = Math.min(frustum[4], trf.z); frustum[5] = Math.max(frustum[5], trf.z);
         }
-
-        return extents;
     }
 
     public Matrix4f[] getCascadeMatrices() {
