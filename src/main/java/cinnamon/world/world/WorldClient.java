@@ -49,7 +49,6 @@ import cinnamon.world.items.weapons.CoilGun;
 import cinnamon.world.items.weapons.PotatoCannon;
 import cinnamon.world.items.weapons.RiceGun;
 import cinnamon.world.items.weapons.Weapon;
-import cinnamon.world.light.CookieLight;
 import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.Spotlight;
@@ -232,7 +231,7 @@ public class WorldClient extends World {
         Vector3f dir = sky.getSunDirection();
         Vector3f pos = client.camera.getPos();
         sunLight.direction(dir);
-        sunLight.pos(pos.x + dir.x * -500f, pos.y + dir.y * -500f, pos.z + dir.z * -500f);
+        sunLight.pos(pos.x + dir.x * -1000f, pos.y + dir.y * -1000f, pos.z + dir.z * -1000f);
     }
 
     public int renderTerrain(Camera camera, MatrixStack matrices, float delta) {
@@ -526,7 +525,6 @@ public class WorldClient extends World {
                 f.setPos(0, 1.5f, 0);
                 addEntity(f);
             }
-            case GLFW_KEY_X -> addLight(new CookieLight().falloff(0f, 20f).castsShadows(false).pos(player.getEyePos()).direction(player.getLookDir()));
 
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
             //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));

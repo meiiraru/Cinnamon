@@ -4,35 +4,27 @@
 #type fragment
 #version 330 core
 
-//adapted for lens flare only
-struct Light {
-    vec3 pos, color, direction;
-    float falloffStart, falloffEnd, innerAngle, outerAngle;
-    int type; //1 = point, 2 = spot, 3 = directional, 4 = cookie
-
-    float flareIntensity, flareFalloff; 
-};
-
 in vec2 texCoords;
 out vec4 fragColor;
 
-uniform Light light;
+uniform vec3 color;
+uniform vec3 direction;
+uniform float intensity;
 
-uniform vec3 camPos;
 uniform mat4 view;
 uniform mat4 projection;
-uniform float aspectRatio; //screen aspect ratio
+uniform vec3 camPos;
+uniform float aspectRatio;
+uniform vec2 sampleRadius;
 
 //for occlusion testing
 uniform sampler2D gDepth;
-
-uniform bool hasFlares = true;
 
 //projects a 3D world point to 2D screen UVs [0, 1]
 vec3 projectToScreen(vec3 worldPos) {
     vec4 clipSpace = projection * view * vec4(worldPos, 1.0f);
     if (clipSpace.w <= 0.0f)
-        return vec3(-1.0f); // Behind camera, invalid
+        return vec3(-1.0f); //behind camera, invalid
 
     vec3 ndc = clipSpace.xyz / clipSpace.w; //perspective divide
     ndc = ndc * 0.5f + 0.5f; //transform from [-1, 1] to [0, 1]
@@ -49,66 +41,58 @@ float starburst(vec2 uv, float rays, float falloff) {
 }
 
 void main() {
-    vec3 finalFlare = vec3(0.0f);
+    vec3 lightWorldPos = camPos - direction * 1000.0f; //distant directional light
 
     //project a light 3D world position to 2D screen space
-    vec3 lightScreen = projectToScreen(light.pos);
+    vec3 lightScreen = projectToScreen(lightWorldPos);
     if (lightScreen.z < 0.0f || lightScreen.z > 1.0f)
         discard; //clipped by near/far plane
 
-    //occlusion test
+    //light pos occlusion test
+    float lightDepth = lightScreen.z;
+    float visibility = 0.0f;
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            vec2 offset = vec2(float(x), float(y)) * sampleRadius;
+            vec2 samplePos = lightScreen.xy + offset;
+            if (samplePos.x < 0.0f || samplePos.y < 0.0f || samplePos.x > 1.0f || samplePos.y > 1.0f)
+            continue; //skip samples outside the screen
+
+            if (texture(gDepth, samplePos).r >= lightDepth)
+            visibility += 1.0f;
+        }
+    }
+    visibility /= 9.0f;
+
+    //pixel occlusion test
     float pixelDepth = texture(gDepth, texCoords).r;
-    bool pixelOccluded = pixelDepth < lightScreen.z - 0.0001f;
+    bool pixelOccluded = pixelDepth < lightScreen.z;
+    //if pixel is not occluded, glare is fully visible
+    float glareVisibility = pixelOccluded ? visibility : 1.0f;
 
-    float sceneDepth = texture(gDepth, lightScreen.xy).r;
-    bool lightOccluded = lightScreen.x < 0.0f || lightScreen.x > 1.0f || lightScreen.y < 0.0f || lightScreen.y > 1.0f || sceneDepth < lightScreen.z - 0.0001f;
-
-    //directional fade for spotlights and cookies
-    float directionalFade = 1.0f;
-    if (light.type == 2 || light.type == 4) {
-        //get the direction from the light to the camera
-        vec3 lightToCamDir = normalize(camPos - light.pos);
-
-        //dot > 0 means camera is in front of the light
-        float alignment = dot(lightToCamDir, light.direction);
-
-        //soft fade out at the edges
-        directionalFade = smoothstep(0.0f, light.innerAngle, alignment);
-    }
-
-    //distance attenuation
-    float distanceAttenuation = 1.0f;
-    if (light.type != 3) {
-        float distToLight = distance(light.pos, camPos);
-        float falloffFade = smoothstep(light.falloffEnd, light.falloffStart, distToLight);
-        float cameraDistFade = 1.0f / (1.0f + distToLight * distToLight * 0.1f);
-        distanceAttenuation = falloffFade * cameraDistFade;
-    }
-
-    //base brightness
-    vec3 flareColor = light.color * light.flareIntensity * distanceAttenuation * directionalFade;
-
-    //if the flare is completely out, we can skip the rest of the expensive math
-    if (dot(flareColor, flareColor) < 0.0001f)
+    vec3 glareColor = color * glareVisibility * intensity;
+    //if the glare is completely out, we can skip all calculations
+    if (dot(glareColor, glareColor) < 0.0001f)
         discard;
 
-    //glare and starburst only if not occluded
-    if (!pixelOccluded) {
-        //vector from current pixel to the light screen position
-        vec2 uv = texCoords - lightScreen.xy;
-        uv.x *= aspectRatio;
+    vec3 finalFlare = vec3(0.0f);
 
-        //main glare - a soft glow right at the light position
-        float glare = max(0.0f, pow(max(0.0f, 1.0f - length(uv)), light.flareFalloff));
-        finalFlare += glare * flareColor * 2.0f;
+    //glare and starburst
+    //vector from current pixel to the light screen position
+    vec2 uv = texCoords - lightScreen.xy;
+    uv.x *= aspectRatio;
 
-        //starburst - anamorphic streaks
-        float stars = starburst(uv, 8.0f, light.flareFalloff);//8 rays, sharp falloff
-        finalFlare += stars * glare * flareColor;
-    }
+    //main glare - a soft glow right at the light position
+    float glare = max(0.0f, pow(max(0.0f, 1.0f - length(uv)), 15.0f));
+    finalFlare += glare * glareColor * 2.0f;
+
+    //starburst - anamorphic streaks
+    float stars = starburst(uv, 8.0f, 10.0f);//8 rays, sharp falloff
+    finalFlare += stars * glare * glareColor;
 
     //if the light is occluded, skip the rest
-    if (lightOccluded || !hasFlares) {
+    vec3 flareColor = color * visibility * intensity;
+    if (visibility < 0.01f || dot(flareColor, flareColor) < 0.0001f) {
         fragColor = vec4(finalFlare, 1.0f);
         return;
     }
@@ -139,11 +123,11 @@ void main() {
 
         //chromatic aberration - offset colors slightly
         vec3 ghostColor;
-        ghostColor.r = pow(max(0.0f, 0.05f - length(uvGhost - vec2(0.003f, 0.0f) * aspectRatio)), 1.0f) * light.color.r;
-        ghostColor.g = pow(max(0.0f, 0.05f - length(uvGhost)), 1.0f) * light.color.g;
-        ghostColor.b = pow(max(0.0f, 0.05f - length(uvGhost + vec2(0.003f, 0.0f) * aspectRatio)), 1.0f) * light.color.b;
+        ghostColor.r = pow(max(0.0f, 0.05f - length(uvGhost - vec2(0.003f, 0.0f) * aspectRatio)), 1.0f) * color.r;
+        ghostColor.g = pow(max(0.0f, 0.05f - length(uvGhost)), 1.0f) * color.g;
+        ghostColor.b = pow(max(0.0f, 0.05f - length(uvGhost + vec2(0.003f, 0.0f) * aspectRatio)), 1.0f) * color.b;
 
-        finalFlare += ghostColor * light.flareIntensity * 2.0f * distanceAttenuation;
+        finalFlare += ghostColor * 2.0f;
     }
 
     fragColor = vec4(finalFlare, 1.0f);

@@ -30,6 +30,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -129,14 +130,14 @@ public class WorldRenderer {
         if (renderSky)
             renderSky(world.getSky(), camera, matrices);
 
-        //render lens flare
-        if (renderLights)
-            renderLightsFlare(world.getLights(camera), camera, matrices);
-
         //apply bloom
         float bloom = Settings.bloomStrength.get();
         if (debugGBuffer < 0 && bloom > 0f)
             BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getEmissive(), 0.8f, bloom);
+
+        //render lens flare
+        if (renderLights)
+            renderLightsFlare(world.getLights(camera), camera, matrices);
 
         //bake output buffer to the target buffer
         bake();
@@ -182,14 +183,14 @@ public class WorldRenderer {
             if (renderOutlines) renderOutlines(world.getOutlines(camera), camera, matrices, delta);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
 
-            //lens flare
-            if (renderLights)
-                renderLightsFlare(world.getLights(camera), camera, matrices);
-
             //bloom
             float bloom = Settings.bloomStrength.get();
             if (debugGBuffer < 0 && bloom > 0f)
                 BloomRenderer.applyBloom(targetBuffer, PBRFrameBuffer.getEmissive(), 0.8f, bloom);
+
+            //lens flare
+            if (renderLights)
+                renderLightsFlare(world.getLights(camera), camera, matrices);
         });
     }
 
@@ -520,36 +521,67 @@ public class WorldRenderer {
         if (lights.isEmpty())
             return;
 
+        boolean lensFlare = Settings.lensFlare.get();
+        List<Light> directionalLights = new ArrayList<>();
+
         //prepare the flare buffer
         outputBuffer.use();
+        glDisable(GL_DEPTH_TEST);
         glBlendFunc(GL_ONE, GL_ONE);
 
         //set up the flare shader
-        Shader s = Shaders.LENS_FLARE.getShader().use();
+        Shader s = Shaders.LIGHT_GLARE.getShader().use();
         s.setup(camera);
-        s.setVec3("camPos", camera.getPosition());
-        s.setFloat("aspectRatio", (float) outputBuffer.getWidth() / outputBuffer.getHeight());
         s.setTexture("gDepth", PBRFrameBuffer.getDepthBuffer(), 0);
-        s.setBool("hasFlares", Settings.lensFlare.get());
+
+        float aspectRatio = (float) outputBuffer.getWidth() / outputBuffer.getHeight();
+        float texelX = 1f / outputBuffer.getWidth(), texelY = 1f / outputBuffer.getHeight();
+        s.setFloat("aspectRatio", aspectRatio);
+        s.setVec2("sampleRadius", texelX, texelY);
 
         //render the flares
         for (Light light : lights) {
-            if (!light.shouldRenderFlare(camera))
+            float intensity = light.getGlareIntensity();
+            if (intensity <= 0f)
                 continue;
 
-            light.pushToShader(s);
-            s.setFloat("light.flareIntensity", light.getFlareIntensity());
-            s.setFloat("light.flareFalloff", light.getFlareFalloff());
-            renderQuad();
+            if (lensFlare && light.getType() == 3)
+                directionalLights.add(light);
+
+            s.applyColor(light.getColor());
+            s.setFloat("intensity", intensity);
+            s.setVec3("lightPosition", light.getPos());
+            s.setTexture("textureSampler", Texture.of(light.getGlareTexture()), 1);
+
+            SimpleGeometry.QUAD.render();
+        }
+
+        //render lens flare for directional lights
+        if (!directionalLights.isEmpty()) {
+            Shader lensShader = Shaders.LENS_FLARE.getShader().use();
+            lensShader.setup(camera);
+            lensShader.setVec3("camPos", camera.getPosition());
+            lensShader.setFloat("aspectRatio", aspectRatio);
+            lensShader.setVec2("sampleRadius", texelX, texelY);
+            lensShader.setTexture("gDepth", PBRFrameBuffer.getDepthBuffer(), 0);
+
+            for (Light light : directionalLights) {
+                lensShader.applyColor(light.getColor());
+                lensShader.setVec3("direction", light.getDirection());
+                lensShader.setFloat("intensity", light.getGlareIntensity());
+                SimpleGeometry.QUAD.render();
+            }
         }
 
         //reset state
+        glEnable(GL_DEPTH_TEST);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        Texture.unbindTex(0);
+        Texture.unbindAll(2);
     }
 
 
     // -- sky -- //
+
 
     public static void setSkyUniforms(Shader shader, Camera camera, Sky sky) {
         //camera

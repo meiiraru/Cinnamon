@@ -19,7 +19,8 @@ public abstract class Light {
 
     public static final Resource
         LAMP = new Resource("textures/environment/light/lamp.png"),
-        LAMP_OVERLAY = new Resource("textures/environment/light/lamp_overlay.png");
+        LAMP_OVERLAY = new Resource("textures/environment/light/lamp_overlay.png"),
+        GLARE = new Resource("textures/environment/light/glare.png");
 
     protected final Vector3f
             pos = new Vector3f(),
@@ -35,8 +36,8 @@ public abstract class Light {
     protected final Mask shadowMask = new Mask(0b1, 0b10);
     protected UUID source;
 
-    private float flareIntensity = 1f;
-    private float flareFalloff = 15f;
+    private Resource glareTexture = GLARE;
+    private float glareIntensity = 1f;
 
     public void pushToShader(Shader shader) {
         pushToShader(shader, -1);
@@ -194,26 +195,21 @@ public abstract class Light {
         return this;
     }
 
-    public boolean shouldRenderFlare(Camera camera) {
-        //check if camera dir is facing the light
-        return flareIntensity > 0f && camera.getForwards().dot(dir) < -0.5f;
+    public Resource getGlareTexture() {
+        return glareTexture;
     }
 
-    public float getFlareIntensity() {
-        return flareIntensity;
-    }
-
-    public Light flareIntensity(float flareIntensity) {
-        this.flareIntensity = flareIntensity;
+    public Light glareTexture(Resource glareTexture) {
+        this.glareTexture = glareTexture;
         return this;
     }
 
-    public float getFlareFalloff() {
-        return flareFalloff;
+    public float getGlareIntensity() {
+        return glareIntensity;
     }
 
-    public Light flareFalloff(float flareFalloff) {
-        this.flareFalloff = flareFalloff;
+    public Light glareIntensity(float glareIntensity) {
+        this.glareIntensity = glareIntensity;
         return this;
     }
 }
