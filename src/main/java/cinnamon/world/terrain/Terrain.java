@@ -2,6 +2,7 @@ package cinnamon.world.terrain;
 
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
+import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
@@ -43,15 +44,14 @@ public class Terrain extends WorldObject {
         matrices.translate(pos.x + 0.5f, pos.y, pos.z + 0.5f);
         matrices.rotate(Rotation.Y.rotationDeg(getRotationAngle()));
 
-        renderModel(matrices, delta);
+        if (model != null)
+            renderModel(overrideMaterial.material, matrices, delta);
 
         matrices.popMatrix();
     }
 
-    protected void renderModel(MatrixStack matrices, float delta) {
-        //render model
-        if (model != null)
-            model.render(matrices, overrideMaterial.material);
+    protected void renderModel(Material material, MatrixStack matrices, float delta) {
+        model.render(matrices, material);
     }
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {

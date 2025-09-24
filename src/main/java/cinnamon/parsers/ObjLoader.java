@@ -68,9 +68,6 @@ public class ObjLoader {
                         currentGroup = new Group(sb.toString().trim());
                     }
 
-                    //smooth shading
-                    case "s" -> currentGroup.setSmooth(!split[1].contains("off"));
-
                     //group material
                     case "usemtl" -> {
                         //add current group

@@ -69,7 +69,7 @@ public abstract class ModelRenderer {
     public List<AABB> getPreciseAABB() {
         List<AABB> list = new ArrayList<>();
         for (MeshData mesh : meshes.values())
-            list.add(new AABB(mesh.getAabb()));
+            list.add(new AABB(mesh.getAABB()));
         return list;
     }
 }

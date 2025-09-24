@@ -273,6 +273,38 @@ public class GeometryHelper {
     // * 3D shapes * //
 
 
+    public static Vertex[][] plane(MatrixStack matrices, float x0, float y, float z0, float x1, float z1, int cellsX, int cellsZ, int color) {
+        //invalid cells
+        if (cellsX <= 0 || cellsZ <= 0)
+            return new Vertex[0][];
+
+        //prepare cell sizes
+        Vertex[][] quads = new Vertex[cellsX * cellsZ][4];
+        float width = x1 - x0;
+        float depth = z1 - z0;
+        float cellWidth = width / cellsX;
+        float cellDepth = depth / cellsZ;
+
+        //generate quads
+        int index = 0;
+        for (int i = 0; i < cellsX; i++) {
+            for (int j = 0; j < cellsZ; j++) {
+                //cell origin
+                float currentX = x0 + i * cellWidth;
+                float currentZ = z0 + j * cellDepth;
+
+                //quad
+                Vertex v0 = Vertex.of(currentX, y, currentZ).normal(0, 1, 0).color(color).mul(matrices);
+                Vertex v1 = Vertex.of(currentX, y, currentZ + cellDepth).normal(0, 1, 0).color(color).mul(matrices);
+                Vertex v2 = Vertex.of(currentX + cellWidth, y, currentZ + cellDepth).normal(0, 1, 0).color(color).mul(matrices);
+                Vertex v3 = Vertex.of(currentX + cellWidth, y, currentZ).normal(0, 1, 0).color(color).mul(matrices);
+                quads[index++] = new Vertex[]{v0, v1, v2, v3};
+            }
+        }
+
+        return quads;
+    }
+
     public static Vertex[][] line(MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, float width, int color) {
         //grab direction
         Vector3f diff = new Vector3f(x1 - x0, y1 - y0, z1 - z0);
@@ -293,15 +325,6 @@ public class GeometryHelper {
         //return
         matrices.popMatrix();
         return line;
-    }
-
-    public static Vertex[] plane(MatrixStack matrices, float x0, float y, float z0, float x1, float z1, int color) {
-        return new Vertex[]{
-                Vertex.of(x0, y, z0).normal(0, 1, 0).color(color).mul(matrices),
-                Vertex.of(x0, y, z1).normal(0, 1, 0).color(color).mul(matrices),
-                Vertex.of(x1, y, z1).normal(0, 1, 0).color(color).mul(matrices),
-                Vertex.of(x1, y, z0).normal(0, 1, 0).color(color).mul(matrices),
-        };
     }
 
     public static Vertex[][] cube(MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, int color) {

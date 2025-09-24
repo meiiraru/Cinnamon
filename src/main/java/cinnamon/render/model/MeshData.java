@@ -77,7 +77,7 @@ public final class MeshData {
         glDeleteBuffers(vbo);
     }
 
-    public AABB getAabb() {
+    public AABB getAABB() {
         return aabb;
     }
 

@@ -11,7 +11,6 @@ public class Group {
     private final List<Face> faces = new ArrayList<>();
 
     private Material material;
-    private boolean smooth;
 
     public Group(String name) {
         this.name = name;
@@ -35,13 +34,5 @@ public class Group {
 
     public void setMaterial(Material material) {
         this.material = material;
-    }
-
-    public boolean isSmooth() {
-        return smooth;
-    }
-
-    public void setSmooth(boolean smooth) {
-        this.smooth = smooth;
     }
 }

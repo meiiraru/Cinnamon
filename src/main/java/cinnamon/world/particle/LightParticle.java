@@ -22,7 +22,7 @@ public class LightParticle extends SpriteParticle {
     public void tick() {
         super.tick();
         float x = getAge() * 0.001f + seed;
-        this.move(Maths.rotToDir(NOISE.noise(x) * 360, NOISE.noise(x + 42) * 360).mul(0.01f * speed));
+        this.move(Maths.rotToDir(NOISE.sample(x, 0) * 360, NOISE.sample(0, x + 42) * 360).mul(0.01f * speed));
     }
 
     public void setSpeed(float speed) {
