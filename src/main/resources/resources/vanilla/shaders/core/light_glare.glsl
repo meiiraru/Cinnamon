@@ -16,7 +16,7 @@ uniform float aspectRatio;
 void main() {
     vec4 centerClipPos = projection * view * vec4(lightPosition, 1.0f);
 
-    vec2 offset = aPosition * glareSize;
+    vec2 offset = aPosition * (glareSize / centerClipPos.w);
     offset.x /= aspectRatio;
 
     gl_Position = centerClipPos + vec4(offset * centerClipPos.w, 0.0f, 0.0f);

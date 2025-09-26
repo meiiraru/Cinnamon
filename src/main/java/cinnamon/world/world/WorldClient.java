@@ -52,6 +52,7 @@ import cinnamon.world.items.weapons.RiceGun;
 import cinnamon.world.items.weapons.Weapon;
 import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
+import cinnamon.world.light.PointLight;
 import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.terrain.Terrain;
@@ -79,7 +80,7 @@ public class WorldClient extends World {
 
     //lights
     protected final List<Light> lights = new ArrayList<>();
-    protected final Light sunLight = new DirectionalLight().pos(0.5f, 5f, 0.5f).intensity(1f).castsShadows(true);
+    protected final Light sunLight = new DirectionalLight().pos(0.5f, 5f, 0.5f).intensity(1f).castsShadows(true).glareSize(1000f);
 
     //skybox
     protected final Sky sky = new Sky();
@@ -139,7 +140,7 @@ public class WorldClient extends World {
         //for (int i = 0; i < 5; i++)
         //    addLight(new PointLight().pos(-5.5f + i * 3f, 3f, 2.5f).color(Colors.randomRainbow().rgb));
 
-        //addLight(new PointLight().pos(0.5f, 3.5f, 0.5f).color(0xFFFF44).castsShadows(true));
+        addLight(new PointLight().pos(0.5f, 3.5f, 0.5f).color(0xFFFF44).castsShadows(true));
 
         addLight(new Spotlight().angle(60f).pos(1f, 3f, 10.0f).color(0xFF0000));
         addLight(new Spotlight().angle(60f).pos(0.25f, 3f, 9.567f).color(0x00FF00));
@@ -227,8 +228,8 @@ public class WorldClient extends World {
         float intensity = (dayTime < 1000) ? (dayTime - 100) / 900f //sunrise
                 : (dayTime > 11000) ? 1f - (dayTime - 11000) / 900f //sunset
                 : 1f; //day
-        sunLight.intensity(intensity);
-        sunLight.color(ColorUtils.lerpRGBColor(0xFF4400, 0xFFDD88, intensity));
+        sunLight.intensity(Math.min(intensity * 5f, 1f));
+        sunLight.color(ColorUtils.lerpRGBColor(0xFF4400, 0xFFFFFF, intensity));
 
         Vector3f dir = sky.getSunDirection();
         Vector3f pos = client.camera.getPos();

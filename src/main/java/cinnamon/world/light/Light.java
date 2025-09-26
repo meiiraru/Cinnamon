@@ -38,6 +38,7 @@ public abstract class Light {
 
     private Resource glareTexture = GLARE;
     private float glareIntensity = 1f;
+    private float glareSize = 5f;
 
     public void pushToShader(Shader shader) {
         pushToShader(shader, -1);
@@ -210,6 +211,15 @@ public abstract class Light {
 
     public Light glareIntensity(float glareIntensity) {
         this.glareIntensity = glareIntensity;
+        return this;
+    }
+
+    public float getGlareSize() {
+        return glareSize;
+    }
+
+    public Light glareSize(float glareSize) {
+        this.glareSize = glareSize;
         return this;
     }
 }

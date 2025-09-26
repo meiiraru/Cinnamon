@@ -213,7 +213,7 @@ void main() {
         }
     }
 
-    //color
+    //color and normal
     vec3 albedo = texture(gAlbedo, texCoords).rgb;
     vec3 N = texture(gNormal, texCoords).rgb;
 
@@ -227,7 +227,7 @@ void main() {
     } else {
         L = light.pos - pos;
         float distance = length(L);
-        L = normalize(L);
+        L /= distance;
 
         //calculate distance-based attenuation
         float distanceAttenuation = smoothstep(light.falloffEnd, light.falloffStart, distance);
@@ -244,14 +244,20 @@ void main() {
         }
 
         attenuation = distanceAttenuation * spotEffect;
+        if (attenuation <= 0.00001f)
+            discard;
     }
 
     //final radiance
     vec3 radiance = light.color * light.intensity * attenuation;
 
     //cookie
-    if (light.type == 4)
-        radiance *= getCookieColor(lightCoords);
+    if (light.type == 4) {
+        vec3 cookieColor = getCookieColor(lightCoords);
+        if (cookieColor.r + cookieColor.g + cookieColor.b < 0.00005f)
+            discard;
+        radiance *= cookieColor;
+    }
 
     //shadow
     if (light.castsShadows) {
@@ -271,10 +277,7 @@ void main() {
     if (dot(radiance, radiance) < 0.00001f)
         discard;
 
-    //reflectance
-    vec3 Lo = vec3(0.0f);
-
-    //H = half vector
+    //BRDF evaluation
     vec3 V = normalize(camPos - pos);
     vec3 H = normalize(V + L);
 
@@ -283,9 +286,7 @@ void main() {
     float roughness = gORM.g;
     float metallic  = gORM.b;
 
-    //F0
-    vec3 F0 = vec3(0.04f);
-    F0 = mix(F0, albedo, metallic);
+    vec3 F0 = mix(vec3(0.04f), albedo, metallic);
 
     //cook torrance BRDF
     float NdotV = max(dot(N, V), 0.0f);
@@ -300,8 +301,7 @@ void main() {
     vec3 kD = (vec3(1.0f) - kS) * (1.0f - metallic);
     vec3 specular = (D * F * G) / (4.0f * NdotV * NdotL + 0.0001f);
 
-    //calculate radiance and add to Lo
-    Lo += (kD * albedo / PI + specular) * radiance * NdotL;
-
+    //radiance
+    vec3 Lo = (kD * albedo / PI + specular) * radiance * NdotL;
     fragColor = vec4(Lo, 1.0f);
 }

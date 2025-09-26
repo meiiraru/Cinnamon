@@ -551,6 +551,7 @@ public class WorldRenderer {
             s.applyColor(light.getColor());
             s.setFloat("intensity", intensity);
             s.setVec3("lightPosition", light.getPos());
+            s.setFloat("glareSize", light.getGlareSize());
             s.setTexture("textureSampler", Texture.of(light.getGlareTexture()), 1);
 
             SimpleGeometry.QUAD.render();

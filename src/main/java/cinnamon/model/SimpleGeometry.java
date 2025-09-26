@@ -166,8 +166,8 @@ public class SimpleGeometry {
     }
 
     private static SimpleGeometry sphere() {
-        int xSegments = 64;
-        int ySegments = 64;
+        int xSegments = 24;
+        int ySegments = 24;
         int vertexCount = (xSegments + 1) * (ySegments + 1);
         Vertex[] vertices = new Vertex[vertexCount];
 

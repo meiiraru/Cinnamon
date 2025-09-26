@@ -25,6 +25,11 @@ public class Flashlight extends Item {
                 direction(dir);
                 float f = 0.25f;
                 pos(pos.x + dir.x * f, pos.y + dir.y * f, pos.z + dir.z * f);
+
+                boolean fp = entity == Client.getInstance().camera.getEntity() && ((WorldClient) entity.getWorld()).getCameraMode() == 0;
+                boolean noHud = ((WorldClient) entity.getWorld()).hudHidden();
+                glareSize(fp ? 1f : 5f);
+                glareIntensity(fp && noHud ? 0f : 1f);
             }
             super.calculateLightSpaceMatrix();
         }
