@@ -1,6 +1,5 @@
 package cinnamon.world.particle;
 
-import cinnamon.Client;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.Camera;
@@ -42,14 +41,16 @@ public abstract class Particle extends WorldObject {
     }
 
     @Override
-    public void render(MatrixStack matrices, float delta) {
+    public void render(Camera camera, MatrixStack matrices, float delta) {
+        super.render(camera, matrices, delta);
+
         matrices.pushMatrix();
 
         //apply pos
         matrices.translate(Maths.lerp(oPos, pos, delta));
 
         //apply billboard
-        Client.getInstance().camera.billboard(matrices);
+        camera.billboard(matrices);
 
         //actual render
         matrices.pushMatrix();

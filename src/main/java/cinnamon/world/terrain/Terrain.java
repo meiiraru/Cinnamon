@@ -38,20 +38,22 @@ public class Terrain extends WorldObject {
     }
 
     @Override
-    public void render(MatrixStack matrices, float delta) {
+    public void render(Camera camera, MatrixStack matrices, float delta) {
+        super.render(camera, matrices, delta);
+
         matrices.pushMatrix();
 
         matrices.translate(pos.x + 0.5f, pos.y, pos.z + 0.5f);
         matrices.rotate(Rotation.Y.rotationDeg(getRotationAngle()));
 
-        if (model != null)
-            renderModel(overrideMaterial.material, matrices, delta);
+        renderModel(camera, overrideMaterial.material, matrices, delta);
 
         matrices.popMatrix();
     }
 
-    protected void renderModel(Material material, MatrixStack matrices, float delta) {
-        model.render(matrices, material);
+    protected void renderModel(Camera camera, Material material, MatrixStack matrices, float delta) {
+        if (model != null)
+            model.render(matrices, material);
     }
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {

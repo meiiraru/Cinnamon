@@ -1,6 +1,6 @@
 package cinnamon.world.particle;
 
-import cinnamon.render.MatrixStack;
+import cinnamon.render.Camera;
 import cinnamon.utils.ColorUtils;
 
 public class FireworkParticle extends StarParticle {
@@ -38,9 +38,8 @@ public class FireworkParticle extends StarParticle {
     }
 
     @Override
-    public void render(MatrixStack matrices, float delta) {
-        if (!twinkle || age < lifetime / 3 || (age + lifetime) / 3 % 2 == 0)
-            super.render(matrices, delta);
+    public boolean shouldRender(Camera camera) {
+        return (!twinkle || age < lifetime / 3 || (age + lifetime) / 3 % 2 == 0) && super.shouldRender(camera);
     }
 
     @Override

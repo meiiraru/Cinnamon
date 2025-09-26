@@ -2,6 +2,7 @@ package cinnamon.world.entity.vehicle;
 
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Maths;
@@ -51,8 +52,8 @@ public class Cart extends Car {
     }
 
     @Override
-    public void render(MatrixStack matrices, float delta) {
-        super.render(matrices, delta);
+    public void render(Camera camera, MatrixStack matrices, float delta) {
+        super.render(camera, matrices, delta);
 
         if (!riders.isEmpty())
             updateLights(delta);

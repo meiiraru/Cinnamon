@@ -37,7 +37,7 @@ public class ArrayChunk extends Chunk {
             for (Terrain[] ty : tx) {
                 for (Terrain t : ty) {
                     if (t != null && t.shouldRender(camera)) {
-                        t.render(matrices, delta);
+                        t.render(camera, matrices, delta);
                         i++;
                     }
                 }

@@ -70,8 +70,8 @@ public abstract class Entity extends WorldObject {
     }
 
     @Override
-    public void render(MatrixStack matrices, float delta) {
-        super.render(matrices, delta);
+    public void render(Camera camera, MatrixStack matrices, float delta) {
+        super.render(camera, matrices, delta);
 
         if (isVisible()) {
             //apply model pose
@@ -80,7 +80,7 @@ public abstract class Entity extends WorldObject {
             applyModelPose(matrices, delta);
 
             //render model
-            renderModel(matrices, delta);
+            renderModel(camera, matrices, delta);
             matrices.popMatrix();
         }
 
@@ -89,8 +89,9 @@ public abstract class Entity extends WorldObject {
             renderFeature.render(this, matrices, delta);
     }
 
-    protected void renderModel(MatrixStack matrices, float delta) {
-        model.render(matrices);
+    protected void renderModel(Camera camera, MatrixStack matrices, float delta) {
+        if (model != null)
+            model.render(matrices);
     }
 
     public Animation getAnimation(String name) {

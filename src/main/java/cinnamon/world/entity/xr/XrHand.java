@@ -60,10 +60,10 @@ public class XrHand extends PhysEntity {
     }
 
     @Override
-    public void render(MatrixStack matrices, float delta) {
+    public void render(Camera camera, MatrixStack matrices, float delta) {
         //update the hand position on every frame!
         tickPhysics();
-        super.render(matrices, delta);
+        super.render(camera, matrices, delta);
     }
 
     @Override
@@ -77,11 +77,6 @@ public class XrHand extends PhysEntity {
             targetEntity = grabbable;
             XrInput.vibrate(hand);
         }
-    }
-
-    @Override
-    protected void renderModel(MatrixStack matrices, float delta) {
-        //nothing to render
     }
 
     @Override

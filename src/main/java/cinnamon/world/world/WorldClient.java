@@ -22,6 +22,7 @@ import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.text.Text;
 import cinnamon.utils.AABB;
+import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
 import cinnamon.vr.XrManager;
@@ -227,6 +228,7 @@ public class WorldClient extends World {
                 : (dayTime > 11000) ? 1f - (dayTime - 11000) / 900f //sunset
                 : 1f; //day
         sunLight.intensity(intensity);
+        sunLight.color(ColorUtils.lerpRGBColor(0xFF4400, 0xFFDD88, intensity));
 
         Vector3f dir = sky.getSunDirection();
         Vector3f pos = client.camera.getPos();
@@ -239,7 +241,7 @@ public class WorldClient extends World {
         List<Terrain> query = terrainManager.queryCustom(camera::isInsideFrustum);
         for (Terrain terrain : query) {
             if (terrain.shouldRender(camera)) {
-                terrain.render(matrices, delta);
+                terrain.render(camera, matrices, delta);
                 count++;
             }
         }
@@ -250,7 +252,7 @@ public class WorldClient extends World {
         int count = 0;
         for (Entity entity : entities.values()) {
             if (entity.shouldRender(camera)) {
-                entity.render(matrices, delta);
+                entity.render(camera, matrices, delta);
                 count++;
             }
         }
@@ -261,7 +263,7 @@ public class WorldClient extends World {
         int count = 0;
         for (Particle particle : particles) {
             if (particle.shouldRender(camera)) {
-                particle.render(matrices, delta);
+                particle.render(camera, matrices, delta);
                 count++;
             }
         }

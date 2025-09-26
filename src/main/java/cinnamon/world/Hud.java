@@ -311,7 +311,7 @@ public class Hud {
         matrices.translate(-center.x, -center.y, -center.z);
 
         //render terrain
-        terr.render(matrices, delta);
+        terr.render(c.camera, matrices, delta);
         matrices.popMatrix();
 
         //render name

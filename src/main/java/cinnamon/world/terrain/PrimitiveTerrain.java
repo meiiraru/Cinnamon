@@ -3,6 +3,7 @@ package cinnamon.world.terrain;
 import cinnamon.model.Vertex;
 import cinnamon.model.VertexHelper;
 import cinnamon.registry.TerrainRegistry;
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.world.entity.Entity;
@@ -31,7 +32,7 @@ public class PrimitiveTerrain extends Terrain {
     }
 
     @Override
-    public void render(MatrixStack matrices, float delta) {
+    public void render(Camera camera, MatrixStack matrices, float delta) {
         VertexConsumer.WORLD_MAIN.consume(vertices);
     }
 

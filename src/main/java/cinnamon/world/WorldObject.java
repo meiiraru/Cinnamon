@@ -14,7 +14,7 @@ public abstract class WorldObject {
 
     public void tick() {}
 
-    public void render(MatrixStack matrices, float delta) {}
+    public void render(Camera camera, MatrixStack matrices, float delta) {}
 
     public void onAdded(World world) {
         this.world = world;

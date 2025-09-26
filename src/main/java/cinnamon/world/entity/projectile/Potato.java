@@ -3,6 +3,7 @@ package cinnamon.world.entity.projectile;
 import cinnamon.events.Await;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.shader.Shader;
@@ -70,7 +71,7 @@ public class Potato extends Projectile {
     }
 
     @Override
-    protected void renderModel(MatrixStack matrices, float delta) {
+    protected void renderModel(Camera camera, MatrixStack matrices, float delta) {
         //scale
         float t = (easing + delta) > 10 ? 1f : Maths.Easing.OUT_ELASTIC.get((easing + delta) / 10);
         matrices.pushMatrix();
@@ -83,7 +84,7 @@ public class Potato extends Projectile {
         }
 
         //render
-        super.renderModel(matrices, delta);
+        super.renderModel(camera, matrices, delta);
 
         //reset
         matrices.popMatrix();

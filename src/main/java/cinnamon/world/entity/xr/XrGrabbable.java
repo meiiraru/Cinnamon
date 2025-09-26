@@ -29,10 +29,10 @@ public abstract class XrGrabbable extends PhysEntity {
     }
 
     @Override
-    public void render(MatrixStack matrices, float delta) {
+    public void render(Camera camera, MatrixStack matrices, float delta) {
         //update the hand position on every frame!
         moveToHand();
-        super.render(matrices, delta);
+        super.render(camera, matrices, delta);
     }
 
     @Override

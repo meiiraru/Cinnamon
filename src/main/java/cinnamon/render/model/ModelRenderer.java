@@ -32,19 +32,17 @@ public abstract class ModelRenderer {
 
     public void render(MatrixStack matrices, Material material) {
         Shader.activeShader.applyMatrixStack(matrices);
-        for (String mesh : meshes.keySet())
+        for (MeshData mesh : meshes.values())
             renderMesh(mesh, material);
     }
 
     public void renderWithoutMaterial(MatrixStack matrices) {
         Shader.activeShader.applyMatrixStack(matrices);
-        for (String mesh : meshes.keySet())
+        for (MeshData mesh : meshes.values())
             renderMeshWithoutMaterial(mesh);
     }
 
-    protected void renderMesh(String name, Material material) {
-        MeshData mesh = meshes.get(name);
-
+    protected void renderMesh(MeshData mesh, Material material) {
         //bind material
         Material mat = material == null ? mesh.getMaterial() : material;
         int texCount;
@@ -58,8 +56,8 @@ public abstract class ModelRenderer {
         Texture.unbindAll(texCount);
     }
 
-    protected void renderMeshWithoutMaterial(String name) {
-        meshes.get(name).render();
+    protected void renderMeshWithoutMaterial(MeshData mesh) {
+        mesh.render();
     }
 
     public AABB getAABB() {

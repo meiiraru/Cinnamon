@@ -32,6 +32,28 @@ public class ModelManager {
         return cacheModel(resource, bakeModel(resource));
     }
 
+    public static ModelRenderer load(Resource resource, Mesh mesh) {
+        if (resource == null || mesh == null)
+            return null;
+
+        ModelRenderer model = getCache(resource);
+        if (model != null)
+            return model;
+
+        //bake and cache
+        try {
+            model = new ObjRenderer(mesh);
+        } catch (Exception e) {
+            LOGGER.error("Failed to load model \"%s\"", resource, e);
+            return null;
+        }
+        return cacheModel(resource, model);
+    }
+
+    public static boolean hasModel(Resource resource) {
+        return getCache(resource) != null;
+    }
+
     private static ModelRenderer getCache(Resource resource) {
         return resource == null ? null : MODEL_MAP.get(resource);
     }

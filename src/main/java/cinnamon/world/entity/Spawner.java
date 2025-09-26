@@ -5,6 +5,7 @@ import cinnamon.gui.DebugScreen;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.registry.EntityRegistry;
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Rotation;
@@ -53,11 +54,6 @@ public class Spawner<E extends Entity> extends Entity {
             entity.setRot(getRot());
             getWorld().addEntity(entity);
         }
-    }
-
-    @Override
-    protected void renderModel(MatrixStack matrices, float delta) {
-        //no model to render
     }
 
     public void renderCountdowns(MatrixStack matrices, float delta) {
