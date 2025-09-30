@@ -70,20 +70,20 @@ dependencies {
     val lwjglNatives = "natives-$os"
     api(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
     lwjglModules.forEach {
-        api("org.lwjgl", it)
-        runtimeOnly("org.lwjgl", it, classifier = lwjglNatives)
+        api("org.lwjgl:$it")
+        runtimeOnly("org.lwjgl:$it::$lwjglNatives")
     }
     //api only
     lwjglApiOnly.forEach {
-        api("org.lwjgl", it)
+        api("org.lwjgl:$it")
     }
 
     //extra libraries
-    api("org.joml", "joml", jomlVersion) {
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-jdk8")
+    api("org.joml:joml:$jomlVersion") {
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
     }
-    api("com.google.code.gson", "gson", gsonVersion)
-    api("com.github.wendykierp", "JTransforms", jTransformsVersion)
+    api("com.google.code.gson:gson:$gsonVersion")
+    api("com.github.wendykierp:JTransforms:$jTransformsVersion")
 }
 
 tasks.register<Jar>("sourcesJar") {
@@ -127,12 +127,13 @@ publishing {
     }
 }
 
-tasks.register("updateVersionFile") {
+tasks.register<DefaultTask>("updateVersionFile") {
+    val projectVersion = project.provider { project.version.toString() }
     val versionFile = file("src/main/resources/resources/vanilla/version")
     outputs.file(versionFile)
 
     doLast {
-        versionFile.writeText(project.version.toString())
+        versionFile.writeText(projectVersion.get())
     }
 }
 
