@@ -12,10 +12,12 @@ public enum ArgsOptions {
     LOGGER_LEVEL("INFO", "-l", "--logger-level"),
     LOGGER_PATTERN("[%1$tT] [%2$s/%3$s] (%4$s) %5$s", "--logger-pattern"),
 
+    //graphics
+    EXPERIMENTAL_OPENGL_ES(null, "--experimental-opengl-es"),
+    FORCE_DISABLE_XR(null, "--force-disable-xr"),
+
     //other
     PLAYERNAME("Player%03d".formatted((int) (Math.random() * 456) + 1), "--player-name"),
-    FORCE_DISABLE_XR(null, "--force-disable-xr"),
-    EXPERIMENTAL_OPENGL_ES(null, "--experimental-opengl-es"),
     RENDER_DOC("", "--render-doc");
 
     private final String[] aliases;

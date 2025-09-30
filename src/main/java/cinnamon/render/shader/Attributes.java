@@ -60,7 +60,6 @@ public enum Attributes {
         b.put(normal.y);
         b.put(normal.z);
     }),
-    INDEX(1, (v, b) -> b.put(v.getIndex()), true),
     TANGENTS(3, (v, b) -> {
         Vector3f tangent = v.getTangent();
         b.put(tangent.x);

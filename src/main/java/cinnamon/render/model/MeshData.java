@@ -4,39 +4,46 @@ import cinnamon.model.Vertex;
 import cinnamon.model.material.Material;
 import cinnamon.render.shader.Attributes;
 import cinnamon.utils.AABB;
-import cinnamon.utils.Pair;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
-import java.util.List;
+import java.util.Collection;
 
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+import static org.lwjgl.opengl.GL30.*;
 
-public final class MeshData {
-    private final int vao, vbo, vertexCount;
+public class MeshData {
+
+    public static final Attributes[] DEFAULT_ATTRIBUTES = {Attributes.POS, Attributes.UV_FLIP, Attributes.NORMAL, Attributes.TANGENTS};
+
+    protected final int vao, vbo, ebo, indicesCount;
+    protected int attributeCount;
     private final Material material;
     private final AABB aabb = new AABB();
 
-    public MeshData(AABB aabb, List<Vertex> vertices, Material material) {
-        this.vertexCount = vertices.size();
+    public MeshData(AABB aabb, Collection<Vertex> vertices, int[] indices, Material material) {
+        this.indicesCount = indices.length;
         this.material = material;
         this.aabb.set(aabb);
-        Pair<Integer, Integer> buffers = generateBuffers(vertices, Attributes.POS, Attributes.UV_FLIP, Attributes.NORMAL, Attributes.TANGENTS);
-        this.vao = buffers.first();
-        this.vbo = buffers.second();
-    }
-    private static Pair<Integer, Integer> generateBuffers(List<Vertex> vertices, Attributes... flags) {
-        int vertexSize = Attributes.getVertexSize(flags);
-        int capacity = vertices.size() * vertexSize;
 
         //vao
-        int vao = glGenVertexArrays();
+        this.vao = glGenVertexArrays();
         glBindVertexArray(vao);
+
+        //vbo
+        this.attributeCount = DEFAULT_ATTRIBUTES.length;
+        this.vbo = generateVertexBuffer(vertices, DEFAULT_ATTRIBUTES);
+
+        //ebo
+        this.ebo = generateIndices(indices);
+
+        glBindVertexArray(0);
+    }
+
+    protected static int generateVertexBuffer(Collection<Vertex> vertices, Attributes... flags) {
+        int vertexSize = Attributes.getVertexSize(flags);
+        int capacity = vertices.size() * vertexSize;
 
         //vbo
         int vbo = glGenBuffers();
@@ -61,20 +68,26 @@ public final class MeshData {
         buffer.rewind();
         glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
 
-        return new Pair<>(vao, vbo);
+        return vbo;
+    }
+
+    protected static int generateIndices(int[] indices) {
+        int ebo = glGenBuffers();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
+        return ebo;
     }
 
     public void render() {
-        //bind vao
         glBindVertexArray(vao);
-
-        //draw
-        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+        glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
     }
 
     public void free() {
-        glDeleteBuffers(vao);
+        glDeleteVertexArrays(vao);
         glDeleteBuffers(vbo);
+        glDeleteBuffers(ebo);
     }
 
     public AABB getAABB() {

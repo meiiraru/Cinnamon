@@ -1,9 +1,11 @@
 package cinnamon.render.model;
 
 import cinnamon.model.Vertex;
+import cinnamon.model.VertexHelper;
 import cinnamon.model.assimp.Mesh;
 import cinnamon.model.assimp.Model;
 import cinnamon.model.material.Material;
+import cinnamon.utils.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -24,7 +26,10 @@ public class AssimpRenderer extends ModelRenderer {
     public AssimpRenderer(Model model) {
         super(new HashMap<>(model.meshes.size(), 1f));
         this.model = model;
+        bakeModel();
+    }
 
+    protected void bakeModel() {
         if (!model.meshes.isEmpty())
             this.aabb.set(model.meshes.getFirst().aabb);
 
@@ -48,9 +53,12 @@ public class AssimpRenderer extends ModelRenderer {
                 vertices.add(Vertex.of(v).uv(u).normal(n).tangent(t));
             }
 
+            //strip the unique indices from the vertex list
+            Pair<int[], List<Vertex>> newIndices = VertexHelper.stripIndices(vertices);
+
             //create a new mesh data with the OpenGL attributes
             Material material = model.materials.get(mesh.materialIndex);
-            MeshData data = new MeshData(mesh.aabb, vertices, material);
+            MeshData data = generateMesh(mesh.aabb, newIndices.second(), newIndices.first(), material);
 
             String name = mesh.name;
             String newName = name;

@@ -54,6 +54,7 @@ public class Client {
 
     public int postProcess = -1;
     public boolean anaglyph3D = false;
+    public boolean hideHUD;
 
     //events
     public Events events = new Events();
@@ -161,7 +162,7 @@ public class Client {
         if (world != null) {
             world.render(matrices, delta);
 
-            if (!world.hudHidden()) {
+            if (!hideHUD) {
                 //render first-person hand
                 if (!world.isThirdPerson()) {
                     if (!xr) glClear(GL_DEPTH_BUFFER_BIT); //top of world
@@ -195,7 +196,7 @@ public class Client {
             screen.render(matrices, window.mouseX, window.mouseY, delta);
 
         //render toasts
-        if (world == null || !world.hudHidden())
+        if (world == null || !hideHUD)
             Toast.renderToasts(matrices, window.getGUIWidth(), window.getGUIHeight(), delta);
 
         //finish hud
@@ -248,6 +249,8 @@ public class Client {
     public void disconnect() {
         //ClientConnection.disconnect();
         queueTick(() -> {
+            if (this.world != null)
+                this.world.close();
             this.world = null;
             this.camera.setEntity(null);
             this.camera.reset();
@@ -289,6 +292,7 @@ public class Client {
 
         if (action == GLFW_PRESS) {
             switch (key) {
+                case GLFW_KEY_F1 -> hideHUD = !hideHUD;
                 case GLFW_KEY_F2 -> {
                     TextureIO.screenshot(window.width, window.height);
                     Toast.addToast(Text.of("Screenshot Taken!"));

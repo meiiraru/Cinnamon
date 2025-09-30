@@ -1,6 +1,7 @@
 package cinnamon.model;
 
 import cinnamon.utils.Maths;
+import cinnamon.utils.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -234,5 +235,30 @@ public class VertexHelper {
 
         return smoothingGroups;
     }
-    
+
+    public static Pair<int[], List<Vertex>> stripIndices(Collection<Vertex> vertices) {
+        //prepare the new vertex list, also a map to remove duplicates and use as a lookup for indices
+        List<Vertex> vertexList = new ArrayList<>();
+        Map<Vertex, Integer> vertexToIndexMap = new HashMap<>();
+
+        //the indices array
+        int[] indices = new int[vertices.size()];
+        int i = 0;
+
+        //fill the indices array and the new vertex list
+        for (Vertex vertex : vertices) {
+            //try to find the vertex in the map
+            Integer index = vertexToIndexMap.get(vertex);
+            if (index == null) {
+                //if not found, save vertex on the list, and save its index to the map
+                index = vertexList.size();
+                vertexToIndexMap.put(vertex, index);
+                vertexList.add(vertex);
+            }
+            //set the index for the current vertex
+            indices[i++] = index;
+        }
+
+        return new Pair<>(indices, vertexList);
+    }
 }

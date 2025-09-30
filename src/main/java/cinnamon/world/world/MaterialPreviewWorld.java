@@ -70,7 +70,7 @@ public class MaterialPreviewWorld extends WorldClient {
                 count++;
             }
 
-            if (visible && !hudHidden()) {
+            if (visible && !client.hideHUD) {
                 matrices.translate(-1.5f, 1.5f, 0f);
                 matrices.scale(-1 / 48f);
                 camera.billboard(matrices);

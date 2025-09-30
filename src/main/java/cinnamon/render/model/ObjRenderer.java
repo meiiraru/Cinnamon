@@ -6,6 +6,7 @@ import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
 import cinnamon.utils.AABB;
+import cinnamon.utils.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -26,7 +27,10 @@ public class ObjRenderer extends ModelRenderer {
     public ObjRenderer(Mesh mesh) {
         super(new HashMap<>(mesh.getGroups().size(), 1f));
         this.mesh = mesh;
+        bakeModel();
+    }
 
+    protected void bakeModel() {
         Vector3f bbMin = new Vector3f(Integer.MAX_VALUE);
         Vector3f bbMax = new Vector3f(Integer.MIN_VALUE);
 
@@ -94,8 +98,11 @@ public class ObjRenderer extends ModelRenderer {
             if (!uvs.isEmpty())
                 VertexHelper.calculateTangents(sortedVertices, angleThreshold);
 
+            //strip the unique indices from the vertex list
+            Pair<int[], List<Vertex>> indices = VertexHelper.stripIndices(sortedVertices);
+
             //create a new group with the OpenGL attributes
-            MeshData groupData = new MeshData(new AABB(groupMin, groupMax), sortedVertices, group.getMaterial());
+            MeshData groupData = generateMesh(new AABB(groupMin, groupMax), indices.second(), indices.first(), group.getMaterial());
 
             String groupName = group.getName();
             String newName = groupName;

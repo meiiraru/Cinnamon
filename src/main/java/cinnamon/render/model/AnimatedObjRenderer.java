@@ -67,8 +67,9 @@ public class AnimatedObjRenderer extends ObjRenderer {
             return;
 
         matrices.pushMatrix();
-        bone.getTransform().applyTransform(matrices);
-        bone.getTransform().reset();
+        bone.getTransform()
+                .applyTransform(matrices.peek())
+                .clearAnimChannels();
         Shader.activeShader.applyMatrixStack(matrices);
 
         for (Bone child : bone.getChildren())

@@ -54,19 +54,20 @@ void main() {
     vec3 lightNDC = lightClipPos.xyz / lightClipPos.w;
     vec2 lightUV = lightNDC.xy * 0.5f + 0.5f; //[0, 1] range
 
-    //screen xy test
-    if (lightUV.x < 0.0f || lightUV.x > 1.0f || lightUV.y < 0.0f || lightUV.y > 1.0f)
-        discard;
-
     //occlusion test
     float lightDepth = lightNDC.z * 0.5f + 0.5f; //[0, 1] range
     float visibility = 0.0f;
 
-    //9-sample grid
-    for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
+    //sample grid
+    const int r = 1;
+    for (int x = -r; x <= r; x++) {
+        for (int y = -r; y <= r; y++) {
             vec2 offset = vec2(float(x), float(y)) * sampleRadius;
-            float sampleDepth = texture(gDepth, lightUV + offset).r;
+            vec2 uv = lightUV + offset;
+            if (uv.x < 0.0f || uv.x > 1.0f || uv.y < 0.0f || uv.y > 1.0f)
+                continue;
+
+            float sampleDepth = texture(gDepth, uv).r;
             if (sampleDepth >= lightDepth)
                 visibility += 1.0f;
         }

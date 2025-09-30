@@ -76,7 +76,7 @@ public class DebugScreen {
 
     public static void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
-        boolean fpsOnly = !active && Settings.showFPS.get() && (c.world == null || !c.world.hudHidden());
+        boolean fpsOnly = !active && Settings.showFPS.get() && (c.world == null || !c.hideHUD);
 
         if (!fpsOnly && !active)
             return;
@@ -119,6 +119,7 @@ public class DebugScreen {
                     });
                 }
                 case GLFW_KEY_T -> Client.getInstance().reloadAssets();
+                case GLFW_KEY_Q -> Client.getInstance().disconnect();
                 default -> {return false;}
             }
 
@@ -358,16 +359,12 @@ public class DebugScreen {
 
             return String.format("""
                     [&bwindow&r]
-                    &e%s&r x &e%s&r
-                    gui scale &e%s&r
-                    fullscreen &e%s&r
-                    vsync &e%s&r
-                    FPS limit &e%s&r
+                    &e%s&r x &e%s&r gui scale &e%s&r fullscreen &e%s&r
+                    vsync &e%s&r FPS limit &e%s&r
 
                     [&beffects&r]
                     post process &e%s&r
-                    3D anaglyph &e%s&r
-                    XR &e%s&r
+                    3D anaglyph &e%s&r XR &e%s&r
                     
                     [&bcamera&r]
                     x &c%.3f&r y &a%.3f&r z &b%.3f&r
@@ -376,15 +373,11 @@ public class DebugScreen {
                     up x &c%.3f&r y &a%.3f&r z &b%.3f&r
                     facing &e%s&r""",
 
-                    w.width, w.height,
-                    w.guiScale,
-                    w.isFullscreen() ? "on" : "off",
-                    Settings.vsync.get() ? "on" : "off",
-                    Settings.fpsLimit.get() <= 0 ? "unlimited" : Settings.fpsLimit.get() + " fps",
+                    w.width, w.height, w.guiScale, w.isFullscreen() ? "on" : "off",
+                    Settings.vsync.get() ? "on" : "off", Settings.fpsLimit.get() <= 0 ? "unlimited" : Settings.fpsLimit.get() + " fps",
 
                     post == null ? "none" : post.name(),
-                    c.anaglyph3D ? "on" : "off",
-                    XrManager.isInXR() ? "on" : "off",
+                    c.anaglyph3D ? "on" : "off", XrManager.isInXR() ? "on" : "off",
 
                     cpos.x, cpos.y, cpos.z,
                     crot.x, crot.y, crot.z, crot.w,

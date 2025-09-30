@@ -1,5 +1,6 @@
 package cinnamon.world.particle;
 
+import cinnamon.Client;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -30,7 +31,7 @@ public class TextParticle extends Particle {
 
     @Override
     public boolean shouldRender(Camera camera) {
-        return !((WorldClient) world).hudHidden() && super.shouldRender(camera);
+        return !Client.getInstance().hideHUD && super.shouldRender(camera);
     }
 
     @Override

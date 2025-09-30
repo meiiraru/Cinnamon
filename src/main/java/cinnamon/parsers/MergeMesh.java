@@ -13,8 +13,6 @@ import java.util.ArrayList;
 
 public class MergeMesh {
 
-    private static final MatrixStack mat = new MatrixStack();
-
     public static void merge(Mesh src, Mesh other) {
         merge(src, other, null);
     }
@@ -30,20 +28,16 @@ public class MergeMesh {
             src.getNormals().addAll(other.getNormals());
             src.getUVs().addAll(other.getUVs());
         } else {
-            mat.pushMatrix();
-            transform.applyTransform(mat);
-            MatrixStack.Matrices matrices = mat.peek();
+            MatrixStack.Matrices matrix = transform.getMatrix();
 
             for (Vector3f v : other.getVertices())
-                src.getVertices().add(v.mulPosition(matrices.pos(), new Vector3f()));
+                src.getVertices().add(v.mulPosition(matrix.pos(), new Vector3f()));
 
             for (Vector3f n : other.getNormals())
-                src.getNormals().add(n.mul(matrices.normal(), new Vector3f()));
+                src.getNormals().add(n.mul(matrix.normal(), new Vector3f()));
 
             for (Vector2f uv : other.getUVs())
                 src.getUVs().add(uv.add(transform.getUV(), new Vector2f()));
-
-            mat.popMatrix();
         }
 
         //merge groups

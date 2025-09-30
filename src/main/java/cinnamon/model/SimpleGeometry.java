@@ -58,6 +58,7 @@ public class SimpleGeometry {
     public void render() {
         glBindVertexArray(vao);
         glDrawArrays(renderMode, 0, vertexCount);
+        glBindVertexArray(0);
     }
 
     public void free() {
@@ -89,6 +90,7 @@ public class SimpleGeometry {
         public void render() {
             glBindVertexArray(vao);
             glDrawElements(renderMode, indexCount, GL_UNSIGNED_INT, 0);
+            glBindVertexArray(0);
         }
 
         @Override

@@ -4,7 +4,9 @@ import cinnamon.render.MatrixStack;
 import cinnamon.utils.ColorUtils;
 import org.joml.*;
 
-public class Vertex implements Comparable<Vertex> {
+import java.util.Objects;
+
+public class Vertex {
     public static final Vector3f DEFAULT_TANGENT = new Vector3f(0, 0, -1);
     public static final Vector3f DEFAULT_NORMAL = new Vector3f(0, 0, -1);
     public static final Vector2f DEFAULT_UV = new Vector2f(0, 0);
@@ -17,7 +19,6 @@ public class Vertex implements Comparable<Vertex> {
             normal = new Vector3f(DEFAULT_NORMAL),
             tangent = new Vector3f(DEFAULT_TANGENT);
     private final Vector2f uv = new Vector2f(DEFAULT_UV);
-    private int index = -1;
 
     private Vertex(float x, float y, float z) {
         this.pos.set(x, y, z);
@@ -88,11 +89,6 @@ public class Vertex implements Comparable<Vertex> {
         return uv(uv.x, uv.y);
     }
 
-    public Vertex index(int index) {
-        this.index = index;
-        return this;
-    }
-
     public Vertex mul(MatrixStack matrices) {
         MatrixStack.Matrices mat = matrices.peek();
         return mulPosition(mat.pos()).mulNormal(mat.normal());
@@ -128,10 +124,6 @@ public class Vertex implements Comparable<Vertex> {
         return tangent;
     }
 
-    public int getIndex() {
-        return index;
-    }
-
     @Override
     public String toString() {
         return String.format("[Pos]: %s, %s, %s [UV]: %s, %s [Color]: %s, %s, %s [Normal]: %s, %s, %s [Tangent]: %s, %s, %s",
@@ -139,7 +131,13 @@ public class Vertex implements Comparable<Vertex> {
     }
 
     @Override
-    public int compareTo(Vertex o) {
-        return Integer.compare(index, o.index);
+    public final boolean equals(Object o) {
+        if (!(o instanceof Vertex vertex)) return false;
+        return pos.equals(vertex.pos) && uv.equals(vertex.uv) && normal.equals(vertex.normal) && tangent.equals(vertex.tangent) && color.equals(vertex.color);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pos, uv, normal, tangent, color);
     }
 }

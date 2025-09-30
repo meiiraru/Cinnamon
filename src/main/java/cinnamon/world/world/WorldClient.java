@@ -76,8 +76,6 @@ public class WorldClient extends World {
 
     private int cameraMode = 0;
 
-    private boolean hideHUD;
-
     //lights
     protected final List<Light> lights = new ArrayList<>();
     protected final Light sunLight = new DirectionalLight().pos(0.5f, 5f, 0.5f).intensity(1f).castsShadows(true).glareSize(1000f);
@@ -185,7 +183,6 @@ public class WorldClient extends World {
     @Override
     public void close() {
         //ServerConnection.close();
-        client.disconnect();
     }
 
     @Override
@@ -303,7 +300,7 @@ public class WorldClient extends World {
     }
 
     public void renderDebug(Camera camera, MatrixStack matrices, float delta) {
-        if (hudHidden())
+        if (client.hideHUD)
             return;
 
         Entity cameraEntity = camera.getEntity();
@@ -501,7 +498,6 @@ public class WorldClient extends World {
             }
             case GLFW_KEY_ESCAPE -> client.setScreen(new PauseScreen());
             case GLFW_KEY_ENTER -> client.setScreen(new ChatScreen());
-            case GLFW_KEY_F1 -> this.hideHUD = !this.hideHUD;
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
             case GLFW_KEY_F7 -> this.worldTime -= 100;
             case GLFW_KEY_F8 -> this.worldTime += 100;
@@ -567,10 +563,6 @@ public class WorldClient extends World {
 
     public boolean isThirdPerson() {
         return cameraMode > 0;
-    }
-
-    public boolean hudHidden() {
-        return hideHUD;
     }
 
     public void respawn(boolean init) {

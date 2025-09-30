@@ -4,18 +4,17 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import org.joml.Vector3i;
 
 import java.util.Stack;
 
 public class MatrixStack {
     private final Stack<Matrices> stack = new Stack<>() {{
-        add(new Matrices(new Matrix4f(), new Matrix3f()));
+        add(new Matrices());
     }};
 
     public MatrixStack pushMatrix() {
         Matrices mat = stack.peek();
-        stack.push(new Matrices(new Matrix4f(mat.pos), new Matrix3f(mat.normal)));
+        stack.push(new Matrices(mat.pos, mat.normal));
         return this;
     }
 
@@ -33,68 +32,135 @@ public class MatrixStack {
     }
 
     public MatrixStack translate(float x, float y, float z) {
-        stack.peek().pos.translate(x, y, z);
+        stack.peek().translate(x, y, z);
         return this;
     }
 
     public MatrixStack translate(Vector3f vector) {
-        return translate(vector.x, vector.y, vector.z);
-    }
-
-    public MatrixStack translate(Vector3i vector) {
-        return translate(vector.x, vector.y, vector.z);
+        stack.peek().translate(vector);
+        return this;
     }
 
     public MatrixStack rotate(Quaternionf quaternion) {
-        Matrices mat = stack.peek();
-        mat.pos.rotate(quaternion);
-        mat.normal.rotate(quaternion);
+        stack.peek().rotate(quaternion);
         return this;
     }
 
     public MatrixStack scale(float x, float y, float z) {
-        Matrices mat = stack.peek();
-        mat.pos.scale(x, y, z);
-
-        if (Math.abs(x) == Math.abs(y) && Math.abs(y) == Math.abs(z)) {
-            if (x < 0f || y < 0f || z < 0f) {
-                float signX = Math.signum(x);
-                float signY = Math.signum(y);
-                float signZ = Math.signum(z);
-                mat.normal.scale(signX, signY, signZ);
-
-                float det = signX * signY * signZ;
-                if (det < 0f)
-                    mat.normal.scale(-1f);
-            }
-        } else {
-            float det = mat.pos.determinant();
-            if (det == 0f) {
-                mat.normal.identity();
-            } else {
-                mat.normal.set(mat.pos).invert().transpose();
-                if (det < 0f)
-                    mat.normal.scale(-1f);
-            }
-        }
-
+        stack.peek().scale(x, y, z);
         return this;
     }
 
     public MatrixStack scale(float scalar) {
-        return scale(scalar, scalar, scalar);
-    }
-
-    public MatrixStack scale(Vector3f vector) {
-        return scale(vector.x, vector.y, vector.z);
-    }
-
-    public MatrixStack identity() {
-        Matrices mat = stack.peek();
-        mat.pos.identity();
-        mat.normal.identity();
+        stack.peek().scale(scalar);
         return this;
     }
 
-    public record Matrices(Matrix4f pos, Matrix3f normal) {}
+    public MatrixStack scale(Vector3f vector) {
+        stack.peek().scale(vector);
+        return this;
+    }
+
+    public MatrixStack identity() {
+        stack.peek().identity();
+        return this;
+    }
+
+    public static class Matrices {
+
+        private final Matrix4f pos = new Matrix4f();
+        private final Matrix3f normal = new Matrix3f();
+
+        public Matrices() {}
+
+        public Matrices(Matrix4f pos, Matrix3f normal) {
+            this.pos.set(pos);
+            this.normal.set(normal);
+        }
+
+        public Matrices translate(float x, float y, float z) {
+            pos.translate(x, y, z);
+            return this;
+        }
+
+        public Matrices translate(Vector3f vector) {
+            return translate(vector.x, vector.y, vector.z);
+        }
+
+        public Matrices rotate(Quaternionf quaternion) {
+            pos.rotate(quaternion);
+            normal.rotate(quaternion);
+            return this;
+        }
+
+        public Matrices scale(float x, float y, float z) {
+            pos.scale(x, y, z);
+
+            if (Math.abs(x) == Math.abs(y) && Math.abs(y) == Math.abs(z)) {
+                if (x < 0f || y < 0f || z < 0f) {
+                    float signX = Math.signum(x);
+                    float signY = Math.signum(y);
+                    float signZ = Math.signum(z);
+                    normal.scale(signX, signY, signZ);
+
+                    float det = signX * signY * signZ;
+                    if (det < 0f)
+                        normal.scale(-1f);
+                }
+            } else {
+                recalculateNormalMatrix();
+            }
+
+            return this;
+        }
+
+        public Matrices scale(float scalar) {
+            return scale(scalar, scalar, scalar);
+        }
+
+        public Matrices scale(Vector3f vector) {
+            return scale(vector.x, vector.y, vector.z);
+        }
+
+        public Matrices identity() {
+            pos.identity();
+            normal.identity();
+            return this;
+        }
+
+        public Matrices set(Matrices other) {
+            return set(other.pos, other.normal);
+        }
+
+        public Matrices set(Matrix4f pos, Matrix3f normal) {
+            this.pos.set(pos);
+            this.normal.set(normal);
+            return this;
+        }
+
+        public Matrices set(Matrix4f pos) {
+            this.pos.set(pos);
+            return recalculateNormalMatrix();
+        }
+
+        public Matrices recalculateNormalMatrix() {
+            float det = pos.determinant();
+            if (det == 0f) {
+                normal.identity();
+            } else {
+                normal.set(pos).invert().transpose();
+                if (det < 0f)
+                    normal.scale(-1f);
+            }
+            return this;
+        }
+
+        public Matrix4f pos() {
+            return pos;
+        }
+
+        public Matrix3f normal() {
+            return normal;
+        }
+    }
 }

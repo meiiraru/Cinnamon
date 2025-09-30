@@ -1,5 +1,6 @@
 package cinnamon.render.model;
 
+import cinnamon.model.Vertex;
 import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.MaterialApplier;
@@ -9,6 +10,7 @@ import cinnamon.render.texture.Texture;
 import cinnamon.utils.AABB;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -69,5 +71,9 @@ public abstract class ModelRenderer {
         for (MeshData mesh : meshes.values())
             list.add(new AABB(mesh.getAABB()));
         return list;
+    }
+
+    protected MeshData generateMesh(AABB aabb, Collection<Vertex> vertices, int[] indices, Material material) {
+        return new MeshData(aabb, vertices, indices, material);
     }
 }

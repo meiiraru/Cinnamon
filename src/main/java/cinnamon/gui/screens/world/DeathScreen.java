@@ -26,7 +26,7 @@ public class DeathScreen extends Screen {
             client.setScreen(null);
         }));
 
-        Button menu = new Button(respawn.getX(), respawn.getY() + respawn.getHeight() + 16, 180, 20, Text.translated("gui.death_screen.main_menu"), button -> client.world.close());
+        Button menu = new Button(respawn.getX(), respawn.getY() + respawn.getHeight() + 16, 180, 20, Text.translated("gui.death_screen.main_menu"), button -> client.disconnect());
         this.addWidget(menu);
     }
 

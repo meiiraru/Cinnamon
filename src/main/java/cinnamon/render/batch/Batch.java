@@ -62,6 +62,8 @@ public abstract class Batch { //vertex consumer
         Attributes.load(attributes, vertexSize);
         for (int i = 0; i < attributes.length; i++)
             glEnableVertexAttribArray(i);
+
+        glBindVertexArray(0);
     }
 
     public void free() {

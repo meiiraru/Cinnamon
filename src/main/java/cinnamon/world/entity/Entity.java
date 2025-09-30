@@ -133,7 +133,7 @@ public abstract class Entity extends WorldObject {
     public boolean shouldRenderText() {
         Client client = Client.getInstance();
         return
-                !((WorldClient) world).hudHidden() &&
+                !client.hideHUD &&
                 (client.camera.getEntity() != this || DebugScreen.isTabOpen(DebugScreen.Tab.ENTITIES)) &&
                 !WorldRenderer.isOutlineRendering() &&
                 client.camera.getPos().distanceSquared(pos) <= 1024;

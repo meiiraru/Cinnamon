@@ -17,8 +17,12 @@ public class Transform {
             scale = new Vector3f(1f, 1f, 1f);
     private final Vector2f
             uv = new Vector2f();
+    private final MatrixStack.Matrices
+            mat = new MatrixStack.Matrices();
 
-    public void applyTransform(MatrixStack matrices) {
+    protected boolean dirty = false;
+
+    public Transform applyTransform(MatrixStack.Matrices matrices) {
         matrices.translate(pivot);
 
         matrices.scale(scale.x, scale.y, scale.z);
@@ -32,12 +36,46 @@ public class Transform {
                 pos.y - pivot.y,
                 pos.z - pivot.z
         );
+
+        return this;
     }
 
-    public void reset() {
+    public Transform recalculate() {
+        mat.identity();
+        applyTransform(mat);
+        dirty = false;
+        return this;
+    }
+
+    public Transform clearAnimChannels() {
         scale.set(1f);
-        rot.set(0f);
-        pos.set(0f);
+        rot  .set(0f);
+        pos  .set(0f);
+        dirty = true;
+        return this;
+    }
+
+    public Transform identity() {
+        pivot.set(0f);
+        pos  .set(0f);
+        rot  .set(0f);
+        scale.set(1f);
+        uv   .set(0f);
+        color.set(1f);
+        mat.identity();
+        dirty = false;
+        return this;
+    }
+
+    public Transform set(Transform o) {
+        pivot.set(o.pivot);
+        pos  .set(o.pos);
+        rot  .set(o.rot);
+        scale.set(o.scale);
+        uv   .set(o.uv);
+        color.set(o.color);
+        dirty = true;
+        return this;
     }
 
     public Vector3f getPos() {
@@ -64,72 +102,92 @@ public class Transform {
         return uv;
     }
 
-    public void setPos(Vector3f vec) {
-        this.setPos(vec.x, vec.y, vec.z);
+    public Transform setPos(Vector3f vec) {
+        return this.setPos(vec.x, vec.y, vec.z);
     }
 
-    public void setPos(float x, float y, float z) {
+    public Transform setPos(float x, float y, float z) {
         this.pos.set(x, y, z);
+        this.dirty = true;
+        return this;
     }
 
-    public void setRot(Vector3f vec) {
-        this.setRot(vec.x, vec.y, vec.z);
+    public Transform setRot(Vector3f vec) {
+        return this.setRot(vec.x, vec.y, vec.z);
     }
 
-    public void setRot(float x, float y, float z) {
+    public Transform setRot(float x, float y, float z) {
         this.rot.set(x, y, z);
+        this.dirty = true;
+        return this;
     }
 
-    public void setPivot(Vector3f vec) {
-        this.setPivot(vec.x, vec.y, vec.z);
+    public Transform setPivot(Vector3f vec) {
+        return this.setPivot(vec.x, vec.y, vec.z);
     }
 
-    public void setPivot(float x, float y, float z) {
+    public Transform setPivot(float x, float y, float z) {
         this.pivot.set(x, y, z);
+        this.dirty = true;
+        return this;
     }
 
-    public void setPosPivot(Vector3f vec) {
-        this.setPosPivot(vec.x, vec.y, vec.z);
+    public Transform setPosPivot(Vector3f vec) {
+        return this.setPosPivot(vec.x, vec.y, vec.z);
     }
 
-    public void setPosPivot(float x, float y, float z) {
-        this.pivot.set(x, y, z);
-        this.pos.set(x, y, z);
+    public Transform setPosPivot(float x, float y, float z) {
+        setPos(x, y, z);
+        setPivot(x, y, z);
+        return this;
     }
 
-    public void setScale(float scalar) {
-        this.setScale(scalar, scalar, scalar);
+    public Transform setScale(float scalar) {
+        return this.setScale(scalar, scalar, scalar);
     }
 
-    public void setScale(Vector3f vec) {
-        this.setScale(vec.x, vec.y, vec.z);
+    public Transform setScale(Vector3f vec) {
+        return this.setScale(vec.x, vec.y, vec.z);
     }
 
-    public void setScale(float x, float y, float z) {
+    public Transform setScale(float x, float y, float z) {
         this.scale.set(x, y, z);
+        this.dirty = true;
+        return this;
     }
 
-    public void setColor(Vector3f vec) {
-        this.setColor(vec.x, vec.y, vec.z);
+    public Transform setColor(Vector3f vec) {
+        return this.setColor(vec.x, vec.y, vec.z);
     }
 
-    public void setColor(float r, float g, float b) {
-        this.setColor(r, g, b, 1f);
+    public Transform setColor(float r, float g, float b) {
+        return this.setColor(r, g, b, 1f);
     }
 
-    public void setColor(Vector4f vec) {
-        this.setColor(vec.x, vec.y, vec.z, vec.w);
+    public Transform setColor(Vector4f vec) {
+        return this.setColor(vec.x, vec.y, vec.z, vec.w);
     }
 
-    public void setColor(float r, float g, float b, float a) {
+    public Transform setColor(float r, float g, float b, float a) {
         this.color.set(r, g, b, a);
+        return this;
     }
 
-    public void setUV(Vector2f vec) {
-        this.setUV(vec.x, vec.y);
+    public Transform setUV(Vector2f vec) {
+        return this.setUV(vec.x, vec.y);
     }
 
-    public void setUV(float x, float y) {
+    public Transform setUV(float x, float y) {
         this.uv.set(x, y);
+        return this;
+    }
+
+    public boolean isDirty() {
+        return dirty;
+    }
+
+    public MatrixStack.Matrices getMatrix() {
+        if (isDirty()) recalculate();
+        return mat;
     }
 }
