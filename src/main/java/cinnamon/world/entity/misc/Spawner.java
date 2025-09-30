@@ -1,15 +1,15 @@
-package cinnamon.world.entity;
+package cinnamon.world.entity.misc;
 
 import cinnamon.Client;
 import cinnamon.gui.DebugScreen;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.registry.EntityRegistry;
-import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Rotation;
 import cinnamon.utils.UIHelper;
+import cinnamon.world.entity.Entity;
 
 import java.util.UUID;
 import java.util.function.Predicate;

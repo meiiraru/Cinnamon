@@ -30,7 +30,7 @@ import cinnamon.world.Hud;
 import cinnamon.world.Sky;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
-import cinnamon.world.entity.Spawner;
+import cinnamon.world.entity.misc.Spawner;
 import cinnamon.world.entity.collectable.EffectBox;
 import cinnamon.world.entity.collectable.HealthPack;
 import cinnamon.world.entity.living.Dummy;

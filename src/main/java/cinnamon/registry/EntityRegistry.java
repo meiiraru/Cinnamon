@@ -25,5 +25,6 @@ public enum EntityRegistry {
     TERRAIN,
     XR_HAND,
     FIREWORK,
+    TRIGGER_AREA,
     UNKNOWN
 }
