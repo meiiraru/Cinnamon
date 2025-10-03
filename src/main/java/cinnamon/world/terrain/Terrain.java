@@ -65,7 +65,7 @@ public class Terrain extends WorldObject {
 
     private static void renderAABB(MatrixStack matrices, AABB aabb, int color) {
         Vector3f min = aabb.getMin(); Vector3f max = aabb.getMax();
-        VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, min.x, min.y, min.z, max.x, max.y, max.z, color));
+        VertexConsumer.LINES.consume(GeometryHelper.box(matrices, min.x, min.y, min.z, max.x, max.y, max.z, color));
     }
 
     protected void updateAABB() {

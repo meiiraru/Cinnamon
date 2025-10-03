@@ -111,7 +111,7 @@ public abstract class Light {
             ));
 
         /*
-        VertexConsumer.LINES.consume(GeometryHelper.cube(
+        VertexConsumer.LINES.consume(GeometryHelper.box(
                 matrices,
                 aabb.minX(), aabb.minY(), aabb.minZ(),
                 aabb.maxX(), aabb.maxY(), aabb.maxZ(),

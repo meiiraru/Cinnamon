@@ -279,26 +279,29 @@ public class GeometryHelper {
             return new Vertex[0][];
 
         //prepare cell sizes
-        Vertex[][] quads = new Vertex[cellsX * cellsZ][4];
         float width = x1 - x0;
         float depth = z1 - z0;
         float cellWidth = width / cellsX;
         float cellDepth = depth / cellsZ;
 
-        //generate quads
+        //generate vertices
+        Vertex[] vertices = new Vertex[(cellsX + 1) * (cellsZ + 1)];
         int index = 0;
+        for (int i = 0; i <= cellsX; i++)
+            for (int j = 0; j <= cellsZ; j++)
+                vertices[index++] = Vertex.of(x0 + i * cellWidth, y, z0 + j * cellDepth).normal(0, 1, 0).color(color).mul(matrices);
+
+        //fill quads
+        Vertex[][] quads = new Vertex[cellsX * cellsZ][4];
+        index = 0;
         for (int i = 0; i < cellsX; i++) {
             for (int j = 0; j < cellsZ; j++) {
-                //cell origin
-                float currentX = x0 + i * cellWidth;
-                float currentZ = z0 + j * cellDepth;
+                int v0 = i * (cellsZ + 1) + j;
+                int v1 = v0 + 1;
+                int v2 = v1 + (cellsZ + 1);
+                int v3 = v0 + (cellsZ + 1);
 
-                //quad
-                Vertex v0 = Vertex.of(currentX, y, currentZ).normal(0, 1, 0).color(color).mul(matrices);
-                Vertex v1 = Vertex.of(currentX, y, currentZ + cellDepth).normal(0, 1, 0).color(color).mul(matrices);
-                Vertex v2 = Vertex.of(currentX + cellWidth, y, currentZ + cellDepth).normal(0, 1, 0).color(color).mul(matrices);
-                Vertex v3 = Vertex.of(currentX + cellWidth, y, currentZ).normal(0, 1, 0).color(color).mul(matrices);
-                quads[index++] = new Vertex[]{v0, v1, v2, v3};
+                quads[index++] = new Vertex[]{vertices[v0], vertices[v1], vertices[v2], vertices[v3]};
             }
         }
 
@@ -318,17 +321,17 @@ public class GeometryHelper {
         matrices.rotate(Rotation.Y.rotationDeg(-rot.y + 90));
         matrices.rotate(Rotation.Z.rotationDeg(-rot.x));
 
-        //create line as cube
+        //create line as box
         float w = width * 0.5f;
-        Vertex[][] line = cube(matrices, 0, -w, -w, diff.length(), w, w, color);
+        Vertex[][] line = box(matrices, 0, -w, -w, diff.length(), w, w, color);
 
         //return
         matrices.popMatrix();
         return line;
     }
 
-    public static Vertex[][] cube(MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, int color) {
-        Vertex[][] cube = new Vertex[6][4];
+    public static Vertex[][] box(MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, int color) {
+        Vertex[][] box = new Vertex[6][4];
         Vertex
                 v0 = Vertex.of(x0, y1, z0).normal(-1,  1, -1).color(color).mul(matrices),
                 v1 = Vertex.of(x1, y1, z0).normal( 1,  1, -1).color(color).mul(matrices),
@@ -340,22 +343,26 @@ public class GeometryHelper {
                 v7 = Vertex.of(x1, y0, z1).normal( 1, -1,  1).color(color).mul(matrices);
 
         //north
-        cube[0] = new Vertex[]{v0, v1, v2, v3};
+        box[0] = new Vertex[]{v0, v1, v2, v3};
         //west
-        cube[1] = new Vertex[]{v5, v0, v3, v6};
+        box[1] = new Vertex[]{v5, v0, v3, v6};
         //south
-        cube[2] = new Vertex[]{v4, v5, v6, v7};
+        box[2] = new Vertex[]{v4, v5, v6, v7};
         //east
-        cube[3] = new Vertex[]{v1, v4, v7, v2};
+        box[3] = new Vertex[]{v1, v4, v7, v2};
         //up
-        cube[4] = new Vertex[]{v1, v0, v5, v4};
+        box[4] = new Vertex[]{v1, v0, v5, v4};
         //down
-        cube[5] = new Vertex[]{v7, v6, v3, v2};
+        box[5] = new Vertex[]{v7, v6, v3, v2};
 
-        return cube;
+        return box;
     }
 
     public static Vertex[][] pyramid(MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, int color) {
+        return pyramid(matrices, x0, y0, z0, x1, y1, z1, true, color);
+    }
+
+    public static Vertex[][] pyramid(MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, boolean base, int color) {
         //corners
         Vertex v0 = Vertex.of(x0, y0, z0).normal(-1, -1, -1).color(color).mul(matrices);
         Vertex v1 = Vertex.of(x1, y0, z0).normal( 1, -1, -1).color(color).mul(matrices);
@@ -364,203 +371,260 @@ public class GeometryHelper {
         //tip
         Vertex tip = Vertex.of(x0 + (x1 - x0) / 2f, y1, z0 + (z1 - z0) / 2f).normal(0, 1, 0).color(color).mul(matrices);
 
-        return new Vertex[][]{
-                //base
-                {v0, v1, v2, v3},
-                //sides
-                {v0, tip, v1},
-                {v1, tip, v2},
-                {v2, tip, v3},
-                {v3, tip, v0}
-        };
+        //faces
+        int i = 0;
+        Vertex[][] pyramid = new Vertex[base ? 5 : 4][];
+
+        //base
+        if (base)
+            pyramid[i++] = new Vertex[]{v0, v1, v2, v3};
+
+        //sides
+        pyramid[i++] = new Vertex[]{v0, tip, v1};
+        pyramid[i++] = new Vertex[]{v1, tip, v2};
+        pyramid[i++] = new Vertex[]{v2, tip, v3};
+        pyramid[i]   = new Vertex[]{v3, tip, v0};
+
+        return pyramid;
     }
 
-    public static Vertex[][] cone(MatrixStack matrices, float x, float y, float z, float radius, float height, int sides, int color) {
-        int vertexCount = Math.max(sides, 3);
-        float angleStep = (2f * (float) Math.PI) / vertexCount;
+    public static Vertex[][] cone(MatrixStack matrices, float x, float y, float z, float height, float radius, int sides, int color) {
+        return cone(matrices, x, y, z, height, radius, sides, 1f, true, color);
+    }
 
-        //prepare constant vertices
-        Vertex[][] cone = new Vertex[vertexCount * 2][3];
-        Vertex tip = Vertex.of(x, y + height, z).normal(0, 1, 0).color(color).mul(matrices);
-        Vertex base = Vertex.of(x, y, z).normal(0, -1, 0).color(color).mul(matrices);
+    public static Vertex[][] cone(MatrixStack matrices, float x, float y, float z, float height, float radius, int sides, float progress, boolean base, int color) {
+        int faces = Math.max(sides, 3);
+        float angleStep = ((float) Math.PI * progress * 2f) / faces;
 
-        //generate circle vertices
-        for (int i = 0; i < vertexCount; i++) {
-            float angle1 = angleStep * i;
-            float angle2 = angleStep * (i + 1);
+        //generate vertices
+        Vertex[] circle = new Vertex[sides];
+        Vertex vTip = Vertex.of(x, y + height, z).normal(0, 1, 0).color(color).mul(matrices);
+        Vertex vBase = Vertex.of(x, y, z).normal(0, -1, 0).color(color).mul(matrices);
 
-            float x1 = (float) Math.cos(angle1) * radius; float z1 = (float) Math.sin(angle1) * radius;
-            float x2 = (float) Math.cos(angle2) * radius; float z2 = (float) Math.sin(angle2) * radius;
+        for (int i = 0; i < sides; i++) {
+            float theta = angleStep * i;
+            float x1 = (float) Math.cos(theta); float z1 = (float) Math.sin(theta);
+            circle[i] = Vertex.of(x + x1 * radius, y, z + z1 * radius).normal(x1, 0, z1).color(color).mul(matrices);
+        }
 
-            Vertex v1 = Vertex.of(x + x1, y, z + z1).normal(x1, 0, z1).color(color).mul(matrices);
-            Vertex v2 = Vertex.of(x + x2, y, z + z2).normal(x2, 0, z2).color(color).mul(matrices);
-
-            cone[i] = new Vertex[]{tip, v2, v1}; //side
-            cone[i + vertexCount] = new Vertex[]{base, v1, v2}; //base
+        //generate faces
+        Vertex[][] cone = new Vertex[faces * (base ? 2 : 1)][3];
+        for (int i = 0; i < faces; i++) {
+            int next = (i + 1) % sides;
+            cone[i] = new Vertex[]{vTip, circle[next], circle[i]}; //side
+            if (base)
+                cone[i + faces] = new Vertex[]{vBase, circle[i], circle[next]}; //base
         }
 
         return cone;
     }
 
-    public static Vertex[][] cylinder(MatrixStack matrices, float x, float y, float z, float radius, float height, int sides, int color) {
-        int vertexCount = Math.max(sides, 3);
-        float angleStep = (2f * (float) Math.PI) / vertexCount;
+    public static Vertex[][] cylinder(MatrixStack matrices, float x, float y, float z, float height, float radius, int sides, int color) {
+        return cylinder(matrices, x, y, z, height, radius, radius, sides, 1f, true, color);
+    }
 
-        //prepare constant vertices
-        Vertex[][] cylinder = new Vertex[vertexCount * 3][];
+    public static Vertex[][] cylinder(MatrixStack matrices, float x, float y, float z, float height, float radiusTop, float radiusBottom, int sides, float progress, boolean cap, int color) {
+        int vertexCount = Math.max(sides, 3);
+        float angleStep = ((float) Math.PI * progress * 2f) / vertexCount;
+
+        //generate vertices
+        Vertex[] circle = new Vertex[sides * 2];
         Vertex top = Vertex.of(x, y + height, z).normal(0, 1, 0).color(color).mul(matrices);
         Vertex bottom = Vertex.of(x, y, z).normal(0, -1, 0).color(color).mul(matrices);
 
-        //generate circle vertices
+        int index = 0;
+        float r = radiusBottom;
+
+        for (int j = 0; j < 2; j++) {
+            for (int i = 0; i < sides; i++) {
+                float theta = angleStep * i;
+                float x1 = (float) Math.cos(theta); float z1 = (float) Math.sin(theta);
+                circle[index++] = Vertex.of(x + x1 * r, y + j * height, z + z1 * r).normal(x1, 0, z1).color(color).mul(matrices);
+            }
+            r = radiusTop;
+        }
+
+        //generate faces
+        Vertex[][] cylinder = new Vertex[vertexCount * (cap ? 3 : 2)][4];
         for (int i = 0; i < vertexCount; i++) {
-            float theta1 = angleStep * i;
-            float theta2 = angleStep * (i + 1);
-
-            float x1 = (float) Math.cos(theta1) * radius; float z1 = (float) Math.sin(theta1) * radius;
-            float x2 = (float) Math.cos(theta2) * radius; float z2 = (float) Math.sin(theta2) * radius;
-
-            Vertex v1 = Vertex.of(x + x1, y, z + z1).normal(x1, -1, z1).color(color).mul(matrices);
-            Vertex v2 = Vertex.of(x + x2, y, z + z2).normal(x2, -1, z2).color(color).mul(matrices);
-            Vertex v3 = Vertex.of(x + x2, y + height, z + z2).normal(x2, 1, z2).color(color).mul(matrices);
-            Vertex v4 = Vertex.of(x + x1, y + height, z + z1).normal(x1, 1, z1).color(color).mul(matrices);
-
-            cylinder[i] = new Vertex[]{v1, v4, v3, v2}; //side
-            cylinder[i + vertexCount] = new Vertex[]{top, v3, v4}; //top cap
-            cylinder[i + 2 * vertexCount] = new Vertex[]{bottom, v1, v2}; //bottom cap
+            int next = (i + 1) % sides;
+            cylinder[i] = new Vertex[]{circle[i + sides], circle[next + sides], circle[next], circle[i]}; //side
+            if (cap) {
+                cylinder[i + vertexCount] = new Vertex[]{top, circle[next + sides], circle[i + sides]}; //top
+                cylinder[i + vertexCount * 2] = new Vertex[]{bottom, circle[i], circle[next]}; //bottom
+            }
         }
 
         return cylinder;
     }
 
     public static Vertex[][] sphere(MatrixStack matrices, float x, float y, float z, float radius, int sides, int color) {
+        return sphere(matrices, x, y, z, radius, sides, sides, 1f, 1f, color);
+    }
+
+    public static Vertex[][] sphere(MatrixStack matrices, float x, float y, float z, float radius, int wSides, int hSides, float wProgress, float hProgress, int color) {
         //total quads = stacks * slices
-        int slices = Math.max(sides, 3);
-        //int stacks = slices;
-        Vertex[][] sphere = new Vertex[slices * slices][4];
+        int wSlices = Math.max(wSides, 3);
+        int hSlices = Math.max(hSides, 2);
 
+        //angle steps (progress)
+        float phi = ((float) Math.PI * wProgress * 2f) / wSlices;
+        float theta = (float) Math.PI * hProgress / hSlices;
+
+        //generate vertices
+        Vertex[] vertices = new Vertex[(wSlices + 1) * (hSlices + 1)];
         int index = 0;
-        float step = (float) Math.PI / slices;
-        for (int i = 0; i < slices; i++) {
-            float theta1 = step * i;
-            float theta2 = step * (i + 1);
-
+        for (int j = 0; j <= hSlices; j++) {
+            float theta1 = theta * j;
             float sinTheta1 = (float) Math.sin(theta1); float cosTheta1 = (float) Math.cos(theta1);
-            float sinTheta2 = (float) Math.sin(theta2); float cosTheta2 = (float) Math.cos(theta2);
-
-            for (int j = 0; j < slices; j++) {
-                float phi1 = step * j * 2f;
-                float phi2 = step * (j + 1) * 2f;
-
+            for (int i = 0; i <= wSlices; i++) {
+                float phi1 = phi * i;
                 float sinPhi1 = (float) Math.sin(phi1); float cosPhi1 = (float) Math.cos(phi1);
-                float sinPhi2 = (float) Math.sin(phi2); float cosPhi2 = (float) Math.cos(phi2);
 
-                float x1 = radius * sinTheta1 * cosPhi1; float y1 = radius * cosTheta1; float z1 = radius * sinTheta1 * sinPhi1;
-                float x2 = radius * sinTheta2 * cosPhi1; float y2 = radius * cosTheta2; float z2 = radius * sinTheta2 * sinPhi1;
-                float x3 = radius * sinTheta2 * cosPhi2; float z3 = radius * sinTheta2 * sinPhi2;
-                float x4 = radius * sinTheta1 * cosPhi2; float z4 = radius * sinTheta1 * sinPhi2;
+                float x1 = radius * sinTheta1 * cosPhi1;
+                float y1 = radius * cosTheta1;
+                float z1 = radius * sinTheta1 * sinPhi1;
 
-                sphere[index++] = new Vertex[]{
-                        Vertex.of(x + x1, y + y1, z + z1).normal(x1, y1, z1).color(color).mul(matrices),
-                        Vertex.of(x + x4, y + y1, z + z4).normal(x4, y1, z4).color(color).mul(matrices),
-                        Vertex.of(x + x3, y + y2, z + z3).normal(x3, y2, z3).color(color).mul(matrices),
-                        Vertex.of(x + x2, y + y2, z + z2).normal(x2, y2, z2).color(color).mul(matrices),
-                };
+                vertices[index++] = Vertex.of(x + x1, y + y1, z + z1).normal(x1, y1, z1).color(color).mul(matrices);
+            }
+        }
+
+        //generate faces
+        Vertex[][] sphere = new Vertex[(wSlices) * (hSlices)][4];
+        index = 0;
+        for (int j = 0; j < hSlices; j++) {
+            for (int i = 0; i < wSlices; i++) {
+                int v0 = j * (wSlices + 1) + i;
+                int v1 = v0 + 1;
+                int v2 = v1 + (wSlices + 1);
+                int v3 = v0 + (wSlices + 1);
+
+                sphere[index++] = new Vertex[]{vertices[v0], vertices[v1], vertices[v2], vertices[v3]};
             }
         }
 
         return sphere;
     }
 
-    public static Vertex[][] capsule(MatrixStack matrices, float x, float y, float z, float radius, float height, int sides, int color) {
-        int slices = Math.max(sides, 3);
-        int hemiStacks = slices / 2;
+    public static Vertex[][] capsule(MatrixStack matrices, float x, float y, float z, float height, float radius, int sides, int color) {
+        return capsule(matrices, x, y, z, height, radius, sides, sides, 1f, color);
+    }
 
-        Vertex[][] capsule = new Vertex[slices + (hemiStacks * slices) * 2][];
+    public static Vertex[][] capsule(MatrixStack matrices, float x, float y, float z, float height, float radius, int wSides, int hSides, float progress, int color) {
+        int wSlices = Math.max(wSides, 3);
+        int hSlices = Math.max(hSides, 1);
+
+        //vertical rings
+        int totalRings = 2 * hSlices + 2;
+        Vertex[] vertices = new Vertex[(wSlices + 1) * totalRings];
+
+        float phi = (float) (Math.PI * 2f * progress) / wSlices;
+        float theta = (float) (Math.PI / 2f) / hSlices;
+
+        //generate vertices for each ring
         int index = 0;
+        for (int j = 0; j < totalRings; j++) {
+            float theta1;
+            float centerY;
 
-        //cylinder
-        float cylinderY  = y + radius;
-        float cylinderY1 = y + height - radius;
-        float cylinderStep = 2f * (float) Math.PI / slices;
+            if (j <= hSlices) { //bottom hemisphere
+                theta1 = (float) Math.PI - j * theta;
+                centerY = y + radius;
+            } else { //top hemisphere
+                theta1 = (float) (Math.PI / 2.0f) - (j - (hSlices + 1)) * theta;
+                centerY = y + height - radius;
+            }
 
-        //cylinder sides
-        for (int i = 0; i < slices; i++) {
-            float theta1 = cylinderStep * i;
-            float theta2 = cylinderStep * (i + 1);
+            float sinTheta1 = (float) Math.sin(theta1); float cosTheta1 = (float) Math.cos(theta1);
+            float ringY = centerY + radius * cosTheta1;
 
-            float x1 = radius * (float) Math.cos(theta1), z1 = radius * (float) Math.sin(theta1);
-            float x2 = radius * (float) Math.cos(theta2), z2 = radius * (float) Math.sin(theta2);
+            //generate vertices around the ring
+            for (int i = 0; i <= wSlices; i++) {
+                float phi1 = i * phi;
+                float sinPhi1 = (float) Math.sin(phi1); float cosPhi1 = (float) Math.cos(phi1);
 
-            capsule[index++] = new Vertex[]{
-                    Vertex.of(x + x1, cylinderY , z + z1).normal(x1, 0, z1).color(color).mul(matrices),
-                    Vertex.of(x + x1, cylinderY1, z + z1).normal(x1, 0, z1).color(color).mul(matrices),
-                    Vertex.of(x + x2, cylinderY1, z + z2).normal(x2, 0, z2).color(color).mul(matrices),
-                    Vertex.of(x + x2, cylinderY , z + z2).normal(x2, 0, z2).color(color).mul(matrices),
-            };
-        }
-
-        //hemispheres
-        float hemisphereStep = (float) Math.PI / hemiStacks;
-        float sliceStep = 2f * (float) Math.PI / slices;
-
-        //top hemisphere
-        for (int i = 0; i < hemiStacks; i++) {
-            float theta1 = hemisphereStep / 2f * i;
-            float theta2 = hemisphereStep / 2f * (i + 1);
-
-            float sin1 = (float) Math.sin(theta1), cos1 = (float) Math.cos(theta1);
-            float sin2 = (float) Math.sin(theta2), cos2 = (float) Math.cos(theta2);
-
-            for (int j = 0; j < slices; j++) {
-                float phi1 = sliceStep * j;
-                float phi2 = sliceStep * (j + 1);
-
-                float cosPhi1 = (float) Math.cos(phi1), sinPhi1 = (float) Math.sin(phi1);
-                float cosPhi2 = (float) Math.cos(phi2), sinPhi2 = (float) Math.sin(phi2);
-
-                float x1 = radius * sin1 * cosPhi1; float y1 = cos1 * radius; float z1 = radius * sin1 * sinPhi1;
-                float x2 = radius * sin2 * cosPhi1; float y2 = cos2 * radius; float z2 = radius * sin2 * sinPhi1;
-                float x3 = radius * sin2 * cosPhi2; float z3 = radius * sin2 * sinPhi2;
-                float x4 = radius * sin1 * cosPhi2; float z4 = radius * sin1 * sinPhi2;
-
-                capsule[index++] = new Vertex[]{
-                        Vertex.of(x + x1, cylinderY1 + y1, z + z1).normal(x1, y1, z1).color(color).mul(matrices),
-                        Vertex.of(x + x4, cylinderY1 + y1, z + z4).normal(x4, y1, z4).color(color).mul(matrices),
-                        Vertex.of(x + x3, cylinderY1 + y2, z + z3).normal(x3, y2, z3).color(color).mul(matrices),
-                        Vertex.of(x + x2, cylinderY1 + y2, z + z2).normal(x2, y2, z2).color(color).mul(matrices),
-                };
+                float x1 = radius * sinTheta1 * cosPhi1;
+                float y1 = radius * cosTheta1;
+                float z1 = radius * sinTheta1 * sinPhi1;
+                vertices[index++] = Vertex.of(x + x1, ringY, z + z1).normal(x1, y1, z1).color(color).mul(matrices);
             }
         }
 
-        //bottom hemisphere
-        for (int i = 0; i < hemiStacks; i++) {
-            float theta1 = hemisphereStep / 2f * i;
-            float theta2 = hemisphereStep / 2f * (i + 1);
+        //generate quads between rings
+        int totalStrips = totalRings - 1;
+        Vertex[][] capsule = new Vertex[wSlices * totalStrips][4];
 
-            float sin1 = (float) Math.sin(theta1), cos1 = (float) -Math.cos(theta1);
-            float sin2 = (float) Math.sin(theta2), cos2 = (float) -Math.cos(theta2);
+        index = 0;
+        for (int j = 0; j < totalStrips; j++) {
+            for (int i = 0; i < wSlices; i++) {
+                int v0 = j * (wSlices + 1) + i;
+                int v1 = v0 + 1;
+                int v2 = v1 + (wSlices + 1);
+                int v3 = v0 + (wSlices + 1);
 
-            for (int j = 0; j < slices; j++) {
-                float phi1 = sliceStep * j;
-                float phi2 = sliceStep * (j + 1);
-
-                float cosPhi1 = (float) Math.cos(phi1), sinPhi1 = (float) Math.sin(phi1);
-                float cosPhi2 = (float) Math.cos(phi2), sinPhi2 = (float) Math.sin(phi2);
-
-                float x1 = radius * sin1 * cosPhi1; float y1 = cos1 * radius; float z1 = radius * sin1 * sinPhi1;
-                float x2 = radius * sin2 * cosPhi1; float y2 = cos2 * radius; float z2 = radius * sin2 * sinPhi1;
-                float x3 = radius * sin2 * cosPhi2; float z3 = radius * sin2 * sinPhi2;
-                float x4 = radius * sin1 * cosPhi2; float z4 = radius * sin1 * sinPhi2;
-
-                capsule[index++] = new Vertex[]{
-                        Vertex.of(x + x1, y + radius + y1, z + z1).normal(x1, y1, z1).color(color).mul(matrices),
-                        Vertex.of(x + x2, y + radius + y2, z + z2).normal(x2, y2, z2).color(color).mul(matrices),
-                        Vertex.of(x + x3, y + radius + y2, z + z3).normal(x3, y2, z3).color(color).mul(matrices),
-                        Vertex.of(x + x4, y + radius + y1, z + z4).normal(x4, y1, z4).color(color).mul(matrices),
-                };
+                capsule[index++] = new Vertex[]{vertices[v0], vertices[v3], vertices[v2], vertices[v1]};
             }
         }
 
         return capsule;
+    }
+
+    public static Vertex[][] torus(MatrixStack matrices, float x, float y, float z, float radius, float tubeRadius, int sides, int color) {
+        return torus(matrices, x, y, z, radius, tubeRadius, sides, sides, 1f, color);
+    }
+
+    public static Vertex[][] torus(MatrixStack matrices, float x, float y, float z, float radius, float tubeRadius, int sides, int tubeSides, float progress, int color) {
+        int mainSeg = Math.max(sides, 3);
+        int tubeSeg = Math.max(tubeSides, 3);
+
+        //calculate the main segments count to generate based on progress
+        int segCount = (int) Math.ceil(mainSeg * progress);
+        if (segCount <= 0)
+            return new Vertex[0][];
+
+        Vertex[] vertices = new Vertex[(segCount + 1) * (tubeSeg + 1)];
+
+        float phi = (float) (Math.PI * 2f) / tubeSeg;
+        float theta = (float) (Math.PI * 2f) / mainSeg;
+
+        //generate vertices
+        int index = 0;
+        for (int i = 0; i <= segCount; i++) {
+            float theta1 = i * theta;
+            float sinTheta1 = (float) Math.sin(theta1); float cosTheta1 = (float) Math.cos(theta1);
+
+            for (int j = 0; j <= tubeSeg; j++) {
+                float phi1 = j * phi;
+                float sinPhi1 = (float) Math.sin(phi1); float cosPhi1 = (float) Math.cos(phi1);
+
+                float x1 = (radius + tubeRadius * cosPhi1) * cosTheta1;
+                float y1 = tubeRadius * sinPhi1;
+                float z1 = (radius + tubeRadius * cosPhi1) * sinTheta1;
+
+                float nx = cosTheta1 * cosPhi1;
+                float nz = sinTheta1 * cosPhi1;
+
+                vertices[index++] = Vertex.of(x + x1, y + y1, z + z1)
+                        .normal(nx, sinPhi1, nz)
+                        .color(color)
+                        .mul(matrices);
+            }
+        }
+
+        //generate quads
+        Vertex[][] quads = new Vertex[segCount * tubeSeg][4];
+        index = 0;
+        for (int i = 0; i < segCount; i++) {
+            for (int j = 0; j < tubeSeg; j++) {
+                int v0 = i * (tubeSeg + 1) + j;
+                int v1 = (i + 1) * (tubeSeg + 1) + j;
+                int v2 = (i + 1) * (tubeSeg + 1) + (j + 1);
+                int v3 = i * (tubeSeg + 1) + (j + 1);
+
+                quads[index++] = new Vertex[]{vertices[v0], vertices[v3], vertices[v2], vertices[v1]};
+            }
+        }
+
+        return quads;
     }
 }

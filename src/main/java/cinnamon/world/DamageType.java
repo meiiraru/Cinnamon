@@ -4,5 +4,6 @@ public enum DamageType {
     GOD,
     PROJECTILE,
     EXPLOSION,
-    MELEE
+    MELEE,
+    TERRAIN
 }

@@ -166,7 +166,7 @@ public abstract class LivingEntity extends PhysEntity {
 
     @Override
     public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
-        if (type == DamageType.EXPLOSION && this.hasEffect(Effect.Type.EXPLOSION_IMMUNITY))
+        if (health <= 0 || type == DamageType.EXPLOSION && this.hasEffect(Effect.Type.EXPLOSION_IMMUNITY))
             return false;
 
         //apply critical
@@ -193,6 +193,8 @@ public abstract class LivingEntity extends PhysEntity {
     protected void onDeath() {
         this.remove();
         this.spawnDeathParticles();
+        stopUsing();
+        stopAttacking();
     }
 
     protected void spawnDeathParticles() {

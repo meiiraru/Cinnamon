@@ -340,7 +340,7 @@ public class WorldClient extends World {
             for (AABB aabb : terrainManager.getBounds()) {
                 Vector3f min = aabb.getMin();
                 Vector3f max = aabb.getMax();
-                VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFF00FF00));
+                VertexConsumer.LINES.consume(GeometryHelper.box(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFF00FF00));
             }
 
             //terrain
@@ -354,7 +354,7 @@ public class WorldClient extends World {
                 if (hit.get() != null && pos.equals(hit.get().getPos()))
                     pos.add(hit.collision().normal());
 
-                VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, pos.x, pos.y, pos.z, pos.x + 1, pos.y + 1, pos.z + 1, 0xFFFF0000));
+                VertexConsumer.LINES.consume(GeometryHelper.box(matrices, pos.x, pos.y, pos.z, pos.x + 1, pos.y + 1, pos.z + 1, 0xFFFF0000));
             }
         }
 
@@ -374,16 +374,16 @@ public class WorldClient extends World {
         Hit<Terrain> terrain = cameraEntity.getLookingTerrain(r);
         if (terrain != null) {
             Vector3f pos = terrain.pos();
-            VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF));
+            VertexConsumer.MAIN.consume(GeometryHelper.box(matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF));
         }
 
         Hit<Entity> entity = cameraEntity.getLookingEntity(r);
         if (entity != null) {
             AABB aabb = entity.obj().getAABB();
-            VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00));
+            VertexConsumer.LINES.consume(GeometryHelper.box(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00));
 
             Vector3f pos = entity.pos();
-            VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF));
+            VertexConsumer.MAIN.consume(GeometryHelper.box(matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF));
         }
     }
 
@@ -404,7 +404,7 @@ public class WorldClient extends World {
         int alpha = (int) Maths.lerp(0x32, 0xFF, ((float) Math.sin((Client.getInstance().ticks + delta) * 0.15f) + 1f) * 0.5f);
 
         for (AABB aabb : terrain.obj().getPreciseAABB())
-            VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF + (alpha << 24)));
+            VertexConsumer.LINES.consume(GeometryHelper.box(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF + (alpha << 24)));
     }
 
     public Sky getSky() {

@@ -138,6 +138,6 @@ public abstract class Particle extends WorldObject {
         AABB aabb = getAABB();
         Vector3f min = aabb.getMin();
         Vector3f max = aabb.getMax();
-        VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFFFFFFFF));
+        VertexConsumer.LINES.consume(GeometryHelper.box(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFFFFFFFF));
     }
 }

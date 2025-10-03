@@ -13,6 +13,7 @@ public class TriggerArea extends Entity {
     private final Set<Entity> triggeredEntities = new HashSet<>();
     private final Consumer<Entity> onTrigger;
     private final float width, height, depth;
+    private boolean oneTime = true;
 
     public TriggerArea(UUID uuid, Consumer<Entity> onTrigger, float width, float height, float depth) {
         super(uuid, null);
@@ -35,7 +36,7 @@ public class TriggerArea extends Entity {
                     continue;
 
                 //add to triggered list and call consumer
-                triggeredEntities.add(entity);
+                if (oneTime) triggeredEntities.add(entity);
                 onTrigger.accept(entity);
             }
         }
@@ -52,5 +53,13 @@ public class TriggerArea extends Entity {
     @Override
     public EntityRegistry getType() {
         return EntityRegistry.TRIGGER_AREA;
+    }
+
+    public void setOneTime(boolean oneTime) {
+        this.oneTime = oneTime;
+    }
+
+    public boolean isOneTime() {
+        return oneTime;
     }
 }

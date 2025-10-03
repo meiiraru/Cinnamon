@@ -86,16 +86,10 @@ public class Player extends LivingEntity {
 
     @Override
     public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
-        if (getAbilities().godMode() && type != DamageType.GOD)
+        if (invulnerability > 0 || (getAbilities().godMode() && type != DamageType.GOD))
             return false;
 
-        if (type == DamageType.MELEE) {
-            if (invulnerability > 0)
-                return false;
-
-            this.invulnerability = INVULNERABILITY_TIME;
-        }
-
+        this.invulnerability = INVULNERABILITY_TIME;
         boolean result = super.damage(source, type, amount, crit);
 
         if (result) {

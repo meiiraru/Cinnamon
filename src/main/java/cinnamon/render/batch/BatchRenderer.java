@@ -61,7 +61,7 @@ public class BatchRenderer<T extends Batch> {
             count += batch.render(shader);
         }
 
-        if (count > 0)
+        if (old != null)
             old.use();
 
         return count;

@@ -68,19 +68,19 @@ public class TransparentWorld extends WorldClient {
         for (int i = 0; i < 100; i++) {
             matrices.identity();
             matrices.translate((float) (Math.random() * r2) - r, (float) (Math.random() * r2) - r, (float) (Math.random() * r2) - r);
-            Vertex[][] cube = GeometryHelper.cube(matrices, -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0);
+            Vertex[][] box = GeometryHelper.box(matrices, -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0);
             //references baby!
             //n - v0 to v3
-            cube[0][0].color(0xAAFFFFFF);
-            cube[0][1].color(0xAA00FFFF);
-            cube[0][2].color(0xAA0000FF);
-            cube[0][3].color(0xAAFF00FF);
+            box[0][0].color(0xAAFFFFFF);
+            box[0][1].color(0xAA00FFFF);
+            box[0][2].color(0xAA0000FF);
+            box[0][3].color(0xAAFF00FF);
             //s - v4 to v7
-            cube[2][0].color(0xAA00FF00);
-            cube[2][1].color(0xAAFFFF00);
-            cube[2][2].color(0xAAFF0000);
-            cube[2][3].color(0xAA000000);
-            vertices.add(cube);
+            box[2][0].color(0xAA00FF00);
+            box[2][1].color(0xAAFFFF00);
+            box[2][2].color(0xAAFF0000);
+            box[2][3].color(0xAA000000);
+            vertices.add(box);
         }
     }
 

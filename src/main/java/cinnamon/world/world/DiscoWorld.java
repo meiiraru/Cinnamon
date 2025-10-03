@@ -162,6 +162,6 @@ public class DiscoWorld extends WorldClient {
         float y = Math.max(amplitude, 0.05f);
 
         int color = ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f(index / (float) bars, 0.6f, 1f)));
-        VertexConsumer.WORLD_MAIN_EMISSIVE.consume(GeometryHelper.cube(matrices, x, 0, 0, x + 0.1f, y, 0.1f, color + (0xFF << 24)));
+        VertexConsumer.WORLD_MAIN_EMISSIVE.consume(GeometryHelper.box(matrices, x, 0, 0, x + 0.1f, y, 0.1f, color + (0xFF << 24)));
     }
 }

@@ -143,13 +143,13 @@ public abstract class Entity extends WorldObject {
         //bounding box
         Vector3f min = aabb.getMin();
         Vector3f max = aabb.getMax();
-        VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFFFFFFFF));
+        VertexConsumer.LINES.consume(GeometryHelper.box(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFFFFFFFF));
 
         //eye pos
         Vector3f eye = getEyePos();
         if (this instanceof LivingEntity) {
             float f = 0.01f;
-            VertexConsumer.LINES.consume(GeometryHelper.cube(matrices, min.x, eye.y - f, min.z, max.x, eye.y + f, max.z, 0xFFFF0000));
+            VertexConsumer.LINES.consume(GeometryHelper.box(matrices, min.x, eye.y - f, min.z, max.x, eye.y + f, max.z, 0xFFFF0000));
         }
 
         //looking dir

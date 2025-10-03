@@ -179,9 +179,9 @@ public class DebugScreen {
         matrices.translate(0, 0, len);
         matrices.rotate(c.camera.getRot().invert(new Quaternionf()));
 
-        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000));
-        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 0, 1, 0, 1, len, 1, 0xFF00FF00));
-        VertexConsumer.MAIN.consume(GeometryHelper.cube(matrices, 0, 0, 1, 1, 1, len, 0xFF0000FF));
+        VertexConsumer.MAIN.consume(GeometryHelper.box(matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000));
+        VertexConsumer.MAIN.consume(GeometryHelper.box(matrices, 0, 1, 0, 1, len, 1, 0xFF00FF00));
+        VertexConsumer.MAIN.consume(GeometryHelper.box(matrices, 0, 0, 1, 1, 1, len, 0xFF0000FF));
 
         matrices.popMatrix();
     }

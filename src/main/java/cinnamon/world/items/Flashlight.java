@@ -17,21 +17,7 @@ public class Flashlight extends Item {
     private final CookieLight light = new CookieLight() {
         @Override
         public void calculateLightSpaceMatrix() {
-            LivingEntity entity = Flashlight.this.getSource();
-            if (entity != null) {
-                float delta = Client.getInstance().timer.partialTick;
-                Vector3f pos = entity.getHandPos(false, delta);
-                Vector3f dir = entity.getHandDir(false, delta);
-                direction(dir);
-                float f = 0.25f;
-                pos(pos.x + dir.x * f, pos.y + dir.y * f, pos.z + dir.z * f);
-
-                Client c = Client.getInstance();
-                boolean fp = entity == c.camera.getEntity() && ((WorldClient) entity.getWorld()).getCameraMode() == 0;
-                boolean noHud = c.hideHUD;
-                glareSize(fp ? 1f : 5f);
-                glareIntensity(fp && noHud ? 0f : 1f);
-            }
+            updateLightToEntity();
             super.calculateLightSpaceMatrix();
         }
     };
@@ -74,8 +60,31 @@ public class Flashlight extends Item {
         if ((source = getSource()) == null || (world = source.getWorld()) == null || !(world instanceof WorldClient wc))
             return;
 
-        if (active) wc.addLight(light);
-        else wc.removeLight(light);
+        if (active) {
+            updateLightToEntity();
+            wc.addLight(light);
+        } else {
+            wc.removeLight(light);
+        }
+    }
+
+    protected void updateLightToEntity() {
+        LivingEntity source;
+        if ((source = getSource()) == null)
+            return;
+
+        float delta = Client.getInstance().timer.partialTick;
+        Vector3f pos = source.getHandPos(false, delta);
+        Vector3f dir = source.getHandDir(false, delta);
+        light.direction(dir);
+        float f = 0.25f;
+        light.pos(pos.x + dir.x * f, pos.y + dir.y * f, pos.z + dir.z * f);
+
+        Client c = Client.getInstance();
+        boolean fp = source == c.camera.getEntity() && ((WorldClient) source.getWorld()).getCameraMode() == 0;
+        boolean noHud = c.hideHUD;
+        light.glareSize(fp ? 1f : 5f);
+        light.glareIntensity(fp && noHud ? 0f : 1f);
     }
 
     public Object getCountText() {
