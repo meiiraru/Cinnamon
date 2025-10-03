@@ -1,15 +1,15 @@
 package cinnamon.sound;
 
+import cinnamon.utils.FFT;
 import cinnamon.utils.Maths;
 import cinnamon.utils.UIHelper;
-import org.jtransforms.fft.FloatFFT_1D;
 
 import java.nio.ShortBuffer;
 
 public class SoundSpectrum {
 
     private final int fftSize, bars, maxFrequency;
-    private final FloatFFT_1D fft;
+    private final FFT fft;
     private final float[] amplitudes;
 
     public SoundSpectrum() {
@@ -20,7 +20,7 @@ public class SoundSpectrum {
         this.fftSize = fftSize;
         this.bars = bars;
         this.maxFrequency = maxFrequency;
-        this.fft = new FloatFFT_1D(fftSize);
+        this.fft = new FFT(fftSize);
         this.amplitudes = new float[bars];
     }
 

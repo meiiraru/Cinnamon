@@ -12,7 +12,6 @@ val mainClass = "cinnamon.Cinnamon"
 val lwjglVersion = "3.3.6"
 val jomlVersion = "1.10.8"
 val gsonVersion = "2.12.0"
-val jTransformsVersion = "3.1"
 
 val lwjglModules = arrayOf(
     "lwjgl",
@@ -83,7 +82,6 @@ dependencies {
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
     }
     api("com.google.code.gson:gson:$gsonVersion")
-    api("com.github.wendykierp:JTransforms:$jTransformsVersion")
 }
 
 tasks.register<Jar>("sourcesJar") {
