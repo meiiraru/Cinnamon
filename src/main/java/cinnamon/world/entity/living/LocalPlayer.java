@@ -15,6 +15,7 @@ import cinnamon.world.WorldObject;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
+import org.joml.Math;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -209,8 +210,8 @@ public class LocalPlayer extends Player {
         XrHandTransform transform = XrRenderer.getHandTransform(left ? 0 : 1);
         Vector2f rot = getRot(delta);
         return new Quaternionf()
-                .rotateY((float) Math.toRadians(-rot.y))
-                .rotateX((float) Math.toRadians(-rot.x))
+                .rotateY(Math.toRadians(-rot.y))
+                .rotateX(Math.toRadians(-rot.x))
                 .mul(transform.rot());
     }
 

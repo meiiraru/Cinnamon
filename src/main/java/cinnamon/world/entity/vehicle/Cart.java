@@ -12,6 +12,7 @@ import cinnamon.world.light.Light;
 import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.StarParticle;
 import cinnamon.world.world.WorldClient;
+import org.joml.Math;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 

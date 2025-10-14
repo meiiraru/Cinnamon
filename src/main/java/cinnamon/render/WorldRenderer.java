@@ -338,7 +338,7 @@ public class WorldRenderer {
 
     public static void initShadowBuffer() {
         //prepare the shadow buffer
-        int w = (int) Math.pow(2, Settings.shadowQuality.get() + 8); //min is 256
+        int w = 256 << Settings.shadowQuality.get();
         cascadeShadowBuffer.resize(w, w);
         cubeShadowBuffer.resize(w, w);
         shadowBuffer.resize(w, w);

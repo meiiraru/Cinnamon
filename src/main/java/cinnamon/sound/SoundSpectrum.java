@@ -1,8 +1,8 @@
 package cinnamon.sound;
 
 import cinnamon.utils.FFT;
-import cinnamon.utils.Maths;
 import cinnamon.utils.UIHelper;
+import org.joml.Math;
 
 import java.nio.ShortBuffer;
 
@@ -58,7 +58,7 @@ public class SoundSpectrum {
     public void updateAmplitudes(Sound sound, SoundInstance soundData, boolean smooth) {
         //set the amplitudes all back to 0
         for (int i = 0; i < amplitudes.length; i++)
-            amplitudes[i] = smooth ? Maths.lerp(amplitudes[i], 0f, UIHelper.tickDelta(0.6f)) : 0f;
+            amplitudes[i] = smooth ? Math.lerp(amplitudes[i], 0f, UIHelper.tickDelta(0.6f)) : 0f;
 
         //get sound samples
         float[] soundSamples = getSoundSamples(sound, soundData);
@@ -86,7 +86,7 @@ public class SoundSpectrum {
             for (int j = lowIndex; j <= highIndex; j++) {
                 float real = soundSamples[j * 2];
                 float imag = soundSamples[j * 2 + 1];
-                float magnitude = (float) Math.sqrt(real * real + imag * imag);
+                float magnitude = Math.sqrt(real * real + imag * imag);
                 sum += magnitude;
                 count++;
             }

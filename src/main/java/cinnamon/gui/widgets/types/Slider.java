@@ -15,6 +15,7 @@ import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
+import org.joml.Math;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -61,7 +62,7 @@ public class Slider extends SelectableWidget {
     @Override
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         float d = UIHelper.tickDelta(0.4f);
-        animationValue = Maths.lerp(animationValue, value, d);
+        animationValue = Math.lerp(animationValue, value, d);
 
         matrices.pushMatrix();
 
@@ -346,7 +347,7 @@ public class Slider extends SelectableWidget {
         value = warp ? Maths.clampWarp(value, 0f, 1f) : Maths.clamp(value, 0f, 1f);
 
         this.value = value;
-        this.intValue = Math.round(Maths.lerp(min, max, value));
+        this.intValue = Math.round(Math.lerp(min, max, value));
 
         if (showTooltip)
             super.setTooltip(tooltipFunction.apply(this.value, this.intValue));
@@ -515,7 +516,7 @@ public class Slider extends SelectableWidget {
         //grab text
         Window window = Client.getInstance().window;
         float value = showCurrentTooltip || !previewHoverValue ? getAnimationValue() : getValueAtMouse(window.mouseX, window.mouseY);
-        Text tooltip = tooltipFunction.apply(value, Math.round(Maths.lerp(min, max, value)));
+        Text tooltip = tooltipFunction.apply(value, Math.round(Math.lerp(min, max, value)));
 
         if (tooltip == null)
             return;

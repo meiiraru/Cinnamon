@@ -23,6 +23,7 @@ import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
 import cinnamon.vr.XrManager;
 import cinnamon.world.Sky;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.List;

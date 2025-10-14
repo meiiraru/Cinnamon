@@ -3,6 +3,7 @@ package cinnamon.model;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
+import org.joml.Math;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -60,11 +61,11 @@ public class GeometryHelper {
             return new Vertex[0];
 
         //90 degrees offset
-        float f = (float) Math.toRadians(-90f);
+        float f = Math.toRadians(-90f);
         //maximum allowed angle
-        float max = (float) Math.toRadians(360f * progress) + f;
+        float max = Math.toRadians(360f * progress) + f;
         //angle per step
-        float aStep = (float) Math.toRadians(360f / Math.max(sides, 3));
+        float aStep = Math.toRadians(360f / Math.max(sides, 3));
 
         //center vertex
         int vertexCount = (int) Math.ceil(Math.max(sides, 3) * progress);
@@ -74,15 +75,15 @@ public class GeometryHelper {
         for (int i = 1; i < vertices.length; i++) {
             //pos
             float angle = aStep * (i - 1) + f;
-            float x1 = (float) Math.cos(angle) * radius;
-            float y1 = (float) Math.sin(angle) * radius;
+            float x1 = Math.cos(angle) * radius;
+            float y1 = Math.sin(angle) * radius;
 
             //over the max
             if (angle > max) {
                 float prevAngle = aStep * (i - 2) + f;
                 float t = (max - prevAngle) / (angle - prevAngle);
-                x1 = Maths.lerp((float) Math.cos(prevAngle) * radius, x1, t);
-                y1 = Maths.lerp((float) Math.sin(prevAngle) * radius, y1, t);
+                x1 = Math.lerp(Math.cos(prevAngle) * radius, x1, t);
+                y1 = Math.lerp(Math.sin(prevAngle) * radius, y1, t);
             }
 
             vertices[vertices.length - i] = Vertex.of(x + x1, y + y1, 0).color(color).mul(matrices);
@@ -97,17 +98,17 @@ public class GeometryHelper {
             return new Vertex[0][];
 
         //90 degrees offset
-        float f = (float) Math.toRadians(-90f);
+        float f = Math.toRadians(-90f);
         //minimum allowed angle
-        float min = (float) Math.toRadians(360f * start) + f;
+        float min = Math.toRadians(360f * start) + f;
         //maximum allowed angle
-        float max = (float) Math.toRadians(360f * end) + f;
+        float max = Math.toRadians(360f * end) + f;
         //angle per step
-        float aStep = (float) Math.toRadians(360f / Math.max(sides, 3));
+        float aStep = Math.toRadians(360f / Math.max(sides, 3));
 
         //find the first and last valid polygon steps
-        float firstStep = (float) (Math.floor((min - f) / aStep) * aStep) + f;
-        float lastStep = (float) (Math.ceil((max - f) / aStep) * aStep) + f;
+        float firstStep = (Math.floor((min - f) / aStep) * aStep) + f;
+        float lastStep = (Math.ceil((max - f) / aStep) * aStep) + f;
 
         //thickness radius
         float iRadius = radius - thickness;
@@ -119,10 +120,10 @@ public class GeometryHelper {
             float angle1 = firstStep + aStep * i;
             float angle2 = angle1 + aStep;
 
-            float cos1 = (float) Math.cos(angle1);
-            float sin1 = (float) Math.sin(angle1);
-            float cos2 = (float) Math.cos(angle2);
-            float sin2 = (float) Math.sin(angle2);
+            float cos1 = Math.cos(angle1);
+            float sin1 = Math.sin(angle1);
+            float cos2 = Math.cos(angle2);
+            float sin2 = Math.sin(angle2);
 
             //outer pos
             float x1 = cos1 * radius;
@@ -134,10 +135,10 @@ public class GeometryHelper {
             //under the min
             if (angle1 < min) {
                 float t = (min - angle1) / (angle2 - angle1);
-                x1 = Maths.lerp(x1, cos2 * radius, t);
-                y1 = Maths.lerp(y1, sin2 * radius, t);
-                x3 = Maths.lerp(x3, cos2 * iRadius, t);
-                y3 = Maths.lerp(y3, sin2 * iRadius, t);
+                x1 = Math.lerp(x1, cos2 * radius, t);
+                y1 = Math.lerp(y1, sin2 * radius, t);
+                x3 = Math.lerp(x3, cos2 * iRadius, t);
+                y3 = Math.lerp(y3, sin2 * iRadius, t);
             }
 
             //outer pos
@@ -150,10 +151,10 @@ public class GeometryHelper {
             //over the max
             if (angle2 > max) {
                 float t = (max - angle1) / (angle2 - angle1);
-                x2 = Maths.lerp(cos1 * radius, x2, t);
-                y2 = Maths.lerp(sin1 * radius, y2, t);
-                x4 = Maths.lerp(cos1 * iRadius, x4, t);
-                y4 = Maths.lerp(sin1 * iRadius, y4, t);
+                x2 = Math.lerp(cos1 * radius, x2, t);
+                y2 = Math.lerp(sin1 * radius, y2, t);
+                x4 = Math.lerp(cos1 * iRadius, x4, t);
+                y4 = Math.lerp(sin1 * iRadius, y4, t);
             }
 
             //create the quad
@@ -216,10 +217,10 @@ public class GeometryHelper {
                 float[] prev = mesh[(i - 1) % mesh.length];
                 float[] curr = mesh[i % mesh.length];
                 float t = max - (i - 1);
-                xx = Maths.lerp(prev[0], curr[0], t);
-                yy = Maths.lerp(prev[1], curr[1], t);
-                u  = Maths.lerp(prev[2], curr[2], t);
-                v  = Maths.lerp(prev[3], curr[3], t);
+                xx = Math.lerp(prev[0], curr[0], t);
+                yy = Math.lerp(prev[1], curr[1], t);
+                u  = Math.lerp(prev[2], curr[2], t);
+                v  = Math.lerp(prev[3], curr[3], t);
             } else {
                 //just grab the position as is
                 float[] pos = mesh[i % mesh.length];
@@ -239,7 +240,7 @@ public class GeometryHelper {
 
         float dx = x1 - x0;
         float dy = y1 - y0;
-        float len = (float) Math.sqrt(dx * dx + dy * dy);
+        float len = Math.sqrt(dx * dx + dy * dy);
 
         matrices.translate(x0, y0, 0);
         matrices.rotate(Rotation.Z.rotationDeg(Maths.dirToRot(dx, dy)));
@@ -394,7 +395,7 @@ public class GeometryHelper {
 
     public static Vertex[][] cone(MatrixStack matrices, float x, float y, float z, float height, float radius, int sides, float progress, boolean base, int color) {
         int faces = Math.max(sides, 3);
-        float angleStep = ((float) Math.PI * progress * 2f) / faces;
+        float angleStep = (float) (Math.PI * progress * 2f) / faces;
 
         //generate vertices
         Vertex[] circle = new Vertex[sides];
@@ -403,7 +404,7 @@ public class GeometryHelper {
 
         for (int i = 0; i < sides; i++) {
             float theta = angleStep * i;
-            float x1 = (float) Math.cos(theta); float z1 = (float) Math.sin(theta);
+            float x1 = Math.cos(theta); float z1 = Math.sin(theta);
             circle[i] = Vertex.of(x + x1 * radius, y, z + z1 * radius).normal(x1, 0, z1).color(color).mul(matrices);
         }
 
@@ -425,7 +426,7 @@ public class GeometryHelper {
 
     public static Vertex[][] cylinder(MatrixStack matrices, float x, float y, float z, float height, float radiusTop, float radiusBottom, int sides, float progress, boolean cap, int color) {
         int vertexCount = Math.max(sides, 3);
-        float angleStep = ((float) Math.PI * progress * 2f) / vertexCount;
+        float angleStep = (float) (Math.PI * progress * 2f) / vertexCount;
 
         //generate vertices
         Vertex[] circle = new Vertex[sides * 2];
@@ -438,7 +439,7 @@ public class GeometryHelper {
         for (int j = 0; j < 2; j++) {
             for (int i = 0; i < sides; i++) {
                 float theta = angleStep * i;
-                float x1 = (float) Math.cos(theta); float z1 = (float) Math.sin(theta);
+                float x1 = Math.cos(theta); float z1 = Math.sin(theta);
                 circle[index++] = Vertex.of(x + x1 * r, y + j * height, z + z1 * r).normal(x1, 0, z1).color(color).mul(matrices);
             }
             r = radiusTop;
@@ -468,7 +469,7 @@ public class GeometryHelper {
         int hSlices = Math.max(hSides, 2);
 
         //angle steps (progress)
-        float phi = ((float) Math.PI * wProgress * 2f) / wSlices;
+        float phi = (float) (Math.PI * wProgress * 2f) / wSlices;
         float theta = (float) Math.PI * hProgress / hSlices;
 
         //generate vertices
@@ -476,10 +477,10 @@ public class GeometryHelper {
         int index = 0;
         for (int j = 0; j <= hSlices; j++) {
             float theta1 = theta * j;
-            float sinTheta1 = (float) Math.sin(theta1); float cosTheta1 = (float) Math.cos(theta1);
+            float sinTheta1 = Math.sin(theta1); float cosTheta1 = Math.cos(theta1);
             for (int i = 0; i <= wSlices; i++) {
                 float phi1 = phi * i;
-                float sinPhi1 = (float) Math.sin(phi1); float cosPhi1 = (float) Math.cos(phi1);
+                float sinPhi1 = Math.sin(phi1); float cosPhi1 = Math.cos(phi1);
 
                 float x1 = radius * sinTheta1 * cosPhi1;
                 float y1 = radius * cosTheta1;
@@ -535,13 +536,13 @@ public class GeometryHelper {
                 centerY = y + height - radius;
             }
 
-            float sinTheta1 = (float) Math.sin(theta1); float cosTheta1 = (float) Math.cos(theta1);
+            float sinTheta1 = Math.sin(theta1); float cosTheta1 = Math.cos(theta1);
             float ringY = centerY + radius * cosTheta1;
 
             //generate vertices around the ring
             for (int i = 0; i <= wSlices; i++) {
                 float phi1 = i * phi;
-                float sinPhi1 = (float) Math.sin(phi1); float cosPhi1 = (float) Math.cos(phi1);
+                float sinPhi1 = Math.sin(phi1); float cosPhi1 = Math.cos(phi1);
 
                 float x1 = radius * sinTheta1 * cosPhi1;
                 float y1 = radius * cosTheta1;
@@ -591,11 +592,11 @@ public class GeometryHelper {
         int index = 0;
         for (int i = 0; i <= segCount; i++) {
             float theta1 = i * theta;
-            float sinTheta1 = (float) Math.sin(theta1); float cosTheta1 = (float) Math.cos(theta1);
+            float sinTheta1 = Math.sin(theta1); float cosTheta1 = Math.cos(theta1);
 
             for (int j = 0; j <= tubeSeg; j++) {
                 float phi1 = j * phi;
-                float sinPhi1 = (float) Math.sin(phi1); float cosPhi1 = (float) Math.cos(phi1);
+                float sinPhi1 = Math.sin(phi1); float cosPhi1 = Math.cos(phi1);
 
                 float x1 = (radius + tubeRadius * cosPhi1) * cosTheta1;
                 float y1 = tubeRadius * sinPhi1;

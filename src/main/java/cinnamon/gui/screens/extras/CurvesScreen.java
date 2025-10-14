@@ -19,6 +19,7 @@ import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
+import org.joml.Math;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
@@ -299,7 +300,7 @@ public class CurvesScreen extends ParentedScreen {
         @Override
         public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
             float d = UIHelper.tickDelta(0.6f);
-            alpha = Maths.lerp(alpha, this.isHoveredOrFocused() ? 1f : 0.5f, d);
+            alpha = Math.lerp(alpha, this.isHoveredOrFocused() ? 1f : 0.5f, d);
             VertexConsumer.MAIN.consume(GeometryHelper.circle(matrices, getX() + R, getY() + R, R, 12, 0xAD72FF + ((int) (alpha * 255) << 24)));
         }
 

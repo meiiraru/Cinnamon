@@ -10,6 +10,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Rotation;
 import cinnamon.utils.UIHelper;
 import cinnamon.world.entity.Entity;
+import org.joml.Math;
 
 import java.util.UUID;
 import java.util.function.Predicate;

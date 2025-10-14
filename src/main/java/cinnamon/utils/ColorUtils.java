@@ -1,5 +1,6 @@
 package cinnamon.utils;
 
+import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -255,15 +256,15 @@ public class ColorUtils {
                 float xB = cB.x;
                 if (cA.x > cB.x) xB += 1f;
                 else xA += 1f;
-                h = Maths.lerp(xA, xB, t) % 1f;
+                h = Math.lerp(xA, xB, t) % 1f;
             } else {
                 float angle = Maths.shortAngle(cA.x * 360f, cB.x * 360f) / 360f;
-                h = Maths.lerp(cA.x, cA.x + angle, t);
+                h = Math.lerp(cA.x, cA.x + angle, t);
             }
-            s = Maths.lerp(cA.y, cB.y, t);
+            s = Math.lerp(cA.y, cB.y, t);
         }
 
-        float v = Maths.lerp(cA.z, cB.z, t);
+        float v = Math.lerp(cA.z, cB.z, t);
         return rgbToInt(hsvToRGB(new Vector3f(h, s, v)));
     }
 

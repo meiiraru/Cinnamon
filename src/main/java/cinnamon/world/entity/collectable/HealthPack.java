@@ -6,6 +6,7 @@ import cinnamon.utils.AABB;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.particle.SteamParticle;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.UUID;

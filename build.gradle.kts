@@ -11,7 +11,7 @@ val mainClass = "cinnamon.Cinnamon"
 //dependencies
 val lwjglVersion = "3.3.6"
 val jomlVersion = "1.10.8"
-val gsonVersion = "2.12.0"
+val gsonVersion = "2.13.2"
 
 val lwjglModules = arrayOf(
     "lwjgl",

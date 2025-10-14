@@ -7,8 +7,7 @@ import cinnamon.vr.XrManager;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import org.joml.*;
-
-import java.lang.Math;
+import org.joml.Math;
 
 import static org.lwjgl.opengl.GL11.glColorMask;
 
@@ -71,7 +70,7 @@ public class Camera {
     }
 
     public void setRot(float pitch, float yaw, float roll) {
-        this.rotation.rotationYXZ((float) Math.toRadians(-yaw), (float) Math.toRadians(-pitch), (float) Math.toRadians(-roll));
+        this.rotation.rotationYXZ(Math.toRadians(-yaw), Math.toRadians(-pitch), Math.toRadians(-roll));
     }
 
     public void setRot(Quaternionf quaternion) {
@@ -98,7 +97,7 @@ public class Camera {
     public void updateProjMatrix(int width, int height, float fov) {
         this.fov = fov;
         this.aspectRatio = (float) width / height;
-        perspMatrix.identity().perspective((float) Math.toRadians(fov), aspectRatio, NEAR_PLANE, FAR_PLANE);
+        perspMatrix.identity().perspective(Math.toRadians(fov), aspectRatio, NEAR_PLANE, FAR_PLANE);
         orthoMatrix.identity().ortho(0, width, height, 0, -1000, 1000);
     }
 
@@ -154,7 +153,7 @@ public class Camera {
         perspMatrix.transform(projectiveCamSpace);
 
         float w = projectiveCamSpace.w();
-        return new Vector4f(projectiveCamSpace.x() / w, projectiveCamSpace.y() / w, projectiveCamSpace.z() / w, (float) Math.sqrt(posDiff.dot(posDiff)));
+        return new Vector4f(projectiveCamSpace.x() / w, projectiveCamSpace.y() / w, projectiveCamSpace.z() / w, Math.sqrt(posDiff.dot(posDiff)));
     }
 
     public void lookAt(float x, float y, float z) {
@@ -175,7 +174,7 @@ public class Camera {
 
     public void anaglyph3D(MatrixStack matrices, float eyeDistance, float angle, Runnable beforeColor, Runnable targetRender) {
         boolean left = angle < 0;
-        float angleRad = (float) Math.toRadians(angle);
+        float angleRad = Math.toRadians(angle);
 
         for (int i = 0; i < 2; i++) {
             //move and rotate matrices to eye position

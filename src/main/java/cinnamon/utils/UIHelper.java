@@ -14,6 +14,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
+import org.joml.Math;
 
 import java.util.Stack;
 
@@ -347,7 +348,7 @@ public class UIHelper {
     }
 
     public static float tickDelta(float speed) {
-        return (float) (1f - Math.pow(speed, Client.getInstance().timer.tickDelta));
+        return 1f - Maths.pow(speed, Client.getInstance().timer.tickDelta);
     }
 
     public static void pushStencil(MatrixStack matrices, int x, int y, int width, int height) {

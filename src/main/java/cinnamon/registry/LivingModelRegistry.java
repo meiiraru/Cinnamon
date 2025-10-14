@@ -1,6 +1,7 @@
 package cinnamon.registry;
 
 import cinnamon.utils.Resource;
+import org.joml.Math;
 
 public enum LivingModelRegistry {
     PICKLE(1.5f),

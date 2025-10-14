@@ -1,5 +1,7 @@
 package cinnamon.utils;
 
+import org.joml.Math;
+
 public class FFT {
 
     private final int n;

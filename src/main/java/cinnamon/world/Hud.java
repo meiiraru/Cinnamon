@@ -23,6 +23,7 @@ import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL11.*;

@@ -1,6 +1,7 @@
 package cinnamon.settings;
 
 import cinnamon.utils.Version;
+import org.joml.Math;
 
 public enum ArgsOptions {
     //special case for help and version

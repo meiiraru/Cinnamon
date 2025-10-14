@@ -11,6 +11,7 @@ import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.particle.DustParticle;
 import cinnamon.world.world.World;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.UUID;

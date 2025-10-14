@@ -12,6 +12,7 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
 import cinnamon.world.world.WorldClient;
+import org.joml.Math;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,7 +120,7 @@ public class MainMenu extends Screen {
             int w = texture.getWidth();
             int h = texture.getHeight();
 
-            float y2 = (float) Math.sin(deltaTick * 0.1f + i % 2) * 2f - h * 0.5f;
+            float y2 = Math.sin(deltaTick * 0.1f + i % 2) * 2f - h * 0.5f;
             VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, x, y + y2, w, h), res);
             x += w + 1;
         }
@@ -160,7 +161,7 @@ public class MainMenu extends Screen {
             matrices.pushMatrix();
 
             float d = UIHelper.tickDelta(0.6f);
-            hoverY = Maths.lerp(hoverY, isHoveredOrFocused() ? -5 : 0, d);
+            hoverY = Math.lerp(hoverY, isHoveredOrFocused() ? -5 : 0, d);
             matrices.translate(0, hoverY, 0);
 
             super.renderWidget(matrices, mouseX, mouseY, delta);

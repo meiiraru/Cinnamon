@@ -20,6 +20,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
+import cinnamon.sound.SoundManager;
 import cinnamon.text.Text;
 import cinnamon.utils.AABB;
 import cinnamon.utils.ColorUtils;
@@ -30,7 +31,6 @@ import cinnamon.world.Hud;
 import cinnamon.world.Sky;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
-import cinnamon.world.entity.misc.Spawner;
 import cinnamon.world.entity.collectable.EffectBox;
 import cinnamon.world.entity.collectable.HealthPack;
 import cinnamon.world.entity.living.Dummy;
@@ -39,6 +39,7 @@ import cinnamon.world.entity.living.LocalPlayer;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.entity.misc.Firework;
 import cinnamon.world.entity.misc.FireworkStar;
+import cinnamon.world.entity.misc.Spawner;
 import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.entity.vehicle.ShoppingCart;
 import cinnamon.world.items.BubbleGun;
@@ -57,6 +58,7 @@ import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.TerrainGenerator;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -182,6 +184,7 @@ public class WorldClient extends World {
 
     @Override
     public void close() {
+        SoundManager.stopAll();
         //ServerConnection.close();
     }
 
@@ -401,7 +404,7 @@ public class WorldClient extends World {
         if (terrain == null || (entity != null && entity.collision().near() < terrain.collision().near()) || !terrain.obj().isSelectable(player))
             return;
 
-        int alpha = (int) Maths.lerp(0x32, 0xFF, ((float) Math.sin((Client.getInstance().ticks + delta) * 0.15f) + 1f) * 0.5f);
+        int alpha = (int) Math.lerp(0x32, 0xFF, (Math.sin((Client.getInstance().ticks + delta) * 0.15f) + 1f) * 0.5f);
 
         for (AABB aabb : terrain.obj().getPreciseAABB())
             VertexConsumer.LINES.consume(GeometryHelper.box(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF + (alpha << 24)));

@@ -18,6 +18,7 @@ import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextUtils;
 import cinnamon.world.Hud;
+import org.joml.Math;
 
 import static cinnamon.Client.LOGGER;
 

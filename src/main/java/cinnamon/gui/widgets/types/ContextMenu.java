@@ -10,10 +10,10 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
+import org.joml.Math;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -299,7 +299,7 @@ public class ContextMenu extends PopupWidget {
 
             //arrow animation :3
             float d = UIHelper.tickDelta(0.6f);
-            arrowOffset = Maths.lerp(arrowOffset, isHoveredOrFocused() ? 2f : 0f, d);
+            arrowOffset = Math.lerp(arrowOffset, isHoveredOrFocused() ? 2f : 0f, d);
 
             arrow.render(VertexConsumer.MAIN, matrices, x + arrowOffset, y, Alignment.CENTER_RIGHT);
         }

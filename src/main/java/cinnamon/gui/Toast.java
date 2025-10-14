@@ -7,6 +7,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
+import org.joml.Math;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -125,9 +126,9 @@ public class Toast {
         //set y animation offset
         float y;
         if (life <= ANIM) {
-            y = Maths.lerp(-this.height - PADDING, 1f, life / ANIM);
+            y = Math.lerp(-this.height - PADDING, 1f, life / ANIM);
         } else if (life >= length - ANIM) {
-            y = Maths.lerp(1f, -this.height - PADDING, (life - (length - ANIM)) / ANIM);
+            y = Math.lerp(1f, -this.height - PADDING, (life - (length - ANIM)) / ANIM);
         } else {
             y = 1f;
         }

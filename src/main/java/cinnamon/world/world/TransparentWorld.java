@@ -8,6 +8,7 @@ import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;

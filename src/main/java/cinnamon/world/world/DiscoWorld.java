@@ -16,6 +16,7 @@ import cinnamon.world.entity.terrain.DiscoFloor;
 import cinnamon.world.entity.terrain.FloorLight;
 import cinnamon.world.entity.terrain.ParticleSpawner;
 import cinnamon.world.entity.terrain.Speaker;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;

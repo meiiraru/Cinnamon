@@ -11,6 +11,7 @@ import cinnamon.utils.Alignment;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
+import org.joml.Math;
 
 public class Label extends SelectableWidget implements AlignedWidget {
 

@@ -1,5 +1,6 @@
 package cinnamon.utils;
 
+import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -304,16 +305,16 @@ public class AABB {
         if (angle == 0f)
             return this;
 
-        double a = Math.toRadians(angle);
-        double sin = Math.sin(a), cos = Math.cos(a);
+        float a = Math.toRadians(angle);
+        float sin = Math.sin(a), cos = Math.cos(a);
 
         return set(
                 minX,
-                (float) (minY * cos - minZ * sin),
-                (float) (minY * sin + minZ * cos),
+                minY * cos - minZ * sin,
+                minY * sin + minZ * cos,
                 maxX,
-                (float) (maxY * cos - maxZ * sin),
-                (float) (maxY * sin + maxZ * cos)
+                maxY * cos - maxZ * sin,
+                maxY * sin + maxZ * cos
         );
     }
 
@@ -321,16 +322,16 @@ public class AABB {
         if (angle == 0f)
             return this;
 
-        double a = Math.toRadians(angle);
-        double sin = Math.sin(a), cos = Math.cos(a);
+        float a = Math.toRadians(angle);
+        float sin = Math.sin(a), cos = Math.cos(a);
 
         return set(
-                (float) (minX * cos + minZ * sin),
+                minX * cos + minZ * sin,
                 minY,
-                (float) (-minX * sin + minZ * cos),
-                (float) (maxX * cos + maxZ * sin),
+                -minX * sin + minZ * cos,
+                maxX * cos + maxZ * sin,
                 maxY,
-                (float) (-maxX * sin + maxZ * cos)
+                -maxX * sin + maxZ * cos
         );
     }
 
@@ -338,27 +339,50 @@ public class AABB {
         if (angle == 0f)
             return this;
 
-        double a = Math.toRadians(angle);
-        double sin = Math.sin(a), cos = Math.cos(a);
+        float a = Math.toRadians(angle);
+        float sin = Math.sin(a), cos = Math.cos(a);
 
         return set(
-                (float) (minX * cos - minY * sin),
-                (float) (minX * sin + minY * cos),
+                minX * cos - minY * sin,
+                minX * sin + minY * cos,
                 minZ,
-                (float) (maxX * cos - maxY * sin),
-                (float) (maxX * sin + maxY * cos),
+                maxX * cos - maxY * sin,
+                maxX * sin + maxY * cos,
                 maxZ
         );
     }
 
     public AABB applyMatrix(Matrix4f matrix) {
-        Vector3f min = getMin();
-        Vector3f max = getMax();
+        int properties = matrix.properties();
+        if ((properties & Matrix4f.PROPERTY_IDENTITY) != 0)
+            return this;
 
-        min.mulPosition(matrix);
-        max.mulPosition(matrix);
+        //center and half extents
+        float cx = (minX + maxX) * 0.5f;
+        float cy = (minY + maxY) * 0.5f;
+        float cz = (minZ + maxZ) * 0.5f;
+        float ex = (maxX - minX) * 0.5f;
+        float ey = (maxY - minY) * 0.5f;
+        float ez = (maxZ - minZ) * 0.5f;
 
-        return this.set(min, max);
+        //transform center
+        float ncx = Math.fma(matrix.m00(), cx, Math.fma(matrix.m10(), cy, Math.fma(matrix.m20(), cz, matrix.m30())));
+        float ncy = Math.fma(matrix.m01(), cx, Math.fma(matrix.m11(), cy, Math.fma(matrix.m21(), cz, matrix.m31())));
+        float ncz = Math.fma(matrix.m02(), cx, Math.fma(matrix.m12(), cy, Math.fma(matrix.m22(), cz, matrix.m32())));
+
+        //compute new half extents
+        float nex = Math.fma(Math.abs(matrix.m00()), ex, Math.fma(Math.abs(matrix.m10()), ey, Math.abs(matrix.m20()) * ez));
+        float ney = Math.fma(Math.abs(matrix.m01()), ex, Math.fma(Math.abs(matrix.m11()), ey, Math.abs(matrix.m21()) * ez));
+        float nez = Math.fma(Math.abs(matrix.m02()), ex, Math.fma(Math.abs(matrix.m12()), ey, Math.abs(matrix.m22()) * ez));
+
+        return set(
+                ncx - nex,
+                ncy - ney,
+                ncz - nez,
+                ncx + nex,
+                ncy + ney,
+                ncz + nez
+        );
     }
 
     @Override

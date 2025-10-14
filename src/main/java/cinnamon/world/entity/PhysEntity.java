@@ -5,6 +5,7 @@ import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionDetector;
 import cinnamon.world.collisions.CollisionResolver;
 import cinnamon.world.collisions.CollisionResult;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.List;
@@ -180,8 +181,8 @@ public abstract class PhysEntity extends Entity {
         impulse.mul(getMoveSpeed());
 
         //move the entity in facing direction
-        this.impulse.rotateX((float) Math.toRadians(-rot.x));
-        this.impulse.rotateY((float) Math.toRadians(-rot.y));
+        this.impulse.rotateX(Math.toRadians(-rot.x));
+        this.impulse.rotateY(Math.toRadians(-rot.y));
     }
 
     protected float getMoveSpeed() {

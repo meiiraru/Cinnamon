@@ -4,6 +4,7 @@ import cinnamon.registry.TerrainEntityRegistry;
 import cinnamon.utils.AABB;
 import cinnamon.world.particle.FireParticle;
 import cinnamon.world.particle.SoapParticle;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.UUID;

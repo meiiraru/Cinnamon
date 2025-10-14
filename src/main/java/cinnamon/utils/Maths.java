@@ -1,8 +1,8 @@
 package cinnamon.utils;
 
 import org.joml.*;
+import org.joml.Math;
 
-import java.lang.Math;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -13,31 +13,27 @@ import java.util.function.Predicate;
 
 public class Maths {
 
-    public static float lerp(float a, float b, float t) {
-        return a * (1f - t) + b * t;
-    }
-
     public static Vector4f lerp(Vector4f a, Vector4f b, float t) {
         return new Vector4f(
-                lerp(a.x, b.x, t),
-                lerp(a.y, b.y, t),
-                lerp(a.z, b.z, t),
-                lerp(a.w, b.w, t)
+                Math.lerp(a.x, b.x, t),
+                Math.lerp(a.y, b.y, t),
+                Math.lerp(a.z, b.z, t),
+                Math.lerp(a.w, b.w, t)
         );
     }
 
     public static Vector3f lerp(Vector3f a, Vector3f b, float t) {
         return new Vector3f(
-                lerp(a.x, b.x, t),
-                lerp(a.y, b.y, t),
-                lerp(a.z, b.z, t)
+                Math.lerp(a.x, b.x, t),
+                Math.lerp(a.y, b.y, t),
+                Math.lerp(a.z, b.z, t)
         );
     }
 
     public static Vector2f lerp(Vector2f a, Vector2f b, float t) {
         return new Vector2f(
-                lerp(a.x, b.x, t),
-                lerp(a.y, b.y, t)
+                Math.lerp(a.x, b.x, t),
+                Math.lerp(a.y, b.y, t)
         );
     }
 
@@ -55,7 +51,7 @@ public class Maths {
     }
 
     public static float lerpAngle(float a, float b, float t) {
-        return a + shortAngle(a, b) * t;
+        return Math.fma(shortAngle(a, b), t, a);
     }
 
     public static Vector2f lerpAngle(Vector2f a, Vector2f b, float t) {
@@ -79,11 +75,11 @@ public class Maths {
             return 0;
 
         float index = t * (len - 1);
-        int prev = (int) modulo((float) Math.floor(index), len);
-        int next = (int) modulo((float) Math.ceil(index), len);
+        int prev = (int) modulo(Math.floor(index), len);
+        int next = (int) modulo(Math.ceil(index), len);
 
         float indexDelta = index - prev;
-        return lerp(array[prev], array[next], indexDelta);
+        return Math.lerp(array[prev], array[next], indexDelta);
     }
 
     public static Vector3f lerpArray(Vector3f[] array, float t) {
@@ -92,8 +88,8 @@ public class Maths {
             return new Vector3f();
 
         float index = t * (len - 1);
-        int prev = (int) modulo((float) Math.floor(index), len);
-        int next = (int) modulo((float) Math.ceil(index), len);
+        int prev = (int) modulo(Math.floor(index), len);
+        int next = (int) modulo(Math.ceil(index), len);
 
         float indexDelta = index - prev;
         return lerp(array[prev], array[next], indexDelta);
@@ -108,15 +104,15 @@ public class Maths {
     }
 
     public static Vector3f rotToDir(float pitch, float yaw) {
-        double p = Math.toRadians(pitch + 180f);
-        double y = Math.toRadians(-yaw);
-        double cosP = Math.cos(p);
-        return new Vector3f((float) (Math.sin(y) * cosP), (float) Math.sin(p), (float) (Math.cos(y) * cosP));
+        float p = Math.toRadians(pitch + 180f);
+        float y = Math.toRadians(-yaw);
+        float cosP = Math.cos(p);
+        return new Vector3f(Math.sin(y) * cosP, Math.sin(p), Math.cos(y) * cosP);
     }
 
     public static Vector2f rotToDir(float degrees) {
-        double angle = Math.toRadians(degrees);
-        return new Vector2f((float) Math.cos(angle), (float) Math.sin(angle));
+        float angle = Math.toRadians(degrees);
+        return new Vector2f(Math.cos(angle), Math.sin(angle));
     }
 
     public static Vector2f dirToRot(Vector3f dir) {
@@ -124,8 +120,8 @@ public class Maths {
     }
 
     public static Vector2f dirToRot(float x, float y, float z) {
-        float pitch = (float) Math.toDegrees(Math.asin(clamp(-y, -1f, 1f)));
-        float yaw = (float) Math.toDegrees(Math.atan2(z, x));
+        float pitch = Math.toDegrees(Math.asin(clamp(-y, -1f, 1f)));
+        float yaw = Math.toDegrees(Math.atan2(z, x));
         return new Vector2f(pitch, yaw + 90f);
     }
 
@@ -134,7 +130,7 @@ public class Maths {
     }
 
     public static float dirToRot(float x, float y) {
-        return (float) Math.toDegrees(Math.atan2(y, x));
+        return Math.toDegrees(Math.atan2(y, x));
     }
 
     public static float modulo(float a, float n) {
@@ -150,15 +146,15 @@ public class Maths {
     }
 
     public static float map(float x, float min1, float max1, float min2, float max2) {
-        return lerp(min2, max2, ratio(x, min1, max1));
+        return Math.lerp(min2, max2, ratio(x, min1, max1));
     }
 
     public static float clamp(float n, float min, float max) {
-        return min > max ? Math.clamp(n, max, min) : Math.clamp(n, min, max);
+        return min > max ? Math.clamp(max, min, n) : Math.clamp(min, max, n);
     }
 
     public static int clamp(int n, int min, int max) {
-        return min > max ? Math.clamp(n, max, min) : Math.clamp(n, min, max);
+        return min > max ? Math.clamp(max, min, n) : Math.clamp(min, max, n);
     }
 
     public static float clampWarp(float n, float min, float max) {
@@ -169,7 +165,18 @@ public class Maths {
         }
 
         float range = max - min;
-        return n - range * (float) Math.floor((n - min) / range);
+        return n - range * Math.floor((n - min) / range);
+    }
+
+    public static int pow(int a, int b) {
+        int p = 1;
+        for (int i = 0; i < b; i++)
+            p *= a;
+        return p;
+    }
+
+    public static float pow(float a, float b) {
+        return (float) java.lang.Math.pow(a, b);
     }
 
     public static Vector3f reflect(Vector3f dir, Vector3f normal) {
@@ -185,31 +192,31 @@ public class Maths {
 
     public static Vector3f toRadians(Vector3f vec) {
         return new Vector3f(
-                (float) Math.toRadians(vec.x),
-                (float) Math.toRadians(vec.y),
-                (float) Math.toRadians(vec.z)
+                Math.toRadians(vec.x),
+                Math.toRadians(vec.y),
+                Math.toRadians(vec.z)
         );
     }
 
     public static Vector2f toRadians(Vector2f vec) {
         return new Vector2f(
-                (float) Math.toRadians(vec.x),
-                (float) Math.toRadians(vec.y)
+                Math.toRadians(vec.x),
+                Math.toRadians(vec.y)
         );
     }
 
     public static Vector3f toDegrees(Vector3f vec) {
         return new Vector3f(
-                (float) Math.toDegrees(vec.x),
-                (float) Math.toDegrees(vec.y),
-                (float) Math.toDegrees(vec.z)
+                Math.toDegrees(vec.x),
+                Math.toDegrees(vec.y),
+                Math.toDegrees(vec.z)
         );
     }
 
     public static Vector2f toDegrees(Vector2f vec) {
         return new Vector2f(
-                (float) Math.toDegrees(vec.x),
-                (float) Math.toDegrees(vec.y)
+                Math.toDegrees(vec.x),
+                Math.toDegrees(vec.y)
         );
     }
 
@@ -218,15 +225,15 @@ public class Maths {
     }
 
     public static float getPitch(Quaternionf quat) {
-        return (float) Math.toDegrees(Math.atan2(-2f * quat.x * quat.w + 2f * quat.y * quat.z, 1f - 2f * quat.x * quat.x - 2f * quat.z * quat.z));
+        return Math.toDegrees(Math.atan2(-2f * quat.x * quat.w + 2f * quat.y * quat.z, 1f - 2f * quat.x * quat.x - 2f * quat.z * quat.z));
     }
 
     public static float getYaw(Quaternionf quat) {
-        return (float) Math.toDegrees(Math.atan2(-2f * quat.y * quat.w + 2f * quat.x * quat.z, 1f - 2f * quat.y * quat.y - 2f * quat.z * quat.z));
+        return Math.toDegrees(Math.atan2(-2f * quat.y * quat.w + 2f * quat.x * quat.z, 1f - 2f * quat.y * quat.y - 2f * quat.z * quat.z));
     }
 
     public static float getRoll(Quaternionf quat) {
-        return (float) Math.toDegrees(Math.asin(-2f * quat.x * quat.y - 2f * quat.z * quat.w));
+        return Math.toDegrees(Math.asin(-2f * quat.x * quat.y - 2f * quat.z * quat.w));
     }
 
     public static Vector3f normal(Vector3f p1, Vector3f p2, Vector3f p3) {
@@ -288,9 +295,9 @@ public class Maths {
     }
 
     public static Vector2f rotate(Vector2f vec, float angle) {
-        float rad = (float) Math.toRadians(angle);
-        float cos = (float) (Math.cos(rad));
-        float sin = (float) (Math.sin(rad));
+        float rad = Math.toRadians(angle);
+        float cos = Math.cos(rad);
+        float sin = Math.sin(rad);
         return vec.set(
                 cos * vec.x - sin * vec.y,
                 sin * vec.x + cos * vec.y
@@ -397,9 +404,9 @@ public class Maths {
         float r2 = (float) Math.toRadians(Math.random() * 2f - 1f) * pitch;
 
         Vector3f rotVec = new Vector3f(
-                (float) (Math.sin(r1) * Math.cos(r2)),
-                (float) Math.sin(r2),
-                (float) (Math.cos(r1) * Math.cos(r2))
+                Math.sin(r1) * Math.cos(r2),
+                Math.sin(r2),
+                Math.cos(r1) * Math.cos(r2)
         );
 
         return rotVec.mul(dirMatrix);
@@ -454,7 +461,7 @@ public class Maths {
 
         while (n > 0) {
             for (int i = 0; i < n; i++)
-                points[i] = lerp(points[i], points[i + 1], t);
+                points[i] = Math.lerp(points[i], points[i + 1], t);
             n--;
         }
 
@@ -484,35 +491,35 @@ public class Maths {
 
         IN_QUAD(x -> x * x),
         OUT_QUAD(x -> 1f - (1f - x) * (1f - x)),
-        IN_OUT_QUAD(x -> x < 0.5f ? 2f * x * x : 1f - (float) Math.pow(-2f * x + 2f, 2f) / 2f),
+        IN_OUT_QUAD(x -> x < 0.5f ? 2f * x * x : 1f - pow(-2f * x + 2f, 2f) / 2f),
 
         IN_CUBIC(x -> x * x * x),
-        OUT_CUBIC(x -> 1f - (float) Math.pow(1f - x, 3f)),
-        IN_OUT_CUBIC(x -> x < 0.5f ? 4f * x * x * x : 1f - (float) Math.pow(-2f * x + 2f, 3f) / 2f),
+        OUT_CUBIC(x -> 1f - pow(1f - x, 3f)),
+        IN_OUT_CUBIC(x -> x < 0.5f ? 4f * x * x * x : 1f - pow(-2f * x + 2f, 3f) / 2f),
 
         IN_QUART(x -> x * x * x * x),
-        OUT_QUART(x -> 1f - (float) Math.pow(1f - x, 4f)),
-        IN_OUT_QUART(x -> x < 0.5f ? 8f * x * x * x * x : 1f - (float) Math.pow(-2f * x + 2f, 4f) / 2f),
+        OUT_QUART(x -> 1f - pow(1f - x, 4f)),
+        IN_OUT_QUART(x -> x < 0.5f ? 8f * x * x * x * x : 1f - pow(-2f * x + 2f, 4f) / 2f),
 
         IN_QUINT(x -> x * x * x * x * x),
-        OUT_QUINT(x -> 1f - (float) Math.pow(1f - x, 5f)),
-        IN_OUT_QUINT(x -> x < 0.5f ? 16f * x * x * x * x * x : 1f - (float) Math.pow(-2f * x + 2f, 5f) / 2f),
+        OUT_QUINT(x -> 1f - pow(1f - x, 5f)),
+        IN_OUT_QUINT(x -> x < 0.5f ? 16f * x * x * x * x * x : 1f - pow(-2f * x + 2f, 5f) / 2f),
 
-        IN_EXPO(x -> x == 0f ? 0f : (float) Math.pow(2f, 10f * x - 10f)),
-        OUT_EXPO(x ->  x == 1f ? 1f : 1f - (float) Math.pow(2f, -10f * x)),
-        IN_OUT_EXPO(x -> (float) (x == 0f ? 0f : x == 1f ? 1f : x < 0.5f ? Math.pow(2f, 20f * x - 10f) / 2f : (2f - Math.pow(2f, -20f * x + 10f)) / 2f)),
+        IN_EXPO(x -> x == 0f ? 0f : pow(2f, 10f * x - 10f)),
+        OUT_EXPO(x ->  x == 1f ? 1f : 1f - pow(2f, -10f * x)),
+        IN_OUT_EXPO(x -> x == 0f ? 0f : x == 1f ? 1f : x < 0.5f ? pow(2f, 20f * x - 10f) / 2f : (2f - pow(2f, -20f * x + 10f)) / 2f),
 
-        IN_CIRC(x -> 1f - (float) Math.sqrt(1f - Math.pow(x, 2f))),
-        OUT_CIRC(x -> (float) Math.sqrt(1f - Math.pow(x - 1f, 2f))),
-        IN_OUT_CIRC(x -> (float) (x < 0.5f ? (1f - Math.sqrt(1f - Math.pow(2f * x, 2f))) / 2f : (Math.sqrt(1f - Math.pow(-2f * x + 2f, 2f)) + 1f) / 2f)),
+        IN_CIRC(x -> 1f - Math.sqrt(1f - pow(x, 2f))),
+        OUT_CIRC(x -> Math.sqrt(1f - pow(x - 1f, 2f))),
+        IN_OUT_CIRC(x -> x < 0.5f ? (1f - Math.sqrt(1f - pow(2f * x, 2f))) / 2f : (Math.sqrt(1f - pow(-2f * x + 2f, 2f)) + 1f) / 2f),
 
         IN_BACK(x -> C3 * x * x * x - C1 * x * x),
-        OUT_BACK(x -> 1f + C3 * (float) Math.pow(x - 1f, 3f) + C1 * (float) Math.pow(x - 1f, 2f)),
-        IN_OUT_BACK(x -> (float) (x < 0.5f ? (Math.pow(2f * x, 2f) * ((C2 + 1f) * 2f * x - C2)) / 2f : (Math.pow(2f * x - 2f, 2f) * ((C2 + 1f) * (x * 2f - 2f) + C2) + 2f) / 2f)),
+        OUT_BACK(x -> 1f + C3 * pow(x - 1f, 3f) + C1 * pow(x - 1f, 2f)),
+        IN_OUT_BACK(x -> x < 0.5f ? (pow(2f * x, 2f) * ((C2 + 1f) * 2f * x - C2)) / 2f : (pow(2f * x - 2f, 2f) * ((C2 + 1f) * (x * 2f - 2f) + C2) + 2f) / 2f),
 
-        IN_ELASTIC(x -> (float) (x == 0f ? 0f : x == 1f ? 1f : -Math.pow(2f, 10f * x - 10f) * Math.sin((x * 10f - 10.75f) * C4))),
-        OUT_ELASTIC(x -> (float) (x == 0f ? 0f : x == 1f ? 1f : Math.pow(2f, -10f * x) * Math.sin((x * 10f - 0.75f) * C4) + 1f)),
-        IN_OUT_ELASTIC(x -> (float) (x == 0f ? 0f : x == 1f ? 1f : x < 0.5f ? -(Math.pow(2f, 20f * x - 10f) * Math.sin((20f * x - 11.125f) * C5)) / 2f : (Math.pow(2f, -20f * x + 10f) * Math.sin((20f * x - 11.125f) * C5)) / 2f + 1f)),
+        IN_ELASTIC(x -> x == 0f ? 0f : x == 1f ? 1f : -pow(2f, 10f * x - 10f) * Math.sin((x * 10f - 10.75f) * C4)),
+        OUT_ELASTIC(x -> x == 0f ? 0f : x == 1f ? 1f : pow(2f, -10f * x) * Math.sin((x * 10f - 0.75f) * C4) + 1f),
+        IN_OUT_ELASTIC(x -> x == 0f ? 0f : x == 1f ? 1f : x < 0.5f ? -(pow(2f, 20f * x - 10f) * Math.sin((20f * x - 11.125f) * C5)) / 2f : (pow(2f, -20f * x + 10f) * Math.sin((20f * x - 11.125f) * C5)) / 2f + 1f),
 
         OUT_BOUNCE(x -> {
             if (x < 1f / D1)

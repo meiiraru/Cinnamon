@@ -7,6 +7,7 @@ import cinnamon.world.collisions.CollisionResolver;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -27,7 +28,7 @@ public abstract class Collectable extends PhysEntity {
 
     @Override
     protected void applyModelPose(MatrixStack matrices, float delta) {
-        matrices.translate(0, ((float) Math.sin((Client.getInstance().ticks + delta) * 0.05f) + 1) * 0.15f, 0);
+        matrices.translate(0, (Math.sin((Client.getInstance().ticks + delta) * 0.05f) + 1) * 0.15f, 0);
         super.applyModelPose(matrices, delta);
     }
 

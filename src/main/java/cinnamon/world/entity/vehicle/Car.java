@@ -7,6 +7,7 @@ import cinnamon.utils.UIHelper;
 import cinnamon.world.collisions.CollisionResolver;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.Entity;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -46,9 +47,9 @@ public abstract class Car extends Vehicle {
 
         //reset things back to zero
         float d = UIHelper.tickDelta(0.1f);
-        steering = Maths.lerp(steering, steeringInput, d);
+        steering = Math.lerp(steering, steeringInput, d);
         if (accelerationInput == 0)
-            acceleration = Maths.lerp(acceleration, 0, d);
+            acceleration = Math.lerp(acceleration, 0, d);
 
         //calculate acceleration
         boolean isMovingForwards = motion.dot(getLookDir()) > 0;

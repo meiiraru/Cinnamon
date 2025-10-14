@@ -17,6 +17,7 @@ import cinnamon.text.Text;
 import cinnamon.utils.FileDialog;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
+import org.joml.Math;
 
 import java.nio.file.Path;
 

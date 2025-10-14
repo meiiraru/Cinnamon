@@ -4,6 +4,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Resource;
 import cinnamon.utils.UIHelper;
+import org.joml.Math;
 
 public class Scrollbar extends Slider {
 

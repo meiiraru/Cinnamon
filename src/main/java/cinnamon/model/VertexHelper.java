@@ -2,6 +2,7 @@ package cinnamon.model;
 
 import cinnamon.utils.Maths;
 import cinnamon.utils.Pair;
+import org.joml.Math;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -192,7 +193,7 @@ public class VertexHelper {
         //create a list of smoothing groups and a visited array
         List<List<Integer>> smoothingGroups = new ArrayList<>();
         boolean[] visited = new boolean[list.size()];
-        float cosThreshold = (float) Math.cos(Math.toRadians(angleThreshold));
+        float cosThreshold = Math.cos(Math.toRadians(angleThreshold));
 
         //now over all the vertices
         for (int i = 0; i < list.size(); i++) {

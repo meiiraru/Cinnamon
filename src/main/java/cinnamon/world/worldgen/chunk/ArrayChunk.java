@@ -5,6 +5,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.utils.AABB;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
+import org.joml.Math;
 
 import java.util.Collection;
 import java.util.HashSet;

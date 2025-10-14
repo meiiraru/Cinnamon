@@ -8,6 +8,7 @@ import cinnamon.utils.Resource;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.Player;
+import org.joml.Math;
 
 import java.util.List;
 import java.util.UUID;

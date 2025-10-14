@@ -2,6 +2,7 @@ package cinnamon.utils;
 
 import cinnamon.Cinnamon;
 import cinnamon.settings.ArgsOptions;
+import org.joml.Math;
 import org.lwjgl.BufferUtils;
 
 import javax.imageio.ImageIO;

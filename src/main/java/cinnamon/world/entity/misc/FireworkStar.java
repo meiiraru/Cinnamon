@@ -3,6 +3,7 @@ package cinnamon.world.entity.misc;
 import cinnamon.utils.Maths;
 import cinnamon.world.particle.FireworkParticle;
 import cinnamon.world.world.World;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.function.Function;
@@ -41,7 +42,7 @@ public class FireworkStar {
     public void explode(Firework firework) {
         Vector3f pos = firework.getPos();
         World w = firework.getWorld();
-        float yaw = (float) Math.toRadians(firework.getRot().y);
+        float yaw = Math.toRadians(firework.getRot().y);
 
         for (int i = 0; i < particleCount; i++) {
             int color = Maths.randomArr(this.color);
@@ -62,19 +63,20 @@ public class FireworkStar {
             float phi = (float) Math.acos(2f * Math.random() - 1f);
 
             return new Vector3f(
-                    (float) (Math.sin(phi) * Math.cos(theta)),
-                    (float) (Math.sin(phi) * Math.sin(theta)),
-                    (float) (Math.cos(phi)));
+                    Math.sin(phi) * Math.cos(theta),
+                    Math.sin(phi) * Math.sin(theta),
+                    Math.cos(phi));
         }),
         HEART(70, delta -> {
             //get heart angle in radians
             float t = (float) (delta * 2 * Math.PI);
 
             //parametric heart equation
-            //x(t) = 16 * sin^3(t)
+            //x(t) = 16 * sin(t)^3
             //y(t) = 13 * cos(t) - 5 * cos(2t) - 2 * cos(3t) - cos(4t)
-            float xShape = (float) (16 * Math.pow(Math.sin(t), 3));
-            float yShape = (float) (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+            float sinT = Math.sin(t);
+            float xShape = 16 * sinT * sinT * sinT;
+            float yShape = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
 
             float scale = 1f / 17f;
             return new Vector3f(xShape * scale, yShape * scale, 0f);
@@ -84,8 +86,8 @@ public class FireworkStar {
 
             //f(x) = (cos(t), sin(t))
             //f(-3t) + 2f(2t)
-            float xShape = (float) (Math.cos(-3 * t) + 2 * Math.cos(2 * t));
-            float yShape = (float) (Math.sin(-3 * t) + 2 * Math.sin(2 * t));
+            float xShape = Math.cos(-3 * t) + 2 * Math.cos(2 * t);
+            float yShape = Math.sin(-3 * t) + 2 * Math.sin(2 * t);
 
             float scale = 1f / 3f;
             return new Vector3f(xShape * scale, yShape * scale, 0f);

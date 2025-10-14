@@ -18,6 +18,7 @@ import cinnamon.world.particle.Particle;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.OctreeTerrain;
 import cinnamon.world.worldgen.TerrainManager;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.*;

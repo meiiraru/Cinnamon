@@ -7,6 +7,7 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Colors;
+import org.joml.Math;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;

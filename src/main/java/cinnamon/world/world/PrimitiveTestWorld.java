@@ -19,6 +19,7 @@ import cinnamon.world.entity.living.Player;
 import cinnamon.world.entity.misc.TriggerArea;
 import cinnamon.world.terrain.PrimitiveTerrain;
 import cinnamon.world.terrain.Terrain;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -119,7 +120,7 @@ public class PrimitiveTestWorld extends WorldClient {
         mat.rotate(Rotation.X.rotationDeg(45f));
 
         float eps = 0.01f;
-        float r = (float) Math.sqrt(d * d + d * d) / 4f;
+        float r = Math.sqrt(d * d + d * d) / 4f;
 
         //base 2
         addTerrain(new PrimitiveTerrain(GeometryHelper.box(mat, 0, -r, -r, w, r, r, colA)));

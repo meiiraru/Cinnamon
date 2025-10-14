@@ -23,6 +23,7 @@ import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
 import cinnamon.world.world.WorldClient;
+import org.joml.Math;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -204,8 +205,8 @@ public abstract class Entity extends WorldObject {
 
         Vector3f move = new Vector3f(-left, up, -forwards);
 
-        move.rotateX((float) Math.toRadians(-rot.x));
-        move.rotateY((float) Math.toRadians(-rot.y));
+        move.rotateX(Math.toRadians(-rot.x));
+        move.rotateY(Math.toRadians(-rot.y));
 
         this.moveTo(
                 pos.x + move.x,

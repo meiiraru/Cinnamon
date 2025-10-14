@@ -1,5 +1,6 @@
 package cinnamon.render;
 
+import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -30,7 +31,7 @@ public class CascadedShadow {
             float cascadeFar = CASCADE_SPLITS[i] * farClip;
 
             //get frustum corners in world space
-            proj.setPerspective((float) Math.toRadians(camera.getFov()), camera.getAspectRatio(), cascadeNear, cascadeFar);
+            proj.setPerspective(Math.toRadians(camera.getFov()), camera.getAspectRatio(), cascadeNear, cascadeFar);
             proj.mul(camera.getViewMatrix());
             Vector4f[] frustumCorners = Frustum.calculateCorners(proj);
 

@@ -1,2 +1,30 @@
-newmtl box
-map_Kd -smooth_mip box.png
+newmtl 1
+map_Kd -smooth_mip 1.png
+map_Bump -smooth 1_n.png
+map_disp -smooth 1_d.png
+map_Pr -smooth 1_r.png
+newmtl 2
+map_Kd -smooth_mip 2.png
+map_Bump -smooth 2_n.png
+map_disp -smooth 2_d.png
+map_Pr -smooth 2_r.png
+newmtl 3
+map_Kd -smooth_mip 3.png
+map_Bump -smooth 3_n.png
+map_disp -smooth 3_d.png
+map_Pr -smooth 3_r.png
+newmtl 4
+map_Kd -smooth_mip 4.png
+map_Bump -smooth 4_n.png
+map_disp -smooth 4_d.png
+map_Pr -smooth 4_r.png
+newmtl 5
+map_Kd -smooth_mip 5.png
+map_Bump -smooth 5_n.png
+map_disp -smooth 5_d.png
+map_Pr -smooth 5_r.png
+newmtl 6
+map_Kd -smooth_mip 6.png
+map_Bump -smooth 6_n.png
+map_disp -smooth 6_d.png
+map_Pr -smooth 6_r.png

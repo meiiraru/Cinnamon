@@ -1,5 +1,6 @@
 package cinnamon.utils;
 
+import org.joml.Math;
 import org.joml.Quaternionf;
 
 public interface Rotation {
@@ -10,6 +11,6 @@ public interface Rotation {
     Quaternionf rotation(float f);
 
     default Quaternionf rotationDeg(float f) {
-        return this.rotation((float) Math.toRadians(f));
+        return this.rotation(Math.toRadians(f));
     }
 }

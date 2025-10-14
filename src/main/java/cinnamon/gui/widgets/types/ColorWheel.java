@@ -10,6 +10,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Maths;
 import cinnamon.utils.UIHelper;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.function.Consumer;
@@ -52,10 +53,10 @@ public class ColorWheel extends SelectableWidget {
         matrices.pushMatrix();
         matrices.translate(0f, 0f, UIHelper.getDepthOffset());
 
-        float angle = (float) Math.toRadians(hsv.x * 360f);
+        float angle = Math.toRadians(hsv.x * 360f);
         float r = hsv.y * radius;
-        float x = cx + (float) Math.cos(angle) * r;
-        float y = cy + (float) Math.sin(angle) * r;
+        float x = cx + Math.cos(angle) * r;
+        float y = cy + Math.sin(angle) * r;
 
         VertexConsumer.MAIN.consume(GeometryHelper.arc(matrices, x, y, 3, 0, 1, 1, 8, 0xFF000000));
 
@@ -63,18 +64,18 @@ public class ColorWheel extends SelectableWidget {
 
         //snap saturation line
         if (alt) {
-            float x2 = cx + (float) Math.cos(angle) * radius;
-            float y2 = cy + (float) Math.sin(angle) * radius;
+            float x2 = cx + Math.cos(angle) * radius;
+            float y2 = cy + Math.sin(angle) * radius;
             VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, cx, cy, x2, y2, 1, modColor));
         } else {
             //snap lines
             if (shift) {
                 for (int i = 0; i < 16; i++) {
                     float ang = i * (float) Math.PI / 8;
-                    float x1 = cx + (float) Math.cos(ang) * 3;
-                    float y1 = cy + (float) Math.sin(ang) * 3;
-                    float x2 = cx + (float) Math.cos(ang) * radius;
-                    float y2 = cy + (float) Math.sin(ang) * radius;
+                    float x1 = cx + Math.cos(ang) * 3;
+                    float y1 = cy + Math.sin(ang) * 3;
+                    float x2 = cx + Math.cos(ang) * radius;
+                    float y2 = cy + Math.sin(ang) * radius;
                     VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, x1, y1, x2, y2, 1, modColor));
                 }
                 VertexConsumer.MAIN.consume(GeometryHelper.arc(matrices, cx, cy, 3, 0, 1, 1, 24, modColor));
@@ -149,7 +150,7 @@ public class ColorWheel extends SelectableWidget {
     private void setColorAtPos(int x, int y) {
         int dx = x - getCenterX();
         int dy = y - getCenterY();
-        float angle = (float) Math.atan2(dy, -dx);
+        float angle = Math.atan2(dy, -dx);
         if (shift && !alt) angle = (float) Math.round(angle / (Math.PI / 8)) * (float) Math.PI / 8;
         float hue = alt ? altHue : 1f - (angle + (float) Math.PI) / (2f * (float) Math.PI);
         float sat = calculateSaturation(dx, dy, x, y);
@@ -164,16 +165,16 @@ public class ColorWheel extends SelectableWidget {
         if (alt) {
             float cx = (x - getCenterX()) / radius;
             float cy = (y - getCenterY()) / radius;
-            float ang = (float) Math.toRadians(hsv.x * 360f);
-            float px = (float) Math.cos(ang);
-            float py = (float) Math.sin(ang);
+            float ang = Math.toRadians(hsv.x * 360f);
+            float px = Math.cos(ang);
+            float py = Math.sin(ang);
             return Maths.clamp(cx * px + cy * py, 0f, 1f);
         }
 
         if (ctrl)
             return hsv.y;
 
-        float r = (float) Math.sqrt(dx * dx + dy * dy);
+        float r = Math.sqrt(dx * dx + dy * dy);
         return Math.min(r / radius, 1f);
     }
 }

@@ -11,6 +11,7 @@ import cinnamon.world.entity.living.Player;
 import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.items.CurveMaker;
 import cinnamon.world.light.Spotlight;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -79,7 +80,7 @@ public class RollerCoasterWorld extends WorldClient {
         cart.rotateToWithRiders(Maths.dirToRot(Maths.lerp(p0Dir, p1Dir, t)));
 
         //speed
-        speed = Maths.lerp(speed, Math.max(0.3f + 0.3f * Math.max(cart.getRot().x, -22.5f) / 45f, 0.01f), 0.1f);
+        speed = Math.lerp(speed, Math.max(0.3f + 0.3f * Math.max(cart.getRot().x, -22.5f) / 45f, 0.01f), 0.1f);
     }
 
     public void setCurve(Curve curve) throws Exception {

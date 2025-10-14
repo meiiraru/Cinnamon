@@ -1,6 +1,7 @@
 package cinnamon.world.light;
 
 import cinnamon.render.shader.Shader;
+import org.joml.Math;
 
 public class Spotlight extends PointLight {
 
@@ -36,18 +37,18 @@ public class Spotlight extends PointLight {
     }
 
     public Spotlight angle(float innerAngle, float outerAngle) {
-        float radiOuter = (float) Math.toRadians(outerAngle);
-        this.innerAngle = (float) Math.cos(Math.toRadians(innerAngle));
-        this.outerAngle = (float) Math.cos(radiOuter);
+        float radiOuter = Math.toRadians(outerAngle);
+        this.innerAngle = Math.cos(Math.toRadians(innerAngle));
+        this.outerAngle = Math.cos(radiOuter);
         this.setFOV(radiOuter * 2f);
         return this;
     }
 
     public float getInnerAngle() {
-        return (float) Math.toDegrees(Math.acos(innerAngle));
+        return Math.toDegrees(Math.acos(innerAngle));
     }
 
     public float getOuterAngle() {
-        return (float) Math.toDegrees(Math.acos(outerAngle));
+        return Math.toDegrees(Math.acos(outerAngle));
     }
 }

@@ -10,6 +10,7 @@ import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
 import cinnamon.world.Mask;
+import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 

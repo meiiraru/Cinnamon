@@ -10,6 +10,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
+import org.joml.Math;
 
 import java.util.function.Consumer;
 

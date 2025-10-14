@@ -12,6 +12,7 @@ import cinnamon.render.texture.SkyBox;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
+import org.joml.Math;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
@@ -26,7 +27,7 @@ public class Sky {
     private final Vector3f sunDir = new Vector3f(1, 0, 0);
     private final Matrix3f skyRotation = new Matrix3f();
     private float sunAngle;
-    private float sunRoll = (float) Math.toRadians(30f);
+    private float sunRoll = Math.toRadians(30f);
     private float cloudSpeed = (float) Math.PI / 2f;
 
     private Resource skyBox = SkyBoxRegistry.CLOUDS.resource;
@@ -75,7 +76,7 @@ public class Sky {
 
     protected void updateSunDir() {
         this.sunDir.set(-1, 0, 0);
-        this.sunDir.rotateZ((float) Math.toRadians(sunAngle));
+        this.sunDir.rotateZ(Math.toRadians(sunAngle));
         this.sunDir.rotateX(sunRoll);
 
         Rotation.Y.rotationDeg(sunAngle * cloudSpeed).get(this.skyRotation);
@@ -87,7 +88,7 @@ public class Sky {
     }
 
     public void setSunRoll(float roll) {
-        this.sunRoll = (float) Math.toRadians(roll);
+        this.sunRoll = Math.toRadians(roll);
         updateSunDir();
     }
 

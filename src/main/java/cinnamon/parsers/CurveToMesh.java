@@ -9,6 +9,7 @@ import cinnamon.model.obj.Mesh;
 import cinnamon.utils.Curve;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
+import org.joml.Math;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 

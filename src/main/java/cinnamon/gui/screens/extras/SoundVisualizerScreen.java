@@ -19,6 +19,7 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
 import cinnamon.vr.XrManager;
+import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -358,7 +359,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
 
             //mirror
             box = GeometryHelper.box(matrices, x, y, -d, x + w, y + height, -10f, color - (0x88 << 24));
-            int alpha = (int) Math.min(Maths.lerp(0x00, 0xFF, height / 30f), 0xFF);
+            int alpha = (int) Math.min(Math.lerp(0x00, 0xFF, height / 30f), 0xFF);
             int transparent = color - (alpha << 24);
             box[0][0].color(transparent);
             box[0][1].color(transparent);

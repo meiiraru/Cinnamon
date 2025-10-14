@@ -65,7 +65,7 @@ uniform Light lights[MAX_LIGHTS];
 const float PI = 3.14159265359f;
 
 //IBL
-const int MAX_REFLECTION_LOD = 7;
+const int MAX_REFLECTION_LOD = 8;
 uniform mat3 cubemapRotation;
 uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;

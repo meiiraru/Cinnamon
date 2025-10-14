@@ -2,6 +2,7 @@ package cinnamon.render.texture;
 
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
+import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;

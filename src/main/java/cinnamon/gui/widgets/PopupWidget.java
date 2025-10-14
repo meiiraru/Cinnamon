@@ -3,6 +3,7 @@ package cinnamon.gui.widgets;
 import cinnamon.gui.widgets.types.Scrollbar;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.UIHelper;
+import org.joml.Math;
 
 import java.util.List;
 import java.util.function.Consumer;

@@ -4,6 +4,7 @@ import cinnamon.model.SimpleGeometry;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
+import org.joml.Math;
 import org.joml.Matrix4f;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -16,7 +17,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class IBLMap {
 
     private static final int captureFBO = glGenFramebuffers();
-    private static final Matrix4f CAPTURE_PROJECTION = new Matrix4f().perspective((float) Math.toRadians(90f), 1f, 0.1f, 10f);
+    private static final Matrix4f CAPTURE_PROJECTION = new Matrix4f().perspective(Math.toRadians(90f), 1f, 0.1f, 10f);
 
     public static CubeMap hdrToCubemap(Texture texture, boolean hdr) {
         int id = generateEmptyMap(512, false);
@@ -65,9 +66,9 @@ public class IBLMap {
         s.setMat4("projection", CAPTURE_PROJECTION);
 
         glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-        int maxMipLevels = 7;
+        int maxMipLevels = 8;
         for (int mip = 0; mip < maxMipLevels; mip++) {
-            int mipSize = (int) (1024 * Math.pow(0.5f, mip));
+            int mipSize = 1024 >> mip;
             glViewport(0, 0, mipSize, mipSize);
 
             float roughness = (float) mip / (maxMipLevels - 1f);

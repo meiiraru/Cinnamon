@@ -6,6 +6,7 @@ import cinnamon.utils.Maths;
 import cinnamon.world.Abilities;
 import cinnamon.world.DamageType;
 import cinnamon.world.entity.Entity;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.UUID;

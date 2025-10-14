@@ -8,6 +8,7 @@ import cinnamon.settings.ArgsOptions;
 import cinnamon.settings.Settings;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
+import org.joml.Math;
 import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;

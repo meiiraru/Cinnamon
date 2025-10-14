@@ -14,6 +14,7 @@ import cinnamon.utils.AABB;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
+import org.joml.Math;
 
 public class MaterialPreviewWorld extends WorldClient {
 

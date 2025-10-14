@@ -1,5 +1,7 @@
 package cinnamon.utils;
 
+import org.joml.Math;
+
 import java.util.Random;
 
 public class PerlinNoise {
@@ -19,8 +21,8 @@ public class PerlinNoise {
         for (int i = 0; i < gridSize; i++) {
             for (int j = 0; j < gridSize; j++) {
                 float angle = rand.nextFloat() * 2 * (float) Math.PI;
-                gradients[i][j * 2] = (float) Math.cos(angle);
-                gradients[i][j * 2 + 1] = (float) Math.sin(angle);
+                gradients[i][j * 2] = Math.cos(angle);
+                gradients[i][j * 2 + 1] = Math.sin(angle);
             }
         }
     }
@@ -57,9 +59,9 @@ public class PerlinNoise {
         float bottomRightDot = getInfluenceValue(x, y, X1, Y0);
 
         //interpolate between the four values
-        return Maths.lerp(
-                Maths.lerp(bottomLeftDot, bottomRightDot, u),
-                Maths.lerp(topLeftDot, topRightDot, u),
+        return Math.lerp(
+                Math.lerp(bottomLeftDot, bottomRightDot, u),
+                Math.lerp(topLeftDot, topRightDot, u),
                 v);
     }
 }

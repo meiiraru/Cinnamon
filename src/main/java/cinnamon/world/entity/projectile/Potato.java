@@ -15,6 +15,7 @@ import cinnamon.world.collisions.CollisionResolver;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.particle.DustParticle;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -75,7 +76,7 @@ public class Potato extends Projectile {
         //scale
         float t = (easing + delta) > 10 ? 1f : Maths.Easing.OUT_ELASTIC.get((easing + delta) / 10);
         matrices.pushMatrix();
-        matrices.scale(Maths.lerp(oScale, scale, t));
+        matrices.scale(Math.lerp(oScale, scale, t));
 
         //color
         if (!WorldRenderer.isOutlineRendering()) {

@@ -10,6 +10,7 @@ import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
 import cinnamon.utils.UIHelper;
+import org.joml.Math;
 import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFW;
 

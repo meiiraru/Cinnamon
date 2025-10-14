@@ -1,6 +1,7 @@
 package cinnamon.animation;
 
 import cinnamon.utils.Maths;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;

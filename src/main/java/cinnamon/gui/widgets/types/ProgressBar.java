@@ -4,9 +4,9 @@ import cinnamon.gui.widgets.Widget;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Colors;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.utils.UIHelper;
+import org.joml.Math;
 
 public class ProgressBar extends Widget {
 
@@ -22,7 +22,7 @@ public class ProgressBar extends Widget {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         float d = UIHelper.tickDelta(0.4f);
-        animationValue = Maths.lerp(animationValue, getProgress(), d);
+        animationValue = Math.lerp(animationValue, getProgress(), d);
         Resource tex = getStyle().getResource("progress_bar_tex");
 
         //draw background

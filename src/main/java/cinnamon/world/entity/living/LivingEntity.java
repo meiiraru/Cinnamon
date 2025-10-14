@@ -21,6 +21,7 @@ import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.particle.SmokeParticle;
 import cinnamon.world.particle.TextParticle;
 import cinnamon.world.terrain.Terrain;
+import org.joml.Math;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -139,7 +140,7 @@ public abstract class LivingEntity extends PhysEntity {
         impulse.y = u;
 
         //move the entity in facing direction
-        this.impulse.rotateY((float) Math.toRadians(-rot.y));
+        this.impulse.rotateY(Math.toRadians(-rot.y));
     }
 
     protected float getJumpStrength() {
@@ -394,11 +395,11 @@ public abstract class LivingEntity extends PhysEntity {
 
         //float yaw = 1;
         //Quaternionf offset = new Quaternionf()
-        //        .rotateY((float) Math.toRadians(left ? -yaw : yaw));
+        //        .rotateY(Math.toRadians(left ? -yaw : yaw));
 
         return new Quaternionf()
-                .rotateY((float) Math.toRadians(-rot.y))
-                .rotateX((float) Math.toRadians(-rot.x));//.mul(offset);
+                .rotateY(Math.toRadians(-rot.y))
+                .rotateX(Math.toRadians(-rot.x));//.mul(offset);
     }
 
     public Vector3f getHandDir(boolean left, float delta) {

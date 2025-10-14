@@ -14,6 +14,7 @@ import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.particle.FireParticle;
 import cinnamon.world.particle.SmokeParticle;
 import cinnamon.world.world.World;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.UUID;

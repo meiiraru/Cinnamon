@@ -3,6 +3,7 @@ package cinnamon.world.worldgen;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.utils.AABB;
+import cinnamon.utils.Maths;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
 
@@ -22,11 +23,11 @@ public class TerrainGenerator {
     }
 
     public static void generateMengerSponge(World world, int level, int xOffset, int yOffset, int zOffset) {
-        int size = (int) Math.pow(3, level);
+        int size = Maths.pow(3, level);
         int[] mod = new int[size];
 
         for (int i = 1; i <= level; i++) {
-            int e1 = (int) Math.pow(3, i - 1);
+            int e1 = Maths.pow(3, i - 1);
             int e2 = e1 * 3;
             int e3 = e1 * 2;
 

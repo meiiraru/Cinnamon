@@ -21,6 +21,7 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Resource;
+import org.joml.Math;
 
 import java.util.ArrayList;
 import java.util.List;

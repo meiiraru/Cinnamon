@@ -13,6 +13,7 @@ import cinnamon.text.Text;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
+import org.joml.Math;
 import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFW;
 
@@ -150,8 +151,8 @@ public class DVDScreen extends ParentedScreen {
                 anchorY = w.mouseY;
             } else {
                 pos.set(anchorX - w / 2f, anchorY - h / 2f);
-                rot = Maths.dirToRot((float) Math.toRadians(directionX), (float) Math.toRadians(directionY));
-                speed = (float) Math.sqrt(directionX * directionX + directionY * directionY) * 0.1f;
+                rot = Maths.dirToRot(Math.toRadians(directionX), Math.toRadians(directionY));
+                speed = Math.sqrt(directionX * directionX + directionY * directionY) * 0.1f;
             }
             return true;
         }

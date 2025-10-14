@@ -19,9 +19,10 @@ import cinnamon.utils.UIHelper;
 import cinnamon.vr.XrInput;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
+import org.joml.Math;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.glDepthMask;
 
 public abstract class Screen {
 
@@ -193,7 +194,7 @@ public abstract class Screen {
         Shader s = Shaders.BACKGROUND_NOISE.getShader().use();
         float time = (client.ticks + delta) * 0.05f;
         s.setFloat("time", time);
-        s.setFloat("scale", (float) Math.sin(time * 0.5f) * 0.5f + 1f);
+        s.setFloat("scale", Math.sin(time * 0.5f) * 0.5f + 1f);
         s.setColor("color1", 0x8163AB);
         s.setColor("color2", 0xD8C6AD);
         s.setColor("color3", 0x77B7D2);

@@ -7,6 +7,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
+import org.joml.Math;
 
 import java.util.ArrayList;
 import java.util.List;

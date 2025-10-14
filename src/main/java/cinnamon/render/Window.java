@@ -4,6 +4,7 @@ import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
+import org.joml.Math;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;

@@ -1,6 +1,7 @@
 package cinnamon.model;
 
 import cinnamon.render.shader.Attributes;
+import org.joml.Math;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;

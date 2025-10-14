@@ -12,9 +12,9 @@ import cinnamon.settings.Settings;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Colors;
-import cinnamon.utils.Maths;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
+import org.joml.Math;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -135,7 +135,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
         //smooth and apply the offset
         float d = UIHelper.tickDelta(0.4f);
-        xAnim = Maths.lerp(xAnim, xOffset, d);
+        xAnim = Math.lerp(xAnim, xOffset, d);
         matrices.translate(xAnim, 0, 0);
 
         if (!textOnly)

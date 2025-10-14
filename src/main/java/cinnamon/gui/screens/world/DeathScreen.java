@@ -10,6 +10,7 @@ import cinnamon.utils.Alignment;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Colors;
 import cinnamon.utils.TextUtils;
+import org.joml.Math;
 
 public class DeathScreen extends Screen {
 
@@ -40,7 +41,7 @@ public class DeathScreen extends Screen {
         matrices.translate(width / 2f, (respawn.getY() - textSize) / 2f, 0f);
         matrices.scale(5f);
 
-        float dc = (float) (Math.sin((client.ticks + delta) * 0.1f) + 1) * 0.5f;
+        float dc = (Math.sin((client.ticks + delta) * 0.1f) + 1) * 0.5f;
         int color = ColorUtils.lerpARGBColor(Colors.RED.argb, 0xFF880000, dc);
         YOU_DIED.withStyle(Style.EMPTY.color(color)).render(VertexConsumer.MAIN, matrices, 0f, 0f, Alignment.TOP_CENTER);
 

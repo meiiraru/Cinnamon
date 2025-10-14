@@ -6,6 +6,7 @@ import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.particle.SoapParticle;
 import cinnamon.world.terrain.Terrain;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 public class BubbleGun extends Item {

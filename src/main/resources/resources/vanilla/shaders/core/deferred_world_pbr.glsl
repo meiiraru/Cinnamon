@@ -23,7 +23,7 @@ uniform mat4 invView;
 uniform mat4 invProjection;
 
 //IBL
-const int MAX_REFLECTION_LOD = 7;
+const int MAX_REFLECTION_LOD = 8;
 uniform mat3 cubemapRotation;
 uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
