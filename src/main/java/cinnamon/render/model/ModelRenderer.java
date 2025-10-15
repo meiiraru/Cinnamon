@@ -6,7 +6,6 @@ import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.MaterialApplier;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.shader.Shader;
-import cinnamon.render.texture.Texture;
 import cinnamon.utils.AABB;
 
 import java.util.ArrayList;
@@ -47,15 +46,10 @@ public abstract class ModelRenderer {
     protected void renderMesh(MeshData mesh, Material material) {
         //bind material
         Material mat = material == null ? mesh.getMaterial() : material;
-        int texCount;
-        if (mat == null || (texCount = MaterialApplier.applyMaterial(mat, 0)) == -1)
-            texCount = MaterialApplier.applyMaterial(MaterialRegistry.MISSING, 0);
+        MaterialApplier.applyMaterial(mat == null ? MaterialRegistry.MISSING : mat, 0);
 
         //render mesh
         mesh.render();
-
-        //unbind all used textures
-        Texture.unbindAll(texCount);
     }
 
     protected void renderMeshWithoutMaterial(MeshData mesh) {

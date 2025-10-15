@@ -108,6 +108,7 @@ public class WorldRenderer {
         renderFunc[4].run(); //item extra
 
         //world vertex consumer
+        MaterialApplier.cleanup();
         VertexConsumer.finishAllBatches(camera);
 
         //render the world lights
@@ -374,6 +375,7 @@ public class WorldRenderer {
 
         //render world
         renderFunction.run();
+        MaterialApplier.cleanup();
 
         //render vertex consumer
         cascadeShadowBuffer.use();
@@ -406,6 +408,7 @@ public class WorldRenderer {
         shadowBuffer.useClear();
         Shaders.DEPTH.getShader().use().setMat4("lightSpaceMatrix", lightSpaceMatrix);
         renderFunction.run();
+        MaterialApplier.cleanup();
 
         //render vertex consumer
         Shader main = Shaders.MAIN_DEPTH.getShader().use();
@@ -458,6 +461,7 @@ public class WorldRenderer {
             s.use();
             s.setMat4("lightSpaceMatrix", pointLightMatrix);
             renderFunction.run();
+            MaterialApplier.cleanup();
 
             //render vertex consumer
             sh.use();

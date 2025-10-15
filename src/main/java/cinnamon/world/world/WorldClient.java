@@ -14,6 +14,7 @@ import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
+import cinnamon.render.MaterialApplier;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
@@ -292,6 +293,7 @@ public class WorldClient extends World {
         sky.bind(s, Texture.MAX_TEXTURES - 3);
 
         le.renderHandItem(XrManager.isInXR() ? ItemRenderContext.XR : ItemRenderContext.FIRST_PERSON, matrices, delta);
+        MaterialApplier.cleanup();
 
         //finish rendering
         client.camera.useOrtho(true);

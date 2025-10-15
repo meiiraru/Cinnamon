@@ -9,6 +9,7 @@ import cinnamon.gui.widgets.Widget;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.SimpleGeometry;
+import cinnamon.render.MaterialApplier;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
@@ -269,6 +270,7 @@ public abstract class Screen {
 
         XrRenderer.removeGUITransform(matrices);
         XrRenderer.renderHands(matrices);
+        MaterialApplier.cleanup();
 
         Shaders.OUTLINE.getShader().use();
         XrRenderer.renderHandLaser(matrices);

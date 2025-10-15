@@ -1,6 +1,7 @@
 package cinnamon.world.world;
 
 import cinnamon.model.ModelManager;
+import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MaterialApplier;
@@ -48,14 +49,13 @@ public class MaterialPreviewWorld extends WorldClient {
             matrices.pushMatrix();
             matrices.translate(i % grid * 6f, 0f, (float) (i / grid * 3));
 
-            int texCount = MaterialApplier.applyMaterial(values[i].material, 0);
+            Material mat = values[i].material;
             boolean visible = false;
 
             AABB sphereBB = SPHERE.getAABB();
             sphereBB.applyMatrix(matrices.peek().pos());
             if (camera.isInsideFrustum(sphereBB)) {
-                if (texCount == -1) SPHERE.render(matrices);
-                else SPHERE.renderWithoutMaterial(matrices);
+                SPHERE.render(matrices, mat);
                 visible = true;
                 count++;
             }
@@ -65,8 +65,7 @@ public class MaterialPreviewWorld extends WorldClient {
             AABB boxBB = BOX.getAABB();
             boxBB.applyMatrix(matrices.peek().pos());
             if (camera.isInsideFrustum(boxBB)) {
-                if (texCount == -1) BOX.render(matrices);
-                else BOX.renderWithoutMaterial(matrices);
+                BOX.render(matrices, mat);
                 visible = true;
                 count++;
             }
@@ -78,7 +77,6 @@ public class MaterialPreviewWorld extends WorldClient {
                 Text.translated("material." + values[i].name().toLowerCase()).withStyle(Style.EMPTY.shadow(true).shadowColor(Colors.PURPLE)).render(VertexConsumer.WORLD_MAIN, matrices, 0f, 0f, Alignment.BOTTOM_CENTER);
             }
 
-            Texture.unbindAll(texCount);
             matrices.popMatrix();
         }
 
