@@ -222,7 +222,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         for (String string : devices)
             device.addEntry(Text.of(string.replaceFirst("^OpenAL Soft on ", "")));
 
-        device.setSelected(devices.indexOf(SoundManager.getCurrentDevice()) + 1);
+        device.setSelected(SoundManager.isUsingDefaultDevice() ? 0 : devices.indexOf(SoundManager.getCurrentDevice()) + 1);
 
         device.setChangeListener(i -> {
             boolean playing = soundData != null && soundData.isPlaying();

@@ -11,6 +11,7 @@ import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.settings.Settings;
+import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundManager;
 import cinnamon.text.Formatting;
 import cinnamon.text.Style;
@@ -387,6 +388,31 @@ public class DebugScreen {
                     face
             );
         }),
+        SOUND(c -> {
+            if (!SoundManager.isInitialized())
+                return "&cSound system not initialized&r";
+
+            StringBuilder buffer = new StringBuilder();
+            for (SoundCategory category : SoundCategory.values()) {
+                int vol = (int) (category.getVolume() * 100f);
+                int soundCount = SoundManager.getSoundCount(cat -> cat == category);
+                buffer.append(String.format("%s: &e%d%%&r / &e%s&r\n", category.name(), vol, soundCount));
+            }
+
+            return String.format("""
+                    [&bcategories&r]
+                    &e%s&r total sounds
+
+                    %s
+                    [&bdevice&r]
+                    %s
+                    OpenAL &e%s&r""",
+                    SoundManager.getSoundCount(),
+                    buffer,
+                    SoundManager.getCurrentDevice().replaceFirst("^OpenAL Soft on ", ""),
+                    SoundManager.getALVersion()
+            );
+        }),
         PLAYER(c -> {
             WorldClient w = c.world;
             if (w == null)
@@ -444,7 +470,6 @@ public class DebugScreen {
                     time &e%s&r (&e%s&r)
                     day &e%s&r
                     camera &e%s&r
-                    &e%s&r sounds
                     &e%s&r light sources
                     &e%s&r shadow casters
                     &e%s&r particles""",
@@ -452,7 +477,6 @@ public class DebugScreen {
                     w.getTime(), w.getTimeOfTheDay(),
                     w.getDay(),
                     camera,
-                    SoundManager.getSoundCount(),
                     WorldRenderer.getLightsCount(),
                     WorldRenderer.getShadowsCount(),
                     WorldRenderer.getRenderedParticles()

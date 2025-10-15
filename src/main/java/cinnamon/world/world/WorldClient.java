@@ -21,6 +21,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
+import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundManager;
 import cinnamon.text.Text;
 import cinnamon.utils.AABB;
@@ -185,7 +186,7 @@ public class WorldClient extends World {
 
     @Override
     public void close() {
-        SoundManager.stopAll();
+        SoundManager.stopAll(c -> c != SoundCategory.GUI && c != SoundCategory.MASTER);
         //ServerConnection.close();
     }
 

@@ -13,6 +13,7 @@ import org.lwjgl.openal.ALUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.openal.AL11.AL_LINEAR_DISTANCE_CLAMPED;
@@ -29,8 +30,10 @@ public class SoundManager {
     private static final List<SoundInstance> sounds = new ArrayList<>();
     private static final List<String> devices = new ArrayList<>();
     private static String currentDevice = "";
+    private static boolean useDefaultDevice;
     private static long context;
     private static long device;
+    private static String ALVersion = "Unknown";
     private static boolean initialized;
 
     public static void init(String deviceName) {
@@ -56,15 +59,15 @@ public class SoundManager {
 
         //initialize audio device
         String deviceToUse;
-        if (deviceName != null && devices.contains(deviceName)) {
-            deviceToUse = deviceName;
-            currentDevice = deviceName;
-        } else {
+        useDefaultDevice = deviceName == null || !devices.contains(deviceName);
+        if (useDefaultDevice) {
             String defaultDevice = alcGetString(0, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
             deviceToUse = defaultDevice != null ? defaultDevice : newDevices.getFirst();
-            currentDevice = "";
+        } else {
+            deviceToUse = deviceName;
         }
 
+        currentDevice = deviceToUse;
         device = alcOpenDevice(deviceToUse);
 
         try {
@@ -90,7 +93,8 @@ public class SoundManager {
 
         alSpeedOfSound(1f);
         initialized = true;
-        LOGGER.info("OpenAL version: %s", alcGetInteger(0, ALC_MAJOR_VERSION) + "." + alcGetInteger(0, ALC_MINOR_VERSION));
+        ALVersion = alcGetInteger(0, ALC_MAJOR_VERSION) + "." + alcGetInteger(0, ALC_MINOR_VERSION);
+        LOGGER.info("OpenAL version: %s", ALVersion);
         LOGGER.info("OpenAL device: %s", deviceToUse);
     }
 
@@ -170,25 +174,52 @@ public class SoundManager {
     }
 
     public static void stopAll() {
+        stopAll(category -> true);
+    }
+
+    public static void stopAll(Predicate<SoundCategory> categoryPredicate) {
         for (SoundInstance sound : sounds) {
-            sound.stop();
-            sound.free();
+            if (categoryPredicate.test(sound.getCategory())) {
+                sound.stop();
+                sound.free();
+            }
         }
-        sounds.clear();
+        sounds.removeIf(SoundInstance::isRemoved);
     }
 
     public static void pauseAll() {
-        for (SoundInstance sound : sounds)
-            sound.pause();
+        pauseAll(category -> true);
+    }
+
+    public static void pauseAll(Predicate<SoundCategory> categoryPredicate) {
+        for (SoundInstance sound : sounds) {
+            if (categoryPredicate.test(sound.getCategory()))
+                sound.pause();
+        }
     }
 
     public static void resumeAll() {
-        for (SoundInstance sound : sounds)
-            sound.play();
+        resumeAll(category -> true);
+    }
+
+    public static void resumeAll(Predicate<SoundCategory> categoryPredicate) {
+        for (SoundInstance sound : sounds) {
+            if (categoryPredicate.test(sound.getCategory()))
+                sound.play();
+        }
     }
 
     public static int getSoundCount() {
-        return sounds.size();
+        return getSoundCount(category -> true);
+    }
+
+    public static int getSoundCount(Predicate<SoundCategory> categoryPredicate) {
+        int count = 0;
+        for (SoundInstance sound : sounds) {
+            if (categoryPredicate.test(sound.getCategory()))
+                count++;
+        }
+        return count;
     }
 
     public static void updateVolumes(SoundCategory category) {
@@ -210,6 +241,14 @@ public class SoundManager {
 
     public static String getCurrentDevice() {
         return currentDevice;
+    }
+
+    public static boolean isUsingDefaultDevice() {
+        return useDefaultDevice;
+    }
+
+    public static String getALVersion() {
+        return ALVersion;
     }
 
     public static boolean isInitialized() {

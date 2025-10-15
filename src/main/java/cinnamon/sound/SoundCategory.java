@@ -5,6 +5,8 @@ import cinnamon.utils.Maths;
 public enum SoundCategory {
     MASTER,
     GUI,
+
+    //world categories
     MUSIC,
     AMBIENT,
     WEATHER,

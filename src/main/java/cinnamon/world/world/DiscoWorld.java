@@ -43,12 +43,6 @@ public class DiscoWorld extends WorldClient {
     private final List<FloorLight> lights = new ArrayList<>();
 
     @Override
-    public void close() {
-        super.close();
-        soundData.stop();
-    }
-
-    @Override
     protected void tempLoad() {
         super.tempLoad();
 
