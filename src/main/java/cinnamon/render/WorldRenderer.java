@@ -621,6 +621,7 @@ public class WorldRenderer {
             int color = entity.getOutlineColor();
             model.use().applyColorRGBA(color);
             entity.render(camera, matrices, delta);
+            MaterialApplier.cleanup();
 
             //finish vertex consumers here because color
             main.use().applyColorRGBA(color);
