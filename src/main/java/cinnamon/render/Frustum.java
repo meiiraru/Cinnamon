@@ -1,6 +1,7 @@
 package cinnamon.render;
 
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 /**
@@ -164,17 +165,19 @@ public class Frustum {
      * <li>left-top-far
      * <li>right-top-far
      * </ul>
-     * @return An array of 8 {@link org.joml.Vector4f} representing the frustum corners
+     * @return An array of 8 {@link org.joml.Vector3f} representing the frustum corners
      */
-    public static Vector4f[] calculateCorners(Matrix4f matrix) {
-        Matrix4f inv = new Matrix4f(matrix).invert();
-        Vector4f[] corners = new Vector4f[8];
+    public static Vector3f[] calculateCorners(Matrix4f viewProjMatrix) {
+        Matrix4f inv = new Matrix4f(viewProjMatrix).invert();
+        Vector4f temp = new Vector4f();
+        Vector3f[] corners = new Vector3f[8];
         int i = 0;
 
         for (int x = -1; x <= 1; x += 2) {
             for (int y = -1; y <= 1; y += 2) {
                 for (int z = -1; z <= 1; z += 2) {
-                    corners[i++] = new Vector4f(x, y, z, 1f).mulProject(inv);
+                    temp.set(x, y, z, 1f).mul(inv);
+                    corners[i++] = new Vector3f(temp.x / temp.w, temp.y / temp.w, temp.z / temp.w);
                 }
             }
         }

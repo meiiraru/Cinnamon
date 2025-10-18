@@ -48,7 +48,7 @@ public class WorldRenderer {
     public static final ShadowCubemapFramebuffer cubeShadowBuffer = new ShadowCubemapFramebuffer();
     public static final Framebuffer outlineFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
 
-    public static final ShadowCascadeFramebuffer cascadeShadowBuffer = new ShadowCascadeFramebuffer(CascadedShadow.getNumCascades());
+    public static final ShadowCascadeFramebuffer cascadeShadowBuffer = new ShadowCascadeFramebuffer(CascadedShadow.NUM_CASCADES);
     public static final CascadedShadow cascadedShadow = new CascadedShadow();
 
     public static Light shadowLight = null;
@@ -363,11 +363,11 @@ public class WorldRenderer {
         //update camera
         camera.lookAt(cameraPos.x + dir.x, cameraPos.y + dir.y, cameraPos.z + dir.z);
 
-        //render world for each cascade
-        cascadeShadowBuffer.useClear();
-
         //update camera frustum for culling
         camera.updateFrustum(cascadedShadow.getCullingMatrix());
+
+        //render world for each cascade
+        cascadeShadowBuffer.useClear();
 
         //prepare shader
         Shader s = Shaders.DEPTH_DIR.getShader().use();
@@ -495,7 +495,7 @@ public class WorldRenderer {
         if (!hasShadow) light.calculateLightSpaceMatrix();
         s.setBool("light.castsShadows", hasShadow);
 
-        s.setInt("cascadeCount", CascadedShadow.getNumCascades());
+        s.setInt("cascadeCount", CascadedShadow.NUM_CASCADES);
         s.setFloatArray("cascadeDistances", cascadedShadow.getCascadeDistances());
         s.setMat4Array("cascadeMatrices", cascadedShadow.getCascadeMatrices());
 

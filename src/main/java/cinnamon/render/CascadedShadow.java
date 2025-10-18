@@ -7,120 +7,101 @@ import org.joml.Vector4f;
 
 public class CascadedShadow {
 
-    public static final float[] CASCADE_SPLITS = new float[]{0.1f, 0.25f, 0.5f, 0.75f};
-    private final Matrix4f[] cascadeMatrices = new Matrix4f[]{new Matrix4f(), new Matrix4f(), new Matrix4f(), new Matrix4f()};
-    private final Matrix4f cullingMatrix = new Matrix4f();
-    private final float[] cascadeDistances = new float[CASCADE_SPLITS.length];
+    public static final int NUM_CASCADES = 4;
+    public static float[] CASCADES = {0.01f, 0.05f, 0.15f, 0.3f};
+
+    private final Matrix4f[] cascadeMatrices;
+    private final float[] cascadeDistances;
 
     //reusable objects to avoid allocations
-    protected final Matrix4f proj = new Matrix4f();
-    protected final Matrix4f lightView = new Matrix4f();
+    protected final Matrix4f
+            proj = new Matrix4f(),
+            lightView = new Matrix4f(),
+            cullBox = new Matrix4f(),
+            temp = new Matrix4f(); //TODO - inline
+    protected final Vector4f cornerLightSpace = new Vector4f();
     protected final Vector3f frustumCenter = new Vector3f();
-    protected final Vector4f trf = new Vector4f();
-    protected final float[] frustum = new float[6];
+
+    public CascadedShadow() {
+        this.cascadeMatrices = new Matrix4f[NUM_CASCADES];
+        this.cascadeDistances = new float[NUM_CASCADES];
+
+        for (int i = 0; i < NUM_CASCADES; i++)
+            cascadeMatrices[i] = new Matrix4f();
+    }
 
     public void calculateCascadeMatrices(Camera camera, Vector3f lightDir) {
-        float nearClip = Camera.NEAR_PLANE;
-        float farClip = WorldRenderer.renderDistance;
+        //find the split depths based on view camera frustum
+        float near = Camera.NEAR_PLANE;
+        float far = WorldRenderer.renderDistance * 2;
 
-        int cornerIndex = 0;
-        Vector4f[] allCorners = new Vector4f[CASCADE_SPLITS.length * 8];
-
-        for (int i = 0; i < CASCADE_SPLITS.length; i++) {
-            float cascadeNear = i == 0 ? nearClip : cascadeDistances[i - 1];
-            float cascadeFar = CASCADE_SPLITS[i] * farClip;
-
-            //get frustum corners in world space
-            proj.setPerspective(Math.toRadians(camera.getFov()), camera.getAspectRatio(), cascadeNear, cascadeFar);
-            proj.mul(camera.getViewMatrix());
-            Vector4f[] frustumCorners = Frustum.calculateCorners(proj);
-
-            for (Vector4f corner : frustumCorners)
-                allCorners[cornerIndex++] = corner;
-
-            //find the center of the frustum
-            calculateCenter(frustumCorners);
-
-            //create light view matrix
-            createLookMatrix(frustumCenter, lightDir);
-
-            //transform frustum corners to light space and find the min/max extents
-            findExtends(frustumCorners, lightView);
-
-            //extend z range to ensure objects slightly outside the frustum are included
-            float zMult = 10f;
-            frustum[4] = frustum[4] < 0 ? frustum[4] * zMult : frustum[4] / zMult;
-            frustum[5] = frustum[5] < 0 ? frustum[5] / zMult : frustum[5] * zMult;
-
-            //store the orthographic projection matrix
-            cascadeMatrices[i].setOrtho(frustum[0], frustum[1], frustum[2], frustum[3], frustum[4], frustum[5]).mul(lightView);
-            cascadeDistances[i] = cascadeFar;
+        //calculate each cascade matrix
+        for (int i = 0; i < NUM_CASCADES; i++) {
+            float nearClip = i == 0 ? near : Math.lerp(near, far, CASCADES[i - 1]);
+            float farClip = Math.lerp(near, far, CASCADES[i]);
+            calculateCascadeMatrices(camera, lightDir, nearClip, farClip, cascadeMatrices[i]);
+            this.cascadeDistances[i] = farClip;
         }
 
-        //calculate a single culling matrix containing all cascades
-        calculateCullingMatrix(allCorners, lightDir);
+        //calculate the culling box for this shadow map
+        calculateCascadeMatrices(camera, lightDir, near, far, cullBox);
     }
 
-    protected void calculateCullingMatrix(Vector4f[] corners, Vector3f lightDir) {
-        //find the center of the entire bounding volume
-        calculateCenter(corners);
+    protected void calculateCascadeMatrices(Camera camera, Vector3f lightDir, float nearClip, float farClip, Matrix4f outMatrix) {
+        //grab the frustum corners
+        proj.setPerspective(Math.toRadians(camera.getFov()), camera.getAspectRatio(), nearClip, farClip);
+        temp.set(camera.getViewMatrix()); //todo - inline
+        proj.mul(temp);
+        Vector3f[] corners = Frustum.calculateCorners(proj);
 
-        //create a single view matrix looking at this center
-        createLookMatrix(frustumCenter, lightDir);
-
-        //find the min/max extents of ALL corners in this new light space
-        findExtends(corners, lightView);
-
-        //create a single orthographic projection containing everything
-        cullingMatrix.setOrtho(frustum[0], frustum[1], frustum[2], frustum[3], frustum[4], frustum[5]).mul(lightView);
-    }
-
-    protected void calculateCenter(Vector4f[] corners) {
+        //calculate the center of the frustum slice
         frustumCenter.set(0f);
-        for (Vector4f corner : corners)
-            frustumCenter.add(corner.x, corner.y, corner.z);
+        for (Vector3f corner : corners)
+            frustumCenter.add(corner);
         frustumCenter.div(corners.length);
-    }
 
-    protected void createLookMatrix(Vector3f center, Vector3f dir) {
+        //create the light view matrix
         float x = 0f, y = 1f;
-        if (Math.abs(dir.y()) > 0.99f) {
+        if (Math.abs(lightDir.y()) > 0.999f) {
             x = 1f; y = 0f;
         }
 
         lightView.setLookAt(
-                center.x - dir.x, center.y - dir.y, center.z - dir.z,
-                center.x, center.y, center.z,
-                x, y, 0f);
-    }
+                frustumCenter.x - lightDir.x, frustumCenter.y - lightDir.y, frustumCenter.z - lightDir.z,
+                frustumCenter.x, frustumCenter.y, frustumCenter.z,
+                x, y, 0f
+        );
 
-    protected void findExtends(Vector4f[] corners, Matrix4f transform) {
-        //minX, maxX, minY, maxY, minZ, maxZ
-        frustum[0] = Float.MAX_VALUE; frustum[1] = Float.MIN_VALUE;
-        frustum[2] = Float.MAX_VALUE; frustum[3] = Float.MIN_VALUE;
-        frustum[4] = Float.MAX_VALUE; frustum[5] = Float.MIN_VALUE;
+        //find the min/max coordinates of the frustum corners in light space
+        float minX = Float.MAX_VALUE, maxX = Float.MIN_VALUE;
+        float minY = Float.MAX_VALUE, maxY = Float.MIN_VALUE;
+        float minZ = Float.MAX_VALUE, maxZ = Float.MIN_VALUE;
 
-        for (Vector4f corner : corners) {
-            trf.set(corner).mul(transform);
-            frustum[0] = Math.min(frustum[0], trf.x); frustum[1] = Math.max(frustum[1], trf.x);
-            frustum[2] = Math.min(frustum[2], trf.y); frustum[3] = Math.max(frustum[3], trf.y);
-            frustum[4] = Math.min(frustum[4], trf.z); frustum[5] = Math.max(frustum[5], trf.z);
+        for (Vector3f corner : corners) {
+            cornerLightSpace.set(corner, 1f).mul(lightView);
+            minX = Math.min(minX, cornerLightSpace.x); maxX = Math.max(maxX, cornerLightSpace.x);
+            minY = Math.min(minY, cornerLightSpace.y); maxY = Math.max(maxY, cornerLightSpace.y);
+            minZ = Math.min(minZ, cornerLightSpace.z); maxZ = Math.max(maxZ, cornerLightSpace.z);
         }
+
+        //extend z range to ensure objects slightly outside the frustum are included
+        float zMult = 7.5f;
+        minZ = minZ < 0 ? minZ * zMult : minZ / zMult;
+        maxZ = maxZ < 0 ? maxZ / zMult : maxZ * zMult;
+
+        //create the light orthographic projection matrix
+        outMatrix.setOrtho(minX, maxX, minY, maxY, minZ, maxZ).mul(lightView);
     }
 
     public Matrix4f[] getCascadeMatrices() {
-        return cascadeMatrices;
+        return this.cascadeMatrices;
     }
 
     public float[] getCascadeDistances() {
-        return cascadeDistances;
+        return this.cascadeDistances;
     }
 
     public Matrix4f getCullingMatrix() {
-        return cullingMatrix;
-    }
-
-    public static int getNumCascades() {
-        return CASCADE_SPLITS.length;
+        return cullBox;
     }
 }
