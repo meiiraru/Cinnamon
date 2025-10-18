@@ -8,7 +8,8 @@ import org.joml.Vector4f;
 public class CascadedShadow {
 
     public static final int NUM_CASCADES = 4;
-    public static float[] CASCADES = {0.01f, 0.05f, 0.15f, 0.3f};
+    public static float[] CASCADES = {0.01f, 0.05f, 0.13f, 0.3f};
+    public static float Z_MULT = 10f;
 
     private final Matrix4f[] cascadeMatrices;
     private final float[] cascadeDistances;
@@ -39,15 +40,16 @@ public class CascadedShadow {
         for (int i = 0; i < NUM_CASCADES; i++) {
             float nearClip = i == 0 ? near : Math.lerp(near, far, CASCADES[i - 1]);
             float farClip = Math.lerp(near, far, CASCADES[i]);
-            calculateCascadeMatrices(camera, lightDir, nearClip, farClip, cascadeMatrices[i]);
+            float zMult = Z_MULT / (i + 1);
+            calculateCascadeMatrices(camera, lightDir, nearClip, farClip, zMult, cascadeMatrices[i]);
             this.cascadeDistances[i] = farClip;
         }
 
         //calculate the culling box for this shadow map
-        calculateCascadeMatrices(camera, lightDir, near, far, cullBox);
+        calculateCascadeMatrices(camera, lightDir, near, far, Z_MULT, cullBox);
     }
 
-    protected void calculateCascadeMatrices(Camera camera, Vector3f lightDir, float nearClip, float farClip, Matrix4f outMatrix) {
+    protected void calculateCascadeMatrices(Camera camera, Vector3f lightDir, float nearClip, float farClip, float zMult, Matrix4f outMatrix) {
         //grab the frustum corners
         proj.setPerspective(Math.toRadians(camera.getFov()), camera.getAspectRatio(), nearClip, farClip);
         temp.set(camera.getViewMatrix()); //todo - inline
@@ -85,7 +87,6 @@ public class CascadedShadow {
         }
 
         //extend z range to ensure objects slightly outside the frustum are included
-        float zMult = 7.5f;
         minZ = minZ < 0 ? minZ * zMult : minZ / zMult;
         maxZ = maxZ < 0 ? maxZ / zMult : maxZ * zMult;
 
