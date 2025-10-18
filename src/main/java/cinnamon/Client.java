@@ -237,12 +237,12 @@ public class Client {
             //unlock mouse
             window.unlockMouse();
 
-            //reset player movement
+            //reset player input
             if (world != null)
-                world.resetMovement();
+                world.resetInput();
         } else if (window.lockMouse() && world != null) {
-            //no screen, then lock the mouse and reset player movement
-            world.resetMovement();
+            //no screen, then lock the mouse and reset player input
+            world.resetInput();
         }
     }
 

@@ -205,6 +205,9 @@ public class WorldClient extends World {
         if (player.getWorld() == null)
             return;
 
+        if (isPaused())
+            delta = 1f;
+
         //set camera
         client.camera.useOrtho(false);
         updateCamera(player, cameraMode, delta);
@@ -284,6 +287,9 @@ public class WorldClient extends World {
     public void renderHoldingItem(Camera camera, MatrixStack matrices, float delta) {
         if (!(camera.getEntity() instanceof LivingEntity le))
             return;
+
+        if (isPaused())
+            delta = 1f;
 
         //setup rendering
         client.camera.useOrtho(false);
@@ -478,7 +484,7 @@ public class WorldClient extends World {
                 client.window.unlockMouse();
             } else if (action == GLFW_RELEASE) {
                 client.window.lockMouse();
-                resetMovement();
+                resetInput();
             }
         }
 
@@ -502,7 +508,10 @@ public class WorldClient extends World {
                 if (i instanceof Weapon weapon)
                     weapon.reload();
             }
-            case GLFW_KEY_ESCAPE -> client.setScreen(new PauseScreen());
+            case GLFW_KEY_ESCAPE -> {
+                pause(true);
+                client.setScreen(new PauseScreen());
+            }
             case GLFW_KEY_ENTER -> client.setScreen(new ChatScreen());
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
             case GLFW_KEY_F7 -> this.worldTime -= 100;
@@ -537,7 +546,7 @@ public class WorldClient extends World {
     }
 
     public void onWindowResize(int width, int height) {
-        resetMovement();
+        resetInput();
     }
 
     public void xrButtonPress(int button, boolean pressed, int hand) {
@@ -557,10 +566,14 @@ public class WorldClient extends World {
         movement.xrJoystickMove(x, y, hand, lastX, lastY);
     }
 
-    public void resetMovement() {
+    public void resetInput() {
         this.movement.reset();
         this.interaction.reset();
         Keybind.releaseAll();
+        if (player != null) {
+            player.stopAttacking();
+            player.stopUsing();
+        }
     }
 
     public int getCameraMode() {
@@ -569,6 +582,16 @@ public class WorldClient extends World {
 
     public boolean isThirdPerson() {
         return cameraMode > 0;
+    }
+
+    @Override
+    public void pause(boolean pause) {
+        super.pause(pause);
+        if (pause) {
+            SoundManager.pauseAll(c -> c != SoundCategory.GUI && c != SoundCategory.MASTER);
+        } else {
+            SoundManager.resumeAll(c -> c != SoundCategory.GUI && c != SoundCategory.MASTER);
+        }
     }
 
     public void respawn(boolean init) {

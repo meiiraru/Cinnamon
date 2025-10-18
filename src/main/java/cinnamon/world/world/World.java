@@ -38,12 +38,16 @@ public abstract class World {
     public final float gravity = 0.98f * updateTime;
     public final float bottomOfTheWorld = -512f;
     protected int worldTime = 1000;
+    protected boolean isPaused;
 
     public abstract void init();
 
     public abstract void close();
 
     public void tick() {
+        if (isPaused())
+            return;
+
         worldTime++;
 
         //run scheduled ticks
@@ -249,6 +253,14 @@ public abstract class World {
         int timeHors = (int) time;
         int timeMinutes = (int) ((time - timeHors) * 60);
         return String.format("%02d:%02d", timeHors, timeMinutes);
+    }
+
+    public void pause(boolean pause) {
+        this.isPaused = pause;
+    }
+
+    public boolean isPaused() {
+        return isPaused;
     }
 
     public boolean isClientside() {

@@ -31,6 +31,13 @@ public class PauseScreen extends Screen {
     }
 
     @Override
+    public void close() {
+        super.close();
+        if (client.world != null)
+            client.world.pause(false);
+    }
+
+    @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
         PAUSE_TEXT.render(VertexConsumer.MAIN, matrices, width / 2f, 4f, Alignment.TOP_CENTER);
