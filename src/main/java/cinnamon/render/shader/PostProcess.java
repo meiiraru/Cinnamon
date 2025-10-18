@@ -150,6 +150,12 @@ public enum PostProcess {
         s.setVec2("lutGrid", 8f, 8f);
         return i;
     }),
+    RED(LOOKUP_TEXTURE.resource, (fb, s) -> {
+        int i = LOOKUP_TEXTURE.uniformFunction.apply(fb, s);
+        s.setTexture("lutTex", Texture.of(new Resource("textures/shader/lut/red.png")), i++);
+        s.setVec2("lutGrid", 8f, 8f);
+        return i;
+    }),
 
     //world only effects
     TOON_OUTLINE((fb, s) -> {
@@ -167,7 +173,7 @@ public enum PostProcess {
             INVERT, BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE,
             SCAN_LINE, LENS, LENS2, MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY,
             KALEIDOSCOPE, BITS, POSTERIZE, BLOBS, PHOSPHOR, SPEED_LINES, DOT_GRID,
-            DITHER, DITHER_SQUARE_TEX, SHARPEN, VINTAGE
+            DITHER, DITHER_SQUARE_TEX, SHARPEN, VINTAGE, RED
     };
     public static final PostProcess[] WORLD_EFFECTS = {
             TOON_OUTLINE
