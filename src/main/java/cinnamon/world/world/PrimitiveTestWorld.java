@@ -241,9 +241,9 @@ public class PrimitiveTestWorld extends WorldClient {
         float h = 0.6f;
         float d = 1.1f;
 
-        TriggerArea ta = new TriggerArea(UUID.randomUUID(), e -> e.damage(null, DamageType.TERRAIN, 10, false), w, h, d);
+        TriggerArea ta = new TriggerArea(UUID.randomUUID(), w, h, d);
+        ta.setStayTrigger(e -> e.damage(null, DamageType.TERRAIN, 10, false));
         ta.setPos(x, y + h / 2f, z);
-        ta.setOneTime(false);
         addEntity(ta);
     }
 

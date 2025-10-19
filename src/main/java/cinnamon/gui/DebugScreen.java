@@ -435,6 +435,7 @@ public class DebugScreen {
                     x &c%.3f&r y &a%.3f&r z &b%.3f&r
                     pitch &e%.3f&r yaw &e%.3f&r
                     motion &c%.3f &a%.3f &b%.3f&r
+                    onground &e%s&r
                     noclip &e%s&r god mode &e%s&r
                     can fly &e%s&r can build &e%s&r
 
@@ -446,6 +447,7 @@ public class DebugScreen {
                     erot.x, erot.y,
                     emot.x, emot.y, emot.z,
 
+                    p.isOnGround() ? "yes" : "no",
                     abilities.noclip() ? "on" : "off",
                     abilities.godMode() ? "on" : "off",
                     abilities.canFly() ? "on" : "off",

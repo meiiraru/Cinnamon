@@ -11,13 +11,11 @@ import java.util.function.Consumer;
 public class TriggerArea extends Entity {
 
     private final Set<Entity> triggeredEntities = new HashSet<>();
-    private final Consumer<Entity> onTrigger;
+    private Consumer<Entity> enterTrigger, stayTrigger, exitTrigger;
     private final float width, height, depth;
-    private boolean oneTime = true;
 
-    public TriggerArea(UUID uuid, Consumer<Entity> onTrigger, float width, float height, float depth) {
+    public TriggerArea(UUID uuid, float width, float height, float depth) {
         super(uuid, null);
-        this.onTrigger = onTrigger;
         this.width = width * 0.5f;
         this.height = height * 0.5f;
         this.depth = depth * 0.5f;
@@ -31,15 +29,26 @@ public class TriggerArea extends Entity {
         Set<Entity> toRemove = new HashSet<>(triggeredEntities);
         for (Entity entity : world.getEntities(getAABB())) {
             if (entity != this) {
-                //if already triggered, skip
-                if (toRemove.remove(entity))
-                    continue;
+                if (!triggeredEntities.contains(entity)) {
+                    //call enter trigger
+                    if (enterTrigger != null)
+                        enterTrigger.accept(entity);
+                    triggeredEntities.add(entity);
+                }
 
-                //add to triggered list and call consumer
-                if (oneTime) triggeredEntities.add(entity);
-                onTrigger.accept(entity);
+                //call stay trigger
+                if (stayTrigger != null)
+                    stayTrigger.accept(entity);
+
+                //remove from toRemove set
+                toRemove.remove(entity);
             }
         }
+
+        //call exit trigger if applicable
+        if (exitTrigger != null)
+            for (Entity entity : toRemove)
+                exitTrigger.accept(entity);
 
         //remove entities that are no longer in the area
         triggeredEntities.removeAll(toRemove);
@@ -55,11 +64,15 @@ public class TriggerArea extends Entity {
         return EntityRegistry.TRIGGER_AREA;
     }
 
-    public void setOneTime(boolean oneTime) {
-        this.oneTime = oneTime;
+    public void setEnterTrigger(Consumer<Entity> enterTrigger) {
+        this.enterTrigger = enterTrigger;
     }
 
-    public boolean isOneTime() {
-        return oneTime;
+    public void setStayTrigger(Consumer<Entity> stayTrigger) {
+        this.stayTrigger = stayTrigger;
+    }
+
+    public void setExitTrigger(Consumer<Entity> exitTrigger) {
+        this.exitTrigger = exitTrigger;
     }
 }

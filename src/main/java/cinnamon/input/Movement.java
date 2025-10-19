@@ -62,14 +62,22 @@ public class Movement {
         }
 
         if (movement.lengthSquared() > 0) {
-            target.impulse(movement.x, movement.y, movement.z);
+            applyImpulse(target, movement.x, movement.y, movement.z);
             movement.set(0);
         }
 
         if (rotation.lengthSquared() > 0) {
-            target.rotate(rotation.y, rotation.x);
+            applyRotation(target, rotation.x, rotation.y);
             rotation.set(0);
         }
+    }
+
+    protected void applyImpulse(Entity target, float x, float y, float z) {
+        target.impulse(x, y, z);
+    }
+
+    protected void applyRotation(Entity target, float yaw, float pitch) {
+        target.rotate(pitch, yaw);
     }
 
     public void reset() {

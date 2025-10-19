@@ -78,7 +78,7 @@ public class WorldClient extends World {
     protected Client client;
     public LocalPlayer player;
 
-    private int cameraMode = 0;
+    protected int cameraMode = 0;
 
     //lights
     protected final List<Light> lights = new ArrayList<>();
