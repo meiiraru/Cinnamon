@@ -388,19 +388,19 @@ public class Window {
     /**
      * Set the window cursor
      * @param cursor the cursor type, one of GLFW standard cursors:
-     *               <br><table><tr>
-     *               <td>{@link org.lwjgl.glfw.GLFW#GLFW_ARROW_CURSOR ARROW_CURSOR}</td>
-     *               <td>{@link org.lwjgl.glfw.GLFW#GLFW_IBEAM_CURSOR IBEAM_CURSOR}</td>
-     *               <td>{@link org.lwjgl.glfw.GLFW#GLFW_CROSSHAIR_CURSOR CROSSHAIR_CURSOR}</td>
-     *               <td>{@link org.lwjgl.glfw.GLFW#GLFW_POINTING_HAND_CURSOR POINTING_HAND_CURSOR}</td>
-     *               <td>{@link org.lwjgl.glfw.GLFW#GLFW_RESIZE_EW_CURSOR RESIZE_EW_CURSOR}</td>
-     *               </tr>
-     *               <tr><td>{@link org.lwjgl.glfw.GLFW#GLFW_RESIZE_NS_CURSOR RESIZE_NS_CURSOR}</td>
-     *               <td>{@link org.lwjgl.glfw.GLFW#GLFW_RESIZE_NWSE_CURSOR RESIZE_NWSE_CURSOR}</td>
-     *               <td>{@link org.lwjgl.glfw.GLFW#GLFW_RESIZE_NESW_CURSOR RESIZE_NESW_CURSOR}</td>
-     *               <td>{@link org.lwjgl.glfw.GLFW#GLFW_RESIZE_ALL_CURSOR RESIZE_ALL_CURSOR}</td>
-     *               <td>{@link org.lwjgl.glfw.GLFW#GLFW_NOT_ALLOWED_CURSOR NOT_ALLOWED_CURSOR}</td>
-     *               </tr></table>
+     * <br><table><caption>GLFW standard cursors</caption><tr>
+     * <td>{@link org.lwjgl.glfw.GLFW#GLFW_ARROW_CURSOR ARROW_CURSOR}</td>
+     * <td>{@link org.lwjgl.glfw.GLFW#GLFW_IBEAM_CURSOR IBEAM_CURSOR}</td>
+     * <td>{@link org.lwjgl.glfw.GLFW#GLFW_CROSSHAIR_CURSOR CROSSHAIR_CURSOR}</td>
+     * <td>{@link org.lwjgl.glfw.GLFW#GLFW_POINTING_HAND_CURSOR POINTING_HAND_CURSOR}</td>
+     * <td>{@link org.lwjgl.glfw.GLFW#GLFW_RESIZE_EW_CURSOR RESIZE_EW_CURSOR}</td>
+     * </tr>
+     * <tr><td>{@link org.lwjgl.glfw.GLFW#GLFW_RESIZE_NS_CURSOR RESIZE_NS_CURSOR}</td>
+     * <td>{@link org.lwjgl.glfw.GLFW#GLFW_RESIZE_NWSE_CURSOR RESIZE_NWSE_CURSOR}</td>
+     * <td>{@link org.lwjgl.glfw.GLFW#GLFW_RESIZE_NESW_CURSOR RESIZE_NESW_CURSOR}</td>
+     * <td>{@link org.lwjgl.glfw.GLFW#GLFW_RESIZE_ALL_CURSOR RESIZE_ALL_CURSOR}</td>
+     * <td>{@link org.lwjgl.glfw.GLFW#GLFW_NOT_ALLOWED_CURSOR NOT_ALLOWED_CURSOR}</td>
+     * </tr></table>
      */
     public void setCursor(int cursor) {
         long cur = glfwCreateStandardCursor(cursor);
