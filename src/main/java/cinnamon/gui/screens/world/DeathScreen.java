@@ -14,7 +14,7 @@ import org.joml.Math;
 
 public class DeathScreen extends Screen {
 
-    private static final Text YOU_DIED = Text.translated("gui.death_screen.died").withStyle(Style.EMPTY.outlined(true).outlineColor(0xFF440000).underlined(true));
+    protected static final Text YOU_DIED = Text.translated("gui.death_screen.died").withStyle(Style.EMPTY.outlined(true).outlineColor(0xFF440000).underlined(true));
 
     private Button respawn;
 

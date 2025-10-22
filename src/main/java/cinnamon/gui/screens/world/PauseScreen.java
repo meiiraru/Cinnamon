@@ -19,7 +19,7 @@ public class PauseScreen extends Screen {
 
         ContainerGrid grid = new ContainerGrid(0, 0, 8, 2);
 
-        Button resume = new Button(0, 0, 120, 20, Text.translated("gui.pause_screen.resume"), button -> client.setScreen(null));
+        Button resume = new Button(0, 0, 120, 20, Text.translated("gui.pause_screen.resume"), button -> close());
         Button menu = new Button(0, 0, 120, 20, Text.translated("gui.pause_screen.main_menu"), button -> client.disconnect());
 
         grid.addWidget(resume);

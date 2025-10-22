@@ -1,7 +1,7 @@
 package cinnamon.world.entity.living;
 
 import cinnamon.Client;
-import cinnamon.gui.screens.world.DeathScreen;
+import cinnamon.gui.Screen;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
@@ -176,7 +176,9 @@ public class LocalPlayer extends Player {
     @Override
     protected void onDeath() {
         super.onDeath();
-        Client.getInstance().setScreen(new DeathScreen());
+        Screen death = ((WorldClient) getWorld()).deathScreen.get();
+        if (death != null)
+            Client.getInstance().setScreen(death);
     }
 
     @Override

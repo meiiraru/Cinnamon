@@ -41,6 +41,7 @@ public class Client {
 
     private static final Client INSTANCE = new Client();
     public static final Logger LOGGER = Logger.getRootLogger();
+    public static Supplier<Screen> mainScreen = MainMenu::new;
 
     private final Queue<Runnable> scheduledTicks = new LinkedList<>();
 
@@ -58,7 +59,6 @@ public class Client {
 
     //events
     public Events events = new Events();
-    public Supplier<Screen> mainScreen = MainMenu::new;
 
     //objects
     public Window window;
@@ -379,7 +379,9 @@ public class Client {
         if (screen != null) {
             screen.windowFocused(focused);
         } else if (world != null && !focused && !XrManager.isInXR()) {
-            this.setScreen(new PauseScreen());
+            Screen pause = world.pauseScreen.get();
+            if (pause != null)
+                this.setScreen(pause);
         }
 
         events.runEvents(EventType.WINDOW_FOCUSED, focused);

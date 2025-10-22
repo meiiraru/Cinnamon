@@ -79,7 +79,7 @@ public class PrimitiveTestWorld extends WorldClient {
         //spikes
         spikes(-16, 0, 8);
 
-        this.hud = new Hud2();
+        this.hud = new PrimitiveWorldHud();
         this.hud.init();
 
         //set sky fog
@@ -274,7 +274,7 @@ public class PrimitiveTestWorld extends WorldClient {
         player.getAbilities().godMode(false).canBuild(false);
     }
 
-    private static class Hud2 extends Hud {
+    public static class PrimitiveWorldHud extends Hud {
         @Override
         public void init() {
             super.init();

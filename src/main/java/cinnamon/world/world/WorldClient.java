@@ -3,8 +3,10 @@ package cinnamon.world.world;
 import cinnamon.Client;
 import cinnamon.animation.Animation;
 import cinnamon.gui.DebugScreen;
+import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.screens.world.ChatScreen;
+import cinnamon.gui.screens.world.DeathScreen;
 import cinnamon.gui.screens.world.PauseScreen;
 import cinnamon.input.Interaction;
 import cinnamon.input.Keybind;
@@ -66,10 +68,16 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public class WorldClient extends World {
+
+    public Supplier<Screen>
+            chatScreen = ChatScreen::new,
+            pauseScreen = PauseScreen::new,
+            deathScreen = DeathScreen::new;
 
     protected Hud hud = new Hud();
     protected Movement movement = new Movement();
@@ -509,10 +517,17 @@ public class WorldClient extends World {
                     weapon.reload();
             }
             case GLFW_KEY_ESCAPE -> {
-                pause(true);
-                client.setScreen(new PauseScreen());
+                Screen pause = pauseScreen.get();
+                if (pause != null) {
+                    pause(true);
+                    client.setScreen(pause);
+                }
             }
-            case GLFW_KEY_ENTER -> client.setScreen(new ChatScreen());
+            case GLFW_KEY_ENTER, GLFW_KEY_KP_ENTER -> {
+                Screen chat = chatScreen.get();
+                if (chat != null)
+                    client.setScreen(chat);
+            }
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
             case GLFW_KEY_F7 -> this.worldTime -= 100;
             case GLFW_KEY_F8 -> this.worldTime += 100;
@@ -551,7 +566,9 @@ public class WorldClient extends World {
 
     public void xrButtonPress(int button, boolean pressed, int hand) {
         if (pressed && button == 1) {
-            client.setScreen(new PauseScreen());
+            Screen pause = pauseScreen.get();
+            if (pause != null)
+                client.setScreen(pause);
             return;
         }
 
