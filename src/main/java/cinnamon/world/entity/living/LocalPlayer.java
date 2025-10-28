@@ -22,9 +22,9 @@ import org.joml.Vector3f;
 
 public class LocalPlayer extends Player {
 
-    private int lastMouseTime = 0;
-    private int selectedTerrain = TerrainRegistry.BOX.ordinal();
-    private int selectedMaterial = MaterialRegistry.GRASS.ordinal();
+    protected int lastMouseTime = 0;
+    protected int selectedTerrain = TerrainRegistry.BOX.ordinal();
+    protected int selectedMaterial = MaterialRegistry.GRASS.ordinal();
 
     public LocalPlayer() {
         this(Settings.playermodel.get());

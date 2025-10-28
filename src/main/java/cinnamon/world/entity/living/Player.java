@@ -135,14 +135,26 @@ public class Player extends LivingEntity {
         float speed = super.getMoveSpeed();
 
         if (sneaking)
-            speed *= 0.5f;
+            speed *= getSneakingMultiplier();
         if (sprinting)
-            speed *= flying ? 2.3f : 1.3f;
+            speed *= flying ? getFlyingSprintMultiplier() : getSprintMultiplier();
 
         return speed;
     }
 
-    private float clampPitch(float pitch) {
+    protected float getSneakingMultiplier() {
+        return 0.5f;
+    }
+
+    protected float getFlyingSprintMultiplier() {
+        return 2.3f;
+    }
+
+    protected float getSprintMultiplier() {
+        return 1.3f;
+    }
+
+    protected float clampPitch(float pitch) {
         return Math.max(Math.min(pitch, 90), -90);
     }
 

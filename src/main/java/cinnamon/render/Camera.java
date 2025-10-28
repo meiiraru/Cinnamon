@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL11.glColorMask;
 
 public class Camera {
 
-    public static final float
+    public static float
             NEAR_PLANE = 0.1f,
             FAR_PLANE = 1000f;
 

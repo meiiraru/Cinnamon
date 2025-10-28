@@ -34,7 +34,7 @@ public class CascadedShadow {
     public void calculateCascadeMatrices(Camera camera, Vector3f lightDir) {
         //find the split depths based on view camera frustum
         float near = Camera.NEAR_PLANE;
-        float far = WorldRenderer.renderDistance * 2;
+        float far = WorldRenderer.shadowRenderDistance * 2;
 
         //calculate each cascade matrix
         for (int i = 0; i < NUM_CASCADES; i++) {

@@ -38,6 +38,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class WorldRenderer {
 
+    public static int shadowRenderDistance = 192;
     public static int renderDistance = 192;
     public static int entityRenderDistance = 144;
 

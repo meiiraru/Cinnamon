@@ -34,9 +34,9 @@ public abstract class World {
     protected final Map<UUID, Entity> entities = new HashMap<>();
     protected final List<Particle> particles = new ArrayList<>();
 
-    public final float updateTime = 1f / Client.TPS;
-    public final float gravity = 0.98f * updateTime;
-    public final float bottomOfTheWorld = -512f;
+    public float updateTime = 1f / Client.TPS;
+    public float gravity = 0.98f * updateTime;
+    public float bottomOfTheWorld = -512f;
     protected int worldTime = 1000;
     protected boolean isPaused;
 
