@@ -112,15 +112,15 @@ public class Camera {
     }
 
     /**
-     * Applies a billboard rotation of Pitch (X) and Yaw (Y) to the given matrices
+     * Applies a billboard rotation to the given matrices
      * @param matrices the matrix stack to apply the rotation
      */
     public void billboard(MatrixStack matrices) {
-        billboard(matrices, (byte) (0x1 | 0x2));
+        billboard(matrices, (byte) 0x7);
     }
 
     /**
-     * Applies a billboard rotation to the given matrices
+     * Applies an axis-based billboard rotation to the given matrices
      * @param matrices the matrix stack to apply the rotation
      * @param rotationMask 0x1 = Pitch (X), 0x2 = Yaw (Y), 0x4 = Roll (Z)
      */
@@ -128,10 +128,10 @@ public class Camera {
         Quaternionf rot = getRotation();
         if ((rotationMask & 0x2) != 0)
             matrices.rotate(Rotation.Y.rotationDeg(-Maths.getYaw(rot) + 180f));
-        if ((rotationMask & 0x1) != 0)
-            matrices.rotate(Rotation.X.rotationDeg(Maths.getPitch(rot)));
         if ((rotationMask & 0x4) != 0)
             matrices.rotate(Rotation.Z.rotationDeg(Maths.getRoll(rot)));
+        if ((rotationMask & 0x1) != 0)
+            matrices.rotate(Rotation.X.rotationDeg(Maths.getPitch(rot)));
     }
 
     public boolean isInsideFrustum(AABB aabb) {
