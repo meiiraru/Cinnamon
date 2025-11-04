@@ -1,6 +1,5 @@
 package cinnamon;
 
-import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
@@ -151,9 +150,6 @@ public class Cinnamon {
         Client client = Client.getInstance();
         long window = client.window.getHandle();
 
-        //transform matrix
-        MatrixStack matrices = new MatrixStack();
-
         //flags
         glClearColor(1f, 1f, 1f, 1f);
         glEnable(GL_CULL_FACE);
@@ -193,21 +189,16 @@ public class Cinnamon {
                 client.tick();
 
             //render client
-            if (!XrManager.render(() -> client.render(matrices))) {
+            if (!XrManager.render(client::render)) {
                 Framebuffer.DEFAULT_FRAMEBUFFER.useClear();
                 Framebuffer.DEFAULT_FRAMEBUFFER.adjustViewPort();
-                client.render(matrices);
+                client.render();
             }
 
             //end render
             PostProcess.finishFrame();
             Framebuffer.DEFAULT_FRAMEBUFFER.blit(0);
             glfwSwapBuffers(window);
-
-            if (!matrices.isEmpty()) {
-                LOGGER.warn("Forgot to pop the matrix stack! - Popping it for you!");
-                while (!matrices.isEmpty()) matrices.popMatrix();
-            }
 
             //ms counter
             double frameEndTime = glfwGetTime();

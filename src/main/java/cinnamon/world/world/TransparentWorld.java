@@ -1,5 +1,6 @@
 package cinnamon.world.world;
 
+import cinnamon.Client;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.render.Camera;
@@ -62,14 +63,13 @@ public class TransparentWorld extends WorldClient {
 
     private void gen() {
         vertices.clear();
-        MatrixStack matrices = new MatrixStack();
         int r = 10;
         int r2 = r + r;
 
         for (int i = 0; i < 100; i++) {
-            matrices.identity();
-            matrices.translate((float) (Math.random() * r2) - r, (float) (Math.random() * r2) - r, (float) (Math.random() * r2) - r);
-            Vertex[][] box = GeometryHelper.box(matrices, -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0);
+            client.matrices.pushMatrix();
+            client.matrices.translate((float) (Math.random() * r2) - r, (float) (Math.random() * r2) - r, (float) (Math.random() * r2) - r);
+            Vertex[][] box = GeometryHelper.box(client.matrices, -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0);
             //references baby!
             //n - v0 to v3
             box[0][0].color(0xAAFFFFFF);
@@ -82,6 +82,7 @@ public class TransparentWorld extends WorldClient {
             box[2][2].color(0xAAFF0000);
             box[2][3].color(0xAA000000);
             vertices.add(box);
+            client.matrices.popMatrix();
         }
     }
 

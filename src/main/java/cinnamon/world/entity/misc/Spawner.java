@@ -38,7 +38,7 @@ public class Spawner<E extends Entity> extends Entity {
         this.delay = Math.max(delay, 1);
         this.entitySupplier = entitySupplier;
         this.respawnPredicate = respawnPredicate;
-        this.addRenderFeature((source, matrices, delta) -> {
+        this.addRenderFeature((source, camera, matrices, delta) -> {
             if (entity == null && (renderCooldown || DebugScreen.isTabOpen(DebugScreen.Tab.ENTITIES)))
                 renderCountdowns(matrices, delta);
         });

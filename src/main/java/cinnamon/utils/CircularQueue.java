@@ -16,4 +16,8 @@ public class CircularQueue<E> extends LinkedList<E> {
             removeFirst();
         return super.add(e);
     }
+
+    public int getCapacity() {
+        return capacity;
+    }
 }

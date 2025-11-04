@@ -45,7 +45,7 @@ public abstract class LivingEntity extends PhysEntity {
         this.health = this.maxHealth = maxHealth;
         this.eyeHeight = eyeHeight;
         this.inventory = new Inventory(inventorySize);
-        this.addRenderFeature((source, matrices, delta) -> renderHandItem(ItemRenderContext.THIRD_PERSON, matrices, delta));
+        this.addRenderFeature((source, camera, matrices, delta) -> renderHandItem(ItemRenderContext.THIRD_PERSON, matrices, delta));
     }
 
     @Override
@@ -189,6 +189,12 @@ public abstract class LivingEntity extends PhysEntity {
         syncHealth();
 
         return true;
+    }
+
+    public void kill() {
+        this.health = 0;
+        onDeath();
+        syncHealth();
     }
 
     protected void onDeath() {
@@ -376,7 +382,7 @@ public abstract class LivingEntity extends PhysEntity {
     @Override
     protected void checkWorldVoid() {
         if (getWorld() != null && getPos().y < getWorld().bottomOfTheWorld)
-            damage(null, DamageType.GOD, Integer.MAX_VALUE, false);
+            kill();
     }
 
     public Vector3f getHandPos(boolean left, float delta) {

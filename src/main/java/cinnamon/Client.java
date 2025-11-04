@@ -7,7 +7,6 @@ import cinnamon.gui.DebugScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.screens.MainMenu;
-import cinnamon.gui.screens.world.PauseScreen;
 import cinnamon.logger.Logger;
 import cinnamon.logger.LoggerConfig;
 import cinnamon.render.Camera;
@@ -61,6 +60,7 @@ public class Client {
     public Events events = new Events();
 
     //objects
+    public MatrixStack matrices = new MatrixStack();
     public Window window;
     public Camera camera = new Camera();
     public Screen screen;
@@ -149,7 +149,7 @@ public class Client {
         scheduledTicks.add(toRun);
     }
 
-    public void render(MatrixStack matrices) {
+    public void render() {
         float delta = timer.partialTick;
         boolean xr = XrManager.isInXR();
 
@@ -216,6 +216,12 @@ public class Client {
         //finish rendering
         VertexConsumer.finishAllBatches(camera);
         matrices.popMatrix();
+
+        //pop any forgotten matrices
+        if (!matrices.isEmpty()) {
+            LOGGER.warn("Forgot to pop the matrix stack! - Popping it for you!");
+            while (!matrices.isEmpty()) matrices.popMatrix();
+        }
     }
 
     public void setScreen(Screen s) {

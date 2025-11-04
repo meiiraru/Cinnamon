@@ -28,7 +28,7 @@ public abstract class Collectable extends PhysEntity {
 
     @Override
     protected void applyModelPose(MatrixStack matrices, float delta) {
-        matrices.translate(0, (Math.sin((Client.getInstance().ticks + delta) * 0.05f) + 1) * 0.15f, 0);
+        matrices.translate(0, Math.sin((Client.getInstance().ticks + delta) * 0.05f) * getAABB().getHeight() * 0.075f, 0);
         super.applyModelPose(matrices, delta);
     }
 
@@ -42,7 +42,7 @@ public abstract class Collectable extends PhysEntity {
     @Override
     protected void updateAABB() {
         super.updateAABB();
-        this.aabb.inflate(0.25f, 0f, 0.25f, 0.25f, 0.5f, 0.25f);
+        this.aabb.inflate(0.25f);
     }
 
     @Override

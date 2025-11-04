@@ -60,7 +60,7 @@ public abstract class Entity extends WorldObject {
         this.model = ModelManager.load(model);
         this.uuid = uuid;
         this.updateAABB();
-        this.addRenderFeature((source, matrices, delta) -> {
+        this.addRenderFeature((source, camera, matrices, delta) -> {
             if (shouldRenderText()) renderTexts(matrices, delta);
         });
     }
@@ -87,7 +87,7 @@ public abstract class Entity extends WorldObject {
 
         //render features
         for (FeatureRenderer renderFeature : renderFeatures)
-            renderFeature.render(this, matrices, delta);
+            renderFeature.render(this, camera, matrices, delta);
     }
 
     protected void renderModel(Camera camera, MatrixStack matrices, float delta) {

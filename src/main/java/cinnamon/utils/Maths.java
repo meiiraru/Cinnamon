@@ -255,7 +255,11 @@ public class Maths {
     }
 
     public static float range(float min, float max) {
-        return (float) Math.random() * (max - min) + min;
+        return (float) (Math.random() * (max - min) + min);
+    }
+
+    public static int range(int min, int max) {
+        return (int) (Math.random() * (max - min) + min);
     }
 
     public static float min(Vector3f vec) {
