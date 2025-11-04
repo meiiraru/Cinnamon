@@ -1,6 +1,6 @@
 {
-  "width": 128,
-  "height": 128,
+  "tile_x": 4,
+  "tile_y": 4,
   "interpolate": true,
   "frametime": 100
 }

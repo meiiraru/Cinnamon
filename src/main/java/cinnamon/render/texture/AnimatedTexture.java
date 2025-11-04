@@ -162,19 +162,17 @@ public class AnimatedTexture extends Texture {
             try (stream; InputStreamReader reader = new InputStreamReader(stream)) {
                 JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
 
-                int frameWidth = json.has("width") ? json.get("width").getAsInt() : width;
-                int frameHeight = json.has("height") ? json.get("height").getAsInt() : height;
+                int framesX = json.has("tile_x") ? json.get("tile_x").getAsInt() : 1;
+                int framesY = json.has("tile_y") ? json.get("tile_y").getAsInt() : 1;
 
-                if (frameWidth <= 0 || width % frameWidth != 0 || frameHeight <= 0 || height % frameHeight != 0) {
-                    LOGGER.error("Invalid animation frame size (%d x %d) for \"%s\"", frameWidth, frameHeight, res);
-                    return null;
-                }
-
-                int frameCount = (width / frameWidth) * (height / frameHeight);
+                int frameCount = framesY * framesX;
                 if (frameCount <= 1) {
                     LOGGER.debug("Ignoring animation with 1 or less frames (%d)", frameCount);
                     return null;
                 }
+
+                int frameWidth = width / framesX;
+                int frameHeight = height / framesY;
 
                 boolean interpolate = json.has("interpolate") && json.get("interpolate").getAsBoolean();
                 int frameTime = json.has("frametime") ? json.get("frametime").getAsInt() : 1;

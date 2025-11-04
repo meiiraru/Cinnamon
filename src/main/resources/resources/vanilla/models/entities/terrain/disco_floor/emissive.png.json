@@ -1,6 +1,6 @@
 {
-  "width": 128,
-  "height": 64,
+  "tile_x": 1,
+  "tile_y": 4,
   "interpolate": false,
   "frames": [
     {"frame": 0, "time": 10},
