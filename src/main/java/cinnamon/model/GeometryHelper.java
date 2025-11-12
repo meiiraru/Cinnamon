@@ -398,11 +398,11 @@ public class GeometryHelper {
         float angleStep = (float) (Math.PI * progress * 2f) / faces;
 
         //generate vertices
-        Vertex[] circle = new Vertex[sides];
+        Vertex[] circle = new Vertex[faces + 1];
         Vertex vTip = Vertex.of(x, y + height, z).normal(0, 1, 0).color(color).mul(matrices);
         Vertex vBase = Vertex.of(x, y, z).normal(0, -1, 0).color(color).mul(matrices);
 
-        for (int i = 0; i < sides; i++) {
+        for (int i = 0; i < faces + 1; i++) {
             float theta = angleStep * i;
             float x1 = Math.cos(theta); float z1 = Math.sin(theta);
             circle[i] = Vertex.of(x + x1 * radius, y, z + z1 * radius).normal(x1, 0, z1).color(color).mul(matrices);
@@ -411,7 +411,7 @@ public class GeometryHelper {
         //generate faces
         Vertex[][] cone = new Vertex[faces * (base ? 2 : 1)][3];
         for (int i = 0; i < faces; i++) {
-            int next = (i + 1) % sides;
+            int next = (i + 1) % circle.length;
             cone[i] = new Vertex[]{vTip, circle[next], circle[i]}; //side
             if (base)
                 cone[i + faces] = new Vertex[]{vBase, circle[i], circle[next]}; //base
@@ -429,7 +429,8 @@ public class GeometryHelper {
         float angleStep = (float) (Math.PI * progress * 2f) / vertexCount;
 
         //generate vertices
-        Vertex[] circle = new Vertex[sides * 2];
+        int circleLen = vertexCount + 1;
+        Vertex[] circle = new Vertex[circleLen * 2];
         Vertex top = Vertex.of(x, y + height, z).normal(0, 1, 0).color(color).mul(matrices);
         Vertex bottom = Vertex.of(x, y, z).normal(0, -1, 0).color(color).mul(matrices);
 
@@ -437,7 +438,7 @@ public class GeometryHelper {
         float r = radiusBottom;
 
         for (int j = 0; j < 2; j++) {
-            for (int i = 0; i < sides; i++) {
+            for (int i = 0; i < circleLen; i++) {
                 float theta = angleStep * i;
                 float x1 = Math.cos(theta); float z1 = Math.sin(theta);
                 circle[index++] = Vertex.of(x + x1 * r, y + j * height, z + z1 * r).normal(x1, 0, z1).color(color).mul(matrices);
@@ -446,12 +447,12 @@ public class GeometryHelper {
         }
 
         //generate faces
-        Vertex[][] cylinder = new Vertex[vertexCount * (cap ? 3 : 2)][4];
+        Vertex[][] cylinder = new Vertex[vertexCount * (cap ? 3 : 1)][4];
         for (int i = 0; i < vertexCount; i++) {
-            int next = (i + 1) % sides;
-            cylinder[i] = new Vertex[]{circle[i + sides], circle[next + sides], circle[next], circle[i]}; //side
+            int next = (i + 1) % circleLen;
+            cylinder[i] = new Vertex[]{circle[i + circleLen], circle[next + circleLen], circle[next], circle[i]}; //side
             if (cap) {
-                cylinder[i + vertexCount] = new Vertex[]{top, circle[next + sides], circle[i + sides]}; //top
+                cylinder[i + vertexCount] = new Vertex[]{top, circle[next + circleLen], circle[i + circleLen]}; //top
                 cylinder[i + vertexCount * 2] = new Vertex[]{bottom, circle[i], circle[next]}; //bottom
             }
         }
@@ -571,26 +572,21 @@ public class GeometryHelper {
     }
 
     public static Vertex[][] torus(MatrixStack matrices, float x, float y, float z, float radius, float tubeRadius, int sides, int color) {
-        return torus(matrices, x, y, z, radius, tubeRadius, sides, sides, 1f, color);
+        return torus(matrices, x, y, z, radius, tubeRadius, sides, sides, 1f, 1f, color);
     }
 
-    public static Vertex[][] torus(MatrixStack matrices, float x, float y, float z, float radius, float tubeRadius, int sides, int tubeSides, float progress, int color) {
+    public static Vertex[][] torus(MatrixStack matrices, float x, float y, float z, float radius, float tubeRadius, int sides, int tubeSides, float progress, float tubeProgress, int color) {
         int mainSeg = Math.max(sides, 3);
         int tubeSeg = Math.max(tubeSides, 3);
 
-        //calculate the main segments count to generate based on progress
-        int segCount = (int) Math.ceil(mainSeg * progress);
-        if (segCount <= 0)
-            return new Vertex[0][];
+        Vertex[] vertices = new Vertex[(mainSeg + 1) * (tubeSeg + 1)];
 
-        Vertex[] vertices = new Vertex[(segCount + 1) * (tubeSeg + 1)];
-
-        float phi = (float) (Math.PI * 2f) / tubeSeg;
-        float theta = (float) (Math.PI * 2f) / mainSeg;
+        float phi = (float) (Math.PI * tubeProgress * 2f) / tubeSeg;
+        float theta = (float) (Math.PI * progress * 2f) / mainSeg;
 
         //generate vertices
         int index = 0;
-        for (int i = 0; i <= segCount; i++) {
+        for (int i = 0; i <= mainSeg; i++) {
             float theta1 = i * theta;
             float sinTheta1 = Math.sin(theta1); float cosTheta1 = Math.cos(theta1);
 
@@ -613,9 +609,9 @@ public class GeometryHelper {
         }
 
         //generate quads
-        Vertex[][] quads = new Vertex[segCount * tubeSeg][4];
+        Vertex[][] quads = new Vertex[mainSeg * tubeSeg][4];
         index = 0;
-        for (int i = 0; i < segCount; i++) {
+        for (int i = 0; i < mainSeg; i++) {
             for (int j = 0; j < tubeSeg; j++) {
                 int v0 = i * (tubeSeg + 1) + j;
                 int v1 = (i + 1) * (tubeSeg + 1) + j;
