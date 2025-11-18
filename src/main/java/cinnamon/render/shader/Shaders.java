@@ -26,7 +26,7 @@ public enum Shaders {
     MODEL_PASS,
     MAIN_PASS,
     MODEL_UV,
-    LIGHTING_PASS,
+    LIGHT_PASS,
     BLIT_COLOR_DEPTH,
     MAIN_DEPTH,
     MAIN_DEPTH_DIR,

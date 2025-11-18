@@ -66,7 +66,7 @@ void main() {
 
     //sample textures
     vec4 albedo = texture(material.albedoTex, texCoords);
-    if (albedo.a <= 0.01f)
+    if (albedo.a < 0.5f)
         discard;
 
     float ao        = texture(material.aoTex, texCoords).r;

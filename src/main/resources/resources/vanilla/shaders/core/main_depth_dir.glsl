@@ -50,7 +50,7 @@ uniform sampler2D textures[16];
 void main() {
     if (g_texID >= 0) {
         vec4 tex = texture(textures[g_texID], g_texCoords);
-        if (tex.a < 0.01f)
+        if (tex.a < 0.5f)
             discard;
     }
 }

@@ -31,7 +31,7 @@ uniform float farPlane;
 
 void main() {
     vec4 tex = texture(textureSampler, texCoords);
-    if (tex.a <= 0.01f)
+    if (tex.a < 0.5f)
         discard;
 
     float lightDistance = length(worldPos - lightPos);

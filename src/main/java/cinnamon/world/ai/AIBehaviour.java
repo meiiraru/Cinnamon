@@ -1,4 +1,4 @@
-package cinnamon.world;
+package cinnamon.world.ai;
 
 import cinnamon.world.entity.living.LivingEntity;
 

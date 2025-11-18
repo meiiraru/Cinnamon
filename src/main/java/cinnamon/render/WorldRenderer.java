@@ -328,7 +328,7 @@ public class WorldRenderer {
         cameraRot.set(camera.getRot());
 
         //set the light shader camera uniforms
-        Shader s = Shaders.LIGHTING_PASS.getShader().use();
+        Shader s = Shaders.LIGHT_PASS.getShader().use();
         s.setVec3("camPos", camera.getPosition());
         s.applyViewMatrix(camera.getViewMatrix());
         s.setupInverse(camera);
@@ -481,7 +481,7 @@ public class WorldRenderer {
         lightingMultiPassBuffer.adjustViewPort();
 
         //bind the shadow map and gbuffer textures to the light shader
-        Shader s = Shaders.LIGHTING_PASS.getShader().use();
+        Shader s = Shaders.LIGHT_PASS.getShader().use();
         s.setTexture("gAlbedo", PBRFrameBuffer.getAlbedo(),      0);
         s.setTexture("gNormal", PBRFrameBuffer.getNormal(),      1);
         s.setTexture("gORM",    PBRFrameBuffer.getORM(),         2);

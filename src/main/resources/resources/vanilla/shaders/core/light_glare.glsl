@@ -51,6 +51,11 @@ void main() {
     if (lightClipPos.w <= 0.0f)
         discard;
 
+    //sample texture
+    vec4 tex = texture(textureSampler, texCoords);
+    if (tex.a < 0.5f)
+        discard;
+
     vec3 lightNDC = lightClipPos.xyz / lightClipPos.w;
     vec2 lightUV = lightNDC.xy * 0.5f + 0.5f; //[0, 1] range
 
@@ -75,11 +80,6 @@ void main() {
 
     visibility /= 9.0f;
     if (visibility <= 0.0f)
-        discard;
-
-    //render light
-    vec4 tex = texture(textureSampler, texCoords);
-    if (tex.a <= 0.01f)
         discard;
 
     fragColor = vec4(tex.rgb * color, tex.a) * visibility * intensity;

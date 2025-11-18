@@ -244,7 +244,7 @@ void main() {
         }
 
         attenuation = distanceAttenuation * spotEffect;
-        if (attenuation <= 0.00001f)
+        if (attenuation < 0.001f)
             discard;
     }
 
@@ -254,7 +254,7 @@ void main() {
     //cookie
     if (light.type == 4) {
         vec3 cookieColor = getCookieColor(lightCoords);
-        if (cookieColor.r + cookieColor.g + cookieColor.b < 0.00005f)
+        if (cookieColor.r + cookieColor.g + cookieColor.b < 0.1f)
             discard;
         radiance *= cookieColor;
     }

@@ -120,7 +120,7 @@ vec4 applyLighting() {
 
     //grab textures
     vec4 albedo4 = texture(material.albedoTex, texCoords);
-    if (albedo4.a <= 0.01f)
+    if (albedo4.a < 0.5f)
         discard;
 
     vec3 albedo     = albedo4.rgb;

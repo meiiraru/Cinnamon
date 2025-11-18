@@ -2,7 +2,7 @@ package cinnamon.world.entity.living;
 
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
-import cinnamon.world.AIBehaviour;
+import cinnamon.world.ai.AIBehaviour;
 import cinnamon.world.DamageType;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.Entity;
