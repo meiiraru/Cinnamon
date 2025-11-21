@@ -5,11 +5,7 @@ import cinnamon.render.Camera;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import org.joml.Vector3f;
-import org.lwjgl.openal.AL;
-import org.lwjgl.openal.ALC;
-import org.lwjgl.openal.ALCCapabilities;
-import org.lwjgl.openal.ALCapabilities;
-import org.lwjgl.openal.ALUtil;
+import org.lwjgl.openal.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +17,7 @@ import static org.lwjgl.openal.AL11.alSpeedOfSound;
 import static org.lwjgl.openal.ALC10.*;
 import static org.lwjgl.openal.ALC11.ALC_ALL_DEVICES_SPECIFIER;
 import static org.lwjgl.openal.ALC11.ALC_DEFAULT_ALL_DEVICES_SPECIFIER;
+import static org.lwjgl.openal.EXTDisconnect.ALC_CONNECTED;
 
 public class SoundManager {
 
@@ -35,6 +32,7 @@ public class SoundManager {
     private static long device;
     private static String ALVersion = "Unknown";
     private static boolean initialized;
+    private static long lastCheckTime;
 
     public static void init(String deviceName) {
         if (initialized)
@@ -57,7 +55,7 @@ public class SoundManager {
         for (String device : devices)
             LOGGER.debug(device);
 
-        //initialize audio device
+        //grab audio device
         String deviceToUse;
         useDefaultDevice = deviceName == null || !devices.contains(deviceName);
         if (useDefaultDevice) {
@@ -68,7 +66,17 @@ public class SoundManager {
         }
 
         currentDevice = deviceToUse;
-        device = alcOpenDevice(deviceToUse);
+
+        //log extensions
+        String extensions = alcGetString(0, ALC_EXTENSIONS);
+        if (extensions != null) {
+            LOGGER.debug("Supported ALC extensions:");
+            for (String ext : extensions.split(" "))
+                LOGGER.debug("\u2022 %s", ext);
+        }
+
+        //try to open the device
+        device = alcOpenDevice(currentDevice);
 
         try {
             checkALCError(device);
@@ -95,7 +103,7 @@ public class SoundManager {
         initialized = true;
         ALVersion = alcGetInteger(0, ALC_MAJOR_VERSION) + "." + alcGetInteger(0, ALC_MINOR_VERSION);
         LOGGER.info("OpenAL version: %s", ALVersion);
-        LOGGER.info("OpenAL device: %s", deviceToUse);
+        LOGGER.info("OpenAL device: %s", currentDevice);
     }
 
     public static void free() {
@@ -103,8 +111,8 @@ public class SoundManager {
             return;
 
         stopAll();
-        alcDestroyContext(context);
         alcCloseDevice(device);
+        alcDestroyContext(context);
         Sound.freeAllSounds();
         initialized = false;
     }
@@ -123,6 +131,9 @@ public class SoundManager {
 
     public static void tick(Camera camera) {
         if (!initialized)
+            return;
+
+        if (checkDeviceSwap())
             return;
 
         checkALError();
@@ -148,6 +159,34 @@ public class SoundManager {
                 forward.x, forward.y, forward.z,
                 up.x, up.y, up.z
         });
+    }
+
+    protected static boolean checkDeviceSwap() {
+        //check for device disconnection
+        if (ALC11.alcGetInteger(device, ALC_CONNECTED) == 0) {
+            LOGGER.warn("Audio device was lost!");
+            swapDevice(""); //use default device
+            return true;
+        }
+
+        //check for default device change
+        if (!isUsingDefaultDevice())
+            return false;
+
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastCheckTime < 3000) //3s delay
+            return false;
+
+        lastCheckTime = currentTime;
+        ALUtil.getStringList(0, ALC_ALL_DEVICES_SPECIFIER);
+        String defaultDevice = alcGetString(0, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
+        if (defaultDevice != null && !defaultDevice.equals(currentDevice)) {
+            LOGGER.info("Default audio device has changed to \"%s\"", defaultDevice);
+            swapDevice(""); //reload default device
+            return true;
+        }
+
+        return false;
     }
 
     public static SoundInstance playSound(Resource resource, SoundCategory category) {
