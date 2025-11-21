@@ -152,7 +152,7 @@ public class ModelViewer extends SelectableWidget {
             WorldRenderer.renderSky(theSky, client.camera, matrices);
 
             float bloom = Settings.bloomStrength.get();
-            if (bloom > 0f)
+            if (!xr && bloom > 0f)
                 BloomRenderer.applyBloom(WorldRenderer.outputBuffer, WorldRenderer.PBRFrameBuffer.getEmissive(), 0.8f, bloom);
         }
 

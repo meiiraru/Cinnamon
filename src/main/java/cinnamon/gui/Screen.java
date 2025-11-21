@@ -270,11 +270,11 @@ public abstract class Screen {
 
         XrRenderer.removeGUITransform(matrices);
         XrRenderer.renderHands(matrices);
-        MaterialApplier.cleanup();
 
         Shaders.OUTLINE.getShader().use();
         XrRenderer.renderHandLaser(matrices);
 
+        MaterialApplier.cleanup();
         matrices.popMatrix();
         old.use();
     }

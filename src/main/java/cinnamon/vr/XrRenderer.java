@@ -123,6 +123,7 @@ public class XrRenderer {
         //render the buffer
         Shader blit = PostProcess.BLIT_GAMMA.getShader().use();
         blit.setTexture("colorTex", framebuffer.getColorBuffer(), 0);
+        blit.setFloat("gamma", 1f / 2.2f);
         SimpleGeometry.QUAD.render();
     }
 
