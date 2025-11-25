@@ -1,6 +1,7 @@
 package cinnamon.world.entity.collectable;
 
 import cinnamon.Client;
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionResolver;
@@ -27,9 +28,9 @@ public abstract class Collectable extends PhysEntity {
     }
 
     @Override
-    protected void applyModelPose(MatrixStack matrices, float delta) {
+    protected void applyModelPose(Camera camera, MatrixStack matrices, float delta) {
         matrices.translate(0, Math.sin((Client.getInstance().ticks + delta) * 0.05f) * getAABB().getHeight() * 0.075f, 0);
-        super.applyModelPose(matrices, delta);
+        super.applyModelPose(camera, matrices, delta);
     }
 
     @Override

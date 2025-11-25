@@ -1,6 +1,7 @@
 package cinnamon.world.entity.living;
 
 import cinnamon.Client;
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
@@ -72,7 +73,7 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     @Override
-    protected void applyModelPose(MatrixStack matrices, float delta) {
+    protected void applyModelPose(Camera camera, MatrixStack matrices, float delta) {
         if (this.riding != null) {
             Vector2f rot = riding.getRot(delta);
             matrices.rotate(Rotation.Y.rotationDeg(-rot.y));

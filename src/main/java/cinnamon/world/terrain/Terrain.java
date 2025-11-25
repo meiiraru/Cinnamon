@@ -1,5 +1,6 @@
 package cinnamon.world.terrain;
 
+import cinnamon.animation.Animation;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
@@ -9,6 +10,7 @@ import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.render.model.AnimatedObjRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
@@ -98,6 +100,10 @@ public class Terrain extends WorldObject {
     public int getRenderDistance() {
         int dist = WorldRenderer.renderDistance;
         return dist * dist;
+    }
+
+    public Animation getAnimation(String name) {
+        return model instanceof AnimatedObjRenderer anim ? anim.getAnimation(name) : null;
     }
 
     @Override

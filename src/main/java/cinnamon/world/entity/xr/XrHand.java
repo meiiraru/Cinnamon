@@ -4,6 +4,7 @@ import cinnamon.Client;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.WorldRenderer;
 import cinnamon.utils.Maths;
 import cinnamon.vr.XrHandTransform;
 import cinnamon.vr.XrInput;
@@ -62,7 +63,8 @@ public class XrHand extends PhysEntity {
     @Override
     public void render(Camera camera, MatrixStack matrices, float delta) {
         //update the hand position on every frame!
-        tickPhysics();
+        if (!WorldRenderer.isShadowRendering())
+            tickPhysics();
         super.render(camera, matrices, delta);
     }
 
@@ -133,7 +135,7 @@ public class XrHand extends PhysEntity {
         pos.rotate(c.getRot());
         pos.add(c.getPos());
 
-        grabbable.moveTo(pos);
+        grabbable.setPos(pos);
         grabbable.rotateToWithRiders(getRot());
     }
 

@@ -22,7 +22,7 @@ import static cinnamon.render.texture.Texture.TextureParams.SMOOTH_SAMPLING;
 
 public class MainMenu extends Screen {
 
-    private static final Resource
+    public static final Resource
         BACKGROUND = new Resource("textures/gui/main_menu/background.png"),
         OVERLAY    = new Resource("textures/gui/main_menu/overlay.png"),
         BOTTOM     = new Resource("textures/gui/main_menu/bottom.png"),
@@ -105,7 +105,7 @@ public class MainMenu extends Screen {
         renderTitle(matrices, delta);
     }
 
-    private void renderTitle(MatrixStack matrices, float delta) {
+    protected void renderTitle(MatrixStack matrices, float delta) {
         int width = 0;
         for (Resource title : TITLE)
             width += Texture.of(title).getWidth();
@@ -144,7 +144,7 @@ public class MainMenu extends Screen {
         }
     }
 
-    private static class MainButton extends Button {
+    public static class MainButton extends Button {
 
         protected static final Resource LINE = new Resource("textures/gui/main_menu/line.png");
 

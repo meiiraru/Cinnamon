@@ -78,7 +78,7 @@ public abstract class Entity extends WorldObject {
             //apply model pose
             matrices.pushMatrix();
             matrices.translate(getPos(delta));
-            applyModelPose(matrices, delta);
+            applyModelPose(camera, matrices, delta);
 
             //render model
             renderModel(camera, matrices, delta);
@@ -99,7 +99,7 @@ public abstract class Entity extends WorldObject {
         return model instanceof AnimatedObjRenderer anim ? anim.getAnimation(name) : null;
     }
 
-    protected void applyModelPose(MatrixStack matrices, float delta) {
+    protected void applyModelPose(Camera camera, MatrixStack matrices, float delta) {
         Vector2f rot = getRot(delta);
         matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
         matrices.rotate(Rotation.X.rotationDeg(-rot.x));

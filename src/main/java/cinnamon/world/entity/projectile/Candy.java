@@ -2,6 +2,7 @@ package cinnamon.world.entity.projectile;
 
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.Maths;
 import cinnamon.world.collisions.CollisionResolver;
@@ -46,8 +47,8 @@ public class Candy extends Projectile {
     }
 
     @Override
-    protected void applyModelPose(MatrixStack matrices, float delta) {
-        super.applyModelPose(matrices, delta);
+    protected void applyModelPose(Camera camera, MatrixStack matrices, float delta) {
+        super.applyModelPose(camera, matrices, delta);
         matrices.scale(Maths.clamp((this.lifetime - delta) / 5f, 0, 1));
     }
 

@@ -2,8 +2,12 @@ package cinnamon.world.entity.xr;
 
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.WorldRenderer;
 import cinnamon.utils.Resource;
+import cinnamon.vr.XrHandTransform;
+import cinnamon.vr.XrRenderer;
 import cinnamon.world.entity.PhysEntity;
+import org.joml.Quaternionf;
 
 import java.util.UUID;
 
@@ -31,8 +35,21 @@ public abstract class XrGrabbable extends PhysEntity {
     @Override
     public void render(Camera camera, MatrixStack matrices, float delta) {
         //update the hand position on every frame!
-        moveToHand();
+        if (!WorldRenderer.isShadowRendering())
+            moveToHand();
         super.render(camera, matrices, delta);
+    }
+
+    @Override
+    protected void applyModelPose(Camera camera, MatrixStack matrices, float delta) {
+        if (getHand() != null) {
+            int i = getHand().getHand();
+            XrHandTransform transform = XrRenderer.getHandTransform(i);
+            matrices.rotate(camera.getRot());
+            matrices.rotate(transform.rot());
+        } else {
+            super.applyModelPose(camera, matrices, delta);
+        }
     }
 
     @Override
