@@ -4,24 +4,28 @@ The purpose of this engine is to learn how game engines work. For now, it's only
 # Features
 - [x] OpenGL Rendering Pipeline
 - [ ] Vulkan Rendering Pipeline
-- [ ] glTF Model Loading
+- [x] Assimp Model Loading
 - [x] GUI System
-- [x] Animations
-- [ ] Animation Blending
+- [x] Animations ([blockbench](https://www.blockbench.net/) based)
+- [ ] Skeletal Animations
 - [x] Sounds System
 - [x] AABB Collisions
-- [ ] OBB Collisions
+- [ ] [ODE physics](https://www.ode.org/)
 - [x] Entity System
 - [x] Physics System
-- [ ] Better Physics System
 - [x] Items
 - [x] Inventory
 - [x] Particles
 - [x] World System
 - [ ] Networking
 - [x] Settings File
+- [x] Resource Loading
 - [x] OpenXR Integration
 - [x] Keybinds
+- [x] Language Localization System
+- [x] Logger
+- [ ] Scripting System ([Lua](https://www.lua.org/))
+- [ ] Entity AI/Behaviour System
 - [ ] What else comes into my very flat brain (burgers)
 
 # Controls
