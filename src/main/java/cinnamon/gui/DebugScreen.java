@@ -319,6 +319,8 @@ public class DebugScreen {
 
     public enum Tab {
         SYSTEM(c -> {
+            long millis = System.currentTimeMillis();
+
             Runtime r = Runtime.getRuntime();
             long max = r.maxMemory();
             long total = r.totalMemory();
@@ -332,6 +334,7 @@ public class DebugScreen {
                     allocated &e%s&r%% &e%s&r
 
                     [&bproperties&r]
+                    date &e%tT %tF&r
                     OS &e%s&r
                     %s
                     LWJGL &e%s&r
@@ -341,6 +344,7 @@ public class DebugScreen {
                     used * 100 / max, Maths.prettyByteSize(used), Maths.prettyByteSize(max),
                     total * 100 / max, Maths.prettyByteSize(total),
 
+                    millis, millis,
                     System.getProperty("os.name"),
                     glGetString(GL_RENDERER),
                     org.lwjgl.Version.getVersion(),
