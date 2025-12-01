@@ -1,9 +1,9 @@
 package cinnamon.utils;
 
+import cinnamon.Cinnamon;
 import cinnamon.Client;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.Platform;
 import org.lwjgl.util.nfd.NFDFilterItem;
 import org.lwjgl.util.nfd.NFDOpenDialogArgs;
 import org.lwjgl.util.nfd.NFDPathSetEnum;
@@ -21,29 +21,17 @@ import static org.lwjgl.util.nfd.NativeFileDialog.*;
 
 public class FileDialog {
 
-    private static final int handleType;
-    private static final long handleWindow;
-
-    static {
+    private static Pair<Integer, Long> getWindowHandle() {
         Client c = Client.getInstance();
         if (c.window == null)
             throw new RuntimeException("Client is not initialized");
 
         long window = c.window.getHandle();
 
-        handleWindow = switch (Platform.get()) {
-            case FREEBSD, LINUX -> {
-                handleType = NFD_WINDOW_HANDLE_TYPE_X11;
-                yield glfwGetX11Window(window);
-            }
-            case MACOSX -> {
-                handleType = NFD_WINDOW_HANDLE_TYPE_COCOA;
-                yield glfwGetCocoaWindow(window);
-            }
-            case WINDOWS -> {
-                handleType = NFD_WINDOW_HANDLE_TYPE_WINDOWS;
-                yield glfwGetWin32Window(window);
-            }
+        return switch (Cinnamon.PLATFORM) {
+            case FREEBSD, LINUX -> new Pair<>(NFD_WINDOW_HANDLE_TYPE_X11, glfwGetX11Window(window));
+            case MACOSX -> new Pair<>(NFD_WINDOW_HANDLE_TYPE_COCOA, glfwGetCocoaWindow(window));
+            case WINDOWS -> new Pair<>(NFD_WINDOW_HANDLE_TYPE_WINDOWS, glfwGetWin32Window(window));
         };
     }
 
@@ -66,11 +54,12 @@ public class FileDialog {
 
             //open dialog
             PointerBuffer outPath = stack.mallocPointer(1);
+            Pair<Integer, Long> window = getWindowHandle();
             int result = NFD_OpenDialog_With(outPath, NFDOpenDialogArgs
                     .calloc(stack)
                     .filterList(filterBuffer)
                     .defaultPath(stack.UTF8(defaultPath))
-                    .parentWindow(it -> it.type(handleType).handle(handleWindow))
+                    .parentWindow(it -> it.type(window.first()).handle(window.second()))
             );
 
             //return path
@@ -93,11 +82,12 @@ public class FileDialog {
 
             //open dialog
             PointerBuffer outPath = stack.mallocPointer(1);
+            Pair<Integer, Long> window = getWindowHandle();
             int result = NFD_OpenDialogMultiple_With(outPath, NFDOpenDialogArgs
                     .calloc(stack)
                     .filterList(filterBuffer)
                     .defaultPath(stack.UTF8(defaultPath))
-                    .parentWindow(it -> it.type(handleType).handle(handleWindow))
+                    .parentWindow(it -> it.type(window.first()).handle(window.second()))
             );
 
             //return paths
@@ -113,10 +103,11 @@ public class FileDialog {
         try (MemoryStack stack = stackPush()) {
             //open dialog
             PointerBuffer outPath = stack.mallocPointer(1);
+            Pair<Integer, Long> window = getWindowHandle();
             int result = NFD_PickFolder_With(outPath, NFDPickFolderArgs
                     .calloc(stack)
                     .defaultPath(stack.UTF8(defaultPath))
-                    .parentWindow(it -> it.type(handleType).handle(handleWindow))
+                    .parentWindow(it -> it.type(window.first()).handle(window.second()))
             );
 
             //return path
@@ -132,10 +123,11 @@ public class FileDialog {
         try (MemoryStack stack = stackPush()) {
             //open dialog
             PointerBuffer outPath = stack.mallocPointer(1);
+            Pair<Integer, Long> window = getWindowHandle();
             int result = NFD_PickFolderMultiple_With(outPath, NFDPickFolderArgs
                     .calloc(stack)
                     .defaultPath(stack.UTF8(defaultPath))
-                    .parentWindow(it -> it.type(handleType).handle(handleWindow))
+                    .parentWindow(it -> it.type(window.first()).handle(window.second()))
             );
 
             //return path
@@ -158,12 +150,13 @@ public class FileDialog {
 
             //open dialog
             PointerBuffer outPath = stack.mallocPointer(1);
+            Pair<Integer, Long> window = getWindowHandle();
             int result = NFD_SaveDialog_With(outPath, NFDSaveDialogArgs
                     .calloc(stack)
                     .filterList(filterBuffer)
                     .defaultPath(stack.UTF8(defaultPath))
                     .defaultName(stack.UTF8(defaultName))
-                    .parentWindow(it -> it.type(handleType).handle(handleWindow))
+                    .parentWindow(it -> it.type(window.first()).handle(window.second()))
             );
             //return path
             return parseSingleResult(result, outPath);
