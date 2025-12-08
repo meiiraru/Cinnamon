@@ -108,7 +108,7 @@ public class CurvesScreen extends ParentedScreen {
                 Toast.addToast(Text.translated("gui.curves_screen.export_success"));
                 if (!exported) {
                     exported = true;
-                    grid.insertWidget(openFolder, button);
+                    grid.insertWidgetAfter(openFolder, button);
                 }
             } catch (Exception e) {
                 LOGGER.error("Failed to export curve", e);

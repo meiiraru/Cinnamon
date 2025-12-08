@@ -162,6 +162,10 @@ public class ComboBox extends Button {
         selected = -1;
     }
 
+    public int getEntryCount() {
+        return indexes.size();
+    }
+
     private void updateTexts() {
         for (int i = 0; i < indexes.size(); i++) {
             //get text

@@ -276,7 +276,7 @@ public class UIHelper {
 
         if (sPopup != popup) {
             s.popup = popup;
-            s.addWidgetOnTop(popup);
+            s.addWidget(popup);
         }
     }
 

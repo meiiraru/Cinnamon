@@ -35,13 +35,15 @@ public class Container extends Widget implements Tickable, GUIListener {
             addWidget(widget);
     }
 
-    public void addWidgetOnTop(Widget widget) {
-        addWidgetAtIndex(0, 0, widget);
-    }
-
-    public void insertWidget(Widget widget, Widget position) {
+    public void insertWidgetAfter(Widget widget, Widget position) {
         int wi = this.widgets.indexOf(position) + 1;
         int li = position instanceof GUIListener l ? this.listeners.indexOf(l) + 1 : this.listeners.size();
+        addWidgetAtIndex(wi, li, widget);
+    }
+
+    public void insertWidgetBefore(Widget widget, Widget position) {
+        int wi = this.widgets.indexOf(position);
+        int li = position instanceof GUIListener l ? this.listeners.indexOf(l) : this.listeners.size();
         addWidgetAtIndex(wi, li, widget);
     }
 
@@ -54,7 +56,10 @@ public class Container extends Widget implements Tickable, GUIListener {
     }
 
     public GUIListener getWidgetAt(int x, int y) {
-        for (GUIListener listener : this.listeners) {
+        for (int i = this.listeners.size() - 1; i >= 0; i--) {
+            GUIListener listener = this.listeners.get(i);
+            if (listener instanceof PopupWidget pw && !pw.isOpen())
+                continue;
             if (UIHelper.isMouseOver((Widget) listener, x, y))
                 return listener;
         }
@@ -133,7 +138,8 @@ public class Container extends Widget implements Tickable, GUIListener {
 
     @Override
     public GUIListener mousePress(int button, int action, int mods) {
-        for (GUIListener listener : this.listeners) {
+        for (int i = this.listeners.size() - 1; i >= 0; i--) {
+            GUIListener listener = this.listeners.get(i);
             GUIListener result = listener.mousePress(button, action, mods);
             if (result != null)
                 return result;
@@ -143,8 +149,9 @@ public class Container extends Widget implements Tickable, GUIListener {
 
     @Override
     public GUIListener keyPress(int key, int scancode, int action, int mods) {
-        for (GUIListener listener : this.listeners) {
-            GUIListener result =  listener.keyPress(key, scancode, action, mods);
+        for (int i = this.listeners.size() - 1; i >= 0; i--) {
+            GUIListener listener = this.listeners.get(i);
+            GUIListener result = listener.keyPress(key, scancode, action, mods);
             if (result != null)
                 return result;
         }
@@ -153,7 +160,8 @@ public class Container extends Widget implements Tickable, GUIListener {
 
     @Override
     public GUIListener charTyped(char c, int mods) {
-        for (GUIListener listener : this.listeners) {
+        for (int i = this.listeners.size() - 1; i >= 0; i--) {
+            GUIListener listener = this.listeners.get(i);
             GUIListener result = listener.charTyped(c, mods);
             if (result != null)
                 return result;
@@ -163,7 +171,8 @@ public class Container extends Widget implements Tickable, GUIListener {
 
     @Override
     public GUIListener mouseMove(int x, int y) {
-        for (GUIListener listener : this.listeners) {
+        for (int i = this.listeners.size() - 1; i >= 0; i--) {
+            GUIListener listener = this.listeners.get(i);
             GUIListener result = listener.mouseMove(x, y);
             if (result != null)
                 return result;
@@ -173,7 +182,8 @@ public class Container extends Widget implements Tickable, GUIListener {
 
     @Override
     public GUIListener scroll(double x, double y) {
-        for (GUIListener listener : this.listeners) {
+        for (int i = this.listeners.size() - 1; i >= 0; i--) {
+            GUIListener listener = this.listeners.get(i);
             GUIListener result = listener.scroll(x, y);
             if (result != null)
                 return result;
@@ -183,7 +193,8 @@ public class Container extends Widget implements Tickable, GUIListener {
 
     @Override
     public GUIListener windowFocused(boolean focused) {
-        for (GUIListener listener : this.listeners) {
+        for (int i = this.listeners.size() - 1; i >= 0; i--) {
+            GUIListener listener = this.listeners.get(i);
             GUIListener result = listener.windowFocused(focused);
             if (result != null)
                 return result;
@@ -193,7 +204,8 @@ public class Container extends Widget implements Tickable, GUIListener {
 
     @Override
     public GUIListener filesDropped(String[] files) {
-        for (GUIListener listener : this.listeners) {
+        for (int i = this.listeners.size() - 1; i >= 0; i--) {
+            GUIListener listener = this.listeners.get(i);
             GUIListener result = listener.filesDropped(files);
             if (result != null)
                 return result;

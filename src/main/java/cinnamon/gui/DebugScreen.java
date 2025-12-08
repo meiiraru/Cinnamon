@@ -1,6 +1,7 @@
 package cinnamon.gui;
 
 import cinnamon.Client;
+import cinnamon.gui.screens.MainMenu;
 import cinnamon.logger.Level;
 import cinnamon.logger.LogOutput;
 import cinnamon.logger.LoggerConfig;
@@ -120,7 +121,11 @@ public class DebugScreen {
                     });
                 }
                 case GLFW_KEY_T -> Client.getInstance().reloadAssets();
-                case GLFW_KEY_Q -> Client.getInstance().disconnect();
+                case GLFW_KEY_Q -> {
+                    Client c = Client.getInstance();
+                    c.disconnect();
+                    c.queueTick(() -> c.setScreen(new MainMenu()));
+                }
                 default -> {return false;}
             }
 

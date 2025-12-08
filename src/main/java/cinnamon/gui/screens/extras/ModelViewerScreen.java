@@ -44,6 +44,11 @@ public class ModelViewerScreen extends ParentedScreen {
 
     @Override
     public void init() {
+        //add model viewer first
+        modelViewer.setPos(listWidth + 4, 4);
+        modelViewer.setDimensions(width - listWidth - 8, height - 8);
+        addWidget(modelViewer);
+
         //create model list
         WidgetList models = new WidgetList(4, 4, listWidth - 4, height - 8, 4);
         models.setAlignment(Alignment.TOP_LEFT);
@@ -123,14 +128,7 @@ public class ModelViewerScreen extends ParentedScreen {
         toggleBounds.setRightToLeft(true);
         properties.addWidget(toggleBounds);
 
-        //add model viewer
-        modelViewer.setPos(listWidth + 4, 4);
-        modelViewer.setDimensions(width - listWidth - 8, height - 8);
-
         super.init();
-
-        //add last of the last
-        addWidget(modelViewer);
 
         //set initial model
         if (!modelViewer.hasModel())

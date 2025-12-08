@@ -119,24 +119,24 @@ public class Button extends SelectableWidget {
             return null;
 
         //test for space or enter buttons while focused
-        if (executeHold((key == GLFW_KEY_SPACE || key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER) && isFocused(), action))
+        if (executeHold(isRunKey(key) && isFocused(), action))
             return this;
 
         return super.keyPress(key, scancode, action, mods);
     }
 
-    private boolean executeHold(boolean check, int action) {
+    protected boolean executeHold(boolean check, int action) {
         //is passed the input test
         if (check) {
             //when pressed (or repeat), set the flag to true, and if allowed, run the action
             if (action == GLFW_PRESS) {
-                holding = true;
-                if (runOnHold)
+                setHolding(true);
+                if (runOnHold())
                     onRun();
                 return true;
                 //otherwise when released, only if we were holding, run the action
-            } else if (holding && action == GLFW_RELEASE) {
-                holding = false;
+            } else if (isHolding() && action == GLFW_RELEASE) {
+                setHolding(false);
                 onRun();
                 return true;
             }
@@ -147,14 +147,18 @@ public class Button extends SelectableWidget {
         }
 
         //everything failed, but we were holding and allowed to run on hold
-        if (holding) {
-            holding = false;
-            if (runOnHold)
+        if (isHolding()) {
+            setHolding(false);
+            if (runOnHold())
                 onRun();
             return true;
         }
 
         return false;
+    }
+
+    protected boolean isRunKey(int key) {
+        return key == GLFW_KEY_SPACE || key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER;
     }
 
     public void onRun() {
@@ -204,6 +208,14 @@ public class Button extends SelectableWidget {
 
     public void setRunOnHold(boolean bool) {
         this.runOnHold = bool;
+    }
+
+    public boolean runOnHold() {
+        return runOnHold;
+    }
+
+    protected void setHolding(boolean holding) {
+        this.holding = holding;
     }
 
     public boolean isHolding() {

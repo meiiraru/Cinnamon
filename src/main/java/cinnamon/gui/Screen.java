@@ -107,10 +107,6 @@ public abstract class Screen {
         this.mainContainer.addWidget(widget);
     }
 
-    public void addWidgetOnTop(Widget widget) {
-        this.mainContainer.addWidgetOnTop(widget);
-    }
-
     public void removeWidget(Widget widget) {
         this.mainContainer.removeWidget(widget);
         if (widget == focused) focusWidget(null);

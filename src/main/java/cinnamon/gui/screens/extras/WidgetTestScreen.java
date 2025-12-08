@@ -191,7 +191,7 @@ public class WidgetTestScreen extends ParentedScreen {
         Checkbox ckb = new Checkbox(0, 0, Text.of("Checkbox"));
         ckb.setAction(button -> {
             if (ckb.isToggled())
-                this.addWidgetOnTop(empty);
+                this.addWidget(empty);
             else
                 this.removeWidget(empty);
         });

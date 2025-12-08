@@ -159,7 +159,7 @@ public class WordleScreen extends ParentedScreen {
             if (!s.isEmpty())
                 field.setString(s.substring(0, s.length() - 1));
         }, c -> testWord());
-        keyboardGrid.addWidgetOnTop(controls);
+        keyboardGrid.addWidget(controls);
 
         keyboardGrid.setPos((width - gridXWidth) / 2 + gridXWidth, (height - keyboardGrid.getHeight()) / 2);
         addWidget(keyboardGrid);
@@ -249,7 +249,7 @@ public class WordleScreen extends ParentedScreen {
                 if (count > 0) {
                     //character exists but at wrong position somewhere else
                     for (int j = 0; j < i; j++) {
-                        if (word.charAt(j) == c)
+                        if (word.charAt(j) == c && this.word.charAt(j) != c)
                             count--;
                     }
 

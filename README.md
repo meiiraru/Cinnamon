@@ -1,6 +1,8 @@
 # Cinnamon Game Engine
 The purpose of this engine is to learn how game engines work. For now, it's only a playground for me to have fun and build stuff I like and a place to do my uni assignments
 
+***
+
 # Features
 - [x] OpenGL Rendering Pipeline
 - [ ] Vulkan Rendering Pipeline
@@ -28,6 +30,8 @@ The purpose of this engine is to learn how game engines work. For now, it's only
 - [ ] Entity AI/Behaviour System
 - [ ] What else comes into my very flat brain (burgers)
 
+***
+
 # Controls
 | ACTION         |      BIND | ACTION             |   BIND |
 |----------------|----------:|--------------------|-------:|
@@ -40,8 +44,12 @@ The purpose of this engine is to learn how game engines work. For now, it's only
 | Sprint         |       Tab | Free Hamburger     | Alt+F4 |
 | Fly            |  2x Space |                    |        |
 
+***
+
 # How to compile
 Let Gradle do its thing
+
+***
 
 # To use as a library
 Were going jitpack route here,
@@ -55,7 +63,8 @@ repositories {
 and
 ```kt
 dependencies {
+    //replace "cinnamonVersion" with the desired version, check jitpack for latest
     implementation("com.github.meiiraru", "Cinnamon", cinnamonVersion)
 }
 ```
-dont forgor to include the LWJGL modules (and natives) you're going to use
+**dont forgor to include the LWJGL modules (and natives) you're going to use!**
