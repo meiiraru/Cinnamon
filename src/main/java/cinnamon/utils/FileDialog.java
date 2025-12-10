@@ -21,6 +21,22 @@ import static org.lwjgl.util.nfd.NativeFileDialog.*;
 
 public class FileDialog {
 
+    private static boolean initialized = false;
+
+    private static void ensureInitialized() {
+        if (!initialized) {
+            NFD_Init();
+            initialized = true;
+        }
+    }
+
+    public static void close() {
+        if (initialized) {
+            NFD_Quit();
+            initialized = false;
+        }
+    }
+
     private static Pair<Integer, Long> getWindowHandle() {
         Client c = Client.getInstance();
         if (c.window == null)
@@ -44,6 +60,7 @@ public class FileDialog {
     }
 
     public static String openFile(String defaultPath, Filter... filters) {
+        ensureInitialized();
         try (MemoryStack stack = stackPush(); NFDFilterItem.Buffer filterBuffer = NFDFilterItem.malloc(filters.length)) {
             //filters
             for (int i = 0; i < filters.length; i++) {
@@ -72,6 +89,7 @@ public class FileDialog {
     }
 
     public static List<String> openFiles(String defaultPath, Filter... filters) {
+        ensureInitialized();
         try (MemoryStack stack = stackPush(); NFDFilterItem.Buffer filterBuffer = NFDFilterItem.malloc(filters.length)) {
             //filters
             for (int i = 0; i < filters.length; i++) {
@@ -100,6 +118,7 @@ public class FileDialog {
     }
 
     public static String openFolder(String defaultPath) {
+        ensureInitialized();
         try (MemoryStack stack = stackPush()) {
             //open dialog
             PointerBuffer outPath = stack.mallocPointer(1);
@@ -120,6 +139,7 @@ public class FileDialog {
     }
 
     public static List<String> openFolders(String defaultPath) {
+        ensureInitialized();
         try (MemoryStack stack = stackPush()) {
             //open dialog
             PointerBuffer outPath = stack.mallocPointer(1);
@@ -140,6 +160,7 @@ public class FileDialog {
     }
 
     public static String saveFile(String defaultName, String defaultPath, Filter... filters) {
+        ensureInitialized();
         try (MemoryStack stack = stackPush(); NFDFilterItem.Buffer filterBuffer = NFDFilterItem.malloc(filters.length)) {
             //filters
             for (int i = 0; i < filters.length; i++) {

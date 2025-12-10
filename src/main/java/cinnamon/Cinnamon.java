@@ -5,6 +5,7 @@ import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.settings.ArgsOptions;
 import cinnamon.settings.Settings;
+import cinnamon.utils.FileDialog;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
 import org.joml.Math;
@@ -228,6 +229,9 @@ public class Cinnamon {
 
         //close xr
         XrManager.close();
+
+        //close the file dialog
+        FileDialog.close();
 
         //free the window callbacks and destroy the window
         long window = client.window.getHandle();
