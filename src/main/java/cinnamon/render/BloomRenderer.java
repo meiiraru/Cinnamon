@@ -11,8 +11,6 @@ import static cinnamon.render.WorldRenderer.renderQuad;
 public class BloomRenderer {
 
     public static final Framebuffer brightPass = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
-    private static final Framebuffer blurBufferA = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
-    private static final Framebuffer blurBufferB = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
 
     public static void applyBloom(Framebuffer targetBuffer, int emissiveTex, float threshold, float strength) {
         //get brightness
@@ -25,29 +23,8 @@ public class BloomRenderer {
         s.setFloat("threshold", threshold);
         renderQuad();
 
-        blurBufferA.resizeTo(brightPass, 0.5f);
-        blurBufferB.resizeTo(brightPass, 0.5f);
-
-        Shader sh = PostProcess.GAUSSIAN_BLUR.getShader().use();
-        sh.setVec2("texelSize", 1f / blurBufferA.getWidth(), 1f / blurBufferA.getHeight());
-
-        Framebuffer source = brightPass;
-        Framebuffer target = blurBufferA;
-        target.adjustViewPort();
-
-        //apply gaussian blur
-        for (int i = 0; i < 10; i++) {
-            boolean horizontal = i % 2 == 0;
-
-            target.use();
-            sh.setTexture("colorTex", source.getColorBuffer(), 0);
-            sh.setVec2("dir", horizontal ? 1f : 0f, horizontal ? 0f : 1f);
-
-            renderQuad();
-
-            source = target;
-            target = target == blurBufferA ? blurBufferB : blurBufferA;
-        }
+        //apply blur
+        int blurTex = Blur.blurTexture(brightPass.getColorBuffer(), brightPass.getWidth(), brightPass.getHeight(), 2f);
 
         //composite back to the bright buffer
         brightPass.useClear();
@@ -55,7 +32,7 @@ public class BloomRenderer {
 
         Shader sc = Shaders.BLOOM_COMPOSITE.getShader().use();
         sc.setTexture("sceneTex", targetBuffer.getColorBuffer(), 0);
-        sc.setTexture("bloomTex", source.getColorBuffer(), 1);
+        sc.setTexture("bloomTex", blurTex, 1);
         sc.setFloat("bloomStrength", strength);
 
         renderQuad();

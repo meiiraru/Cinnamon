@@ -22,6 +22,7 @@ public class IBLMap {
     public static CubeMap hdrToCubemap(Texture texture, boolean hdr) {
         int id = generateEmptyMap(512, false);
 
+        Shader old = Shader.activeShader;
         Shader s = Shaders.EQUIRECTANGULAR_TO_CUBEMAP.getShader().use();
         s.setTexture("equirectangularMap", texture, 0);
         s.setMat4("projection", CAPTURE_PROJECTION);
@@ -29,24 +30,28 @@ public class IBLMap {
 
         glViewport(0, 0, 512, 512);
         renderInvertedCube(id, s);
+
+        old.use();
         return new CubeMap(id, 512, 512);
     }
 
     public static CubeMap generateIrradianceMap(CubeMap cubemap) {
         int id = generateEmptyMap(32, false);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-
+        Shader old = Shader.activeShader;
         Shader s = Shaders.IRRADIANCE.getShader().use();
         s.setTexture("environmentMap", cubemap, 0);
         s.setMat4("projection", CAPTURE_PROJECTION);
 
         glViewport(0, 0, 32, 32);
         renderInvertedCube(id, s);
+
+        old.use();
         return new CubeMap(id, 32, 32);
     }
 
     private static void renderInvertedCube(int id, Shader s) {
+        Framebuffer oldFB = Framebuffer.activeFramebuffer;
         glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
         for (CubeMap.Face face : CubeMap.Face.values()) {
             s.setMat4("view", face.viewMatrix);
@@ -55,16 +60,18 @@ public class IBLMap {
             SimpleGeometry.INVERTED_CUBE.render();
         }
 
-        Framebuffer.DEFAULT_FRAMEBUFFER.use();
+        oldFB.use();
     }
 
     public static CubeMap generatePrefilterMap(CubeMap cubemap) {
         int id = generateEmptyMap(1024, true);
 
+        Shader old = Shader.activeShader;
         Shader s = Shaders.PREFILTER.getShader().use();
         s.setTexture("environmentMap", cubemap, 0);
         s.setMat4("projection", CAPTURE_PROJECTION);
 
+        Framebuffer oldFB = Framebuffer.activeFramebuffer;
         glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
         int maxMipLevels = 8;
         for (int mip = 0; mip < maxMipLevels; mip++) {
@@ -82,7 +89,8 @@ public class IBLMap {
             }
         }
 
-        Framebuffer.DEFAULT_FRAMEBUFFER.use();
+        old.use();
+        oldFB.use();
         return new CubeMap(id, 1024, 1024);
     }
 
@@ -96,16 +104,21 @@ public class IBLMap {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+        Framebuffer oldFB = Framebuffer.activeFramebuffer;
         glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, id, 0);
 
         glViewport(0, 0, size, size);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        Shader old = Shader.activeShader;
         Shaders.BRDF_LUT.getShader().use();
         SimpleGeometry.QUAD.render();
 
-        Framebuffer.DEFAULT_FRAMEBUFFER.use();
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        old.use();
+        oldFB.use();
         return new Texture(id, size, size);
     }
 
@@ -128,6 +141,7 @@ public class IBLMap {
             glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         }
 
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
         return id;
     }
 }

@@ -157,9 +157,21 @@ public class Framebuffer {
     public void blit(int targetFramebuffer, boolean color, boolean depth, boolean stencil) {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, id());
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetFramebuffer);
-        if (color) glBlitFramebuffer(getX(), getY(), getWidth(), getHeight(), getX(), getY(), getWidth(), getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        if (color) glBlitFramebuffer(getX(), getY(), getWidth(), getHeight(), getX(), getY(), getWidth(), getHeight(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
         if (depth) glBlitFramebuffer(getX(), getY(), getWidth(), getHeight(), getX(), getY(), getWidth(), getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
         if (stencil) glBlitFramebuffer(getX(), getY(), getWidth(), getHeight(), getX(), getY(), getWidth(), getHeight(), GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+    }
+
+    public void blit(Framebuffer targetFramebuffer) {
+        this.blit(targetFramebuffer, (flags & COLOR_BUFFER) != 0 || (flags & HDR_COLOR_BUFFER) != 0, (flags & DEPTH_BUFFER) != 0, (flags & STENCIL_BUFFER) != 0);
+    }
+
+    public void blit(Framebuffer targetFramebuffer, boolean color, boolean depth, boolean stencil) {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, id());
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetFramebuffer.id());
+        if (color) glBlitFramebuffer(getX(), getY(), getWidth(), getHeight(), targetFramebuffer.getX(), targetFramebuffer.getY(), targetFramebuffer.getWidth(), targetFramebuffer.getHeight(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
+        if (depth) glBlitFramebuffer(getX(), getY(), getWidth(), getHeight(), targetFramebuffer.getX(), targetFramebuffer.getY(), targetFramebuffer.getWidth(), targetFramebuffer.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        if (stencil) glBlitFramebuffer(getX(), getY(), getWidth(), getHeight(), targetFramebuffer.getX(), targetFramebuffer.getY(), targetFramebuffer.getWidth(), targetFramebuffer.getHeight(), GL_STENCIL_BUFFER_BIT, GL_NEAREST);
     }
 
     public int getColorBuffer() {
