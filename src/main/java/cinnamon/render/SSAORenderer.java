@@ -73,6 +73,8 @@ public class SSAORenderer {
         //set camera
         s.setup(camera);
         s.setupInverse(camera);
+        s.setFloat("nearPlane", Camera.NEAR_PLANE);
+        s.setFloat("farPlane", Camera.FAR_PLANE);
 
         //set kernel samples
         s.setInt("sampleCount", Maths.clamp(Settings.ssaoLevel.get(), 1, 4) * 16);

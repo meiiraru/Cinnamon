@@ -73,14 +73,15 @@ public class Flashlight extends Item {
         if ((source = getSource()) == null)
             return;
 
-        float delta = Client.getInstance().timer.partialTick;
+        Client c = Client.getInstance();
+
+        float delta = source.getWorld().isPaused() ? 1f : c.timer.partialTick;
         Vector3f pos = source.getHandPos(false, delta);
         Vector3f dir = source.getHandDir(false, delta);
         light.direction(dir);
         float f = 0.25f;
         light.pos(pos.x + dir.x * f, pos.y + dir.y * f, pos.z + dir.z * f);
 
-        Client c = Client.getInstance();
         boolean fp = source == c.camera.getEntity() && ((WorldClient) source.getWorld()).getCameraMode() == 0;
         boolean noHud = c.hideHUD;
         light.glareSize(fp ? 1f : 5f);

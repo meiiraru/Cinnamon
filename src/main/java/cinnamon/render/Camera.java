@@ -39,8 +39,14 @@ public class Camera {
             identity = new Matrix4f(),
             viewMatrix = new Matrix4f(),
             orthoMatrix = new Matrix4f(),
-            perspMatrix = new Matrix4f();
-    private boolean isOrtho = true;
+            perspMatrix = new Matrix4f(),
+            invViewMatrix = new Matrix4f(),
+            invOrthoMatrix = new Matrix4f(),
+            invPerspMatrix = new Matrix4f();
+
+    private boolean
+            isOrtho = true,
+            viewDirty = true;
 
     private Entity entity;
 
@@ -68,14 +74,17 @@ public class Camera {
 
     public void setPos(float x, float y, float z) {
         pos.set(x, y, z);
+        viewDirty = true;
     }
 
     public void setRot(float pitch, float yaw, float roll) {
         this.rotation.rotationYXZ(Math.toRadians(-yaw), Math.toRadians(-pitch), Math.toRadians(-roll));
+        viewDirty = true;
     }
 
     public void setRot(Quaternionf quaternion) {
         this.rotation.set(quaternion);
+        viewDirty = true;
     }
 
     public void move(float x, float y, float z) {
@@ -106,16 +115,33 @@ public class Camera {
     public void resetProjMatrix() {
         perspMatrix.identity().perspective(Math.toRadians(fov), aspectRatio, NEAR_PLANE, FAR_PLANE);
         orthoMatrix.identity().ortho(0, width, height, 0, -1000, 1000);
+        invPerspMatrix.identity().set(perspMatrix).invert();
+        invOrthoMatrix.identity().set(orthoMatrix).invert();
     }
 
     public void setProjFrustum(float left, float right, float bottom, float top, float near, float far) {
         perspMatrix.identity().frustum(left * near, right * near, bottom * near, top * near, near, far, false);
+        invPerspMatrix.identity().set(perspMatrix).invert();
     }
 
     public void setXrTransform(float x, float y, float z, float qx, float qy, float qz, float qw) {
         xrPos.set(x, y, z);
         xrRot.set(qx, qy, qz, qw);
         reset();
+    }
+
+    protected void recalculateViewMatrix() {
+        if (!viewDirty)
+            return;
+
+        viewMatrix.translationRotateScaleInvert(getPosition(), getRotation(), 1f);
+        invViewMatrix.identity().set(viewMatrix).invert();
+
+        forwards.set(0f, 0f, -1f).rotate(getXrRot()).rotate(getRot());
+        left.set(-1f, 0f, 0f).rotate(getXrRot()).rotate(getRot());
+        up.set(0f, 1f, 0f).rotate(getXrRot()).rotate(getRot());
+
+        viewDirty = false;
     }
 
     /**
@@ -170,9 +196,7 @@ public class Camera {
     }
 
     public void updateFrustum() {
-        Matrix4f proj = getProjectionMatrix();
-        Matrix4f viewProj = getViewMatrix().mulLocal(proj, new Matrix4f());
-        updateFrustum(viewProj);
+        frustum.update(getProjectionMatrix(), getViewMatrix());
     }
 
     public void updateFrustum(Matrix4f viewProj) {
@@ -243,15 +267,18 @@ public class Camera {
     }
 
     public Vector3f getForwards() {
-        return forwards.set(0f, 0f, -1f).rotate(getXrRot()).rotate(getRot());
+        recalculateViewMatrix();
+        return forwards;
     }
 
     public Vector3f getLeft() {
-        return left.set(-1f, 0f, 0f).rotate(getXrRot()).rotate(getRot());
+        recalculateViewMatrix();
+        return left;
     }
 
     public Vector3f getUp() {
-        return up.set(0f, 1f, 0f).rotate(getXrRot()).rotate(getRot());
+        recalculateViewMatrix();
+        return up;
     }
 
     public Vector3f getPosition() {
@@ -279,7 +306,17 @@ public class Camera {
     }
 
     public Matrix4f getViewMatrix() {
-        return isOrtho() ? identity : viewMatrix.translationRotateScaleInvert(getPosition(), getRotation(), 1f);
+        recalculateViewMatrix();
+        return isOrtho() ? identity : viewMatrix;
+    }
+
+    public Matrix4f getInvProjectionMatrix() {
+        return isOrtho() ? invOrthoMatrix : invPerspMatrix;
+    }
+
+    public Matrix4f getInvViewMatrix() {
+        recalculateViewMatrix();
+        return isOrtho() ? identity : invViewMatrix;
     }
 
     public boolean isOrtho() {

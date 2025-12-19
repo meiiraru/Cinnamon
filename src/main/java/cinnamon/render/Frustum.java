@@ -40,6 +40,18 @@ public class Frustum {
     }
 
     /**
+     * Updates the frustum planes by applying them from both a projection and a view matrix
+     * <p>
+     * The planes are normalized after extraction
+     * @param projection The combined projection matrix
+     * @param view The view matrix
+     */
+    public void update(Matrix4f projection, Matrix4f view) {
+        matrix.set(projection).mul(view);
+        update(matrix);
+    }
+
+    /**
      * Calculates the signed distance from a plane to a point
      * <p>
      * see {@link #distanceToPoint(Plane, float, float, float)}

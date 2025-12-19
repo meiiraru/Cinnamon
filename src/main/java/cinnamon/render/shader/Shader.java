@@ -385,8 +385,8 @@ public class Shader {
     }
 
     public void setupInverse(Camera camera) {
-        applyInverseProjectionMatrix(camera.getProjectionMatrix().invert(new Matrix4f()));
-        applyInverseViewMatrix(camera.getViewMatrix().invert(new Matrix4f()));
+        applyInverseProjectionMatrix(camera.getInvProjectionMatrix());
+        applyInverseViewMatrix(camera.getInvViewMatrix());
     }
 
     public void applyColor(int color) {

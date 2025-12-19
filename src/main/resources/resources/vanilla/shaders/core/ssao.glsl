@@ -16,6 +16,9 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 invProjection;
 
+uniform float nearPlane;
+uniform float farPlane;
+
 const int MAX_SAMPLES = 64;
 uniform int sampleCount;
 uniform vec3 samples[MAX_SAMPLES];
@@ -23,6 +26,11 @@ uniform vec2 noiseScale;
 
 uniform float radius = 0.5f;
 uniform float bias = 0.025f;
+
+float linearizeDepth(float depth) {
+    float z = depth * 2.0f - 1.0f; //back to [-1..1] range
+    return (2.0f * nearPlane * farPlane) / (farPlane + nearPlane - z * (farPlane - nearPlane));
+}
 
 vec3 getPosFromDepth(vec2 uv) {
     //normalized device coordinates
@@ -44,6 +52,13 @@ vec3 getPosFromDepth(vec2 uv) {
 }
 
 void main() {
+    //avoid sampling depth at the far plane (no geometry)
+    float depth = texture(gDepth, texCoords).r;
+    if (depth >= 0.99999f) {
+        fragColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        return;
+    }
+
     //sample textures
     vec3 fragPos = getPosFromDepth(texCoords);
     vec3 normal = normalize(mat3(view) * texture(gNormal, texCoords).rgb);
@@ -53,6 +68,9 @@ void main() {
     vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
     vec3 bitangent = cross(normal, tangent);
     mat3 TBN = mat3(tangent, bitangent, normal);
+
+    //get fragment view-space z value
+    float fragViewZ = -linearizeDepth(depth);
 
     //find occlusion
     float occlusion = 0.0f;
@@ -68,15 +86,23 @@ void main() {
         offset.xyz /= offset.w;
         offset.xyz = offset.xyz * 0.5f + 0.5f;
 
-        //find sample depth
-        float sampleDepth = getPosFromDepth(offset.xy).z;
+        //skip samples outside the screen
+        if (offset.x < 0.0f || offset.x > 1.0f || offset.y < 0.0f || offset.y > 1.0f)
+            continue;
+
+        //get sample depth
+        float sampleDepth = texture(gDepth, offset.xy).r;
+        if (sampleDepth >= 0.99999f)
+            continue;
+
+        float sampleViewZ = -linearizeDepth(sampleDepth);
 
         //accumulate occlusion
-        float rangeCheck = smoothstep(0.0f, 1.0f, radius / abs(fragPos.z - sampleDepth));
-        occlusion += (sampleDepth >= samplePos.z + bias ? 1.0f : 0.0f) * rangeCheck;
+        float rangeCheck = smoothstep(0.0f, 1.0f, radius / abs(fragViewZ - sampleViewZ));
+        occlusion += (sampleViewZ >= samplePos.z + bias ? 1.0f : 0.0f) * rangeCheck;
     }
 
     //average occlusion
-    occlusion = (occlusion / samplesToUse);
+    occlusion = (occlusion / float(samplesToUse));
     fragColor = vec4(vec3(occlusion), 1.0f);
 }
