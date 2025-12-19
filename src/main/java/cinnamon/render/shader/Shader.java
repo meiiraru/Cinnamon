@@ -160,6 +160,8 @@ public class Shader {
     }
 
     private int get(String name) {
+        if (activeShader != this)
+            throw new RuntimeException("Shader must be bound before setting uniforms");
         return glGetUniformLocation(ID, name);
     }
 

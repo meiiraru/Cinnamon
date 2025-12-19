@@ -156,6 +156,10 @@ public enum PostProcess {
         s.setVec2("lutGrid", 8f, 8f);
         return i;
     }),
+    TILT_SHIFT((fb, s) -> {
+        s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
+        return COLOR_UNIFORM.apply(fb, s);
+    }),
 
     //world only effects
     TOON_OUTLINE((fb, s) -> {
@@ -173,7 +177,7 @@ public enum PostProcess {
             INVERT, BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE,
             SCAN_LINE, LENS, LENS2, MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY,
             KALEIDOSCOPE, BITS, POSTERIZE, BLOBS, PHOSPHOR, SPEED_LINES, DOT_GRID,
-            DITHER, DITHER_SQUARE_TEX, SHARPEN, VINTAGE, RED
+            DITHER, DITHER_SQUARE_TEX, SHARPEN, VINTAGE, RED, TILT_SHIFT
     };
     public static final PostProcess[] WORLD_EFFECTS = {
             TOON_OUTLINE

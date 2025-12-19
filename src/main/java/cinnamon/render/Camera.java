@@ -19,6 +19,7 @@ public class Camera {
 
     private float fov = 90f;
     private float aspectRatio = 16f / 9f;
+    private float width = 640f, height = 360f;
 
     private final Frustum frustum = new Frustum();
 
@@ -97,6 +98,12 @@ public class Camera {
     public void updateProjMatrix(int width, int height, float fov) {
         this.fov = fov;
         this.aspectRatio = (float) width / height;
+        this.width = width;
+        this.height = height;
+        resetProjMatrix();
+    }
+
+    public void resetProjMatrix() {
         perspMatrix.identity().perspective(Math.toRadians(fov), aspectRatio, NEAR_PLANE, FAR_PLANE);
         orthoMatrix.identity().ortho(0, width, height, 0, -1000, 1000);
     }
@@ -297,5 +304,13 @@ public class Camera {
 
     public float getAspectRatio() {
         return aspectRatio;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
     }
 }
