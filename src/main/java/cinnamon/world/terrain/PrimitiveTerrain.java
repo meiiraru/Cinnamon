@@ -6,7 +6,6 @@ import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.world.entity.Entity;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -24,11 +23,6 @@ public class PrimitiveTerrain extends Terrain {
         this.vertices = smooth ? recalculateNormals(vertices) : vertices;
         this.preciseAABB.add(aabb);
         updateAABB();
-    }
-
-    @Override
-    public boolean isSelectable(Entity entity) {
-        return false;
     }
 
     @Override

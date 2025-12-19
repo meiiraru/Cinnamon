@@ -156,7 +156,7 @@ public class LocalPlayer extends Player {
             return;
 
         Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
-        if (hit != null && hit.obj() instanceof Terrain t && t.isSelectable(this)) {
+        if (hit != null && hit.obj() instanceof Terrain t && t.isSelectable(this) && t.getType() != TerrainRegistry.CUSTOM) {
             selectedTerrain = t.getType().ordinal();
             MaterialRegistry material = t.getMaterial();
             if (material != null) selectedMaterial = material.ordinal();

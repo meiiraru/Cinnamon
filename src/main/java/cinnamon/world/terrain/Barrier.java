@@ -12,6 +12,6 @@ public class Barrier extends Terrain {
 
     @Override
     public boolean isSelectable(Entity entity) {
-        return entity instanceof Player p && p.getAbilities().godMode();
+        return entity instanceof Player p && p.getAbilities().godMode() && super.isSelectable(entity);
     }
 }

@@ -60,6 +60,7 @@ import cinnamon.world.light.Light;
 import cinnamon.world.light.PointLight;
 import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.Particle;
+import cinnamon.world.terrain.ConveyorBelt;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.Math;
@@ -141,6 +142,24 @@ public class WorldClient extends World {
 
         //menger sponge
         TerrainGenerator.generateMengerSponge(this, 2, -23, 1, -23);
+
+        //conveyor belt
+        float beltSpeed = 0.15f;
+        ConveyorBelt cb1 = new ConveyorBelt(beltSpeed);
+        cb1.setPos(5, 1, 5);
+        addTerrain(cb1);
+        ConveyorBelt cb2 = new ConveyorBelt(beltSpeed);
+        cb2.setPos(5, 1, 10);
+        cb2.setRotation((byte) 3);
+        addTerrain(cb2);
+        ConveyorBelt cb3 = new ConveyorBelt(beltSpeed);
+        cb3.setPos(0, 1, 10);
+        cb3.setRotation((byte) 2);
+        addTerrain(cb3);
+        ConveyorBelt cb4 = new ConveyorBelt(beltSpeed);
+        cb4.setPos(0, 1, 5);
+        cb4.setRotation((byte) 1);
+        addTerrain(cb4);
 
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
 
