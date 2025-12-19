@@ -108,6 +108,8 @@ public class ModelViewer extends SelectableWidget {
         if (xr) old.blit(modelBuffer.id(), false, true, true);
 
         //set up world renderer
+        WorldRenderer.renderSSAO = false;
+        WorldRenderer.renderLights = false;
         WorldRenderer.setupFramebuffer();
         WorldRenderer.initGBuffer(client.camera);
 
@@ -145,7 +147,7 @@ public class ModelViewer extends SelectableWidget {
 
         //bake the model renderer
         theSky.setSkyBox(skybox.resource);
-        WorldRenderer.bakeDeferred(client.camera, theSky, false);
+        WorldRenderer.bakeDeferred(client.camera, theSky);
 
         //skybox + bloom
         if (renderSkybox) {

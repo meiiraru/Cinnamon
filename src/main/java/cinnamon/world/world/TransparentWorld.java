@@ -1,6 +1,5 @@
 package cinnamon.world.world;
 
-import cinnamon.Client;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.render.Camera;
@@ -35,7 +34,6 @@ public class TransparentWorld extends WorldClient {
     public void render(MatrixStack matrices, float delta) {
         WorldRenderer.renderSky = false;
         super.render(matrices, delta);
-        WorldRenderer.renderSky = true;
     }
 
     @Override

@@ -35,7 +35,9 @@ public enum Shaders {
     BRIGHT_PASS,
     BLOOM_COMPOSITE,
     LENS_FLARE,
-    LIGHT_GLARE;
+    LIGHT_GLARE,
+    SSAO,
+    SSAO_BLUR;
 
     private final Resource resource;
     private Shader shader;

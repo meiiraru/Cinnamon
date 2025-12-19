@@ -7,7 +7,6 @@ import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.shader.PostProcess;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
@@ -84,12 +83,6 @@ public class PrimitiveTestWorld extends WorldClient {
         //set sky fog
         //sky.fogStart = 0; sky.fogEnd = 8; sky.fogColor = 0;
         //sky.setSkyBox(SkyBoxRegistry.SPACE.resource);
-    }
-
-    @Override
-    public void render(MatrixStack matrices, float delta) {
-        super.render(matrices, delta);
-        PostProcess.apply(PostProcess.TOON_OUTLINE);
     }
 
     @Override

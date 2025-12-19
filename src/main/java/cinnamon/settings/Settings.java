@@ -73,6 +73,7 @@ public class Settings {
     public static final Setting.IntRanges shadowQuality = new Setting.IntRanges("rendering.shadow_quality", 3, -1, 4);
     public static final Setting.Ranges bloomStrength = new Setting.Ranges("rendering.bloom_strength", 1f, 0f, 5f);
     public static final Setting.Bools lensFlare = new Setting.Bools("rendering.lens_flare", true);
+    public static final Setting.IntRanges ssaoLevel = new Setting.IntRanges("rendering.ssao_level", 2, -1, 4);
 
     //keybinds
     public static final Setting.Keybind

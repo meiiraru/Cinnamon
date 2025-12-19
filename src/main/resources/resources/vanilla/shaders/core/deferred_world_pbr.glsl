@@ -17,6 +17,7 @@ uniform sampler2D gEmissive;
 uniform sampler2D gDepth;
 
 uniform sampler2D lightTex;
+uniform sampler2D ssaoTex;
 
 uniform vec3 camPos;
 uniform mat4 invView;
@@ -59,6 +60,9 @@ vec4 applyLighting(vec3 pos) {
     float ao        = gORM.r;
     float roughness = gORM.g;
     float metallic  = gORM.b;
+
+    float ssao = texture(ssaoTex, texCoords).r;
+    ao *= 1.0f - ssao;
 
     //normal mapping
     vec3 N = texture(gNormal, texCoords).rgb;

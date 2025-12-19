@@ -284,6 +284,45 @@ public class Shader {
         }
     }
 
+    public void setVec2Array(String name, Vector2f... vectors) {
+        int i = get(name);
+        if (i == -1)
+            return;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer buffer = stack.mallocFloat(vectors.length * 2);
+            for (int j = 0; j < vectors.length; j++)
+                vectors[j].get(j * 2, buffer);
+            glUniform2fv(i, buffer);
+        }
+    }
+
+    public void setVec3Array(String name, Vector3f... vectors) {
+        int i = get(name);
+        if (i == -1)
+            return;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer buffer = stack.mallocFloat(vectors.length * 3);
+            for (int j = 0; j < vectors.length; j++)
+                vectors[j].get(j * 3, buffer);
+            glUniform3fv(i, buffer);
+        }
+    }
+
+    public void setVec4Array(String name, Vector4f... vectors) {
+        int i = get(name);
+        if (i == -1)
+            return;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer buffer = stack.mallocFloat(vectors.length * 4);
+            for (int j = 0; j < vectors.length; j++)
+                vectors[j].get(j * 4, buffer);
+            glUniform4fv(i, buffer);
+        }
+    }
+
     public void setMat3Array(String name, Matrix3f... matrices) {
         int i = get(name);
         if (i == -1)

@@ -68,11 +68,12 @@ public class WorldRenderer {
 
     public static boolean
             renderSky = true,
+            renderSSAO = true,
             renderLights = true,
             renderShadows = true,
             renderOutlines = true,
             renderDebug = true;
-    public static int debugGBuffer = -1;
+    public static int debugTexture = -1;
 
     public static void renderWorld(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
         //prepare for world rendering
@@ -112,6 +113,10 @@ public class WorldRenderer {
         MaterialApplier.cleanup();
         VertexConsumer.finishAllBatches(camera);
 
+        //render ssao
+        if (renderSSAO)
+            renderSSAO(camera);
+
         //render the world lights
         renderedLights = renderedShadows = 0;
         if (renderLights) {
@@ -122,11 +127,11 @@ public class WorldRenderer {
         }
 
         //bake world
-        bakeDeferred(camera, world.getSky(), renderedLights > 0);
+        bakeDeferred(camera, world.getSky());
 
         //debug gbuffer
-        if (debugGBuffer >= 0)
-            debugRenderGBuffer(debugGBuffer);
+        if (debugTexture >= 0)
+            debugTexture(debugTexture);
 
         //render the sky
         if (renderSky)
@@ -134,7 +139,7 @@ public class WorldRenderer {
 
         //apply bloom
         float bloom = Settings.bloomStrength.get();
-        if (debugGBuffer < 0 && bloom > 0f)
+        if (debugTexture < 0 && bloom > 0f)
             BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getEmissive(), 0.8f, bloom);
 
         //render lens flare
@@ -171,14 +176,17 @@ public class WorldRenderer {
             //vertex consumer
             VertexConsumer.finishAllBatches(camera);
 
+            //ssao
+            if (renderSSAO) renderSSAO(camera);
+
             //lights and shadows
             renderedLights = renderedShadows = 0;
             if (renderLights)
                 renderLights(world.getLights(camera), camera, renderWorld);
         }, () -> {
             //bake world
-            bakeDeferred(camera, world.getSky(), renderedLights > 0);
-            if (debugGBuffer >= 0) debugRenderGBuffer(debugGBuffer);
+            bakeDeferred(camera, world.getSky());
+            if (debugTexture >= 0) debugTexture(debugTexture);
 
             //render other stuff
             if (renderSky) renderSky(world.getSky(), camera, matrices);
@@ -187,7 +195,7 @@ public class WorldRenderer {
 
             //bloom
             float bloom = Settings.bloomStrength.get();
-            if (debugGBuffer < 0 && bloom > 0f)
+            if (debugTexture < 0 && bloom > 0f)
                 BloomRenderer.applyBloom(targetBuffer, PBRFrameBuffer.getEmissive(), 0.8f, bloom);
 
             //lens flare
@@ -211,6 +219,7 @@ public class WorldRenderer {
     public static void bake() {
         outputBuffer.blit(targetBuffer.id());
         targetBuffer.use();
+        resetFlags();
     }
 
     public static void renderQuad() {
@@ -235,7 +244,7 @@ public class WorldRenderer {
         s.setVec3("camPos", camera.getPosition());
     }
 
-    public static void bakeDeferred(Camera camera, Sky sky, boolean hasLights) {
+    public static void bakeDeferred(Camera camera, Sky sky) {
         //world uniforms
         outputBuffer.resizeTo(targetBuffer);
         outputBuffer.useClear();
@@ -250,11 +259,12 @@ public class WorldRenderer {
         s.setTexture("gORM",      PBRFrameBuffer.getORM(),         2);
         s.setTexture("gEmissive", PBRFrameBuffer.getEmissive(),    3);
         s.setTexture("gDepth",    PBRFrameBuffer.getDepthBuffer(), 4);
-        s.setTexture("lightTex",  hasLights ? lightingMultiPassBuffer.getColorBuffer() : 0, 5);
+        s.setTexture("lightTex",  renderLights && renderedLights > 0 ? lightingMultiPassBuffer.getColorBuffer() : 0, 5);
+        s.setTexture("ssaoTex",   renderSSAO && Settings.ssaoLevel.get() >= 0 ? SSAORenderer.getSSAOTexture() : 0, 6);
 
         //apply sky
         setSkyUniforms(s, camera, sky);
-        sky.bind(s, 6);
+        sky.bind(s, 7);
 
         //render to the output framebuffer the final scene
         //and blit the remaining depth and stencil to the main
@@ -263,22 +273,35 @@ public class WorldRenderer {
         outputBuffer.use();
 
         //cleanup textures
-        Texture.unbindAll(6);
-        sky.unbind(6);
+        Texture.unbindAll(7);
+        sky.unbind(7);
     }
 
-    public static void debugRenderGBuffer(int index) {
+    public static void debugTexture(int texture) {
         outputBuffer.resizeTo(targetBuffer);
         outputBuffer.useClear();
 
         Shader s = PostProcess.BLIT.getShader().use();
-        s.setTexture("colorTex", PBRFrameBuffer.getTexture(index), 0);
+        s.setTexture("colorTex", texture, 0);
 
         renderQuad();
 
         PBRFrameBuffer.blit(outputBuffer.id(), false, true, true);
         outputBuffer.use();
         Texture.unbindTex(0);
+    }
+
+
+    // -- effects -- //
+
+
+    public static void renderSSAO(Camera camera) {
+        int ssaoLevel = Settings.ssaoLevel.get();
+        if (renderSSAO && ssaoLevel >= 0) {
+            SSAORenderer.renderSSAO(PBRFrameBuffer, camera, 0.5f);
+            if (ssaoLevel > 0)
+                SSAORenderer.blurSSAO();
+        }
     }
 
 
@@ -680,6 +703,16 @@ public class WorldRenderer {
 
     // -- checks -- //
 
+
+    public static void resetFlags() {
+        renderSky      = true;
+        renderSSAO     = true;
+        renderLights   = true;
+        renderShadows  = true;
+        renderOutlines = true;
+        renderDebug    = true;
+        debugTexture   = -1;
+    }
 
     public static boolean isShadowRendering() {
         return shadowLight != null;
