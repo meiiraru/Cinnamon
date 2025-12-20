@@ -29,6 +29,6 @@ public class DirectionalLight extends Light {
 
     @Override
     public boolean shouldRender(Camera camera) {
-        return getIntensity() > 0f;
+        return true;
     }
 }

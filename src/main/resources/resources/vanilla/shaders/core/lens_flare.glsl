@@ -116,16 +116,18 @@ void main() {
     finalFlare += haloColor * flareColor * 0.05f; //use the base flareColor for brightness
 
     //add a few ghosts
-    for (int j = 0; j < 5; j++) {
+    for (int j = 0; j < 7; j++) {
         vec2 ghostScreenPos = screenCenter - axisVec * (0.2f + (j - 2.0f) * 0.3f);
         vec2 uvGhost = texCoords - ghostScreenPos;
         uvGhost.x *= aspectRatio;
 
+        float size = 0.05f + ((j % 3) * 0.025f);
+
         //chromatic aberration - offset colors slightly
         vec3 ghostColor;
-        ghostColor.r = pow(max(0.0f, 0.05f - length(uvGhost - vec2(0.003f, 0.0f) * aspectRatio)), 1.0f) * color.r;
-        ghostColor.g = pow(max(0.0f, 0.05f - length(uvGhost)), 1.0f) * color.g;
-        ghostColor.b = pow(max(0.0f, 0.05f - length(uvGhost + vec2(0.003f, 0.0f) * aspectRatio)), 1.0f) * color.b;
+        ghostColor.r = pow(max(0.0f, size - length(uvGhost - vec2(0.003f, 0.0f) * aspectRatio)), 1.0f) * color.r;
+        ghostColor.g = pow(max(0.0f, size - length(uvGhost)), 1.0f) * color.g;
+        ghostColor.b = pow(max(0.0f, size - length(uvGhost + vec2(0.003f, 0.0f) * aspectRatio)), 1.0f) * color.b;
 
         finalFlare += ghostColor * 2.0f;
     }

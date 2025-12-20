@@ -257,16 +257,59 @@ public class WorldClient extends World {
         float dayTime = worldTime % 24000;
         sky.setSunAngle(Maths.map(worldTime, 0, 24000, 0, 360));
 
-        float intensity = (dayTime < 1000) ? (dayTime - 100) / 900f //sunrise
-                : (dayTime > 11000) ? 1f - (dayTime - 11000) / 900f //sunset
-                : 1f; //day
-        sunLight.intensity(Math.min(intensity * 5f, 1f));
-        sunLight.color(ColorUtils.lerpRGBColor(0xFF4400, 0xFFFFFF, intensity));
-
         Vector3f dir = sky.getSunDirection();
         Vector3f pos = client.camera.getPos();
         sunLight.direction(dir);
         sunLight.pos(pos.x + dir.x * -1000f, pos.y + dir.y * -1000f, pos.z + dir.z * -1000f);
+
+        //apply light
+        applySkyLights(dayTime);
+    }
+
+    protected void applySkyLights(float dayTime) {
+        //calculate color based on time of day
+
+        //    0 = 0x202040 | 0xFF4400 | d
+        // 1000 = 0xBBCCDD | 0xFFEEDD | 1
+        //11000 = 0xBBCCDD | 0xFFEEDD | 1-d
+        //12000 = 0x202040 | 0xFF4400 | 0
+        //13000 = 0x202040 | 0x202040 | 0
+        //23000 = 0x202040 | 0x202040 | 0
+
+        int color;
+        int sunColor;
+        float intensity;
+
+        if (dayTime < 1000) { //sunrise
+            float d = dayTime / 1000f;
+            color = ColorUtils.lerpRGBColor(0x202040, 0xBBCCDD, d);
+            sunColor = ColorUtils.lerpRGBColor(0xFF4400, 0xFFEEDD, d);
+            intensity = d;
+        } else if (dayTime < 11000) { //day
+            color = 0xBBCCDD;
+            sunColor = 0xFFEEDD;
+            intensity = 1f;
+        } else if (dayTime < 12000) { //sunset
+            float d = (dayTime - 11000) / 1000f;
+            color = ColorUtils.lerpRGBColor(0xBBCCDD, 0x202040, d);
+            sunColor = ColorUtils.lerpRGBColor(0xFFEEDD, 0xFF4400, d);
+            intensity = 1f - d;
+        } else if (dayTime < 13000) { //nightfall
+            color = 0x202040;
+            sunColor = ColorUtils.lerpRGBColor(0xFF4400, 0x202040, (dayTime - 12000) / 1000f);
+            intensity = 0f;
+        } else if (dayTime < 23000) { //night
+            color = sunColor = 0x202040;
+            intensity = 0f;
+        } else { //night-end
+            color = 0x202040;
+            sunColor = ColorUtils.lerpRGBColor(0x202040, 0xFF4400, (dayTime - 23000) / 1000f);
+            intensity = 0f;
+        }
+
+        sky.ambientLight = color;
+        sunLight.color(sunColor);
+        sunLight.intensity(Math.min(intensity * 5, 1f));
     }
 
     public int renderTerrain(Camera camera, MatrixStack matrices, float delta) {
@@ -548,7 +591,7 @@ public class WorldClient extends World {
                     client.setScreen(chat);
             }
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
-            case GLFW_KEY_F7 -> this.worldTime -= 100;
+            case GLFW_KEY_F7 -> this.worldTime = Math.max(this.worldTime - 100, 0);
             case GLFW_KEY_F8 -> this.worldTime += 100;
 
             case GLFW_KEY_COMMA -> player.setSelectedTerrain((player.getSelectedTerrain() + 1) % (TerrainRegistry.values().length - 1));

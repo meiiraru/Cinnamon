@@ -620,6 +620,9 @@ public class WorldRenderer {
         shader.setFloat("fogStart", sky.fogStart);
         shader.setFloat("fogEnd", sky.fogEnd);
         shader.setColor("fogColor", sky.fogColor);
+
+        //ambient light
+        shader.setColor("ambientLight", sky.ambientLight);
     }
 
     public static void renderSky(Sky sky, Camera camera, MatrixStack matrices) {

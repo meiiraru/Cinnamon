@@ -24,6 +24,8 @@ public class Sky {
     public float fogStart = 96;
     public float fogEnd = 192;
 
+    public int ambientLight = 0xBFD3DE;
+
     private final Vector3f sunDir = new Vector3f(1, 0, 0);
     private final Matrix3f skyRotation = new Matrix3f();
     private float sunAngle;
