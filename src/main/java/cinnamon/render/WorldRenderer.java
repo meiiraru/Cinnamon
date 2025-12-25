@@ -18,12 +18,13 @@ import cinnamon.utils.Rotation;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.Mask;
-import cinnamon.world.Sky;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.LivingEntity;
+import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.light.CookieLight;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.PointLight;
+import cinnamon.world.sky.Sky;
 import cinnamon.world.world.WorldClient;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -71,6 +72,7 @@ public class WorldRenderer {
             renderSSAO = true,
             renderLights = true,
             renderShadows = true,
+            renderBloom = true,
             renderOutlines = true,
             renderDebug = true;
     public static int debugTexture = -1;
@@ -78,10 +80,11 @@ public class WorldRenderer {
     public static void renderWorld(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
         //prepare for world rendering
         setupFramebuffer();
+        Client client = Client.getInstance();
 
         Runnable[] renderFunc = {
                 () -> {
-                    if (XrManager.isInXR() && Client.getInstance().screen == null)
+                    if (XrManager.isInXR() && client.screen == null)
                         renderXrHands(camera, matrices, delta);
                 },
                 () -> world.renderTerrain(camera, matrices, delta),
@@ -94,7 +97,7 @@ public class WorldRenderer {
         };
 
         //3d anaglyph rendering
-        if (Client.getInstance().anaglyph3D) {
+        if (client.anaglyph3D) {
             renderAsAnaglyph(world, camera, matrices, delta, renderFunc);
             return;
         }
@@ -135,12 +138,11 @@ public class WorldRenderer {
 
         //render the sky
         if (renderSky)
-            renderSky(world.getSky(), camera, matrices);
+            world.getSky().render(camera, matrices);
 
         //apply bloom
-        float bloom = Settings.bloomStrength.get();
-        if (debugTexture < 0 && bloom > 0f)
-            BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getEmissive(), 0.8f, bloom);
+        if (renderBloom)
+            applyBloom();
 
         //render lens flare
         if (renderLights)
@@ -189,14 +191,13 @@ public class WorldRenderer {
             if (debugTexture >= 0) debugTexture(debugTexture);
 
             //render other stuff
-            if (renderSky) renderSky(world.getSky(), camera, matrices);
+            if (renderSky) world.getSky().render(camera, matrices);
             if (renderOutlines) renderOutlines(world.getOutlines(camera), camera, matrices, delta);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
 
             //bloom
-            float bloom = Settings.bloomStrength.get();
-            if (debugTexture < 0 && bloom > 0f)
-                BloomRenderer.applyBloom(targetBuffer, PBRFrameBuffer.getEmissive(), 0.8f, bloom);
+            if (renderBloom)
+                applyBloom();
 
             //lens flare
             if (renderLights)
@@ -212,13 +213,33 @@ public class WorldRenderer {
         setupFramebuffer(Framebuffer.activeFramebuffer);
     }
 
-    public static void setupFramebuffer(Framebuffer targetBuffer) {
-        WorldRenderer.targetBuffer = targetBuffer;
+    public static void setupFramebuffer(Framebuffer buffer) {
+        targetBuffer = buffer;
     }
 
     public static void bake() {
-        outputBuffer.blit(targetBuffer.id());
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        outputBuffer.blit(targetBuffer);
         targetBuffer.use();
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        resetFlags();
+    }
+
+    public static void bakeQuad() {
+        //framebuffer
+        targetBuffer.use();
+
+        //shader
+        Shader s = PostProcess.BLIT.getShader().use();
+        s.setTexture("colorTex", outputBuffer.getColorBuffer(), 0);
+
+        //render
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        renderQuad();
+
+        //clean
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        Texture.unbindTex(0);
         resetFlags();
     }
 
@@ -263,7 +284,7 @@ public class WorldRenderer {
         s.setTexture("ssaoTex",   renderSSAO && Settings.ssaoLevel.get() >= 0 ? SSAORenderer.getSSAOTexture() : 0, 6);
 
         //apply sky
-        setSkyUniforms(s, camera, sky);
+        sky.applyUniforms(s, camera);
         sky.bind(s, 7);
 
         //render to the output framebuffer the final scene
@@ -302,6 +323,12 @@ public class WorldRenderer {
             if (ssaoLevel > 0)
                 SSAORenderer.blurSSAO();
         }
+    }
+
+    public static void applyBloom() {
+        float bloom = Settings.bloomStrength.get();
+        if (debugTexture < 0 && renderBloom && bloom > 0f)
+            BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getEmissive(), 0.8f, bloom);
     }
 
 
@@ -609,28 +636,6 @@ public class WorldRenderer {
     }
 
 
-    // -- sky -- //
-
-
-    public static void setSkyUniforms(Shader shader, Camera camera, Sky sky) {
-        //camera
-        shader.setVec3("camPos", camera.getPosition());
-
-        //fog
-        shader.setFloat("fogStart", sky.fogStart);
-        shader.setFloat("fogEnd", sky.fogEnd);
-        shader.setColor("fogColor", sky.fogColor);
-
-        //ambient light
-        shader.setColor("ambientLight", sky.ambientLight);
-    }
-
-    public static void renderSky(Sky sky, Camera camera, MatrixStack matrices) {
-        Shaders.SKYBOX.getShader().use().setup(camera);
-        sky.render(camera, matrices);
-    }
-
-
     // -- outlines -- //
 
 
@@ -701,6 +706,38 @@ public class WorldRenderer {
         matrices.rotate(Rotation.X.rotationDeg(rot.x));
         XrRenderer.renderHands(matrices);
         matrices.popMatrix();
+    }
+
+    public static void renderHoldingItems(Camera camera, MatrixStack matrices, float delta) {
+        if (!(camera.getEntity() instanceof LivingEntity le))
+            return;
+
+        WorldClient world = (WorldClient) le.getWorld();
+        Runnable renderFunc = () -> le.renderHandItem(XrManager.isInXR() ? ItemRenderContext.XR : ItemRenderContext.FIRST_PERSON, matrices, delta);
+
+        //setup gbuffer
+        setupFramebuffer();
+        initGBuffer(camera);
+
+        //render item
+        renderFunc.run();
+        MaterialApplier.cleanup();
+        VertexConsumer.finishAllBatches(camera);
+
+        //apply ssao
+        renderSSAO(camera);
+
+        //apply lights
+        renderLights(world.getLights(camera), camera, renderFunc);
+
+        //bake item into deferred
+        bakeDeferred(camera, world.getSky());
+
+        //apply bloom
+        applyBloom();
+
+        //render as a quad
+        bakeQuad();
     }
 
 

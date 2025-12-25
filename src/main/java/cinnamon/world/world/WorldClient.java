@@ -16,13 +16,9 @@ import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
-import cinnamon.render.MaterialApplier;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.shader.Shader;
-import cinnamon.render.shader.Shaders;
-import cinnamon.render.texture.Texture;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundManager;
 import cinnamon.text.Text;
@@ -32,7 +28,6 @@ import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
 import cinnamon.vr.XrManager;
 import cinnamon.world.Hud;
-import cinnamon.world.Sky;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.collectable.EffectBox;
@@ -49,7 +44,6 @@ import cinnamon.world.entity.vehicle.ShoppingCart;
 import cinnamon.world.items.BubbleGun;
 import cinnamon.world.items.Flashlight;
 import cinnamon.world.items.Item;
-import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.items.MagicWand;
 import cinnamon.world.items.weapons.CoilGun;
 import cinnamon.world.items.weapons.PotatoCannon;
@@ -60,6 +54,8 @@ import cinnamon.world.light.Light;
 import cinnamon.world.light.PointLight;
 import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.Particle;
+import cinnamon.world.sky.IBLSky;
+import cinnamon.world.sky.Sky;
 import cinnamon.world.terrain.ConveyorBelt;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.TerrainGenerator;
@@ -94,7 +90,7 @@ public class WorldClient extends World {
     protected final Light sunLight = new DirectionalLight().pos(0.5f, 5f, 0.5f).intensity(1f).castsShadows(true).glareSize(1000f);
 
     //skybox
-    protected final Sky sky = new Sky();
+    protected final Sky sky = new IBLSky();
 
     @Override
     public void init() {
@@ -267,49 +263,61 @@ public class WorldClient extends World {
     }
 
     protected void applySkyLights(float dayTime) {
-        //calculate color based on time of day
+        int sun;
+        int fog = 0x0B0B10;
+        int amb = 0x202040;
+        float sunIntensity = 0f;
+        float fogDistance = 80f;
 
-        //    0 = 0x202040 | 0xFF4400 | d
-        // 1000 = 0xBBCCDD | 0xFFEEDD | 1
-        //11000 = 0xBBCCDD | 0xFFEEDD | 1-d
-        //12000 = 0x202040 | 0xFF4400 | 0
-        //13000 = 0x202040 | 0x202040 | 0
-        //23000 = 0x202040 | 0x202040 | 0
-
-        int color;
-        int sunColor;
-        float intensity;
-
-        if (dayTime < 1000) { //sunrise
+        //sunrise
+        if (dayTime < 1000) {
             float d = dayTime / 1000f;
-            color = ColorUtils.lerpRGBColor(0x202040, 0xBBCCDD, d);
-            sunColor = ColorUtils.lerpRGBColor(0xFF4400, 0xFFEEDD, d);
-            intensity = d;
-        } else if (dayTime < 11000) { //day
-            color = 0xBBCCDD;
-            sunColor = 0xFFEEDD;
-            intensity = 1f;
-        } else if (dayTime < 12000) { //sunset
+            amb = ColorUtils.lerpRGBColor(0x202040, 0xBBCCDD, d);
+            sun = ColorUtils.lerpRGBColor(0xFF4400, 0xFFEEDD, d);
+            fog = ColorUtils.lerpRGBColor(0x0B0B10, 0xBFD3DE, d);
+
+            fogDistance = Math.lerp(fogDistance, 192f, d);
+            sunIntensity = Math.min(d * 5f, 1f);
+        }
+        //day
+        else if (dayTime < 11000) {
+            amb = 0xBBCCDD;
+            sun = 0xFFEEDD;
+            fog = 0xBFD3DE;
+
+            fogDistance = 192f;
+            sunIntensity = 1f;
+        }
+        //sunset
+        else if (dayTime < 12000) {
             float d = (dayTime - 11000) / 1000f;
-            color = ColorUtils.lerpRGBColor(0xBBCCDD, 0x202040, d);
-            sunColor = ColorUtils.lerpRGBColor(0xFFEEDD, 0xFF4400, d);
-            intensity = 1f - d;
-        } else if (dayTime < 13000) { //nightfall
-            color = 0x202040;
-            sunColor = ColorUtils.lerpRGBColor(0xFF4400, 0x202040, (dayTime - 12000) / 1000f);
-            intensity = 0f;
-        } else if (dayTime < 23000) { //night
-            color = sunColor = 0x202040;
-            intensity = 0f;
-        } else { //night-end
-            color = 0x202040;
-            sunColor = ColorUtils.lerpRGBColor(0x202040, 0xFF4400, (dayTime - 23000) / 1000f);
-            intensity = 0f;
+            amb = ColorUtils.lerpRGBColor(0xBBCCDD, 0x202040, d);
+            sun = ColorUtils.lerpRGBColor(0xFFEEDD, 0xFF4400, d);
+            fog = ColorUtils.lerpRGBColor(0xBFD3DE, 0x0B0B10, d);
+
+            fogDistance = Math.lerp(192f, fogDistance, d);
+            sunIntensity = Math.min((1f - d) * 5f, 1f);
+        }
+        //nightfall
+        else if (dayTime < 13000) {
+            sun = ColorUtils.lerpRGBColor(0xFF4400, 0x202040, (dayTime - 12000) / 1000f);
+        }
+        //night
+        else if (dayTime < 23000) {
+            sun = 0x202040;
+        }
+        //night-end
+        else {
+            sun = ColorUtils.lerpRGBColor(0x202040, 0xFF4400, (dayTime - 23000) / 1000f);
         }
 
-        sky.ambientLight = color;
-        sunLight.color(sunColor);
-        sunLight.intensity(Math.min(intensity * 5, 1f));
+        sky.ambientLight = amb;
+        sky.fogColor = fog;
+        sky.fogEnd = fogDistance;
+        sky.fogStart = fogDistance * 0.5f;
+
+        sunLight.color(sun);
+        sunLight.intensity(sunIntensity);
     }
 
     public int renderTerrain(Camera camera, MatrixStack matrices, float delta) {
@@ -355,26 +363,13 @@ public class WorldClient extends World {
     }
 
     public void renderHoldingItem(Camera camera, MatrixStack matrices, float delta) {
-        if (!(camera.getEntity() instanceof LivingEntity le))
-            return;
-
         if (isPaused())
             delta = 1f;
 
-        //setup rendering
-        client.camera.useOrtho(false);
-
-        Shader s = Shaders.WORLD_MODEL_PBR.getShader().use();
-        s.setup(camera);
-        WorldRenderer.setSkyUniforms(s, camera, sky);
-        sky.bind(s, Texture.MAX_TEXTURES - 3);
-
-        le.renderHandItem(XrManager.isInXR() ? ItemRenderContext.XR : ItemRenderContext.FIRST_PERSON, matrices, delta);
-        MaterialApplier.cleanup();
-
-        //finish rendering
-        client.camera.useOrtho(true);
-        sky.unbind(Texture.MAX_TEXTURES - 3);
+        //setup gbuffer
+        camera.useOrtho(false);
+        WorldRenderer.renderHoldingItems(camera, matrices, delta);
+        camera.useOrtho(true);
     }
 
     public void renderHUD(MatrixStack matrices, float delta) {
@@ -596,10 +591,13 @@ public class WorldClient extends World {
 
             case GLFW_KEY_COMMA -> player.setSelectedTerrain((player.getSelectedTerrain() + 1) % (TerrainRegistry.values().length - 1));
             case GLFW_KEY_PERIOD -> player.setSelectedMaterial(Maths.modulo((player.getSelectedMaterial() + (shift ? -1 : 1)), MaterialRegistry.values().length));
-            case GLFW_KEY_SLASH -> sky.setSkyBox(Maths.randomArr(SkyBoxRegistry.values()).resource);
+            case GLFW_KEY_SLASH -> {
+                if (sky instanceof IBLSky ibl)
+                    ibl.setSkyBox(Maths.randomArr(SkyBoxRegistry.values()).resource);
+            }
 
             case GLFW_KEY_Z -> {
-                Firework f = new Firework(UUID.randomUUID(), (int) Maths.range(30, 60), Maths.spread(new Vector3f(0, 1f, 0), 30, 30).mul(2f),
+                Firework f = new Firework(UUID.randomUUID(), Maths.range(30, 60), Maths.spread(new Vector3f(0, 1f, 0), 30, 30).mul(2f),
                         new FireworkStar(
                                 new Integer[]{0xFFa19f7f, 0xFFcfa959, 0xFF9b8136, 0xFF908264, 0xFFebc789, 0xFFb39b5b},
                                 null,

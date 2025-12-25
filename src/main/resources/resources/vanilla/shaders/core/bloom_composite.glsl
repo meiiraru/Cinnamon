@@ -7,15 +7,14 @@
 in vec2 texCoords;
 out vec4 fragColor;
 
-uniform sampler2D sceneTex;
-uniform sampler2D bloomTex;
+uniform sampler2D sceneTex; //rgba
+uniform sampler2D bloomTex; //rgb
 uniform float bloomStrength = 1.0f;
 
 void main() {
     vec4 sceneColor = texture(sceneTex, texCoords);
-    vec4 bloomColor = texture(bloomTex, texCoords);
+    vec3 bloomColor = texture(bloomTex, texCoords).rgb;
 
-    vec4 col = sceneColor + bloomColor * bloomStrength;
-    col.a = clamp(col.a, 0.0f, 1.0f);
-    fragColor = col;
+    vec3 col = sceneColor.rgb + bloomColor * bloomStrength;
+    fragColor = vec4(col, sceneColor.a);
 }

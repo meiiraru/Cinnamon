@@ -7,6 +7,7 @@ import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 
 import static cinnamon.render.WorldRenderer.renderQuad;
+import static org.lwjgl.opengl.GL11.*;
 
 public class BloomRenderer {
 
@@ -26,7 +27,7 @@ public class BloomRenderer {
         //apply blur
         int blurTex = Blur.blurTexture(brightPass.getColorBuffer(), brightPass.getWidth(), brightPass.getHeight(), 2f);
 
-        //composite back to the bright buffer
+        //composite back to the bright buffer with additive blending
         brightPass.useClear();
         brightPass.adjustViewPort();
 
@@ -35,6 +36,7 @@ public class BloomRenderer {
         sc.setTexture("bloomTex", blurTex, 1);
         sc.setFloat("bloomStrength", strength);
 
+        glBlendFunc(GL_ONE, GL_ONE);
         renderQuad();
 
         //and then blit to the target buffer
@@ -42,9 +44,11 @@ public class BloomRenderer {
         Shader blit = PostProcess.BLIT.getShader().use();
         blit.setTexture("colorTex", brightPass.getColorBuffer(), 0);
 
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         renderQuad();
 
         //cleanup
         Texture.unbindAll(2);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 }

@@ -17,6 +17,8 @@ public class Blur {
 
         blurBufferA.resize(w, h);
         blurBufferB.resize(w, h);
+        blurBufferA.useClear();
+        blurBufferB.useClear();
 
         Shader sh = PostProcess.GAUSSIAN_BLUR.getShader().use();
         sh.setVec2("texelSize", 1f / blurBufferA.getWidth(), 1f / blurBufferA.getHeight());

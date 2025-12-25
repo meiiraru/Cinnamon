@@ -17,6 +17,7 @@ public enum PostProcess {
     //specials
     BLIT(COLOR_UNIFORM),
     BLIT_GAMMA(COLOR_UNIFORM),
+    BLIT_UV(COLOR_UNIFORM),
     KERNEL((fb, s) -> {
         s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
         return COLOR_UNIFORM.apply(fb, s);

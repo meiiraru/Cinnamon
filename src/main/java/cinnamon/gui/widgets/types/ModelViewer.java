@@ -23,7 +23,8 @@ import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
 import cinnamon.vr.XrManager;
-import cinnamon.world.Sky;
+import cinnamon.world.sky.IBLSky;
+import cinnamon.world.sky.Sky;
 import org.joml.Math;
 import org.joml.Vector3f;
 
@@ -36,10 +37,11 @@ import static org.lwjgl.opengl.GL11.*;
 public class ModelViewer extends SelectableWidget {
 
     private static final Framebuffer modelBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
-    private static final Sky theSky = new Sky();
+    private static final Sky theSky = new IBLSky();
     static {
-        theSky.fogStart = 1024f;
-        theSky.fogEnd = 2048f;
+        theSky.fogColor = 0x000000;
+        theSky.fogStart = 4096f;
+        theSky.fogEnd = 4096f;
     }
 
     //properties
@@ -80,10 +82,10 @@ public class ModelViewer extends SelectableWidget {
         //render model
         Client client = Client.getInstance();
         if (client.anaglyph3D) {
-            client.camera.anaglyph3D(matrices, 1f, 1f, () -> renderModelToBuffer(matrices), () -> renderBuffer(matrices));
+            client.camera.anaglyph3D(matrices, 1f, 1f, () -> renderModelToBuffer(matrices), this::renderBuffer);
         } else {
             renderModelToBuffer(matrices);
-            renderBuffer(matrices);
+            renderBuffer();
         }
     }
 
@@ -146,17 +148,16 @@ public class ModelViewer extends SelectableWidget {
         VertexConsumer.finishAllBatches(client.camera);
 
         //bake the model renderer
-        theSky.setSkyBox(skybox.resource);
+        ((IBLSky) theSky).setSkyBox(skybox.resource);
         WorldRenderer.bakeDeferred(client.camera, theSky);
 
         //skybox + bloom
-        if (renderSkybox) {
-            WorldRenderer.renderSky(theSky, client.camera, matrices);
+        if (renderSkybox)
+            theSky.render(client.camera, matrices);
 
-            float bloom = Settings.bloomStrength.get();
-            if (!xr && bloom > 0f)
-                BloomRenderer.applyBloom(WorldRenderer.outputBuffer, WorldRenderer.PBRFrameBuffer.getEmissive(), 0.8f, bloom);
-        }
+        float bloom = Settings.bloomStrength.get();
+        if (!xr && bloom > 0f)
+            BloomRenderer.applyBloom(WorldRenderer.outputBuffer, WorldRenderer.PBRFrameBuffer.getEmissive(), 0.8f, bloom);
 
         //draw bounding box
         if (renderBounds) {
@@ -178,23 +179,39 @@ public class ModelViewer extends SelectableWidget {
         client.camera.useOrtho(true);
     }
 
-    private void renderBuffer(MatrixStack matrices) {
-        if (XrManager.isInXR()) {
-            Shader old = Shader.activeShader;
-            Shader s = PostProcess.BLIT.getShader().use();
-            s.setTexture("colorTex", modelBuffer.getColorBuffer(), 0);
-            WorldRenderer.renderQuad();
-            old.use();
-            return;
+    private void renderBuffer() {
+        //offset the uv to center the model in the widget
+        Client c = Client.getInstance();
+        boolean xr = XrManager.isInXR();
+
+        float guiScale = c.window.guiScale;
+        float x = ((getWidth() - c.window.scaledWidth) / 2f + c.window.scaledWidth - (getWidth() + getX())) * guiScale / modelBuffer.getWidth();
+        float y = ((getHeight() - c.window.scaledHeight) / 2f + getY()) * guiScale / modelBuffer.getHeight();
+
+        //enable scissor test to limit the rendering to the widget area
+        if (!xr) {
+            glEnable(GL_SCISSOR_TEST);
+            glScissor(
+                    (int) (getX() * guiScale),
+                    (int) (c.window.height - (getHeight() + getY()) * guiScale),
+                    (int) Math.max(getWidth() * guiScale, 0),
+                    (int) Math.max(getHeight() * guiScale, 0)
+            );
         }
 
         //draw framebuffer result
-        Client c = Client.getInstance();
-        float guiScale = c.window.guiScale;
-        float x = (1f - (getWidth() * guiScale) / modelBuffer.getWidth()) / 2f;
-        float y = (1f - (getHeight() * guiScale) / modelBuffer.getHeight()) / 2f;
-        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, getX(), getY(), getWidth(), getHeight(), -1f, x, 1f - x, 1f - y, y), modelBuffer.getColorBuffer());
-        VertexConsumer.MAIN.finishBatch(c.camera);
+        Shader old = Shader.activeShader;
+        Shader s = PostProcess.BLIT_UV.getShader().use();
+        s.setTexture("colorTex", modelBuffer.getColorBuffer(), 0);
+        s.setVec2("uvOffset", x, y);
+
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        WorldRenderer.renderQuad();
+
+        //reset render state
+        old.use();
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        if (!xr) glDisable(GL_SCISSOR_TEST);
     }
 
     public void setMaterial(MaterialRegistry material) {
