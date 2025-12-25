@@ -82,5 +82,5 @@ void main() {
     if (visibility <= 0.0f)
         discard;
 
-    fragColor = vec4(tex.rgb * color, tex.a) * visibility * intensity;
+    fragColor = vec4(tex.rgb * color, 0.0f) * visibility * intensity;
 }

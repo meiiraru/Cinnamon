@@ -93,7 +93,7 @@ void main() {
     //if the light is occluded, skip the rest
     vec3 flareColor = color * visibility * intensity;
     if (visibility < 0.01f || dot(flareColor, flareColor) < 0.0001f) {
-        fragColor = vec4(finalFlare, 1.0f);
+        fragColor = vec4(finalFlare, 0.0f);
         return;
     }
 
@@ -132,5 +132,5 @@ void main() {
         finalFlare += ghostColor * 2.0f;
     }
 
-    fragColor = vec4(finalFlare, 1.0f);
+    fragColor = vec4(finalFlare, 0.0f);
 }

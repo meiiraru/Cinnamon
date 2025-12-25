@@ -709,7 +709,7 @@ public class WorldRenderer {
     }
 
     public static void renderHoldingItems(Camera camera, MatrixStack matrices, float delta) {
-        if (!(camera.getEntity() instanceof LivingEntity le))
+        if (!(camera.getEntity() instanceof LivingEntity le) || le.getHoldingItem() == null)
             return;
 
         WorldClient world = (WorldClient) le.getWorld();
