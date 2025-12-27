@@ -107,7 +107,7 @@ public class ModelViewer extends SelectableWidget {
         Framebuffer old = Framebuffer.activeFramebuffer;
         modelBuffer.resizeTo(old);
         modelBuffer.useClear();
-        if (xr) old.blit(modelBuffer.id(), false, true, true);
+        if (xr) old.blit(modelBuffer, false, true, true);
 
         //set up world renderer
         WorldRenderer.renderSSAO = false;

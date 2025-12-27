@@ -49,12 +49,14 @@ public class WorldRenderer {
     public static final Framebuffer shadowBuffer = new Framebuffer(Framebuffer.DEPTH_BUFFER);
     public static final ShadowCubemapFramebuffer cubeShadowBuffer = new ShadowCubemapFramebuffer();
     public static final Framebuffer outlineFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
+    public static final Framebuffer lastFrameFramebuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
 
     public static final ShadowCascadeFramebuffer cascadeShadowBuffer = new ShadowCascadeFramebuffer(CascadedShadow.NUM_CASCADES);
     public static final CascadedShadow cascadedShadow = new CascadedShadow();
 
     public static Light shadowLight = null;
     private static boolean outlineRendering = false;
+    private static boolean heldItemRendering = false;
 
     private static int renderedEntities, renderedTerrain, renderedParticles, renderedLights, renderedShadows;
 
@@ -148,9 +150,6 @@ public class WorldRenderer {
         if (renderLights)
             renderLightsFlare(world.getLights(camera), camera, matrices);
 
-        //bake output buffer to the target buffer
-        bake();
-
         //render debug stuff
         if (renderDebug)
             world.renderDebug(camera, matrices, delta);
@@ -158,6 +157,12 @@ public class WorldRenderer {
         //render outlines
         if (renderOutlines)
             renderOutlines(world.getOutlines(camera), camera, matrices, delta);
+
+        //store current frame for later
+        copyLastFrame();
+
+        //bake output buffer to the target buffer
+        bake();
     }
 
     private static void renderAsAnaglyph(WorldClient world, Camera camera, MatrixStack matrices, float delta, Runnable[] renderFunc) {
@@ -217,6 +222,13 @@ public class WorldRenderer {
         targetBuffer = buffer;
     }
 
+    public static void copyLastFrame() {
+        lastFrameFramebuffer.resizeTo(outputBuffer);
+        lastFrameFramebuffer.useClear();
+        outputBuffer.blit(lastFrameFramebuffer, true, false, false);
+        outputBuffer.use();
+    }
+
     public static void bake() {
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         outputBuffer.blit(targetBuffer);
@@ -257,7 +269,7 @@ public class WorldRenderer {
         //setup pbr framebuffer
         PBRFrameBuffer.resizeTo(targetBuffer);
         PBRFrameBuffer.useClear();
-        targetBuffer.blit(PBRFrameBuffer.id(), false, true, true);
+        targetBuffer.blit(PBRFrameBuffer, false, true, true);
 
         //setup gbuffer shader
         Shader s = Shaders.GBUFFER_WORLD_PBR.getShader().use();
@@ -290,7 +302,7 @@ public class WorldRenderer {
         //render to the output framebuffer the final scene
         //and blit the remaining depth and stencil to the main
         renderQuad();
-        PBRFrameBuffer.blit(outputBuffer.id(), false, true, true);
+        PBRFrameBuffer.blit(outputBuffer, false, true, true);
         outputBuffer.use();
 
         //cleanup textures
@@ -307,7 +319,7 @@ public class WorldRenderer {
 
         renderQuad();
 
-        PBRFrameBuffer.blit(outputBuffer.id(), false, true, true);
+        PBRFrameBuffer.blit(outputBuffer, false, true, true);
         outputBuffer.use();
         Texture.unbindTex(0);
     }
@@ -328,7 +340,7 @@ public class WorldRenderer {
     public static void applyBloom() {
         float bloom = Settings.bloomStrength.get();
         if (debugTexture < 0 && renderBloom && bloom > 0f)
-            BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getEmissive(), 0.8f, bloom);
+            BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getEmissive(), 1.5f, bloom);
     }
 
 
@@ -712,6 +724,9 @@ public class WorldRenderer {
         if (!(camera.getEntity() instanceof LivingEntity le) || le.getHoldingItem() == null)
             return;
 
+        //set rendering flag
+        heldItemRendering = true;
+
         WorldClient world = (WorldClient) le.getWorld();
         Runnable renderFunc = () -> le.renderHandItem(XrManager.isInXR() ? ItemRenderContext.XR : ItemRenderContext.FIRST_PERSON, matrices, delta);
 
@@ -738,6 +753,9 @@ public class WorldRenderer {
 
         //render as a quad
         bakeQuad();
+
+        //reset flag
+        heldItemRendering = false;
     }
 
 
@@ -760,6 +778,10 @@ public class WorldRenderer {
 
     public static boolean isOutlineRendering() {
         return outlineRendering;
+    }
+
+    public static boolean isHeldItemRendering() {
+        return heldItemRendering;
     }
 
     public static int getRenderedTerrain() {

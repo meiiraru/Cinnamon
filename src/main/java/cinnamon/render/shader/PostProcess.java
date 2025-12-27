@@ -264,7 +264,7 @@ public enum PostProcess {
             destination = source == FB.PING ? FB.PONG : FB.PING;
         }
 
-        source.blit(originalFb.id());
+        source.blit(originalFb);
         originalFb.use();
 
         //restore state
@@ -281,7 +281,7 @@ public enum PostProcess {
         FB.PREVIOUS_COLOR_FRAMEBUFFER.resizeTo(main);
         FB.PREVIOUS_COLOR_FRAMEBUFFER.useClear();
 
-        main.blit(FB.PREVIOUS_COLOR_FRAMEBUFFER.id());
+        main.blit(FB.PREVIOUS_COLOR_FRAMEBUFFER);
         main.use();
         saveLastColor = false;
     }

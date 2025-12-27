@@ -91,7 +91,7 @@ public class XrRenderer {
         //blit framebuffer back
         framebuffer.use();
         framebuffer.bindColorTexture(swapchainImage);
-        Framebuffer.DEFAULT_FRAMEBUFFER.blit(framebuffer.id());
+        Framebuffer.DEFAULT_FRAMEBUFFER.blit(framebuffer);
         Framebuffer.DEFAULT_FRAMEBUFFER.useClear();
 
         if (index == swapchains.length - 1)
