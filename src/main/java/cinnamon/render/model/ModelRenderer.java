@@ -17,14 +17,20 @@ public abstract class ModelRenderer {
 
     protected final Map<String, MeshData> meshes;
     protected final AABB aabb = new AABB();
+    private boolean free = false;
 
     public ModelRenderer(Map<String, MeshData> meshes) {
         this.meshes = meshes;
     }
 
     public void free() {
+        free = true;
         for (MeshData mesh : meshes.values())
             mesh.free();
+    }
+
+    public boolean isFreed() {
+        return free;
     }
 
     public void render(MatrixStack matrices) {
@@ -44,6 +50,9 @@ public abstract class ModelRenderer {
     }
 
     protected void renderMesh(MeshData mesh, Material material) {
+        if (isFreed())
+            return;
+
         //bind material
         Material mat = material == null ? mesh.getMaterial() : material;
         MaterialApplier.applyMaterial(mat == null ? MaterialRegistry.MISSING : mat, 0);
@@ -53,7 +62,8 @@ public abstract class ModelRenderer {
     }
 
     protected void renderMeshWithoutMaterial(MeshData mesh) {
-        mesh.render();
+        if (!isFreed())
+            mesh.render();
     }
 
     public AABB getAABB() {

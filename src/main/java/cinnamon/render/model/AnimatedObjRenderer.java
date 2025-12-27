@@ -39,6 +39,9 @@ public class AnimatedObjRenderer extends ObjRenderer {
 
     @Override
     public void render(MatrixStack matrices, Material material) {
+        if (isFreed())
+            return;
+
         //tick animations
         for (Animation animation : animations.values())
             animation.update();
@@ -49,6 +52,9 @@ public class AnimatedObjRenderer extends ObjRenderer {
 
     @Override
     public void renderWithoutMaterial(MatrixStack matrices) {
+        if (isFreed())
+            return;
+
         //tick animations
         for (Animation animation : animations.values())
             animation.update();
