@@ -61,6 +61,8 @@ public abstract class Light {
 
     public abstract void calculateLightSpaceMatrix();
 
+    public abstract void copyTransform(Matrix4f matrix);
+
     protected abstract void updateAABB();
 
     public abstract int getType();
@@ -70,18 +72,22 @@ public abstract class Light {
     }
 
     protected void calculateLightViewMatrix() {
-        float y = 1f, z = 0f;
+        float x = 0f, y = 1f, z = 0f;
 
         if (Math.abs(dir.dot(0f, 1f, 0f)) > 0.9999f) {
-            y = 0f;
-            z = -1f;
+            float angle = Math.toRadians(getDirFallbackAngle() - 90f);
+            x = Math.cos(angle); y = 0f; z = Math.sin(angle);
         }
 
         lightView.identity().lookAt(
                 pos.x, pos.y, pos.z,
                 pos.x + dir.x, pos.y + dir.y, pos.z + dir.z,
-                0f, y, z
+                x, y, z
         );
+    }
+
+    protected float getDirFallbackAngle() {
+        return 0f;
     }
 
     public void renderDebug(Camera camera, MatrixStack matrices) {
@@ -110,15 +116,6 @@ public abstract class Light {
                     pos.x + dir.x, pos.y + dir.y, pos.z + dir.z,
                     0.025f, c
             ));
-
-        /*
-        VertexConsumer.LINES.consume(GeometryHelper.box(
-                matrices,
-                aabb.minX(), aabb.minY(), aabb.minZ(),
-                aabb.maxX(), aabb.maxY(), aabb.maxZ(),
-                c
-        ));
-        */
     }
 
     public Vector3f getPos() {

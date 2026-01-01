@@ -1,6 +1,7 @@
 package cinnamon.world.light;
 
 import cinnamon.render.Camera;
+import org.joml.Matrix4f;
 
 public class DirectionalLight extends Light {
 
@@ -15,6 +16,11 @@ public class DirectionalLight extends Light {
         float len = 20f, near = 1f, far = 100f;
         lightSpaceMatrix.identity().ortho(-len, len, -len, len, near, far);
         lightSpaceMatrix.mul(lightView);
+    }
+
+    @Override
+    public void copyTransform(Matrix4f matrix) {
+        //no transform needed for directional light
     }
 
     @Override

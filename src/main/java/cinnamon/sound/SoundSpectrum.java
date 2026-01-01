@@ -68,7 +68,7 @@ public class SoundSpectrum {
         //apply hann window to smooth the spectrum before applying FFT
         int length = soundSamples.length;
         for (int i = 0; i < length; i++)
-            soundSamples[i] *= (float) (0.5f * (1 - Math.cos((2 * Math.PI * i) / (length - 1))));
+            soundSamples[i] *= 0.5f * (1 - Math.cos((Math.PI_TIMES_2_f * i) / (length - 1)));
 
         //apply fast fourier transform
         fft.realForward(soundSamples);

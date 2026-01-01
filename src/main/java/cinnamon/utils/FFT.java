@@ -17,8 +17,8 @@ public class FFT {
         this.sinTable = new float[n / 2];
 
         for (int i = 0; i < n / 2; i++) {
-            cosTable[i] = (float) Math.cos(2f * Math.PI * i / n);
-            sinTable[i] = (float) Math.sin(2f * Math.PI * i / n);
+            cosTable[i] = Math.cos(Math.PI_TIMES_2_f * i / n);
+            sinTable[i] = Math.sin(Math.PI_TIMES_2_f * i / n);
         }
 
         this.real = new float[n];

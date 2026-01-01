@@ -236,6 +236,12 @@ public class Maths {
         return Math.toDegrees(Math.asin(-2f * quat.x * quat.y - 2f * quat.z * quat.w));
     }
 
+    public static Quaternionf dirToQuat(Vector3f dir) {
+        float pitch = Math.asin(dir.y);
+        float yaw = Math.atan2(dir.x, dir.z);
+        return new Quaternionf().rotationYXZ(yaw + Math.PI_f, pitch + Math.PI_OVER_2_f, 0f);
+    }
+
     public static Vector3f normal(Vector3f p1, Vector3f p2, Vector3f p3) {
         //calculate the cross product of two vectors to get the normal
         Vector3f edge1 = p2.sub(p1, new Vector3f());
@@ -483,15 +489,15 @@ public class Maths {
             C1 = 1.70158f,
             C2 = C1 * 1.525f,
             C3 = C1 + 1f,
-            C4 = (2f * (float) Math.PI) / 3f,
-            C5 = (2f * (float) Math.PI) / 4.5f,
+            C4 = Math.PI_TIMES_2_f / 3f,
+            C5 = Math.PI_TIMES_2_f / 4.5f,
             N1 = 7.5625f,
             D1 = 2.75f;
 
     public enum Easing {
-        IN_SINE(x -> 1f - (float) Math.cos((x * Math.PI) / 2f)),
-        OUT_SINE(x -> (float) Math.sin((x * Math.PI) / 2f)),
-        IN_OUT_SINE(x -> (float) -(Math.cos(Math.PI * x) - 1f) / 2f),
+        IN_SINE(x -> 1f - Math.cos((x * Math.PI_f) / 2f)),
+        OUT_SINE(x -> Math.sin((x * Math.PI_f) / 2f)),
+        IN_OUT_SINE(x -> -(Math.cos(Math.PI_f * x) - 1f) / 2f),
 
         IN_QUAD(x -> x * x),
         OUT_QUAD(x -> 1f - (1f - x) * (1f - x)),

@@ -36,6 +36,9 @@ public class ShadowCascadeFramebuffer extends Framebuffer {
 
         glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, new float[]{1, 1, 1, 1});
 
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_FUNC, GL_GREATER);
+
         //bind texture array to framebuffer
         glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTextureArray, 0);
         glBindTexture(GL_TEXTURE_2D_ARRAY, 0);

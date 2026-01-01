@@ -20,7 +20,7 @@ public class PerlinNoise {
 
         for (int i = 0; i < gridSize; i++) {
             for (int j = 0; j < gridSize; j++) {
-                float angle = rand.nextFloat() * 2 * (float) Math.PI;
+                float angle = rand.nextFloat() * Math.PI_TIMES_2_f;
                 gradients[i][j * 2] = Math.cos(angle);
                 gradients[i][j * 2 + 1] = Math.sin(angle);
             }

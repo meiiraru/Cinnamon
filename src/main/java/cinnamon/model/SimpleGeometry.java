@@ -106,9 +106,10 @@ public class SimpleGeometry {
 
 
     public static final SimpleGeometry
-            QUAD = quad(),
+            QUAD = quad(), //CCW
             INVERTED_CUBE = invertedCube(),
-            SPHERE = sphere();
+            SPHERE = sphere(),
+            CONE = cone();
 
     private static SimpleGeometry quad() {
         return of(new Vertex[]{
@@ -169,8 +170,8 @@ public class SimpleGeometry {
     }
 
     private static SimpleGeometry sphere() {
-        int xSegments = 24;
-        int ySegments = 24;
+        int xSegments = 12;
+        int ySegments = 12;
         int vertexCount = (xSegments + 1) * (ySegments + 1);
         Vertex[] vertices = new Vertex[vertexCount];
 
@@ -178,9 +179,9 @@ public class SimpleGeometry {
             for (int x = 0; x <= xSegments; x++) {
                 float xSegment = (float) x / xSegments;
                 float ySegment = (float) y / ySegments;
-                float xPos = (float) (Math.cos(xSegment * Math.PI * 2) * Math.sin(ySegment * Math.PI));
-                float yPos = (float) Math.cos(ySegment * Math.PI);
-                float zPos = (float) (Math.sin(xSegment * Math.PI * 2) * Math.sin(ySegment * Math.PI));
+                float xPos = Math.cos(xSegment * Math.PI_TIMES_2_f) * Math.sin(ySegment * Math.PI_f);
+                float yPos = Math.cos(ySegment * Math.PI_f);
+                float zPos = Math.sin(xSegment * Math.PI_TIMES_2_f) * Math.sin(ySegment * Math.PI_f);
                 vertices[x + y * (xSegments + 1)] = Vertex.of(xPos, yPos, zPos).uv(xSegment, ySegment).normal(xPos, yPos, zPos);
             }
         }
@@ -201,5 +202,42 @@ public class SimpleGeometry {
         }
 
         return of(vertices, GL_TRIANGLES, indices, Attributes.POS, Attributes.UV, Attributes.NORMAL);
+    }
+
+    private static SimpleGeometry cone() {
+        int segments = 12;
+        int vertexCount = segments + 2;
+        Vertex[] vertices = new Vertex[vertexCount];
+
+        //tip and base
+        vertices[0] = Vertex.of(0f, 0f, 0f);
+        vertices[1] = Vertex.of(0f, -1f, 0f);
+
+        //sides
+        float step = Math.PI_TIMES_2_f / segments;
+        for (int i = 0; i < segments; i++) {
+            float angle = i * step;
+            float x = Math.cos(angle);
+            float z = Math.sin(angle);
+            vertices[i + 2] = Vertex.of(x, -1f, z);
+        }
+
+        int indexCount = segments * 6;
+        int[] indices = new int[indexCount];
+        int i = 0;
+
+        for (int j = 0; j < segments; j++) {
+            //side
+            indices[i++] = 0;
+            indices[i++] = ((j + 1) % segments) + 2;
+            indices[i++] = j + 2;
+
+            //base
+            indices[i++] = 1;
+            indices[i++] = j + 2;
+            indices[i++] = ((j + 1) % segments) + 2;
+        }
+
+        return of(vertices, GL_TRIANGLES, indices, Attributes.POS);
     }
 }

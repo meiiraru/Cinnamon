@@ -162,8 +162,9 @@ public class WorldClient extends World {
         //lights
         sunLight.castsShadows(false);
 
-        //for (int i = 0; i < 5; i++)
-        //    addLight(new PointLight().pos(-5.5f + i * 3f, 3f, 2.5f).color(Colors.randomRainbow().rgb));
+        //for (int j = 0; j < 15; j++)
+        //    for (int i = 0; i < 15; i++)
+        //        addLight(new PointLight().pos(-5.5f + i * 3f, 3f, -5.5f + j * 3f).color(Colors.randomRainbow().rgb));
 
         addLight(new PointLight().pos(0.5f, 3.5f, 0.5f).color(0xFFFF44).castsShadows(true));
 

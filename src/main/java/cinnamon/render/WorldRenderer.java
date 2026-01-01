@@ -64,6 +64,7 @@ public class WorldRenderer {
     private static final Quaternionf cameraRot = new Quaternionf();
     private static final Matrix4f pointLightMatrix = new Matrix4f();
     private static final Quaternionf pointLightRotation = new Quaternionf();
+    private static final Matrix4f lightModelMatrix = new Matrix4f();
     private static Framebuffer targetBuffer;
 
     private static final Mask passMask = new Mask(-1);
@@ -303,7 +304,6 @@ public class WorldRenderer {
         //and blit the remaining depth and stencil to the main
         renderQuad();
         PBRFrameBuffer.blit(outputBuffer, false, true, true);
-        outputBuffer.use();
 
         //cleanup textures
         Texture.unbindAll(7);
@@ -320,7 +320,6 @@ public class WorldRenderer {
         renderQuad();
 
         PBRFrameBuffer.blit(outputBuffer, false, true, true);
-        outputBuffer.use();
         Texture.unbindTex(0);
     }
 
@@ -357,6 +356,9 @@ public class WorldRenderer {
 
         //render the lights
         for (Light light : lights) {
+            if (light.getIntensity() <= 0f)
+                continue;
+
             boolean shadow = hasShadows && light.castsShadows();
             if (shadow) {
                 //init the shadow buffer
@@ -389,10 +391,10 @@ public class WorldRenderer {
         cameraPos.set(camera.getPos());
         cameraRot.set(camera.getRot());
 
-        //set the light shader camera uniforms
+        //init light pass
         Shader s = Shaders.LIGHT_PASS.getShader().use();
         s.setVec3("camPos", camera.getPosition());
-        s.applyViewMatrix(camera.getViewMatrix());
+        s.setup(camera);
         s.setupInverse(camera);
 
         //custom blending for lights
@@ -564,10 +566,45 @@ public class WorldRenderer {
 
         light.pushToShader(s);
 
-        //then render the light volume
-        renderQuad();
+        //render the light volume
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
 
-        //unbind textures
+        switch (light.getType()) {
+            case 1 -> {
+                //for point lights, render a sphere
+                lightModelMatrix.identity();
+                light.copyTransform(lightModelMatrix);
+                s.setMat4("model", lightModelMatrix);
+
+                SimpleGeometry.SPHERE.render();
+            }
+            case 3 -> {
+                //for directional lights, render a full screen quad
+                lightModelMatrix.identity()
+                        .translate(cameraPos)
+                        .rotate(cameraRot)
+                        .translate(0, 0, -Camera.NEAR_PLANE - 0.01f);
+                light.copyTransform(lightModelMatrix);
+                s.setMat4("model", lightModelMatrix);
+
+                glCullFace(GL_BACK);
+                SimpleGeometry.QUAD.render();
+            }
+            default -> {
+                //render a cone for spot lights
+                lightModelMatrix.identity();
+                light.copyTransform(lightModelMatrix);
+                s.setMat4("model", lightModelMatrix);
+
+                SimpleGeometry.CONE.render();
+            }
+        }
+
+        //reset state
+        glCullFace(GL_BACK);
+        glDisable(GL_CULL_FACE);
+
         Texture.unbindAll(6);
         CubeMap.unbindTex(6);
         TextureArray.unbindTex(7);
@@ -743,7 +780,12 @@ public class WorldRenderer {
         renderSSAO(camera);
 
         //apply lights
+        int renderedLightsBak = renderedLights;
+        int renderedShadowsBak = renderedShadows;
+        renderedLights = renderedShadows = 0;
         renderLights(world.getLights(camera), camera, renderFunc);
+        renderedLights = renderedLightsBak;
+        renderedShadows = renderedShadowsBak;
 
         //bake item into deferred
         bakeDeferred(camera, world.getSky());

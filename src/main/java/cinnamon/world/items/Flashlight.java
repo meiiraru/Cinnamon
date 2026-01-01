@@ -20,6 +20,11 @@ public class Flashlight extends Item {
             updateLightToEntity();
             super.calculateLightSpaceMatrix();
         }
+
+        @Override
+        protected float getDirFallbackAngle() {
+            return getSourceYaw();
+        }
     };
 
     private boolean active = false;
@@ -86,6 +91,13 @@ public class Flashlight extends Item {
         boolean noHud = c.hideHUD;
         light.glareSize(fp ? 1f : 5f);
         light.glareIntensity(fp && noHud ? 0f : 1f);
+    }
+
+    protected float getSourceYaw() {
+        LivingEntity source;
+        if ((source = getSource()) == null)
+            return 0f;
+        return source.getRot().y;
     }
 
     public Object getCountText() {

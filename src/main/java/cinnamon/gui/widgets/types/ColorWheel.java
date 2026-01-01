@@ -71,7 +71,7 @@ public class ColorWheel extends SelectableWidget {
             //snap lines
             if (shift) {
                 for (int i = 0; i < 16; i++) {
-                    float ang = i * (float) Math.PI / 8;
+                    float ang = i * Math.PI_f / 8;
                     float x1 = cx + Math.cos(ang) * 3;
                     float y1 = cy + Math.sin(ang) * 3;
                     float x2 = cx + Math.cos(ang) * radius;
@@ -151,8 +151,8 @@ public class ColorWheel extends SelectableWidget {
         int dx = x - getCenterX();
         int dy = y - getCenterY();
         float angle = Math.atan2(dy, -dx);
-        if (shift && !alt) angle = (float) Math.round(angle / (Math.PI / 8)) * (float) Math.PI / 8;
-        float hue = alt ? altHue : 1f - (angle + (float) Math.PI) / (2f * (float) Math.PI);
+        if (shift && !alt) angle = Math.round(angle / (Math.PI_f / 8)) * Math.PI_f / 8;
+        float hue = alt ? altHue : 1f - (angle + Math.PI_f) / Math.PI_TIMES_2_f;
         float sat = calculateSaturation(dx, dy, x, y);
 
         hsv.set(hue, sat, 1f);

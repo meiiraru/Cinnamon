@@ -351,6 +351,10 @@ public class UIHelper {
         return 1f - Maths.pow(speed, Client.getInstance().timer.tickDelta);
     }
 
+    public static void finishBatches() {
+        VertexConsumer.finishAllBatches(Client.getInstance().camera);
+    }
+
     public static void pushStencil(MatrixStack matrices, int x, int y, int width, int height) {
         Vertex[] vertices = quad(matrices, x, y, width, height);
         STENCIL_STACK.push(vertices);
@@ -358,6 +362,8 @@ public class UIHelper {
     }
 
     private static void pushStencil(Vertex[] vertices) {
+        finishBatches();
+
         prepareStencil(false, true);
         glDisable(GL_DEPTH_TEST);
 
@@ -370,15 +376,15 @@ public class UIHelper {
 
     public static void popStencil() {
         STENCIL_STACK.pop();
-        if (STENCIL_STACK.isEmpty())
+        if (STENCIL_STACK.isEmpty()) {
+            finishBatches();
             disableStencil();
-        else
+        } else {
             pushStencil(STENCIL_STACK.peek());
+        }
     }
 
     public static void prepareStencil(boolean allowDrawing, boolean clear) {
-        VertexConsumer.finishAllBatches(Client.getInstance().camera);
-
         if (!allowDrawing) {
             glColorMask(false, false, false, false);
             glDepthMask(false);
@@ -400,7 +406,6 @@ public class UIHelper {
     }
 
     public static void disableStencil() {
-        VertexConsumer.finishAllBatches(Client.getInstance().camera);
         glDisable(GL_STENCIL_TEST);
     }
 

@@ -23,7 +23,7 @@ public abstract class Sky {
     protected final Vector3f sunDir = new Vector3f(1, 0, 0);
     protected float sunAngle;
     protected float sunRoll = Math.toRadians(30f);
-    protected float cloudSpeed = (float) Math.PI / 2f;
+    protected float cloudSpeed = Math.PI_OVER_2_f;
 
     public boolean
             renderSky = true,

@@ -59,7 +59,7 @@ public class FireworkStar {
     public enum Shape {
         BRUST(50, delta -> new Vector3f((float) Math.random(), (float) Math.random(), (float) Math.random())),
         BALL(150, delta -> {
-            float theta = 2f * (float) Math.PI * delta;
+            float theta = Math.PI_TIMES_2_f * delta;
             float phi = (float) Math.acos(2f * Math.random() - 1f);
 
             return new Vector3f(
@@ -69,7 +69,7 @@ public class FireworkStar {
         }),
         HEART(70, delta -> {
             //get heart angle in radians
-            float t = (float) (delta * 2 * Math.PI);
+            float t = delta * Math.PI_TIMES_2_f;
 
             //parametric heart equation
             //x(t) = 16 * sin(t)^3
@@ -82,7 +82,7 @@ public class FireworkStar {
             return new Vector3f(xShape * scale, yShape * scale, 0f);
         }),
         STAR(100, delta -> {
-            float t = (float) (delta * 2 * Math.PI);
+            float t = delta * Math.PI_TIMES_2_f;
 
             //f(x) = (cos(t), sin(t))
             //f(-3t) + 2f(2t)

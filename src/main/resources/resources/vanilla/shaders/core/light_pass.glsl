@@ -1,5 +1,15 @@
 #type vertex
-#include shaders/libs/blit.vsh
+#version 330 core
+
+layout (location = 0) in vec3 aPosition;
+
+uniform mat4 projection;
+uniform mat4 view;
+uniform mat4 model;
+
+void main() {
+    gl_Position = projection * view * model * vec4(aPosition, 1.0f);
+}
 
 #type fragment
 #version 330 core
@@ -11,8 +21,6 @@ struct Light {
     mat4 lightSpaceMatrix;
     bool castsShadows;
 };
-
-in vec2 texCoords;
 
 out vec4 fragColor;
 
@@ -40,7 +48,7 @@ uniform sampler2D cookieMap;
 uniform int cascadeCount;
 uniform float cascadeDistances[16];
 uniform mat4 cascadeMatrices[16];
-uniform sampler2DArray shadowCascadeMap;
+uniform sampler2DArrayShadow shadowCascadeMap;
 
 vec3 getPosFromDepth(vec2 texCoords) {
     //normalized device coordinates
@@ -99,7 +107,7 @@ float calculateSpotShadow(vec3 lightCoords, vec3 lightDir, vec3 normal) {
 
     //shadow acne prevention bias
     //the bias is larger for surfaces that are steeply angled to the light
-    float bias = max(0.01f * (1.0f - dot(normal, lightDir)), 0.001f);
+    float bias = max(0.001f * (1.0f - dot(normal, lightDir)), 0.0001f);
 
     //check if the current fragment is behind the closest one recorded in the shadow map
     float shadow = currentDepth - bias > closestDepth ? 1.0f : 0.0f;
@@ -169,8 +177,8 @@ float calculateDirectionalShadow(vec3 fragPosWorld, vec3 lightDir, vec3 normal) 
     //bias *= 1 / (cascadeDistances[layer] * 0.5f);
 
     //get depth of closest fragment from light perspective
-    float closestDepth = texture(shadowCascadeMap, vec3(projCoords.xy, layer)).r;
-    float shadow = currentDepth - bias > closestDepth ? 1.0f : 0.0f;
+    float refDepth = currentDepth - bias;
+    float shadow = texture(shadowCascadeMap, vec4(projCoords.xy, layer, refDepth));
 
     //PCF
     //float shadow = 0.0f;
@@ -178,8 +186,8 @@ float calculateDirectionalShadow(vec3 fragPosWorld, vec3 lightDir, vec3 normal) 
     //const int r = 1;
     //for(int x = -r; x <= r; x++) {
     //    for(int y = -r; y <= r; ++y) {
-    //        float pcfDepth = texture(shadowCascadeMap, vec3(projCoords.xy + vec2(x, y) * texelSize, layer)).r;
-    //        shadow += currentDepth - bias > pcfDepth ? 1.0f : 0.0f;
+    //        vec2 offset = vec2(x, y) * texelSize;
+    //        shadow += texture(shadowCascadeMap, vec4(projCoords.xy + offset, layer, refDepth));
     //    }
     //}
     //shadow /= (float((r * 2 + 1) * (r * 2 + 1)));
@@ -189,33 +197,22 @@ float calculateDirectionalShadow(vec3 fragPosWorld, vec3 lightDir, vec3 normal) 
 
 void main() {
     //pos
+    vec2 texCoords = gl_FragCoord.xy / vec2(textureSize(gAlbedo, 0));
     vec3 pos = getPosFromDepth(texCoords);
     vec3 lightCoords = vec3(0.0f);
 
-    //discard fragments outside the light volume
-    //TODO change to a mesh-based light volume
-    if (light.type != 3) {
-        float distanceToLight = length(light.pos - pos);
-        if (distanceToLight > light.falloffEnd)
+    if (light.type != 1 && light.type != 3) {
+        //transform fragment position to light clip space
+        vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(pos, 1.0f);
+
+        //normalize to [0,1] range
+        lightCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+        lightCoords = lightCoords * 0.5f + 0.5f;
+
+        //early exit if outside the light frustum
+        if (lightCoords.z > 1.0f)
             discard;
-
-        //frustum culling for non-point lights
-        if (light.type != 1) {
-            //transform fragment position to light clip space
-            vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(pos, 1.0f);
-
-            //normalize to [0,1] range
-            lightCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-            lightCoords = lightCoords * 0.5f + 0.5f;
-            //early exit if outside the light frustum
-            if (lightCoords.z > 1.0f)
-                discard;
-        }
     }
-
-    //color and normal
-    vec3 albedo = texture(gAlbedo, texCoords).rgb;
-    vec3 N = texture(gNormal, texCoords).rgb;
 
     //light radiance
     //L = light direction
@@ -259,6 +256,12 @@ void main() {
         radiance *= cookieColor;
     }
 
+    //normal
+    vec3 N = texture(gNormal, texCoords).rgb;
+    float NdotL = max(dot(N, L), 0.0f);
+    if (NdotL <= 0.0f)
+        discard;
+
     //shadow
     if (light.castsShadows) {
         float shadow = 0.0f;
@@ -274,8 +277,11 @@ void main() {
     }
 
     //if light has no effect, skip the expensive PBR calculations
-    if (dot(radiance, radiance) < 0.00001f)
+    if (dot(radiance, radiance) < 0.001f)
         discard;
+
+    //color
+    vec3 albedo = texture(gAlbedo, texCoords).rgb;
 
     //BRDF evaluation
     vec3 V = normalize(camPos - pos);
@@ -290,7 +296,6 @@ void main() {
 
     //cook torrance BRDF
     float NdotV = max(dot(N, V), 0.0f);
-    float NdotL = max(dot(N, L), 0.0f);
 
     float D = distributionGGX(N, H, roughness);
     float G = geometrySmith(NdotV, NdotL, roughness);

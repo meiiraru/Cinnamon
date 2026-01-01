@@ -395,7 +395,7 @@ public class GeometryHelper {
 
     public static Vertex[][] cone(MatrixStack matrices, float x, float y, float z, float height, float radius, int sides, float progress, boolean base, int color) {
         int faces = Math.max(sides, 3);
-        float angleStep = (float) (Math.PI * progress * 2f) / faces;
+        float angleStep = Math.PI_TIMES_2_f * progress / faces;
 
         //generate vertices
         Vertex[] circle = new Vertex[faces + 1];
@@ -426,7 +426,7 @@ public class GeometryHelper {
 
     public static Vertex[][] cylinder(MatrixStack matrices, float x, float y, float z, float height, float radiusTop, float radiusBottom, int sides, float progress, boolean cap, int color) {
         int vertexCount = Math.max(sides, 3);
-        float angleStep = (float) (Math.PI * progress * 2f) / vertexCount;
+        float angleStep = Math.PI_TIMES_2_f * progress / vertexCount;
 
         //generate vertices
         int circleLen = vertexCount + 1;
@@ -470,8 +470,8 @@ public class GeometryHelper {
         int hSlices = Math.max(hSides, 2);
 
         //angle steps (progress)
-        float phi = (float) (Math.PI * wProgress * 2f) / wSlices;
-        float theta = (float) Math.PI * hProgress / hSlices;
+        float phi = Math.PI_TIMES_2_f * wProgress / wSlices;
+        float theta = Math.PI_f * hProgress / hSlices;
 
         //generate vertices
         Vertex[] vertices = new Vertex[(wSlices + 1) * (hSlices + 1)];
@@ -520,8 +520,8 @@ public class GeometryHelper {
         int totalRings = 2 * hSlices + 2;
         Vertex[] vertices = new Vertex[(wSlices + 1) * totalRings];
 
-        float phi = (float) (Math.PI * 2f * progress) / wSlices;
-        float theta = (float) (Math.PI / 2f) / hSlices;
+        float phi = Math.PI_TIMES_2_f * progress / wSlices;
+        float theta = Math.PI_OVER_2_f / hSlices;
 
         //generate vertices for each ring
         int index = 0;
@@ -530,10 +530,10 @@ public class GeometryHelper {
             float centerY;
 
             if (j <= hSlices) { //bottom hemisphere
-                theta1 = (float) Math.PI - j * theta;
+                theta1 = Math.PI_f - j * theta;
                 centerY = y + radius;
             } else { //top hemisphere
-                theta1 = (float) (Math.PI / 2.0f) - (j - (hSlices + 1)) * theta;
+                theta1 = Math.PI_OVER_2_f - (j - (hSlices + 1)) * theta;
                 centerY = y + height - radius;
             }
 
@@ -581,8 +581,8 @@ public class GeometryHelper {
 
         Vertex[] vertices = new Vertex[(mainSeg + 1) * (tubeSeg + 1)];
 
-        float phi = (float) (Math.PI * tubeProgress * 2f) / tubeSeg;
-        float theta = (float) (Math.PI * progress * 2f) / mainSeg;
+        float phi = Math.PI_TIMES_2_f * tubeProgress / tubeSeg;
+        float theta = Math.PI_TIMES_2_f * progress / mainSeg;
 
         //generate vertices
         int index = 0;
