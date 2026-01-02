@@ -3,6 +3,7 @@ package cinnamon.world.items;
 import cinnamon.Client;
 import cinnamon.lang.LangManager;
 import cinnamon.registry.ItemModelRegistry;
+import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.light.CookieLight;
@@ -12,7 +13,10 @@ import org.joml.Vector3f;
 
 public class Flashlight extends Item {
 
-    public static final Resource FLASHLIGHT_COOKIE = new Resource("textures/environment/light/flashlight_cookie.png");
+    public static final Resource
+            FLASHLIGHT_COOKIE = new Resource("textures/environment/light/flashlight_cookie.png"),
+            ON_SOUND = new Resource("sounds/item/flashlight/on.ogg"),
+            OFF_SOUND = new Resource("sounds/item/flashlight/off.ogg");
 
     private final CookieLight light = new CookieLight() {
         @Override
@@ -33,7 +37,7 @@ public class Flashlight extends Item {
         super(ItemModelRegistry.FLASHLIGHT.id, 1, 1, ItemModelRegistry.FLASHLIGHT.resource);
         light
                 .cookieTexture(FLASHLIGHT_COOKIE)
-                .angle(25f, 30f)
+                .angle(15f, 20f)
                 .falloff(0f, 20f)
                 .color(color);
     }
@@ -68,8 +72,10 @@ public class Flashlight extends Item {
         if (active) {
             updateLightToEntity();
             wc.addLight(light);
+            wc.playSound(ON_SOUND, SoundCategory.ENTITY, source.getPos());
         } else {
             wc.removeLight(light);
+            wc.playSound(OFF_SOUND, SoundCategory.ENTITY, source.getPos());
         }
     }
 
