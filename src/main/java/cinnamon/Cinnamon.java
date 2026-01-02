@@ -9,6 +9,7 @@ import cinnamon.utils.FileDialog;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
 import org.joml.Math;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -65,6 +66,14 @@ public class Cinnamon {
 
         //error callback
         GLFWErrorCallback.createPrint(System.err).set();
+
+        //glfw platform
+        String glfwPlatform = ArgsOptions.FORCE_GLFW_PLATFORM.getAsString();
+        if (!glfwPlatform.isBlank()) {
+            try {
+                glfwInitHint(GLFW_PLATFORM, GLFW.class.getField("GLFW_PLATFORM_" + glfwPlatform.toUpperCase()).getInt(null));
+            } catch (Exception ignored) {}
+        }
 
         //init GLFW
         if (!glfwInit())

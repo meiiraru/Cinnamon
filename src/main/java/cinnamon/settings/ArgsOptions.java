@@ -19,6 +19,7 @@ public enum ArgsOptions {
     //graphics
     EXPERIMENTAL_OPENGL_ES(null, "--experimental-opengl-es"),
     FORCE_DISABLE_XR(null, "--force-disable-xr"),
+    FORCE_GLFW_PLATFORM("", "--force-glfw-platform"),
 
     //other
     PLAYERNAME("Player%03d".formatted((int) (Math.random() * 456) + 1), "--player-name"),
