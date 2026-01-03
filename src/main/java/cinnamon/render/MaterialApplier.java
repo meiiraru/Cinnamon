@@ -29,7 +29,7 @@ public class MaterialApplier {
         bindTex(s, material.getMetallic(), i++, "material.metallicTex", BLACK_TEX);
         bindTex(s, material.getEmissive(), i++, "material.emissiveTex", BLACK_TEX);
 
-        s.setFloat("material.heightScale", material.getHeightScale());
+        s.setFloat("material.heightScale", material.getHeight() != null ? material.getHeightScale() : 0f);
 
         lastMaterial = material;
     }

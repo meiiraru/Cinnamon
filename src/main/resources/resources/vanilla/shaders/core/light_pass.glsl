@@ -48,7 +48,7 @@ uniform sampler2D cookieMap;
 uniform int cascadeCount;
 uniform float cascadeDistances[16];
 uniform mat4 cascadeMatrices[16];
-uniform sampler2DArrayShadow shadowCascadeMap;
+uniform sampler2DArray shadowCascadeMap;
 
 vec3 getPosFromDepth(vec2 texCoords) {
     //normalized device coordinates
@@ -177,8 +177,8 @@ float calculateDirectionalShadow(vec3 fragPosWorld, vec3 lightDir, vec3 normal) 
     //bias *= 1 / (cascadeDistances[layer] * 0.5f);
 
     //get depth of closest fragment from light perspective
-    float refDepth = currentDepth - bias;
-    float shadow = texture(shadowCascadeMap, vec4(projCoords.xy, layer, refDepth));
+    float closestDepth = texture(shadowCascadeMap, vec3(projCoords.xy, layer)).r;
+    float shadow = currentDepth - bias > closestDepth ? 1.0f : 0.0f;
 
     //PCF
     //float shadow = 0.0f;
@@ -186,8 +186,8 @@ float calculateDirectionalShadow(vec3 fragPosWorld, vec3 lightDir, vec3 normal) 
     //const int r = 1;
     //for(int x = -r; x <= r; x++) {
     //    for(int y = -r; y <= r; ++y) {
-    //        vec2 offset = vec2(x, y) * texelSize;
-    //        shadow += texture(shadowCascadeMap, vec4(projCoords.xy + offset, layer, refDepth));
+    //        float pcfDepth = texture(shadowCascadeMap, vec3(projCoords.xy + vec2(x, y) * texelSize, layer)).r;
+    //        shadow += currentDepth - bias > pcfDepth ? 1.0f : 0.0f;
     //    }
     //}
     //shadow /= (float((r * 2 + 1) * (r * 2 + 1)));
