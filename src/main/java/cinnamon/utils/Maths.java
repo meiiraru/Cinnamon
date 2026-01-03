@@ -95,12 +95,14 @@ public class Maths {
         return lerp(array[prev], array[next], indexDelta);
     }
 
-    public static Vector3f parseVec3(String x, String y, String z) {
-        return new Vector3f(Float.parseFloat(x), Float.parseFloat(y), Float.parseFloat(z));
+    public static Vector3f parseVec3(String vec3, String split) {
+        String[] s = vec3.split(split);
+        return new Vector3f(Float.parseFloat(s[0]), Float.parseFloat(s[1]), Float.parseFloat(s[2]));
     }
 
-    public static Vector2f parseVec2(String x, String y) {
-        return new Vector2f(Float.parseFloat(x), Float.parseFloat(y));
+    public static Vector2f parseVec2(String vec2, String split) {
+        String[] s = vec2.split(split);
+        return new Vector2f(Float.parseFloat(s[0]), Float.parseFloat(s[1]));
     }
 
     public static Vector3f rotToDir(float pitch, float yaw) {

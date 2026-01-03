@@ -39,7 +39,7 @@ public class ObjLoader {
                     continue;
 
                 //grab first word on the line
-                String[] split = line.trim().replaceAll(" +", " ").split(" ");
+                String[] split = line.split(" +", 2);
                 switch (split[0]) {
                     //material file
                     case "mtllib" -> {
@@ -59,13 +59,8 @@ public class ObjLoader {
                             theMesh.getGroups().add(currentGroup);
                         }
 
-                        //parse name
-                        StringBuilder sb = new StringBuilder();
-                        for (int i = 1; i < split.length; i++)
-                            sb.append(split[i]).append(" ");
-
                         //create new group
-                        currentGroup = new Group(sb.toString().trim());
+                        currentGroup = new Group(split[1]);
                     }
 
                     //group material
@@ -83,16 +78,16 @@ public class ObjLoader {
                     }
 
                     //vertex
-                    case "v" -> theMesh.getVertices().add(parseVec3(split[1], split[2], split[3]));
+                    case "v" -> theMesh.getVertices().add(parseVec3(split[1], " +"));
 
                     //uv
-                    case "vt" -> theMesh.getUVs().add(parseVec2(split[1], split[2]));
+                    case "vt" -> theMesh.getUVs().add(parseVec2(split[1], " +"));
 
                     //normal
-                    case "vn" -> theMesh.getNormals().add(parseVec3(split[1], split[2], split[3]));
+                    case "vn" -> theMesh.getNormals().add(parseVec3(split[1], " +"));
 
                     //faces
-                    case "f" -> currentGroup.getFaces().add(parseFace(split));
+                    case "f" -> currentGroup.getFaces().add(parseFace(split[1], theMesh));
                 }
             }
 
@@ -107,7 +102,9 @@ public class ObjLoader {
         }
     }
 
-    private static Face parseFace(String[] split) {
+    private static Face parseFace(String face, Mesh mesh) {
+        String[] split = face.split(" +");
+
         //prepare arrays
         List<Integer>
                 v = new ArrayList<>(),
@@ -115,27 +112,35 @@ public class ObjLoader {
                 vn = new ArrayList<>();
 
         //fill arrays
-        for (int i = 0; i < split.length - 1; i++) {
-            String[] vtx = split[i + 1].split("/");
+        for (String s : split) {
+            String[] vtx = s.split("/");
 
             //v is always present
-            v.add(parseInt(vtx[0]) - 1);
+            v.add(parseIndex(vtx[0], mesh.getVertices().size()));
 
             //try v/vt/vn
             if (vtx.length == 3) {
                 //vn present
-                vn.add(parseInt(vtx[2]) - 1);
+                vn.add(parseIndex(vtx[2], mesh.getNormals().size()));
 
                 //test for vt (v//vn)
                 if (!vtx[1].isBlank())
-                    vt.add(parseInt(vtx[1]) - 1);
+                    vt.add(parseIndex(vtx[1], mesh.getUVs().size()));
             }
             //then try v/vt
-            else if (vtx.length == 2) {
-                vt.add(parseInt(vtx[1]) - 1);
-            }
+            else if (vtx.length == 2)
+                vt.add(parseIndex(vtx[1], mesh.getUVs().size()));
         }
 
         return new Face(v, vt, vn);
+    }
+
+    private static int parseIndex(String index, int size) {
+        int idx = parseInt(index);
+        if (idx < 0)
+            idx = size + idx;
+        else
+            idx = idx - 1;
+        return idx;
     }
 }

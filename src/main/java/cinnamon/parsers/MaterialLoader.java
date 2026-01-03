@@ -36,7 +36,7 @@ public class MaterialLoader {
                     continue;
 
                 //grab first word on the line
-                String[] split = line.trim().replaceAll(" +", " ").split(" ");
+                String[] split = line.split(" +", 2);
 
                 //create new material
                 switch (split[0]) {
@@ -44,30 +44,26 @@ public class MaterialLoader {
                         if (!material.getName().isBlank() && !material.getName().equals("none"))
                             map.put(material.getName(), material);
 
-                        StringBuilder sb = new StringBuilder();
-                        for (int i = 1; i < split.length; i++)
-                            sb.append(split[i]).append(" ");
-
-                        String materialName = sb.toString().trim();
-                        material = new Material(materialName);
+                        material = new Material(split[1]);
                     }
 
                     //textures
-                    case "map_Kd", "albedo", "diffuse" -> material.setAlbedo(parseTexture(split, res));
+                    case "map_Kd", "albedo", "diffuse" -> material.setAlbedo(parseTexture(split[1], res));
                     case "map_disp", "bump", "height" -> {
-                        for (int i = 1; i < split.length; i++) {
-                            if (split[i].equals("-dm")) {
-                                material.setHeightScale(Float.parseFloat(split[i + 1]));
+                        String[] bumpData = split[1].split(" +");
+                        for (int i = 0; i < bumpData.length; i++) {
+                            if (bumpData[i].equals("-dm")) {
+                                material.setHeightScale(Float.parseFloat(bumpData[i + 1]));
                                 break;
                             }
                         }
-                        material.setHeight(parseTexture(split, res));
+                        material.setHeight(parseTexture(split[1], res));
                     }
-                    case "map_Bump", "norm", "normal", "map_Kn" -> material.setNormal(parseTexture(split, res));
-                    case "map_ao", "map_AO", "ao", "ambient_occlusion" -> material.setAO(parseTexture(split, res));
-                    case "map_Pr", "roughness" -> material.setRoughness(parseTexture(split, res));
-                    case "map_Pm", "metallic" -> material.setMetallic(parseTexture(split, res));
-                    case "map_Ke", "emissive" -> material.setEmissive(parseTexture(split, res));
+                    case "map_Bump", "norm", "normal", "map_Kn" -> material.setNormal(parseTexture(split[1], res));
+                    case "map_ao", "map_AO", "ao", "ambient_occlusion" -> material.setAO(parseTexture(split[1], res));
+                    case "map_Pr", "roughness" -> material.setRoughness(parseTexture(split[1], res));
+                    case "map_Pm", "metallic" -> material.setMetallic(parseTexture(split[1], res));
+                    case "map_Ke", "emissive" -> material.setEmissive(parseTexture(split[1], res));
                 }
             }
 
@@ -76,12 +72,13 @@ public class MaterialLoader {
         }
     }
 
-    private static MaterialTexture parseTexture(String[] split, Resource res) {
+    private static MaterialTexture parseTexture(String texture, Resource res) {
+        String[] split = texture.split(" +");
         Resource path = res.resolveSibling(split[split.length - 1]);
 
         Set<Texture.TextureParams> params = new HashSet<>();
-        for (int i = 1; i < split.length - 1; i++) {
-            Texture.TextureParams param = Texture.TextureParams.getByAlias(split[i].substring(1));
+        for (String s : split) {
+            Texture.TextureParams param = Texture.TextureParams.getByAlias(s.substring(1));
             if (param != null) params.add(param);
         }
 
