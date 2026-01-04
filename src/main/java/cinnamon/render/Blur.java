@@ -3,28 +3,26 @@ package cinnamon.render;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
+import cinnamon.render.texture.Texture;
 
 import static cinnamon.render.WorldRenderer.renderQuad;
 
 public class Blur {
 
-    private static final Framebuffer blurBufferA = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
-    private static final Framebuffer blurBufferB = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
-
-    public static int blurTexture(int texture, int width, int height, float blurRadius) {
+    public static int blurTexture(int texture, int width, int height, float blurRadius, Framebuffer pingPongA, Framebuffer pingPongB) {
         int w = (int) (width / blurRadius);
         int h = (int) (height / blurRadius);
 
-        blurBufferA.resize(w, h);
-        blurBufferB.resize(w, h);
-        blurBufferA.useClear();
-        blurBufferB.useClear();
+        pingPongA.resize(w, h);
+        pingPongB.resize(w, h);
+        pingPongA.useClear();
+        pingPongB.useClear();
 
         Shader sh = PostProcess.GAUSSIAN_BLUR.getShader().use();
-        sh.setVec2("texelSize", 1f / blurBufferA.getWidth(), 1f / blurBufferA.getHeight());
+        sh.setVec2("texelSize", 1f / w, 1f / h);
 
         int tex = texture;
-        Framebuffer target = blurBufferA;
+        Framebuffer target = pingPongA;
         target.adjustViewPort();
 
         //apply blur
@@ -38,9 +36,26 @@ public class Blur {
             renderQuad();
 
             tex = target.getColorBuffer();
-            target = target == blurBufferA ? blurBufferB : blurBufferA;
+            target = target == pingPongA ? pingPongB : pingPongA;
         }
 
+        Texture.unbindAll(1);
         return tex;
+    }
+
+    public static int boxBlur(int texture, int width, int height, float blurRadius, float scale, Framebuffer blurBuffer) {
+        blurBuffer.resize(width, height);
+        blurBuffer.useClear();
+        blurBuffer.adjustViewPort();
+
+        Shader sh = PostProcess.BOX_BLUR.getShader().use();
+        sh.setTexture("colorTex", texture, 0);
+        sh.setVec2("texelSize", scale / width, scale / height);
+        sh.setFloat("radius", blurRadius);
+
+        renderQuad();
+
+        Texture.unbindAll(1);
+        return blurBuffer.getColorBuffer();
     }
 }

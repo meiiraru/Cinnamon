@@ -34,7 +34,12 @@ public enum PostProcess {
     INVERT(COLOR_UNIFORM),
     BLUR((fb, s) -> {
         s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
-        s.setVec2("dir", 1f, 1f);
+        s.setVec2("dir", 3f, 0f);
+        s.setFloat("radius", 5f);
+        return COLOR_UNIFORM.apply(fb, s);
+    }),
+    BOX_BLUR((fb, s) -> {
+        s.setVec2("texelSize", 2f / fb.getWidth(), 2f / fb.getHeight());
         s.setFloat("radius", 5f);
         return COLOR_UNIFORM.apply(fb, s);
     }),
@@ -175,7 +180,7 @@ public enum PostProcess {
     });
 
     public static final PostProcess[] EFFECTS = {
-            INVERT, BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE,
+            INVERT, BLUR, BOX_BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE,
             SCAN_LINE, LENS, LENS2, MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY,
             KALEIDOSCOPE, BITS, POSTERIZE, BLOBS, PHOSPHOR, SPEED_LINES, DOT_GRID,
             DITHER, DITHER_SQUARE_TEX, SHARPEN, VINTAGE, RED, TILT_SHIFT

@@ -137,7 +137,7 @@ public class WorldClient extends World {
         addTerrain(t);
 
         //menger sponge
-        TerrainGenerator.generateMengerSponge(this, 2, -23, 1, -23);
+        TerrainGenerator.generateMengerSponge(this, 2, -23, 1, -23, MaterialRegistry.GOLD);
 
         //conveyor belt
         float beltSpeed = 0.15f;

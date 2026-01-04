@@ -22,7 +22,7 @@ public class TerrainGenerator {
         }
     }
 
-    public static void generateMengerSponge(World world, int level, int xOffset, int yOffset, int zOffset) {
+    public static void generateMengerSponge(World world, int level, int xOffset, int yOffset, int zOffset, MaterialRegistry material) {
         int size = Maths.pow(3, level);
         int[] mod = new int[size];
 
@@ -43,7 +43,7 @@ public class TerrainGenerator {
                             world.removeTerrain(new AABB().translate(x + xOffset + 0.5f, y + yOffset + 0.5f, z + zOffset + 0.5f));
                         } else if (i == 1) {
                             Terrain terr = TerrainRegistry.BOX.getFactory().get();
-                            terr.setMaterial(MaterialRegistry.GOLD);
+                            terr.setMaterial(material);
                             terr.setPos(x + xOffset, y + yOffset, z + zOffset);
                             world.addTerrain(terr);
                         }

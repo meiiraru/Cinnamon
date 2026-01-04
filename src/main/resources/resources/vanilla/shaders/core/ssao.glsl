@@ -10,6 +10,7 @@ out vec4 fragColor;
 
 uniform sampler2D gNormal;
 uniform sampler2D gDepth;
+uniform sampler2D texKernel;
 uniform sampler2D texNoise;
 
 uniform mat4 view;
@@ -21,7 +22,6 @@ uniform float farPlane;
 
 const int MAX_SAMPLES = 64;
 uniform int sampleCount;
-uniform vec3 samples[MAX_SAMPLES];
 uniform vec2 noiseScale;
 
 uniform float radius = 0.5f;
@@ -78,7 +78,7 @@ void main() {
 
     for (int i = 0; i < samplesToUse; i++) {
         //get sample position
-        vec3 samplePos = TBN * samples[i]; //from tangent to view-space
+        vec3 samplePos = TBN * texture(texKernel, vec2(float(i) / float(MAX_SAMPLES), 0.0f)).rgb; //from tangent to view-space
         samplePos = fragPos + samplePos * radius;
 
         //project sample to clip space

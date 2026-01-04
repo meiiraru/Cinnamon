@@ -11,7 +11,10 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class BloomRenderer {
 
-    public static final Framebuffer brightPass = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
+    public static final Framebuffer
+            brightPass = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER),
+            blurBufferA = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER),
+            blurBufferB = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
 
     public static void applyBloom(Framebuffer targetBuffer, int emissiveTex, float threshold, float strength) {
         //get brightness
@@ -25,7 +28,7 @@ public class BloomRenderer {
         renderQuad();
 
         //apply blur
-        int blurTex = Blur.blurTexture(brightPass.getColorBuffer(), brightPass.getWidth(), brightPass.getHeight(), 2f);
+        int blurTex = Blur.blurTexture(brightPass.getColorBuffer(), brightPass.getWidth(), brightPass.getHeight(), 2f, blurBufferA, blurBufferB);
 
         //composite back to the bright buffer with additive blending
         brightPass.useClear();
