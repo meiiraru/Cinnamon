@@ -6,8 +6,6 @@ import cinnamon.render.framebuffer.SSAOFramebuffer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
-import cinnamon.settings.Settings;
-import cinnamon.utils.Maths;
 
 import static cinnamon.render.WorldRenderer.renderQuad;
 
@@ -17,7 +15,7 @@ public class SSAORenderer {
     public static final Framebuffer blurBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
     private static int out = 0;
 
-    public static void renderSSAO(PBRDeferredFramebuffer gBuffer, Camera camera, float radius) {
+    public static void renderSSAO(PBRDeferredFramebuffer gBuffer, Camera camera, int quality, float radius) {
         //prepare framebuffer
         ssaoFramebuffer.resizeTo(gBuffer);
         ssaoFramebuffer.useClear();
@@ -36,7 +34,7 @@ public class SSAORenderer {
         s.setFloat("farPlane", Camera.FAR_PLANE);
 
         //set kernel samples
-        s.setInt("sampleCount", Maths.clamp(Settings.ssaoLevel.get(), 1, 4) * 16);
+        s.setInt("sampleCount", Math.max(quality, 1) * 16);
         s.setVec2("noiseScale", ssaoFramebuffer.getWidth() / 4f, ssaoFramebuffer.getHeight() / 4f);
         s.setFloat("radius", radius);
 

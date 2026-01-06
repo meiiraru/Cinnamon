@@ -18,6 +18,11 @@ uniform sampler2D gDepth;
 
 uniform sampler2D lightTex;
 uniform sampler2D ssaoTex;
+uniform sampler2D ssrTex;
+
+uniform float lightFactor = 1.0f;
+uniform float ssaoFactor = 1.0f;
+uniform float ssrFactor = 1.0f;
 
 uniform vec3 camPos;
 uniform mat4 invView;
@@ -63,7 +68,7 @@ vec4 applyLighting(vec3 pos) {
     float roughness = gORM.g;
     float metallic  = gORM.b;
 
-    float ssao = texture(ssaoTex, texCoords).r;
+    float ssao = texture(ssaoTex, texCoords).r * ssaoFactor;
     ao *= 1.0f - ssao;
 
     //normal mapping
@@ -76,7 +81,7 @@ vec4 applyLighting(vec3 pos) {
     F0 = mix(F0, albedo, metallic);
 
     //lighting
-    vec3 Lo = texture(lightTex, texCoords).rgb;
+    vec3 Lo = texture(lightTex, texCoords).rgb * lightFactor;
     //if (true) return vec4(Lo, 1.0f);
 
     //ambient lighting
@@ -91,8 +96,13 @@ vec4 applyLighting(vec3 pos) {
 
     //sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part
     vec3 prefilteredColor = textureLod(prefilterMap, R * cubemapRotation, roughness * (MAX_REFLECTION_LOD - 1)).rgb;
+
+    //ssr
+    vec4 ssr = texture(ssrTex, texCoords) * ssrFactor;
+    vec3 radiance = mix(prefilteredColor, ssr.rgb, ssr.a);
+
     vec2 brdf = texture(brdfLUT, vec2(NdotV, roughness)).rg;
-    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+    vec3 specular = radiance * (F * brdf.x + brdf.y);
 
     vec3 color = (kD * diffuse + specular) * ao + Lo;
 

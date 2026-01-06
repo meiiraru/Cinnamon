@@ -138,6 +138,7 @@ public class WorldClient extends World {
 
         //menger sponge
         TerrainGenerator.generateMengerSponge(this, 2, -23, 1, -23, MaterialRegistry.GOLD);
+        TerrainGenerator.generateMengerSponge(this, 1, -11, 1, -17, MaterialRegistry.CHROME);
 
         //conveyor belt
         float beltSpeed = 0.15f;
@@ -242,6 +243,12 @@ public class WorldClient extends World {
         //render our stuff
         WorldRenderer.renderWorld(this, client.camera, matrices, delta);
         client.camera.useOrtho(true);
+
+        //debug quad
+        //float w = client.window.scaledWidth * 0.3f;
+        //int tex = SSRRenderer.getTexture();
+        //VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, client.window.scaledWidth - w, 0, w, w, 0, 1, 1, -1, 1, 1), tex);
+        //VertexConsumer.MAIN.finishBatch(client.camera);
     }
 
     protected void updateCamera(Entity camEntity, int cameraMode, float delta) {

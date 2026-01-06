@@ -112,6 +112,7 @@ public class ModelViewer extends SelectableWidget {
         //set up world renderer
         WorldRenderer.renderSSAO = false;
         WorldRenderer.renderLights = false;
+        WorldRenderer.renderSSR = false;
         WorldRenderer.setupFramebuffer();
         WorldRenderer.initGBuffer(client.camera);
 

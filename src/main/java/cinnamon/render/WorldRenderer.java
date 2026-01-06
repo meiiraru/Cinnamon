@@ -73,6 +73,7 @@ public class WorldRenderer {
     public static boolean
             renderSky = true,
             renderSSAO = true,
+            renderSSR = true,
             renderLights = true,
             renderShadows = true,
             renderBloom = true,
@@ -122,6 +123,10 @@ public class WorldRenderer {
         //render ssao
         if (renderSSAO)
             renderSSAO(camera);
+
+        //render ssr
+        if (renderSSR)
+            renderSSR(camera);
 
         //render the world lights
         renderedLights = renderedShadows = 0;
@@ -186,6 +191,9 @@ public class WorldRenderer {
 
             //ssao
             if (renderSSAO) renderSSAO(camera);
+
+            //ssr
+            if (renderSSR) renderSSR(camera);
 
             //lights and shadows
             renderedLights = renderedShadows = 0;
@@ -293,12 +301,17 @@ public class WorldRenderer {
         s.setTexture("gORM",      PBRFrameBuffer.getORM(),         2);
         s.setTexture("gEmissive", PBRFrameBuffer.getEmissive(),    3);
         s.setTexture("gDepth",    PBRFrameBuffer.getDepthBuffer(), 4);
-        s.setTexture("lightTex",  renderLights && renderedLights > 0 ? lightingMultiPassBuffer.getColorBuffer() : 0, 5);
-        s.setTexture("ssaoTex",   renderSSAO && Settings.ssaoLevel.get() >= 0 ? SSAORenderer.getSSAOTexture() : 0, 6);
+        s.setTexture("lightTex",  lightingMultiPassBuffer.getColorBuffer(), 5);
+        s.setTexture("ssaoTex",   SSAORenderer.getTexture(),       6);
+        s.setTexture("ssrTex",    SSRRenderer.getTexture(),        7);
+
+        s.setFloat("lightFactor", renderLights && renderedLights > 0 ? 1f : 0f);
+        s.setFloat("ssaoFactor", renderSSAO && Settings.ssaoLevel.get() >= 0 ? 1f : 0f);
+        s.setFloat("ssrFactor", renderSSR && Settings.ssrLevel.get() >= 0 ? 1f : 0f);
 
         //apply sky
         sky.applyUniforms(s, camera);
-        sky.bind(s, 7);
+        sky.bind(s, 8);
 
         //render to the output framebuffer the final scene
         //and blit the remaining depth and stencil to the main
@@ -306,8 +319,8 @@ public class WorldRenderer {
         PBRFrameBuffer.blit(outputBuffer, false, true, true);
 
         //cleanup textures
-        Texture.unbindAll(7);
-        sky.unbind(7);
+        Texture.unbindAll(8);
+        sky.unbind(8);
     }
 
     public static void debugTexture(int texture) {
@@ -330,10 +343,16 @@ public class WorldRenderer {
     public static void renderSSAO(Camera camera) {
         int ssaoLevel = Settings.ssaoLevel.get();
         if (renderSSAO && ssaoLevel >= 0) {
-            SSAORenderer.renderSSAO(PBRFrameBuffer, camera, 0.5f);
+            SSAORenderer.renderSSAO(PBRFrameBuffer, camera, ssaoLevel, 0.5f);
             if (ssaoLevel > 0)
                 SSAORenderer.blurSSAO();
         }
+    }
+
+    public static void renderSSR(Camera camera) {
+        int ssrLevel = Settings.ssrLevel.get();
+        if (renderSSR && ssrLevel >= 0)
+            SSRRenderer.render(PBRFrameBuffer, lastFrameFramebuffer.getColorBuffer(), camera, ssrLevel, false);
     }
 
     public static void applyBloom() {
@@ -807,8 +826,10 @@ public class WorldRenderer {
     public static void resetFlags() {
         renderSky      = true;
         renderSSAO     = true;
+        renderSSR      = true;
         renderLights   = true;
         renderShadows  = true;
+        renderBloom    = true;
         renderOutlines = true;
         renderDebug    = true;
         debugTexture   = -1;
