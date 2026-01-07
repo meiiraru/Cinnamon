@@ -110,6 +110,7 @@
   "gui.model_viewer_screen.toggle_skybox": "Mostrar Skybox",
   "gui.model_viewer_screen.toggle_wireframe": "Mostrar Arestas",
   "gui.model_viewer_screen.toggle_bounds": "Mostrar Limites",
+  "gui.model_viewer_screen.auto_rotate": "Girar Automaticamente",
 
   "gui.wordle.success": "Prabéns!",
   "gui.wordle.error.word_small": "Palavra muito pequena",

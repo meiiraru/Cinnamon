@@ -443,4 +443,8 @@ public class ModelViewer extends SelectableWidget {
         if (!focused) dragged = -1;
         return super.windowFocused(focused);
     }
+
+    public int getDragged() {
+        return dragged;
+    }
 }

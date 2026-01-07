@@ -36,6 +36,8 @@ public class ModelViewerScreen extends ParentedScreen {
     private final ComboBox animationList = new ComboBox(0, 0, 60, 14);
     private final ModelViewer modelViewer = new ModelViewer(0, 0, 1, 1);
 
+    private boolean autoRotate = true;
+
     public ModelViewerScreen(Screen parentScreen) {
         super(parentScreen);
         modelViewer.setSkybox(SkyBoxRegistry.CLOUDS);
@@ -128,6 +130,13 @@ public class ModelViewerScreen extends ParentedScreen {
         toggleBounds.setRightToLeft(true);
         properties.addWidget(toggleBounds);
 
+        //auto rotate
+        Checkbox autoRotate = new Checkbox(skyboxes.getX(), toggleBounds.getY() + toggleBounds.getHeight() + 4, Text.translated("gui.model_viewer_screen.auto_rotate"));
+        autoRotate.setToggled(this.autoRotate);
+        autoRotate.setAction(b -> this.autoRotate = ((Checkbox) b).isToggled());
+        autoRotate.setRightToLeft(true);
+        properties.addWidget(autoRotate);
+
         super.init();
 
         //set initial model
@@ -141,6 +150,10 @@ public class ModelViewerScreen extends ParentedScreen {
 
         //render title
         Text.of(modelName).withStyle(Style.EMPTY.outlined(true)).render(VertexConsumer.MAIN, matrices, (width - listWidth) / 2f + listWidth, 4, Alignment.TOP_CENTER);
+
+        //auto rotate
+        if (autoRotate && modelViewer.getDragged() != 0)
+            modelViewer.setRotY(modelViewer.getRotY() + client.timer.deltaTime * 15f);
     }
 
     private boolean setModel(Resource model, String name) {
