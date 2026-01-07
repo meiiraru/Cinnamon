@@ -75,10 +75,10 @@ public class Flashlight extends Item {
         if (active) {
             updateLightToEntity();
             wc.addLight(light);
-            wc.playSound(ON_SOUND, SoundCategory.ENTITY, source.getPos());
+            wc.playSound(ON_SOUND, SoundCategory.ENTITY, source.getPos()).volume(5f);
         } else {
             wc.removeLight(light);
-            wc.playSound(OFF_SOUND, SoundCategory.ENTITY, source.getPos());
+            wc.playSound(OFF_SOUND, SoundCategory.ENTITY, source.getPos()).volume(5f);
         }
     }
 

@@ -20,6 +20,7 @@ public abstract class Particle extends WorldObject {
     protected final int lifetime;
     protected int age;
     protected boolean removed = false;
+    protected boolean billboard = true;
     protected boolean emissive;
 
     public Particle(int lifetime) {
@@ -50,7 +51,8 @@ public abstract class Particle extends WorldObject {
         matrices.translate(Maths.lerp(oPos, pos, delta));
 
         //apply billboard
-        camera.billboard(matrices);
+        if (billboard)
+            camera.billboard(matrices);
 
         //actual render
         matrices.pushMatrix();
@@ -117,6 +119,10 @@ public abstract class Particle extends WorldObject {
 
     public int getAge() {
         return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
     }
 
     public void remove() {

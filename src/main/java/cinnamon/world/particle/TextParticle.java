@@ -7,7 +7,6 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
-import cinnamon.world.world.WorldClient;
 import org.joml.Vector3f;
 
 public class TextParticle extends Particle {
@@ -41,6 +40,6 @@ public class TextParticle extends Particle {
 
     @Override
     public ParticlesRegistry getType() {
-        return ParticlesRegistry.TEXT;
+        return ParticlesRegistry.OTHER;
     }
 }
