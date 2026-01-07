@@ -26,6 +26,7 @@ uniform vec2 noiseScale;
 
 uniform float radius = 0.5f;
 uniform float bias = 0.025f;
+uniform float biasFactor = 0.1f;
 
 float linearizeDepth(float depth) {
     float z = depth * 2.0f - 1.0f; //back to [-1..1] range
@@ -99,7 +100,8 @@ void main() {
 
         //accumulate occlusion
         float rangeCheck = smoothstep(0.0f, 1.0f, radius / abs(fragViewZ - sampleViewZ));
-        occlusion += (sampleViewZ >= samplePos.z + bias ? 1.0f : 0.0f) * rangeCheck;
+        float depthBias = bias * (1.0f + abs(fragViewZ) * biasFactor);
+        occlusion += (sampleViewZ >= samplePos.z + depthBias ? 1.0f : 0.0f) * rangeCheck;
     }
 
     //average occlusion

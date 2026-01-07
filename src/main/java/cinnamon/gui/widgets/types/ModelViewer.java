@@ -52,7 +52,7 @@ public class ModelViewer extends SelectableWidget {
     private boolean renderBounds, renderSkybox, renderWireframe;
     private Consumer<MatrixStack> extraRendering;
 
-    private float defaultScale = 128f, scaleFactor = 0.1f;
+    private float defaultScale = 1f, scaleFactor = 0.1f;
     private float defaultRotX = -22.5f, defaultRotY = 30f;
 
     //view transforms
@@ -82,7 +82,7 @@ public class ModelViewer extends SelectableWidget {
         //render model
         Client client = Client.getInstance();
         if (client.anaglyph3D) {
-            client.camera.anaglyph3D(matrices, 1f, 1f, () -> renderModelToBuffer(matrices), this::renderBuffer);
+            client.camera.anaglyph3D(matrices, -1f / 64f, 1f, () -> renderModelToBuffer(matrices), this::renderBuffer);
         } else {
             renderModelToBuffer(matrices);
             renderBuffer();
@@ -110,15 +110,14 @@ public class ModelViewer extends SelectableWidget {
         if (xr) old.blit(modelBuffer, false, true, true);
 
         //set up world renderer
-        WorldRenderer.renderSSAO = false;
         WorldRenderer.renderLights = false;
         WorldRenderer.renderSSR = false;
         WorldRenderer.setupFramebuffer();
         WorldRenderer.initGBuffer(client.camera);
 
         //position
-        matrices.translate(posX, -posY, -200f);
-        if (xr) matrices.translate(getCenterX(), getCenterY() + posY + posY, 200f);
+        matrices.translate(posX, -posY, -2f);
+        if (xr) matrices.translate(getCenterX(), getCenterY() + posY + posY, 2f);
 
         //scale
         matrices.scale(scale, xr ? -scale : scale, scale);
@@ -147,6 +146,9 @@ public class ModelViewer extends SelectableWidget {
         //finish render
         MaterialApplier.cleanup();
         VertexConsumer.finishAllBatches(client.camera);
+
+        //ssao
+        WorldRenderer.renderSSAO(client.camera);
 
         //bake the model renderer
         ((IBLSky) theSky).setSkyBox(skybox.resource);
@@ -403,8 +405,8 @@ public class ModelViewer extends SelectableWidget {
             rotX = anchorRotX - dy;
             rotY = anchorRotY - dx;
         } else if (dragged == GLFW_MOUSE_BUTTON_2) {
-            posX = anchorPosX + dx;
-            posY = anchorPosY + dy;
+            posX = anchorPosX + dx * 0.01f;
+            posY = anchorPosY + dy * 0.01f;
         }
 
         Client.getInstance().window.warpMouse((deltaX, deltaY) -> {

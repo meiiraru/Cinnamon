@@ -121,12 +121,10 @@ public class WorldRenderer {
         VertexConsumer.finishAllBatches(camera);
 
         //render ssao
-        if (renderSSAO)
-            renderSSAO(camera);
+        renderSSAO(camera);
 
         //render ssr
-        if (renderSSR)
-            renderSSR(camera);
+        renderSSR(camera);
 
         //render the world lights
         renderedLights = renderedShadows = 0;
@@ -141,16 +139,14 @@ public class WorldRenderer {
         bakeDeferred(camera, world.getSky());
 
         //debug gbuffer
-        if (debugTexture >= 0)
-            debugTexture(debugTexture);
+        debugTexture(debugTexture);
 
         //render the sky
         if (renderSky)
             world.getSky().render(camera, matrices);
 
         //apply bloom
-        if (renderBloom)
-            applyBloom();
+        applyBloom();
 
         //render lens flare
         if (renderLights)
@@ -187,36 +183,33 @@ public class WorldRenderer {
             renderFunc[4].run(); //item extra
 
             //vertex consumer
+            MaterialApplier.cleanup();
             VertexConsumer.finishAllBatches(camera);
 
-            //ssao
-            if (renderSSAO) renderSSAO(camera);
+            //effects
+            renderSSAO(camera);
+            renderSSR(camera);
 
-            //ssr
-            if (renderSSR) renderSSR(camera);
-
-            //lights and shadows
+            //lights
             renderedLights = renderedShadows = 0;
             if (renderLights)
                 renderLights(world.getLights(camera), camera, renderWorld);
         }, () -> {
             //bake world
             bakeDeferred(camera, world.getSky());
-            if (debugTexture >= 0) debugTexture(debugTexture);
 
-            //render other stuff
+            //post bake renderer
+            debugTexture(debugTexture);
             if (renderSky) world.getSky().render(camera, matrices);
-            if (renderOutlines) renderOutlines(world.getOutlines(camera), camera, matrices, delta);
+            applyBloom();
+            if (renderLights) renderLightsFlare(world.getLights(camera), camera, matrices);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
-
-            //bloom
-            if (renderBloom)
-                applyBloom();
-
-            //lens flare
-            if (renderLights)
-                renderLightsFlare(world.getLights(camera), camera, matrices);
+            if (renderOutlines) renderOutlines(world.getOutlines(camera), camera, matrices, delta);
         });
+
+        //finish render
+        copyLastFrame();
+        bake();
     }
 
 
@@ -324,6 +317,9 @@ public class WorldRenderer {
     }
 
     public static void debugTexture(int texture) {
+        if (texture < 0)
+            return;
+
         outputBuffer.resizeTo(targetBuffer);
         outputBuffer.useClear();
 
@@ -782,6 +778,7 @@ public class WorldRenderer {
 
         //set rendering flag
         heldItemRendering = true;
+        renderSSR = false;
 
         WorldClient world = (WorldClient) le.getWorld();
         Runnable renderFunc = () -> le.renderHandItem(XrManager.isInXR() ? ItemRenderContext.XR : ItemRenderContext.FIRST_PERSON, matrices, delta);

@@ -62,6 +62,9 @@ public class Flashlight extends Item {
     }
 
     private void setActive(boolean active) {
+        if (this.active == active)
+            return;
+
         this.active = active;
 
         LivingEntity source;

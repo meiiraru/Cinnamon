@@ -27,6 +27,13 @@ public class PrimitiveTerrain extends Terrain {
 
     @Override
     public void render(Camera camera, MatrixStack matrices, float delta) {
+        //Vertex[][] newVerts = new Vertex[vertices.length][];
+        //for (int i = 0; i < vertices.length; i++) {
+        //    newVerts[i] = new Vertex[vertices[i].length];
+        //    for (int j = 0; j < vertices[i].length; j++) {
+        //        newVerts[i][j] = Vertex.of(vertices[i][j].getPosition()).color(vertices[i][j].getColor()).normal(vertices[i][j].getNormal()).mul(matrices);
+        //    }
+        //}
         VertexConsumer.WORLD_MAIN.consume(vertices);
     }
 

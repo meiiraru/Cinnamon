@@ -92,6 +92,7 @@ public class PrimitiveTestWorld extends WorldClient {
                 if (terrain instanceof PrimitiveTerrain pt)
                     TransparentWorld.renderNormals(matrices, pt.getVertices());
             }
+            VertexConsumer.finishAllBatches(camera);
         }
 
         super.renderDebug(camera, matrices, delta);
@@ -275,7 +276,9 @@ public class PrimitiveTestWorld extends WorldClient {
 
         @Override
         public void render(MatrixStack matrices, float delta) {
-            drawHealth(matrices, Client.getInstance().world.player, delta);
+            Client c = Client.getInstance();
+            drawHealth(matrices, c.world.player, delta);
+            VertexConsumer.finishAllBatches(c.camera);
         }
 
         @Override
