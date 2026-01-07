@@ -348,7 +348,7 @@ public class WorldRenderer {
     public static void renderSSR(Camera camera) {
         int ssrLevel = Settings.ssrLevel.get();
         if (renderSSR && ssrLevel >= 0)
-            SSRRenderer.render(PBRFrameBuffer, lastFrameFramebuffer.getColorBuffer(), camera, ssrLevel, false);
+            SSRRenderer.render(PBRFrameBuffer, lastFrameFramebuffer.getColorBuffer(), camera, ssrLevel, true);
     }
 
     public static void applyBloom() {

@@ -31,8 +31,8 @@ public class SSRRenderer {
         s.setup(camera);
         s.setupInverse(camera);
 
-        float rayStep = 1f / (quality + 1f);
-        s.setInt("maxSteps", (int) (200 / rayStep));
+        float rayStep = 2f / (quality + 1f);
+        s.setInt("maxSteps", (quality + 1) * 20);
         s.setFloat("rayStep", rayStep);
 
         glDisable(GL_BLEND);
@@ -43,7 +43,7 @@ public class SSRRenderer {
         Texture.unbindAll(4);
 
         if (blur) {
-            Blur.boxBlur(ssrFramebuffer.getColorBuffer(), ssrFramebuffer.getWidth(), ssrFramebuffer.getHeight(), 5f, 1f, ssrBlurFramebuffer);
+            Blur.boxBlur(ssrFramebuffer.getColorBuffer(), ssrFramebuffer.getWidth(), ssrFramebuffer.getHeight(), 2f, 2f, ssrBlurFramebuffer);
             out = ssrBlurFramebuffer.getColorBuffer();
         }
     }
