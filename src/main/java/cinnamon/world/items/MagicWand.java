@@ -105,7 +105,7 @@ public class MagicWand extends Item {
         return source.getLookDir().mul(DISTANCE).add(source.getEyePos());
     }
 
-    private static int getColor(int time) {
+    private static int getColor(long time) {
         return ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f(((time * 3) % 360) / 360f, 0.7f, 1))) + (0xFF << 24);
     }
 

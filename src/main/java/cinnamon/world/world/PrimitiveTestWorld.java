@@ -6,6 +6,7 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
+import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
@@ -27,7 +28,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class PrimitiveTestWorld extends WorldClient {
 
-    private static final PrimitiveTerrain floor = new PrimitiveTerrain(GeometryHelper.plane(Client.getInstance().matrices, -1000f, 0f, -1000f, 1000f, 1000f, 1, 1, Colors.GREEN.argb));
+    private static final PrimitiveTerrain floor = new PrimitiveTerrain(GeometryHelper.plane(Client.getInstance().matrices, -39f, 0f, -22f, 25f, 43f, 1, 1, Colors.GREEN.argb));
 
     private boolean renderNormals;
 
@@ -96,6 +97,11 @@ public class PrimitiveTestWorld extends WorldClient {
         }
 
         super.renderDebug(camera, matrices, delta);
+    }
+
+    @Override
+    public void renderWater(Camera camera, MatrixStack matrices, float delta) {
+        WorldRenderer.renderDefaultWaterPlane(camera, matrices, -0.02f, getSky().fogEnd);
     }
 
     private void house(float x, float y, float z, float rotY, int colA, int colB) {

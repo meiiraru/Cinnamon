@@ -59,6 +59,11 @@ public class TransparentWorld extends WorldClient {
         return super.renderTerrain(camera, matrices, delta) + vertices.size();
     }
 
+    @Override
+    public void renderWater(Camera camera, MatrixStack matrices, float delta) {
+        //no water
+    }
+
     private void gen() {
         vertices.clear();
         int r = 10;

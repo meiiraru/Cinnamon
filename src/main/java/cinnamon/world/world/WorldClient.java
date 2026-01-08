@@ -4,7 +4,6 @@ import cinnamon.Client;
 import cinnamon.animation.Animation;
 import cinnamon.gui.DebugScreen;
 import cinnamon.gui.Screen;
-import cinnamon.gui.Toast;
 import cinnamon.gui.screens.world.ChatScreen;
 import cinnamon.gui.screens.world.DeathScreen;
 import cinnamon.gui.screens.world.PauseScreen;
@@ -21,7 +20,6 @@ import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundManager;
-import cinnamon.text.Text;
 import cinnamon.utils.AABB;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Colors;
@@ -101,9 +99,6 @@ public class WorldClient extends World {
 
         //init hud
         hud.init();
-
-        //tutorial toast
-        Toast.addToast(Text.translated("world.keybinds_help")).length(200).type(Toast.ToastType.WORLD).style(Hud.HUD_STYLE);
 
         //sunlight
         addLight(sunLight);
@@ -360,6 +355,10 @@ public class WorldClient extends World {
             }
         }
         return count;
+    }
+
+    public void renderWater(Camera camera, MatrixStack matrices, float delta) {
+        WorldRenderer.renderDefaultWaterPlane(camera, matrices, 0.9f, getSky().fogEnd);
     }
 
     public void renderItemExtra(LivingEntity entity, MatrixStack matrices, float delta) {

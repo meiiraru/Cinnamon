@@ -37,7 +37,8 @@ public enum Shaders {
     LENS_FLARE,
     LIGHT_GLARE,
     SSAO,
-    SSR;
+    SSR,
+    WATER;
 
     private final Resource resource;
     private Shader shader;

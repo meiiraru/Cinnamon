@@ -10,13 +10,9 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class SSRRenderer {
 
-    public static final Framebuffer
-            ssrFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER),
-            ssrBlurFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
+    public static final Framebuffer ssrFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
 
-    private static int out = 0;
-
-    public static void render(PBRDeferredFramebuffer gBuffer, int prevFrame, Camera camera, int quality, boolean blur) {
+    public static void render(PBRDeferredFramebuffer gBuffer, int prevFrame, Camera camera, int quality) {
         ssrFramebuffer.resizeTo(gBuffer);
         ssrFramebuffer.useClear();
 
@@ -37,18 +33,12 @@ public class SSRRenderer {
 
         glDisable(GL_BLEND);
         WorldRenderer.renderQuad();
-        out = ssrFramebuffer.getColorBuffer();
 
         glEnable(GL_BLEND);
         Texture.unbindAll(4);
-
-        if (blur) {
-            Blur.boxBlur(ssrFramebuffer.getColorBuffer(), ssrFramebuffer.getWidth(), ssrFramebuffer.getHeight(), 2f, 2f, ssrBlurFramebuffer);
-            out = ssrBlurFramebuffer.getColorBuffer();
-        }
     }
 
     public static int getTexture() {
-        return out;
+        return ssrFramebuffer.getColorBuffer();
     }
 }

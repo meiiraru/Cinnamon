@@ -37,7 +37,7 @@ public abstract class World {
     public float updateTime = 1f / Client.TPS;
     public float gravity = 0.98f * updateTime;
     public float bottomOfTheWorld = -512f;
-    protected int worldTime = 1000;
+    protected long worldTime = 1000;
     protected boolean isPaused;
 
     public abstract void init();
@@ -236,12 +236,12 @@ public abstract class World {
         return new Hit<>(entityColl, tempEntity, new Vector3f(pos).add(dirLen.x * d, dirLen.y * d, dirLen.z * d));
     }
 
-    public int getTime() {
+    public long getTime() {
         return worldTime;
     }
 
-    public int getDay() {
-        return worldTime / 24000;
+    public long getDay() {
+        return worldTime / 24000L;
     }
 
     public float getTimeOfDayProgress() {

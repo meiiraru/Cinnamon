@@ -162,5 +162,9 @@ void main() {
     vec2 edgeDist = min(hitUV, 1.0f - hitUV);
     float fade = smoothstep(0.0f, edgeFade, edgeDist.x) * smoothstep(0.0f, edgeFade, edgeDist.y);
 
+    //reduce reflection intensity for grazing angles
+    float angleFade = dot(-normalize(viewPos), viewNormal);
+    fade *= clamp(angleFade * 2.0f, 0.0f, 1.0f);
+
     fragColor = vec4(reflectedColor, fade);
 }

@@ -486,8 +486,6 @@
   "skybox.white": "Branco",
   "skybox.debug": "Teste",
 
-  "world.keybinds_help": "WASD - mexer-se\nR - recarregar arma\nMouse - olhar\nLeft Click - atacar\nF3 - menu de teste\nF5 - terceira pessoa",
-
   "curve.error.empty": "Não é possível criar uma curva vazia",
   "curve.error.internal_size": "Tamanho interno da curva é diferente do tamanho externo",
 

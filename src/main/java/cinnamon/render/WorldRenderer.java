@@ -71,14 +71,15 @@ public class WorldRenderer {
     public static Mask activeMask = passMask;
 
     public static boolean
-            renderSky = true,
-            renderSSAO = true,
-            renderSSR = true,
-            renderLights = true,
-            renderShadows = true,
-            renderBloom = true,
-            renderOutlines = true,
-            renderDebug = true;
+            renderWater    = true,
+            renderSSAO     = true,
+            renderSSR      = true,
+            renderLights   = true,
+            renderShadows  = true,
+            renderSky      = true,
+            renderBloom    = true,
+            renderDebug    = true,
+            renderOutlines = true;
     public static int debugTexture = -1;
 
     public static void renderWorld(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
@@ -119,6 +120,9 @@ public class WorldRenderer {
         //world vertex consumer
         MaterialApplier.cleanup();
         VertexConsumer.finishAllBatches(camera);
+
+        //water
+        renderWater(world, camera, matrices, delta);
 
         //render ssao
         renderSSAO(camera);
@@ -185,6 +189,9 @@ public class WorldRenderer {
             //vertex consumer
             MaterialApplier.cleanup();
             VertexConsumer.finishAllBatches(camera);
+
+            //water
+            renderWater(world, camera, matrices, delta);
 
             //effects
             renderSSAO(camera);
@@ -348,13 +355,38 @@ public class WorldRenderer {
     public static void renderSSR(Camera camera) {
         int ssrLevel = Settings.ssrLevel.get();
         if (renderSSR && ssrLevel >= 0)
-            SSRRenderer.render(PBRFrameBuffer, lastFrameFramebuffer.getColorBuffer(), camera, ssrLevel, true);
+            SSRRenderer.render(PBRFrameBuffer, lastFrameFramebuffer.getColorBuffer(), camera, ssrLevel);
     }
 
     public static void applyBloom() {
         float bloom = Settings.bloomStrength.get();
         if (debugTexture < 0 && renderBloom && bloom > 0f)
             BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getEmissive(), 1.5f, bloom);
+    }
+
+    public static void renderWater(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
+        if (renderWater) {
+            Shader s = Shaders.WATER.getShader().use();
+            s.setup(camera);
+            s.setFloat("time", (world.getTime() + delta) * 0.01f);
+
+            glDisable(GL_CULL_FACE);
+            world.renderWater(camera, matrices, delta);
+            glEnable(GL_CULL_FACE);
+        }
+    }
+
+    public static void renderDefaultWaterPlane(Camera camera, MatrixStack matrices, float y, float size) {
+        matrices.pushMatrix();
+        Vector3f camPos = camera.getPosition();
+        matrices.translate(camPos.x, y, camPos.z);
+
+        matrices.rotate(Rotation.X.rotationDeg(-90f));
+        matrices.scale(size);
+
+        Shaders.WATER.getShader().applyMatrixStack(matrices);
+        SimpleGeometry.QUAD.render();
+        matrices.popMatrix();
     }
 
 
@@ -821,14 +853,15 @@ public class WorldRenderer {
 
 
     public static void resetFlags() {
-        renderSky      = true;
-        renderSSAO     = true;
-        renderSSR      = true;
-        renderLights   = true;
-        renderShadows  = true;
-        renderBloom    = true;
+        renderWater    =
+        renderSSAO     =
+        renderSSR      =
+        renderLights   =
+        renderShadows  =
+        renderSky      =
+        renderBloom    =
+        renderDebug    =
         renderOutlines = true;
-        renderDebug    = true;
         debugTexture   = -1;
     }
 

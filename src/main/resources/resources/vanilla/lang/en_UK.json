@@ -516,8 +516,6 @@
   "skybox.white": "White",
   "skybox.debug": "Debug",
 
-  "world.keybinds_help": "WASD - move\nR - reload\nMouse - look around\nLeft Click - attack\nF3 - debug\nF5 - third person",
-
   "curve.error.empty": "Cannot create empty curve",
   "curve.error.internal_size": "Curve internal size is different than external size",
 
