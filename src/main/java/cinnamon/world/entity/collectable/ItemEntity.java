@@ -1,13 +1,10 @@
 package cinnamon.world.entity.collectable;
 
 import cinnamon.Client;
-import cinnamon.model.GeometryHelper;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.batch.VertexConsumer;
 import cinnamon.sound.SoundCategory;
-import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionResult;
@@ -27,7 +24,6 @@ public class ItemEntity extends Collectable {
     public static final int MAX_AGE = Client.TPS * 5 * 60; //5 minutes
 
     protected final Item item;
-    protected final AABB entityAABB = new AABB();
 
     protected int pickUpDelay = Client.TPS; //1 second
     protected int age = 0;
@@ -77,19 +73,6 @@ public class ItemEntity extends Collectable {
 
             matrices.popMatrix();
         }
-    }
-
-    @Override
-    public void renderDebugHitbox(MatrixStack matrices, float delta) {
-        super.renderDebugHitbox(matrices, delta);
-        //entity bounding box
-        Vector3f min = entityAABB.getMin(), max = entityAABB.getMax();
-        VertexConsumer.LINES.consume(GeometryHelper.box(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFF00FF00));
-    }
-
-    @Override
-    protected void tickEntityCollisions(AABB aabb, Vector3f toMove) {
-        super.tickEntityCollisions(entityAABB, toMove);
     }
 
     @Override
@@ -153,13 +136,12 @@ public class ItemEntity extends Collectable {
     @Override
     protected void updateAABB() {
         this.aabb.set(getPos());
+        this.aabb.inflate(0.25f);
 
         if (entityAABB != null) {
             this.entityAABB.set(this.aabb);
-            this.entityAABB.inflate(0.75f, 0.5f, 0.75f);
+            this.entityAABB.inflate(0.5f, 0.25f, 0.5f);
         }
-
-        this.aabb.inflate(0.25f);
     }
 
     @Override

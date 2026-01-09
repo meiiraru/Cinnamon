@@ -7,7 +7,7 @@ import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.Entity;
-import cinnamon.world.entity.living.Player;
+import cinnamon.world.entity.living.LivingEntity;
 import org.joml.Math;
 
 import java.util.List;
@@ -39,12 +39,12 @@ public class EffectBox extends Collectable {
 
     @Override
     protected boolean onPickUp(Entity entity) {
-        if (entity instanceof Player p) {
+        if (entity instanceof LivingEntity le) {
             int index = (int) (Math.random() * PICKUP_SOUND.length);
             Resource sound = PICKUP_SOUND[index];
             if (!isSilent())
-                p.getWorld().playSound(sound, SoundCategory.ENTITY, p.getPos()).pitch(Maths.range(0.95f, 1.05f));
-            p.giveEffect(EFFECT_LIST.get((int) (Math.random() * EFFECT_LIST.size())).get());
+                le.getWorld().playSound(sound, SoundCategory.ENTITY, le.getPos()).pitch(Maths.range(0.95f, 1.05f));
+            le.giveEffect(EFFECT_LIST.get((int) (Math.random() * EFFECT_LIST.size())).get());
             return true;
         }
 
