@@ -26,7 +26,10 @@ layout (location = 1) out vec4 gNormal;
 layout (location = 2) out vec4 gORM;
 layout (location = 3) out vec4 gEmissive;
 
-uniform vec4 color = vec4(0.4f, 0.6f, 0.8f, 0.8f);
+uniform vec4 color = vec4(0.3f, 0.45f, 0.6f, 0.95f);
+uniform vec2 roughMetal = vec2(0.1f, 0.0f);
+uniform float emissive = 0.0f;
+
 uniform float time;
 
 uniform vec2 waveDir1 = vec2(1.0f, 0.3f);
@@ -98,10 +101,8 @@ vec3 calculateWaveNormal(vec3 pos) {
 }
 
 void main() {
-    vec3 normal = calculateWaveNormal(pos);
-
     gAlbedo = color;
-    gNormal = vec4(normal, 1.0f);
-    gORM = vec4(1.0f, 0.1f, 0.0f, 1.0f);
-    gEmissive = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    gNormal = vec4(calculateWaveNormal(pos), 1.0f);
+    gORM = vec4(1.0f, roughMetal, 1.0f);
+    gEmissive = vec4(color.rgb * emissive, 1.0f);
 }

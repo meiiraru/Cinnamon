@@ -49,7 +49,7 @@ public class WorldRenderer {
     public static final Framebuffer shadowBuffer = new Framebuffer(Framebuffer.DEPTH_BUFFER);
     public static final ShadowCubemapFramebuffer cubeShadowBuffer = new ShadowCubemapFramebuffer();
     public static final Framebuffer outlineFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
-    public static final Framebuffer lastFrameFramebuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
+    public static final Framebuffer lastFrameFramebuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
 
     public static final ShadowCascadeFramebuffer cascadeShadowBuffer = new ShadowCascadeFramebuffer(CascadedShadow.NUM_CASCADES);
     public static final CascadedShadow cascadedShadow = new CascadedShadow();
@@ -234,7 +234,7 @@ public class WorldRenderer {
     public static void copyLastFrame() {
         lastFrameFramebuffer.resizeTo(outputBuffer);
         lastFrameFramebuffer.useClear();
-        outputBuffer.blit(lastFrameFramebuffer, true, false, false);
+        outputBuffer.blit(lastFrameFramebuffer, true, true, false);
         outputBuffer.use();
     }
 
