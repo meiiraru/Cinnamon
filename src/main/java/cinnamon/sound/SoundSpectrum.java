@@ -77,7 +77,7 @@ public class SoundSpectrum {
         int maxFreqBin = (int) (maxFrequency / (sound.sampleRate * 0.5f) * (length * 0.5f));
         for (int i = 0; i < bars; i++) {
             int lowIndex = i * maxFreqBin / bars;
-            int highIndex = (i + 1) * maxFreqBin / bars - 1;
+            int highIndex = Math.min((i + 1) * maxFreqBin / bars - 1, length / 2 - 1);
 
             float sum = 0;
             int count = 0;

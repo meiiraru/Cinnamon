@@ -425,7 +425,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         playPauseButton.setIcon(PAUSE);
 
         //notify the user
-        Toast.addToast(Text.translated("gui.music_screen.now_playing", track.title));
+        Toast.addToast(Text.translated("gui.music_screen.now_playing", track.title)).silent(true);
     }
 
     @Override
@@ -495,8 +495,8 @@ public class SoundVisualizerScreen extends ParentedScreen {
             nextButton.setActive(size > 1);
             previousButton.setActive(size > 1);
 
-            //feebdback to the user
-            Toast.addToast(Text.translated(size == 1 ? "gui.music_screen.load_end" : "gui.music_screen.load_end_plural", size));
+            //feedback to the user
+            Toast.addToast(Text.translated(size == 1 ? "gui.music_screen.load_end" : "gui.music_screen.load_end_plural", size)).silent(true);
 
             //automatically play the first song
             playSound(0);

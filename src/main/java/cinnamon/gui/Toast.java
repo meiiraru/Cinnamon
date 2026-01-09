@@ -4,6 +4,8 @@ import cinnamon.Client;
 import cinnamon.logger.Logger;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.sound.SoundCategory;
+import cinnamon.sound.SoundManager;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
@@ -19,6 +21,7 @@ public class Toast {
 
     // -- properties -- //
 
+    public static final Resource TOAST_IN_SOUND = new Resource("sounds/ui/toast.ogg");
     public static final int DEFAULT_LENGTH = 3 * Client.TPS;
     protected static final int
             ANIM = 5,
@@ -54,6 +57,8 @@ public class Toast {
             if (toast.addedTime < 0) {
                 toast.addedTime = Client.getInstance().ticks;
                 logToast(toast);
+                if (!toast.silent)
+                    SoundManager.playSound(TOAST_IN_SOUND, SoundCategory.GUI);
             }
 
             if (toast.render(matrices, width, height, delta))
@@ -109,6 +114,7 @@ public class Toast {
     private ToastType type;
     private Integer color;
     private Resource style;
+    private boolean silent;
 
     protected Toast(Text text) {
         this.text = text;
@@ -191,6 +197,11 @@ public class Toast {
         Text t = Text.empty().withStyle(Style.EMPTY.guiStyle(style)).append(text);
         this.width = TextUtils.getWidth(t);
         this.height = TextUtils.getHeight(t);
+        return this;
+    }
+
+    public Toast silent(boolean silent) {
+        this.silent = silent;
         return this;
     }
 }
