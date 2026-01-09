@@ -9,19 +9,21 @@ import cinnamon.world.entity.living.LivingEntity;
 public abstract class Item {
 
     private final String id;
-    protected final int stackCount;
+    protected final int stackSize;
     protected final ModelRenderer model;
 
     private int count;
     private boolean isFiring, isUsing;
     private LivingEntity source;
 
-    public Item(String id, int count, int stackCount, Resource model) {
+    public Item(String id, int count, int stackSize, Resource model) {
         this.id = id;
         this.count = count;
-        this.stackCount = stackCount;
+        this.stackSize = stackSize;
         this.model = ModelManager.load(model);
     }
+
+    public abstract Item copy();
 
     public void tick() {}
 
@@ -35,6 +37,8 @@ public abstract class Item {
     public void worldRender(MatrixStack matrices, float delta) {}
 
     public boolean fire() {
+        if (count <= 0)
+            return false;
         this.isFiring = true;
         return true;
     }
@@ -44,6 +48,8 @@ public abstract class Item {
     }
 
     public boolean use() {
+        if (count <= 0)
+            return false;
         this.isUsing = true;
         return true;
     }
@@ -66,8 +72,8 @@ public abstract class Item {
         return id;
     }
 
-    public int getStackCount() {
-        return stackCount;
+    public int getStackSize() {
+        return stackSize;
     }
 
     public int getCount() {
@@ -92,5 +98,17 @@ public abstract class Item {
 
     public Object getCountText() {
         return count;
+    }
+
+    public ModelRenderer getModel() {
+        return model;
+    }
+
+    public boolean stacksWith(Item other) {
+        return other.getClass() == this.getClass();
+    }
+
+    public boolean isStackFull() {
+        return count >= stackSize;
     }
 }

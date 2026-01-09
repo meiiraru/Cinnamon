@@ -43,10 +43,10 @@ public abstract class PhysEntity extends Entity {
         onGround = false;
 
         //check for terrain collisions
-        Vector3f toMove = tickTerrainCollisions();
+        Vector3f toMove = tickTerrainCollisions(aabb);
 
         //entity collisions
-        tickEntityCollisions(toMove);
+        tickEntityCollisions(aabb, toMove);
 
         //move entity
         if (toMove.lengthSquared() > 0f)
@@ -81,7 +81,7 @@ public abstract class PhysEntity extends Entity {
 
     // -- terrain collisions -- //
 
-    protected Vector3f tickTerrainCollisions() {
+    protected Vector3f tickTerrainCollisions(AABB aabb) {
         //early exit
         if (motion.lengthSquared() < 0.001f)
             return motion.mul(0, new Vector3f());
@@ -132,7 +132,7 @@ public abstract class PhysEntity extends Entity {
 
     // -- entity collisions -- //
 
-    protected void tickEntityCollisions(Vector3f toMove) {
+    protected void tickEntityCollisions(AABB aabb, Vector3f toMove) {
         Vector3f pos = aabb.getCenter();
         Vector3f inflate = aabb.getDimensions().mul(0.5f);
 
@@ -203,6 +203,18 @@ public abstract class PhysEntity extends Entity {
 
     public Vector3f getMotion() {
         return motion;
+    }
+
+    public void setImpulse(Vector3f vec) {
+        this.setImpulse(vec.x, vec.y, vec.z);
+    }
+
+    public void setImpulse(float x, float y, float z) {
+        this.impulse.set(x, y, z);
+    }
+
+    public Vector3f getImpulse() {
+        return impulse;
     }
 
     public boolean isOnGround() {

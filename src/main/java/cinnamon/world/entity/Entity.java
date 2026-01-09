@@ -146,25 +146,31 @@ public abstract class Entity extends WorldObject {
         Vector3f max = aabb.getMax();
         VertexConsumer.LINES.consume(GeometryHelper.box(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFFFFFFFF));
 
-        //eye pos
-        Vector3f eye = getEyePos();
-        if (this instanceof LivingEntity) {
-            float f = 0.01f;
-            VertexConsumer.LINES.consume(GeometryHelper.box(matrices, min.x, eye.y - f, min.z, max.x, eye.y + f, max.z, 0xFFFF0000));
-        }
-
         //looking dir
         matrices.pushMatrix();
-        matrices.translate(eye);
-        Vector3f dir = getLookDir(delta);
+        matrices.translate(getEyePos());
+        Vector2f rot = getRot();
+
+        matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
+        matrices.rotate(Rotation.X.rotationDeg(-rot.x - 90f));
 
         VertexConsumer.LINES.consume(GeometryHelper.line(
                 matrices,
                 0f, 0f, 0f,
-                dir.x, dir.y, dir.z,
+                0f, 1f, 0f,
                 0.001f,
                 0xFF0000FF
+        ));
 
+        VertexConsumer.LINES.consume(GeometryHelper.cone(
+                matrices,
+                0f, 1f, 0f,
+                0.05f,
+                0.025f,
+                5,
+                1f,
+                false,
+                0xFF0000FF
         ));
 
         matrices.popMatrix();
@@ -266,6 +272,11 @@ public abstract class Entity extends WorldObject {
     }
 
     protected void updateAABB() {
+        if (this.model == null) {
+            this.aabb.set(getPos()).inflate(0.5f, 0f, 0.5f, 0.5f, 1f, 0.5f);
+            return;
+        }
+
         //set AABB
         this.aabb.set(this.model.getAABB());
 

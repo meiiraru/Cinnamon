@@ -32,6 +32,11 @@ public class MagicWand extends Item {
     }
 
     @Override
+    public Item copy() {
+        return new MagicWand();
+    }
+
+    @Override
     public void tick() {
         super.tick();
 
@@ -72,10 +77,12 @@ public class MagicWand extends Item {
 
     @Override
     public boolean fire() {
+        if (!super.fire())
+            return false;
         //calculate new pos
         if (!drawing || lastPos == null)
             lastPos = spawnPos(getSource());
-        return super.fire();
+        return true;
     }
 
     @Override

@@ -43,9 +43,16 @@ public class Flashlight extends Item {
     }
 
     @Override
+    public Item copy() {
+        return new Flashlight(light.getColor());
+    }
+
+    @Override
     public boolean use() {
+        if (!super.use())
+            return false;
         setActive(!active);
-        return super.use();
+        return true;
     }
 
     @Override

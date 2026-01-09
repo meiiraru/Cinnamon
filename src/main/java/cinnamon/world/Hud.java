@@ -249,6 +249,10 @@ public class Hud {
                 item.render(ItemRenderContext.HUD, matrices, delta);
 
                 matrices.popMatrix();
+
+                if (item.getStackSize() > 1)
+                    Text.of(item.getCount()).withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE))
+                            .render(VertexConsumer.MAIN, matrices, x + 16, y + 16 + 2, Alignment.BOTTOM_RIGHT);
             }
         }
     }

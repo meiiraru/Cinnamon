@@ -30,6 +30,7 @@ import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.collectable.EffectBox;
 import cinnamon.world.entity.collectable.HealthPack;
+import cinnamon.world.entity.collectable.ItemEntity;
 import cinnamon.world.entity.living.Dummy;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.living.LocalPlayer;
@@ -43,6 +44,7 @@ import cinnamon.world.items.BubbleGun;
 import cinnamon.world.items.Flashlight;
 import cinnamon.world.items.Item;
 import cinnamon.world.items.MagicWand;
+import cinnamon.world.items.PotatoItem;
 import cinnamon.world.items.weapons.CoilGun;
 import cinnamon.world.items.weapons.PotatoCannon;
 import cinnamon.world.items.weapons.RiceGun;
@@ -192,6 +194,15 @@ public class WorldClient extends World {
         Dummy d2 = new Dummy(UUID.randomUUID());
         d2.setPos(-15, 2, 10);
         this.addEntity(d2);
+
+        Spawner<ItemEntity> potatoSpawner = new Spawner<>(UUID.randomUUID(), 0f, 1, () -> {
+            ItemEntity e = new ItemEntity(UUID.randomUUID(), new PotatoItem(1));
+            e.setPickUpDelay(0);
+            return e;
+        });
+        potatoSpawner.setPos(-5.5f, 2f, 10f);
+        potatoSpawner.setRenderCooldown(true);
+        this.addEntity(potatoSpawner);
 
         Spawner<EffectBox> effectBox = new Spawner<>(UUID.randomUUID(), 0f, 100, () -> new EffectBox(UUID.randomUUID()));
         effectBox.setPos(-1.5f, 2f, 10f);
@@ -602,6 +613,8 @@ public class WorldClient extends World {
                 if (sky instanceof IBLSky ibl)
                     ibl.setSkyBox(Maths.randomArr(SkyBoxRegistry.values()).resource);
             }
+
+            case GLFW_KEY_Q -> player.dropItem();
 
             case GLFW_KEY_Z -> {
                 Firework f = new Firework(UUID.randomUUID(), Maths.range(30, 60), Maths.spread(new Vector3f(0, 1f, 0), 30, 30).mul(2f),

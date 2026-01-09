@@ -4,6 +4,7 @@ public enum EntityRegistry {
     //collectable
     EFFECT_BOX,
     HEALTH_PACK,
+    ITEM,
 
     //living
     ENEMY,

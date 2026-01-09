@@ -83,9 +83,6 @@ public abstract class Projectile extends PhysEntity {
         this.damage = calculateDamage(owner, damage);
         this.crit = checkCrit(owner, critChance);
         //}
-
-        //apply move
-        this.impulse(0, 0, 1);
     }
 
     @Override

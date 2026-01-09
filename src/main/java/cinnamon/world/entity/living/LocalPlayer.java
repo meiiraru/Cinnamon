@@ -8,17 +8,23 @@ import cinnamon.registry.TerrainRegistry;
 import cinnamon.settings.Settings;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Direction;
+import cinnamon.utils.Maths;
 import cinnamon.vr.XrHandTransform;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.WorldObject;
 import cinnamon.world.collisions.Hit;
+import cinnamon.world.entity.collectable.ItemEntity;
+import cinnamon.world.items.Inventory;
+import cinnamon.world.items.Item;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+
+import java.util.UUID;
 
 public class LocalPlayer extends Player {
 
@@ -161,6 +167,36 @@ public class LocalPlayer extends Player {
             MaterialRegistry material = t.getMaterial();
             if (material != null) selectedMaterial = material.ordinal();
         }
+    }
+
+    public void dropItem() {
+        Inventory inv = getInventory();
+        Item i = inv.getSelectedItem();
+        if (i == null)
+            return;
+
+        Item drop = i;
+        int count = i.getCount();
+        if (count > 1) {
+            //reduce stack size
+            Item copy = i.copy();
+            copy.setCount(1);
+            drop = copy;
+            i.setCount(count - 1);
+        } else {
+            //remove from inventory
+            inv.setItem(inv.getSelectedIndex(), null);
+            i.unselect();
+        }
+
+        Vector3f dir = Maths.spread(getLookDir(), 12.5f, 5f).mul(0.5f);
+        Vector3f dropPos = getEyePos();
+
+        ItemEntity entity = new ItemEntity(UUID.randomUUID(), drop);
+        entity.setPos(dropPos);
+        entity.setMotion(dir);
+
+        getWorld().addEntity(entity);
     }
 
     @Override

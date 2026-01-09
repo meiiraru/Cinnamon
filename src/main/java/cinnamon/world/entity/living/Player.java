@@ -2,6 +2,7 @@ package cinnamon.world.entity.living;
 
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
+import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.world.Abilities;
 import cinnamon.world.DamageType;
@@ -75,14 +76,14 @@ public class Player extends LivingEntity {
     }
 
     @Override
-    protected Vector3f tickTerrainCollisions() {
-        return abilities.noclip() ? new Vector3f(motion) : super.tickTerrainCollisions();
+    protected Vector3f tickTerrainCollisions(AABB aabb) {
+        return abilities.noclip() ? new Vector3f(motion) : super.tickTerrainCollisions(aabb);
     }
 
     @Override
-    protected void tickEntityCollisions(Vector3f toMove) {
+    protected void tickEntityCollisions(AABB aabb, Vector3f toMove) {
         if (!abilities.noclip())
-            super.tickEntityCollisions(toMove);
+            super.tickEntityCollisions(aabb, toMove);
     }
 
     @Override

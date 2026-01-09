@@ -65,6 +65,7 @@ public class RiceBall extends Projectile {
             //pos
             proj.setPos(this.getPos());
             proj.setRot(Maths.dirToRot(Maths.spread(dir, SPREAD_ANGLE, SPREAD_ANGLE)));
+            proj.impulse(0, 0, 1);
 
             //add
             world.addEntity(proj);

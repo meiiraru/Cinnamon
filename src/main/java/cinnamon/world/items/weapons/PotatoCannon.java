@@ -6,6 +6,7 @@ import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.projectile.Potato;
 import cinnamon.world.entity.projectile.Projectile;
+import cinnamon.world.items.Item;
 
 import java.util.UUID;
 
@@ -15,6 +16,11 @@ public class PotatoCannon extends Weapon {
 
     public PotatoCannon(int maxRounds, int fireCooldown, int reloadCooldown) {
         super(ItemModelRegistry.POTATO_CANNON.id, ItemModelRegistry.POTATO_CANNON.resource, maxRounds, fireCooldown, reloadCooldown);
+    }
+
+    @Override
+    public Item copy() {
+        return new PotatoCannon(getMaxAmmo(), getFireCooldown(), getCooldownTime());
     }
 
     @Override

@@ -34,7 +34,7 @@ public class Spawner<E extends Entity> extends Entity {
 
     public Spawner(UUID uuid, float radius, int delay, Supplier<E> entitySupplier, Predicate<E> respawnPredicate) {
         super(uuid, null);
-        this.radius = Math.max(radius, 1);
+        this.radius = Math.max(radius, 0f);
         this.delay = Math.max(delay, 1);
         this.entitySupplier = entitySupplier;
         this.respawnPredicate = respawnPredicate;

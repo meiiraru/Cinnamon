@@ -6,6 +6,7 @@ import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.projectile.Candy;
 import cinnamon.world.entity.projectile.Projectile;
+import cinnamon.world.items.Item;
 
 import java.util.UUID;
 
@@ -15,6 +16,11 @@ public class CoilGun extends Weapon {
 
     public CoilGun(int maxRounds, int fireCooldown, int reloadCooldown) {
         super(ItemModelRegistry.COIL_GUN.id, ItemModelRegistry.COIL_GUN.resource, maxRounds, fireCooldown, reloadCooldown);
+    }
+
+    @Override
+    public Item copy() {
+        return new CoilGun(getMaxAmmo(), getFireCooldown(), getCooldownTime());
     }
 
     @Override

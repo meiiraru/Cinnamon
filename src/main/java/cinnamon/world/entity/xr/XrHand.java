@@ -5,6 +5,7 @@ import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
+import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.vr.XrHandTransform;
 import cinnamon.vr.XrInput;
@@ -69,7 +70,7 @@ public class XrHand extends PhysEntity {
     }
 
     @Override
-    protected Vector3f tickTerrainCollisions() {
+    protected Vector3f tickTerrainCollisions(AABB aabb) {
         return new Vector3f();
     }
 

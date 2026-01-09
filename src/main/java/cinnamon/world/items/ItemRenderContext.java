@@ -4,7 +4,8 @@ public enum ItemRenderContext {
     FIRST_PERSON(0.5f),
     THIRD_PERSON(0.5f),
     HUD(1f),
-    XR(0.35f);
+    XR(0.35f),
+    ENTITY(0.5f);
 
     public final float scale;
 

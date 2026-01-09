@@ -4,7 +4,7 @@ import cinnamon.utils.Resource;
 
 public abstract class CooldownItem extends Item {
 
-    private final int cooldownTime;
+    protected final int cooldownTime;
     protected int cooldown;
 
     public CooldownItem(String id, int count, int stackCount, Resource model, int cooldown) {

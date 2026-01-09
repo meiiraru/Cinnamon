@@ -29,6 +29,11 @@ public class CurveMaker extends Item {
     }
 
     @Override
+    public Item copy() {
+        return new CurveMaker(getCount());
+    }
+
+    @Override
     public void render(ItemRenderContext context, MatrixStack matrices, float delta) {
         boolean changed = context == ItemRenderContext.HUD;
 
@@ -81,14 +86,16 @@ public class CurveMaker extends Item {
 
     @Override
     public boolean fire() {
+        if (!super.fire())
+            return false;
         Vector3f pos = getPos(getSource());
         curve.addPoint(pos.x, pos.y, pos.z);
-        return super.fire();
+        return true;
     }
 
     @Override
     public boolean use() {
-        if (!(getSource().getWorld() instanceof RollerCoasterWorld rc))
+        if (!super.use() || !(getSource().getWorld() instanceof RollerCoasterWorld rc))
             return false;
 
         try {
@@ -99,7 +106,7 @@ public class CurveMaker extends Item {
             Toast.addToast(Text.of(e.getMessage())).type(Toast.ToastType.ERROR);
         }
 
-        return super.use();
+        return true;
     }
 
     @Override

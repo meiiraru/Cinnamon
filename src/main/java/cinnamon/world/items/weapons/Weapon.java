@@ -11,11 +11,11 @@ import java.util.UUID;
 
 public abstract class Weapon extends CooldownItem {
 
-    private final int fireCooldown;
-    private final int maxAmmo;
+    protected final int fireCooldown;
+    protected final int maxAmmo;
 
     private int firing = 0;
-    private int ammo = 0;
+    private int ammo;
 
     public Weapon(String id, Resource model, int maxAmmo, int fireCooldown, int reloadCooldown) {
         super(id, 1, 1, model, reloadCooldown);
@@ -34,16 +34,19 @@ public abstract class Weapon extends CooldownItem {
 
     @Override
     public boolean fire() {
+        if (!super.fire())
+            return false;
+
         if (isOnCooldown()) {
             if (ammo > 0 && !isOnFireCooldown()) {
                 breakCooldown();
                 shoot();
             }
-            return super.fire();
+            return true;
         }
 
         shoot();
-        return super.fire();
+        return true;
     }
 
     @Override
@@ -61,6 +64,7 @@ public abstract class Weapon extends CooldownItem {
 
         projectile.setPos(source.getHandPos(false, 1f));
         projectile.setRot(Maths.dirToRot(source.getHandDir(false, 1f)));
+        projectile.impulse(0, 0, 1);
 
         world.addEntity(projectile);
     }
@@ -90,6 +94,10 @@ public abstract class Weapon extends CooldownItem {
 
     protected void setFireCooldown() {
         this.firing = fireCooldown;
+    }
+
+    public int getFireCooldown() {
+        return fireCooldown;
     }
 
     protected void setAmmo(int count) {

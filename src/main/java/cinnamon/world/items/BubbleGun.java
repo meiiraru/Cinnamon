@@ -18,6 +18,11 @@ public class BubbleGun extends Item {
     }
 
     @Override
+    public Item copy() {
+        return new BubbleGun();
+    }
+
+    @Override
     public void tick() {
         if (isFiring())
             shoot(getSource());
@@ -26,8 +31,10 @@ public class BubbleGun extends Item {
 
     @Override
     public boolean fire() {
+        if (!super.fire())
+            return false;
         shoot(getSource());
-        return super.fire();
+        return true;
     }
 
     private static void shoot(LivingEntity source) {

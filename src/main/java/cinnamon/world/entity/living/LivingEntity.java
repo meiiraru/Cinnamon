@@ -280,11 +280,17 @@ public abstract class LivingEntity extends PhysEntity {
             i.stopUsing();
     }
 
-    public boolean giveItem(Item item) {
-        int i = inventory.putItem(item);
-        if (i == inventory.getSelectedIndex()) 
-            item.select(this);
-        return i >= 0;
+    public int giveItem(Item item) {
+        item.unselect();
+
+        int added = inventory.putItem(item);
+
+        //reselect the current item
+        Item sel = inventory.getSelectedItem();
+        if (sel != null) sel.select(this);
+
+        //return if the item was entirely consumed
+        return added;
     }
 
     @Override
