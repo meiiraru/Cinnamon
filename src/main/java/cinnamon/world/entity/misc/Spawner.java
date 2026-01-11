@@ -1,10 +1,10 @@
 package cinnamon.world.entity.misc;
 
-import cinnamon.Client;
 import cinnamon.gui.DebugScreen;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.registry.EntityRegistry;
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Rotation;
@@ -40,7 +40,7 @@ public class Spawner<E extends Entity> extends Entity {
         this.respawnPredicate = respawnPredicate;
         this.addRenderFeature((source, camera, matrices, delta) -> {
             if (entity == null && (renderCooldown || DebugScreen.isTabOpen(DebugScreen.Tab.ENTITIES)))
-                renderCountdowns(matrices, delta);
+                renderCountdowns(camera, matrices, delta);
         });
     }
 
@@ -57,12 +57,12 @@ public class Spawner<E extends Entity> extends Entity {
         }
     }
 
-    public void renderCountdowns(MatrixStack matrices, float delta) {
+    public void renderCountdowns(Camera camera, MatrixStack matrices, float delta) {
         matrices.pushMatrix();
         matrices.translate(getPos(delta));
         matrices.scale(1f, -1f, 1f);
         matrices.rotate(Rotation.Y.rotationDeg(180f));
-        Client.getInstance().camera.billboard(matrices);
+        camera.billboard(matrices);
 
         Vertex[] vertices = GeometryHelper.circle(matrices, 0, 0, 0.15f, 1, 16, 0x88000000);
         VertexConsumer.WORLD_MAIN.consume(vertices);

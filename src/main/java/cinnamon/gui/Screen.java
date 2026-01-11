@@ -261,14 +261,14 @@ public abstract class Screen {
 
     protected void renderXrHands(MatrixStack matrices, float delta) {
         Shader old = Shader.activeShader;
-        Shaders.MODEL.getShader().use().setup(Client.getInstance().camera);
+        Shaders.MODEL.getShader().use().setup(client.camera);
         matrices.pushMatrix();
 
         XrRenderer.removeGUITransform(matrices);
         XrRenderer.renderHands(matrices);
 
         Shaders.OUTLINE.getShader().use();
-        XrRenderer.renderHandLaser(matrices);
+        XrRenderer.renderHandLaser(client.camera, matrices);
 
         MaterialApplier.cleanup();
         matrices.popMatrix();

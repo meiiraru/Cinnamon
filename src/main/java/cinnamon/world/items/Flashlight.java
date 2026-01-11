@@ -3,6 +3,7 @@ package cinnamon.world.items;
 import cinnamon.Client;
 import cinnamon.lang.LangManager;
 import cinnamon.registry.ItemModelRegistry;
+import cinnamon.render.WorldRenderer;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.living.LivingEntity;
@@ -103,7 +104,7 @@ public class Flashlight extends Item {
         float f = 0.25f;
         light.pos(pos.x + dir.x * f, pos.y + dir.y * f, pos.z + dir.z * f);
 
-        boolean fp = source == c.camera.getEntity() && ((WorldClient) source.getWorld()).getCameraMode() == 0;
+        boolean fp = source == WorldRenderer.camera.getEntity() && !((WorldClient) source.getWorld()).isThirdPerson();
         boolean noHud = c.hideHUD;
         light.glareSize(fp ? 1f : 5f);
         light.glareIntensity(fp && noHud ? 0f : 1f);

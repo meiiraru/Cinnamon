@@ -3,6 +3,7 @@ package cinnamon.world.entity.living;
 import cinnamon.gui.DebugScreen;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
+import cinnamon.render.Camera;
 import cinnamon.world.DamageType;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.Entity;
@@ -25,8 +26,8 @@ public class Dummy extends LivingEntity {
     }
 
     @Override
-    public boolean shouldRenderText() {
-        return super.shouldRenderText() && DebugScreen.isTabOpen(DebugScreen.Tab.ENTITIES);
+    public boolean shouldRenderText(Camera camera) {
+        return super.shouldRenderText(camera) && DebugScreen.isTabOpen(DebugScreen.Tab.ENTITIES);
     }
 
     @Override

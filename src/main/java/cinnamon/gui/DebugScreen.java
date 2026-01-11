@@ -6,11 +6,13 @@ import cinnamon.logger.Level;
 import cinnamon.logger.LogOutput;
 import cinnamon.logger.LoggerConfig;
 import cinnamon.model.GeometryHelper;
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.PostProcess;
+import cinnamon.render.texture.Texture;
 import cinnamon.settings.Settings;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundManager;
@@ -79,11 +81,7 @@ public class DebugScreen {
     public static void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
 
-        //debug quad
-        //float w = c.window.scaledWidth * 0.3f;
-        //int tex = WorldRenderer.lastFrameFramebuffer.getColorBuffer();
-        //VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, c.window.scaledWidth - w, 0, w, w, 0, 1, 1, -1, 1, 1), tex);
-        //VertexConsumer.MAIN.finishBatch(c.camera);
+        //renderDebugTexture(matrices, WaterRenderer.getNoiseTexture(), false);
 
         boolean fpsOnly = !active && Settings.showFPS.get() && (c.world == null || !c.hideHUD);
         if (!fpsOnly && !active)
@@ -188,8 +186,9 @@ public class DebugScreen {
             matrices.scale(1, -1, 1);
 
         float len = 10;
+        Camera camera = c.world == null ? c.camera : WorldRenderer.camera;
         matrices.translate(0, 0, len);
-        matrices.rotate(c.camera.getRot().invert(new Quaternionf()));
+        matrices.peek().pos().rotate(camera.getRot().invert(new Quaternionf()));
 
         VertexConsumer.MAIN.consume(GeometryHelper.box(matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000));
         VertexConsumer.MAIN.consume(GeometryHelper.box(matrices, 0, 1, 0, 1, len, 1, 0xFF00FF00));
@@ -288,6 +287,26 @@ public class DebugScreen {
         }
     }
 
+    public static void renderDebugTexture(MatrixStack matrices, int texture, boolean overlay) {
+        Client c = Client.getInstance();
+
+        //debug quad
+        float w = c.window.getGUIWidth() * (overlay ? 1f : 0.3f);
+        float h = overlay ? c.window.getGUIHeight() : w;
+        float x = overlay ? 0 : c.window.getGUIWidth() - w - 4;
+        float y = overlay ? 0 : 4;
+
+        if (!overlay) {
+            int texWidth = Texture.getWidth(texture);
+            int texHeight = Texture.getHeight(texture);
+            float aspect = (float) texWidth / (float) texHeight;
+            h = w / aspect;
+        }
+
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, x, y, w, h, 0, 1, 1, -1, 1, 1), texture);
+        VertexConsumer.MAIN.finishBatch(c.camera);
+    }
+
     private static String getTargetedObjString(Hit<? extends WorldObject> hit, float range) {
         if (hit == null)
             return "---";
@@ -365,11 +384,12 @@ public class DebugScreen {
         RENDER(c -> {
             Window w = c.window;
             PostProcess post = c.postProcess == -1 ? null : PostProcess.EFFECTS[c.postProcess];
+            Camera camera = c.world == null ? c.camera : WorldRenderer.camera;
 
-            Quaternionf crot = c.camera.getRotation();
-            Vector3f cpos = c.camera.getPosition();
-            Vector3f forwards = c.camera.getForwards();
-            Vector3f up = c.camera.getUp();
+            Quaternionf crot = camera.getRotation();
+            Vector3f cpos = camera.getPosition();
+            Vector3f forwards = camera.getForwards();
+            Vector3f up = camera.getUp();
             float yaw = Maths.getYaw(crot);
             String face = Direction.fromRotation(yaw).name;
 

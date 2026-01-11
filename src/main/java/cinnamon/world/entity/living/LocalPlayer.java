@@ -5,6 +5,7 @@ import cinnamon.gui.Screen;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
+import cinnamon.render.WorldRenderer;
 import cinnamon.settings.Settings;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Direction;
@@ -220,13 +221,13 @@ public class LocalPlayer extends Player {
     @Override
     public Vector3f getLookDir() {
         Vector3f dir = super.getLookDir();
-        return XrManager.isInXR() ? dir.rotate(Client.getInstance().camera.getXrRot()) : dir;
+        return XrManager.isInXR() ? dir.rotate(WorldRenderer.camera.getXrRot()) : dir;
     }
 
     @Override
     public Vector3f getLookDir(float delta) {
         Vector3f dir = super.getLookDir(delta);
-        return XrManager.isInXR() ? dir.rotate(Client.getInstance().camera.getXrRot()) : dir;
+        return XrManager.isInXR() ? dir.rotate(WorldRenderer.camera.getXrRot()) : dir;
     }
 
     public Vector3f getHandPos(boolean left, float delta) {

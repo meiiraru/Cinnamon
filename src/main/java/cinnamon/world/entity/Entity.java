@@ -14,7 +14,11 @@ import cinnamon.render.model.AnimatedObjRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.*;
+import cinnamon.utils.AABB;
+import cinnamon.utils.Alignment;
+import cinnamon.utils.Maths;
+import cinnamon.utils.Resource;
+import cinnamon.utils.Rotation;
 import cinnamon.world.DamageType;
 import cinnamon.world.Mask;
 import cinnamon.world.WorldObject;
@@ -61,7 +65,7 @@ public abstract class Entity extends WorldObject {
         this.uuid = uuid;
         this.updateAABB();
         this.addRenderFeature((source, camera, matrices, delta) -> {
-            if (shouldRenderText()) renderTexts(matrices, delta);
+            if (shouldRenderText(camera)) renderTexts(camera, matrices, delta);
         });
     }
 
@@ -105,7 +109,7 @@ public abstract class Entity extends WorldObject {
         matrices.rotate(Rotation.X.rotationDeg(-rot.x));
     }
 
-    protected void renderTexts(MatrixStack matrices, float delta) {
+    protected void renderTexts(Camera camera, MatrixStack matrices, float delta) {
         Text text = getHeadText();
         if (text == null)
             return;
@@ -119,7 +123,7 @@ public abstract class Entity extends WorldObject {
 
         matrices.translate(getPos(delta));
         matrices.translate(0f, aabb.getHeight() + 0.15f, 0f);
-        c.camera.billboard(matrices);
+        camera.billboard(matrices);
         matrices.scale(-s);
 
         text.render(VertexConsumer.WORLD_MAIN, matrices, 0, 0, Alignment.BOTTOM_CENTER, 50);
@@ -131,13 +135,12 @@ public abstract class Entity extends WorldObject {
         return name == null || name.isBlank() ? null : Text.of(name);
     }
 
-    public boolean shouldRenderText() {
-        Client client = Client.getInstance();
+    public boolean shouldRenderText(Camera camera) {
         return
-                !client.hideHUD &&
-                (client.camera.getEntity() != this || DebugScreen.isTabOpen(DebugScreen.Tab.ENTITIES)) &&
+                !Client.getInstance().hideHUD &&
+                (camera.getEntity() != this || DebugScreen.isTabOpen(DebugScreen.Tab.ENTITIES)) &&
                 !WorldRenderer.isOutlineRendering() &&
-                client.camera.getPos().distanceSquared(pos) <= 1024;
+                camera.getPos().distanceSquared(pos) <= 1024;
     }
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {

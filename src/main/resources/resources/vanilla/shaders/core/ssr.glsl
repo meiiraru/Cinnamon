@@ -24,8 +24,8 @@ uniform float nearPlane;
 uniform float farPlane;
 
 //parameters
-uniform int maxSteps = 50;
-uniform int maxBinarySearchSteps = 5;
+uniform int maxSteps = 32;
+uniform int maxBinarySearchSteps = 4;
 uniform float maxDepthDiff = 10.0f;
 uniform float rayStep = 1.0f;
 uniform float thickness = 10.0f;
@@ -63,6 +63,10 @@ vec2 projectToScreen(vec3 viewPos) {
 }
 
 bool rayMarch(vec3 rayOrigin, vec3 rayDir, out vec2 hitUV) {
+    //early exit for rays pointing away from camera
+    if (rayDir.z > 0.95f)
+        return false;
+
     vec3 rayPos = rayOrigin;
     float stepSize = rayStep;
 
@@ -78,11 +82,16 @@ bool rayMarch(vec3 rayOrigin, vec3 rayDir, out vec2 hitUV) {
 
         //sample depth at this position
         float sampledDepth = texture(gDepth, uv).r;
-        if (sampledDepth >= 0.99999f)
+
+        //skip sky pixels
+        if (sampledDepth >= 0.99999f) {
+            stepSize *= 1.1f;
             continue;
+        }
 
         //calculate depth difference
-        float depthDiff = -rayPos.z - linearizeDepth(sampledDepth);
+        float sampledZ = linearizeDepth(sampledDepth);
+        float depthDiff = -rayPos.z - sampledZ;
 
         //check for intersection
         if (depthDiff > 0.0f && depthDiff < thickness) {
@@ -95,8 +104,7 @@ bool rayMarch(vec3 rayOrigin, vec3 rayDir, out vec2 hitUV) {
                 vec2 midUV = projectToScreen(midPos);
 
                 float midDepth = texture(gDepth, midUV).r;
-                float midSampledZ = linearizeDepth(midDepth);
-                float midDepthDiff = -midPos.z - midSampledZ;
+                float midDepthDiff = -midPos.z - linearizeDepth(midDepth);
 
                 if (midDepthDiff > 0.0f && midDepthDiff < thickness) {
                     hitPos = midPos;
@@ -113,7 +121,7 @@ bool rayMarch(vec3 rayOrigin, vec3 rayDir, out vec2 hitUV) {
         }
 
         //increase step size as we get further
-        stepSize *= 1.05f;
+        stepSize *= 1.08f;
     }
 
     return false;
@@ -141,12 +149,22 @@ void main() {
     vec3 normal = texture(gNormal, texCoords).rgb;
     vec3 viewNormal = normalize(mat3(view) * normal);
 
+    //early exit for back-facing normals
+    vec3 viewDir = normalize(viewPos);
+    float NdotV = dot(viewNormal, -viewDir);
+    if (NdotV < 0.01f) {
+        fragColor = vec4(0.0f);
+        return;
+    }
+
     //calculate reflection direction
-    vec3 reflectDir = normalize(reflect(normalize(viewPos), viewNormal));
+    vec3 reflectDir = normalize(reflect(viewDir, viewNormal));
 
     //jitter reflection direction based on roughness
-    vec3 jitter = (noise(texCoords) * 2.0f - 1.0f) * jitterStrength * roughness;
-    reflectDir = normalize(reflectDir + jitter);
+    if (roughness > 0.01f && jitterStrength > 0.0f) {
+        vec3 jitter = (noise(texCoords) * 2.0f - 1.0f) * jitterStrength * roughness;
+        reflectDir = normalize(reflectDir + jitter);
+    }
 
     //ray march
     vec2 hitUV;

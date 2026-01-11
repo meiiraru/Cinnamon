@@ -1,6 +1,7 @@
 package cinnamon.world.particle;
 
 import cinnamon.model.GeometryHelper;
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 
@@ -16,7 +17,7 @@ public class VoxelParticle extends Particle3D {
     }
 
     @Override
-    protected void renderParticle(MatrixStack matrices, float delta) {
+    protected void renderParticle(Camera camera, MatrixStack matrices, float delta) {
         VertexConsumer consumer = emissive ? VertexConsumer.WORLD_MAIN_EMISSIVE : VertexConsumer.WORLD_MAIN;
 
         float s = size * 0.5f;

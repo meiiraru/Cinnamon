@@ -1,6 +1,5 @@
 package cinnamon.world.entity.xr;
 
-import cinnamon.Client;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -48,7 +47,7 @@ public class XrHand extends PhysEntity {
 
         XrHandTransform transform = XrRenderer.getHandTransform(hand);
 
-        Camera c = Client.getInstance().camera;
+        Camera c = WorldRenderer.camera;
         Vector3f pos = new Vector3f(transform.pos());
         pos.rotate(c.getRot());
         pos.add(c.getPos());
@@ -130,7 +129,7 @@ public class XrHand extends PhysEntity {
     public void applyTransform(XrGrabbable grabbable) {
         XrHandTransform transform = XrRenderer.getHandTransform(hand);
 
-        Camera c = Client.getInstance().camera;
+        Camera c = WorldRenderer.camera;
         Vector3f pos = new Vector3f(transform.pos());
         pos.add(new Vector3f(hand % 2 == 0 ? 0.05f : -0.05f, 0, 0).rotate(transform.rot()));
         pos.rotate(c.getRot());

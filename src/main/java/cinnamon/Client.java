@@ -238,8 +238,6 @@ public class Client {
             if (this.world != null)
                 this.world.close();
             this.world = null;
-            this.camera.setEntity(null);
-            this.camera.reset();
             Toast.clear(Toast.ToastType.WORLD);
             this.setScreen(mainScreen.get());
         });

@@ -26,6 +26,8 @@ layout (location = 1) out vec4 gNormal;
 layout (location = 2) out vec4 gORM;
 layout (location = 3) out vec4 gEmissive;
 
+uniform sampler2D noiseTex;
+
 uniform vec4 color = vec4(0.3f, 0.45f, 0.6f, 0.95f);
 uniform vec2 roughMetal = vec2(0.1f, 0.0f);
 uniform float emissive = 0.0f;
@@ -34,26 +36,11 @@ uniform float time;
 
 uniform vec2 waveDir1 = vec2(1.0f, 0.3f);
 uniform vec2 waveDir2 = vec2(-0.28f, 0.7f);
-uniform float waveAmplitude = 0.15f;
-uniform float waveFrequency = 0.5f;
+uniform float waveAmplitude = 0.1f;
+uniform float waveFrequency = 0.01f;
 
-vec2 hash2(vec2 p) {
-    p = vec2(dot(p, vec2(127.1f, 311.7f)), dot(p, vec2(269.5f, 183.3f)));
-    return fract(sin(p) * 43758.5453123f) * 2.0f - 1.0f;
-}
-
-//perlin-like smooth gradient noise
 float gradientNoise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-
-    //quintic interpolation for smoothness
-    vec2 u = f * f * f * (f * (f * 6.0f - 15.0f) + 10.0f);
-
-    return mix(mix(dot(hash2(i + vec2(0.0f, 0.0f)), f - vec2(0.0f, 0.0f)),
-                   dot(hash2(i + vec2(1.0f, 0.0f)), f - vec2(1.0f, 0.0f)), u.x),
-               mix(dot(hash2(i + vec2(0.0f, 1.0f)), f - vec2(0.0f, 1.0f)),
-                   dot(hash2(i + vec2(1.0f, 1.0f)), f - vec2(1.0f, 1.0f)), u.x), u.y);
+    return texture(noiseTex, p).r * 2.0f - 1.0f;
 }
 
 //fractal brownian motion

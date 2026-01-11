@@ -5,8 +5,8 @@ import cinnamon.gui.Toast;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.WaterRenderer;
 import cinnamon.render.Window;
-import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
@@ -101,7 +101,7 @@ public class PrimitiveTestWorld extends WorldClient {
 
     @Override
     public void renderWater(Camera camera, MatrixStack matrices, float delta) {
-        WorldRenderer.renderDefaultWaterPlane(camera, matrices, -0.02f, getSky().fogEnd);
+        WaterRenderer.renderDefaultWaterPlane(camera, matrices, -0.02f, getSky().fogEnd);
     }
 
     private void house(float x, float y, float z, float rotY, int colA, int colB) {

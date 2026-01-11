@@ -60,6 +60,7 @@ public class WorldRenderer {
 
     private static int renderedEntities, renderedTerrain, renderedParticles, renderedLights, renderedShadows;
 
+    public static final Camera camera = new Camera();
     private static final Vector3f cameraPos = new Vector3f();
     private static final Quaternionf cameraRot = new Quaternionf();
     private static final Matrix4f pointLightMatrix = new Matrix4f();
@@ -80,9 +81,8 @@ public class WorldRenderer {
             renderBloom    = true,
             renderDebug    = true,
             renderOutlines = true;
-    public static int debugTexture = -1;
 
-    public static void renderWorld(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
+    public static void renderWorld(WorldClient world, MatrixStack matrices, float delta) {
         //prepare for world rendering
         setupFramebuffer();
         Client client = Client.getInstance();
@@ -103,7 +103,7 @@ public class WorldRenderer {
 
         //3d anaglyph rendering
         if (client.anaglyph3D) {
-            renderAsAnaglyph(world, camera, matrices, delta, renderFunc);
+            renderAsAnaglyph(world, matrices, delta, renderFunc);
             return;
         }
 
@@ -142,9 +142,6 @@ public class WorldRenderer {
         //bake world
         bakeDeferred(camera, world.getSky());
 
-        //debug gbuffer
-        debugTexture(debugTexture);
-
         //render the sky
         if (renderSky)
             world.getSky().render(camera, matrices);
@@ -171,7 +168,7 @@ public class WorldRenderer {
         bake();
     }
 
-    private static void renderAsAnaglyph(WorldClient world, Camera camera, MatrixStack matrices, float delta, Runnable[] renderFunc) {
+    private static void renderAsAnaglyph(WorldClient world, MatrixStack matrices, float delta, Runnable[] renderFunc) {
         Runnable renderWorld = () -> {
             for (Runnable r : renderFunc)
                 r.run();
@@ -206,7 +203,6 @@ public class WorldRenderer {
             bakeDeferred(camera, world.getSky());
 
             //post bake renderer
-            debugTexture(debugTexture);
             if (renderSky) world.getSky().render(camera, matrices);
             applyBloom();
             if (renderLights) renderLightsFlare(world.getLights(camera), camera, matrices);
@@ -323,22 +319,6 @@ public class WorldRenderer {
         sky.unbind(8);
     }
 
-    public static void debugTexture(int texture) {
-        if (texture < 0)
-            return;
-
-        outputBuffer.resizeTo(targetBuffer);
-        outputBuffer.useClear();
-
-        Shader s = PostProcess.BLIT.getShader().use();
-        s.setTexture("colorTex", texture, 0);
-
-        renderQuad();
-
-        PBRFrameBuffer.blit(outputBuffer, false, true, true);
-        Texture.unbindTex(0);
-    }
-
 
     // -- effects -- //
 
@@ -360,33 +340,17 @@ public class WorldRenderer {
 
     public static void applyBloom() {
         float bloom = Settings.bloomStrength.get();
-        if (debugTexture < 0 && renderBloom && bloom > 0f)
+        if (renderBloom && bloom > 0f)
             BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getEmissive(), 1.5f, bloom);
     }
 
     public static void renderWater(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
-        if (renderWater) {
-            Shader s = Shaders.WATER.getShader().use();
-            s.setup(camera);
-            s.setFloat("time", (world.getTime() + delta) * 0.01f);
+        if (!renderWater)
+            return;
 
-            glDisable(GL_CULL_FACE);
-            world.renderWater(camera, matrices, delta);
-            glEnable(GL_CULL_FACE);
-        }
-    }
-
-    public static void renderDefaultWaterPlane(Camera camera, MatrixStack matrices, float y, float size) {
-        matrices.pushMatrix();
-        Vector3f camPos = camera.getPosition();
-        matrices.translate(camPos.x, y, camPos.z);
-
-        matrices.rotate(Rotation.X.rotationDeg(-90f));
-        matrices.scale(size);
-
-        Shaders.WATER.getShader().applyMatrixStack(matrices);
-        SimpleGeometry.QUAD.render();
-        matrices.popMatrix();
+        int tex = WaterRenderer.prepareWaterRenderer(camera, world.getTime() + delta);
+        world.renderWater(camera, matrices, delta);
+        Texture.unbindAll(tex);
     }
 
 
@@ -867,7 +831,6 @@ public class WorldRenderer {
         renderBloom    =
         renderDebug    =
         renderOutlines = true;
-        debugTexture   = -1;
     }
 
     public static boolean isShadowRendering() {

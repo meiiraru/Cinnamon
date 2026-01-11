@@ -5,7 +5,7 @@ import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.WorldRenderer;
+import cinnamon.render.WaterRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Style;
@@ -84,6 +84,6 @@ public class MaterialPreviewWorld extends WorldClient {
 
     @Override
     public void renderWater(Camera camera, MatrixStack matrices, float delta) {
-        WorldRenderer.renderDefaultWaterPlane(camera, matrices, -3f, getSky().fogEnd);
+        WaterRenderer.renderDefaultWaterPlane(camera, matrices, -3f, getSky().fogEnd);
     }
 }

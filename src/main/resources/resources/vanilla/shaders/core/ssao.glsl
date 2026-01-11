@@ -33,23 +33,16 @@ float linearizeDepth(float depth) {
     return (2.0f * nearPlane * farPlane) / (farPlane + nearPlane - z * (farPlane - nearPlane));
 }
 
-vec3 getPosFromDepth(vec2 uv) {
+vec3 getPosFromDepth(vec2 uv, float depth) {
     //normalized device coordinates
     vec2 ndc = uv * 2.0f - 1.0f;
 
     //clip space
-    float depth = texture(gDepth, uv).r;
     vec4 clip = vec4(ndc, depth * 2.0f - 1.0f, 1.0f);
 
     //view space
-    vec4 view = invProjection * clip;
-    view /= view.w;
-
-    ////world space
-    //vec4 world = invView * view;
-    //return world.xyz;
-
-    return view.xyz;
+    vec4 viewPos = invProjection * clip;
+    return viewPos.xyz / viewPos.w;
 }
 
 void main() {
@@ -61,7 +54,7 @@ void main() {
     }
 
     //sample textures
-    vec3 fragPos = getPosFromDepth(texCoords);
+    vec3 fragPos = getPosFromDepth(texCoords, depth);
     vec3 normal = normalize(mat3(view) * texture(gNormal, texCoords).rgb);
     vec3 randomVec = texture(texNoise, texCoords * noiseScale).xyz;
 
@@ -72,39 +65,39 @@ void main() {
 
     //get fragment view-space z value
     float fragViewZ = -linearizeDepth(depth);
+    float baseBias = bias * (1.0f + abs(fragViewZ) * biasFactor);
 
     //find occlusion
     float occlusion = 0.0f;
     int samplesToUse = min(sampleCount, MAX_SAMPLES);
+    float kernelScale = 1.0f / float(MAX_SAMPLES);
 
     for (int i = 0; i < samplesToUse; i++) {
         //get sample position
-        vec3 samplePos = TBN * texture(texKernel, vec2(float(i) / float(MAX_SAMPLES), 0.0f)).rgb; //from tangent to view-space
+        vec3 samplePos = TBN * texture(texKernel, vec2(float(i) * kernelScale, 0.0f)).rgb;
         samplePos = fragPos + samplePos * radius;
 
         //project sample to clip space
         vec4 offset = projection * vec4(samplePos, 1.0f);
-        offset.xyz /= offset.w;
-        offset.xyz = offset.xyz * 0.5f + 0.5f;
+        vec2 sampleUV = (offset.xy / offset.w) * 0.5f + 0.5f;
 
         //skip samples outside the screen
-        if (offset.x < 0.0f || offset.x > 1.0f || offset.y < 0.0f || offset.y > 1.0f)
+        if (sampleUV.x < 0.0f || sampleUV.x > 1.0f || sampleUV.y < 0.0f || sampleUV.y > 1.0f)
             continue;
 
         //get sample depth
-        float sampleDepth = texture(gDepth, offset.xy).r;
+        float sampleDepth = texture(gDepth, sampleUV).r;
         if (sampleDepth >= 0.99999f)
             continue;
 
         float sampleViewZ = -linearizeDepth(sampleDepth);
 
         //accumulate occlusion
-        float rangeCheck = smoothstep(0.0f, 1.0f, radius / abs(fragViewZ - sampleViewZ));
-        float depthBias = bias * (1.0f + abs(fragViewZ) * biasFactor);
-        occlusion += (sampleViewZ >= samplePos.z + depthBias ? 1.0f : 0.0f) * rangeCheck;
+        if (sampleViewZ >= samplePos.z + baseBias)
+            occlusion += smoothstep(0.0f, 1.0f, radius / abs(fragViewZ - sampleViewZ));
     }
 
     //average occlusion
-    occlusion = (occlusion / float(samplesToUse));
-    fragColor = vec4(vec3(occlusion), 1.0f);
+    occlusion = occlusion / float(samplesToUse);
+    fragColor = vec4(occlusion, occlusion, occlusion, 1.0f);
 }

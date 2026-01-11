@@ -16,6 +16,7 @@ import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.WaterRenderer;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.sound.SoundCategory;
@@ -242,26 +243,20 @@ public class WorldClient extends World {
         float d = isPaused() ? 1f : delta;
 
         //set camera
-        client.camera.useOrtho(false);
-        updateCamera(player, cameraMode, d);
-        SoundManager.updateSoundPosition(client.camera);
+        updateCamera(client.camera, player, cameraMode, d);
 
         //prepare sun
-        updateSky(worldTime + d);
+        updateSky(WorldRenderer.camera, worldTime + d);
 
         //render our stuff
-        WorldRenderer.renderWorld(this, client.camera, matrices, d);
+        WorldRenderer.renderWorld(this, matrices, d);
 
         //render first-person hand
         boolean xr = XrManager.isInXR();
         if (!client.hideHUD && !isThirdPerson()) {
             if (!xr) glClear(GL_DEPTH_BUFFER_BIT); //top of world
-            WorldRenderer.renderHoldingItems(client.camera, matrices, d);
+            WorldRenderer.renderHoldingItems(WorldRenderer.camera, matrices, d);
         }
-
-        //reset camera
-        client.camera.useOrtho(true);
-        client.camera.reset();
 
         //render hud
         if (!client.hideHUD) {
@@ -274,18 +269,21 @@ public class WorldClient extends World {
         }
     }
 
-    protected void updateCamera(Entity camEntity, int cameraMode, float delta) {
-        client.camera.setEntity(camEntity);
-        client.camera.setup(cameraMode, delta);
-        client.camera.updateFrustum();
+    protected void updateCamera(Camera sourceCamera, Entity camEntity, int cameraMode, float delta) {
+        WorldRenderer.camera.copyFrom(sourceCamera, true);
+        WorldRenderer.camera.useOrtho(false);
+        WorldRenderer.camera.setEntity(camEntity);
+        WorldRenderer.camera.setup(cameraMode, delta);
+        WorldRenderer.camera.updateFrustum();
+        SoundManager.updateSoundPosition(WorldRenderer.camera);
     }
 
-    protected void updateSky(float worldTime) {
+    protected void updateSky(Camera camera, float worldTime) {
         float dayTime = worldTime % 24000;
         sky.setSunAngle(Maths.map(worldTime, 0, 24000, 0, 360));
 
         Vector3f dir = sky.getSunDirection();
-        Vector3f pos = client.camera.getPos();
+        Vector3f pos = camera.getPos();
         sunLight.direction(dir);
         sunLight.pos(pos.x + dir.x * -1000f, pos.y + dir.y * -1000f, pos.z + dir.z * -1000f);
 
@@ -386,7 +384,7 @@ public class WorldClient extends World {
     }
 
     public void renderWater(Camera camera, MatrixStack matrices, float delta) {
-        WorldRenderer.renderDefaultWaterPlane(camera, matrices, 0.9f, getSky().fogEnd);
+        WaterRenderer.renderDefaultWaterPlane(camera, matrices, 0.9f, getSky().fogEnd);
     }
 
     public void renderItemExtra(LivingEntity entity, MatrixStack matrices, float delta) {

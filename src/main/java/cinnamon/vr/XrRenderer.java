@@ -193,7 +193,7 @@ public class XrRenderer {
         }
     }
 
-    public static void renderHandLaser(MatrixStack matrices) {
+    public static void renderHandLaser(Camera camera, MatrixStack matrices) {
         //grab the active hand
         int activeHand = XrInput.getActiveHand();
         XrHandTransform hand = userPoses.get(activeHand);
@@ -205,7 +205,7 @@ public class XrRenderer {
         //prepare the renderer
         boolean lefty = activeHand % 2 == 0;
         WorldRenderer.setupFramebuffer();
-        WorldRenderer.initOutlineBatch(Client.getInstance().camera);
+        WorldRenderer.initOutlineBatch(camera);
 
         //apply the hand matrices
         matrices.pushMatrix();

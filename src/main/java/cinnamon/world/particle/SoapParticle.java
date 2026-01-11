@@ -1,7 +1,7 @@
 package cinnamon.world.particle;
 
-import cinnamon.Client;
 import cinnamon.model.Vertex;
+import cinnamon.render.Camera;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.ColorUtils;
 import org.joml.Vector3f;
@@ -14,9 +14,9 @@ public class SoapParticle extends BubbleParticle {
     }
 
     @Override
-    protected void drawParticle(float delta, VertexConsumer consumer, Vertex[] vertices) {
+    protected void drawParticle(Camera camera, float delta, VertexConsumer consumer, Vertex[] vertices) {
         Vector3f pos = getPos(delta);
-        Vector4f screenSpace = Client.getInstance().camera.worldToScreenSpace(pos.x, pos.y, pos.z);
+        Vector4f screenSpace = camera.worldToScreenSpace(pos.x, pos.y, pos.z);
         vertices[3].color(ColorUtils.lerpRGBColorThroughHSV(0xFF0000, 0xFF0000, screenSpace.x * 0.5f + 0.5f, true) + (0xFF << 24));
         consumer.consume(vertices, texture);
     }

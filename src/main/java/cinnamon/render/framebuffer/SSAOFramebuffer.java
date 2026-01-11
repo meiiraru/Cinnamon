@@ -10,21 +10,23 @@ import static org.lwjgl.opengl.GL30.*;
 
 public class SSAOFramebuffer extends Framebuffer {
 
+    public static final int MAX_SAMPLES = 64;
+    public static final int NOISE_SAMPLES = 8;
     private static final int kernelTexture, noiseTexture;
 
     static {
-        Random rand = new Random(42L);
+        Random rand = new Random(System.nanoTime());
 
         //generate sample kernel
-        float[] sampleKernel = new float[64 * 3];
-        for (int i = 0; i < 64; i++) {
+        float[] sampleKernel = new float[MAX_SAMPLES * 3];
+        for (int i = 0; i < MAX_SAMPLES; i++) {
             Vector3f sample = new Vector3f(
                     rand.nextFloat() * 2f - 1f,
                     rand.nextFloat() * 2f - 1f,
                     rand.nextFloat()
             ).normalize(rand.nextFloat());
 
-            float scale = i / 64f;
+            float scale = (float) i / MAX_SAMPLES;
             scale = Math.lerp(0.1f, 1f, scale * scale);
             sample.mul(scale);
 
@@ -36,20 +38,20 @@ public class SSAOFramebuffer extends Framebuffer {
         //generate kernel texture
         kernelTexture = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, kernelTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 64, 1, 0, GL_RGB, GL_FLOAT, sampleKernel);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, MAX_SAMPLES, 1, 0, GL_RGB, GL_FLOAT, sampleKernel);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
         //generate noise vectors
-        float[] noiseVectors = new float[16 * 3];
+        float[] noiseVectors = new float[NOISE_SAMPLES * NOISE_SAMPLES * 2];
         for (int i = 0; i < noiseVectors.length; i++)
-            noiseVectors[i] = i % 3 == 2 ? 0f : (rand.nextFloat() * 2f - 1f);
+            noiseVectors[i] = (rand.nextFloat() * 2f - 1f); //skip blue channel
 
         //generate noise texture
         noiseTexture = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, noiseTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, noiseVectors);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, NOISE_SAMPLES, NOISE_SAMPLES, 0, GL_RG, GL_FLOAT, noiseVectors);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

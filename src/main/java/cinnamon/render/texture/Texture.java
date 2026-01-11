@@ -153,6 +153,20 @@ public class Texture {
         return new Texture(id, 1, 1);
     }
 
+    public static int getWidth(int id) {
+        glBindTexture(GL_TEXTURE_2D, id);
+        int width = glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        return width;
+    }
+
+    public static int getHeight(int id) {
+        glBindTexture(GL_TEXTURE_2D, id);
+        int height = glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        return height;
+    }
+
     public static int bind(int id, int index) {
         glActiveTexture(GL_TEXTURE0 + index);
         glBindTexture(GL_TEXTURE_2D, id);

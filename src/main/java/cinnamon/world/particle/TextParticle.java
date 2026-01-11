@@ -23,7 +23,7 @@ public class TextParticle extends Particle {
     }
 
     @Override
-    protected void renderParticle(MatrixStack matrices, float delta) {
+    protected void renderParticle(Camera camera, MatrixStack matrices, float delta) {
         matrices.scale(-PARTICLE_SCALING);
         text.render(isEmissive() ? VertexConsumer.WORLD_MAIN_EMISSIVE : VertexConsumer.WORLD_MAIN, matrices, 0, 0, Alignment.TOP_CENTER);
     }

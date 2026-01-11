@@ -56,7 +56,7 @@ public abstract class Particle extends WorldObject {
 
         //actual render
         matrices.pushMatrix();
-        renderParticle(matrices, delta);
+        renderParticle(camera, matrices, delta);
         matrices.popMatrix();
 
         matrices.popMatrix();
@@ -71,7 +71,7 @@ public abstract class Particle extends WorldObject {
         return 4098; //64 * 64;
     }
 
-    protected abstract void renderParticle(MatrixStack matrices, float delta);
+    protected abstract void renderParticle(Camera camera, MatrixStack matrices, float delta);
 
     public Vector3f getPos(float delta) {
         return Maths.lerp(oPos, pos, delta);

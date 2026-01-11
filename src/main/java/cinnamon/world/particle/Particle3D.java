@@ -2,6 +2,7 @@ package cinnamon.world.particle;
 
 import cinnamon.model.ModelManager;
 import cinnamon.registry.ParticlesRegistry;
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.Resource;
@@ -18,7 +19,7 @@ public class Particle3D extends Particle {
     }
 
     @Override
-    protected void renderParticle(MatrixStack matrices, float delta) {
+    protected void renderParticle(Camera camera, MatrixStack matrices, float delta) {
         if (model != null)
             model.render(matrices);
     }

@@ -358,15 +358,16 @@ public class Camera {
         this.orthoMatrix.set(camera.orthoMatrix);
         this.invPerspMatrix.set(camera.invPerspMatrix);
         this.invOrthoMatrix.set(camera.invOrthoMatrix);
-
-        if (!includeView)
-            return;
+        this.isOrtho = camera.isOrtho;
 
         //copy view properties
-        this.pos.set(camera.pos);
-        this.xrPos.set(camera.xrPos);
-        this.rotation.set(camera.rotation);
-        this.xrRot.set(camera.xrRot);
-        this.viewDirty = true;
+        if (includeView) {
+            this.pos.set(camera.pos);
+            this.xrPos.set(camera.xrPos);
+            this.rotation.set(camera.rotation);
+            this.xrRot.set(camera.xrRot);
+            this.entity = camera.entity;
+            this.viewDirty = true;
+        }
     }
 }

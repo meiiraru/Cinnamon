@@ -2,6 +2,7 @@ package cinnamon.world.particle;
 
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
+import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.texture.Texture;
@@ -21,7 +22,7 @@ public abstract class SpriteParticle extends Particle {
     }
 
     @Override
-    protected void renderParticle(MatrixStack matrices, float delta) {
+    protected void renderParticle(Camera camera, MatrixStack matrices, float delta) {
         float s = PARTICLE_SCALING * scale;
         matrices.scale(-s, -s, s);
 
@@ -34,10 +35,10 @@ public abstract class SpriteParticle extends Particle {
                 getFrameCount(), 1
         );
 
-        drawParticle(delta, isEmissive() ? VertexConsumer.WORLD_MAIN_EMISSIVE : VertexConsumer.WORLD_MAIN, vertices);
+        drawParticle(camera, delta, isEmissive() ? VertexConsumer.WORLD_MAIN_EMISSIVE : VertexConsumer.WORLD_MAIN, vertices);
     }
 
-    protected void drawParticle(float delta, VertexConsumer consumer, Vertex[] vertices) {
+    protected void drawParticle(Camera camera, float delta, VertexConsumer consumer, Vertex[] vertices) {
         int color = getColor();
         for (Vertex vertex : vertices)
             vertex.color(color);
