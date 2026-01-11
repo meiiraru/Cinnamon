@@ -34,7 +34,7 @@ public class PauseScreen extends Screen {
     public void close() {
         super.close();
         if (client.world != null)
-            client.world.pause(false);
+            client.world.setPaused(false);
     }
 
     @Override

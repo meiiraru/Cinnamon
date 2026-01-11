@@ -255,7 +255,7 @@ public abstract class World {
         return String.format("%02d:%02d", timeHors, timeMinutes);
     }
 
-    public void pause(boolean pause) {
+    public void setPaused(boolean pause) {
         this.isPaused = pause;
     }
 

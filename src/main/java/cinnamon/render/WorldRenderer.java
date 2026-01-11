@@ -422,7 +422,7 @@ public class WorldRenderer {
             }
 
             //bake this light
-            bakeLight(light, shadow);
+            bakeLight(camera, light, shadow);
             renderedLights++;
         }
 
@@ -586,7 +586,7 @@ public class WorldRenderer {
         activeMask = passMask;
     }
 
-    public static void bakeLight(Light light, boolean hasShadow) {
+    public static void bakeLight(Camera camera, Light light, boolean hasShadow) {
         //since shadows have a custom viewport, we need to adjust its view too
         lightingMultiPassBuffer.use();
         lightingMultiPassBuffer.adjustViewPort();
@@ -631,6 +631,8 @@ public class WorldRenderer {
                 lightModelMatrix.identity()
                         .translate(cameraPos)
                         .rotate(cameraRot)
+                        .translate(camera.getXrPos())
+                        .rotate(camera.getXrRot())
                         .translate(0, 0, -Camera.NEAR_PLANE - 0.01f);
                 light.copyTransform(lightModelMatrix);
                 s.setMat4("model", lightModelMatrix);
@@ -690,6 +692,8 @@ public class WorldRenderer {
         s.setFloat("aspectRatio", aspectRatio);
         s.setVec2("sampleRadius", texelX, texelY);
 
+        float xrScalar = XrManager.isInXR() ? 0.35f : 1f;
+
         //render the flares
         for (Light light : lights) {
             float intensity = light.getGlareIntensity();
@@ -702,7 +706,7 @@ public class WorldRenderer {
             s.applyColor(light.getColor());
             s.setFloat("intensity", intensity);
             s.setVec3("lightPosition", light.getPos());
-            s.setFloat("glareSize", light.getGlareSize());
+            s.setFloat("glareSize", light.getGlareSize() * xrScalar);
             s.setTexture("textureSampler", Texture.of(light.getGlareTexture()), 1);
 
             SimpleGeometry.QUAD.render();
@@ -721,6 +725,7 @@ public class WorldRenderer {
                 lensShader.applyColor(light.getColor());
                 lensShader.setVec3("direction", light.getDirection());
                 lensShader.setFloat("intensity", light.getGlareIntensity());
+                lensShader.setFloat("scale", xrScalar);
                 SimpleGeometry.QUAD.render();
             }
         }

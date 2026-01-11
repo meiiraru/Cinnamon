@@ -48,7 +48,7 @@ public class Toast {
             return;
 
         matrices.pushMatrix();
-        matrices.translate(Math.round(width / 2f), 4f - 1f, 100f);
+        matrices.translate(Math.round(width / 2f), 4f - 1f, Math.max(100f, UIHelper.getDepthOffset()));
 
         Iterator<Toast> iterator = TOASTS.iterator();
         for (int i = 0; i < TOASTS_LIMIT && iterator.hasNext(); i++) {

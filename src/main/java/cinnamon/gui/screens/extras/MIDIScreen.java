@@ -15,11 +15,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.Alignment;
-import cinnamon.utils.Colors;
-import cinnamon.utils.FileDialog;
-import cinnamon.utils.Pair;
-import cinnamon.utils.Resource;
+import cinnamon.utils.*;
 import org.joml.Math;
 import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFW;
@@ -541,18 +537,26 @@ public class MIDIScreen extends ParentedScreen {
                 VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x + b, press.x + d, x + w - b, press.x + press.y + d, sharp ? Colors.PURPLE.argb : Colors.PINK.argb));
 
             //render key
+            matrices.pushMatrix();
+
+            float depth = UIHelper.getDepthOffset();
+            matrices.translate(0f, 0f, depth * (sharp ? 2 : 0));
             VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x, y + (pressed && !sharp ? 4 : 0), x + w, y + h, sharp ? 0xFF000000 : 0xFFDDDDDD));
-            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x + b, y + (pressed && !sharp ? 4 : 0) + b, x + w - b, y + h - (pressed ? 0 : 4) - b, sharp ? 0xFF202020 : 0xFFFFFFFF));
+
+            matrices.translate(0f, 0f, depth);
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x + b, y + (pressed && !sharp ? 4 : 0) + b, x + w - b, y + h - (pressed ? 0 : 4) - b, sharp ? 0xFF303030 : 0xFFFFFFFF));
 
             //render label
             String label = keys[key % 12];
             if (key % 12 == 0)
                 label += (key / 12) - 1; //octave number
 
+            matrices.translate(0f, 0f, depth);
             Text.of(label)
                     .withStyle(Style.EMPTY.outlined(true))
                     .render(VertexConsumer.MAIN, matrices, getCenterX(), y + h - 6 + (pressed ? 4 : 0), Alignment.BOTTOM_CENTER);
 
+            matrices.popMatrix();
         }
 
         public boolean isPressed() {

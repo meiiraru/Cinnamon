@@ -19,7 +19,7 @@ public class Camera {
 
     private float fov = 90f;
     private float aspectRatio = 16f / 9f;
-    private float width = 640f, height = 360f;
+    private int width = 640, height = 360;
 
     private final Frustum frustum = new Frustum();
 
@@ -117,11 +117,6 @@ public class Camera {
         orthoMatrix.identity().ortho(0, width, height, 0, -1000, 1000);
         invPerspMatrix.identity().set(perspMatrix).invert();
         invOrthoMatrix.identity().set(orthoMatrix).invert();
-    }
-
-    public void setProjFrustum(float left, float right, float bottom, float top, float near, float far) {
-        perspMatrix.identity().frustum(left * near, right * near, bottom * near, top * near, near, far, false);
-        invPerspMatrix.identity().set(perspMatrix).invert();
     }
 
     public void setXrTransform(float x, float y, float z, float qx, float qy, float qz, float qw) {
@@ -343,11 +338,35 @@ public class Camera {
         return aspectRatio;
     }
 
-    public float getWidth() {
+    public int getWidth() {
         return width;
     }
 
-    public float getHeight() {
+    public int getHeight() {
         return height;
+    }
+
+    public void copyFrom(Camera camera, boolean includeView) {
+        //copy properties
+        this.fov = camera.fov;
+        this.aspectRatio = camera.aspectRatio;
+        this.width = camera.width;
+        this.height = camera.height;
+
+        //copy projection matrices
+        this.perspMatrix.set(camera.perspMatrix);
+        this.orthoMatrix.set(camera.orthoMatrix);
+        this.invPerspMatrix.set(camera.invPerspMatrix);
+        this.invOrthoMatrix.set(camera.invOrthoMatrix);
+
+        if (!includeView)
+            return;
+
+        //copy view properties
+        this.pos.set(camera.pos);
+        this.xrPos.set(camera.xrPos);
+        this.rotation.set(camera.rotation);
+        this.xrRot.set(camera.xrRot);
+        this.viewDirty = true;
     }
 }

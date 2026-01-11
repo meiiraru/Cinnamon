@@ -250,9 +250,13 @@ public class Hud {
 
                 matrices.popMatrix();
 
-                if (item.getStackSize() > 1)
+                if (item.getStackSize() > 1) {
+                    matrices.pushMatrix();
+                    matrices.translate(0f, 0f, Math.max(15f, UIHelper.getDepthOffset()));
                     Text.of(item.getCount()).withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE))
                             .render(VertexConsumer.MAIN, matrices, x + 16, y + 16 + 2, Alignment.BOTTOM_RIGHT);
+                    matrices.popMatrix();
+                }
             }
         }
     }

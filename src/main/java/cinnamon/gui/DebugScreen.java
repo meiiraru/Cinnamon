@@ -78,8 +78,14 @@ public class DebugScreen {
 
     public static void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
-        boolean fpsOnly = !active && Settings.showFPS.get() && (c.world == null || !c.hideHUD);
 
+        //debug quad
+        //float w = c.window.scaledWidth * 0.3f;
+        //int tex = WorldRenderer.lastFrameFramebuffer.getColorBuffer();
+        //VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, c.window.scaledWidth - w, 0, w, w, 0, 1, 1, -1, 1, 1), tex);
+        //VertexConsumer.MAIN.finishBatch(c.camera);
+
+        boolean fpsOnly = !active && Settings.showFPS.get() && (c.world == null || !c.hideHUD);
         if (!fpsOnly && !active)
             return;
 

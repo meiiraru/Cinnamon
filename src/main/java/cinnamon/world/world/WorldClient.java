@@ -25,6 +25,7 @@ import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
 import cinnamon.vr.XrManager;
+import cinnamon.vr.XrRenderer;
 import cinnamon.world.Hud;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
@@ -68,6 +69,8 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.glClear;
 
 public class WorldClient extends World {
 
@@ -236,25 +239,39 @@ public class WorldClient extends World {
         if (player.getWorld() == null)
             return;
 
-        if (isPaused())
-            delta = 1f;
+        float d = isPaused() ? 1f : delta;
 
         //set camera
         client.camera.useOrtho(false);
-        updateCamera(player, cameraMode, delta);
+        updateCamera(player, cameraMode, d);
+        SoundManager.updateSoundPosition(client.camera);
 
         //prepare sun
-        updateSky(worldTime + delta);
+        updateSky(worldTime + d);
 
         //render our stuff
-        WorldRenderer.renderWorld(this, client.camera, matrices, delta);
-        client.camera.useOrtho(true);
+        WorldRenderer.renderWorld(this, client.camera, matrices, d);
 
-        //debug quad
-        //float w = client.window.scaledWidth * 0.3f;
-        //int tex = SSRRenderer.getTexture();
-        //VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, client.window.scaledWidth - w, 0, w, w, 0, 1, 1, -1, 1, 1), tex);
-        //VertexConsumer.MAIN.finishBatch(client.camera);
+        //render first-person hand
+        boolean xr = XrManager.isInXR();
+        if (!client.hideHUD && !isThirdPerson()) {
+            if (!xr) glClear(GL_DEPTH_BUFFER_BIT); //top of world
+            WorldRenderer.renderHoldingItems(client.camera, matrices, d);
+        }
+
+        //reset camera
+        client.camera.useOrtho(true);
+        client.camera.reset();
+
+        //render hud
+        if (!client.hideHUD) {
+            matrices.pushMatrix();
+            if (xr) XrRenderer.applyGUITransform(matrices);
+            else glClear(GL_DEPTH_BUFFER_BIT); //top of hand
+
+            renderHUD(matrices, delta);
+            matrices.popMatrix();
+        }
     }
 
     protected void updateCamera(Entity camEntity, int cameraMode, float delta) {
@@ -378,16 +395,6 @@ public class WorldClient extends World {
             return;
 
         item.worldRender(matrices, delta);
-    }
-
-    public void renderHoldingItem(Camera camera, MatrixStack matrices, float delta) {
-        if (isPaused())
-            delta = 1f;
-
-        //setup gbuffer
-        camera.useOrtho(false);
-        WorldRenderer.renderHoldingItems(camera, matrices, delta);
-        camera.useOrtho(true);
     }
 
     public void renderHUD(MatrixStack matrices, float delta) {
@@ -591,13 +598,7 @@ public class WorldClient extends World {
                 if (i instanceof Weapon weapon)
                     weapon.reload();
             }
-            case GLFW_KEY_ESCAPE -> {
-                Screen pause = pauseScreen.get();
-                if (pause != null) {
-                    pause(true);
-                    client.setScreen(pause);
-                }
-            }
+            case GLFW_KEY_ESCAPE -> pause();
             case GLFW_KEY_ENTER, GLFW_KEY_KP_ENTER -> {
                 Screen chat = chatScreen.get();
                 if (chat != null)
@@ -646,9 +647,11 @@ public class WorldClient extends World {
 
     public void xrButtonPress(int button, boolean pressed, int hand) {
         if (pressed && button == 1) {
-            Screen pause = pauseScreen.get();
-            if (pause != null)
-                client.setScreen(pause);
+            if (hand == 0) {
+                player.dropItem();
+            } else {
+                pause();
+            }
             return;
         }
 
@@ -682,8 +685,8 @@ public class WorldClient extends World {
     }
 
     @Override
-    public void pause(boolean pause) {
-        super.pause(pause);
+    public void setPaused(boolean pause) {
+        super.setPaused(pause);
         if (pause) {
             SoundManager.pauseAll(c -> c != SoundCategory.GUI && c != SoundCategory.MASTER);
         } else {
@@ -713,6 +716,13 @@ public class WorldClient extends World {
         player.giveItem(new BubbleGun());
         player.getInventory().setItem(player.getInventory().getFreeIndex() + 1, new Flashlight(0xFFFFCC));
         player.getInventory().setItem(player.getInventory().getSize() - 1, new MagicWand());
+    }
+
+    public void pause() {
+        setPaused(true);
+        Screen pause = pauseScreen.get();
+        if (pause != null)
+            client.setScreen(pause);
     }
 
     @Override

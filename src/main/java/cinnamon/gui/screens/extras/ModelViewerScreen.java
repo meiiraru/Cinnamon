@@ -21,6 +21,7 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Resource;
+import cinnamon.vr.XrManager;
 import org.joml.Math;
 
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ public class ModelViewerScreen extends ParentedScreen {
         //add model viewer first
         modelViewer.setPos(listWidth + 4, 4);
         modelViewer.setDimensions(width - listWidth - 8, height - 8);
+        modelViewer.setDefaultScale(XrManager.isInXR() ? 100f : 1f);
         addWidget(modelViewer);
 
         //create model list

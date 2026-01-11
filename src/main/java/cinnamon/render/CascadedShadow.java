@@ -18,8 +18,7 @@ public class CascadedShadow {
     protected final Matrix4f
             proj = new Matrix4f(),
             lightView = new Matrix4f(),
-            cullBox = new Matrix4f(),
-            temp = new Matrix4f(); //TODO - inline
+            cullBox = new Matrix4f();
     protected final Vector4f cornerLightSpace = new Vector4f();
     protected final Vector3f frustumCenter = new Vector3f();
 
@@ -52,8 +51,7 @@ public class CascadedShadow {
     protected void calculateCascadeMatrices(Camera camera, Vector3f lightDir, float nearClip, float farClip, float zMult, Matrix4f outMatrix) {
         //grab the frustum corners
         proj.setPerspective(Math.toRadians(camera.getFov()), camera.getAspectRatio(), nearClip, farClip);
-        temp.set(camera.getViewMatrix()); //todo - inline
-        proj.mul(temp);
+        proj.mul(camera.getViewMatrix());
         Vector3f[] corners = Frustum.calculateCorners(proj);
 
         //calculate the center of the frustum slice

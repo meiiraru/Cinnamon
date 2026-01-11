@@ -63,10 +63,13 @@ public class XrRenderer {
         swapchainIndex = index;
 
         //prepare framebuffer
-        Framebuffer fb = Framebuffer.DEFAULT_FRAMEBUFFER;
         XrRect2Di imageRect = layerView.subImage().imageRect();
+        int width = imageRect.extent().width();
+        int height = imageRect.extent().height();
+
+        Framebuffer fb = Framebuffer.DEFAULT_FRAMEBUFFER;
         fb.setPos(imageRect.offset().x(), imageRect.offset().y());
-        fb.resize(imageRect.extent().width(), imageRect.extent().height());
+        fb.resize(width, height);
         fb.useClear();
         fb.adjustViewPort();
 
@@ -75,20 +78,20 @@ public class XrRenderer {
         XrFovf fov = layerView.fov();
         float distToLeftPlane = Math.tan(fov.angleLeft());
         float distToRightPlane = Math.tan(fov.angleRight());
-        float distToBottomPlane = Math.tan(fov.angleDown());
-        float distToTopPlane = Math.tan(fov.angleUp());
+        float fovX = (float) Math.toDegrees(java.lang.Math.atan(distToRightPlane) - java.lang.Math.atan(distToLeftPlane));
 
         XrVector3f pos = pose.position$();
         XrQuaternionf orientation = pose.orientation();
 
         Camera camera = Client.getInstance().camera;
-        camera.setProjFrustum(distToLeftPlane, distToRightPlane, distToBottomPlane, distToTopPlane, Camera.NEAR_PLANE, Camera.FAR_PLANE);
+        camera.updateProjMatrix(width, height, fovX);
         camera.setXrTransform(pos.x(), pos.y(), pos.z(), orientation.x(), orientation.y(), orientation.z(), orientation.w());
 
         //render whatever it is going to render
         toRender.run();
 
         //blit framebuffer back
+        framebuffer.resizeTo(Framebuffer.DEFAULT_FRAMEBUFFER);
         framebuffer.use();
         framebuffer.bindColorTexture(swapchainImage);
         Framebuffer.DEFAULT_FRAMEBUFFER.blit(framebuffer);

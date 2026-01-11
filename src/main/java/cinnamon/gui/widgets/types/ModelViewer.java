@@ -112,6 +112,7 @@ public class ModelViewer extends SelectableWidget {
         //set up world renderer
         WorldRenderer.renderLights = false;
         WorldRenderer.renderSSR = false;
+        WorldRenderer.renderSSAO = !xr;
         WorldRenderer.setupFramebuffer();
         WorldRenderer.initGBuffer(client.camera);
 
@@ -159,7 +160,7 @@ public class ModelViewer extends SelectableWidget {
             theSky.render(client.camera, matrices);
 
         float bloom = Settings.bloomStrength.get();
-        if (!xr && bloom > 0f)
+        if (bloom > 0f)
             BloomRenderer.applyBloom(WorldRenderer.outputBuffer, WorldRenderer.PBRFrameBuffer.getEmissive(), 0.8f, bloom);
 
         //draw bounding box
@@ -405,8 +406,9 @@ public class ModelViewer extends SelectableWidget {
             rotX = anchorRotX - dy;
             rotY = anchorRotY - dx;
         } else if (dragged == GLFW_MOUSE_BUTTON_2) {
-            posX = anchorPosX + dx * 0.01f;
-            posY = anchorPosY + dy * 0.01f;
+            float s = defaultScale * 0.01f;
+            posX = anchorPosX + dx * s;
+            posY = anchorPosY + dy * s;
         }
 
         Client.getInstance().window.warpMouse((deltaX, deltaY) -> {

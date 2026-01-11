@@ -151,7 +151,6 @@ public class Client {
 
     public void render() {
         float delta = timer.partialTick;
-        boolean xr = XrManager.isInXR();
 
         matrices.pushMatrix();
 
@@ -159,34 +158,15 @@ public class Client {
         events.runEvents(EventType.RENDER_BEFORE_WORLD);
 
         //render world
-        if (world != null) {
+        if (world != null)
             world.render(matrices, delta);
 
-            if (!hideHUD) {
-                //render first-person hand
-                if (!world.isThirdPerson()) {
-                    if (!xr) glClear(GL_DEPTH_BUFFER_BIT); //top of world
-                    world.renderHoldingItem(camera, matrices, delta);
-                }
-
-                //render world hud
-                if (!xr) glClear(GL_DEPTH_BUFFER_BIT); //top of hand
-
-                matrices.pushMatrix();
-                if (XrManager.isInXR())
-                    XrRenderer.applyGUITransform(matrices);
-
-                world.renderHUD(matrices, delta);
-
-                matrices.popMatrix();
-            }
-        }
-
-        //top of world hud
+        //top of the world
         glClear(GL_DEPTH_BUFFER_BIT);
 
         //xr GUI transform
-        if (xr) XrRenderer.applyGUITransform(matrices);
+        if (XrManager.isInXR())
+            XrRenderer.applyGUITransform(matrices);
 
         //run gui events
         events.runEvents(EventType.RENDER_BEFORE_GUI);
@@ -385,9 +365,7 @@ public class Client {
         if (screen != null) {
             screen.windowFocused(focused);
         } else if (world != null && !focused && !XrManager.isInXR()) {
-            Screen pause = world.pauseScreen.get();
-            if (pause != null)
-                this.setScreen(pause);
+            world.pause();
         }
 
         events.runEvents(EventType.WINDOW_FOCUSED, focused);

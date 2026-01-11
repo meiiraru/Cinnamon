@@ -10,6 +10,7 @@ out vec4 fragColor;
 uniform vec3 color;
 uniform vec3 direction;
 uniform float intensity;
+uniform float scale;
 
 uniform mat4 view;
 uniform mat4 projection;
@@ -56,10 +57,10 @@ void main() {
             vec2 offset = vec2(float(x), float(y)) * sampleRadius;
             vec2 samplePos = lightScreen.xy + offset;
             if (samplePos.x < 0.0f || samplePos.y < 0.0f || samplePos.x > 1.0f || samplePos.y > 1.0f)
-            continue; //skip samples outside the screen
+                continue; //skip samples outside the screen
 
             if (texture(gDepth, samplePos).r >= lightDepth)
-            visibility += 1.0f;
+                visibility += 1.0f;
         }
     }
     visibility /= 9.0f;
@@ -81,13 +82,14 @@ void main() {
     //vector from current pixel to the light screen position
     vec2 uv = texCoords - lightScreen.xy;
     uv.x *= aspectRatio;
+    uv /= scale; //apply scale to make effect smaller/bigger
 
     //main glare - a soft glow right at the light position
     float glare = max(0.0f, pow(max(0.0f, 1.0f - length(uv)), 15.0f));
     finalFlare += glare * glareColor * 2.0f;
 
     //starburst - anamorphic streaks
-    float stars = starburst(uv, 8.0f, 10.0f);//8 rays, sharp falloff
+    float stars = starburst(uv, 8.0f, 10.0f); //8 rays, sharp falloff
     finalFlare += stars * glare * glareColor;
 
     //if the light is occluded, skip the rest
@@ -106,6 +108,7 @@ void main() {
     vec2 haloScreenPos = screenCenter - axisVec * (0.2f - 3.0f * 0.3f);
     vec2 uvHalo = texCoords - haloScreenPos;
     uvHalo.x *= aspectRatio;
+    uvHalo /= scale;
 
     //treat halo as a ghost
     vec3 haloColor;
@@ -120,8 +123,9 @@ void main() {
         vec2 ghostScreenPos = screenCenter - axisVec * (0.2f + (j - 2.0f) * 0.3f);
         vec2 uvGhost = texCoords - ghostScreenPos;
         uvGhost.x *= aspectRatio;
+        uvGhost /= scale;
 
-        float size = 0.05f + ((j % 3) * 0.025f);
+        float size = (0.05f + ((j % 3) * 0.025f)) * scale;
 
         //chromatic aberration - offset colors slightly
         vec3 ghostColor;

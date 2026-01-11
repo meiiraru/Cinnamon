@@ -40,18 +40,27 @@ public class VecScreen extends ParentedScreen {
 
         Vector2f src = new Vector2f(0, 0);
 
+        matrices.pushMatrix();
+        float d = UIHelper.getDepthOffset();
+
         for (int i = 0; i < vectors.size(); i++) {
+            matrices.translate(0f, 0f, d);
             Vector2f vec = vectors.get(i);
             VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, src.x, -src.y, src.x + vec.x, -src.y - vec.y, 3f / scale, (i % 2 == 0 ? Colors.YELLOW : Colors.ORANGE).argb));
             src.add(vec);
         }
 
+        matrices.translate(0f, 0f, d);
         VertexConsumer.MAIN.consume(
                 GeometryHelper.circle(matrices, src.x, -src.y, 3f / scale, 16, Colors.LIME.argb));
 
         matrices.popMatrix();
+        matrices.popMatrix();
 
         //draw texts
+        matrices.pushMatrix();
+        matrices.translate(0f, 0f, d * (vectors.size() + 2));
+
         Text.of("X: " + (xBuffer.isEmpty() ? buffer + "_" : xBuffer) + " Y: " + (xBuffer.isEmpty() ? "" : buffer + "_"))
                 .withStyle(Style.EMPTY.outlined(true))
                 .render(VertexConsumer.MAIN, matrices, width / 2f, 4, Alignment.TOP_CENTER);
@@ -72,6 +81,8 @@ public class VecScreen extends ParentedScreen {
         if (mouseX > width / 2f + (src.x - 3f / scale) * scale && mouseX < width / 2f + (src.x + 3f / scale) * scale &&
                 mouseY > height / 2f + (-src.y - 3f / scale) * scale && mouseY < height / 2f + (-src.y + 3f / scale) * scale)
             UIHelper.renderTooltip(matrices, mouseX, mouseY, Text.of("(" + src.x + ", " + src.y + ")"));
+
+        matrices.popMatrix();
 
         super.renderChildren(matrices, mouseX, mouseY, delta);
     }

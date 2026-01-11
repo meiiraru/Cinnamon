@@ -1,5 +1,6 @@
 package cinnamon.sound;
 
+import cinnamon.Client;
 import cinnamon.logger.Logger;
 import cinnamon.render.Camera;
 import cinnamon.utils.Maths;
@@ -146,8 +147,12 @@ public class SoundManager {
         //remove sounds
         sounds.removeIf(SoundInstance::isRemoved);
 
+        updateSoundPosition(camera);
+    }
+
+    public static void updateSoundPosition(Camera camera) {
         //setup listener properties
-        Vector3f pos = camera.getPos();
+        Vector3f pos = camera.getPosition();
         Vector3f forward = camera.getForwards();
         Vector3f up = camera.getUp();
 
