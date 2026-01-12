@@ -1,12 +1,15 @@
 package cinnamon.parsers;
 
+import cinnamon.Client;
 import cinnamon.model.material.Material;
 import cinnamon.model.material.MaterialTexture;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
+import cinnamon.render.MatrixStack;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.IOUtils;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -26,11 +29,11 @@ public class ObjExporter {
     public static final Path EXPORT_FOLDER = IOUtils.ROOT_FOLDER.resolve("exported");
     private static final DecimalFormat df = new DecimalFormat("#.######", DecimalFormatSymbols.getInstance(Locale.US));
 
-    public static void export(String meshName, Mesh mesh) throws IOException {
-        export(meshName, mesh, new Matrix4f(), EXPORT_FOLDER);
+    public static Path export(String meshName, Mesh mesh) throws IOException {
+        return export(meshName, mesh, Client.getInstance().matrices, EXPORT_FOLDER);
     }
 
-    public static void export(String meshName, Mesh mesh, Matrix4f poseMat, Path exportTarget) throws IOException {
+    public static Path export(String meshName, Mesh mesh, MatrixStack matrices, Path exportTarget) throws IOException {
         //prepare variables
         Path folder = IOUtils.parseNonDuplicatePath(exportTarget.resolve(meshName));
 
@@ -49,10 +52,13 @@ public class ObjExporter {
             writeMaterial(folder, mtlString, material);
         }
 
+        Matrix4f poseMat = matrices.peek().pos();
+        Matrix3f normalMat = matrices.peek().normal();
+
         //write vertices
         for (Vector3f vertex : mesh.getVertices()) {
             Vector4f v = new Vector4f(vertex, 1f).mul(poseMat);
-            string.append("v %s %s %S\n".formatted(df.format(v.x), df.format(v.y), df.format(v.z)));
+            string.append("v %s %s %s\n".formatted(df.format(v.x), df.format(v.y), df.format(v.z)));
         }
 
         //uvs
@@ -60,9 +66,10 @@ public class ObjExporter {
             string.append("vt %s %s\n".formatted(df.format(uv.x), df.format(uv.y)));
 
         //normals
-        for (Vector3f normal : mesh.getNormals())
-            string.append("vn %s %s %s\n".formatted(df.format(normal.x), df.format(normal.y), df.format(normal.z)));
-
+        for (Vector3f normal : mesh.getNormals()) {
+            Vector3f n = new Vector3f(normal).mul(normalMat);
+            string.append("vn %s %s %s\n".formatted(df.format(n.x), df.format(n.y), df.format(n.z)));
+        }
 
         //check if the face should be inverted when the pose matrix scale is negative
         boolean invertFace = poseMat.determinant() < 0f;
@@ -78,6 +85,9 @@ public class ObjExporter {
         //write material file
         Path materialFile = folder.resolve(meshName + ".mtl");
         IOUtils.writeFile(materialFile, mtlString.toString().getBytes(StandardCharsets.UTF_8));
+
+        //return path to obj folder
+        return folder;
     }
 
     private static void writeGroup(StringBuilder string, Group group, boolean invert) {

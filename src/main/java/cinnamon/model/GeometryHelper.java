@@ -460,6 +460,64 @@ public class GeometryHelper {
         return cylinder;
     }
 
+    public static Vertex[][] arc(MatrixStack matrices, float x, float y, float z, float height, float startAngle, float endAngle, float innerRadius, float outerRadius, int sides, boolean closeSides, int color) {
+        int vertexCount = Math.max(sides, 1);
+        float angleStep = Math.toRadians(endAngle - startAngle) / vertexCount;
+
+        //generate vertices
+        int arcLen = vertexCount + 1;
+        Vertex[] vertices = new Vertex[arcLen * 4]; //top and bottom
+
+        float a = Math.toRadians(startAngle);
+        int index = 0;
+        for (int i = 0; i < arcLen; i++) {
+            float theta = a + angleStep * i;
+
+            float xOuter = Math.cos(theta) * outerRadius;
+            float zOuter = Math.sin(theta) * outerRadius;
+            float xInner = Math.cos(theta) * innerRadius;
+            float zInner = Math.sin(theta) * innerRadius;
+
+            //top inner
+            vertices[index++] = Vertex.of(x + xInner, y + height, z + zInner).normal(0, 1, 0).color(color).mul(matrices);
+            //top outer
+            vertices[index++] = Vertex.of(x + xOuter, y + height, z + zOuter).normal(0, 1, 0).color(color).mul(matrices);
+            //bottom inner
+            vertices[index++] = Vertex.of(x + xInner, y, z + zInner).normal(0, -1, 0).color(color).mul(matrices);
+            //bottom outer
+            vertices[index++] = Vertex.of(x + xOuter, y, z + zOuter).normal(0, -1, 0).color(color).mul(matrices);
+        }
+
+        //generate faces
+        int faceCount = vertexCount * 4 + (closeSides ? 2 : 0);
+        Vertex[][] arc = new Vertex[faceCount][4];
+        index = 0;
+        for (int i = 0; i < vertexCount; i++) {
+            int next = (i + 1) % arcLen;
+            int base = i * 4;
+            int nBase = next * 4;
+
+            //top
+            arc[index++] = new Vertex[]{vertices[base],     vertices[nBase],     vertices[nBase + 1], vertices[base + 1]};
+            //bottom
+            arc[index++] = new Vertex[]{vertices[base + 3], vertices[nBase + 3], vertices[nBase + 2], vertices[base + 2]};
+            //outer
+            arc[index++] = new Vertex[]{vertices[base + 1], vertices[nBase + 1], vertices[nBase + 3], vertices[base + 3]};
+            //inner
+            arc[index++] = new Vertex[]{vertices[base + 2], vertices[nBase + 2], vertices[nBase],     vertices[base]};
+        }
+
+        if (closeSides) {
+            int end = (arcLen - 1) * 4;
+            //left
+            arc[index++] = new Vertex[]{vertices[0], vertices[1], vertices[3], vertices[2]};
+            //right
+            arc[index] = new Vertex[]{vertices[end + 2], vertices[end + 3], vertices[end + 1], vertices[end]};
+        }
+
+        return arc;
+    }
+
     public static Vertex[][] sphere(MatrixStack matrices, float x, float y, float z, float radius, int sides, int color) {
         return sphere(matrices, x, y, z, radius, sides, sides, 1f, 1f, color);
     }
