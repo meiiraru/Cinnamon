@@ -13,9 +13,17 @@ import java.util.List;
 
 public class VerticesToMesh {
 
+    public static Mesh fromVertices(Vertex[][] vertices) {
+        return fromVertices(vertices, null);
+    }
+
     public static Mesh fromVertices(Vertex[][] vertices, Material material) {
+        return fromVertices(vertices, material, true, true, "default");
+    }
+
+    public static Mesh fromVertices(Vertex[][] vertices, Material material, boolean includeUVs, boolean includeNormals, String name) {
         Mesh mesh = new Mesh();
-        Group group = new Group("default");
+        Group group = new Group(name);
         mesh.getGroups().add(group);
 
         if (material != null) {
@@ -36,12 +44,17 @@ public class VerticesToMesh {
             //vertex
             for (Vertex vertex : f) {
                 positions.add(vertex.getPosition());
-                uvs.add(vertex.getUV());
-                normals.add(vertex.getNormal());
-
                 posIndices.add(positions.size() - 1);
-                uvIndices.add(uvs.size() - 1);
-                normIndices.add(normals.size() - 1);
+
+                if (includeUVs) {
+                    uvs.add(vertex.getUV());
+                    uvIndices.add(uvs.size() - 1);
+                }
+
+                if (includeNormals) {
+                    normals.add(vertex.getNormal());
+                    normIndices.add(normals.size() - 1);
+                }
             }
 
             Face face = new Face(posIndices, uvIndices, normIndices);

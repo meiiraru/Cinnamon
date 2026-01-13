@@ -42,14 +42,17 @@ public class ObjExporter {
                 mtlString = new StringBuilder();
 
         //materials
-        string.append("mtllib %s.%s\n".formatted(meshName, "mtl"));
+        boolean hasMaterials = !mesh.getMaterials().isEmpty();
+        if (hasMaterials) {
+            string.append("mtllib %s.%s\n".formatted(meshName, "mtl"));
 
-        for (Material material : mesh.getMaterials().values()) {
-            //material name
-            mtlString.append("newmtl %s\n".formatted(material.getName()));
+            for (Material material : mesh.getMaterials().values()) {
+                //material name
+                mtlString.append("newmtl %s\n".formatted(material.getName()));
 
-            //material data
-            writeMaterial(folder, mtlString, material);
+                //material data
+                writeMaterial(folder, mtlString, material);
+            }
         }
 
         Matrix4f poseMat = matrices.peek().pos();
@@ -83,8 +86,10 @@ public class ObjExporter {
         IOUtils.writeFile(file, string.toString().getBytes(StandardCharsets.UTF_8));
 
         //write material file
-        Path materialFile = folder.resolve(meshName + ".mtl");
-        IOUtils.writeFile(materialFile, mtlString.toString().getBytes(StandardCharsets.UTF_8));
+        if (hasMaterials) {
+            Path materialFile = folder.resolve(meshName + ".mtl");
+            IOUtils.writeFile(materialFile, mtlString.toString().getBytes(StandardCharsets.UTF_8));
+        }
 
         //return path to obj folder
         return folder;
@@ -92,7 +97,10 @@ public class ObjExporter {
 
     private static void writeGroup(StringBuilder string, Group group, boolean invert) {
         string.append("g %s\n".formatted(group.getName()));
-        string.append("usemtl %s\n".formatted(group.getMaterial().getName()));
+
+        Material material = group.getMaterial();
+        if (material != null)
+            string.append("usemtl %s\n".formatted(material.getName()));
 
         for (Face face : group.getFaces()) {
             List<Integer>
