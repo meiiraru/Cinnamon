@@ -101,7 +101,7 @@ public class Flashlight extends Item {
         Vector3f pos = source.getHandPos(false, delta);
         Vector3f dir = source.getHandDir(false, delta);
         light.direction(dir);
-        float f = 0.25f;
+        float f = 0.125f;
         light.pos(pos.x + dir.x * f, pos.y + dir.y * f, pos.z + dir.z * f);
 
         boolean fp = source == WorldRenderer.camera.getEntity() && !((WorldClient) source.getWorld()).isThirdPerson();
