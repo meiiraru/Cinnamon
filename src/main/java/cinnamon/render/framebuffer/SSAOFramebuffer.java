@@ -7,6 +7,7 @@ import org.joml.Vector3f;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL33.GL_TEXTURE_SWIZZLE_RGBA;
 
 public class SSAOFramebuffer extends Framebuffer {
 
@@ -72,6 +73,10 @@ public class SSAOFramebuffer extends Framebuffer {
         use();
 
         texture = genTexture(GL_RED, getWidth(), getHeight(), GL_RED, GL_FLOAT, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_COLOR_ATTACHMENT0);
+
+        int[] swizzleMask = {GL_RED, GL_RED, GL_RED, GL_ALPHA};
+        glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+
         glBindTexture(GL_TEXTURE_2D, 0);
 
         checkForErrors();

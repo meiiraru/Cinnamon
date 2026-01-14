@@ -128,13 +128,6 @@ bool rayMarch(vec3 rayOrigin, vec3 rayDir, out vec2 hitUV) {
 }
 
 void main() {
-    //early exit for sky/far plane
-    float depth = texture(gDepth, texCoords).r;
-    if (depth >= 0.99999f) {
-        fragColor = vec4(0.0f);
-        return;
-    }
-
     //sample material properties
     float roughness = texture(gORM, texCoords).g;
 

@@ -1,6 +1,7 @@
 package cinnamon.render.framebuffer;
 
 import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL30.glClearBufferfv;
 
 public class PBRDeferredFramebuffer extends Framebuffer {
 
@@ -16,6 +17,12 @@ public class PBRDeferredFramebuffer extends Framebuffer {
             GL_COLOR_ATTACHMENT1,
             GL_COLOR_ATTACHMENT2,
             GL_COLOR_ATTACHMENT3,
+    };
+    private static final float[][] clearColors = {
+            {0f, 0f, 0f, 0f}, //gAlbedo
+            {0f, 0f, 0f, 0f}, //gNormal
+            {0f, 1f, 0f, 0f}, //gORM
+            {0f, 0f, 0f, 0f}, //gEmissive
     };
 
     public int gAlbedo, gNormal, gORM, gEmissive;
@@ -42,6 +49,13 @@ public class PBRDeferredFramebuffer extends Framebuffer {
 
         checkForErrors();
         DEFAULT_FRAMEBUFFER.use();
+    }
+
+    @Override
+    public void clear() {
+        for (int i = 0; i < ATTACHMENTS.length; i++)
+            glClearBufferfv(GL_COLOR, i, clearColors[i]);
+        glClearBufferfi(GL_DEPTH_STENCIL, 0, 1f, 1);
     }
 
     @Override

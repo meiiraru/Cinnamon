@@ -33,7 +33,6 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -48,7 +47,6 @@ public class WorldRenderer {
     public static final Framebuffer lightingMultiPassBuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
     public static final Framebuffer shadowBuffer = new Framebuffer(Framebuffer.DEPTH_BUFFER);
     public static final ShadowCubemapFramebuffer cubeShadowBuffer = new ShadowCubemapFramebuffer();
-    public static final Framebuffer outlineFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
     public static final Framebuffer lastFrameFramebuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
 
     public static final ShadowCascadeFramebuffer cascadeShadowBuffer = new ShadowCascadeFramebuffer(CascadedShadow.NUM_CASCADES);
@@ -157,12 +155,11 @@ public class WorldRenderer {
         if (renderDebug)
             world.renderDebug(camera, matrices, delta);
 
-        //render outlines
-        if (renderOutlines)
-            renderOutlines(world.getOutlines(camera), camera, matrices, delta);
-
         //store current frame for later
-        copyLastFrame();
+        copyLastFrame(true, true);
+
+        //render outlines
+        renderOutlines(world, camera, matrices, delta);
 
         //bake output buffer to the target buffer
         bake();
@@ -207,11 +204,14 @@ public class WorldRenderer {
             applyBloom();
             if (renderLights) renderLightsFlare(world.getLights(camera), camera, matrices);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
-            if (renderOutlines) renderOutlines(world.getOutlines(camera), camera, matrices, delta);
         });
 
         //finish render
-        copyLastFrame();
+        copyLastFrame(true, true);
+
+        //render outlines
+        renderOutlines(world, camera, matrices, delta);
+
         bake();
     }
 
@@ -227,11 +227,12 @@ public class WorldRenderer {
         targetBuffer = buffer;
     }
 
-    public static void copyLastFrame() {
-        lastFrameFramebuffer.resizeTo(outputBuffer);
-        lastFrameFramebuffer.useClear();
-        outputBuffer.blit(lastFrameFramebuffer, true, true, false);
-        outputBuffer.use();
+    public static void copyLastFrame(boolean color, boolean depth) {
+        Framebuffer current = Framebuffer.activeFramebuffer;
+        lastFrameFramebuffer.resizeTo(current);
+        lastFrameFramebuffer.use();
+        current.blit(lastFrameFramebuffer, color, depth, false);
+        current.use();
     }
 
     public static void bake() {
@@ -342,15 +343,6 @@ public class WorldRenderer {
         float bloom = Settings.bloomStrength.get();
         if (renderBloom && bloom > 0f)
             BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getEmissive(), 1.5f, bloom);
-    }
-
-    public static void renderWater(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
-        if (!renderWater)
-            return;
-
-        int tex = WaterRenderer.prepareWaterRenderer(camera, world.getTime() + delta);
-        world.renderWater(camera, matrices, delta);
-        Texture.unbindAll(tex);
     }
 
 
@@ -701,65 +693,6 @@ public class WorldRenderer {
     }
 
 
-    // -- outlines -- //
-
-
-    public static void renderOutlines(List<Entity> entitiesToOutline, Camera camera, MatrixStack matrices, float delta) {
-        if (entitiesToOutline.isEmpty())
-            return;
-
-        //prepare outline
-        initOutlineBatch(camera);
-        Shader main = Shaders.MAIN_PASS.getShader();
-        Shader model = Shaders.MODEL_PASS.getShader();
-
-        //render entities
-        for (Entity entity : entitiesToOutline) {
-            int color = entity.getOutlineColor();
-            model.use().applyColorRGBA(color);
-            entity.render(camera, matrices, delta);
-            MaterialApplier.cleanup();
-
-            //finish vertex consumers here because color
-            main.use().applyColorRGBA(color);
-            VertexConsumer.finishAllBatches(main, camera);
-        }
-
-        //apply outlines to the main buffer
-        bakeOutlines(null);
-    }
-
-    public static void initOutlineBatch(Camera camera) {
-        outlineRendering = true;
-        outlineFramebuffer.resizeTo(targetBuffer);
-        outlineFramebuffer.useClear();
-
-        Shaders.MAIN_PASS.getShader().use().setup(camera);
-        Shaders.MODEL_PASS.getShader().use().setup(camera);
-    }
-
-    public static void bakeOutlines(Consumer<Shader> shaderConsumer) {
-        //prepare framebuffer
-        targetBuffer.use();
-
-        //prepare shader
-        Shader s = Shaders.OUTLINE.getShader().use();
-        s.setVec2("texelSize", 1f / outlineFramebuffer.getWidth(), 1f / outlineFramebuffer.getHeight());
-        s.setTexture("outlineTex", outlineFramebuffer.getColorBuffer(), 0);
-        s.setFloat("radius", 4f);
-
-        if (shaderConsumer != null)
-            shaderConsumer.accept(s);
-
-        //render outline
-        renderQuad();
-
-        //cleanup
-        Texture.unbindTex(0);
-        outlineRendering = false;
-    }
-
-
     // -- other -- //
 
 
@@ -815,6 +748,49 @@ public class WorldRenderer {
 
         //reset flag
         heldItemRendering = false;
+    }
+
+    public static void renderWater(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
+        if (!renderWater)
+            return;
+
+        //glDepthMask(false);
+        int tex = WaterRenderer.prepareWaterRenderer(camera, world.getTime() + delta);
+        world.renderWater(camera, matrices, delta);
+        Texture.unbindAll(tex);
+        //glDepthMask(true);
+    }
+
+    public static void renderOutlines(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
+        if (!renderOutlines)
+            return;
+
+        List<Entity> entitiesToOutline = world.getOutlines(camera);
+        if (entitiesToOutline.isEmpty())
+            return;
+
+        //init outline renderer
+        outlineRendering = true;
+        OutlineRenderer.prepareRenderer(outputBuffer, camera);
+
+        Shader main = Shaders.MAIN_PASS.getShader();
+        Shader model = Shaders.MODEL_PASS.getShader();
+
+        //render entities
+        for (Entity entity : entitiesToOutline) {
+            int color = entity.getOutlineColor();
+            model.use().applyColorRGBA(color);
+            entity.render(camera, matrices, delta);
+            MaterialApplier.cleanup();
+
+            //finish vertex consumers here because color
+            main.use().applyColorRGBA(color);
+            VertexConsumer.finishAllBatches(main, camera);
+        }
+
+        //bake outlines to the target buffer
+        OutlineRenderer.bakeOutlines(null);
+        outlineRendering = false;
     }
 
 

@@ -7,8 +7,8 @@ import cinnamon.model.ModelManager;
 import cinnamon.model.SimpleGeometry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.OutlineRenderer;
 import cinnamon.render.Window;
-import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.model.ModelRenderer;
@@ -204,8 +204,7 @@ public class XrRenderer {
 
         //prepare the renderer
         boolean lefty = activeHand % 2 == 0;
-        WorldRenderer.setupFramebuffer();
-        WorldRenderer.initOutlineBatch(camera);
+        OutlineRenderer.prepareRenderer(Framebuffer.activeFramebuffer, camera);
 
         //apply the hand matrices
         matrices.pushMatrix();
@@ -225,7 +224,7 @@ public class XrRenderer {
         //cleanup
         matrices.popMatrix();
         if (lefty) glFrontFace(GL_CCW);
-        WorldRenderer.bakeOutlines(s -> s.setFloat("radius", 8f));
+        OutlineRenderer.bakeOutlines(s -> s.setFloat("radius", 8f));
 
         //render the laser
         if (isScreenCollided()) {
