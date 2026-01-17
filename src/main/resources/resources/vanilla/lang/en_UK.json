@@ -111,6 +111,7 @@
   "gui.model_viewer_screen.toggle_wireframe": "Toggle Wireframe",
   "gui.model_viewer_screen.toggle_bounds": "Toggle Bounds",
   "gui.model_viewer_screen.auto_rotate": "Auto Rotate",
+  "gui.model_viewer_screen.ground_plane": "Ground Plane",
 
   "gui.wordle.success": "Congrats!",
   "gui.wordle.error.word_small": "Word too small",

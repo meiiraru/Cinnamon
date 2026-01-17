@@ -127,10 +127,6 @@ public class ModelViewer extends SelectableWidget {
         matrices.rotate(Rotation.X.rotationDeg(-rotX));
         matrices.rotate(Rotation.Y.rotationDeg(-rotY - 180));
 
-        //extra rendering
-        if (extraRendering != null)
-            extraRendering.accept(matrices);
-
         //apply model-only render state
         if (renderWireframe)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -170,6 +166,11 @@ public class ModelViewer extends SelectableWidget {
             VertexConsumer.LINES.consume(GeometryHelper.box(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFFFFFFFF));
             VertexConsumer.LINES.finishBatch(client.camera);
         }
+
+        //extra rendering
+        if (extraRendering != null)
+            extraRendering.accept(matrices);
+        VertexConsumer.finishAllBatches(client.camera);
 
         //finish world render
         WorldRenderer.bake();
@@ -243,6 +244,10 @@ public class ModelViewer extends SelectableWidget {
         float maxDimension = model == null ? 1f : Maths.max(model.getAABB().getDimensions());
         scaleReset = defaultScale / maxDimension;
         resetView();
+    }
+
+    public ModelRenderer getModel() {
+        return model;
     }
 
     public boolean shouldRenderBounds() {

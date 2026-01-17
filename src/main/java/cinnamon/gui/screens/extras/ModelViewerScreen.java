@@ -12,6 +12,7 @@ import cinnamon.gui.widgets.types.ComboBox;
 import cinnamon.gui.widgets.types.Label;
 import cinnamon.gui.widgets.types.ModelViewer;
 import cinnamon.lang.LangManager;
+import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.*;
 import cinnamon.render.MatrixStack;
@@ -24,7 +25,6 @@ import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
 import org.joml.Math;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -37,7 +37,7 @@ public class ModelViewerScreen extends ParentedScreen {
     private final ComboBox animationList = new ComboBox(0, 0, 60, 14);
     private final ModelViewer modelViewer = new ModelViewer(0, 0, 1, 1);
 
-    private boolean autoRotate = true;
+    private boolean autoRotate = true, renderGroundPlane = true;
 
     public ModelViewerScreen(Screen parentScreen) {
         super(parentScreen);
@@ -139,11 +139,27 @@ public class ModelViewerScreen extends ParentedScreen {
         autoRotate.setRightToLeft(true);
         properties.addWidget(autoRotate);
 
+        //ground plane
+        Checkbox groundPlane = new Checkbox(skyboxes.getX(), autoRotate.getY() + autoRotate.getHeight() + 4, Text.translated("gui.model_viewer_screen.ground_plane"));
+        groundPlane.setToggled(this.renderGroundPlane);
+        groundPlane.setAction(b -> this.renderGroundPlane = ((Checkbox) b).isToggled());
+        groundPlane.setRightToLeft(true);
+        properties.addWidget(groundPlane);
+
         super.init();
 
         //set initial model
         if (!modelViewer.hasModel())
             setModel(LivingModelRegistry.STRAWBERRY.resource, LangManager.get("living_entity." + LivingModelRegistry.STRAWBERRY.name().toLowerCase()));
+
+        modelViewer.setExtraRendering(matrices -> {
+            if (renderGroundPlane) {
+                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, -10f, -0.003f, -10f, 10f, 10f, 1, 1, 0x80000000));
+                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, -0.5f, -0.002f, -0.5f, 0.5f, 0.5f, 1, 1, 0x80000000));
+                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, 0f, -0.001f, -0.005f, 0.5f, 0.005f, 1, 1, 0x80FF0000));
+                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, -0.005f, -0.001f, 0f, 0.005f, 0.5f, 1, 1, 0x800000FF));
+            }
+        });
     }
 
     @Override
@@ -171,27 +187,15 @@ public class ModelViewerScreen extends ParentedScreen {
         animationList.clearEntries();
         List<String> animations = modelViewer.getAnimations();
         if (!animations.isEmpty()) {
-            List<Text> animationTexts = new ArrayList<>();
-            Style defaultStyle = Style.EMPTY.color(animationList.getStyle().getInt("text_color"));
-            Style selectedStyle = Style.EMPTY.color(animationList.getStyle().getInt("accent_color"));
             modelViewer.stopAllAnimations();
-            animationList.addEntry(Text.translated("gui.none"), null, b -> {
-                modelViewer.stopAllAnimations();
-                for (Text text : animationTexts)
-                    text.withStyle(defaultStyle);
-            });
+            animationList.addEntry(Text.translated("gui.none"), null, b -> modelViewer.stopAllAnimations());
+            animations.sort(String::compareTo);
             for (String animation : animations) {
                 Text text = Text.of(animation);
-                animationTexts.add(text);
                 animationList.addEntry(text, null, b -> {
+                    modelViewer.stopAllAnimations();
                     Animation anim = modelViewer.getAnimation(animation);
-                    if (anim.isPlaying()) {
-                        anim.stop();
-                        text.withStyle(defaultStyle);
-                    } else {
-                        anim.setLoop(Animation.Loop.LOOP).play();
-                        text.withStyle(selectedStyle);
-                    }
+                    anim.setLoop(Animation.Loop.LOOP).play();
                 });
             }
         } else {
