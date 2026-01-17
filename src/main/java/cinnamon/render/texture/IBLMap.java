@@ -57,7 +57,7 @@ public class IBLMap {
             s.setMat4("view", face.viewMatrix);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, face.GLTarget, id, 0);
             glClear(GL_COLOR_BUFFER_BIT);
-            SimpleGeometry.INVERTED_CUBE.render();
+            SimpleGeometry.INV_CUBE.render();
         }
 
         oldFB.use();
@@ -85,7 +85,7 @@ public class IBLMap {
                 s.setMat4("view", face.viewMatrix);
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, face.GLTarget, id, mip);
                 glClear(GL_COLOR_BUFFER_BIT);
-                SimpleGeometry.INVERTED_CUBE.render();
+                SimpleGeometry.INV_CUBE.render();
             }
         }
 

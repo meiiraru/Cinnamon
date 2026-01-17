@@ -22,6 +22,7 @@ import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glTexImage2D;
 import static org.lwjgl.opengl.GL11.glTexParameteri;
 import static org.lwjgl.opengl.GL30.glGenerateMipmap;
+import static org.lwjgl.opengl.GL33.GL_TEXTURE_SWIZZLE_RGBA;
 
 public class WaterRenderer {
 
@@ -47,6 +48,10 @@ public class WaterRenderer {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glGenerateMipmap(GL_TEXTURE_2D);
+
+        //swizzle red channel to all rgb channels
+        int[] swizzleMask = {GL_RED, GL_RED, GL_RED, GL_ALPHA};
+        glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
 
         //free resources
         glBindTexture(GL_TEXTURE_2D, 0);

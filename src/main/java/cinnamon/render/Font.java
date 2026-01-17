@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Random;
 
 import static cinnamon.events.Events.LOGGER;
-import static cinnamon.model.GeometryHelper.quad;
+import static cinnamon.model.GeometryHelper.rectangle;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL33.GL_TEXTURE_SWIZZLE_RGBA;
 import static org.lwjgl.stb.STBTruetype.*;
@@ -234,7 +234,7 @@ public class Font {
                 }
 
                 int bgc = style.getBackgroundColor();
-                consumer.consume(quad(matrices, x0, y0, zOffset * zi, w, h, bgc));
+                consumer.consume(rectangle(matrices, x0, y0, x0 + w, y0 + h, zOffset * zi, bgc));
             }
 
             //restore buffer data
@@ -267,11 +267,13 @@ public class Font {
 
         //underline
         if (underlined)
-            consumer.consume(quad(matrices, x0, y0, z, width, 1f, color));
+            consumer.consume(rectangle(matrices, x0, y0, x0 + width, y0 + 1, z, color));
 
         //strikethrough
-        if (strikethrough)
-            consumer.consume(quad(matrices, x0, y0 - (int) (ascent / 2), z, width, 1f, color));
+        if (strikethrough) {
+            float rectY = y0 - (int) (ascent / 2);
+            consumer.consume(rectangle(matrices, x0, rectY, x0 + width, rectY + 1f, color));
+        }
     }
 
     private void bakeChar(VertexConsumer consumer, MatrixStack matrices, int c, boolean italic, boolean bold, float x, float y, float z, int color, int italicOffset, int boldOffset) {

@@ -196,6 +196,8 @@ float calculateDirectionalShadow(vec3 fragPosWorld, vec3 lightDir, vec3 normal) 
 }
 
 void main() {
+    //if (true) { fragColor = vec4(light.color, 1.0f); return; }
+
     //pos
     vec2 texCoords = gl_FragCoord.xy / vec2(textureSize(gAlbedo, 0));
     vec3 pos = getPosFromDepth(texCoords);

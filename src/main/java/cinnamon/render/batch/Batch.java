@@ -177,7 +177,8 @@ public abstract class Batch { //vertex consumer
         protected void preRender(Shader shader) {
             super.preRender(shader);
             Client c = Client.getInstance();
-            c.world.getSky().applyUniforms(shader, WorldRenderer.camera);
+            if (c.world != null)
+                c.world.getSky().applyUniforms(shader, WorldRenderer.camera);
         }
     }
 

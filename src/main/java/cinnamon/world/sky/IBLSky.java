@@ -26,7 +26,7 @@ public class IBLSky extends Sky {
         s.setMat3("rotation", skyRotation);
         s.setInt("skybox", 0);
         SkyBox.of(skyBox).bind(0);
-        SimpleGeometry.INVERTED_CUBE.render();
+        SimpleGeometry.INV_CUBE.render();
         CubeMap.unbindTex(0);
     }
 

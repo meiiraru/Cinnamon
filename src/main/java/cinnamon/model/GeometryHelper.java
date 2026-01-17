@@ -40,15 +40,15 @@ public class GeometryHelper {
         };
     }
 
-    public static Vertex[] quad(MatrixStack matrices, float x0, float y0, float z, float width, float height, int color) {
-        float x1 = x0 + width;
-        float y1 = y0 + height;
+    public static Vertex[] invQuad(MatrixStack matrices, float x, float y, float width, float height) {
+        float x1 = x + width;
+        float y1 = y + height;
 
         return new Vertex[]{
-                Vertex.of(x0, y1, z).color(color).mul(matrices),
-                Vertex.of(x1, y1, z).color(color).mul(matrices),
-                Vertex.of(x1, y0, z).color(color).mul(matrices),
-                Vertex.of(x0, y0, z).color(color).mul(matrices),
+                Vertex.of(x , y1, 0).uv(0f, 1f).mul(matrices),
+                Vertex.of(x , y , 0).uv(0f, 0f).mul(matrices),
+                Vertex.of(x1, y , 0).uv(1f, 0f).mul(matrices),
+                Vertex.of(x1, y1, 0).uv(1f, 1f).mul(matrices),
         };
     }
 
