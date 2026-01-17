@@ -78,7 +78,7 @@ public class Camera {
     }
 
     public void setRot(float pitch, float yaw, float roll) {
-        this.rotation.rotationYXZ(Math.toRadians(-yaw), Math.toRadians(-pitch), Math.toRadians(-roll));
+        this.rotation.rotationZYX(Math.toRadians(roll), Math.toRadians(-yaw), Math.toRadians(-pitch));
         viewDirty = true;
     }
 

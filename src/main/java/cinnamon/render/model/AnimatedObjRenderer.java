@@ -96,4 +96,8 @@ public class AnimatedObjRenderer extends ObjRenderer {
         for (Animation animation : animations.values())
             animation.stop();
     }
+
+    public Bone getBone() {
+        return bone;
+    }
 }

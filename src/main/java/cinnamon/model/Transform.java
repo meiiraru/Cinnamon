@@ -1,7 +1,8 @@
 package cinnamon.model;
 
 import cinnamon.render.MatrixStack;
-import cinnamon.utils.Rotation;
+import org.joml.Math;
+import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -12,31 +13,22 @@ public class Transform {
             color = new Vector4f(1f, 1f, 1f, 1f);
     private final Vector3f
             pos = new Vector3f(),
-            rot = new Vector3f(),
             pivot = new Vector3f(),
             scale = new Vector3f(1f, 1f, 1f);
     private final Vector2f
             uv = new Vector2f();
+    private final Quaternionf
+            rot = new Quaternionf();
     private final MatrixStack.Matrices
             mat = new MatrixStack.Matrices();
 
     protected boolean dirty = false;
 
     public Transform applyTransform(MatrixStack.Matrices matrices) {
-        matrices.translate(pivot);
-
-        matrices.scale(scale.x, scale.y, scale.z);
-
-        matrices.rotate(Rotation.Z.rotationDeg(rot.z));
-        matrices.rotate(Rotation.Y.rotationDeg(rot.y));
-        matrices.rotate(Rotation.X.rotationDeg(rot.x));
-
-        matrices.translate(
-                pos.x - pivot.x,
-                pos.y - pivot.y,
-                pos.z - pivot.z
-        );
-
+        matrices.translate(pivot.x + pos.x, pivot.y + pos.y, pivot.z + pos.z);
+        matrices.rotate(rot);
+        matrices.scale(scale);
+        matrices.translate(-pivot.x, -pivot.y, -pivot.z);
         return this;
     }
 
@@ -49,7 +41,7 @@ public class Transform {
 
     public Transform clearAnimChannels() {
         scale.set(1f);
-        rot  .set(0f);
+        rot  .identity();
         pos  .set(0f);
         dirty = true;
         return this;
@@ -58,7 +50,7 @@ public class Transform {
     public Transform identity() {
         pivot.set(0f);
         pos  .set(0f);
-        rot  .set(0f);
+        rot  .identity();
         scale.set(1f);
         uv   .set(0f);
         color.set(1f);
@@ -82,7 +74,7 @@ public class Transform {
         return pos;
     }
 
-    public Vector3f getRot() {
+    public Quaternionf getRot() {
         return rot;
     }
 
@@ -112,12 +104,18 @@ public class Transform {
         return this;
     }
 
+    public Transform setRot(Quaternionf rot) {
+        this.rot.set(rot);
+        this.dirty = true;
+        return this;
+    }
+
     public Transform setRot(Vector3f vec) {
         return this.setRot(vec.x, vec.y, vec.z);
     }
 
-    public Transform setRot(float x, float y, float z) {
-        this.rot.set(x, y, z);
+    public Transform setRot(float pitch, float yaw, float roll) {
+        this.rot.rotationZYX(Math.toRadians(roll), Math.toRadians(-yaw), Math.toRadians(-pitch));
         this.dirty = true;
         return this;
     }

@@ -13,7 +13,7 @@ public class Animation {
 
     //animation data
     private final String name;
-    private int duration;
+    private final int duration;
 
     //keyframes
     private final Map<Bone, Map<Channel, List<Keyframe>>> keyframes = new HashMap<>();
@@ -21,10 +21,11 @@ public class Animation {
     //playback
     private Loop loop = Loop.ONCE;
     private State state = State.STOPPED;
-    private int time = 0, initTime = 0;
+    private long time = 0, initTime = 0;
 
-    public Animation(String name) {
+    public Animation(String name, int duration) {
         this.name = name;
+        this.duration = duration;
     }
 
     public Animation(Animation other, Map<Bone, Bone> boneMap) {
@@ -38,7 +39,7 @@ public class Animation {
     }
 
     private void updateTime() {
-        time = (int) (System.currentTimeMillis() - initTime);
+        time = System.currentTimeMillis() - initTime;
 
         if (time > duration) {
             switch (loop) {
@@ -52,7 +53,7 @@ public class Animation {
                 }
                 case LOOP -> {
                     time %= duration;
-                    initTime = (int) System.currentTimeMillis() - time;
+                    initTime = System.currentTimeMillis() - time;
                 }
             }
         }
@@ -87,6 +88,7 @@ public class Animation {
 
                 //calculate the delta time between the two keyframes
                 float dt = current == next ? 0 : (time - current.getTime()) / (float) (next.getTime() - current.getTime());
+                dt = Maths.clamp(dt, 0f, 1f);
 
                 Vector3f a = current.getValue();
                 Vector3f b = next.getPreValue();
@@ -94,8 +96,9 @@ public class Animation {
                 //interpolate the value
                 Vector3f value;
                 if (current.isCatmullrom()) {
-                    Vector3f aa = keyframes.get(Math.max(0, i - 1)).getValue();
-                    Vector3f bb = keyframes.get(Math.min(keyframes.size() - 1, j + 1)).getPreValue();
+                    int len = keyframes.size();
+                    Vector3f aa = keyframes.get(Maths.modulo(i - 1, len)).getValue();
+                    Vector3f bb = keyframes.get(Maths.modulo(j + 1, len)).getPreValue();
                     value = new Vector3f(
                             Maths.catmullRom(aa.x, a.x, b.x, bb.x, dt),
                             Maths.catmullRom(aa.y, a.y, b.y, bb.y, dt),
@@ -120,14 +123,13 @@ public class Animation {
                 .computeIfAbsent(channel, k -> new ArrayList<>());
         list.add(keyframe);
         list.sort(Keyframe::compareTo);
-        this.duration = Math.max(this.duration, keyframe.getTime());
     }
 
-    public int getTime() {
+    public long getTime() {
         return time;
     }
 
-    public Animation setTime(int time) {
+    public Animation setTime(long time) {
         this.time = time;
         return this;
     }
@@ -137,7 +139,7 @@ public class Animation {
             return;
 
         if (state == State.PLAYING)
-            initTime = (int) (System.currentTimeMillis() - time);
+            initTime = System.currentTimeMillis() - time;
         if (state == State.STOPPED)
             time = initTime = 0;
 
