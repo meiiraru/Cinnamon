@@ -589,10 +589,11 @@ public class WorldClient extends World {
             return;
 
         //particles
-        for (int i = 0; i < 30; i++) {
+        float volume = explosionArea.getDimensions().length();
+        for (int i = 0; i < 10 * volume; i++) {
             ExplosionParticle particle = new ExplosionParticle((int) (Math.random() * 10) + 15);
             particle.setPos(explosionArea.getRandomPoint());
-            particle.setScale(5f);
+            particle.setScale(Maths.range(3f, 7f));
             addParticle(particle);
         }
 

@@ -1,7 +1,6 @@
 package cinnamon.world.world;
 
 import cinnamon.Client;
-import cinnamon.events.Await;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.world.DamageType;
@@ -10,7 +9,6 @@ import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
-import cinnamon.world.entity.projectile.Potato;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.OctreeTerrain;
 import cinnamon.world.worldgen.TerrainManager;
@@ -116,7 +114,6 @@ public abstract class World {
     public void explode(AABB explosionArea, float strength, Entity source, boolean invisible) {
         int damage = (int) (4 * strength);
 
-        Potato nearest = null;
         for (Entity entity : getEntities(explosionArea)) {
             if (entity == source || entity.isRemoved())
                 continue;
@@ -129,21 +126,6 @@ public abstract class World {
                 Vector3f dir = explosionArea.getCenter().sub(e.getAABB().getCenter(), new Vector3f()).normalize().mul(-1);
                 e.knockback(dir, 0.5f * strength);
             }
-
-            //find nearest potato
-            if (entity instanceof Potato potato) {
-                if (nearest == null || potato.getPos().lengthSquared() < nearest.getPos().lengthSquared())
-                    nearest = potato;
-            }
-        }
-
-        //explode nearest
-        if (nearest != null) {
-            final Potato potato = nearest;
-            new Await(2, () -> {
-                if (!potato.isRemoved())
-                    potato.remove();
-            });
         }
     }
 

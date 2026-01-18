@@ -1,5 +1,6 @@
 package cinnamon.world.entity.projectile;
 
+import cinnamon.events.Await;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
@@ -9,8 +10,10 @@ import cinnamon.render.shader.Shader;
 import cinnamon.utils.AABB;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Maths;
+import cinnamon.world.DamageType;
 import cinnamon.world.collisions.CollisionResolver;
 import cinnamon.world.collisions.CollisionResult;
+import cinnamon.world.entity.Entity;
 import cinnamon.world.particle.DustParticle;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
@@ -96,7 +99,20 @@ public class Potato extends Projectile {
     @Override
     public void remove() {
         super.remove();
-        world.explode(new AABB(pos).inflate(EXPLOSION_RANGE), EXPLOSION_STRENGTH, this, false);
+        world.explode(new AABB(pos, pos).inflate(EXPLOSION_RANGE), EXPLOSION_STRENGTH, this, false);
+    }
+
+    @Override
+    public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
+        if (type == DamageType.EXPLOSION) {
+            new Await(2, () -> {
+                if (!isRemoved())
+                    remove();
+            });
+            return true;
+        }
+
+        return super.damage(source, type, amount, crit);
     }
 
     @Override

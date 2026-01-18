@@ -96,6 +96,10 @@ public class MagicWand extends Item {
     @Override
     public void stopFiring() {
         super.stopFiring();
+
+        if (getSource() == null)
+            return;
+
         World sourceWorld = getSource().getWorld();
         if (sourceWorld == null || !sourceWorld.isClientside())
             return;
