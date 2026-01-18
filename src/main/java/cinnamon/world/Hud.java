@@ -7,9 +7,9 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
-import cinnamon.render.MaterialApplier;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
+import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shaders;
 import cinnamon.text.Style;
@@ -60,8 +60,7 @@ public class Hud {
         drawPlayerStats(matrices, c.world.player, delta);
 
         //finish rendering
-        MaterialApplier.cleanup();
-        VertexConsumer.finishAllBatches(c.camera);
+        WorldRenderer.finishMaterials(c.camera);
 
         //draw crosshair separated
         if (!DebugScreen.isActive() && !XrManager.isInXR())

@@ -1,5 +1,6 @@
 package cinnamon.world.light;
 
+import cinnamon.gui.DebugScreen;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.render.Camera;
@@ -96,26 +97,22 @@ public abstract class Light {
 
         matrices.pushMatrix();
         matrices.translate(pos);
+
+        int c = color | 0xFF000000;
+        if (getType() != 1) //point lights have no direction
+            DebugScreen.renderDebugArrow(matrices, dir, 0.5f, c);
+
         camera.billboard(matrices);
         matrices.rotate(Rotation.Z.rotationDeg(180f));
 
         Vertex[] v = GeometryHelper.quad(matrices, -0.25f, -0.25f, 0.5f, 0.5f);
         VertexConsumer.MAIN.consume(v, LAMP);
 
-        int c = color | 0xFF000000;
         for (Vertex vertex : v)
             vertex.color(c);
         VertexConsumer.MAIN.consume(v, LAMP_OVERLAY);
 
         matrices.popMatrix();
-
-        if (getType() != 1) //point lights have no direction
-            VertexConsumer.MAIN.consume(GeometryHelper.line(
-                    matrices,
-                    pos.x, pos.y, pos.z,
-                    pos.x + dir.x, pos.y + dir.y, pos.z + dir.z,
-                    0.025f, c
-            ));
     }
 
     public Vector3f getPos() {

@@ -92,4 +92,20 @@ public class PBRDeferredFramebuffer extends Framebuffer {
             default -> 0;
         };
     }
+
+    public void setWriteBuffers(int... buffers) {
+        if (buffers.length == 0) {
+            glDrawBuffer(GL_NONE);
+            return;
+        }
+
+        int[] attachments = new int[buffers.length];
+        System.arraycopy(ATTACHMENTS, 0, attachments, 0, buffers.length);
+
+        glDrawBuffers(attachments);
+    }
+
+    public void resetWriteBuffers() {
+        glDrawBuffers(ATTACHMENTS);
+    }
 }

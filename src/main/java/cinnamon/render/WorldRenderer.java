@@ -17,6 +17,7 @@ import cinnamon.settings.Settings;
 import cinnamon.utils.Rotation;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
+import cinnamon.world.Decal;
 import cinnamon.world.Mask;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.LivingEntity;
@@ -56,7 +57,13 @@ public class WorldRenderer {
     private static boolean outlineRendering = false;
     private static boolean heldItemRendering = false;
 
-    private static int renderedEntities, renderedTerrain, renderedParticles, renderedLights, renderedShadows;
+    private static int
+            renderedEntities,
+            renderedTerrain,
+            renderedParticles,
+            renderedLights,
+            renderedShadows,
+            renderedDecals;
 
     public static final Camera camera = new Camera();
     private static final Vector3f cameraPos = new Vector3f();
@@ -78,7 +85,8 @@ public class WorldRenderer {
             renderSky      = true,
             renderBloom    = true,
             renderDebug    = true,
-            renderOutlines = true;
+            renderOutlines = true,
+            renderDecals   = true;
 
     public static void renderWorld(WorldClient world, MatrixStack matrices, float delta) {
         //prepare for world rendering
@@ -111,13 +119,13 @@ public class WorldRenderer {
         //render world
         renderFunc[0].run(); //xr hands
         renderedTerrain   = world.renderTerrain(camera, matrices, delta);
+        renderedDecals    = renderDecals(world, camera);
         renderedEntities  = world.renderEntities(camera, matrices, delta);
         renderedParticles = world.renderParticles(camera, matrices, delta);
         renderFunc[4].run(); //item extra
 
         //world vertex consumer
-        MaterialApplier.cleanup();
-        VertexConsumer.finishAllBatches(camera);
+        finishMaterials(camera);
 
         //water
         renderWater(world, camera, matrices, delta);
@@ -176,13 +184,13 @@ public class WorldRenderer {
             initGBuffer(camera);
             renderFunc[0].run(); //xr hands
             renderedTerrain   = world.renderTerrain(camera, matrices, delta);
+            renderedDecals    = renderDecals(world, camera);
             renderedEntities  = world.renderEntities(camera, matrices, delta);
             renderedParticles = world.renderParticles(camera, matrices, delta);
             renderFunc[4].run(); //item extra
 
             //vertex consumer
-            MaterialApplier.cleanup();
-            VertexConsumer.finishAllBatches(camera);
+            finishMaterials(camera);
 
             //water
             renderWater(world, camera, matrices, delta);
@@ -265,6 +273,11 @@ public class WorldRenderer {
         glDisable(GL_DEPTH_TEST);
         SimpleGeometry.QUAD.render();
         glEnable(GL_DEPTH_TEST);
+    }
+
+    public static void finishMaterials(Camera camera) {
+        MaterialApplier.cleanup();
+        VertexConsumer.finishAllBatches(camera);
     }
 
 
@@ -723,8 +736,7 @@ public class WorldRenderer {
 
         //render item
         renderFunc.run();
-        MaterialApplier.cleanup();
-        VertexConsumer.finishAllBatches(camera);
+        finishMaterials(camera);
 
         //apply ssao
         renderSSAO(camera);
@@ -793,6 +805,23 @@ public class WorldRenderer {
         outlineRendering = false;
     }
 
+    public static int renderDecals(WorldClient world, Camera camera) {
+        if (!renderDecals)
+            return 0;
+
+        List<Decal> decals = world.getDecals(camera);
+        if (decals.isEmpty())
+            return 0;
+
+        //finish gbuffer materials
+        finishMaterials(camera);
+
+        //render decals
+        DecalRenderer.renderDecals(PBRFrameBuffer, camera, decals);
+
+        return decals.size();
+    }
+
 
     // -- checks -- //
 
@@ -806,7 +835,8 @@ public class WorldRenderer {
         renderSky      =
         renderBloom    =
         renderDebug    =
-        renderOutlines = true;
+        renderOutlines =
+        renderDecals   = true;
     }
 
     public static boolean isShadowRendering() {
@@ -839,5 +869,9 @@ public class WorldRenderer {
 
     public static int getShadowsCount() {
         return renderedShadows;
+    }
+
+    public static int getDecalsCount() {
+        return renderedDecals;
     }
 }

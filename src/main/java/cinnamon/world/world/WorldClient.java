@@ -29,6 +29,7 @@ import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
+import cinnamon.world.Decal;
 import cinnamon.world.Hud;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
@@ -97,8 +98,9 @@ public class WorldClient extends World {
     protected final List<Light> lights = new ArrayList<>();
     protected final Light sunLight = new DirectionalLight().pos(0.5f, 5f, 0.5f).intensity(1f).castsShadows(true).glareSize(1000f);
 
-    //particles
+    //particles and decals
     protected final List<Particle> particles = new ArrayList<>();
+    protected final List<Decal> decals = new ArrayList<>();
 
     //skybox
     protected final Sky sky = new IBLSky();
@@ -242,6 +244,14 @@ public class WorldClient extends World {
                 Particle p = iterator.next();
                 p.tick();
                 if (p.isRemoved())
+                    iterator.remove();
+            }
+
+            //decals
+            for (Iterator<Decal> iterator = decals.iterator(); iterator.hasNext(); ) {
+                Decal d = iterator.next();
+                d.tick();
+                if (d.isRemoved())
                     iterator.remove();
             }
         }
@@ -450,6 +460,10 @@ public class WorldClient extends World {
             //particles
             for (Particle p : getParticles(area))
                 p.renderDebugHitbox(matrices, delta);
+
+            //decals
+            for (Decal d : decals)
+                d.renderDebugHitbox(matrices, delta);
         }
 
         if (DebugScreen.isTabOpen(DebugScreen.Tab.TERRAIN)) {
@@ -551,6 +565,10 @@ public class WorldClient extends World {
         });
     }
 
+    public void addDecal(Decal decal) {
+        scheduledTicks.add(() -> this.decals.add(decal));
+    }
+
     public List<Entity> getOutlines(Camera camera) {
         List<Entity> entitiesToOutline = new ArrayList<>();
         for (Entity e : entities.values())
@@ -575,6 +593,14 @@ public class WorldClient extends World {
                 list.add(particle);
         }
         return list;
+    }
+
+    public List<Decal> getDecals(Camera camera) {
+        List<Decal> decalsToRender = new ArrayList<>();
+        for (Decal d : decals)
+            if (d.shouldRender(camera))
+                decalsToRender.add(d);
+        return decalsToRender;
     }
 
     public SoundInstance playSound(Resource sound, SoundCategory category, Vector3f position) {
@@ -671,6 +697,20 @@ public class WorldClient extends World {
             }
 
             case GLFW_KEY_Q -> player.dropItem();
+
+            case GLFW_KEY_T -> {
+                Hit<Terrain> hit = player.getLookingTerrain(player.getPickRange());
+                if (hit == null)
+                    return;
+
+                Decal decal = new Decal(6000, new Resource("textures/misc/cockroach.png"));
+                decal.getTransform()
+                        .setPos(hit.pos())
+                        .setRot(Maths.dirToQuat(hit.collision().normal()))
+                        //.setRot(WorldRenderer.camera.getRotation())
+                        .setScale(1f, 1f, 0.5f);
+                addDecal(decal);
+            }
 
             case GLFW_KEY_Z -> {
                 Firework f = new Firework(UUID.randomUUID(), Maths.range(30, 60), Maths.spread(new Vector3f(0, 1f, 0), 30, 30).mul(2f),

@@ -185,14 +185,16 @@ public class DebugScreen {
         if (c.world != null)
             matrices.scale(1, -1, 1);
 
-        float len = 10;
+        float len = 10, scale = 50f;
         Camera camera = c.world == null ? c.camera : WorldRenderer.camera;
         matrices.translate(0, 0, len);
+        matrices.scale(scale);
         matrices.peek().pos().rotate(camera.getRot().invert(new Quaternionf()));
 
-        VertexConsumer.MAIN.consume(GeometryHelper.box(matrices, 1, 0, 0, len, 1, 1, 0xFFFF0000));
-        VertexConsumer.MAIN.consume(GeometryHelper.box(matrices, 0, 1, 0, 1, len, 1, 0xFF00FF00));
-        VertexConsumer.MAIN.consume(GeometryHelper.box(matrices, 0, 0, 1, 1, 1, len, 0xFF0000FF));
+        float invLen = len / scale;
+        renderDebugArrow(matrices, 1, 0, 0, invLen, 0xFFFF0000);
+        renderDebugArrow(matrices, 0, 1, 0, invLen, 0xFF00FF00);
+        renderDebugArrow(matrices, 0, 0, 1, invLen, 0xFF0000FF);
 
         matrices.popMatrix();
     }
@@ -308,8 +310,12 @@ public class DebugScreen {
     }
 
     public static void renderDebugArrow(MatrixStack matrices, Vector3f dir, float len, int color) {
+        renderDebugArrow(matrices, dir.x, dir.y, dir.z, len, color);
+    }
+
+    public static void renderDebugArrow(MatrixStack matrices, float dirX, float dirY, float dirZ, float len, int color) {
         matrices.pushMatrix();
-        matrices.rotate(Maths.dirToQuat(dir));
+        matrices.rotate(Maths.dirToQuat(dirX, dirY, dirZ));
         VertexConsumer.LINES.consume(GeometryHelper.line(matrices, 0f, 0f, 0f, 0f, 0f, len, 0.001f, color));
 
         matrices.translate(0f, 0f, len);
@@ -520,14 +526,16 @@ public class DebugScreen {
                     camera &e%s&r
                     &e%s&r light sources
                     &e%s&r shadow casters
-                    &e%s&r particles""",
+                    &e%s&r particles
+                    &e%s&r decals""",
 
                     w.getTime(), w.getTimeOfTheDay(),
                     w.getDay(),
                     camera,
                     WorldRenderer.getLightsCount(),
                     WorldRenderer.getShadowsCount(),
-                    WorldRenderer.getRenderedParticles()
+                    WorldRenderer.getRenderedParticles(),
+                    WorldRenderer.getDecalsCount()
             );
         }),
         TERRAIN(c -> {

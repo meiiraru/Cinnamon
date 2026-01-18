@@ -38,7 +38,8 @@ public enum Shaders {
     LIGHT_GLARE,
     SSAO,
     SSR,
-    WATER;
+    WATER,
+    DECAL;
 
     private final Resource resource;
     private Shader shader;

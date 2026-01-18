@@ -8,7 +8,6 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.render.BloomRenderer;
-import cinnamon.render.MaterialApplier;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.WorldRenderer;
@@ -141,8 +140,7 @@ public class ModelViewer extends SelectableWidget {
         glEnable(GL_CULL_FACE);
 
         //finish render
-        MaterialApplier.cleanup();
-        VertexConsumer.finishAllBatches(client.camera);
+        WorldRenderer.finishMaterials(client.camera);
 
         //ssao
         WorldRenderer.renderSSAO(client.camera);
