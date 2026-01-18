@@ -8,6 +8,7 @@ import cinnamon.utils.Resource;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.LivingEntity;
+import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 
 import java.util.List;
@@ -42,8 +43,8 @@ public class EffectBox extends Collectable {
         if (entity instanceof LivingEntity le) {
             int index = (int) (Math.random() * PICKUP_SOUND.length);
             Resource sound = PICKUP_SOUND[index];
-            if (!isSilent())
-                le.getWorld().playSound(sound, SoundCategory.ENTITY, le.getPos()).pitch(Maths.range(0.95f, 1.05f));
+            if (!isSilent() && le.getWorld().isClientside())
+                ((WorldClient) le.getWorld()).playSound(sound, SoundCategory.ENTITY, le.getPos()).pitch(Maths.range(0.95f, 1.05f));
             le.giveEffect(EFFECT_LIST.get((int) (Math.random() * EFFECT_LIST.size())).get());
             return true;
         }

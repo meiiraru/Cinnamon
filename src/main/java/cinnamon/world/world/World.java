@@ -1,11 +1,8 @@
 package cinnamon.world.world;
 
 import cinnamon.Client;
-import cinnamon.sound.SoundCategory;
-import cinnamon.sound.SoundInstance;
-import cinnamon.sound.SoundManager;
+import cinnamon.events.Await;
 import cinnamon.utils.AABB;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.DamageType;
 import cinnamon.world.collisions.CollisionDetector;
@@ -13,12 +10,10 @@ import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
-import cinnamon.world.particle.ExplosionParticle;
-import cinnamon.world.particle.Particle;
+import cinnamon.world.entity.projectile.Potato;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.OctreeTerrain;
 import cinnamon.world.worldgen.TerrainManager;
-import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.*;
@@ -32,7 +27,6 @@ public abstract class World {
 
     protected final TerrainManager terrainManager = new OctreeTerrain(new AABB().inflate(16));
     protected final Map<UUID, Entity> entities = new HashMap<>();
-    protected final List<Particle> particles = new ArrayList<>();
 
     public float updateTime = 1f / Client.TPS;
     public float gravity = 0.98f * updateTime;
@@ -69,14 +63,6 @@ public abstract class World {
                 entityRemoved(e.getUUID());
             }
         }
-
-        //particles
-        for (Iterator<Particle> iterator = particles.iterator(); iterator.hasNext(); ) {
-            Particle p = iterator.next();
-            p.tick();
-            if (p.isRemoved())
-                iterator.remove();
-        }
     }
 
     protected void runScheduledTicks() {
@@ -89,13 +75,6 @@ public abstract class World {
         scheduledTicks.add(() -> {
             this.entities.put(entity.getUUID(), entity);
             entity.onAdded(this);
-        });
-    }
-
-    public void addParticle(Particle particle) {
-        scheduledTicks.add(() -> {
-            this.particles.add(particle);
-            particle.onAdded(this);
         });
     }
 
@@ -112,10 +91,6 @@ public abstract class World {
         terrainManager.remove(aabb);
     }
 
-    public SoundInstance playSound(Resource sound, SoundCategory category, Vector3f position) {
-        return SoundManager.playSound(sound, category, position);
-    }
-
     public void entityRemoved(UUID uuid) {}
 
     public List<Entity> getEntities(AABB region) {
@@ -123,15 +98,6 @@ public abstract class World {
         for (Entity entity : entities.values()) {
             if (region.intersects(entity.getAABB()))
                 list.add(entity);
-        }
-        return list;
-    }
-
-    public List<Particle> getParticles(AABB region) {
-        List<Particle> list = new ArrayList<>();
-        for (Particle particle : this.particles) {
-            if (region.intersects(particle.getAABB()))
-                list.add(particle);
         }
         return list;
     }
@@ -147,11 +113,11 @@ public abstract class World {
         return entities.get(uuid);
     }
 
-    public void explode(Vector3f pos, float range, float strength, Entity source, boolean invisible) {
-        AABB explosionBB = new AABB().inflate(range).translate(pos);
+    public void explode(AABB explosionArea, float strength, Entity source, boolean invisible) {
         int damage = (int) (4 * strength);
 
-        for (Entity entity : getEntities(explosionBB)) {
+        Potato nearest = null;
+        for (Entity entity : getEntities(explosionArea)) {
             if (entity == source || entity.isRemoved())
                 continue;
 
@@ -160,24 +126,25 @@ public abstract class World {
 
             //knock back
             if (entity instanceof PhysEntity e) {
-                Vector3f dir = explosionBB.getCenter().sub(e.getAABB().getCenter(), new Vector3f()).normalize().mul(-1);
+                Vector3f dir = explosionArea.getCenter().sub(e.getAABB().getCenter(), new Vector3f()).normalize().mul(-1);
                 e.knockback(dir, 0.5f * strength);
+            }
+
+            //find nearest potato
+            if (entity instanceof Potato potato) {
+                if (nearest == null || potato.getPos().lengthSquared() < nearest.getPos().lengthSquared())
+                    nearest = potato;
             }
         }
 
-        if (invisible)
-            return;
-
-        //particles
-        for (int i = 0; i < 30 * range; i++) {
-            ExplosionParticle particle = new ExplosionParticle((int) (Math.random() * 10) + 15);
-            particle.setPos(explosionBB.getRandomPoint());
-            particle.setScale(5f);
-            addParticle(particle);
+        //explode nearest
+        if (nearest != null) {
+            final Potato potato = nearest;
+            new Await(2, () -> {
+                if (!potato.isRemoved())
+                    potato.remove();
+            });
         }
-
-        //sound
-        playSound(EXPLOSION_SOUND, SoundCategory.ENTITY, pos).maxDistance(64f).volume(0.5f).pitch(Maths.range(0.8f, 1.2f));
     }
 
     public Hit<Terrain> raycastTerrain(AABB area, Vector3f pos, Vector3f dirLen) {

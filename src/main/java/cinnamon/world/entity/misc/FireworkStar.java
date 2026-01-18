@@ -3,6 +3,7 @@ package cinnamon.world.entity.misc;
 import cinnamon.utils.Maths;
 import cinnamon.world.particle.FireworkParticle;
 import cinnamon.world.world.World;
+import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
 
@@ -40,8 +41,11 @@ public class FireworkStar {
     }
 
     public void explode(Firework firework) {
-        Vector3f pos = firework.getPos();
         World w = firework.getWorld();
+        if (w == null || !w.isClientside())
+            return;
+
+        Vector3f pos = firework.getPos();
         float yaw = Math.toRadians(firework.getRot().y);
 
         for (int i = 0; i < particleCount; i++) {
@@ -52,7 +56,7 @@ public class FireworkStar {
             particle.setEmissive(true);
             particle.setPos(pos);
             particle.setMotion(star.apply((float) i / particleCount).rotateY(yaw));
-            w.addParticle(particle);
+            ((WorldClient) w).addParticle(particle);
         }
     }
 

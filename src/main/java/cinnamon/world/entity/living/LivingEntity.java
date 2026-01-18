@@ -22,6 +22,7 @@ import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.particle.SmokeParticle;
 import cinnamon.world.particle.TextParticle;
 import cinnamon.world.terrain.Terrain;
+import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
@@ -157,7 +158,8 @@ public abstract class LivingEntity extends PhysEntity {
         this.health = Math.min(this.health + amount, this.maxHealth);
 
         //spawn particle
-        spawnHealthChangeParticle(amount, false);
+        if (getWorld().isClientside())
+            spawnHealthChangeParticle(amount, false);
 
         //sync health
         syncHealth();
@@ -184,7 +186,8 @@ public abstract class LivingEntity extends PhysEntity {
         }
 
         //spawn particle
-        spawnHealthChangeParticle(-amount, crit);
+        if (getWorld().isClientside())
+            spawnHealthChangeParticle(-amount, crit);
 
         //sync health
         syncHealth();
@@ -200,7 +203,8 @@ public abstract class LivingEntity extends PhysEntity {
 
     protected void onDeath() {
         this.remove();
-        this.spawnDeathParticles();
+        if (getWorld().isClientside())
+            this.spawnDeathParticles();
         stopUsing();
         stopAttacking();
     }
@@ -209,7 +213,7 @@ public abstract class LivingEntity extends PhysEntity {
         for (int i = 0; i < 20; i++) {
             SmokeParticle particle = new SmokeParticle((int) (Math.random() * 15) + 10, 0xFFFFFFFF);
             particle.setPos(aabb.getRandomPoint());
-            world.addParticle(particle);
+            ((WorldClient) getWorld()).addParticle(particle);
         }
     }
 
@@ -239,7 +243,7 @@ public abstract class LivingEntity extends PhysEntity {
         //spawn particle
         TextParticle p = new TextParticle(Text.of(text).withStyle(Style.EMPTY.color(color).outlined(true)), 20, aabb.getRandomPoint());
         p.setEmissive(true);
-        world.addParticle(p);
+        ((WorldClient) getWorld()).addParticle(p);
     }
 
     private void syncHealth() {

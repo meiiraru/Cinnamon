@@ -7,6 +7,7 @@ import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
+import cinnamon.world.world.WorldClient;
 
 public class BubbleParticle extends SpriteParticle {
 
@@ -57,7 +58,7 @@ public class BubbleParticle extends SpriteParticle {
     @Override
     public void remove() {
         super.remove();
-        world.playSound(POP_SOUND, SoundCategory.AMBIENT, pos).volume(0.5f).pitch(Maths.range(0.8f, 1.2f)).distance(0f).maxDistance(8f);
+        ((WorldClient) world).playSound(POP_SOUND, SoundCategory.AMBIENT, pos).volume(0.5f).pitch(Maths.range(0.8f, 1.2f)).distance(0f).maxDistance(8f);
     }
 
     @Override

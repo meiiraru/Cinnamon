@@ -14,6 +14,7 @@ import cinnamon.world.particle.Particle;
 import cinnamon.world.particle.SquareParticle;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
+import cinnamon.world.world.WorldClient;
 import org.joml.Vector3f;
 
 public class MagicWand extends Item {
@@ -40,10 +41,17 @@ public class MagicWand extends Item {
     public void tick() {
         super.tick();
 
+        if (getSource() == null)
+            return;
+
+        World sourceWorld = getSource().getWorld();
+        if (sourceWorld == null || !sourceWorld.isClientside())
+            return;
+
         if (isFiring()) {
             //draw line
             Vector3f pos = spawnPos(getSource());
-            drawing |= drawLine(lastPos, pos, getSource().getWorld(), getScale(getSource()));
+            drawing |= drawLine(lastPos, pos, (WorldClient) sourceWorld, getScale(getSource()));
             //save pos
             lastPos.set(pos);
         }
@@ -53,7 +61,7 @@ public class MagicWand extends Item {
             AABB aabb = new AABB().inflate(ERASER_RANGE * getScale(getSource())).translate(spawnPos(getSource()));
 
             //remove particles in range
-            for (Particle particle : getSource().getWorld().getParticles(aabb)) {
+            for (Particle particle : ((WorldClient) sourceWorld).getParticles(aabb)) {
                 if (particle instanceof SquareParticle)
                     particle.remove();
             }
@@ -80,7 +88,7 @@ public class MagicWand extends Item {
         if (!super.fire())
             return false;
         //calculate new pos
-        if (!drawing || lastPos == null)
+        if (getSource().getWorld().isClientside() && (!drawing || lastPos == null))
             lastPos = spawnPos(getSource());
         return true;
     }
@@ -88,9 +96,13 @@ public class MagicWand extends Item {
     @Override
     public void stopFiring() {
         super.stopFiring();
+        World sourceWorld = getSource().getWorld();
+        if (sourceWorld == null || !sourceWorld.isClientside())
+            return;
+
         //draw a point if not drawn anything
         if (!drawing && lastPos != null)
-            drawParticle(lastPos, getColor(getSource().getWorld().getTime()), getSource().getWorld(), getScale(getSource()));
+            drawParticle(lastPos, getColor(getSource().getWorld().getTime()), (WorldClient) sourceWorld, getScale(getSource()));
         drawing = false;
         lastPos = null;
     }
@@ -116,7 +128,7 @@ public class MagicWand extends Item {
         return ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f(((time * 3) % 360) / 360f, 0.7f, 1))) + (0xFF << 24);
     }
 
-    private static boolean drawLine(Vector3f a, Vector3f b, World world, float scale) {
+    private static boolean drawLine(Vector3f a, Vector3f b, WorldClient world, float scale) {
         boolean ret = false;
         //rainbow color
         int color = getColor(world.getTime());
@@ -134,7 +146,7 @@ public class MagicWand extends Item {
         return ret;
     }
 
-    private static void drawParticle(Vector3f pos, int color, World world, float scale) {
+    private static void drawParticle(Vector3f pos, int color, WorldClient world, float scale) {
         SquareParticle particle = new SquareParticle(LIFETIME, color);
         particle.setPos(pos);
         particle.setEmissive(true);

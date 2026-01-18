@@ -11,6 +11,7 @@ import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.particle.DustParticle;
 import cinnamon.world.world.World;
+import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
 
@@ -88,7 +89,7 @@ public abstract class Projectile extends PhysEntity {
     @Override
     public void remove() {
         super.remove();
-        if (getDamage() == 0) confetti();
+        if (getDamage() == 0 && getWorld().isClientside()) confetti();
     }
 
     @Override
@@ -108,12 +109,13 @@ public abstract class Projectile extends PhysEntity {
     }
 
     protected void confetti() {
+        WorldClient wc = (WorldClient) getWorld();
         for (int i = 0; i < 20; i++) {
             DustParticle particle = new DustParticle((int) (Math.random() * 40) + 20, Colors.randomRainbow().argb);
             particle.setPos(pos);
             particle.setMotion(Maths.rotToDir((float) Math.random() * 360, (float) Math.random() * 360).mul((float) Math.random() * 0.075f + 0.075f));
             particle.setScale(1.5f);
-            world.addParticle(particle);
+            wc.addParticle(particle);
         }
     }
 

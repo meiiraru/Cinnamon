@@ -13,6 +13,7 @@ import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.particle.SmokeParticle;
+import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
 
@@ -126,8 +127,8 @@ public class ItemEntity extends Collectable {
         int pick = le.giveItem(item);
 
         //pickup sound
-        if (pick > 0 && !isSilent())
-            world.playSound(PICK_UP_SOUND, SoundCategory.ENTITY, le.getPos()).pitch(Maths.range(0.85f, 1.15f));
+        if (pick > 0 && !isSilent() && getWorld().isClientside())
+            ((WorldClient) getWorld()).playSound(PICK_UP_SOUND, SoundCategory.ENTITY, le.getPos()).pitch(Maths.range(0.85f, 1.15f));
 
         //remove only if entirely consumed
         return pick == 2;
@@ -150,7 +151,8 @@ public class ItemEntity extends Collectable {
     }
 
     protected void despawn() {
-        spawnDespawnParticles();
+        if (getWorld().isClientside())
+            spawnDespawnParticles();
         remove();
     }
 
@@ -158,7 +160,7 @@ public class ItemEntity extends Collectable {
         for (int i = 0; i < 5; i++) {
             SmokeParticle particle = new SmokeParticle((int) (Math.random() * 15) + 10, 0xFFFFFFFF);
             particle.setPos(aabb.getRandomPoint());
-            world.addParticle(particle);
+            ((WorldClient) getWorld()).addParticle(particle);
         }
     }
 

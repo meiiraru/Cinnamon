@@ -6,6 +6,7 @@ import cinnamon.utils.AABB;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.particle.SteamParticle;
+import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
 
@@ -24,7 +25,7 @@ public class HealthPack extends Collectable {
     public void tick() {
         super.tick();
 
-        if (Math.random() < SMOKE_CHANCE) {
+        if (getWorld().isClientside() && Math.random() < SMOKE_CHANCE) {
             SteamParticle p = new SteamParticle((int) (Math.random() * 5) + 15, 0xFFDDDDDD);
 
             AABB aabb = new AABB(this.aabb);
@@ -35,7 +36,7 @@ public class HealthPack extends Collectable {
             p.setPos(pos);
             p.setScale(2f);
 
-            world.addParticle(p);
+            ((WorldClient) getWorld()).addParticle(p);
         }
     }
 

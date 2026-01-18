@@ -6,6 +6,7 @@ import cinnamon.utils.Maths;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.particle.SmokeParticle;
+import cinnamon.world.world.WorldClient;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
@@ -48,9 +49,11 @@ public class RiceBall extends Projectile {
             return;
 
         //poof particle
-        Particle particle = new SmokeParticle(10, 0xFFFFFFFF);
-        particle.setPos(this.getPos());
-        world.addParticle(particle);
+        if (getWorld().isClientside()) {
+            Particle particle = new SmokeParticle(10, 0xFFFFFFFF);
+            particle.setPos(this.getPos());
+            ((WorldClient) getWorld()).addParticle(particle);
+        }
 
         //get rot
         Vector3f mot = new Vector3f(motion);

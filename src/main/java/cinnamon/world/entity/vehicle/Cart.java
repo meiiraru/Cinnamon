@@ -34,14 +34,14 @@ public class Cart extends Car {
     public void tick() {
         super.tick();
 
-        if (motion.lengthSquared() > 0.01f) {
+        if (getWorld().isClientside() && motion.lengthSquared() > 0.01f) {
             for (int i = -1; i < 2; i += 2) {
                 StarParticle star = new StarParticle((int) (Math.random() * 5) + 10, ColorUtils.lerpARGBColor(0xFFDDDDDD, 0xFFFFDDAA, (float) Math.random()));
                 Vector3f offset = new Vector3f(0.25f * i, 0f, 0f).rotate(Rotation.Y.rotationDeg(-rot.y));
                 Vector3f pos = new Vector3f(getPos());
                 star.setPos(pos.add(offset));
                 star.setEmissive(true);
-                getWorld().addParticle(star);
+                ((WorldClient) getWorld()).addParticle(star);
             }
         }
     }

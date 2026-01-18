@@ -2,6 +2,7 @@ package cinnamon.world.particle;
 
 import cinnamon.render.Camera;
 import cinnamon.utils.ColorUtils;
+import cinnamon.world.world.WorldClient;
 
 public class FireworkParticle extends StarParticle {
 
@@ -33,7 +34,7 @@ public class FireworkParticle extends StarParticle {
             p.setEmissive(emissive);
             p.setScale(scale);
             p.age = lifetime / 2;
-            world.addParticle(p);
+            ((WorldClient) world).addParticle(p);
         }
     }
 

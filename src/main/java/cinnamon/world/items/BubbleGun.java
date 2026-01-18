@@ -6,6 +6,7 @@ import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.particle.SoapParticle;
 import cinnamon.world.terrain.Terrain;
+import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
 
@@ -38,6 +39,9 @@ public class BubbleGun extends Item {
     }
 
     private static void shoot(LivingEntity source) {
+        if (source.getWorld() == null || !source.getWorld().isClientside())
+            return;
+
         //pos
         SoapParticle particle = new SoapParticle((int) (Math.random() * 400) + 100);
         particle.setPos(spawnPos(source));
@@ -52,7 +56,7 @@ public class BubbleGun extends Item {
         particle.setMotion(motion);
 
         //add
-        source.getWorld().addParticle(particle);
+        ((WorldClient) source.getWorld()).addParticle(particle);
     }
 
     private static Vector3f spawnPos(LivingEntity source) {

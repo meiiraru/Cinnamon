@@ -14,6 +14,7 @@ import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.particle.FireParticle;
 import cinnamon.world.particle.SmokeParticle;
 import cinnamon.world.world.World;
+import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
 
@@ -38,8 +39,8 @@ public class Firework extends PhysEntity {
     @Override
     public void onAdded(World world) {
         super.onAdded(world);
-        if (!isSilent())
-            world.playSound(LAUNCH_SOUND, SoundCategory.ENTITY, getPos()).pitch(Maths.range(0.8f, 1.2f)).volume(0.3f);
+        if (!isSilent() && getWorld().isClientside())
+            ((WorldClient) getWorld()).playSound(LAUNCH_SOUND, SoundCategory.ENTITY, getPos()).pitch(Maths.range(0.8f, 1.2f)).volume(0.3f);
     }
 
     @Override
@@ -50,7 +51,8 @@ public class Firework extends PhysEntity {
         if (life <= 0)
             explode();
 
-        flyParticles();
+        if (getWorld().isClientside())
+            flyParticles();
 
         Vector3f vec = new Vector3f(motion);
         if (vec.lengthSquared() > 0f)
@@ -92,19 +94,19 @@ public class Firework extends PhysEntity {
     }
 
     protected void flyParticles() {
-        World w = getWorld();
+        WorldClient wc = (WorldClient) getWorld();
         Vector3f pos = getPos();
 
         FireParticle fire = new FireParticle(5);
         fire.setPos(pos);
-        w.addParticle(fire);
+        wc.addParticle(fire);
 
         for (int i = 0; i < 3; i++) {
             SmokeParticle smoke = new SmokeParticle(10, 0xFF888888);
             smoke.setPos(pos);
             Vector3f dir = Maths.spread(new Vector3f(0, -1, 0), 45, 45);
             smoke.setMotion(dir.mul((float) Math.random() * 0.05f + 0.05f));
-            w.addParticle(smoke);
+            wc.addParticle(smoke);
         }
     }
 
@@ -119,12 +121,12 @@ public class Firework extends PhysEntity {
                     entity.damage(this, DamageType.EXPLOSION, 2 * stars.length, false);
             }
 
-            if (!isSilent())
-                w.playSound(EXPLOSION_SOUND, SoundCategory.ENTITY, pos).pitch(Maths.range(0.8f, 1.2f)).volume(0.3f).distance(96).maxDistance(160);
-        }
+            if (!isSilent() && w.isClientside())
+                ((WorldClient) w).playSound(EXPLOSION_SOUND, SoundCategory.ENTITY, pos).pitch(Maths.range(0.8f, 1.2f)).volume(0.3f).distance(96).maxDistance(160);
 
-        for (FireworkStar star : stars)
-            star.explode(this);
+            for (FireworkStar star : stars)
+                star.explode(this);
+        }
 
         remove();
     }

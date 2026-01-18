@@ -20,11 +20,13 @@ import cinnamon.render.WaterRenderer;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.sound.SoundCategory;
+import cinnamon.sound.SoundInstance;
 import cinnamon.sound.SoundManager;
 import cinnamon.utils.AABB;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
+import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.Hud;
@@ -55,6 +57,7 @@ import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.PointLight;
 import cinnamon.world.light.Spotlight;
+import cinnamon.world.particle.ExplosionParticle;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.sky.IBLSky;
 import cinnamon.world.sky.Sky;
@@ -65,6 +68,7 @@ import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -92,6 +96,9 @@ public class WorldClient extends World {
     //lights
     protected final List<Light> lights = new ArrayList<>();
     protected final Light sunLight = new DirectionalLight().pos(0.5f, 5f, 0.5f).intensity(1f).castsShadows(true).glareSize(1000f);
+
+    //particles
+    protected final List<Particle> particles = new ArrayList<>();
 
     //skybox
     protected final Sky sky = new IBLSky();
@@ -228,6 +235,14 @@ public class WorldClient extends World {
     @Override
     public void tick() {
         super.tick();
+
+        //particles
+        for (Iterator<Particle> iterator = particles.iterator(); iterator.hasNext(); ) {
+            Particle p = iterator.next();
+            p.tick();
+            if (p.isRemoved())
+                iterator.remove();
+        }
 
         //process input
         tickInput();
@@ -527,6 +542,13 @@ public class WorldClient extends World {
         return lightsToRender;
     }
 
+    public void addParticle(Particle particle) {
+        scheduledTicks.add(() -> {
+            this.particles.add(particle);
+            particle.onAdded(this);
+        });
+    }
+
     public List<Entity> getOutlines(Camera camera) {
         List<Entity> entitiesToOutline = new ArrayList<>();
         for (Entity e : entities.values())
@@ -542,6 +564,38 @@ public class WorldClient extends World {
                 list.add(light);
         }
         return list;
+    }
+
+    public List<Particle> getParticles(AABB region) {
+        List<Particle> list = new ArrayList<>();
+        for (Particle particle : this.particles) {
+            if (region.intersects(particle.getAABB()))
+                list.add(particle);
+        }
+        return list;
+    }
+
+    public SoundInstance playSound(Resource sound, SoundCategory category, Vector3f position) {
+        return SoundManager.playSound(sound, category, position);
+    }
+
+    @Override
+    public void explode(AABB explosionArea, float strength, Entity source, boolean invisible) {
+        super.explode(explosionArea, strength, source, invisible);
+
+        if (invisible)
+            return;
+
+        //particles
+        for (int i = 0; i < 30; i++) {
+            ExplosionParticle particle = new ExplosionParticle((int) (Math.random() * 10) + 15);
+            particle.setPos(explosionArea.getRandomPoint());
+            particle.setScale(5f);
+            addParticle(particle);
+        }
+
+        //sound
+        playSound(EXPLOSION_SOUND, SoundCategory.ENTITY, explosionArea.getCenter()).maxDistance(64f).volume(0.5f).pitch(Maths.range(0.8f, 1.2f));
     }
 
     protected void tickInput() {

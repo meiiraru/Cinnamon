@@ -7,6 +7,8 @@ import cinnamon.utils.Resource;
 import cinnamon.world.entity.projectile.Candy;
 import cinnamon.world.entity.projectile.Projectile;
 import cinnamon.world.items.Item;
+import cinnamon.world.world.World;
+import cinnamon.world.world.WorldClient;
 
 import java.util.UUID;
 
@@ -31,7 +33,8 @@ public class CoilGun extends Weapon {
     @Override
     protected void spawnBullet() {
         super.spawnBullet();
-        if (!getSource().isSilent())
-            getSource().getWorld().playSound(SHOOT_SOUND, SoundCategory.ENTITY, getSource().getPos()).pitch(Maths.range(0.8f, 1.2f));
+        World world = getSource().getWorld();
+        if (!getSource().isSilent() && world.isClientside())
+            ((WorldClient) world).playSound(SHOOT_SOUND, SoundCategory.ENTITY, getSource().getPos()).pitch(Maths.range(0.8f, 1.2f));
     }
 }
