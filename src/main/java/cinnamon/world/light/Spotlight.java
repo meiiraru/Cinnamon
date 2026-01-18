@@ -1,11 +1,11 @@
 package cinnamon.world.light;
 
 import cinnamon.model.GeometryHelper;
-import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.Maths;
+import cinnamon.utils.Rotation;
 import org.joml.Math;
 import org.joml.Matrix4f;
 
@@ -42,6 +42,7 @@ public class Spotlight extends PointLight {
         matrix
                 .translate(pos)
                 .rotate(Maths.dirToQuat(dir))
+                .rotateX(-Math.PI_OVER_2_f)
                 .scale(radius, height, radius);
     }
 
@@ -52,9 +53,11 @@ public class Spotlight extends PointLight {
 
         matrices.pushMatrix();
 
-        matrices.translate(pos);
-        matrices.rotate(Maths.dirToQuat(dir));
-        matrices.scale(radius, height, radius);
+        matrices
+                .translate(pos)
+                .rotate(Maths.dirToQuat(dir))
+                .rotate(Rotation.X.rotation(-Math.PI_OVER_2_f))
+                .scale(radius, height, radius);
         VertexConsumer.LINES.consume(GeometryHelper.cone(matrices, 0, -1, 0, 1f, 1f, 12, getColor() | 0xFF000000));
 
         matrices.popMatrix();

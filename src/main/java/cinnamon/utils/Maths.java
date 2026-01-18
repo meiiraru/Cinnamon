@@ -241,7 +241,7 @@ public class Maths {
     public static Quaternionf dirToQuat(Vector3f dir) {
         float pitch = Math.asin(dir.y);
         float yaw = Math.atan2(dir.x, dir.z);
-        return new Quaternionf().rotationYXZ(yaw + Math.PI_f, pitch + Math.PI_OVER_2_f, 0f);
+        return new Quaternionf().rotationZYX(0f, yaw, -pitch);
     }
 
     public static Vector3f normal(Vector3f p1, Vector3f p2, Vector3f p3) {
@@ -401,9 +401,7 @@ public class Maths {
     }
 
     public static Matrix3f getDirMat(Vector3f dir) {
-        Vector2f rot = Maths.toRadians(Maths.dirToRot(dir));
-        Quaternionf rotation = new Quaternionf().rotationYXZ(-rot.y, -rot.x, 0f);
-
+        Quaternionf rotation = dirToQuat(dir);
         return new Matrix3f(
                 new Vector3f(1f, 0f, 0f).rotate(rotation),
                 new Vector3f(0f, 1f, 0f).rotate(rotation),
