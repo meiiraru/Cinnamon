@@ -20,7 +20,8 @@ public class Transform {
     private final Quaternionf
             rot = new Quaternionf();
     private final MatrixStack.Matrices
-            mat = new MatrixStack.Matrices();
+            mat = new MatrixStack.Matrices(),
+            invMat = new MatrixStack.Matrices();
 
     protected boolean dirty = false;
 
@@ -35,6 +36,9 @@ public class Transform {
     public Transform recalculate() {
         mat.identity();
         applyTransform(mat);
+        invMat.set(mat);
+        invMat.pos().invert();
+        invMat.recalculateNormalMatrix();
         dirty = false;
         return this;
     }
@@ -55,6 +59,7 @@ public class Transform {
         uv   .set(0f);
         color.set(1f);
         mat.identity();
+        invMat.identity();
         dirty = false;
         return this;
     }
@@ -187,5 +192,10 @@ public class Transform {
     public MatrixStack.Matrices getMatrix() {
         if (isDirty()) recalculate();
         return mat;
+    }
+
+    public MatrixStack.Matrices getInverseMatrix() {
+        if (isDirty()) recalculate();
+        return invMat;
     }
 }
