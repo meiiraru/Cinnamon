@@ -60,8 +60,7 @@ public class RiceBall extends Projectile {
         if (mot.lengthSquared() > 0f)
             mot.normalize();
 
-        Matrix3f dir = Maths.getDirMat(motion);
-
+        Vector3f dir = motion.normalize(new Vector3f());
         for (int i = 0; i < SPLIT_AMOUNT; i++) {
             Projectile proj = new Rice(UUID.randomUUID(), owner, SPLIT_LIFE, this.speed, CRIT_CHANCE);
 

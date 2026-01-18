@@ -236,12 +236,14 @@ public class WorldClient extends World {
     public void tick() {
         super.tick();
 
-        //particles
-        for (Iterator<Particle> iterator = particles.iterator(); iterator.hasNext(); ) {
-            Particle p = iterator.next();
-            p.tick();
-            if (p.isRemoved())
-                iterator.remove();
+        if (!isPaused()) {
+            //particles
+            for (Iterator<Particle> iterator = particles.iterator(); iterator.hasNext(); ) {
+                Particle p = iterator.next();
+                p.tick();
+                if (p.isRemoved())
+                    iterator.remove();
+            }
         }
 
         //process input

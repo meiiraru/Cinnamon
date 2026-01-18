@@ -307,6 +307,17 @@ public class DebugScreen {
         VertexConsumer.MAIN.finishBatch(c.camera);
     }
 
+    public static void renderDebugArrow(MatrixStack matrices, Vector3f dir, float len, int color) {
+        matrices.pushMatrix();
+        matrices.rotate(Maths.dirToQuat(dir));
+        VertexConsumer.LINES.consume(GeometryHelper.line(matrices, 0f, 0f, 0f, 0f, 0f, len, 0.001f, color));
+
+        matrices.translate(0f, 0f, len);
+        matrices.rotate(Rotation.X.rotationDeg(90f));
+        VertexConsumer.LINES.consume(GeometryHelper.cone(matrices, 0f, 0f, 0f, 0.05f, 0.025f, 5, 1f, false, color));
+        matrices.popMatrix();
+    }
+
     private static String getTargetedObjString(Hit<? extends WorldObject> hit, float range) {
         if (hit == null)
             return "---";

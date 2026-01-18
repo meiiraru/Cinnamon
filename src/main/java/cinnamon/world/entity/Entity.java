@@ -152,30 +152,7 @@ public abstract class Entity extends WorldObject {
         //looking dir
         matrices.pushMatrix();
         matrices.translate(getEyePos());
-        Vector2f rot = getRot();
-
-        matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
-        matrices.rotate(Rotation.X.rotationDeg(-rot.x - 90f));
-
-        VertexConsumer.LINES.consume(GeometryHelper.line(
-                matrices,
-                0f, 0f, 0f,
-                0f, 1f, 0f,
-                0.001f,
-                0xFF0000FF
-        ));
-
-        VertexConsumer.LINES.consume(GeometryHelper.cone(
-                matrices,
-                0f, 1f, 0f,
-                0.05f,
-                0.025f,
-                5,
-                1f,
-                false,
-                0xFF0000FF
-        ));
-
+        DebugScreen.renderDebugArrow(matrices, getLookDir(), 1f, 0xFF0000FF);
         matrices.popMatrix();
     }
 

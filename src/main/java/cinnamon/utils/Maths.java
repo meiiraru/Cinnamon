@@ -239,8 +239,12 @@ public class Maths {
     }
 
     public static Quaternionf dirToQuat(Vector3f dir) {
-        float pitch = Math.asin(dir.y);
-        float yaw = Math.atan2(dir.x, dir.z);
+        return dirToQuat(dir.x, dir.y, dir.z);
+    }
+
+    public static Quaternionf dirToQuat(float x, float y, float z) {
+        float pitch = Math.asin(y);
+        float yaw = Math.atan2(x, z);
         return new Quaternionf().rotationZYX(0f, yaw, -pitch);
     }
 
@@ -400,18 +404,9 @@ public class Maths {
         return rotToDir(pitch, yaw);
     }
 
-    public static Matrix3f getDirMat(Vector3f dir) {
-        Quaternionf rotation = dirToQuat(dir);
-        return new Matrix3f(
-                new Vector3f(1f, 0f, 0f).rotate(rotation),
-                new Vector3f(0f, 1f, 0f).rotate(rotation),
-                new Vector3f(0f, 0f, -1f).rotate(rotation)
-        );
-    }
-
-    public static Vector3f spread(Matrix3f dirMatrix, float pitch, float yaw) {
-        float r1 = (float) Math.toRadians(Math.random() * 2f - 1f) * yaw;
-        float r2 = (float) Math.toRadians(Math.random() * 2f - 1f) * pitch;
+    public static Vector3f spread(Vector3f dir, float pitch, float yaw) {
+        float r1 = Math.toRadians((float) Math.random() * 2f - 1f) * yaw;
+        float r2 = Math.toRadians((float) Math.random() * 2f - 1f) * pitch;
 
         Vector3f rotVec = new Vector3f(
                 Math.sin(r1) * Math.cos(r2),
@@ -419,12 +414,7 @@ public class Maths {
                 Math.cos(r1) * Math.cos(r2)
         );
 
-        return rotVec.mul(dirMatrix);
-    }
-
-    public static Vector3f spread(Vector3f dir, float pitch, float yaw) {
-        Matrix3f dirMatrix = getDirMat(dir);
-        return spread(dirMatrix, pitch, yaw);
+        return rotVec.rotate(dirToQuat(dir));
     }
 
     public static int binarySearch(int start, int end, Predicate<Integer> test) {
