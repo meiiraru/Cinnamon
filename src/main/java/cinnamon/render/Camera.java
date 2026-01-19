@@ -25,15 +25,14 @@ public class Camera {
 
     private final Vector3f
             pos = new Vector3f(),
-            xrPos = new Vector3f(),
-
-            forwards = new Vector3f(0f, 0f, -1f),
-            up = new Vector3f(0f, 1f, 0f),
-            left = new Vector3f(1f, 0f, 0f);
+            xrPos = new Vector3f();
 
     private final Quaternionf
             rotation = new Quaternionf(),
             xrRot = new Quaternionf();
+
+    private final Matrix3f
+            dirMatrix = new Matrix3f();
 
     private final Matrix4f
             identity = new Matrix4f(),
@@ -129,12 +128,10 @@ public class Camera {
         if (!viewDirty)
             return;
 
-        viewMatrix.translationRotateScaleInvert(getPosition(), getRotation(), 1f);
-        invViewMatrix.identity().set(viewMatrix).invert();
-
-        forwards.set(0f, 0f, -1f).rotate(getXrRot()).rotate(getRot());
-        left.set(-1f, 0f, 0f).rotate(getXrRot()).rotate(getRot());
-        up.set(0f, 1f, 0f).rotate(getXrRot()).rotate(getRot());
+        Quaternionf rotation = getRotation();
+        viewMatrix.translationRotateScaleInvert(getPosition(), rotation, 1f);
+        invViewMatrix.set(viewMatrix).invert();
+        dirMatrix.rotation(rotation.invert(new Quaternionf()));
 
         viewDirty = false;
     }
@@ -263,17 +260,22 @@ public class Camera {
 
     public Vector3f getForwards() {
         recalculateViewMatrix();
-        return forwards;
+        return dirMatrix.normalizedPositiveZ(new Vector3f()).negate();
     }
 
     public Vector3f getLeft() {
         recalculateViewMatrix();
-        return left;
+        return dirMatrix.normalizedPositiveX(new Vector3f()).negate();
     }
 
     public Vector3f getUp() {
         recalculateViewMatrix();
-        return up;
+        return dirMatrix.normalizedPositiveY(new Vector3f());
+    }
+
+    public Matrix3f getDirectionMatrix() {
+        recalculateViewMatrix();
+        return dirMatrix;
     }
 
     public Vector3f getPosition() {

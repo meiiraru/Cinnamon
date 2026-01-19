@@ -189,7 +189,7 @@ public class DebugScreen {
         Camera camera = c.world == null ? c.camera : WorldRenderer.camera;
         matrices.translate(0, 0, len);
         matrices.scale(scale);
-        matrices.peek().pos().rotate(camera.getRot().invert(new Quaternionf()));
+        matrices.rotate(camera.getRot().invert(new Quaternionf()));
 
         float invLen = len / scale;
         renderDebugArrow(matrices, 1, 0, 0, invLen, 0xFFFF0000);

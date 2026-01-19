@@ -248,6 +248,10 @@ public class Maths {
         return new Quaternionf().rotationZYX(0f, yaw, -pitch);
     }
 
+    public static Vector3f quatToDir(Quaternionf quat) {
+        return new Vector3f(0f, 0f, 1f).rotate(quat);
+    }
+
     public static Vector3f normal(Vector3f p1, Vector3f p2, Vector3f p3) {
         //calculate the cross product of two vectors to get the normal
         Vector3f edge1 = p2.sub(p1, new Vector3f());
