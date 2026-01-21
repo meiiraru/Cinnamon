@@ -495,4 +495,12 @@ public abstract class Entity extends WorldObject {
     public void addRenderFeature(FeatureRenderer feature) {
         this.renderFeatures.add(feature);
     }
+
+    public Vector3f getLastPos() {
+        return oPos;
+    }
+
+    public Vector2f getLastRot() {
+        return oRot;
+    }
 }

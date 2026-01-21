@@ -268,9 +268,18 @@ public class WorldClient extends World {
             return;
 
         float d = isPaused() ? 1f : delta;
+        float dt = isPaused() ? 0f : client.timer.deltaTime;
+        boolean xr = XrManager.isInXR();
 
         //set camera
         updateCamera(client.camera, player, cameraMode, d);
+
+        //view bobbing
+        if (!xr) WorldRenderer.viewBobbing(WorldRenderer.camera, dt);
+
+        //finish camera setup
+        WorldRenderer.camera.updateFrustum();
+        SoundManager.updateSoundPosition(WorldRenderer.camera);
 
         //prepare sun
         updateSky(WorldRenderer.camera, worldTime + d);
@@ -279,7 +288,6 @@ public class WorldClient extends World {
         WorldRenderer.renderWorld(this, matrices, d);
 
         //render first-person hand
-        boolean xr = XrManager.isInXR();
         if (!client.hideHUD && !isThirdPerson()) {
             if (!xr) glClear(GL_DEPTH_BUFFER_BIT); //top of world
             WorldRenderer.renderHoldingItems(WorldRenderer.camera, matrices, d);
@@ -301,8 +309,6 @@ public class WorldClient extends World {
         WorldRenderer.camera.useOrtho(false);
         WorldRenderer.camera.setEntity(camEntity);
         WorldRenderer.camera.setup(cameraMode, delta);
-        WorldRenderer.camera.updateFrustum();
-        SoundManager.updateSoundPosition(WorldRenderer.camera);
     }
 
     protected void updateSky(Camera camera, float worldTime) {

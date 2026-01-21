@@ -52,6 +52,7 @@ public class Settings {
             flyingToggleTime = new Setting.Ints("accessibility.flying_toggle_time", 10),
             doubleClickTime  = new Setting.Ints("accessibility.double_click_time", 10),
             cursorBlinkDelay = new Setting.Ints("accessibility.cursor_blink_delay", 20);
+    public static final Setting.Floats viewBobbingStrength = new Setting.Floats("accessibility.view_bobbing_strength", 1f);
 
     //player
     public static final Setting.Enums<LivingModelRegistry> playermodel = new Setting.Enums<>("player.player_model", LivingModelRegistry.STRAWBERRY);

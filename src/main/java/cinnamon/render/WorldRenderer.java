@@ -27,6 +27,7 @@ import cinnamon.world.light.Light;
 import cinnamon.world.light.PointLight;
 import cinnamon.world.sky.Sky;
 import cinnamon.world.world.WorldClient;
+import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
@@ -75,6 +76,8 @@ public class WorldRenderer {
 
     private static final Mask passMask = new Mask(-1);
     public static Mask activeMask = passMask;
+
+    private static float bobPhase, bobX, bobY, bobPitch;
 
     public static boolean
             renderWater    = true,
@@ -820,6 +823,52 @@ public class WorldRenderer {
         DecalRenderer.renderDecals(PBRFrameBuffer, camera, decals);
 
         return decals.size();
+    }
+
+    public static void viewBobbing(Camera camera, float deltaTime) {
+        float strength = Settings.viewBobbingStrength.get();
+        if (strength <= 0f)
+            return;
+
+        float speed = 0f;
+        if (camera.getEntity() instanceof LivingEntity le && le.isOnGround()) {
+            Vector3f impulse = le.getImpulse();
+            speed = Math.sqrt(impulse.x * impulse.x + impulse.z * impulse.z);
+        }
+
+        if (speed > 0.1f) {
+            float freq = 50f;
+            bobPhase += (freq * speed) * deltaTime;
+            if (bobPhase > Math.PI_TIMES_2_f)
+                bobPhase -= Math.PI_TIMES_2_f;
+
+            float amplitude = 0.02f * strength;
+            float pitchAmplitude = 0.5f * strength;
+
+            float targetX = Math.sin(bobPhase) * amplitude;
+            float targetY = Math.abs(Math.cos(bobPhase)) * amplitude;
+            float targetPitch = Math.abs(Math.cos(bobPhase)) * pitchAmplitude;
+
+            float smoothing = 0.2f;
+
+            bobX += (targetX - bobX) * smoothing;
+            bobY += (targetY - bobY) * smoothing;
+            bobPitch += (targetPitch - bobPitch) * smoothing;
+        } else {
+            float decay = 15f;
+            bobX += -bobX * decay * deltaTime;
+            bobY += -bobY * decay * deltaTime;
+            bobPitch += -bobPitch * decay * deltaTime;
+        }
+
+        Vector3f camPos = camera.getPos();
+        Quaternionf camRot = camera.getRot()
+                .rotateX(Math.toRadians(bobPitch));
+
+        Vector3f bob = new Vector3f(bobX, bobY, 0f).rotate(camRot);
+        camera.setPos(camPos.x + bob.x, camPos.y + bob.y, camPos.z + bob.z);
+
+        camera.setRot(camRot);
     }
 
 
