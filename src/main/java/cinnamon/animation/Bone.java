@@ -1,6 +1,6 @@
 package cinnamon.animation;
 
-import cinnamon.model.Transform;
+import cinnamon.model.ModelTransform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ public class Bone {
     private final boolean isModel;
 
     private final List<Bone> children = new ArrayList<>();
-    private final Transform transform = new Transform();
+    private final ModelTransform transform = new ModelTransform();
 
     public Bone(String name) {
         this(name, false);
@@ -47,7 +47,7 @@ public class Bone {
         return children;
     }
 
-    public Transform getTransform() {
+    public ModelTransform getTransform() {
         return transform;
     }
 }

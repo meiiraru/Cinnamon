@@ -90,7 +90,7 @@ public class Vertex {
     }
 
     public Vertex mul(MatrixStack matrices) {
-        MatrixStack.Matrices mat = matrices.peek();
+        MatrixStack.Pose mat = matrices.peek();
         return mulPosition(mat.pos()).mulNormal(mat.normal());
     }
 

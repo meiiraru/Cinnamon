@@ -1,6 +1,6 @@
 package cinnamon.parsers;
 
-import cinnamon.model.Transform;
+import cinnamon.model.ModelTransform;
 import cinnamon.model.material.Material;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
@@ -17,7 +17,7 @@ public class MergeMesh {
         merge(src, other, null);
     }
 
-    public static void merge(Mesh src, Mesh other, Transform transform) {
+    public static void merge(Mesh src, Mesh other, ModelTransform transform) {
         int vertOffset = src.getVertices().size();
         int normOffset = src.getNormals().size();
         int texOffset = src.getUVs().size();
@@ -28,7 +28,7 @@ public class MergeMesh {
             src.getNormals().addAll(other.getNormals());
             src.getUVs().addAll(other.getUVs());
         } else {
-            MatrixStack.Matrices matrix = transform.getMatrix();
+            MatrixStack.Pose matrix = transform.getMatrix();
 
             for (Vector3f v : other.getVertices())
                 src.getVertices().add(v.mulPosition(matrix.pos(), new Vector3f()));

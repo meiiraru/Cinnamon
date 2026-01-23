@@ -9,13 +9,13 @@ import org.joml.Vector3f;
 import java.util.Stack;
 
 public class MatrixStack {
-    private final Stack<Matrices> stack = new Stack<>() {{
-        add(new Matrices());
+    private final Stack<Pose> stack = new Stack<>() {{
+        add(new Pose());
     }};
 
     public MatrixStack pushMatrix() {
-        Matrices mat = stack.peek();
-        stack.push(new Matrices(mat.pos, mat.normal));
+        Pose mat = stack.peek();
+        stack.push(new Pose(mat.pos, mat.normal));
         return this;
     }
 
@@ -24,7 +24,7 @@ public class MatrixStack {
         return this;
     }
 
-    public Matrices peek() {
+    public Pose peek() {
         return stack.peek();
     }
 
@@ -72,34 +72,34 @@ public class MatrixStack {
         return this;
     }
 
-    public static class Matrices {
+    public static class Pose {
 
         private final Matrix4f pos = new Matrix4f();
         private final Matrix3f normal = new Matrix3f();
 
-        public Matrices() {}
+        public Pose() {}
 
-        public Matrices(Matrix4f pos, Matrix3f normal) {
+        public Pose(Matrix4f pos, Matrix3f normal) {
             this.pos.set(pos);
             this.normal.set(normal);
         }
 
-        public Matrices translate(float x, float y, float z) {
+        public Pose translate(float x, float y, float z) {
             pos.translate(x, y, z);
             return this;
         }
 
-        public Matrices translate(Vector3f vector) {
+        public Pose translate(Vector3f vector) {
             return translate(vector.x, vector.y, vector.z);
         }
 
-        public Matrices rotate(Quaternionf quaternion) {
+        public Pose rotate(Quaternionf quaternion) {
             pos.rotate(quaternion);
             normal.rotate(quaternion);
             return this;
         }
 
-        public Matrices scale(float x, float y, float z) {
+        public Pose scale(float x, float y, float z) {
             pos.scale(x, y, z);
 
             if (Math.abs(x) == Math.abs(y) && Math.abs(y) == Math.abs(z)) {
@@ -120,36 +120,36 @@ public class MatrixStack {
             return this;
         }
 
-        public Matrices scale(float scalar) {
+        public Pose scale(float scalar) {
             return scale(scalar, scalar, scalar);
         }
 
-        public Matrices scale(Vector3f vector) {
+        public Pose scale(Vector3f vector) {
             return scale(vector.x, vector.y, vector.z);
         }
 
-        public Matrices identity() {
+        public Pose identity() {
             pos.identity();
             normal.identity();
             return this;
         }
 
-        public Matrices set(Matrices other) {
+        public Pose set(Pose other) {
             return set(other.pos, other.normal);
         }
 
-        public Matrices set(Matrix4f pos, Matrix3f normal) {
+        public Pose set(Matrix4f pos, Matrix3f normal) {
             this.pos.set(pos);
             this.normal.set(normal);
             return this;
         }
 
-        public Matrices set(Matrix4f pos) {
+        public Pose set(Matrix4f pos) {
             this.pos.set(pos);
             return recalculateNormalMatrix();
         }
 
-        public Matrices recalculateNormalMatrix() {
+        public Pose recalculateNormalMatrix() {
             float det = pos.determinant();
             if (det == 0f) {
                 normal.identity();
@@ -161,11 +161,11 @@ public class MatrixStack {
             return this;
         }
 
-        public Matrices mul(Matrices other) {
+        public Pose mul(Pose other) {
             return mul(other.pos, other.normal);
         }
 
-        public Matrices mul(Matrix4f pos, Matrix3f normal) {
+        public Pose mul(Matrix4f pos, Matrix3f normal) {
             this.pos.mul(pos);
             this.normal.mul(normal);
             return this;

@@ -2,7 +2,7 @@ package cinnamon.world;
 
 import cinnamon.gui.DebugScreen;
 import cinnamon.model.GeometryHelper;
-import cinnamon.model.Transform;
+import cinnamon.model.ModelTransform;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
@@ -12,7 +12,7 @@ import org.joml.Matrix4f;
 
 public class Decal {
 
-    private final Transform transform = new Transform();
+    private final ModelTransform transform = new ModelTransform();
     private final Resource albedoTexture;
     private final AABB aabb = new AABB().inflate(0.5f);
 
@@ -47,7 +47,7 @@ public class Decal {
         return albedoTexture;
     }
 
-    public Transform getTransform() {
+    public ModelTransform getTransform() {
         return transform;
     }
 

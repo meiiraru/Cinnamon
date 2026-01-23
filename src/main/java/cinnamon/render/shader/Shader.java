@@ -446,7 +446,7 @@ public class Shader {
     }
 
     public void applyMatrixStack(MatrixStack matrices) {
-        MatrixStack.Matrices mat = matrices.peek();
+        MatrixStack.Pose mat = matrices.peek();
         applyModelMatrix(mat.pos());
         applyNormalMatrix(mat.normal());
     }

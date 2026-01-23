@@ -15,13 +15,13 @@ public class StaticModelRenderer extends ObjRenderer {
         this(mesh, null);
     }
 
-    public StaticModelRenderer(Mesh mesh, List<MatrixStack.Matrices> transforms) {
+    public StaticModelRenderer(Mesh mesh, List<MatrixStack.Pose> transforms) {
         super(mesh);
         if (transforms != null && !transforms.isEmpty())
             updateTransforms(transforms);
     }
 
-    public void updateTransforms(List<MatrixStack.Matrices> transforms) {
+    public void updateTransforms(List<MatrixStack.Pose> transforms) {
         for (MeshData mesh : meshes.values())
             ((InstancedMeshData) mesh).updateInstanceBuffer(transforms);
     }

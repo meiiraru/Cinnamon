@@ -72,7 +72,7 @@ public class InstancedMeshData extends MeshData {
         return vbo;
     }
 
-    public void updateInstanceBuffer(Collection<MatrixStack.Matrices> matrices) {
+    public void updateInstanceBuffer(Collection<MatrixStack.Pose> matrices) {
         count = matrices.size();
 
         //prepare buffer
@@ -80,7 +80,7 @@ public class InstancedMeshData extends MeshData {
         FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(capacity);
 
         //extract matrices to the buffer
-        for (MatrixStack.Matrices matrix : matrices) {
+        for (MatrixStack.Pose matrix : matrices) {
             //pos matrix (16 floats)
             matrix.pos().get(matrixBuffer);
             matrixBuffer.position(matrixBuffer.position() + 16);
