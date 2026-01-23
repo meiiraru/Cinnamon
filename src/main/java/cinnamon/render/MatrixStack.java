@@ -67,6 +67,11 @@ public class MatrixStack {
         return this;
     }
 
+    public MatrixStack mul(Matrix4f pos, Matrix3f normal) {
+        stack.peek().mul(pos, normal);
+        return this;
+    }
+
     public static class Matrices {
 
         private final Matrix4f pos = new Matrix4f();
@@ -153,6 +158,16 @@ public class MatrixStack {
                 if (det < 0f)
                     normal.scale(-1f);
             }
+            return this;
+        }
+
+        public Matrices mul(Matrices other) {
+            return mul(other.pos, other.normal);
+        }
+
+        public Matrices mul(Matrix4f pos, Matrix3f normal) {
+            this.pos.mul(pos);
+            this.normal.mul(normal);
             return this;
         }
 

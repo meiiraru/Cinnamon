@@ -18,24 +18,28 @@ public class Transform {
     private final Vector2f
             uv = new Vector2f();
     private final Quaternionf
-            rot = new Quaternionf();
+            rot = new Quaternionf(),
+            pivotRot = new Quaternionf();
     private final MatrixStack.Matrices
             mat = new MatrixStack.Matrices(),
             invMat = new MatrixStack.Matrices();
 
     protected boolean dirty = false;
 
-    public Transform applyTransform(MatrixStack.Matrices matrices) {
-        matrices.translate(pivot.x + pos.x, pivot.y + pos.y, pivot.z + pos.z);
-        matrices.rotate(rot);
-        matrices.scale(scale);
-        matrices.translate(-pivot.x, -pivot.y, -pivot.z);
-        return this;
+    public void applyTransform(MatrixStack target) {
+        if (isDirty()) recalculate();
+        target.peek().mul(mat);
     }
 
     public Transform recalculate() {
         mat.identity();
-        applyTransform(mat);
+
+        mat.translate(pivot.x + pos.x, pivot.y + pos.y, pivot.z + pos.z);
+        mat.rotate(rot);
+        mat.rotate(pivotRot);
+        mat.scale(scale);
+        mat.translate(-pivot.x, -pivot.y, -pivot.z);
+
         invMat.set(mat);
         invMat.pos().invert();
         invMat.recalculateNormalMatrix();
@@ -43,21 +47,22 @@ public class Transform {
         return this;
     }
 
-    public Transform clearAnimChannels() {
+    public Transform clearAnimationPose() {
+        pos.set(0f);
+        rot.identity();
         scale.set(1f);
-        rot  .identity();
-        pos  .set(0f);
         dirty = true;
         return this;
     }
 
     public Transform identity() {
-        pivot.set(0f);
-        pos  .set(0f);
-        rot  .identity();
+        pos.set(0f);
+        rot.identity();
         scale.set(1f);
-        uv   .set(0f);
+        pivot.set(0f);
+        pivotRot.identity();
         color.set(1f);
+        uv.set(0f);
         mat.identity();
         invMat.identity();
         dirty = false;
@@ -85,6 +90,10 @@ public class Transform {
 
     public Vector3f getPivot() {
         return pivot;
+    }
+
+    public Quaternionf getPivotRot() {
+        return pivotRot;
     }
 
     public Vector3f getScale() {
@@ -125,26 +134,6 @@ public class Transform {
         return this;
     }
 
-    public Transform setPivot(Vector3f vec) {
-        return this.setPivot(vec.x, vec.y, vec.z);
-    }
-
-    public Transform setPivot(float x, float y, float z) {
-        this.pivot.set(x, y, z);
-        this.dirty = true;
-        return this;
-    }
-
-    public Transform setPosPivot(Vector3f vec) {
-        return this.setPosPivot(vec.x, vec.y, vec.z);
-    }
-
-    public Transform setPosPivot(float x, float y, float z) {
-        setPos(x, y, z);
-        setPivot(x, y, z);
-        return this;
-    }
-
     public Transform setScale(float scalar) {
         return this.setScale(scalar, scalar, scalar);
     }
@@ -155,6 +144,32 @@ public class Transform {
 
     public Transform setScale(float x, float y, float z) {
         this.scale.set(x, y, z);
+        this.dirty = true;
+        return this;
+    }
+
+    public Transform setPivot(Vector3f vec) {
+        return this.setPivot(vec.x, vec.y, vec.z);
+    }
+
+    public Transform setPivot(float x, float y, float z) {
+        this.pivot.set(x, y, z);
+        this.dirty = true;
+        return this;
+    }
+
+    public Transform setPivotRot(Quaternionf rot) {
+        this.pivotRot.set(rot);
+        this.dirty = true;
+        return this;
+    }
+
+    public Transform setPivotRot(Vector3f vec) {
+        return this.setPivotRot(vec.x, vec.y, vec.z);
+    }
+
+    public Transform setPivotRot(float pitch, float yaw, float roll) {
+        this.pivotRot.rotationZYX(Math.toRadians(roll), Math.toRadians(-yaw), Math.toRadians(-pitch));
         this.dirty = true;
         return this;
     }

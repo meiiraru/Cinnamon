@@ -27,6 +27,7 @@ public class Bone {
         this.name = other.name;
         this.isModel = other.isModel;
         this.transform.setPivot(other.transform.getPivot());
+        this.transform.setPivotRot(other.transform.getPivotRot());
 
         boneMap.put(other, this);
 

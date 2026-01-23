@@ -37,7 +37,7 @@ public class Decal {
 
         //transform box
         matrices.pushMatrix();
-        getTransform().applyTransform(matrices.peek());
+        getTransform().applyTransform(matrices);
         VertexConsumer.LINES.consume(GeometryHelper.box(matrices, -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0xFFFF72AD));
         DebugScreen.renderDebugArrow(matrices, 0, 0, 1, 1f, 0xFF0000FF);
         matrices.popMatrix();

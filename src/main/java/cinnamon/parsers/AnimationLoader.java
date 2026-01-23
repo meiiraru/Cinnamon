@@ -75,9 +75,12 @@ public class AnimationLoader {
             JsonObject object = element.getAsJsonObject();
 
             Bone child = new Bone("bone:" + object.get("name").getAsString());
-            child.getTransform().setPivot(parseVec3(object.getAsJsonArray("origin"), POS_RATIO, false));
             bone.getChildren().add(child);
             boneMap.put(child.getName(), child);
+
+            child.getTransform().setPivot(parseVec3(object.getAsJsonArray("origin"), POS_RATIO, false));
+            if (object.has("rotation"))
+                child.getTransform().setPivotRot(parseVec3(object.getAsJsonArray("rotation"), 1f, true));
 
             if (object.has("children"))
                 parseOutliner(child, object.getAsJsonArray("children"), boneMap);

@@ -125,6 +125,11 @@ public class Animation {
         list.sort(Keyframe::compareTo);
     }
 
+    public void clearAnimationPose() {
+        for (Bone bone : keyframes.keySet())
+            bone.getTransform().clearAnimationPose();
+    }
+
     public long getTime() {
         return time;
     }
@@ -140,8 +145,10 @@ public class Animation {
 
         if (state == State.PLAYING)
             initTime = System.currentTimeMillis() - time;
-        if (state == State.STOPPED)
+        if (state == State.STOPPED) {
+            clearAnimationPose();
             time = initTime = 0;
+        }
 
         this.state = state;
     }
