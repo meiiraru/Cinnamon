@@ -28,7 +28,7 @@ uniform vec4 color = vec4(1.0f);
 
 void main() {
     vec4 tex = texture(textureSampler, texCoords);
-    if (tex.a < 0.5f)
+    if (tex.a < 0.01f)
         discard;
 
     fragColor = tex * color;

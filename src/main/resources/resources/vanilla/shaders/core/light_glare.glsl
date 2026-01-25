@@ -53,7 +53,7 @@ void main() {
 
     //sample texture
     vec4 tex = texture(textureSampler, texCoords);
-    if (tex.a < 0.5f)
+    if (tex.a < 0.01f)
         discard;
 
     vec3 lightNDC = lightClipPos.xyz / lightClipPos.w;

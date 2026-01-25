@@ -50,7 +50,7 @@ void main() {
     
     if (texID >= 0) {
         vec4 tex = textureProj(textures[texID], texProj);
-        if (tex.a < 0.5f)
+        if (tex.a < 0.01f)
             discard;
 
         col *= tex;

@@ -253,7 +253,7 @@ void main() {
     //cookie
     if (light.type == 4) {
         vec3 cookieColor = getCookieColor(lightCoords);
-        if (cookieColor.r + cookieColor.g + cookieColor.b < 0.1f)
+        if (cookieColor.r + cookieColor.g + cookieColor.b < 0.01f)
             discard;
         radiance *= cookieColor;
     }

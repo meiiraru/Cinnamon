@@ -21,6 +21,7 @@ public class IBLSky extends Sky {
     @Override
     protected void renderSky(Camera camera, MatrixStack matrices) {
         //render model
+        Shader o = Shader.activeShader;
         Shader s = Shaders.SKYBOX.getShader().use();
         s.setup(camera);
         s.setMat3("rotation", skyRotation);
@@ -28,6 +29,7 @@ public class IBLSky extends Sky {
         SkyBox.of(skyBox).bind(0);
         SimpleGeometry.INV_CUBE.render();
         CubeMap.unbindTex(0);
+        o.use();
     }
 
     @Override

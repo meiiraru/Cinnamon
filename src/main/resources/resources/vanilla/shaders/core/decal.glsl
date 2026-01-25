@@ -53,7 +53,7 @@ void main() {
 
     //sample texture
     vec4 tex = texture(textureSampler, uv);
-    if (tex.a < 0.5f)
+    if (tex.a < 0.01f)
         discard;
 
     tex.a *= opacity; //apply overall opacity

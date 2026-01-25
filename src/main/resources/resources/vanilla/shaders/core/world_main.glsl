@@ -24,7 +24,7 @@ void main() {
     if (texID >= 0) {
         //texture
         vec4 tex = texture(textures[texID], texCoords);
-        if (tex.a < 0.5f)
+        if (tex.a < 0.01f)
             discard;
 
         col *= tex;

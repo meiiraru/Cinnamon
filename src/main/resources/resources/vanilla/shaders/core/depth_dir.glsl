@@ -43,6 +43,6 @@ uniform sampler2D textureSampler;
 
 void main() {
     vec4 tex = texture(textureSampler, g_texCoords);
-    if (tex.a < 0.5f)
+    if (tex.a < 0.01f)
         discard;
 }
