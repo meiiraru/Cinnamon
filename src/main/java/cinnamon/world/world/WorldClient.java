@@ -45,11 +45,7 @@ import cinnamon.world.entity.misc.FireworkStar;
 import cinnamon.world.entity.misc.Spawner;
 import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.entity.vehicle.ShoppingCart;
-import cinnamon.world.items.BubbleGun;
-import cinnamon.world.items.Flashlight;
-import cinnamon.world.items.Item;
-import cinnamon.world.items.MagicWand;
-import cinnamon.world.items.PotatoItem;
+import cinnamon.world.items.*;
 import cinnamon.world.items.weapons.CoilGun;
 import cinnamon.world.items.weapons.PotatoCannon;
 import cinnamon.world.items.weapons.RiceGun;
@@ -226,6 +222,9 @@ public class WorldClient extends World {
         healthPack.setPos(2.5f, 2f, 10f);
         healthPack.setRenderCooldown(true);
         this.addEntity(healthPack);
+
+        //debug weapons
+        spawnDebugWeapons();
     }
 
     @Override
@@ -718,6 +717,8 @@ public class WorldClient extends World {
                 addDecal(decal);
             }
 
+            case GLFW_KEY_X -> spawnDebugWeapons();
+
             case GLFW_KEY_Z -> {
                 Firework f = new Firework(UUID.randomUUID(), Maths.range(30, 60), Maths.spread(new Vector3f(0, 1f, 0), 30, 30).mul(2f),
                         new FireworkStar(
@@ -799,7 +800,6 @@ public class WorldClient extends World {
         player = new LocalPlayer();
         player.setPos(0.5f, init ? 0f : 100f, 0.5f);
         player.getAbilities().godMode(true).canFly(true);
-        givePlayerItems(player);
         this.addEntity(player);
 
         Animation anim = player.getAnimation("blink");
@@ -810,13 +810,24 @@ public class WorldClient extends World {
         //    connection.sendTCP(new Respawn());
     }
 
-    public void givePlayerItems(Player player) {
-        player.giveItem(new CoilGun(30, 3, 100));
-        player.giveItem(new PotatoCannon(3, 60, 200));
-        player.giveItem(new RiceGun(8, 40, 150));
-        player.giveItem(new BubbleGun());
-        player.getInventory().setItem(player.getInventory().getFreeIndex() + 1, new Flashlight(0xFFFFCC));
-        player.getInventory().setItem(player.getInventory().getSize() - 1, new MagicWand());
+    public void spawnDebugWeapons() {
+        Item[] items = {
+                new CoilGun(30, 3, 100),
+                new PotatoCannon(3, 60, 200),
+                new RiceGun(8, 40, 150),
+                new PaintGun(),
+                new BubbleGun(),
+                new Flashlight(0xFFFFCC),
+                new MagicWand(),
+        };
+
+        for (int i = 0; i < items.length; i++) {
+            ItemEntity item = new ItemEntity(UUID.randomUUID(), items[i]);
+            item.setAge(-1);
+            item.setPos(i * 2f + 0.5f, 2f, -8.5f);
+            item.setPickUpDelay(0);
+            this.addEntity(item);
+        }
     }
 
     public void pause() {

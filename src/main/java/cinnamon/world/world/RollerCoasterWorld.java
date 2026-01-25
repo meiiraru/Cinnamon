@@ -7,7 +7,7 @@ import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.model.ObjRenderer;
 import cinnamon.utils.Curve;
 import cinnamon.utils.Maths;
-import cinnamon.world.entity.living.Player;
+import cinnamon.world.entity.collectable.ItemEntity;
 import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.items.CurveMaker;
 import cinnamon.world.light.Spotlight;
@@ -117,8 +117,12 @@ public class RollerCoasterWorld extends WorldClient {
     }
 
     @Override
-    public void givePlayerItems(Player player) {
-        player.giveItem(new CurveMaker(1));
-        super.givePlayerItems(player);
+    public void spawnDebugWeapons() {
+        ItemEntity i = new ItemEntity(UUID.randomUUID(), new CurveMaker(1));
+        i.setAge(-1);
+        i.setPos(0.5f, 2f, 0.5f);
+        i.setPickUpDelay(0);
+        addEntity(i);
+        super.spawnDebugWeapons();
     }
 }

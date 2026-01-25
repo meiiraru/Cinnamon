@@ -21,18 +21,13 @@ public class Candy extends Projectile {
 
     public Candy(UUID uuid, UUID owner) {
         super(uuid, EntityModelRegistry.CANDY.resource, DAMAGE, LIFETIME, SPEED, CRIT_CHANCE, owner);
+        setGravity(0.5f);
     }
 
     @Override
     public void tick() {
         super.tick();
         this.rotate(0, 20);
-    }
-
-    @Override
-    protected void applyForces() {
-        //less gravity
-        this.motion.y -= world.gravity * 0.5f;
     }
 
     @Override

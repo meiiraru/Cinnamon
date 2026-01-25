@@ -18,6 +18,7 @@ public abstract class PhysEntity extends Entity {
             impulse = new Vector3f();
 
     protected boolean onGround;
+    protected float gravity = 1f;
 
     public PhysEntity(UUID uuid, Resource model) {
         super(uuid, model);
@@ -60,7 +61,7 @@ public abstract class PhysEntity extends Entity {
 
     protected void applyForces() {
         //gravity
-        this.motion.y -= world.gravity;
+        this.motion.y -= world.gravity * getGravity();
     }
 
     protected void applyImpulse() {
@@ -223,5 +224,13 @@ public abstract class PhysEntity extends Entity {
 
     public void knockback(Vector3f dir, float force) {
         setMotion(motion.x + dir.x * force, motion.y + dir.y * force, motion.z + dir.z * force);
+    }
+
+    public void setGravity(float gravity) {
+        this.gravity = gravity;
+    }
+
+    public float getGravity() {
+        return gravity;
     }
 }

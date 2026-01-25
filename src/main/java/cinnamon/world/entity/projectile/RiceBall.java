@@ -27,11 +27,6 @@ public class RiceBall extends Projectile {
     }
 
     @Override
-    protected void applyForces() {
-        //no gravity
-    }
-
-    @Override
     protected void motionFallout() {
         //no fallout
     }

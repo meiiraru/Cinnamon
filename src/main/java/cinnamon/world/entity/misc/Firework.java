@@ -34,6 +34,7 @@ public class Firework extends PhysEntity {
         this.life = lifetime;
         this.stars = stars;
         setMotion(velocity);
+        setGravity(0f);
     }
 
     @Override
@@ -59,11 +60,6 @@ public class Firework extends PhysEntity {
             vec.normalize();
 
         this.rotateTo(Maths.dirToRot(vec));
-    }
-
-    @Override
-    protected void applyForces() {
-        //super.applyForces();
     }
 
     @Override

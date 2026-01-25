@@ -13,6 +13,7 @@ public enum EntityModelRegistry {
     POTATO("models/entities/projectile/potato/potato.obj"),
     RICE("models/entities/projectile/rice/rice.obj"),
     RICE_BALL("models/entities/projectile/rice_ball/rice_ball.obj"),
+    PAINT_BALL("models/entities/projectile/paint_ball/paint_ball.obj"),
 
     //vehicles
     CART("models/entities/vehicle/cart/cart.obj"),

@@ -34,6 +34,7 @@ public abstract class Projectile extends PhysEntity {
         this.damage = damage;
         this.critChance = critChance;
         this.owner = owner;
+        setGravity(0f);
     }
 
     private static int calculateDamage(Entity owner, int baseDamage) {

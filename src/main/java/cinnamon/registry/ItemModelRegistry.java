@@ -10,6 +10,7 @@ public enum ItemModelRegistry {
     CURVE_MAKER("item.curve_maker", "models/items/curve_maker/curve_maker.obj"),
     BUBBLE_GUN("item.bubble_gun", "models/items/bubble_gun/bubble_gun.obj"),
     POTATO("item.potato", "models/entities/projectile/potato/potato.obj"),
+    PAINT_GUN("item.paint_gun", "models/items/paint_gun/paint_gun.obj"),
 
     //weapons
     COIL_GUN("item.coil_gun", "models/items/coil_gun/coil_gun.obj"),

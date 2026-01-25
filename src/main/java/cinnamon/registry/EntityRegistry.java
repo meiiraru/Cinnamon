@@ -16,6 +16,7 @@ public enum EntityRegistry {
     POTATO,
     RICE,
     RICE_BALL,
+    PAINT_BALL,
 
     //vehicles
     CART,
