@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static cinnamon.events.Events.LOGGER;
+
 public class ObjRenderer extends ModelRenderer {
 
     private final Mesh mesh;
@@ -90,13 +92,19 @@ public class ObjRenderer extends ModelRenderer {
 
             //generate normals when missing
             if (normals.isEmpty()) {
+                LOGGER.debug("Calculating normals for group \"%s\"", group.getName());
                 VertexHelper.calculateFlatNormals(sortedVertices);
                 VertexHelper.smoothNormals(sortedVertices, angleThreshold);
             }
 
+            //generate uvs when missing
+            if (uvs.isEmpty()) {
+                LOGGER.debug("Calculating uvs for group \"%s\"", group.getName());
+                VertexHelper.calculateUVs(groupMin, groupMax, sortedVertices);
+            }
+
             //calculate tangents
-            if (!uvs.isEmpty())
-                VertexHelper.calculateTangents(sortedVertices, angleThreshold);
+            VertexHelper.calculateTangents(sortedVertices, angleThreshold);
 
             //strip the unique indices from the vertex list
             Pair<int[], List<Vertex>> indices = VertexHelper.stripIndices(sortedVertices);

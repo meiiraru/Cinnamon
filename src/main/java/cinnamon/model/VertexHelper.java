@@ -262,4 +262,27 @@ public class VertexHelper {
 
         return new Pair<>(indices, vertexList);
     }
+
+    public static void calculateUVs(Vector3f minBounds, Vector3f maxBounds, List<Vertex> list) {
+        Vector3f size = new Vector3f(maxBounds).sub(minBounds);
+        for (Vertex vertex : list) {
+            Vector3f pos = vertex.getPosition();
+            Vector3f norm = vertex.getNormal().absolute(new Vector3f());
+            Vector2f uv = new Vector2f();
+            if (norm.x >= norm.y && norm.x >= norm.z) {
+                //x major
+                uv.x = (pos.z - minBounds.z) / size.z;
+                uv.y = (pos.y - minBounds.y) / size.y;
+            } else if (norm.y >= norm.x && norm.y >= norm.z) {
+                //y major
+                uv.x = (pos.x - minBounds.x) / size.x;
+                uv.y = (pos.z - minBounds.z) / size.z;
+            } else {
+                //z major
+                uv.x = (pos.x - minBounds.x) / size.x;
+                uv.y = (pos.y - minBounds.y) / size.y;
+            }
+            vertex.uv(uv);
+        }
+    }
 }

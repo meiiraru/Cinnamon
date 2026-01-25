@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static cinnamon.events.Events.LOGGER;
+
 public class AssimpRenderer extends ModelRenderer {
 
     private final Model model;
@@ -51,6 +53,28 @@ public class AssimpRenderer extends ModelRenderer {
 
                 //add to vertex list
                 vertices.add(Vertex.of(v).uv(u).normal(n).tangent(t));
+            }
+
+            //default angle threshold for smoothing
+            float angleThreshold = 45f;
+
+            //calculate missing normals
+            if (!mesh.hasNormals) {
+                LOGGER.debug("Calculating normals for mesh \"%s\"", mesh.name);
+                VertexHelper.calculateFlatNormals(vertices);
+                VertexHelper.smoothNormals(vertices, angleThreshold);
+            }
+
+            //calculate missing uvs
+            if (!mesh.hasUVs) {
+                LOGGER.debug("Calculating uvs for mesh \"%s\"", mesh.name);
+                VertexHelper.calculateUVs(mesh.aabb.getMin(), mesh.aabb.getMax(), vertices);
+            }
+
+            //calculate missing tangents
+            if (!mesh.hasTangents) {
+                LOGGER.debug("Calculating tangents for mesh \"%s\"", mesh.name);
+                VertexHelper.calculateTangents(vertices, angleThreshold);
             }
 
             //strip the unique indices from the vertex list
