@@ -248,6 +248,14 @@ public class Maths {
         return new Quaternionf().rotationZYX(0f, yaw, -pitch);
     }
 
+    public static Quaternionf rotToQuat(Vector2f rot) {
+        return rotToQuat(rot.x, rot.y);
+    }
+
+    public static Quaternionf rotToQuat(float pitch, float yaw) {
+        return new Quaternionf().rotationZYX(0f, Math.PI_f - Math.toRadians(yaw), Math.toRadians(pitch));
+    }
+
     public static Vector3f quatToDir(Quaternionf quat) {
         return new Vector3f(0f, 0f, 1f).rotate(quat);
     }

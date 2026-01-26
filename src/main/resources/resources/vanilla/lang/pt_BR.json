@@ -351,6 +351,7 @@
   "item.coil_gun": "Pistola de Bobina",
   "item.potato_cannon": "Canhão de Batata",
   "item.rice_gun": "Pistola de Arroz",
+  "item.paint_gun": "Pistola de Tinta",
 
   "animation": "Animação",
   "entity": "Entidade",
@@ -363,6 +364,7 @@
   "entity.cart": "Carrinho",
   "entity.shopping_cart": "Carrinho de Compras",
   "entity.firework": "Fogo de Artifício",
+  "entity.paint_ball": "Bola de Tinta",
 
   "living_entity": "Entidade Viva",
   "living_entity.pickle": "Pepino",

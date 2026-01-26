@@ -1,5 +1,6 @@
 package cinnamon.gui.screens.world;
 
+import cinnamon.commands.CommandParser;
 import cinnamon.gui.GUIStyle;
 import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.types.TextField;
@@ -64,7 +65,10 @@ public class ChatScreen extends Screen {
             field.setText(fieldMsg = "");
             close();
             if (!s.isBlank()) {
-                addMessage(s);
+                if (s.startsWith("/"))
+                    CommandParser.parseCommand(client.world.player, s.substring(1));
+                else
+                    addMessage(s);
                 return true;
             }
         }

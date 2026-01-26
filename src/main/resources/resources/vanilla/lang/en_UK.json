@@ -381,6 +381,7 @@
   "item.coil_gun": "Coil Gun",
   "item.potato_cannon": "Potato Cannon",
   "item.rice_gun": "Rice Gun",
+  "item.paint_gun": "Paint Gun",
 
   "animation": "Animation",
   "entity": "Entity",
@@ -393,6 +394,7 @@
   "entity.cart": "Cart",
   "entity.shopping_cart": "Shopping Cart",
   "entity.firework": "Firework",
+  "entity.paint_ball": "Paint Ball",
 
   "living_entity": "Living Entity",
   "living_entity.pickle": "Pickle",
