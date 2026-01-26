@@ -35,7 +35,7 @@ public class SSAORenderer {
 
         //set kernel samples
         s.setInt("sampleCount", Math.max(quality, 1) * 16);
-        s.setVec2("noiseScale", ssaoFramebuffer.getWidth() / 4f, ssaoFramebuffer.getHeight() / 4f);
+        s.setVec2("noiseScale", ssaoFramebuffer.getWidth() / (float) SSAOFramebuffer.NOISE_SAMPLES, ssaoFramebuffer.getHeight() / (float) SSAOFramebuffer.NOISE_SAMPLES);
         s.setFloat("radius", radius);
 
         //render quad
@@ -47,7 +47,7 @@ public class SSAORenderer {
     }
 
     public static void blurSSAO() {
-        out = Blur.boxBlur(ssaoFramebuffer.getSSAOTexture(), ssaoFramebuffer.getWidth(), ssaoFramebuffer.getHeight(), 2f, 1f, blurBuffer);
+        out = Blur.boxBlur(ssaoFramebuffer.getSSAOTexture(), ssaoFramebuffer.getWidth(), ssaoFramebuffer.getHeight(), SSAOFramebuffer.NOISE_SAMPLES / 2f, 1f, blurBuffer);
     }
 
     public static int getTexture() {

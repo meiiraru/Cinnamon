@@ -12,7 +12,7 @@ import static org.lwjgl.opengl.GL33.GL_TEXTURE_SWIZZLE_RGBA;
 public class SSAOFramebuffer extends Framebuffer {
 
     public static final int MAX_SAMPLES = 64;
-    public static final int NOISE_SAMPLES = 8;
+    public static final int NOISE_SAMPLES = 4;
     private static final int kernelTexture, noiseTexture;
 
     static {
