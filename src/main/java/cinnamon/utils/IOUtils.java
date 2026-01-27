@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -37,8 +39,14 @@ public class IOUtils {
     }
 
     public static InputStream getResource(Resource res) {
-        if (res.getNamespace().isEmpty())
-            return readFileStream(Path.of(res.getPath()));
+        if (res.getNamespace().isEmpty()) {
+            String path = res.getPath();
+            try {
+                return readURLStream(URI.create(path).toURL());
+            } catch (IllegalArgumentException | MalformedURLException ignored) {
+                return readFileStream(Path.of(path));
+            }
+        }
 
         String resourcePath = resolveResourcePath(res);
         return Thread.currentThread().getContextClassLoader().getResourceAsStream(resourcePath);
@@ -52,8 +60,14 @@ public class IOUtils {
     }
 
     public static boolean hasResource(Resource res) {
-        if (res.getNamespace().isEmpty())
-            return Files.exists(Path.of(res.getPath()));
+        if (res.getNamespace().isEmpty()) {
+            String path = res.getPath();
+            try {
+                return URLExists(URI.create(path).toURL());
+            } catch (IllegalArgumentException | MalformedURLException ignored) {
+                return Files.exists(Path.of(path));
+            }
+        }
 
         String resourcePath = resolveResourcePath(res);
         return Thread.currentThread().getContextClassLoader().getResource(resourcePath) != null;
@@ -168,6 +182,26 @@ public class IOUtils {
                 return files == null ? null : includeDirectories ? Arrays.asList(files) : Arrays.stream(files).filter(f -> !new File(resource, f).isDirectory()).collect(Collectors.toList());
             }
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean URLExists(URL url) {
+        try {
+            HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+            int responseCode = huc.getResponseCode();
+            return responseCode == HttpURLConnection.HTTP_OK;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public static InputStream readURLStream(URL url) {
+        if (!URLExists(url))
+            return null;
+        try {
+            return url.openStream();
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
