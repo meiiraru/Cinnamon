@@ -19,22 +19,33 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class ChatScreen extends Screen {
 
-    private static final int MAX_MESSAGES = 100;
-    private static final int RECENT_MESSAGES = 8;
+    public static final int MAX_MESSAGES = 100;
+    public static final int RECENT_MESSAGES = 8;
 
-    private final List<Message> messages = new ArrayList<>();
+    protected static final List<Message> messages = new ArrayList<>();
+    protected static final List<String> sentMessages = new ArrayList<>();
 
-    private TextField field;
-    private String fieldMsg = "";
+    protected final TextField field;
+    protected int sentIndex = -1;
+    protected String backupText = "";
+
+    public ChatScreen() {
+        //create text field
+        field = new TextField(0, 0, 0, 0);
+        field.setHintText(Text.translated("gui.chat.type_message").withStyle(Style.EMPTY.color(Colors.LIGHT_GRAY)));
+        field.setTextOnly(true);
+    }
 
     @Override
     public void init() {
         super.init();
+
+        //update field dimensions
         int fh = (int) (GUIStyle.getDefault().getFont().lineHeight + 2);
-        field = new TextField(0, height - fh - 20, width, fh);
-        field.setHintText(Text.translated("gui.chat.type_message").withStyle(Style.EMPTY.color(Colors.LIGHT_GRAY)));
-        field.setTextOnly(true);
-        field.setText(fieldMsg);
+        field.setPos(0, height - fh - 20);
+        field.setDimensions(width, fh);
+
+        //add and focus field
         addWidget(field);
         this.focusWidget(field);
     }
@@ -60,16 +71,68 @@ public class ChatScreen extends Screen {
 
     @Override
     public boolean keyPress(int key, int scancode, int action, int mods) {
-        if (action == GLFW_PRESS && (key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER)) {
-            String s = field.getText();
-            field.setText(fieldMsg = "");
-            close();
-            if (!s.isBlank()) {
-                if (s.startsWith("/"))
-                    CommandParser.parseCommand(client.world.player, s.substring(1));
-                else
-                    addMessage(s);
-                return true;
+        if (action == GLFW_PRESS) {
+            switch (key) {
+                //send the current message
+                case GLFW_KEY_ENTER, GLFW_KEY_KP_ENTER -> {
+                    //clear the field
+                    String s = field.getText();
+                    setFieldText("");
+
+                    //close the screen
+                    close();
+
+                    if (!s.isBlank()) {
+                        //try to send a command
+                        if (s.startsWith("/"))
+                            CommandParser.parseCommand(client.world.player, s.substring(1));
+                        //otherwise send as a chat message
+                        else
+                            addMessage(s);
+
+                        //store the message
+                        sentMessages.add(s);
+                        return true;
+                    }
+                }
+                //go to previous message
+                case GLFW_KEY_UP -> {
+                    //no messages in history, so do nothing
+                    if (sentMessages.isEmpty())
+                        return true;
+
+                    //if we still have older messages
+                    if (sentIndex < sentMessages.size() - 1) {
+                        //store the current text if we are at the first message
+                        if (sentIndex == -1)
+                            backupText = field.getText();
+
+                        //increase the index to go to an older message
+                        sentIndex++;
+                    }
+
+                    //set the text to the selected message
+                    setFieldText(sentMessages.get(sentMessages.size() - 1 - sentIndex));
+                    return true;
+                }
+                //go to next message in history
+                case GLFW_KEY_DOWN -> {
+                    //no messages in history, so do nothing
+                    if (sentMessages.isEmpty())
+                        return true;
+
+                    //if we have newer messages
+                    if (sentIndex > 0) {
+                        //decrease the index to go to a newer message
+                        sentIndex--;
+                        setFieldText(sentMessages.get(sentMessages.size() - 1 - sentIndex));
+                    } else {
+                        //going further than the newer message, reset to the backup text
+                        sentIndex = -1;
+                        setFieldText(backupText);
+                    }
+                    return true;
+                }
             }
         }
 
@@ -79,6 +142,7 @@ public class ChatScreen extends Screen {
     @Override
     public boolean mousePress(int button, int action, int mods) {
         boolean sup = super.mousePress(button, action, mods);
+        //always focus the field
         if (action == GLFW_PRESS)
             this.focusWidget(field);
         return sup;
@@ -92,7 +156,12 @@ public class ChatScreen extends Screen {
         messages.add(new Message(client.ticks, msg));
     }
 
-    private static class Message {
+    public void setFieldText(String text) {
+        field.setText(text);
+        field.setCursorToEnd();
+    }
+
+    protected static class Message {
 
         private final long addedTime;
         private final Text text;

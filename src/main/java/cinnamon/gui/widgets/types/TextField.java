@@ -24,7 +24,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class TextField extends SelectableWidget implements Tickable {
 
     public static final int
-            HISTORY_SIZE = 20,
+            HISTORY_SIZE = 100,
             DRAG_ZONE = 8;
     public static final char
             FORMATTING_CHAR = '*';
@@ -350,6 +350,14 @@ public class TextField extends SelectableWidget implements Tickable {
     public void setCursorPos(int cursor) {
         this.cursor = Math.min(Math.max(cursor, 0), currText.length());
         this.blinkTime = 0;
+    }
+
+    public void setCursorToEnd() {
+        setCursorPos(currText.length());
+    }
+
+    public void setCursorToStart() {
+        setCursorPos(0);
     }
 
 
