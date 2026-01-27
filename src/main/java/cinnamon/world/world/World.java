@@ -55,10 +55,11 @@ public abstract class World {
         for (Iterator<Map.Entry<UUID, Entity>> iterator = entities.entrySet().iterator(); iterator.hasNext(); ) {
             Map.Entry<UUID, Entity> entry = iterator.next();
             Entity e = entry.getValue();
-            e.tick();
             if (e.isRemoved()) {
                 iterator.remove();
                 entityRemoved(e.getUUID());
+            } else {
+                e.tick();
             }
         }
     }

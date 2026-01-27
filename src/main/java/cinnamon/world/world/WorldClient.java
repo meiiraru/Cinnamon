@@ -241,17 +241,19 @@ public class WorldClient extends World {
             //particles
             for (Iterator<Particle> iterator = particles.iterator(); iterator.hasNext(); ) {
                 Particle p = iterator.next();
-                p.tick();
                 if (p.isRemoved())
                     iterator.remove();
+                else
+                    p.tick();
             }
 
             //decals
             for (Iterator<Decal> iterator = decals.iterator(); iterator.hasNext(); ) {
                 Decal d = iterator.next();
-                d.tick();
                 if (d.isRemoved())
                     iterator.remove();
+                else
+                    d.tick();
             }
         }
 
