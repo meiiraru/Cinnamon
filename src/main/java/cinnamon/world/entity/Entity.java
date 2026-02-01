@@ -7,6 +7,7 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
+import cinnamon.render.LightRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
@@ -457,7 +458,7 @@ public abstract class Entity extends WorldObject {
     public boolean shouldRender(Camera camera) {
         return (camera.getEntity() != this || ((WorldClient) getWorld()).isThirdPerson() || WorldRenderer.isShadowRendering())
                 && WorldRenderer.activeMask.test(getRenderMask())
-                && !(WorldRenderer.isShadowRendering() && getUUID().equals(WorldRenderer.shadowLight.getSource()))
+                && !(WorldRenderer.isShadowRendering() && getUUID().equals(LightRenderer.getShadowLight().getSource()))
                 && camera.getPos().distanceSquared(getPos()) <= getRenderDistance()
                 && super.shouldRender(camera);
     }
