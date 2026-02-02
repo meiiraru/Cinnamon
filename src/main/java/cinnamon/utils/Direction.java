@@ -10,13 +10,14 @@ public enum Direction {
 
     public final Vector3f vector;
     public final byte rotation, invRotation;
-    public final String name;
+    public final String name, face;
 
     Direction(String face, byte rotation, Vector3f vector) {
         this.vector = vector;
         this.rotation = rotation;
         this.invRotation = (byte) ((rotation + 2) % 4);
         this.name = name().charAt(0) + name().substring(1).toLowerCase() + " " + face;
+        this.face = face;
     }
 
     public static Direction fromRotation(float yaw) {

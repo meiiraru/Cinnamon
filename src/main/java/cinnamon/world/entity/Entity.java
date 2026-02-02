@@ -119,7 +119,6 @@ public abstract class Entity extends WorldObject {
 
         text.withStyle(Style.EMPTY.outlined(true));
 
-        Client c = Client.getInstance();
         float s = 1 / 48f;
 
         matrices.translate(getPos(delta));
@@ -127,7 +126,7 @@ public abstract class Entity extends WorldObject {
         camera.billboard(matrices);
         matrices.scale(-s);
 
-        text.render(VertexConsumer.WORLD_MAIN, matrices, 0, 0, Alignment.BOTTOM_CENTER, 50);
+        text.render(VertexConsumer.WORLD_MAIN, matrices, 0, 0, Alignment.BOTTOM_CENTER, 48);
 
         matrices.popMatrix();
     }

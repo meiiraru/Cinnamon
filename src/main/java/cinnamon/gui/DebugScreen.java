@@ -477,6 +477,8 @@ public class DebugScreen {
             Vector2f erot = p.getRot();
             Vector3f emot = p.getMotion();
 
+            String face = Direction.fromRotation(erot.y).name;
+
             float range = p.getPickRange();
             String object = getTargetedObjString(p.getLookingObject(range), range);
 
@@ -485,7 +487,7 @@ public class DebugScreen {
                     &e%s&r
                     %s
                     x &c%.3f&r y &a%.3f&r z &b%.3f&r
-                    pitch &e%.3f&r yaw &e%.3f&r
+                    pitch &e%.3f&r yaw &e%.3f&r facing &e%s&r
                     motion &c%.3f &a%.3f &b%.3f&r
                     onground &e%s&r
                     noclip &e%s&r god mode &e%s&r
@@ -496,7 +498,7 @@ public class DebugScreen {
 
                     p.getName(), p.getUUID(),
                     epos.x, epos.y, epos.z,
-                    erot.x, erot.y,
+                    erot.x, erot.y, face,
                     emot.x, emot.y, emot.z,
 
                     p.isOnGround() ? "yes" : "no",
