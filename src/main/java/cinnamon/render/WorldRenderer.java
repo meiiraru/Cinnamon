@@ -212,17 +212,17 @@ public class WorldRenderer {
     }
 
     public static void copyLastFrame(boolean color, boolean depth) {
-        Framebuffer current = Framebuffer.activeFramebuffer;
-        lastFrameFramebuffer.resizeTo(current);
+        lastFrameFramebuffer.resizeTo(outputBuffer);
         lastFrameFramebuffer.use();
-        current.blit(lastFrameFramebuffer, color, depth, false);
-        current.use();
+        outputBuffer.blit(lastFrameFramebuffer, color, depth, false);
+        outputBuffer.use();
     }
 
     public static void bake() {
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         outputBuffer.blit(targetBuffer);
         targetBuffer.use();
+        targetBuffer.adjustViewPort();
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         resetFlags();
     }
@@ -230,6 +230,7 @@ public class WorldRenderer {
     public static void bakeQuad() {
         //framebuffer
         targetBuffer.use();
+        targetBuffer.adjustViewPort();
 
         //shader
         Shader s = PostProcess.BLIT.getShader().use();
@@ -262,8 +263,9 @@ public class WorldRenderer {
 
     public static void initGBuffer(Camera camera) {
         //setup pbr framebuffer
-        PBRFrameBuffer.resizeTo(targetBuffer);
+        PBRFrameBuffer.resizeTo(targetBuffer, Settings.renderScale.get());
         PBRFrameBuffer.useClear();
+        PBRFrameBuffer.adjustViewPort();
         targetBuffer.blit(PBRFrameBuffer, false, true, true);
 
         //setup gbuffer shader
@@ -274,8 +276,9 @@ public class WorldRenderer {
 
     public static void bakeDeferred(Camera camera, Sky sky) {
         //world uniforms
-        outputBuffer.resizeTo(targetBuffer);
+        outputBuffer.resizeTo(PBRFrameBuffer);
         outputBuffer.useClear();
+        outputBuffer.adjustViewPort();
         Shader s = Shaders.DEFERRED_WORLD_PBR.getShader().use();
 
         //camera

@@ -76,6 +76,7 @@ public class Settings {
     public static final Setting.Bools lensFlare = new Setting.Bools("rendering.lens_flare", true);
     public static final Setting.IntRanges ssaoLevel = new Setting.IntRanges("rendering.ssao_level", 3, -1, 4);
     public static final Setting.IntRanges ssrLevel = new Setting.IntRanges("rendering.ssr_level", 3, -1, 4);
+    public static final Setting.Ranges renderScale = new Setting.Ranges("rendering.render_scale", 1f, 0.01f, 4f);
 
     //keybinds
     public static final Setting.Keybind
