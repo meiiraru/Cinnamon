@@ -28,8 +28,6 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class PrimitiveTestWorld extends WorldClient {
 
-    private static final PrimitiveTerrain floor = new PrimitiveTerrain(GeometryHelper.plane(Client.getInstance().matrices, -39f, 0f, -22f, 25f, 43f, 1, 1, Colors.GREEN.argb));
-
     private boolean renderNormals;
 
     @Override
@@ -37,7 +35,7 @@ public class PrimitiveTestWorld extends WorldClient {
         Toast.clear(Toast.ToastType.WORLD);
 
         //floor
-        addTerrain(floor);
+        addTerrain(new PrimitiveTerrain(GeometryHelper.plane(client.matrices, -39f, 0f, -22f, 25f, 43f, 1, 1, Colors.GREEN.argb)));
 
         //houses
         house(0, 0, -10, 0, 0xFFcac5b8, 0xFF866451);

@@ -308,10 +308,10 @@ public class Font {
 
     private static Vertex[] bakeQuad(MatrixStack matrices, float x0, float x1, float i0, float i1, float y0, float y1, float z, float u0, float u1, float v0, float v1, int color) {
         return new Vertex[]{
-                Vertex.of(x0 + i1, y1, z).uv(u0, v1).color(color).mul(matrices),
-                Vertex.of(x1 + i1, y1, z).uv(u1, v1).color(color).mul(matrices),
-                Vertex.of(x1 + i0, y0, z).uv(u1, v0).color(color).mul(matrices),
-                Vertex.of(x0 + i0, y0, z).uv(u0, v0).color(color).mul(matrices),
+                new Vertex().pos(x0 + i1, y1, z).uv(u0, v1).color(color).mul(matrices),
+                new Vertex().pos(x1 + i1, y1, z).uv(u1, v1).color(color).mul(matrices),
+                new Vertex().pos(x1 + i0, y0, z).uv(u1, v0).color(color).mul(matrices),
+                new Vertex().pos(x0 + i0, y0, z).uv(u0, v0).color(color).mul(matrices),
         };
     }
 

@@ -78,13 +78,13 @@ public class NewCollisionScreen extends ParentedScreen {
         //render terrain
         Vertex[] v = new Vertex[terrain.length];
         for (int i = 0; i < terrain.length; i++)
-            v[i] = Vertex.of(terrain[i]).mul(matrices).color(Colors.YELLOW.argb);
+            v[i] = new Vertex().pos(terrain[i]).mul(matrices).color(Colors.YELLOW.argb);
         VertexConsumer.LINES.consume(v);
 
         //render player
         v = new Vertex[player.length];
         for (int i = 0; i < player.length; i++)
-            v[i] = Vertex.of(player[i]).mul(matrices).color(colliding ? 0xFFFFFFFF : Colors.PINK.argb);
+            v[i] = new Vertex().pos(player[i]).mul(matrices).color(colliding ? 0xFFFFFFFF : Colors.PINK.argb);
         VertexConsumer.LINES.consume(v);
 
         matrices.popMatrix();

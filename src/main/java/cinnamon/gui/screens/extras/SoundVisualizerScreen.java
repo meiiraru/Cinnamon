@@ -377,22 +377,22 @@ public class SoundVisualizerScreen extends ParentedScreen {
             //top
             Vertex[] vertices = GeometryHelper.rectangle(matrices, x, y - height - top, x + w, y - height, -d, color - 0x222222);
             Vector3f add = new Vector3f(-side, 0, -side).mulDirection(pos);
-            vertices[2].getPosition().add(add);
-            vertices[3].getPosition().add(add);
+            vertices[2].getPos().add(add);
+            vertices[3].getPos().add(add);
             VertexConsumer.MAIN.consume(vertices);
 
             //side
             vertices = GeometryHelper.rectangle(matrices, x - side, y - height - top, x, y, -d, color - 0x111111);
-            vertices[0].getPosition().add(add.set(0, -top, -side).mulDirection(pos));
-            vertices[3].getPosition().add(add.set(0, 0, -side).mulDirection(pos));
-            vertices[2].getPosition().add(add.set(0, top, 0).mulDirection(pos));
+            vertices[0].getPos().add(add.set(0, -top, -side).mulDirection(pos));
+            vertices[3].getPos().add(add.set(0, 0, -side).mulDirection(pos));
+            vertices[2].getPos().add(add.set(0, top, 0).mulDirection(pos));
             VertexConsumer.MAIN.consume(vertices);
 
             //mirror
             vertices = GeometryHelper.rectangle(matrices, x, y, x + w, y + height, -d, color - (0x88 << 24));
             add.set(0.75f * height, 0, 0).mulDirection(pos);
-            vertices[0].getPosition().add(add);
-            vertices[1].getPosition().add(add);
+            vertices[0].getPos().add(add);
+            vertices[1].getPos().add(add);
             VertexConsumer.MAIN.consume(vertices);
         }
     }

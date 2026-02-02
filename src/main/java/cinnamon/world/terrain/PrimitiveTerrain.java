@@ -31,7 +31,7 @@ public class PrimitiveTerrain extends Terrain {
         //for (int i = 0; i < vertices.length; i++) {
         //    newVerts[i] = new Vertex[vertices[i].length];
         //    for (int j = 0; j < vertices[i].length; j++) {
-        //        newVerts[i][j] = Vertex.of(vertices[i][j].getPosition()).color(vertices[i][j].getColor()).normal(vertices[i][j].getNormal()).mul(matrices);
+        //        newVerts[i][j] = vertices[i][j].duplicate().mul(matrices);
         //    }
         //}
         VertexConsumer.WORLD_MAIN.consume(vertices);
@@ -50,7 +50,7 @@ public class PrimitiveTerrain extends Terrain {
 
         for (Vertex[] vertexArr : vertices) {
             for (Vertex vertex : vertexArr) {
-                Vector3f pos = vertex.getPosition();
+                Vector3f pos = vertex.getPos();
                 if (pos.x < minX) minX = pos.x;
                 if (pos.x > maxX) maxX = pos.x;
                 if (pos.y < minY) minY = pos.y;
@@ -78,7 +78,7 @@ public class PrimitiveTerrain extends Terrain {
 
             for (int j = 0; j < face.length; j++) {
                 Vertex vertex = face[j];
-                Vertex newVertex = Vertex.of(vertex.getPosition()).color(vertex.getColor()).normal(vertex.getNormal());
+                Vertex newVertex = vertex.duplicate();
                 newVertices[i][j] = newVertex;
             }
 

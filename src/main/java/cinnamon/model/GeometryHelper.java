@@ -33,10 +33,10 @@ public class GeometryHelper {
         float y1 = y0 + height;
 
         return new Vertex[]{
-                Vertex.of(x0, y1, z).uv(u0, v1).mul(matrices),
-                Vertex.of(x1, y1, z).uv(u1, v1).mul(matrices),
-                Vertex.of(x1, y0, z).uv(u1, v0).mul(matrices),
-                Vertex.of(x0, y0, z).uv(u0, v0).mul(matrices),
+                new Vertex().pos(x0, y1, z).uv(u0, v1).mul(matrices),
+                new Vertex().pos(x1, y1, z).uv(u1, v1).mul(matrices),
+                new Vertex().pos(x1, y0, z).uv(u1, v0).mul(matrices),
+                new Vertex().pos(x0, y0, z).uv(u0, v0).mul(matrices),
         };
     }
 
@@ -45,10 +45,10 @@ public class GeometryHelper {
         float y1 = y + height;
 
         return new Vertex[]{
-                Vertex.of(x , y1, 0).uv(0f, 1f).mul(matrices),
-                Vertex.of(x , y , 0).uv(0f, 0f).mul(matrices),
-                Vertex.of(x1, y , 0).uv(1f, 0f).mul(matrices),
-                Vertex.of(x1, y1, 0).uv(1f, 1f).mul(matrices),
+                new Vertex().pos(x , y1, 0).uv(0f, 1f).mul(matrices),
+                new Vertex().pos(x , y , 0).uv(0f, 0f).mul(matrices),
+                new Vertex().pos(x1, y , 0).uv(1f, 0f).mul(matrices),
+                new Vertex().pos(x1, y1, 0).uv(1f, 1f).mul(matrices),
         };
     }
 
@@ -70,7 +70,7 @@ public class GeometryHelper {
         //center vertex
         int vertexCount = (int) Math.ceil(Math.max(sides, 3) * progress);
         Vertex[] vertices = new Vertex[vertexCount + 2];
-        vertices[0] = Vertex.of(x, y, 0).color(color).mul(matrices);
+        vertices[0] = new Vertex().pos(x, y, 0).color(color).mul(matrices);
 
         for (int i = 1; i < vertices.length; i++) {
             //pos
@@ -86,7 +86,7 @@ public class GeometryHelper {
                 y1 = Math.lerp(Math.sin(prevAngle) * radius, y1, t);
             }
 
-            vertices[vertices.length - i] = Vertex.of(x + x1, y + y1, 0).color(color).mul(matrices);
+            vertices[vertices.length - i] = new Vertex().pos(x + x1, y + y1, 0).color(color).mul(matrices);
         }
 
         //return
@@ -159,10 +159,10 @@ public class GeometryHelper {
 
             //create the quad
             vertices[i] = new Vertex[]{
-                    Vertex.of(x + x1, y + y1, 0).color(color).mul(matrices),
-                    Vertex.of(x + x3, y + y3, 0).color(color).mul(matrices),
-                    Vertex.of(x + x4, y + y4, 0).color(color).mul(matrices),
-                    Vertex.of(x + x2, y + y2, 0).color(color).mul(matrices),
+                    new Vertex().pos(x + x1, y + y1, 0).color(color).mul(matrices),
+                    new Vertex().pos(x + x3, y + y3, 0).color(color).mul(matrices),
+                    new Vertex().pos(x + x4, y + y4, 0).color(color).mul(matrices),
+                    new Vertex().pos(x + x2, y + y2, 0).color(color).mul(matrices),
             };
         }
 
@@ -205,8 +205,8 @@ public class GeometryHelper {
 
         //center vertices
         int j = vertexCount - 1;
-        vertices[0] = Vertex.of(x, y, 0).uv(0.5f, 0.5f).color(color).mul(matrices);
-        vertices[j] = Vertex.of(x, y0, 0).uv(0.5f, 0f).color(color).mul(matrices);
+        vertices[0] = new Vertex().pos(x, y, 0).uv(0.5f, 0.5f).color(color).mul(matrices);
+        vertices[j] = new Vertex().pos(x, y0, 0).uv(0.5f, 0f).color(color).mul(matrices);
 
         //generate the other vertices
         for (int i = 1; i < j; i++) {
@@ -228,7 +228,7 @@ public class GeometryHelper {
             }
 
             //backwards index
-            vertices[j - i] = Vertex.of(xx, yy, 0).uv(u, v).color(color).mul(matrices);
+            vertices[j - i] = new Vertex().pos(xx, yy, 0).uv(u, v).color(color).mul(matrices);
         }
 
         //return
@@ -263,10 +263,10 @@ public class GeometryHelper {
 
     public static Vertex[] rectangle(MatrixStack matrices, float x0, float y0, float x1, float y1, float z, int topLeftColor, int topRightColor, int bottomLeftColor, int bottomRightColor) {
         return new Vertex[]{
-                Vertex.of(x0, y1, z).color(bottomLeftColor).mul(matrices),
-                Vertex.of(x1, y1, z).color(bottomRightColor).mul(matrices),
-                Vertex.of(x1, y0, z).color(topRightColor).mul(matrices),
-                Vertex.of(x0, y0, z).color(topLeftColor).mul(matrices),
+                new Vertex().pos(x0, y1, z).color(bottomLeftColor).mul(matrices),
+                new Vertex().pos(x1, y1, z).color(bottomRightColor).mul(matrices),
+                new Vertex().pos(x1, y0, z).color(topRightColor).mul(matrices),
+                new Vertex().pos(x0, y0, z).color(topLeftColor).mul(matrices),
         };
     }
 
@@ -290,7 +290,7 @@ public class GeometryHelper {
         int index = 0;
         for (int i = 0; i <= cellsX; i++)
             for (int j = 0; j <= cellsZ; j++)
-                vertices[index++] = Vertex.of(x0 + i * cellWidth, y, z0 + j * cellDepth).normal(0, 1, 0).color(color).mul(matrices);
+                vertices[index++] = new Vertex().pos(x0 + i * cellWidth, y, z0 + j * cellDepth).normal(0, 1, 0).color(color).mul(matrices);
 
         //fill quads
         Vertex[][] quads = new Vertex[cellsX * cellsZ][4];
@@ -334,14 +334,14 @@ public class GeometryHelper {
     public static Vertex[][] box(MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, int color) {
         Vertex[][] box = new Vertex[6][4];
         Vertex
-                v0 = Vertex.of(x0, y1, z0).normal(-1,  1, -1).color(color).mul(matrices),
-                v1 = Vertex.of(x1, y1, z0).normal( 1,  1, -1).color(color).mul(matrices),
-                v2 = Vertex.of(x1, y0, z0).normal( 1, -1, -1).color(color).mul(matrices),
-                v3 = Vertex.of(x0, y0, z0).normal(-1, -1, -1).color(color).mul(matrices),
-                v4 = Vertex.of(x1, y1, z1).normal( 1,  1,  1).color(color).mul(matrices),
-                v5 = Vertex.of(x0, y1, z1).normal(-1,  1,  1).color(color).mul(matrices),
-                v6 = Vertex.of(x0, y0, z1).normal(-1, -1,  1).color(color).mul(matrices),
-                v7 = Vertex.of(x1, y0, z1).normal( 1, -1,  1).color(color).mul(matrices);
+                v0 = new Vertex().pos(x0, y1, z0).normal(-1,  1, -1).color(color).mul(matrices),
+                v1 = new Vertex().pos(x1, y1, z0).normal( 1,  1, -1).color(color).mul(matrices),
+                v2 = new Vertex().pos(x1, y0, z0).normal( 1, -1, -1).color(color).mul(matrices),
+                v3 = new Vertex().pos(x0, y0, z0).normal(-1, -1, -1).color(color).mul(matrices),
+                v4 = new Vertex().pos(x1, y1, z1).normal( 1,  1,  1).color(color).mul(matrices),
+                v5 = new Vertex().pos(x0, y1, z1).normal(-1,  1,  1).color(color).mul(matrices),
+                v6 = new Vertex().pos(x0, y0, z1).normal(-1, -1,  1).color(color).mul(matrices),
+                v7 = new Vertex().pos(x1, y0, z1).normal( 1, -1,  1).color(color).mul(matrices);
 
         //north
         box[0] = new Vertex[]{v0, v1, v2, v3};
@@ -365,12 +365,12 @@ public class GeometryHelper {
 
     public static Vertex[][] pyramid(MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, boolean base, int color) {
         //corners
-        Vertex v0 = Vertex.of(x0, y0, z0).normal(-1, -1, -1).color(color).mul(matrices);
-        Vertex v1 = Vertex.of(x1, y0, z0).normal( 1, -1, -1).color(color).mul(matrices);
-        Vertex v2 = Vertex.of(x1, y0, z1).normal( 1, -1,  1).color(color).mul(matrices);
-        Vertex v3 = Vertex.of(x0, y0, z1).normal(-1, -1,  1).color(color).mul(matrices);
+        Vertex v0 = new Vertex().pos(x0, y0, z0).normal(-1, -1, -1).color(color).mul(matrices);
+        Vertex v1 = new Vertex().pos(x1, y0, z0).normal( 1, -1, -1).color(color).mul(matrices);
+        Vertex v2 = new Vertex().pos(x1, y0, z1).normal( 1, -1,  1).color(color).mul(matrices);
+        Vertex v3 = new Vertex().pos(x0, y0, z1).normal(-1, -1,  1).color(color).mul(matrices);
         //tip
-        Vertex tip = Vertex.of(x0 + (x1 - x0) / 2f, y1, z0 + (z1 - z0) / 2f).normal(0, 1, 0).color(color).mul(matrices);
+        Vertex tip = new Vertex().pos(x0 + (x1 - x0) / 2f, y1, z0 + (z1 - z0) / 2f).normal(0, 1, 0).color(color).mul(matrices);
 
         //faces
         int i = 0;
@@ -399,13 +399,13 @@ public class GeometryHelper {
 
         //generate vertices
         Vertex[] circle = new Vertex[faces + 1];
-        Vertex vTip = Vertex.of(x, y + height, z).normal(0, 1, 0).color(color).mul(matrices);
-        Vertex vBase = Vertex.of(x, y, z).normal(0, -1, 0).color(color).mul(matrices);
+        Vertex vTip = new Vertex().pos(x, y + height, z).normal(0, 1, 0).color(color).mul(matrices);
+        Vertex vBase = new Vertex().pos(x, y, z).normal(0, -1, 0).color(color).mul(matrices);
 
         for (int i = 0; i < faces + 1; i++) {
             float theta = angleStep * i;
             float x1 = Math.cos(theta); float z1 = Math.sin(theta);
-            circle[i] = Vertex.of(x + x1 * radius, y, z + z1 * radius).normal(x1, 0, z1).color(color).mul(matrices);
+            circle[i] = new Vertex().pos(x + x1 * radius, y, z + z1 * radius).normal(x1, 0, z1).color(color).mul(matrices);
         }
 
         //generate faces
@@ -431,8 +431,8 @@ public class GeometryHelper {
         //generate vertices
         int circleLen = vertexCount + 1;
         Vertex[] circle = new Vertex[circleLen * 2];
-        Vertex top = Vertex.of(x, y + height, z).normal(0, 1, 0).color(color).mul(matrices);
-        Vertex bottom = Vertex.of(x, y, z).normal(0, -1, 0).color(color).mul(matrices);
+        Vertex top = new Vertex().pos(x, y + height, z).normal(0, 1, 0).color(color).mul(matrices);
+        Vertex bottom = new Vertex().pos(x, y, z).normal(0, -1, 0).color(color).mul(matrices);
 
         int index = 0;
         float r = radiusBottom;
@@ -441,7 +441,7 @@ public class GeometryHelper {
             for (int i = 0; i < circleLen; i++) {
                 float theta = angleStep * i;
                 float x1 = Math.cos(theta); float z1 = Math.sin(theta);
-                circle[index++] = Vertex.of(x + x1 * r, y + j * height, z + z1 * r).normal(x1, 0, z1).color(color).mul(matrices);
+                circle[index++] = new Vertex().pos(x + x1 * r, y + j * height, z + z1 * r).normal(x1, 0, z1).color(color).mul(matrices);
             }
             r = radiusTop;
         }
@@ -479,13 +479,13 @@ public class GeometryHelper {
             float zInner = Math.sin(theta) * innerRadius;
 
             //top inner
-            vertices[index++] = Vertex.of(x + xInner, y + height, z + zInner).normal(0, 1, 0).color(color).mul(matrices);
+            vertices[index++] = new Vertex().pos(x + xInner, y + height, z + zInner).normal(0, 1, 0).color(color).mul(matrices);
             //top outer
-            vertices[index++] = Vertex.of(x + xOuter, y + height, z + zOuter).normal(0, 1, 0).color(color).mul(matrices);
+            vertices[index++] = new Vertex().pos(x + xOuter, y + height, z + zOuter).normal(0, 1, 0).color(color).mul(matrices);
             //bottom inner
-            vertices[index++] = Vertex.of(x + xInner, y, z + zInner).normal(0, -1, 0).color(color).mul(matrices);
+            vertices[index++] = new Vertex().pos(x + xInner, y, z + zInner).normal(0, -1, 0).color(color).mul(matrices);
             //bottom outer
-            vertices[index++] = Vertex.of(x + xOuter, y, z + zOuter).normal(0, -1, 0).color(color).mul(matrices);
+            vertices[index++] = new Vertex().pos(x + xOuter, y, z + zOuter).normal(0, -1, 0).color(color).mul(matrices);
         }
 
         //generate faces
@@ -545,7 +545,7 @@ public class GeometryHelper {
                 float y1 = radius * cosTheta1;
                 float z1 = radius * sinTheta1 * sinPhi1;
 
-                vertices[index++] = Vertex.of(x + x1, y + y1, z + z1).normal(x1, y1, z1).color(color).mul(matrices);
+                vertices[index++] = new Vertex().pos(x + x1, y + y1, z + z1).normal(x1, y1, z1).color(color).mul(matrices);
             }
         }
 
@@ -606,7 +606,7 @@ public class GeometryHelper {
                 float x1 = radius * sinTheta1 * cosPhi1;
                 float y1 = radius * cosTheta1;
                 float z1 = radius * sinTheta1 * sinPhi1;
-                vertices[index++] = Vertex.of(x + x1, ringY, z + z1).normal(x1, y1, z1).color(color).mul(matrices);
+                vertices[index++] = new Vertex().pos(x + x1, ringY, z + z1).normal(x1, y1, z1).color(color).mul(matrices);
             }
         }
 
@@ -659,7 +659,7 @@ public class GeometryHelper {
                 float nx = cosTheta1 * cosPhi1;
                 float nz = sinTheta1 * cosPhi1;
 
-                vertices[index++] = Vertex.of(x + x1, y + y1, z + z1)
+                vertices[index++] = new Vertex().pos(x + x1, y + y1, z + z1)
                         .normal(nx, sinPhi1, nz)
                         .color(color)
                         .mul(matrices);

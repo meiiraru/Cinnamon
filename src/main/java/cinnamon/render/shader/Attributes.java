@@ -20,13 +20,13 @@ public enum Attributes {
      * </tr></table>
     **/
     POS(3, (v, b) -> {
-        Vector3f pos = v.getPosition();
+        Vector3f pos = v.getPos();
         b.put(pos.x);
         b.put(pos.y);
         b.put(pos.z);
     }),
     POS_XY(2, (v, b) -> {
-        Vector3f pos = v.getPosition();
+        Vector3f pos = v.getPos();
         b.put(pos.x);
         b.put(pos.y);
     }),

@@ -43,7 +43,7 @@ public class VerticesToMesh {
 
             //vertex
             for (Vertex vertex : f) {
-                positions.add(vertex.getPosition());
+                positions.add(vertex.getPos());
                 posIndices.add(positions.size() - 1);
 
                 if (includeUVs) {

@@ -52,7 +52,7 @@ public class AssimpRenderer extends ModelRenderer {
                 Vector3f t = mesh.hasTangents ? mesh.tangents.get(i) : Vertex.DEFAULT_TANGENT;
 
                 //add to vertex list
-                vertices.add(Vertex.of(v).uv(u).normal(n).tangent(t));
+                vertices.add(new Vertex().pos(v).uv(u).normal(n).tangent(t));
             }
 
             //default angle threshold for smoothing

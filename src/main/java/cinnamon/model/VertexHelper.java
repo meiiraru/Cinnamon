@@ -29,7 +29,7 @@ public class VertexHelper {
                 Vertex c = data.get(next);
 
                 //check if the current triangle is an ear
-                if (isEar(a.getPosition(), b.getPosition(), c.getPosition(), data)) {
+                if (isEar(a.getPos(), b.getPos(), c.getPos(), data)) {
                     //if so, add the ear to the return list
                     triangles.add(a);
                     triangles.add(b);
@@ -53,7 +53,7 @@ public class VertexHelper {
 
     private static boolean isEar(Vector3f a, Vector3f b, Vector3f c, List<Vertex> list) {
         for (Vertex d : list) {
-            Vector3f point = d.getPosition();
+            Vector3f point = d.getPos();
 
             //continue if the point is one of the triangle vertices
             if (point.equals(a) || point.equals(b) || point.equals(c))
@@ -73,9 +73,9 @@ public class VertexHelper {
             Vertex v1 = list.get(i + 1);
             Vertex v2 = list.get(i + 2);
 
-            Vector3f A = v0.getPosition();
-            Vector3f B = v1.getPosition();
-            Vector3f C = v2.getPosition();
+            Vector3f A = v0.getPos();
+            Vector3f B = v1.getPos();
+            Vector3f C = v2.getPos();
 
             //calculate normal vector
             //Dir = (B - A) x (C - A)
@@ -124,9 +124,9 @@ public class VertexHelper {
             Vertex v2 = list.get(i + 2);
 
             //calculate tangent vector
-            Vector3f A = v0.getPosition();
-            Vector3f edge1 = new Vector3f(v1.getPosition()).sub(A);
-            Vector3f edge2 = new Vector3f(v2.getPosition()).sub(A);
+            Vector3f A = v0.getPos();
+            Vector3f edge1 = new Vector3f(v1.getPos()).sub(A);
+            Vector3f edge2 = new Vector3f(v2.getPos()).sub(A);
 
             Vector2f uv0 = v0.getUV();
             Vector2f uv1 = v1.getUV();
@@ -188,7 +188,7 @@ public class VertexHelper {
         //create a map of positions to indices
         Map<Vector3f, List<Integer>> posMap = new HashMap<>();
         for (int i = 0; i < list.size(); i++)
-            posMap.computeIfAbsent(list.get(i).getPosition(), k -> new ArrayList<>()).add(i);
+            posMap.computeIfAbsent(list.get(i).getPos(), k -> new ArrayList<>()).add(i);
 
         //create a list of smoothing groups and a visited array
         List<List<Integer>> smoothingGroups = new ArrayList<>();
@@ -213,7 +213,7 @@ public class VertexHelper {
                 currentGroup.add(currentIndex);
 
                 //get the potential matches for the current vertex position
-                List<Integer> potentialMatches = posMap.get(list.get(currentIndex).getPosition());
+                List<Integer> potentialMatches = posMap.get(list.get(currentIndex).getPos());
                 if (potentialMatches == null)
                     continue;
 
@@ -266,7 +266,7 @@ public class VertexHelper {
     public static void calculateUVs(Vector3f minBounds, Vector3f maxBounds, List<Vertex> list) {
         Vector3f size = new Vector3f(maxBounds).sub(minBounds);
         for (Vertex vertex : list) {
-            Vector3f pos = vertex.getPosition();
+            Vector3f pos = vertex.getPos();
             Vector3f norm = vertex.getNormal().absolute(new Vector3f());
             Vector2f uv = new Vector2f();
             if (norm.x >= norm.y && norm.x >= norm.z) {

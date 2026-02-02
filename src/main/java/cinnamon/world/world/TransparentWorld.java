@@ -102,7 +102,7 @@ public class TransparentWorld extends WorldClient {
     }
 
     private static void renderNormal(MatrixStack matrices, Vertex vertex, int i) {
-        Vector3f p0 = vertex.getPosition();
+        Vector3f p0 = vertex.getPos();
         Vector3f p1 = vertex.getNormal().mul(0.5f, new Vector3f()).add(p0);
         VertexConsumer.WORLD_MAIN.consume(GeometryHelper.line(matrices, p0.x, p0.y, p0.z, p1.x, p1.y, p1.z, 0.05f, Colors.RAINBOW[i % Colors.RAINBOW.length].rgb + (0xFF << 24)));
     }

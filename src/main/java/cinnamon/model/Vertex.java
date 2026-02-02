@@ -20,24 +20,21 @@ public class Vertex {
             tangent = new Vector3f(DEFAULT_TANGENT);
     private final Vector2f uv = new Vector2f(DEFAULT_UV);
 
-    private Vertex(float x, float y, float z) {
+    public Vertex pos(float x, float y, float z) {
         this.pos.set(x, y, z);
+        return this;
     }
 
-    public static Vertex of(float x, float y, float z) {
-        return new Vertex(x, y, z);
+    public Vertex pos(Vector3f pos) {
+        return pos(pos.x, pos.y, pos.z);
     }
 
-    public static Vertex of(float x, float y) {
-        return of(x, y, 0);
+    public Vertex pos(float x, float y) {
+        return pos(x, y, 0f);
     }
 
-    public static Vertex of(Vector3f pos) {
-        return of(pos.x, pos.y, pos.z);
-    }
-
-    public static Vertex of(Vector2f pos) {
-        return of(pos.x, pos.y);
+    public Vertex pos(Vector2f pos) {
+        return pos(pos.x, pos.y);
     }
 
     public Vertex color(int color) {
@@ -104,7 +101,7 @@ public class Vertex {
         return this;
     }
 
-    public Vector3f getPosition() {
+    public Vector3f getPos() {
         return this.pos;
     }
 
@@ -124,9 +121,18 @@ public class Vertex {
         return tangent;
     }
 
+    public Vertex duplicate() {
+        return new Vertex()
+                .pos(this.pos)
+                .uv(this.uv)
+                .color(this.color)
+                .normal(this.normal)
+                .tangent(this.tangent);
+    }
+
     @Override
     public String toString() {
-        return String.format("[Pos]: %s, %s, %s [UV]: %s, %s [Color]: %s, %s, %s [Normal]: %s, %s, %s [Tangent]: %s, %s, %s",
+        return String.format("Vertex: {Pos: %s, %s, %s; UV: %s, %s; Color: %s, %s, %s; Normal: %s, %s, %s; Tangent: %s, %s, %s}",
                 pos.x, pos.y, pos.z, uv.x, uv.y, color.x, color.y, color.z, normal.x, normal.y, normal.z, tangent.x, tangent.y, tangent.z);
     }
 

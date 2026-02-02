@@ -73,7 +73,7 @@ public class ObjRenderer extends ModelRenderer {
                     groupMax.max(a);
 
                     //add to vertex list
-                    data.add(Vertex.of(a).uv(b).normal(c));
+                    data.add(new Vertex().pos(a).uv(b).normal(c));
                 }
 
                 //triangulate the faces using ear clipping
