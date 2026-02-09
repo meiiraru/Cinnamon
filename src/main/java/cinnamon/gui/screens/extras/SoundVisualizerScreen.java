@@ -351,20 +351,20 @@ public class SoundVisualizerScreen extends ParentedScreen {
             Vertex[][] box = GeometryHelper.box(matrices, x, y - height, -d, x + w, y, -10f, color);
             int dark = color - 0x222222;
             box[0][3].color(dark);
-            box[2][0].color(dark);
-            box[2][1].color(dark);
-            box[2][2].color(dark);
-            box[2][3].color(dark);
+            box[1][2].color(dark);
+            box[5][2].color(dark);
             VertexConsumer.MAIN.consume(box);
 
             //mirror
             box = GeometryHelper.box(matrices, x, y, -d, x + w, y + height, -10f, color - (0x88 << 24));
             int alpha = (int) Math.min(Math.lerp(0x00, 0xFF, height / 30f), 0xFF);
             int transparent = color - (alpha << 24);
-            box[0][0].color(transparent);
-            box[0][1].color(transparent);
-            box[2][0].color(transparent);
-            box[2][1].color(transparent);
+            for (int j = 0; j < 5; j++) {
+                for (int k = 0; k < 2; k++)
+                    box[j][k].color(transparent);
+            }
+            box[4][2].color(transparent);
+            box[4][3].color(transparent);
             VertexConsumer.MAIN.consume(box);
         } else {
             float top = w * 0.5f;

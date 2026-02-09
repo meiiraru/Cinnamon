@@ -109,13 +109,13 @@ public class SimpleGeometry {
             QUAD = of(unwarp(new Vertex[][]{GeometryHelper.invQuad(Client.getInstance().matrices, -1f, -1f, 2f, 2f)}),
                     Attributes.POS_XY, Attributes.UV),
             CUBE = of(unwarp(GeometryHelper.box(Client.getInstance().matrices, -1f, -1f, -1f, 1f, 1f, 1f, 0)),
-                    Attributes.POS, Attributes.NORMAL),
+                    Attributes.POS, Attributes.NORMAL, Attributes.UV),
             INV_CUBE = of(unwarp(GeometryHelper.box(Client.getInstance().matrices, 1f, 1f, 1f, -1f, -1f, -1f, 0)),
-                    Attributes.POS, Attributes.NORMAL),
+                    Attributes.POS, Attributes.NORMAL, Attributes.UV),
             SPHERE = of(unwarp(GeometryHelper.sphere(Client.getInstance().matrices, 0f, 0f, 0f, 1f, 12, 0)),
-                    Attributes.POS, Attributes.NORMAL),
+                    Attributes.POS, Attributes.NORMAL, Attributes.UV),
             CONE = of(unwarp(GeometryHelper.cone(Client.getInstance().matrices, 0, -1f, 0, 1f, 1f, 12, 0)),
-                    Attributes.POS, Attributes.NORMAL);
+                    Attributes.POS, Attributes.NORMAL, Attributes.UV);
 
     private static List<Vertex> unwarp(Vertex[] vertices) {
         List<Vertex> result = new ArrayList<>();

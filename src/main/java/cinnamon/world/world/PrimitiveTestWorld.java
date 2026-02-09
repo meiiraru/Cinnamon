@@ -1,8 +1,8 @@
 package cinnamon.world.world;
 
 import cinnamon.Client;
-import cinnamon.gui.Toast;
 import cinnamon.model.GeometryHelper;
+import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WaterRenderer;
@@ -12,76 +12,192 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
-import cinnamon.utils.Rotation;
-import cinnamon.world.DamageType;
 import cinnamon.world.Hud;
 import cinnamon.world.entity.living.Player;
-import cinnamon.world.entity.misc.TriggerArea;
+import cinnamon.world.light.Light;
+import cinnamon.world.light.Spotlight;
 import cinnamon.world.terrain.PrimitiveTerrain;
 import cinnamon.world.terrain.Terrain;
-import org.joml.Math;
 import org.joml.Vector3f;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
+import static cinnamon.world.Hud.HUD_STYLE;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class PrimitiveTestWorld extends WorldClient {
 
+    private final List<PrimitiveTerrain> primitives = new ArrayList<>();
+    private final List<String> labels = new ArrayList<>();
     private boolean renderNormals;
 
     @Override
     protected void tempLoad() {
-        Toast.clear(Toast.ToastType.WORLD);
-
-        //floor
-        addTerrain(new PrimitiveTerrain(GeometryHelper.plane(client.matrices, -39f, 0f, -22f, 25f, 43f, 1, 1, Colors.GREEN.argb)));
-
-        //houses
-        house(0, 0, -10, 0, 0xFFcac5b8, 0xFF866451);
-        house(0, 0, 10, 180, 0xFFcac5b8, 0xFF866451);
-        house(-10, 0, 0, 90, 0xFFcac5b8, 0xFF866451);
-        house(10, 0, 0, -90, 0xFFcac5b8, 0xFF866451);
-
-        house(0, 0, 25, 90, 0xFFcac5b8, 0xFF866451);
-        house(10, 0, 25, -90, 0xFFcac5b8, 0xFF866451);
-
-        house(-15, 0, 30, 180, 0xFFcac5b8, 0xFF866451);
-        house(-15, 0, 20, 0, 0xFFcac5b8, 0xFF866451);
-        house(-30, 0, 20, 180, 0xFFcac5b8, 0xFF866451);
-
-        house(-25, 0, -10, 90, 0xFFcac5b8, 0xFF866451);
-
-        //church
-        church(-30, 0, 7);
-
-        //border
-        wall(-36, 0, -19, 56, 0);
-        wall(-36, 0, 38, 56, 0);
-        wall(-36, 0, -19, 57, -90);
-        wall(20, 0, -19, 57, -90);
-
-        //towers
-        tower(-35, 0, -18);
-        tower(-35, 0, 39);
-        tower(21, 0, -18);
-        tower(21, 0, 39);
-
-        //fountain
-        fountain(3.5f, 0, 2.5f);
-
-        //gateway
-        gateway(-8, 0, -19.5f);
-
-        //spikes
-        spikes(-16, 0, 8);
-
         this.hud = new PrimitiveWorldHud();
         this.hud.init();
 
-        //set sky fog
-        //sky.fogStart = 0; sky.fogEnd = 8; sky.fogColor = 0;
-        //sky.setSkyBox(SkyBoxRegistry.SPACE.resource);
+        int rooms = 10;
+        float roomSize = 10f;
+        float len = rooms * roomSize;
+        float width = 10f;
+        float height = 5f;
+
+        //floor
+        addTerrain(new PrimitiveTerrain(GeometryHelper.plane(client.matrices, 0f, 0f, 0f, width, len, 1, 1, Colors.DARK_GRAY.argb)));
+
+        //walls
+        //back
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 0f, 0f, -0.5f, width, 1.5f, 0f, Colors.WHITE.argb)));
+        //right
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, -0.5f, 0f, 0f, 0f, 1.5f, len, Colors.WHITE.argb)));
+        //end
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 0f, 0f, len, width, 1.5f, len + 0.5f, Colors.WHITE.argb)));
+
+        //pillars
+        for (int i = 0; i <= len; i += 5) {
+            float x = width * 0.8f;
+            float y = height - 0.5f;
+            float z = i - 0.25f;
+            if (i % roomSize != 0) {
+                x = width / 2f;
+                y += 0.5f;
+            }
+
+            //upper pillars
+            addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 0f, 0f, z, 0.5f, y, z + 0.5f, Colors.WHITE.argb)));
+            addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 0f, y, z, x, y + 0.5f, z + 0.5f, Colors.WHITE.argb)));
+        }
+
+        //rooms
+        float cx = width * 0.75f;
+        float cz = roomSize / 2f;
+
+        for (int i = 0; i < rooms; i++) {
+            float z = i * roomSize;
+            //left wall
+            addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, width * 0.8f, 0f, z, width, height, z + 1f, Colors.LIGHT_GRAY.argb)));
+            //right wall
+            addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, width * 0.8f, 0f, z + roomSize - 1f, width, height, z + roomSize, Colors.LIGHT_GRAY.argb)));
+            //back wall
+            addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, width, 0f, z, width + 1f, height, z + roomSize, Colors.LIGHT_GRAY.argb)));
+            //ceiling
+            addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, width / 2f, height, z, width, height + 0.5f, z + roomSize, Colors.LIGHT_GRAY.argb)));
+
+            //carpet
+            addTerrain(new PrimitiveTerrain(GeometryHelper.plane(client.matrices, width / 2f, 0.01f, z + 1f, width, z + roomSize - 1f, 1, 1, Colors.RED.argb)));
+
+            //lamp
+            addLight(new Spotlight().angle(40, 45).falloff(roomSize).pos(width / 2f, height - 0.5f, z + cz).direction(0.75f, -1, 0).color(Colors.WHITE.argb).intensity(2f));
+        }
+
+        //add each primitive geometry
+        float y = 0.25f;
+        float r = 0.5f;
+        int q = 24;
+        float p = 1f;
+        boolean c = true;
+
+        //plane
+        labels.add("Plane");
+        primitives.add(new PrimitiveTerrain(GeometryHelper.plane(client.matrices, cx - r, y, cz - r, cx + r, cz + r, 1, 1, Colors.WHITE.argb), false));
+        cz += roomSize;
+
+        //line
+        labels.add("Line");
+        primitives.add(new PrimitiveTerrain(GeometryHelper.line(client.matrices, cx, y, cz - r - r, cx, y + r + r, cz + r + r, 0.1f, Colors.WHITE.argb), false));
+        primitives.add(new PrimitiveTerrain(GeometryHelper.line(client.matrices, cx - r - r, y + r + r, cz - r - r, cx + r + r, y + r * 3, cz + r + r, 0.1f, Colors.WHITE.argb), false));
+        cz += roomSize;
+
+        //box
+        labels.add("Box");
+        primitives.add(new PrimitiveTerrain(GeometryHelper.box(client.matrices, cx - r, y, cz - r, cx + r, y + r + r, cz + r, Colors.WHITE.argb), false));
+        cz += roomSize;
+
+        //pyramid
+        labels.add("Pyramid");
+        primitives.add(new PrimitiveTerrain(GeometryHelper.pyramid(client.matrices, cx - r, y, cz - r, cx + r, y + r + r, cz + r, c, Colors.WHITE.argb), false));
+        cz += roomSize;
+
+        //cone
+        labels.add("Cone");
+        primitives.add(new PrimitiveTerrain(GeometryHelper.cone(client.matrices, cx, y, cz, r + r, r, q, p, c, Colors.WHITE.argb), false));
+        cz += roomSize;
+
+        //cylinder
+        labels.add("Cylinder");
+        primitives.add(new PrimitiveTerrain(GeometryHelper.cylinder(client.matrices, cx, y, cz, r, r, r, q, p, c, Colors.WHITE.argb), false));
+        cz += roomSize;
+
+        //tube
+        labels.add("Tube");
+        primitives.add(new PrimitiveTerrain(GeometryHelper.tube(client.matrices, cx, y, cz, r, r, r / 2f, q, p, c, Colors.WHITE.argb), false));
+        cz += roomSize;
+
+        //sphere
+        labels.add("Sphere");
+        primitives.add(new PrimitiveTerrain(GeometryHelper.sphere(client.matrices, cx, y + r, cz, r, q, q, p, p, Colors.WHITE.argb), false));
+        cz += roomSize;
+
+        //capsule
+        labels.add("Capsule");
+        primitives.add(new PrimitiveTerrain(GeometryHelper.capsule(client.matrices, cx, y, cz, r * 3, r * 0.75f, q, q, p, Colors.WHITE.argb), false));
+        cz += roomSize;
+
+        //torus
+        labels.add("Torus");
+        primitives.add(new PrimitiveTerrain(GeometryHelper.torus(client.matrices, cx, y + r / 2, cz, r * 1.5f, r / 2, q, q, p, p, Colors.WHITE.argb), false));
+
+        //add primitives
+        for (PrimitiveTerrain pt : primitives) {
+            pt.setMaterial(MaterialRegistry.DEBUG);
+            //pt.setColor(Colors.randomRainbow().argb);
+            addTerrain(pt);
+        }
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (isPaused())
+            return;
+
+        for (Light light : lights) {
+            if (light.getType() != Light.Type.DIRECTIONAL) {
+                //grab player distance to light
+                float dist = light.getPos().distance(player.getPos());
+                float f = dist < 10f ? (1f - (dist / 10f)) * 3f : 0f;
+                light.intensity(f);
+                light.glareIntensity(f);
+            }
+        }
+    }
+
+    @Override
+    public int renderTerrain(Camera camera, MatrixStack matrices, float delta) {
+        int sup = super.renderTerrain(camera, matrices, delta);
+
+        //render labels
+        float width = 10f;
+        float roomSize = 10f;
+
+        for (int i = 0; i < labels.size(); i++) {
+            float z = i * roomSize + roomSize / 2f;
+            matrices.pushMatrix();
+
+            matrices.translate(width - 1f, 4f, z);
+            matrices.scale(-1 / 48f);
+            camera.billboard(matrices);
+
+            Text.of(labels.get(i))
+                    .withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE))
+                    .render(VertexConsumer.WORLD_MAIN_EMISSIVE, matrices, 0, 0, Alignment.CENTER, 48);
+
+            matrices.popMatrix();
+        }
+
+        return sup;
     }
 
     @Override
@@ -100,148 +216,6 @@ public class PrimitiveTestWorld extends WorldClient {
     @Override
     public void renderWater(Camera camera, MatrixStack matrices, float delta) {
         WaterRenderer.renderDefaultWaterPlane(camera, matrices, -0.02f, getSky().fogEnd);
-    }
-
-    private void house(float x, float y, float z, float rotY, int colA, int colB) {
-        float w = 8, h = 3, d = 5;
-
-        client.matrices.pushMatrix();
-        client.matrices.translate(x + w / 2f, y + h / 2f, z + d / 2f);
-        client.matrices.rotate(Rotation.Y.rotationDeg(rotY));
-        client.matrices.translate(- w / 2f, - h / 2f, - d / 2f);
-
-        //base
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 0, 0, 0, w, h, d, colA)));
-
-        client.matrices.translate(0f, h, d / 2f);
-        client.matrices.rotate(Rotation.X.rotationDeg(45f));
-
-        float eps = 0.01f;
-        float r = Math.sqrt(d * d + d * d) / 4f;
-
-        //base 2
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 0, -r, -r, w, r, r, colA)));
-
-        //roof
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, -0.5f, r, -r - 0.5f, w + 0.5f, r + 0.5f, r + 0.5f, colB)));
-        //roof 2
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, -0.5f, -r - 0.5f, -r - 0.5f, w + 0.5f, r + 0.5f, -r, colB)));
-
-        //windows
-        client.matrices.rotate(Rotation.X.rotationDeg(-45f));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 4, -h + 1, -d / 2f - eps, 5, -h + 2, d / 2f + eps, 0xFF444444)));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 6, -h + 1, -d / 2f - eps, 7, -h + 2, d / 2f + eps, 0xFF444444)));
-
-        //door
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 1, -h, 1, 2.5f, -h + 2f, d / 2f + eps, colB)));
-
-        client.matrices.popMatrix();
-    }
-
-    private void church(float x, float y, float z) {
-        house(x, y, z, 90, 0xFF808080, 0xFF1d1119);
-
-        float w = 5, h = 8f, d = 5f;
-
-        client.matrices.pushMatrix();
-        client.matrices.translate(x + 1.5f, y, z - 1.5f - 5f);
-
-        //base
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 0, 0, 0, w, h, d, 0xFF808080)));
-
-        //roof
-        addTerrain(new PrimitiveTerrain(GeometryHelper.pyramid(client.matrices, -0.5f, h, -0.5f, w + 0.5f, h + 4, d + 0.5f, 0xFF1d1119)));
-
-        //cross
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, w / 2f - 0.25f, h + 3.5f, d / 2f - 0.25f, w / 2f + 0.25f, h + 6.5f, d / 2f + 0.25f, 0xFFd4af37)));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, w / 2f - 0.25f, h + 5.5f, d / 2f - 1f, w / 2f + 0.25f, h + 6f, d / 2f + 1f, 0xFFd4af37)));
-
-        //windows
-        float eps = 0.01f;
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, w / 2f - 0.5f, 1, -eps, w / 2f + 0.5f, 3, d + eps, 0xFF444444)));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, w / 2f - 0.5f, 5, -eps, w / 2f + 0.5f, 7, d + eps, 0xFF444444)));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, -eps, 1, d / 2f - 0.5f, w + eps, 3, d / 2f + 0.5f, 0xFF444444)));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, -eps, 5, d / 2f - 0.5f, w + eps, 7, d / 2f + 0.5f, 0xFF444444)));
-
-        client.matrices.popMatrix();
-    }
-
-    private void wall(float x, float y, float z, float len, float rotY) {
-        float h = 5f;
-        float d = 2f;
-
-        client.matrices.pushMatrix();
-        client.matrices.translate(x + d / 2f, y, z + d / 2f);
-        client.matrices.rotate(Rotation.Y.rotationDeg(rotY));
-
-        //center wall
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 0, 0, -d / 2f, len, h - 1f, d / 2f, 0xFF808080)));
-        //left wall
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 0, 0, -d / 2f - 0.5f, len, h, -d / 2f, 0xFF808080)));
-        //right wall
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 0, 0, d / 2f, len, h, d / 2f + 0.5f, 0xFF808080)));
-
-        client.matrices.popMatrix();
-    }
-
-    private void tower(float x, float y, float z) {
-        float r = 3f, h = 8f;
-
-        client.matrices.pushMatrix();
-        client.matrices.translate(x, y, z);
-
-        //base
-        addTerrain(new PrimitiveTerrain(GeometryHelper.cylinder(client.matrices, 0, 0, 0, h, r, 12, 0xFF808080)));
-
-        //roof
-        addTerrain(new PrimitiveTerrain(GeometryHelper.cone(client.matrices, 0, h, 0, 4f, r + 0.5f, 12, 0xFFff5252)));
-
-        client.matrices.popMatrix();
-    }
-
-    private void fountain(float x, float y, float z) {
-        float r = 2f, h = 0.5f;
-        addTerrain(new PrimitiveTerrain(GeometryHelper.cylinder(client.matrices, x, y, z, h, r, 8, 0xFF808080)));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.cylinder(client.matrices, x, y, z, h * 2, r - 0.5f, 6, 0xFF80a0a0)));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.cylinder(client.matrices, x, y, z, h * 3, r - 1f, 5, 0xFF80c0e0)));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.cylinder(client.matrices, x, y, z, h * 4, r - 1.5f, 4, 0xFF80e0f0)));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.sphere(client.matrices, x, y + h * 5, z, r - 1.5f, 8, 0xFF80e0f0), false));
-    }
-
-    private void gateway(float x, float y, float z) {
-        client.matrices.pushMatrix();
-        client.matrices.translate(x, y + 2f, z);
-
-        float eps = 0.01f;
-        //box - bottom
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, -2f, -2f, -eps, 2f, 0f, 3f + eps, 0xFF202020)));
-
-        //cylinder - top
-        client.matrices.rotate(Rotation.X.rotationDeg(90f));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.cylinder(client.matrices, 0, -eps, 0, 3f + eps * 2f, 2f, 12, 0xFF202020)));
-        client.matrices.popMatrix();
-    }
-
-    private void spikes(float x, float y, float z) {
-        //generate a 3x3 grid of spikes
-        for (int i = -1; i <= 1; i++)
-            for (int j = -1; j <= 1; j++) {
-                client.matrices.pushMatrix();
-                client.matrices.translate(x + i / 6f, y, z + j / 6f);
-                client.matrices.rotate(Rotation.X.rotationDeg(45 * j));
-                client.matrices.rotate(Rotation.Z.rotationDeg(-45 * i));
-                addTerrain(new PrimitiveTerrain(GeometryHelper.cone(client.matrices, 0, 0, 0, 0.5f, 0.15f, 12, 0xFF804000)));
-                client.matrices.popMatrix();
-            }
-
-        float w = 1.1f;
-        float h = 0.6f;
-        float d = 1.1f;
-
-        TriggerArea ta = new TriggerArea(UUID.randomUUID(), w, h, d);
-        ta.setStayTrigger(e -> e.damage(null, DamageType.TERRAIN, 10, false));
-        ta.setPos(x, y + h / 2f, z);
-        addEntity(ta);
     }
 
     @Override
@@ -269,6 +243,9 @@ public class PrimitiveTestWorld extends WorldClient {
             VertexConsumer.WORLD_MAIN.consume(GeometryHelper.capsule(matrices, playerPos.x, playerPos.y, playerPos.z, playerDim.y, playerDim.x / 2f, 12, Colors.PINK.argb));
         });
         player.getAbilities().godMode(false).canBuild(false);
+
+        player.setPos(3.75f, 0.5f, 1f);
+        player.setRot(0f, 180f);
     }
 
     public static class PrimitiveWorldHud extends Hud {

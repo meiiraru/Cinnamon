@@ -2,6 +2,7 @@ package cinnamon.world.terrain;
 
 import cinnamon.model.Vertex;
 import cinnamon.model.VertexHelper;
+import cinnamon.model.material.MaterialTexture;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -34,7 +35,12 @@ public class PrimitiveTerrain extends Terrain {
         //        newVerts[i][j] = vertices[i][j].duplicate().mul(matrices);
         //    }
         //}
-        VertexConsumer.WORLD_MAIN.consume(vertices);
+        if (this.getMaterial() == null || this.getMaterial().material == null)
+            VertexConsumer.WORLD_MAIN.consume(vertices);
+        else {
+            MaterialTexture albedo = this.getMaterial().material.getAlbedo();
+            VertexConsumer.WORLD_MAIN.consume(vertices, albedo.texture(), albedo.params());
+        }
     }
 
     @Override
@@ -65,6 +71,12 @@ public class PrimitiveTerrain extends Terrain {
 
     public Vertex[][] getVertices() {
         return vertices;
+    }
+
+    public void setColor(int argb) {
+        for (Vertex[] face : vertices)
+            for (Vertex vertex : face)
+                vertex.color(argb);
     }
 
     private static Vertex[][] recalculateNormals(Vertex[][] vertices) {
