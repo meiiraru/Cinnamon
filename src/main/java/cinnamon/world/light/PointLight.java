@@ -45,8 +45,8 @@ public class PointLight extends Light {
     }
 
     @Override
-    public int getType() {
-        return 1;
+    public Type getType() {
+        return Type.POINT;
     }
 
     public PointLight falloff(float falloff) {

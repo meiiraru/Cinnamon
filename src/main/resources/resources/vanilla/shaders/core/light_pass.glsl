@@ -17,7 +17,7 @@ void main() {
 struct Light {
     vec3 pos, color, direction;
     float intensity, falloffStart, falloffEnd, innerAngle, outerAngle;
-    int type; //1 = point, 2 = spot, 3 = directional, 4 = cookie
+    int type; //0 = point, 1 = spot, 2 = directional, 3 = cookie
     mat4 lightSpaceMatrix;
     bool castsShadows;
 };
@@ -203,7 +203,7 @@ void main() {
     vec3 pos = getPosFromDepth(texCoords);
     vec3 lightCoords = vec3(0.0f);
 
-    if (light.type != 1 && light.type != 3) {
+    if (light.type != 0 && light.type != 2) {
         //transform fragment position to light clip space
         vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(pos, 1.0f);
 
@@ -221,7 +221,7 @@ void main() {
     vec3 L;
     float attenuation = 1.0f;
 
-    if (light.type == 3) {
+    if (light.type == 2) {
         L = -light.direction;
     } else {
         L = light.pos - pos;
@@ -233,7 +233,7 @@ void main() {
 
         //spotlight
         float spotEffect = 1.0f;
-        if (light.type == 2 || light.type == 4) {
+        if (light.type == 1 || light.type == 3) {
             //dot product between light-to-fragment vector and the light's forward direction
             //L points TOWARDS the light, so we use its inverse, light.direction points AWAY
             float theta = dot(-L, light.direction);
@@ -251,7 +251,7 @@ void main() {
     vec3 radiance = light.color * light.intensity * attenuation;
 
     //cookie
-    if (light.type == 4) {
+    if (light.type == 3) {
         vec3 cookieColor = getCookieColor(lightCoords);
         if (cookieColor.r + cookieColor.g + cookieColor.b < 0.01f)
             discard;
@@ -268,9 +268,9 @@ void main() {
     if (light.castsShadows) {
         float shadow = 0.0f;
 
-        if (light.type == 1)
+        if (light.type == 0)
             shadow = calculatePointShadow(pos);
-        else if (light.type == 3)
+        else if (light.type == 2)
             shadow = calculateDirectionalShadow(pos, L, N);
         else
             shadow = calculateSpotShadow(lightCoords, L, N);

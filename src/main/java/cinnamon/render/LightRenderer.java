@@ -67,8 +67,8 @@ public class LightRenderer {
 
                 //render the light shadow
                 switch (light.getType()) {
-                    case 1 -> renderLightShadowToCubeMap((PointLight) light, camera, renderFunction);
-                    case 3 -> renderDirectionalLightShadow(light, camera, renderFunction);
+                    case POINT -> renderLightShadowToCubeMap((PointLight) light, camera, renderFunction);
+                    case DIRECTIONAL -> renderDirectionalLightShadow(light, camera, renderFunction);
                     default -> renderSpotLightShadow(light, camera, renderFunction);
                 }
 
@@ -90,6 +90,7 @@ public class LightRenderer {
 
         boolean lensFlare = Settings.lensFlare.get();
         List<Light> directionalLights = new ArrayList<>();
+        List<Light> spotLights = new ArrayList<>();
 
         //prepare the flare buffer
         target.use();
@@ -114,8 +115,13 @@ public class LightRenderer {
             if (intensity <= 0f)
                 continue;
 
-            if (lensFlare && light.getType() == 3)
+            Light.Type type = light.getType();
+
+            if (lensFlare && type == Light.Type.DIRECTIONAL)
                 directionalLights.add(light);
+
+            if (type == Light.Type.SPOT || type == Light.Type.COOKIE)
+                spotLights.add(light);
 
             s.applyColor(light.getColor());
             s.setFloat("intensity", intensity);
@@ -357,7 +363,7 @@ public class LightRenderer {
         glCullFace(GL_FRONT);
 
         switch (light.getType()) {
-            case 1 -> {
+            case POINT -> {
                 //for point lights, render a sphere
                 lightModelMatrix.identity();
                 light.copyTransform(lightModelMatrix);
@@ -365,7 +371,7 @@ public class LightRenderer {
 
                 SimpleGeometry.SPHERE.render();
             }
-            case 3 -> {
+            case DIRECTIONAL -> {
                 //for directional lights, render a full screen quad
                 lightModelMatrix.identity()
                         .translate(cameraPos)
@@ -380,7 +386,7 @@ public class LightRenderer {
                 SimpleGeometry.QUAD.render();
             }
             default -> {
-                //render a cone for spot lights
+                //render a cone for spot and cookie lights
                 lightModelMatrix.identity();
                 light.copyTransform(lightModelMatrix);
                 s.setMat4("model", lightModelMatrix);

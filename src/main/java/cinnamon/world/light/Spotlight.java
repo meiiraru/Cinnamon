@@ -64,8 +64,8 @@ public class Spotlight extends PointLight {
     }
 
     @Override
-    public int getType() {
-        return 2;
+    public Type getType() {
+        return Type.SPOT;
     }
 
     public Spotlight angle(float angle) {

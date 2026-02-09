@@ -14,8 +14,8 @@ public class CookieLight extends Spotlight {
     }
 
     @Override
-    public int getType() {
-        return 4;
+    public Type getType() {
+        return Type.COOKIE;
     }
 
     public Resource getCookieTexture() {

@@ -52,7 +52,7 @@ public abstract class Light {
     }
 
     protected void pushToShader(Shader shader, String prefix) {
-        shader.setInt(prefix + "type", getType());
+        shader.setInt(prefix + "type", getType().ordinal());
         shader.setVec3(prefix + "pos", pos);
         shader.setVec3(prefix + "direction", dir);
         shader.setColor(prefix + "color", color);
@@ -66,7 +66,7 @@ public abstract class Light {
 
     protected abstract void updateAABB();
 
-    public abstract int getType();
+    public abstract Type getType();
 
     public boolean shouldRender(Camera camera) {
         return intensity > 0f && camera.getPos().distanceSquared(getPos()) <= 9216 && camera.isInsideFrustum(aabb); //96 * 96
@@ -99,7 +99,7 @@ public abstract class Light {
         matrices.translate(pos);
 
         int c = color | 0xFF000000;
-        if (getType() != 1) //point lights have no direction
+        if (getType() != Type.POINT) //point lights have no direction
             DebugScreen.renderDebugArrow(matrices, dir, 0.5f, c);
 
         camera.billboard(matrices);
@@ -216,5 +216,12 @@ public abstract class Light {
     public Light glareSize(float glareSize) {
         this.glareSize = glareSize;
         return this;
+    }
+
+    public enum Type {
+        POINT,
+        SPOT,
+        DIRECTIONAL,
+        COOKIE
     }
 }

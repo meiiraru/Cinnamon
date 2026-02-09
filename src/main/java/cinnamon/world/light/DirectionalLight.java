@@ -29,8 +29,8 @@ public class DirectionalLight extends Light {
     }
 
     @Override
-    public int getType() {
-        return 3;
+    public Type getType() {
+        return Type.DIRECTIONAL;
     }
 
     @Override
