@@ -111,7 +111,7 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     @Override
-    protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {
+    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
         super.collide(entity, result, toMove);
 
         if (!(entity instanceof LivingEntity l) || this.isRiding() || entity.isRiding())
@@ -168,7 +168,6 @@ public abstract class LivingEntity extends PhysEntity {
         return true;
     }
 
-    @Override
     public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
         if (health <= 0 || type == DamageType.EXPLOSION && this.hasEffect(Effect.Type.EXPLOSION_IMMUNITY))
             return false;

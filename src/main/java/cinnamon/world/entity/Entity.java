@@ -20,7 +20,6 @@ import cinnamon.utils.Alignment;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
-import cinnamon.world.DamageType;
 import cinnamon.world.Mask;
 import cinnamon.world.WorldObject;
 import cinnamon.world.collisions.Hit;
@@ -177,10 +176,6 @@ public abstract class Entity extends WorldObject {
         this.stopRiding();
         for (Entity rider : new ArrayList<>(riders))
             rider.stopRiding();
-    }
-
-    public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
-        return false;
     }
 
     public void impulse(float left, float up, float forwards) {

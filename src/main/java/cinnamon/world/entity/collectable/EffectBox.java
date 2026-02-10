@@ -6,7 +6,7 @@ import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.effects.Effect;
-import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
@@ -39,7 +39,7 @@ public class EffectBox extends Collectable {
     }
 
     @Override
-    protected boolean onPickUp(Entity entity) {
+    protected boolean onPickUp(PhysEntity entity) {
         if (entity instanceof LivingEntity le) {
             int index = (int) (Math.random() * PICKUP_SOUND.length);
             Resource sound = PICKUP_SOUND[index];

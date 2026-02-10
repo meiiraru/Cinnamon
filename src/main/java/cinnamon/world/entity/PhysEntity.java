@@ -2,6 +2,7 @@ package cinnamon.world.entity;
 
 import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
+import cinnamon.world.Mask;
 import cinnamon.world.collisions.CollisionDetector;
 import cinnamon.world.collisions.CollisionResolver;
 import cinnamon.world.collisions.CollisionResult;
@@ -20,6 +21,9 @@ public abstract class PhysEntity extends Entity {
 
     protected boolean onGround;
     protected float gravity = 1f;
+    protected Mask
+            entityCollisionMask = new Mask(),
+            terrainCollisionMask = new Mask();
 
     public PhysEntity(UUID uuid, Resource model) {
         super(uuid, model);
@@ -94,7 +98,7 @@ public abstract class PhysEntity extends Entity {
         boolean ground = false;
 
         //get terrain collisions
-        List<Terrain> terrains = world.getTerrains(new AABB(aabb).expand(toMove));
+        List<Terrain> terrains = getWorld().getTerrains(new AABB(aabb).expand(toMove));
 
         //try to resolve collisions in max 3 steps
         for (int i = 0; i < 3; i++) {
@@ -102,6 +106,9 @@ public abstract class PhysEntity extends Entity {
             CollisionResult collision = null;
 
             for (Terrain terrain : terrains) {
+                if (!getTerrainCollisionMask().test(terrain.getCollisionMask()))
+                    continue;
+
                 for (AABB terrainBB : terrain.getPreciseAABB()) {
                     //inflate terrain BB by the entity half-dimensions
                     AABB inflatedBB = new AABB(terrainBB).inflate(inflate);
@@ -118,7 +125,7 @@ public abstract class PhysEntity extends Entity {
                 break;
 
             //set ground state when on a floor
-            if (collision.normal().y > 0)
+            if (!ground && collision.normal().y > 0)
                 ground = true;
 
             //resolve the collision
@@ -145,18 +152,18 @@ public abstract class PhysEntity extends Entity {
         Vector3f pos = aabb.getCenter();
         Vector3f inflate = aabb.getDimensions().mul(0.5f);
 
-        for (Entity entity : world.getEntities(new AABB(aabb).expand(toMove))) {
-            if (entity == this || entity.isRemoved())
+        for (Entity entity : getWorld().getEntities(new AABB(aabb).expand(toMove))) {
+            if (!(entity instanceof PhysEntity physEntity) || physEntity == this || physEntity.isRemoved() || !getEntityCollisionMask().test(physEntity.getEntityCollisionMask()))
                 continue;
 
-            AABB temp = new AABB(entity.getAABB()).inflate(inflate);
+            AABB temp = new AABB(physEntity.getAABB()).inflate(inflate);
             CollisionResult result = CollisionDetector.collisionRay(temp, pos, toMove);
             if (result != null)
-                collide(entity, result, toMove);
+                collide(physEntity, result, toMove);
         }
     }
 
-    protected Vector3f checkEntityCollision(Entity entity) {
+    protected Vector3f checkEntityCollision(PhysEntity entity) {
         //get AABB
         AABB other = entity.getAABB();
 
@@ -168,7 +175,7 @@ public abstract class PhysEntity extends Entity {
         );
     }
 
-    protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {}
+    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {}
 
     // -- movement logic -- //
 
@@ -240,5 +247,13 @@ public abstract class PhysEntity extends Entity {
 
     public float getGravity() {
         return gravity;
+    }
+
+    public Mask getTerrainCollisionMask() {
+        return terrainCollisionMask;
+    }
+
+    public Mask getEntityCollisionMask() {
+        return entityCollisionMask;
     }
 }

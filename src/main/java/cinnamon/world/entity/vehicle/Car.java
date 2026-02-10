@@ -6,7 +6,7 @@ import cinnamon.utils.Rotation;
 import cinnamon.utils.UIHelper;
 import cinnamon.world.collisions.CollisionResolver;
 import cinnamon.world.collisions.CollisionResult;
-import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.PhysEntity;
 import org.joml.Math;
 import org.joml.Vector3f;
 
@@ -119,7 +119,7 @@ public abstract class Car extends Vehicle {
     }
 
     @Override
-    protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {
+    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
         if (entity instanceof Car)
             CollisionResolver.slide(result, motion, toMove);
         super.collide(entity, result, toMove);

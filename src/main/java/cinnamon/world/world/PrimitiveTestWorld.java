@@ -85,7 +85,9 @@ public class PrimitiveTestWorld extends WorldClient {
             addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, width / 2f, height, z, width, height + 0.5f, z + roomSize, Colors.LIGHT_GRAY.argb)));
 
             //carpet
-            addTerrain(new PrimitiveTerrain(GeometryHelper.plane(client.matrices, width / 2f, 0.01f, z + 1f, width, z + roomSize - 1f, 1, 1, Colors.RED.argb)));
+            PrimitiveTerrain carpet = new PrimitiveTerrain(GeometryHelper.plane(client.matrices, width / 2f, 0.01f, z + 1f, width, z + roomSize - 1f, 1, 1, Colors.RED.argb));
+            addTerrain(carpet);
+            carpet.getCollisionMask().setExcludeMask(0, true);
 
             //lamp
             addLight(new Spotlight().angle(40, 45).falloff(roomSize).pos(width / 2f, height - 0.5f, z + cz).direction(0.75f, -1, 0).color(Colors.WHITE.argb).intensity(2f));
@@ -151,6 +153,7 @@ public class PrimitiveTestWorld extends WorldClient {
         //add primitives
         for (PrimitiveTerrain pt : primitives) {
             pt.setMaterial(MaterialRegistry.DEBUG);
+            pt.getCollisionMask().setExcludeMask(0, true);
             //pt.setColor(Colors.randomRainbow().argb);
             addTerrain(pt);
         }

@@ -8,7 +8,7 @@ import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionResult;
-import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
@@ -77,7 +77,7 @@ public class ItemEntity extends Collectable {
     }
 
     @Override
-    protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {
+    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
         if (isRemoved() || pickUpDelay > 0)
             return;
 
@@ -120,7 +120,7 @@ public class ItemEntity extends Collectable {
     }
 
     @Override
-    protected boolean onPickUp(Entity entity) {
+    protected boolean onPickUp(PhysEntity entity) {
         if (!(entity instanceof LivingEntity le))
             return false;
 

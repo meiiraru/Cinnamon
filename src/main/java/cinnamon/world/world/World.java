@@ -9,6 +9,8 @@ import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
+import cinnamon.world.entity.living.LivingEntity;
+import cinnamon.world.entity.projectile.Potato;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.OctreeTerrain;
 import cinnamon.world.worldgen.TerrainManager;
@@ -116,8 +118,12 @@ public abstract class World {
             if (entity == source || entity.isRemoved())
                 continue;
 
-            //damage entities
-            entity.damage(source, DamageType.EXPLOSION, damage, false);
+            //damage living entities
+            if (entity instanceof LivingEntity living)
+                living.damage(source, DamageType.EXPLOSION, damage, false);
+            //explode potatoes
+            else if (entity instanceof Potato potato)
+                potato.triggerExplosion();
 
             //knock back
             if (entity instanceof PhysEntity e) {

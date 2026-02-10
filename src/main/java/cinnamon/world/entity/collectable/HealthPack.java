@@ -3,7 +3,7 @@ package cinnamon.world.entity.collectable;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.utils.AABB;
-import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.particle.SteamParticle;
 import cinnamon.world.world.WorldClient;
@@ -41,7 +41,7 @@ public class HealthPack extends Collectable {
     }
 
     @Override
-    protected boolean onPickUp(Entity entity) {
+    protected boolean onPickUp(PhysEntity entity) {
         return entity instanceof Player p && p.heal(HEAL);
     }
 

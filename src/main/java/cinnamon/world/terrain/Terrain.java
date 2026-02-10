@@ -15,6 +15,7 @@ import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
+import cinnamon.world.Mask;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.world.World;
@@ -32,6 +33,8 @@ public class Terrain extends WorldObject {
 
     private byte rotation = 0;
     private MaterialRegistry overrideMaterial = MaterialRegistry.DEFAULT;
+
+    protected Mask collisionMask = new Mask();
 
     public Terrain(Resource model, TerrainRegistry type) {
         this.type = type;
@@ -148,5 +151,9 @@ public class Terrain extends WorldObject {
 
     public boolean isSelectable(Entity entity) {
         return true;
+    }
+
+    public Mask getCollisionMask() {
+        return collisionMask;
     }
 }

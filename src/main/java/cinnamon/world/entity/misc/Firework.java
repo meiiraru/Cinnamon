@@ -79,9 +79,8 @@ public class Firework extends PhysEntity {
     }
 
     @Override
-    protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {
-        if (entity instanceof LivingEntity)
-            explode();
+    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
+        explode();
     }
 
     @Override
@@ -113,8 +112,8 @@ public class Firework extends PhysEntity {
 
             AABB explosionBB = new AABB().inflate(2f).translate(pos);
             for (Entity entity : w.getEntities(explosionBB)) {
-                if (entity != this && !entity.isRemoved())
-                    entity.damage(this, DamageType.EXPLOSION, 2 * stars.length, false);
+                if (entity instanceof LivingEntity living && !living.isRemoved())
+                    living.damage(this, DamageType.EXPLOSION, 2 * stars.length, false);
             }
 
             if (!isSilent() && w.isClientside())

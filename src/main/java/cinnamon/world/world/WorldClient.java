@@ -11,6 +11,7 @@ import cinnamon.input.Interaction;
 import cinnamon.input.Keybind;
 import cinnamon.input.Movement;
 import cinnamon.model.GeometryHelper;
+import cinnamon.model.Vertex;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.registry.TerrainRegistry;
@@ -29,6 +30,7 @@ import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
+import cinnamon.world.DamageType;
 import cinnamon.world.Decal;
 import cinnamon.world.Hud;
 import cinnamon.world.collisions.Hit;
@@ -43,6 +45,7 @@ import cinnamon.world.entity.living.Player;
 import cinnamon.world.entity.misc.Firework;
 import cinnamon.world.entity.misc.FireworkStar;
 import cinnamon.world.entity.misc.Spawner;
+import cinnamon.world.entity.misc.TriggerArea;
 import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.entity.vehicle.ShoppingCart;
 import cinnamon.world.items.*;
@@ -222,6 +225,16 @@ public class WorldClient extends World {
         healthPack.setPos(2.5f, 2f, 10f);
         healthPack.setRenderCooldown(true);
         this.addEntity(healthPack);
+
+        TriggerArea trigger = new TriggerArea(UUID.randomUUID(), 1f, 1f, 1f);
+        trigger.setPos(32.5f, 1.5f, 0.5f);
+        trigger.setStayTrigger(e -> {
+            if (e instanceof LivingEntity living)
+                living.damage(null, DamageType.TERRAIN, 10, false);
+        });
+        Vertex[][] spikes = GeometryHelper.cone(client.matrices, 32.5f, 1f, 0.5f, 1f, 0.5f, 12, 0xFFFF0000);
+        trigger.addRenderFeature((src, camera, matrices, delta) -> VertexConsumer.WORLD_MAIN.consume(spikes));
+        this.addEntity(trigger);
 
         //debug weapons
         spawnDebugWeapons();
@@ -801,7 +814,7 @@ public class WorldClient extends World {
     public void respawn(boolean init) {
         player = new LocalPlayer();
         player.setPos(0.5f, init ? 0f : 100f, 0.5f);
-        player.getAbilities().godMode(true).canFly(true);
+        player.getAbilities().godMode(false).canFly(true);
         this.addEntity(player);
 
         Animation anim = player.getAnimation("blink");

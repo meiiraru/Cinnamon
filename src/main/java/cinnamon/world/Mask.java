@@ -17,11 +17,11 @@ public class Mask {
     }
 
     public boolean test(Mask other) {
-        return this.test(other.mask);
+        return this.test(other.mask, other.excludeMask);
     }
 
-    public boolean test(int mask) {
-        return (this.mask & mask) != 0 && (this.excludeMask & mask) == 0;
+    public boolean test(int mask, int excludeMask) {
+        return (this.mask & mask) != 0 && (this.excludeMask & mask) == 0 && (this.mask & excludeMask) == 0;
     }
 
     public void setMask(int mask) {

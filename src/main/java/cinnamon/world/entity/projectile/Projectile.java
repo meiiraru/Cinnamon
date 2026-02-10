@@ -94,13 +94,13 @@ public abstract class Projectile extends PhysEntity {
     }
 
     @Override
-    protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {
+    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
         super.collide(entity, result, toMove);
 
-        if (isRemoved() || entity.getUUID().equals(getOwner()))
+        if (isRemoved() || !(entity instanceof LivingEntity living) || living.getUUID().equals(getOwner()))
             return;
 
-        if (entity.damage(getWorld().getEntityByUUID(getOwner()), DamageType.PROJECTILE, getDamage(), this.crit))
+        if (living.damage(getWorld().getEntityByUUID(getOwner()), DamageType.PROJECTILE, getDamage(), this.crit))
             remove();
     }
 

@@ -9,7 +9,6 @@ import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionResolver;
 import cinnamon.world.collisions.CollisionResult;
-import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -52,7 +51,7 @@ public abstract class Collectable extends PhysEntity {
     }
 
     @Override
-    protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {
+    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
         super.collide(entity, result, toMove);
         if (!isRemoved() && onPickUp(entity))
             this.remove();
@@ -76,5 +75,5 @@ public abstract class Collectable extends PhysEntity {
         super.rotateTo(0, yaw);
     }
 
-    protected abstract boolean onPickUp(Entity entity);
+    protected abstract boolean onPickUp(PhysEntity entity);
 }

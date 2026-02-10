@@ -7,6 +7,7 @@ import cinnamon.render.Camera;
 import cinnamon.world.DamageType;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.PhysEntity;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -20,7 +21,7 @@ public class Dummy extends LivingEntity {
     }
 
     @Override
-    protected void collide(Entity entity, CollisionResult result, Vector3f toMove) {
+    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
         //do nothing
         //super.collide(entity, result, toMove);
     }
