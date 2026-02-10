@@ -101,11 +101,8 @@ public abstract class World {
         return list;
     }
 
-    public List<AABB> getTerrainCollisions(AABB region) {
-        List<AABB> list = new ArrayList<>();
-        for (Terrain terrain : terrainManager.query(region))
-            list.addAll(terrain.getPreciseAABB());
-        return list;
+    public List<Terrain> getTerrains(AABB region) {
+        return terrainManager.query(region);
     }
 
     public Entity getEntityByUUID(UUID uuid) {
@@ -149,13 +146,8 @@ public abstract class World {
             }
         }
 
-        //no collisions
-        if (terrainColl == null)
-            return null;
-
         //return terrain collision data
-        float d = terrainColl.near();
-        return new Hit<>(terrainColl, tempTerrain, new Vector3f(pos).add(dirLen.x * d, dirLen.y * d, dirLen.z * d));
+        return terrainColl == null ? null : new Hit<>(terrainColl, tempTerrain);
     }
 
     public Hit<Entity> raycastEntity(AABB area, Vector3f pos, Vector3f dirLen, Predicate<Entity> predicate) {
@@ -177,13 +169,8 @@ public abstract class World {
             }
         }
 
-        //no collisions
-        if (entityColl == null)
-            return null;
-
         //return entity collision data
-        float d = entityColl.near();
-        return new Hit<>(entityColl, tempEntity, new Vector3f(pos).add(dirLen.x * d, dirLen.y * d, dirLen.z * d));
+        return entityColl == null ? null : new Hit<>(entityColl, tempEntity);
     }
 
     public long getTime() {

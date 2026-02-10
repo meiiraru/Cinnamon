@@ -329,7 +329,7 @@ public class DebugScreen {
             return "---";
 
         Vector3f pos = hit.obj().getPos();
-        Vector3f hPos = hit.pos();
+        Vector3f hPos = hit.collision().pos();
         Vector3f normal = hit.collision().normal();
         float distance = range * hit.collision().near();
         String type = (hit.obj() instanceof Entity) ? "entity" : (hit.obj() instanceof Terrain) ? "terrain" : "unknown";

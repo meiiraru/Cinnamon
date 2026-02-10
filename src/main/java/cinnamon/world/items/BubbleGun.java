@@ -62,7 +62,7 @@ public class BubbleGun extends Item {
     private static Vector3f spawnPos(LivingEntity source) {
         Hit<Terrain> terrain = source.raycastHandTerrain(false, 1f, DISTANCE);
         if (terrain != null)
-            return terrain.pos();
+            return terrain.collision().pos();
 
         return source.getHandDir(false, 1f).mul(DISTANCE).add(source.getHandPos(false, 1f));
     }

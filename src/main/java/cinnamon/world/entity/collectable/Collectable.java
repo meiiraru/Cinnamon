@@ -67,8 +67,8 @@ public abstract class Collectable extends PhysEntity {
     }
 
     @Override
-    protected void resolveCollision(CollisionResult collision, Vector3f motion, Vector3f move) {
-        CollisionResolver.bounce(collision, motion, move, BOUNCINESS);
+    protected void resolveCollision(CollisionResult collision, Vector3f totalMove) {
+        CollisionResolver.bounce(collision, getMotion(), totalMove, BOUNCINESS);
     }
 
     @Override

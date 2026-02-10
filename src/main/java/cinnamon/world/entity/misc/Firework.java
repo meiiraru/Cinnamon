@@ -74,7 +74,7 @@ public class Firework extends PhysEntity {
     }
 
     @Override
-    protected void resolveCollision(CollisionResult collision, Vector3f motion, Vector3f move) {
+    protected void resolveCollision(CollisionResult collision, Vector3f totalMove) {
         explode();
     }
 

@@ -70,7 +70,7 @@ public class CurveMaker extends Item {
 
         Hit<Terrain> terrain = source.getLookingTerrain(source.getPickRange());
         if (terrain != null)
-            return terrain.pos();
+            return terrain.collision().pos();
 
         return source.getLookDir().mul(source.getPickRange()).add(source.getEyePos());
     }

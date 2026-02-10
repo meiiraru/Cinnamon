@@ -5,8 +5,15 @@ import cinnamon.utils.Maths;
 import org.joml.Vector3f;
 
 public class CollisionDetector {
+
+    public static CollisionResult collisionBB(AABB source, AABB toCollide, Vector3f motion) {
+        AABB inflatedBB = new AABB(toCollide).inflate(source.getWidth() * 0.5f, source.getHeight() * 0.5f, source.getDepth() * 0.5f);
+        Vector3f rayPos = source.getCenter();
+        return collisionRay(inflatedBB, rayPos, motion);
+    }
+
     public static CollisionResult collisionRay(AABB aabb, Vector3f rayPos, Vector3f rayLen) {
-        //Calculate intersections with aabb
+        //calculate intersections with aabb
         Vector3f tNear = aabb.getMin().sub(rayPos).div(rayLen);
         Vector3f tFar = aabb.getMax().sub(rayPos).div(rayLen);
 
@@ -42,7 +49,14 @@ public class CollisionDetector {
         int index = Maths.maxIndex(tNear);
         normal.setComponent(index, rayLen.get(index) <= 0 ? 1 : -1);
 
+        //calculate collision position
+        Vector3f collisionPos = new Vector3f(
+                rayPos.x + rayLen.x * near,
+                rayPos.y + rayLen.y * near,
+                rayPos.z + rayLen.z * near
+        );
+
         //return the collision result
-        return new CollisionResult(near - AABB.epsilon, far + AABB.epsilon, normal);
+        return new CollisionResult(near - AABB.epsilon, normal, collisionPos);
     }
 }

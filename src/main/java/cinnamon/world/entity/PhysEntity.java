@@ -5,6 +5,7 @@ import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionDetector;
 import cinnamon.world.collisions.CollisionResolver;
 import cinnamon.world.collisions.CollisionResult;
+import cinnamon.world.terrain.Terrain;
 import org.joml.Math;
 import org.joml.Vector3f;
 
@@ -41,10 +42,9 @@ public abstract class PhysEntity extends Entity {
 
         //apply my current desired movement into my motion
         applyImpulse();
-        onGround = false;
 
         //check for terrain collisions
-        Vector3f toMove = tickTerrainCollisions(aabb);
+        Vector3f toMove = tickTerrainCollisions(aabb, motion);
 
         //entity collisions
         tickEntityCollisions(aabb, toMove);
@@ -82,53 +82,61 @@ public abstract class PhysEntity extends Entity {
 
     // -- terrain collisions -- //
 
-    protected Vector3f tickTerrainCollisions(AABB aabb) {
+    protected Vector3f tickTerrainCollisions(AABB aabb, Vector3f motion) {
         //early exit
         if (motion.lengthSquared() < 0.001f)
-            return motion.mul(0, new Vector3f());
+            return new Vector3f();
 
         //prepare variables
         Vector3f pos = aabb.getCenter();
         Vector3f inflate = aabb.getDimensions().mul(0.5f);
         Vector3f toMove = new Vector3f(motion);
+        boolean ground = false;
 
         //get terrain collisions
-        List<AABB> terrain = world.getTerrainCollisions(new AABB(aabb).expand(toMove));
+        List<Terrain> terrains = world.getTerrains(new AABB(aabb).expand(toMove));
 
         //try to resolve collisions in max 3 steps
         for (int i = 0; i < 3; i++) {
+            //find the closest collision
             CollisionResult collision = null;
 
-            for (AABB terrainBB : terrain) {
-                //update bb to include this source's bb
-                AABB temp = new AABB(terrainBB).inflate(inflate);
+            for (Terrain terrain : terrains) {
+                for (AABB terrainBB : terrain.getPreciseAABB()) {
+                    //inflate terrain BB by the entity half-dimensions
+                    AABB inflatedBB = new AABB(terrainBB).inflate(inflate);
 
-                //check collision
-                CollisionResult result = CollisionDetector.collisionRay(temp, pos, toMove);
-                if (result != null && (collision == null || collision.near() > result.near())) {
-                    collision = result;
+                    //check for collision along the motion ray
+                    CollisionResult result = CollisionDetector.collisionRay(inflatedBB, pos, toMove);
+                    if (result != null && (collision == null || result.near() < collision.near()))
+                        collision = result;
                 }
             }
 
-            //resolve collision
-            if (collision != null) {
-                //set ground state
-                if (collision.normal().y > 0)
-                    this.onGround = true;
+            //no collision found - exit loop
+            if (collision == null)
+                break;
 
-                //resolve collision
-                resolveCollision(collision, motion, toMove);
-            } else {
-                //no collision detected
+            //set ground state when on a floor
+            if (collision.normal().y > 0)
+                ground = true;
+
+            //resolve the collision
+            resolveCollision(collision, toMove);
+
+            //stop if remaining movement is too small
+            if (toMove.lengthSquared() < 0.001f) {
+                toMove.set(0);
                 break;
             }
         }
 
+        this.onGround = ground;
         return toMove;
     }
 
-    protected void resolveCollision(CollisionResult collision, Vector3f motion, Vector3f move) {
-        CollisionResolver.slide(collision, motion, move);
+    protected void resolveCollision(CollisionResult collision, Vector3f totalMove) {
+        CollisionResolver.slide(collision, getMotion(), totalMove);
     }
 
     // -- entity collisions -- //

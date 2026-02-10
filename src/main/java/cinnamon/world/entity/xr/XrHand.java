@@ -69,7 +69,7 @@ public class XrHand extends PhysEntity {
     }
 
     @Override
-    protected Vector3f tickTerrainCollisions(AABB aabb) {
+    protected Vector3f tickTerrainCollisions(AABB aabb, Vector3f motion) {
         return new Vector3f();
     }
 

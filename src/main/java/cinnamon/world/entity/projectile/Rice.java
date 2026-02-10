@@ -28,7 +28,7 @@ public class Rice extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(CollisionResult collision, Vector3f motion, Vector3f move) {
+    protected void resolveCollision(CollisionResult collision, Vector3f totalMove) {
         remove();
     }
 

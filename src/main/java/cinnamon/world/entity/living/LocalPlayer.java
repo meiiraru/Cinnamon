@@ -132,7 +132,7 @@ public class LocalPlayer extends Player {
 
         Hit<? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(false, 1f, getPickRange()) : getLookingObject(getPickRange());
         if (hit != null && hit.obj() instanceof Terrain t) {
-            Vector3f tpos = new Vector3f(hit.pos()).floor();
+            Vector3f tpos = new Vector3f(hit.collision().pos()).floor();
             if (tpos.equals(t.getPos()))
                 tpos.add(hit.collision().normal());
 

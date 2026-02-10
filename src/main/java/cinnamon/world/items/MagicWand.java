@@ -123,7 +123,7 @@ public class MagicWand extends Item {
 
         Hit<Terrain> terrain = source.getLookingTerrain(DISTANCE);
         if (terrain != null)
-            return terrain.pos();
+            return terrain.collision().pos();
 
         return source.getLookDir().mul(DISTANCE).add(source.getEyePos());
     }

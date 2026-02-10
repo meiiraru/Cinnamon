@@ -7,6 +7,7 @@ import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
+import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
 
 public class BubbleParticle extends SpriteParticle {
@@ -26,11 +27,13 @@ public class BubbleParticle extends SpriteParticle {
 
         if (!collided) {
             AABB aabb = getAABB();
-            for (AABB terrain : world.getTerrainCollisions(aabb)) {
-                if (aabb.intersects(terrain)) {
-                    getMotion().zero();
-                    collided = true;
-                    break;
+            for (Terrain terrain : world.getTerrains(aabb)) {
+                for (AABB terrainBB : terrain.getPreciseAABB()) {
+                    if (aabb.intersects(terrainBB)) {
+                        getMotion().zero();
+                        collided = true;
+                        break;
+                    }
                 }
             }
 

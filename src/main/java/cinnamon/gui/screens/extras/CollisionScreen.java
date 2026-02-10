@@ -76,10 +76,6 @@ public class CollisionScreen extends ParentedScreen {
             Vector3f near = new Vector3f(pos).add(len.x * n, len.y * n, len.z * n);
             VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, near.x - 3, near.y - 3, near.x + 3, near.y + 3, 0xFF72ADFF));
 
-            float f = collision.far();
-            Vector3f far = new Vector3f(pos).add(len.x * f, len.y * f, len.z * f);
-            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, far.x - 3, far.y - 3, far.x + 3, far.y + 3, 0xFFFFAD72));
-
             Vector3f normal = collision.normal();
             VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, near.x, near.y, near.x + normal.x * 10, near.y + normal.y * 10, 1, 0xFF72FF72));
         }

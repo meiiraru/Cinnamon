@@ -7,7 +7,6 @@ import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.particle.SmokeParticle;
 import cinnamon.world.world.WorldClient;
-import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -32,7 +31,7 @@ public class RiceBall extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(CollisionResult collision, Vector3f motion, Vector3f move) {
+    protected void resolveCollision(CollisionResult collision, Vector3f totalMove) {
         remove();
     }
 

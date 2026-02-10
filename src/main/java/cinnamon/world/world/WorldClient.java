@@ -488,7 +488,7 @@ public class WorldClient extends World {
             //placement terrain
             Hit<Terrain> hit = cameraEntity.getLookingTerrain(cameraEntity.getPickRange());
             if (hit != null) {
-                Vector3f pos = new Vector3f(hit.pos()).floor();
+                Vector3f pos = new Vector3f(hit.collision().pos()).floor();
                 if (hit.get() != null && pos.equals(hit.get().getPos()))
                     pos.add(hit.collision().normal());
 
@@ -511,7 +511,7 @@ public class WorldClient extends World {
 
         Hit<Terrain> terrain = cameraEntity.getLookingTerrain(r);
         if (terrain != null) {
-            Vector3f pos = terrain.pos();
+            Vector3f pos = terrain.collision().pos();
             VertexConsumer.MAIN.consume(GeometryHelper.box(matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF));
         }
 
@@ -520,7 +520,7 @@ public class WorldClient extends World {
             AABB aabb = entity.obj().getAABB();
             VertexConsumer.LINES.consume(GeometryHelper.box(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00));
 
-            Vector3f pos = entity.pos();
+            Vector3f pos = entity.collision().pos();
             VertexConsumer.MAIN.consume(GeometryHelper.box(matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF));
         }
     }
@@ -712,7 +712,7 @@ public class WorldClient extends World {
 
                 Decal decal = new Decal(6000, new Resource("textures/misc/cockroach.png"));
                 decal.getTransform()
-                        .setPos(hit.pos())
+                        .setPos(hit.collision().pos())
                         .setRot(Maths.dirToQuat(hit.collision().normal()))
                         //.setRot(WorldRenderer.camera.getRotation())
                         .setScale(1f, 1f, 0.5f);
