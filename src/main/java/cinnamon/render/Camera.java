@@ -89,7 +89,8 @@ public class Camera {
 
     public void move(float x, float y, float z) {
         Vector3f move = new Vector3f(x, y, z).rotate(rotation);
-        move.normalize().mul(getMaxZoom(move));
+        float dist = getMaxZoom(move);
+        move.normalize().mul(dist);
         setPos(pos.x + move.x, pos.y + move.y, pos.z + move.z);
     }
 
