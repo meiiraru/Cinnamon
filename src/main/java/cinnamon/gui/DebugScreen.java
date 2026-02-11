@@ -476,6 +476,7 @@ public class DebugScreen {
             Vector3f epos = p.getPos();
             Vector2f erot = p.getRot();
             Vector3f emot = p.getMotion();
+            Vector3f eye = p.getEyePos();
 
             String face = Direction.fromRotation(erot.y).name;
 
@@ -489,6 +490,7 @@ public class DebugScreen {
                     x &c%.3f&r y &a%.3f&r z &b%.3f&r
                     pitch &e%.3f&r yaw &e%.3f&r facing &e%s&r
                     motion &c%.3f &a%.3f &b%.3f&r
+                    eye x &c%.3f&r y &a%.3f&r z &b%.3f&r
                     onground &e%s&r
                     noclip &e%s&r god mode &e%s&r
                     can fly &e%s&r can build &e%s&r
@@ -500,6 +502,7 @@ public class DebugScreen {
                     epos.x, epos.y, epos.z,
                     erot.x, erot.y, face,
                     emot.x, emot.y, emot.z,
+                    eye.x, eye.y, eye.z,
 
                     p.isOnGround() ? "yes" : "no",
                     abilities.noclip() ? "on" : "off",

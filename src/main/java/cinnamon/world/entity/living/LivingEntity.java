@@ -429,7 +429,7 @@ public abstract class LivingEntity extends PhysEntity {
         AABB area = new AABB(pos).expand(range);
 
         //return hit
-        return world.raycastTerrain(area, pos, range);
+        return world.raycastTerrain(area, pos, range, t -> t.isSelectable(this));
     }
 
     public Hit<Entity> raycastHandEntity(boolean left, float delta, float distance) {

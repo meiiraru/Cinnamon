@@ -133,13 +133,17 @@ public abstract class World {
         }
     }
 
-    public Hit<Terrain> raycastTerrain(AABB area, Vector3f pos, Vector3f dirLen) {
+    public Hit<Terrain> raycastTerrain(AABB area, Vector3f pos, Vector3f dirLen, Predicate<Terrain> predicate) {
         //prepare variables
         CollisionResult terrainColl = null;
         Terrain tempTerrain = null;
 
         //loop through terrain in area
         for (Terrain t : terrainManager.query(area)) {
+            //failed predicate
+            if (!predicate.test(t))
+                continue;
+
             //loop through its groups AABBs
             for (AABB aabb : t.getPreciseAABB()) {
                 //check for collision
@@ -164,14 +168,15 @@ public abstract class World {
         //loop through entities in area
         for (Entity e : getEntities(area)) {
             //check for the predicate if the entity is valid
-            if (predicate.test(e)) {
-                //check for collision
-                CollisionResult result = CollisionDetector.collisionRay(e.getAABB(), pos, dirLen);
-                //store collision if it is closer than previous collision
-                if (result != null && (entityColl == null || result.near() < entityColl.near())) {
-                    entityColl = result;
-                    tempEntity = e;
-                }
+            if (!predicate.test(e))
+                continue;
+
+            //check for collision
+            CollisionResult result = CollisionDetector.collisionRay(e.getAABB(), pos, dirLen);
+            //store collision if it is closer than previous collision
+            if (result != null && (entityColl == null || result.near() < entityColl.near())) {
+                entityColl = result;
+                tempEntity = e;
             }
         }
 

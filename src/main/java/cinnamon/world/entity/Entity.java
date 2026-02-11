@@ -338,7 +338,7 @@ public abstract class Entity extends WorldObject {
         AABB area = new AABB(pos).expand(range);
 
         //return hit
-        return world.raycastTerrain(area, pos, range);
+        return world.raycastTerrain(area, pos, range, t -> t.isSelectable(this));
     }
 
     public Hit<Entity> getLookingEntity(float distance) {

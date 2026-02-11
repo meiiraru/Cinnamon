@@ -6,6 +6,7 @@ import cinnamon.utils.Rotation;
 import cinnamon.vr.XrManager;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.PhysEntity;
 import org.joml.*;
 import org.joml.Math;
 
@@ -87,20 +88,49 @@ public class Camera {
     }
 
     public void move(float x, float y, float z) {
-        float epsilon = 1 - NEAR_PLANE;
-        Vector3f move = new Vector3f(x, y, z).mul(1f / epsilon).rotate(rotation);
-        AABB area = new AABB();
-        area.translate(pos);
-        area.expand(move);
+        Vector3f move = new Vector3f(x, y, z).rotate(rotation);
+        move.normalize().mul(getMaxZoom(move));
+        setPos(pos.x + move.x, pos.y + move.y, pos.z + move.z);
+    }
 
-        if (entity != null) {
-            Hit<?> hit = entity.getWorld().raycastTerrain(area, pos, move);
-            if (hit != null)
-                move.mul(hit.collision().near());
+    public float getMaxZoom(Vector3f direction) {
+        float distance = direction.length();
+        if (entity == null || distance <= 0)
+            return distance;
+
+        //calculate frustum dimensions at near plane
+        float h = NEAR_PLANE * Math.tan(Math.toRadians(fov * 0.5f));
+        float w = h * aspectRatio;
+        float d = NEAR_PLANE;
+
+        Vector3f rayStart = new Vector3f();
+        Vector3f offset = new Vector3f();
+        AABB area = new AABB();
+        float maxDist = distance;
+
+        //cast 8 rays from the camera corner offsets
+        for (int i = 0; i < 8; i++) {
+            float ox = ((i & 1) * 2 - 1) * w;
+            float oy = ((i >> 1 & 1) * 2 - 1) * h;
+            float oz = ((i >> 2 & 1) * 2 - 1) * d;
+
+            //rotate offset to camera space
+            offset.set(ox, oy, oz).rotate(rotation);
+            rayStart.set(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
+            area.set(rayStart).expand(direction);
+
+            Hit<?> hit = entity.getWorld().raycastTerrain(area, rayStart, direction, t ->
+                    t.isSelectable(entity) && (!(entity instanceof PhysEntity pe) || pe.getTerrainCollisionMask().test(t.getCollisionMask()))
+            );
+
+            if (hit != null) {
+                float hitDist = hit.collision().near() * distance;
+                if (hitDist >= 0 && hitDist < maxDist)
+                    maxDist = hitDist;
+            }
         }
 
-        move.mul(epsilon);
-        setPos(pos.x + move.x, pos.y + move.y, pos.z + move.z);
+        return maxDist;
     }
 
     public void updateProjMatrix(int width, int height, float fov) {

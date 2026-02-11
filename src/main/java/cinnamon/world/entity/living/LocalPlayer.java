@@ -15,6 +15,8 @@ import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.WorldObject;
 import cinnamon.world.collisions.Hit;
+import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.collectable.ItemEntity;
 import cinnamon.world.items.Inventory;
 import cinnamon.world.items.Item;
@@ -137,16 +139,19 @@ public class LocalPlayer extends Player {
                 tpos.add(hit.collision().normal());
 
             AABB entities = new AABB().translate(tpos).expand(1f, 1f, 1f);
-            if (getWorld().getEntities(entities).isEmpty()) {
-                Terrain tt = TerrainRegistry.values()[selectedTerrain].getFactory().get();
-                tt.setMaterial(MaterialRegistry.values()[selectedMaterial]);
-                tt.setRotation(Direction.fromRotation(getRot().y).invRotation);
-                tt.setPos(tpos.x, tpos.y, tpos.z);
-                getWorld().addTerrain(tt);
-
-                lastMouseTime = getInteractionDelay();
-                return true;
+            for (Entity entity : getWorld().getEntities(entities)) {
+                if (entity instanceof PhysEntity)
+                    return false;
             }
+
+            Terrain tt = TerrainRegistry.values()[selectedTerrain].getFactory().get();
+            tt.setMaterial(MaterialRegistry.values()[selectedMaterial]);
+            tt.setRotation(Direction.fromRotation(getRot().y).invRotation);
+            tt.setPos(tpos.x, tpos.y, tpos.z);
+            getWorld().addTerrain(tt);
+
+            lastMouseTime = getInteractionDelay();
+            return true;
         }
 
         return false;
