@@ -22,6 +22,8 @@ import cinnamon.world.items.Inventory;
 import cinnamon.world.items.Item;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
+import cinnamon.world.world.VoxelWorld;
+import cinnamon.world.voxel.BlockType;
 import org.joml.Math;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
@@ -34,6 +36,18 @@ public class LocalPlayer extends Player {
     protected int lastMouseTime = 0;
     protected int selectedTerrain = TerrainRegistry.BOX.ordinal();
     protected int selectedMaterial = MaterialRegistry.GRASS.ordinal();
+
+    // Block types available for placing in VoxelWorld (all non-AIR types)
+    public static final BlockType[] PLACEABLE_BLOCKS;
+    static {
+        BlockType[] all = BlockType.VALUES;
+        int count = 0;
+        for (BlockType b : all) if (!b.isAir()) count++;
+        PLACEABLE_BLOCKS = new BlockType[count];
+        int idx = 0;
+        for (BlockType b : all) if (!b.isAir()) PLACEABLE_BLOCKS[idx++] = b;
+    }
+    protected int selectedBlockIndex = 0; // index into PLACEABLE_BLOCKS
 
     public LocalPlayer() {
         this(Settings.playermodel.get());
@@ -90,6 +104,22 @@ public class LocalPlayer extends Player {
         this.selectedMaterial = selectedMaterial;
     }
 
+    public int getSelectedBlockIndex() {
+        return selectedBlockIndex;
+    }
+
+    public void setSelectedBlockIndex(int index) {
+        this.selectedBlockIndex = ((index % PLACEABLE_BLOCKS.length) + PLACEABLE_BLOCKS.length) % PLACEABLE_BLOCKS.length;
+    }
+
+    public BlockType getSelectedBlockType() {
+        return PLACEABLE_BLOCKS[selectedBlockIndex];
+    }
+
+    public void scrollBlockType(int direction) {
+        setSelectedBlockIndex(selectedBlockIndex + direction);
+    }
+
     @Override
     public boolean attackAction() {
         if (lastMouseTime > 0)
@@ -105,7 +135,13 @@ public class LocalPlayer extends Player {
 
         Hit<? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(false, 1f, getPickRange()) : getLookingObject(getPickRange());
         if (hit != null && hit.obj() instanceof Terrain t && t.isSelectable(this)) {
-            getWorld().removeTerrain(t);
+            // VoxelWorld: remove block via chunk manager
+            if (getWorld() instanceof VoxelWorld vw) {
+                Vector3f pos = t.getPos();
+                vw.setBlockAt((int) pos.x, (int) pos.y, (int) pos.z, BlockType.AIR);
+            } else {
+                getWorld().removeTerrain(t);
+            }
             lastMouseTime = getInteractionDelay();
             return true;
         }
@@ -144,11 +180,23 @@ public class LocalPlayer extends Player {
                     return false;
             }
 
-            Terrain tt = TerrainRegistry.values()[selectedTerrain].getFactory().get();
-            tt.setMaterial(MaterialRegistry.values()[selectedMaterial]);
-            tt.setRotation(Direction.fromRotation(getRot().y).invRotation);
-            tt.setPos(tpos.x, tpos.y, tpos.z);
-            getWorld().addTerrain(tt);
+            // Don't place if block would overlap the player
+            AABB playerBox = getAABB();
+            AABB blockBox = new AABB(tpos.x, tpos.y, tpos.z, tpos.x + 1, tpos.y + 1, tpos.z + 1);
+            if (playerBox.intersects(blockBox))
+                return false;
+
+            if (getWorld() instanceof VoxelWorld vw) {
+                // VoxelWorld: place block via chunk manager
+                BlockType placeType = PLACEABLE_BLOCKS[selectedBlockIndex];
+                vw.setBlockAt((int) tpos.x, (int) tpos.y, (int) tpos.z, placeType);
+            } else {
+                Terrain tt = TerrainRegistry.values()[selectedTerrain].getFactory().get();
+                tt.setMaterial(MaterialRegistry.values()[selectedMaterial]);
+                tt.setRotation(Direction.fromRotation(getRot().y).invRotation);
+                tt.setPos(tpos.x, tpos.y, tpos.z);
+                getWorld().addTerrain(tt);
+            }
 
             lastMouseTime = getInteractionDelay();
             return true;
@@ -168,10 +216,24 @@ public class LocalPlayer extends Player {
             return;
 
         Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
-        if (hit != null && hit.obj() instanceof Terrain t && t.isSelectable(this) && t.getType() != TerrainRegistry.CUSTOM) {
-            selectedTerrain = t.getType().ordinal();
-            MaterialRegistry material = t.getMaterial();
-            if (material != null) selectedMaterial = material.ordinal();
+        if (hit != null && hit.obj() instanceof Terrain t && t.isSelectable(this)) {
+            if (getWorld() instanceof VoxelWorld vw) {
+                // VoxelWorld: pick block type
+                Vector3f pos = t.getPos();
+                BlockType block = vw.getBlockAt((int) pos.x, (int) pos.y, (int) pos.z);
+                if (!block.isAir()) {
+                    for (int i = 0; i < PLACEABLE_BLOCKS.length; i++) {
+                        if (PLACEABLE_BLOCKS[i] == block) {
+                            selectedBlockIndex = i;
+                            break;
+                        }
+                    }
+                }
+            } else if (t.getType() != TerrainRegistry.CUSTOM) {
+                selectedTerrain = t.getType().ordinal();
+                MaterialRegistry material = t.getMaterial();
+                if (material != null) selectedMaterial = material.ordinal();
+            }
         }
     }
 

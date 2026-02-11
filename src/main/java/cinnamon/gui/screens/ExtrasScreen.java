@@ -13,6 +13,7 @@ import cinnamon.world.world.MaterialPreviewWorld;
 import cinnamon.world.world.PrimitiveTestWorld;
 import cinnamon.world.world.RollerCoasterWorld;
 import cinnamon.world.world.TransparentWorld;
+import cinnamon.world.world.VoxelWorld;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -49,6 +50,9 @@ public class ExtrasScreen extends ParentedScreen {
 
         //primitive debug world
         list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.custom_worlds.primitive_test", button -> new PrimitiveTestWorld().init()));
+
+        //voxel world
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.custom_worlds.voxel", button -> new VoxelWorld().init()));
 
         //title
         list.addWidget(new Label(0, 0, Text.of("\n").appendTranslated("gui.extras_screen.tech_demos").append("\n")));

@@ -17,12 +17,15 @@ import cinnamon.text.Text;
 import cinnamon.utils.*;
 import cinnamon.vr.XrManager;
 import cinnamon.world.effects.Effect;
+import cinnamon.world.entity.living.LocalPlayer;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.items.CooldownItem;
 import cinnamon.world.items.Inventory;
 import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.terrain.Terrain;
+import cinnamon.world.voxel.BlockType;
+import cinnamon.world.world.VoxelWorld;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -296,6 +299,18 @@ public class Hud {
         WorldClient w = c.world;
         if (!w.player.getAbilities().canBuild())
             return;
+
+        // VoxelWorld: show selected block type name
+        if (w instanceof VoxelWorld && w.player instanceof LocalPlayer lp) {
+            BlockType blockType = lp.getSelectedBlockType();
+            String name = blockType.name().charAt(0) + blockType.name().substring(1).toLowerCase();
+            Window ww = c.window;
+
+            // Draw block type name at top center
+            Text text = Text.of(name).withStyle(Style.EMPTY.shadow(true).guiStyle(HUD_STYLE));
+            text.render(VertexConsumer.MAIN, matrices, ww.getGUIWidth() * 0.5f, 8, Alignment.TOP_CENTER);
+            return;
+        }
 
         int t = w.player.getSelectedTerrain();
         int m = w.player.getSelectedMaterial();

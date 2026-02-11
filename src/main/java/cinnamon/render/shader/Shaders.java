@@ -39,7 +39,9 @@ public enum Shaders {
     SSAO,
     SSR,
     WATER,
-    DECAL;
+    DECAL,
+    GBUFFER_VOXEL,
+    GBUFFER_VOXEL_WATER;
 
     private final Resource resource;
     private Shader shader;
