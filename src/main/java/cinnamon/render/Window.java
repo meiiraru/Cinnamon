@@ -308,6 +308,7 @@ public class Window {
             icon.set(data.width, data.height, data.buffer);
             imageBuffer.put(0, icon);
             glfwSetWindowIcon(window, imageBuffer);
+            glfwPollEvents();
         } catch (Exception e) {
             LOGGER.error("Failed to set window icon", e);
         }

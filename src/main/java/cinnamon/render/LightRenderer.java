@@ -14,8 +14,11 @@ import cinnamon.render.texture.TextureArray;
 import cinnamon.settings.Settings;
 import cinnamon.vr.XrManager;
 import cinnamon.world.light.CookieLight;
+import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.PointLight;
+import cinnamon.world.light.Spotlight;
+import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -24,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 
 public class LightRenderer {
 
@@ -89,8 +91,8 @@ public class LightRenderer {
             return;
 
         boolean lensFlare = Settings.lensFlare.get();
-        List<Light> directionalLights = new ArrayList<>();
-        List<Light> spotLights = new ArrayList<>();
+        List<DirectionalLight> directionalLights = new ArrayList<>();
+        List<Spotlight> spotLights = new ArrayList<>();
 
         //prepare the flare buffer
         target.use();
@@ -118,10 +120,10 @@ public class LightRenderer {
             Light.Type type = light.getType();
 
             if (lensFlare && type == Light.Type.DIRECTIONAL)
-                directionalLights.add(light);
+                directionalLights.add((DirectionalLight) light);
 
             if (type == Light.Type.SPOT || type == Light.Type.COOKIE)
-                spotLights.add(light);
+                spotLights.add((Spotlight) light);
 
             s.applyColor(light.getColor());
             s.setFloat("intensity", intensity);
@@ -141,7 +143,7 @@ public class LightRenderer {
             lensShader.setVec2("sampleRadius", texelX, texelY);
             lensShader.setTexture("gDepth", gBuffer.getDepthBuffer(), 0);
 
-            for (Light light : directionalLights) {
+            for (DirectionalLight light : directionalLights) {
                 lensShader.applyColor(light.getColor());
                 lensShader.setVec3("direction", light.getDirection());
                 lensShader.setFloat("intensity", light.getGlareIntensity());
@@ -150,8 +152,38 @@ public class LightRenderer {
             }
         }
 
-        //reset state
+        //re-enable depth test for spotlight beams - but disable writes
         glEnable(GL_DEPTH_TEST);
+        glDepthMask(false);
+
+        //render the beams
+        if (!spotLights.isEmpty()) {
+            Shader beamShader = Shaders.SPOTLIGHT_BEAM.getShader().use();
+            beamShader.setup(camera);
+            beamShader.setVec3("camPos", camera.getPosition());
+
+            for (Spotlight spotlight : spotLights) {
+                float beamStrength = spotlight.getBeamStrength();
+                if (beamStrength <= 0f)
+                    continue;
+
+                float h = spotlight.getFalloffEnd();
+                float r = h * Math.tan(Math.toRadians(spotlight.getInnerAngle()));
+
+                beamShader.setVec3("lightPos", spotlight.getPos());
+                beamShader.setVec3("lightDir", spotlight.getDirection());
+                beamShader.setFloat("height", h);
+                beamShader.setFloat("radius", r);
+
+                beamShader.setFloat("beamIntensity", beamStrength);
+                beamShader.setColor("color", spotlight.getColor());
+
+                SimpleGeometry.TRIANGLE.render();
+            }
+        }
+
+        //reset state
+        glDepthMask(true);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         Texture.unbindAll(2);
     }

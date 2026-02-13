@@ -13,6 +13,7 @@ public class Spotlight extends PointLight {
 
     private float innerAngle, outerAngle;
     private float tanOuter;
+    private float beamStrength = 1f;
 
     public Spotlight() {
         super();
@@ -87,5 +88,14 @@ public class Spotlight extends PointLight {
 
     public float getOuterAngle() {
         return Math.toDegrees(Math.acos(outerAngle));
+    }
+
+    public Spotlight beamStrength(float beamStrength) {
+        this.beamStrength = beamStrength;
+        return this;
+    }
+
+    public float getBeamStrength() {
+        return beamStrength;
     }
 }

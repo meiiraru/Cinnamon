@@ -40,18 +40,6 @@ public class GeometryHelper {
         };
     }
 
-    public static Vertex[] invQuad(MatrixStack matrices, float x, float y, float width, float height) {
-        float x1 = x + width;
-        float y1 = y + height;
-
-        return new Vertex[]{
-                new Vertex().pos(x , y1, 0).uv(0f, 1f).mul(matrices),
-                new Vertex().pos(x , y , 0).uv(0f, 0f).mul(matrices),
-                new Vertex().pos(x1, y , 0).uv(1f, 0f).mul(matrices),
-                new Vertex().pos(x1, y1, 0).uv(1f, 1f).mul(matrices),
-        };
-    }
-
     public static Vertex[] circle(MatrixStack matrices, float x, float y, float radius, int sides, int color) {
         return circle(matrices, x, y, radius, 1f, sides, color);
     }
@@ -258,15 +246,39 @@ public class GeometryHelper {
     }
 
     public static Vertex[] rectangle(MatrixStack matrices, float x0, float y0, float x1, float y1, float z, int color) {
-        return rectangle(matrices, x0, y0, x1, y1, z, color, color, color, color);
+        return new Vertex[]{
+                new Vertex().pos(x0, y1, z).uv(0f, 1f).color(color).mul(matrices),
+                new Vertex().pos(x1, y1, z).uv(1f, 1f).color(color).mul(matrices),
+                new Vertex().pos(x1, y0, z).uv(1f, 0f).color(color).mul(matrices),
+                new Vertex().pos(x0, y0, z).uv(0f, 0f).color(color).mul(matrices),
+        };
     }
 
-    public static Vertex[] rectangle(MatrixStack matrices, float x0, float y0, float x1, float y1, float z, int topLeftColor, int topRightColor, int bottomLeftColor, int bottomRightColor) {
+    public static Vertex[] invRectangle(MatrixStack matrices, float x0, float y0, float x1, float y1, float z, int color) {
         return new Vertex[]{
-                new Vertex().pos(x0, y1, z).color(bottomLeftColor).mul(matrices),
-                new Vertex().pos(x1, y1, z).color(bottomRightColor).mul(matrices),
-                new Vertex().pos(x1, y0, z).color(topRightColor).mul(matrices),
-                new Vertex().pos(x0, y0, z).color(topLeftColor).mul(matrices),
+                new Vertex().pos(x0, y1, z).uv(0f, 1f).color(color).mul(matrices),
+                new Vertex().pos(x0, y0, z).uv(0f, 0f).color(color).mul(matrices),
+                new Vertex().pos(x1, y0, z).uv(1f, 0f).color(color).mul(matrices),
+                new Vertex().pos(x1, y1, z).uv(1f, 1f).color(color).mul(matrices),
+        };
+    }
+
+
+    public static Vertex[] triangle(MatrixStack matrices, float x0, float y0, float x1, float y1, float z, int color) {
+        float x = (x0 + x1) * 0.5f;
+        return new Vertex[]{
+                new Vertex().pos(x0, y0, z).uv(0f, 0f).color(color).mul(matrices),
+                new Vertex().pos(x, y1, z).uv(0.5f, 1f).color(color).mul(matrices),
+                new Vertex().pos(x1, y0, z).uv(1f, 0f).color(color).mul(matrices),
+        };
+    }
+
+    public static Vertex[] invTriangle(MatrixStack matrices, float x0, float y0, float x1, float y1, float z, int color) {
+        float x = (x0 + x1) * 0.5f;
+        return new Vertex[]{
+                new Vertex().pos(x1, y0, z).uv(1f, 0f).color(color).mul(matrices),
+                new Vertex().pos(x, y1, z).uv(0.5f, 1f).color(color).mul(matrices),
+                new Vertex().pos(x0, y0, z).uv(0f, 0f).color(color).mul(matrices),
         };
     }
 

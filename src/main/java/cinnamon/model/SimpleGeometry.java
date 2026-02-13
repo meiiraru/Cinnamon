@@ -106,7 +106,9 @@ public class SimpleGeometry {
 
 
     public static final SimpleGeometry
-            QUAD = of(unwarp(new Vertex[][]{GeometryHelper.invQuad(Client.getInstance().matrices, -1f, -1f, 2f, 2f)}),
+            QUAD = of(unwarp(new Vertex[][]{GeometryHelper.invRectangle(Client.getInstance().matrices, -1f, -1f, 1f, 1f, 0f, 0xFFFFFFFF)}),
+                    Attributes.POS_XY, Attributes.UV),
+            TRIANGLE = of(unwarp(new Vertex[][]{GeometryHelper.invTriangle(Client.getInstance().matrices, -1f, -1f, 1f, 1f, 0f, 0xFFFFFFFF)}),
                     Attributes.POS_XY, Attributes.UV),
             CUBE = of(unwarp(GeometryHelper.box(Client.getInstance().matrices, -1f, -1f, -1f, 1f, 1f, 1f, 0)),
                     Attributes.POS, Attributes.NORMAL, Attributes.UV),

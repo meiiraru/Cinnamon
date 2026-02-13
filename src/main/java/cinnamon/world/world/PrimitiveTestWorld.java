@@ -90,7 +90,7 @@ public class PrimitiveTestWorld extends WorldClient {
             carpet.getCollisionMask().setExcludeMask(0, true);
 
             //lamp
-            addLight(new Spotlight().angle(40, 45).falloff(roomSize).pos(width / 2f, height - 0.5f, z + cz).direction(0.75f, -1, 0).color(Colors.WHITE.argb).intensity(2f));
+            addLight(new Spotlight().angle(40, 45).falloff(width / 4f).pos(width / 2f, height - 0.5f, z + cz).direction(0.75f, -1, 0).color(Colors.WHITE.argb).intensity(2f));
         }
 
         //add each primitive geometry
@@ -173,6 +173,8 @@ public class PrimitiveTestWorld extends WorldClient {
                 float f = dist < 10f ? (1f - (dist / 10f)) * 3f : 0f;
                 light.intensity(f);
                 light.glareIntensity(f);
+                if (light instanceof Spotlight spot)
+                    spot.beamStrength(f);
             }
         }
     }
