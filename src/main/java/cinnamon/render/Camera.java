@@ -15,7 +15,7 @@ import static org.lwjgl.opengl.GL11.glColorMask;
 public class Camera {
 
     public static float
-            NEAR_PLANE = 0.1f,
+            NEAR_PLANE = 0.05f,
             FAR_PLANE = 1000f;
 
     private float fov = 90f;
@@ -64,11 +64,11 @@ public class Camera {
 
         //third person
         if (mode == 1)
-            move(0f, 0f, Math.max(entity.getEyeHeight(), 1f) * 3f);
+            move(0f, 0f, Math.max(entity.getEyeHeight(), 1f) * 4f);
         //third person front
         else if (mode == 2) {
             setRot(-rot.x, rot.y + 180, 0f);
-            move(0f, 0f, Math.max(entity.getEyeHeight(), 1f) * 3f);
+            move(0f, 0f, Math.max(entity.getEyeHeight(), 1f) * 4f);
         }
     }
 
@@ -89,20 +89,18 @@ public class Camera {
 
     public void move(float x, float y, float z) {
         Vector3f move = new Vector3f(x, y, z).rotate(rotation);
-        float dist = getMaxZoom(move);
+        float dist = getClipDistance(move);
         move.normalize().mul(dist);
         setPos(pos.x + move.x, pos.y + move.y, pos.z + move.z);
     }
 
-    public float getMaxZoom(Vector3f direction) {
+    public float getClipDistance(Vector3f direction) {
         float distance = direction.length();
         if (entity == null || distance <= 0)
             return distance;
 
         //calculate frustum dimensions at near plane
-        float h = NEAR_PLANE * Math.tan(Math.toRadians(fov * 0.5f));
-        float w = h * aspectRatio;
-        float d = NEAR_PLANE;
+        float s = NEAR_PLANE * 2f;
 
         Vector3f rayStart = new Vector3f();
         Vector3f offset = new Vector3f();
@@ -111,9 +109,9 @@ public class Camera {
 
         //cast 8 rays from the camera corner offsets
         for (int i = 0; i < 8; i++) {
-            float ox = ((i & 1) * 2 - 1) * w;
-            float oy = ((i >> 1 & 1) * 2 - 1) * h;
-            float oz = ((i >> 2 & 1) * 2 - 1) * d;
+            float ox = ((i & 1) * 2 - 1) * s;
+            float oy = ((i >> 1 & 1) * 2 - 1) * s;
+            float oz = ((i >> 2 & 1) * 2 - 1) * s;
 
             //rotate offset to camera space
             offset.set(ox, oy, oz).rotate(rotation);
@@ -126,7 +124,7 @@ public class Camera {
 
             if (hit != null) {
                 float hitDist = hit.collision().near() * distance;
-                if (hitDist >= 0 && hitDist < maxDist)
+                if (hitDist < maxDist)
                     maxDist = hitDist;
             }
         }
