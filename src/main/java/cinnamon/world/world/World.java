@@ -25,6 +25,10 @@ public abstract class World {
 
     protected final Queue<Runnable> scheduledTicks = new LinkedList<>();
 
+    public void scheduleTick(Runnable task) {
+        scheduledTicks.add(task);
+    }
+
     protected final TerrainManager terrainManager = new OctreeTerrain(new AABB().inflate(16));
     protected final Map<UUID, Entity> entities = new HashMap<>();
 

@@ -82,6 +82,9 @@ dependencies {
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
     }
     api("com.google.code.gson:gson:$gsonVersion")
+
+    //lua scripting
+    api("org.luaj:luaj-jse:3.0.1")
 }
 
 tasks.register<Jar>("sourcesJar") {
