@@ -2,13 +2,15 @@ package cinnamon.commands;
 
 import cinnamon.logger.Logger;
 import cinnamon.registry.CommandRegistry;
+import cinnamon.text.Text;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Pair;
 import cinnamon.utils.Trie;
 import cinnamon.world.entity.Entity;
-import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+
+import java.util.UUID;
 
 public class CommandParser {
 
@@ -23,10 +25,10 @@ public class CommandParser {
         }
     }
 
-    public static void parseCommand(Entity source, String input) {
+    public static Text parseCommand(Entity source, String input) {
         String[] parts = input.trim().split("\\s+");
         if (parts.length == 0) {
-            return;
+            return Text.of("Unknown command");
         }
 
         String commandName = parts[0].toLowerCase();
@@ -35,75 +37,76 @@ public class CommandParser {
 
         Command command = commandTrie.get(commandName);
         if (command != null)
-            command.execute(source, args);
+            return command.execute(source, args);
+
+        return Text.of("Unknown command: " + commandName);
     }
 
 
     // -- helpers for parsing common arguments -- //
 
 
-    static float parseFloat(String arg) throws NumberFormatException {
+    static float parseRelativeFloat(String arg) throws NumberFormatException {
         return arg.length() > 1 ? Float.parseFloat(arg.substring(1)) : 0f;
     }
 
-    static void parseVec2(String[] args, int i, Vector2f out) throws NumberFormatException {
-        out.x = parseFloat(args[i]);
-        out.y = parseFloat(args[i + 1]);
+    static float parseRelative(String number, float relativeTo) throws NumberFormatException {
+        if (number.startsWith("~")) {
+            return parseRelativeFloat(number) + relativeTo;
+        } else {
+            return Float.parseFloat(number);
+        }
     }
 
-    static void parseVec3(String[] args, int i, Vector3f out) throws NumberFormatException {
-        out.x = parseFloat(args[i]);
-        out.y = parseFloat(args[i + 1]);
-        out.z = parseFloat(args[i + 2]);
-    }
-
-    static Pair<Vector3f, Integer> parseCoordinate(Entity source, String[] args, int i) throws NumberFormatException {
+    static Pair<Vector3f, Integer> parseCoordinate(Entity source, String[] args, int i) {
         if (i + 2 >= args.length)
             return Pair.of(null, 0);
 
-        Vector3f target = new Vector3f();
+        int index = 0;
+        Vector3f result = new Vector3f();
+        Vector3f relativePos = source.getPos();
 
-        //relative directional position
-        if (args[i].startsWith("^") && args[i + 1].startsWith("^") && args[i + 2].startsWith("^")) {
-            parseVec3(args, i, target);
+        try {
+            //check for directional coordinates
+            if (args[i].startsWith("^") && args[i + 1].startsWith("^") && args[i + 2].startsWith("^")) {
+                result.set(
+                        parseRelativeFloat(args[i + index++]),
+                        parseRelativeFloat(args[i + index++]),
+                        parseRelativeFloat(args[i + index++])
+                );
+                result.rotate(Maths.rotToQuat(source.getRot()));
+                result.add(relativePos);
+            }
 
-            Quaternionf relativeRot = Maths.rotToQuat(source.getRot());
-            target.rotate(relativeRot);
-            target.add(source.getPos());
+            //otherwise, parse as normal coordinates
+            else {
+                for (; index < 3; index++)
+                    result.setComponent(index, parseRelative(args[i + index], relativePos.get(index)));
+            }
 
-            return Pair.of(target, 3);
+            return Pair.of(result, index);
+        } catch (Exception e) {
+            LOGGER.error("Failed to parse coordinate", e);
+            return Pair.of(null, -++index);
         }
-
-        //relative position
-        if (args[i].startsWith("~") && args[i + 1].startsWith("~") && args[i + 2].startsWith("~")) {
-            parseVec3(args, i, target);
-            target.add(source.getPos());
-            return Pair.of(target, 3);
-        }
-
-        //absolute position
-        target.x = Float.parseFloat(args[i]);
-        target.y = Float.parseFloat(args[i + 1]);
-        target.z = Float.parseFloat(args[i + 2]);
-        return Pair.of(target, 3);
     }
 
-    static Pair<Vector2f, Integer> parseRotation(Entity source, String[] args, int i) throws NumberFormatException {
+    static Pair<Vector2f, Integer> parseRotation(Entity source, String[] args, int i) {
         if (i + 1 >= args.length)
             return Pair.of(null, 0);
 
-        Vector2f targetRot = new Vector2f();
+        int index = 0;
+        Vector2f result = new Vector2f();
+        Vector2f relativeRot = source.getRot();
 
-        //relative rotation
-        if (args[i].startsWith("~") && args[i + 1].startsWith("~")) {
-            parseVec2(args, i, targetRot);
-            targetRot.add(source.getRot());
-            return Pair.of(targetRot, 2);
+        try {
+            for (; index < 2; index++)
+                result.setComponent(index, parseRelative(args[i + index], relativeRot.get(index)));
+
+            return Pair.of(result, index);
+        } catch (Exception e) {
+            LOGGER.error("Failed to parse rotation", e);
+            return Pair.of(null, -++index);
         }
-
-        //absolute rotation
-        targetRot.x = Float.parseFloat(args[i]);
-        targetRot.y = Float.parseFloat(args[i + 1]);
-        return Pair.of(targetRot, 2);
     }
 }

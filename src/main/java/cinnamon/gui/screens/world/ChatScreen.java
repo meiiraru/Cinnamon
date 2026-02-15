@@ -15,6 +15,7 @@ import cinnamon.utils.UIHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import static cinnamon.Client.LOGGER;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class ChatScreen extends Screen {
@@ -85,13 +86,14 @@ public class ChatScreen extends Screen {
                     if (!s.isBlank()) {
                         //try to send a command
                         if (s.startsWith("/"))
-                            CommandParser.parseCommand(client.world.player, s.substring(1));
+                            addMessage(CommandParser.parseCommand(client.world.player, s.substring(1)));
                         //otherwise send as a chat message
                         else
                             addMessage(s);
 
                         //store the message
-                        sentMessages.add(s);
+                        if (sentMessages.isEmpty() || !sentMessages.getLast().equals(s))
+                            sentMessages.add(s);
                         return true;
                     }
                 }
@@ -153,6 +155,7 @@ public class ChatScreen extends Screen {
     }
 
     public void addMessage(Text msg) {
+        LOGGER.info("[CHAT] %s", msg.asString());
         messages.add(new Message(client.ticks, msg));
     }
 
