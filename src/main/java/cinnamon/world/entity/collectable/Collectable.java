@@ -1,10 +1,9 @@
 package cinnamon.world.entity.collectable;
 
 import cinnamon.Client;
-import cinnamon.model.GeometryHelper;
 import cinnamon.render.Camera;
+import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionResolver;
@@ -41,8 +40,7 @@ public abstract class Collectable extends PhysEntity {
     public void renderDebugHitbox(MatrixStack matrices, float delta) {
         super.renderDebugHitbox(matrices, delta);
         //entity bounding box
-        Vector3f min = entityAABB.getMin(), max = entityAABB.getMax();
-        VertexConsumer.LINES.consume(GeometryHelper.box(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFF00FF00));
+        DebugRenderer.renderAABB(matrices, entityAABB, 0xFF00FF00);
     }
 
     @Override

@@ -1,11 +1,9 @@
 package cinnamon.world.particle;
 
-import cinnamon.model.GeometryHelper;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.Camera;
+import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.batch.VertexConsumer;
-import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.world.WorldObject;
 import org.joml.Vector3f;
@@ -141,9 +139,6 @@ public abstract class Particle extends WorldObject {
     public abstract ParticlesRegistry getType();
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {
-        AABB aabb = getAABB();
-        Vector3f min = aabb.getMin();
-        Vector3f max = aabb.getMax();
-        VertexConsumer.LINES.consume(GeometryHelper.box(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFFFFFFFF));
+        DebugRenderer.renderAABB(matrices, getAABB(), 0xFFFFFFFF);
     }
 }

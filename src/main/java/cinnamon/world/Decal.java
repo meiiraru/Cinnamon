@@ -1,11 +1,9 @@
 package cinnamon.world;
 
-import cinnamon.gui.DebugScreen;
-import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelTransform;
 import cinnamon.render.Camera;
+import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
 import org.joml.Matrix4f;
@@ -32,14 +30,13 @@ public class Decal {
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {
         //aabb area
-        AABB aabb = getAABB();
-        VertexConsumer.LINES.consume(GeometryHelper.box(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFFFF));
+        DebugRenderer.renderAABB(matrices, getAABB(), 0xFFFFFFFF);
 
         //transform box
         matrices.pushMatrix();
         getTransform().applyTransform(matrices);
-        VertexConsumer.LINES.consume(GeometryHelper.box(matrices, -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0xFFFF72AD));
-        DebugScreen.renderDebugArrow(matrices, 0, 0, 1, 1f, 0xFF0000FF);
+        DebugRenderer.renderAABB(matrices, new AABB(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f), 0xFFFF72AD);
+        DebugRenderer.renderArrow(matrices, 0, 0, 1, 1f, 0xFF0000FF);
         matrices.popMatrix();
     }
 

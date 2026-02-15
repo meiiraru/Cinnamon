@@ -185,9 +185,9 @@ public class Frustum {
         Vector3f[] corners = new Vector3f[8];
         int i = 0;
 
-        for (int x = -1; x <= 1; x += 2) {
+        for (int z = -1; z <= 1; z += 2) {
             for (int y = -1; y <= 1; y += 2) {
-                for (int z = -1; z <= 1; z += 2) {
+                for (int x = -1; x <= 1; x += 2) {
                     temp.set(x, y, z, 1f).mul(inv);
                     corners[i++] = new Vector3f(temp.x / temp.w, temp.y / temp.w, temp.z / temp.w);
                 }

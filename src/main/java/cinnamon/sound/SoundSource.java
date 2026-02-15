@@ -81,18 +81,20 @@ public class SoundSource extends SoundInstance {
 
     @Override
     public boolean isStopped() {
-        return isRemoved() || alGetSourcei(source, AL_SOURCE_STATE) == AL_STOPPED;
+        return !isRemoved() && alGetSourcei(source, AL_SOURCE_STATE) == AL_STOPPED;
     }
 
     @Override
-    public SoundSource pos(Vector3f pos) {
+    public SoundSource pos(float x, float y, float z) {
+        super.pos(x, y, z);
         if (!isRemoved())
-            alSource3f(source, AL_POSITION, pos.x, pos.y, pos.z);
+            alSource3f(source, AL_POSITION, x, y, z);
         return this;
     }
 
     @Override
     public SoundSource pitch(float pitch) {
+        super.pitch(pitch);
         if (!isRemoved())
             alSourcef(source, AL_PITCH, pitch);
         return this;
@@ -100,6 +102,7 @@ public class SoundSource extends SoundInstance {
 
     @Override
     public SoundSource loop(boolean loop) {
+        super.loop(loop);
         if (!isRemoved())
             alSourcei(source, AL_LOOPING, loop ? AL_TRUE : AL_FALSE);
         return this;
@@ -125,6 +128,7 @@ public class SoundSource extends SoundInstance {
 
     @Override
     public SoundSource distance(float distance) {
+        super.distance(distance);
         if (!isRemoved())
             alSourcef(source, AL_REFERENCE_DISTANCE, distance);
         return this;
@@ -132,6 +136,7 @@ public class SoundSource extends SoundInstance {
 
     @Override
     public SoundSource maxDistance(float maxDistance) {
+        super.maxDistance(maxDistance);
         if (!isRemoved())
             alSourcef(source, AL_MAX_DISTANCE, maxDistance);
         return this;

@@ -1,9 +1,6 @@
 package cinnamon.world.light;
 
 import cinnamon.model.GeometryHelper;
-import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
-import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
 import org.joml.Matrix4f;
 
@@ -27,21 +24,6 @@ public class PointLight extends Light {
     @Override
     public void copyTransform(Matrix4f matrix) {
         matrix.translate(pos).scale(falloffEnd);
-    }
-
-    @Override
-    public void renderDebug(Camera camera, MatrixStack matrices) {
-        super.renderDebug(camera, matrices);
-        renderDebugMesh(matrices);
-    }
-
-    protected void renderDebugMesh(MatrixStack matrices) {
-        matrices.pushMatrix();
-        matrices.translate(pos);
-        matrices.scale(falloffEnd);
-        VertexConsumer.LINES.consume(GeometryHelper.sphere(matrices, 0, 0, 0, 1f, 12, getColor() | 0xFF000000));
-
-        matrices.popMatrix();
     }
 
     @Override

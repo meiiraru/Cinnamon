@@ -1,15 +1,9 @@
 package cinnamon.world.light;
 
-import cinnamon.gui.DebugScreen;
-import cinnamon.model.GeometryHelper;
-import cinnamon.model.Vertex;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
-import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
-import cinnamon.utils.Rotation;
 import cinnamon.world.Mask;
 import org.joml.Math;
 import org.joml.Matrix4f;
@@ -19,10 +13,7 @@ import java.util.UUID;
 
 public abstract class Light {
 
-    public static final Resource
-        LAMP = new Resource("textures/environment/light/lamp.png"),
-        LAMP_OVERLAY = new Resource("textures/environment/light/lamp_overlay.png"),
-        GLARE = new Resource("textures/environment/light/glare.png");
+    public static final Resource GLARE = new Resource("textures/environment/light/glare.png");
 
     protected final Vector3f
             pos = new Vector3f(),
@@ -89,30 +80,6 @@ public abstract class Light {
 
     protected float getDirFallbackAngle() {
         return 0f;
-    }
-
-    public void renderDebug(Camera camera, MatrixStack matrices) {
-        if (camera.getPos().distanceSquared(pos) <= 0.1f)
-            return;
-
-        matrices.pushMatrix();
-        matrices.translate(pos);
-
-        int c = color | 0xFF000000;
-        if (getType() != Type.POINT) //point lights have no direction
-            DebugScreen.renderDebugArrow(matrices, dir, 0.5f, c);
-
-        camera.billboard(matrices);
-        matrices.rotate(Rotation.Z.rotationDeg(180f));
-
-        Vertex[] v = GeometryHelper.quad(matrices, -0.25f, -0.25f, 0.5f, 0.5f);
-        VertexConsumer.MAIN.consume(v, LAMP);
-
-        for (Vertex vertex : v)
-            vertex.color(c);
-        VertexConsumer.MAIN.consume(v, LAMP_OVERLAY);
-
-        matrices.popMatrix();
     }
 
     public Vector3f getPos() {

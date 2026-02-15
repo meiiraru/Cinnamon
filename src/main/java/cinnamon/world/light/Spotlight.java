@@ -1,18 +1,14 @@
 package cinnamon.world.light;
 
-import cinnamon.model.GeometryHelper;
-import cinnamon.render.MatrixStack;
-import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.Maths;
-import cinnamon.utils.Rotation;
 import org.joml.Math;
 import org.joml.Matrix4f;
 
 public class Spotlight extends PointLight {
 
     private float innerAngle, outerAngle;
-    private float tanOuter;
+    protected float cosInner, cosOuter, tanOuter;
     private float beamStrength = 1f;
 
     public Spotlight() {
@@ -24,8 +20,8 @@ public class Spotlight extends PointLight {
     @Override
     protected void pushToShader(Shader shader, String prefix) {
         super.pushToShader(shader, prefix);
-        shader.setFloat(prefix + "innerAngle", innerAngle);
-        shader.setFloat(prefix + "outerAngle", outerAngle);
+        shader.setFloat(prefix + "innerAngle", cosInner);
+        shader.setFloat(prefix + "outerAngle", cosOuter);
     }
 
     @Override
@@ -48,23 +44,6 @@ public class Spotlight extends PointLight {
     }
 
     @Override
-    protected void renderDebugMesh(MatrixStack matrices) {
-        float height = getFalloffEnd();
-        float radius = height * tanOuter;
-
-        matrices.pushMatrix();
-
-        matrices
-                .translate(pos)
-                .rotate(Maths.dirToQuat(dir))
-                .rotate(Rotation.X.rotation(-Math.PI_OVER_2_f))
-                .scale(radius, height, radius);
-        VertexConsumer.LINES.consume(GeometryHelper.cone(matrices, 0, -1, 0, 1f, 1f, 12, getColor() | 0xFF000000));
-
-        matrices.popMatrix();
-    }
-
-    @Override
     public Type getType() {
         return Type.SPOT;
     }
@@ -74,20 +53,24 @@ public class Spotlight extends PointLight {
     }
 
     public Spotlight angle(float innerAngle, float outerAngle) {
+        this.innerAngle = innerAngle;
+        this.outerAngle = outerAngle;
+
         float radiOuter = Math.toRadians(outerAngle);
-        this.innerAngle = Math.cos(Math.toRadians(innerAngle));
-        this.outerAngle = Math.cos(radiOuter);
-        this.tanOuter   = Math.tan(radiOuter);
+        this.cosInner = Math.cos(Math.toRadians(innerAngle));
+        this.cosOuter = Math.cos(radiOuter);
+        this.tanOuter = Math.tan(radiOuter);
         this.setFOV(radiOuter * 2f);
+
         return this;
     }
 
     public float getInnerAngle() {
-        return Math.toDegrees(Math.acos(innerAngle));
+        return innerAngle;
     }
 
     public float getOuterAngle() {
-        return Math.toDegrees(Math.acos(outerAngle));
+        return outerAngle;
     }
 
     public Spotlight beamStrength(float beamStrength) {

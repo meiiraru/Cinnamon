@@ -16,6 +16,7 @@ import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
+import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WaterRenderer;
 import cinnamon.render.WorldRenderer;
@@ -458,6 +459,12 @@ public class WorldClient extends World {
         if (DebugScreen.isTabOpen(DebugScreen.Tab.WORLD, DebugScreen.Tab.TERRAIN, DebugScreen.Tab.ENTITIES))
             renderHitboxes(camera, matrices, delta);
 
+        //sounds
+        if (DebugScreen.isTabOpen(DebugScreen.Tab.WORLD, DebugScreen.Tab.SOUND)) {
+            for (SoundInstance s : SoundManager.getSounds())
+                DebugRenderer.renderSound(s, camera, matrices);
+        }
+
         if (cameraEntity instanceof Player p && p.getAbilities().canBuild())
             renderTargetedBlock(p, matrices, delta);
 
@@ -475,7 +482,7 @@ public class WorldClient extends World {
             //lights
             for (Light light : lights)
                 if (light.shouldRender(camera))
-                    light.renderDebug(camera, matrices);
+                    DebugRenderer.renderLight(light, camera, matrices);
 
             //particles
             for (Particle p : getParticles(area))
@@ -488,11 +495,8 @@ public class WorldClient extends World {
 
         if (DebugScreen.isTabOpen(DebugScreen.Tab.TERRAIN)) {
             //octree
-            for (AABB aabb : terrainManager.getBounds()) {
-                Vector3f min = aabb.getMin();
-                Vector3f max = aabb.getMax();
-                VertexConsumer.LINES.consume(GeometryHelper.box(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFF00FF00));
-            }
+            for (AABB aabb : terrainManager.getBounds())
+                DebugRenderer.renderAABB(matrices, aabb, 0xFF00FF00);
 
             //terrain
             for (Terrain t : terrainManager.query(area))
@@ -505,7 +509,7 @@ public class WorldClient extends World {
                 if (hit.get() != null && pos.equals(hit.get().getPos()))
                     pos.add(hit.collision().normal());
 
-                VertexConsumer.LINES.consume(GeometryHelper.box(matrices, pos.x, pos.y, pos.z, pos.x + 1, pos.y + 1, pos.z + 1, 0xFFFF0000));
+                DebugRenderer.renderAABB(matrices, new AABB(pos, pos).expand(1f, 1f, 1f), 0xFFFF0000);
             }
         }
 
@@ -519,22 +523,22 @@ public class WorldClient extends World {
     }
 
     protected static void renderHitResults(Entity cameraEntity, MatrixStack matrices) {
-        float f = 0.025f;
+        float f = 0.03f;
         float r = cameraEntity.getPickRange();
 
         Hit<Terrain> terrain = cameraEntity.getLookingTerrain(r);
         if (terrain != null) {
             Vector3f pos = terrain.collision().pos();
-            VertexConsumer.MAIN.consume(GeometryHelper.box(matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF));
+            DebugRenderer.renderPoint(matrices, pos, f, 0xFF00FFFF);
         }
 
         Hit<Entity> entity = cameraEntity.getLookingEntity(r);
         if (entity != null) {
             AABB aabb = entity.obj().getAABB();
-            VertexConsumer.LINES.consume(GeometryHelper.box(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF00));
+            DebugRenderer.renderAABB(matrices, aabb, 0xFFFFFF00);
 
             Vector3f pos = entity.collision().pos();
-            VertexConsumer.MAIN.consume(GeometryHelper.box(matrices, pos.x - f, pos.y - f, pos.z - f, pos.x + f, pos.y + f, pos.z + f, 0xFF00FFFF));
+            DebugRenderer.renderPoint(matrices, pos, f, 0xFF00FFFF);
         }
     }
 
@@ -555,7 +559,7 @@ public class WorldClient extends World {
         int alpha = (int) Math.lerp(0x32, 0xFF, (Math.sin((Client.getInstance().ticks + delta) * 0.15f) + 1f) * 0.5f);
 
         for (AABB aabb : terrain.obj().getPreciseAABB())
-            VertexConsumer.LINES.consume(GeometryHelper.box(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), 0xFFFFFF + (alpha << 24)));
+            DebugRenderer.renderAABB(matrices, aabb, 0xFFFFFF + (alpha << 24));
     }
 
     public Sky getSky() {

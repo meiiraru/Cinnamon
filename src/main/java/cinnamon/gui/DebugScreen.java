@@ -7,12 +7,12 @@ import cinnamon.logger.LogOutput;
 import cinnamon.logger.LoggerConfig;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.Camera;
+import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.PostProcess;
-import cinnamon.render.texture.Texture;
 import cinnamon.settings.Settings;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundManager;
@@ -81,7 +81,7 @@ public class DebugScreen {
     public static void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
 
-        //renderDebugTexture(matrices, WaterRenderer.getNoiseTexture(), false);
+        //DebugRenderer.renderTextureOnScreen(matrices, SSAORenderer.getTexture(), false);
 
         boolean fpsOnly = !active && Settings.showFPS.get() && (c.world == null || !c.hideHUD);
         if (!fpsOnly && !active)
@@ -192,9 +192,9 @@ public class DebugScreen {
         matrices.rotate(camera.getRot().invert(new Quaternionf()));
 
         float invLen = len / scale;
-        renderDebugArrow(matrices, 1, 0, 0, invLen, 0xFFFF0000);
-        renderDebugArrow(matrices, 0, 1, 0, invLen, 0xFF00FF00);
-        renderDebugArrow(matrices, 0, 0, 1, invLen, 0xFF0000FF);
+        DebugRenderer.renderArrow(matrices, 1, 0, 0, invLen, 0xFFFF0000);
+        DebugRenderer.renderArrow(matrices, 0, 1, 0, invLen, 0xFF00FF00);
+        DebugRenderer.renderArrow(matrices, 0, 0, 1, invLen, 0xFF0000FF);
 
         matrices.popMatrix();
     }
@@ -287,41 +287,6 @@ public class DebugScreen {
 
             y += h + 8 + 4; //height + border + spacing
         }
-    }
-
-    public static void renderDebugTexture(MatrixStack matrices, int texture, boolean overlay) {
-        Client c = Client.getInstance();
-
-        //debug quad
-        float w = c.window.getGUIWidth() * (overlay ? 1f : 0.3f);
-        float h = overlay ? c.window.getGUIHeight() : w;
-        float x = overlay ? 0 : c.window.getGUIWidth() - w - 4;
-        float y = overlay ? 0 : 4;
-
-        if (!overlay) {
-            int texWidth = Texture.getWidth(texture);
-            int texHeight = Texture.getHeight(texture);
-            float aspect = (float) texWidth / (float) texHeight;
-            h = w / aspect;
-        }
-
-        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, x, y, w, h, 0, 1, 1, -1, 1, 1), texture);
-        VertexConsumer.MAIN.finishBatch(c.camera);
-    }
-
-    public static void renderDebugArrow(MatrixStack matrices, Vector3f dir, float len, int color) {
-        renderDebugArrow(matrices, dir.x, dir.y, dir.z, len, color);
-    }
-
-    public static void renderDebugArrow(MatrixStack matrices, float dirX, float dirY, float dirZ, float len, int color) {
-        matrices.pushMatrix();
-        matrices.rotate(Maths.dirToQuat(dirX, dirY, dirZ));
-        VertexConsumer.LINES.consume(GeometryHelper.line(matrices, 0f, 0f, 0f, 0f, 0f, len, 0.001f, color));
-
-        matrices.translate(0f, 0f, len);
-        matrices.rotate(Rotation.X.rotationDeg(90f));
-        VertexConsumer.LINES.consume(GeometryHelper.cone(matrices, 0f, 0f, 0f, 0.05f, 0.025f, 5, 1f, false, color));
-        matrices.popMatrix();
     }
 
     private static String getTargetedObjString(Hit<? extends WorldObject> hit, float range) {

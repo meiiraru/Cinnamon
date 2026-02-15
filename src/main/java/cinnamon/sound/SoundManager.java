@@ -1,6 +1,5 @@
 package cinnamon.sound;
 
-import cinnamon.Client;
 import cinnamon.logger.Logger;
 import cinnamon.render.Camera;
 import cinnamon.utils.Maths;
@@ -9,6 +8,7 @@ import org.joml.Vector3f;
 import org.lwjgl.openal.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -139,13 +139,14 @@ public class SoundManager {
 
         checkALError();
 
-        //free stopped sounds
-        for (SoundInstance sound : sounds)
-            if (sound.isStopped())
+        //free and remove stopped sounds
+        for (Iterator<SoundInstance> iterator = sounds.iterator(); iterator.hasNext(); ) {
+            SoundInstance sound = iterator.next();
+            if (sound.shouldRemoveOnStop() && sound.isStopped())
                 sound.free();
-
-        //remove sounds
-        sounds.removeIf(SoundInstance::isRemoved);
+            if (sound.isRemoved())
+                iterator.remove();
+        }
 
         updateSoundPosition(camera);
     }
@@ -251,6 +252,19 @@ public class SoundManager {
             if (categoryPredicate.test(sound.getCategory()))
                 sound.play();
         }
+    }
+
+    public static List<SoundInstance> getSounds() {
+        return getSounds(category -> true);
+    }
+
+    public static List<SoundInstance> getSounds(Predicate<SoundCategory> categoryPredicate) {
+        List<SoundInstance> soundList = new ArrayList<>();
+        for (SoundInstance sound : sounds) {
+            if (categoryPredicate.test(sound.getCategory()))
+                soundList.add(sound);
+        }
+        return soundList;
     }
 
     public static int getSoundCount() {

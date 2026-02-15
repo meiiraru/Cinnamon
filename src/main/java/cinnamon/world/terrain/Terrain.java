@@ -1,15 +1,14 @@
 package cinnamon.world.terrain;
 
 import cinnamon.animation.Animation;
-import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
+import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
-import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.AnimatedObjRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.AABB;
@@ -19,7 +18,6 @@ import cinnamon.world.Mask;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.world.World;
-import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,15 +60,10 @@ public class Terrain extends WorldObject {
     }
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {
-        renderAABB(matrices, aabb, 0xFFFFFFFF);
+        DebugRenderer.renderAABB(matrices, aabb, 0xFFFFFFFF);
 
         for (AABB aabb : preciseAABB)
-            renderAABB(matrices, aabb, 0xFFFF00FF);
-    }
-
-    private static void renderAABB(MatrixStack matrices, AABB aabb, int color) {
-        Vector3f min = aabb.getMin(); Vector3f max = aabb.getMax();
-        VertexConsumer.LINES.consume(GeometryHelper.box(matrices, min.x, min.y, min.z, max.x, max.y, max.z, color));
+            DebugRenderer.renderAABB(matrices, aabb, 0xFFFF00FF);
     }
 
     protected void updateAABB() {

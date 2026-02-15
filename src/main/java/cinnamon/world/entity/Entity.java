@@ -3,10 +3,10 @@ package cinnamon.world.entity;
 import cinnamon.Client;
 import cinnamon.animation.Animation;
 import cinnamon.gui.DebugScreen;
-import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
+import cinnamon.render.DebugRenderer;
 import cinnamon.render.LightRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
@@ -144,14 +144,12 @@ public abstract class Entity extends WorldObject {
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {
         //bounding box
-        Vector3f min = aabb.getMin();
-        Vector3f max = aabb.getMax();
-        VertexConsumer.LINES.consume(GeometryHelper.box(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFFFFFFFF));
+        DebugRenderer.renderAABB(matrices, aabb, 0xFFFFFFFF);
 
         //looking dir
         matrices.pushMatrix();
         matrices.translate(getEyePos());
-        DebugScreen.renderDebugArrow(matrices, getLookDir(), 1f, 0xFF0000FF);
+        DebugRenderer.renderArrow(matrices, getLookDir(), 1f, 0xFF0000FF);
         matrices.popMatrix();
     }
 
