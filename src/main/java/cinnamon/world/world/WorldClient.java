@@ -132,13 +132,13 @@ public class WorldClient extends World {
 
     protected void tempLoad() {
         //load level
-        int r = 32;
-        TerrainGenerator.fill(this, -r, 0, -r, r, 0, r, MaterialRegistry.GRASS);
+        int l = 32;
+        TerrainGenerator.fill(this, -l, 0, -l, l, 0, l, MaterialRegistry.GRASS);
 
-        //TerrainGenerator.fill(this, -r, 1, -r, r, 1, -r, MaterialRegistry.BRICK_WALL);
-        //TerrainGenerator.fill(this, -r, 1, r, r, 1, r, MaterialRegistry.BRICK_WALL);
-        //TerrainGenerator.fill(this, -r, 1, -r, -r, 1, r, MaterialRegistry.BRICK_WALL);
-        //TerrainGenerator.fill(this, r, 1, -r, r, 1, r, MaterialRegistry.BRICK_WALL);
+        //TerrainGenerator.fill(this, -l, 1, -l,  l, 1, -l, MaterialRegistry.BRICK_WALL);
+        //TerrainGenerator.fill(this, -l, 1,  l,  l, 1,  l, MaterialRegistry.BRICK_WALL);
+        //TerrainGenerator.fill(this, -l, 1, -l, -l, 1,  l, MaterialRegistry.BRICK_WALL);
+        //TerrainGenerator.fill(this,  l, 1, -l,  l, 1,  l, MaterialRegistry.BRICK_WALL);
 
         //0, 0
         Terrain t = TerrainRegistry.BOX.getFactory().get();
@@ -177,16 +177,26 @@ public class WorldClient extends World {
         //    for (int i = 0; i < 15; i++)
         //        addLight(new PointLight().pos(-5.5f + i * 3f, 3f, -5.5f + j * 3f).color(Colors.randomRainbow().rgb));
 
-        addLight(new PointLight().pos(0.5f, 3.5f, 0.5f).color(0xFFFF44).castsShadows(true));
+        addLight(new PointLight().pos(32.5f, 3.5f, 0.5f).color(0xFFFF44).castsShadows(true));
 
-        addLight(new Spotlight().angle(60f).pos(1f, 3f, 10.0f).color(0xFF0000));
-        addLight(new Spotlight().angle(60f).pos(0.25f, 3f, 9.567f).color(0x00FF00));
-        addLight(new Spotlight().angle(60f).pos(0.25f, 3f, 10.433f).color(0x0000FF));
+        //rgb spotlights
+        TerrainGenerator.fill(this, 4, 1, 25, 9, 3, 25, MaterialRegistry.PINE_PLANKS);
+        float r = 0.75f;
+        for (int i = 0; i < 3; i++) {
+            float radi = Math.toRadians(120f) * i;
+            float x = Math.sin(radi) * r;
+            float y = Math.cos(radi) * r;
+            addLight(new Spotlight().beamStrength(3f).angle(15f).glareSize(1f).direction(0, 0, 1).pos(x + 7f, y + 2.5f, 21f).color(0xFF << (8 * i)));
+        }
 
         //entities
         Cart c = new Cart(UUID.randomUUID());
         c.setPos(10, 2, 10);
         this.addEntity(c);
+
+        Cart c2 = new Cart(UUID.randomUUID());
+        c2.setPos(10, 2, 8);
+        this.addEntity(c2);
 
         ShoppingCart s = new ShoppingCart(UUID.randomUUID());
         s.setPos(15, 2, 10);
