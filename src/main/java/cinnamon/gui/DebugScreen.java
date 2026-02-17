@@ -5,6 +5,7 @@ import cinnamon.gui.screens.MainMenu;
 import cinnamon.logger.Level;
 import cinnamon.logger.LogOutput;
 import cinnamon.logger.LoggerConfig;
+import cinnamon.messages.MessageManager;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
@@ -130,6 +131,7 @@ public class DebugScreen {
                     c.disconnect();
                     c.queueTick(() -> c.setScreen(new MainMenu()));
                 }
+                case GLFW_KEY_D -> MessageManager.clearMessages();
                 default -> {return false;}
             }
 

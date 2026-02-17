@@ -323,9 +323,13 @@ public class TextUtils {
 
     public static int getWidth(Text text) {
         List<Text> split = split(text, "\n");
+        return getWidth(split);
+    }
+
+    public static int getWidth(List<Text> texts) {
         float width = 0f;
-        Font f = text.getStyle().getGuiStyle().getFont();
-        for (Text t : split)
+        Font f = texts.getFirst().getStyle().getGuiStyle().getFont();
+        for (Text t : texts)
             width = Math.max(width, f.width(t));
 
         return (int) width;
@@ -334,6 +338,15 @@ public class TextUtils {
     public static int getHeight(Text text) {
         String[] split = text.asString().split("\n", -1);
         Font f = text.getStyle().getGuiStyle().getFont();
-        return (int) (f.lineHeight * split.length + f.lineGap * (split.length - 1));
+        return getHeight(f, split.length);
+    }
+
+    public static int getHeight(List<Text> texts) {
+        Font f = texts.getFirst().getStyle().getGuiStyle().getFont();
+        return getHeight(f, texts.size());
+    }
+
+    private static int getHeight(Font f, int lines) {
+        return (int) (f.lineHeight * lines + f.lineGap * (lines - 1));
     }
 }

@@ -18,12 +18,12 @@ public class Container extends Widget implements Tickable, GUIListener {
         super(x, y, 0, 0);
     }
 
-    protected void addWidgetAtIndex(int wi, int li, Widget w) {
-        this.widgets.add(wi, w);
-        if (w instanceof GUIListener el)
-            this.listeners.add(li, el);
-        w.setParent(this);
-        w.updateDimensions();
+    protected void addWidgetAtIndex(int widgetIndex, int listenerIndex, Widget widget) {
+        this.widgets.add(widgetIndex, widget);
+        if (widget instanceof GUIListener el)
+            this.listeners.add(listenerIndex, el);
+        widget.setParent(this);
+        widget.updateDimensions();
     }
 
     public void addWidget(Widget widget) {

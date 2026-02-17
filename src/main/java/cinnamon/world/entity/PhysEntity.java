@@ -88,7 +88,7 @@ public abstract class PhysEntity extends Entity {
 
     protected Vector3f tickTerrainCollisions(AABB aabb, Vector3f motion) {
         //early exit
-        if (motion.lengthSquared() < 0.001f)
+        if (motion.lengthSquared() < 1e-9f)
             return new Vector3f();
 
         //prepare variables
@@ -132,7 +132,7 @@ public abstract class PhysEntity extends Entity {
             resolveCollision(collision, toMove);
 
             //stop if remaining movement is too small
-            if (toMove.lengthSquared() < 0.001f) {
+            if (toMove.lengthSquared() < 1e-9f) {
                 toMove.set(0);
                 break;
             }

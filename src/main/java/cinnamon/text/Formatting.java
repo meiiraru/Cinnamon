@@ -25,7 +25,7 @@ public enum Formatting {
     BOLD('n', Style.EMPTY.bold(true)),
 
     RESET('r', Style.EMPTY),
-    HEX('x', Style.EMPTY);
+    HEX('#', Style.EMPTY);
 
     public static final char FORMATTING_CHAR = '&';
 

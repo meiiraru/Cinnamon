@@ -77,9 +77,12 @@ public class Toast {
     }
 
     private static void logToast(Toast toast) {
-        String log = toast.text.asString();
-        if (log.contains("\n"))
-            log = "\n" + log;
+        String type = toast.type.name();
+        String text = toast.text.asString();
+        if (text.contains("\n"))
+            text = "\n" + text;
+
+        String log = "[%s] %s".formatted(type, text);
 
         switch (toast.type) {
             case WARN -> LOGGER.warn(log);

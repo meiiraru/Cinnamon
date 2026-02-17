@@ -230,7 +230,11 @@ public class WidgetList extends ContainerGrid {
     }
 
     public void scrollToTop() {
-        scrollbar.setPercentage(0);
+        scrollbar.setPercentage(0f);
+    }
+
+    public void scrollToBottom() {
+        scrollbar.setPercentage(1f);
     }
 
     public boolean shouldRenderScrollbar() {

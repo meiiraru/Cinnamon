@@ -2,7 +2,9 @@ package cinnamon.commands;
 
 import cinnamon.logger.Logger;
 import cinnamon.registry.CommandRegistry;
+import cinnamon.text.Style;
 import cinnamon.text.Text;
+import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Pair;
 import cinnamon.utils.Trie;
@@ -10,11 +12,10 @@ import cinnamon.world.entity.Entity;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import java.util.UUID;
-
 public class CommandParser {
 
     public static final Logger LOGGER = new Logger(Logger.ROOT_NAMESPACE + "/command");
+    public static final Style ERROR_STYLE = Style.EMPTY.color(Colors.RED);
     private static final Trie<Command> commandTrie = new Trie<>();
 
     static {
@@ -27,9 +28,8 @@ public class CommandParser {
 
     public static Text parseCommand(Entity source, String input) {
         String[] parts = input.trim().split("\\s+");
-        if (parts.length == 0) {
-            return Text.of("Unknown command");
-        }
+        if (parts.length == 0)
+            return Text.of("Unknown command").withStyle(ERROR_STYLE);
 
         String commandName = parts[0].toLowerCase();
         String[] args = new String[parts.length - 1];
@@ -39,7 +39,7 @@ public class CommandParser {
         if (command != null)
             return command.execute(source, args);
 
-        return Text.of("Unknown command: " + commandName);
+        return Text.of("Unknown command: " + commandName).withStyle(ERROR_STYLE);
     }
 
 
