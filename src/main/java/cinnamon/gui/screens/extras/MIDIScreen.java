@@ -15,7 +15,11 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.*;
+import cinnamon.utils.Alignment;
+import cinnamon.utils.FileDialog;
+import cinnamon.utils.Pair;
+import cinnamon.utils.Resource;
+import cinnamon.utils.UIHelper;
 import org.joml.Math;
 import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFW;
@@ -54,6 +58,8 @@ public class MIDIScreen extends ParentedScreen {
         keyMap.put(76, 66); //L -> F#4
         keyMap.put(46, 67); //. -> G4
         keyMap.put(59, 68); //; -> G#4
+        keyMap.put(47, 69); /// -> A4
+        keyMap.put(39, 70); //' -> A#4
     }
 
     private CompletableFuture<Void> tasks;
@@ -534,7 +540,7 @@ public class MIDIScreen extends ParentedScreen {
             //render presses
             float d = Math.lerp(NOTE_TICK_SPEED, 0, delta);
             for (Vector2f press : new ArrayList<>(presses))
-                VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x + b, press.x + d, x + w - b, press.x + press.y + d, sharp ? Colors.PURPLE.argb : Colors.PINK.argb));
+                VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x + b, press.x + d, x + w - b, press.x + press.y + d, sharp ? 0xFFB55E5B : 0xFFD3AB7A));
 
             //render key
             matrices.pushMatrix();

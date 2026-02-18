@@ -12,27 +12,22 @@ import cinnamon.model.SimpleGeometry;
 import cinnamon.render.MaterialApplier;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.settings.Settings;
-import cinnamon.utils.Resource;
+import cinnamon.utils.CircularQueue;
 import cinnamon.utils.UIHelper;
 import cinnamon.vr.XrInput;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
-import org.joml.Math;
+
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.glDepthMask;
 
 public abstract class Screen {
-
-    protected static final Resource[] BACKGROUND = new Resource[]{
-            new Resource("textures/gui/background/background_0.png"),
-            new Resource("textures/gui/background/background_1.png"),
-            new Resource("textures/gui/background/background_2.png"),
-            new Resource("textures/gui/background/background_3.png")
-    };
 
     //main container
     protected final Container mainContainer = new Container(0, 0);
@@ -50,6 +45,9 @@ public abstract class Screen {
     protected SelectableWidget xrHovered, oldXrHovered;
     protected int xrHoverTime = 0;
     protected int xrScrollX, xrScrollY;
+
+    //background ripples
+    private static final List<Number[]> backgroundRipples = new CircularQueue<>(16);
 
 
     // -- screen functions -- //
@@ -188,14 +186,20 @@ public abstract class Screen {
 
     protected void renderBackground(MatrixStack matrices, float delta) {
         Shader oldShader = Shader.activeShader;
-        Shader s = Shaders.BACKGROUND_NOISE.getShader().use();
-        float time = (client.ticks + delta) * 0.05f;
+        Shader s = Shaders.BACKGROUND_MENU.getShader().use();
+
+        float speed = 0.05f;
+        float time = (client.ticks + delta) * speed;
         s.setFloat("time", time);
-        s.setFloat("scale", Math.sin(time * 0.5f) * 0.5f + 1f);
-        s.setColor("color1", 0x8163AB);
-        s.setColor("color2", 0xD8C6AD);
-        s.setColor("color3", 0x77B7D2);
-        s.setColor("color4", 0x5D4FB9);
+        s.setVec2("resolution", width, height);
+        s.setVec2("framebufferOffset", Framebuffer.activeFramebuffer.getX(), Framebuffer.activeFramebuffer.getY());
+
+        s.setInt("rippleCount", XrManager.isInXR() ? 0 : backgroundRipples.size());
+        for (int i = 0; i < backgroundRipples.size(); i++) {
+            Number[] ripple = backgroundRipples.get(i);
+            s.setVec2("ripplePos[" + i + "]", ripple[0].floatValue(), ripple[1].floatValue());
+            s.setFloat("rippleStart[" + i + "]", ripple[2].longValue() * speed);
+        }
 
         glDepthMask(false);
         SimpleGeometry.QUAD.render();
@@ -207,7 +211,7 @@ public abstract class Screen {
 
     protected static void renderSolidBackground(int color) {
         Shader oldShader = Shader.activeShader;
-        Shader s = Shaders.BACKGROUND.getShader().use();
+        Shader s = Shaders.BACKGROUND_COLOR.getShader().use();
         s.setColorRGBA("color", color);
 
         glDepthMask(false);
@@ -284,6 +288,9 @@ public abstract class Screen {
 
 
     public boolean mousePress(int button, int action, int mods) {
+        if (action == GLFW_PRESS)
+            backgroundRipples.add(new Number[]{client.window.mouseX, height - client.window.mouseY, client.ticks});
+
         GUIListener click = this.mainContainer.mousePress(button, action, mods);
         if (click != focused && action == GLFW_PRESS)
             focusWidget(null);
@@ -313,6 +320,18 @@ public abstract class Screen {
     }
 
     public boolean mouseMove(int x, int y) {
+        float rippleY = height - y;
+        if (backgroundRipples.isEmpty()) {
+            backgroundRipples.add(new Number[]{x, rippleY, client.ticks});
+        } else {
+            Number[] lastRipple = backgroundRipples.getLast();
+            float dx = x - lastRipple[0].floatValue();
+            float dy = rippleY - lastRipple[1].floatValue();
+            float len = 16;
+            if (dx * dx + dy * dy > len * len)
+                backgroundRipples.add(new Number[]{x, rippleY, client.ticks});
+        }
+
         xrHovered = null;
         return this.mainContainer.mouseMove(x, y) != null;
     }

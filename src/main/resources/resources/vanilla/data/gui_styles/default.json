@@ -10,10 +10,10 @@
     "text_color":          "FFFFFFFF",
     "shadow_color":        "FF161616",
     "background_color":    "44000000",
-    "accent_color":        "FFAD72FF",
+    "accent_color":        "FFD37F7A",
     "disabled_color":      "FF666666",
     "selected_text_color": "FF000000",
-    "hint_color":          "FF5B8CCC",
+    "hint_color":          "FFD37F7A",
     "disabled_hint_color": "FF404040",
     "xr_interact_color":   "FFFFFFFF"
   },

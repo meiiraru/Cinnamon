@@ -11,6 +11,7 @@ import cinnamon.render.texture.Texture;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
+import cinnamon.vr.XrManager;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 
@@ -63,6 +64,11 @@ public class MainMenu extends Screen {
         joinWorld.setActive(false);
         grid.addWidget(joinWorld);
 
+        //settings
+        Button settings = new MainButton(Text.translated("gui.main_menu.settings"), button -> client.setScreen(new SettingsScreen(this)));
+        settings.setActive(false);
+        grid.addWidget(settings);
+
         //extra stuff
         Button extras = new MainButton(Text.translated("gui.main_menu.extras"), button -> client.setScreen(new ExtrasScreen(this)));
         grid.addWidget(extras);
@@ -83,15 +89,31 @@ public class MainMenu extends Screen {
     protected void renderBackground(MatrixStack matrices, float delta) {
         renderSolidBackground(0xFFD3AB7A);
 
+        boolean xr = XrManager.isInXR();
         float d = UIHelper.getDepthOffset();
+
+        float parallaxX = (float) client.window.mouseX / client.window.scaledWidth  * 2f - 1f;
+        float parallaxY = (float) client.window.mouseY / client.window.scaledHeight * 2f - 1f;
 
         //background
         Texture bg = Texture.of(BACKGROUND);
-        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -d * 3, 0f, (float) width / bg.getWidth(), 0f, (float) height / bg.getHeight()), BACKGROUND, SMOOTH_SAMPLING);
+        float bgParallax = xr ? 0f : 10f;
+        float bgOffset = (client.ticks + delta) * 0.002f;
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices,
+                -bgParallax + bgParallax * parallaxX, -bgParallax + bgParallax * parallaxY,
+                width + bgParallax * 2f, height + bgParallax * 2f, -d * 3f,
+                bgOffset, (float) width / bg.getWidth() + bgOffset, bgOffset, (float) height / bg.getHeight() + bgOffset
+        ), BACKGROUND, SMOOTH_SAMPLING);
 
         //bottom
         Texture bottom = Texture.of(BOTTOM);
-        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, 0, height - bottom.getHeight(), width, bottom.getHeight(), -d * 2, 0f, (float) width / bottom.getWidth(), 0f, 1f), BOTTOM, SMOOTH_SAMPLING);
+        float bottomParallax = xr ? 0f : -bottom.getHeight() / 3f;
+        float uOffset = (client.ticks + delta) * 0.015f;
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices,
+                0f, -bottomParallax + bottomParallax * parallaxY + height - bottom.getHeight(),
+                width, bottom.getHeight(), -d * 2f,
+                uOffset, (float) width / bottom.getWidth() + uOffset, 0f, 1f
+        ), BOTTOM, SMOOTH_SAMPLING);
 
         //overlay
         Texture overlay = Texture.of(OVERLAY);
@@ -99,20 +121,20 @@ public class MainMenu extends Screen {
         matrices.translate(0, 0, -d);
         UIHelper.nineQuad(VertexConsumer.MAIN, matrices, OVERLAY, 0, 0, width, height, 0f, 0f, overlay.getWidth(), overlay.getHeight(), overlay.getWidth(), overlay.getHeight());
         matrices.popMatrix();
-        //VertexConsumer.GUI.consume(GeometryHelper.quad(matrices, 0, 0, width, height, -d, 0f, 1f, 0f, 1f), OVERLAY, true, false);
 
         //title
-        renderTitle(matrices, delta);
+        renderTitle(matrices, parallaxX, parallaxY, delta);
     }
 
-    protected void renderTitle(MatrixStack matrices, float delta) {
+    protected void renderTitle(MatrixStack matrices, float parallaxX, float parallaxY, float delta) {
         int width = 0;
         for (Resource title : TITLE)
             width += Texture.of(title).getWidth();
 
+        float parallax = XrManager.isInXR() ? 0f : 3f;
         float deltaTick = client.ticks + delta;
-        float x = this.width * 0.5f - width * 0.5f;
-        float y = this.height * 0.15f;
+        float x = this.width * 0.5f - width * 0.5f + parallaxX * parallax;
+        float y = this.height * 0.15f + parallaxY * parallax;
 
         for (int i = 0; i < TITLE.size(); i++) {
             Resource res = TITLE.get(i);

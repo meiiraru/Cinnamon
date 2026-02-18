@@ -57,11 +57,11 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
     }
 
     protected void updateHover(int x, int y) {
-        setHovered(active && UIHelper.isMouseOver(this, x, y));
+        setHovered(UIHelper.isMouseOver(this, x, y));
     }
 
     protected void setHovered(boolean hovered) {
-        if (hovered && XrManager.isInXR())
+        if (hovered && isActive() && XrManager.isInXR())
             UIHelper.xrWidgetHovered(this);
         this.hovered = hovered;
     }

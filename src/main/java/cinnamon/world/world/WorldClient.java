@@ -111,6 +111,7 @@ public class WorldClient extends World {
         client = Client.getInstance();
         client.setScreen(null);
         client.world = this;
+        client.hideHUD = false;
 
         //init hud
         hud.init();
