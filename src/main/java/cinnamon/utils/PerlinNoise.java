@@ -33,15 +33,15 @@ public class PerlinNoise {
         Random random = new Random(seed);
 
         //generate random gradient vectors for each grid point
-        //cells + 1 for tiling
-        float[][] gradX = new float[cells + 1][cells + 1];
-        float[][] gradY = new float[cells + 1][cells + 1];
+        int tile = cells + 1;
+        float[][] gradX = new float[tile][tile];
+        float[][] gradY = new float[tile][tile];
 
         for (int y = 0; y <= cells; y++) {
             for (int x = 0; x <= cells; x++) {
-                double angle = random.nextDouble() * Math.PI * 2;
-                gradX[y][x] = (float) Math.cos(angle);
-                gradY[y][x] = (float) Math.sin(angle);
+                float angle = random.nextFloat() * Math.PI_f * 2f;
+                gradX[y][x] = Math.cos(angle);
+                gradY[y][x] = Math.sin(angle);
             }
         }
 
@@ -87,19 +87,27 @@ public class PerlinNoise {
         float fy = y - Math.floor(y);
 
         //quintic interpolation
-        float u = fx * fx * fx * (fx * (fx * 6 - 15) + 10);
-        float v = fy * fy * fy * (fy * (fy * 6 - 15) + 10);
+        float u = quintic(fx);
+        float v = quintic(fy);
 
         //compute dot product with the gradient vectors
-        float n00 = gradX[y0][x0] * fx       + gradY[y0][x0] * fy;
-        float n10 = gradX[y0][x1] * (fx - 1) + gradY[y0][x1] * fy;
-        float n01 = gradX[y1][x0] * fx       + gradY[y1][x0] * (fy - 1);
-        float n11 = gradX[y1][x1] * (fx - 1) + gradY[y1][x1] * (fy - 1);
+        float n00 = dot(gradX[y0][x0], gradY[y0][x0], fx,        fy);
+        float n10 = dot(gradX[y0][x1], gradY[y0][x1], (fx - 1f), fy);
+        float n01 = dot(gradX[y1][x0], gradY[y1][x0], fx,        (fy - 1f));
+        float n11 = dot(gradX[y1][x1], gradY[y1][x1], (fx - 1f), (fy - 1f));
 
         //bilinear interpolation
         float nx0 = Math.lerp(n00, n10, u);
         float nx1 = Math.lerp(n01, n11, u);
         return Math.lerp(nx0, nx1, v);
+    }
+
+    public static float quintic(float t) {
+        return t * t * t * (t * (t * 6f - 15f) + 10f);
+    }
+
+    public static float dot(float gx, float gy, float x, float y) {
+        return gx * x + gy * y;
     }
 
     public void free() {

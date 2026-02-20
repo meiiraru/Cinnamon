@@ -37,13 +37,18 @@ in vec2 localPos;
 out vec4 fragColor;
 
 uniform float beamIntensity;
-uniform vec2 fadeRange = vec2(0.25f, 0.35f);
+uniform vec2 fadeRange = vec2(0.9f, 0.6f);
 uniform vec3 color;
 
 void main() {
-    float fadeWidth = max(fadeRange.x - abs(localPos.x), 0.0f);
-    float fadeHeight = max(fadeRange.y * 2.0f - (1.0f - localPos.y), 0.0f);
-    float intensity = min(fadeWidth * fadeHeight * beamIntensity, 1.0f);
+    float y = (1.0f - localPos.y) * 0.5f;
+    float x = y - abs(localPos.x);
 
-    fragColor = vec4(color, 1.0f) * intensity;
+    float edgeFade = smoothstep(0.0f, 1.0f - fadeRange.x, x);
+    float heightFade = 1.0f - smoothstep(0.0f, fadeRange.y, y);
+
+    float intensity = edgeFade * heightFade * beamIntensity;
+    intensity = clamp(intensity, 0.0f, 1.0f);
+
+    fragColor = vec4(color * intensity, intensity);
 }
