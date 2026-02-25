@@ -152,15 +152,15 @@ public class LightRenderer {
             }
         }
 
-        //re-enable depth test for spotlight beams - but disable writes
-        glEnable(GL_DEPTH_TEST);
-        glDepthMask(false);
+        glDisable(GL_CULL_FACE);
 
-        //render the beams
+        //render the volumetric lights
         if (!spotLights.isEmpty()) {
             Shader beamShader = Shaders.SPOTLIGHT_BEAM.getShader().use();
             beamShader.setup(camera);
+            beamShader.setupInverse(camera);
             beamShader.setVec3("camPos", camera.getPosition());
+            beamShader.setTexture("gDepth", gBuffer.getDepthBuffer(), 0);
 
             for (Spotlight spotlight : spotLights) {
                 float beamStrength = spotlight.getBeamStrength();
@@ -168,7 +168,7 @@ public class LightRenderer {
                     continue;
 
                 float h = spotlight.getFalloffEnd();
-                float r = h * Math.tan(Math.toRadians(spotlight.getInnerAngle()));
+                float r = h * Math.tan(Math.toRadians(spotlight.getOuterAngle()));
 
                 beamShader.setVec3("lightPos", spotlight.getPos());
                 beamShader.setVec3("lightDir", spotlight.getDirection());
@@ -178,12 +178,17 @@ public class LightRenderer {
                 beamShader.setFloat("beamIntensity", beamStrength);
                 beamShader.setColor("color", spotlight.getColor());
 
-                SimpleGeometry.TRIANGLE.render();
+                lightModelMatrix.identity();
+                spotlight.copyTransform(lightModelMatrix);
+                beamShader.setMat4("model", lightModelMatrix);
+
+                SimpleGeometry.CONE.render();
             }
         }
 
         //reset state
-        glDepthMask(true);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         Texture.unbindAll(2);
     }
