@@ -36,7 +36,7 @@ public enum Shaders {
     BLOOM_COMPOSITE,
     LENS_FLARE,
     LIGHT_GLARE,
-    SPOTLIGHT_BEAM,
+    VOLUMETRIC_LIGHT,
     SSAO,
     SSR,
     WATER,

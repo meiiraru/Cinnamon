@@ -178,7 +178,7 @@ public class WorldClient extends World {
         //    for (int i = 0; i < 15; i++)
         //        addLight(new PointLight().pos(-5.5f + i * 3f, 3f, -5.5f + j * 3f).color(Colors.randomRainbow().rgb));
 
-        addLight(new PointLight().pos(32.5f, 3.5f, 0.5f).color(0xFFFF44).castsShadows(true));
+        addLight(new PointLight().pos(32.5f, 3.5f, 0.5f).color(0xFFFF44).castsShadows(true).volumetricStrength(0.5f));
 
         //rgb spotlights
         TerrainGenerator.fill(this, 4, 1, 25, 9, 3, 25, MaterialRegistry.PINE_PLANKS);
@@ -187,7 +187,7 @@ public class WorldClient extends World {
             float radi = Math.toRadians(120f) * i;
             float x = Math.sin(radi) * r;
             float y = Math.cos(radi) * r;
-            addLight(new Spotlight().beamStrength(3f).angle(15f).glareSize(1f).direction(0, 0, 1).pos(x + 7f, y + 2.5f, 21f).color(0xFF << (8 * i)));
+            addLight(new Spotlight().angle(15f).glareSize(1f).direction(0, 0, 1).pos(x + 7f, y + 2.5f, 21f).color(0xFF << (8 * i)));
         }
 
         //entities

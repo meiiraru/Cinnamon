@@ -9,12 +9,12 @@ public class Spotlight extends PointLight {
 
     private float innerAngle, outerAngle;
     protected float cosInner, cosOuter, tanOuter;
-    private float beamStrength = 1f;
 
     public Spotlight() {
         super();
         castsShadows(true);
         angle(15f);
+        volumetricStrength(1f);
     }
 
     @Override
@@ -71,14 +71,5 @@ public class Spotlight extends PointLight {
 
     public float getOuterAngle() {
         return outerAngle;
-    }
-
-    public Spotlight beamStrength(float beamStrength) {
-        this.beamStrength = beamStrength;
-        return this;
-    }
-
-    public float getBeamStrength() {
-        return beamStrength;
     }
 }

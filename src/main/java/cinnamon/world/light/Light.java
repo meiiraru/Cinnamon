@@ -32,6 +32,7 @@ public abstract class Light {
     private Resource glareTexture = GLARE;
     private float glareIntensity = 1f;
     private float glareSize = 5f;
+    private float volumetricStrength = 0f;
 
     public void pushToShader(Shader shader) {
         pushToShader(shader, -1);
@@ -183,6 +184,15 @@ public abstract class Light {
     public Light glareSize(float glareSize) {
         this.glareSize = glareSize;
         return this;
+    }
+
+    public Light volumetricStrength(float volumetricStrength) {
+        this.volumetricStrength = volumetricStrength;
+        return this;
+    }
+
+    public float getVolumetricStrength() {
+        return volumetricStrength;
     }
 
     public enum Type {

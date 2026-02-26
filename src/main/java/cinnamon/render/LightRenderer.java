@@ -91,8 +91,9 @@ public class LightRenderer {
             return;
 
         boolean lensFlare = Settings.lensFlare.get();
+        boolean volumetric = Settings.volumetricLights.get();
         List<DirectionalLight> directionalLights = new ArrayList<>();
-        List<Spotlight> spotLights = new ArrayList<>();
+        List<Light> volumetricLights = new ArrayList<>();
 
         //prepare the flare buffer
         target.use();
@@ -119,11 +120,13 @@ public class LightRenderer {
 
             Light.Type type = light.getType();
 
-            if (lensFlare && type == Light.Type.DIRECTIONAL)
-                directionalLights.add((DirectionalLight) light);
-
-            if (type == Light.Type.SPOT || type == Light.Type.COOKIE)
-                spotLights.add((Spotlight) light);
+            if (type == Light.Type.DIRECTIONAL) {
+                if (lensFlare)
+                    directionalLights.add((DirectionalLight) light);
+            } else {
+                if (volumetric)
+                    volumetricLights.add(light);
+            }
 
             s.applyColor(light.getColor());
             s.setFloat("intensity", intensity);
@@ -155,34 +158,47 @@ public class LightRenderer {
         glDisable(GL_CULL_FACE);
 
         //render the volumetric lights
-        if (!spotLights.isEmpty()) {
-            Shader beamShader = Shaders.SPOTLIGHT_BEAM.getShader().use();
-            beamShader.setup(camera);
-            beamShader.setupInverse(camera);
-            beamShader.setVec3("camPos", camera.getPosition());
-            beamShader.setTexture("gDepth", gBuffer.getDepthBuffer(), 0);
+        if (!volumetricLights.isEmpty()) {
+            Shader volShader = Shaders.VOLUMETRIC_LIGHT.getShader().use();
+            volShader.setup(camera);
+            volShader.setupInverse(camera);
+            volShader.setVec3("camPos", camera.getPosition());
+            volShader.setTexture("gDepth", gBuffer.getDepthBuffer(), 0);
 
-            for (Spotlight spotlight : spotLights) {
-                float beamStrength = spotlight.getBeamStrength();
-                if (beamStrength <= 0f)
+            for (Light light : volumetricLights) {
+                float strength = light.getVolumetricStrength();
+                if (strength <= 0f)
                     continue;
 
-                float h = spotlight.getFalloffEnd();
-                float r = h * Math.tan(Math.toRadians(spotlight.getOuterAngle()));
+                volShader.setInt("lightType", light.getType().ordinal());
+                volShader.setVec3("lightPos", light.getPos());
+                volShader.setVec3("lightDir", light.getDirection());
 
-                beamShader.setVec3("lightPos", spotlight.getPos());
-                beamShader.setVec3("lightDir", spotlight.getDirection());
-                beamShader.setFloat("height", h);
-                beamShader.setFloat("radius", r);
-
-                beamShader.setFloat("beamIntensity", beamStrength);
-                beamShader.setColor("color", spotlight.getColor());
+                volShader.setFloat("strength", strength);
+                volShader.setColor("color", light.getColor());
 
                 lightModelMatrix.identity();
-                spotlight.copyTransform(lightModelMatrix);
-                beamShader.setMat4("model", lightModelMatrix);
+                light.copyTransform(lightModelMatrix);
+                volShader.setMat4("model", lightModelMatrix);
 
-                SimpleGeometry.CONE.render();
+                switch (light.getType()) {
+                    case POINT -> {
+                        PointLight pointLight = (PointLight) light;
+                        float r = pointLight.getFalloffEnd();
+                        volShader.setFloat("radius", r);
+
+                        SimpleGeometry.SPHERE.render();
+                    }
+                    case SPOT, COOKIE -> {
+                        Spotlight spotlight = (Spotlight) light;
+                        float h = spotlight.getFalloffEnd();
+                        float r = h * Math.tan(Math.toRadians(spotlight.getOuterAngle()));
+                        volShader.setFloat("radius", r);
+                        volShader.setFloat("height", h);
+
+                        SimpleGeometry.CONE.render();
+                    }
+                }
             }
         }
 

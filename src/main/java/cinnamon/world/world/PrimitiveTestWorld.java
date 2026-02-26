@@ -174,7 +174,7 @@ public class PrimitiveTestWorld extends WorldClient {
                 light.intensity(f);
                 light.glareIntensity(f);
                 if (light instanceof Spotlight spot)
-                    spot.beamStrength(f);
+                    spot.volumetricStrength(f);
             }
         }
     }

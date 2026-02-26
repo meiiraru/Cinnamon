@@ -1,6 +1,5 @@
 package cinnamon.world.light;
 
-import cinnamon.model.GeometryHelper;
 import cinnamon.render.shader.Shader;
 import org.joml.Matrix4f;
 
