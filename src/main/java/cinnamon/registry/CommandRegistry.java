@@ -1,11 +1,13 @@
 package cinnamon.registry;
 
 import cinnamon.commands.Command;
+import cinnamon.commands.Fill;
 import cinnamon.commands.Teleport;
 
 public enum CommandRegistry {
 
-    TP(new Teleport(), "teleport", "banana");
+    TP(new Teleport(), "teleport"),
+    FILL(new Fill());
 
     public final Command command;
     public final String[] aliases;

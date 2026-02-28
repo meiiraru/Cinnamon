@@ -301,7 +301,7 @@ public class DebugScreen {
         float distance = range * hit.collision().near();
         String type = (hit.obj() instanceof Entity) ? "entity" : (hit.obj() instanceof Terrain) ? "terrain" : "unknown";
         String typeEnum = hit.obj().getType().name().toLowerCase();
-        String extra = (hit.obj() instanceof Entity e) ? "\n" + e.getUUID() : (hit.obj() instanceof Terrain t) ? "\nrotation &e" + (int) t.getRotationAngle() + "&r" : "";
+        String extra = (hit.obj() instanceof Entity e) ? "\n" + getExtraDebugForEntity(e) : (hit.obj() instanceof Terrain t) ? "\n" + getExtraDebugForTerrain(t) : "";
         return String.format("""
                 x &c%.3f&r y &a%.3f&r z &b%.3f&r
                 hit pos x &c%.3f&r y &a%.3f&r z &b%.3f&r
@@ -315,6 +315,22 @@ public class DebugScreen {
                 distance,
                 type, typeEnum,
                 extra
+        );
+    }
+
+    private static String getExtraDebugForEntity(Entity e) {
+        return String.format("""
+                %s""",
+
+                e.getUUID()
+        );
+    }
+
+    private static String getExtraDebugForTerrain(Terrain t) {
+        return String.format("""
+                rotation &e%d&r material &e%s&r""",
+
+                (int) t.getRotationAngle(), t.getMaterial() != null ? t.getMaterial().name() : "none"
         );
     }
 
