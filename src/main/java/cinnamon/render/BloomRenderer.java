@@ -8,6 +8,7 @@ import cinnamon.render.texture.Texture;
 
 import static cinnamon.render.WorldRenderer.renderQuad;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 
 public class BloomRenderer {
 
@@ -52,6 +53,6 @@ public class BloomRenderer {
 
         //cleanup
         Texture.unbindAll(2);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     }
 }

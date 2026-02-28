@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 
 public class ModelViewer extends SelectableWidget {
 
@@ -113,7 +114,10 @@ public class ModelViewer extends SelectableWidget {
         WorldRenderer.renderSSR = false;
         WorldRenderer.renderSSAO = !xr;
         WorldRenderer.setupFramebuffer();
-        WorldRenderer.initGBuffer(client.camera);
+
+        //skybox
+        if (renderSkybox)
+            theSky.render(client.camera, matrices);
 
         //position
         matrices.translate(posX, -posY, -2f);
@@ -126,13 +130,16 @@ public class ModelViewer extends SelectableWidget {
         matrices.rotate(Rotation.X.rotationDeg(-rotX));
         matrices.rotate(Rotation.Y.rotationDeg(-rotY - 180));
 
+        //center model
+        matrices.translate(aabb.getCenter().mul(-1f));
+
         //apply model-only render state
         if (renderWireframe)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glDisable(GL_CULL_FACE);
 
         //draw model
-        matrices.translate(aabb.getCenter().mul(-1f));
+        WorldRenderer.initGBuffer(client.camera);
         model.render(matrices, selectedMaterial.material);
 
         //restore model-only render state
@@ -149,10 +156,7 @@ public class ModelViewer extends SelectableWidget {
         ((IBLSky) theSky).setSkyBox(skybox.resource);
         WorldRenderer.bakeDeferred(client.camera, theSky);
 
-        //skybox + bloom
-        if (renderSkybox)
-            theSky.render(client.camera, matrices);
-
+        //bloom
         float bloom = Settings.bloomStrength.get();
         if (bloom > 0f)
             BloomRenderer.applyBloom(WorldRenderer.outputBuffer, WorldRenderer.PBRFrameBuffer.getEmissive(), 0.8f, bloom);
@@ -213,7 +217,7 @@ public class ModelViewer extends SelectableWidget {
 
         //reset render state
         old.use();
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         if (!xr) glDisable(GL_SCISSOR_TEST);
     }
 

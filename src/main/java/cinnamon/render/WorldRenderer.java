@@ -28,6 +28,7 @@ import org.joml.Vector3f;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 
 public class WorldRenderer {
 
@@ -92,6 +93,10 @@ public class WorldRenderer {
                 }
         };
 
+        //render the sky before all
+        if (renderSky)
+            world.getSky().render(camera, matrices);
+
         //3d anaglyph rendering
         if (client.anaglyph3D) {
             renderAsAnaglyph(world, matrices, delta, renderFunc);
@@ -127,10 +132,6 @@ public class WorldRenderer {
         //bake world
         bakeDeferred(camera, world.getSky());
 
-        //render the sky
-        if (renderSky)
-            world.getSky().render(camera, matrices);
-
         //apply bloom
         applyBloom();
 
@@ -152,11 +153,6 @@ public class WorldRenderer {
     }
 
     private static void renderAsAnaglyph(WorldClient world, MatrixStack matrices, float delta, Runnable[] renderFunc) {
-        Runnable renderWorld = () -> {
-            for (Runnable r : renderFunc)
-                r.run();
-        };
-
         camera.anaglyph3D(matrices, -1f / 64f, -1f, () -> {
             //render world
             initGBuffer(camera);
@@ -184,7 +180,6 @@ public class WorldRenderer {
             bakeDeferred(camera, world.getSky());
 
             //post bake renderer
-            if (renderSky) world.getSky().render(camera, matrices);
             applyBloom();
             renderLightsGlare(world, camera);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
@@ -209,6 +204,9 @@ public class WorldRenderer {
 
     public static void setupFramebuffer(Framebuffer buffer) {
         targetBuffer = buffer;
+        outputBuffer.resizeTo(targetBuffer, Settings.renderScale.get());
+        outputBuffer.useClear();
+        outputBuffer.adjustViewPort();
     }
 
     public static void copyLastFrame(boolean color, boolean depth) {
@@ -223,7 +221,7 @@ public class WorldRenderer {
         outputBuffer.blit(targetBuffer);
         targetBuffer.use();
         targetBuffer.adjustViewPort();
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         resetFlags();
     }
 
@@ -241,7 +239,7 @@ public class WorldRenderer {
         renderQuad();
 
         //clean
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         Texture.unbindTex(0);
         resetFlags();
     }
@@ -263,7 +261,7 @@ public class WorldRenderer {
 
     public static void initGBuffer(Camera camera) {
         //setup pbr framebuffer
-        PBRFrameBuffer.resizeTo(targetBuffer, Settings.renderScale.get());
+        PBRFrameBuffer.resizeTo(targetBuffer);
         PBRFrameBuffer.useClear();
         PBRFrameBuffer.adjustViewPort();
         targetBuffer.blit(PBRFrameBuffer, false, true, true);
@@ -276,8 +274,7 @@ public class WorldRenderer {
 
     public static void bakeDeferred(Camera camera, Sky sky) {
         //world uniforms
-        outputBuffer.resizeTo(PBRFrameBuffer);
-        outputBuffer.useClear();
+        outputBuffer.use();
         outputBuffer.adjustViewPort();
         Shader s = Shaders.DEFERRED_WORLD_PBR.getShader().use();
 
