@@ -29,7 +29,7 @@ layout (location = 3) out vec4 gEmissive;
 uniform sampler2D noiseTex;
 
 uniform vec4 color = vec4(0.3f, 0.45f, 0.6f, 0.95f);
-uniform vec2 roughMetal = vec2(0.1f, 0.0f);
+uniform vec2 roughMetal = vec2(0.0f, 0.0f);
 uniform float emissive = 0.0f;
 
 uniform float time;

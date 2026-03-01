@@ -363,6 +363,7 @@ public class WorldClient extends World {
         this.sky.fogStart = props.fogStart();
         this.sky.fogEnd = props.fogEnd();
         this.sky.sunIntensity = props.sunIntensity();
+        this.sky.starsIntensity = props.starsIntensity();
 
         sunlight.color(props.sunlightColor());
         sunlight.intensity(Math.min(props.sunlightIntensity(), 1f));
@@ -786,50 +787,50 @@ public class WorldClient extends World {
         //sunrise
         skyColors.addProperty(new SkyColors.SkyProperties(
                 0,
-                0xFF8822, 0x8844DD, 0x101020, 0xFF72AD,
-                64f, 80f, 1f, 1f,
+                0xFF4400, 0x8844DD, 0x101020, 0xFF72AD,
+                64f, 80f, 1f, 1f, 0.5f,
                 0xFF4400, 3f
         ));
         //day start
         skyColors.addProperty(new SkyColors.SkyProperties(
                 1000,
-                0xFF8822, 0x4444D0, 0xBBCCDD, 0xBFD3DE,
-                96f, 192f, 0f, 1f,
+                0xFFEEDD, 0x4444D0, 0xBBCCDD, 0xBFD3DE,
+                96f, 192f, 0f, 1f, 0.1f,
                 0xFFEEDD, 5f
         ));
         //day end
         skyColors.addProperty(new SkyColors.SkyProperties(
                 11000,
-                0xFF8822, 0x4444D0, 0xBBCCDD, 0xBFD3DE,
-                96f, 192f, 0f, 1f,
+                0xFFEEDD, 0x4444D0, 0xBBCCDD, 0xBFD3DE,
+                96f, 192f, 0f, 1f, 0.1f,
                 0xFFEEDD, 5f
         ));
         //sunset
         skyColors.addProperty(new SkyColors.SkyProperties(
                 12000,
-                0xFF8822, 0x8844DD, 0x101020, 0xFF72AD,
-                64f, 80f, 1f, 1f,
+                0xFF4400, 0x8844DD, 0x101020, 0xFF72AD,
+                64f, 80f, 1f, 1f, 0.5f,
                 0xFF4400, 3f
         ));
         //night start
         skyColors.addProperty(new SkyColors.SkyProperties(
                 13000,
-                0xFF8822, 0x0C0C10, 0x101020, 0x0A0A0C,
-                64f, 80f, 0f, 1f,
+                0x101020, 0x0C0C18, 0x101020, 0x0C0C18,
+                64f, 80f, 0f, 1f, 1f,
                 0x101020, 0.1f
         ));
         //night end
         skyColors.addProperty(new SkyColors.SkyProperties(
                 23000,
-                0xFF8822, 0x0C0C10, 0x101020, 0x0A0A0C,
-                64f, 80f, 0f, 1f,
+                0x101020, 0x0C0C18, 0x101020, 0x0C0C18,
+                64f, 80f, 0f, 1f, 1f,
                 0x101020, 0.1f
         ));
         //sunrise
         skyColors.addProperty(new SkyColors.SkyProperties(
                 24000,
-                0xFF8822, 0x8844DD, 0x101020, 0xFF72AD,
-                64f, 80f, 1f, 1f,
+                0xFF4400, 0x8844DD, 0x101020, 0xFF72AD,
+                64f, 80f, 1f, 1f, 0.5f,
                 0xFF4400, 3f
         ));
     }

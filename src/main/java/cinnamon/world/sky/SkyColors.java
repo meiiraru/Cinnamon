@@ -50,6 +50,7 @@ public class SkyColors {
 
             float sunIntensity,
             float fogIntensity,
+            float starsIntensity,
 
             int sunlightColor,
             float sunlightIntensity
@@ -69,6 +70,7 @@ public class SkyColors {
 
                     Math.lerp(sunIntensity, other.sunIntensity, t),
                     Math.lerp(fogIntensity, other.fogIntensity, t),
+                    Math.lerp(starsIntensity, other.starsIntensity, t),
 
                     ColorUtils.lerpRGBColor(sunlightColor, other.sunlightColor, t),
                     Math.lerp(sunlightIntensity, other.sunlightIntensity, t)

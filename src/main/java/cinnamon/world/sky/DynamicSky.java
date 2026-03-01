@@ -17,11 +17,6 @@ public class DynamicSky extends IBLSky {
 
     protected final int cubeMap = IBLMap.generateEmptyMap(CUBEMAP_SIZE, false);
 
-    public DynamicSky() {
-        super();
-        setRotationSpeed(0f);
-    }
-
     @Override
     protected void renderSky(Camera camera, MatrixStack matrices) {
         this.update();
@@ -32,12 +27,13 @@ public class DynamicSky extends IBLSky {
         Shader old = Shader.activeShader;
         Shader s = Shaders.CUBEMAP_SKYBOX.getShader().use();
         s.setMat4("projection", IBLMap.CAPTURE_PROJECTION);
-        s.setVec3("sunDirection", getSunDirection());
+        s.setVec3("sunDirection", getRotatedSunDirection());
         s.setColor("skyColor", skyColor);
         s.setColor("sunColor", sunColor);
         s.setColor("fogColor", fogColor);
         s.setFloat("sunIntensity", sunIntensity);
         s.setFloat("fogIntensity", fogIntensity);
+        s.setFloat("starsIntensity", starsIntensity);
 
         glViewport(0, 0, CUBEMAP_SIZE, CUBEMAP_SIZE);
         IBLMap.renderInvertedCube(cubeMap, s);

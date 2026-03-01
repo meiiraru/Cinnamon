@@ -13,6 +13,7 @@ import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
 import org.joml.Math;
 import org.joml.Matrix3f;
+import org.joml.Vector3f;
 
 public class IBLSky extends Sky {
 
@@ -83,5 +84,9 @@ public class IBLSky extends Sky {
     public void setRotationSpeed(float rotationSpeed) {
         this.rotationSpeed = rotationSpeed;
         this.updateSunDir();
+    }
+
+    public Vector3f getRotatedSunDirection() {
+        return getSkyRotation().transformTranspose(getSunDirection(), new Vector3f());
     }
 }

@@ -26,7 +26,8 @@ public abstract class Sky {
 
     public float
             fogIntensity = 1f,
-            sunIntensity = 1f;
+            sunIntensity = 1f,
+            starsIntensity = 1f;
 
     protected final Vector3f sunDir = new Vector3f(1, 0, 0);
     protected float sunAngle;
