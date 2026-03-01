@@ -37,7 +37,8 @@ float hash(vec3 p) {
 
 float stars(vec3 dir) {
     //scale the direction to a grid cell
-    vec3 grid = floor(dir * 200.0f);
+    const float gridSize = 10000.0f;
+    vec3 grid = floor(dir * gridSize);
     float h = hash(grid);
 
     //only a fraction of cells become stars
@@ -45,7 +46,7 @@ float stars(vec3 dir) {
         return 0.0f;
 
     //sub-cell position for a soft point
-    vec3 cell = fract(dir * 200.0f) - 0.5f;
+    vec3 cell = fract(dir * gridSize) - 0.5f;
     float dist = dot(cell, cell);
     float brightness = smoothstep(0.25f, 0.0f, dist);
     return brightness * (h / starsCoverage);
