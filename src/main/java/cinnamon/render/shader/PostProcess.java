@@ -31,11 +31,6 @@ public enum PostProcess {
     TONEMAPPING(COLOR_UNIFORM),
 
     //effects
-    BIG_PIXEL((fb, s) -> {
-        s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
-        s.setFloat("factor", 3f);
-        return COLOR_UNIFORM.apply(fb, s);
-    }),
     INVERT(COLOR_UNIFORM),
     BLUR((fb, s) -> {
         s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
@@ -171,6 +166,11 @@ public enum PostProcess {
         s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
         return COLOR_UNIFORM.apply(fb, s);
     }),
+    SUBPIXEL((fb, s) -> {
+        s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
+        s.setFloat("factor", 10f);
+        return COLOR_UNIFORM.apply(fb, s);
+    }),
 
     //world only effects
     TOON_OUTLINE((fb, s) -> {
@@ -185,10 +185,10 @@ public enum PostProcess {
     });
 
     public static final PostProcess[] EFFECTS = {
-            INVERT, BLUR, BOX_BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, BIG_PIXEL, GRAYSCALE,
+            INVERT, BLUR, BOX_BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE,
             SCAN_LINE, LENS, LENS2, MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY,
             KALEIDOSCOPE, BITS, POSTERIZE, BLOBS, PHOSPHOR, SPEED_LINES, DOT_GRID,
-            DITHER, DITHER_SQUARE_TEX, SHARPEN, VINTAGE, RED, TILT_SHIFT
+            DITHER, DITHER_SQUARE_TEX, SHARPEN, VINTAGE, RED, TILT_SHIFT, SUBPIXEL
     };
     public static final PostProcess[] WORLD_EFFECTS = {
             TOON_OUTLINE
