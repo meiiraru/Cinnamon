@@ -14,16 +14,23 @@ public abstract class Sky {
 
     public static final Resource SUN = new Resource("textures/environment/sun.png");
 
-    public int fogColor = 0xBFD3DE;
-    public float fogStart = 96;
-    public float fogEnd = 192;
+    public int
+            fogColor = 0xBFD3DE,
+            skyColor = 0x4444D0,
+            sunColor = 0xFF8822,
+            ambientLight = 0xBFD3DE;
 
-    public int ambientLight = 0xBFD3DE;
+    public float
+            fogStart = 96,
+            fogEnd = 192;
+
+    public float
+            fogIntensity = 1f,
+            sunIntensity = 1f;
 
     protected final Vector3f sunDir = new Vector3f(1, 0, 0);
     protected float sunAngle;
     protected float sunRoll = Math.toRadians(30f);
-    protected float cloudSpeed = Math.PI_OVER_2_f;
 
     public boolean
             renderSky = true,
@@ -86,11 +93,6 @@ public abstract class Sky {
 
     public void setSunRoll(float roll) {
         this.sunRoll = Math.toRadians(roll);
-        updateSunDir();
-    }
-
-    public void setCloudSpeed(float cloudSpeed) {
-        this.cloudSpeed = cloudSpeed;
         updateSunDir();
     }
 

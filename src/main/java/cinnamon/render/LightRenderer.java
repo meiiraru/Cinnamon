@@ -116,7 +116,7 @@ public class LightRenderer {
         //render the glares
         for (Light light : lights) {
             float intensity = light.getGlareIntensity();
-            if (intensity <= 0f)
+            if (intensity <= 0f || light.getIntensity() <= 0f)
                 continue;
 
             Light.Type type = light.getType();

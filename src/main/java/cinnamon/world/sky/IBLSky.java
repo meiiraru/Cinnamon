@@ -11,12 +11,14 @@ import cinnamon.render.texture.SkyBox;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Rotation;
+import org.joml.Math;
 import org.joml.Matrix3f;
 
 public class IBLSky extends Sky {
 
-    private final Matrix3f skyRotation = new Matrix3f();
-    private Resource skyBox = SkyBoxRegistry.CLOUDS.resource;
+    protected final Matrix3f skyRotation = new Matrix3f();
+    protected Resource skyBox = SkyBoxRegistry.CLOUDS.resource;
+    protected float rotationSpeed = Math.PI_OVER_2_f;
 
     @Override
     protected void renderSky(Camera camera, MatrixStack matrices) {
@@ -26,16 +28,20 @@ public class IBLSky extends Sky {
         s.setup(camera);
         s.setMat3("rotation", skyRotation);
         s.setInt("skybox", 0);
-        SkyBox.of(skyBox).bind(0);
+        bindSkyboxTexture(0);
         SimpleGeometry.INV_CUBE.render();
         CubeMap.unbindTex(0);
         o.use();
     }
 
+    protected void bindSkyboxTexture(int index) {
+        SkyBox.of(skyBox).bind(index);
+    }
+
     @Override
     protected void updateSunDir() {
         super.updateSunDir();
-        Rotation.Y.rotationDeg(sunAngle * cloudSpeed).get(this.skyRotation);
+        Rotation.Y.rotationDeg(sunAngle * rotationSpeed).get(skyRotation);
     }
 
     public Matrix3f getSkyRotation() {
@@ -44,11 +50,15 @@ public class IBLSky extends Sky {
 
     @Override
     public int bind(Shader shader, int index) {
-        SkyBox box = SkyBox.of(skyBox);
         shader.setMat3("cubemapRotation", getSkyRotation());
+        return bindSkybox(shader, index);
+    }
 
-        box.bindIrradiance(index);
-        shader.setInt("irradianceMap", index++);
+    protected int bindSkybox(Shader shader, int index) {
+        SkyBox box = SkyBox.of(skyBox);
+
+        //box.bindIrradiance(index);
+        //shader.setInt("irradianceMap", index++);
 
         box.bindPrefilter(index);
         shader.setInt("prefilterMap", index++);
@@ -56,17 +66,22 @@ public class IBLSky extends Sky {
         SkyBox.bindLUT(index);
         shader.setInt("brdfLUT", index);
 
-        return 3;
+        return 2;
     }
 
     @Override
     public void unbind(int index) {
-        CubeMap.unbindTex(index++);
-        CubeMap.unbindTex(index++);
-        Texture.unbindTex(index);
+        //CubeMap.unbindTex(index++); //irradiance
+        CubeMap.unbindTex(index++); //prefilter
+        Texture.unbindTex(index); //brdf LUT
     }
 
     public void setSkyBox(Resource resource) {
         this.skyBox = resource;
+    }
+
+    public void setRotationSpeed(float rotationSpeed) {
+        this.rotationSpeed = rotationSpeed;
+        this.updateSunDir();
     }
 }

@@ -16,8 +16,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class IBLMap {
 
-    private static final int captureFBO = glGenFramebuffers();
-    private static final Matrix4f CAPTURE_PROJECTION = new Matrix4f().perspective(Math.toRadians(90f), 1f, 0.1f, 10f);
+    public static final int captureFBO = glGenFramebuffers();
+    public static final Matrix4f CAPTURE_PROJECTION = new Matrix4f().perspective(Math.toRadians(90f), 1f, 0.1f, 10f);
 
     public static CubeMap hdrToCubemap(Texture texture, boolean hdr) {
         int id = generateEmptyMap(512, false);
@@ -50,7 +50,7 @@ public class IBLMap {
         return new CubeMap(id, 32, 32);
     }
 
-    private static void renderInvertedCube(int id, Shader s) {
+    public static void renderInvertedCube(int id, Shader s) {
         Framebuffer oldFB = Framebuffer.activeFramebuffer;
         glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
         for (CubeMap.Face face : CubeMap.Face.values()) {
@@ -122,7 +122,7 @@ public class IBLMap {
         return new Texture(id, size, size);
     }
 
-    private static int generateEmptyMap(int size, boolean mipmap) {
+    public static int generateEmptyMap(int size, boolean mipmap) {
         int id = glGenTextures();
         glBindTexture(GL_TEXTURE_CUBE_MAP, id);
 

@@ -13,7 +13,6 @@ import cinnamon.input.Movement;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.registry.MaterialRegistry;
-import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
@@ -25,7 +24,6 @@ import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundInstance;
 import cinnamon.sound.SoundManager;
 import cinnamon.utils.AABB;
-import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
@@ -60,8 +58,9 @@ import cinnamon.world.light.PointLight;
 import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.ExplosionParticle;
 import cinnamon.world.particle.Particle;
-import cinnamon.world.sky.IBLSky;
+import cinnamon.world.sky.DynamicSky;
 import cinnamon.world.sky.Sky;
+import cinnamon.world.sky.SkyColors;
 import cinnamon.world.terrain.ConveyorBelt;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.TerrainGenerator;
@@ -96,14 +95,15 @@ public class WorldClient extends World {
 
     //lights
     protected final List<Light> lights = new ArrayList<>();
-    protected final Light sunLight = new DirectionalLight().pos(0.5f, 5f, 0.5f).intensity(1f).castsShadows(true).glareSize(1000f);
+    protected final Light sunlight = new DirectionalLight().pos(0.5f, 5f, 0.5f).intensity(1f).castsShadows(true).glareSize(1000f);
 
     //particles and decals
     protected final List<Particle> particles = new ArrayList<>();
     protected final List<Decal> decals = new ArrayList<>();
 
     //skybox
-    protected final Sky sky = new IBLSky();
+    protected final Sky sky = new DynamicSky();
+    protected final SkyColors skyColors = new SkyColors();
 
     @Override
     public void init() {
@@ -116,8 +116,9 @@ public class WorldClient extends World {
         //init hud
         hud.init();
 
-        //sunlight
-        addLight(sunLight);
+        //sky
+        addLight(sunlight);
+        setSkyColors();
 
         //create player
         respawn(true);
@@ -172,7 +173,7 @@ public class WorldClient extends World {
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
 
         //lights
-        sunLight.castsShadows(false);
+        //sunlight.castsShadows(false);
 
         //for (int j = 0; j < 15; j++)
         //    for (int i = 0; i < 15; i++)
@@ -343,69 +344,28 @@ public class WorldClient extends World {
 
         Vector3f dir = sky.getSunDirection();
         Vector3f pos = camera.getPos();
-        sunLight.direction(dir);
-        sunLight.pos(pos.x + dir.x * -1000f, pos.y + dir.y * -1000f, pos.z + dir.z * -1000f);
+        sunlight.direction(dir);
+        sunlight.pos(pos.x + dir.x * -1000f, pos.y + dir.y * -1000f, pos.z + dir.z * -1000f);
 
         //apply light
         applySkyLights(dayTime);
     }
 
     protected void applySkyLights(float dayTime) {
-        int sun;
-        int fog = 0x0B0B10;
-        int amb = 0x202040;
-        float sunIntensity = 0f;
-        float fogDistance = 80f;
+        SkyColors.SkyProperties props = skyColors.getPropertiesAtTime(dayTime);
+        if (props == null)
+            return;
 
-        //sunrise
-        if (dayTime < 1000) {
-            float d = dayTime / 1000f;
-            amb = ColorUtils.lerpRGBColor(0x202040, 0xBBCCDD, d);
-            sun = ColorUtils.lerpRGBColor(0xFF4400, 0xFFEEDD, d);
-            fog = ColorUtils.lerpRGBColor(0x0B0B10, 0xBFD3DE, d);
+        this.sky.sunColor = props.sunColor();
+        this.sky.skyColor = props.skyColor();
+        this.sky.fogColor = props.fogColor();
+        this.sky.ambientLight = props.ambientLight();
+        this.sky.fogStart = props.fogStart();
+        this.sky.fogEnd = props.fogEnd();
+        this.sky.sunIntensity = props.sunIntensity();
 
-            fogDistance = Math.lerp(fogDistance, 192f, d);
-            sunIntensity = Math.min(d * 5f, 1f);
-        }
-        //day
-        else if (dayTime < 11000) {
-            amb = 0xBBCCDD;
-            sun = 0xFFEEDD;
-            fog = 0xBFD3DE;
-
-            fogDistance = 192f;
-            sunIntensity = 1f;
-        }
-        //sunset
-        else if (dayTime < 12000) {
-            float d = (dayTime - 11000) / 1000f;
-            amb = ColorUtils.lerpRGBColor(0xBBCCDD, 0x202040, d);
-            sun = ColorUtils.lerpRGBColor(0xFFEEDD, 0xFF4400, d);
-            fog = ColorUtils.lerpRGBColor(0xBFD3DE, 0x0B0B10, d);
-
-            fogDistance = Math.lerp(192f, fogDistance, d);
-            sunIntensity = Math.min((1f - d) * 5f, 1f);
-        }
-        //nightfall
-        else if (dayTime < 13000) {
-            sun = ColorUtils.lerpRGBColor(0xFF4400, 0x202040, (dayTime - 12000) / 1000f);
-        }
-        //night
-        else if (dayTime < 23000) {
-            sun = 0x202040;
-        }
-        //night-end
-        else {
-            sun = ColorUtils.lerpRGBColor(0x202040, 0xFF4400, (dayTime - 23000) / 1000f);
-        }
-
-        sky.ambientLight = amb;
-        sky.fogColor = fog;
-        sky.fogEnd = fogDistance;
-        sky.fogStart = fogDistance * 0.5f;
-
-        sunLight.color(sun);
-        sunLight.intensity(sunIntensity);
+        sunlight.color(props.sunlightColor());
+        sunlight.intensity(Math.min(props.sunlightIntensity(), 1f));
     }
 
     public int renderTerrain(Camera camera, MatrixStack matrices, float delta) {
@@ -726,10 +686,6 @@ public class WorldClient extends World {
 
             case GLFW_KEY_COMMA -> player.setSelectedTerrain((player.getSelectedTerrain() + 1) % (TerrainRegistry.values().length - 1));
             case GLFW_KEY_PERIOD -> player.setSelectedMaterial(Maths.modulo((player.getSelectedMaterial() + (shift ? -1 : 1)), MaterialRegistry.values().length));
-            case GLFW_KEY_SLASH -> {
-                if (sky instanceof IBLSky ibl)
-                    ibl.setSkyBox(Maths.randomArr(SkyBoxRegistry.values()).resource);
-            }
 
             case GLFW_KEY_Q -> player.dropItem();
 
@@ -824,6 +780,58 @@ public class WorldClient extends World {
         } else {
             SoundManager.resumeAll(c -> c != SoundCategory.GUI && c != SoundCategory.MASTER);
         }
+    }
+
+    protected void setSkyColors() {
+        //sunrise
+        skyColors.addProperty(new SkyColors.SkyProperties(
+                0,
+                0xFF8822, 0x8844DD, 0x101020, 0xFF72AD,
+                64f, 80f, 1f, 1f,
+                0xFF4400, 3f
+        ));
+        //day start
+        skyColors.addProperty(new SkyColors.SkyProperties(
+                1000,
+                0xFF8822, 0x4444D0, 0xBBCCDD, 0xBFD3DE,
+                96f, 192f, 0f, 1f,
+                0xFFEEDD, 5f
+        ));
+        //day end
+        skyColors.addProperty(new SkyColors.SkyProperties(
+                11000,
+                0xFF8822, 0x4444D0, 0xBBCCDD, 0xBFD3DE,
+                96f, 192f, 0f, 1f,
+                0xFFEEDD, 5f
+        ));
+        //sunset
+        skyColors.addProperty(new SkyColors.SkyProperties(
+                12000,
+                0xFF8822, 0x8844DD, 0x101020, 0xFF72AD,
+                64f, 80f, 1f, 1f,
+                0xFF4400, 3f
+        ));
+        //night start
+        skyColors.addProperty(new SkyColors.SkyProperties(
+                13000,
+                0xFF8822, 0x0C0C10, 0x101020, 0x0A0A0C,
+                64f, 80f, 0f, 1f,
+                0x101020, 0.1f
+        ));
+        //night end
+        skyColors.addProperty(new SkyColors.SkyProperties(
+                23000,
+                0xFF8822, 0x0C0C10, 0x101020, 0x0A0A0C,
+                64f, 80f, 0f, 1f,
+                0x101020, 0.1f
+        ));
+        //sunrise
+        skyColors.addProperty(new SkyColors.SkyProperties(
+                24000,
+                0xFF8822, 0x8844DD, 0x101020, 0xFF72AD,
+                64f, 80f, 1f, 1f,
+                0xFF4400, 3f
+        ));
     }
 
     public void respawn(boolean init) {
