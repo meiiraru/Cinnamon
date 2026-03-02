@@ -62,8 +62,8 @@ public abstract class Weapon extends CooldownItem {
         World world = source.getWorld();
         Projectile projectile = newProjectile(source.getUUID());
 
-        projectile.setPos(source.getHandPos(false, 1f));
-        projectile.setRot(Maths.dirToRot(source.getHandDir(false, 1f)));
+        projectile.setPos(source.getHandPos());
+        projectile.setRot(Maths.dirToRot(source.getAimDir(20f)));
         projectile.impulse(0, 0, 1);
 
         world.addEntity(projectile);

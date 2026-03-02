@@ -520,8 +520,8 @@ public class WorldClient extends World {
         float range = player.getPickRange();
         Hit<Entity> entity; Hit<Terrain> terrain;
         if (XrManager.isInXR()) {
-            entity = player.raycastHandEntity(false, 1f, range);
-            terrain = player.raycastHandTerrain(false, 1f, range);
+            entity = player.raycastHandEntity(range);
+            terrain = player.raycastHandTerrain(range);
         } else {
             entity = player.getLookingEntity(range);
             terrain = player.getLookingTerrain(range);
@@ -789,7 +789,7 @@ public class WorldClient extends World {
         //sunrise
         skyColors.addProperty(new SkyColors.SkyProperties(
                 0,
-                0xFF4400, 0x8844DD, 0x101020, 0xFF72AD,
+                0xFF4400, 0x859090, 0x101020, 0xE57E4B,
                 64f, 80f, 1f, 1f, 0.5f,
                 0xFF4400, 3f
         ));
@@ -831,7 +831,7 @@ public class WorldClient extends World {
         //sunrise
         skyColors.addProperty(new SkyColors.SkyProperties(
                 24000,
-                0xFF4400, 0x8844DD, 0x101020, 0xFF72AD,
+                0xFF4400, 0x859090, 0x101020, 0xE57E4B,
                 64f, 80f, 1f, 1f, 0.5f,
                 0xFF4400, 3f
         ));

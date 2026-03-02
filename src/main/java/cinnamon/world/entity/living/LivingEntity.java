@@ -41,6 +41,7 @@ public abstract class LivingEntity extends PhysEntity {
 
     private int health;
     private int maxHealth;
+    private boolean leftHanded = false;
 
     public LivingEntity(UUID uuid, Resource model, float eyeHeight, int maxHealth, int inventorySize) {
         super(uuid, model);
@@ -89,9 +90,10 @@ public abstract class LivingEntity extends PhysEntity {
         if (item == null)
             return;
 
+        boolean lefty = isLeftHanded();
         matrices.pushMatrix();
-        matrices.translate(getHandPos(false, delta));
-        matrices.rotate(getHandRot(false, delta));
+        matrices.translate(getHandPos(lefty, delta));
+        matrices.rotate(getHandRot(lefty, delta));
 
         item.render(context, matrices, delta);
 
@@ -395,56 +397,112 @@ public abstract class LivingEntity extends PhysEntity {
             kill();
     }
 
-    public Vector3f getHandPos(boolean left, float delta) {
+    public boolean isLeftHanded() {
+        return leftHanded;
+    }
+
+    public void setLeftHanded(boolean leftHanded) {
+        this.leftHanded = leftHanded;
+    }
+
+    public Vector3f getHandPos() {
+        return getHandPos(isLeftHanded(), 1f);
+    }
+
+    public Vector3f getHandPos(boolean lefty, float delta) {
         Vector3f pos = getEyePos(delta);
         float x = aabb.getWidth() * 0.5f + 0.15f;
 
-        Vector3f offset = new Vector3f(left ? -x : x, -0.25f, -0.4f);
-        offset.rotate(getHandRot(left, delta));
+        Vector3f offset = new Vector3f(lefty ? -x : x, -0.25f, -0.4f);
+        offset.rotate(getHandRot(lefty, delta));
         pos.add(offset);
 
         return pos;
     }
 
-    public Quaternionf getHandRot(boolean left, float delta) {
+    public Quaternionf getHandRot() {
+        return getHandRot(isLeftHanded(), 1f);
+    }
+
+    public Quaternionf getHandRot(boolean lefty, float delta) {
         Vector2f rot = getRot(delta);
 
         //float yaw = 1;
         //Quaternionf offset = new Quaternionf()
-        //        .rotateY(Math.toRadians(left ? -yaw : yaw));
+        //        .rotateY(Math.toRadians(lefty ? -yaw : yaw));
 
         return new Quaternionf()
                 .rotateY(Math.toRadians(-rot.y))
                 .rotateX(Math.toRadians(-rot.x));//.mul(offset);
     }
 
-    public Vector3f getHandDir(boolean left, float delta) {
-        return new Vector3f(0, 0, -1).rotate(getHandRot(left, delta));
+    public Vector3f getHandDir() {
+        return getHandDir(isLeftHanded(), 1f);
     }
 
-    public Hit<Terrain> raycastHandTerrain(boolean left, float delta, float distance) {
+    public Vector3f getHandDir(boolean lefty, float delta) {
+        return new Vector3f(0, 0, -1).rotate(getHandRot(lefty, delta));
+    }
+
+    public Vector3f getAimDir(float distance) {
+        return getAimDir(isLeftHanded(), 1f, distance);
+    }
+
+    public Vector3f getAimDir(boolean lefty, float delta, float range) {
+        //get the position the entity is looking at
+        Vector3f eyePos = getEyePos(delta);
+        Vector3f lookDir = getLookDir(delta);
+
+        //find something the entity is looking at within range, otherwise use the look direction
+        Hit<? extends WorldObject> lookHit = getLookingObject(range);
+        Vector3f aimTarget = lookHit != null ? lookHit.collision().pos() : lookDir.mul(range * 2f).add(eyePos);
+
+        //get the direction from the hand position to the target
+        Vector3f handPos = getHandPos(lefty, delta);
+        Vector3f aimDir = aimTarget.sub(handPos);
+
+        //if the result is too small, just use the hand direction
+        if (aimDir.lengthSquared() < 1f)
+            return getHandDir(lefty, delta);
+
+        return aimDir.normalize();
+    }
+
+    public Hit<Terrain> raycastHandTerrain(float distance) {
+        return raycastHandTerrain(isLeftHanded(), 1f, distance);
+    }
+
+    public Hit<Terrain> raycastHandTerrain(boolean lefty, float delta, float distance) {
         //prepare positions
-        Vector3f pos = getHandPos(left, delta);
-        Vector3f range = getHandDir(left, delta).mul(distance);
+        Vector3f pos = getHandPos(lefty, delta);
+        Vector3f range = getHandDir(lefty, delta).mul(distance);
         AABB area = new AABB(pos).expand(range);
 
         //return hit
         return world.raycastTerrain(area, pos, range, t -> t.isSelectable(this));
     }
 
-    public Hit<Entity> raycastHandEntity(boolean left, float delta, float distance) {
+    public Hit<Entity> raycastHandEntity(float distance) {
+        return raycastHandEntity(isLeftHanded(), 1f, distance);
+    }
+
+    public Hit<Entity> raycastHandEntity(boolean lefty, float delta, float distance) {
         //prepare positions
-        Vector3f pos = getHandPos(left, delta);
-        Vector3f range = getHandDir(left, delta).mul(distance);
+        Vector3f pos = getHandPos(lefty, delta);
+        Vector3f range = getHandDir(lefty, delta).mul(distance);
         AABB area = new AABB(pos).expand(range);
 
         //return hit
         return world.raycastEntity(area, pos, range, e -> e != this && e != this.riding && e.isTargetable());
     }
 
-    public Hit<? extends WorldObject> raycastHand(boolean left, float delta,float distance) {
-        Hit<Entity> entityHit = raycastHandEntity(left, delta, distance);
-        Hit<Terrain> terrainHit = raycastHandTerrain(left, delta, distance);
+    public Hit<? extends WorldObject> raycastHand(float distance) {
+        return raycastHand(isLeftHanded(), 1f, distance);
+    }
+
+    public Hit<? extends WorldObject> raycastHand(boolean lefty, float delta, float distance) {
+        Hit<Entity> entityHit = raycastHandEntity(lefty, delta, distance);
+        Hit<Terrain> terrainHit = raycastHandTerrain(lefty, delta, distance);
 
         if (entityHit != null && (terrainHit == null || entityHit.collision().near() < terrainHit.collision().near()))
             return entityHit;

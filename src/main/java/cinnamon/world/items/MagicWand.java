@@ -119,7 +119,7 @@ public class MagicWand extends Item {
 
     private static Vector3f spawnPos(LivingEntity source) {
         if (source instanceof LocalPlayer && XrManager.isInXR())
-            return source.getHandDir(false, 1f).mul(0.25f).add(source.getHandPos(false, 1f));
+            return source.getHandDir().mul(0.25f).add(source.getHandPos());
 
         Hit<Terrain> terrain = source.getLookingTerrain(DISTANCE);
         if (terrain != null)

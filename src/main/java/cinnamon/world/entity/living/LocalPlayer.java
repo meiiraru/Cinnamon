@@ -103,7 +103,7 @@ public class LocalPlayer extends Player {
         if (!getAbilities().canBuild())
             return false;
 
-        Hit<? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(false, 1f, getPickRange()) : getLookingObject(getPickRange());
+        Hit<? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(getPickRange()) : getLookingObject(getPickRange());
         if (hit != null && hit.obj() instanceof Terrain t && t.isSelectable(this)) {
             getWorld().removeTerrain(t);
             lastMouseTime = getInteractionDelay();
@@ -132,7 +132,7 @@ public class LocalPlayer extends Player {
         if (!getAbilities().canBuild())
             return false;
 
-        Hit<? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(false, 1f, getPickRange()) : getLookingObject(getPickRange());
+        Hit<? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(getPickRange()) : getLookingObject(getPickRange());
         if (hit != null && hit.obj() instanceof Terrain t) {
             Vector3f tpos = new Vector3f(hit.collision().pos()).floor();
             if (tpos.equals(t.getPos()))
@@ -235,28 +235,35 @@ public class LocalPlayer extends Player {
         return XrManager.isInXR() ? dir.rotate(WorldRenderer.camera.getXrRot()) : dir;
     }
 
-    public Vector3f getHandPos(boolean left, float delta) {
+    @Override
+    public Vector3f getHandPos(boolean lefty, float delta) {
         if (!XrManager.isInXR())
-            return super.getHandPos(left, delta);
+            return super.getHandPos(lefty, delta);
 
-        XrHandTransform transform = XrRenderer.getHandTransform(left ? 0 : 1);
+        XrHandTransform transform = XrRenderer.getHandTransform(lefty ? 0 : 1);
         Vector3f tPos = new Vector3f(transform.pos());
-        Quaternionf rot = getHandRot(left, delta).mul(new Quaternionf(transform.rot()).invert());
+        Quaternionf rot = getHandRot(lefty, delta).mul(new Quaternionf(transform.rot()).invert());
         tPos.rotate(rot);
         return getEyePos(delta).add(tPos);
 
     }
 
-    public Quaternionf getHandRot(boolean left, float delta) {
+    @Override
+    public Quaternionf getHandRot(boolean lefty, float delta) {
         if (!XrManager.isInXR())
-            return super.getHandRot(left, delta);
+            return super.getHandRot(lefty, delta);
 
-        XrHandTransform transform = XrRenderer.getHandTransform(left ? 0 : 1);
+        XrHandTransform transform = XrRenderer.getHandTransform(lefty ? 0 : 1);
         Vector2f rot = getRot(delta);
         return new Quaternionf()
                 .rotateY(Math.toRadians(-rot.y))
                 .rotateX(Math.toRadians(-rot.x))
                 .mul(transform.rot());
+    }
+
+    @Override
+    public Vector3f getAimDir(boolean lefty, float delta, float range) {
+        return XrManager.isInXR() ? getHandDir(lefty, delta) : super.getAimDir(lefty, delta, range);
     }
 
     @Override

@@ -25,8 +25,8 @@ public class PotatoItem extends Item {
         setCount(getCount() - 1);
         LivingEntity src = getSource();
         Potato potato = new Potato(UUID.randomUUID(), src.getUUID());
-        potato.setPos(src.getHandPos(false, 1f));
-        potato.setMotion(src.getHandDir(false, 1f));
+        potato.setPos(src.getHandPos());
+        potato.setMotion(src.getAimDir(20f));
         src.getWorld().addEntity(potato);
         return true;
     }

@@ -66,7 +66,7 @@ public class CurveMaker extends Item {
 
     private static Vector3f getPos(LivingEntity source) {
         if (source instanceof LocalPlayer && XrManager.isInXR())
-            return source.getHandDir(false, 1f).mul(0.5f).add(source.getHandPos(false, 1f));
+            return source.getHandDir().mul(0.5f).add(source.getHandPos());
 
         Hit<Terrain> terrain = source.getLookingTerrain(source.getPickRange());
         if (terrain != null)

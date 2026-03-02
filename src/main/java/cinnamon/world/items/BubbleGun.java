@@ -47,7 +47,7 @@ public class BubbleGun extends Item {
         particle.setPos(spawnPos(source));
 
         //motion
-        Vector3f motion = source.getHandDir(false, 1f);
+        Vector3f motion = source.getHandDir();
         motion = Maths.spread(motion, 45f, 45f).mul(0.1f);
         motion.y = (float) (Math.random() * 0.05f) + 0.001f;
 
@@ -60,11 +60,11 @@ public class BubbleGun extends Item {
     }
 
     private static Vector3f spawnPos(LivingEntity source) {
-        Hit<Terrain> terrain = source.raycastHandTerrain(false, 1f, DISTANCE);
+        Hit<Terrain> terrain = source.raycastHandTerrain(DISTANCE);
         if (terrain != null)
             return terrain.collision().pos();
 
-        return source.getHandDir(false, 1f).mul(DISTANCE).add(source.getHandPos(false, 1f));
+        return source.getHandDir().mul(DISTANCE).add(source.getHandPos());
     }
 
     public Object getCountText() {
