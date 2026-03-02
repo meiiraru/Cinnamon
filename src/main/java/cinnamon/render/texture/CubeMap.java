@@ -19,7 +19,7 @@ public class CubeMap extends Texture {
     private static final Map<Resource, CubeMap> CUBEMAP_MAP = new HashMap<>();
     public static final CubeMap MISSING_CUBEMAP = generateMissingMap();
 
-    protected CubeMap(int id, int width, int height) {
+    public CubeMap(int id, int width, int height) {
         super(id, width, height);
     }
 

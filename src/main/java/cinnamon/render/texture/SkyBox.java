@@ -1,5 +1,6 @@
 package cinnamon.render.texture;
 
+import cinnamon.render.CubemapRenderer;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
@@ -24,7 +25,7 @@ public class SkyBox {
 
     private static final Map<Resource, SkyBox> SKYBOX_MAP = new HashMap<>();
     public static final SkyBox MISSING = new SkyBox(CubeMap.MISSING_CUBEMAP, CubeMap.MISSING_CUBEMAP, CubeMap.MISSING_CUBEMAP);
-    protected static final Texture LUT_MAP = IBLMap.brdfLUT(512);
+    public static final Texture LUT_MAP = CubemapRenderer.generateLUTMap(512, 512);
 
     protected final CubeMap texture, irradiance, prefilter;
 
@@ -58,13 +59,13 @@ public class SkyBox {
         if (hdr) {
             boolean isTrulyHdr = resource.getExtension().equalsIgnoreCase("hdr");
             Texture hdrTex = HDRTexture.of(resource, isTrulyHdr, SMOOTH_SAMPLING);
-            texture = IBLMap.hdrToCubemap(hdrTex, isTrulyHdr);
+            texture = CubemapRenderer.hdrToCubemap(hdrTex, isTrulyHdr);
             hdrTex.free();
         } else {
             texture = CubeMap.of(resource);
         }
-        CubeMap irradiance = IBLMap.generateIrradianceMap(texture);
-        CubeMap prefilter = IBLMap.generatePrefilterMap(texture);
+        CubeMap irradiance = CubemapRenderer.generateIrradianceMap(texture);
+        CubeMap prefilter = CubemapRenderer.generatePrefilterMap(texture);
         return new SkyBox(texture, irradiance, prefilter);
     }
 

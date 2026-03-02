@@ -50,7 +50,7 @@ public class Framebuffer {
         } else if (hdrColorBuffer) {
             this.color = genTexture(GL_RGBA16F, width, height, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_COLOR_ATTACHMENT0);
         } else {
-            glDrawBuffer(GL_NONE);
+            glDrawBuffers(GL_NONE);
             glReadBuffer(GL_NONE);
         }
 

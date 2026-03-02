@@ -15,7 +15,7 @@ import org.joml.Math;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
-public class IBLSky extends Sky {
+public class CubemapSky extends Sky {
 
     protected final Matrix3f skyRotation = new Matrix3f();
     protected Resource skyBox = SkyBoxRegistry.CLOUDS.resource;

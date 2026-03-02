@@ -22,7 +22,7 @@ import cinnamon.utils.AABB;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Rotation;
 import cinnamon.vr.XrManager;
-import cinnamon.world.sky.IBLSky;
+import cinnamon.world.sky.CubemapSky;
 import cinnamon.world.sky.Sky;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -37,7 +37,7 @@ import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 public class ModelViewer extends SelectableWidget {
 
     private static final Framebuffer modelBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
-    private static final Sky theSky = new IBLSky();
+    private static final Sky theSky = new CubemapSky();
     static {
         theSky.fogColor = 0x000000;
         theSky.fogStart = 4096f;
@@ -153,7 +153,7 @@ public class ModelViewer extends SelectableWidget {
         WorldRenderer.renderSSAO(client.camera);
 
         //bake the model renderer
-        ((IBLSky) theSky).setSkyBox(skybox.resource);
+        ((CubemapSky) theSky).setSkyBox(skybox.resource);
         WorldRenderer.bakeDeferred(client.camera, theSky);
 
         //bloom

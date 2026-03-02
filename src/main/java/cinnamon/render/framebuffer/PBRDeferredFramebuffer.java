@@ -95,7 +95,7 @@ public class PBRDeferredFramebuffer extends Framebuffer {
 
     public void setWriteBuffers(int... buffers) {
         if (buffers.length == 0) {
-            glDrawBuffer(GL_NONE);
+            glDrawBuffers(GL_NONE);
             return;
         }
 

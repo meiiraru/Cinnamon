@@ -34,7 +34,7 @@ public class Texture {
     // -- texture loading -- //
 
 
-    protected Texture(int id, int width, int height) {
+    public Texture(int id, int width, int height) {
         this.ID = id;
         this.width = width;
         this.height = height;

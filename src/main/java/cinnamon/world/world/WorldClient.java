@@ -102,7 +102,7 @@ public class WorldClient extends World {
     protected final List<Decal> decals = new ArrayList<>();
 
     //skybox
-    protected final Sky sky = new DynamicSky();
+    protected Sky sky = new DynamicSky();
     protected final SkyColors skyColors = new SkyColors();
 
     @Override
