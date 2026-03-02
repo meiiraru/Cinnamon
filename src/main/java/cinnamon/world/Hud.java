@@ -51,6 +51,8 @@ public class Hud {
         itemCooldown.setStyle(HUD_STYLE);
     }
 
+    public void free() {}
+
     public void tick() {}
 
     public void render(MatrixStack matrices, float delta) {

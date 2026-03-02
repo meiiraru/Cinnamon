@@ -104,4 +104,6 @@ public abstract class Sky {
     public abstract int bind(Shader shader, int index);
 
     public abstract void unbind(int index);
+
+    public void free() {}
 }

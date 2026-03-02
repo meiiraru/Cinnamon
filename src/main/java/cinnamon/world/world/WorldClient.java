@@ -256,6 +256,8 @@ public class WorldClient extends World {
     @Override
     public void close() {
         SoundManager.stopAll(c -> c != SoundCategory.GUI && c != SoundCategory.MASTER);
+        this.sky.free();
+        this.hud.free();
         //ServerConnection.close();
     }
 

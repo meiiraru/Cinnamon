@@ -13,7 +13,11 @@ public class DynamicSky extends CubemapSky {
     public static final int CUBEMAP_SIZE = 512;
     protected final CubeMap cubeMap = CubemapRenderer.generateEmptyMap(CUBEMAP_SIZE, CUBEMAP_SIZE, false, false);
 
-    protected final int cubeMap = IBLMap.generateEmptyMap(CUBEMAP_SIZE, false);
+    @Override
+    public void free() {
+        super.free();
+        cubeMap.free();
+    }
 
     @Override
     protected void renderSky(Camera camera, MatrixStack matrices) {
