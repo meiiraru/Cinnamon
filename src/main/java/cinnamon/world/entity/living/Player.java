@@ -77,7 +77,12 @@ public class Player extends LivingEntity {
 
     @Override
     protected Vector3f tickTerrainCollisions(AABB aabb, Vector3f motion) {
-        return abilities.noclip() ? new Vector3f(motion) : super.tickTerrainCollisions(aabb, motion);
+        if (abilities.noclip()) {
+            this.onGround = false;
+            return new Vector3f(motion);
+        }
+
+        return super.tickTerrainCollisions(aabb, motion);
     }
 
     @Override
