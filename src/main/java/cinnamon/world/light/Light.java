@@ -26,6 +26,7 @@ public abstract class Light {
             lightSpaceMatrix = new Matrix4f(),
             lightView = new Matrix4f();
     private boolean castsShadows = false;
+    private float shadowIntensity = 1f;
     protected final Mask shadowMask = new Mask(0b1, 0b10);
     protected UUID source;
 
@@ -193,6 +194,15 @@ public abstract class Light {
 
     public float getVolumetricStrength() {
         return volumetricStrength;
+    }
+
+    public Light shadowIntensity(float shadowIntensity) {
+        this.shadowIntensity = shadowIntensity;
+        return this;
+    }
+
+    public float getShadowIntensity() {
+        return shadowIntensity;
     }
 
     public enum Type {

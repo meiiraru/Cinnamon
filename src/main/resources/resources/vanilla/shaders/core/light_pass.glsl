@@ -16,7 +16,7 @@ void main() {
 
 struct Light {
     vec3 pos, color, direction;
-    float intensity, falloffStart, falloffEnd, innerAngle, outerAngle;
+    float intensity, shadowIntensity, falloffStart, falloffEnd, innerAngle, outerAngle;
     int type; //0 = point, 1 = spot, 2 = directional, 3 = cookie
     mat4 lightSpaceMatrix;
     bool castsShadows;
@@ -49,6 +49,16 @@ uniform int cascadeCount;
 uniform float cascadeDistances[16];
 uniform mat4 cascadeMatrices[16];
 uniform sampler2DArray shadowCascadeMap;
+
+//shadow bias
+uniform float shadowTexelSize;
+
+vec3 getNormalOffset(vec3 normal, vec3 lightDir, float texelWorldSize) {
+    float cosAngle = dot(normal, lightDir);
+    float sinAngle = sqrt(1.0f - cosAngle * cosAngle);
+    float normalOffsetScale = sinAngle * texelWorldSize;
+    return normal * normalOffsetScale;
+}
 
 vec3 getPosFromDepth(vec2 texCoords) {
     //normalized device coordinates
@@ -98,35 +108,49 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0f - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
 }
 
-float calculateSpotShadow(vec3 lightCoords, vec3 lightDir, vec3 normal) {
+float calculateSpotShadow(vec3 fragPosWorld, vec3 lightDir, vec3 normal) {
+    //offset the fragment position before projecting into light space to avoid self-shadowing
+    vec3 offsetPos = fragPosWorld + getNormalOffset(normal, lightDir, shadowTexelSize * light.falloffEnd * 2.0f);
+
+    //project the offset position into light space
+    vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(offsetPos, 1.0f);
+    vec3 lightCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    lightCoords = lightCoords * 0.5f + 0.5f;
+
     //get the current fragment depth from the light perspective
     float currentDepth = lightCoords.z;
 
     //get the closest depth from the shadow map
     float closestDepth = texture(shadowMap, lightCoords.xy).r;
 
-    //shadow acne prevention bias
-    //the bias is larger for surfaces that are steeply angled to the light
-    float bias = max(0.001f * (1.0f - dot(normal, lightDir)), 0.0001f);
+    //small constant bias to handle remaining precision issues
+    float bias = 0.0005f;
 
     //check if the current fragment is behind the closest one recorded in the shadow map
     float shadow = currentDepth - bias > closestDepth ? 1.0f : 0.0f;
     return shadow;
 }
 
-float calculatePointShadow(vec3 fragPosWorld) {
+float calculatePointShadow(vec3 fragPosWorld, vec3 normal) {
     //direction from light to fragment
-    vec3 lightDir = fragPosWorld - light.pos;
+    vec3 lightToFrag = fragPosWorld - light.pos;
+    vec3 lightDir = normalize(-lightToFrag);
+
+    //apply normal offset to avoid self-shadowing
+    vec3 offsetPos = fragPosWorld + getNormalOffset(normal, lightDir, shadowTexelSize * light.falloffEnd * 2.0f);
+
+    //recalculate with offset position
+    vec3 offsetDir = offsetPos - light.pos;
 
     //current distance from light to fragment
-    float currentDepth = length(lightDir);
+    float currentDepth = length(offsetDir);
 
     //sample closest depth from cubemap
-    float closestDepth = texture(shadowCubeMap, lightDir).r;
+    float closestDepth = texture(shadowCubeMap, lightToFrag).r;
     closestDepth *= light.falloffEnd; // stored depth was normalized
 
-    //bias to prevent shadow acne
-    const float bias = 0.05f;
+    //small constant bias for remaining precision issues
+    float bias = 0.01f;
 
     //check if the current fragment is in shadow
     float shadow = currentDepth - bias > closestDepth ? 1.0f : 0.0f;
@@ -158,8 +182,12 @@ float calculateDirectionalShadow(vec3 fragPosWorld, vec3 lightDir, vec3 normal) 
         }
     }
 
-    //transform fragment position to light clip space
-    vec4 fragPosLightSpace = cascadeMatrices[layer] * vec4(fragPosWorld, 1.0f);
+    //apply normal offset - scale with cascade distance for consistent results across cascades
+    float cascadeScale = cascadeDistances[layer] * shadowTexelSize;
+    vec3 offsetPos = fragPosWorld + getNormalOffset(normal, lightDir, cascadeScale * 4.0f);
+
+    //transform offset position to light clip space
+    vec4 fragPosLightSpace = cascadeMatrices[layer] * vec4(offsetPos, 1.0f);
     //perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     //transform to [0,1] range
@@ -172,9 +200,8 @@ float calculateDirectionalShadow(vec3 fragPosWorld, vec3 lightDir, vec3 normal) 
     if (currentDepth > 1.0f)
         return 0.0f;
 
-    //acne prevention bias
-    float bias = max(0.001f * (1.0f - dot(normal, lightDir)), 0.0001f);
-    //bias *= 1 / (cascadeDistances[layer] * 0.5f);
+    //small constant bias for remaining precision issues
+    float bias = 0.0005f;
 
     //get depth of closest fragment from light perspective
     float closestDepth = texture(shadowCascadeMap, vec3(projCoords.xy, layer)).r;
@@ -269,13 +296,13 @@ void main() {
         float shadow = 0.0f;
 
         if (light.type == 0)
-            shadow = calculatePointShadow(pos);
+            shadow = calculatePointShadow(pos, N);
         else if (light.type == 2)
             shadow = calculateDirectionalShadow(pos, L, N);
         else
-            shadow = calculateSpotShadow(lightCoords, L, N);
+            shadow = calculateSpotShadow(pos, L, N);
 
-        radiance *= 1.0f - shadow;
+        radiance *= max(1.0f - shadow * light.shadowIntensity, 0.0f);
     }
 
     //if light has no effect, skip the expensive PBR calculations

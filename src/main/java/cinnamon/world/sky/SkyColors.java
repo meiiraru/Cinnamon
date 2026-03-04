@@ -53,7 +53,8 @@ public class SkyColors {
             float starsIntensity,
 
             int sunlightColor,
-            float sunlightIntensity
+            float sunlightIntensity,
+            float sunlightShadowIntensity
     ) {
 
         public SkyProperties lerp(SkyProperties other, float t) {
@@ -73,7 +74,8 @@ public class SkyColors {
                     Math.lerp(starsIntensity, other.starsIntensity, t),
 
                     ColorUtils.lerpRGBColor(sunlightColor, other.sunlightColor, t),
-                    Math.lerp(sunlightIntensity, other.sunlightIntensity, t)
+                    Math.lerp(sunlightIntensity, other.sunlightIntensity, t),
+                    Math.lerp(sunlightShadowIntensity, other.sunlightShadowIntensity, t)
             );
         }
     }

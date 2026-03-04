@@ -8,7 +8,7 @@ import org.joml.Vector4f;
 public class CascadedShadow {
 
     public static final int NUM_CASCADES = 4;
-    public static float[] CASCADES = {0.01f, 0.05f, 0.13f, 0.3f};
+    public static float[] CASCADES = {0.02f, 0.05f, 0.12f, 0.25f};
     public static float Z_MULT = 10f;
 
     private final Matrix4f[] cascadeMatrices;

@@ -34,7 +34,16 @@ void main() {
     if (tex.a < 0.01f)
         discard;
 
+    //compute face normal from screen-space derivatives of world position
+    vec3 faceNormal = normalize(cross(dFdx(worldPos), dFdy(worldPos)));
+    vec3 lightDir = normalize(lightPos - worldPos);
+
+    //slope-scale bias
+    float cosAngle = abs(dot(faceNormal, lightDir));
+    float bias = 0.002f * sqrt(1.0f - cosAngle * cosAngle) / max(cosAngle, 0.001f);
+    bias = min(bias, 0.01f);
+
     float lightDistance = length(worldPos - lightPos);
     lightDistance = lightDistance / farPlane;
-    gl_FragDepth = lightDistance;
+    gl_FragDepth = lightDistance + bias;
 }

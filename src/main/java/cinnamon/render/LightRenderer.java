@@ -38,6 +38,10 @@ public class LightRenderer {
     public static final ShadowCascadeFramebuffer cascadeShadowBuffer = new ShadowCascadeFramebuffer(CascadedShadow.NUM_CASCADES);
     public static final CascadedShadow cascadedShadow = new CascadedShadow();
 
+    public static final float
+            SHADOW_BIAS_FACTOR = 2f,
+            SHADOW_BIAS_UNITS = 2f;
+
     private static Light shadowLight = null;
 
     private static final Vector3f cameraPos = new Vector3f();
@@ -63,7 +67,7 @@ public class LightRenderer {
             if (light.getIntensity() <= 0f)
                 continue;
 
-            boolean shadow = hasShadows && light.castsShadows();
+            boolean shadow = hasShadows && light.castsShadows() && light.getShadowIntensity() > 0f;
             if (shadow) {
                 //init the shadow buffer
                 initShadowBuffer();
@@ -280,6 +284,10 @@ public class LightRenderer {
         //render world for each cascade
         cascadeShadowBuffer.useClear();
 
+        //enable slope-scale depth bias to prevent shadow acne
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        glPolygonOffset(SHADOW_BIAS_FACTOR, SHADOW_BIAS_UNITS);
+
         //prepare shader
         Shader s = Shaders.DEPTH_DIR.getShader().use();
         s.setMat4Array("cascadeMatrices", cascadeMatrices);
@@ -293,6 +301,9 @@ public class LightRenderer {
         Shader main = Shaders.MAIN_DEPTH_DIR.getShader().use();
         main.setMat4Array("cascadeMatrices", cascadeMatrices);
         VertexConsumer.finishAllBatches(main, camera);
+
+        //disable depth bias
+        glDisable(GL_POLYGON_OFFSET_FILL);
 
         //reset state
         shadowLight = null;
@@ -317,6 +328,11 @@ public class LightRenderer {
 
         //render world
         shadowBuffer.useClear();
+
+        //enable slope-scale depth bias to prevent shadow acne
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        glPolygonOffset(SHADOW_BIAS_FACTOR, SHADOW_BIAS_UNITS);
+
         Shaders.DEPTH.getShader().use().setMat4("lightSpaceMatrix", lightSpaceMatrix);
         renderFunction.run();
         MaterialApplier.cleanup();
@@ -325,6 +341,9 @@ public class LightRenderer {
         Shader main = Shaders.MAIN_DEPTH.getShader().use();
         main.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         VertexConsumer.finishAllBatches(main, camera);
+
+        //disable depth bias
+        glDisable(GL_POLYGON_OFFSET_FILL);
 
         //reset state
         shadowLight = null;
@@ -405,6 +424,11 @@ public class LightRenderer {
         //set up the light properties
         if (!hasShadow) light.calculateLightSpaceMatrix();
         s.setBool("light.castsShadows", hasShadow);
+        s.setFloat("light.shadowIntensity", light.getShadowIntensity());
+
+        //shadow map texel size for normal offset bias
+        int shadowRes = hasShadow ? shadowBuffer.getWidth() : 1;
+        s.setFloat("shadowTexelSize", 1f / shadowRes);
 
         s.setInt("cascadeCount", CascadedShadow.NUM_CASCADES);
         s.setFloatArray("cascadeDistances", cascadedShadow.getCascadeDistances());
