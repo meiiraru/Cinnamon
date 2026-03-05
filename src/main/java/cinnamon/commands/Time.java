@@ -4,50 +4,56 @@ import cinnamon.text.Text;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.world.World;
 
+import java.util.Stack;
+
 import static cinnamon.commands.CommandParser.ERROR_STYLE;
 
 public class Time implements Command {
 
     @Override
-    public Text execute(Entity source, String[] args) {
+    public Text execute(Entity source, Stack<String> args) {
         World world = source.getWorld();
 
-        if (args.length == 0)
+        if (args.isEmpty())
             return Text.of(world.getTime());
 
-        return switch (args[0]) {
+        String subcommand = args.pop();
+        return switch (subcommand) {
             case "query" -> timeQuery(world, args);
             case "set" -> timeSet(world, args);
             case "add" -> timeAdd(world, args);
-            default -> Text.of("Failed to execute command, invalid argument: " + args[0]).withStyle(ERROR_STYLE);
+            default -> Text.of("Failed to execute command, invalid argument: " + subcommand).withStyle(ERROR_STYLE);
         };
     }
 
-    private Text timeQuery(World world, String[] args) {
-        if (args.length - 1 <= 0)
+    private Text timeQuery(World world, Stack<String> args) {
+        if (args.isEmpty())
             return Text.of("Failed to execute command, missing arguments").withStyle(ERROR_STYLE);
 
-        return switch (args[1]) {
+        String subcommand = args.pop();
+        return switch (subcommand) {
             case "day" -> Text.of(world.getDay());
             case "time" -> Text.of(world.getTime());
             case "clock" -> Text.of(world.getTimeOfTheDay());
-            default -> Text.of("Failed to execute command, invalid argument: " + args[1]).withStyle(ERROR_STYLE);
+            default -> Text.of("Failed to execute command, invalid argument: " + subcommand).withStyle(ERROR_STYLE);
         };
     }
 
-    private Text timeSet(World world, String[] args) {
-        if (args.length - 1 <= 0)
+    private Text timeSet(World world, Stack<String> args) {
+        if (args.isEmpty())
             return Text.of("Failed to execute command, missing arguments").withStyle(ERROR_STYLE);
+
+        String value = args.pop();
 
         //attempt to parse the time as a long
         try {
-            long time = Long.parseLong(args[1]);
+            long time = Long.parseLong(value);
             world.setTime(time);
             return Text.of("Set time to " + time);
         } catch (Exception ignored) {}
 
         //otherwise, try to parse it as a time of day
-        return switch (args[1]) {
+        return switch (value) {
             case "sunrise" -> {
                 world.setTime(0);
                 yield Text.of("Set time to sunrise");
@@ -80,20 +86,21 @@ public class Time implements Command {
                 world.setTime(23000);
                 yield Text.of("Set time to end of the night");
             }
-            default -> Text.of("Failed to execute command, invalid argument: " + args[1]).withStyle(ERROR_STYLE);
+            default -> Text.of("Failed to execute command, invalid argument: " + value).withStyle(ERROR_STYLE);
         };
     }
 
-    private Text timeAdd(World world, String[] args) {
-        if (args.length - 1 <= 0)
+    private Text timeAdd(World world, Stack<String> args) {
+        if (args.isEmpty())
             return Text.of("Failed to execute command, missing arguments").withStyle(ERROR_STYLE);
 
+        String value = args.pop();
         try {
-            long time = Long.parseLong(args[1]);
+            long time = Long.parseLong(value);
             world.setTime(world.getTime() + time);
             return Text.of("Added " + time + " to the current time");
         } catch (Exception e) {
-            return Text.of("Failed to execute command, invalid argument: " + args[1]).withStyle(ERROR_STYLE);
+            return Text.of("Failed to execute command, invalid argument: " + value).withStyle(ERROR_STYLE);
         }
     }
 }

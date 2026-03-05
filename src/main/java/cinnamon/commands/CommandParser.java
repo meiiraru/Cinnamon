@@ -2,15 +2,17 @@ package cinnamon.commands;
 
 import cinnamon.logger.Logger;
 import cinnamon.registry.CommandRegistry;
+import cinnamon.registry.MaterialRegistry;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Maths;
-import cinnamon.utils.Pair;
 import cinnamon.utils.Trie;
 import cinnamon.world.entity.Entity;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+
+import java.util.Stack;
 
 public class CommandParser {
 
@@ -32,8 +34,9 @@ public class CommandParser {
             return Text.of("Unknown command").withStyle(ERROR_STYLE);
 
         String commandName = parts[0].toLowerCase();
-        String[] args = new String[parts.length - 1];
-        System.arraycopy(parts, 1, args, 0, args.length);
+        Stack<String> args = new Stack<>();
+        for (int i = parts.length - 1; i > 0; i--)
+            args.push(parts[i]);
 
         Command command = commandTrie.get(commandName);
         if (command != null)
@@ -58,55 +61,71 @@ public class CommandParser {
         }
     }
 
-    static Pair<Vector3f, Integer> parseCoordinate(Entity source, String[] args, int i) {
-        if (i + 2 >= args.length)
-            return Pair.of(null, 0);
+    static Vector3f parseCoordinate(Entity source, Stack<String> args) {
+        if (args.size() < 3)
+            return null;
 
-        int index = 0;
         Vector3f result = new Vector3f();
         Vector3f relativePos = source.getPos();
 
         try {
             //check for directional coordinates
-            if (args[i].startsWith("^") && args[i + 1].startsWith("^") && args[i + 2].startsWith("^")) {
-                result.set(
-                        parseRelativeFloat(args[i + index++]),
-                        parseRelativeFloat(args[i + index++]),
-                        parseRelativeFloat(args[i + index++])
-                );
+            if (args.getFirst().startsWith("^") && args.get(1).startsWith("^") && args.get(2).startsWith("^")) {
+                for (int i = 0; i < 3; i++) {
+                    result.setComponent(i, parseRelativeFloat(args.peek()));
+                    args.pop();
+                }
+
                 result.rotate(Maths.rotToQuat(source.getRot()));
                 result.add(relativePos);
             }
 
             //otherwise, parse as normal coordinates
             else {
-                for (; index < 3; index++)
-                    result.setComponent(index, parseRelative(args[i + index], relativePos.get(index)));
+                for (int i = 0; i < 3; i++) {
+                    result.setComponent(i, parseRelative(args.peek(), relativePos.get(i)));
+                    args.pop();
+                }
             }
 
-            return Pair.of(result, index);
+            return result;
         } catch (Exception e) {
-            LOGGER.error("Failed to parse coordinate", e);
-            return Pair.of(null, -++index);
+            return null;
         }
     }
 
-    static Pair<Vector2f, Integer> parseRotation(Entity source, String[] args, int i) {
-        if (i + 1 >= args.length)
-            return Pair.of(null, 0);
+    static Vector2f parseRotation(Entity source, Stack<String> args) {
+        if (args.size() < 2)
+            return null;
 
-        int index = 0;
         Vector2f result = new Vector2f();
         Vector2f relativeRot = source.getRot();
 
         try {
-            for (; index < 2; index++)
-                result.setComponent(index, parseRelative(args[i + index], relativeRot.get(index)));
+            for (int i = 0; i < 2; i++) {
+                result.setComponent(i, parseRelative(args.peek(), relativeRot.get(i)));
+                args.pop();
+            }
 
-            return Pair.of(result, index);
-        } catch (Exception e) {
-            LOGGER.error("Failed to parse rotation", e);
-            return Pair.of(null, -++index);
+            return result;
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    static Integer parseMaterial(String arg) {
+        if (arg.equalsIgnoreCase("air"))
+            return -1;
+
+        try {
+            int id = Integer.parseInt(arg);
+            return id < -1 || id >= MaterialRegistry.values().length ? null : id;
+        } catch (Exception ignored) {}
+
+        try {
+            return MaterialRegistry.valueOf(arg.toUpperCase()).ordinal();
+        } catch (Exception ignored) {
+            return null;
         }
     }
 }
