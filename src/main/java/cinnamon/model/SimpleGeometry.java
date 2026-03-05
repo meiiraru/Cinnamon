@@ -107,17 +107,17 @@ public class SimpleGeometry {
 
     public static final SimpleGeometry
             QUAD = of(unwarp(new Vertex[][]{GeometryHelper.invRectangle(Client.getInstance().matrices, -1f, -1f, 1f, 1f, 0f, 0xFFFFFFFF)}),
-                    Attributes.POS_XY, Attributes.UV),
+                    Attributes.POS_XY, Attributes.UV, Attributes.NORMAL),
             TRIANGLE = of(unwarp(new Vertex[][]{GeometryHelper.invTriangle(Client.getInstance().matrices, -1f, -1f, 1f, 1f, 0f, 0xFFFFFFFF)}),
-                    Attributes.POS_XY, Attributes.UV),
+                    Attributes.POS_XY, Attributes.UV, Attributes.NORMAL),
             CUBE = of(unwarp(GeometryHelper.box(Client.getInstance().matrices, -1f, -1f, -1f, 1f, 1f, 1f, 0)),
-                    Attributes.POS, Attributes.NORMAL, Attributes.UV),
+                    Attributes.POS, Attributes.UV, Attributes.NORMAL),
             INV_CUBE = of(unwarp(GeometryHelper.box(Client.getInstance().matrices, 1f, 1f, 1f, -1f, -1f, -1f, 0)),
-                    Attributes.POS, Attributes.NORMAL, Attributes.UV),
+                    Attributes.POS, Attributes.UV, Attributes.NORMAL),
             SPHERE = of(unwarp(GeometryHelper.sphere(Client.getInstance().matrices, 0f, 0f, 0f, 1f, 12, 0)),
-                    Attributes.POS, Attributes.NORMAL, Attributes.UV),
+                    Attributes.POS, Attributes.UV, Attributes.NORMAL),
             CONE = of(unwarp(GeometryHelper.cone(Client.getInstance().matrices, 0, -1f, 0, 1f, 1f, 12, 0)),
-                    Attributes.POS, Attributes.NORMAL, Attributes.UV);
+                    Attributes.POS, Attributes.UV, Attributes.NORMAL);
 
     private static List<Vertex> unwarp(Vertex[] vertices) {
         List<Vertex> result = new ArrayList<>();

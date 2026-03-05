@@ -18,6 +18,7 @@ public abstract class Sky {
             fogColor = 0xBFD3DE,
             skyColor = 0x4444D0,
             sunColor = 0xFF8822,
+            cloudsColor = 0x7F7F7F,
             ambientLight = 0xBFD3DE;
 
     public float

@@ -1,49 +1,58 @@
 package cinnamon.world.sky;
 
 import cinnamon.utils.ColorUtils;
-import cinnamon.utils.Maths;
 import org.joml.Math;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class SkyColors {
 
-    private final List<SkyProperties> timedProperties = new ArrayList<>();
+    public static final int DAY_LENGTH = 24000;
 
-    public void addProperty(SkyProperties properties) {
-        timedProperties.add(properties);
-        timedProperties.sort(Comparator.comparingInt(a -> a.startTime));
+    private final SortedMap<Integer, SkyProperties> propertiesMap = new TreeMap<>();
+
+    public void clear() {
+        propertiesMap.clear();
     }
 
-    public void clearProperties() {
-        timedProperties.clear();
+    public void addProperty(int time, SkyProperties properties) {
+        propertiesMap.put(time, properties);
     }
 
     public SkyProperties getPropertiesAtTime(float dayTime) {
-        if (timedProperties.isEmpty())
+        if (propertiesMap.isEmpty())
             return null;
 
-        int next = Maths.binarySearch(0, timedProperties.size() - 1, i -> dayTime <= timedProperties.get(i).startTime);
-        int current = Maths.modulo(next - 1, timedProperties.size());
+        int time1 = propertiesMap.lastKey();
+        int time2 = propertiesMap.firstKey();
 
-        SkyProperties currentProps = timedProperties.get(current);
-        SkyProperties nextProps = timedProperties.get(next);
+        for (int time : propertiesMap.keySet()) {
+            if (time <= dayTime) {
+                time1 = time;
+            } else {
+                time2 = time;
+                break;
+            }
+        }
 
-        if (currentProps.startTime == nextProps.startTime)
-            return currentProps;
+        SkyProperties properties1 = propertiesMap.get(time1);
+        SkyProperties properties2 = propertiesMap.get(time2);
 
-        return currentProps.lerp(nextProps, Maths.ratio(dayTime, currentProps.startTime, nextProps.startTime));
+        if (time1 > dayTime) time1 -= DAY_LENGTH;
+        if (time2 < dayTime) time2 += DAY_LENGTH;
+
+        float dt = (dayTime - time1) / (float) (time2 - time1);
+
+        return properties1.lerp(properties2, dt);
     }
 
     public record SkyProperties(
-            int startTime,
-
             int sunColor,
             int skyColor,
             int ambientLight,
             int fogColor,
+            int cloudsColor,
 
             float fogStart,
             float fogEnd,
@@ -56,15 +65,13 @@ public class SkyColors {
             float sunlightIntensity,
             float sunlightShadowIntensity
     ) {
-
         public SkyProperties lerp(SkyProperties other, float t) {
             return new SkyProperties(
-                    (int) Math.lerp(startTime, other.startTime, t),
-
                     ColorUtils.lerpRGBColor(sunColor, other.sunColor, t),
                     ColorUtils.lerpRGBColor(skyColor, other.skyColor, t),
                     ColorUtils.lerpRGBColor(ambientLight, other.ambientLight, t),
                     ColorUtils.lerpRGBColor(fogColor, other.fogColor, t),
+                    ColorUtils.lerpRGBColor(cloudsColor, other.cloudsColor, t),
 
                     Math.lerp(fogStart, other.fogStart, t),
                     Math.lerp(fogEnd, other.fogEnd, t),
