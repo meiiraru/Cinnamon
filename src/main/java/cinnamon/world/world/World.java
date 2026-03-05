@@ -14,6 +14,7 @@ import cinnamon.world.entity.projectile.Potato;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.OctreeTerrain;
 import cinnamon.world.worldgen.TerrainManager;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.*;
@@ -182,6 +183,10 @@ public abstract class World {
 
         //return entity collision data
         return entityColl == null ? null : new Hit<>(entityColl, tempEntity);
+    }
+
+    public void setTime(long time) {
+        this.worldTime = Math.max(time, 0L);
     }
 
     public long getTime() {
