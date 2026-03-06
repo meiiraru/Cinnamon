@@ -1,6 +1,6 @@
 package cinnamon.render;
 
-import cinnamon.model.SimpleGeometry;
+import cinnamon.model.StaticGeometry;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
@@ -139,7 +139,7 @@ public class LightRenderer {
             s.setFloat("glareSize", light.getGlareSize() * xrScalar);
             s.setTexture("textureSampler", Texture.of(light.getGlareTexture()), 1);
 
-            SimpleGeometry.QUAD.render();
+            StaticGeometry.QUAD.render();
         }
 
         //render lens flare for directional lights
@@ -156,7 +156,7 @@ public class LightRenderer {
                 lensShader.setVec3("direction", light.getDirection());
                 lensShader.setFloat("intensity", light.getGlareIntensity());
                 lensShader.setFloat("scale", xrScalar);
-                SimpleGeometry.QUAD.render();
+                StaticGeometry.QUAD.render();
             }
         }
 
@@ -192,7 +192,7 @@ public class LightRenderer {
                         float r = pointLight.getFalloffEnd();
                         volShader.setFloat("radius", r);
 
-                        SimpleGeometry.SPHERE.render();
+                        StaticGeometry.SPHERE.render();
                     }
                     case SPOT, COOKIE -> {
                         Spotlight spotlight = (Spotlight) light;
@@ -201,7 +201,7 @@ public class LightRenderer {
                         volShader.setFloat("radius", r);
                         volShader.setFloat("height", h);
 
-                        SimpleGeometry.CONE.render();
+                        StaticGeometry.CONE.render();
                     }
                 }
             }
@@ -447,7 +447,7 @@ public class LightRenderer {
                 light.copyTransform(lightModelMatrix);
                 s.setMat4("model", lightModelMatrix);
 
-                SimpleGeometry.SPHERE.render();
+                StaticGeometry.SPHERE.render();
             }
             case DIRECTIONAL -> {
                 //for directional lights, render a full screen quad
@@ -461,7 +461,7 @@ public class LightRenderer {
                 s.setMat4("model", lightModelMatrix);
 
                 glCullFace(GL_BACK);
-                SimpleGeometry.QUAD.render();
+                StaticGeometry.QUAD.render();
             }
             default -> {
                 //render a cone for spot and cookie lights
@@ -469,7 +469,7 @@ public class LightRenderer {
                 light.copyTransform(lightModelMatrix);
                 s.setMat4("model", lightModelMatrix);
 
-                SimpleGeometry.CONE.render();
+                StaticGeometry.CONE.render();
             }
         }
 

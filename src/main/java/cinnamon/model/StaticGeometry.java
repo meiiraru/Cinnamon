@@ -12,12 +12,12 @@ import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.*;
 
-public class SimpleGeometry {
+public class StaticGeometry {
 
     protected final int vao, vbo;
     protected final int vertexCount;
 
-    private SimpleGeometry(Vertex[] vertices, Attributes... attributes) {
+    private StaticGeometry(Vertex[] vertices, Attributes... attributes) {
         this.vertexCount = vertices.length;
 
         //load vertex attributes
@@ -48,11 +48,15 @@ public class SimpleGeometry {
         glBindVertexArray(0);
     }
 
-    public static SimpleGeometry of(Vertex[] vertices, Attributes... attributes) {
-        return new SimpleGeometry(vertices, attributes);
+    public static StaticGeometry of(Vertex[] vertices, Attributes... attributes) {
+        return new StaticGeometry(vertices, attributes);
     }
 
-    public static SimpleGeometry of(Vertex[] vertices, int[] indices, Attributes... attributes) {
+    public static StaticGeometry of(Vertex[][] vertices, Attributes... attributes) {
+        return of(unwarp(vertices), attributes);
+    }
+
+    public static StaticGeometry of(Vertex[] vertices, int[] indices, Attributes... attributes) {
         return new EBOGeometry(vertices, indices, attributes);
     }
 
@@ -67,7 +71,7 @@ public class SimpleGeometry {
         glDeleteBuffers(vbo);
     }
 
-    private static class EBOGeometry extends SimpleGeometry {
+    private static class EBOGeometry extends StaticGeometry {
         protected final int ebo;
         protected final int indexCount;
 
@@ -105,18 +109,18 @@ public class SimpleGeometry {
     // -- generators -- //
 
 
-    public static final SimpleGeometry
-            QUAD = of(unwarp(new Vertex[][]{GeometryHelper.invRectangle(Client.getInstance().matrices, -1f, -1f, 1f, 1f, 0f, 0xFFFFFFFF)}),
+    public static final StaticGeometry
+            QUAD = of(new Vertex[][]{GeometryHelper.invRectangle(Client.getInstance().matrices, -1f, -1f, 1f, 1f, 0f, 0xFFFFFFFF)},
                     Attributes.POS_XY, Attributes.UV, Attributes.NORMAL),
-            TRIANGLE = of(unwarp(new Vertex[][]{GeometryHelper.invTriangle(Client.getInstance().matrices, -1f, -1f, 1f, 1f, 0f, 0xFFFFFFFF)}),
+            TRIANGLE = of(new Vertex[][]{GeometryHelper.invTriangle(Client.getInstance().matrices, -1f, -1f, 1f, 1f, 0f, 0xFFFFFFFF)},
                     Attributes.POS_XY, Attributes.UV, Attributes.NORMAL),
-            CUBE = of(unwarp(GeometryHelper.box(Client.getInstance().matrices, -1f, -1f, -1f, 1f, 1f, 1f, 0)),
+            CUBE = of(GeometryHelper.box(Client.getInstance().matrices, -1f, -1f, -1f, 1f, 1f, 1f, 0),
                     Attributes.POS, Attributes.UV, Attributes.NORMAL),
-            INV_CUBE = of(unwarp(GeometryHelper.box(Client.getInstance().matrices, 1f, 1f, 1f, -1f, -1f, -1f, 0)),
+            INV_CUBE = of(GeometryHelper.box(Client.getInstance().matrices, 1f, 1f, 1f, -1f, -1f, -1f, 0),
                     Attributes.POS, Attributes.UV, Attributes.NORMAL),
-            SPHERE = of(unwarp(GeometryHelper.sphere(Client.getInstance().matrices, 0f, 0f, 0f, 1f, 12, 0)),
+            SPHERE = of(GeometryHelper.sphere(Client.getInstance().matrices, 0f, 0f, 0f, 1f, 12, 0),
                     Attributes.POS, Attributes.UV, Attributes.NORMAL),
-            CONE = of(unwarp(GeometryHelper.cone(Client.getInstance().matrices, 0, -1f, 0, 1f, 1f, 12, 0)),
+            CONE = of(GeometryHelper.cone(Client.getInstance().matrices, 0, -1f, 0, 1f, 1f, 12, 0),
                     Attributes.POS, Attributes.UV, Attributes.NORMAL);
 
     private static List<Vertex> unwarp(Vertex[] vertices) {

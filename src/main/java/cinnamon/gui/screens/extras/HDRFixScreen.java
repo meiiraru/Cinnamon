@@ -6,7 +6,7 @@ import cinnamon.gui.Toast;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Slider;
 import cinnamon.model.GeometryHelper;
-import cinnamon.model.SimpleGeometry;
+import cinnamon.model.StaticGeometry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
@@ -132,7 +132,7 @@ public class HDRFixScreen extends ParentedScreen {
         shader.setTexture("colorTex", Texture.of(imagePath, Texture.TextureParams.SMOOTH_SAMPLING), 0);
         shader.setFloat("gamma", gamma.getPercentage() * 10f);
 
-        SimpleGeometry.QUAD.render();
+        StaticGeometry.QUAD.render();
 
         Texture.unbindTex(0);
 

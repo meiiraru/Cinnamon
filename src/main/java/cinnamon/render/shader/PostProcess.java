@@ -1,6 +1,6 @@
 package cinnamon.render.shader;
 
-import cinnamon.model.SimpleGeometry;
+import cinnamon.model.StaticGeometry;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.texture.Texture;
@@ -264,7 +264,7 @@ public enum PostProcess {
             //render post effect
             destination.useClear();
             int tex = postProcess.uniformFunction.apply(source, postProcess.shader.use());
-            SimpleGeometry.QUAD.render();
+            StaticGeometry.QUAD.render();
             Texture.unbindAll(tex);
 
             PostProcess.saveLastColor |= postProcess.usesPrevColor;

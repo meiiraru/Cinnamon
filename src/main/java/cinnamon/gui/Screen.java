@@ -8,7 +8,7 @@ import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.Widget;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.model.GeometryHelper;
-import cinnamon.model.SimpleGeometry;
+import cinnamon.model.StaticGeometry;
 import cinnamon.render.MaterialApplier;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
@@ -202,7 +202,7 @@ public abstract class Screen {
         }
 
         glDepthMask(false);
-        SimpleGeometry.QUAD.render();
+        StaticGeometry.QUAD.render();
         glDepthMask(true);
 
         if (oldShader != null)
@@ -215,7 +215,7 @@ public abstract class Screen {
         s.setColorRGBA("color", color);
 
         glDepthMask(false);
-        SimpleGeometry.QUAD.render();
+        StaticGeometry.QUAD.render();
         glDepthMask(true);
 
         if (oldShader != null)

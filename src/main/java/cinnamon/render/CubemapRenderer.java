@@ -1,6 +1,6 @@
 package cinnamon.render;
 
-import cinnamon.model.SimpleGeometry;
+import cinnamon.model.StaticGeometry;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
@@ -32,7 +32,7 @@ public class CubemapRenderer {
             shader.setMat4("view", face.viewMatrix);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, face.GLTarget, cubemap.getID(), 0);
             glClear(GL_COLOR_BUFFER_BIT);
-            SimpleGeometry.INV_CUBE.render();
+            StaticGeometry.INV_CUBE.render();
         }
 
         oldFB.use();
@@ -88,7 +88,7 @@ public class CubemapRenderer {
                 s.setMat4("view", face.viewMatrix);
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, face.GLTarget, prefilter.getID(), mip);
                 glClear(GL_COLOR_BUFFER_BIT);
-                SimpleGeometry.INV_CUBE.render();
+                StaticGeometry.INV_CUBE.render();
             }
         }
 
@@ -122,7 +122,7 @@ public class CubemapRenderer {
         //keep the old shader and render a quad to generate the LUT
         Shader prevShader = Shader.activeShader;
         Shaders.BRDF_LUT.getShader().use();
-        SimpleGeometry.QUAD.render();
+        StaticGeometry.QUAD.render();
 
         //restore the previous render state
         glBindTexture(GL_TEXTURE_2D, 0);

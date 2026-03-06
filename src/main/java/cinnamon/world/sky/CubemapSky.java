@@ -1,6 +1,6 @@
 package cinnamon.world.sky;
 
-import cinnamon.model.SimpleGeometry;
+import cinnamon.model.StaticGeometry;
 import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -30,7 +30,7 @@ public class CubemapSky extends Sky {
         s.setMat3("rotation", skyRotation);
         s.setInt("skybox", 0);
         bindSkyboxTexture(0);
-        SimpleGeometry.INV_CUBE.render();
+        StaticGeometry.INV_CUBE.render();
         CubeMap.unbindTex(0);
         o.use();
     }

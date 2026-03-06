@@ -1,6 +1,6 @@
 package cinnamon.render;
 
-import cinnamon.model.SimpleGeometry;
+import cinnamon.model.StaticGeometry;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.utils.PerlinNoise;
@@ -79,7 +79,7 @@ public class WaterRenderer {
         matrices.scale(size);
 
         Shader.activeShader.applyMatrixStack(matrices);
-        SimpleGeometry.QUAD.render();
+        StaticGeometry.QUAD.render();
         matrices.popMatrix();
     }
 

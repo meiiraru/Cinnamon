@@ -1,6 +1,6 @@
 package cinnamon.render;
 
-import cinnamon.model.SimpleGeometry;
+import cinnamon.model.StaticGeometry;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
@@ -35,7 +35,7 @@ public class DecalRenderer {
             shader.setTexture("textureSampler", Texture.of(decal.getAlbedoTexture()), 1);
             shader.applyColor(decal.getTransform().getColor());
             shader.setFloat("opacity", decal.getOpacity());
-            SimpleGeometry.INV_CUBE.render();
+            StaticGeometry.INV_CUBE.render();
         }
 
         //reset render state

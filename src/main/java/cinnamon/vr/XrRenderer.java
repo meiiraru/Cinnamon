@@ -4,7 +4,7 @@ import cinnamon.Client;
 import cinnamon.gui.GUIStyle;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
-import cinnamon.model.SimpleGeometry;
+import cinnamon.model.StaticGeometry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.OutlineRenderer;
@@ -127,7 +127,7 @@ public class XrRenderer {
         Shader blit = PostProcess.BLIT_GAMMA.getShader().use();
         blit.setTexture("colorTex", framebuffer.getColorBuffer(), 0);
         blit.setFloat("gamma", 1f / 2.2f);
-        SimpleGeometry.QUAD.render();
+        StaticGeometry.QUAD.render();
     }
 
     public static void applyGUITransform(MatrixStack matrices) {

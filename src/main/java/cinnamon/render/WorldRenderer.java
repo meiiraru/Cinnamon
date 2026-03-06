@@ -1,7 +1,7 @@
 package cinnamon.render;
 
 import cinnamon.Client;
-import cinnamon.model.SimpleGeometry;
+import cinnamon.model.StaticGeometry;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
@@ -246,7 +246,7 @@ public class WorldRenderer {
 
     public static void renderQuad() {
         glDisable(GL_DEPTH_TEST);
-        SimpleGeometry.QUAD.render();
+        StaticGeometry.QUAD.render();
         glEnable(GL_DEPTH_TEST);
     }
 
