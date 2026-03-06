@@ -25,6 +25,7 @@ import cinnamon.sound.SoundInstance;
 import cinnamon.sound.SoundManager;
 import cinnamon.utils.AABB;
 import cinnamon.utils.Colors;
+import cinnamon.utils.IOUtils;
 import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
@@ -65,6 +66,7 @@ import cinnamon.world.terrain.ConveyorBelt;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.Math;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -699,10 +701,20 @@ public class WorldClient extends World {
                 if (hit == null)
                     return;
 
-                Decal decal = new Decal(6000, new Resource("textures/misc/cockroach.png"));
+                Vector3f normal = hit.collision().normal();
+                Quaternionf rotation = Maths.dirToQuat(normal);
+                if (Math.abs(normal.y) > 0.5f)
+                    rotation.rotateZ(Math.toRadians(-player.getRot().y * Math.signum(normal.y)));
+
+                Resource folder = new Resource("textures/misc");
+                List<String> resources = IOUtils.listResources(folder, false);
+                resources.removeIf(s -> !s.endsWith(".png"));
+                String res = resources.get((int) (Math.random() * resources.size()));
+
+                Decal decal = new Decal(6000, folder.resolve(res));
                 decal.getTransform()
                         .setPos(hit.collision().pos())
-                        .setRot(Maths.dirToQuat(hit.collision().normal()))
+                        .setRot(rotation)
                         //.setRot(WorldRenderer.camera.getRotation())
                         .setScale(1f, 1f, 0.5f);
                 addDecal(decal);
