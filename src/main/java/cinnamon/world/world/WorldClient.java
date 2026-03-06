@@ -808,13 +808,13 @@ public class WorldClient extends World {
         ));
         //day start
         skyColors.addProperty(1000, new SkyColors.SkyProperties(
-                0xFFEEDD, 0x4444D0, 0xBBCCDD, 0xBFD3DE, 0x7077B7,
+                0xFFEEDD, 0x4444D0, 0xBBCCDD, 0xBFD3DE, 0xB0D0FF,
                 96f, 192f, 0f, 1f, 0.1f,
                 0xFFEEDD, 5f, 1f
         ));
         //day end
         skyColors.addProperty(11000, new SkyColors.SkyProperties(
-                0xFFEEDD, 0x4444D0, 0xBBCCDD, 0xBFD3DE, 0x7077B7,
+                0xFFEEDD, 0x4444D0, 0xBBCCDD, 0xBFD3DE, 0xB0D0FF,
                 96f, 192f, 0f, 1f, 0.1f,
                 0xFFEEDD, 5f, 1f
         ));
@@ -826,13 +826,13 @@ public class WorldClient extends World {
         ));
         //night start
         skyColors.addProperty(13000, new SkyColors.SkyProperties(
-                0x101020, 0x0C0C18, 0x101020, 0x0C0C18, 0x101020,
+                0x101020, 0x0C0C18, 0x101020, 0x0C0C18, 0x181828,
                 64f, 80f, 0f, 1f, 1f,
                 0x101020, 0.1f, 0f
         ));
         //night end
         skyColors.addProperty(23000, new SkyColors.SkyProperties(
-                0x101020, 0x0C0C18, 0x101020, 0x0C0C18, 0x101020,
+                0x101020, 0x0C0C18, 0x101020, 0x0C0C18, 0x181828,
                 64f, 80f, 0f, 1f, 1f,
                 0x101020, 0.1f, 0f
         ));

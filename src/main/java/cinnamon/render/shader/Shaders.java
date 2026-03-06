@@ -41,7 +41,8 @@ public enum Shaders {
     SSR,
     WATER,
     DECAL,
-    CUBEMAP_SKYBOX;
+    CUBEMAP_SKYBOX,
+    CLOUDS;
 
     private final Resource resource;
     private Shader shader;

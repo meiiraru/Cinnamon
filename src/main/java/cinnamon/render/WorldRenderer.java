@@ -70,6 +70,7 @@ public class WorldRenderer {
             renderShadows  = true,
             renderSky      = true,
             renderBloom    = true,
+            renderClouds   = true,
             renderDebug    = true,
             renderOutlines = true,
             renderDecals   = true;
@@ -138,6 +139,9 @@ public class WorldRenderer {
         //render glares and lens flare
         renderLightsGlare(world, camera);
 
+        //render clouds
+        renderClouds(world, camera, delta);
+
         //render debug stuff
         if (renderDebug)
             world.renderDebug(camera, matrices, delta);
@@ -182,6 +186,7 @@ public class WorldRenderer {
             //post bake renderer
             applyBloom();
             renderLightsGlare(world, camera);
+            renderClouds(world, camera, delta);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
         });
 
@@ -363,6 +368,11 @@ public class WorldRenderer {
         //glDepthMask(true);
     }
 
+    public static void renderClouds(WorldClient world, Camera camera, float delta) {
+        if (renderClouds)
+            CloudRenderer.renderClouds(camera, world.getTime() + delta, world.getSky().cloudsColor, 64f, 0.5f, 1f);
+    }
+
     public static void renderOutlines(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
         if (!renderOutlines)
             return;
@@ -527,6 +537,7 @@ public class WorldRenderer {
         renderShadows  =
         renderSky      =
         renderBloom    =
+        renderClouds   =
         renderDebug    =
         renderOutlines =
         renderDecals   = true;
