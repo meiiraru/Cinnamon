@@ -136,11 +136,11 @@ public class WorldRenderer {
         //apply bloom
         applyBloom();
 
-        //render glares and lens flare
-        renderLightsGlare(world, camera);
-
         //render clouds
         renderClouds(world, camera, delta);
+
+        //render glares and lens flare
+        renderLightsGlare(world, camera);
 
         //render debug stuff
         if (renderDebug)

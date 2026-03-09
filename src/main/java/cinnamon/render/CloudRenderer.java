@@ -1,12 +1,15 @@
 package cinnamon.render;
 
+import cinnamon.Client;
 import cinnamon.model.StaticGeometry;
 import cinnamon.model.Vertex;
 import cinnamon.render.shader.Attributes;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
-
-import static org.lwjgl.opengl.GL11.*;
+import cinnamon.render.texture.Texture;
+import cinnamon.utils.Resource;
+import cinnamon.world.world.WorldClient;
+import org.joml.Vector3f;
 
 public class CloudRenderer {
 
@@ -33,6 +36,7 @@ public class CloudRenderer {
     }
 
     public static void renderClouds(Camera camera, float deltaTime, int cloudsColor, float y, float coverage, float cloudScale) {
+        /*
         glDisable(GL_CULL_FACE);
         glDepthMask(false);
 
@@ -52,5 +56,33 @@ public class CloudRenderer {
 
         glDepthMask(true);
         glEnable(GL_CULL_FACE);
+         */
+
+        Vector3f camPos = camera.getPos();
+        WorldClient world = Client.getInstance().world;
+
+        Shader s = Shaders.CLOUDS.getShader().use();
+        s.setupInverse(camera);
+        s.setVec2("resolution", WorldRenderer.outputBuffer.getWidth(), WorldRenderer.outputBuffer.getHeight());
+        s.setVec3("camPos", camPos);
+        s.setColor("sunColor", world.getSky().sunColor);
+        s.setVec3("sunDir", world.getSky().getSunDirection());
+        s.setColor("cloudsColor", world.getSky().cloudsColor);
+        s.setFloat("time", deltaTime * 0.001f);
+        s.setTexture("noiseTex", Texture.of(new Resource("", "D:/downloads/noise2.png"), Texture.TextureParams.SMOOTH_SAMPLING), 0);
+        s.setTexture("blueNoiseTex", Texture.of(new Resource("", "D:/downloads/blue-noise.png"), Texture.TextureParams.SMOOTH_SAMPLING), 1);
+        s.setTexture("gDepth", WorldRenderer.PBRFrameBuffer.getDepthBuffer(), 2);
+
+        s.setFloat("noiseScale", 0.1f);  // higher = smaller blobs, lower = bigger blobs
+        s.setFloat("cloudScale", 32f);       // 20x bigger than the base SDF
+
+        s.setVec3("cloudPos", camPos.x, 16, camPos.z);  // world-space center of the cloud volume
+        s.setFloat("cloudCoverage", 0.9f); // 0 = clear, 1 = overcast
+
+        s.setFloat("ABSORPTION_COEFFICIENT", 0.9f);
+        s.setFloat("SCATTERING_ANISO", 0.3f);
+
+        WorldRenderer.renderQuad();
+        Texture.unbindAll(3);
     }
 }
