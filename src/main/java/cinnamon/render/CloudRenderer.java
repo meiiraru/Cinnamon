@@ -82,7 +82,7 @@ public class CloudRenderer {
         s.setFloat("noiseScale", 0.1f);  // higher = smaller blobs, lower = bigger blobs
         s.setFloat("cloudScale", 32f);       // 20x bigger than the base SDF
 
-        s.setVec3("cloudPos", camPos.x, 80, camPos.z);  // world-space center of the cloud volume
+        s.setVec3("cloudPos", camPos.x, 16, camPos.z);  // world-space center of the cloud volume
         s.setFloat("cloudCoverage", 0.85f); // 0 = clear, 1 = overcast
 
         s.setInt("MAX_STEPS", 72);
