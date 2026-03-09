@@ -16,6 +16,8 @@ uniform vec3 cloudsColor;
 
 uniform mat4 invView;
 uniform mat4 invProjection;
+uniform mat4 view;
+uniform mat4 projection;
 
 uniform sampler2D noiseTex;
 uniform sampler2D blueNoiseTex;
@@ -108,7 +110,8 @@ float fbm(vec3 p, int octaves) {
 }
 
 float scene(vec3 p, int octaves) {
-    float distance = sdBox(p, 9.0f, 0.5f, 9.0f);
+    float r = MAX_STEPS * MARCH_SIZE;
+    float distance = sdBox(p, r, 0.5f, r);
     // Sample fbm at world-space position, scaled by noiseScale for blob size
     vec3 worldP = (p * cloudScale + cloudPos) * noiseScale;
     float f = fbm(worldP, octaves);
@@ -130,7 +133,8 @@ float lightmarch(vec3 position, vec3 rayDirection, float marchSize) {
     return transmittance;
 }
 
-float raymarch(vec3 rayOrigin, vec3 rayDirection, float offset, float marchSize, float maxDepth) {
+// Modified raymarch to return both light energy and report the first hit depth via out parameter (depth in local cloud-space units)
+float raymarch(vec3 rayOrigin, vec3 rayDirection, float offset, float marchSize, float maxDepth, out float outHitDepth) {
     // Start marching from the near intersection, with blue noise dither
     float depth = marchSize * offset;
     vec3 p = rayOrigin + depth * rayDirection;
@@ -139,6 +143,8 @@ float raymarch(vec3 rayOrigin, vec3 rayDirection, float offset, float marchSize,
     float lightEnergy = 0.0f;
 
     float phase = henyeyGreenstein(SCATTERING_ANISO, dot(rayDirection, -sunDir));
+
+    outHitDepth = -1.0f;
 
     for (int i = 0; i < MAX_STEPS; i++) {
         // Stop if we've passed the bounding box or scene geometry
@@ -155,6 +161,11 @@ float raymarch(vec3 rayOrigin, vec3 rayDirection, float offset, float marchSize,
 
         // Density only if above threshold
         if (density > 0.01f) {
+            // record first hit depth if not already set
+            if (outHitDepth < 0.0f) {
+                outHitDepth = depth;
+            }
+
             float lightTransmittance = lightmarch(p, rayDirection, dt * 0.2f);
             float luminance = 0.025f + density * phase;
 
@@ -203,10 +214,21 @@ void main() {
     float blueNoise = texture(blueNoiseTex, uv * resolution / blueNoiseSize).r;
     float offset = fract(blueNoise);
 
-    // Raymarch in cloud-local space
-    float res = raymarch(ro, rd, offset, MARCH_SIZE, maxDepth);
+    // Raymarch in cloud-local space, capture hit depth
+    float hitDepthLocal = -1.0f;
+    float res = raymarch(ro, rd, offset, MARCH_SIZE, maxDepth, hitDepthLocal);
     if (res <= 0.0f)
         discard;
+
+    // if we recorded a hit depth, convert the hit position to world space and write gl_FragDepth
+    if (hitDepthLocal >= 0.0f) {
+        vec3 hitPosLocal = ro + hitDepthLocal * rd; // local cloud space
+        vec3 hitWorld = hitPosLocal * cloudScale + cloudPos; // world-space position
+        vec4 clip = projection * view * vec4(hitWorld, 1.0f);
+        float ndcZ = clip.z / clip.w;
+        float depth01 = ndcZ * 0.5f + 0.5f;
+        gl_FragDepth = depth01;
+    }
 
     fragColor = vec4(cloudsColor + sunColor * res, 1.0f);
 }
