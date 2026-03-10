@@ -91,7 +91,7 @@ public class LightRenderer {
         resetLightState(camera);
     }
 
-    public static void renderLightsGlare(Framebuffer target, PBRDeferredFramebuffer gBuffer, List<Light> lights, Camera camera) {
+    public static void renderLightsGlare(Framebuffer target, List<Light> lights, Camera camera) {
         if (lights.isEmpty())
             return;
 
