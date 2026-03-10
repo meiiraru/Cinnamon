@@ -24,7 +24,6 @@ uniform sampler2D blueNoiseTex;
 uniform sampler2D gDepth;
 
 uniform float time;
-uniform int frame;
 
 uniform vec3 cloudPos;       // world-space position of the cloud volume center
 uniform float cloudScale;    // world-space scale (e.g. 50.0 = 50x bigger)

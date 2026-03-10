@@ -827,13 +827,13 @@ public class WorldClient extends World {
         //night start
         skyColors.addProperty(13000, new SkyColors.SkyProperties(
                 0x07070F, 0x0C0C18, 0x101020, 0x0C0C18, 0x0A0A14,
-                64f, 80f, 0f, 1f, 1f,
+                64f, 80f, 0f, 1f, 5f,
                 0x07070F, 0.1f, 0f
         ));
         //night end
         skyColors.addProperty(23000, new SkyColors.SkyProperties(
                 0x07070F, 0x0C0C18, 0x101020, 0x0C0C18, 0x0A0A14,
-                64f, 80f, 0f, 1f, 1f,
+                64f, 80f, 0f, 1f, 5f,
                 0x07070F, 0.1f, 0f
         ));
     }

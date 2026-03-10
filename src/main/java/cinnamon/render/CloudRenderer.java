@@ -25,7 +25,7 @@ public class CloudRenderer {
         s.setColor("sunColor", sky.sunColor);
         s.setVec3("sunDir", sky.getSunDirection());
         s.setColor("cloudsColor", sky.cloudsColor);
-        s.setFloat("time", deltaTime * 0.001f);
+        s.setFloat("time", deltaTime * 0.005f);
         s.setTexture("noiseTex", Texture.of(new Resource("", "D:/downloads/noise2.png"), Texture.TextureParams.SMOOTH_SAMPLING), 0);
         s.setTexture("blueNoiseTex", Texture.of(new Resource("", "D:/downloads/blue-noise.png"), Texture.TextureParams.SMOOTH_SAMPLING), 1);
 
