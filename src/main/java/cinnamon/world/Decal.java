@@ -1,10 +1,10 @@
 package cinnamon.world;
 
+import cinnamon.math.AABB;
 import cinnamon.model.ModelTransform;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
-import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
 import org.joml.Matrix4f;
 

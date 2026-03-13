@@ -1,11 +1,11 @@
 package cinnamon.gui.widgets;
 
 import cinnamon.Client;
+import cinnamon.math.Maths;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;

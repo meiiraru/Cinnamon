@@ -1,8 +1,8 @@
 package cinnamon.sound;
 
 import cinnamon.logger.Logger;
+import cinnamon.math.Maths;
 import cinnamon.render.Camera;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import org.joml.Vector3f;
 import org.lwjgl.openal.*;

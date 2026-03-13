@@ -1,14 +1,14 @@
 package cinnamon.world.entity.living;
 
 import cinnamon.Client;
+import cinnamon.math.AABB;
+import cinnamon.math.Rotation;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.AABB;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
-import cinnamon.utils.Rotation;
 import cinnamon.world.DamageType;
 import cinnamon.world.WorldObject;
 import cinnamon.world.collisions.CollisionResult;

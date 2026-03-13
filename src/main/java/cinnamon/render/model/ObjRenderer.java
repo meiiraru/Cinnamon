@@ -1,11 +1,11 @@
 package cinnamon.render.model;
 
+import cinnamon.math.AABB;
 import cinnamon.model.Vertex;
 import cinnamon.model.VertexHelper;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
-import cinnamon.utils.AABB;
 import cinnamon.utils.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector3f;

@@ -10,19 +10,24 @@ import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Checkbox;
 import cinnamon.gui.widgets.types.Label;
 import cinnamon.gui.widgets.types.Slider;
+import cinnamon.math.Maths;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.*;
+import cinnamon.utils.Alignment;
+import cinnamon.utils.ColorUtils;
+import cinnamon.utils.Colors;
+import cinnamon.utils.Resource;
+import cinnamon.utils.UIHelper;
 import org.joml.Math;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static cinnamon.utils.Maths.Easing.*;
+import static cinnamon.math.Maths.Easing.*;
 
 public class EasingScreen extends ParentedScreen {
 

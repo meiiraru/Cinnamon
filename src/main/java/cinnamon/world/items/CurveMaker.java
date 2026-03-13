@@ -1,13 +1,13 @@
 package cinnamon.world.items;
 
 import cinnamon.gui.Toast;
+import cinnamon.math.Curve;
+import cinnamon.math.Rotation;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.ItemModelRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
-import cinnamon.utils.Curve;
-import cinnamon.utils.Rotation;
 import cinnamon.vr.XrManager;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.living.LivingEntity;

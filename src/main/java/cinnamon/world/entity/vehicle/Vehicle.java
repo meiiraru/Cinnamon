@@ -1,7 +1,7 @@
 package cinnamon.world.entity.vehicle;
 
+import cinnamon.math.Rotation;
 import cinnamon.utils.Resource;
-import cinnamon.utils.Rotation;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.LivingEntity;

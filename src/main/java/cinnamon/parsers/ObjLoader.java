@@ -1,9 +1,9 @@
 package cinnamon.parsers;
 
+import cinnamon.model.material.Material;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
-import cinnamon.model.material.Material;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 
@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static cinnamon.events.Events.LOGGER;
+import static cinnamon.math.Maths.parseVec2;
+import static cinnamon.math.Maths.parseVec3;
 import static java.lang.Integer.parseInt;
-import static cinnamon.utils.Maths.parseVec2;
-import static cinnamon.utils.Maths.parseVec3;
 
 public class ObjLoader {
 

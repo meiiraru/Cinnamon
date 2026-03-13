@@ -1,12 +1,12 @@
 package cinnamon.render.model;
 
+import cinnamon.math.AABB;
 import cinnamon.model.Vertex;
 import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.MaterialApplier;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.shader.Shader;
-import cinnamon.utils.AABB;
 
 import java.util.ArrayList;
 import java.util.Collection;

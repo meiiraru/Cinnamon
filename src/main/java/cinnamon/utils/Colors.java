@@ -1,5 +1,6 @@
 package cinnamon.utils;
 
+import cinnamon.math.Maths;
 import org.joml.Vector3f;
 
 public enum Colors {

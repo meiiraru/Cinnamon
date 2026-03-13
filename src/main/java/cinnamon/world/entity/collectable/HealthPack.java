@@ -1,8 +1,8 @@
 package cinnamon.world.entity.collectable;
 
+import cinnamon.math.AABB;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
-import cinnamon.utils.AABB;
 import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.particle.SteamParticle;

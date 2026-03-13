@@ -1,8 +1,8 @@
 package cinnamon.model;
 
+import cinnamon.math.Maths;
+import cinnamon.math.Rotation;
 import cinnamon.render.MatrixStack;
-import cinnamon.utils.Maths;
-import cinnamon.utils.Rotation;
 import org.joml.Math;
 import org.joml.Vector2f;
 import org.joml.Vector3f;

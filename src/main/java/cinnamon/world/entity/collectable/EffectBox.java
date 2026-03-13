@@ -1,9 +1,9 @@
 package cinnamon.world.entity.collectable;
 
+import cinnamon.math.Maths;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.sound.SoundCategory;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.PhysEntity;

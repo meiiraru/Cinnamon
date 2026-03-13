@@ -1,11 +1,11 @@
 package cinnamon.world.items;
 
+import cinnamon.math.AABB;
+import cinnamon.math.Maths;
+import cinnamon.math.Rotation;
 import cinnamon.registry.ItemModelRegistry;
 import cinnamon.render.MatrixStack;
-import cinnamon.utils.AABB;
 import cinnamon.utils.ColorUtils;
-import cinnamon.utils.Maths;
-import cinnamon.utils.Rotation;
 import cinnamon.vr.XrManager;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.living.LivingEntity;

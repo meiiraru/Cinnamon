@@ -1,9 +1,9 @@
 package cinnamon.world.terrain;
 
+import cinnamon.math.AABB;
+import cinnamon.math.Rotation;
 import cinnamon.registry.TerrainRegistry;
-import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
-import cinnamon.utils.Rotation;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.world.World;

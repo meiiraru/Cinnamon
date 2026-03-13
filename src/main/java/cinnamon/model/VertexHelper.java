@@ -1,6 +1,6 @@
 package cinnamon.model;
 
-import cinnamon.utils.Maths;
+import cinnamon.math.Maths;
 import cinnamon.utils.Pair;
 import org.joml.Math;
 import org.joml.Vector2f;

@@ -1,35 +1,31 @@
-package cinnamon.utils;
+package cinnamon.math.noise;
 
+import cinnamon.math.Maths;
 import org.joml.Math;
-import org.lwjgl.system.MemoryUtil;
 
-import java.nio.ByteBuffer;
 import java.util.Random;
 
 /**
  * 2D tileable Perlin noise generator
  */
-public class PerlinNoise {
+public class PerlinNoise2D extends Noise {
 
-    private final int width, height;
-    private final long seed;
-    private final int cells;
-    private final ByteBuffer buffer;
+    public static int DEFAULT_CELLS = 8;
 
-    public PerlinNoise() {
-        this(256, 256, System.nanoTime(), 8);
+    protected final int cells;
+
+    public PerlinNoise2D() {
+        this(DEFAULT_SIZE, DEFAULT_SIZE, System.nanoTime(), DEFAULT_CELLS);
     }
 
-    public PerlinNoise(int width, int height, long seed, int cells) {
-        this.width = width;
-        this.height = height;
-        this.seed = seed;
+    public PerlinNoise2D(int width, int height, long seed, int cells) {
+        super(width, height, seed);
         this.cells = cells;
-        this.buffer = MemoryUtil.memAlloc(width * height);
-        computeNoise(seed, cells);
+        this.build();
     }
 
-    private void computeNoise(long seed, int cells) {
+    @Override
+    protected void build() {
         Random random = new Random(seed);
 
         //generate random gradient vectors for each grid point
@@ -71,7 +67,7 @@ public class PerlinNoise {
         buffer.flip();
     }
 
-    private static float computePerlinNoise(int px, int py, int width, int height, int cells, float[][] gradX, float[][] gradY) {
+    protected static float computePerlinNoise(int px, int py, int width, int height, int cells, float[][] gradX, float[][] gradY) {
         //scale to grid space
         float x = (float) px / width  * cells;
         float y = (float) py / height * cells;
@@ -110,37 +106,7 @@ public class PerlinNoise {
         return gx * x + gy * y;
     }
 
-    public void free() {
-        MemoryUtil.memFree(buffer);
-    }
-
-    public float sample(int x, int y) {
-        //wrap coordinates
-        int px = Maths.modulo(x, width);
-        int py = Maths.modulo(y, height);
-
-        //get byte value and normalize to [0, 1]
-        int value = buffer.get(px + py * width) & 0xFF;
-        return value / 255f;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public long getSeed() {
-        return seed;
-    }
-
     public int getCells() {
         return cells;
-    }
-
-    public ByteBuffer getBuffer() {
-        return buffer;
     }
 }

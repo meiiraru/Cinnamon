@@ -1,9 +1,9 @@
 package cinnamon.world.worldgen.chunk;
 
+import cinnamon.math.AABB;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
-import cinnamon.utils.AABB;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
 import org.joml.Vector3i;

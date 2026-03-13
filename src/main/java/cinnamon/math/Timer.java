@@ -1,4 +1,4 @@
-package cinnamon.utils;
+package cinnamon.math;
 
 public class Timer {
 

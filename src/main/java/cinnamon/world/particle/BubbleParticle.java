@@ -1,9 +1,9 @@
 package cinnamon.world.particle;
 
+import cinnamon.math.AABB;
+import cinnamon.math.Maths;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.sound.SoundCategory;
-import cinnamon.utils.AABB;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;

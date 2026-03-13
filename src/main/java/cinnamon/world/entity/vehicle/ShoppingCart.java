@@ -1,8 +1,8 @@
 package cinnamon.world.entity.vehicle;
 
+import cinnamon.math.Rotation;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
-import cinnamon.utils.Rotation;
 import cinnamon.world.collisions.CollisionResolver;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.Entity;

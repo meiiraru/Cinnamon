@@ -1,5 +1,6 @@
 package cinnamon.utils;
 
+import cinnamon.math.Maths;
 import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector4f;

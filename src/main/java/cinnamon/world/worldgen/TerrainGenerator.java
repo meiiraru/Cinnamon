@@ -1,9 +1,9 @@
 package cinnamon.world.worldgen;
 
+import cinnamon.math.AABB;
+import cinnamon.math.Maths;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
-import cinnamon.utils.AABB;
-import cinnamon.utils.Maths;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
 

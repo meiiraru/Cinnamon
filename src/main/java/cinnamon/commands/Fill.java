@@ -1,8 +1,8 @@
 package cinnamon.commands;
 
+import cinnamon.math.AABB;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.text.Text;
-import cinnamon.utils.AABB;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.RoundingMode;

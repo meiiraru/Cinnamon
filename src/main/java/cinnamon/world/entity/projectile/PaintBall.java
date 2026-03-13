@@ -1,12 +1,12 @@
 package cinnamon.world.entity.projectile;
 
+import cinnamon.math.Maths;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.ColorUtils;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.Decal;
 import cinnamon.world.collisions.CollisionResolver;

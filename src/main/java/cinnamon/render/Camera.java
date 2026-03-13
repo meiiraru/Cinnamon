@@ -1,8 +1,8 @@
 package cinnamon.render;
 
-import cinnamon.utils.AABB;
-import cinnamon.utils.Maths;
-import cinnamon.utils.Rotation;
+import cinnamon.math.AABB;
+import cinnamon.math.Maths;
+import cinnamon.math.Rotation;
 import cinnamon.vr.XrManager;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;

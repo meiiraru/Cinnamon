@@ -1,15 +1,15 @@
 package cinnamon.world.entity.projectile;
 
 import cinnamon.events.Await;
+import cinnamon.math.AABB;
+import cinnamon.math.Maths;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.shader.Shader;
-import cinnamon.utils.AABB;
 import cinnamon.utils.ColorUtils;
-import cinnamon.utils.Maths;
 import cinnamon.world.collisions.CollisionResolver;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.particle.DustParticle;

@@ -1,10 +1,10 @@
 package cinnamon.world.particle;
 
+import cinnamon.math.Maths;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
-import cinnamon.utils.Maths;
 import cinnamon.world.WorldObject;
 import org.joml.Vector3f;
 

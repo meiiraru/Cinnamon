@@ -1,7 +1,7 @@
 package cinnamon.settings;
 
 import cinnamon.input.Keybind.KeyType;
-import cinnamon.utils.Maths;
+import cinnamon.math.Maths;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;

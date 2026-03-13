@@ -1,9 +1,9 @@
 package cinnamon.model;
 
+import cinnamon.math.AABB;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
-import cinnamon.utils.AABB;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 

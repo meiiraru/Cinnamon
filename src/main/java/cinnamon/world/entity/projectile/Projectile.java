@@ -1,7 +1,7 @@
 package cinnamon.world.entity.projectile;
 
+import cinnamon.math.Maths;
 import cinnamon.utils.Colors;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.DamageType;
 import cinnamon.world.collisions.CollisionResult;

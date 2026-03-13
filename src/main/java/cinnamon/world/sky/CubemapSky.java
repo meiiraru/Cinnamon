@@ -1,5 +1,6 @@
 package cinnamon.world.sky;
 
+import cinnamon.math.Rotation;
 import cinnamon.model.StaticGeometry;
 import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.render.Camera;
@@ -10,7 +11,6 @@ import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.SkyBox;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.Resource;
-import cinnamon.utils.Rotation;
 import org.joml.Math;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;

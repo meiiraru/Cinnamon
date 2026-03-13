@@ -1,7 +1,7 @@
 package cinnamon.world.world;
 
 import cinnamon.Client;
-import cinnamon.utils.AABB;
+import cinnamon.math.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.world.DamageType;
 import cinnamon.world.collisions.CollisionDetector;

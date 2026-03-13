@@ -1,26 +1,13 @@
 package cinnamon.render;
 
+import cinnamon.math.Rotation;
+import cinnamon.math.noise.PerlinNoise2D;
 import cinnamon.model.StaticGeometry;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
-import cinnamon.utils.PerlinNoise;
-import cinnamon.utils.Rotation;
 import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL11.GL_LINEAR;
-import static org.lwjgl.opengl.GL11.GL_LINEAR_MIPMAP_LINEAR;
-import static org.lwjgl.opengl.GL11.GL_RED;
-import static org.lwjgl.opengl.GL11.GL_REPEAT;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glTexImage2D;
-import static org.lwjgl.opengl.GL11.glTexParameteri;
 import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 import static org.lwjgl.opengl.GL33.GL_TEXTURE_SWIZZLE_RGBA;
 
@@ -35,7 +22,7 @@ public class WaterRenderer {
         int cells = 64;
 
         //generate noise
-        PerlinNoise noise = new PerlinNoise(width, height, seed, cells);
+        PerlinNoise2D noise = new PerlinNoise2D(width, height, seed, cells);
 
         //create texture
         noiseTexture = glGenTextures();

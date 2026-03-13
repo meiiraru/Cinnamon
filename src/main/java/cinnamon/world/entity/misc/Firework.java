@@ -1,10 +1,10 @@
 package cinnamon.world.entity.misc;
 
+import cinnamon.math.AABB;
+import cinnamon.math.Maths;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.sound.SoundCategory;
-import cinnamon.utils.AABB;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.DamageType;
 import cinnamon.world.collisions.CollisionResult;

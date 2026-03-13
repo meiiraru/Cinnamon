@@ -1,7 +1,7 @@
 package cinnamon.world.items;
 
+import cinnamon.math.Maths;
 import cinnamon.registry.ItemModelRegistry;
-import cinnamon.utils.Maths;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.particle.SoapParticle;

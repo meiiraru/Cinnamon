@@ -1,6 +1,6 @@
 package cinnamon.sound;
 
-import cinnamon.utils.Maths;
+import cinnamon.math.Maths;
 
 public enum SoundCategory {
     MASTER,

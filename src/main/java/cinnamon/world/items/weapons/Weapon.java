@@ -1,6 +1,6 @@
 package cinnamon.world.items.weapons;
 
-import cinnamon.utils.Maths;
+import cinnamon.math.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.projectile.Projectile;

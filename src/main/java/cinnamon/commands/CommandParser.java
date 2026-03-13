@@ -1,12 +1,12 @@
 package cinnamon.commands;
 
 import cinnamon.logger.Logger;
+import cinnamon.math.Maths;
 import cinnamon.registry.CommandRegistry;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Colors;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Trie;
 import cinnamon.world.entity.Entity;
 import org.joml.Vector2f;

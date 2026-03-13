@@ -1,6 +1,7 @@
 package cinnamon.render;
 
 import cinnamon.Client;
+import cinnamon.math.Rotation;
 import cinnamon.model.StaticGeometry;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
@@ -10,7 +11,6 @@ import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.settings.Settings;
-import cinnamon.utils.Rotation;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.Decal;

@@ -1,5 +1,6 @@
 package cinnamon.world.world;
 
+import cinnamon.math.AABB;
 import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
@@ -10,7 +11,6 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.AABB;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;

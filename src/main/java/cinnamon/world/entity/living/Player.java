@@ -1,9 +1,9 @@
 package cinnamon.world.entity.living;
 
+import cinnamon.math.AABB;
+import cinnamon.math.Maths;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
-import cinnamon.utils.AABB;
-import cinnamon.utils.Maths;
 import cinnamon.world.Abilities;
 import cinnamon.world.DamageType;
 import cinnamon.world.entity.Entity;

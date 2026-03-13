@@ -1,13 +1,13 @@
 package cinnamon.world.particle;
 
+import cinnamon.math.noise.PerlinNoise2D;
 import cinnamon.registry.ParticlesRegistry;
-import cinnamon.utils.PerlinNoise;
 import org.joml.Math;
 import org.joml.Vector3f;
 
 public class LightParticle extends SpriteParticle {
 
-    private static final PerlinNoise NOISE = new PerlinNoise();
+    private static final PerlinNoise2D NOISE = new PerlinNoise2D();
 
     private final long seed;
     private final Vector3f lastNoise = new Vector3f();

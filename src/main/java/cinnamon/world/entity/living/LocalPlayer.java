@@ -2,14 +2,14 @@ package cinnamon.world.entity.living;
 
 import cinnamon.Client;
 import cinnamon.gui.Screen;
+import cinnamon.math.AABB;
+import cinnamon.math.Direction;
+import cinnamon.math.Maths;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.WorldRenderer;
 import cinnamon.settings.Settings;
-import cinnamon.utils.AABB;
-import cinnamon.utils.Direction;
-import cinnamon.utils.Maths;
 import cinnamon.vr.XrHandTransform;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;

@@ -1,11 +1,11 @@
 package cinnamon.world.entity.collectable;
 
 import cinnamon.Client;
+import cinnamon.math.Maths;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.sound.SoundCategory;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.PhysEntity;

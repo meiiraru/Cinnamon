@@ -8,6 +8,7 @@ import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.ComboBox;
 import cinnamon.gui.widgets.types.Slider;
+import cinnamon.math.Maths;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.parsers.LrcLoader;

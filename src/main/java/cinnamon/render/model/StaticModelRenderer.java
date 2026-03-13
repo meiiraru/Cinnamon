@@ -1,10 +1,10 @@
 package cinnamon.render.model;
 
+import cinnamon.math.AABB;
 import cinnamon.model.Vertex;
 import cinnamon.model.material.Material;
 import cinnamon.model.obj.Mesh;
 import cinnamon.render.MatrixStack;
-import cinnamon.utils.AABB;
 
 import java.util.Collection;
 import java.util.List;

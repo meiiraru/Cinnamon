@@ -1,9 +1,9 @@
 package cinnamon.render.model;
 
+import cinnamon.math.AABB;
 import cinnamon.model.Vertex;
 import cinnamon.model.material.Material;
 import cinnamon.render.shader.Attributes;
-import cinnamon.utils.AABB;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;

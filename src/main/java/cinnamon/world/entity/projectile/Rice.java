@@ -1,10 +1,10 @@
 package cinnamon.world.entity.projectile;
 
+import cinnamon.math.Maths;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
-import cinnamon.utils.Maths;
 import cinnamon.world.collisions.CollisionResult;
 import org.joml.Vector3f;
 

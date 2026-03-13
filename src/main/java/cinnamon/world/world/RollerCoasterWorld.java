@@ -1,12 +1,12 @@
 package cinnamon.world.world;
 
+import cinnamon.math.Curve;
+import cinnamon.math.Maths;
 import cinnamon.parsers.CurveToMesh;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.model.ObjRenderer;
-import cinnamon.utils.Curve;
-import cinnamon.utils.Maths;
 import cinnamon.world.entity.collectable.ItemEntity;
 import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.items.CurveMaker;

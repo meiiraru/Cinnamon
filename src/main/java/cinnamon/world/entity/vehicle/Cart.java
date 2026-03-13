@@ -1,12 +1,12 @@
 package cinnamon.world.entity.vehicle;
 
+import cinnamon.math.Maths;
+import cinnamon.math.Rotation;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.ColorUtils;
-import cinnamon.utils.Maths;
-import cinnamon.utils.Rotation;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.Spotlight;

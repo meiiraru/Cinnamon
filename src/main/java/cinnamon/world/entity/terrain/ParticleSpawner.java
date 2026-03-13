@@ -1,7 +1,7 @@
 package cinnamon.world.entity.terrain;
 
+import cinnamon.math.AABB;
 import cinnamon.registry.TerrainEntityRegistry;
-import cinnamon.utils.AABB;
 import cinnamon.world.particle.FireParticle;
 import cinnamon.world.particle.SoapParticle;
 import cinnamon.world.world.WorldClient;

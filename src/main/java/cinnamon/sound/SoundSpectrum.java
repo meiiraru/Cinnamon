@@ -1,6 +1,6 @@
 package cinnamon.sound;
 
-import cinnamon.utils.FFT;
+import cinnamon.math.FFT;
 import cinnamon.utils.UIHelper;
 import org.joml.Math;
 

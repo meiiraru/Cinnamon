@@ -1,6 +1,6 @@
 package cinnamon.animation;
 
-import cinnamon.utils.Maths;
+import cinnamon.math.Maths;
 import org.joml.Math;
 import org.joml.Vector3f;
 

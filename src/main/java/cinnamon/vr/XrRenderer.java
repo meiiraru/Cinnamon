@@ -2,6 +2,7 @@ package cinnamon.vr;
 
 import cinnamon.Client;
 import cinnamon.gui.GUIStyle;
+import cinnamon.math.AABB;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.model.StaticGeometry;
@@ -14,7 +15,6 @@ import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
-import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionDetector;
 import cinnamon.world.collisions.CollisionResult;

@@ -2,12 +2,12 @@ package cinnamon.gui.widgets.types;
 
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.PopupWidget;
+import cinnamon.math.Maths;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
-import cinnamon.utils.Maths;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
 import org.joml.Math;

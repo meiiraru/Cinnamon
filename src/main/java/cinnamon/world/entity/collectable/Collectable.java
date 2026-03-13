@@ -1,10 +1,10 @@
 package cinnamon.world.entity.collectable;
 
 import cinnamon.Client;
+import cinnamon.math.AABB;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
-import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.world.collisions.CollisionResolver;
 import cinnamon.world.collisions.CollisionResult;

@@ -1,13 +1,13 @@
 package cinnamon.parsers;
 
 import cinnamon.lang.LangManager;
+import cinnamon.math.Curve;
+import cinnamon.math.Maths;
 import cinnamon.model.material.Material;
 import cinnamon.model.material.MaterialTexture;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
-import cinnamon.utils.Curve;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import org.joml.Math;
 import org.joml.Vector2f;

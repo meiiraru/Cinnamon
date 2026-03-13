@@ -1,6 +1,8 @@
 package cinnamon.world.terrain;
 
 import cinnamon.animation.Animation;
+import cinnamon.math.AABB;
+import cinnamon.math.Rotation;
 import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
@@ -11,9 +13,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.model.AnimatedObjRenderer;
 import cinnamon.render.model.ModelRenderer;
-import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
-import cinnamon.utils.Rotation;
 import cinnamon.world.Mask;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.Entity;

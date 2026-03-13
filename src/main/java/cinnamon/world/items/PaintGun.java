@@ -1,9 +1,9 @@
 package cinnamon.world.items;
 
+import cinnamon.math.Maths;
 import cinnamon.registry.ItemModelRegistry;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Colors;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.projectile.PaintBall;

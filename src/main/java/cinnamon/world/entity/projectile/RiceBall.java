@@ -1,8 +1,8 @@
 package cinnamon.world.entity.projectile;
 
+import cinnamon.math.Maths;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
-import cinnamon.utils.Maths;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.particle.SmokeParticle;

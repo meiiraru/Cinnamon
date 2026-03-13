@@ -1,15 +1,15 @@
 package cinnamon.render;
 
 import cinnamon.Client;
+import cinnamon.math.AABB;
+import cinnamon.math.Maths;
+import cinnamon.math.Rotation;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.texture.Texture;
 import cinnamon.sound.SoundInstance;
-import cinnamon.utils.AABB;
-import cinnamon.utils.Maths;
 import cinnamon.utils.Resource;
-import cinnamon.utils.Rotation;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.PointLight;
 import cinnamon.world.light.Spotlight;

@@ -1,7 +1,7 @@
 package cinnamon.world.worldgen;
 
-import cinnamon.utils.AABB;
-import cinnamon.utils.Maths;
+import cinnamon.math.AABB;
+import cinnamon.math.Maths;
 import cinnamon.world.terrain.Terrain;
 import org.joml.Vector3f;
 

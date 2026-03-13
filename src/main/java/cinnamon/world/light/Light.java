@@ -1,8 +1,8 @@
 package cinnamon.world.light;
 
+import cinnamon.math.AABB;
 import cinnamon.render.Camera;
 import cinnamon.render.shader.Shader;
-import cinnamon.utils.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.world.Mask;
 import org.joml.Math;

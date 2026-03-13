@@ -1,6 +1,6 @@
 package cinnamon.world.entity.misc;
 
-import cinnamon.utils.Maths;
+import cinnamon.math.Maths;
 import cinnamon.world.particle.FireworkParticle;
 import cinnamon.world.world.World;
 import cinnamon.world.world.WorldClient;

@@ -7,6 +7,7 @@ import cinnamon.gui.widgets.AlignedWidget;
 import cinnamon.gui.widgets.PopupWidget;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.Widget;
+import cinnamon.math.Maths;
 import cinnamon.model.Vertex;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;

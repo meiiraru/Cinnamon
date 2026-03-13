@@ -1,7 +1,7 @@
 package cinnamon.world.light;
 
+import cinnamon.math.Maths;
 import cinnamon.render.shader.Shader;
-import cinnamon.utils.Maths;
 import org.joml.Math;
 import org.joml.Matrix4f;
 
