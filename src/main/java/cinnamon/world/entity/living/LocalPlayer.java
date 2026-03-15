@@ -13,6 +13,7 @@ import cinnamon.settings.Settings;
 import cinnamon.vr.XrHandTransform;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
+import cinnamon.world.Abilities;
 import cinnamon.world.WorldObject;
 import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
@@ -100,7 +101,7 @@ public class LocalPlayer extends Player {
             return true;
         }
 
-        if (!getAbilities().canBuild())
+        if (!getAbilities().get(Abilities.Ability.CAN_BUILD))
             return false;
 
         Hit<? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(getPickRange()) : getLookingObject(getPickRange());
@@ -129,7 +130,7 @@ public class LocalPlayer extends Player {
             return true;
         }
 
-        if (!getAbilities().canBuild())
+        if (!getAbilities().get(Abilities.Ability.CAN_BUILD))
             return false;
 
         Hit<? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(getPickRange()) : getLookingObject(getPickRange());
@@ -164,7 +165,7 @@ public class LocalPlayer extends Player {
     }
 
     public void pick() {
-        if (!getAbilities().canBuild())
+        if (!getAbilities().get(Abilities.Ability.CAN_BUILD))
             return;
 
         Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
@@ -212,7 +213,7 @@ public class LocalPlayer extends Player {
     }
 
     private int getInteractionDelay() {
-        return getAbilities().godMode() ? 5 : 7;
+        return getAbilities().get(Abilities.Ability.GOD_MODE) ? 5 : 7;
     }
 
     @Override

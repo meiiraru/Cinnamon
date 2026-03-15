@@ -30,6 +30,7 @@ import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
+import cinnamon.world.Abilities;
 import cinnamon.world.DamageType;
 import cinnamon.world.Decal;
 import cinnamon.world.Hud;
@@ -175,6 +176,7 @@ public class WorldClient extends World {
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
 
         //lights
+        setTime(1000L);
         //sunlight.castsShadows(false);
 
         //for (int j = 0; j < 15; j++)
@@ -443,7 +445,7 @@ public class WorldClient extends World {
                 DebugRenderer.renderSound(s, camera, matrices);
         }
 
-        if (cameraEntity instanceof Player p && p.getAbilities().canBuild())
+        if (cameraEntity instanceof Player p && p.getAbilities().get(Abilities.Ability.CAN_BUILD))
             renderTargetedBlock(p, matrices, delta);
 
         VertexConsumer.finishAllBatches(camera);
@@ -675,7 +677,7 @@ public class WorldClient extends World {
         boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
 
         switch (key) {
-            case GLFW_KEY_N -> player.getAbilities().noclip(!player.getAbilities().noclip());
+            case GLFW_KEY_N -> player.getAbilities().set(Abilities.Ability.NOCLIP, !player.getAbilities().get(Abilities.Ability.NOCLIP));
             case GLFW_KEY_R -> {
                 Item i = player.getHoldingItem();
                 if (i instanceof Weapon weapon)
@@ -841,7 +843,7 @@ public class WorldClient extends World {
     public void respawn(boolean init) {
         player = new LocalPlayer();
         player.setPos(0.5f, init ? 0f : 100f, 0.5f);
-        player.getAbilities().godMode(false).canFly(true);
+        player.getAbilities().set(Abilities.Ability.CAN_FLY, true);
         this.addEntity(player);
 
         Animation anim = player.getAnimation("blink");

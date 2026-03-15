@@ -494,10 +494,10 @@ public class DebugScreen {
                     eye.x, eye.y, eye.z,
 
                     p.isOnGround() ? "yes" : "no",
-                    abilities.noclip() ? "on" : "off",
-                    abilities.godMode() ? "on" : "off",
-                    abilities.canFly() ? "on" : "off",
-                    abilities.canBuild() ? "on" : "off",
+                    abilities.get(Abilities.Ability.NOCLIP)    ? "on" : "off",
+                    abilities.get(Abilities.Ability.GOD_MODE)  ? "on" : "off",
+                    abilities.get(Abilities.Ability.CAN_FLY)   ? "on" : "off",
+                    abilities.get(Abilities.Ability.CAN_BUILD) ? "on" : "off",
 
                     object
             );

@@ -301,7 +301,7 @@ public class Hud {
     protected void drawSelectedTerrain(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
         WorldClient w = c.world;
-        if (!w.player.getAbilities().canBuild())
+        if (!w.player.getAbilities().get(Abilities.Ability.CAN_BUILD))
             return;
 
         int t = w.player.getSelectedTerrain();

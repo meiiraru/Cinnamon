@@ -1,46 +1,35 @@
 package cinnamon.world;
 
+import java.util.HashMap;
+
 public class Abilities {
 
-    private boolean
-            godMode,
-            canFly,
-            noclip,
-            canBuild = true;
+    private final HashMap<Ability, Boolean> abilities = new HashMap<>();
 
-    public Abilities godMode(boolean godMode) {
-        this.godMode = godMode;
+    public Abilities() {
+        for (Ability ability : Ability.values())
+            abilities.put(ability, ability.initialState);
+    }
+
+    public Abilities set(Ability ability, boolean value) {
+        abilities.put(ability, value);
         return this;
     }
 
-    public boolean godMode() {
-        return godMode;
+    public boolean get(Ability ability) {
+        return abilities.getOrDefault(ability, ability.initialState);
     }
 
-    public Abilities canFly(boolean canFly) {
-        this.canFly = canFly;
-        return this;
-    }
+    public enum Ability {
+        GOD_MODE(false),
+        CAN_FLY(false),
+        NOCLIP(false),
+        CAN_BUILD(true);
 
-    public boolean canFly() {
-        return canFly;
-    }
+        public final boolean initialState;
 
-    public Abilities noclip(boolean noclip) {
-        this.noclip = noclip;
-        return this;
-    }
-
-    public boolean noclip() {
-        return noclip;
-    }
-
-    public Abilities canBuild(boolean canBuild) {
-        this.canBuild = canBuild;
-        return this;
-    }
-
-    public boolean canBuild() {
-        return canBuild;
+        Ability(boolean initialState) {
+            this.initialState = initialState;
+        }
     }
 }

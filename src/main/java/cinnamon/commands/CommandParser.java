@@ -49,6 +49,14 @@ public class CommandParser {
     // -- helpers for parsing common arguments -- //
 
 
+    static boolean parseBoolean(String arg) throws IllegalArgumentException {
+        return switch (arg.toLowerCase()) {
+            case "true", "1" -> true;
+            case "false", "0" -> false;
+            default -> throw new IllegalArgumentException("Invalid boolean value: " + arg);
+        };
+    }
+
     static float parseRelativeFloat(String arg) throws NumberFormatException {
         return arg.length() > 1 ? Float.parseFloat(arg.substring(1)) : 0f;
     }

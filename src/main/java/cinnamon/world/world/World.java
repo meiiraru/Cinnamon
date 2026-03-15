@@ -4,6 +4,7 @@ import cinnamon.Client;
 import cinnamon.math.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.world.DamageType;
+import cinnamon.world.WorldRules;
 import cinnamon.world.collisions.CollisionDetector;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.collisions.Hit;
@@ -29,10 +30,12 @@ public abstract class World {
     protected final TerrainManager terrainManager = new OctreeTerrain(new AABB().inflate(16));
     protected final Map<UUID, Entity> entities = new HashMap<>();
 
+    protected final WorldRules worldRules = new WorldRules();
+
     public float updateTime = 1f / Client.TPS;
     public float gravity = 0.98f * updateTime;
     public float bottomOfTheWorld = -512f;
-    protected long worldTime = 1000;
+    protected long worldTime = 0;
     protected boolean isPaused;
 
     public abstract void init();
@@ -43,7 +46,8 @@ public abstract class World {
         if (isPaused())
             return;
 
-        worldTime++;
+        if ((boolean) worldRules.get(WorldRules.Rule.DAY_CYCLE))
+            worldTime++;
 
         //run scheduled ticks
         runScheduledTicks();
@@ -218,5 +222,9 @@ public abstract class World {
 
     public boolean isClientside() {
         return false;
+    }
+
+    public WorldRules getRules() {
+        return worldRules;
     }
 }

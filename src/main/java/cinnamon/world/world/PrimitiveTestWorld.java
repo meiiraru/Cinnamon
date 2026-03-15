@@ -12,6 +12,7 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
+import cinnamon.world.Abilities;
 import cinnamon.world.Hud;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.light.Light;
@@ -247,7 +248,7 @@ public class PrimitiveTestWorld extends WorldClient {
             Vector3f playerDim = source.getAABB().getDimensions();
             VertexConsumer.WORLD_MAIN.consume(GeometryHelper.capsule(matrices, playerPos.x, playerPos.y, playerPos.z, playerDim.y, playerDim.x / 2f, 12, Colors.PINK.argb));
         });
-        player.getAbilities().godMode(false).canBuild(false);
+        player.getAbilities().set(Abilities.Ability.CAN_BUILD, false);
 
         player.setPos(3.75f, 0.5f, 1f);
         player.setRot(0f, 180f);

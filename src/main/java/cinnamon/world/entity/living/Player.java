@@ -77,7 +77,7 @@ public class Player extends LivingEntity {
 
     @Override
     protected Vector3f tickTerrainCollisions(AABB aabb, Vector3f motion) {
-        if (abilities.noclip()) {
+        if (abilities.get(Abilities.Ability.NOCLIP)) {
             this.onGround = false;
             return new Vector3f(motion);
         }
@@ -87,13 +87,13 @@ public class Player extends LivingEntity {
 
     @Override
     protected void tickEntityCollisions(AABB aabb, Vector3f toMove) {
-        if (!abilities.noclip())
+        if (!abilities.get(Abilities.Ability.NOCLIP))
             super.tickEntityCollisions(aabb, toMove);
     }
 
     @Override
     public boolean damage(Entity source, DamageType type, int amount, boolean crit) {
-        if (invulnerability > 0 || (getAbilities().godMode() && type != DamageType.GOD))
+        if (invulnerability > 0 || (getAbilities().get(Abilities.Ability.GOD_MODE) && type != DamageType.GOD))
             return false;
 
         this.invulnerability = INVULNERABILITY_TIME;
@@ -122,7 +122,7 @@ public class Player extends LivingEntity {
     public void updateMovementFlags(boolean sneaking, boolean sprinting, boolean flying) {
         this.sneaking = sneaking;
         this.sprinting = sprinting;
-        this.flying = (flying && abilities.canFly()) || abilities.noclip();
+        this.flying = (flying && abilities.get(Abilities.Ability.CAN_FLY)) || abilities.get(Abilities.Ability.NOCLIP);
 
         if (this.isRiding() && sneaking)
             this.stopRiding();
