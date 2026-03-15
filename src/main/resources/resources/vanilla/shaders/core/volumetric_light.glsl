@@ -28,6 +28,7 @@ uniform sampler2D gDepth;
 uniform mat4 invView;
 uniform mat4 invProjection;
 uniform vec3 camPos;
+uniform vec2 screenSize;
 
 uniform int lightType;
 uniform vec3 lightPos;
@@ -38,7 +39,13 @@ uniform float height;
 uniform float strength;
 uniform vec3 color;
 
-const int MAX_RAY_STEPS = 32;
+uniform bool castsShadows;
+uniform sampler2D shadowMap;
+uniform samplerCube shadowCubeMap;
+uniform mat4 lightSpaceMatrix;
+uniform float farPlane;
+
+uniform int raySteps = 64;
 
 vec3 getPosFromDepth(vec2 texCoords, float depth) {
     vec2 ndc = texCoords * 2.0f - 1.0f;
@@ -138,6 +145,26 @@ float getConeCameraFade() {
     return 1.0f - smoothstep(0.0f, 0.7f, depth);
 }
 
+float sampleSpotShadow(vec3 pos) {
+    vec4 lightSpace = lightSpaceMatrix * vec4(pos, 1.0f);
+    vec3 coords = lightSpace.xyz / lightSpace.w;
+    coords = coords * 0.5f + 0.5f;
+
+    //outside the light frustum is fully lit
+    if (coords.z > 1.0f || coords.x < 0.0f || coords.x > 1.0f || coords.y < 0.0f || coords.y > 1.0f)
+        return 0.0f;
+
+    float closest = texture(shadowMap, coords.xy).r;
+    return coords.z - 0.001f > closest ? 1.0f : 0.0f;
+}
+
+float samplePointShadow(vec3 pos) {
+    vec3 fragToLight = pos - lightPos;
+    float currentDepth = length(fragToLight);
+    float closest = texture(shadowCubeMap, fragToLight).r * farPlane;
+    return currentDepth - 0.05f > closest ? 1.0f : 0.0f;
+}
+
 void main() {
     //camera fade
     bool pointLight = lightType == 0;
@@ -146,7 +173,7 @@ void main() {
         discard;
 
     //get scene depth for occlusion
-    vec2 screenUV = gl_FragCoord.xy / vec2(textureSize(gDepth, 0));
+    vec2 screenUV = gl_FragCoord.xy / screenSize;
     float sceneDepth = texture(gDepth, screenUV).r;
     vec3 scenePos = getPosFromDepth(screenUV, sceneDepth);
     float distToScene = length(scenePos - camPos);
@@ -157,17 +184,24 @@ void main() {
     float maxDist = min(distToFrag, distToScene);
 
     //setup step size to always use the same number of steps
-    float stepSize = maxDist / float(MAX_RAY_STEPS);
+    float stepSize = maxDist / float(raySteps);
 
     //add some dithering to reduce artifacts from the ray marching
     float dither = hash(gl_FragCoord.xy) * stepSize;
 
     //ray march
     float totalDensity = 0.0f;
-    for (int i = 0; i < MAX_RAY_STEPS; i++) {
+    for (int i = 0; i < raySteps; i++) {
         float t = dither + stepSize * i;
         vec3 samplePos = camPos + rayDir * t;
         float density = pointLight ? getSphereDensity(samplePos) : getConeDensity(samplePos);
+
+        //skip density contribution if this point is in shadow
+        if (castsShadows && density > 0.0f) {
+            float shadow = pointLight ? samplePointShadow(samplePos) : sampleSpotShadow(samplePos);
+            density *= (1.0f - shadow);
+        }
+
         totalDensity += density * stepSize;
     }
 

@@ -6,6 +6,7 @@ import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
 import cinnamon.render.framebuffer.ShadowCascadeFramebuffer;
 import cinnamon.render.framebuffer.ShadowCubemapFramebuffer;
+import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.CubeMap;
@@ -34,6 +35,8 @@ public class LightRenderer {
     public static final Framebuffer lightingMultiPassBuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER);
     public static final Framebuffer shadowBuffer = new Framebuffer(Framebuffer.DEPTH_BUFFER);
     public static final ShadowCubemapFramebuffer cubeShadowBuffer = new ShadowCubemapFramebuffer();
+    public static final Framebuffer lightGlareBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
+    public static final Framebuffer volumetricBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
 
     public static final ShadowCascadeFramebuffer cascadeShadowBuffer = new ShadowCascadeFramebuffer(CascadedShadow.NUM_CASCADES);
     public static final CascadedShadow cascadedShadow = new CascadedShadow();
@@ -61,6 +64,10 @@ public class LightRenderer {
         //init the light buffer
         initLightBuffer(gBuffer, camera);
         boolean hasShadows = renderShadows && Settings.shadowQuality.get() >= 0;
+        boolean volumetric = Settings.volumetricLights.get() >= 0;
+
+        if (volumetric)
+            initVolumetricBuffer(gBuffer);
 
         //render the lights
         for (Light light : lights) {
@@ -85,30 +92,34 @@ public class LightRenderer {
             //bake this light
             bakeLight(gBuffer, camera, light, shadow);
             renderedLights++;
+
+            //render volumetric effect
+            if (volumetric && light.getType() != Light.Type.DIRECTIONAL)
+                renderVolumetricLight(gBuffer, camera, light, shadow);
         }
 
         //reset light state
         resetLightState(camera);
     }
 
-    public static void renderLightsGlare(Framebuffer target, List<Light> lights, Camera camera) {
+    public static void renderLightsPost(Framebuffer target, List<Light> lights, Camera camera) {
         if (lights.isEmpty())
             return;
 
         boolean lensFlare = Settings.lensFlare.get();
-        boolean volumetric = Settings.volumetricLights.get();
         List<DirectionalLight> directionalLights = new ArrayList<>();
-        List<Light> volumetricLights = new ArrayList<>();
 
-        //prepare the flare buffer
-        target.use();
+        //prepare the glare buffer
         glDisable(GL_DEPTH_TEST);
         glBlendFunc(GL_ONE, GL_ONE);
 
-        //set up the flare shader
+        //set up the glare rendering
+        lightGlareBuffer.resizeTo(target);
+        lightGlareBuffer.useClear();
+        lightGlareBuffer.adjustViewPort();
+
         Shader s = Shaders.LIGHT_GLARE.getShader().use();
         s.setup(camera);
-        // use the depth texture from the current target (outputBuffer) which may include clouds' depth
         s.setTexture("gDepth", target.getDepthBuffer(), 0);
 
         float aspectRatio = (float) target.getWidth() / target.getHeight();
@@ -124,15 +135,8 @@ public class LightRenderer {
             if (intensity <= 0f || light.getIntensity() <= 0f)
                 continue;
 
-            Light.Type type = light.getType();
-
-            if (type == Light.Type.DIRECTIONAL) {
-                if (lensFlare)
-                    directionalLights.add((DirectionalLight) light);
-            } else {
-                if (volumetric)
-                    volumetricLights.add(light);
-            }
+            if (light.getType() == Light.Type.DIRECTIONAL && lensFlare)
+                directionalLights.add((DirectionalLight) light);
 
             s.applyColor(light.getColor());
             s.setFloat("intensity", intensity);
@@ -161,56 +165,18 @@ public class LightRenderer {
             }
         }
 
-        glDisable(GL_CULL_FACE);
+        //bake glares and volumetrics back to the target framebuffer
+        target.use();
+        Shader blit = PostProcess.BLIT.getShader().use();
 
-        //render the volumetric lights
-        if (!volumetricLights.isEmpty()) {
-            Shader volShader = Shaders.VOLUMETRIC_LIGHT.getShader().use();
-            volShader.setup(camera);
-            volShader.setupInverse(camera);
-            volShader.setVec3("camPos", camera.getPosition());
-            volShader.setTexture("gDepth", target.getDepthBuffer(), 0);
+        blit.setTexture("colorTex", lightGlareBuffer.getColorBuffer(), 0);
+        StaticGeometry.QUAD.render();
 
-            for (Light light : volumetricLights) {
-                float strength = light.getVolumetricStrength();
-                if (strength <= 0f)
-                    continue;
-
-                volShader.setInt("lightType", light.getType().ordinal());
-                volShader.setVec3("lightPos", light.getPos());
-                volShader.setVec3("lightDir", light.getDirection());
-
-                volShader.setFloat("strength", strength);
-                volShader.setColor("color", light.getColor());
-
-                lightModelMatrix.identity();
-                light.copyTransform(lightModelMatrix);
-                volShader.setMat4("model", lightModelMatrix);
-
-                switch (light.getType()) {
-                    case POINT -> {
-                        PointLight pointLight = (PointLight) light;
-                        float r = pointLight.getFalloffEnd();
-                        volShader.setFloat("radius", r);
-
-                        StaticGeometry.SPHERE.render();
-                    }
-                    case SPOT, COOKIE -> {
-                        Spotlight spotlight = (Spotlight) light;
-                        float h = spotlight.getFalloffEnd();
-                        float r = h * Math.tan(Math.toRadians(spotlight.getOuterAngle()));
-                        volShader.setFloat("radius", r);
-                        volShader.setFloat("height", h);
-
-                        StaticGeometry.CONE.render();
-                    }
-                }
-            }
-        }
+        blit.setTexture("colorTex", volumetricBuffer.getColorBuffer(), 0);
+        StaticGeometry.QUAD.render();
 
         //reset state
         glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
         glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         Texture.unbindAll(2);
     }
@@ -403,6 +369,77 @@ public class LightRenderer {
         //reset state
         shadowLight = null;
         WorldRenderer.activeMask = WorldRenderer.passMask;
+    }
+
+
+    // volumetric and baking //
+
+
+    private static void initVolumetricBuffer(Framebuffer target) {
+        int level = Settings.volumetricLights.get();
+        volumetricBuffer.resizeTo(target, level < 3 ? 0.5f : 1f);
+        volumetricBuffer.useClear();
+
+        Shader s = Shaders.VOLUMETRIC_LIGHT.getShader().use();
+        s.setInt("raySteps", 16 * (level + 1));
+        s.setVec2("screenSize", volumetricBuffer.getWidth(), volumetricBuffer.getHeight());
+    }
+
+    private static void renderVolumetricLight(PBRDeferredFramebuffer gBuffer, Camera camera, Light light, boolean hasShadow) {
+        float strength = light.getVolumetricStrength();
+        if (strength <= 0f)
+            return;
+
+        //restore camera to its original view
+        camera.setPos(cameraPos.x, cameraPos.y, cameraPos.z);
+        camera.setRot(cameraRot);
+
+        //render into the volumetric buffer
+        volumetricBuffer.use();
+        volumetricBuffer.adjustViewPort();
+
+        Shader s = Shaders.VOLUMETRIC_LIGHT.getShader().use();
+        s.setup(camera);
+        s.setupInverse(camera);
+        s.setVec3("camPos", camera.getPosition());
+        s.setTexture("gDepth", gBuffer.getDepthBuffer(), 0);
+
+        //bind shadow maps
+        s.setBool("castsShadows", hasShadow);
+        s.setTexture("shadowMap",     hasShadow ? shadowBuffer.getDepthBuffer() : 0, 1);
+        s.setCubeMap("shadowCubeMap", hasShadow ? cubeShadowBuffer.getCubemap() : 0, 2);
+        s.setMat4("lightSpaceMatrix", light.getLightSpaceMatrix());
+
+        if (light instanceof PointLight p)
+            s.setFloat("farPlane", p.getFalloffEnd());
+
+        s.setInt("lightType", light.getType().ordinal());
+        s.setVec3("lightPos", light.getPos());
+        s.setVec3("lightDir", light.getDirection());
+        s.setFloat("strength", strength);
+        s.setColor("color", light.getColor());
+
+        lightModelMatrix.identity();
+        light.copyTransform(lightModelMatrix);
+        s.setMat4("model", lightModelMatrix);
+
+        switch (light.getType()) {
+            case POINT -> {
+                s.setFloat("radius", ((PointLight) light).getFalloffEnd());
+                StaticGeometry.SPHERE.render();
+            }
+            case SPOT, COOKIE -> {
+                Spotlight spotlight = (Spotlight) light;
+                float h = spotlight.getFalloffEnd();
+                float r = h * Math.tan(Math.toRadians(spotlight.getOuterAngle()));
+                s.setFloat("radius", r);
+                s.setFloat("height", h);
+                StaticGeometry.CONE.render();
+            }
+        }
+
+        Texture.unbindAll(2);
+        CubeMap.unbindTex(2);
     }
 
     private static void bakeLight(PBRDeferredFramebuffer gBuffer, Camera camera, Light light, boolean hasShadow) {

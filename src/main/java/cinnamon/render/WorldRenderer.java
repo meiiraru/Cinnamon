@@ -18,6 +18,7 @@ import cinnamon.world.Mask;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.items.ItemRenderContext;
+import cinnamon.world.light.Light;
 import cinnamon.world.sky.Sky;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
@@ -128,7 +129,8 @@ public class WorldRenderer {
         renderSSR(camera);
 
         //render the world lights
-        renderLights(world, camera, renderFunc);
+        List<Light> lights = world.getLights(camera);
+        renderLights(lights, camera, renderFunc);
 
         //bake world
         bakeDeferred(camera, world.getSky());
@@ -139,8 +141,8 @@ public class WorldRenderer {
         //render clouds
         renderClouds(world, camera, delta);
 
-        //render glares and lens flare
-        renderLightsGlare(world, camera);
+        //render light postprocessing
+        renderLightsPost(lights, camera);
 
         //render debug stuff
         if (renderDebug)
@@ -157,6 +159,8 @@ public class WorldRenderer {
     }
 
     private static void renderAsAnaglyph(WorldClient world, MatrixStack matrices, float delta, Runnable[] renderFunc) {
+        List<Light> lights = world.getLights(camera);
+
         camera.anaglyph3D(matrices, -1f / 64f, -1f, () -> {
             //render world
             initGBuffer(camera);
@@ -178,7 +182,7 @@ public class WorldRenderer {
             renderSSR(camera);
 
             //lights
-            renderLights(world, camera, renderFunc);
+            renderLights(lights, camera, renderFunc);
         }, () -> {
             //bake world
             bakeDeferred(camera, world.getSky());
@@ -186,7 +190,7 @@ public class WorldRenderer {
             //post bake renderer
             applyBloom();
             renderClouds(world, camera, delta);
-            renderLightsGlare(world, camera);
+            renderLightsPost(lights, camera);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
         });
 
@@ -340,10 +344,10 @@ public class WorldRenderer {
             BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getEmissive(), 1.5f, bloom);
     }
 
-    public static void renderLights(WorldClient world, Camera camera, Runnable[] renderFunc) {
+    public static void renderLights(List<Light> lights, Camera camera, Runnable[] renderFunc) {
         renderedLights = renderedShadows = 0;
         if (renderLights) {
-            LightRenderer.renderLights(PBRFrameBuffer, world.getLights(camera), camera, renderShadows, () -> {
+            LightRenderer.renderLights(PBRFrameBuffer, lights, camera, renderShadows, () -> {
                 for (Runnable r : renderFunc)
                     r.run();
             });
@@ -352,9 +356,9 @@ public class WorldRenderer {
         }
     }
 
-    public static void renderLightsGlare(WorldClient world, Camera camera) {
+    public static void renderLightsPost(List<Light> lights, Camera camera) {
         if (renderLights)
-            LightRenderer.renderLightsGlare(outputBuffer, world.getLights(camera), camera);
+            LightRenderer.renderLightsPost(outputBuffer, lights, camera);
     }
 
     public static void renderWater(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
