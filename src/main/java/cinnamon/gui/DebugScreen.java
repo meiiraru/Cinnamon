@@ -82,7 +82,7 @@ public class DebugScreen {
     public static void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
 
-        //DebugRenderer.renderTextureOnScreen(matrices, SSAORenderer.getTexture(), false);
+        //DebugRenderer.renderTextureOnScreen(matrices, WorldRenderer.outputBuffer.getDepthBuffer(), false);
 
         boolean fpsOnly = !active && Settings.showFPS.get() && (c.world == null || !c.hideHUD);
         if (!fpsOnly && !active)

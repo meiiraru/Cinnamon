@@ -136,11 +136,11 @@ public class WorldRenderer {
         //apply bloom
         applyBloom();
 
-        //render glares and lens flare
-        renderLightsGlare(world, camera);
-
         //render clouds
         renderClouds(world, camera, delta);
+
+        //render glares and lens flare
+        renderLightsGlare(world, camera);
 
         //render debug stuff
         if (renderDebug)
@@ -185,8 +185,8 @@ public class WorldRenderer {
 
             //post bake renderer
             applyBloom();
-            renderLightsGlare(world, camera);
             renderClouds(world, camera, delta);
+            renderLightsGlare(world, camera);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
         });
 
@@ -331,7 +331,7 @@ public class WorldRenderer {
     public static void renderSSR(Camera camera) {
         int ssrLevel = Settings.ssrLevel.get();
         if (renderSSR && ssrLevel >= 0)
-            SSRRenderer.render(PBRFrameBuffer, lastFrameFramebuffer.getColorBuffer(), camera, ssrLevel);
+            SSRRenderer.render(PBRFrameBuffer, lastFrameFramebuffer, camera, ssrLevel);
     }
 
     public static void applyBloom() {
@@ -354,7 +354,7 @@ public class WorldRenderer {
 
     public static void renderLightsGlare(WorldClient world, Camera camera) {
         if (renderLights)
-            LightRenderer.renderLightsGlare(outputBuffer, PBRFrameBuffer, world.getLights(camera), camera);
+            LightRenderer.renderLightsGlare(outputBuffer, world.getLights(camera), camera);
     }
 
     public static void renderWater(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
@@ -370,7 +370,7 @@ public class WorldRenderer {
 
     public static void renderClouds(WorldClient world, Camera camera, float delta) {
         if (renderClouds)
-            CloudRenderer.renderClouds(camera, world.getTime() + delta, world.getSky().cloudsColor, 64f, 0.5f, 1f);
+            CloudRenderer.renderClouds(outputBuffer, camera, world.getTime() + delta, world.getSky(), 64f, 0.85f, 1f);
     }
 
     public static void renderOutlines(WorldClient world, Camera camera, MatrixStack matrices, float delta) {

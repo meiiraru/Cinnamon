@@ -12,15 +12,15 @@ public class SSRRenderer {
 
     public static final Framebuffer ssrFramebuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
 
-    public static void render(PBRDeferredFramebuffer gBuffer, int prevFrame, Camera camera, int quality) {
+    public static void render(PBRDeferredFramebuffer gBuffer, Framebuffer prevFrame, Camera camera, int quality) {
         ssrFramebuffer.resizeTo(gBuffer);
         ssrFramebuffer.useClear();
 
         Shader s = Shaders.SSR.getShader().use();
-        s.setTexture("previousTex", prevFrame, 0);
+        s.setTexture("previousTex", prevFrame.getColorBuffer(), 0);
         s.setTexture("gNormal", gBuffer.getNormal(), 1);
         s.setTexture("gORM", gBuffer.getORM(), 2);
-        s.setTexture("gDepth", gBuffer.getDepthBuffer(), 3);
+        s.setTexture("gDepth", prevFrame.getDepthBuffer(), 3);
 
         s.setFloat("nearPlane", Camera.NEAR_PLANE);
         s.setFloat("farPlane", Camera.FAR_PLANE);

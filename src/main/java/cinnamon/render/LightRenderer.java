@@ -91,7 +91,7 @@ public class LightRenderer {
         resetLightState(camera);
     }
 
-    public static void renderLightsGlare(Framebuffer target, PBRDeferredFramebuffer gBuffer, List<Light> lights, Camera camera) {
+    public static void renderLightsGlare(Framebuffer target, List<Light> lights, Camera camera) {
         if (lights.isEmpty())
             return;
 
@@ -108,7 +108,8 @@ public class LightRenderer {
         //set up the flare shader
         Shader s = Shaders.LIGHT_GLARE.getShader().use();
         s.setup(camera);
-        s.setTexture("gDepth", gBuffer.getDepthBuffer(), 0);
+        // use the depth texture from the current target (outputBuffer) which may include clouds' depth
+        s.setTexture("gDepth", target.getDepthBuffer(), 0);
 
         float aspectRatio = (float) target.getWidth() / target.getHeight();
         float texelX = 1f / target.getWidth(), texelY = 1f / target.getHeight();
@@ -149,7 +150,7 @@ public class LightRenderer {
             lensShader.setVec3("camPos", camera.getPosition());
             lensShader.setFloat("aspectRatio", aspectRatio);
             lensShader.setVec2("sampleRadius", texelX, texelY);
-            lensShader.setTexture("gDepth", gBuffer.getDepthBuffer(), 0);
+            lensShader.setTexture("gDepth", target.getDepthBuffer(), 0);
 
             for (DirectionalLight light : directionalLights) {
                 lensShader.applyColor(light.getColor());
@@ -168,7 +169,7 @@ public class LightRenderer {
             volShader.setup(camera);
             volShader.setupInverse(camera);
             volShader.setVec3("camPos", camera.getPosition());
-            volShader.setTexture("gDepth", gBuffer.getDepthBuffer(), 0);
+            volShader.setTexture("gDepth", target.getDepthBuffer(), 0);
 
             for (Light light : volumetricLights) {
                 float strength = light.getVolumetricStrength();
