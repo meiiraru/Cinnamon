@@ -85,7 +85,7 @@ void main() {
     uv /= scale; //apply scale to make effect smaller/bigger
 
     //main glare - a soft glow right at the light position
-    float glare = max(0.0f, pow(max(0.0f, 1.0f - length(uv)), 15.0f));
+    float glare = max(0.0f, pow(max(0.0f, 1.0f - length(uv)), 32.0f));
     finalFlare += glare * glareColor * 2.0f;
 
     //starburst - anamorphic streaks

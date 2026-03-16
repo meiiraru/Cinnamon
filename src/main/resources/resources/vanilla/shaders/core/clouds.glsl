@@ -84,6 +84,20 @@ float sdBox(vec3 p, float width, float height, float depth) {
     return outsideDist + insideDist;
 }
 
+bool intersectAABB(vec3 ro, vec3 rd, vec3 bmin, vec3 bmax, out float tEnter, out float tExit) {
+    vec3 invDir = 1.0f / rd;
+    vec3 t0 = (bmin - ro) * invDir;
+    vec3 t1 = (bmax - ro) * invDir;
+
+    vec3 tMin = min(t0, t1);
+    vec3 tMax = max(t0, t1);
+
+    tEnter = max(max(tMin.x, tMin.y), tMin.z);
+    tExit = min(min(tMax.x, tMax.y), tMax.z);
+
+    return tExit >= max(tEnter, 0.0f);
+}
+
 float beersLaw(float dist, float absorption) {
     return exp(-dist * absorption);
 }
@@ -163,9 +177,11 @@ float lightmarch(vec3 position, vec3 rayDirection, float marchSize) {
     return transmittance;
 }
 
-float raymarch(vec3 rayOrigin, vec3 rayDirection, float offset, float marchSize, float maxDepth, out float outHitDepth) {
+float raymarch(vec3 rayOrigin, vec3 rayDirection, float offset, float marchSize, float startDepth, float endDepth, out float outHitDepth) {
     //start marching from the near intersection, with blue noise dither
-    float depth = marchSize * offset;
+    float depth = startDepth + marchSize * offset;
+    if (depth > endDepth)
+        depth = startDepth;
     vec3 p = rayOrigin + depth * rayDirection;
 
     float totalTransmittance = 1.0f;
@@ -177,11 +193,14 @@ float raymarch(vec3 rayOrigin, vec3 rayDirection, float offset, float marchSize,
 
     for (int i = 0; i < MAX_STEPS; i++) {
         //stop if we have passed the bounding box or scene geometry
-        if (depth >= maxDepth)
+        if (depth >= endDepth)
             break;
 
         //adaptive step size
         float dt = max(marchSize, 0.02f * depth);
+        dt = min(dt, endDepth - depth);
+        if (dt <= 0.0f)
+            break;
 
         //sample density with a distance-based LOD
         int oct = clamp(5 - int(log2(1.0f + depth * 0.5f)), 2, 5);
@@ -218,9 +237,28 @@ void main() {
     //ray origin from camera into cloud space
     vec3 rayOrigin = (camPos - cloudPos) / cloudScale;
 
+    //restrict marching to the cloud volume bounds
+    float r = float(MAX_STEPS) * MARCH_SIZE;
+    float tEnter, tExit;
+    if (!intersectAABB(rayOrigin, rayDir, vec3(-r, -0.5f, -r), vec3(r, 0.5f, r), tEnter, tExit))
+        discard;
+
+    float marchStart = max(tEnter, 0.0f);
+    float marchEnd = tExit;
+    if (marchEnd <= marchStart)
+        discard;
+
     //reconstruct world space position from depth buffer
     float sceneDepth = texture(gDepth, texCoords).r;
     float maxDepth = sceneDepth < 0.99999f ? getDistanceAtDepth(ndc, sceneDepth) / cloudScale : MAX_STEPS * MARCH_SIZE;
+
+    //skip if opaque scene geometry is closer than cloud entry
+    if (maxDepth <= marchStart)
+        discard;
+
+    marchEnd = min(marchEnd, maxDepth);
+    if (marchEnd <= marchStart)
+        discard;
 
     //blue noise to dither the raymarch start position
     vec2 blueNoiseSize = vec2(textureSize(blueNoiseTex, 0));
@@ -229,7 +267,7 @@ void main() {
 
     //raymarch in cloud space, and capture the hit depth
     float hitDepthLocal = -1.0f;
-    float res = raymarch(rayOrigin, rayDir, offset, MARCH_SIZE, maxDepth, hitDepthLocal);
+    float res = raymarch(rayOrigin, rayDir, offset, MARCH_SIZE, marchStart, marchEnd, hitDepthLocal);
     if (res <= 0.0f)
         discard;
 

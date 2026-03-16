@@ -34,6 +34,8 @@ uniform float edgeFade = 0.1f;
 uniform float jitterStrength = 0.5f;
 uniform float roughnessThreshold = 0.85f;
 
+const int REFINE_STEPS = 4;
+
 vec3 noise(vec2 uv) {
     return fract(sin(vec3(
         dot(uv, vec2(12.9898f, 78.233f)),
@@ -68,9 +70,10 @@ bool rayMarch(vec3 rayOrigin, vec3 rayDir, out vec2 hitUV) {
         return false;
 
     vec3 rayPos = rayOrigin;
-    float stepSize = rayStep;
+    float stepSize = rayStep * 1.75f;
 
     for (int i = 0; i < maxSteps; i++) {
+        vec3 prevPos = rayPos;
         rayPos += rayDir * stepSize;
 
         //project to screen space
@@ -93,31 +96,46 @@ bool rayMarch(vec3 rayOrigin, vec3 rayDir, out vec2 hitUV) {
         float sampledZ = linearizeDepth(sampledDepth);
         float depthDiff = -rayPos.z - sampledZ;
 
-        //check for intersection
-        if (depthDiff > 0.0f && depthDiff < thickness) {
-            //binary search refinement
-            vec3 hitPos = rayPos;
-            vec3 lastGoodPos = rayPos - rayDir * stepSize;
+        //coarse hit candidate, refine locally to keep thin reflections stable
+        if (depthDiff > 0.0f && depthDiff < maxDepthDiff) {
+            float refineStep = stepSize / float(REFINE_STEPS);
+            vec3 refinePos = prevPos;
 
-            for (int j = 0; j < maxBinarySearchSteps; j++) {
-                vec3 midPos = (hitPos + lastGoodPos) * 0.5f;
-                vec2 midUV = projectToScreen(midPos);
+            for (int r = 0; r < REFINE_STEPS; r++) {
+                refinePos += rayDir * refineStep;
+                vec2 refineUV = projectToScreen(refinePos);
 
-                float midDepth = texture(gDepth, midUV).r;
-                float midDepthDiff = -midPos.z - linearizeDepth(midDepth);
+                if (refineUV.x < 0.0f || refineUV.x > 1.0f || refineUV.y < 0.0f || refineUV.y > 1.0f)
+                    return false;
 
-                if (midDepthDiff > 0.0f && midDepthDiff < thickness) {
-                    hitPos = midPos;
-                } else {
-                    lastGoodPos = midPos;
+                float refineDepth = texture(gDepth, refineUV).r;
+                if (refineDepth >= 0.99999f)
+                    continue;
+
+                float refineDepthDiff = -refinePos.z - linearizeDepth(refineDepth);
+                if (refineDepthDiff > 0.0f && refineDepthDiff < thickness) {
+                    //binary search refinement
+                    vec3 hitPos = refinePos;
+                    vec3 lastGoodPos = refinePos - rayDir * refineStep;
+
+                    for (int j = 0; j < maxBinarySearchSteps; j++) {
+                        vec3 midPos = (hitPos + lastGoodPos) * 0.5f;
+                        vec2 midUV = projectToScreen(midPos);
+
+                        float midDepth = texture(gDepth, midUV).r;
+                        float midDepthDiff = -midPos.z - linearizeDepth(midDepth);
+
+                        if (midDepthDiff > 0.0f && midDepthDiff < thickness) {
+                            hitPos = midPos;
+                        } else {
+                            lastGoodPos = midPos;
+                        }
+                    }
+
+                    hitUV = projectToScreen(hitPos);
+                    return true;
                 }
             }
-
-            hitUV = projectToScreen(hitPos);
-
-            //check if depth difference is within acceptable range
-            if (depthDiff < maxDepthDiff)
-                return true;
         }
 
         //increase step size as we get further
