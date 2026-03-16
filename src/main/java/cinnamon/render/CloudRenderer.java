@@ -72,17 +72,11 @@ public class CloudRenderer {
 
         s.setTexture("gDepth", targetBuffer.getDepthBuffer(), 2);
 
-        s.setFloat("noiseScale", 0.1f);
-        s.setFloat("cloudScale", cloudScale * 32f);
+        s.setFloat("noiseScale", cloudScale * 0.1f);
+        s.setFloat("cloudScale", 32f);
 
         s.setVec3("cloudPos", camPos.x, y, camPos.z);
         s.setFloat("cloudCoverage", coverage);
-
-        s.setInt("MAX_STEPS", 72);
-        s.setInt("MAX_STEPS_LIGHTS", 5);
-        s.setFloat("MARCH_SIZE", 0.3f);
-        s.setFloat("ABSORPTION_COEFFICIENT", 0.9f);
-        s.setFloat("SCATTERING_ANISO", 0.3f);
 
         glDepthFunc(GL_ALWAYS);
         StaticGeometry.QUAD.render();
