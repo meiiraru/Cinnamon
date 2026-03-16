@@ -29,7 +29,7 @@ public class BloomRenderer {
         renderQuad();
 
         //apply blur
-        int blurTex = Blur.blurTexture(brightPass.getColorBuffer(), brightPass.getWidth(), brightPass.getHeight(), 2f, blurBufferA, blurBufferB);
+        int blurTex = Blur.gaussianBlur(brightPass.getColorBuffer(), brightPass.getWidth(), brightPass.getHeight(), 2, blurBufferA, blurBufferB);
 
         //composite back to the bright buffer with additive blending
         brightPass.useClear();

@@ -6,12 +6,14 @@ import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
 
 import static cinnamon.render.WorldRenderer.renderQuad;
+import static org.lwjgl.opengl.GL11.*;
 
 public class Blur {
 
-    public static int blurTexture(int texture, int width, int height, float blurRadius, Framebuffer pingPongA, Framebuffer pingPongB) {
-        int w = (int) (width / blurRadius);
-        int h = (int) (height / blurRadius);
+    public static int gaussianBlur(int texture, int width, int height, int blurRadius, Framebuffer pingPongA, Framebuffer pingPongB) {
+        Framebuffer prevFramebuffer = Framebuffer.activeFramebuffer;
+        int w = width / blurRadius;
+        int h = height / blurRadius;
 
         pingPongA.resize(w, h);
         pingPongB.resize(w, h);
@@ -20,6 +22,8 @@ public class Blur {
 
         Shader sh = PostProcess.GAUSSIAN_BLUR.getShader().use();
         sh.setVec2("texelSize", 1f / w, 1f / h);
+
+        glDisable(GL_BLEND);
 
         int tex = texture;
         Framebuffer target = pingPongA;
@@ -39,23 +43,36 @@ public class Blur {
             target = target == pingPongA ? pingPongB : pingPongA;
         }
 
+        glEnable(GL_BLEND);
         Texture.unbindAll(1);
+
+        prevFramebuffer.use();
+        prevFramebuffer.adjustViewPort();
+
         return tex;
     }
 
-    public static int boxBlur(int texture, int width, int height, float blurRadius, float scale, Framebuffer blurBuffer) {
+    public static int boxBlur(int texture, int width, int height, int blurRadius, Framebuffer blurBuffer) {
+        Framebuffer prevFramebuffer = Framebuffer.activeFramebuffer;
+
         blurBuffer.resize(width, height);
         blurBuffer.useClear();
         blurBuffer.adjustViewPort();
 
         Shader sh = PostProcess.BOX_BLUR.getShader().use();
         sh.setTexture("colorTex", texture, 0);
-        sh.setVec2("texelSize", scale / width, scale / height);
-        sh.setFloat("radius", blurRadius);
+        sh.setVec2("texelSize", 1f / width, 1f / height);
+        sh.setInt("radius", blurRadius);
 
+        glDisable(GL_BLEND);
         renderQuad();
 
+        glEnable(GL_BLEND);
         Texture.unbindAll(1);
+
+        prevFramebuffer.use();
+        prevFramebuffer.adjustViewPort();
+
         return blurBuffer.getColorBuffer();
     }
 }

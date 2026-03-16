@@ -35,12 +35,12 @@ public enum PostProcess {
     BLUR((fb, s) -> {
         s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
         s.setVec2("dir", 3f, 0f);
-        s.setFloat("radius", 5f);
+        s.setInt("radius", 5);
         return COLOR_UNIFORM.apply(fb, s);
     }),
     BOX_BLUR((fb, s) -> {
-        s.setVec2("texelSize", 2f / fb.getWidth(), 2f / fb.getHeight());
-        s.setFloat("radius", 5f);
+        s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
+        s.setInt("radius", 5);
         return COLOR_UNIFORM.apply(fb, s);
     }),
     EDGES((fb, s) -> {

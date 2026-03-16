@@ -47,7 +47,7 @@ public class SSAORenderer {
     }
 
     public static void blurSSAO() {
-        out = Blur.boxBlur(ssaoFramebuffer.getSSAOTexture(), ssaoFramebuffer.getWidth(), ssaoFramebuffer.getHeight(), SSAOFramebuffer.NOISE_SAMPLES / 2f, 1f, blurBuffer);
+        out = Blur.boxBlur(ssaoFramebuffer.getSSAOTexture(), ssaoFramebuffer.getWidth(), ssaoFramebuffer.getHeight(), SSAOFramebuffer.NOISE_SAMPLES / 2, blurBuffer);
     }
 
     public static int getTexture() {

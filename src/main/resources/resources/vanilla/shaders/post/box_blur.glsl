@@ -10,17 +10,26 @@ out vec4 fragColor;
 
 uniform sampler2D colorTex;
 uniform vec2 texelSize;
-uniform float radius = 2.0f;
+uniform int radius = 2;
 
 void main() {
-    vec4 result = vec4(0.0f);
+    vec3 accumRgb = vec3(0.0f);
+    float accumA = 0.0f;
+    float accumW = 0.0f;
 
-    for (float x = -radius; x < radius; x++) {
-        for (float y = -radius; y < radius; y++) {
+    for (int x = -radius; x <= radius; x++) {
+        for (int y = -radius; y <= radius; y++) {
             vec2 offset = vec2(float(x), float(y)) * texelSize;
-            result += texture(colorTex, texCoords + offset);
+            vec4 s = texture(colorTex, texCoords + offset);
+
+            accumRgb += s.rgb * s.a;
+            accumA += s.a;
+            accumW += 1.0f;
         }
     }
 
-    fragColor = result / float((radius * 2) * (radius * 2));
+    vec3 outRgb = accumA > 0.0f ? accumRgb / accumA : vec3(0.0f);
+    float outA = accumW > 0.0f ? accumA / accumW : 0.0f;
+
+    fragColor = vec4(outRgb, outA);
 }

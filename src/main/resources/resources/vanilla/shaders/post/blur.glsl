@@ -11,17 +11,22 @@ out vec4 fragColor;
 uniform sampler2D colorTex;
 uniform vec2 texelSize;
 uniform vec2 dir = vec2(1.0f, 1.0f);
-uniform float radius = 5.0f;
+uniform int radius = 5;
 
 void main() {
-    vec4 blurred = vec4(0.0f);
-    float totalAlpha = 0.0f;
+    vec3 accumRgb = vec3(0.0f);
+    float accumA = 0.0f;
+    float accumW = 0.0f;
 
-    for (float r = -radius; r <= radius; r++) {
-        vec4 sampleValue = texture(colorTex, texCoords + texelSize * r * dir);
-        totalAlpha += sampleValue.a;
-        blurred += sampleValue;
+    for (int r = -radius; r <= radius; r++) {
+        vec4 s = texture(colorTex, texCoords + texelSize * float(r) * dir);
+        accumRgb += s.rgb * s.a;
+        accumA += s.a;
+        accumW += 1.0f;
     }
 
-    fragColor = vec4(blurred.rgb / (radius * 2.0f + 1.0f), totalAlpha);
+    vec3 outRgb = accumA > 0.0f ? accumRgb / accumA : vec3(0.0f);
+    float outA = accumW > 0.0f ? accumA / accumW : 0.0f;
+
+    fragColor = vec4(outRgb, outA);
 }
