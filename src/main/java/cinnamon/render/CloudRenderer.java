@@ -5,6 +5,7 @@ import cinnamon.math.noise.Noise;
 import cinnamon.math.noise.WhiteNoise2D;
 import cinnamon.model.StaticGeometry;
 import cinnamon.render.framebuffer.Framebuffer;
+import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
@@ -16,6 +17,10 @@ import static org.lwjgl.opengl.GL30.glGenerateMipmap;
 import static org.lwjgl.opengl.GL33.GL_TEXTURE_SWIZZLE_RGBA;
 
 public class CloudRenderer {
+
+    public final static Framebuffer
+            cloudBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER),
+            blurBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
 
     private final static int whiteNoise, blueNoise;
 
@@ -55,6 +60,13 @@ public class CloudRenderer {
     }
 
     public static void renderClouds(Framebuffer targetBuffer, Camera camera, float deltaTime, Sky sky, float y, float coverage, float cloudScale) {
+        if (coverage <= 0f)
+            return;
+
+        cloudBuffer.resizeTo(targetBuffer);
+        cloudBuffer.useClear();
+        cloudBuffer.adjustViewPort();
+
         Vector3f camPos = camera.getPos();
 
         Shader s = Shaders.CLOUDS.getShader().use();
@@ -83,6 +95,20 @@ public class CloudRenderer {
 
         Texture.unbindAll(3);
         glDepthFunc(GL_LEQUAL);
+
+        int tex = Blur.boxBlur(cloudBuffer.getColorBuffer(), cloudBuffer.getWidth(), cloudBuffer.getHeight(), 1, blurBuffer);
+
+        //blit to target buffer
+        targetBuffer.use();
+        targetBuffer.adjustViewPort();
+
+        Shader blit = PostProcess.BLIT_COLOR_DEPTH.getShader().use();
+        blit.setTexture("colorTex", tex, 0);
+        blit.setTexture("depthTex", cloudBuffer.getDepthBuffer(), 1);
+
+        StaticGeometry.QUAD.render();
+
+        Texture.unbindAll(2);
     }
 
     public static int getWhiteNoiseTexture() {

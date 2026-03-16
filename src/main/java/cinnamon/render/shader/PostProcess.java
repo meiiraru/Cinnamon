@@ -8,7 +8,7 @@ import cinnamon.utils.Resource;
 
 import java.util.function.BiFunction;
 
-import static cinnamon.render.shader.PostProcess.FB.COLOR_UNIFORM;
+import static cinnamon.render.shader.PostProcess.FB.*;
 import static org.lwjgl.glfw.GLFW.glfwGetTime;
 import static org.lwjgl.opengl.GL11.*;
 
@@ -16,6 +16,8 @@ public enum PostProcess {
 
     //specials
     BLIT(COLOR_UNIFORM),
+    BLIT_DEPTH(DEPTH_UNIFORM),
+    BLIT_COLOR_DEPTH(COLOR_AND_DEPTH_UNIFORM),
     BLIT_GAMMA(COLOR_UNIFORM),
     BLIT_UV(COLOR_UNIFORM),
     KERNEL((fb, s) -> {

@@ -135,11 +135,11 @@ public class WorldRenderer {
         //bake world
         bakeDeferred(camera, world.getSky());
 
-        //apply bloom
-        applyBloom();
-
         //render clouds
         renderClouds(world, camera, delta);
+
+        //apply bloom
+        applyBloom();
 
         //render light postprocessing
         renderLightsPost(lights, camera);
@@ -188,8 +188,8 @@ public class WorldRenderer {
             bakeDeferred(camera, world.getSky());
 
             //post bake renderer
-            applyBloom();
             renderClouds(world, camera, delta);
+            applyBloom();
             renderLightsPost(lights, camera);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
         });
