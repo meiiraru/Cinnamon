@@ -4,6 +4,7 @@ import cinnamon.Client;
 import cinnamon.animation.Animation;
 import cinnamon.gui.DebugScreen;
 import cinnamon.gui.Screen;
+import cinnamon.gui.Toast;
 import cinnamon.gui.screens.world.ChatScreen;
 import cinnamon.gui.screens.world.DeathScreen;
 import cinnamon.gui.screens.world.PauseScreen;
@@ -14,6 +15,7 @@ import cinnamon.math.AABB;
 import cinnamon.math.Maths;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
+import cinnamon.physics.component.MeshComponent;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
@@ -25,6 +27,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundInstance;
 import cinnamon.sound.SoundManager;
+import cinnamon.text.Text;
 import cinnamon.utils.Colors;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
@@ -68,6 +71,7 @@ import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.Math;
 import org.joml.Quaternionf;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -107,6 +111,10 @@ public class WorldClient extends World {
     //skybox
     protected Sky sky = new DynamicSky();
     protected final SkyColors skyColors = new SkyColors();
+
+    // --- Physics demo --- //
+    private cinnamon.physics.World physWorld;
+    private boolean physicsDemoEnabled = false;
 
     @Override
     public void init() {
@@ -292,6 +300,10 @@ public class WorldClient extends World {
         //process input
         tickInput();
 
+        // tick physics demo if enabled
+        if (physicsDemoEnabled && physWorld != null)
+            physWorld.tick();
+
         //hud
         this.hud.tick();
     }
@@ -388,6 +400,10 @@ public class WorldClient extends World {
                 count++;
             }
         }
+
+        if (physicsDemoEnabled && physWorld != null)
+            count += physWorld.render(matrices, delta);
+
         return count;
     }
 
@@ -692,6 +708,7 @@ public class WorldClient extends World {
                     client.setScreen(chat);
             }
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
+            case GLFW_KEY_F6 -> togglePhysicsDemo();
             case GLFW_KEY_F7 -> this.worldTime = Math.max(this.worldTime - 100, 0);
             case GLFW_KEY_F8 -> this.worldTime += 100;
 
@@ -726,6 +743,9 @@ public class WorldClient extends World {
 
             case GLFW_KEY_X -> spawnDebugWeapons();
 
+            case GLFW_KEY_B -> { if (physicsDemoEnabled) spawnPhysicsBox(); }
+            case GLFW_KEY_V -> { if (physicsDemoEnabled) spawnPhysicsSphere(); }
+
             case GLFW_KEY_Z -> {
                 Firework f = new Firework(UUID.randomUUID(), Maths.range(30, 60), Maths.spread(new Vector3f(0, 1f, 0), 30, 30).mul(2f),
                         new FireworkStar(
@@ -748,6 +768,77 @@ public class WorldClient extends World {
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
             //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));
         }
+    }
+
+    // --- Physics demo helpers --- //
+
+    private void togglePhysicsDemo() {
+        physicsDemoEnabled = !physicsDemoEnabled;
+        if (physicsDemoEnabled) {
+            if (physWorld == null) initPhysicsDemo();
+            Toast.addToast(Text.of("Physics demo: ON")).type(Toast.ToastType.WORLD);
+        } else {
+            if (physWorld != null) { physWorld.close(); physWorld = null; }
+            Toast.addToast(Text.of("Physics demo: OFF")).type(Toast.ToastType.WORLD);
+        }
+    }
+
+    private void initPhysicsDemo() {
+        physWorld = new cinnamon.physics.World();
+        // Ground plane at y = 1 to match terrain top
+        var plane = physWorld.getPhysics().createPlane(0, 1, 0, 0);
+        var ground = new cinnamon.physics.objects.SimpleRigidBodyObject(
+                physWorld.getNextId(), new cinnamon.physics.component.RigidBody(null, plane)
+        );
+        physWorld.addWorldObject(ground);
+
+        // Spawn a few boxes (vertically spaced to avoid overlaps)
+        for (int i = 0; i < 5; i++)
+            spawnPhysicsBox( (float) (Maths.range(-1.5f, 1.5f)), (float) (2.0f + i * 1.2f), (float) (Maths.range(-1.5f, 1.5f)) );
+    }
+
+    private void spawnPhysicsBox() {
+        Vector2f rot = player.getRot(0f);
+        Quaternionf q = new Quaternionf().rotationYXZ(-Math.toRadians(rot.y), -Math.toRadians(rot.x), 0f);
+        Vector3f pos = player.getEyePos(0f).add(new Vector3f(0, -0.5f, -3f).rotate(q));
+        spawnPhysicsBox(pos.x, pos.y, pos.z);
+    }
+
+    private void spawnPhysicsBox(float x, float y, float z) {
+        if (physWorld == null) return;
+        var box = physWorld.getPhysics().createDynamicBox(1.0, 1.0, 1.0, 1.0, x, y, z);
+        var obj = new cinnamon.physics.objects.SimpleRigidBodyObject(
+                physWorld.getNextId(), new cinnamon.physics.component.RigidBody(box.body(), box.geom())
+        ).mesh(new MeshComponent(new Resource("models/terrain/box/box.obj")).fitToSize(1f, 1f, 1f, true));
+
+        Vector3f lookDir = player.getLookDir().mul(10f);
+        box.body().setLinearVel(lookDir.x, lookDir.y, lookDir.z);
+        box.body().setAngularVel(Maths.range(-5f, 5f), Maths.range(-5f, 5f), Maths.range(-5f, 5f));
+
+        obj.getRigidBody().syncTransform(obj.getOldTransform());
+        physWorld.addWorldObject(obj);
+    }
+
+    private void spawnPhysicsSphere() {
+        Vector2f rot = player.getRot(0f);
+        Quaternionf q = new Quaternionf().rotationYXZ(-Math.toRadians(rot.y), -Math.toRadians(rot.x), 0f);
+        Vector3f pos = player.getEyePos(0f).add(new Vector3f(0, -0.5f, -3f).rotate(q));
+        spawnPhysicsSphere(pos.x, pos.y, pos.z);
+    }
+
+    private void spawnPhysicsSphere(float x, float y, float z) {
+        if (physWorld == null) return;
+        var ball = physWorld.getPhysics().createDynamicSphere(0.5, 0.5, x, y, z);
+        var obj = new cinnamon.physics.objects.SimpleRigidBodyObject(
+                physWorld.getNextId(), new cinnamon.physics.component.RigidBody(ball.body(), ball.geom())
+        ).mesh(new MeshComponent(new Resource("models/terrain/sphere/sphere.obj")).fitToSize(1f, 1f, 1f, true));
+
+        Vector3f lookDir = player.getLookDir().mul(10f);
+        ball.body().setLinearVel(lookDir.x, lookDir.y, lookDir.z);
+        ball.body().setAngularVel(Maths.range(-5f, 5f), Maths.range(-5f, 5f), Maths.range(-5f, 5f));
+
+        obj.getRigidBody().syncTransform(obj.getOldTransform());
+        physWorld.addWorldObject(obj);
     }
 
     public void onWindowResize(int width, int height) {

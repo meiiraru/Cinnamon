@@ -12,6 +12,7 @@ val mainClass = "cinnamon.Cinnamon"
 val lwjglVersion = "3.3.6"
 val jomlVersion = "1.10.8"
 val gsonVersion = "2.13.2"
+val odeVersion = "0.5.4"
 
 val lwjglModules = arrayOf(
     "lwjgl",
@@ -82,6 +83,7 @@ dependencies {
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
     }
     api("com.google.code.gson:gson:$gsonVersion")
+    implementation("org.ode4j:core:$odeVersion")
 }
 
 tasks.register<Jar>("sourcesJar") {
