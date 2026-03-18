@@ -3,7 +3,6 @@ package cinnamon.render.shader;
 import cinnamon.utils.Resource;
 
 public enum Shaders {
-    WORLD_MODEL_PBR,
     MODEL,
     WORLD_MAIN_EMISSIVE,
     WORLD_MAIN,
@@ -11,7 +10,6 @@ public enum Shaders {
     LINES,
     DEPTH,
     DEPTH_DIR,
-    DEPTH_BLIT,
     SKYBOX,
     IRRADIANCE,
     PREFILTER,
@@ -27,7 +25,6 @@ public enum Shaders {
     MAIN_PASS,
     MODEL_UV,
     LIGHT_PASS,
-    BLIT_COLOR_DEPTH,
     MAIN_DEPTH,
     MAIN_DEPTH_DIR,
     POINT_DEPTH,

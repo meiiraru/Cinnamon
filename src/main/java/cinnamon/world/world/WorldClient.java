@@ -98,7 +98,7 @@ public class WorldClient extends World {
 
     //lights
     protected final List<Light> lights = new ArrayList<>();
-    protected final Light sunlight = new DirectionalLight().pos(0.5f, 5f, 0.5f).intensity(1f).castsShadows(true).glareSize(1000f);
+    protected final Light sunlight = new DirectionalLight().pos(0.5f, 5f, 0.5f).intensity(1f).castsShadows(true);
 
     //particles and decals
     protected final List<Particle> particles = new ArrayList<>();
@@ -350,8 +350,10 @@ public class WorldClient extends World {
 
         Vector3f dir = sky.getSunDirection();
         Vector3f pos = camera.getPos();
+        float dist = Camera.FAR_PLANE - 1f;
+        sunlight.glareSize(dist);
         sunlight.direction(dir);
-        sunlight.pos(pos.x + dir.x * -1000f, pos.y + dir.y * -1000f, pos.z + dir.z * -1000f);
+        sunlight.pos(pos.x - dir.x * dist, pos.y - dir.y * dist, pos.z - dir.z * dist);
 
         //apply light
         applySkyLights(dayTime);

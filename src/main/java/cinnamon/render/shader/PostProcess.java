@@ -154,13 +154,13 @@ public enum PostProcess {
     }),
     VINTAGE(LOOKUP_TEXTURE.resource, (fb, s) -> {
         int i = LOOKUP_TEXTURE.uniformFunction.apply(fb, s);
-        s.setTexture("lutTex", Texture.of(new Resource("textures/shader/lut/vintage.png")), i++);
+        s.setTexture("lutTex", Texture.of(new Resource("textures/shader/lut/vintage.png"), Texture.TextureParams.SMOOTH_SAMPLING), i++);
         s.setVec2("lutGrid", 8f, 8f);
         return i;
     }),
     RED(LOOKUP_TEXTURE.resource, (fb, s) -> {
         int i = LOOKUP_TEXTURE.uniformFunction.apply(fb, s);
-        s.setTexture("lutTex", Texture.of(new Resource("textures/shader/lut/red.png")), i++);
+        s.setTexture("lutTex", Texture.of(new Resource("textures/shader/lut/red.png"), Texture.TextureParams.SMOOTH_SAMPLING), i++);
         s.setVec2("lutGrid", 8f, 8f);
         return i;
     }),

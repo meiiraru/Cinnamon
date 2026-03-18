@@ -14,9 +14,8 @@ uniform float intensity;
 
 void main() {
     vec2 offset = vec2(texelSize.x, texelSize.y) * intensity;
-    fragColor = vec4(
-        texture(colorTex, texCoords + offset).r,
-        texture(colorTex, texCoords - offset).gb,
-        1.0f
-    );
+    vec4 red = texture(colorTex, texCoords + offset);
+    vec4 greenBlue = texture(colorTex, texCoords - offset);
+
+    fragColor = vec4(red.r, greenBlue.gb, (red.a + greenBlue.a) * 0.5);
 }

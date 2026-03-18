@@ -13,28 +13,17 @@ uniform sampler2D lutTex;
 uniform vec2 lutGrid = vec2(8.0f);
 
 vec3 sampleSliceBilinear(ivec2 grid, vec2 tileSize, float sliceIndex, vec2 rg) {
-    //map r, g in [0,1] to pixel space inside the tile
-    vec2 rgPix = rg * (tileSize - 1.0f);
+    vec2 lutSize = vec2(textureSize(lutTex, 0));
 
-    //tile coordinates for the slice (row-major)
-    vec2 tileOrigin = tileSize * vec2(mod(sliceIndex, float(grid.x)), floor(sliceIndex / float(grid.x)));
+    //slice tile in atlas (row-major)
+    vec2 tile = vec2(mod(sliceIndex, float(grid.x)), floor(sliceIndex / float(grid.x)));
 
-    //integer texel coordinates for bilinear fetch, stay within tile bounds
-    vec2 p = tileOrigin + rgPix;
-    vec2 p0 = floor(p);
-    vec2 p1 = min(p0 + 1.0f, tileOrigin + (tileSize - 1.0f));
-    vec2 f = p - p0;
+    //map rg to texel centers inside the tile to avoid crossing tile borders
+    vec2 pix = tile * tileSize + (rg * (tileSize - 1.0f) + 0.5f);
+    vec2 uv  = pix / lutSize;
 
-    //fetch the four texels
-    vec3 t00 = texelFetch(lutTex, ivec2(p0),         0).rgb;
-    vec3 t10 = texelFetch(lutTex, ivec2(p1.x, p0.y), 0).rgb;
-    vec3 t01 = texelFetch(lutTex, ivec2(p0.x, p1.y), 0).rgb;
-    vec3 t11 = texelFetch(lutTex, ivec2(p1),         0).rgb;
-
-    //bilinear interpolation
-    vec3 cx0 = mix(t00, t10, f.x);
-    vec3 cx1 = mix(t01, t11, f.x);
-    return mix(cx0, cx1, f.y);
+    //return the bilinear sample from the slice
+    return textureLod(lutTex, uv, 0.0f).rgb;
 }
 
 void main() {

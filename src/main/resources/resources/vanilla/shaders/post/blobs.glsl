@@ -32,5 +32,5 @@ void main() {
         }
     }
 
-    fragColor = vec4(maxVal.rgb, 1.0f);
+    fragColor = vec4(maxVal);
 }
