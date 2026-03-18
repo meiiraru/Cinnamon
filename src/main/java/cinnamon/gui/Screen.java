@@ -16,13 +16,10 @@ import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.settings.Settings;
-import cinnamon.utils.CircularQueue;
 import cinnamon.utils.UIHelper;
 import cinnamon.vr.XrInput;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
-
-import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.glDepthMask;
@@ -45,9 +42,6 @@ public abstract class Screen {
     protected SelectableWidget xrHovered, oldXrHovered;
     protected int xrHoverTime = 0;
     protected int xrScrollX, xrScrollY;
-
-    //background ripples
-    private static final List<Number[]> backgroundRipples = new CircularQueue<>(16);
 
 
     // -- screen functions -- //
@@ -194,13 +188,6 @@ public abstract class Screen {
         s.setVec2("resolution", width, height);
         s.setVec2("framebufferOffset", Framebuffer.activeFramebuffer.getX(), Framebuffer.activeFramebuffer.getY());
 
-        s.setInt("rippleCount", XrManager.isInXR() ? 0 : backgroundRipples.size());
-        for (int i = 0; i < backgroundRipples.size(); i++) {
-            Number[] ripple = backgroundRipples.get(i);
-            s.setVec2("ripplePos[" + i + "]", ripple[0].floatValue(), ripple[1].floatValue());
-            s.setFloat("rippleStart[" + i + "]", ripple[2].longValue() * speed);
-        }
-
         glDepthMask(false);
         StaticGeometry.QUAD.render();
         glDepthMask(true);
@@ -288,9 +275,6 @@ public abstract class Screen {
 
 
     public boolean mousePress(int button, int action, int mods) {
-        if (action == GLFW_PRESS)
-            backgroundRipples.add(new Number[]{client.window.mouseX, height - client.window.mouseY, client.ticks});
-
         GUIListener click = this.mainContainer.mousePress(button, action, mods);
         if (click != focused && action == GLFW_PRESS)
             focusWidget(null);
@@ -320,18 +304,6 @@ public abstract class Screen {
     }
 
     public boolean mouseMove(int x, int y) {
-        float rippleY = height - y;
-        if (backgroundRipples.isEmpty()) {
-            backgroundRipples.add(new Number[]{x, rippleY, client.ticks});
-        } else {
-            Number[] lastRipple = backgroundRipples.getLast();
-            float dx = x - lastRipple[0].floatValue();
-            float dy = rippleY - lastRipple[1].floatValue();
-            float len = 16;
-            if (dx * dx + dy * dy > len * len)
-                backgroundRipples.add(new Number[]{x, rippleY, client.ticks});
-        }
-
         xrHovered = null;
         return this.mainContainer.mouseMove(x, y) != null;
     }

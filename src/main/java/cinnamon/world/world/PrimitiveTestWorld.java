@@ -1,6 +1,7 @@
 package cinnamon.world.world;
 
 import cinnamon.Client;
+import cinnamon.math.Maths;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.Camera;
@@ -171,7 +172,7 @@ public class PrimitiveTestWorld extends WorldClient {
             if (light.getType() != Light.Type.DIRECTIONAL) {
                 //grab player distance to light
                 float dist = light.getPos().distance(player.getPos());
-                float f = dist < 10f ? (1f - (dist / 10f)) * 3f : 0f;
+                float f = Maths.clamp(1f - ((dist - 5f) / 5f), 0f, 1f) * 2f;
                 light.intensity(f);
                 light.glareIntensity(f);
                 if (light instanceof Spotlight spot)

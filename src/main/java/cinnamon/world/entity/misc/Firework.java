@@ -80,7 +80,8 @@ public class Firework extends PhysEntity {
 
     @Override
     protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
-        explode();
+        if (!(entity instanceof Firework))
+            explode();
     }
 
     @Override

@@ -240,7 +240,7 @@ void main() {
     //restrict marching to the cloud volume bounds
     float r = float(MAX_STEPS) * MARCH_SIZE;
     float tEnter, tExit;
-    if (!intersectAABB(rayOrigin, rayDir, vec3(-r, -0.5f, -r), vec3(r, 0.5f, r), tEnter, tExit))
+    if (!intersectAABB(rayOrigin, rayDir, vec3(-r, -0.6f, -r), vec3(r, 0.6f, r), tEnter, tExit))
         discard;
 
     float marchStart = max(tEnter, 0.0f);

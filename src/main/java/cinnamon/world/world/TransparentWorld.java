@@ -33,6 +33,7 @@ public class TransparentWorld extends WorldClient {
     @Override
     public void render(MatrixStack matrices, float delta) {
         WorldRenderer.renderSky = false;
+        WorldRenderer.renderClouds = false;
         super.render(matrices, delta);
     }
 

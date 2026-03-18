@@ -155,14 +155,14 @@ float sampleSpotShadow(vec3 pos) {
         return 0.0f;
 
     float closest = texture(shadowMap, coords.xy).r;
-    return coords.z - 0.001f > closest ? 1.0f : 0.0f;
+    return coords.z > closest ? 1.0f : 0.0f;
 }
 
 float samplePointShadow(vec3 pos) {
     vec3 fragToLight = pos - lightPos;
     float currentDepth = length(fragToLight);
     float closest = texture(shadowCubeMap, fragToLight).r * farPlane;
-    return currentDepth - 0.05f > closest ? 1.0f : 0.0f;
+    return currentDepth > closest ? 1.0f : 0.0f;
 }
 
 void main() {
