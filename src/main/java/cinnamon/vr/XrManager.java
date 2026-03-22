@@ -431,14 +431,21 @@ public class XrManager {
     }
 
     private static boolean createGraphicsBindingOpenGL(MemoryStack stack, long window, XrSessionCreateInfo sessionCreateInfo, boolean useEGL) {
+        PointerBuffer configPointer = stack.mallocPointer(1);
         if (useEGL) {
             LOGGER.debug("Using XrGraphicsBindingEGLMNDX to create the session...");
+
+            if (!glfwGetEGLConfig(window, configPointer)) {
+                LOGGER.error("Failed to get EGL config");
+                return true;
+            }
+
             sessionCreateInfo.next(XrGraphicsBindingEGLMNDX.malloc(stack)
                     .type$Default()
                     .next(NULL)
                     .getProcAddress(EGL.getCapabilities().eglGetProcAddress)
                     .display(glfwGetEGLDisplay())
-                    .config(glfwGetEGLConfig(window))
+                    .config(configPointer.get(0))
                     .context(glfwGetEGLContext(window)));
             return false;
         }
@@ -448,7 +455,12 @@ public class XrManager {
                 int platform = glfwGetPlatform();
                 if (platform == GLFW_PLATFORM_X11) {
                     long display = glfwGetX11Display();
-                    long glxConfig = glfwGetGLXFBConfig(window);
+
+                    if (!glfwGetGLXFBConfig(window, configPointer)) {
+                        LOGGER.error("Failed to get GLX FB config");
+                        yield true;
+                    }
+                    long glxConfig = configPointer.get(0);
 
                     XVisualInfo visualInfo = glXGetVisualFromFBConfig(display, glxConfig);
                     if (visualInfo == null) {
