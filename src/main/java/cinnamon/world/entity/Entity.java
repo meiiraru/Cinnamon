@@ -5,7 +5,6 @@ import cinnamon.animation.Animation;
 import cinnamon.gui.DebugScreen;
 import cinnamon.math.AABB;
 import cinnamon.math.Maths;
-import cinnamon.math.Rotation;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
@@ -28,7 +27,7 @@ import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
-import org.joml.Vector2f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -42,9 +41,9 @@ public abstract class Entity extends WorldObject {
 
     protected final Vector3f
             oPos = new Vector3f();
-    protected final Vector2f
-            oRot = new Vector2f(),
-            rot = new Vector2f();
+    protected final Quaternionf
+            oRot = new Quaternionf(),
+            rot = new Quaternionf();
 
     protected final List<Entity> riders = new ArrayList<>();
     protected Entity riding;
@@ -104,9 +103,7 @@ public abstract class Entity extends WorldObject {
     }
 
     protected void applyModelPose(Camera camera, MatrixStack matrices, float delta) {
-        Vector2f rot = getRot(delta);
-        matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
-        matrices.rotate(Rotation.X.rotationDeg(-rot.x));
+        matrices.rotate(getRot(delta));
     }
 
     protected void renderTexts(Camera camera, MatrixStack matrices, float delta) {
@@ -183,9 +180,7 @@ public abstract class Entity extends WorldObject {
         }
 
         Vector3f move = new Vector3f(-left, up, -forwards);
-
-        move.rotateX(Math.toRadians(-rot.x));
-        move.rotateY(Math.toRadians(-rot.y));
+        move.rotate(rot);
 
         this.moveTo(
                 pos.x + move.x,
@@ -206,28 +201,38 @@ public abstract class Entity extends WorldObject {
         sendServerUpdate();
     }
 
-    public void rotate(float pitch, float yaw) {
+    public void rotate(Quaternionf quat) {
         if (riding != null)
-            riding.rotate(pitch, yaw);
-
-        rotateTo(rot.x + pitch, rot.y + yaw);
+            riding.rotate(quat);
+        rotateTo(getRot().mul(quat));
     }
 
-    public void rotateTo(Vector2f vec) {
-        this.rotateTo(vec.x, vec.y);
+    public void rotate(float pitch, float yaw, float roll) {
+        if (riding != null)
+            riding.rotate(pitch, yaw, roll);
+
+        Quaternionf rotation = getRot();
+        rotation.rotateZYX(Math.toRadians(roll), Math.toRadians(-yaw), Math.toRadians(-pitch));
+        rotateTo(rotation);
     }
 
-    public void rotateTo(float pitch, float yaw) {
-        this.rot.set(Maths.wrapDegrees(pitch), Maths.wrapDegrees(yaw));
+    public void rotateTo(Quaternionf quat) {
+        this.rot.set(quat);
         sendServerUpdate();
     }
 
-    public void rotateToWithRiders(Vector2f vec) {
-        this.rotateToWithRiders(vec.x, vec.y);
+    public void rotateTo(float pitch, float yaw, float roll) {
+        this.rot.rotationZYX(Math.toRadians(roll), Math.toRadians(-yaw), Math.toRadians(-pitch));
+        sendServerUpdate();
     }
 
-    public void rotateToWithRiders(float pitch, float yaw) {
-        this.rotateTo(pitch, yaw);
+    public void rotateToWithRiders(Quaternionf quat) {
+        this.rotateTo(quat);
+        this.updateRiders();
+    }
+
+    public void rotateToWithRiders(float pitch, float yaw, float roll) {
+        this.rotateTo(pitch, yaw, roll);
         this.updateRiders();
     }
 
@@ -241,7 +246,7 @@ public abstract class Entity extends WorldObject {
         v.normalize();
 
         //set rot
-        this.rotateTo(Maths.dirToRot(v));
+        this.rotateTo(Maths.dirToQuat(v));
     }
 
     protected void updateAABB() {
@@ -276,20 +281,20 @@ public abstract class Entity extends WorldObject {
         this.checkWorldVoid();
     }
 
-    public Vector2f getRot(float delta) {
-        return Maths.lerpAngle(oRot, rot, delta);
+    public Quaternionf getRot(float delta) {
+        return new Quaternionf(oRot).slerp(rot, delta);
     }
 
-    public Vector2f getRot() {
+    public Quaternionf getRot() {
         return rot;
     }
 
-    public void setRot(Vector2f rot) {
-        this.setRot(rot.x, rot.y);
+    public void setRot(Quaternionf rot) {
+        this.oRot.set(this.rot.set(rot));
     }
 
-    public void setRot(float pitch, float yaw) {
-        this.oRot.set(this.rot.set(Maths.wrapDegrees(pitch), Maths.wrapDegrees(yaw)));
+    public void setRot(float pitch, float yaw, float roll) {
+        this.oRot.set(this.rot.rotationZYX(Math.toRadians(roll), Math.toRadians(-yaw), Math.toRadians(-pitch)));
     }
 
     public float getEyeHeight() {
@@ -305,12 +310,11 @@ public abstract class Entity extends WorldObject {
     }
 
     public Vector3f getLookDir() {
-        return Maths.rotToDir(rot.x, rot.y);
+        return new Vector3f(0f, 0f, -1f).rotate(getRot());
     }
 
     public Vector3f getLookDir(float delta) {
-        Vector2f rot = getRot(delta);
-        return Maths.rotToDir(rot.x, rot.y);
+        return new Vector3f(0f, 0f, -1f).rotate(getRot(delta));
     }
 
     public World getWorld() {
@@ -384,18 +388,19 @@ public abstract class Entity extends WorldObject {
     }
 
     public void updateRidersRot() {
-        float xDelta = rot.x - oRot.x;
-        float yDelta = rot.y - oRot.y;
+        float pitchDelta = Maths.getPitch(rot) - Maths.getPitch(oRot);
+        float yawDelta   = Maths.getYaw(rot)   - Maths.getYaw(oRot);
+        float rollDelta  = Maths.getRoll(rot)  - Maths.getRoll(oRot);
         for (Entity rider : new ArrayList<>(riders)) {
-            rider.rotateTo(rider.rot.x + xDelta, rider.rot.y + yDelta);
+            Quaternionf riderRot = rider.getRot();
+            rider.rotateTo(Maths.getPitch(riderRot) + pitchDelta, Maths.getYaw(riderRot) + yawDelta, Maths.getRoll(riderRot) + rollDelta);
             rider.updateRidersRot();
         }
     }
 
     public Vector3f getRiderOffset(Entity rider) {
         Vector3f vec = new Vector3f(0, aabb.getHeight(), 0);
-        vec.rotate(Rotation.X.rotationDeg(-rot.x));
-        vec.rotate(Rotation.Y.rotationDeg(-rot.y));
+        vec.rotate(rot);
         return vec;
     }
 
@@ -493,7 +498,7 @@ public abstract class Entity extends WorldObject {
         return oPos;
     }
 
-    public Vector2f getLastRot() {
+    public Quaternionf getLastRot() {
         return oRot;
     }
 }

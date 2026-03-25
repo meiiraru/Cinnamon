@@ -4,7 +4,6 @@ import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.render.MatrixStack;
 import org.joml.Math;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class GeometryHelper {
@@ -333,14 +332,11 @@ public class GeometryHelper {
         //rotate matrices to align with direction
         matrices.pushMatrix();
         matrices.translate(x0, y0, z0);
-
-        Vector2f rot = Maths.dirToRot(dir);
-        matrices.rotate(Rotation.Y.rotationDeg(-rot.y + 90));
-        matrices.rotate(Rotation.Z.rotationDeg(-rot.x));
+        matrices.rotate(Maths.dirToQuat(dir));
 
         //create line as box
         float w = width * 0.5f;
-        Vertex[][] line = box(matrices, 0, -w, -w, diff.length(), w, w, color);
+        Vertex[][] line = box(matrices, -w, -w, 0, w, w, diff.length(), color);
 
         //return
         matrices.popMatrix();

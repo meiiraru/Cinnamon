@@ -2,6 +2,7 @@ package cinnamon.world.items;
 
 import cinnamon.Client;
 import cinnamon.lang.LangManager;
+import cinnamon.math.Maths;
 import cinnamon.registry.ItemModelRegistry;
 import cinnamon.render.WorldRenderer;
 import cinnamon.sound.SoundCategory;
@@ -116,7 +117,7 @@ public class Flashlight extends Item {
         LivingEntity source;
         if ((source = getSource()) == null)
             return 0f;
-        return source.getRot().y;
+        return Maths.getYaw(source.getRot());
     }
 
     public Object getCountText() {

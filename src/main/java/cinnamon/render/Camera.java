@@ -55,8 +55,7 @@ public class Camera {
             return;
 
         //rotation
-        Vector2f rot = entity.getRot(delta);
-        setRot(rot.x, rot.y, 0f);
+        setRot(entity.getRot(delta));
 
         //position
         Vector3f pos = entity.getEyePos(delta);
@@ -67,7 +66,7 @@ public class Camera {
             move(0f, 0f, Math.max(entity.getEyeHeight(), 1f) * 4f);
         //third person front
         else if (mode == 2) {
-            setRot(-rot.x, rot.y + 180, 0f);
+            rotate(0, 180f, 0);
             move(0f, 0f, Math.max(entity.getEyeHeight(), 1f) * 4f);
         }
     }
@@ -84,6 +83,11 @@ public class Camera {
 
     public void setRot(Quaternionf quaternion) {
         this.rotation.set(quaternion);
+        viewDirty = true;
+    }
+
+    public void rotate(float pitch, float yaw, float roll) {
+        this.rotation.rotateZYX(Math.toRadians(roll), Math.toRadians(-yaw), Math.toRadians(-pitch));
         viewDirty = true;
     }
 

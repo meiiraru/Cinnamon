@@ -186,7 +186,7 @@ public class WorldClient extends World {
         addLight(new PointLight().pos(32.5f, 3.5f, 0.5f).color(0xFFFF44).castsShadows(true).volumetricStrength(0.5f));
 
         //rgb spotlights
-        TerrainGenerator.fill(this, 4, 1, 25, 9, 3, 25, MaterialRegistry.PINE_PLANKS);
+        TerrainGenerator.fill(this, 4, 1, 24, 9, 3, 24, MaterialRegistry.PINE_PLANKS);
         float r = 0.75f;
         for (int i = 0; i < 3; i++) {
             float radi = Math.toRadians(120f) * i;
@@ -436,7 +436,7 @@ public class WorldClient extends World {
         Entity cameraEntity = camera.getEntity();
 
         if (DebugScreen.isTabOpen(DebugScreen.Tab.PLAYER))
-            renderHitResults(cameraEntity, matrices);
+            renderDebugPlayer(cameraEntity, matrices, delta);
 
         if (DebugScreen.isTabOpen(DebugScreen.Tab.WORLD, DebugScreen.Tab.TERRAIN, DebugScreen.Tab.ENTITIES))
             renderHitboxes(camera, matrices, delta);
@@ -504,7 +504,7 @@ public class WorldClient extends World {
         }
     }
 
-    protected static void renderHitResults(Entity cameraEntity, MatrixStack matrices) {
+    protected static void renderDebugPlayer(Entity cameraEntity, MatrixStack matrices, float delta) {
         float f = 0.03f;
         float r = cameraEntity.getPickRange();
 
@@ -521,6 +521,23 @@ public class WorldClient extends World {
 
             Vector3f pos = entity.collision().pos();
             DebugRenderer.renderPoint(matrices, pos, f, 0xFF00FFFF);
+        }
+
+        //draw hands debug
+        if (cameraEntity instanceof Player player) {
+            for (int i = 0; i < 2; i++) {
+                boolean left = i == 0;
+                Vector3f pos = player.getHandPos(left, delta);
+                Vector3f dir = player.getHandDir(left, delta);
+                Vector3f aimDir = player.getAimDir(left, delta, 20f);
+
+                DebugRenderer.renderPoint(matrices, pos, f, 0xFF00FFFF);
+
+                matrices.pushMatrix().translate(pos);
+                DebugRenderer.renderArrow(matrices, dir, 0.25f, 0xFFFF00FF);
+                DebugRenderer.renderArrow(matrices, aimDir, 0.25f, 0xFFFFFF00);
+                matrices.popMatrix();
+            }
         }
     }
 
@@ -708,7 +725,7 @@ public class WorldClient extends World {
                 Vector3f normal = hit.collision().normal();
                 Quaternionf rotation = Maths.dirToQuat(normal);
                 if (Math.abs(normal.y) > 0.5f)
-                    rotation.rotateZ(Math.toRadians(-player.getRot().y * Math.signum(normal.y)));
+                    rotation.rotateZ(Math.toRadians(-Maths.getYaw(player.getRot()) * Math.signum(normal.y)));
 
                 Resource folder = new Resource("textures/misc");
                 List<String> resources = IOUtils.listResources(folder, false);

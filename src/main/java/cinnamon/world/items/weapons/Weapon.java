@@ -6,6 +6,7 @@ import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.projectile.Projectile;
 import cinnamon.world.items.CooldownItem;
 import cinnamon.world.world.World;
+import org.joml.Math;
 
 import java.util.UUID;
 
@@ -63,7 +64,7 @@ public abstract class Weapon extends CooldownItem {
         Projectile projectile = newProjectile(source.getUUID());
 
         projectile.setPos(source.getHandPos());
-        projectile.setRot(Maths.dirToRot(source.getAimDir(20f)));
+        projectile.setRot(Maths.dirToQuat(source.getAimDir(20f)).rotateY(Math.PI_f));
         projectile.impulse(0, 0, 1);
 
         world.addEntity(projectile);

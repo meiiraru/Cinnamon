@@ -197,8 +197,7 @@ public abstract class PhysEntity extends Entity {
         impulse.mul(getMoveSpeed());
 
         //move the entity in facing direction
-        this.impulse.rotateX(Math.toRadians(-rot.x));
-        this.impulse.rotateY(Math.toRadians(-rot.y));
+        this.impulse.rotate(rot);
     }
 
     protected float getMoveSpeed() {

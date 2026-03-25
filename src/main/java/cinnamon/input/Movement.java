@@ -4,7 +4,6 @@ import cinnamon.settings.Settings;
 import cinnamon.vr.XrManager;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.Player;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class Movement {
@@ -14,7 +13,7 @@ public class Movement {
     protected boolean sprint, sneak, jump;
 
     //rot
-    protected final Vector2f rotation = new Vector2f();
+    protected final Vector3f rotation = new Vector3f();
     protected double mouseX, mouseY, offsetX, offsetY;
     protected boolean firstMouse = true;
 
@@ -67,7 +66,7 @@ public class Movement {
         }
 
         if (rotation.lengthSquared() > 0) {
-            applyRotation(target, rotation.x, rotation.y);
+            applyRotation(target, rotation.y, rotation.x, rotation.z);
             rotation.set(0);
         }
     }
@@ -76,8 +75,8 @@ public class Movement {
         target.impulse(x, y, z);
     }
 
-    protected void applyRotation(Entity target, float yaw, float pitch) {
-        target.rotate(pitch, yaw);
+    protected void applyRotation(Entity target, float pitch, float yaw, float roll) {
+        target.rotate(pitch, yaw, roll);
     }
 
     public void reset() {
@@ -115,7 +114,7 @@ public class Movement {
         double dx = offsetX * spd;
         double dy = offsetY * spd;
 
-        rotation.add((float) dx * 0.15f, (float) dy * 0.15f);
+        rotation.add((float) dx * 0.15f, (float) dy * 0.15f, 0f);
 
         offsetX = 0;
         offsetY = 0;

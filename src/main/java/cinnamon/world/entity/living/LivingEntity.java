@@ -2,6 +2,7 @@ package cinnamon.world.entity.living;
 
 import cinnamon.Client;
 import cinnamon.math.AABB;
+import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -25,7 +26,6 @@ import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Quaternionf;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.Collection;
@@ -77,12 +77,15 @@ public abstract class LivingEntity extends PhysEntity {
     @Override
     protected void applyModelPose(Camera camera, MatrixStack matrices, float delta) {
         if (this.riding != null) {
-            Vector2f rot = riding.getRot(delta);
-            matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
-            matrices.rotate(Rotation.X.rotationDeg(-rot.x));
-            matrices.rotate(Rotation.Y.rotationDeg(rot.y));
+            Quaternionf ridingRot = riding.getRot(delta);
+            float ridingYaw = Maths.getYaw(ridingRot);
+            float ridingPitch = Maths.getPitch(ridingRot);
+            matrices.rotate(Rotation.Y.rotationDeg(-ridingYaw));
+            matrices.rotate(Rotation.X.rotationDeg(-ridingPitch));
+            matrices.rotate(Rotation.Y.rotationDeg(ridingYaw));
         }
-        matrices.rotate(Rotation.Y.rotationDeg(-getRot(delta).y));
+
+        matrices.rotate(Rotation.Y.rotationDeg(-Maths.getYaw(getRot(delta))));
     }
 
     public void renderHandItem(ItemRenderContext context, MatrixStack matrices, float delta) {
@@ -144,7 +147,7 @@ public abstract class LivingEntity extends PhysEntity {
         impulse.y = u;
 
         //move the entity in facing direction
-        this.impulse.rotateY(Math.toRadians(-rot.y));
+        this.impulse.rotateY(Math.toRadians(-Maths.getYaw(getRot())));
     }
 
     protected float getJumpStrength() {
@@ -397,6 +400,29 @@ public abstract class LivingEntity extends PhysEntity {
             kill();
     }
 
+    protected float clampPitch(float pitch) {
+        return Math.max(Math.min(pitch, 90), -90);
+    }
+
+    @Override
+    public void rotate(float pitch, float yaw, float roll) {
+        if (riding != null)
+            riding.rotate(pitch, yaw, roll);
+
+        Quaternionf rotation = getRot();
+        this.rotateTo(Maths.getPitch(rotation) + pitch, Maths.getYaw(rotation) + yaw, 0f);
+    }
+
+    @Override
+    public void rotateTo(float pitch, float yaw, float roll) {
+        super.rotateTo(clampPitch(pitch), yaw, roll);
+    }
+
+    @Override
+    public void setRot(float pitch, float yaw, float roll) {
+        super.setRot(clampPitch(pitch), yaw, roll);
+    }
+
     public boolean isLeftHanded() {
         return leftHanded;
     }
@@ -425,15 +451,7 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     public Quaternionf getHandRot(boolean lefty, float delta) {
-        Vector2f rot = getRot(delta);
-
-        //float yaw = 1;
-        //Quaternionf offset = new Quaternionf()
-        //        .rotateY(Math.toRadians(lefty ? -yaw : yaw));
-
-        return new Quaternionf()
-                .rotateY(Math.toRadians(-rot.y))
-                .rotateX(Math.toRadians(-rot.x));//.mul(offset);
+        return new Quaternionf(getRot(delta));
     }
 
     public Vector3f getHandDir() {

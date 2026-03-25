@@ -46,12 +46,12 @@ public class FireworkStar {
             return;
 
         Vector3f pos = firework.getPos();
-        float yaw = Math.toRadians(firework.getRot().y);
+        float yaw = Math.toRadians(Maths.getYaw(firework.getRot()));
 
         for (int i = 0; i < particleCount; i++) {
             int color = Maths.randomArr(this.color);
             int fade = hasFade ? Maths.randomArr(this.fade) : color;
-            FireworkParticle particle = new FireworkParticle((int) Maths.range(20, 60), color, fade, trail, twinkle);
+            FireworkParticle particle = new FireworkParticle(Maths.range(20, 60), color, fade, trail, twinkle);
             particle.setScale(2f);
             particle.setEmissive(true);
             particle.setPos(pos);

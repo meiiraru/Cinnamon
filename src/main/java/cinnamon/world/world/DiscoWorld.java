@@ -64,13 +64,13 @@ public class DiscoWorld extends WorldClient {
 
         Speaker speaker1 = new Speaker(UUID.randomUUID());
         speaker1.setPos(-1f, 1f, -2f);
-        speaker1.setRot(0, 180);
+        speaker1.setRot(0, 180, 0);
         addEntity(speaker1);
         speakers.add(speaker1);
 
         Speaker speaker2 = new Speaker(UUID.randomUUID());
         speaker2.setPos(1f, 1f, -2f);
-        speaker2.setRot(0, 180);
+        speaker2.setRot(0, 180, 0);
         addEntity(speaker2);
         speakers.add(speaker2);
 
@@ -86,13 +86,13 @@ public class DiscoWorld extends WorldClient {
 
         FloorLight light1 = new FloorLight(UUID.randomUUID());
         light1.setPos(-4f, 1.001f, 2f);
-        light1.setRot(0, -90);
+        light1.setRot(0, 90, 0);
         addEntity(light1);
         lights.add(light1);
 
         FloorLight light2 = new FloorLight(UUID.randomUUID());
         light2.setPos(4f, 1.001f, 2f);
-        light2.setRot(0, 90);
+        light2.setRot(0, -90, 0);
         addEntity(light2);
         lights.add(light2);
 

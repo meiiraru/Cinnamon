@@ -5,7 +5,6 @@ import cinnamon.utils.Resource;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.LivingEntity;
-import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -36,7 +35,7 @@ public abstract class Vehicle extends PhysEntity {
         impulse.mul(getMoveSpeed());
 
         //move the entity in facing direction
-        this.impulse.rotateY(Math.toRadians(-rot.y));
+        this.impulse.rotate(rot);
     }
 
     @Override

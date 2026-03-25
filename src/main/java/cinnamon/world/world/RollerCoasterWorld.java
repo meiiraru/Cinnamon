@@ -37,7 +37,7 @@ public class RollerCoasterWorld extends WorldClient {
     public void tick() {
         super.tick();
 
-        if (cart == null)
+        if (isPaused() || cart == null)
             return;
 
         boolean hasRider = !cart.getRiders().isEmpty();
@@ -77,10 +77,11 @@ public class RollerCoasterWorld extends WorldClient {
         Vector3f p00 = p0 - 1 < 0 ? path[path.length - 2] : path[p0 - 1]; //last entry is the same as the first
         Vector3f p0Dir = path[p0].sub(p00, new Vector3f()).normalize();
         Vector3f p1Dir = path[p1].sub(path[p0], new Vector3f()).normalize();
-        cart.rotateToWithRiders(Maths.dirToRot(Maths.lerp(p0Dir, p1Dir, t)));
+        cart.rotateToWithRiders(Maths.dirToQuat(Maths.lerp(p0Dir, p1Dir, t)).rotateY(Math.PI_f));
 
         //speed
-        speed = Math.lerp(speed, Math.max(0.3f + 0.3f * Math.max(cart.getRot().x, -22.5f) / 45f, 0.01f), 0.1f);
+        float pitch = Maths.getPitch(cart.getRot());
+        speed = Math.lerp(speed, Math.max(0.3f + 0.3f * Math.max(pitch, -22.5f) / 45f, 0.01f), 0.1f);
     }
 
     public void setCurve(Curve curve) throws Exception {
@@ -96,7 +97,7 @@ public class RollerCoasterWorld extends WorldClient {
         addEntity(cart);
 
         cart.moveTo(path[0]);
-        cart.rotateTo(Maths.dirToRot(path[1 % path.length].sub(path[0], new Vector3f()).normalize()));
+        cart.rotateTo(Maths.dirToQuat(path[1 % path.length].sub(path[0], new Vector3f()).normalize()).rotateY(Math.PI_f));
 
         t = 1f;
         toAdd = 0f;

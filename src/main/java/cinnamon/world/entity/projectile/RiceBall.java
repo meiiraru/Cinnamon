@@ -7,6 +7,7 @@ import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.particle.SmokeParticle;
 import cinnamon.world.world.WorldClient;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -60,7 +61,7 @@ public class RiceBall extends Projectile {
 
             //pos
             proj.setPos(this.getPos());
-            proj.setRot(Maths.dirToRot(Maths.spread(dir, SPREAD_ANGLE, SPREAD_ANGLE)));
+            proj.setRot(Maths.dirToQuat(Maths.spread(dir, SPREAD_ANGLE, SPREAD_ANGLE)).rotateY(Math.PI_f));
             proj.impulse(0, 0, 1);
 
             //add

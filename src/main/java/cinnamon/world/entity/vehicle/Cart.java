@@ -1,7 +1,6 @@
 package cinnamon.world.entity.vehicle;
 
 import cinnamon.math.Maths;
-import cinnamon.math.Rotation;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
@@ -13,7 +12,7 @@ import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.StarParticle;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
-import org.joml.Vector2f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -37,7 +36,8 @@ public class Cart extends Car {
         if (getWorld().isClientside() && motion.lengthSquared() > 0.01f) {
             for (int i = -1; i < 2; i += 2) {
                 StarParticle star = new StarParticle((int) (Math.random() * 5) + 10, ColorUtils.lerpARGBColor(0xFFDDDDDD, 0xFFFFDDAA, (float) Math.random()));
-                Vector3f offset = new Vector3f(0.25f * i, 0f, 0f).rotate(Rotation.Y.rotationDeg(-rot.y));
+                float yaw = Maths.getYaw(getRot());
+                Vector3f offset = new Vector3f(0.25f * i, 0f, 0f).rotateY(Math.toRadians(-yaw));
                 Vector3f pos = new Vector3f(getPos());
                 star.setPos(pos.add(offset));
                 star.setEmissive(true);
@@ -62,23 +62,21 @@ public class Cart extends Car {
 
     protected void updateLights(float delta) {
         Vector3f pos = getPos(delta);
-        Vector2f rot = getRot(delta);
-        Vector3f dir = Maths.rotToDir(rot.x + 15f, rot.y);
+        Quaternionf quat = getRot(delta);
+        Vector3f dir = new Vector3f(0f, 0f, -1f).rotate(new Quaternionf(quat).rotateX(Math.toRadians(-15f)));
 
         Vector3f offset = new Vector3f(0f, 0.5f, -0.85f);
-        offset.rotate(Rotation.X.rotationDeg(-rot.x));
-        offset.rotate(Rotation.Y.rotationDeg(-rot.y));
+        offset.rotate(quat);
 
         //front light
         headlight.pos(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
         headlight.direction(dir);
 
         //back light
-        dir.set(Maths.rotToDir(rot.x - 15f, rot.y));
+        dir.set(0f, 0f, -1f).rotate(new Quaternionf(quat).rotateX(Math.toRadians(15f)));
 
         offset.set(0f, 0.5f, 0.85f);
-        offset.rotate(Rotation.X.rotationDeg(-rot.x));
-        offset.rotate(Rotation.Y.rotationDeg(-rot.y));
+        offset.rotate(quat);
 
         taillight.pos(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
         taillight.direction(-dir.x, -dir.y, -dir.z);
@@ -87,14 +85,13 @@ public class Cart extends Car {
     @Override
     public Vector3f getRiderOffset(Entity rider) {
         Vector3f vec = new Vector3f(0, 0.4f, 0);
-        vec.rotate(Rotation.X.rotationDeg(-rot.x));
-        vec.rotate(Rotation.Y.rotationDeg(-rot.y));
+        vec.rotate(rot);
         return vec;
     }
 
     @Override
-    public void rotateTo(float pitch, float yaw) {
-        super.rotateTo(isRailed ? pitch : 0, yaw);
+    public void rotateTo(float pitch, float yaw, float roll) {
+        super.rotateTo(isRailed ? pitch : 0f, yaw, roll);
     }
 
     public void setRailed(boolean railed) {

@@ -36,7 +36,6 @@ import cinnamon.world.entity.living.Player;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
 import org.joml.Quaternionf;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -396,7 +395,9 @@ public class DebugScreen {
             Vector3f cpos = camera.getPosition();
             Vector3f forwards = camera.getForwards();
             Vector3f up = camera.getUp();
+            float pitch = Maths.getPitch(crot);
             float yaw = Maths.getYaw(crot);
+            float roll = Maths.getRoll(crot);
             String face = Direction.fromRotation(yaw).name;
 
             return String.format("""
@@ -410,6 +411,7 @@ public class DebugScreen {
                     
                     [&bcamera&r]
                     x &c%.3f&r y &a%.3f&r z &b%.3f&r
+                    pitch &e%.3f&r yaw &e%.3f&r roll &e%.3f&r
                     x &e%.3f&r y &e%.3f&r z &e%.3f&r w &e%.3f&r
                     forwards x &c%.3f&r y &a%.3f&r z &b%.3f&r
                     up x &c%.3f&r y &a%.3f&r z &b%.3f&r
@@ -422,6 +424,7 @@ public class DebugScreen {
                     c.anaglyph3D ? "on" : "off", XrManager.isInXR() ? "on" : "off",
 
                     cpos.x, cpos.y, cpos.z,
+                    pitch, yaw, roll,
                     crot.x, crot.y, crot.z, crot.w,
                     forwards.x, forwards.y, forwards.z,
                     up.x, up.y, up.z,
@@ -463,11 +466,14 @@ public class DebugScreen {
             Abilities abilities = p.getAbilities();
 
             Vector3f epos = p.getPos();
-            Vector2f erot = p.getRot();
+            Quaternionf rot = p.getRot();
+            float pitch = Maths.getPitch(rot);
+            float yaw = Maths.getYaw(rot);
+            float roll = Maths.getRoll(rot);
             Vector3f emot = p.getMotion();
             Vector3f eye = p.getEyePos();
 
-            String face = Direction.fromRotation(erot.y).name;
+            String face = Direction.fromRotation(yaw).name;
 
             float range = p.getPickRange();
             String object = getTargetedObjString(p.getLookingObject(range), range);
@@ -477,10 +483,11 @@ public class DebugScreen {
                     &e%s&r
                     %s
                     x &c%.3f&r y &a%.3f&r z &b%.3f&r
-                    pitch &e%.3f&r yaw &e%.3f&r facing &e%s&r
+                    pitch &e%.3f&r yaw &e%.3f&r roll &e%.3f&r
+                    x &e%.3f&r y &e%.3f&r z &e%.3f&r w &e%.3f&r
                     motion &c%.3f &a%.3f &b%.3f&r
                     eye x &c%.3f&r y &a%.3f&r z &b%.3f&r
-                    onground &e%s&r
+                    facing &e%s&r on ground &e%s&r
                     noclip &e%s&r god mode &e%s&r
                     can fly &e%s&r can build &e%s&r
 
@@ -489,11 +496,13 @@ public class DebugScreen {
 
                     p.getName(), p.getUUID(),
                     epos.x, epos.y, epos.z,
-                    erot.x, erot.y, face,
+                    pitch, yaw, roll,
+                    rot.x, rot.y, rot.z, rot.w,
+
                     emot.x, emot.y, emot.z,
                     eye.x, eye.y, eye.z,
 
-                    p.isOnGround() ? "yes" : "no",
+                    face, p.isOnGround() ? "yes" : "no",
                     abilities.get(Abilities.Ability.NOCLIP)    ? "on" : "off",
                     abilities.get(Abilities.Ability.GOD_MODE)  ? "on" : "off",
                     abilities.get(Abilities.Ability.CAN_FLY)   ? "on" : "off",

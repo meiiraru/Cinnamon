@@ -11,6 +11,7 @@ import cinnamon.vr.XrInput;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.PhysEntity;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -56,7 +57,7 @@ public class XrHand extends PhysEntity {
         dir.rotate(transform.rot());
         dir.rotate(c.getRot());
 
-        rotateToWithRiders(Maths.dirToRot(dir));
+        rotateToWithRiders(Maths.dirToQuat(dir).rotateY(Math.PI_f));
     }
 
     @Override

@@ -1,7 +1,6 @@
 package cinnamon.render;
 
 import cinnamon.Client;
-import cinnamon.math.Rotation;
 import cinnamon.model.StaticGeometry;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
@@ -23,7 +22,6 @@ import cinnamon.world.sky.Sky;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Quaternionf;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.List;
@@ -433,9 +431,7 @@ public class WorldRenderer {
     public static void renderXrHands(Camera camera, MatrixStack matrices, float delta) {
         matrices.pushMatrix();
         matrices.translate(camera.getEntity().getEyePos(delta));
-        Vector2f rot = camera.getEntity().getRot(delta);
-        matrices.rotate(Rotation.Y.rotationDeg(-rot.y));
-        matrices.rotate(Rotation.X.rotationDeg(rot.x));
+        matrices.rotate(camera.getEntity().getRot(delta));
         XrRenderer.renderHands(matrices);
         matrices.popMatrix();
     }

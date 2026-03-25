@@ -9,6 +9,7 @@ import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.projectile.PaintBall;
 import cinnamon.world.world.World;
 import cinnamon.world.world.WorldClient;
+import org.joml.Math;
 
 import java.util.UUID;
 
@@ -49,7 +50,7 @@ public class PaintGun extends CooldownItem {
         PaintBall projectile = new PaintBall(UUID.randomUUID(), source.getUUID(), Colors.randomRainbow().argb);
 
         projectile.setPos(source.getHandPos());
-        projectile.setRot(Maths.dirToRot(source.getAimDir(20f)));
+        projectile.setRot(Maths.dirToQuat(source.getAimDir(20f)).rotateY(Math.PI_f));
         projectile.impulse(0, 0, 1);
 
         world.addEntity(projectile);

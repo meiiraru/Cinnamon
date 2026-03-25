@@ -8,6 +8,7 @@ import cinnamon.world.collisions.CollisionResolver;
 import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.PhysEntity;
 import org.joml.Math;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -73,7 +74,8 @@ public abstract class Car extends Vehicle {
             //rotate the acceleration vector based on the steering input
             float steeringAngle = steering * speed * steeringFactor * (isMovingForwards ? 1 : -1);
             this.motion.rotate(Rotation.Y.rotationDeg(-steeringAngle));
-            rotateToWithRiders(rot.x, rot.y + steeringAngle);
+            Quaternionf rot = getRot();
+            rotateToWithRiders(Maths.getPitch(rot), Maths.getYaw(rot) + steeringAngle, Maths.getRoll(rot));
         } else {
             this.motion.set(0f);
         }
@@ -114,8 +116,8 @@ public abstract class Car extends Vehicle {
     }
 
     @Override
-    public void rotate(float pitch, float yaw) {
-        //super.rotate(pitch, yaw);
+    public void rotate(float pitch, float yaw, float roll) {
+        //super.rotate(pitch, yaw, roll);
     }
 
     @Override

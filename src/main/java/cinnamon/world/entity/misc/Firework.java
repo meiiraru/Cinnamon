@@ -59,7 +59,7 @@ public class Firework extends PhysEntity {
         if (vec.lengthSquared() > 0f)
             vec.normalize();
 
-        this.rotateTo(Maths.dirToRot(vec));
+        this.rotateTo(Maths.dirToQuat(vec).rotateY(Math.PI_f));
     }
 
     @Override

@@ -27,7 +27,7 @@ public abstract class Collectable extends PhysEntity {
     @Override
     public void tick() {
         super.tick();
-        this.rotate(0, 1);
+        this.rotate(0, 1, 0);
     }
 
     @Override
@@ -69,8 +69,8 @@ public abstract class Collectable extends PhysEntity {
     }
 
     @Override
-    public void rotateTo(float pitch, float yaw) {
-        super.rotateTo(0, yaw);
+    public void rotateTo(float pitch, float yaw, float roll) {
+        super.rotateTo(0, yaw, 0);
     }
 
     protected abstract boolean onPickUp(PhysEntity entity);

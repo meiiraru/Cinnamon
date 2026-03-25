@@ -9,6 +9,7 @@ import cinnamon.text.Text;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Trie;
 import cinnamon.world.entity.Entity;
+import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -84,7 +85,7 @@ public class CommandParser {
                     args.pop();
                 }
 
-                result.rotate(Maths.rotToQuat(source.getRot()));
+                result.rotate(source.getRot());
                 result.add(relativePos);
             }
 
@@ -106,8 +107,9 @@ public class CommandParser {
         if (args.size() < 2)
             return null;
 
+        Quaternionf rot = source.getRot();
         Vector2f result = new Vector2f();
-        Vector2f relativeRot = source.getRot();
+        Vector2f relativeRot = new Vector2f(Maths.getPitch(rot), Maths.getYaw(rot));
 
         try {
             for (int i = 0; i < 2; i++) {

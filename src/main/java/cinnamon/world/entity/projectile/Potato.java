@@ -45,7 +45,7 @@ public class Potato extends Projectile {
         if (vec.lengthSquared() > 0f)
             vec.normalize();
 
-        this.rotateTo(Maths.dirToRot(vec));
+        this.rotateTo(Maths.dirToQuat(vec).rotateY(Math.PI_f));
 
         if (!getWorld().isClientside())
             return;

@@ -23,9 +23,7 @@ import cinnamon.world.items.Inventory;
 import cinnamon.world.items.Item;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
-import org.joml.Math;
 import org.joml.Quaternionf;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -147,7 +145,7 @@ public class LocalPlayer extends Player {
 
             Terrain tt = TerrainRegistry.values()[selectedTerrain].getFactory().get();
             tt.setMaterial(MaterialRegistry.values()[selectedMaterial]);
-            tt.setRotation(Direction.fromRotation(getRot().y).invRotation);
+            tt.setRotation(Direction.fromRotation(Maths.getYaw(getRot())).invRotation);
             tt.setPos(tpos.x, tpos.y, tpos.z);
             getWorld().addTerrain(tt);
 
@@ -255,11 +253,7 @@ public class LocalPlayer extends Player {
             return super.getHandRot(lefty, delta);
 
         XrHandTransform transform = XrRenderer.getHandTransform(lefty ? 0 : 1);
-        Vector2f rot = getRot(delta);
-        return new Quaternionf()
-                .rotateY(Math.toRadians(-rot.y))
-                .rotateX(Math.toRadians(-rot.x))
-                .mul(transform.rot());
+        return new Quaternionf(getRot(delta)).mul(transform.rot());
     }
 
     @Override

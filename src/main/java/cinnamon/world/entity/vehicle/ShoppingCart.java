@@ -1,6 +1,5 @@
 package cinnamon.world.entity.vehicle;
 
-import cinnamon.math.Rotation;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.world.collisions.CollisionResolver;
@@ -20,8 +19,7 @@ public class ShoppingCart extends Car {
     @Override
     public Vector3f getRiderOffset(Entity rider) {
         Vector3f vec = new Vector3f(0, 0.5f, 0);
-        vec.rotate(Rotation.X.rotationDeg(-rot.x));
-        vec.rotate(Rotation.Y.rotationDeg(-rot.y));
+        vec.rotate(rot);
         return vec;
     }
 

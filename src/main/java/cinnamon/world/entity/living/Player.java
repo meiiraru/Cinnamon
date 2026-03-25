@@ -112,7 +112,7 @@ public class Player extends LivingEntity {
             return null;
 
         Vector3f diff = damageSource.getPos().sub(pos, new Vector3f()).normalize();
-        return Maths.dirToRot(diff).y - rot.y;
+        return Maths.dirToRot(diff).y - Maths.getYaw(getRot());
     }
 
     public int getDamageSourceTicks() {
@@ -158,20 +158,6 @@ public class Player extends LivingEntity {
 
     protected float getSprintMultiplier() {
         return 1.3f;
-    }
-
-    protected float clampPitch(float pitch) {
-        return Math.max(Math.min(pitch, 90), -90);
-    }
-
-    @Override
-    public void rotateTo(float pitch, float yaw) {
-        super.rotateTo(clampPitch(pitch), yaw);
-    }
-
-    @Override
-    public void setRot(float pitch, float yaw) {
-        super.setRot(clampPitch(pitch), yaw);
     }
 
     @Override

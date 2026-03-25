@@ -27,7 +27,7 @@ public class MaterialPreviewWorld extends WorldClient {
         //super.tempLoad();
         player.updateMovementFlags(false, false, true);
         player.setPos(-2f, 2f, -2f);
-        player.rotate(0f, 135f);
+        player.rotate(0f, 135f, 0f);
 
         //MaterialRegistry[] values = MaterialRegistry.values();
         //int grid = (int) Math.ceil(Math.sqrt(values.length));

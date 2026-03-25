@@ -252,7 +252,7 @@ public class PrimitiveTestWorld extends WorldClient {
         player.getAbilities().set(Abilities.Ability.CAN_BUILD, false);
 
         player.setPos(3.75f, 0.5f, 1f);
-        player.setRot(0f, 180f);
+        player.setRot(0f, 180f, 0f);
     }
 
     public static class PrimitiveWorldHud extends Hud {

@@ -34,7 +34,7 @@ public class Teleport implements Command {
             source.moveTo(pos);
 
             //apply rotation
-            source.rotateTo(rot);
+            source.rotateTo(rot.x, rot.y, 0);
             return Text.of("Teleported to %.3f %.3f %.3f rotated %.3f %.3f".formatted(pos.x, pos.y, pos.z, rot.x, rot.y));
         }
 
