@@ -109,11 +109,7 @@ public class AABB extends Shape {
 
     @Override
     public boolean intersectsSphere(Sphere sphere) {
-        float x = Maths.clamp(sphere.getX(), minX, maxX);
-        float y = Maths.clamp(sphere.getY(), minY, maxY);
-        float z = Maths.clamp(sphere.getZ(), minZ, maxZ);
-        float r = sphere.getRadius();
-        return Vector3f.distanceSquared(sphere.getX(), sphere.getY(), sphere.getZ(), x, y, z) <= r * r;
+        return distanceToPoint(sphere.getX(), sphere.getY(), sphere.getZ()) <= sphere.getRadius();
     }
 
     @Override
@@ -121,11 +117,13 @@ public class AABB extends Shape {
         Vector3f normal = plane.getNormal();
         float min = 0, max = 0;
 
+        //loop through each axis
         for (int i = 0; i < 3; i++) {
             float n = normal.get(i);
             float minBB = getMin(i);
             float maxBB = getMax(i);
 
+            //find the projection of the box on the plane normal
             if (n > 0) {
                 min += n * minBB;
                 max += n * maxBB;
@@ -135,8 +133,14 @@ public class AABB extends Shape {
             }
         }
 
+        //check if the plane surface is between the box projection
         float distance = plane.getConstant();
-        return min <= -distance && max >= -distance;
+        return min <= -distance && -distance <= max;
+    }
+
+    @Override
+    public boolean intersectsOBB(OBB obb) {
+        return obb.intersectsAABB(this);
     }
 
     public AABB translate(Vector3f vec) {
@@ -439,11 +443,6 @@ public class AABB extends Shape {
                 ncy + ney,
                 ncz + nez
         );
-    }
-
-    @Override
-    public boolean intersectsOBB(OBB obb) {
-        return obb.intersectsAABB(this);
     }
 
     @Override
