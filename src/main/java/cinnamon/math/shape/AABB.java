@@ -77,6 +77,14 @@ public class AABB extends Shape {
                z >= minZ && z <= maxZ;
     }
 
+    @Override
+    public float distanceToPoint(float x, float y, float z) {
+        float clampedX = Maths.clamp(x, minX, maxX);
+        float clampedY = Maths.clamp(y, minY, maxY);
+        float clampedZ = Maths.clamp(z, minZ, maxZ);
+        return Vector3f.distance(x, y, z, clampedX, clampedY, clampedZ);
+    }
+
     public boolean containsBox(AABB other) {
         return minX <= other.minX && maxX >= other.maxX &&
                minY <= other.minY && maxY >= other.maxY &&

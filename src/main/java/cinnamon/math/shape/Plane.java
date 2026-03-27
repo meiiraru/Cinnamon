@@ -82,6 +82,11 @@ public class Plane extends Shape {
     }
 
     @Override
+    public float distanceToPoint(float x, float y, float z) {
+        return normal.dot(x, y, z) + constant;
+    }
+
+    @Override
     public boolean intersectsAABB(AABB aabb) {
         return aabb.intersectsPlane(this);
     }

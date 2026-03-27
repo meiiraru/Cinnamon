@@ -111,6 +111,12 @@ public class Sphere extends Shape {
     }
 
     @Override
+    public float distanceToPoint(float x, float y, float z) {
+        float centerToPointDist = Vector3f.distance(this.x, this.y, this.z, x, y, z);
+        return Math.max(0f, centerToPointDist - radius);
+    }
+
+    @Override
     public boolean intersectsAABB(AABB aabb) {
         return aabb.intersectsSphere(this);
     }
