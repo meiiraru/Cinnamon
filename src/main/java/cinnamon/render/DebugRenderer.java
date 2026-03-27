@@ -1,9 +1,11 @@
 package cinnamon.render;
 
 import cinnamon.Client;
-import cinnamon.math.AABB;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
+import cinnamon.math.shape.AABB;
+import cinnamon.math.shape.Plane;
+import cinnamon.math.shape.Sphere;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.render.batch.VertexConsumer;
@@ -30,6 +32,22 @@ public class DebugRenderer {
 
     public static void renderAABB(MatrixStack matrices, AABB aabb, int color) {
         VertexConsumer.LINES.consume(GeometryHelper.box(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), color));
+    }
+
+    public static void renderSphere(MatrixStack matrices, Sphere sphere, int color) {
+        VertexConsumer.LINES.consume(GeometryHelper.sphere(matrices, sphere.getX(), sphere.getY(), sphere.getZ(), sphere.getRadius(), 12, color));
+    }
+
+    public static void renderPlane(MatrixStack matrices, Plane plane, float size, int color) {
+        matrices.pushMatrix();
+
+        matrices.rotate(Maths.dirToQuat(plane.getNormal()).rotateX(Math.PI_OVER_2_f));
+        matrices.translate(0, -plane.getConstant(), 0);
+
+        int grid = Maths.clamp((int) size, 3, 10);
+        VertexConsumer.LINES.consume(GeometryHelper.plane(matrices, -size, 0, -size, size, size, grid, grid, color));
+
+        matrices.popMatrix();
     }
 
     public static void renderArrow(MatrixStack matrices, Vector3f dir, float len, int color) {

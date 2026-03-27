@@ -2,9 +2,9 @@ package cinnamon.world.entity.living;
 
 import cinnamon.Client;
 import cinnamon.gui.Screen;
-import cinnamon.math.AABB;
 import cinnamon.math.Direction;
 import cinnamon.math.Maths;
+import cinnamon.math.shape.AABB;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;

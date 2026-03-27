@@ -1,10 +1,11 @@
-package cinnamon.math;
+package cinnamon.math.shape;
 
+import cinnamon.math.Maths;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public class AABB {
+public class AABB extends Shape {
 
     public static final float epsilon = 0.001f;
     private float
@@ -69,36 +70,66 @@ public class AABB {
         return this;
     }
 
-    public boolean intersects(AABB other) {
-        return intersectsX(other) && intersectsY(other) && intersectsZ(other);
-    }
-
-    public boolean intersectsX(AABB other) {
-        return maxX >= other.minX && minX <= other.maxX;
-    }
-
-    public boolean intersectsY(AABB other) {
-        return maxY >= other.minY && minY <= other.maxY;
-    }
-
-    public boolean intersectsZ(AABB other) {
-        return maxZ >= other.minZ && minZ <= other.maxZ;
-    }
-
-    public boolean isInside(AABB other) {
-        return other.minX >= minX && other.maxX <= maxX &&
-               other.minY >= minY && other.maxY <= maxY &&
-               other.minZ >= minZ && other.maxZ <= maxZ;
-    }
-
-    public boolean isInside(Vector3f point) {
-        return this.isInside(point.x, point.y, point.z);
-    }
-
-    public boolean isInside(float x, float y, float z) {
+    @Override
+    public boolean containsPoint(float x, float y, float z) {
         return x >= minX && x <= maxX &&
                y >= minY && y <= maxY &&
                z >= minZ && z <= maxZ;
+    }
+
+    public boolean containsBox(AABB other) {
+        return minX <= other.minX && maxX >= other.maxX &&
+               minY <= other.minY && maxY >= other.maxY &&
+               minZ <= other.minZ && maxZ >= other.maxZ;
+    }
+
+    public boolean intersectsX(float minX, float maxX) {
+        return maxX >= this.minX && minX <= this.maxX;
+    }
+
+    public boolean intersectsY(float minY, float maxY) {
+        return maxY >= this.minY && minY <= this.maxY;
+    }
+
+    public boolean intersectsZ(float minZ, float maxZ) {
+        return maxZ >= this.minZ && minZ <= this.maxZ;
+    }
+
+    @Override
+    public boolean intersectsAABB(AABB other) {
+        return intersectsX(other.minX, other.maxX) && intersectsY(other.minY, other.maxY) && intersectsZ(other.minZ, other.maxZ);
+    }
+
+    @Override
+    public boolean intersectsSphere(Sphere sphere) {
+        float x = Maths.clamp(sphere.getX(), minX, maxX);
+        float y = Maths.clamp(sphere.getY(), minY, maxY);
+        float z = Maths.clamp(sphere.getZ(), minZ, maxZ);
+        float r = sphere.getRadius();
+        return Vector3f.distanceSquared(sphere.getX(), sphere.getY(), sphere.getZ(), x, y, z) <= r * r;
+    }
+
+    @Override
+    public boolean intersectsPlane(Plane plane) {
+        Vector3f normal = plane.getNormal();
+        float min = 0, max = 0;
+
+        for (int i = 0; i < 3; i++) {
+            float n = normal.get(i);
+            float minBB = getMin(i);
+            float maxBB = getMax(i);
+
+            if (n > 0) {
+                min += n * minBB;
+                max += n * maxBB;
+            } else {
+                min += n * maxBB;
+                max += n * minBB;
+            }
+        }
+
+        float distance = plane.getConstant();
+        return min <= -distance && max >= -distance;
     }
 
     public AABB translate(Vector3f vec) {
@@ -235,6 +266,24 @@ public class AABB {
         return new Vector3f(maxX, maxY, maxZ);
     }
 
+    public float getMin(int component) {
+        return switch (component) {
+            case 0 -> minX;
+            case 1 -> minY;
+            case 2 -> minZ;
+            default -> throw new IllegalArgumentException();
+        };
+    }
+
+    public float getMax(int component) {
+        return switch (component) {
+            case 0 -> maxX;
+            case 1 -> maxY;
+            case 2 -> maxZ;
+            default -> throw new IllegalArgumentException();
+        };
+    }
+
     public float getWidth() {
         return maxX - minX;
     }
@@ -270,7 +319,7 @@ public class AABB {
 
     public float getXOverlap(AABB other) {
         //check if there is no collision on the other axis
-        if (!intersectsY(other) || !intersectsZ(other))
+        if (!intersectsY(other.minY, other.maxY) || !intersectsZ(other.minZ, other.maxZ))
             return 0;
 
         if (this.minX <= other.minX)
@@ -281,7 +330,7 @@ public class AABB {
 
     public float getYOverlap(AABB other) {
         //check if there is no collision on the other axis
-        if (!intersectsX(other) || !intersectsZ(other))
+        if (!intersectsX(other.minX, other.maxX) || !intersectsZ(other.minZ, other.maxZ))
             return 0;
 
         if (this.minY <= other.minY)
@@ -292,7 +341,7 @@ public class AABB {
 
     public float getZOverlap(AABB other) {
         //check if there is no collision on the other axis
-        if (!intersectsX(other) || !intersectsY(other))
+        if (!intersectsX(other.minX, other.maxX) || !intersectsY(other.minY, other.maxY))
             return 0;
 
         if (this.minZ <= other.minZ)

@@ -10,8 +10,8 @@ import cinnamon.gui.screens.world.PauseScreen;
 import cinnamon.input.Interaction;
 import cinnamon.input.Keybind;
 import cinnamon.input.Movement;
-import cinnamon.math.AABB;
 import cinnamon.math.Maths;
+import cinnamon.math.shape.AABB;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.registry.MaterialRegistry;
@@ -603,7 +603,7 @@ public class WorldClient extends World {
     public List<Light> getLights(AABB region) {
         List<Light> list = new ArrayList<>();
         for (Light light : this.lights) {
-            if (region.isInside(light.getPos()))
+            if (region.containsPoint(light.getPos()))
                 list.add(light);
         }
         return list;
@@ -612,7 +612,7 @@ public class WorldClient extends World {
     public List<Particle> getParticles(AABB region) {
         List<Particle> list = new ArrayList<>();
         for (Particle particle : this.particles) {
-            if (region.intersects(particle.getAABB()))
+            if (region.intersectsAABB(particle.getAABB()))
                 list.add(particle);
         }
         return list;

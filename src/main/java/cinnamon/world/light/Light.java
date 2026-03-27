@@ -1,6 +1,6 @@
 package cinnamon.world.light;
 
-import cinnamon.math.AABB;
+import cinnamon.math.shape.AABB;
 import cinnamon.render.Camera;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.Resource;

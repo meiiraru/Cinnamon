@@ -1,6 +1,6 @@
 package cinnamon.world.worldgen.chunk;
 
-import cinnamon.math.AABB;
+import cinnamon.math.shape.AABB;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;

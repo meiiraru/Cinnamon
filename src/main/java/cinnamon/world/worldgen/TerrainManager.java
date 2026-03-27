@@ -1,6 +1,6 @@
 package cinnamon.world.worldgen;
 
-import cinnamon.math.AABB;
+import cinnamon.math.shape.AABB;
 import cinnamon.world.terrain.Terrain;
 
 import java.util.List;

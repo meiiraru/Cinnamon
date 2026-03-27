@@ -1,8 +1,8 @@
 package cinnamon.world.items;
 
-import cinnamon.math.AABB;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
+import cinnamon.math.shape.AABB;
 import cinnamon.registry.ItemModelRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.ColorUtils;

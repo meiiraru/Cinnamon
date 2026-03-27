@@ -1,6 +1,6 @@
 package cinnamon.render.model;
 
-import cinnamon.math.AABB;
+import cinnamon.math.shape.AABB;
 import cinnamon.model.Vertex;
 import cinnamon.model.VertexHelper;
 import cinnamon.model.obj.Face;

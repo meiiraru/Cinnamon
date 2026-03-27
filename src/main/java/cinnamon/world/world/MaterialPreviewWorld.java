@@ -1,6 +1,6 @@
 package cinnamon.world.world;
 
-import cinnamon.math.AABB;
+import cinnamon.math.shape.AABB;
 import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;

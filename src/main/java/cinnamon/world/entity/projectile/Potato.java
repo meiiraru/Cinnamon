@@ -1,8 +1,8 @@
 package cinnamon.world.entity.projectile;
 
 import cinnamon.events.Await;
-import cinnamon.math.AABB;
 import cinnamon.math.Maths;
+import cinnamon.math.shape.AABB;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;

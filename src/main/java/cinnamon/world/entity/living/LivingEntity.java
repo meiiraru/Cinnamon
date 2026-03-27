@@ -1,9 +1,9 @@
 package cinnamon.world.entity.living;
 
 import cinnamon.Client;
-import cinnamon.math.AABB;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
+import cinnamon.math.shape.AABB;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.text.Style;

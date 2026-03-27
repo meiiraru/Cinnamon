@@ -1,6 +1,6 @@
 package cinnamon.model.assimp;
 
-import cinnamon.math.AABB;
+import cinnamon.math.shape.AABB;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 

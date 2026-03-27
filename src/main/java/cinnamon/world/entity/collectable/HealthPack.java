@@ -1,6 +1,6 @@
 package cinnamon.world.entity.collectable;
 
-import cinnamon.math.AABB;
+import cinnamon.math.shape.AABB;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.world.entity.PhysEntity;

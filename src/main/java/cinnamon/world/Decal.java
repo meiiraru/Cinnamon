@@ -1,6 +1,6 @@
 package cinnamon.world;
 
-import cinnamon.math.AABB;
+import cinnamon.math.shape.AABB;
 import cinnamon.model.ModelTransform;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;

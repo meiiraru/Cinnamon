@@ -3,7 +3,7 @@ package cinnamon.gui.screens.extras;
 import cinnamon.Client;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
-import cinnamon.math.AABB;
+import cinnamon.math.shape.AABB;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;

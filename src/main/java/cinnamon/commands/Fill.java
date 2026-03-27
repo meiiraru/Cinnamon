@@ -1,6 +1,6 @@
 package cinnamon.commands;
 
-import cinnamon.math.AABB;
+import cinnamon.math.shape.AABB;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.text.Text;
 import cinnamon.world.entity.Entity;

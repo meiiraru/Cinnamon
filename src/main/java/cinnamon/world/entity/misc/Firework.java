@@ -1,7 +1,7 @@
 package cinnamon.world.entity.misc;
 
-import cinnamon.math.AABB;
 import cinnamon.math.Maths;
+import cinnamon.math.shape.AABB;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.sound.SoundCategory;
@@ -20,7 +20,7 @@ import org.joml.Vector3f;
 
 import java.util.UUID;
 
-public class Firework extends PhysEntity {
+public class  Firework extends PhysEntity {
 
     public static final Resource
         EXPLOSION_SOUND = new Resource("sounds/entity/misc/firework/explosion.ogg"),

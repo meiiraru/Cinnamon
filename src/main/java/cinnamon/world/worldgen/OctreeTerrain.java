@@ -1,7 +1,7 @@
 package cinnamon.world.worldgen;
 
-import cinnamon.math.AABB;
 import cinnamon.math.Maths;
+import cinnamon.math.shape.AABB;
 import cinnamon.world.terrain.Terrain;
 import org.joml.Vector3f;
 
@@ -31,7 +31,7 @@ public class OctreeTerrain extends TerrainManager {
 
         //if the octree is smaller than the terrain general bounds, grow the root node
         AABB terrainBB = terrain.getAABB();
-        while (!root.bounds.isInside(terrainBB))
+        while (!root.bounds.containsBox(terrainBB))
             growRoot(terrainBB);
 
         //insert the terrain into the octree
@@ -138,7 +138,7 @@ public class OctreeTerrain extends TerrainManager {
 
         public void insert(Terrain terrain) {
             //not on this bounds, skip
-            if (!bounds.intersects(terrain.getAABB()))
+            if (!bounds.intersectsAABB(terrain.getAABB()))
                 return;
 
             //if we have no children, we can add the terrain directly
@@ -154,7 +154,7 @@ public class OctreeTerrain extends TerrainManager {
 
                 //try to insert into a children if it fits
                 for (OctreeNode child : children) {
-                    if (child.bounds.isInside(terrain.getAABB())) {
+                    if (child.bounds.containsBox(terrain.getAABB())) {
                         child.insert(terrain);
                         added = true;
                         break;
@@ -182,11 +182,11 @@ public class OctreeTerrain extends TerrainManager {
 
         public void clearRegion(AABB region) {
             //not in region, skip
-            if (!bounds.intersects(region))
+            if (!bounds.intersectsAABB(region))
                 return;
 
             //remove all terrain that intersects with the region
-            contents.removeIf(terrain -> terrain.getAABB().intersects(region));
+            contents.removeIf(terrain -> terrain.getAABB().intersectsAABB(region));
 
             //including children
             if (children != null)
@@ -230,13 +230,13 @@ public class OctreeTerrain extends TerrainManager {
 
         public void query(AABB region, List<Terrain> result) {
             //failed the bounds check, skip
-            if (!bounds.intersects(region))
+            if (!bounds.intersectsAABB(region))
                 return;
 
             //try adding all terrain from this node
             //and check for the terrain bounds
             for (Terrain terrain : contents)
-                if (terrain.getAABB().intersects(region))
+                if (terrain.getAABB().intersectsAABB(region))
                     result.add(terrain);
 
             //add from children

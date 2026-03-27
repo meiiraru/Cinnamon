@@ -1,7 +1,7 @@
 package cinnamon.world.world;
 
 import cinnamon.Client;
-import cinnamon.math.AABB;
+import cinnamon.math.shape.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.world.DamageType;
 import cinnamon.world.WorldRules;
@@ -102,7 +102,7 @@ public abstract class World {
     public List<Entity> getEntities(AABB region) {
         List<Entity> list = new ArrayList<>();
         for (Entity entity : entities.values()) {
-            if (region.intersects(entity.getAABB()))
+            if (region.intersectsAABB(entity.getAABB()))
                 list.add(entity);
         }
         return list;

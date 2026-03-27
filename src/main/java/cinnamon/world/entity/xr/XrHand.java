@@ -1,7 +1,7 @@
 package cinnamon.world.entity.xr;
 
-import cinnamon.math.AABB;
 import cinnamon.math.Maths;
+import cinnamon.math.shape.AABB;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -30,7 +30,7 @@ public class XrHand extends PhysEntity {
     @Override
     public void preTick() {
         super.preTick();
-        if (!isGrabbing && targetEntity != null && !targetEntity.getAABB().intersects(getAABB()))
+        if (!isGrabbing && targetEntity != null && !targetEntity.getAABB().intersectsAABB(getAABB()))
             targetEntity = null;
     }
 

@@ -1,7 +1,7 @@
 package cinnamon.world.entity.collectable;
 
 import cinnamon.Client;
-import cinnamon.math.AABB;
+import cinnamon.math.shape.AABB;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
