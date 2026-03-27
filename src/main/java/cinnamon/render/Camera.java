@@ -293,17 +293,17 @@ public class Camera {
 
     public Vector3f getForwards() {
         recalculateViewMatrix();
-        return dirMatrix.normalizedPositiveZ(new Vector3f()).negate();
+        return dirMatrix.positiveZ(new Vector3f()).negate();
     }
 
     public Vector3f getLeft() {
         recalculateViewMatrix();
-        return dirMatrix.normalizedPositiveX(new Vector3f()).negate();
+        return dirMatrix.positiveX(new Vector3f()).negate();
     }
 
     public Vector3f getUp() {
         recalculateViewMatrix();
-        return dirMatrix.normalizedPositiveY(new Vector3f());
+        return dirMatrix.positiveY(new Vector3f());
     }
 
     public Matrix3f getDirectionMatrix() {
