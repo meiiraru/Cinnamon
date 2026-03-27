@@ -7,7 +7,6 @@ import org.joml.Vector3f;
 
 public class AABB extends Shape {
 
-    public static final float epsilon = 0.001f;
     private float
             minX, minY, minZ,
             maxX, maxY, maxZ;
@@ -331,9 +330,9 @@ public class AABB extends Shape {
             return 0;
 
         if (this.minX <= other.minX)
-            return this.minX - other.maxX - epsilon;
+            return this.minX - other.maxX;
 
-        return this.maxX - other.minX + epsilon;
+        return this.maxX - other.minX;
     }
 
     public float getYOverlap(AABB other) {
@@ -342,9 +341,9 @@ public class AABB extends Shape {
             return 0;
 
         if (this.minY <= other.minY)
-            return this.minY - other.maxY - epsilon;
+            return this.minY - other.maxY;
 
-        return this.maxY - other.minY + epsilon;
+        return this.maxY - other.minY;
     }
 
     public float getZOverlap(AABB other) {
@@ -353,9 +352,9 @@ public class AABB extends Shape {
             return 0;
 
         if (this.minZ <= other.minZ)
-            return this.minZ - other.maxZ - epsilon;
+            return this.minZ - other.maxZ;
 
-        return this.maxZ - other.minZ + epsilon;
+        return this.maxZ - other.minZ;
     }
 
     public AABB rotateX(float angle) {
@@ -440,6 +439,11 @@ public class AABB extends Shape {
                 ncy + ney,
                 ncz + nez
         );
+    }
+
+    @Override
+    public boolean intersectsOBB(OBB obb) {
+        return obb.intersectsAABB(this);
     }
 
     @Override

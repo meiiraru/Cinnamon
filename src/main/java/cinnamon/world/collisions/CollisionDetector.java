@@ -57,6 +57,6 @@ public class CollisionDetector {
         );
 
         //return the collision result
-        return new CollisionResult(near - AABB.epsilon, normal, collisionPos);
+        return new CollisionResult(near - Maths.epsilon, normal, collisionPos);
     }
 }

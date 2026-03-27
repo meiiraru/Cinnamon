@@ -101,4 +101,9 @@ public class Plane extends Shape {
         Vector3f cross = new Vector3f(normal).cross(plane.normal);
         return cross.lengthSquared() > 1e-6f;
     }
+
+    @Override
+    public boolean intersectsOBB(OBB obb) {
+        return obb.intersectsPlane(this);
+    }
 }

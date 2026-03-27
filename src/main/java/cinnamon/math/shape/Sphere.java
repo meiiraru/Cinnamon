@@ -132,4 +132,9 @@ public class Sphere extends Shape {
         float distanceToPlane = plane.getNormal().dot(x, y, z) + plane.getConstant();
         return Math.abs(distanceToPlane) <= radius;
     }
+
+    @Override
+    public boolean intersectsOBB(OBB obb) {
+        return obb.intersectsSphere(this);
+    }
 }

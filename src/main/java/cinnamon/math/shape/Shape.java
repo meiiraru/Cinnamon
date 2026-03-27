@@ -17,4 +17,5 @@ public abstract class Shape {
     public abstract boolean intersectsAABB(AABB aabb);
     public abstract boolean intersectsSphere(Sphere sphere);
     public abstract boolean intersectsPlane(Plane plane);
+    public abstract boolean intersectsOBB(OBB obb);
 }

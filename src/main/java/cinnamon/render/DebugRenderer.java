@@ -4,6 +4,7 @@ import cinnamon.Client;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.math.shape.AABB;
+import cinnamon.math.shape.OBB;
 import cinnamon.math.shape.Plane;
 import cinnamon.math.shape.Sphere;
 import cinnamon.model.GeometryHelper;
@@ -46,6 +47,18 @@ public class DebugRenderer {
 
         int grid = Maths.clamp((int) size, 3, 10);
         VertexConsumer.LINES.consume(GeometryHelper.plane(matrices, -size, 0, -size, size, size, grid, grid, color));
+
+        matrices.popMatrix();
+    }
+
+    public static void renderOBB(MatrixStack matrices, OBB obb, int color) {
+        matrices.pushMatrix();
+
+        matrices.translate(obb.getCenter());
+        matrices.rotate(obb.getRotation());
+
+        Vector3f half = obb.getHalfExtents();
+        VertexConsumer.LINES.consume(GeometryHelper.box(matrices, -half.x, -half.y, -half.z, half.x, half.y, half.z, color));
 
         matrices.popMatrix();
     }

@@ -13,6 +13,8 @@ import java.util.function.Predicate;
 
 public class Maths {
 
+    public static final float epsilon = 0.001f;
+
     public static Vector4f lerp(Vector4f a, Vector4f b, float t) {
         return new Vector4f(
                 Math.lerp(a.x, b.x, t),
