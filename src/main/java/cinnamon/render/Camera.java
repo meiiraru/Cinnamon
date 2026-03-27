@@ -141,14 +141,34 @@ public class Camera {
         this.aspectRatio = (float) width / height;
         this.width = width;
         this.height = height;
-        resetProjMatrix();
-    }
 
-    public void resetProjMatrix() {
         perspMatrix.identity().perspective(Math.toRadians(fov), aspectRatio, NEAR_PLANE, FAR_PLANE);
         orthoMatrix.identity().ortho(0, width, height, 0, -1000, 1000);
-        invPerspMatrix.identity().set(perspMatrix).invert();
-        invOrthoMatrix.identity().set(orthoMatrix).invert();
+        this.setProjMatrix(perspMatrix, orthoMatrix);
+    }
+
+    public void updateProjMatrix(int width, int height, float angleLeft, float angleRight, float angleDown, float angleUp) {
+        this.aspectRatio = (float) width / height;
+        this.width = width;
+        this.height = height;
+
+        float left = Math.tan(angleLeft)   * NEAR_PLANE;
+        float right = Math.tan(angleRight) * NEAR_PLANE;
+        float bottom = Math.tan(angleDown) * NEAR_PLANE;
+        float top = Math.tan(angleUp)      * NEAR_PLANE;
+
+        this.fov = (float) Math.toDegrees(java.lang.Math.atan(right / NEAR_PLANE) - java.lang.Math.atan(left / NEAR_PLANE));
+
+        perspMatrix.identity().frustum(left, right, bottom, top, NEAR_PLANE, FAR_PLANE);
+        orthoMatrix.identity().ortho(0, width, height, 0, -1000, 1000);
+        this.setProjMatrix(perspMatrix, orthoMatrix);
+    }
+
+    public void setProjMatrix(Matrix4f perspMatrix, Matrix4f orthoMatrix) {
+        this.perspMatrix.set(perspMatrix);
+        this.orthoMatrix.set(orthoMatrix);
+        this.perspMatrix.invert(invPerspMatrix);
+        this.orthoMatrix.invert(invOrthoMatrix);
     }
 
     public void setXrTransform(float x, float y, float z, float qx, float qy, float qz, float qw) {

@@ -76,15 +76,12 @@ public class XrRenderer {
         //update camera matrices
         XrPosef pose = layerView.pose();
         XrFovf fov = layerView.fov();
-        float distToLeftPlane = Math.tan(fov.angleLeft());
-        float distToRightPlane = Math.tan(fov.angleRight());
-        float fovX = (float) Math.toDegrees(java.lang.Math.atan(distToRightPlane) - java.lang.Math.atan(distToLeftPlane));
 
         XrVector3f pos = pose.position$();
         XrQuaternionf orientation = pose.orientation();
 
         Camera camera = Client.getInstance().camera;
-        camera.updateProjMatrix(width, height, fovX);
+        camera.updateProjMatrix(width, height, fov.angleLeft(), fov.angleRight(), fov.angleDown(), fov.angleUp());
         camera.setXrTransform(pos.x(), pos.y(), pos.z(), orientation.x(), orientation.y(), orientation.z(), orientation.w());
 
         //render whatever it is going to render
