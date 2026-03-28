@@ -447,6 +447,6 @@ public class AABB extends Shape {
 
     @Override
     public String toString() {
-        return "(minX=" + minX + " minY=" + minY + " minZ=" + minZ + " maxX=" + maxX + " maxY=" + maxY + " maxZ=" + maxZ + ")";
+        return "AABB{minX=" + minX + " minY=" + minY + " minZ=" + minZ + " maxX=" + maxX + " maxY=" + maxY + " maxZ=" + maxZ + "}";
     }
 }

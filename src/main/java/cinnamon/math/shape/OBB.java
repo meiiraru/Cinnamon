@@ -258,7 +258,7 @@ public class OBB extends Shape {
         //store absolute value matrix used for conservative radius projections
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++)
-                absR[i][j] = Math.abs(r[i][j]) + Maths.epsilon;
+                absR[i][j] = Math.abs(r[i][j]) + Maths.EPSILON;
         }
 
         //translate B center into A, so all tests can share the same t components
@@ -305,5 +305,12 @@ public class OBB extends Shape {
 
         //no separating axis found - there is an overlap
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "OBB{cx=" + center.x + " cy=" + center.y + " cz=" + center.z +
+                " hx=" + halfExtents.x + " hy=" + halfExtents.y + " hz=" + halfExtents.z +
+                " rot=" + rotation + "}";
     }
 }

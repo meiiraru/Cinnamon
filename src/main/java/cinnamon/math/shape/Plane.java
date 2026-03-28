@@ -1,5 +1,6 @@
 package cinnamon.math.shape;
 
+import cinnamon.math.Maths;
 import org.joml.Vector3f;
 
 public class Plane extends Shape {
@@ -78,7 +79,7 @@ public class Plane extends Shape {
 
     @Override
     public boolean containsPoint(float x, float y, float z) {
-        return Math.abs(normal.dot(x, y, z) + constant) < 1e-6f;
+        return Math.abs(normal.dot(x, y, z) + constant) < Maths.KINDA_SMALL_NUMBER;
     }
 
     @Override
@@ -99,11 +100,16 @@ public class Plane extends Shape {
     @Override
     public boolean intersectsPlane(Plane plane) {
         Vector3f cross = new Vector3f(normal).cross(plane.normal);
-        return cross.lengthSquared() > 1e-6f;
+        return cross.lengthSquared() > Maths.KINDA_SMALL_NUMBER;
     }
 
     @Override
     public boolean intersectsOBB(OBB obb) {
         return obb.intersectsPlane(this);
+    }
+
+    @Override
+    public String toString() {
+        return "Plane{nx=" + normal.x + " ny=" + normal.y + " nz=" + normal.z + " d=" + constant + "}";
     }
 }

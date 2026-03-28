@@ -167,7 +167,7 @@ public class VertexHelper {
                 Vector3f n = list.get(vertexIndex).getNormal();
 
                 //if we had a valid tangent, orthogonalize it
-                if (t.lengthSquared() > 1e-6f) {
+                if (t.lengthSquared() > Maths.KINDA_SMALL_NUMBER) {
                     float dot = n.dot(t);
                     t.sub(n.x * dot, n.y * dot, n.z * dot).normalize();
                 } else {
@@ -221,7 +221,7 @@ public class VertexHelper {
                 for (int otherIndex : potentialMatches) {
                     if (!visited[otherIndex]) {
                         //check if the normals are within the angle threshold
-                        if (Math.abs(list.get(currentIndex).getNormal().dot(list.get(otherIndex).getNormal())) >= cosThreshold - 1e-6f) {
+                        if (Math.abs(list.get(currentIndex).getNormal().dot(list.get(otherIndex).getNormal())) >= cosThreshold - Maths.KINDA_SMALL_NUMBER) {
                             //mark as visited and add to the queue
                             visited[otherIndex] = true;
                             toProcess.add(otherIndex);

@@ -137,4 +137,9 @@ public class Sphere extends Shape {
     public boolean intersectsOBB(OBB obb) {
         return obb.intersectsSphere(this);
     }
+
+    @Override
+    public String toString() {
+        return "Sphere{x=" + x + " y=" + y + " z=" + z + " r=" + radius + "}";
+    }
 }

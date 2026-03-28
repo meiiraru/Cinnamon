@@ -54,7 +54,7 @@ public class BlueNoise2D extends Noise {
 
         //initialize the energy grid with tiny random values to break distance ties evenly
         for (int i = 0; i < totalPixels; i++) {
-            energy[i] = random.nextFloat() * 1e-6f;
+            energy[i] = random.nextFloat() * Maths.KINDA_SMALL_NUMBER;
         }
 
         //4 staggered phases for the 2x2 grid to ensure independent neighboring tiles

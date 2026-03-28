@@ -1,5 +1,6 @@
 package cinnamon.world.entity;
 
+import cinnamon.math.Maths;
 import cinnamon.math.shape.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.world.Mask;
@@ -88,7 +89,7 @@ public abstract class PhysEntity extends Entity {
 
     protected Vector3f tickTerrainCollisions(AABB aabb, Vector3f motion) {
         //early exit
-        if (motion.lengthSquared() < 1e-9f)
+        if (motion.lengthSquared() < Maths.SMALL_NUMBER)
             return new Vector3f();
 
         //prepare variables
@@ -132,7 +133,7 @@ public abstract class PhysEntity extends Entity {
             resolveCollision(collision, toMove);
 
             //stop if remaining movement is too small
-            if (toMove.lengthSquared() < 1e-9f) {
+            if (toMove.lengthSquared() < Maths.SMALL_NUMBER) {
                 toMove.set(0);
                 break;
             }

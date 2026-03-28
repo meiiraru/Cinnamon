@@ -13,7 +13,11 @@ import java.util.function.Predicate;
 
 public class Maths {
 
-    public static final float epsilon = 0.001f;
+    public static final float
+            EPSILON             = 1e-3f,
+            KINDA_SMALL_NUMBER  = 1e-6f,
+            SMALL_NUMBER        = 1e-9f,
+            REALLY_SMALL_NUMBER = 1e-12f;
 
     public static Vector4f lerp(Vector4f a, Vector4f b, float t) {
         return new Vector4f(
