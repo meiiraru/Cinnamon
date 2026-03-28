@@ -36,7 +36,8 @@ public class DebugRenderer {
     }
 
     public static void renderSphere(MatrixStack matrices, Sphere sphere, int color) {
-        VertexConsumer.LINES.consume(GeometryHelper.sphere(matrices, sphere.getX(), sphere.getY(), sphere.getZ(), sphere.getRadius(), 12, color));
+        Vector3f center = sphere.getCenter();
+        VertexConsumer.LINES.consume(GeometryHelper.sphere(matrices, center.x, center.y, center.z, sphere.getRadius(), 12, color));
     }
 
     public static void renderPlane(MatrixStack matrices, Plane plane, float size, int color) {

@@ -18,4 +18,6 @@ public abstract class Shape {
     public abstract boolean intersectsSphere(Sphere sphere);
     public abstract boolean intersectsPlane(Plane plane);
     public abstract boolean intersectsOBB(OBB obb);
+
+    public abstract Ray.Hit collideRay(Ray ray);
 }

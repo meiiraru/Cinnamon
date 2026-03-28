@@ -1,6 +1,7 @@
 package cinnamon.math.shape;
 
 import cinnamon.math.Maths;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 public class Plane extends Shape {
@@ -37,8 +38,8 @@ public class Plane extends Shape {
     }
 
     public Plane set(float normalX, float normalY, float normalZ, float constant) {
-        this.normal.set(normalX, normalY, normalZ);
-        this.constant = constant;
+        this.setNormal(normalX, normalY, normalZ);
+        this.setConstant(constant);
         return this;
     }
 
@@ -64,8 +65,20 @@ public class Plane extends Shape {
         return this;
     }
 
+    public Vector3f setNormal(Vector3f normal) {
+        return this.setNormal(normal.x, normal.y, normal.z);
+    }
+
+    public Vector3f setNormal(float x, float y, float z) {
+        return this.normal.set(x, y, z);
+    }
+
     public Vector3f getNormal() {
         return normal;
+    }
+
+    public void setConstant(float constant) {
+        this.constant = constant;
     }
 
     public float getConstant() {
@@ -106,6 +119,28 @@ public class Plane extends Shape {
     @Override
     public boolean intersectsOBB(OBB obb) {
         return obb.intersectsPlane(this);
+    }
+
+    @Override
+    public Ray.Hit collideRay(Ray ray) {
+        //find the angle between the ray direction and the plane normal
+        Vector3f dir = ray.getDirection();
+        float dot = normal.dot(dir);
+        if (Math.abs(dot) < Maths.KINDA_SMALL_NUMBER)
+            return null;
+
+        //find the distance along the ray to the intersection point
+        Vector3f origin = ray.getOrigin();
+        float t = -(normal.dot(origin) + constant) / dot;
+        if (t < 0 || t > ray.getMaxDistance())
+            return null;
+
+        //calculate raycast result
+        Vector3f hitPos = origin.fma(t, dir, new Vector3f());
+        Vector3f hitNormal = new Vector3f(normal);
+        if (dot > 0) hitNormal.negate();
+
+        return new Ray.Hit(hitPos, hitNormal, t, t, this);
     }
 
     @Override

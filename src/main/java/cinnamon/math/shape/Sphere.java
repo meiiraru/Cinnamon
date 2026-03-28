@@ -1,11 +1,12 @@
 package cinnamon.math.shape;
 
+import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public class Sphere extends Shape {
 
-    private float x, y, z;
+    private final Vector3f center = new Vector3f();
     private float radius;
 
     public Sphere() {
@@ -21,11 +22,11 @@ public class Sphere extends Shape {
     }
 
     public Sphere(Sphere sphere) {
-        this.set(sphere.x, sphere.y, sphere.z, sphere.radius);
+        this.set(sphere.center, sphere.radius);
     }
 
     public Sphere set(Sphere sphere) {
-        return this.set(sphere.x, sphere.y, sphere.z, sphere.radius);
+        return this.set(sphere.center, sphere.radius);
     }
 
     public Sphere set(Vector3f center, float radius) {
@@ -33,10 +34,8 @@ public class Sphere extends Shape {
     }
 
     public Sphere set(float x, float y, float z, float radius) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.radius = radius;
+        this.setCenter(x, y, z);
+        this.setRadius(radius);
         return this;
     }
 
@@ -45,9 +44,7 @@ public class Sphere extends Shape {
     }
 
     public Sphere setCenter(float x, float y, float z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.center.set(x, y, z);
         return this;
     }
 
@@ -57,23 +54,11 @@ public class Sphere extends Shape {
     }
 
     public Vector3f getCenter() {
-        return new Vector3f(x, y, z);
+        return center;
     }
 
     public float getRadius() {
         return radius;
-    }
-
-    public float getX() {
-        return x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
-    public float getZ() {
-        return z;
     }
 
     public Sphere translate(Vector3f translation) {
@@ -81,9 +66,7 @@ public class Sphere extends Shape {
     }
 
     public Sphere translate(float x, float y, float z) {
-        this.x += x;
-        this.y += y;
-        this.z += z;
+        this.center.add(x, y, z);
         return this;
     }
 
@@ -107,12 +90,12 @@ public class Sphere extends Shape {
 
     @Override
     public boolean containsPoint(float x, float y, float z) {
-        return Vector3f.distanceSquared(this.x, this.y, this.z, x, y, z) <= radius * radius;
+        return this.center.distanceSquared(x, y, z) <= radius * radius;
     }
 
     @Override
     public float distanceToPoint(float x, float y, float z) {
-        float centerToPointDist = Vector3f.distance(this.x, this.y, this.z, x, y, z);
+        float centerToPointDist = this.center.distance(x, y, z);
         return Math.max(0f, centerToPointDist - radius);
     }
 
@@ -124,12 +107,12 @@ public class Sphere extends Shape {
     @Override
     public boolean intersectsSphere(Sphere other) {
         float radiusSum = this.radius + other.radius;
-        return Vector3f.distanceSquared(this.x, this.y, this.z, other.x, other.y, other.z) <= radiusSum * radiusSum;
+        return this.center.distanceSquared(other.center) <= radiusSum * radiusSum;
     }
 
     @Override
     public boolean intersectsPlane(Plane plane) {
-        float distanceToPlane = plane.getNormal().dot(x, y, z) + plane.getConstant();
+        float distanceToPlane = plane.getNormal().dot(center) + plane.getConstant();
         return Math.abs(distanceToPlane) <= radius;
     }
 
@@ -139,7 +122,47 @@ public class Sphere extends Shape {
     }
 
     @Override
+    public Ray.Hit collideRay(Ray ray) {
+        Vector3f dir = ray.getDirection();
+        Vector3f origin = ray.getOrigin();
+
+        //sphere center to ray origin
+        float ocX = origin.x - center.x;
+        float ocY = origin.y - center.y;
+        float ocZ = origin.z - center.z;
+
+        //standard quadratic formula for ray-sphere intersection
+        //float a = dir.dot(dir); // always 1
+        float b = dir.dot(ocX, ocY, ocZ);
+        float c = (ocX * ocX + ocY * ocY + ocZ * ocZ) - radius * radius;
+        float discriminant = b * b - c;
+        if (discriminant < 0)
+            return null;
+
+        float sqrtD = Math.sqrt(discriminant);
+        float tNear = -b - sqrtD;
+        float tFar = -b + sqrtD;
+
+        //check if the sphere is entirely behind the ray or beyond max distance
+        if (tFar < 0 || tNear > ray.getMaxDistance())
+            return null;
+
+        //calculate raycast result
+        float tHit = Math.max(0, tNear);
+        Vector3f hitPos = origin.fma(tHit, dir, new Vector3f());
+
+        //(hitPoint - center) / radius
+        Vector3f hitNormal = new Vector3f();
+        if (tNear > 0f)
+            hitNormal.set((hitPos.x - center.x) / radius, (hitPos.y - center.y) / radius, (hitPos.z - center.z) / radius);
+        else
+            hitNormal.set(-dir.x, -dir.y, -dir.z);
+
+        return new Ray.Hit(hitPos, hitNormal, tHit, tFar, this);
+    }
+
+    @Override
     public String toString() {
-        return "Sphere{x=" + x + " y=" + y + " z=" + z + " r=" + radius + "}";
+        return "Sphere{x=" + center.x + " y=" + center.y + " z=" + center.z + " r=" + radius + "}";
     }
 }

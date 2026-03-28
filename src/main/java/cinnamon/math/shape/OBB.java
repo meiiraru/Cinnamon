@@ -10,6 +10,11 @@ public class OBB extends Shape {
 
     private final Vector3f center = new Vector3f(), halfExtents = new Vector3f();
     private final Quaternionf rotation = new Quaternionf();
+    private final Vector3f
+            axisX = new Vector3f(1f, 0f, 0f),
+            axisY = new Vector3f(0f, 1f, 0f),
+            axisZ = new Vector3f(0f, 0f, 1f);
+    private boolean rotDirty = false;
 
     public OBB() {}
 
@@ -30,9 +35,9 @@ public class OBB extends Shape {
     }
 
     public OBB(OBB obb) {
-        this.center.set(obb.center);
-        this.halfExtents.set(obb.halfExtents);
-        this.rotation.set(obb.rotation);
+        this.setCenter(obb.center);
+        this.setHalfExtents(obb.halfExtents);
+        this.setRotation(obb.rotation);
     }
 
     public OBB set(Vector3f center, Vector3f halfExtents) {
@@ -44,15 +49,15 @@ public class OBB extends Shape {
     }
 
     public OBB set(float centerX, float centerY, float centerZ, float halfX, float halfY, float halfZ) {
-        this.center.set(centerX, centerY, centerZ);
-        this.halfExtents.set(halfX, halfY, halfZ);
+        this.setCenter(centerX, centerY, centerZ);
+        this.setHalfExtents(halfX, halfY, halfZ);
         return this;
     }
 
     public OBB set(float centerX, float centerY, float centerZ, float halfX, float halfY, float halfZ, Quaternionf rotation) {
-        this.center.set(centerX, centerY, centerZ);
-        this.halfExtents.set(halfX, halfY, halfZ);
-        this.rotation.set(rotation);
+        this.setCenter(centerX, centerY, centerZ);
+        this.setHalfExtents(halfX, halfY, halfZ);
+        this.setRotation(rotation);
         return this;
     }
 
@@ -84,6 +89,7 @@ public class OBB extends Shape {
 
     public OBB setRotation(Quaternionf rotation) {
         this.rotation.set(rotation);
+        this.rotDirty = true;
         return this;
     }
 
@@ -131,21 +137,25 @@ public class OBB extends Shape {
 
     public OBB rotate(Quaternionf rotation) {
         this.rotation.mul(rotation);
+        this.rotDirty = true;
         return this;
     }
 
     public OBB rotateX(float angle) {
         this.rotation.rotateX(Math.toRadians(angle));
+        this.rotDirty = true;
         return this;
     }
 
     public OBB rotateY(float angle) {
         this.rotation.rotateY(Math.toRadians(angle));
+        this.rotDirty = true;
         return this;
     }
 
     public OBB rotateZ(float angle) {
         this.rotation.rotateZ(Math.toRadians(angle));
+        this.rotDirty = true;
         return this;
     }
 
@@ -157,50 +167,72 @@ public class OBB extends Shape {
         matrix.transformPosition(center);
         matrix.transformDirection(halfExtents);
         rotation.mul(matrix.getUnnormalizedRotation(new Quaternionf()));
+        this.rotDirty = true;
         return this;
     }
 
+    protected void recalculateAxes() {
+        if (!rotDirty)
+            return;
+
+        axisX.set(1f, 0f, 0f).rotate(rotation);
+        axisY.set(0f, 1f, 0f).rotate(rotation);
+        axisZ.set(0f, 0f, 1f).rotate(rotation);
+        rotDirty = false;
+    }
+
     public Vector3f getAxisX() {
-        return new Vector3f(1f, 0f, 0f).rotate(rotation);
+        this.recalculateAxes();
+        return axisX;
     }
 
     public Vector3f getAxisY() {
-        return new Vector3f(0f, 1f, 0f).rotate(rotation);
+        this.recalculateAxes();
+        return axisY;
     }
 
     public Vector3f getAxisZ() {
-        return new Vector3f(0f, 0f, 1f).rotate(rotation);
+        this.recalculateAxes();
+        return axisZ;
     }
 
     @Override
     public boolean containsPoint(float x, float y, float z) {
-        //move point into OBB space, then project into the OBB local axis
-        Vector3f p = new Vector3f(x - center.x, y - center.y, z - center.z);
-        float localX = p.dot(getAxisX());
-        float localY = p.dot(getAxisY());
-        float localZ = p.dot(getAxisZ());
+        //move point into OBB space
+        float dx = x - center.x;
+        float dy = y - center.y;
+        float dz = z - center.z;
+
+        //project into the OBB local axis and compare to the half extents
+        Vector3f ax = getAxisX(), ay = getAxisY(), az = getAxisZ();
 
         //check if it is inside if each local coordinate is within the half extent
-        return Math.abs(localX) <= halfExtents.x &&
-               Math.abs(localY) <= halfExtents.y &&
-               Math.abs(localZ) <= halfExtents.z;
+        return Math.abs(dx * ax.x + dy * ax.y + dz * ax.z) <= halfExtents.x &&
+               Math.abs(dx * ay.x + dy * ay.y + dz * ay.z) <= halfExtents.y &&
+               Math.abs(dx * az.x + dy * az.y + dz * az.z) <= halfExtents.z;
     }
 
     @Override
     public float distanceToPoint(float x, float y, float z) {
-        //move point into OBB space, then project into the OBB local axis
-        Vector3f p = new Vector3f(x - center.x, y - center.y, z - center.z);
-        float localX = p.dot(getAxisX());
-        float localY = p.dot(getAxisY());
-        float localZ = p.dot(getAxisZ());
+        //move point into OBB space
+        float dx = x - center.x;
+        float dy = y - center.y;
+        float dz = z - center.z;
 
-        //clamp to the closest point to the box in local space
-        float clampedX = Maths.clamp(localX, -halfExtents.x, halfExtents.x);
-        float clampedY = Maths.clamp(localY, -halfExtents.y, halfExtents.y);
-        float clampedZ = Maths.clamp(localZ, -halfExtents.z, halfExtents.z);
+        Vector3f ax = getAxisX(), ay = getAxisY(), az = getAxisZ();
+
+        //project point into local space
+        float lx = dx * ax.x + dy * ax.y + dz * ax.z;
+        float ly = dx * ay.x + dy * ay.y + dz * ay.z;
+        float lz = dx * az.x + dy * az.y + dz * az.z;
+
+        //clamp to half-extents
+        float cx = Maths.clamp(lx, -halfExtents.x, halfExtents.x);
+        float cy = Maths.clamp(ly, -halfExtents.y, halfExtents.y);
+        float cz = Maths.clamp(lz, -halfExtents.z, halfExtents.z);
 
         //calculate its distance
-        return Vector3f.distance(localX, localY, localZ, clampedX, clampedY, clampedZ);
+        return Vector3f.distance(lx, ly, lz, cx, cy, cz);
     }
 
     @Override
@@ -216,20 +248,36 @@ public class OBB extends Shape {
 
     @Override
     public boolean intersectsSphere(Sphere sphere) {
-        float dist = distanceToPoint(sphere.getX(), sphere.getY(), sphere.getZ());
-        return dist <= sphere.getRadius();
+        //move sphere center into OBB space
+        Vector3f sphereCenter = sphere.getCenter();
+        float dx = sphereCenter.x - center.x;
+        float dy = sphereCenter.y - center.y;
+        float dz = sphereCenter.z - center.z;
+
+        //project sphere center into local space
+        Vector3f ax = getAxisX(), ay = getAxisY(), az = getAxisZ();
+        float lx = dx * ax.x + dy * ax.y + dz * ax.z;
+        float ly = dx * ay.x + dy * ay.y + dz * ay.z;
+        float lz = dx * az.x + dy * az.y + dz * az.z;
+
+        //find the closest point on the OBB to the sphere center (clamped local)
+        float cx = Math.max(-halfExtents.x, Math.min(halfExtents.x, lx));
+        float cy = Math.max(-halfExtents.y, Math.min(halfExtents.y, ly));
+        float cz = Math.max(-halfExtents.z, Math.min(halfExtents.z, lz));
+
+        //check if the distance between local point and clamped point is less than the radius
+        float r = sphere.getRadius();
+        return Vector3f.distanceSquared(lx, ly, lz, cx, cy, cz) <= r * r;
     }
 
     @Override
     public boolean intersectsPlane(Plane plane) {
         //get the direction of the plane and the local orientation axes
         Vector3f n = plane.getNormal();
-        Vector3f axisX = getAxisX();
-        Vector3f axisY = getAxisY();
-        Vector3f axisZ = getAxisZ();
+        Vector3f ax = getAxisX(), ay = getAxisY(), az = getAxisZ();
 
         //project the radius into the plane normal and calculate teh distance from the box center to the plane
-        float projectedRadius = halfExtents.x * Math.abs(n.dot(axisX)) + halfExtents.y * Math.abs(n.dot(axisY)) + halfExtents.z * Math.abs(n.dot(axisZ));
+        float projectedRadius = halfExtents.x * Math.abs(n.dot(ax)) + halfExtents.y * Math.abs(n.dot(ay)) + halfExtents.z * Math.abs(n.dot(az));
         float distance = n.dot(center) + plane.getConstant();
         return Math.abs(distance) <= projectedRadius;
     }
@@ -243,68 +291,107 @@ public class OBB extends Shape {
     }
 
     public static boolean intersectsOBBSAT(
-            Vector3f aCenter, Vector3f aHalf, Vector3f a0, Vector3f a1, Vector3f a2,
-            Vector3f bCenter, Vector3f bHalf, Vector3f b0, Vector3f b1, Vector3f b2
+            Vector3f cA, Vector3f hA, Vector3f a0, Vector3f a1, Vector3f a2,
+            Vector3f cB, Vector3f hB, Vector3f b0, Vector3f b1, Vector3f b2
     ) {
-        //rotation matrix from B basis into A basis
-        //r[i][j] = Ai dot Bj
-        float[][]    r = new float[3][3];
-        float[][] absR = new float[3][3];
+        //rotation matrix: r_ij = Ai dot Bj
+        float r00 = a0.dot(b0), r01 = a0.dot(b1), r02 = a0.dot(b2);
+        float r10 = a1.dot(b0), r11 = a1.dot(b1), r12 = a1.dot(b2);
+        float r20 = a2.dot(b0), r21 = a2.dot(b1), r22 = a2.dot(b2);
 
-        r[0][0] = a0.dot(b0); r[0][1] = a0.dot(b1); r[0][2] = a0.dot(b2);
-        r[1][0] = a1.dot(b0); r[1][1] = a1.dot(b1); r[1][2] = a1.dot(b2);
-        r[2][0] = a2.dot(b0); r[2][1] = a2.dot(b1); r[2][2] = a2.dot(b2);
+        //common absolute values for radius projections
+        float ar00 = Math.abs(r00) + Maths.KINDA_SMALL_NUMBER, ar01 = Math.abs(r01) + Maths.KINDA_SMALL_NUMBER, ar02 = Math.abs(r02) + Maths.KINDA_SMALL_NUMBER;
+        float ar10 = Math.abs(r10) + Maths.KINDA_SMALL_NUMBER, ar11 = Math.abs(r11) + Maths.KINDA_SMALL_NUMBER, ar12 = Math.abs(r12) + Maths.KINDA_SMALL_NUMBER;
+        float ar20 = Math.abs(r20) + Maths.KINDA_SMALL_NUMBER, ar21 = Math.abs(r21) + Maths.KINDA_SMALL_NUMBER, ar22 = Math.abs(r22) + Maths.KINDA_SMALL_NUMBER;
 
-        //store absolute value matrix used for conservative radius projections
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++)
-                absR[i][j] = Math.abs(r[i][j]) + Maths.EPSILON;
+        //translation vector in world space, then projected into A axes
+        float dx = cB.x - cA.x, dy = cB.y - cA.y, dz = cB.z - cA.z;
+        float t0 = dx * a0.x + dy * a0.y + dz * a0.z;
+        float t1 = dx * a1.x + dy * a1.y + dz * a1.z;
+        float t2 = dx * a2.x + dy * a2.y + dz * a2.z;
+
+        //test A axes
+        float ra, rb;
+        rb = hB.x * ar00 + hB.y * ar01 + hB.z * ar02; if (Math.abs(t0) > hA.x + rb) return false;
+        rb = hB.x * ar10 + hB.y * ar11 + hB.z * ar12; if (Math.abs(t1) > hA.y + rb) return false;
+        rb = hB.x * ar20 + hB.y * ar21 + hB.z * ar22; if (Math.abs(t2) > hA.z + rb) return false;
+
+        //test B axes
+        ra = hA.x * ar00 + hA.y * ar10 + hA.z * ar20; if (Math.abs(t0 * r00 + t1 * r10 + t2 * r20) > ra + hB.x) return false;
+        ra = hA.x * ar01 + hA.y * ar11 + hA.z * ar21; if (Math.abs(t0 * r01 + t1 * r11 + t2 * r21) > ra + hB.y) return false;
+        ra = hA.x * ar02 + hA.y * ar12 + hA.z * ar22; if (Math.abs(t0 * r02 + t1 * r12 + t2 * r22) > ra + hB.z) return false;
+
+        //test 9 cross-product axes (Ai x Bj)
+        ra = hA.y * ar20 + hA.z * ar10; rb = hB.y * ar02 + hB.z * ar01; if (Math.abs(t2 * r10 - t1 * r20) > ra + rb) return false;
+        ra = hA.y * ar21 + hA.z * ar11; rb = hB.x * ar02 + hB.z * ar00; if (Math.abs(t2 * r11 - t1 * r21) > ra + rb) return false;
+        ra = hA.y * ar22 + hA.z * ar12; rb = hB.x * ar01 + hB.y * ar00; if (Math.abs(t2 * r12 - t1 * r22) > ra + rb) return false;
+        ra = hA.x * ar20 + hA.z * ar00; rb = hB.y * ar12 + hB.z * ar11; if (Math.abs(t0 * r20 - t2 * r00) > ra + rb) return false;
+        ra = hA.x * ar21 + hA.z * ar01; rb = hB.x * ar12 + hB.z * ar10; if (Math.abs(t0 * r21 - t2 * r01) > ra + rb) return false;
+        ra = hA.x * ar22 + hA.z * ar02; rb = hB.x * ar11 + hB.y * ar10; if (Math.abs(t0 * r22 - t2 * r02) > ra + rb) return false;
+        ra = hA.x * ar10 + hA.y * ar00; rb = hB.y * ar22 + hB.z * ar21; if (Math.abs(t1 * r00 - t0 * r10) > ra + rb) return false;
+        ra = hA.x * ar11 + hA.y * ar01; rb = hB.x * ar22 + hB.z * ar20; if (Math.abs(t1 * r01 - t0 * r11) > ra + rb) return false;
+        ra = hA.x * ar12 + hA.y * ar02; rb = hB.x * ar21 + hB.y * ar20; return Math.abs(t1 * r02 - t0 * r12) <= ra + rb; //no axes found a separating plane - overlap
+    }
+    @Override
+    public Ray.Hit collideRay(Ray ray) {
+        Vector3f dir = ray.getDirection();
+        Vector3f origin = ray.getOrigin();
+        Vector3f ax = getAxisX(), ay = getAxisY(), az = getAxisZ();
+
+        //transform ray to OBB local space
+        float dx = origin.x - center.x;
+        float dy = origin.y - center.y;
+        float dz = origin.z - center.z;
+
+        //local origin
+        float locOrigX = ax.dot(dx, dy, dz);
+        float locOrigY = ay.dot(dx, dy, dz);
+        float locOrigZ = az.dot(dx, dy, dz);
+
+        //local direction
+        float locDirX = ax.dot(dir);
+        float locDirY = ay.dot(dir);
+        float locDirZ = az.dot(dir);
+
+        //use AABB slab method in local space
+        float invX = 1f / (Math.abs(locDirX) < Maths.SMALL_NUMBER ? Maths.SMALL_NUMBER * Math.signum(locDirX) : locDirX);
+        float invY = 1f / (Math.abs(locDirY) < Maths.SMALL_NUMBER ? Maths.SMALL_NUMBER * Math.signum(locDirY) : locDirY);
+        float invZ = 1f / (Math.abs(locDirZ) < Maths.SMALL_NUMBER ? Maths.SMALL_NUMBER * Math.signum(locDirZ) : locDirZ);
+
+        //intersection distances to each plane
+        float t1 = (-halfExtents.x - locOrigX) * invX; float t2 = ( halfExtents.x - locOrigX) * invX; float t3 = (-halfExtents.y - locOrigY) * invY;
+        float t4 = ( halfExtents.y - locOrigY) * invY; float t5 = (-halfExtents.z - locOrigZ) * invZ; float t6 = ( halfExtents.z - locOrigZ) * invZ;
+
+        //find the nearest and farthest intersection distances
+        float tMinX = Math.min(t1, t2);
+        float tMinY = Math.min(t3, t4);
+        float tMinZ = Math.min(t5, t6);
+
+        float tNear = Math.max(Math.max(tMinX, tMinY), tMinZ);
+        float tFar  = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
+
+        //behind ray, misses, or too far away
+        if (tFar < 0 || tNear > tFar || tNear > ray.getMaxDistance())
+            return null;
+
+        //calculate raycast result
+        float tHit = Math.max(0, tNear);
+        Vector3f hitPos = origin.fma(tHit, dir, new Vector3f());
+
+        Vector3f worldNormal = new Vector3f();
+        if (tNear > 0f) {
+            //transform the local axis normal back to world space
+            if (tNear == tMinX)
+                worldNormal.set(ax).mul(locDirX > 0f ? -1f : 1f);
+            else if (tNear == tMinY)
+                worldNormal.set(ay).mul(locDirY > 0f ? -1f : 1f);
+            else
+                worldNormal.set(az).mul(locDirZ > 0f ? -1f : 1f);
+        } else {
+            worldNormal.set(-dir.x, -dir.y, -dir.z);
         }
 
-        //translate B center into A, so all tests can share the same t components
-        Vector3f tWorld = new Vector3f(bCenter).sub(aCenter);
-        float[] t = new float[] { tWorld.dot(a0), tWorld.dot(a1), tWorld.dot(a2) };
-
-        float[] a = new float[] { aHalf.x, aHalf.y, aHalf.z };
-        float[] b = new float[] { bHalf.x, bHalf.y, bHalf.z };
-
-        //test A face normals as separating axes
-        for (int i = 0; i < 3; i++) {
-            float ra = a[i];
-            float rb = b[0] * absR[i][0] + b[1] * absR[i][1] + b[2] * absR[i][2];
-            if (Math.abs(t[i]) > ra + rb)
-                return false;
-        }
-
-        //then B
-        for (int j = 0; j < 3; j++) {
-            float ra = a[0] * absR[0][j] + a[1] * absR[1][j] + a[2] * absR[2][j];
-            float rb = b[j];
-            float tOnB = t[0] * r[0][j] + t[1] * r[1][j] + t[2] * r[2][j];
-            if (Math.abs(tOnB) > ra + rb)
-                return false;
-        }
-
-        //test the 9 cross axes (Ai x Bj) (edge vs edge separating axes)
-        for (int i = 0; i < 3; i++) {
-            int i1 = (i + 1) % 3;
-            int i2 = (i + 2) % 3;
-
-            for (int j = 0; j < 3; j++) {
-                int j1 = (j + 1) % 3;
-                int j2 = (j + 2) % 3;
-
-                float ra = a[i1] * absR[i2][j] + a[i2] * absR[i1][j];
-                float rb = b[j1] * absR[i][j2] + b[j2] * absR[i][j1];
-                float tCross = Math.abs(t[i2] * r[i1][j] - t[i1] * r[i2][j]);
-
-                if (tCross > ra + rb)
-                    return false;
-            }
-        }
-
-        //no separating axis found - there is an overlap
-        return true;
+        return new Ray.Hit(hitPos, worldNormal, tHit, tFar, this);
     }
 
     @Override

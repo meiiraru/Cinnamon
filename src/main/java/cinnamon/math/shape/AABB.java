@@ -109,38 +109,82 @@ public class AABB extends Shape {
 
     @Override
     public boolean intersectsSphere(Sphere sphere) {
-        return distanceToPoint(sphere.getX(), sphere.getY(), sphere.getZ()) <= sphere.getRadius();
+        Vector3f center = sphere.getCenter();
+        float radius = sphere.getRadius();
+
+        float clampedX = Maths.clamp(center.x, minX, maxX);
+        float clampedY = Maths.clamp(center.y, minY, maxY);
+        float clampedZ = Maths.clamp(center.z, minZ, maxZ);
+
+        return center.distanceSquared(clampedX, clampedY, clampedZ) <= radius * radius;
     }
 
     @Override
     public boolean intersectsPlane(Plane plane) {
+        //get bb center and half extents
+        float cx = (minX + maxX) * 0.5f; float cy = (minY + maxY) * 0.5f; float cz = (minZ + maxZ) * 0.5f;
+        float ex = (maxX - minX) * 0.5f; float ey = (maxY - minY) * 0.5f; float ez = (maxZ - minZ) * 0.5f;
+
+        //use the extents of the bb projected in the plane normal to find the max possible projection distance
         Vector3f normal = plane.getNormal();
-        float min = 0, max = 0;
+        float projectedRadius = Math.abs(normal.x) * ex + Math.abs(normal.y) * ey + Math.abs(normal.z) * ez;
 
-        //loop through each axis
-        for (int i = 0; i < 3; i++) {
-            float n = normal.get(i);
-            float minBB = getMin(i);
-            float maxBB = getMax(i);
+        //distance from box center to plane (N dot C) + D
+        float distanceToCenter = normal.x * cx + normal.y * cy + normal.z * cz + plane.getConstant();
 
-            //find the projection of the box on the plane normal
-            if (n > 0) {
-                min += n * minBB;
-                max += n * maxBB;
-            } else {
-                min += n * maxBB;
-                max += n * minBB;
-            }
-        }
-
-        //check if the plane surface is between the box projection
-        float distance = plane.getConstant();
-        return min <= -distance && -distance <= max;
+        //check if the distance to the center is less than the projected radius
+        return Math.abs(distanceToCenter) <= projectedRadius;
     }
 
     @Override
     public boolean intersectsOBB(OBB obb) {
         return obb.intersectsAABB(this);
+    }
+
+    @Override
+    public Ray.Hit collideRay(Ray ray) {
+        Vector3f dir = ray.getDirection();
+        Vector3f origin = ray.getOrigin();
+
+        //pre-calculate inverse direction to avoid division and handle parallel rays
+        float invX = 1f / (Math.abs(dir.x) < Maths.SMALL_NUMBER ? Maths.SMALL_NUMBER * Math.signum(dir.x) : dir.x);
+        float invY = 1f / (Math.abs(dir.y) < Maths.SMALL_NUMBER ? Maths.SMALL_NUMBER * Math.signum(dir.y) : dir.y);
+        float invZ = 1f / (Math.abs(dir.z) < Maths.SMALL_NUMBER ? Maths.SMALL_NUMBER * Math.signum(dir.z) : dir.z);
+
+        //calculate intersection distance with each pair of the axis-aligned planes
+        float t1 = (minX - origin.x) * invX; float t2 = (maxX - origin.x) * invX; float t3 = (minY - origin.y) * invY;
+        float t4 = (maxY - origin.y) * invY; float t5 = (minZ - origin.z) * invZ; float t6 = (maxZ - origin.z) * invZ;
+
+        //find tNear and tFar from the min and max of the planes
+        float tMinX = Math.min(t1, t2);
+        float tMinY = Math.min(t3, t4);
+        float tMinZ = Math.min(t5, t6);
+
+        float tNear = Math.max(Math.max(tMinX, tMinY), tMinZ);
+        float tFar  = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
+
+        //no hit if the box is behind the ray, the ray misses the box or the hit is beyond max distance
+        if (tFar < 0 || tNear > tFar || tNear > ray.getMaxDistance())
+            return null;
+
+        //calculate raycast result
+        float tHit = Math.max(0, tNear);
+        Vector3f hitPos = origin.fma(tHit, dir, new Vector3f());
+
+        Vector3f hitNormal = new Vector3f();
+        if (tNear > 0f) {
+            //determine which axis we hit by checking which plane tNear matched
+            if (tNear == tMinX)
+                hitNormal.set(dir.x > 0f ? -1f : 1f, 0f, 0f);
+            else if (tNear == tMinY)
+                hitNormal.set(0f, dir.y > 0f ? -1f : 1f, 0f);
+            else
+                hitNormal.set(0f, 0f, dir.z > 0f ? -1f : 1f);
+        } else {
+            hitNormal.set(-dir.x, -dir.y, -dir.z);
+        }
+
+        return new Ray.Hit(hitPos, hitNormal, tHit, tFar, this);
     }
 
     public AABB translate(Vector3f vec) {
@@ -418,12 +462,8 @@ public class AABB extends Shape {
             return this;
 
         //center and half extents
-        float cx = (minX + maxX) * 0.5f;
-        float cy = (minY + maxY) * 0.5f;
-        float cz = (minZ + maxZ) * 0.5f;
-        float ex = (maxX - minX) * 0.5f;
-        float ey = (maxY - minY) * 0.5f;
-        float ez = (maxZ - minZ) * 0.5f;
+        float cx = (minX + maxX) * 0.5f; float cy = (minY + maxY) * 0.5f; float cz = (minZ + maxZ) * 0.5f;
+        float ex = (maxX - minX) * 0.5f; float ey = (maxY - minY) * 0.5f; float ez = (maxZ - minZ) * 0.5f;
 
         //transform center
         float ncx = Math.fma(matrix.m00(), cx, Math.fma(matrix.m10(), cy, Math.fma(matrix.m20(), cz, matrix.m30())));
