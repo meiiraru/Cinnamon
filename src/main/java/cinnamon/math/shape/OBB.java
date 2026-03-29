@@ -1,5 +1,6 @@
 package cinnamon.math.shape;
 
+import cinnamon.math.Direction;
 import cinnamon.math.Maths;
 import org.joml.Math;
 import org.joml.Matrix4f;
@@ -235,14 +236,15 @@ public class OBB extends Shape {
         return Vector3f.distance(lx, ly, lz, cx, cy, cz);
     }
 
+    private static final Vector3f aabbCenter = new Vector3f(), aabbExtends = new Vector3f();
     @Override
     public boolean intersectsAABB(AABB aabb) {
         //convert aabb to obb with identity rotation and use SAT for OBB vs OBB intersection
-        Vector3f bbCenter = aabb.getCenter();
-        Vector3f bbHalf = aabb.getDimensions().mul(0.5f);
+        aabbExtends.set(aabb.getWidth() * 0.5f, aabb.getHeight() * 0.5f, aabb.getDepth() * 0.5f);
+        aabbCenter.set(aabb.minX() + aabbExtends.x, aabb.minY() + aabbExtends.y, aabb.minZ() + aabbExtends.z);
         return intersectsOBBSAT(
                 center, halfExtents, getAxisX(), getAxisY(), getAxisZ(),
-                bbCenter, bbHalf, new Vector3f(1f, 0f, 0f), new Vector3f(0f, 1f, 0f), new Vector3f(0f, 0f, 1f)
+                aabbCenter, aabbExtends, Direction.EAST.vector, Direction.UP.vector, Direction.SOUTH.vector
         );
     }
 

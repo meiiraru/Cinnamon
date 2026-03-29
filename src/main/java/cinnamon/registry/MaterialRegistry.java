@@ -84,7 +84,8 @@ public enum MaterialRegistry {
     WATER,
     WHITE_MARBLE,
     WRAPPED_PAPER,
-    DEBUG;
+    DEBUG,
+    DEBUG_UV;
 
     public static final Material MISSING = new Material("missing");
 

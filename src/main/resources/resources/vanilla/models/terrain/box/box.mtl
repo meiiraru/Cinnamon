@@ -1,5 +1,2 @@
 newmtl 2
-map_Kd -smooth_mip 2.png
-map_Bump -smooth 2_n.png
-map_disp -smooth 2_d.png
-map_Pr -smooth 2_r.png
+map_Kd -smooth_mip texture.png

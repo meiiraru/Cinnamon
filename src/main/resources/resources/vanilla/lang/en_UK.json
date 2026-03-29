@@ -37,6 +37,7 @@
   "gui.extras_screen.custom_worlds.disco": "Disco",
   "gui.extras_screen.custom_worlds.transparent": "Transparent",
   "gui.extras_screen.custom_worlds.primitive_test": "Primitives Test",
+  "gui.extras_screen.custom_worlds.collision_test": "Collision Test",
   "gui.extras_screen.tech_demos": "Tech Demos",
   "gui.extras_screen.tech_demos.collision_test": "Collision Test",
   "gui.extras_screen.tech_demos.new_collision_test": "GJK Collision Test",
@@ -510,6 +511,7 @@
   "material.white_marble": "White Marble",
   "material.wrapped_paper": "Wrapped Paper",
   "material.debug": "Debug",
+  "material.debug_uv": "Debug UV",
 
   "skybox": "Skybox",
   "skybox.clear": "Clear",
