@@ -16,12 +16,13 @@
   "gui.done": "Concluído",
   "gui.exit": "Sair",
 
-  "gui.main_menu.singleplayer": "Um Jogador",
+  "gui.main_menu.playground": "Playground",
   "gui.main_menu.multiplayer": "Multijogador",
   "gui.main_menu.multiplayer.not_available": "Desculpe, ainda não disponível!",
   "gui.main_menu.settings": "Configurações",
   "gui.main_menu.extras": "Extras",
   "gui.main_menu.exit.tooltip": "tchau~",
+  "gui.main_menu.credits.tooltip": "Abrir créditos",
 
   "gui.multiplayer.name": "Digite seu nome:",
   "gui.multiplayer.name_hint": "Nome...",

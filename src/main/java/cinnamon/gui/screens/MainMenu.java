@@ -35,19 +35,11 @@ public class MainMenu extends Screen {
     public void init() {
         super.init();
 
-        //bottom texts
-        Style s = Style.EMPTY.italic(true).color(0x66FFFFFF).shadow(true).shadowColor(0x66161616).guiStyle(GUI_STYLE);
-        Text bottomLeft = Text.of("Cinnamon v%s".formatted(Version.CLIENT_VERSION.toStringNoBuild())).withStyle(s);
-        this.addWidget(new Label(4, height - 4, bottomLeft, Alignment.BOTTOM_LEFT));
-
-        Text bottomRight = Text.of("\u00A9").withStyle(s.italic(false)).append(Text.of("Meiiraru").withStyle(s));
-        this.addWidget(new Label(width - 4, height - 4, bottomRight, Alignment.BOTTOM_RIGHT));
-
         //buttons
         ContainerGrid grid = new ContainerGrid(0, 0, 4);
 
         //open world
-        Button worldButton = new MainButton(Text.translated("gui.main_menu.singleplayer"), button -> {
+        Button worldButton = new MainButton(Text.translated("gui.main_menu.playground"), button -> {
             //init client
             //if (ServerConnection.open()) {
                 WorldClient world = new WorldClient();
@@ -59,10 +51,10 @@ public class MainMenu extends Screen {
         grid.addWidget(worldButton);
 
         //multiplayer
-        Button joinWorld = new MainButton(Text.translated("gui.main_menu.multiplayer"), button -> client.setScreen(new MultiplayerJoinScreen(this)));
-        joinWorld.setTooltip(Text.translated("gui.main_menu.multiplayer.not_available").append(Text.of(" \u2764").withStyle(Style.EMPTY.color(Colors.PINK))));
-        joinWorld.setActive(false);
-        grid.addWidget(joinWorld);
+//        Button joinWorld = new MainButton(Text.translated("gui.main_menu.multiplayer"), button -> client.setScreen(new MultiplayerJoinScreen(this)));
+//        joinWorld.setTooltip(Text.translated("gui.main_menu.multiplayer.not_available").append(Text.of(" \u2764").withStyle(Style.EMPTY.color(Colors.PINK))));
+//        joinWorld.setActive(false);
+//        grid.addWidget(joinWorld);
 
         //settings
         Button settings = new MainButton(Text.translated("gui.main_menu.settings"), button -> client.setScreen(new SettingsScreen(this)));
@@ -83,6 +75,21 @@ public class MainMenu extends Screen {
         grid.setPos((width - grid.getWidth()) / 2, y + (height - grid.getHeight() - y) / 2);
         grid.setStyle(GUI_STYLE);
         this.addWidget(grid);
+
+        //bottom texts
+        Style s = Style.EMPTY.italic(true).color(0x66FFFFFF).shadow(true).shadowColor(0x66161616).guiStyle(GUI_STYLE);
+        Text bottomLeft = Text.of("Cinnamon v%s".formatted(Version.CLIENT_VERSION.toStringNoBuild())).withStyle(s);
+        this.addWidget(new Label(4, height - 4, bottomLeft, Alignment.BOTTOM_LEFT));
+
+        Text bottomRight = Text.of("\u00A9").withStyle(s.italic(false)).append(Text.of("Kingdom of Moon").withStyle(s));
+        int bottomRightWidth = TextUtils.getWidth(bottomRight);
+        int bottomRightHeight = TextUtils.getHeight(bottomRight);
+        Button credits = new Button(width - 4 - bottomRightWidth, height - 4 - bottomRightHeight, bottomRightWidth, bottomRightHeight, bottomRight, button -> client.setScreen(new CreditsScreen(this))) {
+            @Override
+            protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {}
+        };
+        credits.setTooltip(Text.translated("gui.main_menu.credits.tooltip"));
+        this.addWidget(credits);
     }
 
     @Override

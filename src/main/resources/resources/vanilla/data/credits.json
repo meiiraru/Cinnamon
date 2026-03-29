@@ -1,0 +1,52 @@
+{
+  "sections": [
+    {
+      "title": "Lead Developer",
+      "content": [
+        "Meiiraru \"Pumpkin\" Akitsuki"
+      ]
+    },
+    {
+      "title": "Contributors",
+      "content": [
+        "Lucas \"Woolfy\" Rodrigues Ruiz"
+      ]
+    },
+    {
+      "title": "Special Thanks",
+      "content": [
+        "Deer \"Cakeeh\""
+      ]
+    },
+    {
+      "title": "Learning Resources",
+      "content": [
+        "Learn OpenGL",
+        "Khronos Group",
+        "Game Development Stack Exchange"
+      ]
+    },
+    {
+      "title": "Assets",
+      "content": [
+        "Blockbench",
+        "FreePBR",
+        "AmbientCG",
+        "Textures.com",
+        "Freesound",
+        "Pixabay Sound Effects",
+        "ShaderToy"
+      ]
+    },
+    {
+      "title": "Inspirations",
+      "content": [
+        "Minecraft",
+        "Godot Engine",
+        "Unity Engine",
+        "Three.js"
+      ]
+    },
+    "Thank you for using the Cinnamon Game Engine! ~\u2764"
+  ]
+}

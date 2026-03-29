@@ -16,12 +16,13 @@
   "gui.done": "Done",
   "gui.exit": "Exit",
 
-  "gui.main_menu.singleplayer": "Singleplayer",
+  "gui.main_menu.playground": "Playground",
   "gui.main_menu.multiplayer": "Multiplayer",
   "gui.main_menu.multiplayer.not_available": "Sorry, not available yet!",
   "gui.main_menu.settings": "Settings",
   "gui.main_menu.extras": "Extras",
   "gui.main_menu.exit.tooltip": "bye~",
+  "gui.main_menu.credits.tooltip": "Open credits",
 
   "gui.multiplayer.name": "Enter your name:",
   "gui.multiplayer.name_hint": "Name...",
