@@ -132,7 +132,8 @@ public class Plane extends Shape {
         //find the distance along the ray to the intersection point
         Vector3f origin = ray.getOrigin();
         float t = -(normal.dot(origin) + constant) / dot;
-        if (t < 0 || t > ray.getMaxDistance())
+        float maxDist = ray.getMaxDistance();
+        if (t < 0 || t > maxDist)
             return null;
 
         //calculate raycast result
@@ -140,7 +141,7 @@ public class Plane extends Shape {
         Vector3f hitNormal = new Vector3f(normal);
         if (dot > 0) hitNormal.negate();
 
-        return new Ray.Hit(hitPos, hitNormal, t, t, this);
+        return new Ray.Hit(hitPos, hitNormal, t, t, maxDist, this);
     }
 
     @Override

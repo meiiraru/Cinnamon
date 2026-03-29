@@ -371,9 +371,10 @@ public class OBB extends Shape {
 
         float tNear = Math.max(Math.max(tMinX, tMinY), tMinZ);
         float tFar  = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
+        float maxDist = ray.getMaxDistance();
 
         //behind ray, misses, or too far away
-        if (tFar < 0 || tNear > tFar || tNear > ray.getMaxDistance())
+        if (tFar < 0 || tNear > tFar || tNear > maxDist)
             return null;
 
         //calculate raycast result
@@ -393,7 +394,7 @@ public class OBB extends Shape {
             worldNormal.set(-dir.x, -dir.y, -dir.z);
         }
 
-        return new Ray.Hit(hitPos, worldNormal, tHit, tFar, this);
+        return new Ray.Hit(hitPos, worldNormal, tHit, tFar, maxDist, this);
     }
 
     @Override

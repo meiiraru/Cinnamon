@@ -162,9 +162,10 @@ public class AABB extends Shape {
 
         float tNear = Math.max(Math.max(tMinX, tMinY), tMinZ);
         float tFar  = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
+        float maxDist = ray.getMaxDistance();
 
         //no hit if the box is behind the ray, the ray misses the box or the hit is beyond max distance
-        if (tFar < 0 || tNear > tFar || tNear > ray.getMaxDistance())
+        if (tFar < 0 || tNear > tFar || tNear > maxDist)
             return null;
 
         //calculate raycast result
@@ -184,7 +185,7 @@ public class AABB extends Shape {
             hitNormal.set(-dir.x, -dir.y, -dir.z);
         }
 
-        return new Ray.Hit(hitPos, hitNormal, tHit, tFar, this);
+        return new Ray.Hit(hitPos, hitNormal, tHit, tFar, maxDist, this);
     }
 
     public AABB translate(Vector3f vec) {

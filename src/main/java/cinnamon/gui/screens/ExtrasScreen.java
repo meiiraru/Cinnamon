@@ -55,9 +55,6 @@ public class ExtrasScreen extends ParentedScreen {
         //collision screen
         list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.collision_test", button -> client.setScreen(new CollisionScreen(this))));
 
-        //new collision screen
-        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.new_collision_test", button -> client.setScreen(new NewCollisionScreen(this))));
-
         //curves screen
         list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.curves", button -> client.setScreen(new CurvesScreen(this))));
 

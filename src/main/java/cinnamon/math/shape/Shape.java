@@ -14,6 +14,16 @@ public abstract class Shape {
     }
     public abstract float distanceToPoint(float x, float y, float z);
 
+    public boolean intersects(Shape other) {
+        return switch (other) {
+            case AABB aabb -> this.intersectsAABB(aabb);
+            case Sphere sphere -> this.intersectsSphere(sphere);
+            case Plane plane -> this.intersectsPlane(plane);
+            case OBB obb -> this.intersectsOBB(obb);
+            default -> throw new IllegalStateException();
+        };
+    }
+
     public abstract boolean intersectsAABB(AABB aabb);
     public abstract boolean intersectsSphere(Sphere sphere);
     public abstract boolean intersectsPlane(Plane plane);

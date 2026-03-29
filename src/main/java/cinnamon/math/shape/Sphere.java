@@ -142,9 +142,10 @@ public class Sphere extends Shape {
         float sqrtD = Math.sqrt(discriminant);
         float tNear = -b - sqrtD;
         float tFar = -b + sqrtD;
+        float maxDist = ray.getMaxDistance();
 
         //check if the sphere is entirely behind the ray or beyond max distance
-        if (tFar < 0 || tNear > ray.getMaxDistance())
+        if (tFar < 0 || tNear > maxDist)
             return null;
 
         //calculate raycast result
@@ -158,7 +159,7 @@ public class Sphere extends Shape {
         else
             hitNormal.set(-dir.x, -dir.y, -dir.z);
 
-        return new Ray.Hit(hitPos, hitNormal, tHit, tFar, this);
+        return new Ray.Hit(hitPos, hitNormal, tHit, tFar, maxDist, this);
     }
 
     @Override

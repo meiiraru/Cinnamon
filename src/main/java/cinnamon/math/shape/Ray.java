@@ -48,7 +48,7 @@ public class Ray {
     }
 
     public Ray setMaxDistance(float maxDistance) {
-        this.maxDistance = Math.max(maxDistance, Maths.REALLY_SMALL_NUMBER);
+        this.maxDistance = Math.max(maxDistance, 0f);
         return this;
     }
 
@@ -65,10 +65,22 @@ public class Ray {
     }
 
     public static Hit collide(Ray ray, Shape shape) {
-        return shape.collideRay(ray);
+        return ray.maxDistance >= Maths.SMALL_NUMBER ? shape.collideRay(ray) : null;
     }
 
-    public record Hit(Vector3f position, Vector3f normal, float tNear, float tFar, Shape shape) implements Comparable<Hit> {
+    public record Hit(Vector3f position, Vector3f normal, float tNear, float tFar, float maxDistance, Shape shape) implements Comparable<Hit> {
+        public float nearScalar() {
+            return tNear / maxDistance;
+        }
+
+        public float safeNearScalar() {
+            return Math.max(0f, tNear - Maths.EPSILON) / maxDistance;
+        }
+
+        public float farScalar() {
+            return tFar / maxDistance;
+        }
+
         @Override
         public int compareTo(Hit o) {
             return Float.compare(this.tNear, o.tNear);
