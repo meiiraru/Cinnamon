@@ -4,7 +4,7 @@ import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public class Sphere extends CollisionShape {
+public class Sphere extends CollisionShape<Sphere> {
 
     private final Vector3f center = new Vector3f();
     private float radius;
@@ -53,6 +53,7 @@ public class Sphere extends CollisionShape {
         return this;
     }
 
+    @Override
     public Vector3f getCenter() {
         return center;
     }
@@ -61,10 +62,7 @@ public class Sphere extends CollisionShape {
         return radius;
     }
 
-    public Sphere translate(Vector3f translation) {
-        return this.translate(translation.x, translation.y, translation.z);
-    }
-
+    @Override
     public Sphere translate(float x, float y, float z) {
         this.center.add(x, y, z);
         return this;
@@ -97,12 +95,6 @@ public class Sphere extends CollisionShape {
     public float distanceToPoint(float x, float y, float z) {
         float centerToPointDist = this.center.distance(x, y, z);
         return Math.max(0f, centerToPointDist - radius);
-    }
-
-    @Override
-    public boolean intersectsPlane(Plane plane) {
-        float distanceToPlane = plane.getNormal().dot(center) + plane.getConstant();
-        return Math.abs(distanceToPlane) <= radius;
     }
 
     @Override

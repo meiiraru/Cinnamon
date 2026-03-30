@@ -5,7 +5,6 @@ import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.OBB;
-import cinnamon.math.collision.Plane;
 import cinnamon.math.collision.Sphere;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
@@ -31,25 +30,13 @@ public class DebugRenderer {
         VertexConsumer.MAIN.consume(GeometryHelper.sphere(matrices, pos.x, pos.y, pos.z, radius, 8, color));
     }
 
-    public static void renderAABB(MatrixStack matrices, AABB aabb, int color) {
-        VertexConsumer.LINES.consume(GeometryHelper.box(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), color));
-    }
-
     public static void renderSphere(MatrixStack matrices, Sphere sphere, int color) {
         Vector3f center = sphere.getCenter();
         VertexConsumer.LINES.consume(GeometryHelper.sphere(matrices, center.x, center.y, center.z, sphere.getRadius(), 12, color));
     }
 
-    public static void renderPlane(MatrixStack matrices, Plane plane, float size, int color) {
-        matrices.pushMatrix();
-
-        matrices.rotate(Maths.dirToQuat(plane.getNormal()).rotateX(Math.PI_OVER_2_f));
-        matrices.translate(0, -plane.getConstant(), 0);
-
-        int grid = Maths.clamp((int) size, 3, 10);
-        VertexConsumer.LINES.consume(GeometryHelper.plane(matrices, -size, 0, -size, size, size, grid, grid, color));
-
-        matrices.popMatrix();
+    public static void renderAABB(MatrixStack matrices, AABB aabb, int color) {
+        VertexConsumer.LINES.consume(GeometryHelper.box(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), color));
     }
 
     public static void renderOBB(MatrixStack matrices, OBB obb, int color) {

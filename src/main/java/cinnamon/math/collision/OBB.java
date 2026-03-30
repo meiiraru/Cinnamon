@@ -7,7 +7,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class OBB extends CollisionShape {
+public class OBB extends CollisionShape<OBB> {
 
     private final Vector3f center = new Vector3f(), halfExtents = new Vector3f();
     private final Quaternionf rotation = new Quaternionf();
@@ -71,6 +71,7 @@ public class OBB extends CollisionShape {
         return this;
     }
 
+    @Override
     public Vector3f getCenter() {
         return center;
     }
@@ -98,10 +99,7 @@ public class OBB extends CollisionShape {
         return rotation;
     }
 
-    public OBB translate(Vector3f translation) {
-        return this.translate(translation.x, translation.y, translation.z);
-    }
-
+    @Override
     public OBB translate(float x, float y, float z) {
         this.center.add(x, y, z);
         return this;
@@ -237,18 +235,6 @@ public class OBB extends CollisionShape {
     }
 
     @Override
-    public boolean intersectsPlane(Plane plane) {
-        //get the direction of the plane and the local orientation axes
-        Vector3f n = plane.getNormal();
-        Vector3f ax = getAxisX(), ay = getAxisY(), az = getAxisZ();
-
-        //project the radius into the plane normal and calculate teh distance from the box center to the plane
-        float projectedRadius = halfExtents.x * Math.abs(n.dot(ax)) + halfExtents.y * Math.abs(n.dot(ay)) + halfExtents.z * Math.abs(n.dot(az));
-        float distance = n.dot(center) + plane.getConstant();
-        return Math.abs(distance) <= projectedRadius;
-    }
-
-    @Override
     public boolean intersectsSphere(Sphere sphere) {
         //move sphere center into OBB space
         Vector3f sphereCenter = sphere.getCenter();
@@ -272,15 +258,19 @@ public class OBB extends CollisionShape {
         return Vector3f.distanceSquared(lx, ly, lz, cx, cy, cz) <= r * r;
     }
 
-    private static final Vector3f aabbCenter = new Vector3f(), aabbExtends = new Vector3f();
     @Override
     public boolean intersectsAABB(AABB aabb) {
+        float hx = aabb.getWidth() * 0.5f;
+        float hy = aabb.getHeight() * 0.5f;
+        float hz = aabb.getDepth() * 0.5f;
+        float cx = aabb.minX() + hx;
+        float cy = aabb.minY() + hy;
+        float cz = aabb.minZ() + hz;
+
         //convert aabb to obb with identity rotation and use SAT for OBB vs OBB intersection
-        aabbExtends.set(aabb.getWidth() * 0.5f, aabb.getHeight() * 0.5f, aabb.getDepth() * 0.5f);
-        aabbCenter.set(aabb.minX() + aabbExtends.x, aabb.minY() + aabbExtends.y, aabb.minZ() + aabbExtends.z);
         return intersectsOBBSAT(
                 center, halfExtents, getAxisX(), getAxisY(), getAxisZ(),
-                aabbCenter, aabbExtends, Direction.EAST.vector, Direction.UP.vector, Direction.SOUTH.vector
+                new Vector3f(cx, cy, cz), new Vector3f(hx, hy, hz), Direction.EAST.vector, Direction.UP.vector, Direction.SOUTH.vector
         );
     }
 

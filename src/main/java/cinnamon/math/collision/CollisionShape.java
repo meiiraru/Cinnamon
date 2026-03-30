@@ -2,7 +2,15 @@ package cinnamon.math.collision;
 
 import org.joml.Vector3f;
 
-public abstract class CollisionShape {
+public abstract class CollisionShape<T extends CollisionShape<T>> {
+
+    public abstract Vector3f getCenter();
+
+    public T translate(Vector3f translation) {
+        return this.translate(translation.x, translation.y, translation.z);
+    }
+
+    public abstract T translate(float x, float y, float z);
 
     public boolean containsPoint(Vector3f point) {
         return this.containsPoint(point.x, point.y, point.z);
@@ -14,9 +22,8 @@ public abstract class CollisionShape {
     }
     public abstract float distanceToPoint(float x, float y, float z);
 
-    public boolean intersects(CollisionShape other) {
+    public boolean intersects(CollisionShape<?> other) {
         return switch (other) {
-            case Plane plane -> this.intersectsPlane(plane);
             case Sphere sphere -> this.intersectsSphere(sphere);
             case AABB aabb -> this.intersectsAABB(aabb);
             case OBB obb -> this.intersectsOBB(obb);
@@ -24,7 +31,6 @@ public abstract class CollisionShape {
         };
     }
 
-    public abstract boolean intersectsPlane(Plane plane);
     public abstract boolean intersectsSphere(Sphere sphere);
     public abstract boolean intersectsAABB(AABB aabb);
     public abstract boolean intersectsOBB(OBB obb);

@@ -10,6 +10,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import org.joml.Vector3f;
 
+import static cinnamon.world.world.CollisionWorld.renderShape;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class CollisionScreen extends ParentedScreen {
@@ -19,8 +20,8 @@ public class CollisionScreen extends ParentedScreen {
     private static final float rotationSpeed = 5f;
 
     private final Screen parentScreen;
-    private final CollisionShape player;
-    private final CollisionShape[] obstacles = new CollisionShape[4 * 3];
+    private final CollisionShape<?> player;
+    private final CollisionShape<?>[] obstacles = new CollisionShape[4 * 3];
     private final Vector3f rayPos, velocity;
 
     private boolean l, r, u, d, rl, rr;
@@ -73,17 +74,8 @@ public class CollisionScreen extends ParentedScreen {
     }
 
     private void tickCollisions() {
-        Vector3f displacement = new Vector3f(velocity);
-
         //apply translation to player
-        if (player instanceof AABB aabb) {
-            aabb.translate(displacement);
-        } else if (player instanceof OBB obb) {
-            obb.getCenter().add(displacement);
-        } else if (player instanceof Sphere sphere) {
-            sphere.translate(displacement);
-        }
-
+        player.translate(velocity);
         velocity.set(0f);
     }
 
@@ -93,16 +85,6 @@ public class CollisionScreen extends ParentedScreen {
         shapeVsShape(matrices);
         rayVsShape(matrices, mouseX, mouseY);
         renderShape(matrices, player, 0xFFFF72AD);
-    }
-
-    private void renderShape(MatrixStack matrices, CollisionShape shape, int color) {
-        if (shape instanceof AABB aabb) {
-            DebugRenderer.renderAABB(matrices, aabb, color);
-        } else if (shape instanceof OBB obb) {
-            DebugRenderer.renderOBB(matrices, obb, color);
-        } else if (shape instanceof Sphere sphere) {
-            DebugRenderer.renderSphere(matrices, sphere, color);
-        }
     }
 
     private void rayVsShape(MatrixStack matrices, int mouseX, int mouseY) {
@@ -131,7 +113,7 @@ public class CollisionScreen extends ParentedScreen {
 
     private void shapeVsShape(MatrixStack matrices) {
         //draw all obstacles
-        for (CollisionShape shape : obstacles)
+        for (CollisionShape<?> shape : obstacles)
             renderShape(matrices, shape, player.intersects(shape) ? 0xFFFFFF00 : 0xFF72ADFF);
     }
 

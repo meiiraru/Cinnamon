@@ -5,7 +5,7 @@ import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public class AABB extends CollisionShape {
+public class AABB extends CollisionShape<AABB> {
 
     private float
             minX, minY, minZ,
@@ -103,23 +103,6 @@ public class AABB extends CollisionShape {
     }
 
     @Override
-    public boolean intersectsPlane(Plane plane) {
-        //get bb center and half extents
-        float cx = (minX + maxX) * 0.5f; float cy = (minY + maxY) * 0.5f; float cz = (minZ + maxZ) * 0.5f;
-        float ex = (maxX - minX) * 0.5f; float ey = (maxY - minY) * 0.5f; float ez = (maxZ - minZ) * 0.5f;
-
-        //use the extents of the bb projected in the plane normal to find the max possible projection distance
-        Vector3f normal = plane.getNormal();
-        float projectedRadius = Math.abs(normal.x) * ex + Math.abs(normal.y) * ey + Math.abs(normal.z) * ez;
-
-        //distance from box center to plane (N dot C) + D
-        float distanceToCenter = normal.x * cx + normal.y * cy + normal.z * cz + plane.getConstant();
-
-        //check if the distance to the center is less than the projected radius
-        return Math.abs(distanceToCenter) <= projectedRadius;
-    }
-
-    @Override
     public boolean intersectsSphere(Sphere sphere) {
         Vector3f center = sphere.getCenter();
         float radius = sphere.getRadius();
@@ -188,10 +171,7 @@ public class AABB extends CollisionShape {
         return new Hit(hitPos, hitNormal, tHit, tFar, ray, this);
     }
 
-    public AABB translate(Vector3f vec) {
-        return this.translate(vec.x, vec.y, vec.z);
-    }
-
+    @Override
     public AABB translate(float x, float y, float z) {
         minX += x;
         maxX += x;
@@ -356,6 +336,7 @@ public class AABB extends CollisionShape {
         return new Vector3f(getWidth(), getHeight(), getDepth());
     }
 
+    @Override
     public Vector3f getCenter() {
         return new Vector3f(
             (minX + maxX) * 0.5f,

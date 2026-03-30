@@ -21,12 +21,11 @@ public class CollisionWorld extends WorldClient {
     private final OBB main = new OBB(2, 8f, 5, 1f, 1f, 1f).rotateY(45f);
 
     private final Vector3f po = new Vector3f(2, 8, 6);
-    private final AABB     bb = new AABB(3, 3, 3, 7, 7, 7);
     private final Sphere   sp = new Sphere(0, 9, 5, 1f);
-    private final Plane    pl = new Plane(new Vector3f(1, 1, 1).normalize(), -7.5f);
+    private final AABB     bb = new AABB(3, 3, 3, 7, 7, 7);
     private final OBB      ob = new OBB(5, 9.5f, 5, 0.5f, 0.5f, 0.5f).rotateZ(45f);
 
-    private final CollisionShape[] shapes = new CollisionShape[] {main, pl, bb, sp, ob};
+    private final CollisionShape<?>[] shapes = new CollisionShape[] {main, sp, bb, ob};
 
     @Override
     protected void tempLoad() {
@@ -37,26 +36,22 @@ public class CollisionWorld extends WorldClient {
     @Override
     public void renderDebug(Camera camera, MatrixStack matrices, float delta) {
         float deltaTime = worldTime + delta;
-        int collisionColor = 0xFFFFFF00;
 
         //animate shapes
         main.setCenter(Math.sin(deltaTime * 0.05f) * 2f + 2f, 8f, 5);
         main.setRotation(main.getRotation().identity().rotateY(Math.toRadians(45f)).rotateZ(Math.toRadians(deltaTime)));
         ob.setRotation(ob.getRotation().identity().rotateY(Math.toRadians(-deltaTime)).rotateZ(Math.toRadians(45f)));
 
-        //render main
-        DebugRenderer.renderOBB(matrices, main, 0xFFAD72FF);
-
         //render shapes (+ point)
-        DebugRenderer.renderPoint (matrices, po, 0.1f, main.containsPoint(po) ? collisionColor : 0xFFFFFFFF);
-        DebugRenderer.renderAABB  (matrices, bb, bb.intersectsOBB(main) ? collisionColor : 0xFFFFFFFF);
-        DebugRenderer.renderSphere(matrices, sp, sp.intersectsOBB(main) ? collisionColor : 0xFFFFFFFF);
-        DebugRenderer.renderPlane (matrices, pl, 15f, pl.intersectsOBB(main) ? collisionColor : 0xFFFFFFFF);
-        DebugRenderer.renderOBB   (matrices, ob, ob.intersectsOBB(main) ? collisionColor : 0xFFFFFFFF);
+        DebugRenderer.renderPoint (matrices, po, 0.1f, main.containsPoint(po) ? 0xFFFFFF00 : 0xFFFFFFFF);
+        renderShape(matrices, main, 0xFFAD72FF);
+        renderShape(matrices, sp, sp.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
+        renderShape(matrices, bb, bb.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
+        renderShape(matrices, ob, ob.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
 
         //raycast
         boolean hasHit = false;
-        for (CollisionShape s : shapes) {
+        for (CollisionShape<?> s : shapes) {
             Hit hit = s.collideRay(ray);
             if (hit != null) {
                 hasHit = true;
@@ -84,6 +79,15 @@ public class CollisionWorld extends WorldClient {
 
         VertexConsumer.finishAllBatches(camera);
         super.renderDebug(camera, matrices, delta);
+    }
+
+    public static void renderShape(MatrixStack matrices, CollisionShape<?> shape, int color) {
+        switch (shape) {
+            case Sphere sphere -> DebugRenderer.renderSphere(matrices, sphere, color);
+            case AABB aabb -> DebugRenderer.renderAABB(matrices, aabb, color);
+            case OBB obb -> DebugRenderer.renderOBB(matrices, obb, color);
+            default -> {}
+        }
     }
 
     @Override
