@@ -39,8 +39,8 @@ public class CollisionWorld extends WorldClient {
 
         //animate shapes
         main.setCenter(Math.sin(deltaTime * 0.05f) * 2f + 2f, 8f, 5);
-        main.setRotation(main.getRotation().identity().rotateY(Math.toRadians(45f)).rotateZ(Math.toRadians(deltaTime)));
-        ob.setRotation(ob.getRotation().identity().rotateY(Math.toRadians(-deltaTime)).rotateZ(Math.toRadians(45f)));
+        main.identityRotation().rotateZ(deltaTime).rotateY(45f);
+        ob.identityRotation().rotateZ(45f).rotateY(-deltaTime);
 
         //render shapes (+ point)
         DebugRenderer.renderPoint (matrices, po, 0.1f, main.containsPoint(po) ? 0xFFFFFF00 : 0xFFFFFFFF);

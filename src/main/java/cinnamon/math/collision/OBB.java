@@ -3,19 +3,16 @@ package cinnamon.math.collision;
 import cinnamon.math.Direction;
 import cinnamon.math.Maths;
 import org.joml.Math;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class OBB extends CollisionShape<OBB> {
 
     private final Vector3f center = new Vector3f(), halfExtents = new Vector3f();
-    private final Quaternionf rotation = new Quaternionf();
     private final Vector3f
             axisX = new Vector3f(1f, 0f, 0f),
             axisY = new Vector3f(0f, 1f, 0f),
             axisZ = new Vector3f(0f, 0f, 1f);
-    private boolean rotDirty = false;
 
     public OBB() {}
 
@@ -38,7 +35,6 @@ public class OBB extends CollisionShape<OBB> {
     public OBB(OBB obb) {
         this.setCenter(obb.center);
         this.setHalfExtents(obb.halfExtents);
-        this.setRotation(obb.rotation);
     }
 
     public OBB set(Vector3f center, Vector3f halfExtents) {
@@ -90,13 +86,9 @@ public class OBB extends CollisionShape<OBB> {
     }
 
     public OBB setRotation(Quaternionf rotation) {
-        this.rotation.set(rotation);
-        this.rotDirty = true;
+        this.identityRotation();
+        this.rotate(rotation);
         return this;
-    }
-
-    public Quaternionf getRotation() {
-        return rotation;
     }
 
     @Override
@@ -135,63 +127,52 @@ public class OBB extends CollisionShape<OBB> {
     }
 
     public OBB rotate(Quaternionf rotation) {
-        this.rotation.mul(rotation);
-        this.rotDirty = true;
+        axisX.rotate(rotation);
+        axisY.rotate(rotation);
+        axisZ.rotate(rotation);
+        return this;
+    }
+
+    public OBB identityRotation() {
+        axisX.set(1, 0, 0);
+        axisY.set(0, 1, 0);
+        axisZ.set(0, 0, 1);
         return this;
     }
 
     public OBB rotateX(float angle) {
-        this.rotation.rotateX(Math.toRadians(angle));
-        this.rotDirty = true;
+        float rad = Math.toRadians(angle);
+        axisX.rotateX(rad);
+        axisY.rotateX(rad);
+        axisZ.rotateX(rad);
         return this;
     }
 
     public OBB rotateY(float angle) {
-        this.rotation.rotateY(Math.toRadians(angle));
-        this.rotDirty = true;
+        float rad = Math.toRadians(angle);
+        axisX.rotateY(rad);
+        axisY.rotateY(rad);
+        axisZ.rotateY(rad);
         return this;
     }
 
     public OBB rotateZ(float angle) {
-        this.rotation.rotateZ(Math.toRadians(angle));
-        this.rotDirty = true;
+        float rad = Math.toRadians(angle);
+        axisX.rotateZ(rad);
+        axisY.rotateZ(rad);
+        axisZ.rotateZ(rad);
         return this;
-    }
-
-    public OBB applyMatrix(Matrix4f matrix) {
-        int properties = matrix.properties();
-        if ((properties & Matrix4f.PROPERTY_IDENTITY) != 0)
-            return this;
-
-        matrix.transformPosition(center);
-        matrix.transformDirection(halfExtents);
-        rotation.mul(matrix.getUnnormalizedRotation(new Quaternionf()));
-        this.rotDirty = true;
-        return this;
-    }
-
-    protected void recalculateAxes() {
-        if (!rotDirty)
-            return;
-
-        axisX.set(1f, 0f, 0f).rotate(rotation);
-        axisY.set(0f, 1f, 0f).rotate(rotation);
-        axisZ.set(0f, 0f, 1f).rotate(rotation);
-        rotDirty = false;
     }
 
     public Vector3f getAxisX() {
-        this.recalculateAxes();
         return axisX;
     }
 
     public Vector3f getAxisY() {
-        this.recalculateAxes();
         return axisY;
     }
 
     public Vector3f getAxisZ() {
-        this.recalculateAxes();
         return axisZ;
     }
 
@@ -391,6 +372,8 @@ public class OBB extends CollisionShape<OBB> {
     public String toString() {
         return "OBB{cx=" + center.x + " cy=" + center.y + " cz=" + center.z +
                 " hx=" + halfExtents.x + " hy=" + halfExtents.y + " hz=" + halfExtents.z +
-                " rot=" + rotation + "}";
+                " ax0=" + axisX.x + " ax1=" + axisX.y + " ax2=" + axisX.z +
+                " ay0=" + axisY.x + " ay1=" + axisY.y + " ay2=" + axisY.z +
+                " az0=" + axisZ.x + " az1=" + axisZ.y + " az2=" + axisZ.z + "}";
     }
 }

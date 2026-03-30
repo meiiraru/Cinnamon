@@ -16,7 +16,9 @@ import cinnamon.world.light.Light;
 import cinnamon.world.light.PointLight;
 import cinnamon.world.light.Spotlight;
 import org.joml.Math;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class DebugRenderer {
@@ -43,7 +45,13 @@ public class DebugRenderer {
         matrices.pushMatrix();
 
         matrices.translate(obb.getCenter());
-        matrices.rotate(obb.getRotation());
+
+        Vector3f axisX = obb.getAxisX();
+        Vector3f axisY = obb.getAxisY();
+        Vector3f axisZ = obb.getAxisZ();
+        Matrix3f mat = new Matrix3f(axisX, axisY, axisZ);
+        Quaternionf rot = new Quaternionf().setFromUnnormalized(mat);
+        matrices.rotate(rot);
 
         Vector3f half = obb.getHalfExtents();
         VertexConsumer.LINES.consume(GeometryHelper.box(matrices, -half.x, -half.y, -half.z, half.x, half.y, half.z, color));
