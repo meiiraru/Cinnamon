@@ -1,8 +1,8 @@
-package cinnamon.math.shape;
+package cinnamon.math.collision;
 
 import org.joml.Vector3f;
 
-public abstract class Shape {
+public abstract class CollisionShape {
 
     public boolean containsPoint(Vector3f point) {
         return this.containsPoint(point.x, point.y, point.z);
@@ -14,20 +14,20 @@ public abstract class Shape {
     }
     public abstract float distanceToPoint(float x, float y, float z);
 
-    public boolean intersects(Shape other) {
+    public boolean intersects(CollisionShape other) {
         return switch (other) {
-            case AABB aabb -> this.intersectsAABB(aabb);
-            case Sphere sphere -> this.intersectsSphere(sphere);
             case Plane plane -> this.intersectsPlane(plane);
+            case Sphere sphere -> this.intersectsSphere(sphere);
+            case AABB aabb -> this.intersectsAABB(aabb);
             case OBB obb -> this.intersectsOBB(obb);
             default -> throw new IllegalStateException();
         };
     }
 
-    public abstract boolean intersectsAABB(AABB aabb);
-    public abstract boolean intersectsSphere(Sphere sphere);
     public abstract boolean intersectsPlane(Plane plane);
+    public abstract boolean intersectsSphere(Sphere sphere);
+    public abstract boolean intersectsAABB(AABB aabb);
     public abstract boolean intersectsOBB(OBB obb);
 
-    public abstract Ray.Hit collideRay(Ray ray);
+    public abstract Hit collideRay(Ray ray);
 }

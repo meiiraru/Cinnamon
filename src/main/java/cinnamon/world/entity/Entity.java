@@ -4,7 +4,7 @@ import cinnamon.Client;
 import cinnamon.animation.Animation;
 import cinnamon.gui.DebugScreen;
 import cinnamon.math.Maths;
-import cinnamon.math.shape.AABB;
+import cinnamon.math.collision.AABB;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;

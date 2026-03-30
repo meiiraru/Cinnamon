@@ -2,7 +2,7 @@ package cinnamon.world.items;
 
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
-import cinnamon.math.shape.AABB;
+import cinnamon.math.collision.AABB;
 import cinnamon.registry.ItemModelRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.ColorUtils;

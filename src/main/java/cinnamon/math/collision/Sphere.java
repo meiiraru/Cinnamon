@@ -1,10 +1,10 @@
-package cinnamon.math.shape;
+package cinnamon.math.collision;
 
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public class Sphere extends Shape {
+public class Sphere extends CollisionShape {
 
     private final Vector3f center = new Vector3f();
     private float radius;
@@ -100,8 +100,9 @@ public class Sphere extends Shape {
     }
 
     @Override
-    public boolean intersectsAABB(AABB aabb) {
-        return aabb.intersectsSphere(this);
+    public boolean intersectsPlane(Plane plane) {
+        float distanceToPlane = plane.getNormal().dot(center) + plane.getConstant();
+        return Math.abs(distanceToPlane) <= radius;
     }
 
     @Override
@@ -111,9 +112,8 @@ public class Sphere extends Shape {
     }
 
     @Override
-    public boolean intersectsPlane(Plane plane) {
-        float distanceToPlane = plane.getNormal().dot(center) + plane.getConstant();
-        return Math.abs(distanceToPlane) <= radius;
+    public boolean intersectsAABB(AABB aabb) {
+        return aabb.intersectsSphere(this);
     }
 
     @Override
@@ -122,7 +122,7 @@ public class Sphere extends Shape {
     }
 
     @Override
-    public Ray.Hit collideRay(Ray ray) {
+    public Hit collideRay(Ray ray) {
         Vector3f dir = ray.getDirection();
         Vector3f origin = ray.getOrigin();
 
@@ -159,7 +159,7 @@ public class Sphere extends Shape {
         else
             hitNormal.set(-dir.x, -dir.y, -dir.z);
 
-        return new Ray.Hit(hitPos, hitNormal, tHit, tFar, maxDist, this);
+        return new Hit(hitPos, hitNormal, tHit, tFar, ray, this);
     }
 
     @Override

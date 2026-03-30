@@ -2,7 +2,7 @@ package cinnamon.vr;
 
 import cinnamon.Client;
 import cinnamon.gui.GUIStyle;
-import cinnamon.math.shape.AABB;
+import cinnamon.math.collision.AABB;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.model.StaticGeometry;

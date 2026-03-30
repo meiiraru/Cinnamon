@@ -1,7 +1,7 @@
 package cinnamon.world.entity.living;
 
 import cinnamon.math.Maths;
-import cinnamon.math.shape.AABB;
+import cinnamon.math.collision.AABB;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.world.Abilities;

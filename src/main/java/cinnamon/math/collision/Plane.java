@@ -1,10 +1,10 @@
-package cinnamon.math.shape;
+package cinnamon.math.collision;
 
 import cinnamon.math.Maths;
 import org.joml.Math;
 import org.joml.Vector3f;
 
-public class Plane extends Shape {
+public class Plane extends CollisionShape {
 
     private final Vector3f normal = new Vector3f();
     private float constant;
@@ -101,8 +101,9 @@ public class Plane extends Shape {
     }
 
     @Override
-    public boolean intersectsAABB(AABB aabb) {
-        return aabb.intersectsPlane(this);
+    public boolean intersectsPlane(Plane plane) {
+        Vector3f cross = new Vector3f(normal).cross(plane.normal);
+        return cross.lengthSquared() > Maths.KINDA_SMALL_NUMBER;
     }
 
     @Override
@@ -111,9 +112,8 @@ public class Plane extends Shape {
     }
 
     @Override
-    public boolean intersectsPlane(Plane plane) {
-        Vector3f cross = new Vector3f(normal).cross(plane.normal);
-        return cross.lengthSquared() > Maths.KINDA_SMALL_NUMBER;
+    public boolean intersectsAABB(AABB aabb) {
+        return aabb.intersectsPlane(this);
     }
 
     @Override
@@ -122,7 +122,7 @@ public class Plane extends Shape {
     }
 
     @Override
-    public Ray.Hit collideRay(Ray ray) {
+    public Hit collideRay(Ray ray) {
         //find the angle between the ray direction and the plane normal
         Vector3f dir = ray.getDirection();
         float dot = normal.dot(dir);
@@ -141,7 +141,7 @@ public class Plane extends Shape {
         Vector3f hitNormal = new Vector3f(normal);
         if (dot > 0) hitNormal.negate();
 
-        return new Ray.Hit(hitPos, hitNormal, t, t, maxDist, this);
+        return new Hit(hitPos, hitNormal, t, t, ray, this);
     }
 
     @Override

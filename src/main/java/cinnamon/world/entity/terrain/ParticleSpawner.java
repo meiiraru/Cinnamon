@@ -1,6 +1,6 @@
 package cinnamon.world.entity.terrain;
 
-import cinnamon.math.shape.AABB;
+import cinnamon.math.collision.AABB;
 import cinnamon.registry.TerrainEntityRegistry;
 import cinnamon.world.particle.FireParticle;
 import cinnamon.world.particle.SoapParticle;

@@ -1,4 +1,4 @@
-package cinnamon.math.shape;
+package cinnamon.math.collision;
 
 import cinnamon.math.Direction;
 import cinnamon.math.Maths;
@@ -7,7 +7,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class OBB extends Shape {
+public class OBB extends CollisionShape {
 
     private final Vector3f center = new Vector3f(), halfExtents = new Vector3f();
     private final Quaternionf rotation = new Quaternionf();
@@ -236,16 +236,16 @@ public class OBB extends Shape {
         return Vector3f.distance(lx, ly, lz, cx, cy, cz);
     }
 
-    private static final Vector3f aabbCenter = new Vector3f(), aabbExtends = new Vector3f();
     @Override
-    public boolean intersectsAABB(AABB aabb) {
-        //convert aabb to obb with identity rotation and use SAT for OBB vs OBB intersection
-        aabbExtends.set(aabb.getWidth() * 0.5f, aabb.getHeight() * 0.5f, aabb.getDepth() * 0.5f);
-        aabbCenter.set(aabb.minX() + aabbExtends.x, aabb.minY() + aabbExtends.y, aabb.minZ() + aabbExtends.z);
-        return intersectsOBBSAT(
-                center, halfExtents, getAxisX(), getAxisY(), getAxisZ(),
-                aabbCenter, aabbExtends, Direction.EAST.vector, Direction.UP.vector, Direction.SOUTH.vector
-        );
+    public boolean intersectsPlane(Plane plane) {
+        //get the direction of the plane and the local orientation axes
+        Vector3f n = plane.getNormal();
+        Vector3f ax = getAxisX(), ay = getAxisY(), az = getAxisZ();
+
+        //project the radius into the plane normal and calculate teh distance from the box center to the plane
+        float projectedRadius = halfExtents.x * Math.abs(n.dot(ax)) + halfExtents.y * Math.abs(n.dot(ay)) + halfExtents.z * Math.abs(n.dot(az));
+        float distance = n.dot(center) + plane.getConstant();
+        return Math.abs(distance) <= projectedRadius;
     }
 
     @Override
@@ -272,16 +272,16 @@ public class OBB extends Shape {
         return Vector3f.distanceSquared(lx, ly, lz, cx, cy, cz) <= r * r;
     }
 
+    private static final Vector3f aabbCenter = new Vector3f(), aabbExtends = new Vector3f();
     @Override
-    public boolean intersectsPlane(Plane plane) {
-        //get the direction of the plane and the local orientation axes
-        Vector3f n = plane.getNormal();
-        Vector3f ax = getAxisX(), ay = getAxisY(), az = getAxisZ();
-
-        //project the radius into the plane normal and calculate teh distance from the box center to the plane
-        float projectedRadius = halfExtents.x * Math.abs(n.dot(ax)) + halfExtents.y * Math.abs(n.dot(ay)) + halfExtents.z * Math.abs(n.dot(az));
-        float distance = n.dot(center) + plane.getConstant();
-        return Math.abs(distance) <= projectedRadius;
+    public boolean intersectsAABB(AABB aabb) {
+        //convert aabb to obb with identity rotation and use SAT for OBB vs OBB intersection
+        aabbExtends.set(aabb.getWidth() * 0.5f, aabb.getHeight() * 0.5f, aabb.getDepth() * 0.5f);
+        aabbCenter.set(aabb.minX() + aabbExtends.x, aabb.minY() + aabbExtends.y, aabb.minZ() + aabbExtends.z);
+        return intersectsOBBSAT(
+                center, halfExtents, getAxisX(), getAxisY(), getAxisZ(),
+                aabbCenter, aabbExtends, Direction.EAST.vector, Direction.UP.vector, Direction.SOUTH.vector
+        );
     }
 
     @Override
@@ -335,7 +335,7 @@ public class OBB extends Shape {
         ra = hA.x * ar12 + hA.y * ar02; rb = hB.x * ar21 + hB.y * ar20; return Math.abs(t1 * r02 - t0 * r12) <= ra + rb; //no axes found a separating plane - overlap
     }
     @Override
-    public Ray.Hit collideRay(Ray ray) {
+    public Hit collideRay(Ray ray) {
         Vector3f dir = ray.getDirection();
         Vector3f origin = ray.getOrigin();
         Vector3f ax = getAxisX(), ay = getAxisY(), az = getAxisZ();
@@ -394,7 +394,7 @@ public class OBB extends Shape {
             worldNormal.set(-dir.x, -dir.y, -dir.z);
         }
 
-        return new Ray.Hit(hitPos, worldNormal, tHit, tFar, maxDist, this);
+        return new Hit(hitPos, worldNormal, tHit, tFar, ray, this);
     }
 
     @Override

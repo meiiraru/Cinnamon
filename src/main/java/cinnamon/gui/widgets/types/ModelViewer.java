@@ -6,7 +6,7 @@ import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
-import cinnamon.math.shape.AABB;
+import cinnamon.math.collision.AABB;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.SkyBoxRegistry;

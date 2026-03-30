@@ -1,11 +1,11 @@
-package cinnamon.math.shape;
+package cinnamon.math.collision;
 
 import cinnamon.math.Maths;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public class AABB extends Shape {
+public class AABB extends CollisionShape {
 
     private float
             minX, minY, minZ,
@@ -103,23 +103,6 @@ public class AABB extends Shape {
     }
 
     @Override
-    public boolean intersectsAABB(AABB other) {
-        return intersectsX(other.minX, other.maxX) && intersectsY(other.minY, other.maxY) && intersectsZ(other.minZ, other.maxZ);
-    }
-
-    @Override
-    public boolean intersectsSphere(Sphere sphere) {
-        Vector3f center = sphere.getCenter();
-        float radius = sphere.getRadius();
-
-        float clampedX = Maths.clamp(center.x, minX, maxX);
-        float clampedY = Maths.clamp(center.y, minY, maxY);
-        float clampedZ = Maths.clamp(center.z, minZ, maxZ);
-
-        return center.distanceSquared(clampedX, clampedY, clampedZ) <= radius * radius;
-    }
-
-    @Override
     public boolean intersectsPlane(Plane plane) {
         //get bb center and half extents
         float cx = (minX + maxX) * 0.5f; float cy = (minY + maxY) * 0.5f; float cz = (minZ + maxZ) * 0.5f;
@@ -137,12 +120,29 @@ public class AABB extends Shape {
     }
 
     @Override
+    public boolean intersectsSphere(Sphere sphere) {
+        Vector3f center = sphere.getCenter();
+        float radius = sphere.getRadius();
+
+        float clampedX = Maths.clamp(center.x, minX, maxX);
+        float clampedY = Maths.clamp(center.y, minY, maxY);
+        float clampedZ = Maths.clamp(center.z, minZ, maxZ);
+
+        return center.distanceSquared(clampedX, clampedY, clampedZ) <= radius * radius;
+    }
+
+    @Override
+    public boolean intersectsAABB(AABB other) {
+        return intersectsX(other.minX, other.maxX) && intersectsY(other.minY, other.maxY) && intersectsZ(other.minZ, other.maxZ);
+    }
+
+    @Override
     public boolean intersectsOBB(OBB obb) {
         return obb.intersectsAABB(this);
     }
 
     @Override
-    public Ray.Hit collideRay(Ray ray) {
+    public Hit collideRay(Ray ray) {
         Vector3f dir = ray.getDirection();
         Vector3f origin = ray.getOrigin();
 
@@ -185,7 +185,7 @@ public class AABB extends Shape {
             hitNormal.set(-dir.x, -dir.y, -dir.z);
         }
 
-        return new Ray.Hit(hitPos, hitNormal, tHit, tFar, maxDist, this);
+        return new Hit(hitPos, hitNormal, tHit, tFar, ray, this);
     }
 
     public AABB translate(Vector3f vec) {

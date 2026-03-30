@@ -1,7 +1,7 @@
 package cinnamon.world.collisions;
 
 import cinnamon.math.Maths;
-import cinnamon.math.shape.AABB;
+import cinnamon.math.collision.AABB;
 import org.joml.Vector3f;
 
 public class CollisionDetector {

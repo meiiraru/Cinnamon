@@ -1,7 +1,7 @@
 package cinnamon.world.entity;
 
 import cinnamon.math.Maths;
-import cinnamon.math.shape.AABB;
+import cinnamon.math.collision.AABB;
 import cinnamon.utils.Resource;
 import cinnamon.world.Mask;
 import cinnamon.world.collisions.CollisionDetector;

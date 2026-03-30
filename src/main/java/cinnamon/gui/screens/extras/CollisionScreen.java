@@ -3,11 +3,7 @@ package cinnamon.gui.screens.extras;
 import cinnamon.Client;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
-import cinnamon.math.shape.AABB;
-import cinnamon.math.shape.OBB;
-import cinnamon.math.shape.Ray;
-import cinnamon.math.shape.Shape;
-import cinnamon.math.shape.Sphere;
+import cinnamon.math.collision.*;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
@@ -22,18 +18,22 @@ public class CollisionScreen extends ParentedScreen {
     private static final float speed = 3f;
     private static final float rotationSpeed = 5f;
 
-    private final Shape player;
-    private final Shape[] obstacles = new Shape[4 * 3];
-    private final Vector3f rayPos, motion;
+    private final Screen parentScreen;
+    private final CollisionShape player;
+    private final CollisionShape[] obstacles = new CollisionShape[4 * 3];
+    private final Vector3f rayPos, velocity;
 
     private boolean l, r, u, d, rl, rr;
 
     public CollisionScreen(Screen parentScreen) {
         super(parentScreen);
+        this.parentScreen = parentScreen;
         this.rayPos = new Vector3f(25f, 25f, 0f);
-        this.motion = new Vector3f();
+        this.velocity = new Vector3f();
 
         //create player shape at starting position
+        //this.player = new AABB(50 - shapeRadius, 50 - shapeRadius, -shapeRadius, 50 + shapeRadius, 50 + shapeRadius, shapeRadius);
+        //this.player = new Sphere(50, 50, 0, shapeRadius);
         this.player = new OBB(50, 50, 0, shapeRadius, shapeRadius, shapeRadius).rotateZ(45f);
 
         //create obstacles
@@ -60,10 +60,10 @@ public class CollisionScreen extends ParentedScreen {
 
     private void tickInput() {
         //movement
-        if (l) motion.x -= speed;
-        if (r) motion.x += speed;
-        if (u) motion.y -= speed;
-        if (d) motion.y += speed;
+        if (l) velocity.x -= speed;
+        if (r) velocity.x += speed;
+        if (u) velocity.y -= speed;
+        if (d) velocity.y += speed;
 
         //obb rotation
         if (player instanceof OBB obb) {
@@ -73,7 +73,7 @@ public class CollisionScreen extends ParentedScreen {
     }
 
     private void tickCollisions() {
-        Vector3f displacement = new Vector3f(motion);
+        Vector3f displacement = new Vector3f(velocity);
 
         //apply translation to player
         if (player instanceof AABB aabb) {
@@ -84,7 +84,7 @@ public class CollisionScreen extends ParentedScreen {
             sphere.translate(displacement);
         }
 
-        motion.set(0f);
+        velocity.set(0f);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class CollisionScreen extends ParentedScreen {
         renderShape(matrices, player, 0xFFFF72AD);
     }
 
-    private void renderShape(MatrixStack matrices, Shape shape, int color) {
+    private void renderShape(MatrixStack matrices, CollisionShape shape, int color) {
         if (shape instanceof AABB aabb) {
             DebugRenderer.renderAABB(matrices, aabb, color);
         } else if (shape instanceof OBB obb) {
@@ -111,7 +111,7 @@ public class CollisionScreen extends ParentedScreen {
 
         //collision
         Ray ray = new Ray(rayPos.x, rayPos.y, 0f, len.x, len.y, 0f, len.length());
-        Ray.Hit hit = player.collideRay(ray);
+        Hit hit = player.collideRay(ray);
         boolean collided = hit != null;
 
         //draw line
@@ -131,7 +131,7 @@ public class CollisionScreen extends ParentedScreen {
 
     private void shapeVsShape(MatrixStack matrices) {
         //draw all obstacles
-        for (Shape shape : obstacles)
+        for (CollisionShape shape : obstacles)
             renderShape(matrices, shape, player.intersects(shape) ? 0xFFFFFF00 : 0xFF72ADFF);
     }
 
@@ -159,6 +159,8 @@ public class CollisionScreen extends ParentedScreen {
             case GLFW_KEY_S, GLFW_KEY_DOWN  -> d = press;
             case GLFW_KEY_Q, GLFW_KEY_PAGE_UP   -> rl = press;
             case GLFW_KEY_E, GLFW_KEY_PAGE_DOWN -> rr = press;
+
+            case GLFW_KEY_R -> client.setScreen(new CollisionScreen(parentScreen));
 
             default -> {return super.keyPress(key, scancode, action, mods);}
         }

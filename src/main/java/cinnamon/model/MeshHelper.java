@@ -1,6 +1,6 @@
 package cinnamon.model;
 
-import cinnamon.math.shape.AABB;
+import cinnamon.math.collision.AABB;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;

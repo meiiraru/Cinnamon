@@ -1,6 +1,6 @@
 package cinnamon.world.world;
 
-import cinnamon.math.shape.*;
+import cinnamon.math.collision.*;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
@@ -26,7 +26,7 @@ public class CollisionWorld extends WorldClient {
     private final Plane    pl = new Plane(new Vector3f(1, 1, 1).normalize(), -7.5f);
     private final OBB      ob = new OBB(5, 9.5f, 5, 0.5f, 0.5f, 0.5f).rotateZ(45f);
 
-    private final Shape[] shapes = new Shape[] {main, pl, bb, sp, ob};
+    private final CollisionShape[] shapes = new CollisionShape[] {main, pl, bb, sp, ob};
 
     @Override
     protected void tempLoad() {
@@ -56,8 +56,8 @@ public class CollisionWorld extends WorldClient {
 
         //raycast
         boolean hasHit = false;
-        for (Shape s : shapes) {
-            Ray.Hit hit = s.collideRay(ray);
+        for (CollisionShape s : shapes) {
+            Hit hit = s.collideRay(ray);
             if (hit != null) {
                 hasHit = true;
 

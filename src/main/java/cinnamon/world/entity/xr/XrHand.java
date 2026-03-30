@@ -1,7 +1,7 @@
 package cinnamon.world.entity.xr;
 
 import cinnamon.math.Maths;
-import cinnamon.math.shape.AABB;
+import cinnamon.math.collision.AABB;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;

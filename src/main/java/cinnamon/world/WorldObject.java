@@ -1,6 +1,6 @@
 package cinnamon.world;
 
-import cinnamon.math.shape.AABB;
+import cinnamon.math.collision.AABB;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.world.world.World;

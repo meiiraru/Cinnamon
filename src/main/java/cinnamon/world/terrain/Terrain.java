@@ -2,7 +2,7 @@ package cinnamon.world.terrain;
 
 import cinnamon.animation.Animation;
 import cinnamon.math.Rotation;
-import cinnamon.math.shape.AABB;
+import cinnamon.math.collision.AABB;
 import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;

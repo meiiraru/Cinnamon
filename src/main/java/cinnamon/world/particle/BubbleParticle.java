@@ -1,7 +1,7 @@
 package cinnamon.world.particle;
 
 import cinnamon.math.Maths;
-import cinnamon.math.shape.AABB;
+import cinnamon.math.collision.AABB;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Resource;

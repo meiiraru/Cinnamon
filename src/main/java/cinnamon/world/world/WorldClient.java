@@ -11,7 +11,7 @@ import cinnamon.input.Interaction;
 import cinnamon.input.Keybind;
 import cinnamon.input.Movement;
 import cinnamon.math.Maths;
-import cinnamon.math.shape.AABB;
+import cinnamon.math.collision.AABB;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.registry.MaterialRegistry;
