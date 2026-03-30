@@ -113,8 +113,10 @@ public class CollisionScreen extends ParentedScreen {
 
     private void shapeVsShape(MatrixStack matrices) {
         //draw all obstacles
-        for (CollisionShape<?> shape : obstacles)
+        for (CollisionShape<?> shape : obstacles) {
             renderShape(matrices, shape, player.intersects(shape) ? 0xFFFFFF00 : 0xFF72ADFF);
+            DebugRenderer.renderPoint(matrices, shape.closestPoint(player.getCenter()), 3, 0xFF72ADFF);
+        }
     }
 
     @Override

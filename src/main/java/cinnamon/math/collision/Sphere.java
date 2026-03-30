@@ -98,6 +98,20 @@ public class Sphere extends CollisionShape<Sphere> {
     }
 
     @Override
+    public Vector3f closestPoint(float x, float y, float z) {
+        float dx = x - center.x;
+        float dy = y - center.y;
+        float dz = z - center.z;
+
+        float distSqr = Vector3f.lengthSquared(dx, dy, dz);
+        if (distSqr <= radius * radius)
+            return new Vector3f(x, y, z);
+
+        float scale = radius / Math.sqrt(distSqr);
+        return new Vector3f(center.x + dx * scale, center.y + dy * scale, center.z + dz * scale);
+    }
+
+    @Override
     public boolean intersectsSphere(Sphere other) {
         float radiusSum = this.radius + other.radius;
         return this.center.distanceSquared(other.center) <= radiusSum * radiusSum;

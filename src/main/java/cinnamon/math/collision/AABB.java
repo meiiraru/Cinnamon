@@ -84,6 +84,11 @@ public class AABB extends CollisionShape<AABB> {
         return Vector3f.distance(x, y, z, clampedX, clampedY, clampedZ);
     }
 
+    @Override
+    public Vector3f closestPoint(float x, float y, float z) {
+        return new Vector3f(Maths.clamp(x, minX, maxX), Maths.clamp(y, minY, maxY), Maths.clamp(z, minZ, maxZ));
+    }
+
     public boolean containsBox(AABB other) {
         return minX <= other.minX && maxX >= other.maxX &&
                minY <= other.minY && maxY >= other.maxY &&

@@ -123,7 +123,7 @@ public class OBB extends CollisionShape<OBB> {
     }
 
     public Vector3f getDimensions() {
-        return new Vector3f(halfExtents).mul(2f);
+        return new Vector3f(halfExtents.x * 2f, halfExtents.y * 2f, halfExtents.z * 2f);
     }
 
     public OBB rotate(Quaternionf rotation) {
@@ -216,6 +216,33 @@ public class OBB extends CollisionShape<OBB> {
     }
 
     @Override
+    public Vector3f closestPoint(float x, float y, float z) {
+        //move point into OBB space
+        float dx = x - center.x;
+        float dy = y - center.y;
+        float dz = z - center.z;
+
+        Vector3f ax = getAxisX(), ay = getAxisY(), az = getAxisZ();
+
+        //project point into local space
+        float lx = dx * ax.x + dy * ax.y + dz * ax.z;
+        float ly = dx * ay.x + dy * ay.y + dz * ay.z;
+        float lz = dx * az.x + dy * az.y + dz * az.z;
+
+        //clamp to half-extents
+        float cx = Maths.clamp(lx, -halfExtents.x, halfExtents.x);
+        float cy = Maths.clamp(ly, -halfExtents.y, halfExtents.y);
+        float cz = Maths.clamp(lz, -halfExtents.z, halfExtents.z);
+
+        //return converted back to world space
+        return new Vector3f(
+                ax.x * cx + ay.x * cy + az.x * cz + center.x,
+                ax.y * cx + ay.y * cy + az.y * cz + center.y,
+                ax.z * cx + ay.z * cy + az.z * cz + center.z
+        );
+    }
+
+    @Override
     public boolean intersectsSphere(Sphere sphere) {
         //move sphere center into OBB space
         Vector3f sphereCenter = sphere.getCenter();
@@ -305,6 +332,7 @@ public class OBB extends CollisionShape<OBB> {
         ra = hA.x * ar11 + hA.y * ar01; rb = hB.x * ar22 + hB.z * ar20; if (Math.abs(t1 * r01 - t0 * r11) > ra + rb) return false;
         ra = hA.x * ar12 + hA.y * ar02; rb = hB.x * ar21 + hB.y * ar20; return Math.abs(t1 * r02 - t0 * r12) <= ra + rb; //no axes found a separating plane - overlap
     }
+
     @Override
     public Hit collideRay(Ray ray) {
         Vector3f dir = ray.getDirection();

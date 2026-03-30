@@ -22,6 +22,11 @@ public abstract class CollisionShape<T extends CollisionShape<T>> {
     }
     public abstract float distanceToPoint(float x, float y, float z);
 
+    public Vector3f closestPoint(Vector3f point) {
+        return this.closestPoint(point.x, point.y, point.z);
+    }
+    public abstract Vector3f closestPoint(float x, float y, float z);
+
     public boolean intersects(CollisionShape<?> other) {
         return switch (other) {
             case Sphere sphere -> this.intersectsSphere(sphere);
