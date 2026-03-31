@@ -7,6 +7,12 @@ import org.joml.Vector3f;
 
 public class AABB extends CollisionShape<AABB> {
 
+    public static final Vector3f
+            AXIS_X = new Vector3f(1, 0, 0),
+            AXIS_Y = new Vector3f(0, 1, 0),
+            AXIS_Z = new Vector3f(0, 0, 1);
+    public static final Vector3f[] AXES = {AXIS_X, AXIS_Y, AXIS_Z};
+
     private float
             minX, minY, minZ,
             maxX, maxY, maxZ;
@@ -85,8 +91,8 @@ public class AABB extends CollisionShape<AABB> {
     }
 
     @Override
-    public Vector3f closestPoint(float x, float y, float z) {
-        return new Vector3f(Maths.clamp(x, minX, maxX), Maths.clamp(y, minY, maxY), Maths.clamp(z, minZ, maxZ));
+    public Vector3f closestPoint(float x, float y, float z, Vector3f out) {
+        return out.set(Maths.clamp(x, minX, maxX), Maths.clamp(y, minY, maxY), Maths.clamp(z, minZ, maxZ));
     }
 
     public boolean containsBox(AABB other) {
@@ -470,6 +476,103 @@ public class AABB extends CollisionShape<AABB> {
                 ncy + ney,
                 ncz + nez
         );
+    }
+
+    @Override
+    public void project(Vector3f axis, float[] minMax) {
+        float hx = (maxX - minX) * 0.5f;
+        float hy = (maxY - minY) * 0.5f;
+        float hz = (maxZ - minZ) * 0.5f;
+
+        float cx = minX + hx;
+        float cy = minY + hy;
+        float cz = minZ + hz;
+
+        float centerProj = cx * axis.x + cy * axis.y + cz * axis.z;
+        float r = hx * Math.abs(axis.x) + hy * Math.abs(axis.y) + hz * Math.abs(axis.z);
+
+        minMax[0] = centerProj - r;
+        minMax[1] = centerProj + r;
+    }
+
+    @Override
+    public Collision collideAABB(AABB aabb) {
+        float dx = Math.min(this.maxX, aabb.maxX) - Math.max(this.minX, aabb.minX);
+        float dy = Math.min(this.maxY, aabb.maxY) - Math.max(this.minY, aabb.minY);
+        float dz = Math.min(this.maxZ, aabb.maxZ) - Math.max(this.minZ, aabb.minZ);
+
+        if (dx <= 0 || dy <= 0 || dz <= 0)
+            return null;
+
+        //find the axis of minimum penetration
+        Vector3f normal = new Vector3f();
+        float depth;
+        if (dx < dy && dx < dz) {
+            depth = dx;
+            normal.set(this.minX < aabb.minX ? 1 : -1, 0, 0);
+        } else if (dy < dz) {
+            depth = dy;
+            normal.set(0, this.minY < aabb.minY ? 1 : -1, 0);
+        } else {
+            depth = dz;
+            normal.set(0, 0, this.minZ < aabb.minZ ? 1 : -1);
+        }
+
+        return new Collision(normal, depth, this, aabb);
+    }
+
+    @Override
+    public Collision collideOBB(OBB obb) {
+        return SATHelper.SATCollide(this, obb, AXES, new Vector3f[]{obb.getAxisX(), obb.getAxisY(), obb.getAxisZ()});
+    }
+
+    @Override
+    public Collision collideSphere(Sphere sphere) {
+        Vector3f sCenter = sphere.getCenter();
+        float r = sphere.getRadius();
+
+        //find the closest point on the AABB to the sphere center
+        float cx = Math.max(minX, Math.min(sCenter.x, maxX));
+        float cy = Math.max(minY, Math.min(sCenter.y, maxY));
+        float cz = Math.max(minZ, Math.min(sCenter.z, maxZ));
+
+        float dx = sCenter.x - cx;
+        float dy = sCenter.y - cy;
+        float dz = sCenter.z - cz;
+        float distSq = dx * dx + dy * dy + dz * dz;
+
+        //if the distance is bigger than radius, there is no collision
+        if (distSq >= r * r)
+            return null;
+
+        float dist = Math.sqrt(distSq);
+        Vector3f normal = new Vector3f();
+
+        //sphere center is outside the box so the normal points from box to sphere
+        if (dist > Maths.KINDA_SMALL_NUMBER) {
+            normal.set(dx / dist, dy / dist, dz / dist);
+            return new Collision(normal, r - dist, this, sphere);
+        }
+
+        //sphere center is inside the box
+        //we find the closest face to push the sphere out
+        float dl = sCenter.x - minX;
+        float dr = maxX - sCenter.x;
+        float dt = sCenter.y - minY;
+        float db = maxY - sCenter.y;
+        float df = sCenter.z - minZ;
+        float dk = maxZ - sCenter.z;
+
+        float minDist = Math.min(dl, Math.min(dr, Math.min(dt, Math.min(db, Math.min(df, dk)))));
+
+        if      (minDist == dl) normal.set(-1,  0,  0);
+        else if (minDist == dr) normal.set( 1,  0,  0);
+        else if (minDist == dt) normal.set( 0, -1,  0);
+        else if (minDist == db) normal.set( 0,  1,  0);
+        else if (minDist == df) normal.set( 0,  0, -1);
+        else                    normal.set( 0,  0,  1);
+
+        return new Collision(normal, r + minDist, this, sphere);
     }
 
     @Override

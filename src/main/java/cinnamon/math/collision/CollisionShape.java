@@ -22,10 +22,10 @@ public abstract class CollisionShape<T extends CollisionShape<T>> {
     }
     public abstract float distanceToPoint(float x, float y, float z);
 
-    public Vector3f closestPoint(Vector3f point) {
-        return this.closestPoint(point.x, point.y, point.z);
+    public Vector3f closestPoint(Vector3f point, Vector3f out) {
+        return this.closestPoint(point.x, point.y, point.z, out);
     }
-    public abstract Vector3f closestPoint(float x, float y, float z);
+    public abstract Vector3f closestPoint(float x, float y, float z, Vector3f out);
 
     public boolean intersects(CollisionShape<?> other) {
         return switch (other) {
@@ -41,4 +41,19 @@ public abstract class CollisionShape<T extends CollisionShape<T>> {
     public abstract boolean intersectsOBB(OBB obb);
 
     public abstract Hit collideRay(Ray ray);
+
+    public abstract void project(Vector3f axis, float[] minMax);
+
+    public Collision collide(CollisionShape<?> other) {
+        return switch (other) {
+            case Sphere sphere -> this.collideSphere(sphere);
+            case AABB aabb -> this.collideAABB(aabb);
+            case OBB obb -> this.collideOBB(obb);
+            default -> throw new IllegalStateException();
+        };
+    }
+
+    public abstract Collision collideSphere(Sphere sphere);
+    public abstract Collision collideAABB(AABB aabb);
+    public abstract Collision collideOBB(OBB obb);
 }

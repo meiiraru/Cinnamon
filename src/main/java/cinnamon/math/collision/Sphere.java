@@ -1,5 +1,6 @@
 package cinnamon.math.collision;
 
+import cinnamon.math.Maths;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -11,6 +12,10 @@ public class Sphere extends CollisionShape<Sphere> {
 
     public Sphere() {
         this(0, 0, 0, 0);
+    }
+
+    public Sphere(float radius) {
+        this(0, 0, 0, radius);
     }
 
     public Sphere(Vector3f center, float radius) {
@@ -98,17 +103,17 @@ public class Sphere extends CollisionShape<Sphere> {
     }
 
     @Override
-    public Vector3f closestPoint(float x, float y, float z) {
+    public Vector3f closestPoint(float x, float y, float z, Vector3f out) {
         float dx = x - center.x;
         float dy = y - center.y;
         float dz = z - center.z;
 
         float distSqr = Vector3f.lengthSquared(dx, dy, dz);
         if (distSqr <= radius * radius)
-            return new Vector3f(x, y, z);
+            return out.set(x, y, z);
 
         float scale = radius / Math.sqrt(distSqr);
-        return new Vector3f(center.x + dx * scale, center.y + dy * scale, center.z + dz * scale);
+        return out.set(center.x + dx * scale, center.y + dy * scale, center.z + dz * scale);
     }
 
     @Override
@@ -166,6 +171,44 @@ public class Sphere extends CollisionShape<Sphere> {
             hitNormal.set(-dir.x, -dir.y, -dir.z);
 
         return new Hit(hitPos, hitNormal, tHit, tFar, ray, this);
+    }
+
+    @Override
+    public void project(Vector3f axis, float[] minMax) {
+        float centerProj = center.dot(axis);
+        minMax[0] = centerProj - radius;
+        minMax[1] = centerProj + radius;
+    }
+
+    @Override
+    public Collision collideAABB(AABB aabb) {
+        Collision col = aabb.collideSphere(this);
+        return col != null ? col.invert() : null;
+    }
+
+    @Override
+    public Collision collideOBB(OBB obb) {
+        Collision col = obb.collideSphere(this);
+        return col != null ? col.invert() : null;
+    }
+
+    @Override
+    public Collision collideSphere(Sphere sphere) {
+        float dx = sphere.center.x - this.center.x;
+        float dy = sphere.center.y - this.center.y;
+        float dz = sphere.center.z - this.center.z;
+
+        float distSq = dx * dx + dy * dy + dz * dz;
+        float radiusSum = this.radius + sphere.radius;
+
+        if (distSq > radiusSum * radiusSum)
+            return null;
+
+        float dist = Math.sqrt(distSq);
+        float depth = radiusSum - dist;
+        Vector3f normal = (dist > Maths.KINDA_SMALL_NUMBER) ? new Vector3f(dx / dist, dy / dist, dz / dist) : new Vector3f(1, 0, 0);
+
+        return new Collision(normal, depth, this, sphere);
     }
 
     @Override

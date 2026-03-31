@@ -3,41 +3,49 @@ package cinnamon.gui.screens.extras;
 import cinnamon.Client;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
+import cinnamon.math.Maths;
 import cinnamon.math.collision.*;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.text.Style;
+import cinnamon.text.Text;
+import cinnamon.utils.Alignment;
+import cinnamon.utils.Colors;
 import org.joml.Vector3f;
 
+import static cinnamon.math.collision.CollisionResolver.Mode.*;
 import static cinnamon.world.world.CollisionWorld.renderShape;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class CollisionScreen extends ParentedScreen {
 
     private static final float shapeRadius = 10f;
-    private static final float speed = 3f;
+    private static final float speed = 0.5f;
     private static final float rotationSpeed = 5f;
 
     private final Screen parentScreen;
-    private final CollisionShape<?> player;
-    private final CollisionShape<?>[] obstacles = new CollisionShape[4 * 3];
-    private final Vector3f rayPos, velocity;
+    private final CollisionShape<?>[] obstacles;
+    private final AABB[] boundaries;
+    private final Vector3f rayPos, impulse, velocity;
 
+    private CollisionShape<?> player;
     private boolean l, r, u, d, rl, rr;
+    private CollisionResolver.Mode collisionMode = SLIDE;
 
     public CollisionScreen(Screen parentScreen) {
         super(parentScreen);
         this.parentScreen = parentScreen;
         this.rayPos = new Vector3f(25f, 25f, 0f);
+        this.impulse = new Vector3f();
         this.velocity = new Vector3f();
 
         //create player shape at starting position
-        //this.player = new AABB(50 - shapeRadius, 50 - shapeRadius, -shapeRadius, 50 + shapeRadius, 50 + shapeRadius, shapeRadius);
-        //this.player = new Sphere(50, 50, 0, shapeRadius);
         this.player = new OBB(50, 50, 0, shapeRadius, shapeRadius, shapeRadius).rotateZ(45f);
 
         //create obstacles
+        this.obstacles = new CollisionShape[4 * 3 + 3];
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 4; j++) {
                 float x = 100 + (j * 50);
@@ -50,6 +58,31 @@ public class CollisionScreen extends ParentedScreen {
                 };
             }
         }
+
+        //add a corner
+        obstacles[12] = new AABB(300 - shapeRadius,     50 + shapeRadius, -shapeRadius, 300 + shapeRadius,     50 + shapeRadius * 3, shapeRadius);
+        obstacles[13] = new AABB(300 + shapeRadius,     50 - shapeRadius, -shapeRadius, 300 + shapeRadius * 3, 50 + shapeRadius,     shapeRadius);
+        obstacles[14] = new AABB(300 + shapeRadius * 3, 50 + shapeRadius, -shapeRadius, 300 + shapeRadius * 5, 50 + shapeRadius * 3, shapeRadius);
+
+        //boundaries
+        boundaries = new AABB[4];
+        for (int i = 0; i < 4; i++)
+            boundaries[i] = new AABB();
+    }
+
+    @Override
+    public void init() {
+        super.init();
+
+        //generate boundaries
+        //left
+        boundaries[0].set(0, 0, -shapeRadius, shapeRadius, height, shapeRadius);
+        //right
+        boundaries[1].set(width - shapeRadius, 0, -shapeRadius, width, height, shapeRadius);
+        //top
+        boundaries[2].set(0, 0, -shapeRadius, width, shapeRadius, shapeRadius);
+        //bottom
+        boundaries[3].set(0, height - shapeRadius, -shapeRadius, width, height, shapeRadius);
     }
 
     @Override
@@ -61,10 +94,15 @@ public class CollisionScreen extends ParentedScreen {
 
     private void tickInput() {
         //movement
-        if (l) velocity.x -= speed;
-        if (r) velocity.x += speed;
-        if (u) velocity.y -= speed;
-        if (d) velocity.y += speed;
+        if (l) impulse.x -= 1;
+        if (r) impulse.x += 1;
+        if (u) impulse.y -= 1;
+        if (d) impulse.y += 1;
+
+        if (impulse.lengthSquared() > Maths.KINDA_SMALL_NUMBER) {
+            this.velocity.add(impulse.normalize().mul(speed));
+            impulse.set(0f);
+        }
 
         //obb rotation
         if (player instanceof OBB obb) {
@@ -74,9 +112,64 @@ public class CollisionScreen extends ParentedScreen {
     }
 
     private void tickCollisions() {
-        //apply translation to player
-        player.translate(velocity);
-        velocity.set(0f);
+        if (velocity.lengthSquared() < Maths.KINDA_SMALL_NUMBER)
+            return;
+
+        player.translate(velocity.x, velocity.y, 0f);
+
+        //resolve collisions
+        int maxSteps = collisionMode == null ? 0 : 3;
+        for (int step = 0; step < maxSteps; step++) {
+            boolean collided = false;
+
+            for (CollisionShape<?> shape : obstacles) {
+                Collision col = player.collide(shape);
+
+                if (col != null) {
+                    Vector3f thisMove = new Vector3f();
+                    Vector3f obstacleMove = new Vector3f();
+                    collided = true;
+
+                    //resolve the collision
+                    switch (collisionMode) {
+                        case SLIDE  -> CollisionResolver.slide (col, velocity, thisMove);
+                        case STICK  -> CollisionResolver.stick (col, velocity, thisMove);
+                        case BOUNCE -> CollisionResolver.bounce(col, velocity, thisMove, 2f);
+                        case FORCE  -> {
+                            CollisionResolver.force (col, velocity, 0.03f);
+                            collided = false;
+                        }
+                        case PUSH   -> CollisionResolver.push  (col, obstacleMove);
+                    }
+
+                    //apply movements
+                    player.translate(thisMove.x, thisMove.y, 0f);
+                    shape.translate(obstacleMove.x, obstacleMove.y, 0f);
+                }
+            }
+
+            for (AABB shape : boundaries) {
+                Collision col = player.collide(shape);
+
+                if (col != null) {
+                    Vector3f thisMove = new Vector3f();
+                    collided = true;
+
+                    //resolve the collision
+                    CollisionResolver.slide (col, velocity, thisMove);
+                    player.translate(thisMove.x, thisMove.y, 0f);
+                }
+            }
+
+            //early exit when there is no collisions
+            if (!collided)
+                break;
+        }
+
+        //decay momentum
+        velocity.mul(0.9f);
+        if (velocity.lengthSquared() < Maths.KINDA_SMALL_NUMBER)
+            velocity.set(0f);
     }
 
     @Override
@@ -85,6 +178,15 @@ public class CollisionScreen extends ParentedScreen {
         shapeVsShape(matrices);
         rayVsShape(matrices, mouseX, mouseY);
         renderShape(matrices, player, 0xFFFF72AD);
+
+        for (int i = 0; i < 4; i++) {
+            AABB boundary = boundaries[i];
+            renderShape(matrices, boundary, 0xFF727272);
+        }
+
+        Text.of("Mode: " + (collisionMode == null ? "NONE" : collisionMode.name())).withStyle(Style.EMPTY.outlined(true))
+                .append(Text.of("\n1-6").withStyle(Style.EMPTY.color(Colors.DARK_GRAY)))
+                .render(VertexConsumer.MAIN, matrices, width - 4, 4, Alignment.TOP_RIGHT);
     }
 
     private void rayVsShape(MatrixStack matrices, int mouseX, int mouseY) {
@@ -112,10 +214,38 @@ public class CollisionScreen extends ParentedScreen {
     }
 
     private void shapeVsShape(MatrixStack matrices) {
+        Vector3f point = new Vector3f();
+
         //draw all obstacles
         for (CollisionShape<?> shape : obstacles) {
-            renderShape(matrices, shape, player.intersects(shape) ? 0xFFFFFF00 : 0xFF72ADFF);
-            DebugRenderer.renderPoint(matrices, shape.closestPoint(player.getCenter()), 3, 0xFF72ADFF);
+            //use the new SAT collide method instead of intersects
+            Collision col = player.collide(shape);
+            boolean colliding = col != null;
+
+            //draw shape
+            renderShape(matrices, shape, colliding ? 0xFFFFFF00 : 0xFF72ADFF);
+            DebugRenderer.renderPoint(matrices, shape.closestPoint(player.getCenter(), point), 3, 0xFF72ADFF);
+
+            //preview the MTV
+            if (colliding) {
+                Vector3f center = player.getCenter();
+
+                Vector3f normal = col.normal();
+                float depth = col.depth();
+
+                //invert normal points to get the direction to move the player out of collision
+                float mtvX = -normal.x * depth;
+                float mtvY = -normal.y * depth;
+
+                float endX = center.x + mtvX;
+                float endY = center.y + mtvY;
+
+                //draw a line showing the Minimum Translation Vector
+                VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, center.x, center.y, endX, endY, 2, 0xFFFF00FF));
+
+                //draw a point at the tip of the MTV arrow
+                DebugRenderer.renderPoint(matrices, point.set(endX, endY, 0), 4, 0xFFFF00FF);
+            }
         }
     }
 
@@ -145,6 +275,26 @@ public class CollisionScreen extends ParentedScreen {
             case GLFW_KEY_E, GLFW_KEY_PAGE_DOWN -> rr = press;
 
             case GLFW_KEY_R -> client.setScreen(new CollisionScreen(parentScreen));
+
+            case GLFW_KEY_1 -> this.collisionMode = SLIDE;
+            case GLFW_KEY_2 -> this.collisionMode = STICK;
+            case GLFW_KEY_3 -> this.collisionMode = BOUNCE;
+            case GLFW_KEY_4 -> this.collisionMode = FORCE;
+            case GLFW_KEY_5 -> this.collisionMode = PUSH;
+            case GLFW_KEY_6 -> this.collisionMode = null;
+
+            case GLFW_KEY_F -> {
+                Vector3f center = player.getCenter();
+                this.player = new OBB(shapeRadius).translate(center).rotateZ(45f);
+            }
+            case GLFW_KEY_G -> {
+                Vector3f center = player.getCenter();
+                this.player = new AABB(-shapeRadius, -shapeRadius, -shapeRadius, shapeRadius, shapeRadius, shapeRadius).translate(center);
+            }
+            case GLFW_KEY_H -> {
+                Vector3f center = player.getCenter();
+                this.player = new Sphere(shapeRadius).translate(center);
+            }
 
             default -> {return super.keyPress(key, scancode, action, mods);}
         }
