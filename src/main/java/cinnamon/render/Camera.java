@@ -63,11 +63,11 @@ public class Camera {
 
         //third person
         if (mode == 1)
-            move(0f, 0f, Math.max(entity.getEyeHeight(), 1f) * 4f);
+            move(0f, 0f, Math.max(entity.getEyeHeight(), 1f) * 4f, false);
         //third person front
         else if (mode == 2) {
             rotate(0, 180f, 0);
-            move(0f, 0f, Math.max(entity.getEyeHeight(), 1f) * 4f);
+            move(0f, 0f, Math.max(entity.getEyeHeight(), 1f) * 4f, false);
         }
     }
 
@@ -91,10 +91,14 @@ public class Camera {
         viewDirty = true;
     }
 
-    public void move(float x, float y, float z) {
+    public void move(float x, float y, float z, boolean force) {
         Vector3f move = new Vector3f(x, y, z).rotate(rotation);
-        float dist = getClipDistance(move);
-        move.normalize().mul(dist);
+
+        if (!force) {
+            float dist = getClipDistance(move);
+            move.normalize().mul(dist);
+        }
+
         setPos(pos.x + move.x, pos.y + move.y, pos.z + move.z);
     }
 
