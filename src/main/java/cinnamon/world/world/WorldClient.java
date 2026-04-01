@@ -173,6 +173,12 @@ public class WorldClient extends World {
         cb4.setRotation((byte) 1);
         addTerrain(cb4);
 
+        //sphere
+        Terrain t2 = TerrainRegistry.SPHERE.getFactory().get();
+        t2.setMaterial(MaterialRegistry.GOLD);
+        t2.setPos(15, 1, -3);
+        addTerrain(t2);
+
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
 
         //lights
@@ -229,17 +235,17 @@ public class WorldClient extends World {
             e.setPickUpDelay(0);
             return e;
         });
-        potatoSpawner.setPos(-5.5f, 2f, 10f);
+        potatoSpawner.setPos(-5.5f, 4f, 10f);
         potatoSpawner.setRenderCooldown(true);
         this.addEntity(potatoSpawner);
 
         Spawner<EffectBox> effectBox = new Spawner<>(UUID.randomUUID(), 0f, 100, () -> new EffectBox(UUID.randomUUID()));
-        effectBox.setPos(-1.5f, 2f, 10f);
+        effectBox.setPos(-1.5f, 4f, 10f);
         effectBox.setRenderCooldown(true);
         this.addEntity(effectBox);
 
         Spawner<HealthPack> healthPack = new Spawner<>(UUID.randomUUID(), 0f, 100, () -> new HealthPack(UUID.randomUUID()));
-        healthPack.setPos(2.5f, 2f, 10f);
+        healthPack.setPos(2.5f, 4f, 10f);
         healthPack.setRenderCooldown(true);
         this.addEntity(healthPack);
 
@@ -861,7 +867,7 @@ public class WorldClient extends World {
 
     public void respawn(boolean init) {
         player = new LocalPlayer();
-        player.setPos(0.5f, init ? 0f : 100f, 0.5f);
+        player.setPos(0.5f, init ? 1.5f : 100f, 0.5f);
         player.getAbilities().set(Abilities.Ability.CAN_FLY, true);
         this.addEntity(player);
 

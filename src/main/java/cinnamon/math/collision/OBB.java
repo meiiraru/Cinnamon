@@ -46,8 +46,40 @@ public class OBB extends CollisionShape<OBB> {
     }
 
     public OBB(OBB obb) {
+        this.set(obb);
+    }
+
+    public OBB(AABB aabb) {
+        this.set(aabb);
+    }
+
+    public OBB(Sphere sphere) {
+        this.set(sphere);
+    }
+
+    public OBB set(OBB obb) {
         this.setCenter(obb.center);
         this.setHalfExtents(obb.halfExtents);
+        axisX.set(obb.axisX);
+        axisY.set(obb.axisY);
+        axisZ.set(obb.axisZ);
+        return this;
+    }
+
+    public OBB set(AABB aabb) {
+        float hx = aabb.getWidth()  * 0.5f;
+        float hy = aabb.getHeight() * 0.5f;
+        float hz = aabb.getDepth()  * 0.5f;
+        float cx = aabb.minX() + hx;
+        float cy = aabb.minY() + hy;
+        float cz = aabb.minZ() + hz;
+        return this.set(cx, cy, cz, hx, hy, hz);
+    }
+
+    public OBB set(Sphere sphere) {
+        Vector3f sCenter = sphere.getCenter();
+        float r = sphere.getRadius();
+        return this.set(sCenter.x, sCenter.y, sCenter.z, r, r, r);
     }
 
     public OBB set(Vector3f center, Vector3f halfExtents) {
@@ -71,10 +103,12 @@ public class OBB extends CollisionShape<OBB> {
         return this;
     }
 
-    public OBB setCenter(Vector3f center) {
-        return this.setCenter(center.x, center.y, center.z);
+    @Override
+    public OBB clone() {
+        return new OBB(this);
     }
 
+    @Override
     public OBB setCenter(float x, float y, float z) {
         this.center.set(x, y, z);
         return this;

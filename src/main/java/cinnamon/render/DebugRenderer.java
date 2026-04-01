@@ -4,6 +4,7 @@ import cinnamon.Client;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.CollisionShape;
 import cinnamon.math.collision.OBB;
 import cinnamon.math.collision.Sphere;
 import cinnamon.model.GeometryHelper;
@@ -57,6 +58,15 @@ public class DebugRenderer {
         VertexConsumer.LINES.consume(GeometryHelper.box(matrices, -half.x, -half.y, -half.z, half.x, half.y, half.z, color));
 
         matrices.popMatrix();
+    }
+
+    public static void renderShape(MatrixStack matrices, CollisionShape<?> shape, int color) {
+        switch (shape) {
+            case Sphere sphere -> renderSphere(matrices, sphere, color);
+            case AABB aabb -> renderAABB(matrices, aabb, color);
+            case OBB obb -> renderOBB(matrices, obb, color);
+            default -> {}
+        }
     }
 
     public static void renderArrow(MatrixStack matrices, Vector3f dir, float len, int color) {

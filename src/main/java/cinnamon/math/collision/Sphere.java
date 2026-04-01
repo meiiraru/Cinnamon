@@ -27,11 +27,31 @@ public class Sphere extends CollisionShape<Sphere> {
     }
 
     public Sphere(Sphere sphere) {
-        this.set(sphere.center, sphere.radius);
+        this.set(sphere);
+    }
+
+    public Sphere(AABB aabb) {
+        this.set(aabb);
+    }
+
+    public Sphere(OBB obb) {
+        this.set(obb);
     }
 
     public Sphere set(Sphere sphere) {
         return this.set(sphere.center, sphere.radius);
+    }
+
+    public Sphere set(AABB aabb) {
+        Vector3f center = aabb.getCenter();
+        float radius = aabb.getDimensions().length() * 0.5f;
+        return this.set(center, radius);
+    }
+
+    public Sphere set(OBB obb) {
+        Vector3f center = obb.getCenter();
+        float radius = obb.getHalfExtents().length();
+        return this.set(center, radius);
     }
 
     public Sphere set(Vector3f center, float radius) {
@@ -44,10 +64,12 @@ public class Sphere extends CollisionShape<Sphere> {
         return this;
     }
 
-    public Sphere setCenter(Vector3f center) {
-        return this.setCenter(center.x, center.y, center.z);
+    @Override
+    public Sphere clone() {
+        return new Sphere(this);
     }
 
+    @Override
     public Sphere setCenter(float x, float y, float z) {
         this.center.set(x, y, z);
         return this;

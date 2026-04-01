@@ -44,10 +44,10 @@ public class CollisionWorld extends WorldClient {
 
         //render shapes (+ point)
         DebugRenderer.renderPoint (matrices, po, 0.1f, main.containsPoint(po) ? 0xFFFFFF00 : 0xFFFFFFFF);
-        renderShape(matrices, main, 0xFFAD72FF);
-        renderShape(matrices, sp, sp.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
-        renderShape(matrices, bb, bb.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
-        renderShape(matrices, ob, ob.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
+        DebugRenderer.renderShape(matrices, main, 0xFFAD72FF);
+        DebugRenderer.renderShape(matrices, sp, sp.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
+        DebugRenderer.renderShape(matrices, bb, bb.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
+        DebugRenderer.renderShape(matrices, ob, ob.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
 
         //raycast
         boolean hasHit = false;
@@ -79,15 +79,6 @@ public class CollisionWorld extends WorldClient {
 
         VertexConsumer.finishAllBatches(camera);
         super.renderDebug(camera, matrices, delta);
-    }
-
-    public static void renderShape(MatrixStack matrices, CollisionShape<?> shape, int color) {
-        switch (shape) {
-            case Sphere sphere -> DebugRenderer.renderSphere(matrices, sphere, color);
-            case AABB aabb -> DebugRenderer.renderAABB(matrices, aabb, color);
-            case OBB obb -> DebugRenderer.renderOBB(matrices, obb, color);
-            default -> {}
-        }
     }
 
     @Override

@@ -21,6 +21,10 @@ public class AABB extends CollisionShape<AABB> {
         this(0, 0, 0, 0, 0, 0);
     }
 
+    public AABB(float size) {
+        this(0, 0, 0, size, size, size);
+    }
+
     public AABB(Vector3f dimensions) {
         this(0, 0, 0, dimensions.x, dimensions.y, dimensions.z);
     }
@@ -42,8 +46,37 @@ public class AABB extends CollisionShape<AABB> {
         this.maxZ = aabb.maxZ;
     }
 
+    public AABB(OBB obb) {
+        this.set(obb);
+    }
+
+    public AABB(Sphere sphere) {
+        this.set(sphere);
+    }
+
     public AABB set(AABB aabb) {
         return this.set(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
+    }
+
+    public AABB set(OBB obb) {
+        Vector3f center = obb.getCenter();
+        Vector3f half = obb.getHalfExtents();
+        Vector3f axisX = obb.getAxisX(); Vector3f axisY = obb.getAxisY(); Vector3f axisZ = obb.getAxisZ();
+
+        float axX = axisX.x * half.x; float axY = axisX.y * half.x; float axZ = axisX.z * half.x;
+        float ayX = axisY.x * half.y; float ayY = axisY.y * half.y; float ayZ = axisY.z * half.y;
+        float azX = axisZ.x * half.z; float azY = axisZ.y * half.z; float azZ = axisZ.z * half.z;
+
+        return this.set(
+                center.x - axX - ayX - azX, center.y - axY - ayY - azY, center.z - axZ - ayZ - azZ,
+                center.x + axX + ayX + azX, center.y + axY + ayY + azY, center.z + axZ + ayZ + azZ
+        );
+    }
+
+    public AABB set(Sphere sphere) {
+        Vector3f center = sphere.getCenter();
+        float r = sphere.getRadius();
+        return this.set(center.x - r, center.y - r, center.z - r, center.x + r, center.y + r, center.z + r);
     }
 
     public AABB set(Vector3f position) {
@@ -73,6 +106,11 @@ public class AABB extends CollisionShape<AABB> {
         this.maxZ = maxZ;
 
         return this;
+    }
+
+    @Override
+    public AABB clone() {
+        return new AABB(this);
     }
 
     @Override
@@ -354,6 +392,19 @@ public class AABB extends CollisionShape<AABB> {
             (minY + maxY) * 0.5f,
             (minZ + maxZ) * 0.5f
         );
+    }
+
+    @Override
+    public AABB setCenter(float x, float y, float z) {
+        float cx = (minX + maxX) * 0.5f;
+        float cy = (minY + maxY) * 0.5f;
+        float cz = (minZ + maxZ) * 0.5f;
+
+        float dx = x - cx;
+        float dy = y - cy;
+        float dz = z - cz;
+
+        return this.translate(dx, dy, dz);
     }
 
     public Vector3f getRandomPoint() {

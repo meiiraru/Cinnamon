@@ -4,12 +4,18 @@ import org.joml.Vector3f;
 
 public abstract class CollisionShape<T extends CollisionShape<T>> {
 
+    public abstract T clone();
+
     public abstract Vector3f getCenter();
+
+    public T setCenter(Vector3f center) {
+        return this.setCenter(center.x, center.y, center.z);
+    }
+    public abstract T setCenter(float x, float y, float z);
 
     public T translate(Vector3f translation) {
         return this.translate(translation.x, translation.y, translation.z);
     }
-
     public abstract T translate(float x, float y, float z);
 
     public boolean containsPoint(Vector3f point) {
