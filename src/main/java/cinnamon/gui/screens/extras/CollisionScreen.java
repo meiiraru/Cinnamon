@@ -25,6 +25,7 @@ public class CollisionScreen extends ParentedScreen {
 
     private static final float shapeRadius = 10f;
     private static final float speed = 0.5f;
+    private static final float maxSpeed = 10f;
     private static final float rotationSpeed = 5f;
 
     private final Screen parentScreen;
@@ -36,6 +37,7 @@ public class CollisionScreen extends ParentedScreen {
     private CollisionShape<?> player;
     private boolean l, r, u, d, rl, rr;
     private CollisionResolver.Mode collisionMode = SLIDE;
+    private int points = 0;
 
     public CollisionScreen(Screen parentScreen) {
         super(parentScreen);
@@ -112,10 +114,15 @@ public class CollisionScreen extends ParentedScreen {
         if (u) impulse.y -= 1;
         if (d) impulse.y += 1;
 
+        //apply impulse
         if (impulse.lengthSquared() > Maths.KINDA_SMALL_NUMBER) {
             this.velocity.add(impulse.normalize().mul(speed));
             impulse.set(0f);
         }
+
+        //max speed
+        if (velocity.lengthSquared() > maxSpeed * maxSpeed)
+            velocity.normalize().mul(maxSpeed);
 
         //obb rotation
         if (player instanceof OBB obb) {
@@ -128,51 +135,65 @@ public class CollisionScreen extends ParentedScreen {
         if (velocity.lengthSquared() < Maths.KINDA_SMALL_NUMBER)
             return;
 
-        player.translate(velocity.x, velocity.y, 0f);
         collidedWith.clear();
 
-        //resolve collisions
-        int maxSteps = collisionMode == null ? 0 : 5;
-        for (int step = 0; step < maxSteps; step++) {
-            Collision collision = null;
-            boolean forceSlide = false;
+        //sub-stepping to avoid tunnelling - step size of half the shape radius
+        float maxSafeStep = shapeRadius * 0.5f;
+        float frameDistance = velocity.length();
+        int subSteps = (int) Math.ceil(frameDistance / maxSafeStep);
+        Vector3f subVelocity = new Vector3f(velocity).div(subSteps);
 
-            for (CollisionShape<?> shape : obstacles) {
-                Collision col = player.collide(shape);
-                if (col != null && (collision == null || col.depth() > collision.depth()))
-                    collision = col;
-            }
+        //move in small steps and resolve the collisions
+        for (int i = 0; i < subSteps; i++) {
+            //move by the sub-step velocity
+            player.translate(subVelocity.x, subVelocity.y, 0f);
 
-            for (AABB shape : boundaries) {
-                Collision col = player.collide(shape);
+            //resolve collisions
+            int maxSteps = collisionMode == null ? 0 : 5;
+            for (int step = 0; step < maxSteps; step++) {
+                Collision collision = null;
+                boolean forceSlide = false;
 
-                if (col != null && (collision == null || col.depth() > collision.depth())) {
-                    collision = col;
-                    forceSlide = true;
+                for (CollisionShape<?> shape : obstacles) {
+                    Collision col = player.collide(shape);
+                    if (col != null && (collision == null || col.depth() > collision.depth()))
+                        collision = col;
                 }
+
+                for (AABB shape : boundaries) {
+                    Collision col = player.collide(shape);
+
+                    if (col != null && (collision == null || col.depth() > collision.depth())) {
+                        collision = col;
+                        forceSlide = true;
+                    }
+                }
+
+                //early exit when there are no collisions
+                if (collision == null)
+                    break;
+
+                collidedWith.add(collision);
+                Vector3f thisMove = new Vector3f();
+                Vector3f obstacleMove = new Vector3f();
+
+                //resolve the collision
+                CollisionResolver.Mode mode = forceSlide ? SLIDE : collisionMode;
+                switch (mode) {
+                    case SLIDE  -> CollisionResolver.slide  (collision, velocity, thisMove);
+                    case STICK  -> CollisionResolver.stick  (collision, velocity, thisMove);
+                    case BOUNCE -> {CollisionResolver.bounce(collision, velocity, thisMove, 2f); points += 10;}
+                    case FORCE  -> CollisionResolver.force  (collision, velocity, 0.03f);
+                    case PUSH   -> CollisionResolver.push   (collision, obstacleMove);
+                }
+
+                //apply resolution movements
+                collision.shapeA().translate(thisMove.x, thisMove.y, 0f);
+                collision.shapeB().translate(obstacleMove.x, obstacleMove.y, 0f);
+
+                //recalculate velocity for the remaining sub-steps based on the collision resolution
+                subVelocity.set(velocity).div(subSteps);
             }
-
-            //early exit when there is no collisions
-            if (collision == null)
-                break;
-
-            collidedWith.add(collision);
-            Vector3f thisMove = new Vector3f();
-            Vector3f obstacleMove = new Vector3f();
-
-            //resolve the collision
-            CollisionResolver.Mode mode = forceSlide ? SLIDE : collisionMode;
-            switch (mode) {
-                case SLIDE  -> CollisionResolver.slide (collision, velocity, thisMove);
-                case STICK  -> CollisionResolver.stick (collision, velocity, thisMove);
-                case BOUNCE -> CollisionResolver.bounce(collision, velocity, thisMove, 2f);
-                case FORCE  -> CollisionResolver.force (collision, velocity, 0.03f);
-                case PUSH   -> CollisionResolver.push  (collision, obstacleMove);
-            }
-
-            //apply movements
-            collision.shapeA().translate(thisMove.x, thisMove.y, 0f);
-            collision.shapeB().translate(obstacleMove.x, obstacleMove.y, 0f);
         }
 
         //decay momentum
@@ -200,6 +221,16 @@ public class CollisionScreen extends ParentedScreen {
         Text.of("Mode: " + (collisionMode == null ? "NONE" : collisionMode.name())).withStyle(Style.EMPTY.outlined(true))
                 .append(Text.of("\n1-6").withStyle(Style.EMPTY.color(Colors.DARK_GRAY)))
                 .render(VertexConsumer.MAIN, matrices, width - 4, 4, Alignment.TOP_RIGHT);
+
+        Vector3f pos = player.getCenter();
+        Text.of("x: %.3f y: %.3f".formatted(pos.x, pos.y)).withStyle(Style.EMPTY.outlined(true))
+                .append(Text.of("\nF: OBB G: AABB H: Sphere").withStyle(Style.EMPTY.color(Colors.DARK_GRAY)))
+                .render(VertexConsumer.MAIN, matrices, width / 2f, 4, Alignment.TOP_CENTER);
+
+        if (collisionMode == BOUNCE) {
+            Text.of("Score: " + points).withStyle(Style.EMPTY.outlined(true))
+                    .render(VertexConsumer.MAIN, matrices, 4, height - 4, Alignment.BOTTOM_LEFT);
+        }
     }
 
     private void rayVsShape(MatrixStack matrices, int mouseX, int mouseY) {
@@ -291,7 +322,7 @@ public class CollisionScreen extends ParentedScreen {
 
             case GLFW_KEY_1 -> this.collisionMode = SLIDE;
             case GLFW_KEY_2 -> this.collisionMode = STICK;
-            case GLFW_KEY_3 -> this.collisionMode = BOUNCE;
+            case GLFW_KEY_3 -> {this.collisionMode = BOUNCE; this.points = 0;}
             case GLFW_KEY_4 -> this.collisionMode = FORCE;
             case GLFW_KEY_5 -> this.collisionMode = PUSH;
             case GLFW_KEY_6 -> this.collisionMode = null;
