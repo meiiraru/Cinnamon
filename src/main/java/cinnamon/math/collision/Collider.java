@@ -2,7 +2,7 @@ package cinnamon.math.collision;
 
 import org.joml.Vector3f;
 
-public abstract class CollisionShape<T extends CollisionShape<T>> {
+public abstract class Collider<T extends Collider<T>> {
 
     public abstract T clone();
 
@@ -33,7 +33,7 @@ public abstract class CollisionShape<T extends CollisionShape<T>> {
     }
     public abstract Vector3f closestPoint(float x, float y, float z, Vector3f out);
 
-    public boolean intersects(CollisionShape<?> other) {
+    public boolean intersects(Collider<?> other) {
         return switch (other) {
             case Sphere sphere -> this.intersectsSphere(sphere);
             case AABB aabb -> this.intersectsAABB(aabb);
@@ -50,7 +50,7 @@ public abstract class CollisionShape<T extends CollisionShape<T>> {
 
     public abstract void project(Vector3f axis, float[] minMax);
 
-    public Collision collide(CollisionShape<?> other) {
+    public Collision collide(Collider<?> other) {
         return switch (other) {
             case Sphere sphere -> this.collideSphere(sphere);
             case AABB aabb -> this.collideAABB(aabb);

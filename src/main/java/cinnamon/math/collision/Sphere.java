@@ -5,7 +5,7 @@ import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public class Sphere extends CollisionShape<Sphere> {
+public class Sphere extends Collider<Sphere> {
 
     private final Vector3f center = new Vector3f();
     private float radius;

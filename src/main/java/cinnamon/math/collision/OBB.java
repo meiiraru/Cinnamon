@@ -5,7 +5,7 @@ import org.joml.Math;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class OBB extends CollisionShape<OBB> {
+public class OBB extends Collider<OBB> {
 
     private final Vector3f center = new Vector3f(), halfExtents = new Vector3f();
     private final Vector3f
@@ -414,7 +414,7 @@ public class OBB extends CollisionShape<OBB> {
         //convert aabb to obb with identity rotation and use SAT for OBB vs OBB intersection
         return SATHelper.intersectsOBBSAT(
                 center, halfExtents, getAxisX(), getAxisY(), getAxisZ(),
-                new Vector3f(cx, cy, cz), new Vector3f(hx, hy, hz), AABB.AXIS_X, AABB.AXIS_Y, AABB.AXIS_Z
+                new Vector3f(cx, cy, cz), new Vector3f(hx, hy, hz), SATHelper.AXIS_X, SATHelper.AXIS_Y, SATHelper.AXIS_Z
         );
     }
 

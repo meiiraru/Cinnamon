@@ -64,7 +64,7 @@ public class Ray {
         return maxDistance;
     }
 
-    public static Hit collide(Ray ray, CollisionShape<?> shape) {
+    public static Hit collide(Ray ray, Collider<?> shape) {
         return ray.maxDistance >= Maths.SMALL_NUMBER ? shape.collideRay(ray) : null;
     }
 }

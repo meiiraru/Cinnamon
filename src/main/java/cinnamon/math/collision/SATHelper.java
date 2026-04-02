@@ -7,6 +7,12 @@ import org.joml.Vector3f;
 //Separating Axis Theorem helper class
 public class SATHelper {
 
+    public static final Vector3f
+            AXIS_X = new Vector3f(1, 0, 0),
+            AXIS_Y = new Vector3f(0, 1, 0),
+            AXIS_Z = new Vector3f(0, 0, 1);
+    public static final Vector3f[] AABB_AXES = {AXIS_X, AXIS_Y, AXIS_Z};
+
     private static final float[]
             minMaxA = new float[2],
             minMaxB = new float[2];
@@ -55,7 +61,7 @@ public class SATHelper {
         ra = hA.x * ar12 + hA.y * ar02; rb = hB.x * ar21 + hB.y * ar20; return Math.abs(t1 * r02 - t0 * r12) <= ra + rb; //no axes found a separating plane - overlap
     }
 
-    private static float testAxis(Vector3f axis, CollisionShape<?> a, CollisionShape<?> b) {
+    private static float testAxis(Vector3f axis, Collider<?> a, Collider<?> b) {
         //invalid axis
         if (axis.lengthSquared() < Maths.KINDA_SMALL_NUMBER)
             return Float.MAX_VALUE;
@@ -69,7 +75,7 @@ public class SATHelper {
         return Math.min(minMaxA[1], minMaxB[1]) - Math.max(minMaxA[0], minMaxB[0]);
     }
 
-    public static Collision SATCollide(CollisionShape<?> a, CollisionShape<?> b, Vector3f[] axesA, Vector3f[] axesB) {
+    public static Collision SATCollide(Collider<?> a, Collider<?> b, Vector3f[] axesA, Vector3f[] axesB) {
         float minDepth = Float.MAX_VALUE;
         Vector3f minAxis = new Vector3f();
 

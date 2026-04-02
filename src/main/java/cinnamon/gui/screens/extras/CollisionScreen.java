@@ -18,7 +18,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
-import static cinnamon.math.collision.CollisionResolver.Mode.*;
+import static cinnamon.math.collision.Collision.Mode.*;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class CollisionScreen extends ParentedScreen {
@@ -29,14 +29,14 @@ public class CollisionScreen extends ParentedScreen {
     private static final float rotationSpeed = 5f;
 
     private final Screen parentScreen;
-    private final List<CollisionShape<?>> obstacles;
+    private final List<Collider<?>> obstacles;
     private final AABB[] boundaries;
     private final Vector3f rayPos, lastPlayerPos, impulse, velocity;
     private final List<Collision> collidedWith;
 
-    private CollisionShape<?> player;
+    private Collider<?> player;
     private boolean l, r, u, d, rl, rr;
-    private CollisionResolver.Mode collisionMode = SLIDE;
+    private Collision.Mode collisionMode = SLIDE;
     private int points = 0;
 
     public CollisionScreen(Screen parentScreen) {
@@ -154,7 +154,7 @@ public class CollisionScreen extends ParentedScreen {
                 Collision collision = null;
                 boolean forceSlide = false;
 
-                for (CollisionShape<?> shape : obstacles) {
+                for (Collider<?> shape : obstacles) {
                     Collision col = player.collide(shape);
                     if (col != null && (collision == null || col.depth() > collision.depth()))
                         collision = col;
@@ -178,13 +178,13 @@ public class CollisionScreen extends ParentedScreen {
                 Vector3f obstacleMove = new Vector3f();
 
                 //resolve the collision
-                CollisionResolver.Mode mode = forceSlide ? SLIDE : collisionMode;
+                Collision.Mode mode = forceSlide ? SLIDE : collisionMode;
                 switch (mode) {
-                    case SLIDE  -> CollisionResolver.slide  (collision, velocity, thisMove);
-                    case STICK  -> CollisionResolver.stick  (collision, velocity, thisMove);
-                    case BOUNCE -> {CollisionResolver.bounce(collision, velocity, thisMove, 2f); points += 10;}
-                    case FORCE  -> CollisionResolver.force  (collision, velocity, 0.03f);
-                    case PUSH   -> CollisionResolver.push   (collision, obstacleMove);
+                    case SLIDE  -> Collision.slide  (collision, velocity, thisMove);
+                    case STICK  -> Collision.stick  (collision, velocity, thisMove);
+                    case BOUNCE -> {Collision.bounce(collision, velocity, thisMove, 2f); points += 10;}
+                    case FORCE  -> Collision.force  (collision, velocity, 0.03f);
+                    case PUSH   -> Collision.push   (collision, obstacleMove);
                 }
 
                 //apply resolution movements
@@ -262,7 +262,7 @@ public class CollisionScreen extends ParentedScreen {
         Vector3f center = player.getCenter();
 
         //draw all obstacles
-        for (CollisionShape<?> shape : obstacles) {
+        for (Collider<?> shape : obstacles) {
             //draw shape
             DebugRenderer.renderShape(matrices, shape, 0xFF72ADFF);
             DebugRenderer.renderPoint(matrices, shape.closestPoint(center, point), 3, 0xFF72ADFF);

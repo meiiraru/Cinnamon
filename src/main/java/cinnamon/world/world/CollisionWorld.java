@@ -25,7 +25,7 @@ public class CollisionWorld extends WorldClient {
     private final AABB     bb = new AABB(3, 3, 3, 7, 7, 7);
     private final OBB      ob = new OBB(5, 9.5f, 5, 0.5f, 0.5f, 0.5f).rotateZ(45f);
 
-    private final CollisionShape<?>[] shapes = new CollisionShape[] {main, sp, bb, ob};
+    private final Collider<?>[] shapes = new Collider[] {main, sp, bb, ob};
 
     @Override
     protected void tempLoad() {
@@ -51,7 +51,7 @@ public class CollisionWorld extends WorldClient {
 
         //raycast
         boolean hasHit = false;
-        for (CollisionShape<?> s : shapes) {
+        for (Collider<?> s : shapes) {
             Hit hit = s.collideRay(ray);
             if (hit != null) {
                 hasHit = true;

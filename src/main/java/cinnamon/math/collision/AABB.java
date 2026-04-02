@@ -5,13 +5,7 @@ import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public class AABB extends CollisionShape<AABB> {
-
-    public static final Vector3f
-            AXIS_X = new Vector3f(1, 0, 0),
-            AXIS_Y = new Vector3f(0, 1, 0),
-            AXIS_Z = new Vector3f(0, 0, 1);
-    public static final Vector3f[] AXES = {AXIS_X, AXIS_Y, AXIS_Z};
+public class AABB extends Collider<AABB> {
 
     private float
             minX, minY, minZ,
@@ -574,7 +568,7 @@ public class AABB extends CollisionShape<AABB> {
 
     @Override
     public Collision collideOBB(OBB obb) {
-        return SATHelper.SATCollide(this, obb, AXES, new Vector3f[]{obb.getAxisX(), obb.getAxisY(), obb.getAxisZ()});
+        return SATHelper.SATCollide(this, obb, SATHelper.AABB_AXES, new Vector3f[]{obb.getAxisX(), obb.getAxisY(), obb.getAxisZ()});
     }
 
     @Override
@@ -624,6 +618,20 @@ public class AABB extends CollisionShape<AABB> {
         else                    normal.set( 0,  0,  1);
 
         return new Collision(normal, r + minDist, this, sphere);
+    }
+
+    public Hit sweepAABB(AABB aabb, Vector3f movement) {
+        float hx = (maxX - minX) * 0.5f;
+        float hy = (maxY - minY) * 0.5f;
+        float hz = (maxZ - minZ) * 0.5f;
+
+        float cx = minX + hx;
+        float cy = minY + hy;
+        float cz = minZ + hz;
+
+        AABB expandedTarget = new AABB(aabb).inflate(hx, hy, hz);
+        Ray ray = new Ray(cx, cy, cz, movement.x, movement.y, movement.z, movement.length());
+        return expandedTarget.collideRay(ray);
     }
 
     @Override

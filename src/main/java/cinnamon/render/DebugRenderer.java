@@ -4,7 +4,7 @@ import cinnamon.Client;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
-import cinnamon.math.collision.CollisionShape;
+import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.OBB;
 import cinnamon.math.collision.Sphere;
 import cinnamon.model.GeometryHelper;
@@ -60,7 +60,7 @@ public class DebugRenderer {
         matrices.popMatrix();
     }
 
-    public static void renderShape(MatrixStack matrices, CollisionShape<?> shape, int color) {
+    public static void renderShape(MatrixStack matrices, Collider<?> shape, int color) {
         switch (shape) {
             case Sphere sphere -> renderSphere(matrices, sphere, color);
             case AABB aabb -> renderAABB(matrices, aabb, color);
