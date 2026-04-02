@@ -144,6 +144,19 @@ public class OBB extends CollisionShape<OBB> {
         return this;
     }
 
+    public OBB translateLocal(Vector3f translation) {
+        return this.translateLocal(translation.x, translation.y, translation.z);
+    }
+
+    public OBB translateLocal(float x, float y, float z) {
+        this.center.add(
+                axisX.x * x + axisY.x * y + axisZ.x * z,
+                axisX.y * x + axisY.y * y + axisZ.y * z,
+                axisX.z * x + axisY.z * y + axisZ.z * z
+        );
+        return this;
+    }
+
     public OBB scale(float scale) {
         return this.scale(scale, scale, scale);
     }
@@ -180,6 +193,16 @@ public class OBB extends CollisionShape<OBB> {
         return this;
     }
 
+    public OBB rotate(Quaternionf rotation, Vector3f anchor) {
+        return this.rotate(rotation, anchor.x, anchor.y, anchor.z);
+    }
+
+    public OBB rotate(Quaternionf rotation, float anchorX, float anchorY, float anchorZ) {
+        this.center.sub(anchorX, anchorY, anchorZ).rotate(rotation).add(anchorX, anchorY, anchorZ);
+        this.rotate(rotation);
+        return this;
+    }
+
     public OBB identityRotation() {
         axisX.set(1, 0, 0);
         axisY.set(0, 1, 0);
@@ -195,6 +218,28 @@ public class OBB extends CollisionShape<OBB> {
         return this;
     }
 
+    public OBB rotateX(float angle, Vector3f anchor) {
+        return this.rotateX(angle, anchor.x, anchor.y, anchor.z);
+    }
+
+    public OBB rotateX(float angle, float anchorX, float anchorY, float anchorZ) {
+        if (angle == 0f)
+            return this;
+
+        float rad = Math.toRadians(angle);
+        float sin = Math.sin(rad), cos = Math.cos(rad);
+
+        float dy = center.y - anchorY;
+        float dz = center.z - anchorZ;
+        center.y = anchorY + dy * cos - dz * sin;
+        center.z = anchorZ + dy * sin + dz * cos;
+
+        axisX.rotateX(rad);
+        axisY.rotateX(rad);
+        axisZ.rotateX(rad);
+        return this;
+    }
+
     public OBB rotateY(float angle) {
         float rad = Math.toRadians(angle);
         axisX.rotateY(rad);
@@ -203,8 +248,52 @@ public class OBB extends CollisionShape<OBB> {
         return this;
     }
 
+    public OBB rotateY(float angle, Vector3f anchor) {
+        return this.rotateY(angle, anchor.x, anchor.y, anchor.z);
+    }
+
+    public OBB rotateY(float angle, float anchorX, float anchorY, float anchorZ) {
+        if (angle == 0f)
+            return this;
+
+        float rad = Math.toRadians(angle);
+        float sin = Math.sin(rad), cos = Math.cos(rad);
+
+        float dx = center.x - anchorX;
+        float dz = center.z - anchorZ;
+        center.x = anchorX + dx * cos + dz * sin;
+        center.z = anchorZ - dx * sin + dz * cos;
+
+        axisX.rotateY(rad);
+        axisY.rotateY(rad);
+        axisZ.rotateY(rad);
+        return this;
+    }
+
     public OBB rotateZ(float angle) {
         float rad = Math.toRadians(angle);
+        axisX.rotateZ(rad);
+        axisY.rotateZ(rad);
+        axisZ.rotateZ(rad);
+        return this;
+    }
+
+    public OBB rotateZ(float angle, Vector3f anchor) {
+        return this.rotateZ(angle, anchor.x, anchor.y, anchor.z);
+    }
+
+    public OBB rotateZ(float angle, float anchorX, float anchorY, float anchorZ) {
+        if (angle == 0f)
+            return this;
+
+        float rad = Math.toRadians(angle);
+        float sin = Math.sin(rad), cos = Math.cos(rad);
+
+        float dx = center.x - anchorX;
+        float dy = center.y - anchorY;
+        center.x = anchorX + dx * cos - dy * sin;
+        center.y = anchorY + dx * sin + dy * cos;
+
         axisX.rotateZ(rad);
         axisY.rotateZ(rad);
         axisZ.rotateZ(rad);
