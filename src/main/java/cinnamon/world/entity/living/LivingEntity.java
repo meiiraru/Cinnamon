@@ -401,7 +401,7 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     protected float clampPitch(float pitch) {
-        return Math.max(Math.min(pitch, 90), -90);
+        return Math.max(Math.min(pitch, 90f - Maths.EPSILON), -90f + Maths.EPSILON);
     }
 
     @Override

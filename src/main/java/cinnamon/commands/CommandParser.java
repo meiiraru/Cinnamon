@@ -78,14 +78,14 @@ public class CommandParser {
         Vector3f relativePos = source.getPos();
 
         try {
-            //check for directional coordinates
-            if (args.getFirst().startsWith("^") && args.get(1).startsWith("^") && args.get(2).startsWith("^")) {
+            //check for directional coordinates "^left ^up ^forward"
+            if (args.peek().startsWith("^") && args.get(args.size() - 2).startsWith("^") && args.get(args.size() - 3).startsWith("^")) {
                 for (int i = 0; i < 3; i++) {
                     result.setComponent(i, parseRelativeFloat(args.peek()));
                     args.pop();
                 }
 
-                result.rotate(source.getRot());
+                result.rotate(Maths.dirToQuat(source.getLookDir()));
                 result.add(relativePos);
             }
 
