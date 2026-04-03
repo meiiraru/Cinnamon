@@ -3,10 +3,12 @@ package cinnamon.render;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Hit;
+import cinnamon.utils.Pair;
 import cinnamon.vr.XrManager;
-import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
+import cinnamon.world.terrain.Terrain;
 import org.joml.*;
 import org.joml.Math;
 
@@ -126,12 +128,12 @@ public class Camera {
             rayStart.set(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
             area.set(rayStart).expand(direction);
 
-            Hit<?> hit = entity.getWorld().raycastTerrain(area, rayStart, direction, t ->
+            Pair<Hit, Terrain> hit = entity.getWorld().raycastTerrain(area, rayStart, direction, t ->
                     t.isSelectable(entity) && (!(entity instanceof PhysEntity pe) || pe.getTerrainCollisionMask().test(t.getCollisionMask()))
             );
 
             if (hit != null) {
-                float hitDist = hit.collision().near() * distance;
+                float hitDist = hit.first().tNear();
                 if (hitDist < maxDist)
                     maxDist = hitDist;
             }

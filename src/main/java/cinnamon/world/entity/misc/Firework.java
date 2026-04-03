@@ -2,12 +2,12 @@ package cinnamon.world.entity.misc;
 
 import cinnamon.math.Maths;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Hit;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Resource;
 import cinnamon.world.DamageType;
-import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.LivingEntity;
@@ -74,12 +74,12 @@ public class  Firework extends PhysEntity {
     }
 
     @Override
-    protected void resolveCollision(CollisionResult collision, Vector3f totalMove) {
+    protected void resolveCollision(Hit collision, Vector3f totalMove) {
         explode();
     }
 
     @Override
-    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
+    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
         if (!(entity instanceof Firework))
             explode();
     }

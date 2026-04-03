@@ -1,10 +1,10 @@
 package cinnamon.world.entity.projectile;
 
 import cinnamon.math.Maths;
+import cinnamon.math.collision.Hit;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
 import cinnamon.world.DamageType;
-import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
@@ -94,7 +94,7 @@ public abstract class Projectile extends PhysEntity {
     }
 
     @Override
-    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
+    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
         super.collide(entity, result, toMove);
 
         if (isRemoved() || !(entity instanceof LivingEntity living) || living.getUUID().equals(getOwner()))

@@ -60,7 +60,7 @@ public class CollisionWorld extends WorldClient {
                 DebugRenderer.renderPoint(matrices, hit.position(), 0.1f, 0xFF00FF00);
 
                 //far hit
-                Vector3f farHit = new Vector3f(ray.getDirection()).mul(hit.tFar()).add(ray.getOrigin());
+                Vector3f farHit = new Vector3f(ray.getDirection()).mul(hit.tFar() * ray.getMaxDistance()).add(ray.getOrigin());
                 DebugRenderer.renderPoint(matrices, farHit, 0.1f, 0xFFFF2200);
 
                 //normal

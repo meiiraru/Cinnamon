@@ -3,6 +3,8 @@ package cinnamon.world.entity.projectile;
 import cinnamon.events.Await;
 import cinnamon.math.Maths;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.Resolution;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
@@ -10,8 +12,6 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.ColorUtils;
-import cinnamon.world.collisions.CollisionResolver;
-import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.particle.DustParticle;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
@@ -27,7 +27,7 @@ public class Potato extends Projectile {
     public static final int LIFETIME = 100;
     public static final float SPEED = 1.25f;
     public static final float CRIT_CHANCE = 0.15f;
-    private static final Vector3f BOUNCINESS = new Vector3f(0.25f, 0, 0.25f);
+    private static final float BOUNCINESS = 0.25f;
 
     private float oScale = 1f, scale = 1f;
     private int state = 0, easing = 0;
@@ -70,8 +70,8 @@ public class Potato extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(CollisionResult collision, Vector3f totalMove) {
-        CollisionResolver.bounce(collision, getMotion(), totalMove, BOUNCINESS);
+    protected void resolveCollision(Hit hit, Vector3f totalMove) {
+        Resolution.bounce(hit, getMotion(), totalMove, BOUNCINESS);
     }
 
     @Override

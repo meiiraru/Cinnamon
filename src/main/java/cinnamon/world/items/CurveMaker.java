@@ -3,13 +3,14 @@ package cinnamon.world.items;
 import cinnamon.gui.Toast;
 import cinnamon.math.Curve;
 import cinnamon.math.Rotation;
+import cinnamon.math.collision.Hit;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.ItemModelRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
+import cinnamon.utils.Pair;
 import cinnamon.vr.XrManager;
-import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.living.LocalPlayer;
 import cinnamon.world.terrain.Terrain;
@@ -68,9 +69,9 @@ public class CurveMaker extends Item {
         if (source instanceof LocalPlayer && XrManager.isInXR())
             return source.getHandDir().mul(0.5f).add(source.getHandPos());
 
-        Hit<Terrain> terrain = source.getLookingTerrain(source.getPickRange());
+        Pair<Hit, Terrain> terrain = source.getLookingTerrain(source.getPickRange());
         if (terrain != null)
-            return terrain.collision().pos();
+            return terrain.first().position();
 
         return source.getLookDir().mul(source.getPickRange()).add(source.getEyePos());
     }

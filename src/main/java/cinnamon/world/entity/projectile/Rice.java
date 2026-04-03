@@ -1,11 +1,11 @@
 package cinnamon.world.entity.projectile;
 
 import cinnamon.math.Maths;
+import cinnamon.math.collision.Hit;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
-import cinnamon.world.collisions.CollisionResult;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -28,7 +28,7 @@ public class Rice extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(CollisionResult collision, Vector3f totalMove) {
+    protected void resolveCollision(Hit collision, Vector3f totalMove) {
         remove();
     }
 

@@ -2,12 +2,12 @@ package cinnamon.world.entity.collectable;
 
 import cinnamon.Client;
 import cinnamon.math.Maths;
+import cinnamon.math.collision.Hit;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Resource;
-import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.items.Item;
@@ -77,7 +77,7 @@ public class ItemEntity extends Collectable {
     }
 
     @Override
-    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
+    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
         if (isRemoved() || pickUpDelay > 0)
             return;
 

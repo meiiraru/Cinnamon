@@ -2,12 +2,12 @@ package cinnamon.world.entity.collectable;
 
 import cinnamon.Client;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.Resolution;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.Resource;
-import cinnamon.world.collisions.CollisionResolver;
-import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.PhysEntity;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public abstract class Collectable extends PhysEntity {
 
-    private static final Vector3f BOUNCINESS = new Vector3f(0.5f, 0.5f, 0.5f);
+    private static final float BOUNCINESS = 0.5f;
 
     protected final AABB entityAABB = new AABB();
 
@@ -49,7 +49,7 @@ public abstract class Collectable extends PhysEntity {
     }
 
     @Override
-    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
+    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
         super.collide(entity, result, toMove);
         if (!isRemoved() && onPickUp(entity))
             this.remove();
@@ -64,8 +64,8 @@ public abstract class Collectable extends PhysEntity {
     }
 
     @Override
-    protected void resolveCollision(CollisionResult collision, Vector3f totalMove) {
-        CollisionResolver.bounce(collision, getMotion(), totalMove, BOUNCINESS);
+    protected void resolveCollision(Hit hit, Vector3f totalMove) {
+        Resolution.bounce(hit, getMotion(), totalMove, BOUNCINESS);
     }
 
     @Override

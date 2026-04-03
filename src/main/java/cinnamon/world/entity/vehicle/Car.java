@@ -2,10 +2,10 @@ package cinnamon.world.entity.vehicle;
 
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
+import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.Resolution;
 import cinnamon.utils.Resource;
 import cinnamon.utils.UIHelper;
-import cinnamon.world.collisions.CollisionResolver;
-import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.PhysEntity;
 import org.joml.Math;
 import org.joml.Quaternionf;
@@ -121,9 +121,9 @@ public abstract class Car extends Vehicle {
     }
 
     @Override
-    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
+    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
         if (entity instanceof Car)
-            CollisionResolver.slide(result, motion, toMove);
+            Resolution.slide(result, getMotion(), toMove);
         super.collide(entity, result, toMove);
     }
 }

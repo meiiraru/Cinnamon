@@ -4,16 +4,16 @@ import cinnamon.Client;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Hit;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Colors;
+import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
 import cinnamon.world.DamageType;
 import cinnamon.world.WorldObject;
-import cinnamon.world.collisions.CollisionResult;
-import cinnamon.world.collisions.Hit;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
@@ -116,14 +116,14 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     @Override
-    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
+    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
         super.collide(entity, result, toMove);
 
-        if (!(entity instanceof LivingEntity l) || this.isRiding() || entity.isRiding())
+        if (!(entity instanceof LivingEntity) || this.isRiding() || entity.isRiding())
             return;
 
         //entity push
-        Vector3f collision = checkEntityCollision(entity).mul(l.getPushForce());
+        Vector3f collision = checkEntityCollision(entity, result);
         this.motion.add(collision.x, 0, collision.z);
     }
 
@@ -261,8 +261,8 @@ public abstract class LivingEntity extends PhysEntity {
             return true;
 
         //attack entity
-        Hit<? extends WorldObject> facingEntity = getLookingObject(getPickRange());
-        return facingEntity != null && facingEntity.get() instanceof Entity e && e.onAttacked(this);
+        Pair<Hit, ? extends WorldObject> facingEntity = getLookingObject(getPickRange());
+        return facingEntity != null && facingEntity.second() instanceof Entity e && e.onAttacked(this);
     }
 
     public void stopAttacking() {
@@ -278,8 +278,8 @@ public abstract class LivingEntity extends PhysEntity {
             return true;
 
         //use entity
-        Hit<? extends WorldObject> facingEntity = getLookingObject(getPickRange());
-        return facingEntity != null && facingEntity.get() instanceof Entity e && e.onUse(this);
+        Pair<Hit, ? extends WorldObject> facingEntity = getLookingObject(getPickRange());
+        return facingEntity != null && facingEntity.second() instanceof Entity e && e.onUse(this);
     }
 
     public void stopUsing() {
@@ -472,8 +472,8 @@ public abstract class LivingEntity extends PhysEntity {
         Vector3f lookDir = getLookDir(delta);
 
         //find something the entity is looking at within range, otherwise use the look direction
-        Hit<? extends WorldObject> lookHit = getLookingObject(range);
-        Vector3f aimTarget = lookHit != null ? lookHit.collision().pos() : lookDir.mul(range * 2f).add(eyePos);
+        Pair<Hit, ? extends WorldObject> lookHit = getLookingObject(range);
+        Vector3f aimTarget = lookHit != null ? lookHit.first().position() : lookDir.mul(range * 2f).add(eyePos);
 
         //get the direction from the hand position to the target
         Vector3f handPos = getHandPos(lefty, delta);
@@ -486,11 +486,11 @@ public abstract class LivingEntity extends PhysEntity {
         return aimDir.normalize();
     }
 
-    public Hit<Terrain> raycastHandTerrain(float distance) {
+    public Pair<Hit, Terrain> raycastHandTerrain(float distance) {
         return raycastHandTerrain(isLeftHanded(), 1f, distance);
     }
 
-    public Hit<Terrain> raycastHandTerrain(boolean lefty, float delta, float distance) {
+    public Pair<Hit, Terrain> raycastHandTerrain(boolean lefty, float delta, float distance) {
         //prepare positions
         Vector3f pos = getHandPos(lefty, delta);
         Vector3f range = getHandDir(lefty, delta).mul(distance);
@@ -500,11 +500,11 @@ public abstract class LivingEntity extends PhysEntity {
         return world.raycastTerrain(area, pos, range, t -> t.isSelectable(this));
     }
 
-    public Hit<Entity> raycastHandEntity(float distance) {
+    public Pair<Hit, Entity> raycastHandEntity(float distance) {
         return raycastHandEntity(isLeftHanded(), 1f, distance);
     }
 
-    public Hit<Entity> raycastHandEntity(boolean lefty, float delta, float distance) {
+    public Pair<Hit, Entity> raycastHandEntity(boolean lefty, float delta, float distance) {
         //prepare positions
         Vector3f pos = getHandPos(lefty, delta);
         Vector3f range = getHandDir(lefty, delta).mul(distance);
@@ -514,15 +514,15 @@ public abstract class LivingEntity extends PhysEntity {
         return world.raycastEntity(area, pos, range, e -> e != this && e != this.riding && e.isTargetable());
     }
 
-    public Hit<? extends WorldObject> raycastHand(float distance) {
+    public Pair<Hit, ? extends WorldObject> raycastHand(float distance) {
         return raycastHand(isLeftHanded(), 1f, distance);
     }
 
-    public Hit<? extends WorldObject> raycastHand(boolean lefty, float delta, float distance) {
-        Hit<Entity> entityHit = raycastHandEntity(lefty, delta, distance);
-        Hit<Terrain> terrainHit = raycastHandTerrain(lefty, delta, distance);
+    public Pair<Hit, ? extends WorldObject> raycastHand(boolean lefty, float delta, float distance) {
+        Pair<Hit, Entity> entityHit = raycastHandEntity(lefty, delta, distance);
+        Pair<Hit, Terrain> terrainHit = raycastHandTerrain(lefty, delta, distance);
 
-        if (entityHit != null && (terrainHit == null || entityHit.collision().near() < terrainHit.collision().near()))
+        if (entityHit != null && (terrainHit == null || entityHit.first().tNear() < terrainHit.first().tNear()))
             return entityHit;
 
         return terrainHit;

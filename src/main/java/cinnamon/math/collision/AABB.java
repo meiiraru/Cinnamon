@@ -172,46 +172,56 @@ public class AABB extends Collider<AABB> {
         Vector3f dir = ray.getDirection();
         Vector3f origin = ray.getOrigin();
 
-        //pre-calculate inverse direction to avoid division and handle parallel rays
-        float invX = 1f / (Math.abs(dir.x) < Maths.SMALL_NUMBER ? Maths.SMALL_NUMBER * Math.signum(dir.x) : dir.x);
-        float invY = 1f / (Math.abs(dir.y) < Maths.SMALL_NUMBER ? Maths.SMALL_NUMBER * Math.signum(dir.y) : dir.y);
-        float invZ = 1f / (Math.abs(dir.z) < Maths.SMALL_NUMBER ? Maths.SMALL_NUMBER * Math.signum(dir.z) : dir.z);
+        //calculate the inverse of the ray dir
+        float invX = 1f / dir.x;
+        float invY = 1f / dir.y;
+        float invZ = 1f / dir.z;
 
-        //calculate intersection distance with each pair of the axis-aligned planes
-        float t1 = (minX - origin.x) * invX; float t2 = (maxX - origin.x) * invX; float t3 = (minY - origin.y) * invY;
-        float t4 = (maxY - origin.y) * invY; float t5 = (minZ - origin.z) * invZ; float t6 = (maxZ - origin.z) * invZ;
+        //intersection distances to each plane
+        float t1 = (minX - origin.x) * invX; float t2 = (maxX - origin.x) * invX;
+        float t3 = (minY - origin.y) * invY; float t4 = (maxY - origin.y) * invY;
+        float t5 = (minZ - origin.z) * invZ; float t6 = (maxZ - origin.z) * invZ;
 
-        //find tNear and tFar from the min and max of the planes
-        float tMinX = Math.min(t1, t2);
-        float tMinY = Math.min(t3, t4);
-        float tMinZ = Math.min(t5, t6);
+        //find the nearest and farthest intersection distances
+        float tMinX = Math.min(t1, t2); float tMaxX = Math.max(t1, t2);
+        float tMinY = Math.min(t3, t4); float tMaxY = Math.max(t3, t4);
+        float tMinZ = Math.min(t5, t6); float tMaxZ = Math.max(t5, t6);
 
-        float tNear = Math.max(Math.max(tMinX, tMinY), tMinZ);
-        float tFar  = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
-        float maxDist = ray.getMaxDistance();
-
-        //no hit if the box is behind the ray, the ray misses the box or the hit is beyond max distance
-        if (tFar < 0 || tNear > tFar || tNear > maxDist)
+        //early rejection if the ray will not collide
+        if (tMinX > tMaxY || tMinX > tMaxZ || tMinY > tMaxX || tMinY > tMaxZ || tMinZ > tMaxX || tMinZ > tMaxY)
             return null;
 
-        //calculate raycast result
-        float tHit = Math.max(0, tNear);
-        Vector3f hitPos = origin.fma(tHit, dir, new Vector3f());
+        float tNear = Math.max(Math.max(tMinX, tMinY), tMinZ);
+        float tFar  = Math.min(Math.min(tMaxX, tMaxY), tMaxZ);
 
-        Vector3f hitNormal = new Vector3f();
-        if (tNear > 0f) {
-            //determine which axis we hit by checking which plane tNear matched
-            if (tNear == tMinX)
-                hitNormal.set(dir.x > 0f ? -1f : 1f, 0f, 0f);
-            else if (tNear == tMinY)
-                hitNormal.set(0f, dir.y > 0f ? -1f : 1f, 0f);
-            else
-                hitNormal.set(0f, 0f, dir.z > 0f ? -1f : 1f);
-        } else {
-            hitNormal.set(-dir.x, -dir.y, -dir.z);
-        }
+        //check for NaN meaning that no collisions have happened
+        if (Float.isNaN(tNear) || Float.isNaN(tFar))
+            return null;
 
-        return new Hit(hitPos, hitNormal, tHit, tFar, ray, this);
+        //normalize the intersection times
+        float maxDist = ray.getMaxDistance();
+        float normNear = tNear / maxDist;
+        float normFar  = tFar  / maxDist;
+
+        //reject if the collision time is over the ray length or behind the ray
+        if (normFar <= 0 || normNear >= 1)
+            return null;
+
+        //calculate collision position
+        Vector3f hitPos = origin.fma(tNear, dir, new Vector3f());
+
+        //calculate normal
+        Vector3f normal = new Vector3f();
+        //determine which axis we hit by checking which plane tNear matched
+        if (tNear == tMinX)
+            normal.set(dir.x > 0 ? -1 : 1, 0, 0);
+        else if (tNear == tMinY)
+            normal.set(0, dir.y > 0 ? -1 : 1, 0);
+        else
+            normal.set(0, 0, dir.z > 0 ? -1 : 1);
+
+        //return the collision result
+        return new Hit(hitPos, normal, normNear, normFar, ray, this);
     }
 
     @Override
@@ -441,6 +451,10 @@ public class AABB extends Collider<AABB> {
             return this.minZ - other.maxZ;
 
         return this.maxZ - other.minZ;
+    }
+
+    public Vector3f getOverlap(AABB other) {
+        return new Vector3f(getXOverlap(other), getYOverlap(other), getZOverlap(other));
     }
 
     public AABB rotateX(float angle) {

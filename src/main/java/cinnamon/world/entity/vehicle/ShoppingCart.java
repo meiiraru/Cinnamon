@@ -1,9 +1,9 @@
 package cinnamon.world.entity.vehicle;
 
+import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.Resolution;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
-import cinnamon.world.collisions.CollisionResolver;
-import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
 import org.joml.Vector3f;
@@ -24,11 +24,19 @@ public class ShoppingCart extends Car {
     }
 
     @Override
-    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
-        if (entity instanceof ShoppingCart sc) {
-            Vector3f res = new Vector3f();
-            CollisionResolver.push(result, toMove, res);
-            sc.setMotion(res);
+    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
+        if (entity instanceof ShoppingCart) {
+            if (this.getAABB().intersectsAABB(entity.getAABB()))
+                return;
+
+            if (!this.getRiders().isEmpty() && entity.getRiders().isEmpty()) {
+                Vector3f res = new Vector3f();
+                Resolution.push(result, toMove, res);
+                entity.setMotion(res);
+                return;
+            } else if (this.getRiders().isEmpty() && !entity.getRiders().isEmpty()) {
+                return;
+            }
         }
 
         super.collide(entity, result, toMove);

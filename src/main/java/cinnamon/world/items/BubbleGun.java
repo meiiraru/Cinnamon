@@ -1,8 +1,9 @@
 package cinnamon.world.items;
 
 import cinnamon.math.Maths;
+import cinnamon.math.collision.Hit;
 import cinnamon.registry.ItemModelRegistry;
-import cinnamon.world.collisions.Hit;
+import cinnamon.utils.Pair;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.particle.SoapParticle;
 import cinnamon.world.terrain.Terrain;
@@ -60,9 +61,9 @@ public class BubbleGun extends Item {
     }
 
     private static Vector3f spawnPos(LivingEntity source) {
-        Hit<Terrain> terrain = source.raycastHandTerrain(DISTANCE);
+        Pair<Hit, Terrain> terrain = source.raycastHandTerrain(DISTANCE);
         if (terrain != null)
-            return terrain.collision().pos();
+            return terrain.first().position();
 
         return source.getHandDir().mul(DISTANCE).add(source.getHandPos());
     }

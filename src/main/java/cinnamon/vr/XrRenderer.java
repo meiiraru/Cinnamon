@@ -3,6 +3,8 @@ package cinnamon.vr;
 import cinnamon.Client;
 import cinnamon.gui.GUIStyle;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.Ray;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.model.StaticGeometry;
@@ -16,8 +18,6 @@ import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.Resource;
-import cinnamon.world.collisions.CollisionDetector;
-import cinnamon.world.collisions.CollisionResult;
 import org.joml.Math;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -254,15 +254,16 @@ public class XrRenderer {
 
         //grab screen AABB in world space to raycast collision
         AABB screenAABB = new AABB(0, 0, -GUI_DISTANCE, 0, 0, -GUI_DISTANCE).inflate(GUI_WIDTH * 2f, GUI_HEIGHT * 2f, 0);
-        CollisionResult result = CollisionDetector.collisionRay(screenAABB, pos, dir);
+        Ray ray = new Ray(pos.x, pos.y, pos.z, dir.x, dir.y, dir.z, dir.length());
+        Hit result = screenAABB.collideRay(ray);
 
         //we got a collision! so undo the collided position back to screen space
         if (result != null) {
-            screenCollision = result.near() * RAYCAST_DISTANCE;
+            screenCollision = result.tNear();
             screenCollided = true;
 
             Vector3f screen = dir
-                    .mul(result.near())
+                    .mul(result.tNear())
                     .add(pos.x, pos.y, pos.z + GUI_DISTANCE)
                     .div(GUI_SCALE, -GUI_SCALE, GUI_SCALE)
                     .add(GUI_WIDTH * 0.5f, GUI_HEIGHT * 0.5f, 0);

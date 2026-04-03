@@ -5,17 +5,18 @@ import cinnamon.gui.Screen;
 import cinnamon.math.Direction;
 import cinnamon.math.Maths;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Hit;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.WorldRenderer;
 import cinnamon.settings.Settings;
+import cinnamon.utils.Pair;
 import cinnamon.vr.XrHandTransform;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.Abilities;
 import cinnamon.world.WorldObject;
-import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.collectable.ItemEntity;
@@ -102,8 +103,8 @@ public class LocalPlayer extends Player {
         if (!getAbilities().get(Abilities.Ability.CAN_BUILD))
             return false;
 
-        Hit<? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(getPickRange()) : getLookingObject(getPickRange());
-        if (hit != null && hit.obj() instanceof Terrain t && t.isSelectable(this)) {
+        Pair<Hit, ? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(getPickRange()) : getLookingObject(getPickRange());
+        if (hit != null && hit.second() instanceof Terrain t && t.isSelectable(this)) {
             getWorld().removeTerrain(t);
             lastMouseTime = getInteractionDelay();
             return true;
@@ -131,11 +132,11 @@ public class LocalPlayer extends Player {
         if (!getAbilities().get(Abilities.Ability.CAN_BUILD))
             return false;
 
-        Hit<? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(getPickRange()) : getLookingObject(getPickRange());
-        if (hit != null && hit.obj() instanceof Terrain t) {
-            Vector3f tpos = new Vector3f(hit.collision().pos()).floor();
+        Pair<Hit, ? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(getPickRange()) : getLookingObject(getPickRange());
+        if (hit != null && hit.second() instanceof Terrain t) {
+            Vector3f tpos = new Vector3f(hit.first().position()).floor();
             if (tpos.equals(t.getPos()))
-                tpos.add(hit.collision().normal());
+                tpos.add(hit.first().normal());
 
             AABB entities = new AABB().translate(tpos).expand(1f, 1f, 1f);
             for (Entity entity : getWorld().getEntities(entities)) {
@@ -166,8 +167,8 @@ public class LocalPlayer extends Player {
         if (!getAbilities().get(Abilities.Ability.CAN_BUILD))
             return;
 
-        Hit<? extends WorldObject> hit = getLookingObject(getPickRange());
-        if (hit != null && hit.obj() instanceof Terrain t && t.isSelectable(this) && t.getType() != TerrainRegistry.CUSTOM) {
+        Pair<Hit, ? extends WorldObject> hit = getLookingObject(getPickRange());
+        if (hit != null && hit.second() instanceof Terrain t && t.isSelectable(this) && t.getType() != TerrainRegistry.CUSTOM) {
             selectedTerrain = t.getType().ordinal();
             MaterialRegistry material = t.getMaterial();
             if (material != null) selectedMaterial = material.ordinal();

@@ -2,12 +2,12 @@ package cinnamon.world.world;
 
 import cinnamon.Client;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.Ray;
+import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
 import cinnamon.world.DamageType;
 import cinnamon.world.WorldRules;
-import cinnamon.world.collisions.CollisionDetector;
-import cinnamon.world.collisions.CollisionResult;
-import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.LivingEntity;
@@ -138,10 +138,11 @@ public abstract class World {
         }
     }
 
-    public Hit<Terrain> raycastTerrain(AABB area, Vector3f pos, Vector3f dirLen, Predicate<Terrain> predicate) {
+    public Pair<Hit, Terrain> raycastTerrain(AABB area, Vector3f pos, Vector3f dirLen, Predicate<Terrain> predicate) {
         //prepare variables
-        CollisionResult terrainColl = null;
+        Hit terrainColl = null;
         Terrain tempTerrain = null;
+        Ray ray = new Ray(pos, dirLen, dirLen.length());
 
         //loop through terrain in area
         for (Terrain t : terrainManager.query(area)) {
@@ -152,9 +153,9 @@ public abstract class World {
             //loop through its groups AABBs
             for (AABB aabb : t.getPreciseAABB()) {
                 //check for collision
-                CollisionResult result = CollisionDetector.collisionRay(aabb, pos, dirLen);
+                Hit result = aabb.collideRay(ray);
                 //store collision if it is closer than previous collision
-                if (result != null && (terrainColl == null || result.near() < terrainColl.near())) {
+                if (result != null && (terrainColl == null || result.tNear() < terrainColl.tNear())) {
                     terrainColl = result;
                     tempTerrain = t;
                 }
@@ -162,13 +163,14 @@ public abstract class World {
         }
 
         //return terrain collision data
-        return terrainColl == null ? null : new Hit<>(terrainColl, tempTerrain);
+        return terrainColl == null ? null : Pair.of(terrainColl, tempTerrain);
     }
 
-    public Hit<Entity> raycastEntity(AABB area, Vector3f pos, Vector3f dirLen, Predicate<Entity> predicate) {
+    public Pair<Hit, Entity> raycastEntity(AABB area, Vector3f pos, Vector3f dirLen, Predicate<Entity> predicate) {
         //prepare variables
-        CollisionResult entityColl = null;
+        Hit entityColl = null;
         Entity tempEntity = null;
+        Ray ray = new Ray(pos, dirLen, dirLen.length());
 
         //loop through entities in area
         for (Entity e : getEntities(area)) {
@@ -177,16 +179,16 @@ public abstract class World {
                 continue;
 
             //check for collision
-            CollisionResult result = CollisionDetector.collisionRay(e.getAABB(), pos, dirLen);
+            Hit result = e.getAABB().collideRay(ray);
             //store collision if it is closer than previous collision
-            if (result != null && (entityColl == null || result.near() < entityColl.near())) {
+            if (result != null && (entityColl == null || result.tNear() < entityColl.tNear())) {
                 entityColl = result;
                 tempEntity = e;
             }
         }
 
         //return entity collision data
-        return entityColl == null ? null : new Hit<>(entityColl, tempEntity);
+        return entityColl == null ? null : Pair.of(entityColl, tempEntity);
     }
 
     public void setTime(long time) {

@@ -5,6 +5,7 @@ import cinnamon.animation.Animation;
 import cinnamon.gui.DebugScreen;
 import cinnamon.math.Maths;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Hit;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
@@ -18,10 +19,10 @@ import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
+import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
 import cinnamon.world.Mask;
 import cinnamon.world.WorldObject;
-import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
@@ -333,7 +334,7 @@ public abstract class Entity extends WorldObject {
         return 1f;
     }
 
-    public Hit<Terrain> getLookingTerrain(float distance) {
+    public Pair<Hit, Terrain> getLookingTerrain(float distance) {
         //prepare positions
         Vector3f pos = getEyePos();
         Vector3f range = getLookDir().mul(distance);
@@ -343,7 +344,7 @@ public abstract class Entity extends WorldObject {
         return world.raycastTerrain(area, pos, range, t -> t.isSelectable(this));
     }
 
-    public Hit<Entity> getLookingEntity(float distance) {
+    public Pair<Hit, Entity> getLookingEntity(float distance) {
         //prepare positions
         Vector3f pos = getEyePos();
         Vector3f range = getLookDir().mul(distance);
@@ -353,11 +354,11 @@ public abstract class Entity extends WorldObject {
         return world.raycastEntity(area, pos, range, e -> e != this && e != this.riding && e.isTargetable());
     }
 
-    public Hit<? extends WorldObject> getLookingObject(float distance) {
-        Hit<Entity> entityHit = getLookingEntity(distance);
-        Hit<Terrain> terrainHit = getLookingTerrain(distance);
+    public Pair<Hit, ? extends WorldObject> getLookingObject(float distance) {
+        Pair<Hit, Entity> entityHit = getLookingEntity(distance);
+        Pair<Hit, Terrain> terrainHit = getLookingTerrain(distance);
 
-        if (entityHit != null && (terrainHit == null || entityHit.collision().near() < terrainHit.collision().near()))
+        if (entityHit != null && (terrainHit == null || entityHit.first().tNear() < terrainHit.first().tNear()))
             return entityHit;
 
         return terrainHit;

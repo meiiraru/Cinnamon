@@ -7,6 +7,7 @@ import cinnamon.logger.LogOutput;
 import cinnamon.logger.LoggerConfig;
 import cinnamon.math.Direction;
 import cinnamon.math.Maths;
+import cinnamon.math.collision.Hit;
 import cinnamon.messages.MessageManager;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.Camera;
@@ -22,15 +23,10 @@ import cinnamon.sound.SoundManager;
 import cinnamon.text.Formatting;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.CircularQueue;
-import cinnamon.utils.Resource;
-import cinnamon.utils.TextUtils;
-import cinnamon.utils.UIHelper;
-import cinnamon.utils.Version;
+import cinnamon.utils.*;
 import cinnamon.vr.XrManager;
 import cinnamon.world.Abilities;
 import cinnamon.world.WorldObject;
-import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.terrain.Terrain;
@@ -296,17 +292,18 @@ public class DebugScreen {
         }
     }
 
-    private static String getTargetedObjString(Hit<? extends WorldObject> hit, float range) {
+    private static String getTargetedObjString(Pair<Hit, ? extends WorldObject> hit) {
         if (hit == null)
             return "---";
 
-        Vector3f pos = hit.obj().getPos();
-        Vector3f hPos = hit.collision().pos();
-        Vector3f normal = hit.collision().normal();
-        float distance = range * hit.collision().near();
-        String type = (hit.obj() instanceof Entity) ? "entity" : (hit.obj() instanceof Terrain) ? "terrain" : "unknown";
-        String typeEnum = hit.obj().getType().name().toLowerCase();
-        String extra = (hit.obj() instanceof Entity e) ? "\n" + getExtraDebugForEntity(e) : (hit.obj() instanceof Terrain t) ? "\n" + getExtraDebugForTerrain(t) : "";
+        Object obj = hit.second();
+        Vector3f pos = ((WorldObject) obj).getPos();
+        Vector3f hPos = hit.first().position();
+        Vector3f normal = hit.first().normal();
+        float distance = hit.first().tNear();
+        String type = (obj instanceof Entity) ? "entity" : (obj instanceof Terrain) ? "terrain" : "unknown";
+        String typeEnum = ((WorldObject) obj).getType().name().toLowerCase();
+        String extra = (obj instanceof Entity e) ? "\n" + getExtraDebugForEntity(e) : (obj instanceof Terrain t) ? "\n" + getExtraDebugForTerrain(t) : "";
         return String.format("""
                 x &c%.3f&r y &a%.3f&r z &b%.3f&r
                 hit pos x &c%.3f&r y &a%.3f&r z &b%.3f&r
@@ -476,7 +473,7 @@ public class DebugScreen {
             String face = Direction.fromRotation(yaw).name;
 
             float range = p.getPickRange();
-            String object = getTargetedObjString(p.getLookingObject(range), range);
+            String object = getTargetedObjString(p.getLookingObject(range));
 
             return String.format("""
                     [&bentity&r]

@@ -2,11 +2,11 @@ package cinnamon.world.entity;
 
 import cinnamon.math.Maths;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.Ray;
+import cinnamon.math.collision.Resolution;
 import cinnamon.utils.Resource;
 import cinnamon.world.Mask;
-import cinnamon.world.collisions.CollisionDetector;
-import cinnamon.world.collisions.CollisionResolver;
-import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.terrain.Terrain;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -96,15 +96,17 @@ public abstract class PhysEntity extends Entity {
         Vector3f pos = aabb.getCenter();
         Vector3f inflate = aabb.getDimensions().mul(0.5f);
         Vector3f toMove = new Vector3f(motion);
+        Ray ray = new Ray().setOrigin(pos);
         boolean ground = false;
 
         //get terrain collisions
         List<Terrain> terrains = getWorld().getTerrains(new AABB(aabb).expand(toMove));
 
-        //try to resolve collisions in max 3 steps
-        for (int i = 0; i < 3; i++) {
+        //try to resolve collisions with a step limit
+        for (int step = 0; step < 3; step++) {
             //find the closest collision
-            CollisionResult collision = null;
+            ray.setDirection(toMove).setMaxDistance(toMove.length());
+            Hit collision = null;
 
             for (Terrain terrain : terrains) {
                 if (!getTerrainCollisionMask().test(terrain.getCollisionMask()))
@@ -115,8 +117,8 @@ public abstract class PhysEntity extends Entity {
                     AABB inflatedBB = new AABB(terrainBB).inflate(inflate);
 
                     //check for collision along the motion ray
-                    CollisionResult result = CollisionDetector.collisionRay(inflatedBB, pos, toMove);
-                    if (result != null && (collision == null || result.near() < collision.near()))
+                    Hit result = inflatedBB.collideRay(ray);
+                    if (result != null && (collision == null || result.tNear() < collision.tNear()))
                         collision = result;
                 }
             }
@@ -143,8 +145,8 @@ public abstract class PhysEntity extends Entity {
         return toMove;
     }
 
-    protected void resolveCollision(CollisionResult collision, Vector3f totalMove) {
-        CollisionResolver.slide(collision, getMotion(), totalMove);
+    protected void resolveCollision(Hit hit, Vector3f totalMove) {
+        Resolution.slide(hit, getMotion(), totalMove);
     }
 
     // -- entity collisions -- //
@@ -152,31 +154,30 @@ public abstract class PhysEntity extends Entity {
     protected void tickEntityCollisions(AABB aabb, Vector3f toMove) {
         Vector3f pos = aabb.getCenter();
         Vector3f inflate = aabb.getDimensions().mul(0.5f);
+        Ray ray = new Ray().setOrigin(pos);
 
         for (Entity entity : getWorld().getEntities(new AABB(aabb).expand(toMove))) {
             if (!(entity instanceof PhysEntity physEntity) || physEntity == this || physEntity.isRemoved() || !getEntityCollisionMask().test(physEntity.getEntityCollisionMask()))
                 continue;
 
+            ray.setDirection(toMove).setMaxDistance(toMove.length());
             AABB temp = new AABB(physEntity.getAABB()).inflate(inflate);
-            CollisionResult result = CollisionDetector.collisionRay(temp, pos, toMove);
+            Hit result = temp.collideRay(ray);
             if (result != null)
                 collide(physEntity, result, toMove);
         }
     }
 
-    protected Vector3f checkEntityCollision(PhysEntity entity) {
+    protected Vector3f checkEntityCollision(PhysEntity entity, Hit result) {
         //get AABB
         AABB other = entity.getAABB();
+        float force = getPushForce();
 
         //calculate collision
-        return new Vector3f(
-                aabb.getXOverlap(other),
-                aabb.getYOverlap(other),
-                aabb.getZOverlap(other)
-        );
+        return new Vector3f(aabb.getOverlap(other)).mul(force);
     }
 
-    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {}
+    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {}
 
     // -- movement logic -- //
 

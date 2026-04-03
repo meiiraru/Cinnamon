@@ -1,11 +1,11 @@
 package cinnamon.world.entity.living;
 
 import cinnamon.gui.DebugScreen;
+import cinnamon.math.collision.Hit;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.render.Camera;
 import cinnamon.world.DamageType;
-import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
 import org.joml.Vector3f;
@@ -21,7 +21,7 @@ public class Dummy extends LivingEntity {
     }
 
     @Override
-    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
+    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
         //do nothing
         //super.collide(entity, result, toMove);
     }

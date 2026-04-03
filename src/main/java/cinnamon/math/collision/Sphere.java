@@ -181,18 +181,16 @@ public class Sphere extends Collider<Sphere> {
         if (tFar < 0 || tNear > maxDist)
             return null;
 
+        //normalize the intersection times
+        float normNear = tNear / maxDist;
+        float normFar  = tFar  / maxDist;
+
         //calculate raycast result
-        float tHit = Math.max(0, tNear);
-        Vector3f hitPos = origin.fma(tHit, dir, new Vector3f());
+        Vector3f hitPos = origin.fma(tNear, dir, new Vector3f());
 
         //(hitPoint - center) / radius
-        Vector3f hitNormal = new Vector3f();
-        if (tNear > 0f)
-            hitNormal.set((hitPos.x - center.x) / radius, (hitPos.y - center.y) / radius, (hitPos.z - center.z) / radius);
-        else
-            hitNormal.set(-dir.x, -dir.y, -dir.z);
-
-        return new Hit(hitPos, hitNormal, tHit, tFar, ray, this);
+        Vector3f hitNormal = new Vector3f((hitPos.x - center.x) / radius, (hitPos.y - center.y) / radius, (hitPos.z - center.z) / radius);
+        return new Hit(hitPos, hitNormal, normNear, normFar, ray, this);
     }
 
     @Override

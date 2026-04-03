@@ -1,9 +1,9 @@
 package cinnamon.world.entity.projectile;
 
 import cinnamon.math.Maths;
+import cinnamon.math.collision.Hit;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
-import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.particle.SmokeParticle;
 import cinnamon.world.world.WorldClient;
@@ -32,7 +32,7 @@ public class RiceBall extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(CollisionResult collision, Vector3f totalMove) {
+    protected void resolveCollision(Hit collision, Vector3f totalMove) {
         remove();
     }
 

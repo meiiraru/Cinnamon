@@ -448,45 +448,53 @@ public class OBB extends Collider<OBB> {
         float locDirZ = az.dot(dir);
 
         //use AABB slab method in local space
-        float invX = 1f / (Math.abs(locDirX) < Maths.SMALL_NUMBER ? Maths.SMALL_NUMBER * Math.signum(locDirX) : locDirX);
-        float invY = 1f / (Math.abs(locDirY) < Maths.SMALL_NUMBER ? Maths.SMALL_NUMBER * Math.signum(locDirY) : locDirY);
-        float invZ = 1f / (Math.abs(locDirZ) < Maths.SMALL_NUMBER ? Maths.SMALL_NUMBER * Math.signum(locDirZ) : locDirZ);
+        float invX = 1f / locDirX;
+        float invY = 1f / locDirY;
+        float invZ = 1f / locDirZ;
 
         //intersection distances to each plane
-        float t1 = (-halfExtents.x - locOrigX) * invX; float t2 = ( halfExtents.x - locOrigX) * invX; float t3 = (-halfExtents.y - locOrigY) * invY;
-        float t4 = ( halfExtents.y - locOrigY) * invY; float t5 = (-halfExtents.z - locOrigZ) * invZ; float t6 = ( halfExtents.z - locOrigZ) * invZ;
+        float t1 = (-halfExtents.x - locOrigX) * invX; float t2 = (halfExtents.x - locOrigX) * invX;
+        float t3 = (-halfExtents.y - locOrigY) * invY; float t4 = (halfExtents.y - locOrigY) * invY;
+        float t5 = (-halfExtents.z - locOrigZ) * invZ; float t6 = (halfExtents.z - locOrigZ) * invZ;
 
         //find the nearest and farthest intersection distances
-        float tMinX = Math.min(t1, t2);
-        float tMinY = Math.min(t3, t4);
-        float tMinZ = Math.min(t5, t6);
+        float tMinX = Math.min(t1, t2); float tMaxX = Math.max(t1, t2);
+        float tMinY = Math.min(t3, t4); float tMaxY = Math.max(t3, t4);
+        float tMinZ = Math.min(t5, t6); float tMaxZ = Math.max(t5, t6);
+
+        //early rejection if the ray will not collide
+        if (tMinX > tMaxY || tMinX > tMaxZ || tMinY > tMaxX || tMinY > tMaxZ || tMinZ > tMaxX || tMinZ > tMaxY)
+            return null;
 
         float tNear = Math.max(Math.max(tMinX, tMinY), tMinZ);
-        float tFar  = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
-        float maxDist = ray.getMaxDistance();
+        float tFar  = Math.min(Math.min(tMaxX, tMaxY), tMaxZ);
 
-        //behind ray, misses, or too far away
-        if (tFar < 0 || tNear > tFar || tNear > maxDist)
+        //catch NaN meaning that the ray is parallel to the plane
+        if (Float.isNaN(tNear) || Float.isNaN(tFar))
+            return null;
+
+        //normalize the intersection times
+        float maxDist = ray.getMaxDistance();
+        float normNear = tNear / maxDist;
+        float normFar  = tFar  / maxDist;
+
+        //reject if the collision time is over the ray length or behind the ray
+        if (normFar <= 0 || normNear >= 1)
             return null;
 
         //calculate raycast result
-        float tHit = Math.max(0, tNear);
-        Vector3f hitPos = origin.fma(tHit, dir, new Vector3f());
+        Vector3f hitPos = origin.fma(tNear, dir, new Vector3f());
 
         Vector3f worldNormal = new Vector3f();
-        if (tNear > 0f) {
-            //transform the local axis normal back to world space
-            if (tNear == tMinX)
-                worldNormal.set(ax).mul(locDirX > 0f ? -1f : 1f);
-            else if (tNear == tMinY)
-                worldNormal.set(ay).mul(locDirY > 0f ? -1f : 1f);
-            else
-                worldNormal.set(az).mul(locDirZ > 0f ? -1f : 1f);
-        } else {
-            worldNormal.set(-dir.x, -dir.y, -dir.z);
-        }
+        //transform the local axis normal back to world space
+        if (tNear == tMinX)
+            worldNormal.set(ax).mul(locDirX > 0 ? -1 : 1);
+        else if (tNear == tMinY)
+            worldNormal.set(ay).mul(locDirY > 0 ? -1 : 1);
+        else
+            worldNormal.set(az).mul(locDirZ > 0 ? -1 : 1);
 
-        return new Hit(hitPos, worldNormal, tHit, tFar, ray, this);
+        return new Hit(hitPos, worldNormal, normNear, normFar, ray, this);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package cinnamon.world.entity.projectile;
 
 import cinnamon.math.Maths;
+import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.Resolution;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
@@ -9,8 +11,6 @@ import cinnamon.render.shader.Shader;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Resource;
 import cinnamon.world.Decal;
-import cinnamon.world.collisions.CollisionResolver;
-import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -45,8 +45,8 @@ public class PaintBall extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(CollisionResult collision, Vector3f totalMove) {
-        CollisionResolver.stick(collision, getMotion(), totalMove);
+    protected void resolveCollision(Hit hit, Vector3f totalMove) {
+        Resolution.stick(hit, getMotion(), totalMove);
 
         if (!getWorld().isClientside()) {
             remove();
@@ -61,7 +61,7 @@ public class PaintBall extends Projectile {
 
         decal.getTransform().setScale(0.2f);
 
-        decal.getTransform().setRot(Maths.dirToQuat(collision.normal()).rotateZ((float) Math.random() * Math.PI_TIMES_2_f));
+        decal.getTransform().setRot(Maths.dirToQuat(hit.normal()).rotateZ((float) Math.random() * Math.PI_TIMES_2_f));
 
         ((WorldClient) getWorld()).addDecal(decal);
         remove();

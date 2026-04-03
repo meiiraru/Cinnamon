@@ -12,6 +12,7 @@ import cinnamon.input.Keybind;
 import cinnamon.input.Movement;
 import cinnamon.math.Maths;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Hit;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.registry.MaterialRegistry;
@@ -27,6 +28,7 @@ import cinnamon.sound.SoundInstance;
 import cinnamon.sound.SoundManager;
 import cinnamon.utils.Colors;
 import cinnamon.utils.IOUtils;
+import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
@@ -34,7 +36,6 @@ import cinnamon.world.Abilities;
 import cinnamon.world.DamageType;
 import cinnamon.world.Decal;
 import cinnamon.world.Hud;
-import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.collectable.EffectBox;
 import cinnamon.world.entity.collectable.HealthPack;
@@ -491,11 +492,12 @@ public class WorldClient extends World {
                 t.renderDebugHitbox(matrices, delta);
 
             //placement terrain
-            Hit<Terrain> hit = cameraEntity.getLookingTerrain(cameraEntity.getPickRange());
+            Pair<Hit, Terrain> hit = cameraEntity.getLookingTerrain(cameraEntity.getPickRange());
             if (hit != null) {
-                Vector3f pos = new Vector3f(hit.collision().pos()).floor();
-                if (hit.get() != null && pos.equals(hit.get().getPos()))
-                    pos.add(hit.collision().normal());
+                Vector3f pos = new Vector3f(hit.first().position()).floor();
+                Terrain terrain = hit.second();
+                if (terrain != null && pos.equals(terrain.getPos()))
+                    pos.add(hit.first().normal());
 
                 DebugRenderer.renderAABB(matrices, new AABB(pos, pos).expand(1f, 1f, 1f), 0xFFFF0000);
             }
@@ -514,18 +516,19 @@ public class WorldClient extends World {
         float f = 0.03f;
         float r = cameraEntity.getPickRange();
 
-        Hit<Terrain> terrain = cameraEntity.getLookingTerrain(r);
+        Pair<Hit, Terrain> terrain = cameraEntity.getLookingTerrain(r);
         if (terrain != null) {
-            Vector3f pos = terrain.collision().pos();
+            Vector3f pos = terrain.first().position();
             DebugRenderer.renderPoint(matrices, pos, f, 0xFF00FFFF);
         }
 
-        Hit<Entity> entity = cameraEntity.getLookingEntity(r);
+        Pair<Hit, Entity> entity = cameraEntity.getLookingEntity(r);
         if (entity != null) {
-            AABB aabb = entity.obj().getAABB();
+            Entity ent = entity.second();
+            AABB aabb = ent.getAABB();
             DebugRenderer.renderAABB(matrices, aabb, 0xFFFFFF00);
 
-            Vector3f pos = entity.collision().pos();
+            Vector3f pos = entity.first().position();
             DebugRenderer.renderPoint(matrices, pos, f, 0xFF00FFFF);
         }
 
@@ -549,7 +552,7 @@ public class WorldClient extends World {
 
     protected static void renderTargetedBlock(Player player, MatrixStack matrices, float delta) {
         float range = player.getPickRange();
-        Hit<Entity> entity; Hit<Terrain> terrain;
+        Pair<Hit, Entity> entity; Pair<Hit, Terrain> terrain;
         if (XrManager.isInXR()) {
             entity = player.raycastHandEntity(range);
             terrain = player.raycastHandTerrain(range);
@@ -558,12 +561,12 @@ public class WorldClient extends World {
             terrain = player.getLookingTerrain(range);
         }
 
-        if (terrain == null || (entity != null && entity.collision().near() < terrain.collision().near()) || !terrain.obj().isSelectable(player))
+        if (terrain == null || (entity != null && entity.first().tNear() < terrain.first().tNear()) || !terrain.second().isSelectable(player))
             return;
 
         int alpha = (int) Math.lerp(0x32, 0xFF, (Math.sin((Client.getInstance().ticks + delta) * 0.15f) + 1f) * 0.5f);
 
-        for (AABB aabb : terrain.obj().getPreciseAABB())
+        for (AABB aabb : terrain.second().getPreciseAABB())
             DebugRenderer.renderAABB(matrices, aabb, 0xFFFFFF + (alpha << 24));
     }
 
@@ -724,11 +727,11 @@ public class WorldClient extends World {
             case GLFW_KEY_Q -> player.dropItem();
 
             case GLFW_KEY_T -> {
-                Hit<Terrain> hit = player.getLookingTerrain(player.getPickRange());
+                Pair<Hit, Terrain> hit = player.getLookingTerrain(player.getPickRange());
                 if (hit == null)
                     return;
 
-                Vector3f normal = hit.collision().normal();
+                Vector3f normal = hit.first().normal();
                 Quaternionf rotation = Maths.dirToQuat(normal);
                 if (Math.abs(normal.y) > 0.5f)
                     rotation.rotateZ(Math.toRadians(-Maths.getYaw(player.getRot()) * Math.signum(normal.y)));
@@ -740,7 +743,7 @@ public class WorldClient extends World {
 
                 Decal decal = new Decal(6000, folder.resolve(res));
                 decal.getTransform()
-                        .setPos(hit.collision().pos())
+                        .setPos(hit.first().position())
                         .setRot(rotation)
                         //.setRot(WorldRenderer.camera.getRotation())
                         .setScale(1f, 1f, 0.5f);

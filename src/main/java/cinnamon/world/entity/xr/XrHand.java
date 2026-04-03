@@ -2,6 +2,7 @@ package cinnamon.world.entity.xr;
 
 import cinnamon.math.Maths;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Hit;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -9,7 +10,6 @@ import cinnamon.render.WorldRenderer;
 import cinnamon.vr.XrHandTransform;
 import cinnamon.vr.XrInput;
 import cinnamon.vr.XrRenderer;
-import cinnamon.world.collisions.CollisionResult;
 import cinnamon.world.entity.PhysEntity;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -74,7 +74,7 @@ public class XrHand extends PhysEntity {
     }
 
     @Override
-    protected void collide(PhysEntity entity, CollisionResult result, Vector3f toMove) {
+    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
         if (targetEntity == null && entity instanceof XrGrabbable grabbable) {
             targetEntity = grabbable;
             XrInput.vibrate(hand);

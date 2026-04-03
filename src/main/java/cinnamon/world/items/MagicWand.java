@@ -3,11 +3,12 @@ package cinnamon.world.items;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Hit;
 import cinnamon.registry.ItemModelRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.ColorUtils;
+import cinnamon.utils.Pair;
 import cinnamon.vr.XrManager;
-import cinnamon.world.collisions.Hit;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.living.LocalPlayer;
 import cinnamon.world.particle.Particle;
@@ -121,9 +122,9 @@ public class MagicWand extends Item {
         if (source instanceof LocalPlayer && XrManager.isInXR())
             return source.getHandDir().mul(0.25f).add(source.getHandPos());
 
-        Hit<Terrain> terrain = source.getLookingTerrain(DISTANCE);
+        Pair<Hit, Terrain> terrain = source.getLookingTerrain(DISTANCE);
         if (terrain != null)
-            return terrain.collision().pos();
+            return terrain.first().position();
 
         return source.getLookDir().mul(DISTANCE).add(source.getEyePos());
     }
