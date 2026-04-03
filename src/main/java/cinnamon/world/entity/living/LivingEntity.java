@@ -211,6 +211,7 @@ public abstract class LivingEntity extends PhysEntity {
             this.spawnDeathParticles();
         stopUsing();
         stopAttacking();
+        setMotion(0, 0, 0);
     }
 
     protected void spawnDeathParticles() {
@@ -349,6 +350,8 @@ public abstract class LivingEntity extends PhysEntity {
 
     public void setHealth(int health) {
         this.health = health;
+        if (this.health <= 0)
+            kill();
     }
 
     public boolean isDead() {

@@ -345,6 +345,9 @@ public abstract class Entity extends WorldObject {
     }
 
     public Pair<Hit, Entity> getLookingEntity(float distance) {
+        if (world == null)
+            return null;
+
         //prepare positions
         Vector3f pos = getEyePos();
         Vector3f range = getLookDir().mul(distance);
@@ -355,6 +358,9 @@ public abstract class Entity extends WorldObject {
     }
 
     public Pair<Hit, ? extends WorldObject> getLookingObject(float distance) {
+        if (world == null)
+            return null;
+
         Pair<Hit, Entity> entityHit = getLookingEntity(distance);
         Pair<Hit, Terrain> terrainHit = getLookingTerrain(distance);
 

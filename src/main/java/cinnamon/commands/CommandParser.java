@@ -14,6 +14,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.Stack;
+import java.util.UUID;
 
 public class CommandParser {
 
@@ -134,6 +135,14 @@ public class CommandParser {
 
         try {
             return MaterialRegistry.valueOf(arg.toUpperCase()).ordinal();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    static Entity parseEntity(Entity source, String arg) {
+        try {
+            return source.getWorld().getEntityByUUID(UUID.fromString(arg));
         } catch (Exception ignored) {
             return null;
         }
