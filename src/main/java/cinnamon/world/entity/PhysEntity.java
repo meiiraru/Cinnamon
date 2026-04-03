@@ -118,7 +118,7 @@ public abstract class PhysEntity extends Entity {
 
                     //check for collision along the motion ray
                     Hit result = inflatedBB.collideRay(ray);
-                    if (result != null && (collision == null || result.tNear() < collision.tNear()))
+                    if (result != null && result.tNear() >= 0f && (collision == null || result.tNear() < collision.tNear()))
                         collision = result;
                 }
             }
@@ -160,7 +160,12 @@ public abstract class PhysEntity extends Entity {
             if (!(entity instanceof PhysEntity physEntity) || physEntity == this || physEntity.isRemoved() || !getEntityCollisionMask().test(physEntity.getEntityCollisionMask()))
                 continue;
 
-            ray.setDirection(toMove).setMaxDistance(toMove.length());
+            float len = toMove.length();
+            if (len < Maths.SMALL_NUMBER) //force a collision check when standing still
+                ray.setDirection(0, -1, 0).setMaxDistance(Maths.SMALL_NUMBER);
+             else
+                ray.setDirection(toMove).setMaxDistance(len);
+
             AABB temp = new AABB(physEntity.getAABB()).inflate(inflate);
             Hit result = temp.collideRay(ray);
             if (result != null)
