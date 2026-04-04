@@ -13,6 +13,7 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
+import cinnamon.vr.XrManager;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class CollisionScreen extends ParentedScreen {
     private static final float rotationSpeed = 5f;
 
     private final Screen parentScreen;
+    private final float z;
     private final List<Collider<?>> obstacles;
     private final AABB[] boundaries;
     private final Vector3f rayPos, lastPlayerPos, impulse, velocity;
@@ -42,14 +44,15 @@ public class CollisionScreen extends ParentedScreen {
     public CollisionScreen(Screen parentScreen) {
         super(parentScreen);
         this.parentScreen = parentScreen;
-        this.rayPos = new Vector3f(25f, 25f, 0f);
+        this.z = XrManager.isInXR() ? 0f : -100f - shapeRadius;
+        this.rayPos = new Vector3f(25f, 25f, z);
         this.lastPlayerPos = new Vector3f();
         this.impulse = new Vector3f();
         this.velocity = new Vector3f();
         this.collidedWith = new ArrayList<>();
 
         //create player shape at starting position
-        this.player = new OBB(50, 50, 0, shapeRadius, shapeRadius, shapeRadius).rotateZ(45f);
+        this.player = new OBB(50, 50, z, shapeRadius, shapeRadius, shapeRadius).rotateZ(45f);
 
         //create obstacles
         this.obstacles = new ArrayList<>();
@@ -58,31 +61,31 @@ public class CollisionScreen extends ParentedScreen {
                 float x = 100 + (j * 50);
                 float y = 50 + (i * 50);
                 obstacles.add(switch (i) {
-                    case 0 -> new AABB(x - shapeRadius, y - shapeRadius, -shapeRadius, x + shapeRadius, y + shapeRadius, shapeRadius);
-                    case 1 -> new OBB(x, y, 0, shapeRadius, shapeRadius, shapeRadius).rotateZ((j + 1) * 12.5f);
-                    case 2 -> new Sphere(x, y, 0, shapeRadius);
+                    case 0 -> new AABB(x - shapeRadius, y - shapeRadius, z - shapeRadius, x + shapeRadius, y + shapeRadius, z + shapeRadius);
+                    case 1 -> new OBB(x, y, z, shapeRadius, shapeRadius, shapeRadius).rotateZ((j + 1) * 12.5f);
+                    case 2 -> new Sphere(x, y, z, shapeRadius);
                     default -> throw new IllegalStateException();
                 });
             }
         }
 
         //add a corner
-        obstacles.add(new AABB(300 - shapeRadius,     50 + shapeRadius, -shapeRadius, 300 + shapeRadius,     50 + shapeRadius * 3, shapeRadius));
-        obstacles.add(new AABB(300 + shapeRadius,     50 - shapeRadius, -shapeRadius, 300 + shapeRadius * 3, 50 + shapeRadius,     shapeRadius));
-        obstacles.add(new AABB(300 + shapeRadius * 3, 50 + shapeRadius, -shapeRadius, 300 + shapeRadius * 5, 50 + shapeRadius * 3, shapeRadius));
+        obstacles.add(new AABB(300 - shapeRadius,     50 + shapeRadius, z - shapeRadius, 300 + shapeRadius,     50 + shapeRadius * 3, z + shapeRadius));
+        obstacles.add(new AABB(300 + shapeRadius,     50 - shapeRadius, z - shapeRadius, 300 + shapeRadius * 3, 50 + shapeRadius,     z + shapeRadius));
+        obstacles.add(new AABB(300 + shapeRadius * 3, 50 + shapeRadius, z - shapeRadius, 300 + shapeRadius * 5, 50 + shapeRadius * 3, z + shapeRadius));
 
         //add a wall of small obstacles
         for (int i = 0; i < 9; i++) {
             float x = 400;
             float y = 50 + (i * shapeRadius * 2);
-            obstacles.add(new AABB(x - shapeRadius, y - shapeRadius, -shapeRadius, x + shapeRadius, y + shapeRadius, shapeRadius));
+            obstacles.add(new AABB(x - shapeRadius, y - shapeRadius, z - shapeRadius, x + shapeRadius, y + shapeRadius, z + shapeRadius));
         }
 
         //add a floor
         for (int i = 0; i < 9; i++) {
             float x = 340 - (i * shapeRadius * 2);
             float y = 210;
-            obstacles.add(new AABB(x - shapeRadius, y - shapeRadius, -shapeRadius, x + shapeRadius, y + shapeRadius, shapeRadius));
+            obstacles.add(new AABB(x - shapeRadius, y - shapeRadius, z - shapeRadius, x + shapeRadius, y + shapeRadius, z + shapeRadius));
         }
 
         //boundaries
@@ -97,13 +100,13 @@ public class CollisionScreen extends ParentedScreen {
 
         //generate boundaries
         //left
-        boundaries[0].set(0, 0, -shapeRadius, shapeRadius, height, shapeRadius);
+        boundaries[0].set(0, 0, z - shapeRadius, shapeRadius, height, z + shapeRadius);
         //right
-        boundaries[1].set(width - shapeRadius, 0, -shapeRadius, width, height, shapeRadius);
+        boundaries[1].set(width - shapeRadius, 0, z - shapeRadius, width, height, z + shapeRadius);
         //top
-        boundaries[2].set(0, 0, -shapeRadius, width, shapeRadius, shapeRadius);
+        boundaries[2].set(0, 0, z - shapeRadius, width, shapeRadius, z + shapeRadius);
         //bottom
-        boundaries[3].set(0, height - shapeRadius, -shapeRadius, width, height, shapeRadius);
+        boundaries[3].set(0, height - shapeRadius, z - shapeRadius, width, height, z + shapeRadius);
     }
 
     @Override
@@ -242,10 +245,10 @@ public class CollisionScreen extends ParentedScreen {
 
     private void rayVsShape(MatrixStack matrices, int mouseX, int mouseY) {
         //length
-        Vector3f len = new Vector3f(mouseX - rayPos.x, mouseY - rayPos.y, 0);
+        Vector3f len = new Vector3f(mouseX - rayPos.x, mouseY - rayPos.y, z - rayPos.z);
 
         //collision
-        Ray ray = new Ray(rayPos.x, rayPos.y, 0f, len.x, len.y, 0f, len.length());
+        Ray ray = new Ray(rayPos.x, rayPos.y, z, len.x, len.y, len.z, len.length());
         Hit hit = player.collideRay(ray);
         boolean collided = hit != null;
 
@@ -308,7 +311,7 @@ public class CollisionScreen extends ParentedScreen {
         if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_1) {
             int mouseX = Client.getInstance().window.mouseX;
             int mouseY = Client.getInstance().window.mouseY;
-            rayPos.set(mouseX, mouseY, 0);
+            rayPos.set(mouseX, mouseY, z);
         }
 
         return false;
