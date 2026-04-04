@@ -2,8 +2,8 @@ package cinnamon.world.entity;
 
 import cinnamon.math.Maths;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.Hit;
-import cinnamon.math.collision.Ray;
 import cinnamon.math.collision.Resolution;
 import cinnamon.utils.Resource;
 import cinnamon.world.Mask;
@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.UUID;
 
 public abstract class PhysEntity extends Entity {
+
+    private static final Vector3f SMALL_IMPULSE = new Vector3f(0, -Maths.SMALL_NUMBER, 0);
 
     protected final Vector3f
             motion = new Vector3f(),
@@ -93,10 +95,7 @@ public abstract class PhysEntity extends Entity {
             return new Vector3f();
 
         //prepare variables
-        Vector3f pos = aabb.getCenter();
-        Vector3f inflate = aabb.getDimensions().mul(0.5f);
         Vector3f toMove = new Vector3f(motion);
-        Ray ray = new Ray().setOrigin(pos);
         boolean ground = false;
 
         //get terrain collisions
@@ -105,19 +104,15 @@ public abstract class PhysEntity extends Entity {
         //try to resolve collisions with a step limit
         for (int step = 0; step < 3; step++) {
             //find the closest collision
-            ray.setDirection(toMove).setMaxDistance(toMove.length());
             Hit collision = null;
 
             for (Terrain terrain : terrains) {
                 if (!getTerrainCollisionMask().test(terrain.getCollisionMask()))
                     continue;
 
-                for (AABB terrainBB : terrain.getPreciseAABB()) {
-                    //inflate terrain BB by the entity half-dimensions
-                    AABB inflatedBB = new AABB(terrainBB).inflate(inflate);
-
+                for (Collider<?> terrainBB : terrain.getPreciseAABB()) {
                     //check for collision along the motion ray
-                    Hit result = inflatedBB.collideRay(ray);
+                    Hit result = aabb.sweep(terrainBB, toMove);
                     if (result != null && result.tNear() >= 0f && (collision == null || result.tNear() < collision.tNear()))
                         collision = result;
                 }
@@ -152,22 +147,11 @@ public abstract class PhysEntity extends Entity {
     // -- entity collisions -- //
 
     protected void tickEntityCollisions(AABB aabb, Vector3f toMove) {
-        Vector3f pos = aabb.getCenter();
-        Vector3f inflate = aabb.getDimensions().mul(0.5f);
-        Ray ray = new Ray().setOrigin(pos);
-
         for (Entity entity : getWorld().getEntities(new AABB(aabb).expand(toMove))) {
             if (!(entity instanceof PhysEntity physEntity) || physEntity == this || physEntity.isRemoved() || !getEntityCollisionMask().test(physEntity.getEntityCollisionMask()))
                 continue;
 
-            float len = toMove.length();
-            if (len < Maths.SMALL_NUMBER) //force a collision check when standing still
-                ray.setDirection(0, -1, 0).setMaxDistance(Maths.SMALL_NUMBER);
-             else
-                ray.setDirection(toMove).setMaxDistance(len);
-
-            AABB temp = new AABB(physEntity.getAABB()).inflate(inflate);
-            Hit result = temp.collideRay(ray);
+            Hit result = aabb.sweep(physEntity.getAABB(), toMove.lengthSquared() < Maths.SMALL_NUMBER ? SMALL_IMPULSE : toMove);
             if (result != null)
                 collide(physEntity, result, toMove);
         }
@@ -179,7 +163,7 @@ public abstract class PhysEntity extends Entity {
         float force = getPushForce();
 
         //calculate collision
-        return new Vector3f(aabb.getOverlap(other)).mul(force);
+        return aabb.getOverlap(other).mul(force);
     }
 
     protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {}

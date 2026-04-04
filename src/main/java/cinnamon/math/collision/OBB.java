@@ -593,6 +593,21 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
+    public Hit sweepOBB(OBB obb, Vector3f velocity) {
+        return null;
+    }
+
+    @Override
+    public Hit sweepAABB(AABB aabb, Vector3f velocity) {
+        return null;
+    }
+
+    @Override
+    public Hit sweepSphere(Sphere sphere, Vector3f velocity) {
+        return null;
+    }
+
+    @Override
     public String toString() {
         return "OBB{cx=" + center.x + " cy=" + center.y + " cz=" + center.z +
                 " hx=" + halfExtents.x + " hy=" + halfExtents.y + " hz=" + halfExtents.z +

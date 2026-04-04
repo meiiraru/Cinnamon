@@ -5,6 +5,8 @@ import org.joml.Vector3f;
 
 public class Ray {
 
+    static final Ray SWEEP_RAY = new Ray();
+
     private final Vector3f origin = new Vector3f();
     private final Vector3f direction = new Vector3f(0, 0, 1);
     private float maxDistance = 1f;

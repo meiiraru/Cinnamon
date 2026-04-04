@@ -232,6 +232,21 @@ public class Sphere extends Collider<Sphere> {
     }
 
     @Override
+    public Hit sweepSphere(Sphere sphere, Vector3f velocity) {
+        return null;
+    }
+
+    @Override
+    public Hit sweepAABB(AABB aabb, Vector3f velocity) {
+        return null;
+    }
+
+    @Override
+    public Hit sweepOBB(OBB obb, Vector3f velocity) {
+        return null;
+    }
+
+    @Override
     public String toString() {
         return "Sphere{x=" + center.x + " y=" + center.y + " z=" + center.z + " r=" + radius + "}";
     }

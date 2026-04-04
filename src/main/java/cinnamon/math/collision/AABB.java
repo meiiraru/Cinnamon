@@ -7,6 +7,8 @@ import org.joml.Vector3f;
 
 public class AABB extends Collider<AABB> {
 
+    static final AABB SWEEP_AABB = new AABB();
+
     private float
             minX, minY, minZ,
             maxX, maxY, maxZ;
@@ -634,6 +636,7 @@ public class AABB extends Collider<AABB> {
         return new Collision(normal, r + minDist, this, sphere);
     }
 
+    @Override
     public Hit sweepAABB(AABB aabb, Vector3f movement) {
         float hx = (maxX - minX) * 0.5f;
         float hy = (maxY - minY) * 0.5f;
@@ -643,9 +646,19 @@ public class AABB extends Collider<AABB> {
         float cy = minY + hy;
         float cz = minZ + hz;
 
-        AABB expandedTarget = new AABB(aabb).inflate(hx, hy, hz);
-        Ray ray = new Ray(cx, cy, cz, movement.x, movement.y, movement.z, movement.length());
-        return expandedTarget.collideRay(ray);
+        SWEEP_AABB.set(aabb).inflate(hx, hy, hz);
+        Ray.SWEEP_RAY.setOrigin(cx, cy, cz).setDirection(movement.x, movement.y, movement.z).setMaxDistance(movement.length());
+        return SWEEP_AABB.collideRay(Ray.SWEEP_RAY);
+    }
+
+    @Override
+    public Hit sweepOBB(OBB obb, Vector3f velocity) {
+        return null;
+    }
+
+    @Override
+    public Hit sweepSphere(Sphere sphere, Vector3f velocity) {
+        return null;
     }
 
     @Override

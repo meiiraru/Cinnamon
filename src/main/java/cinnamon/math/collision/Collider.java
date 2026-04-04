@@ -62,4 +62,17 @@ public abstract class Collider<T extends Collider<T>> {
     public abstract Collision collideSphere(Sphere sphere);
     public abstract Collision collideAABB(AABB aabb);
     public abstract Collision collideOBB(OBB obb);
+
+    public Hit sweep(Collider<?> other, Vector3f velocity) {
+        return switch (other) {
+            case Sphere sphere -> this.sweepSphere(sphere, velocity);
+            case AABB aabb -> this.sweepAABB(aabb, velocity);
+            case OBB obb -> this.sweepOBB(obb, velocity);
+            default -> throw new IllegalStateException();
+        };
+    }
+
+    public abstract Hit sweepSphere(Sphere sphere, Vector3f velocity);
+    public abstract Hit sweepAABB(AABB aabb, Vector3f velocity);
+    public abstract Hit sweepOBB(OBB obb, Vector3f velocity);
 }
