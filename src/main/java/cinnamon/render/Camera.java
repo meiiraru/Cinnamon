@@ -133,7 +133,7 @@ public class Camera {
             );
 
             if (hit != null) {
-                float hitDist = hit.first().tNear();
+                float hitDist = hit.first().tNear() * distance;
                 if (hitDist < maxDist)
                     maxDist = hitDist;
             }
