@@ -594,17 +594,29 @@ public class OBB extends Collider<OBB> {
 
     @Override
     public Hit sweepOBB(OBB obb, Vector3f velocity) {
-        return null;
+        return SATHelper.SATSweep(this, obb,
+                new Vector3f[]{    getAxisX(),     getAxisY(),     getAxisZ()},
+                new Vector3f[]{obb.getAxisX(), obb.getAxisY(), obb.getAxisZ()},
+                velocity
+        );
     }
 
     @Override
     public Hit sweepAABB(AABB aabb, Vector3f velocity) {
-        return null;
+        return SATHelper.SATSweep(this, aabb, new Vector3f[]{getAxisX(), getAxisY(), getAxisZ()}, SATHelper.AABB_AXES, velocity);
     }
 
     @Override
     public Hit sweepSphere(Sphere sphere, Vector3f velocity) {
-        return null;
+        //test the sphere against the OBB with inverted velocity
+        Hit hit = sphere.sweepOBB(this, new Vector3f(velocity).negate());
+        if (hit == null)
+            return null;
+
+        //invert the hit normal and collider then return
+        hit.normal().negate();
+        hit.ray().invert();
+        return hit.setCollider(sphere);
     }
 
     @Override

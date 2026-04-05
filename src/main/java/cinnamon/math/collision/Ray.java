@@ -5,8 +5,6 @@ import org.joml.Vector3f;
 
 public class Ray {
 
-    static final Ray SWEEP_RAY = new Ray();
-
     private final Vector3f origin = new Vector3f();
     private final Vector3f direction = new Vector3f(0, 0, 1);
     private float maxDistance = 1f;
@@ -64,6 +62,13 @@ public class Ray {
 
     public float getMaxDistance() {
         return maxDistance;
+    }
+
+    public Ray invert() {
+        //swaps the origin and the point at max distance along the ray, and inverts the direction
+        this.origin.set(direction.x * maxDistance + origin.x, direction.y * maxDistance + origin.y, direction.z * maxDistance + origin.z);
+        this.direction.negate();
+        return this;
     }
 
     public static Hit collide(Ray ray, Collider<?> shape) {

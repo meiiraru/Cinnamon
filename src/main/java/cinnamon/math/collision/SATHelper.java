@@ -21,6 +21,10 @@ public class SATHelper {
             tempCross = new Vector3f(),
             tempDir = new Vector3f();
 
+    private static float
+            sweepTNear,
+            sweepTFar;
+
     public static boolean intersectsOBBSAT(Vector3f cA, Vector3f hA, Vector3f a0, Vector3f a1, Vector3f a2, Vector3f cB, Vector3f hB, Vector3f b0, Vector3f b1, Vector3f b2) {
         //rotation matrix: r_ij = Ai dot Bj
         float r00 = a0.dot(b0), r01 = a0.dot(b1), r02 = a0.dot(b2);
@@ -126,5 +130,94 @@ public class SATHelper {
             minAxis.negate();
 
         return new Collision(minAxis, minDepth, a, b);
+    }
+
+    private static boolean testAxisSweep(Vector3f axis, Collider<?> a, Collider<?> b, Vector3f sweepNormal, Vector3f velocity) {
+        //invalid axis
+        if (axis.lengthSquared() < Maths.KINDA_SMALL_NUMBER)
+            return true;
+
+        axis.normalize(tempNormAxis);
+
+        //project the shapes and velocity onto the axis
+        a.project(tempNormAxis, minMaxA);
+        b.project(tempNormAxis, minMaxB);
+        float projVel = tempNormAxis.dot(velocity);
+
+        //check if objects are moving parallel to the separating axis plane
+        if (Math.abs(projVel) < Maths.KINDA_SMALL_NUMBER)
+            return minMaxA[1] >= minMaxB[0] && minMaxB[1] >= minMaxA[0];
+
+        //calculate the time of entry and exit for the axis
+        float tEnter, tExit;
+        if (projVel > 0) {
+            tEnter = (minMaxB[0] - minMaxA[1]) / projVel;
+            tExit =  (minMaxB[1] - minMaxA[0]) / projVel;
+        } else {
+            tEnter = (minMaxB[1] - minMaxA[0]) / projVel;
+            tExit =  (minMaxB[0] - minMaxA[1]) / projVel;
+        }
+
+        //if the interval is inverted, swap them
+        if (tEnter > tExit) {
+            float temp = tEnter; tEnter = tExit; tExit = temp;
+        }
+
+        //find the latest time of entry
+        if (tEnter > sweepTNear) {
+            sweepTNear = tEnter;
+            sweepNormal.set(tempNormAxis);
+        }
+
+        //find the earliest time of exit
+        if (tExit < sweepTFar)
+            sweepTFar = tExit;
+
+        //accept tangent contacts too (tNear == tFar) to avoid grazing false negatives
+        return sweepTNear <= sweepTFar;
+    }
+
+    public static Hit SATSweep(Collider<?> a, Collider<?> b, Vector3f[] axesA, Vector3f[] axesB, Vector3f velocity) {
+        //initialize time interval and collision normal
+        sweepTNear = 0f;
+        sweepTFar  = 1f;
+        Vector3f sweepNormal = new Vector3f();
+
+        //test axes of the first object
+        for (Vector3f axis : axesA)
+            if (!testAxisSweep(axis, a, b, sweepNormal, velocity))
+                return null;
+
+        //test axes of the second object
+        for (Vector3f axis : axesB)
+            if (!testAxisSweep(axis, a, b, sweepNormal, velocity))
+                return null;
+
+        //test cross product axes
+        for (Vector3f axisA : axesA) {
+            for (Vector3f axisB : axesB) {
+                axisA.cross(axisB, tempCross);
+                if (!testAxisSweep(tempCross, a, b, sweepNormal, velocity))
+                    return null;
+            }
+        }
+
+        //if no collision within the time frame [0, 1]
+        if (sweepTNear > 1f || sweepTNear < 0f)
+            return null;
+
+        //ensure the normal points from the moving object (a) to the static one (b)
+        a.getCenter().sub(b.getCenter(), tempDir);
+        if (sweepNormal.dot(tempDir) < 0)
+            sweepNormal.negate();
+
+        Ray ray = new Ray(a.getCenter(), velocity, velocity.length());
+
+        //calculate a reasonable hit position by moving the object to the point of collision
+        Collider<?> movedA = a.clone().translate(velocity.x * sweepTNear, velocity.y * sweepTNear, velocity.z * sweepTNear);
+        Vector3f closestPointOnA = movedA.closestPoint(b.getCenter(), new Vector3f());
+        Vector3f hitPosition = b.closestPoint(closestPointOnA, closestPointOnA);
+
+        return new Hit(hitPosition, sweepNormal, sweepTNear, sweepTFar, ray, b);
     }
 }

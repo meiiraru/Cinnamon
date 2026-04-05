@@ -7,8 +7,6 @@ import org.joml.Vector3f;
 
 public class AABB extends Collider<AABB> {
 
-    static final AABB SWEEP_AABB = new AABB();
-
     private float
             minX, minY, minZ,
             maxX, maxY, maxZ;
@@ -646,19 +644,29 @@ public class AABB extends Collider<AABB> {
         float cy = minY + hy;
         float cz = minZ + hz;
 
-        SWEEP_AABB.set(aabb).inflate(hx, hy, hz);
-        Ray.SWEEP_RAY.setOrigin(cx, cy, cz).setDirection(movement.x, movement.y, movement.z).setMaxDistance(movement.length());
-        return SWEEP_AABB.collideRay(Ray.SWEEP_RAY);
+        AABB sweep = new AABB(aabb).inflate(hx, hy, hz);
+        Ray ray = new Ray(cx, cy, cz, movement.x, movement.y, movement.z, movement.length());
+        Hit hit = sweep.collideRay(ray);
+
+        return hit == null ? null : hit.setCollider(aabb);
     }
 
     @Override
     public Hit sweepOBB(OBB obb, Vector3f velocity) {
-        return null;
+        return SATHelper.SATSweep(this, obb, SATHelper.AABB_AXES, new Vector3f[]{obb.getAxisX(), obb.getAxisY(), obb.getAxisZ()}, velocity);
     }
 
     @Override
     public Hit sweepSphere(Sphere sphere, Vector3f velocity) {
-        return null;
+        //test the sphere against the AABB with inverted velocity
+        Hit hit = sphere.sweepAABB(this, new Vector3f(velocity).negate());
+        if (hit == null)
+            return null;
+
+        //invert the hit normal and collider then return
+        hit.normal().negate();
+        hit.ray().invert();
+        return hit.setCollider(sphere);
     }
 
     @Override

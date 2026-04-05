@@ -34,7 +34,7 @@ public class CollisionScreen extends ParentedScreen {
     private final List<Collider<?>> obstacles;
     private final AABB[] boundaries;
     private final Vector3f rayPos, lastPlayerPos, impulse, velocity;
-    private final List<Collision> collidedWith;
+    private final List<Hit> collidedWith;
 
     private Collider<?> player;
     private boolean l, r, u, d, rl, rr;
@@ -142,69 +142,85 @@ public class CollisionScreen extends ParentedScreen {
     }
 
     private void tickCollisions() {
+        //early exit
         if (velocity.lengthSquared() < Maths.KINDA_SMALL_NUMBER)
             return;
 
+        //prepare variables
         collidedWith.clear();
+        Vector3f toMove = new Vector3f(velocity);
 
-        //sub-stepping to avoid tunnelling - step size of half the shape radius
-        float maxSafeStep = shapeRadius * 0.5f;
-        float frameDistance = velocity.length();
-        int subSteps = (int) Math.ceil(frameDistance / maxSafeStep);
-        Vector3f subVelocity = new Vector3f(velocity).div(subSteps);
+        //terrain pass
+        for (int i = 0; i < 5; i++) {
+            Hit collision = null;
 
-        //move in small steps and resolve the collisions
-        for (int i = 0; i < subSteps; i++) {
-            //move by the sub-step velocity
-            player.translate(subVelocity.x, subVelocity.y, 0f);
+            for (AABB boundary : boundaries) {
+                Hit result = player.sweep(boundary, toMove);
+                if (result != null && result.tNear() >= 0f && (collision == null || result.tNear() < collision.tNear()))
+                    collision = result;
+            }
 
-            //resolve collisions
-            int maxSteps = collisionMode == null ? 0 : 5;
-            for (int step = 0; step < maxSteps; step++) {
-                Collision collision = null;
-                boolean forceSlide = false;
+            //no collision found - exit loop
+            if (collision == null)
+                break;
 
-                for (Collider<?> shape : obstacles) {
-                    Collision col = player.collide(shape);
-                    if (col != null && (collision == null || col.depth() > collision.depth()))
-                        collision = col;
-                }
+            collidedWith.add(collision);
+            Resolution.slide(collision, velocity, toMove);
 
-                for (AABB shape : boundaries) {
-                    Collision col = player.collide(shape);
-
-                    if (col != null && (collision == null || col.depth() > collision.depth())) {
-                        collision = col;
-                        forceSlide = true;
-                    }
-                }
-
-                //early exit when there are no collisions
-                if (collision == null)
-                    break;
-
-                collidedWith.add(collision);
-                Vector3f thisMove = new Vector3f();
-                Vector3f obstacleMove = new Vector3f();
-
-                //resolve the collision
-                Resolution.Mode mode = forceSlide ? SLIDE : collisionMode;
-                switch (mode) {
-                    case SLIDE  -> Resolution.slide  (collision, velocity, thisMove);
-                    case STICK  -> Resolution.stick  (collision, velocity, thisMove);
-                    case BOUNCE -> {Resolution.bounce(collision, velocity, thisMove, 2f); points += 10;}
-                    case FORCE  -> Resolution.force  (collision, velocity, 0.03f);
-                    case PUSH   -> Resolution.push   (collision, obstacleMove);
-                }
-
-                //apply resolution movements
-                collision.shapeA().translate(thisMove.x, thisMove.y, 0f);
-                collision.shapeB().translate(obstacleMove.x, obstacleMove.y, 0f);
-
-                //recalculate velocity for the remaining sub-steps based on the collision resolution
-                subVelocity.set(velocity).div(subSteps);
+            //stop if remaining movement is too small
+            if (toMove.lengthSquared() < Maths.SMALL_NUMBER) {
+                toMove.set(0);
+                break;
             }
         }
+
+        //obstacles pass
+
+        //try to resolve collisions with a step limit
+        int maxSteps = collisionMode == null ? 0 : 3;
+        for (int steps = 0; steps < maxSteps; steps++) {
+            //find the closest collision
+            Hit collision = null;
+            Collider<?> collider = null;
+
+            for (Collider<?> shape : obstacles) {
+                //check for collision along the motion ray
+                Hit result = player.sweep(shape, toMove);
+                if (result != null && (collision == null || result.tNear() < collision.tNear())) {
+                    collision = result;
+                    collider = shape;
+                }
+            }
+
+            //no collision found - exit loop
+            if (collision == null)
+                break;
+
+            collidedWith.add(collision);
+            Vector3f pushDelta = new Vector3f();
+            Vector3f obstacleMove = new Vector3f();
+
+            //resolve the collision
+            switch (collisionMode) {
+                case SLIDE  -> Resolution.slide  (collision, velocity, toMove);
+                case STICK  -> Resolution.stick  (collision, velocity, toMove);
+                case BOUNCE -> {Resolution.bounce(collision, velocity, toMove, 2f); points += 10;}
+                case FORCE  -> Resolution.force  (collision, velocity, pushDelta, 0.05f);
+                case PUSH   -> Resolution.push   (collision, velocity, obstacleMove);
+            }
+
+            //apply resolution movements
+            velocity.add(pushDelta);
+            collider.translate(obstacleMove.x, obstacleMove.y, 0f);
+
+            //stop if remaining movement is too small
+            if (toMove.lengthSquared() < Maths.SMALL_NUMBER) {
+                toMove.set(0);
+                break;
+            }
+        }
+
+        player.translate(toMove.x, toMove.y, 0f);
 
         //decay momentum
         velocity.mul(0.9f);
@@ -280,26 +296,20 @@ public class CollisionScreen extends ParentedScreen {
         }
 
         //draw collisions
-        for (Collision col : collidedWith) {
+        for (Hit col : collidedWith) {
             //draw collision
-            DebugRenderer.renderShape(matrices, col.shapeB(), 0xFFFFFF00);
+            DebugRenderer.renderShape(matrices, col.collider(), 0xFFFFFF00);
 
-            //preview the MTV
+            //preview the collision ray near and far points
+            Vector3f near = col.position();
+            DebugRenderer.renderPoint(matrices, near, 3, 0xFFFF72AD);
+
+            Vector3f far = col.ray().getOrigin().fma(col.tFar() * col.ray().getMaxDistance(), col.ray().getDirection(), new Vector3f());
+            DebugRenderer.renderPoint(matrices, far, 3, 0xFFFF7200);
+
+            //preview normal
             Vector3f normal = col.normal();
-            float depth = col.depth();
-
-            //invert normal points to get the direction to move the player out of collision
-            float mtvX = -normal.x * depth;
-            float mtvY = -normal.y * depth;
-
-            float endX = center.x + mtvX;
-            float endY = center.y + mtvY;
-
-            //draw a line showing the Minimum Translation Vector
-            VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, center.x, center.y, endX, endY, 2, 0xFFFF00FF));
-
-            //draw a point at the tip of the MTV arrow
-            DebugRenderer.renderPoint(matrices, point.set(endX, endY, 0), 4, 0xFFFF00FF);
+            VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, near.x, near.y, near.x + normal.x * 10, near.y + normal.y * 10, 1, 0xFF72FF72));
         }
     }
 

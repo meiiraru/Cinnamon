@@ -131,13 +131,13 @@ public final class Resolution {
         Vector3f normal = collision.normal();
         float depth = collision.depth();
 
-        float lenSq = normal.x * normal.x + normal.z * normal.z;
+        float lenSq = normal.lengthSquared();
         if (lenSq > Maths.KINDA_SMALL_NUMBER) {
             float invLen = 1f / Math.sqrt(lenSq);
             float pushMag = pushFactor * depth;
 
             //subtract from velocity since normal points towards obstacle
-            velocity.sub(normal.x * invLen * pushMag, 0f, normal.z * invLen * pushMag);
+            velocity.sub(normal.x * invLen * pushMag, normal.y * invLen * pushMag, normal.z * invLen * pushMag);
         }
     }
 
