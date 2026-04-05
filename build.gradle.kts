@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.github.meiiraru"
-version = "0.3.10"
+version = "0.4.0"
 val mainClass = "cinnamon.Cinnamon"
 
 //dependencies
