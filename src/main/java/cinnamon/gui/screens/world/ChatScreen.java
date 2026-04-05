@@ -123,7 +123,7 @@ public class ChatScreen extends Screen {
     }
 
     @Override
-    protected void renderBackground(MatrixStack matrices, float delta) {
+    protected void renderBackground(MatrixStack matrices, float delta, int color1, int color2, float size) {
         //super.renderBackground(matrices, delta);
     }
 

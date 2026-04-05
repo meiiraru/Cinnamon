@@ -48,7 +48,7 @@ public class PanoramaScreen extends ParentedScreen {
     }
 
     @Override
-    protected void renderBackground(MatrixStack matrices, float delta) {
+    protected void renderBackground(MatrixStack matrices, float delta, int color1, int color2, float size) {
         if (texture == null)
             renderSolidBackground(Colors.BLUE.argb);
     }

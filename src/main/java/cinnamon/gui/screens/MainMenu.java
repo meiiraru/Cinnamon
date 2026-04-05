@@ -93,7 +93,7 @@ public class MainMenu extends Screen {
     }
 
     @Override
-    protected void renderBackground(MatrixStack matrices, float delta) {
+    protected void renderBackground(MatrixStack matrices, float delta, int color1, int color2, float size) {
         renderSolidBackground(0xFFD3AB7A);
 
         boolean xr = XrManager.isInXR();

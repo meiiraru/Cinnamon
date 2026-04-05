@@ -178,7 +178,7 @@ public abstract class Screen {
         postRender(matrices, mouseX, mouseY, delta);
     }
 
-    protected void renderBackground(MatrixStack matrices, float delta) {
+    protected void renderBackground(MatrixStack matrices, float delta, int color1, int color2, float size) {
         Shader oldShader = Shader.activeShader;
         Shader s = Shaders.BACKGROUND_MENU.getShader().use();
 
@@ -187,6 +187,10 @@ public abstract class Screen {
         s.setFloat("time", time);
         s.setVec2("resolution", width, height);
         s.setVec2("framebufferOffset", Framebuffer.activeFramebuffer.getX(), Framebuffer.activeFramebuffer.getY());
+
+        s.setColor("col1", color1);
+        s.setColor("col2", color2);
+        s.setFloat("size", size);
 
         glDepthMask(false);
         StaticGeometry.QUAD.render();
@@ -210,7 +214,7 @@ public abstract class Screen {
     }
 
     protected void preRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        this.renderBackground(matrices, delta);
+        this.renderBackground(matrices, delta, 0x0F0805, 0x2E170F, 30f);
     }
 
     protected void renderChildren(MatrixStack matrices, int mouseX, int mouseY, float delta) {

@@ -16,8 +16,8 @@ uniform vec2 framebufferOffset;
 //by gls9102 - https://www.shadertoy.com/view/WdlyRS
 
 uniform float size = 30.0f;
-uniform vec3 col1 = vec3(15.0f,  8.0f,  5.0f) / 255.0f;
-uniform vec3 col2 = vec3(46.0f, 23.0f, 15.0f) / 255.0f;
+uniform vec3 col1 = vec3(0.8f, 0.8f, 0.0f);
+uniform vec3 col2 = vec3(0.8f, 0.0f, 0.8f);
 
 vec2 ran(vec2 uv) {
     uv *= vec2(dot(uv, vec2(127.1f, 311.7f)), dot(uv, vec2(227.1f, 521.7f)));
