@@ -2,6 +2,7 @@ package cinnamon.world.world;
 
 import cinnamon.Client;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Ray;
 import cinnamon.utils.Pair;
@@ -145,15 +146,15 @@ public abstract class World {
         Ray ray = new Ray(pos, dirLen, dirLen.length());
 
         //loop through terrain in area
-        for (Terrain t : terrainManager.query(area)) {
+        for (Terrain t : getTerrains(area)) {
             //failed predicate
             if (!predicate.test(t))
                 continue;
 
             //loop through its groups AABBs
-            for (AABB aabb : t.getPreciseAABB()) {
+            for (Collider<?> collider : t.getPreciseCollider()) {
                 //check for collision
-                Hit result = aabb.collideRay(ray);
+                Hit result = collider.collideRay(ray);
                 //store collision if it is closer than previous collision
                 if (result != null && (terrainColl == null || result.tNear() < terrainColl.tNear())) {
                     terrainColl = result;

@@ -12,6 +12,7 @@ import cinnamon.input.Keybind;
 import cinnamon.input.Movement;
 import cinnamon.math.Maths;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.Hit;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
@@ -566,8 +567,8 @@ public class WorldClient extends World {
 
         int alpha = (int) Math.lerp(0x32, 0xFF, (Math.sin((Client.getInstance().ticks + delta) * 0.15f) + 1f) * 0.5f);
 
-        for (AABB aabb : terrain.second().getPreciseAABB())
-            DebugRenderer.renderAABB(matrices, aabb, 0xFFFFFF + (alpha << 24));
+        for (Collider<?> collider : terrain.second().getPreciseCollider())
+            DebugRenderer.renderShape(matrices, collider, 0xFFFFFF + (alpha << 24));
     }
 
     public Sky getSky() {

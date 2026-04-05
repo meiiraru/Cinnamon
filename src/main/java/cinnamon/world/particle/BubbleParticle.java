@@ -2,6 +2,7 @@ package cinnamon.world.particle;
 
 import cinnamon.math.Maths;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Collider;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Resource;
@@ -28,8 +29,8 @@ public class BubbleParticle extends SpriteParticle {
         if (!collided) {
             AABB aabb = getAABB();
             for (Terrain terrain : world.getTerrains(aabb)) {
-                for (AABB terrainBB : terrain.getPreciseAABB()) {
-                    if (aabb.intersectsAABB(terrainBB)) {
+                for (Collider<?> terrainColl : terrain.getPreciseCollider()) {
+                    if (aabb.intersects(terrainColl)) {
                         getMotion().zero();
                         collided = true;
                         break;

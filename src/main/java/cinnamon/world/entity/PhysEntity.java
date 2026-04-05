@@ -102,7 +102,7 @@ public abstract class PhysEntity extends Entity {
         List<Terrain> terrains = getWorld().getTerrains(new AABB(aabb).expand(toMove));
 
         //try to resolve collisions with a step limit
-        for (int step = 0; step < 3; step++) {
+        for (int step = 0; step < 5; step++) {
             //find the closest collision
             Hit collision = null;
 
@@ -110,7 +110,7 @@ public abstract class PhysEntity extends Entity {
                 if (!getTerrainCollisionMask().test(terrain.getCollisionMask()))
                     continue;
 
-                for (Collider<?> terrainBB : terrain.getPreciseAABB()) {
+                for (Collider<?> terrainBB : terrain.getPreciseCollider()) {
                     //check for collision along the motion ray
                     Hit result = aabb.sweep(terrainBB, toMove);
                     if (result != null && result.tNear() >= 0f && (collision == null || result.tNear() < collision.tNear()))

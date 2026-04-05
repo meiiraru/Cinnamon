@@ -3,6 +3,7 @@ package cinnamon.world.terrain;
 import cinnamon.animation.Animation;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Collider;
 import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
@@ -27,7 +28,7 @@ public class Terrain extends WorldObject {
     protected final ModelRenderer model;
     private final TerrainRegistry type;
 
-    protected final List<AABB> preciseAABB = new ArrayList<>(); //group's AABB
+    protected final List<Collider<?>> preciseCollider = new ArrayList<>();
 
     private byte rotation = 0;
     private MaterialRegistry overrideMaterial = MaterialRegistry.DEFAULT;
@@ -62,24 +63,24 @@ public class Terrain extends WorldObject {
     public void renderDebugHitbox(MatrixStack matrices, float delta) {
         DebugRenderer.renderAABB(matrices, aabb, 0xFFFFFFFF);
 
-        for (AABB aabb : preciseAABB)
-            DebugRenderer.renderAABB(matrices, aabb, 0xFFFF00FF);
+        for (Collider<?> collider : preciseCollider)
+            DebugRenderer.renderShape(matrices, collider, 0xFFFF00FF);
     }
 
     protected void updateAABB() {
         if (model == null) {
             aabb.set(pos).expand(1f, 1f, 1f);
-            preciseAABB.clear();
-            preciseAABB.add(aabb);
+            preciseCollider.clear();
+            preciseCollider.add(aabb);
             return;
         }
 
         float r = getRotationAngle();
         this.aabb.set(this.model.getAABB()).rotateY(r).translate(pos.x + 0.5f, pos.y, pos.z + 0.5f);
 
-        this.preciseAABB.clear();
+        this.preciseCollider.clear();
         for (AABB group : this.model.getPreciseAABB())
-            preciseAABB.add(group.rotateY(r).translate(pos.x + 0.5f, pos.y, pos.z + 0.5f));
+            preciseCollider.add(group.rotateY(r).translate(pos.x + 0.5f, pos.y, pos.z + 0.5f));
 
         World w = getWorld();
         if (w != null) {
@@ -112,8 +113,8 @@ public class Terrain extends WorldObject {
         return world;
     }
 
-    public List<AABB> getPreciseAABB() {
-        return preciseAABB;
+    public List<Collider<?>> getPreciseCollider() {
+        return preciseCollider;
     }
 
     public void setRotation(byte rotation) {

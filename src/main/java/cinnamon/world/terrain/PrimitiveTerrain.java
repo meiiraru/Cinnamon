@@ -22,7 +22,7 @@ public class PrimitiveTerrain extends Terrain {
     public PrimitiveTerrain(Vertex[][] vertices, boolean smooth) {
         super(null, TerrainRegistry.CUSTOM);
         this.vertices = smooth ? recalculateNormals(vertices) : vertices;
-        this.preciseAABB.add(aabb);
+        this.preciseCollider.add(aabb);
         updateAABB();
     }
 
