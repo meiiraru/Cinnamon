@@ -2,8 +2,8 @@ package cinnamon.world.items;
 
 public class Inventory {
 
-    private final int size;
-    private final Item[] items;
+    private int size;
+    private Item[] items;
     private int selected;
 
     public Inventory(int slots) {
@@ -117,5 +117,12 @@ public class Inventory {
 
     public int getSize() {
         return size;
+    }
+
+    public void setSize(int size) {
+        Item[] newItems = new Item[size];
+        System.arraycopy(items, 0, newItems, 0, Math.min(this.size, size));
+        this.size = size;
+        this.items = newItems;
     }
 }

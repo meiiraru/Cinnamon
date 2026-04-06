@@ -97,6 +97,7 @@ public class WorldClient extends World {
     public LocalPlayer player;
 
     protected int cameraMode = 0;
+    protected boolean enableDebugKeys = true;
 
     //lights
     protected final List<Light> lights = new ArrayList<>();
@@ -328,6 +329,9 @@ public class WorldClient extends World {
         //render our stuff
         WorldRenderer.renderWorld(this, matrices, d);
 
+        //post render world
+        postWorldRender(matrices, d);
+
         //render first-person hand
         if (!client.hideHUD && !isThirdPerson()) {
             if (!xr) glClear(GL_DEPTH_BUFFER_BIT); //top of world
@@ -344,6 +348,8 @@ public class WorldClient extends World {
             matrices.popMatrix();
         }
     }
+
+    protected void postWorldRender(MatrixStack matrices, float delta) {}
 
     protected void updateCamera(Camera sourceCamera, Entity camEntity, int cameraMode, float delta) {
         WorldRenderer.camera.copyFrom(sourceCamera, true);
@@ -751,9 +757,12 @@ public class WorldClient extends World {
                 addDecal(decal);
             }
 
-            case GLFW_KEY_X -> spawnDebugWeapons();
+            case GLFW_KEY_X -> {if (enableDebugKeys) spawnDebugWeapons();}
 
             case GLFW_KEY_Z -> {
+                if (!enableDebugKeys)
+                    return;
+
                 Firework f = new Firework(UUID.randomUUID(), Maths.range(30, 60), Maths.spread(new Vector3f(0, 1f, 0), 30, 30).mul(2f),
                         new FireworkStar(
                                 new Integer[]{0xFFa19f7f, 0xFFcfa959, 0xFF9b8136, 0xFF908264, 0xFFebc789, 0xFFb39b5b},
