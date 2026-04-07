@@ -80,6 +80,7 @@ public class AnimatedObjRenderer extends ObjRenderer {
             renderBone(child, matrices, renderFunction);
 
         matrices.popMatrix();
+        Shader.activeShader.applyMatrixStack(matrices);
     }
 
     public Animation getAnimation(String name) {
