@@ -43,13 +43,10 @@ public class Animation {
 
         if (time > duration) {
             switch (loop) {
-                case ONCE -> {
-                    state = State.STOPPED;
-                    time = initTime = 0;
-                }
+                case ONCE -> setState(State.STOPPED);
                 case HOLD -> {
+                    setState(State.PAUSED);
                     time = duration;
-                    state = State.PAUSED;
                 }
                 case LOOP -> {
                     time %= duration;
@@ -60,11 +57,11 @@ public class Animation {
     }
 
     public int update() {
-        if (state == State.STOPPED)
-            return 0;
-
         if (state == State.PLAYING)
             updateTime();
+
+        if (state == State.STOPPED)
+            return 0;
 
         int count = 0;
 
