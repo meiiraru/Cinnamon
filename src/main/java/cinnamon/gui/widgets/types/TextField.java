@@ -360,6 +360,10 @@ public class TextField extends SelectableWidget implements Tickable {
         setCursorPos(0);
     }
 
+    public void unselectText() {
+        selectedIndex = -1;
+    }
+
 
     // -- formatting -- //
 
@@ -598,7 +602,8 @@ public class TextField extends SelectableWidget implements Tickable {
             }
             case GLFW_KEY_Y -> {
                 if (ctrl) {
-                    redo();
+                    if (shift) undo();
+                    else redo();
                     return this;
                 }
             }
@@ -724,6 +729,9 @@ public class TextField extends SelectableWidget implements Tickable {
         //update the text
         currText = string;
         updateFormatting();
+
+        //unselect the text
+        unselectText();
 
         //update the cursor
         setCursorPos(cursor);
