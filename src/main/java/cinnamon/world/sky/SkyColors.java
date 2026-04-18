@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 public class SkyColors {
 
-    public static final int DAY_LENGTH = 24000;
+    private static final int MINUTES_PER_DAY = 24 * 60;
 
     private final SortedMap<Integer, SkyProperties> propertiesMap = new TreeMap<>();
 
@@ -16,11 +16,11 @@ public class SkyColors {
         propertiesMap.clear();
     }
 
-    public void addProperty(int time, SkyProperties properties) {
-        propertiesMap.put(time, properties);
+    public void addProperty(int timeMinutes, SkyProperties properties) {
+        propertiesMap.put(timeMinutes, properties);
     }
 
-    public SkyProperties getPropertiesAtTime(float dayTime) {
+    public SkyProperties getPropertiesAtTime(float dayMinutes) {
         if (propertiesMap.isEmpty())
             return null;
 
@@ -28,7 +28,7 @@ public class SkyColors {
         int time2 = propertiesMap.firstKey();
 
         for (int time : propertiesMap.keySet()) {
-            if (time <= dayTime) {
+            if (time <= dayMinutes) {
                 time1 = time;
             } else {
                 time2 = time;
@@ -39,10 +39,13 @@ public class SkyColors {
         SkyProperties properties1 = propertiesMap.get(time1);
         SkyProperties properties2 = propertiesMap.get(time2);
 
-        if (time1 > dayTime) time1 -= DAY_LENGTH;
-        if (time2 < dayTime) time2 += DAY_LENGTH;
+        if (time1 == time2)
+            return properties1;
 
-        float dt = (dayTime - time1) / (float) (time2 - time1);
+        if (time1 > dayMinutes) time1 -= MINUTES_PER_DAY;
+        if (time2 < dayMinutes) time2 += MINUTES_PER_DAY;
+
+        float dt = (dayMinutes - time1) / (float) (time2 - time1);
 
         return properties1.lerp(properties2, dt);
     }

@@ -521,16 +521,16 @@ public class DebugScreen {
             };
 
             return String.format("""
-                    time &e%s&r (&e%s&r)
-                    day &e%s&r
+                    time &e%s&rt &e%07.2f&rm &e%s&rh
+                    day &e%s&r %s
                     camera &e%s&r
                     &e%s&r light sources
                     &e%s&r shadow casters
                     &e%s&r particles
                     &e%s&r decals""",
 
-                    w.getTime(), w.getTimeOfTheDay(),
-                    w.getDay(),
+                    w.getTime(), w.getDayMinutes(0f), w.getDayTime(),
+                    w.getDay(), w.isNight() ? "(night)" : "(day)",
                     camera,
                     WorldRenderer.getLightsCount(),
                     WorldRenderer.getShadowsCount(),

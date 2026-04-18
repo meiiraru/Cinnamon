@@ -324,7 +324,7 @@ public class WorldClient extends World {
         SoundManager.updateSoundPosition(WorldRenderer.camera);
 
         //prepare sun
-        updateSky(WorldRenderer.camera, worldTime + d);
+        updateSky(WorldRenderer.camera, d);
 
         //render our stuff
         WorldRenderer.renderWorld(this, matrices, d);
@@ -358,9 +358,8 @@ public class WorldClient extends World {
         WorldRenderer.camera.setup(cameraMode, delta);
     }
 
-    protected void updateSky(Camera camera, float worldTime) {
-        float dayTime = worldTime % 24000;
-        sky.setSunAngle(Maths.map(worldTime, 0, 24000, 0, 360));
+    protected void updateSky(Camera camera, float delta) {
+        sky.setSunAngle(Maths.map(worldTime + delta, 0, dayLength, 0, 360));
 
         Vector3f dir = sky.getSunDirection();
         Vector3f pos = camera.getPos();
@@ -370,11 +369,11 @@ public class WorldClient extends World {
         sunlight.pos(pos.x - dir.x * dist, pos.y - dir.y * dist, pos.z - dir.z * dist);
 
         //apply light
-        applySkyLights(dayTime);
+        applySkyLights(getDayMinutes(delta));
     }
 
-    protected void applySkyLights(float dayTime) {
-        SkyColors.SkyProperties props = skyColors.getPropertiesAtTime(dayTime);
+    protected void applySkyLights(float dayMinutes) {
+        SkyColors.SkyProperties props = skyColors.getPropertiesAtTime(dayMinutes);
         if (props == null)
             return;
 
@@ -841,37 +840,37 @@ public class WorldClient extends World {
 
     protected void setSkyColors() {
         //sunrise
-        skyColors.addProperty(500, new SkyColors.SkyProperties(
+        skyColors.addProperty(6*60, new SkyColors.SkyProperties(
                 0xFF4400, 0x859090, 0x101020, 0xE57E4B, 0x7F7F7F,
                 64f, 80f, 1f, 1f, 0.5f,
                 0xFF4400, 3f, 0f
         ));
         //day start
-        skyColors.addProperty(1000, new SkyColors.SkyProperties(
+        skyColors.addProperty(7*60, new SkyColors.SkyProperties(
                 0xFFEEDD, 0x446FD0, 0xBBCCDD, 0xBFD3DE, 0xB0D0FF,
                 96f, 192f, 0f, 1f, 0.05f,
                 0xFFEEDD, 5f, 1f
         ));
         //day end
-        skyColors.addProperty(11000, new SkyColors.SkyProperties(
+        skyColors.addProperty(17*60, new SkyColors.SkyProperties(
                 0xFFEEDD, 0x446FD0, 0xBBCCDD, 0xBFD3DE, 0xB0D0FF,
                 96f, 192f, 0f, 1f, 0.05f,
                 0xFFEEDD, 5f, 1f
         ));
         //sunset
-        skyColors.addProperty(12000, new SkyColors.SkyProperties(
+        skyColors.addProperty(18*60, new SkyColors.SkyProperties(
                 0xFF4400, 0x8844DD, 0x101020, 0xFF72AD, 0x90507F,
                 64f, 80f, 1f, 1f, 0.5f,
                 0xFF4400, 3f, 0f
         ));
         //night start
-        skyColors.addProperty(13000, new SkyColors.SkyProperties(
+        skyColors.addProperty(19*60, new SkyColors.SkyProperties(
                 0x07070F, 0x0C0C18, 0x101020, 0x0C0C18, 0x0A0A14,
                 64f, 80f, 0f, 1f, 5f,
                 0x07070F, 0.1f, 0f
         ));
         //night end
-        skyColors.addProperty(23000, new SkyColors.SkyProperties(
+        skyColors.addProperty(5*60, new SkyColors.SkyProperties(
                 0x07070F, 0x0C0C18, 0x101020, 0x0C0C18, 0x0A0A14,
                 64f, 80f, 0f, 1f, 5f,
                 0x07070F, 0.1f, 0f

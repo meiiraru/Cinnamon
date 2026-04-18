@@ -34,7 +34,7 @@ public class Time implements Command {
         return switch (subcommand) {
             case "day" -> Text.of(world.getDay());
             case "time" -> Text.of(world.getTime());
-            case "clock" -> Text.of(world.getTimeOfTheDay());
+            case "clock" -> Text.of(world.getDayTime());
             default -> Text.of("Failed to execute command, invalid argument: " + subcommand).withStyle(ERROR_STYLE);
         };
     }
@@ -55,35 +55,35 @@ public class Time implements Command {
         //otherwise, try to parse it as a time of day
         return switch (value) {
             case "sunrise" -> {
-                world.setTime(0);
+                world.setTimeMinutes(6*60);
                 yield Text.of("Set time to sunrise");
             }
             case "day" -> {
-                world.setTime(1000);
+                world.setTimeMinutes(7*60);
                 yield Text.of("Set time to day");
             }
             case "noon" -> {
-                world.setTime(6000);
+                world.setTimeMinutes(12*60);
                 yield Text.of("Set time to noon");
             }
             case "day_end" -> {
-                world.setTime(11000);
+                world.setTimeMinutes(17*60);
                 yield Text.of("Set time to end of the day");
             }
             case "sunset" -> {
-                world.setTime(12000);
+                world.setTimeMinutes(18*60);
                 yield Text.of("Set time to sunset");
             }
             case "night" -> {
-                world.setTime(13000);
+                world.setTimeMinutes(19*60);
                 yield Text.of("Set time to night");
             }
             case "midnight" -> {
-                world.setTime(18000);
+                world.setTimeMinutes(0);
                 yield Text.of("Set time to midnight");
             }
             case "night_end" -> {
-                world.setTime(23000);
+                world.setTimeMinutes(5*60);
                 yield Text.of("Set time to end of the night");
             }
             default -> Text.of("Failed to execute command, invalid argument: " + value).withStyle(ERROR_STYLE);

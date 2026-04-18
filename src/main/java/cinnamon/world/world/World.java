@@ -37,6 +37,7 @@ public abstract class World {
     public float gravity = 0.98f * updateTime;
     public float bottomOfTheWorld = -512f;
     protected long worldTime = 0;
+    protected int dayLength = 24000, nightStart = 13000; //in ticks
     protected boolean isPaused;
 
     public abstract void init();
@@ -196,23 +197,35 @@ public abstract class World {
         this.worldTime = Math.max(time, 0L);
     }
 
+    public void setTimeMinutes(int time) {
+        float progress = (time / 60f - 6f) / 24f;
+        if (progress < 0) progress += 1f;
+        long ticks = (long) (progress * dayLength);
+        this.setTime(ticks);
+    }
+
     public long getTime() {
         return worldTime;
     }
 
-    public long getDay() {
-        return worldTime / 24000L;
+    public int getDay() {
+        return (int) (worldTime / dayLength);
     }
 
-    public float getTimeOfDayProgress() {
-        return ((worldTime + 6000) % 24000) / 24000f;
+    public float getTimeProgress(float delta) {
+        return ((worldTime + delta) % dayLength) / (float) dayLength;
     }
 
-    public String getTimeOfTheDay() {
-        float time = ((worldTime + 6000) % 24000) / 1000f;
-        int timeHors = (int) time;
-        int timeMinutes = (int) ((time - timeHors) * 60);
-        return String.format("%02d:%02d", timeHors, timeMinutes);
+    public String getDayTime() {
+        int minutes = (int) this.getDayMinutes(0f);
+        int hh = minutes / 60;
+        int mm = minutes % 60;
+        return String.format("%02d:%02d", hh, mm);
+    }
+
+    public float getDayMinutes(float delta) {
+        float timeProgress = getTimeProgress(delta);
+        return (timeProgress * 24 + 6) % 24 * 60;
     }
 
     public void setPaused(boolean pause) {
@@ -229,5 +242,17 @@ public abstract class World {
 
     public WorldRules getRules() {
         return worldRules;
+    }
+
+    public int getDayLength() {
+        return dayLength;
+    }
+
+    public int getNightStart() {
+        return nightStart;
+    }
+
+    public boolean isNight() {
+        return worldTime % dayLength >= nightStart;
     }
 }
