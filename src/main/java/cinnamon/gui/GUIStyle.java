@@ -22,7 +22,7 @@ public class GUIStyle {
     private final Map<String, Object> properties = new HashMap<>();
 
     private GUIStyle parent;
-    private Font font;
+    private Font font, fallbackFont;
 
     public Object get(String key) {
         if (properties.containsKey(key))
@@ -104,10 +104,19 @@ public class GUIStyle {
             //font
             if (json.has("font")) {
                 JsonObject fontJson = json.getAsJsonObject("font");
+
                 Resource path = new Resource(fontJson.get("path").getAsString());
-                style.font = Font.getFont(path, fontJson.get("size").getAsInt(),
-                        fontJson.has("line_spacing") ? fontJson.get("line_spacing").getAsInt() : 0,
-                        fontJson.has("smooth") && fontJson.get("smooth").getAsBoolean());
+                Resource fallback = fontJson.has("fallback") ? new Resource(fontJson.get("fallback").getAsString()) : null;
+
+                int size = fontJson.get("size").getAsInt();
+                int lineSpacing = fontJson.has("line_spacing") ? fontJson.get("line_spacing").getAsInt() : 0;
+                boolean smooth = fontJson.has("smooth") && fontJson.get("smooth").getAsBoolean();
+
+                if (fallback != null)
+                    style.fallbackFont = Font.getFont(fallback, size, lineSpacing, smooth);
+
+                style.font = Font.getFont(path, size, lineSpacing, smooth);
+                style.font.setFallback(style.fallbackFont);
             }
 
             //resources

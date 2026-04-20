@@ -1,6 +1,7 @@
 {
   "font": {
-    "path": "fonts/mayonnaise.ttf",
+    "path": "fonts/minakaka.ttf",
+    "fallback": "fonts/mayonnaise.ttf",
     "size": 8,
     "line_spacing": 0,
     "smooth": false

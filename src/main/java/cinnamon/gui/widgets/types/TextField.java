@@ -130,7 +130,7 @@ public class TextField extends SelectableWidget implements Tickable {
         if (!textOnly)
             renderBackground(matrices, mouseX, mouseY, delta);
 
-        UIHelper.pushStencil(matrices, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
+        UIHelper.pushStencil(matrices, getX() + 1, getY(), getWidth() - 2, getHeight());
         matrices.pushMatrix();
 
         //smooth and apply the offset
@@ -517,7 +517,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
     @Override
     public GUIListener keyPress(int key, int scancode, int action, int mods) {
-        if (!isActive() || !isFocused() || action == GLFW_RELEASE)
+        if (!isActive() || !isFocused() || action == GLFW_RELEASE || (mods & GLFW_MOD_ALT) != 0)
             return super.keyPress(key, scancode, action, mods);
 
         boolean ctrl = (mods & GLFW_MOD_CONTROL) != 0;

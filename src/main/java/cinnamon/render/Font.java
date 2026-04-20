@@ -16,11 +16,7 @@ import org.lwjgl.stb.STBTTPackedchar;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import static cinnamon.events.Events.LOGGER;
 import static cinnamon.model.GeometryHelper.rectangle;
@@ -35,7 +31,11 @@ public class Font {
     private static final Map<Resource, Font> FONTS_CACHE = new HashMap<>();
 
     //properties
-    private static final int TEXTURE_W = 512, TEXTURE_H = 512;
+    public static final int TEXTURE_W = 512, TEXTURE_H = 512;
+    public static final int UNICODE_PAGE_SIZE = 0x100;
+    public static final int UNICODE_MAX_CODEPOINT = 0x10FFFF;
+    public static final int EXTRA_GLYPH_SLOTS = 3; // ".notdef" ".null" "nonmarkingreturn"
+    public static final int MISSING_GLYPH_CODEPOINT = UNICODE_MAX_CODEPOINT + 1;
     public static final float Z_DEPTH = 3;
 
     private static final Random RANDOM = new Random();
@@ -48,8 +48,10 @@ public class Font {
     //data
     private final ByteBuffer ttf; //needs to be kept in memory
     private final STBTTFontinfo info = STBTTFontinfo.malloc();
-    private final STBTTPackedchar.Buffer charData;
+    private final Map<Integer, STBTTPackedchar.Buffer> glyphPages = new HashMap<>();
+    private final STBTTPackedchar.Buffer missingCharData;
     private final int textureID;
+    private Font fallback;
 
     //properties
     public final float
@@ -59,7 +61,6 @@ public class Font {
             descent,
             scale;
 
-    private final float[] missing;
     private final Map<Float, List<Integer>> charsByWidth = new HashMap<>();
 
 
@@ -79,7 +80,6 @@ public class Font {
         this.ttf = memAlloc(buffer.capacity()).put(buffer).flip();
         this.lineHeight = height;
         this.lineGap = lineSpacing;
-        this.charData = STBTTPackedchar.malloc(0x10FFFF + 3 + 1); //".notdef" ".null" "nonmarkingreturn"
         this.textureID = glGenTextures();
 
         //font data
@@ -100,9 +100,27 @@ public class Font {
         //font bitmap
         try (STBTTPackContext spc = STBTTPackContext.malloc()) {
             ByteBuffer bitmap = BufferUtils.createByteBuffer(TEXTURE_W * TEXTURE_H);
-
             stbtt_PackBegin(spc, bitmap, TEXTURE_W, TEXTURE_H, 0, 1, NULL);
-            stbtt_PackFontRange(spc, ttf, 0, height, 0, charData);
+
+            //pack missing char data first
+            this.missingCharData = STBTTPackedchar.malloc(EXTRA_GLYPH_SLOTS);
+            stbtt_PackFontRange(spc, this.ttf, 0, height, MISSING_GLYPH_CODEPOINT, this.missingCharData);
+
+            //discover supported ranges and pack them
+            for (int pageStart = 0; pageStart <= UNICODE_MAX_CODEPOINT; pageStart += UNICODE_PAGE_SIZE) {
+                //check if the page has a glyph
+                int pageEnd = pageStart + UNICODE_PAGE_SIZE - 1;
+                for (int codepoint = pageStart; codepoint <= pageEnd; codepoint++) {
+                    //if so, add the page to the pages list
+                    if (hasGlyph(codepoint)) {
+                        STBTTPackedchar.Buffer rangeData = STBTTPackedchar.malloc(UNICODE_PAGE_SIZE);
+                        stbtt_PackFontRange(spc, this.ttf, 0, height, pageStart, rangeData);
+                        this.glyphPages.put(pageStart, rangeData);
+                        break;
+                    }
+                }
+            }
+
             stbtt_PackEnd(spc);
 
             glBindTexture(GL_TEXTURE_2D, textureID);
@@ -119,14 +137,14 @@ public class Font {
         }
 
         //char widths
-        getCharData(0x110000); //".notdef"
-        this.missing = new float[]{q.s0(), q.s1(), q.t0(), q.t1()};
-
-        for (int i = 0; i < 0x10FFFF; i++) {
-            if (Character.isSpaceChar(i) || isMissingGlyph(i))
-                continue;
-            float w = width(i);
-            charsByWidth.computeIfAbsent(w, k -> new ArrayList<>()).add(i);
+        for (int start : glyphPages.keySet()) {
+            int end = start + UNICODE_PAGE_SIZE - 1;
+            for (int i = start; i <= end; i++) {
+                if (Character.isSpaceChar(i) || !hasGlyph(i))
+                    continue;
+                float w = width(i);
+                charsByWidth.computeIfAbsent(w, k -> new ArrayList<>()).add(i);
+            }
         }
 
         //finished!
@@ -139,9 +157,16 @@ public class Font {
         FONTS_CACHE.clear();
     }
 
+    public void setFallback(Font fallback) {
+        this.fallback = fallback == this ? null : fallback;
+    }
+
     public void free() {
         glDeleteTextures(textureID);
-        charData.free();
+        for (STBTTPackedchar.Buffer buffer : glyphPages.values())
+            buffer.free();
+        glyphPages.clear();
+        missingCharData.free();
         info.free();
         q.free();
         memFree(xb);
@@ -149,8 +174,44 @@ public class Font {
         memFree(ttf);
     }
 
-    private void getCharData(int c) {
-        stbtt_GetPackedQuad(charData, TEXTURE_W, TEXTURE_H, c, xb, yb, q, false);
+    private int getCodepointPage(int codepoint) {
+        return codepoint - (codepoint % UNICODE_PAGE_SIZE);
+    }
+
+    private int getCharData(int c) {
+        //get the font that has the glyph
+        Font owner = findGlyphOwner(c);
+        if (owner != null) {
+            //get the char data from the owner font
+            int page = owner.getCodepointPage(c);
+            STBTTPackedchar.Buffer buffer = owner.glyphPages.get(page);
+            if (buffer != null) {
+                //if the owner has the page, get the char data
+                stbtt_GetPackedQuad(buffer, TEXTURE_W, TEXTURE_H, c - page, xb, yb, q, false);
+                return owner.textureID;
+            }
+        }
+
+        //no owner, use missing char data
+        stbtt_GetPackedQuad(missingCharData, TEXTURE_W, TEXTURE_H, 0, xb, yb, q, false);
+        return textureID;
+    }
+
+    private boolean hasGlyph(int codepoint) {
+        return codepoint >= 0 && codepoint <= UNICODE_MAX_CODEPOINT && stbtt_FindGlyphIndex(info, codepoint) != 0;
+    }
+
+    private Font findGlyphOwner(int codepoint) {
+        Set<Font> visited = new HashSet<>();
+        Font current = this;
+
+        while (current != null && visited.add(current)) {
+            if (current.hasGlyph(codepoint))
+                return current;
+            current = current.fallback;
+        }
+
+        return null;
     }
 
 
@@ -277,7 +338,7 @@ public class Font {
     }
 
     private void bakeChar(VertexConsumer consumer, MatrixStack matrices, int c, boolean italic, boolean bold, float x, float y, float z, int color, int italicOffset, int boldOffset) {
-        getCharData(c);
+        int glyphTexture = getCharData(c);
 
         float
                 x0 = q.x0(), x1 = q.x1(),
@@ -297,12 +358,12 @@ public class Font {
         x0 += x; x1 += x;
         y0 += y; y1 += y;
 
-        consumer.consume(bakeQuad(matrices, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color), textureID);
+        consumer.consume(bakeQuad(matrices, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color), glyphTexture);
 
         if (bold) {
             xb.put(0, xb.get(0) + boldOffset);
             x0 += boldOffset; x1 += boldOffset;
-            consumer.consume(bakeQuad(matrices, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color), textureID);
+            consumer.consume(bakeQuad(matrices, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color), glyphTexture);
         }
     }
 
@@ -328,13 +389,19 @@ public class Font {
         return stbtt_GetCodepointKernAdvance(info, codepoint, next) * scale;
     }
 
-    public boolean isMissingGlyph(int codepoint) {
-        getCharData(codepoint);
-        return q.s0() == missing[0] && q.s1() == missing[1] && q.t0() == missing[2] && q.t1() == missing[3];
-    }
-
     public float width(int codepoint) {
-        return charData.get(codepoint).xadvance();
+        //get the font that has the glyph
+        Font owner = findGlyphOwner(codepoint);
+        if (owner != null) {
+            //get the char data from the owner font
+            int page = owner.getCodepointPage(codepoint);
+            STBTTPackedchar.Buffer buffer = owner.glyphPages.get(page);
+            if (buffer != null)
+                return buffer.get(codepoint - page).xadvance();
+        }
+
+        //no owner, use missing char data
+        return missingCharData.get(0).xadvance();
     }
 
     public float width(String string) {
