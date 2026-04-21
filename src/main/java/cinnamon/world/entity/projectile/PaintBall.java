@@ -45,8 +45,8 @@ public class PaintBall extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(Hit hit, Vector3f totalMove) {
-        Resolution.stick(hit, getMotion(), totalMove);
+    protected void resolveCollision(Hit hit, Vector3f velocity, Vector3f move) {
+        Resolution.stick(hit, velocity, move);
 
         if (!getWorld().isClientside()) {
             remove();
@@ -57,7 +57,7 @@ public class PaintBall extends Projectile {
         decal.getTransform().setColor(ColorUtils.argbIntToRGBA(color));
 
         Vector3f pos = getPos();
-        decal.getTransform().setPos(pos.x + totalMove.x, pos.y + totalMove.y, pos.z + totalMove.z);
+        decal.getTransform().setPos(pos.x + move.x, pos.y + move.y, pos.z + move.z);
 
         decal.getTransform().setScale(0.2f);
 

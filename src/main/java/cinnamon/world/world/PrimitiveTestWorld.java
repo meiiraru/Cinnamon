@@ -89,7 +89,7 @@ public class PrimitiveTestWorld extends WorldClient {
             //carpet
             PrimitiveTerrain carpet = new PrimitiveTerrain(GeometryHelper.plane(client.matrices, width / 2f, 0.01f, z + 1f, width, z + roomSize - 1f, 1, 1, Colors.RED.argb));
             addTerrain(carpet);
-            carpet.getCollisionMask().setExcludeMask(0, true);
+            //carpet.getCollisionMask().setExcludeMask(0, true);
 
             //lamp
             addLight(new Spotlight().angle(40, 45).falloff(width / 4f).pos(width / 2f, height - 0.5f, z + cz).direction(0.75f, -1, 0).color(0xFFFFCC).intensity(2f));

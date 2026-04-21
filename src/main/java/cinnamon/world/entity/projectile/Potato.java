@@ -70,8 +70,8 @@ public class Potato extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(Hit hit, Vector3f totalMove) {
-        Resolution.bounce(hit, getMotion(), totalMove, BOUNCINESS);
+    protected void resolveCollision(Hit hit, Vector3f velocity, Vector3f move) {
+        Resolution.bounce(hit, velocity, move, BOUNCINESS);
     }
 
     @Override

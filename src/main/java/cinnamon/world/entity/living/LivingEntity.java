@@ -5,6 +5,7 @@ import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.Resolution;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.text.Style;
@@ -135,7 +136,6 @@ public abstract class LivingEntity extends PhysEntity {
         }
 
         float l = Math.signum(left);
-        float u = this.onGround && up > 0 ? getJumpStrength() : 0f;
         float f = Math.signum(forwards);
 
         this.impulse.set(l, 0, -f);
@@ -144,14 +144,27 @@ public abstract class LivingEntity extends PhysEntity {
             impulse.normalize();
         impulse.mul(getMoveSpeed());
 
-        impulse.y = u;
-
         //move the entity in facing direction
         this.impulse.rotateY(Math.toRadians(-Maths.getYaw(getRot())));
+
+        //anti ramp jump boost
+        if (this.onGround && up > 0f) {
+            float targetJump = getJumpStrength();
+
+            //add only the difference with the current upwards motion to avoid stacking the velocity
+            this.impulse.y = Math.max(targetJump - Math.max(0f, this.motion.y), 0f);
+        } else {
+            this.impulse.y = 0f;
+        }
     }
 
     protected float getJumpStrength() {
         return 0.4f;
+    }
+
+    @Override
+    protected float getStepHeight() {
+        return 1f;
     }
 
     public boolean heal(int amount) {

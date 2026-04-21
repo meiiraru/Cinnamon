@@ -57,13 +57,13 @@ public class AABB extends Collider<AABB> {
         Vector3f half = obb.getHalfExtents();
         Vector3f axisX = obb.getAxisX(); Vector3f axisY = obb.getAxisY(); Vector3f axisZ = obb.getAxisZ();
 
-        float axX = axisX.x * half.x; float axY = axisX.y * half.x; float axZ = axisX.z * half.x;
-        float ayX = axisY.x * half.y; float ayY = axisY.y * half.y; float ayZ = axisY.z * half.y;
-        float azX = axisZ.x * half.z; float azY = axisZ.y * half.z; float azZ = axisZ.z * half.z;
+        float ex = Math.abs(axisX.x) * half.x + Math.abs(axisY.x) * half.y + Math.abs(axisZ.x) * half.z;
+        float ey = Math.abs(axisX.y) * half.x + Math.abs(axisY.y) * half.y + Math.abs(axisZ.y) * half.z;
+        float ez = Math.abs(axisX.z) * half.x + Math.abs(axisY.z) * half.y + Math.abs(axisZ.z) * half.z;
 
         return this.set(
-                center.x - axX - ayX - azX, center.y - axY - ayY - azY, center.z - axZ - ayZ - azZ,
-                center.x + axX + ayX + azX, center.y + axY + ayY + azY, center.z + axZ + ayZ + azZ
+                center.x - ex, center.y - ey, center.z - ez,
+                center.x + ex, center.y + ey, center.z + ez
         );
     }
 

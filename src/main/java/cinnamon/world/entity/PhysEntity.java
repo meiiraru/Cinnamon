@@ -73,6 +73,8 @@ public abstract class PhysEntity extends Entity {
 
     protected void applyImpulse() {
         this.motion.add(impulse.mul(onGround ? 1 : 0.125f));
+        if (impulse.y > 0)
+            onGround = false;
         this.impulse.set(0);
     }
 
@@ -94,12 +96,79 @@ public abstract class PhysEntity extends Entity {
         if (motion.lengthSquared() < Maths.SMALL_NUMBER)
             return new Vector3f();
 
-        //prepare variables
-        Vector3f toMove = new Vector3f(motion);
-        boolean ground = false;
+        //standard terrain collision
+        boolean[] groundState = {false};
+        Vector3f standardMotionState = new Vector3f(motion);
+        Vector3f standardMove = resolveTerrainCollisions(aabb, motion, standardMotionState, groundState);
 
+        //try to step up if we hit a wall
+        if (this.onGround && getStepHeight() > 0f) {
+            boolean hitWall = Math.abs(standardMove.x) < Math.abs(motion.x) - Maths.SMALL_NUMBER || Math.abs(standardMove.z) < Math.abs(motion.z) - Maths.SMALL_NUMBER;
+            boolean movedY = Math.abs(standardMove.y) > Maths.EPSILON;
+
+            if (hitWall && !movedY) {
+                Vector3f stepMove = stepUp(aabb, motion, standardMove);
+                if (stepMove != null)
+                    return stepMove;
+            }
+        }
+
+        //no stepping, so apply standard states
+        this.onGround = groundState[0];
+        this.motion.set(standardMotionState);
+        return standardMove;
+    }
+
+    protected Vector3f stepUp(AABB aabb, Vector3f motion, Vector3f standardMove) {
+        //temporary vectors to check for terrain collisions
+        Vector3f movement = new Vector3f();
+        Vector3f currentMotion = new Vector3f();
+
+        //step up
+        movement.set(0, getStepHeight(), 0);
+        Vector3f stepUpMove = resolveTerrainCollisions(aabb, movement, currentMotion, new boolean[]{false});
+
+        //no upward movement
+        if (stepUpMove.y <= 0)
+            return null;
+
+        //translate the AABB up by the step amount
+        AABB elevatedAABB = new AABB(aabb).translate(stepUpMove);
+
+        //apply remaining horizontal motion
+        movement.set(motion.x, 0, motion.z);
+        Vector3f forwardMotion = new Vector3f(movement);
+        Vector3f stepForwardMove = resolveTerrainCollisions(elevatedAABB, movement, forwardMotion, new boolean[]{false});
+
+        //snap back down to the floor if possible
+        boolean[] stepGroundState = {false};
+        AABB elevatedForwardAABB = elevatedAABB.translate(stepForwardMove);
+        movement.set(0, -stepUpMove.y, 0);
+        currentMotion.set(0, 0, 0);
+
+        Vector3f stepDownMove = resolveTerrainCollisions(elevatedForwardAABB, movement, currentMotion, stepGroundState);
+
+        //check if stepping sent us further than just walking forward horizontally
+        float standardDistSq = standardMove.x * standardMove.x + standardMove.z * standardMove.z;
+        float stepDistSq = stepForwardMove.x * stepForwardMove.x + stepForwardMove.z * stepForwardMove.z;
+        if (stepDistSq <= standardDistSq)
+            return null;
+
+        //stepping was more successful, so apply its results
+        this.onGround = stepGroundState[0] || standardMove.y == 0;
+
+        //keep the forward sliding motion we calculated during the step forward
+        this.motion.x = forwardMotion.x;
+        this.motion.z = forwardMotion.z;
+
+        //return the final translation of the step
+        return currentMotion.set(stepUpMove).add(stepForwardMove).add(stepDownMove);
+    }
+
+    protected Vector3f resolveTerrainCollisions(AABB currentAABB, Vector3f movement, Vector3f currentMotion, boolean[] groundState) {
         //get terrain collisions
-        List<Terrain> terrains = getWorld().getTerrains(new AABB(aabb).expand(toMove));
+        Vector3f toMove = new Vector3f(movement);
+        List<Terrain> terrains = getWorld().getTerrains(new AABB(currentAABB).expand(toMove));
 
         //try to resolve collisions with a step limit
         for (int step = 0; step < 5; step++) {
@@ -112,7 +181,7 @@ public abstract class PhysEntity extends Entity {
 
                 for (Collider<?> terrainBB : terrain.getPreciseCollider()) {
                     //check for collision along the motion ray
-                    Hit result = aabb.sweep(terrainBB, toMove);
+                    Hit result = currentAABB.sweep(terrainBB, toMove);
                     if (result != null && result.tNear() >= 0f && (collision == null || result.tNear() < collision.tNear()))
                         collision = result;
                 }
@@ -123,11 +192,11 @@ public abstract class PhysEntity extends Entity {
                 break;
 
             //set ground state when on a floor
-            if (!ground && collision.normal().y > 0)
-                ground = true;
+            if (!groundState[0] && collision.normal().y > 0)
+                groundState[0] = true;
 
             //resolve the collision
-            resolveCollision(collision, toMove);
+            resolveCollision(collision, currentMotion, toMove);
 
             //stop if remaining movement is too small
             if (toMove.lengthSquared() < Maths.SMALL_NUMBER) {
@@ -136,12 +205,11 @@ public abstract class PhysEntity extends Entity {
             }
         }
 
-        this.onGround = ground;
         return toMove;
     }
 
-    protected void resolveCollision(Hit hit, Vector3f totalMove) {
-        Resolution.slide(hit, getMotion(), totalMove);
+    protected void resolveCollision(Hit hit, Vector3f velocity, Vector3f move) {
+        Resolution.slide(hit, velocity, move);
     }
 
     // -- entity collisions -- //
@@ -192,11 +260,15 @@ public abstract class PhysEntity extends Entity {
     }
 
     protected float getMoveSpeed() {
-        return 0.15f;
+        return 0.125f;
     }
 
     protected float getPushForce() {
         return 0.015f;
+    }
+
+    protected float getStepHeight() {
+        return 0f;
     }
 
     public void setMotion(Vector3f vec) {

@@ -1,6 +1,7 @@
 package cinnamon.render;
 
 import cinnamon.Client;
+import cinnamon.math.Maths;
 import cinnamon.model.StaticGeometry;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
@@ -490,7 +491,7 @@ public class WorldRenderer {
             speed = Math.sqrt(impulse.x * impulse.x + impulse.z * impulse.z);
         }
 
-        if (speed > 0.1f) {
+        if (speed > Maths.EPSILON) {
             float freq = 50f;
             bobPhase += (freq * speed) * deltaTime;
             if (bobPhase > Math.PI_TIMES_2_f)

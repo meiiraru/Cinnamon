@@ -161,6 +161,11 @@ public class Player extends LivingEntity {
     }
 
     @Override
+    protected float getStepHeight() {
+        return 1f; //0.3f;
+    }
+
+    @Override
     public EntityRegistry getType() {
         return EntityRegistry.PLAYER;
     }
