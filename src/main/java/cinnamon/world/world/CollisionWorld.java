@@ -15,6 +15,7 @@ import cinnamon.world.entity.Entity;
 import cinnamon.world.terrain.PrimitiveTerrain;
 import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.Math;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
@@ -57,11 +58,15 @@ public class CollisionWorld extends WorldClient {
 
         //ramps
         for (int i = 1; i <= 6; i++)
-            this.addTerrain(new SlopeTerrain((i - 1) * 5, -5f, -15, 1.5f, 15f, 15f, 15f * i, MaterialRegistry.DEBUG));
+            this.addTerrain(new SlopeTerrain((i - 1) * 5, -5f, -15, 1.5f, 15f, 15f, Rotation.X.rotationDeg(15f * i), MaterialRegistry.DEBUG));
 
         //floating ramps
         for (int i = 1; i <= 6; i++)
-            this.addTerrain(new SlopeTerrain((i - 1) * 5, 3f, 15, 1.5f, 3f, 3f, 15f * i, MaterialRegistry.DEBUG));
+            this.addTerrain(new SlopeTerrain((i - 1) * 5, 3f, 15, 1.5f, 3f, 3f, Rotation.X.rotationDeg(15f * i), MaterialRegistry.DEBUG));
+
+        //rotated pillars
+        for (int i = 0; i < 3; i++)
+            this.addTerrain(new SlopeTerrain(-25, 3, 10 + 5 * i, 2f, 4f, 2f, Rotation.Y.rotationDeg(15f * (i + 1)), MaterialRegistry.DEBUG));
 
         //spiral stair-case
         int h = 1;
@@ -158,11 +163,11 @@ public class CollisionWorld extends WorldClient {
     private static class SlopeTerrain extends PrimitiveTerrain {
         private final OBB obb;
 
-        public SlopeTerrain(float x, float y, float z, float width, float height, float depth, float angle, MaterialRegistry material) {
-            super(genVertices(x, y, z, width, height, depth, angle));
+        public SlopeTerrain(float x, float y, float z, float width, float height, float depth, Quaternionf rotation, MaterialRegistry material) {
+            super(genVertices(x, y, z, width, height, depth, rotation));
 
             this.setPos(x, y, z);
-            this.obb = new OBB(x, y, z, width / 2f, height / 2f, depth / 2f).rotateX(angle);
+            this.obb = new OBB(x, y, z, width / 2f, height / 2f, depth / 2f).rotate(rotation);
             this.preciseCollider.clear();
             this.preciseCollider.add(obb);
             updateAABB();
@@ -170,11 +175,11 @@ public class CollisionWorld extends WorldClient {
             this.setMaterial(material);
         }
 
-        protected static Vertex[][] genVertices(float x, float y, float z, float width, float height, float depth, float angle) {
+        protected static Vertex[][] genVertices(float x, float y, float z, float width, float height, float depth, Quaternionf rotation) {
             MatrixStack matrices = Client.getInstance().matrices;
             matrices.pushMatrix();
             matrices.translate(x, y, z);
-            matrices.rotate(Rotation.X.rotationDeg(angle));
+            matrices.rotate(rotation);
 
             float cx = width / 2f, cy = height / 2f, cz = depth / 2f;
             Vertex[][] vertices = GeometryHelper.box(matrices, -cx, -cy, -cz, cx, cy, cz, 0xFFFFFFFF);
