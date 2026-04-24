@@ -15,7 +15,7 @@ public final class Resolution {
     //completely stop at the intersection
     public static void stick(Hit hit, Vector3f velocity, Vector3f move) {
         //move up to the intersection
-        float t = Maths.clamp(hit.tNear() - Maths.EPSILON, -Maths.EPSILON, 1f);
+        float t = Math.max(0f, hit.tNear() - Maths.EPSILON);
         move.mul(t);
         //completely kill all velocity
         velocity.set(0f);
@@ -28,7 +28,7 @@ public final class Resolution {
         //move up to the intersection
         float moveDot = move.dot(normal);
         if (moveDot < 0f) {
-            float t = Maths.clamp(hit.tNear() - Maths.EPSILON, -Maths.EPSILON, 1f);
+            float t = Math.max(0f, hit.tNear() - Maths.EPSILON);
             float blocked = moveDot * (1f - t);
             move.sub(normal.x * blocked, normal.y * blocked, normal.z * blocked);
         }
@@ -46,7 +46,7 @@ public final class Resolution {
         //reflect remaining movement
         float moveDot = move.dot(normal);
         if (moveDot < 0f) {
-            float t = Maths.clamp(hit.tNear() - Maths.EPSILON, -Maths.EPSILON, 1f);
+            float t = Math.max(0f, hit.tNear() - Maths.EPSILON);
             float blocked = moveDot * (1f - t);
             float impulse = blocked * (1f + bounciness);
             move.sub(normal.x * impulse, normal.y * impulse, normal.z * impulse);
@@ -66,7 +66,7 @@ public final class Resolution {
 
         float moveDot = motion.dot(normal);
         if (moveDot < 0f) {
-            float t = Maths.clamp(hit.tNear() - Maths.EPSILON, -Maths.EPSILON, 1f);
+            float t = Math.max(0f, hit.tNear() - Maths.EPSILON);
             float blocked = moveDot * (1f - t);
             float pushMag = -pushFactor * blocked;
 
@@ -81,7 +81,7 @@ public final class Resolution {
 
         float motionDot = move.dot(normal);
         if (motionDot < 0f) {
-            float t = Maths.clamp(hit.tNear() - Maths.EPSILON, -Maths.EPSILON, 1f);
+            float t = Math.max(0f, hit.tNear() - Maths.EPSILON);
             float blocked = motionDot * (1f - t);
             //transfer the blocked motion into the other object
             pushMove.add(normal.x * blocked, normal.y * blocked, normal.z * blocked);

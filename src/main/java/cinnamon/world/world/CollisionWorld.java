@@ -68,6 +68,15 @@ public class CollisionWorld extends WorldClient {
         for (int i = 0; i < 3; i++)
             this.addTerrain(new SlopeTerrain(-25, 3, 10 + 5 * i, 2f, 4f, 2f, Rotation.Y.rotationDeg(15f * (i + 1)), MaterialRegistry.DEBUG));
 
+        //exclamation mark
+        TerrainGenerator.fill(this, -15, 1, 5, -15, 1, 5, MaterialRegistry.DEBUG);
+        TerrainGenerator.fill(this, -15, 4, 5, -15, 4, 5, MaterialRegistry.DEBUG);
+
+        //cage
+        TerrainGenerator.fill(this, -15, 1, 10, -15, 1, 10, MaterialRegistry.DEBUG);
+        TerrainGenerator.fill(this, -16, 3, 9, -14, 3, 11, MaterialRegistry.DEBUG);
+        removeTerrain(new AABB(-14.5f, 3.5f, 10.5f, -14.5f, 3.5f, 10.5f));
+
         //spiral stair-case
         int h = 1;
         TerrainGenerator.fill(this, -15, 1, -1, -15, h++, -1, MaterialRegistry.DEBUG);

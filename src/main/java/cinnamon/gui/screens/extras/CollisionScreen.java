@@ -177,7 +177,7 @@ public class CollisionScreen extends ParentedScreen {
         //obstacles pass
 
         //try to resolve collisions with a step limit
-        int maxSteps = collisionMode == null ? 0 : 3;
+        int maxSteps = collisionMode == null ? 0 : 5;
         for (int steps = 0; steps < maxSteps; steps++) {
             //find the closest collision
             Hit collision = null;
