@@ -178,9 +178,12 @@ public class SATHelper {
     }
 
     public static Hit SATSweep(Collider<?> a, Collider<?> b, Vector3f[] axesA, Vector3f[] axesB, Vector3f velocity) {
+        if (velocity.lengthSquared() < Maths.KINDA_SMALL_NUMBER)
+            return null;
+
         //initialize time interval and collision normal
-        sweepTNear = 0f;
-        sweepTFar  = 1f;
+        sweepTNear = -Float.MAX_VALUE;
+        sweepTFar  =  Float.MAX_VALUE;
         Vector3f sweepNormal = new Vector3f();
 
         //test axes of the first object

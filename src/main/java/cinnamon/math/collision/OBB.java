@@ -616,6 +616,7 @@ public class OBB extends Collider<OBB> {
         //invert the hit normal and collider then return
         hit.normal().negate();
         hit.ray().invert();
+        hit.position().add(velocity.x * hit.tNear(), velocity.y * hit.tNear(), velocity.z * hit.tNear());
         return hit.setCollider(sphere);
     }
 

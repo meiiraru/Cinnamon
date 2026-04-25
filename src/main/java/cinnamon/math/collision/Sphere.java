@@ -233,6 +233,9 @@ public class Sphere extends Collider<Sphere> {
 
     @Override
     public Hit sweepSphere(Sphere sphere, Vector3f velocity) {
+        if (velocity.lengthSquared() < Maths.KINDA_SMALL_NUMBER)
+            return null;
+
         //vector from the static sphere center to the moving sphere center
         float ocX = this.center.x - sphere.center.x;
         float ocY = this.center.y - sphere.center.y;
@@ -289,6 +292,9 @@ public class Sphere extends Collider<Sphere> {
 
     @Override
     public Hit sweepAABB(AABB aabb, Vector3f velocity) {
+        if (velocity.lengthSquared() < Maths.KINDA_SMALL_NUMBER)
+            return null;
+
         //try minkowski sum first to quickly rule out non-collisions
         float expMinX = aabb.minX() - radius, expMinY = aabb.minY() - radius, expMinZ = aabb.minZ() - radius;
         float expMaxX = aabb.maxX() + radius, expMaxY = aabb.maxY() + radius, expMaxZ = aabb.maxZ() + radius;
@@ -303,7 +309,7 @@ public class Sphere extends Collider<Sphere> {
         float tMax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
 
         //if there is no intersection in the interval [0, 1]
-        if (tMin > 1f || tMax < 0f || tMin > tMax)
+        if (!(tMin <= tMax && tMin <= 1f && tMax >= 0f)) //negated inclusive check to avoid NaN
             return null;
 
         //find the exact point of collision
@@ -327,7 +333,7 @@ public class Sphere extends Collider<Sphere> {
 
         float tHit = (-b - Math.sqrt(discriminant)) / (2f * a);
         //if the precise hit time is outside the range, no collision
-        if (tHit < 0f || tHit > 1f)
+        if (!(tHit >= 0f && tHit <= 1f)) //negated inclusive check to avoid NaN
             return null;
 
         //build the hit result
@@ -344,6 +350,9 @@ public class Sphere extends Collider<Sphere> {
 
     @Override
     public Hit sweepOBB(OBB obb, Vector3f velocity) {
+        if (velocity.lengthSquared() < Maths.KINDA_SMALL_NUMBER)
+            return null;
+
         //transform into OBB local space
         Vector3f obbCenter = obb.getCenter();
         Vector3f obbHalfExtents = obb.getHalfExtents();
@@ -376,7 +385,7 @@ public class Sphere extends Collider<Sphere> {
         float tMin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6));
         float tMax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
 
-        if (tMin > 1f || tMax < 0f || tMin > tMax)
+        if (!(tMin <= tMax && tMin <= 1f && tMax >= 0f))
             return null;
 
         //find the exact point of collision
@@ -400,7 +409,7 @@ public class Sphere extends Collider<Sphere> {
             return null;
 
         float tHit = (-b - Math.sqrt(discriminant)) / (2f * a);
-        if (tHit < 0f || tHit > 1f)
+        if (!(tHit >= 0f && tHit <= 1f))
             return null;
 
         //transform back to world space and build the hit result

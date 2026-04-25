@@ -635,7 +635,10 @@ public class AABB extends Collider<AABB> {
     }
 
     @Override
-    public Hit sweepAABB(AABB aabb, Vector3f movement) {
+    public Hit sweepAABB(AABB aabb, Vector3f velocity) {
+        if (velocity.lengthSquared() < Maths.KINDA_SMALL_NUMBER)
+            return null;
+
         float hx = (maxX - minX) * 0.5f;
         float hy = (maxY - minY) * 0.5f;
         float hz = (maxZ - minZ) * 0.5f;
@@ -645,10 +648,15 @@ public class AABB extends Collider<AABB> {
         float cz = minZ + hz;
 
         AABB sweep = new AABB(aabb).inflate(hx, hy, hz);
-        Ray ray = new Ray(cx, cy, cz, movement.x, movement.y, movement.z, movement.length());
+        Ray ray = new Ray(cx, cy, cz, velocity.x, velocity.y, velocity.z, velocity.length());
         Hit hit = sweep.collideRay(ray);
 
-        return hit == null ? null : hit.setCollider(aabb);
+        if (hit == null) return null;
+
+        //move the point from the center of the AABB to the contact surface
+        Vector3f hitNormal = hit.normal();
+        hit.position().sub(hitNormal.x * hx, hitNormal.y * hy, hitNormal.z * hz);
+        return hit.setCollider(aabb);
     }
 
     @Override
@@ -666,6 +674,7 @@ public class AABB extends Collider<AABB> {
         //invert the hit normal and collider then return
         hit.normal().negate();
         hit.ray().invert();
+        hit.position().add(velocity.x * hit.tNear(), velocity.y * hit.tNear(), velocity.z * hit.tNear());
         return hit.setCollider(sphere);
     }
 
