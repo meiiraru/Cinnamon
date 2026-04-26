@@ -233,7 +233,7 @@ public class Sphere extends Collider<Sphere> {
 
     @Override
     public Hit sweepSphere(Sphere sphere, Vector3f velocity) {
-        if (velocity.lengthSquared() < Maths.KINDA_SMALL_NUMBER)
+        if (velocity.lengthSquared() < Maths.SMALL_NUMBER)
             return null;
 
         //vector from the static sphere center to the moving sphere center
@@ -292,7 +292,7 @@ public class Sphere extends Collider<Sphere> {
 
     @Override
     public Hit sweepAABB(AABB aabb, Vector3f velocity) {
-        if (velocity.lengthSquared() < Maths.KINDA_SMALL_NUMBER)
+        if (velocity.lengthSquared() < Maths.SMALL_NUMBER)
             return null;
 
         //try minkowski sum first to quickly rule out non-collisions
@@ -350,7 +350,7 @@ public class Sphere extends Collider<Sphere> {
 
     @Override
     public Hit sweepOBB(OBB obb, Vector3f velocity) {
-        if (velocity.lengthSquared() < Maths.KINDA_SMALL_NUMBER)
+        if (velocity.lengthSquared() < Maths.SMALL_NUMBER)
             return null;
 
         //transform into OBB local space

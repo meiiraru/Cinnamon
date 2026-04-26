@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public abstract class PhysEntity extends Entity {
 
-    private static final Vector3f SMALL_IMPULSE = new Vector3f(0, -Maths.SMALL_NUMBER, 0);
+    private static final Vector3f SMALL_IMPULSE = new Vector3f(0, -Maths.EPSILON, 0);
 
     protected final Vector3f
             motion = new Vector3f(),

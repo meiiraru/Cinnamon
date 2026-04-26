@@ -636,7 +636,7 @@ public class AABB extends Collider<AABB> {
 
     @Override
     public Hit sweepAABB(AABB aabb, Vector3f velocity) {
-        if (velocity.lengthSquared() < Maths.KINDA_SMALL_NUMBER)
+        if (velocity.lengthSquared() < Maths.SMALL_NUMBER)
             return null;
 
         float hx = (maxX - minX) * 0.5f;
