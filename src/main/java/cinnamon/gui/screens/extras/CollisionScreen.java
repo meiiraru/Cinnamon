@@ -148,79 +148,32 @@ public class CollisionScreen extends ParentedScreen {
 
         //prepare variables
         collidedWith.clear();
-        Vector3f toMove = new Vector3f(velocity);
 
-        //terrain pass
-        for (int i = 0; i < 5; i++) {
-            Hit collision = null;
+        //check for collisions
+        if (collisionMode != null) {
+            List<Collider<?>> obstacles = new ArrayList<>(this.obstacles);
+            obstacles.addAll(List.of(boundaries));
+            CollisionSolver.ResolutionParams params = new CollisionSolver.ResolutionParams(1.5f, 0.1f, 1f);
 
-            for (AABB boundary : boundaries) {
-                Hit result = player.sweep(boundary, toMove);
-                if (result != null && result.tNear() >= 0f && (collision == null || result.tNear() < collision.tNear()))
-                    collision = result;
-            }
+            //if we start the frame already intersecting anything, push out first
+            CollisionSolver.resolveOverlaps(player, obstacles, velocity, collisionMode, params, CollisionSolver.DEFAULT_OVERLAP_ITERATIONS);
 
-            //no collision found - exit loop
-            if (collision == null)
-                break;
+            //then resolve movement and collisions using sweeps
+            CollisionSolver.SweepResult result = CollisionSolver.resolveSweep(player, obstacles, velocity, collisionMode, params, CollisionSolver.DEFAULT_SWEEP_ITERATIONS);
 
-            collidedWith.add(collision);
-            Resolution.slide(collision, velocity, toMove);
+            //store collisions for debug rendering
+            collidedWith.addAll(result.hits());
 
-            //stop if remaining movement is too small
-            if (toMove.lengthSquared() < Maths.SMALL_NUMBER) {
-                toMove.set(0);
-                break;
-            }
+            //score points for each collision pass in bounce mode
+            if (collisionMode == BOUNCE)
+                points += result.collisionPasses();
+
+            //set player Z back to 0 as were using 3D shapes for 2D collision
+            player.translate(0f, 0f, -player.getCenter().z + z);
+        } else {
+            //no collision mode, just move
+            player.translate(velocity.x, velocity.y, 0f);
         }
-
-        //obstacles pass
-
-        //try to resolve collisions with a step limit
-        int maxSteps = collisionMode == null ? 0 : 5;
-        for (int steps = 0; steps < maxSteps; steps++) {
-            //find the closest collision
-            Hit collision = null;
-            Collider<?> collider = null;
-
-            for (Collider<?> shape : obstacles) {
-                //check for collision along the motion ray
-                Hit result = player.sweep(shape, toMove);
-                if (result != null && (collision == null || result.tNear() < collision.tNear())) {
-                    collision = result;
-                    collider = shape;
-                }
-            }
-
-            //no collision found - exit loop
-            if (collision == null)
-                break;
-
-            collidedWith.add(collision);
-            Vector3f pushDelta = new Vector3f();
-            Vector3f obstacleMove = new Vector3f();
-
-            //resolve the collision
-            switch (collisionMode) {
-                case SLIDE  -> Resolution.slide  (collision, velocity, toMove);
-                case STICK  -> Resolution.stick  (collision, velocity, toMove);
-                case BOUNCE -> {Resolution.bounce(collision, velocity, toMove, 2f); points += 10;}
-                case FORCE  -> Resolution.force  (collision, velocity, pushDelta, 0.05f);
-                case PUSH   -> Resolution.push   (collision, velocity, obstacleMove);
-            }
-
-            //apply resolution movements
-            velocity.add(pushDelta);
-            collider.translate(obstacleMove.x, obstacleMove.y, 0f);
-
-            //stop if remaining movement is too small
-            if (toMove.lengthSquared() < Maths.SMALL_NUMBER) {
-                toMove.set(0);
-                break;
-            }
-        }
-
-        player.translate(toMove.x, toMove.y, 0f);
 
         //decay momentum
         velocity.mul(0.9f);
