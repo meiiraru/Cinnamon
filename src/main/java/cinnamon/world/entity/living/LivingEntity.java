@@ -5,7 +5,6 @@ import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Hit;
-import cinnamon.math.collision.Resolution;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.text.Style;

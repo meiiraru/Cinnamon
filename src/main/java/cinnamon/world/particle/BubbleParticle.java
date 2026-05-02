@@ -1,14 +1,9 @@
 package cinnamon.world.particle;
 
 import cinnamon.math.Maths;
-import cinnamon.math.collision.AABB;
-import cinnamon.math.collision.Collider;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Resource;
-import cinnamon.world.entity.Entity;
-import cinnamon.world.entity.PhysEntity;
-import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
 
 public class BubbleParticle extends SpriteParticle {
@@ -27,29 +22,11 @@ public class BubbleParticle extends SpriteParticle {
         super.tick();
 
         if (!collided) {
-            AABB aabb = getAABB();
-            for (Terrain terrain : world.getTerrains(aabb)) {
-                for (Collider<?> terrainColl : terrain.getPreciseCollider()) {
-                    if (aabb.intersects(terrainColl)) {
-                        getMotion().zero();
-                        collided = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!collided) {
-                for (Entity entity : world.getEntities(aabb)) {
-                    if (entity instanceof PhysEntity && aabb.intersectsAABB(entity.getAABB())) {
-                        getMotion().zero();
-                        collided = true;
-                        break;
-                    }
-                }
-            }
-
-            if (collided)
+            collided = collideTerrain() || collideEntities();
+            if (collided) {
+                getMotion().zero();
                 age = lifetime - (getFrameCount() - 1);
+            }
         }
     }
 

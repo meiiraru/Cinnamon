@@ -1,11 +1,16 @@
 package cinnamon.world.particle;
 
 import cinnamon.math.Maths;
+import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.Collider;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.world.WorldObject;
+import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.PhysEntity;
+import cinnamon.world.terrain.Terrain;
 import org.joml.Vector3f;
 
 public abstract class Particle extends WorldObject {
@@ -140,5 +145,27 @@ public abstract class Particle extends WorldObject {
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {
         DebugRenderer.renderAABB(matrices, getAABB(), 0xFFFFFFFF);
+    }
+
+    protected boolean collideTerrain() {
+        AABB aabb = getAABB();
+        for (Terrain terrain : world.getTerrains(aabb)) {
+            for (Collider<?> terrainColl : terrain.getPreciseCollider()) {
+                if (aabb.intersects(terrainColl))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected boolean collideEntities() {
+        AABB aabb = getAABB();
+        for (Entity entity : world.getEntities(aabb)) {
+            if (entity instanceof PhysEntity && aabb.intersectsAABB(entity.getAABB()))
+                return true;
+        }
+
+        return false;
     }
 }
