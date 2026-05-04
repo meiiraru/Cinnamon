@@ -3,6 +3,7 @@ package cinnamon.world;
 import cinnamon.Client;
 import cinnamon.gui.DebugScreen;
 import cinnamon.gui.widgets.types.ProgressBar;
+import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
@@ -46,6 +47,10 @@ public class Hud {
 
     protected ProgressBar health, itemCooldown;
 
+    protected boolean fadeIn = false;
+    protected int fadeTicks = 0, fadeDelay = 20;
+    protected int fadeColor = 0xFFFFFF;
+
     public void init() {
         health = new ProgressBar(0, 0, 60, 8, 1f);
         health.setColor(Colors.RED);
@@ -58,13 +63,23 @@ public class Hud {
 
     public void free() {}
 
-    public void tick() {}
+    public void tick() {
+        //tick fade
+        if (fadeIn && fadeTicks < fadeDelay)
+            fadeTicks++;
+        else if (!fadeIn && fadeTicks > 0)
+            fadeTicks--;
+    }
 
     public void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
 
         //draw player stats
         drawPlayerStats(matrices, c.world.player, delta);
+
+        //draw fade
+        if (!XrManager.isInXR() && fadeTicks > 0)
+            drawFade(matrices, c, delta);
 
         //finish rendering
         WorldRenderer.finishMaterials(c.camera);
@@ -340,6 +355,13 @@ public class Hud {
         mat.append(" ").append(ter).withStyle(Style.EMPTY.shadow(true).guiStyle(HUD_STYLE)).render(VertexConsumer.MAIN, matrices, ww.getGUIWidth() * 0.5f, 16 + 4 + 4, Alignment.TOP_CENTER);
     }
 
+    protected void drawFade(MatrixStack matrices, Client client, float delta) {
+        float fadeProgress = (fadeTicks + (fadeIn ? delta : -delta)) / fadeDelay;
+        int alpha = (int) (Maths.clamp(fadeProgress, 0f, 1f) * 0xFF);
+        int color = (alpha << 24) + fadeColor;
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, 0, 0, client.window.getGUIWidth(), client.window.getGUIHeight(), color));
+    }
+
     protected void drawCrosshair(MatrixStack matrices) {
         Client c = Client.getInstance();
 
@@ -349,5 +371,15 @@ public class Hud {
         VertexConsumer.MAIN.finishBatch(c.camera);
 
         glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    public void setFade(boolean fadeIn) {
+        this.fadeIn = fadeIn;
+    }
+
+    public void setFade(boolean fadeIn, int delay, int color) {
+        this.fadeIn    = fadeIn;
+        this.fadeDelay = delay;
+        this.fadeColor = color;
     }
 }
