@@ -6,6 +6,7 @@ import cinnamon.math.Direction;
 import cinnamon.math.Maths;
 import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Hit;
+import cinnamon.model.material.Material;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
@@ -145,7 +146,7 @@ public class LocalPlayer extends Player {
             }
 
             Terrain tt = TerrainRegistry.values()[selectedTerrain].getFactory().get();
-            tt.setMaterial(MaterialRegistry.values()[selectedMaterial]);
+            tt.setMaterial(MaterialRegistry.values()[selectedMaterial].material);
             tt.setRotation(Direction.fromRotation(Maths.getYaw(getRot())).invRotation);
             tt.setPos(tpos.x, tpos.y, tpos.z);
             getWorld().addTerrain(tt);
@@ -170,8 +171,11 @@ public class LocalPlayer extends Player {
         Pair<Hit, ? extends WorldObject> hit = getLookingObject(getPickRange());
         if (hit != null && hit.second() instanceof Terrain t && t.isSelectable(this) && t.getType() != TerrainRegistry.CUSTOM) {
             selectedTerrain = t.getType().ordinal();
-            MaterialRegistry material = t.getMaterial();
-            if (material != null) selectedMaterial = material.ordinal();
+            Material material = t.getMaterial();
+            if (material != null) {
+                MaterialRegistry mat = MaterialRegistry.findByMaterial(material);
+                selectedMaterial = mat != null ? mat.ordinal() : MaterialRegistry.DEFAULT.ordinal();
+            }
         }
     }
 

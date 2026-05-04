@@ -2,14 +2,14 @@ package cinnamon.world.worldgen;
 
 import cinnamon.math.Maths;
 import cinnamon.math.collision.AABB;
-import cinnamon.registry.MaterialRegistry;
+import cinnamon.model.material.Material;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
 
 public class TerrainGenerator {
 
-    public static void fill(World world, int minX, int minY, int minZ, int maxX, int maxY, int maxZ, MaterialRegistry material) {
+    public static void fill(World world, int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Material material) {
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
@@ -22,7 +22,7 @@ public class TerrainGenerator {
         }
     }
 
-    public static void generateMengerSponge(World world, int level, int xOffset, int yOffset, int zOffset, MaterialRegistry material) {
+    public static void generateMengerSponge(World world, int level, int xOffset, int yOffset, int zOffset, Material material) {
         int size = Maths.pow(3, level);
         int[] mod = new int[size];
 

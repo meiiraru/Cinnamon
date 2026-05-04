@@ -109,4 +109,15 @@ public enum MaterialRegistry {
         for (MaterialRegistry material : values())
             material.loadMaterial();
     }
+
+    public static MaterialRegistry findByMaterial(Material material) {
+        if (material == null)
+            return DEFAULT;
+
+        for (MaterialRegistry m : values()) {
+            if (m.material == material)
+                return m;
+        }
+        return null;
+    }
 }

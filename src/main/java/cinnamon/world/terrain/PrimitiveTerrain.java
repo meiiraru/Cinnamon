@@ -35,10 +35,10 @@ public class PrimitiveTerrain extends Terrain {
         //        newVerts[i][j] = vertices[i][j].duplicate().mul(matrices);
         //    }
         //}
-        if (this.getMaterial() == null || this.getMaterial().material == null)
+        if (this.getMaterial() == null)
             VertexConsumer.WORLD_MAIN.consume(vertices);
         else {
-            MaterialTexture albedo = this.getMaterial().material.getAlbedo();
+            MaterialTexture albedo = this.getMaterial().getAlbedo();
             VertexConsumer.WORLD_MAIN.consume(vertices, albedo.texture(), albedo.params());
         }
     }

@@ -10,6 +10,7 @@ import cinnamon.math.Maths;
 import cinnamon.math.collision.Hit;
 import cinnamon.messages.MessageManager;
 import cinnamon.model.GeometryHelper;
+import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
@@ -329,10 +330,12 @@ public class DebugScreen {
     }
 
     private static String getExtraDebugForTerrain(Terrain t) {
+        MaterialRegistry mat = MaterialRegistry.findByMaterial(t.getMaterial());
+
         return String.format("""
                 rotation &e%d&r material &e%s&r""",
 
-                (int) t.getRotationAngle(), t.getMaterial() != null ? t.getMaterial().name() : "none"
+                (int) t.getRotationAngle(), mat != null ? mat.name() : "none"
         );
     }
 

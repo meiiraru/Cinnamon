@@ -6,7 +6,6 @@ import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Collider;
 import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
-import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
@@ -31,7 +30,7 @@ public class Terrain extends WorldObject {
     protected final List<Collider<?>> preciseCollider = new ArrayList<>();
 
     private byte rotation = 0;
-    private MaterialRegistry overrideMaterial = MaterialRegistry.DEFAULT;
+    private Material overrideMaterial = null;
 
     protected Mask collisionMask = new Mask();
 
@@ -50,7 +49,7 @@ public class Terrain extends WorldObject {
         matrices.translate(pos.x + 0.5f, pos.y, pos.z + 0.5f);
         matrices.rotate(Rotation.Y.rotationDeg(getRotationAngle()));
 
-        renderModel(camera, overrideMaterial.material, matrices, delta);
+        renderModel(camera, overrideMaterial, matrices, delta);
 
         matrices.popMatrix();
     }
@@ -130,11 +129,11 @@ public class Terrain extends WorldObject {
         return 90f * rotation;
     }
 
-    public void setMaterial(MaterialRegistry material) {
+    public void setMaterial(Material material) {
         this.overrideMaterial = material;
     }
 
-    public MaterialRegistry getMaterial() {
+    public Material getMaterial() {
         return overrideMaterial;
     }
 

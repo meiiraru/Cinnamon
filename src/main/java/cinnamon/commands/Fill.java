@@ -57,7 +57,7 @@ public class Fill implements Command {
 
         //otherwise actually fill with something
         MaterialRegistry matReg = MaterialRegistry.values()[material];
-        TerrainGenerator.fill(source.getWorld(), min.x, min.y, min.z, max.x, max.y, max.z, matReg);
+        TerrainGenerator.fill(source.getWorld(), min.x, min.y, min.z, max.x, max.y, max.z, matReg.material);
         return Text.of("Filled from %d %d %d to %d %d %d with %s".formatted(min.x, min.y, min.z, max.x, max.y, max.z, matReg.name()));
     }
 }

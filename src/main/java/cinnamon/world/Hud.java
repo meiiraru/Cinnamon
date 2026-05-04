@@ -325,7 +325,7 @@ public class Hud {
         TerrainRegistry registry = TerrainRegistry.values()[t];
         Terrain terr = registry.getFactory().get();
         MaterialRegistry material = MaterialRegistry.values()[m];
-        terr.setMaterial(material);
+        terr.setMaterial(material.material);
 
         Vector3f bounds = terr.getAABB().getDimensions();
         Vector3f center = terr.getAABB().getCenter();

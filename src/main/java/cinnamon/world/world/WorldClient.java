@@ -141,7 +141,7 @@ public class WorldClient extends World {
     protected void tempLoad() {
         //load level
         int l = 32;
-        TerrainGenerator.fill(this, -l, 0, -l, l, 0, l, MaterialRegistry.GRASS);
+        TerrainGenerator.fill(this, -l, 0, -l, l, 0, l, MaterialRegistry.GRASS.material);
 
         //TerrainGenerator.fill(this, -l, 1, -l,  l, 1, -l, MaterialRegistry.BRICK_WALL);
         //TerrainGenerator.fill(this, -l, 1,  l,  l, 1,  l, MaterialRegistry.BRICK_WALL);
@@ -150,13 +150,13 @@ public class WorldClient extends World {
 
         //0, 0
         Terrain t = TerrainRegistry.BOX.getFactory().get();
-        t.setMaterial(MaterialRegistry.COBBLESTONE);
+        t.setMaterial(MaterialRegistry.COBBLESTONE.material);
         removeTerrain(new AABB().translate(0.5f, 0.5f, 0.5f));
         addTerrain(t);
 
         //menger sponge
-        TerrainGenerator.generateMengerSponge(this, 2, -23, 1, -23, MaterialRegistry.GOLD);
-        TerrainGenerator.generateMengerSponge(this, 1, -11, 1, -17, MaterialRegistry.CHROME);
+        TerrainGenerator.generateMengerSponge(this, 2, -23, 1, -23, MaterialRegistry.GOLD.material);
+        TerrainGenerator.generateMengerSponge(this, 1, -11, 1, -17, MaterialRegistry.CHROME.material);
 
         //conveyor belt
         float beltSpeed = 0.15f;
@@ -178,7 +178,7 @@ public class WorldClient extends World {
 
         //sphere
         Terrain t2 = TerrainRegistry.SPHERE.getFactory().get();
-        t2.setMaterial(MaterialRegistry.GOLD);
+        t2.setMaterial(MaterialRegistry.GOLD.material);
         t2.setPos(15, 1, -3);
         addTerrain(t2);
 
@@ -195,7 +195,7 @@ public class WorldClient extends World {
         addLight(new PointLight().pos(32.5f, 3.5f, 0.5f).color(0xFFFF44).castsShadows(true).volumetricStrength(0.5f));
 
         //rgb spotlights
-        TerrainGenerator.fill(this, 4, 1, 24, 9, 3, 24, MaterialRegistry.PINE_PLANKS);
+        TerrainGenerator.fill(this, 4, 1, 24, 9, 3, 24, MaterialRegistry.PINE_PLANKS.material);
         float r = 0.75f;
         for (int i = 0; i < 3; i++) {
             float radi = Math.toRadians(120f) * i;

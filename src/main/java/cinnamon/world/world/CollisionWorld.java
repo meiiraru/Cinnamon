@@ -5,6 +5,7 @@ import cinnamon.math.Rotation;
 import cinnamon.math.collision.*;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
+import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
@@ -37,61 +38,62 @@ public class CollisionWorld extends WorldClient {
     protected void tempLoad() {
         //floor
         int r = 32;
-        TerrainGenerator.fill(this, -r, 0, -r, r, 0, r, MaterialRegistry.DEFAULT);
+        TerrainGenerator.fill(this, -r, 0, -r, r, 0, r, MaterialRegistry.DEFAULT.material);
 
         //spawn platform
-        TerrainGenerator.fill(this, -12, 1, 16, -11, 5, 17, MaterialRegistry.DEBUG);
+        Material debugMat = MaterialRegistry.DEBUG.material;
+        TerrainGenerator.fill(this, -12, 1, 16, -11, 5, 17, debugMat);
 
         //spheres
         for (int i = 0; i < 5; i++) {
             cinnamon.world.terrain.Sphere s = new cinnamon.world.terrain.Sphere();
             s.setPos(i * 5, 1, 1);
-            s.setMaterial(MaterialRegistry.DEBUG);
+            s.setMaterial(debugMat);
             this.addTerrain(s);
         }
         for (int i = 0; i <= 20; i += 2) {
             cinnamon.world.terrain.Sphere s = new cinnamon.world.terrain.Sphere();
             s.setPos(i, 1, -1);
-            s.setMaterial(MaterialRegistry.DEBUG);
+            s.setMaterial(debugMat);
             this.addTerrain(s);
         }
 
         //ramps
         for (int i = 1; i <= 6; i++)
-            this.addTerrain(new SlopeTerrain((i - 1) * 5, -5f, -15, 1.5f, 15f, 15f, Rotation.X.rotationDeg(15f * i), MaterialRegistry.DEBUG));
+            this.addTerrain(new SlopeTerrain((i - 1) * 5, -5f, -15, 1.5f, 15f, 15f, Rotation.X.rotationDeg(15f * i), debugMat));
 
         //floating ramps
         for (int i = 1; i <= 6; i++)
-            this.addTerrain(new SlopeTerrain((i - 1) * 5, 3f, 15, 1.5f, 3f, 3f, Rotation.X.rotationDeg(15f * i), MaterialRegistry.DEBUG));
+            this.addTerrain(new SlopeTerrain((i - 1) * 5, 3f, 15, 1.5f, 3f, 3f, Rotation.X.rotationDeg(15f * i), debugMat));
 
         //rotated pillars
         for (int i = 0; i < 3; i++)
-            this.addTerrain(new SlopeTerrain(-25, 3, 10 + 5 * i, 2f, 4f, 2f, Rotation.Y.rotationDeg(15f * (i + 1)), MaterialRegistry.DEBUG));
+            this.addTerrain(new SlopeTerrain(-25, 3, 10 + 5 * i, 2f, 4f, 2f, Rotation.Y.rotationDeg(15f * (i + 1)), debugMat));
 
         //exclamation mark
-        TerrainGenerator.fill(this, -15, 1, 5, -15, 1, 5, MaterialRegistry.DEBUG);
-        TerrainGenerator.fill(this, -15, 4, 5, -15, 4, 5, MaterialRegistry.DEBUG);
+        TerrainGenerator.fill(this, -15, 1, 5, -15, 1, 5, debugMat);
+        TerrainGenerator.fill(this, -15, 4, 5, -15, 4, 5, debugMat);
 
         //cage
-        TerrainGenerator.fill(this, -15, 1, 10, -15, 1, 10, MaterialRegistry.DEBUG);
-        TerrainGenerator.fill(this, -16, 3, 9, -14, 3, 11, MaterialRegistry.DEBUG);
+        TerrainGenerator.fill(this, -15, 1, 10, -15, 1, 10, debugMat);
+        TerrainGenerator.fill(this, -16, 3, 9, -14, 3, 11, debugMat);
         removeTerrain(new AABB(-14.5f, 3.5f, 10.5f, -14.5f, 3.5f, 10.5f));
 
         //spiral stair-case
         int h = 1;
-        TerrainGenerator.fill(this, -15, 1, -1, -15, h++, -1, MaterialRegistry.DEBUG);
-        TerrainGenerator.fill(this, -16, 1, -1, -16, h++, -1, MaterialRegistry.DEBUG);
-        TerrainGenerator.fill(this, -16, 1,  0, -16, h++,  0, MaterialRegistry.DEBUG);
-        TerrainGenerator.fill(this, -16, 1,  1, -16, h++,  1, MaterialRegistry.DEBUG);
-        TerrainGenerator.fill(this, -15, 1,  1, -15, h++,  1, MaterialRegistry.DEBUG);
-        TerrainGenerator.fill(this, -14, 1,  1, -14, h++,  1, MaterialRegistry.DEBUG);
+        TerrainGenerator.fill(this, -15, 1, -1, -15, h++, -1, debugMat);
+        TerrainGenerator.fill(this, -16, 1, -1, -16, h++, -1, debugMat);
+        TerrainGenerator.fill(this, -16, 1,  0, -16, h++,  0, debugMat);
+        TerrainGenerator.fill(this, -16, 1,  1, -16, h++,  1, debugMat);
+        TerrainGenerator.fill(this, -15, 1,  1, -15, h++,  1, debugMat);
+        TerrainGenerator.fill(this, -14, 1,  1, -14, h++,  1, debugMat);
 
         //small bunker
-        TerrainGenerator.fill(this, -15, 1, -6, -15, 1, -5, MaterialRegistry.DEBUG);
-        TerrainGenerator.fill(this, -16, 1, -6, -16, 2, -5, MaterialRegistry.DEBUG);
+        TerrainGenerator.fill(this, -15, 1, -6, -15, 1, -5, debugMat);
+        TerrainGenerator.fill(this, -16, 1, -6, -16, 2, -5, debugMat);
 
         //throne
-        TerrainGenerator.fill(this, -17, 1, -14, -15, 3, -10, MaterialRegistry.DEBUG);
+        TerrainGenerator.fill(this, -17, 1, -14, -15, 3, -10, debugMat);
         removeTerrain(new AABB(-14.5f, 3.5f, -12.5f, -15.5f, 3.5f, -10.5f));
         removeTerrain(new AABB(-14.5f, 2.5f, -11.5f, -14.5f, 2.5f, -11.5f));
     }
@@ -172,7 +174,7 @@ public class CollisionWorld extends WorldClient {
     private static class SlopeTerrain extends PrimitiveTerrain {
         private final OBB obb;
 
-        public SlopeTerrain(float x, float y, float z, float width, float height, float depth, Quaternionf rotation, MaterialRegistry material) {
+        public SlopeTerrain(float x, float y, float z, float width, float height, float depth, Quaternionf rotation, Material material) {
             super(genVertices(x, y, z, width, height, depth, rotation));
 
             this.setPos(x, y, z);
