@@ -97,13 +97,13 @@ public abstract class PhysEntity extends Entity {
             return new Vector3f();
 
         //standard terrain collision
-        boolean[] groundState = {false};
+        Vector3f collisionAxis = new Vector3f();
         Vector3f standardMotionState = new Vector3f(motion);
-        Vector3f standardMove = resolveTerrainCollisions(aabb, motion, standardMotionState, groundState);
+        Vector3f standardMove = resolveTerrainCollisions(aabb, motion, standardMotionState, collisionAxis);
 
         //try to step up if we hit a wall
         if (this.onGround && getStepHeight() > 0f) {
-            boolean hitWall = Math.abs(standardMove.x) < Math.abs(motion.x) - Maths.SMALL_NUMBER || Math.abs(standardMove.z) < Math.abs(motion.z) - Maths.SMALL_NUMBER;
+            boolean hitWall = collisionAxis.x != 0 || collisionAxis.z != 0;
             boolean movedY = Math.abs(standardMove.y) > Maths.EPSILON;
 
             if (hitWall && !movedY) {
@@ -114,7 +114,7 @@ public abstract class PhysEntity extends Entity {
         }
 
         //no stepping, so apply standard states
-        this.onGround = groundState[0];
+        this.onGround = collisionAxis.y < 0;
         this.motion.set(standardMotionState);
         return standardMove;
     }
@@ -123,10 +123,11 @@ public abstract class PhysEntity extends Entity {
         //temporary vectors to check for terrain collisions
         Vector3f movement = new Vector3f();
         Vector3f currentMotion = new Vector3f();
+        Vector3f collisionAxis = new Vector3f();
 
         //step up
         movement.set(0, getStepHeight(), 0);
-        Vector3f stepUpMove = resolveTerrainCollisions(aabb, movement, currentMotion, new boolean[]{false});
+        Vector3f stepUpMove = resolveTerrainCollisions(aabb, movement, currentMotion, collisionAxis);
 
         //no upward movement
         if (stepUpMove.y <= 0)
@@ -138,15 +139,15 @@ public abstract class PhysEntity extends Entity {
         //apply remaining horizontal motion
         movement.set(motion.x, 0, motion.z);
         Vector3f forwardMotion = new Vector3f(movement);
-        Vector3f stepForwardMove = resolveTerrainCollisions(elevatedAABB, movement, forwardMotion, new boolean[]{false});
+        Vector3f stepForwardMove = resolveTerrainCollisions(elevatedAABB, movement, forwardMotion, collisionAxis);
 
         //snap back down to the floor if possible
-        boolean[] stepGroundState = {false};
+        collisionAxis.set(0, 0, 0);
         AABB elevatedForwardAABB = elevatedAABB.translate(stepForwardMove);
         movement.set(0, -stepUpMove.y, 0);
         currentMotion.set(0, 0, 0);
 
-        Vector3f stepDownMove = resolveTerrainCollisions(elevatedForwardAABB, movement, currentMotion, stepGroundState);
+        Vector3f stepDownMove = resolveTerrainCollisions(elevatedForwardAABB, movement, currentMotion, collisionAxis);
 
         //check if stepping sent us further than just walking forward horizontally
         float standardDistSq = standardMove.x * standardMove.x + standardMove.z * standardMove.z;
@@ -155,7 +156,7 @@ public abstract class PhysEntity extends Entity {
             return null;
 
         //stepping was more successful, so apply its results
-        this.onGround = stepGroundState[0] || standardMove.y == 0;
+        this.onGround = collisionAxis.y < 0 || standardMove.y == 0;
 
         //keep the forward sliding motion we calculated during the step forward
         this.motion.x = forwardMotion.x;
@@ -165,7 +166,7 @@ public abstract class PhysEntity extends Entity {
         return currentMotion.set(stepUpMove).add(stepForwardMove).add(stepDownMove);
     }
 
-    protected Vector3f resolveTerrainCollisions(AABB currentAABB, Vector3f movement, Vector3f currentMotion, boolean[] groundState) {
+    protected Vector3f resolveTerrainCollisions(AABB currentAABB, Vector3f movement, Vector3f currentMotion, Vector3f collisionAxis) {
         //get terrain collisions
         Vector3f toMove = new Vector3f(movement);
         List<Terrain> terrains = getWorld().getTerrains(new AABB(currentAABB).expand(toMove));
@@ -191,9 +192,10 @@ public abstract class PhysEntity extends Entity {
             if (collision == null)
                 break;
 
-            //set ground state when on a floor
-            if (!groundState[0] && collision.normal().y > 0)
-                groundState[0] = true;
+            //accumulate collision axis based on the normal of the collision
+            if (collision.normal().x != 0) collisionAxis.x = -Math.signum(collision.normal().x);
+            if (collision.normal().y != 0) collisionAxis.y = -Math.signum(collision.normal().y);
+            if (collision.normal().z != 0) collisionAxis.z = -Math.signum(collision.normal().z);
 
             //resolve the collision
             resolveCollision(collision, currentMotion, toMove);
