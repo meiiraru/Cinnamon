@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public abstract class Collectable extends PhysEntity {
 
-    private static final float BOUNCINESS = 0.5f;
+    private static final float BOUNCINESS = 0.33f;
 
     protected final AABB entityAABB = new AABB();
 
