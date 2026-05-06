@@ -7,6 +7,7 @@ import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
+import cinnamon.world.Mask;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
@@ -25,6 +26,7 @@ public abstract class Particle extends WorldObject {
     protected boolean removed = false;
     protected boolean billboard = true;
     protected boolean emissive;
+    protected Mask collisionMask = new Mask();
 
     public Particle(int lifetime) {
         this.lifetime = lifetime;
@@ -147,9 +149,16 @@ public abstract class Particle extends WorldObject {
         DebugRenderer.renderAABB(matrices, getAABB(), 0xFFFFFFFF);
     }
 
+    public Mask getCollisionMask() {
+        return collisionMask;
+    }
+
     protected boolean collideTerrain() {
         AABB aabb = getAABB();
         for (Terrain terrain : world.getTerrains(aabb)) {
+            if (!collisionMask.test(terrain.getCollisionMask()))
+                continue;
+
             for (Collider<?> terrainColl : terrain.getPreciseCollider()) {
                 if (aabb.intersects(terrainColl))
                     return true;
