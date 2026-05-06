@@ -179,36 +179,6 @@ public class LocalPlayer extends Player {
         }
     }
 
-    public void dropItem() {
-        Inventory inv = getInventory();
-        Item i = inv.getSelectedItem();
-        if (i == null)
-            return;
-
-        Item drop = i;
-        int count = i.getCount();
-        if (count > 1) {
-            //reduce stack size
-            Item copy = i.copy();
-            copy.setCount(1);
-            drop = copy;
-            i.setCount(count - 1);
-        } else {
-            //remove from inventory
-            inv.setItem(inv.getSelectedIndex(), null);
-            i.unselect();
-        }
-
-        Vector3f dir = Maths.spread(getLookDir(), 12.5f, 5f).mul(0.5f);
-        Vector3f dropPos = getEyePos();
-
-        ItemEntity entity = new ItemEntity(UUID.randomUUID(), drop);
-        entity.setPos(dropPos);
-        entity.setMotion(dir);
-
-        getWorld().addEntity(entity);
-    }
-
     @Override
     public void setSelectedItem(int index) {
         super.setSelectedItem(index);

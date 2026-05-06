@@ -17,6 +17,7 @@ import cinnamon.world.WorldObject;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
+import cinnamon.world.entity.collectable.ItemEntity;
 import cinnamon.world.items.Inventory;
 import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
@@ -338,6 +339,37 @@ public abstract class LivingEntity extends PhysEntity {
         inventory.setSelectedIndex(index);
         if (getHoldingItem() != null)
             getHoldingItem().select(this);
+    }
+
+    public ItemEntity dropItem(int index) {
+        Inventory inv = getInventory();
+        Item i = index < 0 ? inv.getSelectedItem() : index < inv.getSize() ? inv.getItem(index) : null;
+        if (i == null)
+            return null;
+
+        Item drop = i;
+        int count = i.getCount();
+        if (count > 1) {
+            //reduce stack size
+            Item copy = i.copy();
+            copy.setCount(1);
+            drop = copy;
+            i.setCount(count - 1);
+        } else {
+            //remove from inventory
+            inv.setItem(inv.getSelectedIndex(), null);
+            i.unselect();
+        }
+
+        Vector3f dir = Maths.spread(getLookDir(), 12.5f, 5f).mul(0.5f);
+        Vector3f dropPos = getEyePos();
+
+        ItemEntity entity = new ItemEntity(UUID.randomUUID(), drop);
+        entity.setPos(dropPos);
+        entity.setMotion(dir);
+
+        getWorld().addEntity(entity);
+        return entity;
     }
 
     public Item getHoldingItem() {

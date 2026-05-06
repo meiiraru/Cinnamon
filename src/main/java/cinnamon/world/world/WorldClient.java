@@ -730,7 +730,7 @@ public class WorldClient extends World {
             case GLFW_KEY_COMMA -> player.setSelectedTerrain((player.getSelectedTerrain() + 1) % (TerrainRegistry.values().length - 1));
             case GLFW_KEY_PERIOD -> player.setSelectedMaterial(Maths.modulo((player.getSelectedMaterial() + (shift ? -1 : 1)), MaterialRegistry.values().length));
 
-            case GLFW_KEY_Q -> player.dropItem();
+            case GLFW_KEY_Q -> player.dropItem(-1);
 
             case GLFW_KEY_T -> {
                 Pair<Hit, Terrain> hit = player.getLookingTerrain(player.getPickRange());
@@ -792,7 +792,7 @@ public class WorldClient extends World {
     public void xrButtonPress(int button, boolean pressed, int hand) {
         if (pressed && button == 1) {
             if (hand == 0) {
-                player.dropItem();
+                player.dropItem(-1);
             } else {
                 pause();
             }
