@@ -35,6 +35,11 @@ public class CurveMaker extends Item {
     }
 
     @Override
+    public ItemCategory getCategory() {
+        return ItemCategory.TOOL;
+    }
+
+    @Override
     public void render(ItemRenderContext context, MatrixStack matrices, float delta) {
         boolean changed = context == ItemRenderContext.HUD;
 

@@ -39,6 +39,11 @@ public class MagicWand extends Item {
     }
 
     @Override
+    public ItemCategory getCategory() {
+        return ItemCategory.MISC;
+    }
+
+    @Override
     public void tick() {
         super.tick();
 

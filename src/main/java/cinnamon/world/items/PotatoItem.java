@@ -18,6 +18,11 @@ public class PotatoItem extends Item {
     }
 
     @Override
+    public ItemCategory getCategory() {
+        return ItemCategory.WEAPON;
+    }
+
+    @Override
     public boolean fire() {
         if (!super.fire())
             return false;

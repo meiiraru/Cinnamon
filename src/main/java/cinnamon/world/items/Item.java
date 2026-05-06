@@ -25,6 +25,8 @@ public abstract class Item {
 
     public abstract Item copy();
 
+    public abstract ItemCategory getCategory();
+
     public void tick() {}
 
     public void render(ItemRenderContext context, MatrixStack matrices, float delta) {

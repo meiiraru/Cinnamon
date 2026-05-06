@@ -50,6 +50,11 @@ public class Flashlight extends Item {
     }
 
     @Override
+    public ItemCategory getCategory() {
+        return ItemCategory.TOOL;
+    }
+
+    @Override
     public boolean use() {
         if (!super.use())
             return false;

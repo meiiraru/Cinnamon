@@ -5,6 +5,7 @@ import cinnamon.utils.Resource;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.projectile.Projectile;
 import cinnamon.world.items.CooldownItem;
+import cinnamon.world.items.ItemCategory;
 import cinnamon.world.world.World;
 import org.joml.Math;
 
@@ -22,6 +23,11 @@ public abstract class Weapon extends CooldownItem {
         super(id, 1, 1, model, reloadCooldown);
         this.fireCooldown = fireCooldown;
         this.ammo = this.maxAmmo = maxAmmo;
+    }
+
+    @Override
+    public ItemCategory getCategory() {
+        return ItemCategory.WEAPON;
     }
 
     @Override

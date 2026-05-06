@@ -25,6 +25,11 @@ public class BubbleGun extends Item {
     }
 
     @Override
+    public ItemCategory getCategory() {
+        return ItemCategory.MISC;
+    }
+
+    @Override
     public void tick() {
         if (isFiring())
             shoot(getSource());
