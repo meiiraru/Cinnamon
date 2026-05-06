@@ -375,11 +375,12 @@ public class Hud {
 
     public void setFade(boolean fadeIn) {
         this.fadeIn = fadeIn;
+        this.fadeTicks = fadeIn ? 0 : this.fadeDelay;
     }
 
     public void setFade(boolean fadeIn, int delay, int color) {
-        this.fadeIn    = fadeIn;
         this.fadeDelay = delay;
         this.fadeColor = color;
+        this.setFade(fadeIn);
     }
 }
