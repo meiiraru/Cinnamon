@@ -179,4 +179,8 @@ public class ItemEntity extends Collectable {
     public int getAge() {
         return age;
     }
+
+    public Item getItem() {
+        return item;
+    }
 }
