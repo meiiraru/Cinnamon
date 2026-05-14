@@ -502,7 +502,7 @@ public class WorldClient extends World {
             if (hit != null) {
                 Vector3f pos = new Vector3f(hit.first().position()).floor();
                 Terrain terrain = hit.second();
-                if (terrain != null && pos.equals(terrain.getPos()))
+                if (terrain != null && pos.equals(terrain.getTransform().getPos()))
                     pos.add(hit.first().normal());
 
                 DebugRenderer.renderAABB(matrices, new AABB(pos, pos).expand(1f, 1f, 1f), 0xFFFF0000);

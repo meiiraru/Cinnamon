@@ -24,17 +24,19 @@ public class LightParticle extends SpriteParticle {
     public void tick() {
         super.tick();
 
-        this.pos.sub(lastNoise);
+        Vector3f pos = transform.getPos();
+        pos.sub(lastNoise);
 
         float scale = 1000f;
         int age = (int) (this.age + seed);
 
-        float nx = NOISE.sample((int) (this.pos.x * scale) + age, (int) (this.pos.y * scale) + age);
-        float ny = NOISE.sample((int) (this.pos.y * scale) + age, (int) (this.pos.z * scale) + age);
-        float nz = NOISE.sample((int) (this.pos.z * scale) + age, (int) (this.pos.x * scale) + age);
+        float nx = NOISE.sample((int) (pos.x * scale) + age, (int) (pos.y * scale) + age);
+        float ny = NOISE.sample((int) (pos.y * scale) + age, (int) (pos.z * scale) + age);
+        float nz = NOISE.sample((int) (pos.z * scale) + age, (int) (pos.x * scale) + age);
 
         lastNoise.set(nx - 0.5f, ny - 0.5f, nz - 0.5f).mul(2f * speed);
-        this.pos.add(lastNoise);
+        pos.add(lastNoise);
+        transform.setPos(pos);
     }
 
     public void setSpeed(float speed) {

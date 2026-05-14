@@ -43,8 +43,7 @@ public abstract class Entity extends WorldObject {
     protected final Vector3f
             oPos = new Vector3f();
     protected final Quaternionf
-            oRot = new Quaternionf(),
-            rot = new Quaternionf();
+            oRot = new Quaternionf();
 
     protected final List<Entity> riders = new ArrayList<>();
     protected Entity riding;
@@ -70,8 +69,8 @@ public abstract class Entity extends WorldObject {
     }
 
     public void preTick() {
-        this.oPos.set(pos);
-        this.oRot.set(rot);
+        this.oPos.set(transform.getPos());
+        this.oRot.set(transform.getRot());
     }
 
     @Override
@@ -137,7 +136,7 @@ public abstract class Entity extends WorldObject {
                 !Client.getInstance().hideHUD &&
                 (camera.getEntity() != this || DebugScreen.isTabOpen(DebugScreen.Tab.ENTITIES)) &&
                 !WorldRenderer.isOutlineRendering() &&
-                camera.getPos().distanceSquared(pos) <= 1024;
+                camera.getPos().distanceSquared(transform.getPos()) <= 1024;
     }
 
     public void renderDebugHitbox(MatrixStack matrices, float delta) {
@@ -181,8 +180,9 @@ public abstract class Entity extends WorldObject {
         }
 
         Vector3f move = new Vector3f(-left, up, -forwards);
-        move.rotate(rot);
+        move.rotate(transform.getRot());
 
+        Vector3f pos = transform.getPos();
         this.moveTo(
                 pos.x + move.x,
                 pos.y + move.y,
@@ -195,7 +195,7 @@ public abstract class Entity extends WorldObject {
     }
 
     public void moveTo(float x, float y, float z) {
-        this.pos.set(x, y, z);
+        this.transform.setPos(x, y, z);
         this.updateAABB();
         this.updateRidersPos();
         this.checkWorldVoid();
@@ -218,12 +218,12 @@ public abstract class Entity extends WorldObject {
     }
 
     public void rotateTo(Quaternionf quat) {
-        this.rot.set(quat);
+        this.transform.setRot(quat);
         sendServerUpdate();
     }
 
     public void rotateTo(float pitch, float yaw, float roll) {
-        this.rot.rotationZYX(Math.toRadians(roll), Math.toRadians(-yaw), Math.toRadians(-pitch));
+        this.transform.setRot(pitch, yaw, roll);
         sendServerUpdate();
     }
 
@@ -252,7 +252,7 @@ public abstract class Entity extends WorldObject {
 
     protected void updateAABB() {
         if (this.model == null) {
-            this.aabb.set(getPos()).inflate(0.5f, 0f, 0.5f, 0.5f, 1f, 0.5f);
+            this.aabb.set(transform.getPos()).inflate(0.5f, 0f, 0.5f, 0.5f, 1f, 0.5f);
             return;
         }
 
@@ -267,35 +267,41 @@ public abstract class Entity extends WorldObject {
             aabb.inflate(-diff, 0, 0);
 
         //add pos
-        aabb.translate(getPos());
+        aabb.translate(transform.getPos());
     }
 
     public Vector3f getPos(float delta) {
-        return Maths.lerp(oPos, pos, delta);
+        return Maths.lerp(oPos, transform.getPos(), delta);
+    }
+
+    public void setPos(Vector3f vec) {
+        this.setPos(vec.x, vec.y, vec.z);
     }
 
     public void setPos(float x, float y, float z) {
-        super.setPos(x, y, z);
-        this.oPos.set(x, y, z);
+        this.transform.setPos(x, y, z);
+        this.oPos.set(this.transform.getPos());
         this.updateAABB();
         this.updateRidersPos();
         this.checkWorldVoid();
     }
 
     public Quaternionf getRot(float delta) {
-        return new Quaternionf(oRot).slerp(rot, delta);
+        return new Quaternionf(oRot).slerp(transform.getRot(), delta);
     }
 
     public Quaternionf getRot() {
-        return rot;
+        return transform.getRot();
     }
 
     public void setRot(Quaternionf rot) {
-        this.oRot.set(this.rot.set(rot));
+        this.transform.setRot(rot);
+        this.oRot.set(this.transform.getRot());
     }
 
     public void setRot(float pitch, float yaw, float roll) {
-        this.oRot.set(this.rot.rotationZYX(Math.toRadians(roll), Math.toRadians(-yaw), Math.toRadians(-pitch)));
+        this.transform.setRot(pitch, yaw, roll);
+        this.oRot.set(this.transform.getRot());
     }
 
     public float getEyeHeight() {
@@ -307,6 +313,7 @@ public abstract class Entity extends WorldObject {
     }
 
     public Vector3f getEyePos() {
+        Vector3f pos = transform.getPos();
         return new Vector3f(pos.x, pos.y + getEyeHeight(), pos.z);
     }
 
@@ -389,12 +396,13 @@ public abstract class Entity extends WorldObject {
 
     public void updateRidersPos() {
         for (Entity rider : new ArrayList<>(riders)) {
-            rider.moveTo(getRiderOffset(rider).add(this.pos));
+            rider.moveTo(getRiderOffset(rider).add(this.transform.getPos()));
             rider.updateRidersPos();
         }
     }
 
     public void updateRidersRot() {
+        Quaternionf rot = this.transform.getRot();
         float pitchDelta = Maths.getPitch(rot) - Maths.getPitch(oRot);
         float yawDelta   = Maths.getYaw(rot)   - Maths.getYaw(oRot);
         float rollDelta  = Maths.getRoll(rot)  - Maths.getRoll(oRot);
@@ -407,7 +415,7 @@ public abstract class Entity extends WorldObject {
 
     public Vector3f getRiderOffset(Entity rider) {
         Vector3f vec = new Vector3f(0, aabb.getHeight(), 0);
-        vec.rotate(rot);
+        vec.rotate(transform.getRot());
         return vec;
     }
 
@@ -463,7 +471,7 @@ public abstract class Entity extends WorldObject {
         return (camera.getEntity() != this || ((WorldClient) getWorld()).isThirdPerson() || WorldRenderer.isShadowRendering())
                 && WorldRenderer.activeMask.test(getRenderMask())
                 && !(WorldRenderer.isShadowRendering() && getUUID().equals(LightRenderer.getShadowLight().getSource()))
-                && camera.getPos().distanceSquared(getPos()) <= getRenderDistance()
+                && camera.getPos().distanceSquared(transform.getPos()) <= getRenderDistance()
                 && super.shouldRender(camera);
     }
 
@@ -473,7 +481,7 @@ public abstract class Entity extends WorldObject {
     }
 
     protected void checkWorldVoid() {
-        if (getWorld() != null && pos.y < getWorld().bottomOfTheWorld)
+        if (getWorld() != null && transform.getPos().y < getWorld().bottomOfTheWorld)
             remove();
     }
 

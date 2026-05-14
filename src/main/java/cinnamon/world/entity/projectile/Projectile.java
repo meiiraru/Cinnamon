@@ -113,7 +113,7 @@ public abstract class Projectile extends PhysEntity {
         WorldClient wc = (WorldClient) getWorld();
         for (int i = 0; i < 20; i++) {
             DustParticle particle = new DustParticle((int) (Math.random() * 40) + 20, Colors.randomRainbow().argb);
-            particle.setPos(pos);
+            particle.setPos(transform.getPos());
             particle.setMotion(Maths.rotToDir((float) Math.random() * 360, (float) Math.random() * 360).mul((float) Math.random() * 0.075f + 0.075f));
             particle.setScale(1.5f);
             wc.addParticle(particle);

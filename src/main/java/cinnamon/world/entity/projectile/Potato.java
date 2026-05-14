@@ -98,6 +98,7 @@ public class Potato extends Projectile {
     @Override
     public void remove() {
         super.remove();
+        Vector3f pos = transform.getPos();
         world.explode(new AABB(pos, pos).inflate(EXPLOSION_RANGE), EXPLOSION_STRENGTH, this, false);
     }
 

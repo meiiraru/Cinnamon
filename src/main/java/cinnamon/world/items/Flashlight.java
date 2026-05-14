@@ -86,13 +86,14 @@ public class Flashlight extends Item {
         if ((source = getSource()) == null || (world = source.getWorld()) == null || !(world instanceof WorldClient wc))
             return;
 
+        Vector3f pos = source.getTransform().getPos();
         if (active) {
             updateLightToEntity();
             wc.addLight(light);
-            wc.playSound(ON_SOUND, SoundCategory.ENTITY, source.getPos()).volume(5f);
+            wc.playSound(ON_SOUND, SoundCategory.ENTITY, pos).volume(5f);
         } else {
             wc.removeLight(light);
-            wc.playSound(OFF_SOUND, SoundCategory.ENTITY, source.getPos()).volume(5f);
+            wc.playSound(OFF_SOUND, SoundCategory.ENTITY, pos).volume(5f);
         }
     }
 

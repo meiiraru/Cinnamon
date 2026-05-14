@@ -56,7 +56,7 @@ public class TriggerArea extends Entity {
 
     @Override
     protected void updateAABB() {
-        this.aabb.set(getPos()).inflate(width, height, depth);
+        this.aabb.set(transform.getPos()).inflate(width, height, depth);
     }
 
     @Override

@@ -44,9 +44,10 @@ public class RiceBall extends Projectile {
             return;
 
         //poof particle
+        Vector3f pos = transform.getPos();
         if (getWorld().isClientside()) {
             Particle particle = new SmokeParticle(10, 0xFFFFFFFF);
-            particle.setPos(this.getPos());
+            particle.setPos(pos);
             ((WorldClient) getWorld()).addParticle(particle);
         }
 
@@ -60,7 +61,7 @@ public class RiceBall extends Projectile {
             Projectile proj = new Rice(UUID.randomUUID(), owner, SPLIT_LIFE, this.speed, CRIT_CHANCE);
 
             //pos
-            proj.setPos(this.getPos());
+            proj.setPos(pos);
             proj.setRot(Maths.dirToQuat(Maths.spread(dir, SPREAD_ANGLE, SPREAD_ANGLE)).rotateY(Math.PI_f));
             proj.impulse(0, 0, 1);
 

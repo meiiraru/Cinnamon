@@ -56,7 +56,7 @@ public class PaintBall extends Projectile {
         Decal decal = new Decal(300, DECAL_RESOURCE);
         decal.getTransform().setColor(ColorUtils.argbIntToRGBA(color));
 
-        Vector3f pos = getPos();
+        Vector3f pos = transform.getPos();
         decal.getTransform().setPos(pos.x + move.x, pos.y + move.y, pos.z + move.z);
 
         decal.getTransform().setScale(0.2f);

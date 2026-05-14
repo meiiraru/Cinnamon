@@ -30,7 +30,7 @@ public class FireworkParticle extends StarParticle {
 
         if (trail && age < lifetime / 2 && (age + lifetime) % 2 == 0) {
             FireworkParticle p = new FireworkParticle(lifetime, color, fade, false, twinkle);
-            p.setPos(getPos());
+            p.setPos(transform.getPos());
             p.setEmissive(emissive);
             p.setScale(scale);
             p.age = lifetime / 2;

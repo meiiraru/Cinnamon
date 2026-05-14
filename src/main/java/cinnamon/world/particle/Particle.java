@@ -36,7 +36,7 @@ public abstract class Particle extends WorldObject {
     public void tick() {
         super.tick();
 
-        oPos.set(pos);
+        oPos.set(transform.getPos());
         //change pos
         move(motion);
 
@@ -53,7 +53,7 @@ public abstract class Particle extends WorldObject {
         matrices.pushMatrix();
 
         //apply pos
-        matrices.translate(Maths.lerp(oPos, pos, delta));
+        matrices.translate(getPos(delta));
 
         //apply billboard
         if (billboard)
@@ -69,7 +69,7 @@ public abstract class Particle extends WorldObject {
 
     @Override
     public boolean shouldRender(Camera camera) {
-        return camera.getPos().distanceSquared(pos) <= getRenderDistance() && super.shouldRender(camera);
+        return camera.getPos().distanceSquared(transform.getPos()) <= getRenderDistance() && super.shouldRender(camera);
     }
 
     protected int getRenderDistance() {
@@ -79,13 +79,16 @@ public abstract class Particle extends WorldObject {
     protected abstract void renderParticle(Camera camera, MatrixStack matrices, float delta);
 
     public Vector3f getPos(float delta) {
-        return Maths.lerp(oPos, pos, delta);
+        return Maths.lerp(oPos, transform.getPos(), delta);
     }
 
-    @Override
+    public void setPos(Vector3f pos) {
+        this.setPos(pos.x, pos.y, pos.z);
+    }
+
     public void setPos(float x, float y, float z) {
-        super.setPos(x, y, z);
-        this.oPos.set(x, y, z);
+        this.transform.setPos(x, y, z);
+        this.oPos.set(transform.getPos());
     }
 
     public void move(Vector3f vec) {
@@ -93,13 +96,15 @@ public abstract class Particle extends WorldObject {
     }
 
     public void move(float x, float y, float z) {
-        this.pos.add(x, y, z);
+        Vector3f pos = transform.getPos();
+        pos.add(x, y, z);
+        transform.setPos(pos);
         updateAABB();
     }
 
     @Override
     protected void updateAABB() {
-        aabb.set(pos);
+        aabb.set(transform.getPos());
     }
 
     public boolean isRemoved() {

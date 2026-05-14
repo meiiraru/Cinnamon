@@ -111,7 +111,7 @@ public class Player extends LivingEntity {
         if (damageSource == null)
             return null;
 
-        Vector3f diff = damageSource.getPos().sub(pos, new Vector3f()).normalize();
+        Vector3f diff = damageSource.getTransform().getPos().sub(transform.getPos(), new Vector3f()).normalize();
         return Maths.dirToRot(diff).y - Maths.getYaw(getRot());
     }
 
@@ -188,7 +188,7 @@ public class Player extends LivingEntity {
 
     @Override
     protected void updateAABB() {
-        aabb.set(getPos());
+        aabb.set(transform.getPos());
         float w = Math.max(DIMENSIONS.x, DIMENSIONS.z) * 0.5f;
         float y = model.getAABB().getHeight(); //Math.min(, DIMENSIONS.y);
         aabb.inflate(w, 0, w, w, y, w);

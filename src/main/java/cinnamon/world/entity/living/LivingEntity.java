@@ -443,7 +443,7 @@ public abstract class LivingEntity extends PhysEntity {
 
     @Override
     protected void checkWorldVoid() {
-        if (getWorld() != null && getPos().y < getWorld().bottomOfTheWorld)
+        if (getWorld() != null && transform.getPos().y < getWorld().bottomOfTheWorld)
             kill();
     }
 

@@ -298,7 +298,7 @@ public class DebugScreen {
             return "---";
 
         Object obj = hit.second();
-        Vector3f pos = ((WorldObject) obj).getPos();
+        Vector3f pos = ((WorldObject) obj).getTransform().getPos();
         Vector3f hPos = hit.first().position();
         Vector3f normal = hit.first().normal();
         float distance = hit.first().tNear();
@@ -465,7 +465,7 @@ public class DebugScreen {
             Player p = w.player;
             Abilities abilities = p.getAbilities();
 
-            Vector3f epos = p.getPos();
+            Vector3f epos = p.getTransform().getPos();
             Quaternionf rot = p.getRot();
             float pitch = Maths.getPitch(rot);
             float yaw = Maths.getYaw(rot);

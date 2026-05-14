@@ -32,7 +32,7 @@ public class Particle3D extends Particle {
         }
 
         aabb.set(model.getAABB());
-        aabb.translate(getPos());
+        aabb.translate(transform.getPos());
     }
 
     @Override

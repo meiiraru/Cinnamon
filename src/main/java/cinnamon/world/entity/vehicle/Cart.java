@@ -38,7 +38,7 @@ public class Cart extends Car {
                 StarParticle star = new StarParticle((int) (Math.random() * 5) + 10, ColorUtils.lerpARGBColor(0xFFDDDDDD, 0xFFFFDDAA, (float) Math.random()));
                 float yaw = Maths.getYaw(getRot());
                 Vector3f offset = new Vector3f(0.25f * i, 0f, 0f).rotateY(Math.toRadians(-yaw));
-                Vector3f pos = new Vector3f(getPos());
+                Vector3f pos = new Vector3f(transform.getPos());
                 star.setPos(pos.add(offset));
                 star.setEmissive(true);
                 ((WorldClient) getWorld()).addParticle(star);
@@ -85,7 +85,7 @@ public class Cart extends Car {
     @Override
     public Vector3f getRiderOffset(Entity rider) {
         Vector3f vec = new Vector3f(0, 0.4f, 0);
-        vec.rotate(rot);
+        vec.rotate(transform.getRot());
         return vec;
     }
 

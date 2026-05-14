@@ -35,6 +35,6 @@ public class PotatoCannon extends Weapon {
         super.spawnBullet();
         World world = getSource().getWorld();
         if (!getSource().isSilent() && world.isClientside())
-            ((WorldClient) world).playSound(SHOOT_SOUND, SoundCategory.ENTITY, getSource().getPos()).pitch(Maths.range(0.5f, 0.8f));
+            ((WorldClient) world).playSound(SHOOT_SOUND, SoundCategory.ENTITY, getSource().getTransform().getPos()).pitch(Maths.range(0.5f, 0.8f));
     }
 }

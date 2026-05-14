@@ -57,8 +57,10 @@ public abstract class PhysEntity extends Entity {
         tickEntityCollisions(aabb, toMove);
 
         //move entity
-        if (toMove.lengthSquared() > 0f)
+        if (toMove.lengthSquared() > 0f) {
+            Vector3f pos = transform.getPos();
             moveTo(pos.x + toMove.x, pos.y + toMove.y, pos.z + toMove.z);
+        }
 
         //decrease motion
         motionFallout();
@@ -258,7 +260,7 @@ public abstract class PhysEntity extends Entity {
         impulse.mul(getMoveSpeed());
 
         //move the entity in facing direction
-        this.impulse.rotate(rot);
+        this.impulse.rotate(transform.getRot());
     }
 
     protected float getMoveSpeed() {

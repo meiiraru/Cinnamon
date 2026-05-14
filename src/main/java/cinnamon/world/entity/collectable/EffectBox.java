@@ -44,7 +44,7 @@ public class EffectBox extends Collectable {
             int index = (int) (Math.random() * PICKUP_SOUND.length);
             Resource sound = PICKUP_SOUND[index];
             if (!isSilent() && le.getWorld().isClientside())
-                ((WorldClient) le.getWorld()).playSound(sound, SoundCategory.ENTITY, le.getPos()).pitch(Maths.range(0.95f, 1.05f));
+                ((WorldClient) le.getWorld()).playSound(sound, SoundCategory.ENTITY, le.getTransform().getPos()).pitch(Maths.range(0.95f, 1.05f));
             le.giveEffect(EFFECT_LIST.get((int) (Math.random() * EFFECT_LIST.size())).get());
             return true;
         }

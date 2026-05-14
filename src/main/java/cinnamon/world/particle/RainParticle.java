@@ -32,7 +32,7 @@ public class RainParticle extends SpriteParticle {
                 age = lifetime - (getFrameCount() - 1);
 
                 WaterDropParticle p = new WaterDropParticle(3, color);
-                p.setPos(pos);
+                p.setPos(transform.getPos());
                 ((WorldClient) world).addParticle(p);
             }
         }
@@ -40,6 +40,7 @@ public class RainParticle extends SpriteParticle {
 
     @Override
     protected void renderParticle(Camera camera, MatrixStack matrices, float delta) {
+        Vector3f pos = transform.getPos();
         Vector3f camPos = camera.getPos();
         float angle = Math.atan2(camPos.x - pos.x, camPos.z - pos.z) + Math.PI_f;
         matrices.rotate(Rotation.Y.rotation(angle));

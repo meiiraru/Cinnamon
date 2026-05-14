@@ -168,10 +168,11 @@ public class PrimitiveTestWorld extends WorldClient {
         if (isPaused())
             return;
 
+        Vector3f playerPos = player.getTransform().getPos();
         for (Light light : lights) {
             if (light.getType() != Light.Type.DIRECTIONAL) {
                 //grab player distance to light
-                float dist = light.getPos().distance(player.getPos());
+                float dist = light.getPos().distance(playerPos);
                 float f = Maths.clamp(1f - ((dist - 5f) / 5f), 0f, 1f) * 2f;
                 light.intensity(f);
                 light.glareIntensity(f);

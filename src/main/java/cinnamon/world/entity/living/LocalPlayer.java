@@ -20,15 +20,10 @@ import cinnamon.world.Abilities;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
-import cinnamon.world.entity.collectable.ItemEntity;
-import cinnamon.world.items.Inventory;
-import cinnamon.world.items.Item;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-
-import java.util.UUID;
 
 public class LocalPlayer extends Player {
 
@@ -136,7 +131,7 @@ public class LocalPlayer extends Player {
         Pair<Hit, ? extends WorldObject> hit = XrManager.isInXR() ? raycastHand(getPickRange()) : getLookingObject(getPickRange());
         if (hit != null && hit.second() instanceof Terrain t) {
             Vector3f tpos = new Vector3f(hit.first().position()).floor();
-            if (tpos.equals(t.getPos()))
+            if (tpos.equals(t.getTransform().getPos()))
                 tpos.add(hit.first().normal());
 
             AABB entities = new AABB().translate(tpos).expand(1f, 1f, 1f);

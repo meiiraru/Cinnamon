@@ -76,7 +76,7 @@ public class CommandParser {
             return null;
 
         Vector3f result = new Vector3f();
-        Vector3f relativePos = source.getPos();
+        Vector3f relativePos = source.getTransform().getPos();
 
         try {
             //check for directional coordinates "^left ^up ^forward"

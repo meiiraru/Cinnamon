@@ -61,7 +61,7 @@ public class PaintGun extends CooldownItem {
         world.addEntity(projectile);
 
         if (!source.isSilent())
-            ((WorldClient) world).playSound(SHOOT_SOUND, SoundCategory.ENTITY, source.getPos()).pitch(Maths.range(0.8f, 1f));
+            ((WorldClient) world).playSound(SHOOT_SOUND, SoundCategory.ENTITY, source.getTransform().getPos()).pitch(Maths.range(0.8f, 1f));
 
         this.setOnCooldown();
     }

@@ -19,7 +19,7 @@ public class ShoppingCart extends Car {
     @Override
     public Vector3f getRiderOffset(Entity rider) {
         Vector3f vec = new Vector3f(0, 0.5f, 0);
-        vec.rotate(rot);
+        vec.rotate(transform.getRot());
         return vec;
     }
 

@@ -18,6 +18,7 @@ import cinnamon.world.Mask;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.world.World;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,7 @@ public class Terrain extends WorldObject {
 
         matrices.pushMatrix();
 
+        Vector3f pos = transform.getPos();
         matrices.translate(pos.x + 0.5f, pos.y, pos.z + 0.5f);
         matrices.rotate(Rotation.Y.rotationDeg(getRotationAngle()));
 
@@ -67,6 +69,7 @@ public class Terrain extends WorldObject {
     }
 
     protected void updateAABB() {
+        Vector3f pos = transform.getPos();
         if (model == null) {
             aabb.set(pos).expand(1f, 1f, 1f);
             preciseCollider.clear();
@@ -90,7 +93,7 @@ public class Terrain extends WorldObject {
 
     @Override
     public boolean shouldRender(Camera camera) {
-        return camera.getPos().distanceSquared(getPos()) <= getRenderDistance() && super.shouldRender(camera);
+        return camera.getPos().distanceSquared(transform.getPos()) <= getRenderDistance() && super.shouldRender(camera);
     }
 
     public int getRenderDistance() {
@@ -102,9 +105,12 @@ public class Terrain extends WorldObject {
         return model instanceof AnimatedObjRenderer anim ? anim.getAnimation(name) : null;
     }
 
-    @Override
+    public void setPos(Vector3f pos) {
+        this.setPos(pos.x, pos.y, pos.z);
+    }
+
     public void setPos(float x, float y, float z) {
-        super.setPos(x, y, z);
+        this.transform.setPos(x, y, z);
         this.updateAABB();
     }
 

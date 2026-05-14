@@ -39,7 +39,7 @@ public class BubbleParticle extends SpriteParticle {
     @Override
     public void remove() {
         super.remove();
-        ((WorldClient) world).playSound(POP_SOUND, SoundCategory.AMBIENT, pos).volume(0.5f).pitch(Maths.range(0.8f, 1.2f)).distance(0f).maxDistance(8f);
+        ((WorldClient) world).playSound(POP_SOUND, SoundCategory.AMBIENT, transform.getPos()).volume(0.5f).pitch(Maths.range(0.8f, 1.2f)).distance(0f).maxDistance(8f);
     }
 
     @Override

@@ -4,7 +4,6 @@ import cinnamon.math.Rotation;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
-import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
 
@@ -36,6 +35,7 @@ public class SnowParticle extends SpriteParticle {
 
     @Override
     protected void renderParticle(Camera camera, MatrixStack matrices, float delta) {
+        Vector3f pos = transform.getPos();
         Vector3f camPos = camera.getPos();
         float angle = Math.atan2(camPos.x - pos.x, camPos.z - pos.z) + Math.PI_f;
         matrices.rotate(Rotation.Y.rotation(angle));

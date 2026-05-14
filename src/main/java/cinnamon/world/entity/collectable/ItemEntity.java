@@ -128,7 +128,7 @@ public class ItemEntity extends Collectable {
 
         //pickup sound
         if (pick > 0 && !isSilent() && getWorld().isClientside())
-            ((WorldClient) getWorld()).playSound(PICK_UP_SOUND, SoundCategory.ENTITY, le.getPos()).pitch(Maths.range(0.85f, 1.15f));
+            ((WorldClient) getWorld()).playSound(PICK_UP_SOUND, SoundCategory.ENTITY, le.getTransform().getPos()).pitch(Maths.range(0.85f, 1.15f));
 
         //remove only if entirely consumed
         return pick == 2;
@@ -136,7 +136,7 @@ public class ItemEntity extends Collectable {
 
     @Override
     protected void updateAABB() {
-        this.aabb.set(getPos());
+        this.aabb.set(transform.getPos());
         this.aabb.inflate(0.25f);
 
         if (entityAABB != null) {

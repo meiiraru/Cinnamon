@@ -13,6 +13,6 @@ public class Sphere extends Terrain {
     protected void updateAABB() {
         super.updateAABB();
         preciseCollider.clear();
-        preciseCollider.add(new cinnamon.math.collision.Sphere(getPos(), 0.5f).translate(0.5f, 0.5f, 0.5f));
+        preciseCollider.add(new cinnamon.math.collision.Sphere(transform.getPos(), 0.5f).translate(0.5f, 0.5f, 0.5f));
     }
 }

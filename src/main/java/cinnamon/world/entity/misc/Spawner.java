@@ -77,7 +77,7 @@ public class Spawner<E extends Entity> extends Entity {
 
     @Override
     protected void updateAABB() {
-        this.aabb.set(getPos()).inflate(radius);
+        this.aabb.set(transform.getPos()).inflate(radius);
     }
 
     @Override

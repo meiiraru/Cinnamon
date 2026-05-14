@@ -41,7 +41,7 @@ public class  Firework extends PhysEntity {
     public void onAdded(World world) {
         super.onAdded(world);
         if (!isSilent() && getWorld().isClientside())
-            ((WorldClient) getWorld()).playSound(LAUNCH_SOUND, SoundCategory.ENTITY, getPos()).pitch(Maths.range(0.8f, 1.2f)).volume(0.3f);
+            ((WorldClient) getWorld()).playSound(LAUNCH_SOUND, SoundCategory.ENTITY, transform.getPos()).pitch(Maths.range(0.8f, 1.2f)).volume(0.3f);
     }
 
     @Override
@@ -91,7 +91,7 @@ public class  Firework extends PhysEntity {
 
     protected void flyParticles() {
         WorldClient wc = (WorldClient) getWorld();
-        Vector3f pos = getPos();
+        Vector3f pos = transform.getPos();
 
         FireParticle fire = new FireParticle(5);
         fire.setPos(pos);
@@ -109,7 +109,7 @@ public class  Firework extends PhysEntity {
     protected void explode() {
         if (stars.length > 0) {
             World w = getWorld();
-            Vector3f pos = getPos();
+            Vector3f pos = transform.getPos();
 
             AABB explosionBB = new AABB().inflate(2f).translate(pos);
             for (Entity entity : w.getEntities(explosionBB)) {
