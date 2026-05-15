@@ -27,4 +27,11 @@ public class Health implements Command {
             return Text.of("Failed to execute command, invalid argument: " + value).withStyle(ERROR_STYLE);
         }
     }
+
+    @Override
+    public Text getHelpCommand() {
+        return Text.of("Usage: /health [<value>]")
+                .append("\n")
+                .append("Gets or sets the health of the player");
+    }
 }

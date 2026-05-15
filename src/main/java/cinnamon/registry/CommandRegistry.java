@@ -4,6 +4,7 @@ import cinnamon.commands.*;
 
 public enum CommandRegistry {
 
+    HELP(new Help(), "h"),
     TP(new Teleport(), "teleport"),
     FILL(new Fill()),
     TIME(new Time(), "t"),

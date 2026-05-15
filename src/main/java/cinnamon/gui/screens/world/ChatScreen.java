@@ -244,8 +244,14 @@ public class ChatScreen extends Screen {
                 continue;
 
             //warp text
+            float width = maxChatWidth - 4; //left and right borders
             Text text = message.text();
-            List<Text> warped = TextUtils.warpToWidth(text, maxChatWidth - 4); //left and right borders
+            List<Text> split = TextUtils.split(text, "\n");
+            List<Text> warped = new ArrayList<>();
+
+            for (Text t : split)
+                warped.addAll(TextUtils.warpToWidth(t, width));
+
             for (int j = warped.size() - 1; j >= 0; j--) {
                 Text warpedMessage = warped.get(j);
                 int messageHeight = TextUtils.getHeight(warpedMessage);

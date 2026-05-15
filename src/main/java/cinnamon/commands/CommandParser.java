@@ -20,7 +20,7 @@ public class CommandParser {
 
     public static final Logger LOGGER = new Logger(Logger.ROOT_NAMESPACE + "/command");
     public static final Style ERROR_STYLE = Style.EMPTY.color(Colors.RED);
-    private static final Trie<Command> commandTrie = new Trie<>();
+    static final Trie<Command> commandTrie = new Trie<>();
 
     static {
         for (CommandRegistry command : CommandRegistry.values()) {

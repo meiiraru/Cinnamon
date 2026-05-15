@@ -103,4 +103,11 @@ public class Time implements Command {
             return Text.of("Failed to execute command, invalid argument: " + value).withStyle(ERROR_STYLE);
         }
     }
+
+    @Override
+    public Text getHelpCommand() {
+        return Text.of("Usage: /time <query|set|add> [value]")
+                .append("\n")
+                .append("Queries or modifies the world time");
+    }
 }

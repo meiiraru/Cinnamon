@@ -42,4 +42,11 @@ public class Teleport implements Command {
         source.moveTo(pos);
         return Text.of("Teleported to %.3f %.3f %.3f".formatted(pos.x, pos.y, pos.z));
     }
+
+    @Override
+    public Text getHelpCommand() {
+        return Text.of("Usage: /teleport <x> <y> <z> [<yaw> <pitch>]")
+                .append("\n")
+                .append("Teleports the player to the specified coordinates with optional rotation");
+    }
 }

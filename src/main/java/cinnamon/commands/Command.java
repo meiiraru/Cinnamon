@@ -8,4 +8,5 @@ import java.util.Stack;
 public interface Command {
 
     Text execute(Entity source, Stack<String> args);
+    Text getHelpCommand();
 }

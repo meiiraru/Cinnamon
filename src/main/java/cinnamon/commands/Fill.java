@@ -60,4 +60,11 @@ public class Fill implements Command {
         TerrainGenerator.fill(source.getWorld(), min.x, min.y, min.z, max.x, max.y, max.z, matReg.material);
         return Text.of("Filled from %d %d %d to %d %d %d with %s".formatted(min.x, min.y, min.z, max.x, max.y, max.z, matReg.name()));
     }
+
+    @Override
+    public Text getHelpCommand() {
+        return Text.of("Usage: /fill <pos1> <pos2> <material>")
+                .append("\n")
+                .append("Fills a region defined by two positions with the specified material");
+    }
 }

@@ -25,4 +25,11 @@ public class Kill implements Command {
             return Text.of("Entity removed.");
         }
     }
+
+    @Override
+    public Text getHelpCommand() {
+        return Text.of("Usage: /kill [<target>]")
+                .append("\n")
+                .append("Kills the specified target");
+    }
 }
