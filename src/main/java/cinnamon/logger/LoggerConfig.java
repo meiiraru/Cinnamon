@@ -55,7 +55,6 @@ public class LoggerConfig {
         //add file output
         try {
             FileOutput fileOutput = new FileOutput(LOG_OUTPUT);
-            fileOutput.setFormatting(pattern);
             fileOutput.setLevel(level);
             logger.addOutput(fileOutput);
         } catch (Exception e) {

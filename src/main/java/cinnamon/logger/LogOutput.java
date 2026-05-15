@@ -5,7 +5,7 @@ import java.util.Calendar;
 public abstract class LogOutput {
 
     private Level level = Level.DEBUG;
-    private String formatting = "[%3$s] (%4$s) %5$s\n";
+    private String formatting = "[%1$tT] [%2$s/%3$s] (%4$s) %5$s\n";
 
     public abstract void write(Level level, String message, Throwable throwable);
 
@@ -14,7 +14,7 @@ public abstract class LogOutput {
     }
 
     public String applyFormatting(Calendar calendar, String threadName, Level level, String className, String message) {
-        return String.format(formatting, calendar, threadName, level.name(), className, message);
+        return String.format(formatting, calendar, threadName, level.name(), className, message, level.ansiCode, Level.ANSI_RESET);
     }
 
     public void setLevel(Level level) {

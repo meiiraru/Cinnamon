@@ -14,7 +14,7 @@ public enum ArgsOptions {
     //general options
     WORKING_DIR("./", "-d", "--working-dir"),
     LOGGER_LEVEL("INFO", "-l", "--logger-level"),
-    LOGGER_PATTERN("[%1$tT] [%2$s/%3$s] (%4$s) %5$s", "--logger-pattern"),
+    LOGGER_PATTERN("%6$s[%1$tT] [%2$s/%3$s] (%4$s) %5$s%7$s", "--logger-pattern"),
 
     //graphics
     EXPERIMENTAL_OPENGL_ES(null, "--experimental-opengl-es"),
