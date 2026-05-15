@@ -24,6 +24,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.WaterRenderer;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.render.shader.PostProcess;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundInstance;
 import cinnamon.sound.SoundManager;
@@ -349,7 +350,10 @@ public class WorldClient extends World {
         }
     }
 
-    protected void postWorldRender(MatrixStack matrices, float delta) {}
+    protected void postWorldRender(MatrixStack matrices, float delta) {
+        if (player.isDead())
+            PostProcess.apply(PostProcess.GRAYSCALE);
+    }
 
     protected void updateCamera(Camera sourceCamera, Entity camEntity, int cameraMode, float delta) {
         WorldRenderer.camera.copyFrom(sourceCamera, true);

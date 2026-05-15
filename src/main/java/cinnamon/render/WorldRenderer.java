@@ -486,7 +486,7 @@ public class WorldRenderer {
             return;
 
         float speed = 0f;
-        if (camera.getEntity() instanceof LivingEntity le && le.isOnGround() && !le.isRiding()) {
+        if (camera.getEntity() instanceof LivingEntity le && !le.isDead() && le.isOnGround() && !le.isRiding()) {
             Vector3f impulse = le.getImpulse();
             speed = Math.sqrt(impulse.x * impulse.x + impulse.z * impulse.z);
         }

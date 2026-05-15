@@ -65,11 +65,6 @@ public class LocalPlayer extends Player {
             super.spawnHealthChangeParticle(amount, crit);
     }
 
-    @Override
-    public boolean isRemoved() {
-        return false;
-    }
-
     public int getSelectedTerrain() {
         return selectedTerrain;
     }

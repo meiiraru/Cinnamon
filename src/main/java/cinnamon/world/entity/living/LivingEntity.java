@@ -225,6 +225,7 @@ public abstract class LivingEntity extends PhysEntity {
         stopUsing();
         stopAttacking();
         setMotion(0, 0, 0);
+        dropAllInventory();
     }
 
     protected void spawnDeathParticles() {
@@ -341,7 +342,7 @@ public abstract class LivingEntity extends PhysEntity {
             getHoldingItem().select(this);
     }
 
-    public ItemEntity dropItem(int index) {
+    protected Item getItemToDrop(int index) {
         Inventory inv = getInventory();
         Item i = index < 0 ? inv.getSelectedItem() : index < inv.getSize() ? inv.getItem(index) : null;
         if (i == null)
@@ -360,6 +361,14 @@ public abstract class LivingEntity extends PhysEntity {
             inv.setItem(inv.getSelectedIndex(), null);
             i.unselect();
         }
+
+        return drop;
+    }
+
+    public ItemEntity dropItem(int index) {
+        Item drop = getItemToDrop(index);
+        if (drop == null)
+            return null;
 
         Vector3f dir = Maths.spread(getLookDir(), 12.5f, 5f).mul(0.5f);
         Vector3f dropPos = getEyePos();
@@ -573,5 +582,35 @@ public abstract class LivingEntity extends PhysEntity {
             return entityHit;
 
         return terrainHit;
+    }
+
+    protected Vector3f getRandomDropDirection(float force) {
+        return Maths.rotToDir((float) Math.random() * 30f + 30f, (float) Math.random() * 360f).mul(force);
+    }
+
+    protected int dropAllInventory() {
+        int count = 0;
+        Vector3f originPos = getAABB().getCenter();
+
+        for (int index = 0; index < inventory.getSize(); index++) {
+            Item i = inventory.getItem(index);
+            if (i == null)
+                continue;
+
+            inventory.setItem(index, null);
+            i.unselect();
+
+            //drop item
+            Vector3f dir = getRandomDropDirection(0.5f);
+
+            ItemEntity entity = new ItemEntity(UUID.randomUUID(), i);
+            entity.setPos(originPos);
+            entity.setMotion(dir);
+
+            getWorld().addEntity(entity);
+            count++;
+        }
+
+        return count;
     }
 }

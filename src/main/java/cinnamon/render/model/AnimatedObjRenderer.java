@@ -47,7 +47,11 @@ public class AnimatedObjRenderer extends ObjRenderer {
             animation.update();
 
         //render bone tree
-        renderBone(bone, matrices, s -> renderMesh(meshes.get(s), material));
+        renderBone(bone, matrices, s -> {
+            MeshData mesh = meshes.get(s);
+            if (mesh != null)
+                renderMesh(mesh, material);
+        });
     }
 
     @Override
@@ -60,7 +64,11 @@ public class AnimatedObjRenderer extends ObjRenderer {
             animation.update();
 
         //render bone tree
-        renderBone(bone, matrices, s -> renderMeshWithoutMaterial(meshes.get(s)));
+        renderBone(bone, matrices, s -> {
+            MeshData mesh = meshes.get(s);
+            if (mesh != null)
+                renderMeshWithoutMaterial(mesh);
+        });
     }
 
     private void renderBone(Bone bone, MatrixStack matrices, Consumer<String> renderFunction) {
