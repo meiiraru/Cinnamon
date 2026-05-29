@@ -47,7 +47,7 @@ public abstract class Vehicle extends PhysEntity {
     public boolean addRider(Entity e) {
         if (this.riders.size() < maxRiders) {
             super.addRider(e);
-            e.rotateTo(this.getRot());
+            e.rotateTo(this.getTransform().getRot());
             return true;
         }
         return false;

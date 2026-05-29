@@ -87,6 +87,7 @@ public abstract class LivingEntity extends PhysEntity {
         }
 
         matrices.rotate(Rotation.Y.rotationDeg(-Maths.getYaw(getRot(delta))));
+        matrices.scale(getScale(delta));
     }
 
     public void renderHandItem(ItemRenderContext context, MatrixStack matrices, float delta) {
@@ -98,6 +99,7 @@ public abstract class LivingEntity extends PhysEntity {
         matrices.pushMatrix();
         matrices.translate(getHandPos(lefty, delta));
         matrices.rotate(getHandRot(lefty, delta));
+        matrices.scale(getScale(delta));
 
         item.render(context, matrices, delta);
 
@@ -145,7 +147,7 @@ public abstract class LivingEntity extends PhysEntity {
         impulse.mul(getMoveSpeed());
 
         //move the entity in facing direction
-        this.impulse.rotateY(Math.toRadians(-Maths.getYaw(getRot())));
+        this.impulse.rotateY(Math.toRadians(-Maths.getYaw(getTransform().getRot())));
 
         //anti ramp jump boost
         if (this.onGround && up > 0f) {
@@ -318,7 +320,7 @@ public abstract class LivingEntity extends PhysEntity {
 
     @Override
     public float getEyeHeight() {
-        return this.eyeHeight;
+        return this.eyeHeight * getTransform().getScale().y;
     }
 
     @Override
@@ -465,7 +467,7 @@ public abstract class LivingEntity extends PhysEntity {
         if (riding != null)
             riding.rotate(pitch, yaw, roll);
 
-        Quaternionf rotation = getRot();
+        Quaternionf rotation = this.getTransform().getRot();
         this.rotateTo(Maths.getPitch(rotation) + pitch, Maths.getYaw(rotation) + yaw, 0f);
     }
 
@@ -493,9 +495,12 @@ public abstract class LivingEntity extends PhysEntity {
 
     public Vector3f getHandPos(boolean lefty, float delta) {
         Vector3f pos = getEyePos(delta);
-        float x = aabb.getWidth() * 0.5f + 0.15f;
+        Vector3f scale = getScale(delta);
+        float x = aabb.getWidth() * 0.5f + 0.15f * scale.x;
 
-        Vector3f offset = new Vector3f(lefty ? -x : x, -0.25f, -0.4f);
+        Vector3f offset = new Vector3f(0, -0.25f, -0.4f);
+        offset.mul(scale);
+        offset.x += lefty ? -x : x;
         offset.rotate(getHandRot(lefty, delta));
         pos.add(offset);
 

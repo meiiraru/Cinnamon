@@ -34,13 +34,15 @@ public class Cart extends Car {
         super.tick();
 
         if (getWorld().isClientside() && motion.lengthSquared() > 0.01f) {
+            float yaw = Maths.getYaw(getTransform().getRot());
+            float scale = getTransform().getScale().x;
             for (int i = -1; i < 2; i += 2) {
                 StarParticle star = new StarParticle((int) (Math.random() * 5) + 10, ColorUtils.lerpARGBColor(0xFFDDDDDD, 0xFFFFDDAA, (float) Math.random()));
-                float yaw = Maths.getYaw(getRot());
-                Vector3f offset = new Vector3f(0.25f * i, 0f, 0f).rotateY(Math.toRadians(-yaw));
+                Vector3f offset = new Vector3f(0.25f * i * scale, 0f, 0f).rotateY(Math.toRadians(-yaw));
                 Vector3f pos = new Vector3f(transform.getPos());
                 star.setPos(pos.add(offset));
                 star.setEmissive(true);
+                star.setScale(scale);
                 ((WorldClient) getWorld()).addParticle(star);
             }
         }
@@ -63,9 +65,11 @@ public class Cart extends Car {
     protected void updateLights(float delta) {
         Vector3f pos = getPos(delta);
         Quaternionf quat = getRot(delta);
-        Vector3f dir = new Vector3f(0f, 0f, -1f).rotate(new Quaternionf(quat).rotateX(Math.toRadians(-15f)));
+        Vector3f scale = getScale(delta);
+        Vector3f dir = new Vector3f(0f, 0f, -1f * scale.z).rotate(new Quaternionf(quat).rotateX(Math.toRadians(-15f)));
 
         Vector3f offset = new Vector3f(0f, 0.5f, -0.85f);
+        offset.mul(scale);
         offset.rotate(quat);
 
         //front light
@@ -73,9 +77,10 @@ public class Cart extends Car {
         headlight.direction(dir);
 
         //back light
-        dir.set(0f, 0f, -1f).rotate(new Quaternionf(quat).rotateX(Math.toRadians(15f)));
+        dir.set(0f, 0f, -1f * scale.z).rotate(new Quaternionf(quat).rotateX(Math.toRadians(15f)));
 
         offset.set(0f, 0.5f, 0.85f);
+        offset.mul(scale);
         offset.rotate(quat);
 
         taillight.pos(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
@@ -84,7 +89,7 @@ public class Cart extends Car {
 
     @Override
     public Vector3f getRiderOffset(Entity rider) {
-        Vector3f vec = new Vector3f(0, 0.4f, 0);
+        Vector3f vec = new Vector3f(0, 0.4f * getTransform().getScale().y, 0);
         vec.rotate(transform.getRot());
         return vec;
     }

@@ -80,8 +80,12 @@ public class RollerCoasterWorld extends WorldClient {
         cart.rotateToWithRiders(Maths.dirToQuat(Maths.lerp(p0Dir, p1Dir, t)).rotateY(Math.PI_f));
 
         //speed
-        float pitch = Maths.getPitch(cart.getRot());
-        speed = Math.lerp(speed, Math.max(0.3f + 0.3f * Math.max(pitch, -22.5f) / 45f, 0.01f), 0.1f);
+        float pitch = Maths.getPitch(cart.getTransform().getRot());
+        pitch = Maths.clamp(pitch, -50, 50);
+        pitch += 50;
+
+        float newSpeed = Math.lerp(0.1f, 0.5f, pitch / 100f);
+        speed = Math.lerp(speed, newSpeed, 0.15f);
     }
 
     public void setCurve(Curve curve) throws Exception {

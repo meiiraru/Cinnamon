@@ -296,6 +296,26 @@ public class AABB extends Collider<AABB> {
         );
     }
 
+    public AABB scaleAnchorBottom(float scale) {
+        return this.scaleAnchorBottom(scale, scale, scale);
+    }
+
+    public AABB scaleAnchorBottom(Vector3f scale) {
+        return this.scaleAnchorBottom(scale.x, scale.y, scale.z);
+    }
+
+    public AABB scaleAnchorBottom(float x, float y, float z) {
+        Vector3f center = getCenter();
+        return set(
+                (minX - center.x) * x + center.x,
+                minY,
+                (minZ - center.z) * z + center.z,
+                (maxX - center.x) * x + center.x,
+                minY + (maxY - minY) * y,
+                (maxZ - center.z) * z + center.z
+        );
+    }
+
     public AABB include(Vector3f point) {
         return include(point.x, point.y, point.z);
     }

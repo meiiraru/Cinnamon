@@ -123,7 +123,7 @@ public class Flashlight extends Item {
         LivingEntity source;
         if ((source = getSource()) == null)
             return 0f;
-        return Maths.getYaw(source.getRot());
+        return Maths.getYaw(source.getTransform().getRot());
     }
 
     public Object getCountText() {

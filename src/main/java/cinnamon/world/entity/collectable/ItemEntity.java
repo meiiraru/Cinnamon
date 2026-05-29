@@ -138,6 +138,7 @@ public class ItemEntity extends Collectable {
     protected void updateAABB() {
         this.aabb.set(transform.getPos());
         this.aabb.inflate(0.25f);
+        this.aabb.scaleAnchorBottom(transform.getScale());
 
         if (entityAABB != null) {
             this.entityAABB.set(this.aabb);

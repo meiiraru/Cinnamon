@@ -112,7 +112,7 @@ public class Player extends LivingEntity {
             return null;
 
         Vector3f diff = damageSource.getTransform().getPos().sub(transform.getPos(), new Vector3f()).normalize();
-        return Maths.dirToRot(diff).y - Maths.getYaw(getRot());
+        return Maths.dirToRot(diff).y - Maths.getYaw(getTransform().getRot());
     }
 
     public int getDamageSourceTicks() {
@@ -192,5 +192,6 @@ public class Player extends LivingEntity {
         float w = Math.max(DIMENSIONS.x, DIMENSIONS.z) * 0.5f;
         float y = model.getAABB().getHeight(); //Math.min(, DIMENSIONS.y);
         aabb.inflate(w, 0, w, w, y, w);
+        aabb.scaleAnchorBottom(transform.getScale());
     }
 }

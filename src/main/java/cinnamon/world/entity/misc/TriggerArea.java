@@ -17,7 +17,7 @@ public class TriggerArea extends Entity {
     public TriggerArea(UUID uuid, float width, float height, float depth) {
         super(uuid, null);
         this.width = width * 0.5f;
-        this.height = height * 0.5f;
+        this.height = height;
         this.depth = depth * 0.5f;
     }
 
@@ -56,7 +56,7 @@ public class TriggerArea extends Entity {
 
     @Override
     protected void updateAABB() {
-        this.aabb.set(transform.getPos()).inflate(width, height, depth);
+        this.aabb.set(transform.getPos()).inflate(width, 0f, depth, width, height, depth);
     }
 
     @Override

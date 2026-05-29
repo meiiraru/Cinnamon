@@ -44,6 +44,8 @@ public abstract class Entity extends WorldObject {
             oPos = new Vector3f();
     protected final Quaternionf
             oRot = new Quaternionf();
+    protected final Vector3f
+            oScale = new Vector3f(1f);
 
     protected final List<Entity> riders = new ArrayList<>();
     protected Entity riding;
@@ -71,6 +73,7 @@ public abstract class Entity extends WorldObject {
     public void preTick() {
         this.oPos.set(transform.getPos());
         this.oRot.set(transform.getRot());
+        this.oScale.set(transform.getScale());
     }
 
     @Override
@@ -104,6 +107,7 @@ public abstract class Entity extends WorldObject {
 
     protected void applyModelPose(Camera camera, MatrixStack matrices, float delta) {
         matrices.rotate(getRot(delta));
+        matrices.scale(getScale(delta));
     }
 
     protected void renderTexts(Camera camera, MatrixStack matrices, float delta) {
@@ -121,6 +125,7 @@ public abstract class Entity extends WorldObject {
         matrices.translate(0f, aabb.getHeight() + 0.15f, 0f);
         camera.billboard(matrices);
         matrices.scale(-s);
+        matrices.scale(getScale(delta));
 
         text.render(VertexConsumer.WORLD_MAIN, matrices, 0, 0, Alignment.BOTTOM_CENTER, 48);
 
@@ -205,14 +210,14 @@ public abstract class Entity extends WorldObject {
     public void rotate(Quaternionf quat) {
         if (riding != null)
             riding.rotate(quat);
-        rotateTo(getRot().mul(quat));
+        rotateTo(transform.getRot().mul(quat));
     }
 
     public void rotate(float pitch, float yaw, float roll) {
         if (riding != null)
             riding.rotate(pitch, yaw, roll);
 
-        Quaternionf rotation = getRot();
+        Quaternionf rotation = transform.getRot();
         rotation.rotateZYX(Math.toRadians(roll), Math.toRadians(-yaw), Math.toRadians(-pitch));
         rotateTo(rotation);
     }
@@ -250,9 +255,40 @@ public abstract class Entity extends WorldObject {
         this.rotateTo(Maths.dirToQuat(v));
     }
 
+    public void scale(Vector3f scale) {
+        this.scale(scale.x, scale.y, scale.z);
+    }
+
+    public void scale(float scale) {
+        this.scale(scale, scale, scale);
+    }
+
+    public void scale(float x, float y, float z) {
+        Vector3f scale = transform.getScale();
+        this.scaleTo(scale.x * x, scale.y * y, scale.z * z);
+    }
+
+    public void scaleTo(Vector3f scale) {
+        this.scaleTo(scale.x, scale.y, scale.z);
+    }
+
+    public void scaleTo(float scale) {
+        this.scaleTo(scale, scale, scale);
+    }
+
+    public void scaleTo(float x, float y, float z) {
+        float w = Math.max(x, z);
+        this.transform.setScale(w, y, w);
+        this.moveTo(transform.getPos());
+    }
+
     protected void updateAABB() {
+        Vector3f scale = transform.getScale();
         if (this.model == null) {
-            this.aabb.set(transform.getPos()).inflate(0.5f, 0f, 0.5f, 0.5f, 1f, 0.5f);
+            this.aabb
+                    .set(transform.getPos())
+                    .inflate(0.5f, 0f, 0.5f, 0.5f, 1f, 0.5f)
+                    .scaleAnchorBottom(scale);
             return;
         }
 
@@ -268,6 +304,9 @@ public abstract class Entity extends WorldObject {
 
         //add pos
         aabb.translate(transform.getPos());
+
+        //add scale
+        aabb.scaleAnchorBottom(scale);
     }
 
     public Vector3f getPos(float delta) {
@@ -290,10 +329,6 @@ public abstract class Entity extends WorldObject {
         return new Quaternionf(oRot).slerp(transform.getRot(), delta);
     }
 
-    public Quaternionf getRot() {
-        return transform.getRot();
-    }
-
     public void setRot(Quaternionf rot) {
         this.transform.setRot(rot);
         this.oRot.set(this.transform.getRot());
@@ -302,6 +337,25 @@ public abstract class Entity extends WorldObject {
     public void setRot(float pitch, float yaw, float roll) {
         this.transform.setRot(pitch, yaw, roll);
         this.oRot.set(this.transform.getRot());
+    }
+
+    public Vector3f getScale(float delta) {
+        return Maths.lerp(oScale, transform.getScale(), delta);
+    }
+
+    public void setScale(Vector3f scale) {
+        this.setScale(scale.x, scale.y, scale.z);
+    }
+
+    public void setScale(float scale) {
+        this.setScale(scale, scale, scale);
+    }
+
+    public void setScale(float x, float y, float z) {
+        float w = Math.max(x, z);
+        this.transform.setScale(w, y, w);
+        this.oScale.set(this.transform.getScale());
+        this.moveTo(transform.getPos());
     }
 
     public float getEyeHeight() {
@@ -318,7 +372,7 @@ public abstract class Entity extends WorldObject {
     }
 
     public Vector3f getLookDir() {
-        return new Vector3f(0f, 0f, -1f).rotate(getRot());
+        return new Vector3f(0f, 0f, -1f).rotate(transform.getRot());
     }
 
     public Vector3f getLookDir(float delta) {
@@ -407,7 +461,7 @@ public abstract class Entity extends WorldObject {
         float yawDelta   = Maths.getYaw(rot)   - Maths.getYaw(oRot);
         float rollDelta  = Maths.getRoll(rot)  - Maths.getRoll(oRot);
         for (Entity rider : new ArrayList<>(riders)) {
-            Quaternionf riderRot = rider.getRot();
+            Quaternionf riderRot = rider.getTransform().getRot();
             rider.rotateTo(Maths.getPitch(riderRot) + pitchDelta, Maths.getYaw(riderRot) + yawDelta, Maths.getRoll(riderRot) + rollDelta);
             rider.updateRidersRot();
         }

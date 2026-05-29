@@ -139,7 +139,7 @@ public class Camera {
             }
         }
 
-        return maxDist;
+        return Math.max(0f, maxDist);
     }
 
     public void updateProjMatrix(int width, int height, float fov) {

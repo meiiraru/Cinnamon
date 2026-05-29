@@ -46,7 +46,7 @@ public class FireworkStar {
             return;
 
         Vector3f pos = firework.getTransform().getPos();
-        float yaw = Math.toRadians(Maths.getYaw(firework.getRot()));
+        float yaw = Math.toRadians(Maths.getYaw(firework.getTransform().getRot()));
 
         for (int i = 0; i < particleCount; i++) {
             int color = Maths.randomArr(this.color);

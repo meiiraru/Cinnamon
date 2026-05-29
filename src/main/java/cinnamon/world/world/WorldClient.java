@@ -255,7 +255,7 @@ public class WorldClient extends World {
         this.addEntity(healthPack);
 
         TriggerArea trigger = new TriggerArea(UUID.randomUUID(), 1f, 1f, 1f);
-        trigger.setPos(32.5f, 1.5f, 0.5f);
+        trigger.setPos(32.5f, 1f, 0.5f);
         trigger.setStayTrigger(e -> {
             if (e instanceof LivingEntity living)
                 living.damage(null, DamageType.TERRAIN, 10, false);
@@ -745,7 +745,7 @@ public class WorldClient extends World {
                 Vector3f normal = hit.first().normal();
                 Quaternionf rotation = Maths.dirToQuat(normal);
                 if (Math.abs(normal.y) > 0.5f)
-                    rotation.rotateZ(Math.toRadians(-Maths.getYaw(player.getRot()) * Math.signum(normal.y)));
+                    rotation.rotateZ(Math.toRadians(-Maths.getYaw(player.getTransform().getRot()) * Math.signum(normal.y)));
 
                 Resource folder = new Resource("textures/misc");
                 List<String> resources = IOUtils.listResources(folder, false);

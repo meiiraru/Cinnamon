@@ -52,7 +52,7 @@ public class Spawner<E extends Entity> extends Entity {
             time = delay;
             entity = entitySupplier.get();
             entity.setPos(aabb.getRandomPoint());
-            entity.setRot(getRot());
+            entity.setRot(getTransform().getRot());
             getWorld().addEntity(entity);
         }
     }

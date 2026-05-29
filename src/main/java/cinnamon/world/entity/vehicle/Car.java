@@ -74,7 +74,7 @@ public abstract class Car extends Vehicle {
             //rotate the acceleration vector based on the steering input
             float steeringAngle = steering * speed * steeringFactor * (isMovingForwards ? 1 : -1);
             this.motion.rotate(Rotation.Y.rotationDeg(-steeringAngle));
-            Quaternionf rot = getRot();
+            Quaternionf rot = this.getTransform().getRot();
             rotateToWithRiders(Maths.getPitch(rot), Maths.getYaw(rot) + steeringAngle, Maths.getRoll(rot));
         } else {
             this.motion.set(0f);

@@ -136,7 +136,7 @@ public class XrHand extends PhysEntity {
         pos.add(c.getPos());
 
         grabbable.setPos(pos);
-        grabbable.rotateToWithRiders(getRot());
+        grabbable.rotateToWithRiders(getTransform().getRot());
     }
 
     public boolean isGrabbing() {

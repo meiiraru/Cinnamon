@@ -108,7 +108,7 @@ public class CommandParser {
         if (args.size() < 2)
             return null;
 
-        Quaternionf rot = source.getRot();
+        Quaternionf rot = source.getTransform().getRot();
         Vector2f result = new Vector2f();
         Vector2f relativeRot = new Vector2f(Maths.getPitch(rot), Maths.getYaw(rot));
 
