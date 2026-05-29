@@ -4,6 +4,7 @@ import cinnamon.Client;
 import cinnamon.gui.Screen;
 import cinnamon.math.Direction;
 import cinnamon.math.Maths;
+import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Hit;
 import cinnamon.model.material.Material;
@@ -137,7 +138,7 @@ public class LocalPlayer extends Player {
 
             Terrain tt = TerrainRegistry.values()[selectedTerrain].getFactory().get();
             tt.setMaterial(MaterialRegistry.values()[selectedMaterial].material);
-            tt.setRotation(Direction.fromRotation(Maths.getYaw(getRot())).invRotation);
+            tt.setRotation(Rotation.Y.rotationDeg(-Direction.fromRotation(Maths.getYaw(getRot())).yaw));
             tt.setPos(tpos.x, tpos.y, tpos.z);
             getWorld().addTerrain(tt);
 

@@ -1,5 +1,6 @@
 package cinnamon.math.collision;
 
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public abstract class Collider<T extends Collider<T>> {
@@ -17,6 +18,8 @@ public abstract class Collider<T extends Collider<T>> {
         return this.translate(translation.x, translation.y, translation.z);
     }
     public abstract T translate(float x, float y, float z);
+
+    public abstract T applyMatrix(Matrix4f matrix);
 
     public boolean containsPoint(Vector3f point) {
         return this.containsPoint(point.x, point.y, point.z);

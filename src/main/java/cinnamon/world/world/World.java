@@ -87,16 +87,25 @@ public abstract class World {
     }
 
     public void addTerrain(Terrain terrain) {
-        scheduledTicks.add(() -> terrain.onAdded(this));
-        terrainManager.insert(terrain);
+        scheduledTicks.add(() -> {
+            terrain.onAdded(this);
+            terrainManager.insert(terrain);
+        });
     }
 
     public void removeTerrain(Terrain terrain) {
-        terrainManager.remove(terrain);
+        scheduledTicks.add(() -> terrainManager.remove(terrain));
     }
 
     public void removeTerrain(AABB aabb) {
-        terrainManager.remove(aabb);
+        scheduledTicks.add(() -> terrainManager.remove(aabb));
+    }
+
+    public void updateTerrain(Terrain terrain) {
+        scheduledTicks.add(() -> {
+            terrainManager.remove(terrain);
+            terrainManager.insert(terrain);
+        });
     }
 
     public void entityRemoved(UUID uuid) {}

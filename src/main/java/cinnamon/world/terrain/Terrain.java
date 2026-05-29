@@ -1,9 +1,9 @@
 package cinnamon.world.terrain;
 
 import cinnamon.animation.Animation;
-import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Collider;
+import cinnamon.math.collision.OBB;
 import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
 import cinnamon.registry.TerrainRegistry;
@@ -18,6 +18,8 @@ import cinnamon.world.Mask;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.world.World;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -30,7 +32,6 @@ public class Terrain extends WorldObject {
 
     protected final List<Collider<?>> preciseCollider = new ArrayList<>();
 
-    private byte rotation = 0;
     private Material overrideMaterial = null;
 
     protected Mask collisionMask = new Mask();
@@ -46,10 +47,8 @@ public class Terrain extends WorldObject {
         super.render(camera, matrices, delta);
 
         matrices.pushMatrix();
-
-        Vector3f pos = transform.getPos();
-        matrices.translate(pos.x + 0.5f, pos.y, pos.z + 0.5f);
-        matrices.rotate(Rotation.Y.rotationDeg(getRotationAngle()));
+        matrices.translate(0.5f, 0f, 0.5f);
+        transform.applyTransform(matrices);
 
         renderModel(camera, overrideMaterial, matrices, delta);
 
@@ -69,26 +68,28 @@ public class Terrain extends WorldObject {
     }
 
     protected void updateAABB() {
-        Vector3f pos = transform.getPos();
+        Matrix4f mat = new Matrix4f().translate(0.5f, 0f, 0.5f).mul(transform.getMatrix().pos());
+
         if (model == null) {
-            aabb.set(pos).expand(1f, 1f, 1f);
+            aabb.set(0, 0, 0, 1, 1, 1).applyMatrix(mat);
             preciseCollider.clear();
             preciseCollider.add(aabb);
             return;
         }
 
-        float r = getRotationAngle();
-        this.aabb.set(this.model.getAABB()).rotateY(r).translate(pos.x + 0.5f, pos.y, pos.z + 0.5f);
+        this.aabb.set(this.model.getAABB()).applyMatrix(mat);
 
         this.preciseCollider.clear();
         for (AABB group : this.model.getPreciseAABB())
-            preciseCollider.add(group.rotateY(r).translate(pos.x + 0.5f, pos.y, pos.z + 0.5f));
+            preciseCollider.add(new OBB(group).applyMatrix(mat));
 
+        updateTerrainInWorld();
+    }
+
+    protected void updateTerrainInWorld() {
         World w = getWorld();
-        if (w != null) {
-            w.removeTerrain(this);
-            w.addTerrain(this);
-        }
+        if (w != null)
+            w.updateTerrain(this);
     }
 
     @Override
@@ -122,17 +123,27 @@ public class Terrain extends WorldObject {
         return preciseCollider;
     }
 
-    public void setRotation(byte rotation) {
-        this.rotation = rotation;
+    public void setRotation(Quaternionf rotation) {
+        this.transform.setRot(rotation);
         this.updateAABB();
     }
 
-    public int getRotation() {
-        return rotation;
+    public void setRotation(float pitch, float yaw, float roll) {
+        this.transform.setRot(pitch, yaw, roll);
+        this.updateAABB();
     }
 
-    public float getRotationAngle() {
-        return 90f * rotation;
+    public void setScale(float scalar) {
+        this.setScale(scalar, scalar, scalar);
+    }
+
+    public void setScale(Vector3f scale) {
+        this.setScale(scale.x, scale.y, scale.z);
+    }
+
+    public void setScale(float x, float y, float z) {
+        this.transform.setScale(x, y, z);
+        this.updateAABB();
     }
 
     public void setMaterial(Material material) {

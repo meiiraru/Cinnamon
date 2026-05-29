@@ -3,6 +3,7 @@ package cinnamon.math.collision;
 import cinnamon.math.Maths;
 import org.joml.Math;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class AABB extends Collider<AABB> {
@@ -457,6 +458,46 @@ public class AABB extends Collider<AABB> {
         return new Vector3f(getXOverlap(other), getYOverlap(other), getZOverlap(other));
     }
 
+    public AABB rotate(Quaternionf q) {
+        //get center and half-extents
+        float cx = (minX + maxX) * 0.5f;
+        float cy = (minY + maxY) * 0.5f;
+        float cz = (minZ + maxZ) * 0.5f;
+        float ex = (maxX - minX) * 0.5f;
+        float ey = (maxY - minY) * 0.5f;
+        float ez = (maxZ - minZ) * 0.5f;
+
+        //compute rotation matrix elements from quaternion without allocating
+        float w = q.w, x = q.x, y = q.y, z = q.z;
+        float xx = x * x, yy = y * y, zz = z * z;
+        float xy = x * y, xz = x * z, yz = y * z;
+        float wx = w * x, wy = w * y, wz = w * z;
+
+        //rotation matrix elements (only rotation)
+        float m00 = 1 - 2 * (yy + zz), m10 = 2 * (xy + wz), m20 = 2 * (xz - wy);
+        float m01 = 2 * (xy - wz), m11 = 1 - 2 * (xx + zz), m21 = 2 * (yz + wx);
+        float m02 = 2 * (xz + wy), m12 = 2 * (yz - wx), m22 = 1 - 2 * (xx + yy);
+
+        //rotate center
+        float ncx = m00 * cx + m01 * cy + m02 * cz;
+        float ncy = m10 * cx + m11 * cy + m12 * cz;
+        float ncz = m20 * cx + m21 * cy + m22 * cz;
+
+        //compute new half-extents
+        float nex = Math.fma(Math.abs(m00), ex, Math.fma(Math.abs(m01), ey, Math.abs(m02) * ez));
+        float ney = Math.fma(Math.abs(m10), ex, Math.fma(Math.abs(m11), ey, Math.abs(m12) * ez));
+        float nez = Math.fma(Math.abs(m20), ex, Math.fma(Math.abs(m21), ey, Math.abs(m22) * ez));
+
+        return set(
+                ncx - nex,
+                ncy - ney,
+                ncz - nez,
+                ncx + nex,
+                ncy + ney,
+                ncz + nez
+        );
+    }
+
     public AABB rotateX(float angle) {
         if (angle == 0f)
             return this;
@@ -508,6 +549,7 @@ public class AABB extends Collider<AABB> {
         );
     }
 
+    @Override
     public AABB applyMatrix(Matrix4f matrix) {
         int properties = matrix.properties();
         if ((properties & Matrix4f.PROPERTY_IDENTITY) != 0)

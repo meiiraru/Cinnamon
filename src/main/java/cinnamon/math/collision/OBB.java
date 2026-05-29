@@ -2,6 +2,7 @@ package cinnamon.math.collision;
 
 import cinnamon.math.Maths;
 import org.joml.Math;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -310,6 +311,38 @@ public class OBB extends Collider<OBB> {
 
     public Vector3f getAxisZ() {
         return axisZ;
+    }
+
+    @Override
+    public OBB applyMatrix(Matrix4f matrix) {
+        int properties = matrix.properties();
+        if ((properties & Matrix4f.PROPERTY_IDENTITY) != 0)
+            return this;
+
+        //transform center as a position so translation is applied too
+        this.center.mulPosition(matrix);
+
+        //transform each local axis by the linear part of the matrix
+        float scaleX = updateAxisFromMatrix(this.axisX, matrix);
+        float scaleY = updateAxisFromMatrix(this.axisY, matrix);
+        float scaleZ = updateAxisFromMatrix(this.axisZ, matrix);
+
+        this.halfExtents.mul(scaleX, scaleY, scaleZ);
+        return this;
+    }
+
+    private static float updateAxisFromMatrix(Vector3f axis, Matrix4f matrix) {
+        float x = matrix.m00() * axis.x + matrix.m10() * axis.y + matrix.m20() * axis.z;
+        float y = matrix.m01() * axis.x + matrix.m11() * axis.y + matrix.m21() * axis.z;
+        float z = matrix.m02() * axis.x + matrix.m12() * axis.y + matrix.m22() * axis.z;
+
+        float length = Vector3f.length(x, y, z);
+        if (length > Maths.SMALL_NUMBER)
+            axis.set(x / length, y / length, z / length);
+        else
+            axis.set(0f, 0f, 0f);
+
+        return length;
     }
 
     @Override

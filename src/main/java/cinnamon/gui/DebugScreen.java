@@ -27,6 +27,7 @@ import cinnamon.text.Text;
 import cinnamon.utils.*;
 import cinnamon.vr.XrManager;
 import cinnamon.world.Abilities;
+import cinnamon.world.Transform;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.Player;
@@ -63,7 +64,7 @@ public class DebugScreen {
             if (throwable != null) {
                 message += "\t" + throwable.getMessage();
             }
-            message = message.replaceAll("\r?\n$", "").replaceAll("\t", "  ") + "&r";
+            message = message.replaceAll("\r?\n$", "").replace("\t", "  ") + "&r";
             Collections.addAll(LOG, message.split("\n", 0));
         }
     };
@@ -298,7 +299,13 @@ public class DebugScreen {
             return "---";
 
         Object obj = hit.second();
-        Vector3f pos = ((WorldObject) obj).getTransform().getPos();
+        Transform transform = ((WorldObject) obj).getTransform();
+        Vector3f pos = transform.getPos();
+        Quaternionf rot = transform.getRot();
+        float pitch = Maths.getPitch(rot);
+        float yaw = Maths.getYaw(rot);
+        float roll = Maths.getRoll(rot);
+        Vector3f scale = transform.getScale();
         Vector3f hPos = hit.first().position();
         Vector3f normal = hit.first().normal();
         float distance = hit.first().tNear();
@@ -307,16 +314,24 @@ public class DebugScreen {
         String extra = (obj instanceof Entity e) ? "\n" + getExtraDebugForEntity(e) : (obj instanceof Terrain t) ? "\n" + getExtraDebugForTerrain(t) : "";
         return String.format("""
                 x &c%.3f&r y &a%.3f&r z &b%.3f&r
+                pitch &e%.3f&r yaw &e%.3f&r roll &e%.3f&r
+                x &e%.3f&r y &e%.3f&r z &e%.3f&r w &e%.3f&r
+                sx &c%.3f&r sy &a%.3f&r sz &b%.3f&r
                 hit pos x &c%.3f&r y &a%.3f&r z &b%.3f&r
                 hit normal x &c%.3f&r y &a%.3f&r z &b%.3f&r
                 hit distance &e%.3fm&r
                 type &e%s&r:&e%s&r%s""",
 
                 pos.x, pos.y, pos.z,
+                pitch, yaw, roll,
+                rot.x, rot.y, rot.z, rot.w,
+                scale.x, scale.y, scale.z,
+
                 hPos.x, hPos.y, hPos.z,
                 normal.x, normal.y, normal.z,
                 distance,
                 type, typeEnum,
+
                 extra
         );
     }
@@ -333,9 +348,9 @@ public class DebugScreen {
         MaterialRegistry mat = MaterialRegistry.findByMaterial(t.getMaterial());
 
         return String.format("""
-                rotation &e%d&r material &e%s&r""",
+                material &e%s&r""",
 
-                (int) t.getRotationAngle(), mat != null ? mat.name() : "none"
+                mat != null ? mat.name() : "none"
         );
     }
 
@@ -464,12 +479,14 @@ public class DebugScreen {
 
             Player p = w.player;
             Abilities abilities = p.getAbilities();
+            Transform t = p.getTransform();
 
-            Vector3f epos = p.getTransform().getPos();
-            Quaternionf rot = p.getRot();
+            Vector3f epos = t.getPos();
+            Quaternionf rot = t.getRot();
             float pitch = Maths.getPitch(rot);
             float yaw = Maths.getYaw(rot);
             float roll = Maths.getRoll(rot);
+            Vector3f scale = t.getScale();
             Vector3f emot = p.getMotion();
             Vector3f eye = p.getEyePos();
 
@@ -485,6 +502,7 @@ public class DebugScreen {
                     x &c%.3f&r y &a%.3f&r z &b%.3f&r
                     pitch &e%.3f&r yaw &e%.3f&r roll &e%.3f&r
                     x &e%.3f&r y &e%.3f&r z &e%.3f&r w &e%.3f&r
+                    sx &c%.3f&r sy &a%.3f&r sz &b%.3f&r
                     motion &c%.3f &a%.3f &b%.3f&r
                     eye x &c%.3f&r y &a%.3f&r z &b%.3f&r
                     facing &e%s&r on ground &e%s&r
@@ -498,6 +516,7 @@ public class DebugScreen {
                     epos.x, epos.y, epos.z,
                     pitch, yaw, roll,
                     rot.x, rot.y, rot.z, rot.w,
+                    scale.x, scale.y, scale.z,
 
                     emot.x, emot.y, emot.z,
                     eye.x, eye.y, eye.z,

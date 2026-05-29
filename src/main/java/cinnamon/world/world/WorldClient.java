@@ -11,6 +11,7 @@ import cinnamon.input.Interaction;
 import cinnamon.input.Keybind;
 import cinnamon.input.Movement;
 import cinnamon.math.Maths;
+import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.Hit;
@@ -166,15 +167,15 @@ public class WorldClient extends World {
         addTerrain(cb1);
         ConveyorBelt cb2 = new ConveyorBelt(beltSpeed);
         cb2.setPos(5, 1, 10);
-        cb2.setRotation((byte) 3);
+        cb2.setRotation(Rotation.Y.rotationDeg(270f));
         addTerrain(cb2);
         ConveyorBelt cb3 = new ConveyorBelt(beltSpeed);
         cb3.setPos(0, 1, 10);
-        cb3.setRotation((byte) 2);
+        cb3.setRotation(Rotation.Y.rotationDeg(180f));
         addTerrain(cb3);
         ConveyorBelt cb4 = new ConveyorBelt(beltSpeed);
         cb4.setPos(0, 1, 5);
-        cb4.setRotation((byte) 1);
+        cb4.setRotation(Rotation.Y.rotationDeg(90f));
         addTerrain(cb4);
 
         //sphere

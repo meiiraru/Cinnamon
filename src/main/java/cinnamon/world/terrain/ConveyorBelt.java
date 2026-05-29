@@ -1,6 +1,5 @@
 package cinnamon.world.terrain;
 
-import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.utils.Resource;
@@ -54,7 +53,7 @@ public class ConveyorBelt extends Terrain {
     }
 
     protected void updateSpeed() {
-        beltMotion.set(0, 0, beltSpeed).rotate(Rotation.Y.rotationDeg(getRotationAngle()));
+        beltMotion.set(0, 0, beltSpeed).rotate(getTransform().getRot());
     }
 
     public void setBeltSpeed(float beltSpeed) {

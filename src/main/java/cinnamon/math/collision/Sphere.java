@@ -48,9 +48,21 @@ public class Sphere extends Collider<Sphere> {
         return this.set(center, radius);
     }
 
+    public Sphere setInside(AABB aabb) {
+        Vector3f center = aabb.getCenter();
+        float radius = Math.min(aabb.getDimensions().x, Math.min(aabb.getDimensions().y, aabb.getDimensions().z)) * 0.5f;
+        return this.set(center, radius);
+    }
+
     public Sphere set(OBB obb) {
         Vector3f center = obb.getCenter();
         float radius = obb.getHalfExtents().length();
+        return this.set(center, radius);
+    }
+
+    public Sphere setInside(OBB obb) {
+        Vector3f center = obb.getCenter();
+        float radius = Math.min(obb.getHalfExtents().x, Math.min(obb.getHalfExtents().y, obb.getHalfExtents().z));
         return this.set(center, radius);
     }
 
@@ -100,15 +112,19 @@ public class Sphere extends Collider<Sphere> {
         return this;
     }
 
+    @Override
     public Sphere applyMatrix(Matrix4f matrix) {
-        Vector3f center = this.getCenter().mulPosition(matrix);
-        this.setCenter(center);
+        if ((matrix.properties() & Matrix4f.PROPERTY_IDENTITY) != 0)
+            return this;
 
+        //transform the sphere center like a position
+        this.center.mulPosition(matrix);
+
+        //rotations do not affect a sphere, so only keep the largest axis scale
         float scaleX = Vector3f.length(matrix.m00(), matrix.m10(), matrix.m20());
         float scaleY = Vector3f.length(matrix.m01(), matrix.m11(), matrix.m21());
         float scaleZ = Vector3f.length(matrix.m02(), matrix.m12(), matrix.m22());
-        float maxScale = Math.max(scaleX, Math.max(scaleY, scaleZ));
-        this.scale(maxScale);
+        this.radius *= Math.max(scaleX, Math.max(scaleY, scaleZ));
 
         return this;
     }
