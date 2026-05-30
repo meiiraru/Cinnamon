@@ -181,7 +181,6 @@ public class CollisionWorld extends WorldClient {
             this.obb = new OBB(x, y, z, width / 2f, height / 2f, depth / 2f).rotate(rotation);
             this.preciseCollider.clear();
             this.preciseCollider.add(obb);
-            updateAABB();
 
             this.setMaterial(material);
         }
@@ -200,7 +199,7 @@ public class CollisionWorld extends WorldClient {
         }
 
         @Override
-        protected void updateAABB() {
+        public void calculateBounds() {
             if (this.obb != null)
                 this.aabb.set(obb);
         }

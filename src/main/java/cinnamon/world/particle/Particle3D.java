@@ -15,7 +15,6 @@ public class Particle3D extends Particle {
         super(lifetime);
         this.billboard = false;
         this.model = ModelManager.load(model);
-        updateAABB();
     }
 
     @Override
@@ -25,9 +24,9 @@ public class Particle3D extends Particle {
     }
 
     @Override
-    protected void updateAABB() {
+    public void calculateBounds() {
         if (model == null) {
-            super.updateAABB();
+            super.calculateBounds();
             return;
         }
 

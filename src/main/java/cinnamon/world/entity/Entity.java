@@ -64,7 +64,6 @@ public abstract class Entity extends WorldObject {
     public Entity(UUID uuid, Resource model) {
         this.model = ModelManager.load(model);
         this.uuid = uuid;
-        this.updateAABB();
         this.addRenderFeature((source, camera, matrices, delta) -> {
             if (shouldRenderText(camera)) renderTexts(camera, matrices, delta);
         });
@@ -167,10 +166,6 @@ public abstract class Entity extends WorldObject {
         return uuid;
     }
 
-    public void onAdded(World world) {
-        super.onAdded(world);
-    }
-
     public void remove() {
         this.removed = true;
         this.stopRiding();
@@ -201,7 +196,7 @@ public abstract class Entity extends WorldObject {
 
     public void moveTo(float x, float y, float z) {
         this.transform.setPos(x, y, z);
-        this.updateAABB();
+        this.calculateBounds();
         this.updateRidersPos();
         this.checkWorldVoid();
         sendServerUpdate();
@@ -282,7 +277,8 @@ public abstract class Entity extends WorldObject {
         this.moveTo(transform.getPos());
     }
 
-    protected void updateAABB() {
+    @Override
+    public void calculateBounds() {
         Vector3f scale = transform.getScale();
         if (this.model == null) {
             this.aabb
@@ -320,7 +316,7 @@ public abstract class Entity extends WorldObject {
     public void setPos(float x, float y, float z) {
         this.transform.setPos(x, y, z);
         this.oPos.set(this.transform.getPos());
-        this.updateAABB();
+        this.calculateBounds();
         this.updateRidersPos();
         this.checkWorldVoid();
     }

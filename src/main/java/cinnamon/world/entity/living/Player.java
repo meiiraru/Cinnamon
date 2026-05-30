@@ -187,7 +187,7 @@ public class Player extends LivingEntity {
     }
 
     @Override
-    protected void updateAABB() {
+    public void calculateBounds() {
         aabb.set(transform.getPos());
         float w = Math.max(DIMENSIONS.x, DIMENSIONS.z) * 0.5f;
         float y = model.getAABB().getHeight(); //Math.min(, DIMENSIONS.y);

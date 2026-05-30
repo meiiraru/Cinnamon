@@ -76,7 +76,7 @@ public class Spawner<E extends Entity> extends Entity {
     }
 
     @Override
-    protected void updateAABB() {
+    public void calculateBounds() {
         this.aabb.set(transform.getPos()).inflate(radius);
     }
 

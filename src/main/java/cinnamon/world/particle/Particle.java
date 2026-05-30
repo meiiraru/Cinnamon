@@ -99,11 +99,11 @@ public abstract class Particle extends WorldObject {
         Vector3f pos = transform.getPos();
         pos.add(x, y, z);
         transform.setPos(pos);
-        updateAABB();
+        calculateBounds();
     }
 
     @Override
-    protected void updateAABB() {
+    public void calculateBounds() {
         aabb.set(transform.getPos());
     }
 

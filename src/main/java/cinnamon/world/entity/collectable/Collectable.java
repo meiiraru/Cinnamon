@@ -56,8 +56,8 @@ public abstract class Collectable extends PhysEntity {
     }
 
     @Override
-    protected void updateAABB() {
-        super.updateAABB();
+    public void calculateBounds() {
+        super.calculateBounds();
         this.aabb.inflate(0.25f);
         if (entityAABB != null)
             this.entityAABB.set(this.aabb);

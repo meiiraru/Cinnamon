@@ -38,11 +38,8 @@ public class ConveyorBelt extends Terrain {
     }
 
     @Override
-    protected void updateAABB() {
-        super.updateAABB();
-
-        if (beltArea == null)
-            return;
+    public void calculateBounds() {
+        super.calculateBounds();
 
         beltArea.set(
                 this.aabb.minX(), this.aabb.maxY(), this.aabb.minZ(),

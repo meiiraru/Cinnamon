@@ -23,7 +23,6 @@ public class PrimitiveTerrain extends Terrain {
         super(null, TerrainRegistry.CUSTOM);
         this.vertices = smooth ? recalculateNormals(vertices) : vertices;
         this.preciseCollider.add(aabb);
-        updateAABB();
     }
 
     @Override
@@ -47,9 +46,9 @@ public class PrimitiveTerrain extends Terrain {
     }
 
     @Override
-    protected void updateAABB() {
+    public void calculateBounds() {
         if (vertices == null || vertices.length == 0 || vertices[0].length == 0) {
-            super.updateAABB();
+            super.calculateBounds();
             return;
         }
 

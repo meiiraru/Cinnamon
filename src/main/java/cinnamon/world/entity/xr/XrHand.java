@@ -82,7 +82,7 @@ public class XrHand extends PhysEntity {
     }
 
     @Override
-    protected void updateAABB() {
+    public void calculateBounds() {
         this.aabb.set(transform.getPos()).inflate(0.05f);
     }
 

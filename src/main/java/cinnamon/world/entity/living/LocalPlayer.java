@@ -166,6 +166,8 @@ public class LocalPlayer extends Player {
             if (material != null) {
                 MaterialRegistry mat = MaterialRegistry.findByMaterial(material);
                 selectedMaterial = mat != null ? mat.ordinal() : MaterialRegistry.DEFAULT.ordinal();
+            } else {
+                selectedMaterial = MaterialRegistry.DEFAULT.ordinal();
             }
         }
     }

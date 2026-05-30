@@ -39,7 +39,6 @@ public class Terrain extends WorldObject {
     public Terrain(Resource model, TerrainRegistry type) {
         this.type = type;
         this.model = ModelManager.load(model);
-        this.updateAABB();
     }
 
     @Override
@@ -67,7 +66,8 @@ public class Terrain extends WorldObject {
             DebugRenderer.renderShape(matrices, collider, 0xFFFF00FF);
     }
 
-    protected void updateAABB() {
+    @Override
+    public void calculateBounds() {
         Matrix4f mat = new Matrix4f().translate(0.5f, 0f, 0.5f).mul(transform.getMatrix().pos());
 
         if (model == null) {
@@ -112,7 +112,7 @@ public class Terrain extends WorldObject {
 
     public void setPos(float x, float y, float z) {
         this.transform.setPos(x, y, z);
-        this.updateAABB();
+        this.calculateBounds();
     }
 
     public World getWorld() {
@@ -125,12 +125,12 @@ public class Terrain extends WorldObject {
 
     public void setRotation(Quaternionf rotation) {
         this.transform.setRot(rotation);
-        this.updateAABB();
+        this.calculateBounds();
     }
 
     public void setRotation(float pitch, float yaw, float roll) {
         this.transform.setRot(pitch, yaw, roll);
-        this.updateAABB();
+        this.calculateBounds();
     }
 
     public void setScale(float scalar) {
@@ -143,7 +143,7 @@ public class Terrain extends WorldObject {
 
     public void setScale(float x, float y, float z) {
         this.transform.setScale(x, y, z);
-        this.updateAABB();
+        this.calculateBounds();
     }
 
     public void setMaterial(Material material) {

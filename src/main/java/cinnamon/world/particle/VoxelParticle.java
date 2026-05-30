@@ -57,8 +57,8 @@ public class VoxelParticle extends Particle3D {
     }
 
     @Override
-    protected void updateAABB() {
-        super.updateAABB();
+    public void calculateBounds() {
+        super.calculateBounds();
         aabb.inflate(size * 0.5f);
     }
 }

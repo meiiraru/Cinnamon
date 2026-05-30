@@ -17,7 +17,7 @@ public class Sphere extends Terrain {
     }
 
     @Override
-    protected void updateAABB() {
+    public void calculateBounds() {
         Matrix4f mat = new Matrix4f().translate(0.5f, 0f, 0.5f).mul(transform.getMatrix().pos());
         cinnamon.math.collision.Sphere sphere = new cinnamon.math.collision.Sphere(0f, 0.5f, 0f, 0.5f).applyMatrix(mat);
 

@@ -72,8 +72,8 @@ public abstract class SpriteParticle extends Particle {
     }
 
     @Override
-    protected void updateAABB() {
-        super.updateAABB();
+    public void calculateBounds() {
+        super.calculateBounds();
         aabb.inflate(8 * PARTICLE_SCALING * scale);
     }
 }

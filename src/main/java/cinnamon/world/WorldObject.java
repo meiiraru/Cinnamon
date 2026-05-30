@@ -17,6 +17,7 @@ public abstract class WorldObject {
 
     public void onAdded(World world) {
         this.world = world;
+        this.calculateBounds();
     }
 
     public Transform getTransform() {
@@ -27,7 +28,7 @@ public abstract class WorldObject {
         return aabb;
     }
 
-    protected abstract void updateAABB();
+    public abstract void calculateBounds();
 
     public boolean shouldRender(Camera camera) {
         return camera.isInsideFrustum(getAABB());

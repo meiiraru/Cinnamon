@@ -32,7 +32,6 @@ public class ItemEntity extends Collectable {
     public ItemEntity(UUID uuid, Item item) {
         super(uuid, null);
         this.item = item;
-        updateAABB();
     }
 
     @Override
@@ -135,7 +134,7 @@ public class ItemEntity extends Collectable {
     }
 
     @Override
-    protected void updateAABB() {
+    public void calculateBounds() {
         this.aabb.set(transform.getPos());
         this.aabb.inflate(0.25f);
         this.aabb.scaleAnchorBottom(transform.getScale());

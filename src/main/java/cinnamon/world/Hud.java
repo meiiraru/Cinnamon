@@ -327,6 +327,7 @@ public class Hud {
         MaterialRegistry material = MaterialRegistry.values()[m];
         terr.setMaterial(material.material);
 
+        terr.calculateBounds();
         Vector3f bounds = terr.getAABB().getDimensions();
         Vector3f center = terr.getAABB().getCenter();
         float s = 16f / bounds.y;
