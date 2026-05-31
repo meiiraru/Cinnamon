@@ -6,7 +6,6 @@ import cinnamon.model.material.Material;
 import cinnamon.model.obj.Mesh;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.shader.Shader;
-import cinnamon.utils.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,11 +28,15 @@ public class AnimatedObjRenderer extends ObjRenderer {
             this.animations.put(animation.getName(), new Animation(animation, boneMap));
     }
 
-    public AnimatedObjRenderer(Mesh mesh, Pair<Bone, List<Animation>> animations) {
+    public AnimatedObjRenderer(Mesh mesh, Bone rootBone) {
+        this(mesh, rootBone, List.of());
+    }
+
+    public AnimatedObjRenderer(Mesh mesh, Bone rootBone, List<Animation> animations) {
         super(mesh);
-        this.bone = animations.first();
+        this.bone = rootBone;
         this.animations = new HashMap<>();
-        for (Animation animation : animations.second())
+        for (Animation animation : animations)
             this.animations.put(animation.getName(), animation);
     }
 

@@ -110,6 +110,10 @@ public class Transform {
         return this;
     }
 
+    public void markDirty() {
+        this.dirty = true;
+    }
+
     public boolean isDirty() {
         return dirty;
     }

@@ -1,5 +1,7 @@
 package cinnamon.model;
 
+import cinnamon.animation.Animation;
+import cinnamon.animation.Bone;
 import cinnamon.model.obj.Mesh;
 import cinnamon.parsers.AnimationLoader;
 import cinnamon.parsers.AssimpLoader;
@@ -9,9 +11,11 @@ import cinnamon.render.model.AssimpRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.model.ObjRenderer;
 import cinnamon.utils.IOUtils;
+import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static cinnamon.events.Events.LOGGER;
@@ -69,13 +73,15 @@ public class ModelManager {
 
         try {
             //check model type
-            if (resource.getExtension().equalsIgnoreCase("obj")) { //prefer built-in OBJ loader
+            String extension = resource.getExtension();
+            if (extension.equalsIgnoreCase("obj")) { //prefer built-in OBJ loader
                 Mesh mesh = ObjLoader.load(resource);
                 //load animations, if any
                 Resource anim = resource.resolveSibling("animations.json");
                 if (IOUtils.hasResource(anim)) {
                     try {
-                        model = new AnimatedObjRenderer(mesh, AnimationLoader.load(anim));
+                        Pair<Bone, List<Animation>> animData = AnimationLoader.load(anim);
+                        model = new AnimatedObjRenderer(mesh, animData.first(), animData.second());
                     } catch (Exception e) {
                         LOGGER.error("Failed to load animations for model \"%s\"", resource, e);
                         model = new ObjRenderer(mesh);
@@ -83,6 +89,9 @@ public class ModelManager {
                 } else {
                     model = new ObjRenderer(mesh);
                 }
+            //} else if (extension.equalsIgnoreCase("bbmodel")) { //blockbench model
+            //    BBModelLoader.BBModelData modelData = BBModelLoader.load(resource);
+            //    model = new AnimatedObjRenderer(modelData.mesh(), modelData.rootBone(), modelData.animations());
             } else { //otherwise use Assimp
                 model = new AssimpRenderer(AssimpLoader.load(resource));
             }
