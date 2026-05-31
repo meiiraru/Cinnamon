@@ -74,11 +74,13 @@ public class DebugRenderer {
     }
 
     public static void renderArrow(MatrixStack matrices, float dirX, float dirY, float dirZ, float len, int color) {
+        float l1 = len - 0.05f;
+
         matrices.pushMatrix();
         matrices.rotate(Maths.dirToQuat(dirX, dirY, dirZ));
-        VertexConsumer.LINES.consume(GeometryHelper.line(matrices, 0f, 0f, 0f, 0f, 0f, len, 0.001f, color));
+        VertexConsumer.LINES.consume(GeometryHelper.line(matrices, 0f, 0f, 0f, 0f, 0f, l1, 0.001f, color));
 
-        matrices.translate(0f, 0f, len);
+        matrices.translate(0f, 0f, l1);
         matrices.rotate(Rotation.X.rotationDeg(90f));
         VertexConsumer.LINES.consume(GeometryHelper.cone(matrices, 0f, 0f, 0f, 0.05f, 0.025f, 5, 1f, false, color));
         matrices.popMatrix();

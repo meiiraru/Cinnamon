@@ -6,15 +6,12 @@ import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.WidgetList;
-import cinnamon.gui.widgets.types.Button;
-import cinnamon.gui.widgets.types.Checkbox;
-import cinnamon.gui.widgets.types.ComboBox;
-import cinnamon.gui.widgets.types.Label;
-import cinnamon.gui.widgets.types.ModelViewer;
+import cinnamon.gui.widgets.types.*;
 import cinnamon.lang.LangManager;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.*;
+import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.ModelRenderer;
@@ -24,20 +21,30 @@ import cinnamon.utils.Alignment;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
 import org.joml.Math;
+import org.joml.Quaternionf;
 
 import java.util.List;
 import java.util.function.BiFunction;
 
+import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11C.*;
+
 public class ModelViewerScreen extends ParentedScreen {
 
     private static final int listWidth = 144;
+    private static final Resource RIGHT_ARROW = new Resource("textures/gui/icons/forwards.png");
+    private static final Resource LEFT_ARROW = new Resource("textures/gui/icons/back.png");
 
     //current opened model
     private String modelName = "";
     private final ComboBox animationList = new ComboBox(0, 0, 60, 14);
     private final ModelViewer modelViewer = new ModelViewer(0, 0, 1, 1);
 
-    private boolean autoRotate = true, renderGroundPlane = true;
+    private boolean
+            showModelList = true,
+            autoRotate = true,
+            renderGroundPlane = true;
 
     public ModelViewerScreen(Screen parentScreen) {
         super(parentScreen);
@@ -48,13 +55,13 @@ public class ModelViewerScreen extends ParentedScreen {
     @Override
     public void init() {
         //add model viewer first
-        modelViewer.setPos(listWidth + 4, 4);
-        modelViewer.setDimensions(width - listWidth - 8, height - 8);
+        modelViewer.setPos(showModelList ? (listWidth + 4) : 4, 4);
+        modelViewer.setDimensions(width - (showModelList ? listWidth : 0) - 8, height - 8);
         modelViewer.setDefaultScale(XrManager.isInXR() ? 100f : 1f);
         addWidget(modelViewer);
 
         //create model list
-        WidgetList models = new WidgetList(4, 4, listWidth - 4, height - 8, 4);
+        WidgetList models = new WidgetList(showModelList ? 4 : -listWidth, 4, listWidth - 4, height - 8, 4);
         models.setAlignment(Alignment.TOP_LEFT);
 
         //button common function
@@ -82,9 +89,27 @@ public class ModelViewerScreen extends ParentedScreen {
         for (ItemModelRegistry value : ItemModelRegistry.values())
             models.addWidget(createButton.apply(value.resource, "item." + value.name().toLowerCase()));
 
-        //add widget to the list
+        //add model list to the screen
         addWidget(models);
 
+        //expand/collapse model list
+        Button toggleList = new Button(showModelList ? listWidth + 4 : 4, 4, 16, 16, Text.empty(), b -> {
+            showModelList = !showModelList;
+            b.setIcon(showModelList ? LEFT_ARROW : RIGHT_ARROW);
+
+            models.setX(showModelList ? 4 : -listWidth);
+            b.setX(showModelList ? listWidth + 4 : 4);
+
+            modelViewer.setPos(showModelList ? (listWidth + 4) : 4, 4);
+            modelViewer.setDimensions(width - (showModelList ? listWidth : 0) - 8, height - 8);
+
+            b.setTooltip(Text.translated(showModelList ? "gui.model_viewer_screen.hide_model_list" : "gui.model_viewer_screen.show_model_list"));
+        });
+        toggleList.setIcon(showModelList ? LEFT_ARROW : RIGHT_ARROW);
+        toggleList.setTooltip(Text.translated(showModelList ? "gui.model_viewer_screen.hide_model_list" : "gui.model_viewer_screen.show_model_list"));
+        addWidget(toggleList);
+
+        //model properties
         ContainerGrid properties = new ContainerGrid(0, 0, 4);
         properties.setAlignment(Alignment.TOP_RIGHT);
         properties.setPos(width - 4, 4);
@@ -154,10 +179,21 @@ public class ModelViewerScreen extends ParentedScreen {
 
         modelViewer.setExtraRendering(matrices -> {
             if (renderGroundPlane) {
-                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, -10f, -0.003f, -10f, 10f, 10f, 1, 1, 0x80000000));
-                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, -0.5f, -0.002f, -0.5f, 0.5f, 0.5f, 1, 1, 0x80000000));
-                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, 0f, -0.001f, -0.005f, 0.5f, 0.005f, 1, 1, 0x80FF0000));
-                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, -0.005f, -0.001f, 0f, 0.005f, 0.5f, 1, 1, 0x800000FF));
+                //disable depth write and culling
+                glDepthMask(false);
+                glDisable(GL_CULL_FACE);
+
+                //ground plane
+                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, -10f, 0f, -10f, 10f, 10f, 1, 1, 0x80000000));
+                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, -0.5f, 0f, -0.5f, 0.5f, 0.5f, 1, 1, 0x80000000));
+                //axis lines
+                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, 0f, 0f, -0.005f, 0.5f, 0.005f, 1, 1, 0x80FF0000));
+                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, -0.005f, 0f, 0f, 0.005f, 0.5f, 1, 1, 0x800000FF));
+
+                //bake and restore renderer
+                VertexConsumer.finishAllBatches(client.camera);
+                glDepthMask(true);
+                glEnable(GL_CULL_FACE);
             }
         });
     }
@@ -167,11 +203,32 @@ public class ModelViewerScreen extends ParentedScreen {
         super.render(matrices, mouseX, mouseY, delta);
 
         //render title
-        Text.of(modelName).withStyle(Style.EMPTY.outlined(true)).render(VertexConsumer.MAIN, matrices, (width - listWidth) / 2f + listWidth, 4, Alignment.TOP_CENTER);
+        Text.of(modelName).withStyle(Style.EMPTY.outlined(true)).render(VertexConsumer.MAIN, matrices,
+                showModelList ? ((width - listWidth) / 2f + listWidth) : (width / 2f),
+                4, Alignment.TOP_CENTER);
 
         //auto rotate
         if (autoRotate && modelViewer.getDragged() != 0)
             modelViewer.setRotY(modelViewer.getRotY() + client.timer.deltaTime * 15f);
+
+        //gizmo
+        float pitch = modelViewer.getRotX();
+        float yaw   = modelViewer.getRotY();
+        Quaternionf rot = new Quaternionf().rotateZYX(0f, Math.toRadians(yaw), Math.toRadians(pitch)).invert();
+
+        float len = 20f, scale = 50f;
+
+        matrices.pushMatrix();
+        matrices.translate((showModelList ? (listWidth + 4) : 4) + len + 4, height - len - 4 - 4, 0);
+        matrices.scale(scale, -scale, scale);
+        matrices.rotate(rot);
+
+        float invLen = len / scale;
+        DebugRenderer.renderArrow(matrices, -1, 0,  0, invLen, 0xFFFF0000);
+        DebugRenderer.renderArrow(matrices,  0, 1,  0, invLen, 0xFF00FF00);
+        DebugRenderer.renderArrow(matrices,  0, 0, -1, invLen, 0xFF0000FF);
+
+        matrices.popMatrix();
     }
 
     private boolean setModel(Resource model, String name) {
