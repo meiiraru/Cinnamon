@@ -28,8 +28,8 @@ public class RollerCoasterWorld extends WorldClient {
     private float speed = 0.3f;
 
     @Override
-    protected void tempLoad() {
-        super.tempLoad();
+    protected void levelLoad() {
+        super.levelLoad();
         addLight(new Spotlight().pos(0f, 5f, 0f).color(0xAD72FF));
     }
 

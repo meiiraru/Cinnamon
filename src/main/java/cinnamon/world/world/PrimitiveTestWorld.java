@@ -35,7 +35,7 @@ public class PrimitiveTestWorld extends WorldClient {
     private boolean renderNormals;
 
     @Override
-    protected void tempLoad() {
+    protected void levelLoad() {
         this.hud = new PrimitiveWorldHud();
         this.hud.init();
 

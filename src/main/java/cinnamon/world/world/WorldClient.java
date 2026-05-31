@@ -132,7 +132,7 @@ public class WorldClient extends World {
         respawn(true);
 
         //SERVER STUFF
-        tempLoad();
+        levelLoad();
 
         runScheduledTicks();
 
@@ -140,7 +140,7 @@ public class WorldClient extends World {
         //connection.sendTCP(new Login());
     }
 
-    protected void tempLoad() {
+    protected void levelLoad() {
         //load level
         int l = 32;
         TerrainGenerator.fill(this, -l, 0, -l, l, 0, l, MaterialRegistry.GRASS.material);

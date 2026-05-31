@@ -24,8 +24,8 @@ public class TransparentWorld extends WorldClient {
     private boolean renderNormals;
 
     @Override
-    protected void tempLoad() {
-        //super.tempLoad();
+    protected void levelLoad() {
+        //super.levelLoad();
         player.updateMovementFlags(false, false, true);
         gen();
     }

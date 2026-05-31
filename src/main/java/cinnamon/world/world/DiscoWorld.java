@@ -43,8 +43,8 @@ public class DiscoWorld extends WorldClient {
     private final List<FloorLight> lights = new ArrayList<>();
 
     @Override
-    protected void tempLoad() {
-        super.tempLoad();
+    protected void levelLoad() {
+        super.levelLoad();
 
         Resource soundRes = new Resource("sounds/song.ogg");
         sound = Sound.of(soundRes);

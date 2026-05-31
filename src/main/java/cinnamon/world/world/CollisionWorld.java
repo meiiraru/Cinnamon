@@ -35,7 +35,7 @@ public class CollisionWorld extends WorldClient {
     private final Collider<?>[] shapes = new Collider[] {main, sp, bb, ob};
 
     @Override
-    protected void tempLoad() {
+    protected void levelLoad() {
         //floor
         int r = 32;
         TerrainGenerator.fill(this, -r, 0, -r, r, 0, r, MaterialRegistry.DEFAULT.material);

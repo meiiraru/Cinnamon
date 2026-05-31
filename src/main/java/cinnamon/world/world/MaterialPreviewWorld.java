@@ -23,8 +23,8 @@ public class MaterialPreviewWorld extends WorldClient {
             BOX = ModelManager.load(new Resource("models/terrain/box/box.obj"));
 
     @Override
-    protected void tempLoad() {
-        //super.tempLoad();
+    protected void levelLoad() {
+        //super.levelLoad();
         player.updateMovementFlags(false, false, true);
         player.setPos(-2f, 2f, -2f);
         player.rotate(0f, 135f, 0f);
