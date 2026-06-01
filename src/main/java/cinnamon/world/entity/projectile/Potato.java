@@ -11,7 +11,9 @@ import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.shader.Shader;
+import cinnamon.sound.SoundCategory;
 import cinnamon.utils.ColorUtils;
+import cinnamon.utils.Resource;
 import cinnamon.world.particle.DustParticle;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
@@ -21,13 +23,15 @@ import java.util.UUID;
 
 public class Potato extends Projectile {
 
+    public static final Resource INFLATE_SOUND = new Resource("sounds/entity/projectile/potato/inflate.ogg");
+
     public static final int DAMAGE = 8;
     public static final float EXPLOSION_RANGE = 3f;
     public static final float EXPLOSION_STRENGTH = 1f;
     public static final int LIFETIME = 100;
     public static final float SPEED = 1.25f;
     public static final float CRIT_CHANCE = 0.15f;
-    private static final float BOUNCINESS = 0.25f;
+    public static final float BOUNCINESS = 0.25f;
 
     private float oScale = 1f, scale = 1f;
     private int state = 0, easing = 0;
@@ -57,6 +61,10 @@ public class Potato extends Projectile {
             easing = 0;
             state++;
             spawnSmokeParticle(state > 1 ? 10 : 3);
+            if (state > 1 && state <= 3)
+                ((WorldClient) getWorld()).playSound(INFLATE_SOUND, SoundCategory.ENTITY, getTransform().getPos())
+                        .pitch(0.85f + 0.15f * (state - 1))
+                        .maxDistance(8f);
         }
     }
 

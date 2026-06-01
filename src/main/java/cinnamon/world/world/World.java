@@ -88,13 +88,19 @@ public abstract class World {
 
     public void addTerrain(Terrain terrain) {
         scheduledTicks.add(() -> {
-            terrain.onAdded(this);
-            terrainManager.insert(terrain);
+            terrain.calculateBounds();
+            if (terrainManager.insert(terrain))
+                terrain.onAdded(this);
+            else
+                Client.LOGGER.error("Failed to add terrain at %s", terrain.getTransform().getPos());
         });
     }
 
     public void removeTerrain(Terrain terrain) {
-        scheduledTicks.add(() -> terrainManager.remove(terrain));
+        scheduledTicks.add(() -> {
+            if (!terrainManager.remove(terrain))
+                Client.LOGGER.warn("Failed to remove terrain at %s", terrain.getTransform().getPos());
+        });
     }
 
     public void removeTerrain(AABB aabb) {
@@ -103,8 +109,8 @@ public abstract class World {
 
     public void updateTerrain(Terrain terrain) {
         scheduledTicks.add(() -> {
-            terrainManager.remove(terrain);
-            terrainManager.insert(terrain);
+            if (terrainManager.remove(terrain))
+                terrainManager.insert(terrain);
         });
     }
 

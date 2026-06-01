@@ -74,6 +74,7 @@ public class Terrain extends WorldObject {
             aabb.set(0, 0, 0, 1, 1, 1).applyMatrix(mat);
             preciseCollider.clear();
             preciseCollider.add(aabb);
+            updateTerrainInWorld();
             return;
         }
 

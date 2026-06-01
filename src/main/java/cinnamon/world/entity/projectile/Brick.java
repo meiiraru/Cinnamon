@@ -1,15 +1,21 @@
 package cinnamon.world.entity.projectile;
 
+import cinnamon.math.Maths;
 import cinnamon.math.collision.Hit;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
+import cinnamon.sound.SoundCategory;
+import cinnamon.utils.Resource;
 import cinnamon.world.entity.PhysEntity;
+import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.UUID;
 
 public class Brick extends Projectile {
+
+    public static final Resource BREAK_SOUND = new Resource("sounds/entity/projectile/brick/break.ogg");
 
     public Brick(UUID uuid, UUID owner) {
         super(uuid, EntityModelRegistry.BRICK.resource, 8, -1, 1.25f, 0f, owner);
@@ -43,7 +49,9 @@ public class Brick extends Projectile {
     @Override
     public void remove() {
         super.remove();
-        //spawn particles - play sound
+        ((WorldClient) getWorld()).playSound(BREAK_SOUND, SoundCategory.ENTITY, getTransform().getPos())
+                .pitch(Maths.range(0.85f, 1.15f))
+                .maxDistance(16f);
     }
 
     @Override

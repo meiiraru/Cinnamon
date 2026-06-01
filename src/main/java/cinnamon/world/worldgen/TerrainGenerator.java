@@ -1,7 +1,6 @@
 package cinnamon.world.worldgen;
 
 import cinnamon.math.Maths;
-import cinnamon.math.collision.AABB;
 import cinnamon.model.material.Material;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.world.terrain.Terrain;
@@ -24,6 +23,7 @@ public class TerrainGenerator {
 
     public static void generateMengerSponge(World world, int level, int xOffset, int yOffset, int zOffset, Material material) {
         int size = Maths.pow(3, level);
+        boolean[][][] filled = new boolean[size][size][size];
         int[] mod = new int[size];
 
         for (int i = 1; i <= level; i++) {
@@ -40,14 +40,25 @@ public class TerrainGenerator {
                 for (int y = 0; y < size; y++) {
                     for (int z = 0; z < size; z++) {
                         if (mod[x] + mod[y] + mod[z] > 1) {
-                            world.removeTerrain(new AABB().translate(x + xOffset + 0.5f, y + yOffset + 0.5f, z + zOffset + 0.5f));
+                            filled[x][y][z] = false;
                         } else if (i == 1) {
-                            Terrain terr = TerrainRegistry.BOX.getFactory().get();
-                            terr.setMaterial(material);
-                            terr.setPos(x + xOffset, y + yOffset, z + zOffset);
-                            world.addTerrain(terr);
+                            filled[x][y][z] = true;
                         }
                     }
+                }
+            }
+        }
+
+        for (int x = 0; x < size; x++) {
+            for (int y = 0; y < size; y++) {
+                for (int z = 0; z < size; z++) {
+                    if (!filled[x][y][z])
+                        continue;
+
+                    Terrain terr = TerrainRegistry.BOX.getFactory().get();
+                    terr.setMaterial(material);
+                    terr.setPos(x + xOffset, y + yOffset, z + zOffset);
+                    world.addTerrain(terr);
                 }
             }
         }

@@ -24,10 +24,10 @@ public class OctreeTerrain extends TerrainManager {
     }
 
     @Override
-    public void insert(Terrain terrain) {
+    public boolean insert(Terrain terrain) {
         //nothing to insert
         if (terrain == null)
-            return;
+            return false;
 
         //if the octree is smaller than the terrain general bounds, grow the root node
         AABB terrainBB = terrain.getAABB();
@@ -35,19 +35,19 @@ public class OctreeTerrain extends TerrainManager {
             growRoot(terrainBB);
 
         //insert the terrain into the octree
-        root.insert(terrain);
+        return root.insert(terrain);
     }
 
     @Override
-    public void remove(AABB region) {
+    public int remove(AABB region) {
         //remove all terrains that intersect with the given region (loosely)
-        root.clearRegion(region);
+        return root.clearRegion(region);
     }
 
     @Override
-    public void remove(Terrain terrain) {
+    public boolean remove(Terrain terrain) {
         //remove the terrain from the octree
-        root.removeElement(terrain);
+        return root.removeElement(terrain);
     }
 
     public boolean isEmpty() {
@@ -136,10 +136,10 @@ public class OctreeTerrain extends TerrainManager {
             }
         }
 
-        public void insert(Terrain terrain) {
-            //not on this bounds, skip
+        public boolean insert(Terrain terrain) {
+            //not inside bounds, skip
             if (!bounds.intersectsAABB(terrain.getAABB()))
-                return;
+                return false;
 
             //if we have no children, we can add the terrain directly
             if (children == null) {
@@ -150,52 +150,57 @@ public class OctreeTerrain extends TerrainManager {
                     redistribute();
                 }
             } else {
-                boolean added = false;
-
                 //try to insert into a children if it fits
                 for (OctreeNode child : children) {
                     if (child.bounds.containsBox(terrain.getAABB())) {
                         child.insert(terrain);
-                        added = true;
-                        break;
+                        return true;
                     }
                 }
 
                 //it did not fit, it is too big or spans multiple children
-                if (!added)
-                    contents.add(terrain);
+                contents.add(terrain);
             }
+
+            return true;
         }
 
-        public void removeElement(Terrain terrain) {
+        public boolean removeElement(Terrain terrain) {
             if (contents.remove(terrain))
-                return;
+                return true;
 
+            boolean removed = false;
             if (children != null)
                 for (OctreeNode child : children)
-                    child.removeElement(terrain);
+                    removed |= child.removeElement(terrain);
 
             //remove children if they are empty
             if (isChildEmpty())
                 children = null;
+
+            return removed;
         }
 
-        public void clearRegion(AABB region) {
+        public int clearRegion(AABB region) {
             //not in region, skip
             if (!bounds.intersectsAABB(region))
-                return;
+                return 0;
 
             //remove all terrain that intersects with the region
+            int prev = contents.size();
             contents.removeIf(terrain -> terrain.getAABB().intersectsAABB(region));
+            int removed = prev - contents.size();
 
             //including children
             if (children != null)
                 for (OctreeNode child : children)
-                    child.clearRegion(region);
+                    removed += child.clearRegion(region);
 
             //remove children if they are empty
             if (isChildEmpty())
                 children = null;
+
+            return removed;
         }
 
         public boolean isEmpty() {

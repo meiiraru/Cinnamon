@@ -10,9 +10,9 @@ public abstract class TerrainManager {
 
     public abstract void tick();
 
-    public abstract void insert(Terrain terrain);
-    public abstract void remove(AABB region);
-    public abstract void remove(Terrain terrain);
+    public abstract boolean insert(Terrain terrain);
+    public abstract int remove(AABB region);
+    public abstract boolean remove(Terrain terrain);
     public abstract void clear();
 
     public abstract List<Terrain> query(AABB region);

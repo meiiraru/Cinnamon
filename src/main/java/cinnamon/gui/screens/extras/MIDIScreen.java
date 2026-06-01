@@ -96,13 +96,13 @@ public class MIDIScreen extends ParentedScreen {
                 device.open();
                 in = device;
                 transmitter = in.getTransmitter();
-                LOGGER.info("Opened MIDI input device: " + inDevices.get(i).first());
+                LOGGER.info("Opened MIDI input device: %s", inDevices.get(i).first());
                 update();
             } catch (Exception e) {
                 in = null;
                 transmitter = null;
                 Toast.addToast(Text.translated("gui.midi_screen.input_device_open_failed", Text.of(inDevices.get(i).first())));
-                LOGGER.error("Failed to open MIDI input device: " + inDevices.get(i).first(), e);
+                LOGGER.error("Failed to open MIDI input device: %s", inDevices.get(i).first(), e);
             }
         }));
 
@@ -116,13 +116,13 @@ public class MIDIScreen extends ParentedScreen {
                 device.open();
                 out = device;
                 receiver = createReceiver(out);
-                LOGGER.info("Opened MIDI output device: " + outDevices.get(i).first());
+                LOGGER.info("Opened MIDI output device: %s", outDevices.get(i).first());
                 update();
             } catch (Exception e) {
                 out = null;
                 receiver = null;
                 Toast.addToast(Text.translated("gui.midi_screen.output_device_open_failed", Text.of(outDevices.get(i).first())));
-                LOGGER.error("Failed to open MIDI output device: " + outDevices.get(i).first(), e);
+                LOGGER.error("Failed to open MIDI output device: %s", outDevices.get(i).first(), e);
             }
         }));
 
@@ -167,10 +167,10 @@ public class MIDIScreen extends ParentedScreen {
                         sequencer.open();
                         sequencer.start();
                         this.sequencer = sequencer;
-                        LOGGER.info("Playing MIDI file: " + file);
+                        LOGGER.info("Playing MIDI file: %s", file);
                     } catch (Exception e) {
                         Toast.addToast(Text.translated("gui.midi_screen.midi_file_play_failed"));
-                        LOGGER.error("Failed to play MIDI file: " + file, e);
+                        LOGGER.error("Failed to play MIDI file: %s", file, e);
                     }
                 });
             }
@@ -235,11 +235,11 @@ public class MIDIScreen extends ParentedScreen {
                     closeInstruments();
                     try {
                         soundbank = MidiSystem.getSoundbank(new File(file));
-                        LOGGER.info("Loaded sound font: " + file);
+                        LOGGER.info("Loaded sound font: %s", file);
                         update();
                     } catch (Exception e) {
                         Toast.addToast(Text.translated("gui.midi_screen.sound_font_load_failed"));
-                        LOGGER.error("Failed to load sound font: " + file, e);
+                        LOGGER.error("Failed to load sound font: %s", file, e);
                     }
                 });
             }
@@ -422,11 +422,11 @@ public class MIDIScreen extends ParentedScreen {
                 Instrument instrument = soundbank.getInstrument(new Patch(0, id));
                 if (instrument != null) {
                     synth.loadInstrument(instrument);
-                    LOGGER.info("Loaded instrument \"" + instrument.getName() + "\" from sound bank");
+                    LOGGER.info("Loaded instrument \"%s\" from sound bank", instrument.getName());
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("Failed to change instrument to " + id, e);
+            LOGGER.error("Failed to change instrument to %s", id, e);
         }
     }
 
@@ -449,7 +449,7 @@ public class MIDIScreen extends ParentedScreen {
             noteOn.setMessage(NOTE_ON, 0, note, velocity);
             receiver.send(noteOn, -1);
         } catch (Exception e) {
-            LOGGER.error("Failed to play note: " + note, e);
+            LOGGER.error("Failed to play note: %s", note, e);
         }
     }
 
@@ -463,7 +463,7 @@ public class MIDIScreen extends ParentedScreen {
             noteOff.setMessage(NOTE_OFF, 0, note, 0);
             receiver.send(noteOff, -1);
         } catch (Exception e) {
-            LOGGER.error("Failed to stop note: " + note, e);
+            LOGGER.error("Failed to stop note: %s", note, e);
         }
     }
 
