@@ -63,9 +63,8 @@ public abstract class Projectile extends PhysEntity {
     @Override
     public void tick() {
         super.tick();
-        lifetime--;
 
-        if (lifetime <= 0 && !isRemoved())
+        if (lifetime > 0 && --lifetime == 0 && !isRemoved())
             remove();
     }
 
@@ -97,11 +96,19 @@ public abstract class Projectile extends PhysEntity {
     protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
         super.collide(entity, result, toMove);
 
-        if (isRemoved() || !(entity instanceof LivingEntity living) || living.getUUID().equals(getOwner()))
+        if (!canHit(entity, result, toMove))
             return;
 
-        if (living.damage(getWorld().getEntityByUUID(getOwner()), DamageType.PROJECTILE, getDamage(), this.crit))
+        if (applyDamage((LivingEntity) entity))
             remove();
+    }
+
+    protected boolean canHit(PhysEntity entity, Hit result, Vector3f toMove) {
+        return !isRemoved() && entity instanceof LivingEntity living && !living.getUUID().equals(getOwner());
+    }
+
+    protected boolean applyDamage(LivingEntity target) {
+        return target.damage(getWorld().getEntityByUUID(getOwner()), DamageType.PROJECTILE, getDamage(), isCrit());
     }
 
     @Override

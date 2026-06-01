@@ -235,6 +235,15 @@ public class WorldClient extends World {
         d2.setPos(-15, 2, 10);
         this.addEntity(d2);
 
+        Spawner<ItemEntity> brickSpawner = new Spawner<>(UUID.randomUUID(), 0f, 1, () -> {
+            ItemEntity e = new ItemEntity(UUID.randomUUID(), new BrickItem(1));
+            e.setPickUpDelay(0);
+            return e;
+        });
+        brickSpawner.setPos(7f, 4f, 27f);
+        brickSpawner.setRenderCooldown(true);
+        this.addEntity(brickSpawner);
+
         Spawner<ItemEntity> potatoSpawner = new Spawner<>(UUID.randomUUID(), 0f, 1, () -> {
             ItemEntity e = new ItemEntity(UUID.randomUUID(), new PotatoItem(1));
             e.setPickUpDelay(0);

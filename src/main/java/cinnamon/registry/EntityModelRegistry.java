@@ -11,6 +11,7 @@ public enum EntityModelRegistry {
     //projectiles
     CANDY("models/entities/projectile/candy/candy.obj"),
     POTATO("models/entities/projectile/potato/potato.obj"),
+    BRICK("models/entities/projectile/brick/brick.obj"),
     RICE("models/entities/projectile/rice/rice.obj"),
     RICE_BALL("models/entities/projectile/rice_ball/rice_ball.obj"),
     PAINT_BALL("models/entities/projectile/paint_ball/paint_ball.obj"),

@@ -14,6 +14,7 @@ public enum EntityRegistry {
     //projectiles
     CANDY,
     POTATO,
+    BRICK,
     RICE,
     RICE_BALL,
     PAINT_BALL,

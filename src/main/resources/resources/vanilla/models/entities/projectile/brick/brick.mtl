@@ -1,0 +1,4 @@
+# Made in Blockbench 5.1.4
+newmtl m_8a44419e-6bb0-59e7-501f-93c2f0e88cce
+map_Kd -smooth_mip brick.png
+newmtl none

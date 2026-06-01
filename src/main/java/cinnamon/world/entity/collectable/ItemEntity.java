@@ -60,13 +60,13 @@ public class ItemEntity extends Collectable {
             item.render(ItemRenderContext.ENTITY, matrices, delta);
 
             //three
-            if (percentage > 0.33f) {
+            if (count > 2 && percentage > 0.33f) {
                 matrices.translate(-0.2f, 0f, 0f);
                 item.render(ItemRenderContext.ENTITY, matrices, delta);
             }
 
             //four
-            if (percentage > 0.66f) {
+            if (count > 3 && percentage > 0.66f) {
                 matrices.translate(0.1f, 0.1f, 0.05f);
                 item.render(ItemRenderContext.ENTITY, matrices, delta);
             }
