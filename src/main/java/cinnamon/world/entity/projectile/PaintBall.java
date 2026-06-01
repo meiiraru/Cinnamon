@@ -48,6 +48,9 @@ public class PaintBall extends Projectile {
     protected void resolveCollision(Hit hit, Vector3f velocity, Vector3f move) {
         Resolution.stick(hit, velocity, move);
 
+        if (isRemoved())
+            return;
+
         if (!getWorld().isClientside()) {
             remove();
             return;

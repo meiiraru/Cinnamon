@@ -111,7 +111,10 @@ public class Player extends LivingEntity {
         if (damageSource == null)
             return null;
 
-        Vector3f diff = damageSource.getTransform().getPos().sub(transform.getPos(), new Vector3f()).normalize();
+        Vector3f diff = damageSource.getTransform().getPos().sub(transform.getPos(), new Vector3f());
+        if (diff.lengthSquared() > 0f)
+            diff.normalize();
+
         return Maths.dirToRot(diff).y - Maths.getYaw(getTransform().getRot());
     }
 

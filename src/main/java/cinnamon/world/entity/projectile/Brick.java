@@ -7,6 +7,7 @@ import cinnamon.registry.EntityRegistry;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.PhysEntity;
+import cinnamon.world.particle.SmokeParticle;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -20,6 +21,7 @@ public class Brick extends Projectile {
     public Brick(UUID uuid, UUID owner) {
         super(uuid, EntityModelRegistry.BRICK.resource, 8, -1, 1.25f, 0f, owner);
         setGravity(1f);
+        setCanSelfDamage(true);
         setRot((float) (Math.random() * 360f), (float) (Math.random() * 360f), (float) (Math.random() * 360f));
     }
 
@@ -30,8 +32,14 @@ public class Brick extends Projectile {
     }
 
     @Override
+    protected void motionFallout() {
+        //no air resistance
+    }
+
+    @Override
     protected void resolveCollision(Hit hit, Vector3f velocity, Vector3f move) {
-        remove();
+        if (!isRemoved())
+            remove();
     }
 
     @Override
@@ -49,9 +57,18 @@ public class Brick extends Projectile {
     @Override
     public void remove() {
         super.remove();
+
+        //sound
         ((WorldClient) getWorld()).playSound(BREAK_SOUND, SoundCategory.ENTITY, getTransform().getPos())
                 .pitch(Maths.range(0.85f, 1.15f))
                 .maxDistance(16f);
+
+        //particles
+        for (int i = 0; i < 5; i++) {
+            SmokeParticle particle = new SmokeParticle((int) (Math.random() * 15) + 10, 0xFFA93931);
+            particle.setPos(aabb.getRandomPoint());
+            ((WorldClient) getWorld()).addParticle(particle);
+        }
     }
 
     @Override

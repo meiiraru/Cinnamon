@@ -25,6 +25,9 @@ public abstract class Projectile extends PhysEntity {
     protected int damage;
     protected boolean crit;
 
+    protected boolean canSelfDamage = false;
+    protected boolean leftOwner = false;
+
     protected int lifetime;
 
     public Projectile(UUID uuid, Resource model, int damage, int lifetime, float speed, float critChance, UUID owner) {
@@ -66,6 +69,12 @@ public abstract class Projectile extends PhysEntity {
 
         if (lifetime > 0 && --lifetime == 0 && !isRemoved())
             remove();
+
+        if (!hasLeftOwner() && getOwner() != null) {
+            Entity owner = getWorld().getEntityByUUID(getOwner());
+            if (!owner.getAABB().intersects(this.getAABB()))
+                leftOwner = true;
+        }
     }
 
     @Override
@@ -104,7 +113,7 @@ public abstract class Projectile extends PhysEntity {
     }
 
     protected boolean canHit(PhysEntity entity, Hit result, Vector3f toMove) {
-        return !isRemoved() && entity instanceof LivingEntity living && !living.getUUID().equals(getOwner());
+        return !isRemoved() && entity instanceof LivingEntity living && (!living.getUUID().equals(getOwner()) || (canSelfDamage() && hasLeftOwner()));
     }
 
     protected boolean applyDamage(LivingEntity target) {
@@ -157,6 +166,18 @@ public abstract class Projectile extends PhysEntity {
 
     public void setOwner(UUID uuid) {
         this.owner = uuid;
+    }
+
+    public void setCanSelfDamage(boolean canSelfDamage) {
+        this.canSelfDamage = canSelfDamage;
+    }
+
+    public boolean canSelfDamage() {
+        return canSelfDamage;
+    }
+
+    public boolean hasLeftOwner() {
+        return leftOwner;
     }
 
     @Override

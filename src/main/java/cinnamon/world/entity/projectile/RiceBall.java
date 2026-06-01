@@ -33,7 +33,8 @@ public class RiceBall extends Projectile {
 
     @Override
     protected void resolveCollision(Hit hit, Vector3f velocity, Vector3f move) {
-        remove();
+        if (!isRemoved())
+            remove();
     }
 
     @Override
