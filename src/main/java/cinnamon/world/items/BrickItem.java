@@ -1,5 +1,6 @@
 package cinnamon.world.items;
 
+import cinnamon.Client;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.ItemModelRegistry;
 import cinnamon.render.MatrixStack;
@@ -90,12 +91,20 @@ public class BrickItem extends Item {
         Vector3f motion = src.getAimDir(src.isLeftHanded(), delta, 20f).mul(getCurrentForce());
         Vector3f next = new Vector3f();
 
+        float size = 0.4f;
+        float remaining = 1f - size;
+        float offset = ((Client.getInstance().ticks + delta) * 0.1f) % 1f;
+
+        position.add(motion.x * offset, motion.y * offset, motion.z * offset);
+        motion.y -= world.gravity * offset;
+
         int steps = 32;
         for (int i = 0; i < steps; i++) {
-            next.set(position).add(motion);
+            next.set(position).add(motion.x * size, motion.y * size, motion.z * size);
 
             VertexConsumer.WORLD_MAIN_EMISSIVE.consume(GeometryHelper.line(matrices, position.x, position.y, position.z, next.x, next.y, next.z, 0.05f, 0xFFFF72AD));
 
+            next.add(motion.x * remaining, motion.y * remaining, motion.z * remaining);
             position.set(next);
             motion.y -= world.gravity;
         }

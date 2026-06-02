@@ -86,7 +86,7 @@ public class CurveMaker extends Item {
         for (int i = 0; i < size - 1; i++) {
             Vector3f a = curve.get(i);
             Vector3f b = curve.get(i + 1);
-            VertexConsumer.LINES.consume(GeometryHelper.line(matrices, a.x, a.y, a.z, b.x, b.y, b.z, 0f, color + (0xFF << 24)));
+            VertexConsumer.WORLD_MAIN_EMISSIVE.consume(GeometryHelper.line(matrices, a.x, a.y, a.z, b.x, b.y, b.z, 0.02f, color + (0xFF << 24)));
         }
     }
 
