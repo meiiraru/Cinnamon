@@ -723,6 +723,7 @@ public class WorldClient extends World {
         }
 
         boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
+        boolean ctrl  = (mods & GLFW_MOD_CONTROL) != 0;
 
         switch (key) {
             case GLFW_KEY_N -> player.getAbilities().set(Abilities.Ability.NOCLIP, !player.getAbilities().get(Abilities.Ability.NOCLIP));
@@ -744,7 +745,7 @@ public class WorldClient extends World {
             case GLFW_KEY_COMMA -> player.setSelectedTerrain((player.getSelectedTerrain() + 1) % (TerrainRegistry.values().length - 1));
             case GLFW_KEY_PERIOD -> player.setSelectedMaterial(Maths.modulo((player.getSelectedMaterial() + (shift ? -1 : 1)), MaterialRegistry.values().length));
 
-            case GLFW_KEY_Q -> player.dropItem(-1);
+            case GLFW_KEY_Q -> player.dropItem(-1, ctrl);
 
             case GLFW_KEY_T -> {
                 Pair<Hit, Terrain> hit = player.getLookingTerrain(player.getPickRange());
@@ -806,7 +807,7 @@ public class WorldClient extends World {
     public void xrButtonPress(int button, boolean pressed, int hand) {
         if (pressed && button == 1) {
             if (hand == 0) {
-                player.dropItem(-1);
+                player.dropItem(-1, false);
             } else {
                 pause();
             }

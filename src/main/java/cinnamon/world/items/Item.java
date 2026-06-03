@@ -65,8 +65,8 @@ public abstract class Item {
     }
 
     public void unselect() {
-        stopFiring();
-        stopUsing();
+        this.isFiring = false;
+        this.isUsing = false;
         source = null;
     }
 
@@ -112,5 +112,21 @@ public abstract class Item {
 
     public boolean isStackFull() {
         return count >= stackSize;
+    }
+
+    public int mergeItem(Item other) {
+        if (!stacksWith(other))
+            return -1;
+
+        int space = stackSize - count;
+        if (space <= 0)
+            return -1;
+
+        int otherCount = other.getCount();
+        int toAdd = Math.min(space, otherCount);
+        count += toAdd;
+        other.setCount(otherCount - toAdd);
+
+        return toAdd;
     }
 }

@@ -344,32 +344,29 @@ public abstract class LivingEntity extends PhysEntity {
             getHoldingItem().select(this);
     }
 
-    protected Item getItemToDrop(int index) {
+    protected Item getItemToDrop(int index, boolean fullStack) {
         Inventory inv = getInventory();
         Item i = index < 0 ? inv.getSelectedItem() : index < inv.getSize() ? inv.getItem(index) : null;
         if (i == null)
             return null;
 
-        Item drop = i;
+        Item drop = i.copy();
         int count = i.getCount();
-        if (count > 1) {
-            //reduce stack size
-            Item copy = i.copy();
-            copy.setCount(1);
-            drop = copy;
+        drop.setCount(fullStack ? count : 1);
+
+        //reduce stack size or remove from inventory
+        if (count > 1 && !fullStack) {
             i.setCount(count - 1);
         } else {
-            //remove from inventory
             inv.setItem(inv.getSelectedIndex(), null);
-            i.unselect();
         }
 
         return drop;
     }
 
-    public ItemEntity dropItem(int index) {
-        Item drop = getItemToDrop(index);
-        if (drop == null)
+    public ItemEntity dropItem(int index, boolean fullStack) {
+        Item drop = getItemToDrop(index, fullStack);
+        if (drop == null || drop.getCount() <= 0)
             return null;
 
         Vector3f dir = Maths.spread(getLookDir(), 12.5f, 5f).mul(0.5f);

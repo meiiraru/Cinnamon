@@ -25,11 +25,27 @@ public class Inventory {
         }
     }
 
+    /**
+     * @return 0 if the item was not added<br>1 if it was partially added<br>2 if it was fully added
+     */
     public int putItem(Item item) {
         int state = 0;
         int freeIndex = -1;
-        int remaining = item.getCount();
+        int initialCount = item.getCount();
 
+        //invalid item
+        if (initialCount == 0)
+            return 0;
+
+        //try to merge with selected item first
+        Item selectedItem = getSelectedItem();
+        if (selectedItem != null) {
+            selectedItem.mergeItem(item);
+            if (item.getCount() == 0)
+                return 2;
+        }
+
+        //try to add to the inventory
         for (int i = 0; i < size; i++) {
             Item invItem = items[i];
 
@@ -40,37 +56,23 @@ public class Inventory {
                 continue;
             }
 
-            //no stack compatible
-            if (!invItem.stacksWith(item))
-                continue;
-
-            //found stack compatible, try to add to it
-            int space = invItem.getStackSize() - invItem.getCount();
-            if (space > 0) {
-                int toAdd = Math.min(space, remaining);
-                invItem.setCount(invItem.getCount() + toAdd);
-                remaining -= toAdd;
-
-                //all added - else continue loop and try to find the next stack
-                if (remaining == 0)
-                    return 2;
-            }
+            //merge with the item
+            invItem.mergeItem(item);
+            if (item.getCount() == 0)
+                return 2;
         }
 
-        //partially added the item stack
-        if (remaining < item.getCount())
-            state = 1;
-
-        //update item stack count
-        item.setCount(remaining);
-
-        //could not add to any existing stacks, add to free index
-        if (remaining > 0 && freeIndex != -1) {
+        //could not add to any existing stacks, and there was a free index
+        if (freeIndex != -1) {
             items[freeIndex] = item;
             return 2;
         }
 
-        //item was not entirely added
+        //partially added the item stack
+        if (item.getCount() < initialCount)
+            state = 1;
+
+        //item was partially added (1) or not added at all (0)
         return state;
     }
 

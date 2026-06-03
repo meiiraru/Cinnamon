@@ -24,7 +24,7 @@ public class PotatoItem extends Item {
 
     @Override
     public boolean fire() {
-        if (!super.fire())
+        if (!super.fire() || getCount() <= 0)
             return false;
 
         setCount(getCount() - 1);

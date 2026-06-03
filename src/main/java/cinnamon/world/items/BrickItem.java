@@ -57,10 +57,14 @@ public class BrickItem extends Item {
         boolean wasUsing = isUsing();
         super.stopUsing();
 
-        if (wasUsing) {
+        if (wasUsing)
             shoot(getCurrentForce());
-            heldTicks = 0;
-        }
+    }
+
+    @Override
+    public void unselect() {
+        super.unselect();
+        heldTicks = 0;
     }
 
     protected float getCurrentForce() {
@@ -68,6 +72,10 @@ public class BrickItem extends Item {
     }
 
     protected void shoot(float force) {
+        if (getCount() <= 0)
+            return;
+
+        heldTicks = 0;
         setCount(getCount() - 1);
         LivingEntity src = getSource();
 
