@@ -77,6 +77,8 @@ public abstract class ModelRenderer {
         return list;
     }
 
+    public abstract Map<String, Material> getMaterials();
+
     protected MeshData generateMesh(AABB aabb, Collection<Vertex> vertices, int[] indices, Material material) {
         return new MeshData(aabb, vertices, indices, material);
     }

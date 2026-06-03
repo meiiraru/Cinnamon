@@ -12,6 +12,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static cinnamon.events.Events.LOGGER;
 
@@ -95,5 +96,13 @@ public class AssimpRenderer extends ModelRenderer {
 
     public Model getModel() {
         return model;
+    }
+
+    @Override
+    public Map<String, Material> getMaterials() {
+        Map<String, Material> map = new HashMap<>();
+        for (Material material : getModel().materials)
+            map.put(material.getName(), material);
+        return map;
     }
 }

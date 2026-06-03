@@ -47,6 +47,8 @@ public class Hud {
 
     protected ProgressBar health, itemCooldown;
 
+    protected Terrain terrain;
+
     protected boolean fadeIn = false;
     protected int fadeTicks = 0, fadeDelay = 20;
     protected int fadeColor = 0xFFFFFF;
@@ -323,13 +325,16 @@ public class Hud {
         int m = w.player.getSelectedMaterial();
 
         TerrainRegistry registry = TerrainRegistry.values()[t];
-        Terrain terr = registry.getFactory().get();
-        MaterialRegistry material = MaterialRegistry.values()[m];
-        terr.setMaterial(material.material);
+        if (terrain == null || terrain.getType() != registry) {
+            terrain = registry.getFactory().get();
+            terrain.calculateBounds();
+        }
 
-        terr.calculateBounds();
-        Vector3f bounds = terr.getAABB().getDimensions();
-        Vector3f center = terr.getAABB().getCenter();
+        MaterialRegistry material = MaterialRegistry.values()[m];
+        terrain.setMaterial(material.material);
+
+        Vector3f bounds = terrain.getAABB().getDimensions();
+        Vector3f center = terrain.getAABB().getCenter();
         float s = 16f / bounds.y;
 
         matrices.pushMatrix();
@@ -347,7 +352,7 @@ public class Hud {
         matrices.translate(-center.x, -center.y, -center.z);
 
         //render terrain
-        terr.render(c.camera, matrices, delta);
+        terrain.render(c.camera, matrices, delta);
         matrices.popMatrix();
 
         //render name

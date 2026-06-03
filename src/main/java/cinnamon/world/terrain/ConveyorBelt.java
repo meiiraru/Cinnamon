@@ -1,8 +1,8 @@
 package cinnamon.world.terrain;
 
 import cinnamon.math.collision.AABB;
+import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
-import cinnamon.utils.Resource;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.world.World;
@@ -21,7 +21,7 @@ public class ConveyorBelt extends Terrain {
     }
 
     public ConveyorBelt(float beltSpeed) {
-        super(new Resource("models/terrain/conveyor_belt/model.obj"), TerrainRegistry.CUSTOM);
+        super(TerrainModelRegistry.CONVEYOR_BELT.resource, TerrainRegistry.CUSTOM);
         this.beltSpeed = beltSpeed;
     }
 

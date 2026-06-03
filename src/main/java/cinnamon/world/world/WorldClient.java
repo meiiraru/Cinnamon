@@ -29,6 +29,7 @@ import cinnamon.render.shader.PostProcess;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundInstance;
 import cinnamon.sound.SoundManager;
+import cinnamon.text.Text;
 import cinnamon.utils.Colors;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Pair;
@@ -51,6 +52,7 @@ import cinnamon.world.entity.misc.Firework;
 import cinnamon.world.entity.misc.FireworkStar;
 import cinnamon.world.entity.misc.Spawner;
 import cinnamon.world.entity.misc.TriggerArea;
+import cinnamon.world.entity.projectile.Brick;
 import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.entity.vehicle.ShoppingCart;
 import cinnamon.world.items.*;
@@ -64,9 +66,11 @@ import cinnamon.world.light.PointLight;
 import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.ExplosionParticle;
 import cinnamon.world.particle.Particle;
+import cinnamon.world.particle.TextParticle;
 import cinnamon.world.sky.DynamicSky;
 import cinnamon.world.sky.Sky;
 import cinnamon.world.sky.SkyColors;
+import cinnamon.world.terrain.Button;
 import cinnamon.world.terrain.ConveyorBelt;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.TerrainGenerator;
@@ -184,6 +188,16 @@ public class WorldClient extends World {
         t2.setPos(15, 1, -3);
         addTerrain(t2);
 
+        //roses
+        for (float x = -29; x < -24; x += Maths.range(0.5f, 0.8f)) {
+            for (float z = -4; z < 3; z += Maths.range(0.5f, 0.8f)) {
+                Terrain rose = TerrainRegistry.ROSE.getFactory().get();
+                rose.setPos(x, 1, z);
+                rose.setRotation(Rotation.Y.rotationDeg((float) (Math.random() * 360)));
+                addTerrain(rose);
+            }
+        }
+
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
 
         //lights
@@ -275,6 +289,24 @@ public class WorldClient extends World {
 
         //debug weapons
         spawnDebugWeapons();
+
+        //test buttons
+        Button btn1 = new Button();
+        btn1.setPos(-18f, 1f, -25f);
+        btn1.setOnPress(e -> addParticle(new TextParticle(Text.of("Beware..."), 60, btn1.getTransform().getPos())));
+        btn1.setOnRelease(e -> addParticle(new TextParticle(Text.of("Brick!"), 60, btn1.getTransform().getPos())));
+        addTerrain(btn1);
+
+        Button btn2 = new Button();
+        btn2.setPos(-20f, 1f, -25f);
+        btn2.setOnPress(e -> {
+            Brick b = new Brick(UUID.randomUUID(), null);
+            Vector3f pos = e.getTransform().getPos();
+            b.setPos(pos.x, pos.y + 3f, pos.z);
+            //e.lookAt(b.getTransform().getPos());
+            addEntity(b);
+        });
+        addTerrain(btn2);
     }
 
     @Override
@@ -474,7 +506,7 @@ public class WorldClient extends World {
                 DebugRenderer.renderSound(s, camera, matrices);
         }
 
-        if (cameraEntity instanceof Player p && p.getAbilities().get(Abilities.Ability.CAN_BUILD))
+        if (cameraEntity instanceof Player p && p.getAbilities().get(Abilities.Ability.CAN_BUILD) && !p.isDead())
             renderTargetedBlock(p, matrices, delta);
 
         VertexConsumer.finishAllBatches(camera);

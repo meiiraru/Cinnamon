@@ -243,7 +243,7 @@ public abstract class Entity extends WorldObject {
 
     public void lookAt(float x, float y, float z) {
         //get difference
-        Vector3f v = new Vector3f(x, y, z).sub(getEyePos());
+        Vector3f v = getEyePos().sub(x, y, z);
         v.normalize();
 
         //set rot

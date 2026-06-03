@@ -169,6 +169,11 @@ public class Player extends LivingEntity {
     }
 
     @Override
+    public float getPickRange() {
+        return abilities.get(Abilities.Ability.CAN_FLY) ? super.getPickRange() : 3.5f;
+    }
+
+    @Override
     public EntityRegistry getType() {
         return EntityRegistry.PLAYER;
     }

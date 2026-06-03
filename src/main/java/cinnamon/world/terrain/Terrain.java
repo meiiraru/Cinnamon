@@ -167,4 +167,8 @@ public class Terrain extends WorldObject {
     public Mask getCollisionMask() {
         return collisionMask;
     }
+
+    public boolean interact(Entity entity) {
+        return false;
+    }
 }

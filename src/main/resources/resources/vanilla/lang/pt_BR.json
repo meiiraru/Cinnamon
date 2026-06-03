@@ -403,6 +403,7 @@
   "terrain.box": "Caixa",
   "terrain.sphere": "Esfera",
   "terrain.teapot": "Bule",
+  "terrain.rose": "Rosa",
   "terrain.barrier": "Barreira",
 
   "material": "Material",

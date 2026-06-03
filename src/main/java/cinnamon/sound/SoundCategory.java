@@ -11,6 +11,7 @@ public enum SoundCategory {
     AMBIENT,
     WEATHER,
     ENTITY,
+    TERRAIN,
     MISC;
 
     private float volume = 1f;

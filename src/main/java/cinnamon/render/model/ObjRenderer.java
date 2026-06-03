@@ -3,6 +3,7 @@ package cinnamon.render.model;
 import cinnamon.math.collision.AABB;
 import cinnamon.model.Vertex;
 import cinnamon.model.VertexHelper;
+import cinnamon.model.material.Material;
 import cinnamon.model.obj.Face;
 import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
@@ -13,6 +14,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static cinnamon.events.Events.LOGGER;
 
@@ -125,5 +127,10 @@ public class ObjRenderer extends ModelRenderer {
 
     public Mesh getMesh() {
         return mesh;
+    }
+
+    @Override
+    public Map<String, Material> getMaterials() {
+        return mesh.getMaterials();
     }
 }

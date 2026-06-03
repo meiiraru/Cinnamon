@@ -1,0 +1,49 @@
+{
+  "format_version": "1.8.0",
+  "outliner": [
+    "box",
+    {
+      "name": "button_bone",
+      "origin": [0, 2, 0],
+      "children": ["button"]
+    }
+  ],
+  "animations": {
+    "click": {
+      "animation_length": 0.1667,
+      "bones": {
+        "button_bone": {
+          "position": {
+            "0.0": [0, 0, 0],
+            "0.0833": [0, -0.75, 0],
+            "0.1667": [0, 0, 0]
+          }
+        }
+      }
+    },
+    "press": {
+      "loop": "hold_on_last_frame",
+      "animation_length": 0.0833,
+      "bones": {
+        "button_bone": {
+          "position": {
+            "0.0": [0, 0, 0],
+            "0.0833": [0, -0.75, 0]
+          }
+        }
+      }
+    },
+    "release": {
+      "loop": "hold_on_last_frame",
+      "animation_length": 0.0833,
+      "bones": {
+        "button_bone": {
+          "position": {
+            "0.0": [0, -0.75, 0],
+            "0.0833": [0, 0, 0]
+          }
+        }
+      }
+    }
+  }
+}
