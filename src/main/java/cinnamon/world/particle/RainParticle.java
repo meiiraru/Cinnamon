@@ -19,6 +19,7 @@ public class RainParticle extends SpriteParticle {
         this.strength = strength;
         this.billboard = false;
         setMotion(0, -0.8f, 0);
+        setCastShadows(false);
     }
 
     @Override

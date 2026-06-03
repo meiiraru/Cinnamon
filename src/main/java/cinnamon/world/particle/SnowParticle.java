@@ -18,6 +18,7 @@ public class SnowParticle extends SpriteParticle {
         this.strength = strength;
         this.billboard = false;
         setMotion(0, -0.03f, 0);
+        setCastShadows(false);
     }
 
     @Override
