@@ -106,7 +106,7 @@ public class Inventory {
     }
 
     public Item getSelectedItem() {
-        return items[selected];
+        return selected >= 0 && selected < size ? items[selected] : null;
     }
 
     public void setSelectedIndex(int index) {
