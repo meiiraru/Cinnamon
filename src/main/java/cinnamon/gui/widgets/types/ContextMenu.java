@@ -114,6 +114,11 @@ public class ContextMenu extends PopupWidget {
         return actions.get(i);
     }
 
+    public void scrollToAction(int i) {
+        if (i >= 0 && i < actions.size())
+            list.scrollToWidget(actions.get(i));
+    }
+
     @Override
     public void fitToScreen(int width, int height) {
         //reset dimensions

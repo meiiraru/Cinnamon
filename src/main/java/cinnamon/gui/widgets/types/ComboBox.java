@@ -34,8 +34,10 @@ public class ComboBox extends Button {
         super(x, y, width, height, Text.of(""), button -> {
             if (button.getPopup().isOpen())
                 button.getPopup().close();
-            else
+            else {
                 ((ComboBox) button).openPopup(button.getX(), button.getY() + button.getHeight());
+                ((ContextMenu) button.getPopup()).scrollToAction(((ComboBox) button).selected);
+            }
         });
 
         contextMenu = new ComboContext(width, height, this);

@@ -154,6 +154,36 @@ public class WidgetList extends ContainerGrid {
         );
     }
 
+    public void scrollToWidget(int index) {
+        if (index >= 0 && index < widgets.size())
+            scrollToWidget(widgets.get(index));
+    }
+
+    public void scrollToWidget(Widget widget) {
+        if (widget == null || !widgets.contains(widget))
+            return;
+
+        int widgetY = widget.getY();
+        int widgetHeight = widget.getHeight();
+        int widgetY2 = widgetY + widgetHeight;
+
+        int thisY = getAlignedY();
+        int thisHeight = getHeight();
+        int thisY2 = thisY + thisHeight;
+
+        float scrollHeight = getWidgetsHeight() - thisHeight;
+        float scrollPercent = scrollbar.getAnimationValue();
+
+        //scroll up
+        if (widgetY < thisY)
+            scrollPercent += (widgetY - thisY) / scrollHeight;
+        //scroll down
+        else if (widgetY2 > thisY2)
+            scrollPercent += (widgetY2 - thisY2) / scrollHeight;
+
+        scrollbar.setPercentage(scrollPercent);
+    }
+
     @Override
     public void setX(int x) {
         super.setX(x);

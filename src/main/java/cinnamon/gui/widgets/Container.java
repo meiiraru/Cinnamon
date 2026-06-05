@@ -265,4 +265,12 @@ public class Container extends Widget implements Tickable, GUIListener {
                 c.setActive(active);
         }
     }
+
+    public List<Widget> getWidgets() {
+        return widgets;
+    }
+
+    public List<GUIListener> getListeners() {
+        return listeners;
+    }
 }
