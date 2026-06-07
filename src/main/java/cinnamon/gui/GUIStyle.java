@@ -22,7 +22,7 @@ public class GUIStyle {
     private final Map<String, Object> properties = new HashMap<>();
 
     private GUIStyle parent;
-    private Font font, fallbackFont;
+    private Font font;
 
     public Object get(String key) {
         if (properties.containsKey(key))
@@ -105,18 +105,28 @@ public class GUIStyle {
             if (json.has("font")) {
                 JsonObject fontJson = json.getAsJsonObject("font");
 
-                Resource path = new Resource(fontJson.get("path").getAsString());
-                Resource fallback = fontJson.has("fallback") ? new Resource(fontJson.get("fallback").getAsString()) : null;
+                Font font, parent = null;
+                int size = 8;
+                int lineSpacing = 0;
+                boolean smooth = false;
+                boolean oversample = false;
 
-                int size = fontJson.get("size").getAsInt();
-                int lineSpacing = fontJson.has("line_spacing") ? fontJson.get("line_spacing").getAsInt() : 0;
-                boolean smooth = fontJson.has("smooth") && fontJson.get("smooth").getAsBoolean();
+                while (fontJson != null) {
+                    Resource path = new Resource(fontJson.get("path").getAsString());
+                    size        = fontJson.has("size")         ? fontJson.get("size").getAsInt()           : size;
+                    lineSpacing = fontJson.has("line_spacing") ? fontJson.get("line_spacing").getAsInt()   : lineSpacing;
+                    smooth      = fontJson.has("smooth")       ? fontJson.get("smooth").getAsBoolean()     : smooth;
+                    oversample  = fontJson.has("oversample")   ? fontJson.get("oversample").getAsBoolean() : oversample;
 
-                if (fallback != null)
-                    style.fallbackFont = Font.getFont(fallback, size, lineSpacing, smooth);
+                    font = Font.getFont(path, size, lineSpacing, smooth, oversample);
+                    if (parent != null)
+                        parent.setFallback(font);
+                    else
+                        style.font = font;
 
-                style.font = Font.getFont(path, size, lineSpacing, smooth);
-                style.font.setFallback(style.fallbackFont);
+                    parent = font;
+                    fontJson = fontJson.has("fallback") ? fontJson.getAsJsonObject("fallback") : null;
+                }
             }
 
             //resources

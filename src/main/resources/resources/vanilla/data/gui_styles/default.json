@@ -1,10 +1,17 @@
 {
   "font": {
     "path": "fonts/minakaka.ttf",
-    "fallback": "fonts/mayonnaise.ttf",
     "size": 8,
     "line_spacing": 0,
-    "smooth": false
+    "smooth": false,
+    "oversample": false,
+    "fallback": {
+      "path": "fonts/mayonnaise.ttf",
+      "size": 8,
+      "line_spacing": 0,
+      "smooth": false,
+      "oversample": false
+    }
   },
 
   "colors": {

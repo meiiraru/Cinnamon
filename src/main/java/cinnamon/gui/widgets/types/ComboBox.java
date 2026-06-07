@@ -53,6 +53,12 @@ public class ComboBox extends Button {
     }
 
     @Override
+    protected void openPopup(int x, int y) {
+        super.openPopup(x, y);
+        ((ContextMenu) getPopup()).scrollToAction(selected);
+    }
+
+    @Override
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         Style style = Style.EMPTY.guiStyle(getStyleRes()).color(!isActive() ? getStyle().getInt("disabled_color") : null);
 
