@@ -7,7 +7,6 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
 import org.lwjgl.stb.STBTTFontinfo;
 import org.lwjgl.stb.STBTTPackContext;
@@ -31,7 +30,7 @@ public class Font {
     private static final Map<Resource, Font> FONTS_CACHE = new HashMap<>();
 
     //properties
-    public static final int TEXTURE_W = 512, TEXTURE_H = 512;
+    public static final int MIN_SIZE = 16, MAX_SIZE = 2048;
     public static final int UNICODE_PAGE_SIZE = 0x100;
     public static final int UNICODE_MAX_CODEPOINT = 0x10FFFF;
     public static final int EXTRA_GLYPH_SLOTS = 3; // ".notdef" ".null" "nonmarkingreturn"
@@ -67,14 +66,14 @@ public class Font {
 
 
     public static Font getFont(Resource res, float height) {
-        return getFont(res, height, 1, false, false);
+        return getFont(res, height, 1, false, 1);
     }
 
-    public static Font getFont(Resource res, float height, float lineSpacing, boolean smooth, boolean oversample) {
+    public static Font getFont(Resource res, float height, float lineSpacing, boolean smooth, int oversample) {
         return FONTS_CACHE.computeIfAbsent(res, r -> new Font(r, height, lineSpacing, smooth, oversample));
     }
 
-    private Font(Resource res, float height, float lineSpacing, boolean smooth, boolean oversample) {
+    private Font(Resource res, float height, float lineSpacing, boolean smooth, int oversample) {
         ByteBuffer buffer = IOUtils.getResourceBuffer(res);
         this.ttf = memAlloc(buffer.capacity()).put(buffer).flip();
         this.lineHeight = height;
@@ -132,45 +131,57 @@ public class Font {
         LOGGER.debug("Loaded font \"%s\"", res);
     }
 
-    private GlyphPage packGlyphPage(Resource res, int startCodepoint, int numChars, float height, boolean smooth, boolean oversample) {
+    private GlyphPage packGlyphPage(Resource res, int startCodepoint, int numChars, float height, boolean smooth, int oversample) {
         STBTTPackedchar.Buffer charData = STBTTPackedchar.malloc(numChars);
 
-        //font bitmap
-        try (STBTTPackContext spc = STBTTPackContext.malloc()) {
-            ByteBuffer bitmap = BufferUtils.createByteBuffer(TEXTURE_W * TEXTURE_H);
-            stbtt_PackBegin(spc, bitmap, TEXTURE_W, TEXTURE_H, 0, 1, NULL);
+        int texSize = MIN_SIZE;
+        while (texSize <= MAX_SIZE) {
+            //font bitmap
+            try (STBTTPackContext spc = STBTTPackContext.malloc()) {
+                ByteBuffer bitmap = memAlloc(texSize * texSize);
+                stbtt_PackBegin(spc, bitmap, texSize, texSize, 0, 1, NULL);
 
-            //oversampling for better quality at small sizes
-            if (oversample)
-                stbtt_PackSetOversampling(spc, 2, 2);
-            else
-                stbtt_PackSetOversampling(spc, 1, 1);
+                //stbtt_PackSetSkipMissingCodepoints(spc, startCodepoint != MISSING_GLYPH_CODEPOINT);
 
-            //discover supported ranges and pack them
-            if (!stbtt_PackFontRange(spc, this.ttf, 0, height, startCodepoint, charData)) {
-                LOGGER.warn("Failed to pack glyph page U+%04X..U+%04X for font \"%s\"", startCodepoint, startCodepoint + numChars - 1, res);
-                charData.free();
-                return null; //failed
+                //oversampling for better quality at small sizes
+                stbtt_PackSetOversampling(spc, oversample, oversample);
+
+                //try to pack the glyphs into the current size
+                if (!stbtt_PackFontRange(spc, this.ttf, 0, height, startCodepoint, charData)) {
+                    //fail (not enough space)
+                    //clean up and try a larger size
+                    stbtt_PackEnd(spc);
+                    memFree(bitmap);
+                    texSize *= 2;
+                    continue;
+                }
+
+                stbtt_PackEnd(spc);
+
+                //success! create the texture
+                int texID = glGenTextures();
+                glBindTexture(GL_TEXTURE_2D, texID);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, texSize, texSize, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap);
+
+                int filter = smooth ? GL_LINEAR : GL_NEAREST;
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+
+                int[] swizzleMask = {GL_RED, GL_RED, GL_RED, GL_RED};
+                glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+
+                glBindTexture(GL_TEXTURE_2D, 0);
+
+                //free the RAM buffer as it is now in the GPU VRAM
+                memFree(bitmap);
+                return new GlyphPage(texID, texSize, texSize, charData);
             }
-
-            stbtt_PackEnd(spc);
-
-            //create texture
-            int texID = glGenTextures();
-            glBindTexture(GL_TEXTURE_2D, texID);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, TEXTURE_W, TEXTURE_H, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap);
-
-            int filter = smooth ? GL_LINEAR : GL_NEAREST;
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-
-            int[] swizzleMask = {GL_RED, GL_RED, GL_RED, GL_RED};
-            glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
-
-            glBindTexture(GL_TEXTURE_2D, 0);
-
-            return new GlyphPage(texID, charData);
         }
+
+        //epic fail :(
+        LOGGER.warn("Failed to pack glyph page U+%04X..U+%04X for font \"%s\"", startCodepoint, startCodepoint + numChars - 1, res);
+        charData.free();
+        return null;
     }
 
     public static void freeAll() {
@@ -208,13 +219,13 @@ public class Font {
             GlyphPage page = owner.glyphPages.get(pageStart);
             if (page != null) {
                 //if the owner has the page, get the char data
-                stbtt_GetPackedQuad(page.charData, TEXTURE_W, TEXTURE_H, c - pageStart, xb, yb, q, true);
+                stbtt_GetPackedQuad(page.charData, page.width, page.height, c - pageStart, xb, yb, q, true);
                 return page.textureID;
             }
         }
 
         //no owner, use missing char data
-        stbtt_GetPackedQuad(missingCharPage.charData, TEXTURE_W, TEXTURE_H, 0, xb, yb, q, true);
+        stbtt_GetPackedQuad(missingCharPage.charData, missingCharPage.width, missingCharPage.height, 0, xb, yb, q, true);
         return missingCharPage.textureID;
     }
 
@@ -480,7 +491,7 @@ public class Font {
         return x[0];
     }
 
-    private record GlyphPage(int textureID, STBTTPackedchar.Buffer charData) {
+    private record GlyphPage(int textureID, int width, int height, STBTTPackedchar.Buffer charData) {
         void free() {
             glDeleteTextures(textureID);
             charData.free();

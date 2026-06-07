@@ -4,13 +4,13 @@
     "size": 8,
     "line_spacing": 0,
     "smooth": false,
-    "oversample": false,
+    "oversample": 1,
     "fallback": {
       "path": "fonts/mayonnaise.ttf",
       "size": 8,
       "line_spacing": 0,
       "smooth": false,
-      "oversample": false
+      "oversample": 1
     }
   },
 

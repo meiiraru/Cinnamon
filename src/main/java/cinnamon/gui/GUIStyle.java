@@ -109,14 +109,14 @@ public class GUIStyle {
                 int size = 8;
                 int lineSpacing = 0;
                 boolean smooth = false;
-                boolean oversample = false;
+                int oversample = 1;
 
                 while (fontJson != null) {
                     Resource path = new Resource(fontJson.get("path").getAsString());
-                    size        = fontJson.has("size")         ? fontJson.get("size").getAsInt()           : size;
-                    lineSpacing = fontJson.has("line_spacing") ? fontJson.get("line_spacing").getAsInt()   : lineSpacing;
-                    smooth      = fontJson.has("smooth")       ? fontJson.get("smooth").getAsBoolean()     : smooth;
-                    oversample  = fontJson.has("oversample")   ? fontJson.get("oversample").getAsBoolean() : oversample;
+                    size        = fontJson.has("size")         ? fontJson.get("size").getAsInt()         : size;
+                    lineSpacing = fontJson.has("line_spacing") ? fontJson.get("line_spacing").getAsInt() : lineSpacing;
+                    smooth      = fontJson.has("smooth")       ? fontJson.get("smooth").getAsBoolean()   : smooth;
+                    oversample  = fontJson.has("oversample")   ? fontJson.get("oversample").getAsInt()   : oversample;
 
                     font = Font.getFont(path, size, lineSpacing, smooth, oversample);
                     if (parent != null)
