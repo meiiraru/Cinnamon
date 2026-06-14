@@ -76,7 +76,7 @@ public class ItemEntity extends Collectable {
     }
 
     @Override
-    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
+    protected void collideEntity(PhysEntity entity, Hit result, Vector3f toMove) {
         if (isRemoved() || pickUpDelay > 0)
             return;
 
@@ -115,7 +115,7 @@ public class ItemEntity extends Collectable {
             return;
         }
 
-        super.collide(entity, result, toMove);
+        super.collideEntity(entity, result, toMove);
     }
 
     @Override

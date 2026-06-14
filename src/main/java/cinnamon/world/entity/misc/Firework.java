@@ -13,6 +13,7 @@ import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.particle.FireParticle;
 import cinnamon.world.particle.SmokeParticle;
+import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
@@ -74,13 +75,13 @@ public class  Firework extends PhysEntity {
     }
 
     @Override
-    protected void resolveCollision(Hit hit, Vector3f velocity, Vector3f move) {
+    protected void collideTerrain(Terrain terrain, Hit hit, Vector3f velocity, Vector3f move) {
         if (!isRemoved())
             explode();
     }
 
     @Override
-    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
+    protected void collideEntity(PhysEntity entity, Hit result, Vector3f toMove) {
         if (!(entity instanceof Firework))
             explode();
     }

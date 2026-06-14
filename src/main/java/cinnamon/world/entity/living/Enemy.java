@@ -37,8 +37,8 @@ public class Enemy extends LivingEntity {
     }
 
     @Override
-    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
-        super.collide(entity, result, toMove);
+    protected void collideEntity(PhysEntity entity, Hit result, Vector3f toMove) {
+        super.collideEntity(entity, result, toMove);
         if (entity instanceof Player p)
             p.damage(this, DamageType.MELEE, MELEE_DAMAGE, false);
     }

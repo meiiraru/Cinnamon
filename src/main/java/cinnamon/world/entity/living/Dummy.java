@@ -21,7 +21,7 @@ public class Dummy extends LivingEntity {
     }
 
     @Override
-    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
+    protected void collideEntity(PhysEntity entity, Hit result, Vector3f toMove) {
         //do nothing
         //super.collide(entity, result, toMove);
     }

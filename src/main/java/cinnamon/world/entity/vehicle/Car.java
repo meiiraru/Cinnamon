@@ -121,9 +121,9 @@ public abstract class Car extends Vehicle {
     }
 
     @Override
-    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
+    protected void collideEntity(PhysEntity entity, Hit result, Vector3f toMove) {
         if (entity instanceof Car)
             Resolution.slide(result, getMotion(), toMove);
-        super.collide(entity, result, toMove);
+        super.collideEntity(entity, result, toMove);
     }
 }

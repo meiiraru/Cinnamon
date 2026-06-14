@@ -24,7 +24,7 @@ public class ShoppingCart extends Car {
     }
 
     @Override
-    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
+    protected void collideEntity(PhysEntity entity, Hit result, Vector3f toMove) {
         if (entity instanceof ShoppingCart) {
             if (this.getAABB().intersectsAABB(entity.getAABB()))
                 return;
@@ -39,7 +39,7 @@ public class ShoppingCart extends Car {
             }
         }
 
-        super.collide(entity, result, toMove);
+        super.collideEntity(entity, result, toMove);
     }
 
     @Override

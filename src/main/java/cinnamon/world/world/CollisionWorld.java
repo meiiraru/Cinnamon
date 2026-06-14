@@ -22,6 +22,8 @@ import org.lwjgl.glfw.GLFW;
 
 public class CollisionWorld extends WorldClient {
 
+    private boolean showDebug = false;
+
     private final Ray ray = new Ray(11.5f, 9f, 5.5f, -1f, 0, 0, 20f);
     private boolean autoRay;
 
@@ -96,10 +98,19 @@ public class CollisionWorld extends WorldClient {
         TerrainGenerator.fill(this, -17, 1, -14, -15, 3, -10, debugMat);
         removeTerrain(new AABB(-14.5f, 3.5f, -12.5f, -15.5f, 3.5f, -10.5f));
         removeTerrain(new AABB(-14.5f, 2.5f, -11.5f, -14.5f, 2.5f, -11.5f));
+
+        //wall
+        TerrainGenerator.fill(this, 1, 1, 30, 18, 8, 30, debugMat);
+        TerrainGenerator.fill(this, 1, 1, 22, 1, 8, 29, debugMat);
     }
 
     @Override
     public void renderDebug(Camera camera, MatrixStack matrices, float delta) {
+        if (!showDebug) {
+            super.renderDebug(camera, matrices, delta);
+            return;
+        }
+
         float deltaTime = worldTime + delta;
 
         //animate shapes
@@ -160,8 +171,12 @@ public class CollisionWorld extends WorldClient {
     @Override
     public void keyPress(int key, int scancode, int action, int mods) {
         super.keyPress(key, scancode, action, mods);
-        if (action == GLFW.GLFW_PRESS && key == GLFW.GLFW_KEY_F)
-            autoRay = !autoRay;
+        if (action == GLFW.GLFW_PRESS) {
+            if (key == GLFW.GLFW_KEY_F)
+                autoRay = !autoRay;
+            else if (key == GLFW.GLFW_KEY_G)
+                showDebug = !showDebug;
+        }
     }
 
     @Override

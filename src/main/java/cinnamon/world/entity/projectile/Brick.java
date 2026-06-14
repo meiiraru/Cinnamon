@@ -8,6 +8,7 @@ import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.particle.SmokeParticle;
+import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -37,7 +38,7 @@ public class Brick extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(Hit hit, Vector3f velocity, Vector3f move) {
+    protected void collideTerrain(Terrain terrain, Hit hit, Vector3f velocity, Vector3f move) {
         if (!isRemoved())
             remove();
     }

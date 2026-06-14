@@ -9,6 +9,7 @@ import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.PhysEntity;
+import cinnamon.world.terrain.Terrain;
 import org.joml.Math;
 import org.joml.Vector3f;
 
@@ -49,8 +50,8 @@ public abstract class Collectable extends PhysEntity {
     }
 
     @Override
-    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
-        super.collide(entity, result, toMove);
+    protected void collideEntity(PhysEntity entity, Hit result, Vector3f toMove) {
+        super.collideEntity(entity, result, toMove);
         if (!isRemoved() && onPickUp(entity))
             this.remove();
     }
@@ -64,7 +65,7 @@ public abstract class Collectable extends PhysEntity {
     }
 
     @Override
-    protected void resolveCollision(Hit hit, Vector3f velocity, Vector3f move) {
+    protected void collideTerrain(Terrain terrain, Hit hit, Vector3f velocity, Vector3f move) {
         Resolution.bounce(hit, velocity, move, BOUNCINESS);
     }
 

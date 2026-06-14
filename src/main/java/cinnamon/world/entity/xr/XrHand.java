@@ -74,7 +74,7 @@ public class XrHand extends PhysEntity {
     }
 
     @Override
-    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
+    protected void collideEntity(PhysEntity entity, Hit result, Vector3f toMove) {
         if (targetEntity == null && entity instanceof XrGrabbable grabbable) {
             targetEntity = grabbable;
             XrInput.vibrate(hand);

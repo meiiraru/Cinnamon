@@ -119,15 +119,28 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     @Override
-    protected void collide(PhysEntity entity, Hit result, Vector3f toMove) {
-        super.collide(entity, result, toMove);
+    protected void collideEntity(PhysEntity entity, Hit result, Vector3f toMove) {
+        super.collideEntity(entity, result, toMove);
 
-        if (!(entity instanceof LivingEntity) || this.isRiding() || entity.isRiding())
+        if (!(entity instanceof LivingEntity le) || this.isRiding() || le.isRiding())
             return;
 
         //entity push
-        Vector3f collision = checkEntityCollision(entity, result);
+        Vector3f collision = pushEntity(le, result);
         this.motion.add(collision.x, 0, collision.z);
+    }
+
+    protected Vector3f pushEntity(LivingEntity entity, Hit result) {
+        //get AABB
+        AABB other = entity.getAABB();
+        float force = getPushForce();
+
+        //calculate collision
+        return aabb.getOverlap(other).mul(force);
+    }
+
+    protected float getPushForce() {
+        return 0.015f;
     }
 
     @Override

@@ -15,6 +15,7 @@ import cinnamon.sound.SoundCategory;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Resource;
 import cinnamon.world.particle.DustParticle;
+import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -78,7 +79,7 @@ public class Potato extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(Hit hit, Vector3f velocity, Vector3f move) {
+    protected void collideTerrain(Terrain terrain, Hit hit, Vector3f velocity, Vector3f move) {
         Resolution.bounce(hit, velocity, move, BOUNCINESS);
     }
 

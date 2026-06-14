@@ -7,6 +7,7 @@ import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.world.terrain.Terrain;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -31,7 +32,7 @@ public class Candy extends Projectile {
     }
 
     @Override
-    protected void resolveCollision(Hit hit, Vector3f velocity, Vector3f move) {
+    protected void collideTerrain(Terrain terrain, Hit hit, Vector3f velocity, Vector3f move) {
         Resolution.bounce(hit, velocity, move, BOUNCINESS);
     }
 

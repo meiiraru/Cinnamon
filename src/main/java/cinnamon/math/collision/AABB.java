@@ -263,6 +263,10 @@ public class AABB extends Collider<AABB> {
         return this.expand(vec.x, vec.y, vec.z);
     }
 
+    public AABB expand(float amount) {
+        return this.expand(amount, amount, amount);
+    }
+
     public AABB expand(float x, float y, float z) {
         if (x < 0f) minX += x;
         else maxX += x;
@@ -272,6 +276,27 @@ public class AABB extends Collider<AABB> {
 
         if (z < 0f) minZ += z;
         else maxZ += z;
+
+        return this;
+    }
+
+    public AABB shrink(Vector3f vec) {
+        return this.shrink(vec.x, vec.y, vec.z);
+    }
+
+    public AABB shrink(float amount) {
+        return this.shrink(amount, amount, amount);
+    }
+
+    public AABB shrink(float x, float y, float z) {
+        if (x < 0f) minX -= x;
+        else maxX -= x;
+
+        if (y < 0f) minY -= y;
+        else maxY -= y;
+
+        if (z < 0f) minZ -= z;
+        else maxZ -= z;
 
         return this;
     }
