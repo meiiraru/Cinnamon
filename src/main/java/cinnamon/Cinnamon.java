@@ -1,5 +1,6 @@
 package cinnamon;
 
+import cinnamon.logger.LoggerConfig;
 import cinnamon.render.Window;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
@@ -63,6 +64,10 @@ public class Cinnamon {
     }
 
     private void init() {
+        //initiate logger
+        LoggerConfig.initialize();
+
+        //init the client instance
         Client client = Client.getInstance();
 
         //error callback
@@ -80,26 +85,42 @@ public class Cinnamon {
         if (!glfwInit())
             throw new IllegalStateException("Unable to initialize GLFW");
 
-        //configure GLFW
-        if (ArgsOptions.EXPERIMENTAL_OPENGL_ES.getAsBool()) {
-            glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-        } else {
+        //create window parameters
+        int width = WIDTH;
+        int height = HEIGHT;
+        long window = NULL;
+
+        boolean forceES = ArgsOptions.EXPERIMENTAL_OPENGL_ES.getAsBool();
+
+        //try to create the OpenGL 4.6 context
+        if (!forceES) {
             glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+            if (PLATFORM == Platform.MACOSX)
+                glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+
+            window = glfwCreateWindow(width, height, TITLE, NULL, NULL);
         }
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        //enable only if we are on apple
-        if (PLATFORM == Platform.MACOSX)
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+        //if forced or failed, try to create an OpenGL ES 3.2 context
+        if (window == NULL) {
+            if (!forceES) {
+                LOGGER.warn("Failed to create OpenGL 4.6 context, using OpenGL ES 3.2 as fallback");
+                glfwDefaultWindowHints();
+            }
 
-        //create window
-        int width = WIDTH;
-        int height = HEIGHT;
-        long window = glfwCreateWindow(width, height, TITLE, NULL, NULL);
+            //setup GL ES 3.2
+            glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+
+            window = glfwCreateWindow(width, height, TITLE, NULL, NULL);
+        }
+
+        //no window could be created - exit with error
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
 

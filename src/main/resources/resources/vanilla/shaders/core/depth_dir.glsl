@@ -16,6 +16,11 @@ void main() {
 #type geometry
 #version 400 core
 
+#ifdef GLES
+    #extension GL_EXT_geometry_shader : enable
+    #extension GL_OES_geometry_shader : enable
+#endif
+
 layout(triangles, invocations = 4) in;
 layout(triangle_strip, max_vertices = 3) out;
 

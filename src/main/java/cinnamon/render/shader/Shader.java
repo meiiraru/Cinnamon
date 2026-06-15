@@ -1,6 +1,5 @@
 package cinnamon.render.shader;
 
-import cinnamon.Cinnamon;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.texture.CubeMap;
@@ -22,16 +21,14 @@ import static cinnamon.events.Events.LOGGER;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL32.GL_GEOMETRY_SHADER;
 
-public class Shader {
+public record Shader(int ID) {
 
     private static final Map<String, String> INCLUDE_CACHE = new HashMap<>();
 
     public static Shader activeShader;
 
-    public final int ID;
-
-    public Shader(Resource res) {
-        this.ID = loadShader(res);
+    public Shader(Resource ID) {
+        this(loadShader(ID));
     }
 
     private static int loadShader(Resource res) {
@@ -90,9 +87,8 @@ public class Shader {
         if (include.length > 1)
             src = processInclude(include);
 
-        //apply opengl es compatibility extensions for geometry shader (if supported)
-        if (type == Type.GEOMETRY)
-            src = Type.fixGLESGeometryShader(src);
+        //add GLES macro to the shader
+        src = appendMacros(src);
 
         //create shader
         int shader = glCreateShader(type.glBind);
@@ -125,6 +121,27 @@ public class Shader {
         }
 
         return finalShader.toString();
+    }
+
+    private static String appendMacros(String src) {
+        //the macro
+        boolean GLES = ArgsOptions.EXPERIMENTAL_OPENGL_ES.getAsBool();
+        String macro = """
+            #define CINNAMON 1
+            #define GLES %d
+            """.formatted(GLES ? 1 : 0);
+
+        //find version line
+        int versionIndex = src.indexOf("#version");
+        if (versionIndex == -1)
+            return macro + src;
+
+        //append macro after the version line
+        int lineEnd = src.indexOf("\n", versionIndex);
+        if (lineEnd == -1)
+            return src + "\n" + macro;
+
+        return src.substring(0, lineEnd + 1) + "\n" + macro + src.substring(lineEnd + 1);
     }
 
     private static void checkCompileErrors(Resource res, int id) {
@@ -465,41 +482,6 @@ public class Shader {
 
         Type(int bind) {
             this.glBind = bind;
-        }
-
-        private static String fixGLESGeometryShader(String shaderSrc) {
-            //only apply if were using opengl es
-            if (!ArgsOptions.EXPERIMENTAL_OPENGL_ES.getAsBool())
-                return shaderSrc;
-
-            //check if extensions are supported
-            if (!Cinnamon.OPENGL_EXTENSIONS.contains("GL_EXT_geometry_shader") || !Cinnamon.OPENGL_EXTENSIONS.contains("GL_OES_geometry_shader")) {
-                LOGGER.warn("Could not enable OpenGL ES compatibility extensions to geometry shader");
-                return shaderSrc;
-            }
-
-            LOGGER.debug("Enabling OpenGL ES compatibility extensions to geometry shader");
-
-            //enable the GL_EXT_geometry_shader and GL_OES_geometry_shader extensions
-            final String ext = """
-                    #extension GL_EXT_geometry_shader : enable
-                    #extension GL_OES_geometry_shader : enable
-                    """;
-
-            //add extensions after version declaration
-            String[] versionSplit = shaderSrc.split("#version ", 2);
-            if (versionSplit.length > 1) {
-                int index = versionSplit[1].indexOf("\n");
-                if (index != -1) {
-                    shaderSrc = "#version " + versionSplit[1].substring(0, index) + "\n" + ext + versionSplit[1].substring(index + 1);
-                } else {
-                    shaderSrc = "#version " + versionSplit[1] + "\n" + ext;
-                }
-            } else {
-                shaderSrc = ext + shaderSrc;
-            }
-
-            return shaderSrc;
         }
     }
 }

@@ -8,7 +8,6 @@ import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.screens.MainMenu;
 import cinnamon.logger.Logger;
-import cinnamon.logger.LoggerConfig;
 import cinnamon.math.Timer;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -69,9 +68,6 @@ public class Client {
     private Client() {}
 
     public void init() {
-        //initiate logger
-        LoggerConfig.initialize();
-
         //opengl debug info
         LOGGER.info("Welcome to Cinnamon! v%s", Version.CLIENT_VERSION);
         LOGGER.info("OS: %s %s", Cinnamon.PLATFORM.getName(), Platform.getArchitecture().name());

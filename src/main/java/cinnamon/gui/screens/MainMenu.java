@@ -4,6 +4,7 @@ import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Label;
+import cinnamon.math.Maths;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
@@ -99,8 +100,8 @@ public class MainMenu extends Screen {
         boolean xr = XrManager.isInXR();
         float d = UIHelper.getDepthOffset();
 
-        float parallaxX = (float) client.window.mouseX / client.window.scaledWidth  * 2f - 1f;
-        float parallaxY = (float) client.window.mouseY / client.window.scaledHeight * 2f - 1f;
+        float parallaxX = Maths.clamp((float) client.window.mouseX / client.window.scaledWidth  * 2f - 1f, -1f, 1f);
+        float parallaxY = Maths.clamp((float) client.window.mouseY / client.window.scaledHeight * 2f - 1f, -1f, 1f);
 
         //background
         Texture bg = Texture.of(BACKGROUND);
