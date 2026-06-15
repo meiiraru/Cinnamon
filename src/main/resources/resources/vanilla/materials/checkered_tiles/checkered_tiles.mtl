@@ -1,0 +1,4 @@
+newmtl checkered_tiles
+map_Kd -smooth_mip Tiles074_1K-PNG_Color.png
+map_Bump Tiles074_1K-PNG_NormalGL.png
+map_Pr Tiles074_1K-PNG_Roughness.png

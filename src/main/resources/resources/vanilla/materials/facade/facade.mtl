@@ -1,0 +1,7 @@
+newmtl facade
+map_Kd -smooth_mip Facade002_1K-PNG_Color.png
+map_disp -smooth Facade002_1K-PNG_Displacement.png
+map_Bump Facade002_1K-PNG_NormalGL.png
+map_Pr Facade002_1K-PNG_Roughness.png
+map_Pm Facade002_1K-PNG_Metalness.png
+map_Ke -mip Facade002_1K-PNG_Emission.png

@@ -1,0 +1,6 @@
+newmtl black_tiles
+map_Kd -smooth_mip Tiles108_1K-PNG_Color.png
+map_disp -dm 0.02 -smooth Tiles108_1K-PNG_Displacement.png
+map_Bump Tiles108_1K-PNG_NormalGL.png
+map_ao Tiles108_1K-PNG_AmbientOcclusion.png
+map_Pr Tiles108_1K-PNG_Roughness.png

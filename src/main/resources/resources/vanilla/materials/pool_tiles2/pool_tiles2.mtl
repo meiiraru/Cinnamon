@@ -1,0 +1,5 @@
+newmtl pool_tiles2
+map_Kd -smooth_mip TilesSquarePoolMixed001_COL_1K.png
+map_disp -smooth TilesSquarePoolMixed001_DISP_1K.png
+map_Bump TilesSquarePoolMixed001_NRM_1K.png
+map_Pr TilesSquarePoolMixed001_REFL_1K.png

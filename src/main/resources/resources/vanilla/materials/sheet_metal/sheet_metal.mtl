@@ -1,0 +1,6 @@
+newmtl sheet_metal
+map_Kd -smooth_mip SheetMetal001_1K-PNG_Color.png
+map_disp -dm 0.02 -smooth SheetMetal001_1K-PNG_Displacement.png
+map_Bump SheetMetal001_1K-PNG_NormalGL.png
+map_Pr SheetMetal001_1K-PNG_Roughness.png
+map_Pm SheetMetal001_1K-PNG_Metalness.png

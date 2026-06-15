@@ -1,0 +1,6 @@
+newmtl obsidian
+map_Kd -smooth_mip obsidian_albedo.png
+map_disp -smooth obsidian_height.png
+map_Bump obsidian_normal-ogl.png
+map_ao obsidian_ao.png
+map_Pr obsidian_roughness.png

@@ -1,0 +1,6 @@
+newmtl leather_skin
+map_Kd -smooth_mip Leather008_1K-PNG_Color.png
+map_disp -smooth Leather008_1K-PNG_Displacement.png
+map_Bump Leather008_1K-PNG_NormalGL.png
+map_ao Leather008_1K-PNG_AmbientOcclusion.png
+map_Pr Leather008_1K-PNG_Roughness.png

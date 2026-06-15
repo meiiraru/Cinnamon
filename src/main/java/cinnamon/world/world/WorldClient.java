@@ -18,6 +18,7 @@ import cinnamon.math.collision.Hit;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.registry.MaterialRegistry;
+import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
@@ -198,6 +199,12 @@ public class WorldClient extends World {
             }
         }
 
+        //torii gate
+        Terrain torii = new Terrain(TerrainModelRegistry.TORII_GATE.resource, TerrainRegistry.CUSTOM);
+        torii.setPos(38, 0.5f, -38);
+        torii.setRotation(0, 45, 0);
+        addTerrain(torii);
+
         //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
 
         //lights
@@ -211,7 +218,7 @@ public class WorldClient extends World {
         addLight(new PointLight().pos(32.5f, 3.5f, 0.5f).color(0xFFFF44).castsShadows(true).volumetricStrength(0.5f));
 
         //rgb spotlights
-        TerrainGenerator.fill(this, 4, 1, 24, 9, 3, 24, MaterialRegistry.PINE_PLANKS.material);
+        TerrainGenerator.fill(this, 4, 1, 24, 9, 3, 24, MaterialRegistry.COBBLESTONE2.material);
         float r = 0.75f;
         for (int i = 0; i < 3; i++) {
             float radi = Math.toRadians(120f) * i;

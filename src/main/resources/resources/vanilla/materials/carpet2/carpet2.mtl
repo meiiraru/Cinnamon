@@ -1,0 +1,6 @@
+newmtl carpet2
+map_Kd -smooth_mip Carpet006_1K-PNG_Color.png
+map_disp -smooth Carpet006_1K-PNG_Displacement.png
+map_Bump Carpet006_1K-PNG_NormalGL.png
+map_ao Carpet006_1K-PNG_AmbientOcclusion.png
+map_Pr Carpet006_1K-PNG_Roughness.png

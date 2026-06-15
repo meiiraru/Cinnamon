@@ -1,0 +1,6 @@
+newmtl cobblestone2
+map_Kd -smooth_mip cobblestone.png
+map_disp -dm 0.15 -smooth cobblestone_d.png
+map_Bump cobblestone_n.png
+map_ao cobblestone_a.png
+map_Pr cobblestone_r.png

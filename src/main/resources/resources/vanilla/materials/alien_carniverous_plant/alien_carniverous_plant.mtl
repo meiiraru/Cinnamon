@@ -1,0 +1,6 @@
+newmtl alien_carniverous_plant
+map_Kd -smooth_mip alien-carniverous-plant_albedo.png
+map_disp -dm 0.05 -smooth alien-carniverous-plant_height.png
+map_Bump alien-carniverous-plant_normal-ogl.png
+map_ao alien-carniverous-plant_ao.png
+map_Pr alien-carniverous-plant_roughness.png

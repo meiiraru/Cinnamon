@@ -1,0 +1,6 @@
+newmtl solar_panel
+map_Kd -smooth_mip SolarPanel003_1K-PNG_Color.png
+map_disp -dm 0.02 -smooth SolarPanel003_1K-PNG_Displacement.png
+map_Bump SolarPanel003_1K-PNG_NormalGL.png
+map_Pr SolarPanel003_1K-PNG_Roughness.png
+map_Pm SolarPanel003_1K-PNG_Metalness.png

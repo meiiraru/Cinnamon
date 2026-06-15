@@ -1,0 +1,6 @@
+newmtl clay_shingles
+map_Kd -smooth_mip clay-shingles1_albedo.png
+map_disp -smooth clay-shingles1_height.png
+map_Bump clay-shingles1_normal-ogl.png
+map_ao clay-shingles1_ao.png
+map_Pr clay-shingles1_roughness.png

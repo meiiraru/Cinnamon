@@ -1,0 +1,5 @@
+newmtl candy
+map_Kd -smooth_mip Candy001_1K-PNG_Color.png
+map_disp -smooth Candy001_1K-PNG_Displacement.png
+map_Bump Candy001_1K-PNG_NormalGL.png
+map_Pr Candy001_1K-PNG_Roughness.png

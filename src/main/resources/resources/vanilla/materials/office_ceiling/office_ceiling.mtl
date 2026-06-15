@@ -1,0 +1,8 @@
+newmtl office_ceiling
+map_Kd -smooth_mip OfficeCeiling004_1K-PNG_Color.png
+map_disp -smooth OfficeCeiling004_1K-PNG_Displacement.png
+map_Bump OfficeCeiling004_1K-PNG_NormalGL.png
+map_ao OfficeCeiling004_1K-PNG_AmbientOcclusion.png
+map_Pr OfficeCeiling004_1K-PNG_Roughness.png
+map_Pm OfficeCeiling004_1K-PNG_Metalness.png
+map_Ke -mip OfficeCeiling004_1K-PNG_Emission.png

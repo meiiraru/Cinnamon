@@ -1,0 +1,4 @@
+newmtl yellow_concrete
+map_Kd -smooth_mip yellow_concrete.png
+map_Bump yellow_concrete_n.png
+map_Pr yellow_concrete_r.png

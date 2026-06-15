@@ -1,0 +1,4 @@
+newmtl terrazzo_slab
+map_Kd -smooth_mip TerrazzoSlab018_COL_1K_METALNESS.png
+map_disp -smooth TerrazzoSlab018_BUMP_1K_METALNESS.png
+map_Pr TerrazzoSlab018_ROUGHNESS_1K_METALNESS.png

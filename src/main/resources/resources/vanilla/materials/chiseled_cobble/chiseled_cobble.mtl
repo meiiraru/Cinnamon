@@ -1,0 +1,6 @@
+newmtl chiseled_cobble
+map_Kd -smooth_mip chiseled-cobble_albedo.png
+map_disp -smooth chiseled-cobble_height.png
+map_Bump chiseled-cobble_normal-ogl.png
+map_ao chiseled-cobble_ao.png
+map_Pr chiseled-cobble_roughness.png

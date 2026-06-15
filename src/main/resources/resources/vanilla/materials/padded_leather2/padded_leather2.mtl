@@ -1,0 +1,5 @@
+newmtl padded_leather2
+map_Kd -smooth_mip Leather011_1K-PNG_Color.png
+map_disp -dm 0.03 -smooth Leather011_1K-PNG_Displacement.png
+map_Bump Leather011_1K-PNG_NormalGL.png
+map_Pr Leather011_1K-PNG_Roughness.png

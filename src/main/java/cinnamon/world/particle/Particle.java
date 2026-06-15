@@ -41,8 +41,7 @@ public abstract class Particle extends WorldObject {
         move(motion);
 
         //tick time
-        age++;
-        if (age > lifetime)
+        if (lifetime >= 0 && ++age > lifetime)
             remove();
     }
 

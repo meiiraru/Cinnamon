@@ -1,0 +1,7 @@
+newmtl ornate_celtic_gold
+map_Kd -smooth_mip ornate-celtic-gold-albedo.png
+map_disp -dm 0.05 -smooth ornate-celtic-gold-height.png
+map_Bump ornate-celtic-gold-normal-ogl.png
+map_ao ornate-celtic-gold-ao.png
+map_Pr ornate-celtic-gold-roughness.png
+map_Pm ornate-celtic-gold-metallic.png

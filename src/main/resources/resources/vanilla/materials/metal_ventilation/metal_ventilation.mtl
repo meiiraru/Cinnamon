@@ -1,0 +1,7 @@
+newmtl metal_ventilation
+map_Kd -smooth_mip metal-ventilation1-albedo.png
+map_disp -smooth metal-ventilation1-height.png
+map_Bump metal-ventilation1-normal-ogl.png
+map_ao metal-ventilation1-ao.png
+map_Pr metal-ventilation1-roughness.png
+map_Pm metal-ventilation1-metallic.png

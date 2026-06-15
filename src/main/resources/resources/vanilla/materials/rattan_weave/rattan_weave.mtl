@@ -1,0 +1,6 @@
+newmtl rattan_weave
+map_Kd -smooth_mip Poliigon_RattanWeave_6945_BaseColor.png
+map_disp -smooth Poliigon_RattanWeave_6945_Displacement.png
+map_Bump Poliigon_RattanWeave_6945_Normal.png
+map_ao Poliigon_RattanWeave_6945_AmbientOcclusion.png
+map_Pr Poliigon_RattanWeave_6945_Roughness.png

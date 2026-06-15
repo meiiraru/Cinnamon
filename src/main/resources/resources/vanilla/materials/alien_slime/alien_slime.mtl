@@ -1,0 +1,6 @@
+newmtl alien_slime
+map_Kd -smooth_mip alien-slime1-albedo.png
+map_disp -smooth alien-slime1-height.png
+map_Bump alien-slime1-normal-ogl.png
+map_ao alien-slime1-ao.png
+map_Pr alien-slime1-roughness.png

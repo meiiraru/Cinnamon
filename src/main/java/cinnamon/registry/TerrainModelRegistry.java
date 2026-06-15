@@ -11,7 +11,8 @@ public enum TerrainModelRegistry {
     GLTF_TEST("models/terrain/gltf_test/gltf_test.gltf"),
 
     CONVEYOR_BELT("models/terrain/conveyor_belt/model.obj"),
-    BUTTON("models/terrain/button/button.obj");
+    BUTTON("models/terrain/button/button.obj"),
+    TORII_GATE("models/terrain/torii/torii_gate.obj");
 
     public final Resource resource;
 

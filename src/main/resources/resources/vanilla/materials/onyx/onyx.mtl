@@ -1,0 +1,5 @@
+newmtl onyx
+map_Kd -smooth_mip Onyx001_1K-PNG_Color.png
+map_disp -smooth Onyx001_1K-PNG_Displacement.png
+map_Bump Onyx001_1K-PNG_NormalGL.png
+map_Pr Onyx001_1K-PNG_Roughness.png

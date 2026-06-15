@@ -1,0 +1,6 @@
+newmtl stacked_stone
+map_Kd -smooth_mip stacked-stone-siding_albedo.png
+map_disp -smooth stacked-stone-siding_height.png
+map_Bump stacked-stone-siding_normal-ogl.png
+map_ao stacked-stone-siding_ao.png
+map_Pr stacked-stone-siding_roughness.png

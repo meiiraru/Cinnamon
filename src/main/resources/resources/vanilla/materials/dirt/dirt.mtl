@@ -1,0 +1,6 @@
+newmtl dirt
+map_Kd -smooth_mip GroundDirtRocky020_COL_1K.png
+map_disp -smooth GroundDirtRocky020_DISP_1K.png
+map_Bump GroundDirtRocky020_NRM_1K.png
+map_ao GroundDirtRocky020_AO_1K.png
+map_Pr GroundDirtRocky020_ROUGH_1K.png

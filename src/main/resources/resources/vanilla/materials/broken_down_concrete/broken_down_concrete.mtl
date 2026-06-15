@@ -1,0 +1,6 @@
+newmtl broken_down_concrete
+map_Kd -smooth_mip broken_down_concrete1_albedo.png
+map_disp -smooth broken_down_concrete1_Height.png
+map_Bump broken_down_concrete1_Normal-ogl.png
+map_ao broken_down_concrete1_ao.png
+map_Pr broken_down_concrete1_Roughness.png

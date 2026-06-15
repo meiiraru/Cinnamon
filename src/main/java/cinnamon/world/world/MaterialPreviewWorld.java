@@ -1,20 +1,22 @@
 package cinnamon.world.world;
 
-import cinnamon.math.collision.AABB;
 import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
+import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WaterRenderer;
-import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
+import cinnamon.world.particle.Particle;
+import cinnamon.world.particle.TextParticle;
+import cinnamon.world.terrain.Terrain;
 import org.joml.Math;
+import org.joml.Vector3f;
 
 public class MaterialPreviewWorld extends WorldClient {
 
@@ -29,57 +31,36 @@ public class MaterialPreviewWorld extends WorldClient {
         player.setPos(-2f, 2f, -2f);
         player.rotate(0f, 135f, 0f);
 
-        //MaterialRegistry[] values = MaterialRegistry.values();
-        //int grid = (int) Math.ceil(Math.sqrt(values.length));
-        //
-        //for (int i = 0; i < values.length; i++)
-        //    addLight(new Spotlight().castsShadows(false).intensity(50).pos(i % grid * 6f + 2.5f, 1.5f, (int) ((float) i / grid) * 3f + 0.5f).color(Colors.WHITE.argb));
-    }
-
-    @Override
-    public int renderTerrain(Camera camera, MatrixStack matrices, float delta) {
-        //render materials
         MaterialRegistry[] values = MaterialRegistry.values();
         int grid = (int) Math.ceil(Math.sqrt(values.length));
+        Vector3f position = new Vector3f();
 
-        //render
-        int count = 0;
         for (int i = 0; i < values.length; i++) {
-            matrices.pushMatrix();
-            matrices.translate(i % grid * 6f, 0f, (float) (i / grid * 3));
-
             Material mat = values[i].material;
-            boolean visible = false;
+            position.set(i % grid * 6f, 0f, (float) (i / grid * 3));
 
-            AABB sphereBB = SPHERE.getAABB();
-            sphereBB.applyMatrix(matrices.peek().pos());
-            if (camera.isInsideFrustum(sphereBB)) {
-                SPHERE.render(matrices, mat);
-                visible = true;
-                count++;
-            }
+            Terrain sphere = TerrainRegistry.SPHERE.getFactory().get();
+            sphere.setMaterial(mat);
+            sphere.setPos(position);
+            sphere.getCollisionMask().setExcludeMask(0, true);
+            addTerrain(sphere);
 
-            matrices.translate(3f, 0f, 0f);
+            position.add(3f, 0f, 0f);
 
-            AABB boxBB = BOX.getAABB();
-            boxBB.applyMatrix(matrices.peek().pos());
-            if (camera.isInsideFrustum(boxBB)) {
-                BOX.render(matrices, mat);
-                visible = true;
-                count++;
-            }
+            Terrain box = TerrainRegistry.BOX.getFactory().get();
+            box.setMaterial(mat);
+            box.setPos(position);
+            box.getCollisionMask().setExcludeMask(0, true);
+            addTerrain(box);
 
-            if (visible && !client.hideHUD) {
-                matrices.translate(-1.5f, 1.5f, 0f);
-                matrices.scale(-1 / 48f);
-                camera.billboard(matrices);
-                Text.translated("material." + values[i].name().toLowerCase()).withStyle(Style.EMPTY.shadow(true).shadowColor(Colors.PURPLE)).render(VertexConsumer.WORLD_MAIN, matrices, 0f, 0f, Alignment.BOTTOM_CENTER);
-            }
+            //addLight(new Spotlight().castsShadows(false).intensity(50).pos(position.x, position.y + 1.5f, position.z).color(Colors.WHITE.argb));
 
-            matrices.popMatrix();
+            position.add(-1f, 1.5f, 0.5f);
+
+            Particle text = new TextParticle(Text.translated("material." + values[i].name().toLowerCase()).withStyle(Style.EMPTY.shadow(true).shadowColor(Colors.PURPLE)), -1, position);
+            text.setMotion(0, 0, 0);
+            addParticle(text);
         }
-
-        return super.renderTerrain(camera, matrices, delta) + count;
     }
 
     @Override

@@ -1,0 +1,6 @@
+newmtl base_white_tile
+map_Kd -smooth_mip base-white-tile_albedo.png
+map_disp -smooth base-white-tile_height.png
+map_Bump base-white-tile_normal-ogl.png
+map_ao base-white-tile_ao.png
+map_Pr base-white-tile_roughness.png

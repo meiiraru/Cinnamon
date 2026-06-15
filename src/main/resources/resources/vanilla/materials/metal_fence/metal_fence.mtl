@@ -1,0 +1,6 @@
+newmtl metal_fence
+map_Kd -smooth_mip Fence007A_1K-PNG_Color.png
+map_disp -smooth Fence007A_1K-PNG_Displacement.png
+map_Bump Fence007A_1K-PNG_NormalGL.png
+map_Pr Fence007A_1K-PNG_Roughness.png
+map_Pm Fence007A_1K-PNG_Metalness.png

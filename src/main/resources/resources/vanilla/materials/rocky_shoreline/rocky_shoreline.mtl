@@ -1,0 +1,6 @@
+newmtl rocky_shoreline
+map_Kd -smooth_mip rocky-shoreline1-albedo.png
+map_disp -dm 0.03 -smooth rocky-shoreline1-height.png
+map_Bump rocky-shoreline1-normal-ogl.png
+map_ao rocky-shoreline1-ao.png
+map_Pr rocky-shoreline1-roughness.png

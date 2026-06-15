@@ -1,0 +1,4 @@
+newmtl leather
+map_Kd -smooth_mip leather.png
+map_Bump leather_n.png
+map_Pr leather_r.png
