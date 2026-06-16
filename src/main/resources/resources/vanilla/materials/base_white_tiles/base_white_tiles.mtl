@@ -1,4 +1,4 @@
-newmtl base_white_tile
+newmtl base_white_tiles
 map_Kd -smooth_mip base-white-tile_albedo.png
 map_disp -smooth base-white-tile_height.png
 map_Bump base-white-tile_normal-ogl.png

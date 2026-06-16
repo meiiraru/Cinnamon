@@ -6,6 +6,7 @@ public enum TerrainModelRegistry {
 
     BOX("models/terrain/box/box.obj"),
     SPHERE("models/terrain/sphere/sphere.obj"),
+    SLAB("models/terrain/slab/slab.obj"),
     TEAPOT("models/terrain/teapot/teapot.obj"),
     ROSE("models/terrain/rose/rose.obj"),
     GLTF_TEST("models/terrain/gltf_test/gltf_test.gltf"),

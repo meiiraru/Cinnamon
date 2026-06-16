@@ -14,7 +14,7 @@ public enum MaterialRegistry {
     BACTERIA,
     BAMBOO,
     BAMBOO_WOOD,
-    BASE_WHITE_TILE,
+    BASE_WHITE_TILES,
     BATHROOM_TILES,
     BIRCH_LOG,
     BLACK_TILES,

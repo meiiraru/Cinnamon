@@ -335,13 +335,14 @@ public class Hud {
 
         Vector3f bounds = terrain.getAABB().getDimensions();
         Vector3f center = terrain.getAABB().getCenter();
-        float s = 16f / bounds.y;
+        float maxDim = Math.max(bounds.x, Math.max(bounds.y, bounds.z));
+        float s = 16f / maxDim;
 
         matrices.pushMatrix();
         Window ww = c.window;
 
         //translate to the top center of the screen
-        matrices.translate(ww.getGUIWidth() * 0.5f, 4 + bounds.y * s * 0.5f, 0);
+        matrices.translate(ww.getGUIWidth() * 0.5f, 4 + maxDim * s * 0.5f, 0);
         matrices.scale(s, -s, s);
 
         //apply rotation for a better view angle of the model

@@ -432,6 +432,7 @@
   "terrain": "Terrain",
   "terrain.box": "Box",
   "terrain.sphere": "Sphere",
+  "terrain.slab": "Slab",
   "terrain.teapot": "Teapot",
   "terrain.rose": "Rose",
   "terrain.barrier": "Barrier",

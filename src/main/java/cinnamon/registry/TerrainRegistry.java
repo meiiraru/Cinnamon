@@ -9,6 +9,7 @@ public enum TerrainRegistry {
 
     BOX(TerrainModelRegistry.BOX.resource),
     SPHERE(Sphere::new),
+    SLAB(TerrainModelRegistry.SLAB.resource),
     TEAPOT(Teapot::new),
     ROSE(Rose::new),
     BARRIER(Barrier::new),

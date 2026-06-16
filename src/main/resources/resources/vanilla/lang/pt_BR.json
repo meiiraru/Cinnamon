@@ -402,6 +402,7 @@
   "terrain": "Terreno",
   "terrain.box": "Caixa",
   "terrain.sphere": "Esfera",
+  "terrain.slab": "Laje",
   "terrain.teapot": "Bule",
   "terrain.rose": "Rosa",
   "terrain.barrier": "Barreira",

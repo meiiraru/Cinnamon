@@ -73,6 +73,14 @@ public class Brick extends Projectile {
     }
 
     @Override
+    public void calculateBounds() {
+        this.aabb
+                .set(transform.getPos())
+                .inflate(0.15f)
+                .scale(getTransform().getScale());
+    }
+
+    @Override
     public EntityRegistry getType() {
         return EntityRegistry.BRICK;
     }
