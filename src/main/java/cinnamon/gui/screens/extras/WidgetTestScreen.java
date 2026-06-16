@@ -13,14 +13,9 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.settings.Settings;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.Alignment;
-import cinnamon.utils.Colors;
-import cinnamon.utils.Resource;
-import cinnamon.utils.TextUtils;
+import cinnamon.utils.*;
 import cinnamon.world.Hud;
 import org.joml.Math;
-
-import static cinnamon.Client.LOGGER;
 
 public class WidgetTestScreen extends ParentedScreen {
 
@@ -39,7 +34,7 @@ public class WidgetTestScreen extends ParentedScreen {
         clicksLabel.setPopup(new ContextMenu()
                 .addAction(Text.of("Reset"), Text.of("Reset"), button -> clicks = 0)
                 .addDivider()
-                .addAction(Text.of("Meow"), Text.of("~ :3"), button -> System.out.println("meow"))
+                .addAction(Text.of("Meow"), Text.of("~ :3"), button -> Toast.addToast("meow"))
         );
 
         ContainerGrid grid = new ContainerGrid(4, 4, 4);
@@ -48,35 +43,45 @@ public class WidgetTestScreen extends ParentedScreen {
         ContainerGrid buttons = new ContainerGrid(0, 0, 4, 2);
         grid.addWidget(buttons);
 
-        Button b = new Button(0, 0, 60, 12, Text.of("Button"), button -> LOGGER.info("button!"));
+        Button b = new Button(0, 0, 60, 12, Text.of("Button"), button -> Toast.addToast("button!"));
         buttons.addWidget(b);
 
         ContextMenu ctx4 = new ContextMenu();
         for (int i = 0; i < 100; i++) {
             int ii = i;
-            ctx4.addAction(Text.of(i), Text.of(i), button -> LOGGER.info(ii));
+            ctx4.addAction(Text.of(i), Text.of(i), button -> Toast.addToast(ii));
         }
 
         b.setPopup(new ContextMenu()
-                .addAction(Text.of("Meow 1"), Text.of("Meow 1"), button -> LOGGER.info("Meow 1"))
+                .addAction(Text.of("Meow 1"), Text.of("Meow 1"), button -> Toast.addToast("Meow 1"))
                 .addDivider()
-                .addAction(Text.of("Meow 2"), Text.of("Meow 2"), button -> LOGGER.info("Meow 2"))
+                .addAction(Text.of("Meow 2"), Text.of("Meow 2"), button -> Toast.addToast("Meow 2"))
                 .addDivider()
-                .addAction(Text.of("Meow 3"), Text.of("Meow 3"), button -> LOGGER.info("Meow 3"))
+                .addAction(Text.of("Meow 3"), Text.of("Meow 3"), button -> Toast.addToast("Meow 3"))
                 .addSubMenu(Text.of("I"), new ContextMenu()
-                        .addAction(Text.of("A"), Text.of("A"), button -> LOGGER.info("a"))
-                        .addAction(Text.of("B"), Text.of("B"), button -> LOGGER.info("b"))
-                        .addAction(Text.of("C"), Text.of("C"), button -> LOGGER.info("c"))
+                        .addAction(Text.of("A"), Text.of("A"), button -> Toast.addToast("a"))
+                        .addAction(Text.of("B"), Text.of("B"), button -> Toast.addToast("b"))
+                        .addAction(Text.of("C"), Text.of("C"), button -> Toast.addToast("c"))
                         .addSubMenu(Text.of("II"), new ContextMenu()
-                                .addAction(Text.of("1"), Text.of("1"), button -> LOGGER.info("II. 1"))
-                                .addAction(Text.of("11"), Text.of("11"), button -> LOGGER.info("II. 11"))
-                                .addAction(Text.of("111"), Text.of("111"), button -> LOGGER.info("II. 111"))
+                                .addAction(Text.of("1"), Text.of("1"), button -> Toast.addToast("II. 1"))
+                                .addAction(Text.of("11"), Text.of("11"), button -> Toast.addToast("II. 11"))
+                                .addAction(Text.of("111"), Text.of("111"), button -> Toast.addToast("II. 111"))
                                 .addSubMenu(Text.of("III"), ctx4)
                         )
                 )
+                .addSubMenu(Text.of("II"), new ContextMenu()
+                        .addAction(Text.of("D"), Text.of("I"), button -> Toast.addToast("d"))
+                        .addAction(Text.of("E"), Text.of("J"), button -> Toast.addToast("e"))
+                        .addAction(Text.of("F"), Text.of("K"), button -> Toast.addToast("f"))
+                )
+                .addSubMenu(Text.of("III"), new ContextMenu()
+                        .addAction(Text.of("X"), Text.of("X"), button -> Toast.addToast("x"))
+                        .addAction(Text.of("Y"), Text.of("Y"), button -> Toast.addToast("y"))
+                        .addAction(Text.of("Z"), Text.of("Z"), button -> Toast.addToast("z"))
+                )
         );
 
-        Button disabledButt = new Button(0, 0, 60, 12, Text.of("Disabled"), button -> LOGGER.info("Disabled"));
+        Button disabledButt = new Button(0, 0, 60, 12, Text.of("Disabled"), button -> Toast.addToast("Disabled"));
         disabledButt.setActive(false);
         buttons.addWidget(disabledButt);
 
@@ -100,11 +105,11 @@ public class WidgetTestScreen extends ParentedScreen {
         grid.addWidget(cb);
 
         cb
-                .addEntry(Text.of("Entry 1"), Text.of("1"), button -> LOGGER.info("1"))
+                .addEntry(Text.of("Entry 1"), Text.of("1"), button -> Toast.addToast("1"))
                 .addDivider()
-                .addEntry(Text.of("Entry 2"), Text.of("2"), button -> LOGGER.info("2"))
+                .addEntry(Text.of("Entry 2"), Text.of("2"), button -> Toast.addToast("2"))
                 .addDivider()
-                .addEntry(Text.of("Entry 3"), Text.of("3"), button -> LOGGER.info("3"));
+                .addEntry(Text.of("Entry 3"), Text.of("3"), button -> Toast.addToast("3"));
 
         //selection 2
         ComboBox cb2 = new ComboBox(0, 0, 60, 12);
@@ -201,17 +206,40 @@ public class WidgetTestScreen extends ParentedScreen {
         ckb2.setActive(false);
         grid.addWidget(ckb2);
 
+        ContainerGrid toasts = new ContainerGrid(0, 0, 4, 3);
+        grid.addWidget(toasts);
+
         //toast 1
         Button toast1 = new Button(0, 0, 60, 12, Text.of("Toast 1"), button -> Toast.addToast(Text.of("Toast 1")).style(button.getStyleRes()));
-        grid.addWidget(toast1);
+        toasts.addWidget(toast1);
 
         //toast 2
         Button toast2 = new Button(0, 0, 60, 12, Text.of("Toast 2"), button -> Toast.addToast(Text.of("Multi-line\nToast :3")).style(button.getStyleRes()).type(Toast.ToastType.WARN));
-        grid.addWidget(toast2);
+        toasts.addWidget(toast2);
 
         //toast 3
         Button toast3 = new Button(0, 0, 60, 12, Text.of("Toast 3"), button -> Toast.addToast(Text.of("Oopsie daisy")).style(button.getStyleRes()).type(Toast.ToastType.ERROR).color(Colors.randomRainbow().argb));
-        grid.addWidget(toast3);
+        toasts.addWidget(toast3);
+
+        //popup test
+        ContainerGrid popups = new ContainerGrid(0, 0, 4, 3);
+        grid.addWidget(popups);
+
+        //confirmation
+        Button popup = new Button(0, 0, 60, 12, Text.of("Confirmation"), button -> {
+            ConfirmPopup.YesNo popup1 = new ConfirmPopup.YesNo(Text.of("Are you sure?"), result -> Toast.addToast("Result: " + result));
+            UIHelper.setPopup(width / 2, height / 2, popup1);
+            popup1.open();
+        });
+        popups.addWidget(popup);
+
+        //notice
+        Button notice = new Button(0, 0, 60, 12, Text.of("Notice"), button -> {
+            ConfirmPopup.OK popup1 = new ConfirmPopup.OK(Text.of("This is a notice!"));
+            UIHelper.setPopup(width / 2, height / 2, popup1);
+            popup1.open();
+        });
+        popups.addWidget(notice);
 
         //right panel
         ContainerGrid grid2 = new ContainerGrid(width - 4, 4, 4);

@@ -20,6 +20,7 @@ public class WidgetList extends ContainerGrid {
     private boolean showScrollbar = true;
     private boolean hasBackground;
     private boolean ignoreScrollbarOffset;
+    private boolean allowTabNavigation = true;
     private int widgetsWidth, widgetsHeight;
     private int lastY;
 
@@ -160,7 +161,21 @@ public class WidgetList extends ContainerGrid {
     }
 
     public void scrollToWidget(Widget widget) {
-        if (widget == null || !widgets.contains(widget))
+        if (widget == null)
+            return;
+
+        //check if the widget is a child of this list
+        boolean isDescendant = false;
+        Widget p = widget;
+        while (p != null) {
+            if (p == this) {
+                isDescendant = true;
+                break;
+            }
+            p = p.getParent();
+        }
+
+        if (!isDescendant)
             return;
 
         int widgetY = widget.getY();
@@ -172,6 +187,9 @@ public class WidgetList extends ContainerGrid {
         int thisY2 = thisY + thisHeight;
 
         float scrollHeight = getWidgetsHeight() - thisHeight;
+        if (scrollHeight <= 0)
+            return;
+
         float scrollPercent = scrollbar.getAnimationValue();
 
         //scroll up
@@ -221,9 +239,20 @@ public class WidgetList extends ContainerGrid {
     }
 
     @Override
-    protected List<SelectableWidget> getSelectableWidgets() {
-        List<SelectableWidget> sup = super.getSelectableWidgets();
-        if (shouldRenderScrollbar()) sup.addFirst(scrollbar);
+    protected List<SelectableWidget> getSelectableWidgets(boolean isTab) {
+        List<SelectableWidget> sup = super.getSelectableWidgets(isTab);
+
+        //if tab navigation is not allowed, allow only the first widget to be selected, and do not allow to select any other widget by tabbing
+        if (isTab && !allowTabNavigation) {
+            if (!sup.isEmpty())
+                return List.of(sup.getFirst());
+            else
+                return List.of();
+        }
+
+        //if (shouldRenderScrollbar())
+        //    sup.addFirst(scrollbar);
+
         return sup;
     }
 
@@ -273,5 +302,13 @@ public class WidgetList extends ContainerGrid {
 
     public void setIgnoreScrollbarOffset(boolean bool) {
         this.ignoreScrollbarOffset = bool;
+    }
+
+    public void setAllowTabNavigation(boolean allowTabNavigation) {
+        this.allowTabNavigation = allowTabNavigation;
+    }
+
+    public boolean isAllowTabNavigation() {
+        return allowTabNavigation;
     }
 }

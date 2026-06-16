@@ -302,6 +302,9 @@ public class Client {
     }
 
     public void charTyped(char c, int mods) {
+        if (DebugScreen.charTyped(c, mods))
+            return;
+
         if (screen != null)
             screen.charTyped(c, mods);
 

@@ -33,7 +33,7 @@ public class Toast {
     // -- toast functions -- //
 
 
-    public static Toast addToast(String text) {
+    public static Toast addToast(Object text) {
         return addToast(Text.of(text));
     }
 

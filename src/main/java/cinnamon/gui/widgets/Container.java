@@ -213,8 +213,8 @@ public class Container extends Widget implements Tickable, GUIListener {
         return null;
     }
 
-    public SelectableWidget selectNext(SelectableWidget current, boolean backwards) {
-        List<SelectableWidget> list = getSelectableWidgets();
+    public SelectableWidget selectNext(SelectableWidget current, boolean backwards, boolean isTab) {
+        List<SelectableWidget> list = getSelectableWidgets(isTab);
 
         //no widget found, return null
         if (list.isEmpty())
@@ -224,10 +224,26 @@ public class Container extends Widget implements Tickable, GUIListener {
         if (current == null)
             return list.getFirst();
 
-        //did not find selected widget, return first
+        //did not find selected widget, fallback dynamically to global list index to ensure we don't break sequence
         int i = list.indexOf(current);
-        if (i == -1)
+        if (i == -1) {
+            List<SelectableWidget> fullList = getSelectableWidgets(false);
+            int fullIndex = fullList.indexOf(current);
+            if (fullIndex != -1) {
+                if (backwards) {
+                    for (int j = fullIndex - 1; j >= 0; j--) {
+                        if (list.contains(fullList.get(j))) return fullList.get(j);
+                    }
+                    return list.getLast();
+                } else {
+                    for (int j = fullIndex + 1; j < fullList.size(); j++) {
+                        if (list.contains(fullList.get(j))) return fullList.get(j);
+                    }
+                    return list.getFirst();
+                }
+            }
             return list.getFirst();
+        }
 
         //change selected index
         i = backwards ? i - 1 : i + 1;
@@ -237,14 +253,14 @@ public class Container extends Widget implements Tickable, GUIListener {
         return list.get(i);
     }
 
-    protected List<SelectableWidget> getSelectableWidgets() {
+    protected List<SelectableWidget> getSelectableWidgets(boolean isTab) {
         List<SelectableWidget> list = new ArrayList<>();
 
         for (Widget widget : widgets) {
             if (widget instanceof SelectableWidget w && w.isSelectable())
                 list.add(w);
             else if (widget instanceof Container c)
-                list.addAll(c.getSelectableWidgets());
+                list.addAll(c.getSelectableWidgets(isTab));
         }
 
         return list;

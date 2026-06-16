@@ -1,5 +1,7 @@
 package cinnamon.gui.widgets;
 
+import cinnamon.Client;
+import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.types.Scrollbar;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.UIHelper;
@@ -19,6 +21,7 @@ public class PopupWidget extends ContainerGrid {
     private Consumer<PopupWidget> closeListener;
     private boolean wasParentFocused;
     private boolean forceFocusParent;
+    private boolean voidOutsideClicks = true;
 
     public PopupWidget(int x, int y, int spacing) {
         super(x, y, spacing);
@@ -108,7 +111,7 @@ public class PopupWidget extends ContainerGrid {
         }
 
         //close popup when clicked outside it, but do not void the mouse click
-        if (action != GLFW_RELEASE && !this.isHovered()) {
+        if (voidOutsideClicks && action != GLFW_RELEASE && !this.isHovered()) {
             this.close();
             return null;
         }
@@ -131,27 +134,48 @@ public class PopupWidget extends ContainerGrid {
         if (!isOpen())
             return null;
 
-        if (action != GLFW_PRESS)
-            return super.keyPress(key, scancode, action, mods);
+        //children first
+        GUIListener sup = super.keyPress(key, scancode, action, mods);
+        if (sup != null)
+            return sup;
 
-        switch (key) {
-            case GLFW_KEY_ESCAPE -> this.close();
-            case GLFW_KEY_DOWN -> {} //this.selectNext(false);
-            case GLFW_KEY_UP -> {} //this.selectNext(true);
-            default -> super.keyPress(key, scancode, action, mods);
+        //only handle key presses
+        if (action != GLFW_PRESS)
+            return this;
+
+        //handle navigation keys for this popup only
+        Screen screen = Client.getInstance().screen;
+        if (screen != null) {
+            switch (key) {
+                case GLFW_KEY_ESCAPE -> this.close();
+                case GLFW_KEY_TAB  -> screen.focusWidget(this.selectNext(screen.getFocusedWidget(), (mods & GLFW_MOD_SHIFT) != 0, true));
+                case GLFW_KEY_UP   -> screen.focusWidget(this.selectNext(screen.getFocusedWidget(), true, false));
+                case GLFW_KEY_DOWN -> screen.focusWidget(this.selectNext(screen.getFocusedWidget(), false, false));
+            }
         }
 
+        //consume the event
         return this;
     }
 
     @Override
     public GUIListener scroll(double x, double y) {
-        return isOpen() ? super.scroll(x, y) : null;
+        if (!isOpen())
+            return null;
+
+        //let children handle the scroll first
+        GUIListener sup = super.scroll(x, y);
+        if (sup != null)
+            return sup;
+
+        //if no child handled it, consume the scroll event to prevent it from affecting the main container
+        return this;
     }
 
     @Override
-    protected List<SelectableWidget> getSelectableWidgets() {
-        return List.of();
+    protected List<SelectableWidget> getSelectableWidgets(boolean isTab) {
+        if (!isOpen()) return List.of();
+        return super.getSelectableWidgets(isTab);
     }
 
     public PopupWidget closeOnSelect(boolean bool) {
@@ -161,5 +185,9 @@ public class PopupWidget extends ContainerGrid {
 
     public void fitToScreen(int width, int height) {
         this.setDimensions(Math.min(getWidth(), width), Math.min(getHeight(), height));
+    }
+
+    public void setVoidOutsideClicks(boolean voidOutsideClicks) {
+        this.voidOutsideClicks = voidOutsideClicks;
     }
 }

@@ -63,6 +63,7 @@ public class ModelViewerScreen extends ParentedScreen {
         //create model list
         WidgetList models = new WidgetList(showModelList ? 4 : -listWidth, 4, listWidth - 4, height - 8, 4);
         models.setAlignment(Alignment.TOP_LEFT);
+        models.setAllowTabNavigation(false);
 
         //button common function
         BiFunction<Resource, String, Button> createButton = (model, name) ->

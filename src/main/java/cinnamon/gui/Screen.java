@@ -6,6 +6,7 @@ import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.PopupWidget;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.Widget;
+import cinnamon.gui.widgets.WidgetList;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.StaticGeometry;
@@ -110,8 +111,18 @@ public abstract class Screen {
 
         SelectableWidget prevFocus = this.focused;
         this.focused = widget;
-        if (widget != null)
+
+        if (widget != null) {
             widget.setFocused(true);
+
+            //check if the widget is a child of a list and scroll to it
+            Widget p = widget.getParent();
+            while (p != null) {
+                if (p instanceof WidgetList wl)
+                    wl.scrollToWidget(widget);
+                p = p.getParent();
+            }
+        }
 
         if (prevFocus != null)
             prevFocus.setFocused(false);
@@ -292,11 +303,14 @@ public abstract class Screen {
         if (action != GLFW_PRESS)
             return false;
 
+        PopupWidget activePopup = this.popup != null && this.popup.isOpen() ? this.popup : null;
+        Container navContainer = activePopup != null ? activePopup : this.mainContainer;
+
         switch (key) {
             case GLFW_KEY_ESCAPE -> {if (closeOnEsc()) this.close();}
-            case GLFW_KEY_TAB -> focusWidget(mainContainer.selectNext(focused, (mods & GLFW_MOD_SHIFT) != 0));
-            case GLFW_KEY_UP -> focusWidget(mainContainer.selectNext(focused, true));
-            case GLFW_KEY_DOWN -> focusWidget(mainContainer.selectNext(focused, false));
+            case GLFW_KEY_TAB  -> focusWidget(navContainer.selectNext(focused, (mods & GLFW_MOD_SHIFT) != 0, true));
+            case GLFW_KEY_UP   -> focusWidget(navContainer.selectNext(focused, true, false));
+            case GLFW_KEY_DOWN -> focusWidget(navContainer.selectNext(focused, false, false));
             default -> {return false;}
         }
 

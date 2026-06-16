@@ -139,12 +139,24 @@ public class DebugScreen {
                 case GLFW_KEY_D -> MessageManager.clearMessages();
                 case GLFW_KEY_C -> {
                     crashStartTime = System.currentTimeMillis();
-                    Toast.addToast("Debug crashing in 10 seconds...");
-                    new Await(10 * Client.TPS, () -> {
+                    Toast.addToast("Debug crashing in...");
+                    Runnable[] crashTask = new Runnable[1];
+                    crashTask[0] = () -> {
+                        if (crashStartTime <= 0)
+                            return;
+
                         long currentTime = System.currentTimeMillis();
-                        if (currentTime - crashStartTime >= 10 * Client.TPS)
+                        long elapsed = currentTime - crashStartTime;
+                        long target = 10 * 1000L;
+
+                        if (elapsed >= target) {
                             throw new RuntimeException("Manually triggered crash from debug command");
-                    });
+                        } else {
+                            Toast.addToast(Math.round((target - elapsed) / 1000f));
+                            new Await(Client.TPS, crashTask[0]);
+                        }
+                    };
+                    crashTask[0].run();
                 }
                 default -> {return false;}
             }
@@ -182,6 +194,10 @@ public class DebugScreen {
             return true;
         }
         return false;
+    }
+
+    public static boolean charTyped(char c, int mods) {
+        return f3Pressed;
     }
 
     public static boolean xrTriggerPress(int button, float value, int hand, float lastValue) {
