@@ -6,6 +6,7 @@ import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.settings.ArgsOptions;
 import cinnamon.settings.Settings;
+import cinnamon.utils.CrashHandler;
 import cinnamon.utils.FileDialog;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
@@ -48,8 +49,14 @@ public class Cinnamon {
     }
 
     public Cinnamon(String... args) {
+        //initialize the global crash handler
+        CrashHandler.init();
+
         //parse command line arguments
         ArgsOptions.parse(args);
+
+        //initiate logger
+        LoggerConfig.initialize();
 
         //render doc
         String doc = ArgsOptions.RENDER_DOC.getAsString();
@@ -58,15 +65,16 @@ public class Cinnamon {
     }
 
     public void run() {
-        init();
-        loop();
-        close();
+        try {
+            init();
+            loop();
+            close();
+        } catch (Throwable t) {
+            CrashHandler.handleCrash(Thread.currentThread(), t);
+        }
     }
 
     private void init() {
-        //initiate logger
-        LoggerConfig.initialize();
-
         //init the client instance
         Client client = Client.getInstance();
 

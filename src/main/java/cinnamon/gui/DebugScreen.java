@@ -1,6 +1,7 @@
 package cinnamon.gui;
 
 import cinnamon.Client;
+import cinnamon.events.Await;
 import cinnamon.gui.screens.MainMenu;
 import cinnamon.logger.Level;
 import cinnamon.logger.LogOutput;
@@ -56,8 +57,8 @@ public class DebugScreen {
         public void write(Level level, String message, Throwable throwable) {
             switch (level) {
                 case TRACE, DEBUG -> message = "&7" + message;
-                case INFO -> message = "&f" + message;
-                case WARN -> message = "&e" + message;
+                case INFO  -> message = "&f" + message;
+                case WARN  -> message = "&e" + message;
                 case ERROR -> message = "&c" + message;
                 case FATAL -> message = "&d" + message;
             }
@@ -81,6 +82,7 @@ public class DebugScreen {
     private static int hoveredTab;
     private static boolean active;
     private static boolean f3Pressed, f3Voided;
+    private static long crashStartTime;
 
     public static void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
@@ -135,6 +137,15 @@ public class DebugScreen {
                     c.queueTick(() -> c.setScreen(new MainMenu()));
                 }
                 case GLFW_KEY_D -> MessageManager.clearMessages();
+                case GLFW_KEY_C -> {
+                    crashStartTime = System.currentTimeMillis();
+                    Toast.addToast("Debug crashing in 10 seconds...");
+                    new Await(10 * Client.TPS, () -> {
+                        long currentTime = System.currentTimeMillis();
+                        if (currentTime - crashStartTime >= 10 * Client.TPS)
+                            throw new RuntimeException("Manually triggered crash from debug command");
+                    });
+                }
                 default -> {return false;}
             }
 
@@ -142,15 +153,24 @@ public class DebugScreen {
             return true;
         }
 
-        else if (action == GLFW_RELEASE && key == GLFW_KEY_F3) {
-            boolean wasPressed = f3Pressed;
-            f3Pressed = false;
+        else if (action == GLFW_RELEASE) {
+            switch (key) {
+                case GLFW_KEY_F3 -> {
+                    boolean wasPressed = f3Pressed;
+                    f3Pressed = false;
 
-            if (wasPressed && !f3Voided) {
-                active = !active;
-                return true;
+                    if (wasPressed && !f3Voided) {
+                        active = !active;
+                        return true;
+                    }
+                    f3Voided = false;
+                }
+                case GLFW_KEY_C -> {
+                    if (crashStartTime != 0)
+                        Toast.addToast("Debug crash cancelled");
+                    crashStartTime = 0;
+                }
             }
-            f3Voided = false;
         }
 
         return false;
