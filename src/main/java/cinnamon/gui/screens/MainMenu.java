@@ -100,8 +100,8 @@ public class MainMenu extends Screen {
         boolean xr = XrManager.isInXR();
         float d = UIHelper.getDepthOffset();
 
-        float parallaxX = Maths.clamp((float) client.window.mouseX / client.window.scaledWidth  * 2f - 1f, -1f, 1f);
-        float parallaxY = Maths.clamp((float) client.window.mouseY / client.window.scaledHeight * 2f - 1f, -1f, 1f);
+        float parallaxX = Maths.clamp((float) client.window.mouseX / client.window.getGUIWidth()  * 2f - 1f, -1f, 1f);
+        float parallaxY = Maths.clamp((float) client.window.mouseY / client.window.getGUIHeight() * 2f - 1f, -1f, 1f);
 
         //background
         Texture bg = Texture.of(BACKGROUND);

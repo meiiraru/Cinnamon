@@ -118,6 +118,14 @@ public class Text {
         return false;
     }
 
+    public void visitStyle(BiFunction<String, Style, Style> function) {
+        Style newStyle = function.apply(getTranslatedText(), style);
+        if (newStyle != null)
+            style = newStyle;
+        for (Text child : children)
+            child.visitStyle(function);
+    }
+
     public void render(VertexConsumer consumer, MatrixStack matrices, float x, float y) {
         render(consumer, matrices, x, y, Alignment.TOP_LEFT);
     }

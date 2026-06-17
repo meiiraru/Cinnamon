@@ -192,8 +192,8 @@ public class ModelViewer extends SelectableWidget {
         boolean xr = XrManager.isInXR();
 
         float guiScale = c.window.guiScale;
-        float x = ((getWidth() - c.window.scaledWidth) / 2f + c.window.scaledWidth - (getWidth() + getX())) * guiScale / modelBuffer.getWidth();
-        float y = ((getHeight() - c.window.scaledHeight) / 2f + getY()) * guiScale / modelBuffer.getHeight();
+        float x = ((getWidth() - c.window.getGUIWidth()) / 2f + c.window.getGUIWidth() - (getWidth() + getX())) * guiScale / modelBuffer.getWidth();
+        float y = ((getHeight() - c.window.getGUIHeight()) / 2f + getY()) * guiScale / modelBuffer.getHeight();
 
         //enable scissor test to limit the rendering to the widget area
         if (!xr) {

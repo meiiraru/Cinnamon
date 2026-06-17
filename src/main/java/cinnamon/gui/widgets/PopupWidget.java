@@ -22,6 +22,7 @@ public class PopupWidget extends ContainerGrid {
     private boolean wasParentFocused;
     private boolean forceFocusParent;
     private boolean voidOutsideClicks = true;
+    private boolean closeOnEscape = true;
 
     public PopupWidget(int x, int y, int spacing) {
         super(x, y, spacing);
@@ -40,6 +41,9 @@ public class PopupWidget extends ContainerGrid {
     }
 
     public void close() {
+        if (!isOpen())
+            return;
+
         this.open = false;
         reset();
 
@@ -51,6 +55,9 @@ public class PopupWidget extends ContainerGrid {
     }
 
     public void open() {
+        if (isOpen())
+            return;
+
         this.open = true;
         reset();
 
@@ -147,7 +154,7 @@ public class PopupWidget extends ContainerGrid {
         Screen screen = Client.getInstance().screen;
         if (screen != null) {
             switch (key) {
-                case GLFW_KEY_ESCAPE -> this.close();
+                case GLFW_KEY_ESCAPE -> {if (closeOnEscape) this.close();}
                 case GLFW_KEY_TAB  -> screen.focusWidget(this.selectNext(screen.getFocusedWidget(), (mods & GLFW_MOD_SHIFT) != 0, true));
                 case GLFW_KEY_UP   -> screen.focusWidget(this.selectNext(screen.getFocusedWidget(), true, false));
                 case GLFW_KEY_DOWN -> screen.focusWidget(this.selectNext(screen.getFocusedWidget(), false, false));
@@ -187,7 +194,11 @@ public class PopupWidget extends ContainerGrid {
         this.setDimensions(Math.min(getWidth(), width), Math.min(getHeight(), height));
     }
 
-    public void setVoidOutsideClicks(boolean voidOutsideClicks) {
+    public void voidOutsideClicks(boolean voidOutsideClicks) {
         this.voidOutsideClicks = voidOutsideClicks;
+    }
+
+    public void closeOnEscape(boolean closeOnEscape) {
+        this.closeOnEscape = closeOnEscape;
     }
 }

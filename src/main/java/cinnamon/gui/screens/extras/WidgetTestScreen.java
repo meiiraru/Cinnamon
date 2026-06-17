@@ -227,7 +227,7 @@ public class WidgetTestScreen extends ParentedScreen {
 
         //confirmation
         Button popup = new Button(0, 0, 60, 12, Text.of("Confirmation"), button -> {
-            ConfirmPopup.YesNo popup1 = new ConfirmPopup.YesNo(Text.of("Are you sure?"), result -> Toast.addToast("Result: " + result));
+            ConfirmPopup.YesNo popup1 = new ConfirmPopup.YesNo(Text.of("Are you sure?"), Toast::addToast);
             UIHelper.setPopup(width / 2, height / 2, popup1);
             popup1.open();
         });

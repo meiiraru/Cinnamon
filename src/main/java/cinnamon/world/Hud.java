@@ -2,9 +2,12 @@ package cinnamon.world;
 
 import cinnamon.Client;
 import cinnamon.gui.DebugScreen;
+import cinnamon.gui.GUIStyle;
 import cinnamon.gui.widgets.types.ProgressBar;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
+import cinnamon.messages.Message;
+import cinnamon.messages.MessageManager;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.registry.MaterialRegistry;
@@ -16,11 +19,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shaders;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.Alignment;
-import cinnamon.utils.ColorUtils;
-import cinnamon.utils.Colors;
-import cinnamon.utils.Resource;
-import cinnamon.utils.UIHelper;
+import cinnamon.utils.*;
 import cinnamon.vr.XrManager;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.living.Player;
@@ -32,6 +31,9 @@ import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
@@ -75,6 +77,9 @@ public class Hud {
 
     public void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
+
+        //draw chat first
+        drawRecentChat(matrices, c, delta);
 
         //draw player stats
         drawPlayerStats(matrices, c.world.player, delta);
@@ -389,5 +394,67 @@ public class Hud {
         this.fadeDelay = delay;
         this.fadeColor = color;
         this.setFade(fadeIn);
+    }
+
+    protected void drawRecentChat(MatrixStack matrices, Client client, float delta) {
+        if (client.screen != null)
+            return;
+
+        int maxChatWidth = 350;
+        int displayDurationTicks = 13 * Client.TPS; //13s
+        int alphaDecayStart = 10 * Client.TPS; //10s
+        long timeNow = client.ticks;
+
+        //render messages up to the max recent messages limit
+        List<Message> messages = MessageManager.getMessages();
+        int start = Math.max(0, messages.size() - MessageManager.RECENT_MESSAGES);
+
+        //starting coordinates
+        int x = 4 + 2;
+        int y = client.window.getGUIHeight() - 20 - (int) GUIStyle.getDefault().getFont().lineHeight - 4 - 4;
+
+        for (int i = messages.size() - 1; i >= start; i--) {
+            Message msg = messages.get(i);
+            float age = timeNow - msg.addedTime() + delta;
+
+            //skip messages older than our duration limit
+            if (age > displayDurationTicks)
+                break;
+
+            //calculate alpha based on age
+            final int alpha;
+            if (age > alphaDecayStart) {
+                float decayProgress = (age - alphaDecayStart) / (displayDurationTicks - alphaDecayStart);
+                alpha = (int) ((1 - decayProgress) * 0xFF);
+            } else {
+                alpha = 0xFF;
+            }
+
+            //split the message at new lines
+            Text text = msg.text();
+            List<Text> split = TextUtils.split(text, "\n");
+            List<Text> warped = new ArrayList<>();
+
+            for (Text t : split) {
+                //apply color to each text segment while preserving styles
+                if (alpha < 0xFF)
+                    t.visitStyle((str, style) -> style.color((alpha << 24) | (style.getColor() & 0xFFFFFF)));
+
+                //warp the whole text and add to the list
+                warped.addAll(TextUtils.warpToWidth(t, maxChatWidth - 4));
+            }
+
+            //render warped lines bottom-to-top
+            for (int j = warped.size() - 1; j >= 0; j--) {
+                Text warpedMessage = warped.get(j);
+                int messageHeight = TextUtils.getHeight(warpedMessage) + 2;
+
+                //render the message
+                warpedMessage.render(VertexConsumer.MAIN, matrices, x, y, Alignment.BOTTOM_LEFT);
+
+                //move up for the next message
+                y -= messageHeight;
+            }
+        }
     }
 }

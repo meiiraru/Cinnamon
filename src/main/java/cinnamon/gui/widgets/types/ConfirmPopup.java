@@ -13,20 +13,24 @@ import java.util.function.Consumer;
 
 public class ConfirmPopup extends PopupWidget {
 
-    protected final ContainerGrid actions = new ContainerGrid(0, 0, 4);
-    protected final Label message = new Label(0, 0, Text.empty());
+    protected final ContainerGrid actions;
+    protected final Label message;
 
     protected boolean renderBackground = true;
 
     public ConfirmPopup(int x, int y, int spacing) {
         this(x, y, spacing, 1);
-        this.setAlignment(Alignment.CENTER);
-        this.addWidgets(message, actions);
-        this.setVoidOutsideClicks(false);
     }
 
     public ConfirmPopup(int x, int y, int spacing, int columns) {
-        super(x, y, spacing, columns);
+        super(x, y, spacing, 1);
+        this.actions = new ContainerGrid(0, 0, spacing, columns);
+        this.message = new Label(0, 0, Text.empty());
+
+        this.setAlignment(Alignment.CENTER);
+        this.addWidgets(message, actions);
+        this.voidOutsideClicks(false);
+        this.closeOnEscape(false);
     }
 
     public ConfirmPopup setMessage(Text message) {
@@ -49,8 +53,8 @@ public class ConfirmPopup extends PopupWidget {
     }
 
     protected void renderBackground(MatrixStack matrices, float delta) {
-        float w = Client.getInstance().window.scaledWidth;
-        float h = Client.getInstance().window.scaledHeight;
+        float w = Client.getInstance().window.getGUIWidth();
+        float h = Client.getInstance().window.getGUIHeight();
         VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, 0, 0, w, h, 0xDD000000));
     }
 
@@ -60,7 +64,7 @@ public class ConfirmPopup extends PopupWidget {
 
     public static class OK extends ConfirmPopup {
         public OK(Text message) {
-            super(0, 0, 4);
+            super(0, 0, 12);
             setMessage(message);
             addAction(Text.translated("gui.ok"), null, this::close);
         }
@@ -68,7 +72,7 @@ public class ConfirmPopup extends PopupWidget {
 
     public static class YesNo extends ConfirmPopup {
         public YesNo(Text message, Consumer<Boolean> callback) {
-            super(0, 0, 4);
+            super(0, 0, 12, 2);
             setMessage(message);
             addAction(Text.translated("gui.yes"), null, () -> {
                 callback.accept(true);

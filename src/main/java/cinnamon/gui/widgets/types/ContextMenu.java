@@ -304,7 +304,7 @@ public class ContextMenu extends PopupWidget {
 
             //arrow animation :3
             float d = UIHelper.tickDelta(0.6f);
-            arrowOffset = Math.lerp(arrowOffset, isHoveredOrFocused() ? 2f : 0f, d);
+            arrowOffset = Math.lerp(arrowOffset, subContext.isOpen() ? 2f : 0f, d);
 
             arrow.render(VertexConsumer.MAIN, matrices, x + arrowOffset, y, Alignment.CENTER_RIGHT);
         }
