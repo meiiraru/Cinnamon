@@ -12,6 +12,7 @@ public enum ItemModelRegistry {
     POTATO("item.potato", "models/entities/projectile/potato/potato.obj"),
     BRICK("item.brick", "models/entities/projectile/brick/brick.obj"),
     PAINT_GUN("item.paint_gun", "models/items/paint_gun/paint_gun.obj"),
+    HAMMER("item.hammer", "models/items/hammer/hammer.obj"),
 
     //weapons
     COIL_GUN("item.coil_gun", "models/items/coil_gun/coil_gun.obj"),
