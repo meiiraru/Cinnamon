@@ -12,8 +12,13 @@ public class WorldRule implements Command {
 
     @Override
     public Text execute(Entity source, Stack<String> args) {
-        if (args.isEmpty())
-            return Text.of("Failed to execute command, missing arguments").withStyle(ERROR_STYLE);
+        if (args.isEmpty()) {
+            WorldRules.Rule[] rules = WorldRules.Rule.values();
+            Text text = Text.of("Available world rules: ");
+            for (WorldRules.Rule rule : rules)
+                text.append(rule.name().toLowerCase()).append(" ");
+            return text;
+        }
 
         String ruleStr = args.pop();
         WorldRules.Rule rule;
@@ -22,7 +27,7 @@ public class WorldRule implements Command {
         try {
             rule = WorldRules.Rule.valueOf(ruleStr.toUpperCase());
         } catch (Exception e) {
-            return Text.of("Failed to execute command, invalid argument: " + ruleStr).withStyle(ERROR_STYLE);
+            return Text.of("Failed to execute command, invalid rule name: " + ruleStr).withStyle(ERROR_STYLE);
         }
 
         //get value
@@ -52,7 +57,7 @@ public class WorldRule implements Command {
 
     @Override
     public Text getHelpCommand() {
-        return Text.of("Usage: /worldrule <rule> [value]")
+        return Text.of("Usage: /worldrule [<rule>] [<value>]")
                 .append("\n")
                 .append("Gets or sets the value of a world rule");
     }

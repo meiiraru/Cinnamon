@@ -15,6 +15,8 @@ import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.Hit;
+import cinnamon.messages.MessageCategory;
+import cinnamon.messages.MessageManager;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.registry.MaterialRegistry;
@@ -765,7 +767,11 @@ public class WorldClient extends World {
         boolean ctrl  = (mods & GLFW_MOD_CONTROL) != 0;
 
         switch (key) {
-            case GLFW_KEY_N -> player.getAbilities().set(Abilities.Ability.NOCLIP, !player.getAbilities().get(Abilities.Ability.NOCLIP));
+            case GLFW_KEY_N -> {
+                boolean value = !player.getAbilities().get(Abilities.Ability.NOCLIP);
+                player.getAbilities().set(Abilities.Ability.NOCLIP, value);
+                MessageManager.addMessage(Text.of("Noclip " + (value ? "enabled" : "disabled")), MessageCategory.SYSTEM, null);
+            }
             case GLFW_KEY_R -> {
                 Item i = player.getHoldingItem();
                 if (i instanceof Weapon weapon)

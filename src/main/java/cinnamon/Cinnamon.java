@@ -43,6 +43,8 @@ public class Cinnamon {
     //system properties
     public static final Platform PLATFORM = Platform.get();
     public static final Set<String> OPENGL_EXTENSIONS = new HashSet<>();
+    public static String GPU_DETAILS = "";
+    public static String OPENGL_VERSION = "";
 
     public static void main(String... args) {
         new Cinnamon(args).run();
@@ -178,6 +180,9 @@ public class Cinnamon {
         int numExt = glGetInteger(GL_NUM_EXTENSIONS);
         for (int i = 0; i < numExt; i++)
             OPENGL_EXTENSIONS.add(glGetStringi(GL_EXTENSIONS, i));
+
+        GPU_DETAILS = glGetString(GL_RENDERER);
+        OPENGL_VERSION = glGetString(GL_VERSION);
 
         // -- client init -- //
 

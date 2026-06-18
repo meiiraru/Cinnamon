@@ -1,31 +1,33 @@
 package cinnamon.text;
 
 public enum Formatting {
-    BLACK('0', 0x0C0C0C),
-    DARK_BLUE('1', 0x0037DA),
-    DARK_GREEN('2', 0x39B54A),
-    DARK_CYAN('3', 0x008080),
-    DARK_RED('4', 0x800000),
+    BLACK      ('0', 0x0C0C0C),
+    DARK_BLUE  ('1', 0x0037DA),
+    DARK_GREEN ('2', 0x39B54A),
+    DARK_CYAN  ('3', 0x008080),
+    DARK_RED   ('4', 0x800000),
     DARK_PURPLE('5', 0x881798),
-    ORANGE('6', 0xC19C00),
-    LIGHT_GRAY('7', 0xC0C0C0),
-    GRAY('8', 0x767676),
-    BLUE('9', 0x3A96DD),
-    GREEN('a', 0x55FF55),
-    CYAN('b', 0x61D6D6),
-    RED('c', 0xE74856),
-    PINK('d', 0xFF72AD),
-    YELLOW('e', 0xF9F1A5),
-    WHITE('f', 0xF2F2F2),
+    ORANGE     ('6', 0xC19C00),
+    LIGHT_GRAY ('7', 0xC0C0C0),
+    GRAY       ('8', 0x767676),
+    BLUE       ('9', 0x3A96DD),
+    GREEN      ('a', 0x55FF55),
+    CYAN       ('b', 0x61D6D6),
+    RED        ('c', 0xE74856),
+    PINK       ('d', 0xFF72AD),
+    YELLOW     ('e', 0xF9F1A5),
+    WHITE      ('f', 0xF2F2F2),
 
-    ITALIC('i', Style.EMPTY.italic(true)),
-    UNDERLINE('u', Style.EMPTY.underlined(true)),
-    STRIKETHROUGH('s', Style.EMPTY.strikethrough(true)),
-    OBFUSCATED('o', Style.EMPTY.obfuscated(true)),
-    BOLD('n', Style.EMPTY.bold(true)),
+    OBFUSCATED   ('k', Style.EMPTY.obfuscated(true)),
+    BOLD         ('l', Style.EMPTY.bold(true)),
+    STRIKETHROUGH('m', Style.EMPTY.strikethrough(true)),
+    UNDERLINE    ('n', Style.EMPTY.underlined(true)),
+    ITALIC       ('o', Style.EMPTY.italic(true)),
+    SHADOW       ('p', Style.EMPTY.shadow(true)),
+    OUTLINE      ('q', Style.EMPTY.outlined(true)),
 
     RESET('r', Style.EMPTY),
-    HEX('#', Style.EMPTY);
+    HEX  ('#', Style.EMPTY);
 
     public static final char FORMATTING_CHAR = '&';
 

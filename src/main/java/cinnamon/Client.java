@@ -33,7 +33,8 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.glClear;
 
 public class Client {
 
@@ -57,6 +58,7 @@ public class Client {
 
     //events
     public Events events = new Events();
+    private boolean initialized = false;
 
     //objects
     public MatrixStack matrices = new MatrixStack();
@@ -71,8 +73,8 @@ public class Client {
         //opengl debug info
         LOGGER.info("Welcome to Cinnamon! v%s", Version.CLIENT_VERSION);
         LOGGER.info("OS: %s %s", Cinnamon.PLATFORM.getName(), Platform.getArchitecture().name());
-        LOGGER.info("Renderer: %s", glGetString(GL_RENDERER));
-        LOGGER.info("OpenGL Version: %s", glGetString(GL_VERSION));
+        LOGGER.info("Renderer: %s", Cinnamon.GPU_DETAILS);
+        LOGGER.info("OpenGL Version: %s", Cinnamon.OPENGL_VERSION);
         LOGGER.info("LWJGL Version: %s", org.lwjgl.Version.getVersion());
 
         //log supported OpenGL extensions
@@ -94,6 +96,7 @@ public class Client {
         events.registerClientEvents();
         events.runEvents(EventType.RESOURCE_INIT);
         events.runEvents(EventType.CLIENT_INIT);
+        initialized = true;
 
         //open the main menu
         this.setScreen(mainScreen.get());
@@ -251,6 +254,10 @@ public class Client {
     public void setName(String name) {
         this.name = name;
         this.playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
+    }
+
+    public boolean isInitialized() {
+        return initialized;
     }
 
     // -- glfw events -- //

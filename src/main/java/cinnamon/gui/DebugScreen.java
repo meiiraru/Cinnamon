@@ -1,5 +1,6 @@
 package cinnamon.gui;
 
+import cinnamon.Cinnamon;
 import cinnamon.Client;
 import cinnamon.events.Await;
 import cinnamon.gui.screens.MainMenu;
@@ -12,11 +13,7 @@ import cinnamon.math.collision.Hit;
 import cinnamon.messages.MessageManager;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.MaterialRegistry;
-import cinnamon.render.Camera;
-import cinnamon.render.DebugRenderer;
-import cinnamon.render.MatrixStack;
-import cinnamon.render.Window;
-import cinnamon.render.WorldRenderer;
+import cinnamon.render.*;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.settings.Settings;
@@ -44,7 +41,6 @@ import java.util.function.Function;
 
 import static cinnamon.Client.LOGGER;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
 
 public class DebugScreen {
 
@@ -82,7 +78,7 @@ public class DebugScreen {
     private static int hoveredTab;
     private static boolean active;
     private static boolean f3Pressed, f3Voided;
-    private static long crashStartTime;
+    private static int crashCountdown = -1;
 
     public static void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
@@ -138,21 +134,17 @@ public class DebugScreen {
                 }
                 case GLFW_KEY_D -> MessageManager.clearMessages();
                 case GLFW_KEY_C -> {
-                    crashStartTime = System.currentTimeMillis();
+                    crashCountdown = 10;
                     Toast.addToast("Debug crashing in...");
                     Runnable[] crashTask = new Runnable[1];
                     crashTask[0] = () -> {
-                        if (crashStartTime <= 0)
+                        if (crashCountdown <= -1)
                             return;
 
-                        long currentTime = System.currentTimeMillis();
-                        long elapsed = currentTime - crashStartTime;
-                        long target = 10 * 1000L;
-
-                        if (elapsed >= target) {
+                        if (crashCountdown == 0) {
                             throw new RuntimeException("Manually triggered crash from debug command");
                         } else {
-                            Toast.addToast(Math.round((target - elapsed) / 1000f));
+                            Toast.addToast(crashCountdown--);
                             new Await(Client.TPS, crashTask[0]);
                         }
                     };
@@ -178,9 +170,9 @@ public class DebugScreen {
                     f3Voided = false;
                 }
                 case GLFW_KEY_C -> {
-                    if (crashStartTime != 0)
+                    if (crashCountdown >= 0)
                         Toast.addToast("Debug crash cancelled");
-                    crashStartTime = 0;
+                    crashCountdown = -1;
                 }
             }
         }
@@ -432,9 +424,9 @@ public class DebugScreen {
 
                     millis, millis,
                     System.getProperty("os.name"),
-                    glGetString(GL_RENDERER),
+                    Cinnamon.GPU_DETAILS,
                     org.lwjgl.Version.getVersion(),
-                    glGetString(GL_VERSION)
+                    Cinnamon.OPENGL_VERSION
             );
         }),
         RENDER(c -> {

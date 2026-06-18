@@ -30,7 +30,7 @@ public class CommandParser {
         }
     }
 
-    public static Text parseCommand(Entity source, String input) {
+    public static Text runCommand(Entity source, String input) {
         String[] parts = input.trim().split("\\s+");
         if (parts.length == 0)
             return Text.of("Unknown command").withStyle(ERROR_STYLE);

@@ -310,7 +310,8 @@ public class Hud {
 
         //draw
         Vertex[] vertices = GeometryHelper.quad(matrices, -16f, -16f, 32, 32);
-        int color = ColorUtils.lerpARGBColor(0x00FFFFFF, 0xFFFFFFFF, Math.min(ticks - delta, 5) / 5f);
+        int alpha = (int) (Math.min(ticks - delta, 5) / 5f * 0xFF);
+        int color = (alpha << 24) + Colors.RED.rgb;
 
         for (Vertex vertex : vertices)
             vertex.color(color);
@@ -379,7 +380,13 @@ public class Hud {
 
         glBlendFuncSeparate(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_ONE, GL_ZERO);
 
-        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, Math.round(c.window.getGUIWidth() / 2f - 8), Math.round(c.window.getGUIHeight() / 2f - 8), 16, 16), CROSSHAIR);
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices,
+                Math.round(c.window.getGUIWidth() / 2f - 8), Math.round(c.window.getGUIHeight() / 2f - 8),
+                16, 16,
+                0f, 0f,
+                16f, 16f,
+                64, 16
+        ), CROSSHAIR);
         VertexConsumer.MAIN.finishBatch(c.camera);
 
         glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);

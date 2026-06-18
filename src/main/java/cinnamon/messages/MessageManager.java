@@ -16,7 +16,7 @@ public class MessageManager {
     public static final Style DEFAULT_STYLE = Style.EMPTY.shadow(true);
     public static final int
             MAX_MESSAGES = 100,
-            RECENT_MESSAGES = 8;
+            RECENT_MESSAGES = 10;
 
     private static final List<Message> messages = new CircularQueue<>(MAX_MESSAGES);
 

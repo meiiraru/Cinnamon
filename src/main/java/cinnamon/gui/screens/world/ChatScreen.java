@@ -148,7 +148,7 @@ public class ChatScreen extends Screen {
                     if (!s.isBlank()) {
                         //try to send a command
                         if (s.startsWith("/"))
-                            MessageManager.addMessage(CommandParser.parseCommand(client.world.player, s.substring(1)), MessageCategory.SYSTEM, null);
+                            MessageManager.addMessage(CommandParser.runCommand(client.world.player, s.substring(1)), MessageCategory.SYSTEM, null);
                         //otherwise send as a chat message
                         else
                             MessageManager.addMessage(s, MessageCategory.CHAT, client.world.player);
@@ -158,6 +158,11 @@ public class ChatScreen extends Screen {
                             sentMessages.add(s);
                         return true;
                     }
+                }
+                //suggest autocomplete for the current message
+                case GLFW_KEY_TAB -> {
+                    //nothing yet...
+                    return true;
                 }
                 //go to previous message
                 case GLFW_KEY_UP -> {
