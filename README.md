@@ -52,7 +52,7 @@ Let Gradle do its thing
 ***
 
 # To use as a library
-Were going jitpack route here,
+We're going jitpack route here,
 
 On the Gradle build file, add:
 ```kt
