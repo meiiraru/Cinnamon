@@ -253,20 +253,19 @@ public class Window {
      * @param width the new width (absolute)
      * @param height the new height (absolute)
      * @param guiScale the new gui scale (0 to auto-calculate)
+     * @param forceScale if true, the gui scale will be set to the given value even if it's larger than the maximum allowed scale
      */
-    public void updateSize(int width, int height, float guiScale) {
+    public void updateSize(int width, int height, float guiScale, boolean forceScale) {
         this.width = width;
         this.height = height;
 
-        int w = this.width / 320;
-        int h = this.height / 240;
-        float scale = Math.min(w, h);
-        this.maxGuiScale = scale;
+        this.maxGuiScale = Math.min(this.width / 320, this.height / 240);
+        float scale = maxGuiScale;
 
         if (guiScale > 0)
-            scale = Math.min(scale, guiScale);
+            scale = forceScale ? guiScale : Math.min(guiScale, maxGuiScale);
 
-        this.guiScale = Math.max(scale, 1f);
+        this.guiScale = Math.max(scale, 0.01f);
         this.scaledWidth = (int) (this.width / this.guiScale);
         this.scaledHeight = (int) (this.height / this.guiScale);
 

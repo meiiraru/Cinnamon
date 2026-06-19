@@ -348,7 +348,7 @@ public class Client {
         if (width <= 0 || height <= 0)
             return;
 
-        window.updateSize(width, height, Settings.guiScale.get());
+        window.updateSize(width, height, Settings.guiScale.get(), false);
         Framebuffer.DEFAULT_FRAMEBUFFER.resize(window.width, window.height);
 
         if (world != null)
