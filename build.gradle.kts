@@ -83,17 +83,20 @@ dependencies {
 }
 
 tasks.register<Jar>("sourcesJar") {
+    description = "Generates a JAR containing the sources of this project"
     archiveClassifier.set("sources")
     from(sourceSets.main.get().allSource)
     dependsOn("updateVersionFile")
 }
 
 tasks.register<Jar>("javadocJar") {
+    description = "Generates a JAR containing the javadocs of this project"
     archiveClassifier.set("javadoc")
     from(tasks.javadoc)
 }
 
 tasks.register<Jar>("fatJar") {
+    description = "Generates a JAR containing the compiled classes and all dependencies of this project"
     archiveClassifier.set(os)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
@@ -124,6 +127,7 @@ publishing {
 }
 
 tasks.register<DefaultTask>("updateVersionFile") {
+    description = "Updates the version file with the current project version"
     val projectVersion = project.provider { project.version.toString() }
     val versionFile = file("src/main/resources/resources/vanilla/version")
     outputs.file(versionFile)
@@ -135,4 +139,58 @@ tasks.register<DefaultTask>("updateVersionFile") {
 
 tasks.processResources {
     dependsOn("updateVersionFile")
+}
+
+tasks.register<Exec>("packageApp") {
+    description = "Packages the application into a platform-specific format using jpackage"
+    dependsOn("fatJar")
+
+    val isWindows = os.contains("windows")
+    val appName = "${project.name}-${project.version}-$os"
+    val outputDir = layout.buildDirectory.dir("dist/$appName").get().asFile
+    val stagingDir = layout.buildDirectory.dir("staging").get().asFile
+
+    val fatJarTask = tasks.named<Jar>("fatJar")
+    val fatJarFileNameProvider = fatJarTask.flatMap { it.archiveFileName }
+    val fatJarFileProvider = fatJarTask.flatMap { it.archiveFile }
+
+    doFirst {
+        outputDir.deleteRecursively()
+        stagingDir.deleteRecursively()
+        stagingDir.mkdirs()
+
+        val fatJarFile = fatJarFileProvider.get().asFile
+        fatJarFile.copyTo(File(stagingDir, fatJarFile.name), overwrite = true)
+    }
+
+    val compiler = javaToolchains.compilerFor(java.toolchain).get()
+    val jdkHome = compiler.metadata.installationPath.asFile
+    val jpackageBin = if (isWindows) {
+        File(jdkHome, "bin/jpackage.exe").absolutePath
+    } else {
+        File(jdkHome, "bin/jpackage").absolutePath
+    }
+
+    val iconExtension = if (isWindows) "ico" else "png"
+    val iconFile = file("src/main/resources/resources/vanilla/textures/icon.$iconExtension")
+
+    workingDir = projectDir
+
+    val jpackageArgs = listOf(
+        jpackageBin,
+        "--type", "app-image",
+        "--name", appName,
+        "--input", stagingDir.absolutePath,
+        "--main-jar", fatJarFileNameProvider.get(),
+        "--main-class", mainClass,
+        "--dest", layout.buildDirectory.dir("dist").get().asFile.absolutePath,
+        "--app-version", project.version.toString(),
+        "--icon", iconFile.absolutePath
+    )
+
+    commandLine(jpackageArgs)
+
+    doLast {
+        stagingDir.deleteRecursively()
+    }
 }
