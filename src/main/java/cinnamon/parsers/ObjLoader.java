@@ -47,7 +47,7 @@ public class ObjLoader {
                         try {
                             theMesh.getMaterials().putAll(MaterialLoader.load(material));
                         } catch (Exception e) {
-                            throw new RuntimeException("Failed to load material file: " + material, e);
+                            LOGGER.error("Failed to load material file \"%s\"", material, e);
                         }
                     }
 

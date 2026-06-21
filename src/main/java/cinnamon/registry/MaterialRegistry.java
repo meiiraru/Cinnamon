@@ -54,6 +54,7 @@ public enum MaterialRegistry {
     HEART_PATTERN,
     HONEYCOMB,
     INFLATABLE_FABRIC,
+    LATEX,
     LAVA,
     LAVA_ROCK,
     LEAF_VEIN,

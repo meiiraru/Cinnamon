@@ -69,6 +69,12 @@ public class WidgetList extends ContainerGrid {
     }
 
     @Override
+    public void clear() {
+        this.widgets.clear();
+        this.listeners.clear();
+    }
+
+    @Override
     protected void updateDimensions() {
         lastY = 0;
         super.updateDimensions();

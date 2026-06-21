@@ -1,0 +1,4 @@
+newmtl latex
+map_Kd -smooth_mip latex_mat_albedo.png
+map_Bump latex_mat_normal.png
+map_Pr latex_mat_roughness.png
