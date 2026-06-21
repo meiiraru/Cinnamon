@@ -71,7 +71,7 @@ public class Terrain extends WorldObject {
         Matrix4f mat = new Matrix4f().translate(0.5f, 0f, 0.5f).mul(transform.getMatrix().pos());
 
         if (model == null) {
-            aabb.set(0, 0, 0, 1, 1, 1).applyMatrix(mat);
+            aabb.set(-0.5f, 0f, -0.5f, 0.5f, 1f, 0.5f).applyMatrix(mat);
             preciseCollider.clear();
             preciseCollider.add(aabb);
             updateTerrainInWorld();
