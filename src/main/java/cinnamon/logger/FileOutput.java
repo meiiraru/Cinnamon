@@ -12,7 +12,7 @@ public class FileOutput extends LogOutput {
     private final PrintWriter fileWriter;
 
     public FileOutput(Path path) throws IOException {
-        IOUtils.createOrGetPath(path);
+        IOUtils.createOrGetFile(path);
         this.fileWriter = new PrintWriter(new FileWriter(path.toFile(), true), false);
     }
 

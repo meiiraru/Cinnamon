@@ -38,7 +38,7 @@ public class TextUtils {
         Text[] builder = {Text.empty()};
         text.visit((string, style) -> {
             StringBuilder str = new StringBuilder(string).reverse();
-            builder[0] = Text.of(str.toString()).withStyle(style).append(builder[0]);
+            builder[0] = Text.of(str).withStyle(style).append(builder[0]);
         }, Style.EMPTY);
         return builder[0];
     }
@@ -200,7 +200,7 @@ public class TextUtils {
             }
 
             //append allowed text
-            builder.append(Text.of(current.toString()).withStyle(style));
+            builder.append(Text.of(current).withStyle(style));
             return stop;
         }, Style.EMPTY);
 
@@ -295,27 +295,97 @@ public class TextUtils {
             return Text.empty();
 
         Text result = texts.getFirst();
-        for (int i = 1; i < texts.size(); i++)
-            result.append(separator).append(texts.get(i));
+        for (int i = 1; i < texts.size(); i++) {
+            if (separator != null)
+                result.append(separator).append(texts.get(i));
+            else
+                result.append(texts.get(i));
+        }
         return result;
+    }
+
+    public static List<Text> splitToChars(Text text) {
+        List<Text> list = new ArrayList<>();
+        text.visit((string, style) -> {
+            for (int i = 0; i < string.length(); ) {
+                int c = string.codePointAt(i);
+                int count = Character.charCount(c);
+                list.add(Text.of(string.substring(i, i + count)).withStyle(style));
+                i += count;
+            }
+        }, Style.EMPTY);
+        return list;
     }
 
     public static Text parseSimpleMarkdown(Text text) {
         Text result = Text.empty();
 
+        //hold the current state of the formatting between text nodes
+        boolean[] bold = {false};
+        boolean[] italic = {false};
+        boolean[] underline = {false};
+        boolean[] strikethrough = {false};
+        boolean[] obfuscated = {false};
+
         text.visit((string, style) -> {
-            //~~  ~~ strikethrough
-            //**  ** bold
-            //__  __ underline
-            //||  || obfuscated
-            //*  * or _  _ italic
+            StringBuilder currentText = new StringBuilder();
+
+            //helper to flush the accumulated string into a new text node with the current applied styles
+            Runnable flush = () -> {
+                if (!currentText.isEmpty()) {
+                    Style s = style;
+                    if (bold[0]) s = s.bold(true);
+                    if (italic[0]) s = s.italic(true);
+                    if (underline[0]) s = s.underlined(true);
+                    if (strikethrough[0]) s = s.strikethrough(true);
+                    if (obfuscated[0]) s = s.obfuscated(true);
+
+                    result.append(Text.of(currentText).withStyle(s));
+                    currentText.setLength(0);
+                }
+            };
 
             for (int i = 0; i < string.length(); i++) {
                 char c = string.charAt(i);
+                char next = (i + 1 < string.length()) ? string.charAt(i + 1) : '\0';
 
+                //handle escaping
+                if (c == '\\' && (next == '*' || next == '_' || next == '~' || next == '|' || next == '\\')) {
+                    currentText.append(next);
+                    i++;
+                    continue;
+                }
+
+                //check for formatting tokens
+                if (c == '~' && next == '~') {
+                    flush.run();
+                    strikethrough[0] = !strikethrough[0];
+                    i++;
+                } else if (c == '*' && next == '*') {
+                    flush.run();
+                    bold[0] = !bold[0];
+                    i++;
+                } else if (c == '_' && next == '_') {
+                    flush.run();
+                    underline[0] = !underline[0];
+                    i++;
+                } else if (c == '|' && next == '|') {
+                    flush.run();
+                    obfuscated[0] = !obfuscated[0];
+                    i++;
+                } else if (c == '*') {
+                    flush.run();
+                    italic[0] = !italic[0];
+                } else if (c == '_') {
+                    flush.run();
+                    italic[0] = !italic[0];
+                } else {
+                    currentText.append(c);
+                }
             }
 
-
+            //flush any remaining characters at the end of the current text node
+            flush.run();
         }, Style.EMPTY);
 
         return result;

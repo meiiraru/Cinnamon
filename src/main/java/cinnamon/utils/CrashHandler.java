@@ -54,7 +54,7 @@ public class CrashHandler {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
             String fileName = "crash-" + sdf.format(new Date()) + ".txt";
             Path path = IOUtils.parseNonDuplicatePath(IOUtils.ROOT_FOLDER.resolve("crash/" + fileName));
-            IOUtils.createOrGetPath(path);
+            IOUtils.createOrGetFile(path);
 
             //write the stacktrace directly to the file
             try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path))) {

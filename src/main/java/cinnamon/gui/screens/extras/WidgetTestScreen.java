@@ -183,6 +183,14 @@ public class WidgetTestScreen extends ParentedScreen {
             public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
                 setPos(mouseX - getWidth() / 2, mouseY - getHeight() / 2);
                 VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x88 << 24));
+
+                int x = getX(), y = getY() + getHeight() + 20;
+                int i = 0;
+                for (Text text : TextUtils.splitToChars(Text.of("Funky Tooltip!"))) {
+                    float offset = Math.sin((client.ticks + delta) * 0.1f + i++) * 3;
+                    text.render(VertexConsumer.MAIN, matrices, x, y + offset, Alignment.CENTER_LEFT);
+                    x += TextUtils.getWidth(text);
+                }
             }
             @Override
             public GUIListener mouseMove(int x, int y) {

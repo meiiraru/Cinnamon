@@ -88,7 +88,7 @@ public class TextureIO {
             }
 
             //write file
-            IOUtils.createOrGetPath(outputPath);
+            IOUtils.createOrGetFile(outputPath);
             IOUtils.writeImage(outputPath, img);
 
             //unbind texture

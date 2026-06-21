@@ -37,6 +37,10 @@ public class Text {
         return of("");
     }
 
+    public static Text of(CharSequence text) {
+        return new Text(text.toString());
+    }
+
     public static Text of(Object text) {
         return new Text(String.valueOf(text));
     }

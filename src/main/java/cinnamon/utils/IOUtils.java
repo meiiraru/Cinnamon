@@ -243,7 +243,7 @@ public class IOUtils {
     public static void writeFile(Path path, byte[] bytes) {
         try {
             //ensure path exists
-            createOrGetPath(path);
+            createOrGetFile(path);
 
             //write bytes to file
             OutputStream fs = Files.newOutputStream(path);
@@ -259,7 +259,7 @@ public class IOUtils {
     public static void writeFileCompressed(Path path, byte[] bytes) {
         try {
             //ensure path exists
-            createOrGetPath(path);
+            createOrGetFile(path);
 
             //write bytes to file
             OutputStream fs = Files.newOutputStream(path);
@@ -275,6 +275,10 @@ public class IOUtils {
     }
 
     public static Path parseNonDuplicatePath(Path path) {
+        return parseNonDuplicatePath(path, "_", "");
+    }
+
+    public static Path parseNonDuplicatePath(Path path, String prefix, String suffix) {
         //return path as is if it already does not exist
         if (!Files.exists(path))
             return path;
@@ -282,7 +286,7 @@ public class IOUtils {
         //grab file name and extension
         String fileName = path.getFileName().toString();
         String extension = "";
-        int dotIndex = fileName.indexOf('.');
+        int dotIndex = fileName.lastIndexOf('.');
         if (dotIndex != -1) {
             extension = fileName.substring(dotIndex);
             fileName = fileName.substring(0, dotIndex);
@@ -291,7 +295,7 @@ public class IOUtils {
         //iterate until a unique path is found
         int i = 1;
         while (Files.exists(path))
-            path = path.resolveSibling(fileName + "_" + i++ + extension);
+            path = path.resolveSibling(fileName + prefix + i++ + extension + suffix);
 
         //return new unique path
         return path;
@@ -308,7 +312,7 @@ public class IOUtils {
         }
     }
 
-    public static void createOrGetPath(Path path) {
+    public static void createOrGetFile(Path path) {
         try {
             //ensure dir exists
             ensureParentExists(path);
@@ -316,6 +320,15 @@ public class IOUtils {
             //create file if non-existent
             if (!Files.exists(path))
                 Files.createFile(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void createOrGetDir(Path path) {
+        try {
+            if (!Files.exists(path))
+                Files.createDirectories(path);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -340,7 +353,7 @@ public class IOUtils {
     public static void writeImage(Path path, BufferedImage image) {
         try {
             //ensure path exists
-            createOrGetPath(path);
+            createOrGetFile(path);
 
             //write image to output stream
             OutputStream fs = Files.newOutputStream(path);

@@ -445,7 +445,11 @@ public class Hud {
             for (Text t : split) {
                 //apply color to each text segment while preserving styles
                 if (alpha < 0xFF)
-                    t.visitStyle((str, style) -> style.color((alpha << 24) | (style.getColor() & 0xFFFFFF)));
+                    t.visitStyle((str, style) -> style
+                            .color((alpha << 24) | (style.getColor() & 0xFFFFFF))
+                            .shadowColor((alpha << 24) | (style.getShadowColor() & 0xFFFFFF))
+                            .backgroundColor((alpha << 24) | (style.getBackgroundColor() & 0xFFFFFF))
+                    );
 
                 //warp the whole text and add to the list
                 warped.addAll(TextUtils.warpToWidth(t, maxChatWidth - 4));
