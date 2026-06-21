@@ -48,7 +48,7 @@ public class ModelViewerScreen extends ParentedScreen {
 
     public ModelViewerScreen(Screen parentScreen) {
         super(parentScreen);
-        modelViewer.setSkybox(SkyBoxRegistry.CLOUDS);
+        modelViewer.setSkybox(SkyBoxRegistry.PHOTO_STUDIO);
         modelViewer.setRenderSkybox(true);
     }
 
@@ -138,35 +138,36 @@ public class ModelViewerScreen extends ParentedScreen {
         properties.addWidget(skyboxes);
 
         //toggle skybox
-        Checkbox toggleSkybox = new Checkbox(skyboxes.getX(), skyboxes.getY() + skyboxes.getHeight() + 4, Text.translated("gui.model_viewer_screen.toggle_skybox"));
+        Style togglesStyle = Style.EMPTY.shadow(true);
+        Checkbox toggleSkybox = new Checkbox(skyboxes.getX(), skyboxes.getY() + skyboxes.getHeight() + 4, Text.translated("gui.model_viewer_screen.toggle_skybox").withStyle(togglesStyle));
         toggleSkybox.setToggled(modelViewer.shouldRenderSkybox());
         toggleSkybox.setAction(b -> modelViewer.setRenderSkybox(((Checkbox) b).isToggled()));
         toggleSkybox.setRightToLeft(true);
         properties.addWidget(toggleSkybox);
 
         //toggle wireframe
-        Checkbox toggleWireframe = new Checkbox(skyboxes.getX(), toggleSkybox.getY() + toggleSkybox.getHeight() + 4, Text.translated("gui.model_viewer_screen.toggle_wireframe"));
+        Checkbox toggleWireframe = new Checkbox(skyboxes.getX(), toggleSkybox.getY() + toggleSkybox.getHeight() + 4, Text.translated("gui.model_viewer_screen.toggle_wireframe").withStyle(togglesStyle));
         toggleWireframe.setToggled(modelViewer.shouldRenderWireframe());
         toggleWireframe.setAction(b -> modelViewer.setRenderWireframe(((Checkbox) b).isToggled()));
         toggleWireframe.setRightToLeft(true);
         properties.addWidget(toggleWireframe);
 
         //toggle bounds
-        Checkbox toggleBounds = new Checkbox(skyboxes.getX(), toggleWireframe.getY() + toggleWireframe.getHeight() + 4, Text.translated("gui.model_viewer_screen.toggle_bounds"));
+        Checkbox toggleBounds = new Checkbox(skyboxes.getX(), toggleWireframe.getY() + toggleWireframe.getHeight() + 4, Text.translated("gui.model_viewer_screen.toggle_bounds").withStyle(togglesStyle));
         toggleBounds.setToggled(modelViewer.shouldRenderBounds());
         toggleBounds.setAction(b -> modelViewer.setRenderBounds(((Checkbox) b).isToggled()));
         toggleBounds.setRightToLeft(true);
         properties.addWidget(toggleBounds);
 
         //auto rotate
-        Checkbox autoRotate = new Checkbox(skyboxes.getX(), toggleBounds.getY() + toggleBounds.getHeight() + 4, Text.translated("gui.model_viewer_screen.auto_rotate"));
+        Checkbox autoRotate = new Checkbox(skyboxes.getX(), toggleBounds.getY() + toggleBounds.getHeight() + 4, Text.translated("gui.model_viewer_screen.auto_rotate").withStyle(togglesStyle));
         autoRotate.setToggled(this.autoRotate);
         autoRotate.setAction(b -> this.autoRotate = ((Checkbox) b).isToggled());
         autoRotate.setRightToLeft(true);
         properties.addWidget(autoRotate);
 
         //ground plane
-        Checkbox groundPlane = new Checkbox(skyboxes.getX(), autoRotate.getY() + autoRotate.getHeight() + 4, Text.translated("gui.model_viewer_screen.ground_plane"));
+        Checkbox groundPlane = new Checkbox(skyboxes.getX(), autoRotate.getY() + autoRotate.getHeight() + 4, Text.translated("gui.model_viewer_screen.ground_plane").withStyle(togglesStyle));
         groundPlane.setToggled(this.renderGroundPlane);
         groundPlane.setAction(b -> this.renderGroundPlane = ((Checkbox) b).isToggled());
         groundPlane.setRightToLeft(true);

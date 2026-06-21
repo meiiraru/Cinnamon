@@ -6,8 +6,7 @@ public enum SkyBoxRegistry {
     CLEAR,
     SPACE,
     CLOUDS,
-    TEST,
-    HDR_TEST(true),
+    PHOTO_STUDIO(true),
     WHITE,
     DEBUG;
 
