@@ -328,16 +328,6 @@ public class Maths {
         return Float.isNaN(vec.x) || Float.isNaN(vec.y);
     }
 
-    public static Vector2f rotate(Vector2f vec, float angle) {
-        float rad = Math.toRadians(angle);
-        float cos = Math.cos(rad);
-        float sin = Math.sin(rad);
-        return vec.set(
-                cos * vec.x - sin * vec.y,
-                sin * vec.x + cos * vec.y
-        );
-    }
-
     public static Matrix3f translateMat3(Matrix3f mat, float x, float y) {
         mat.m00 += x * mat.m20;
         mat.m01 += x * mat.m21;

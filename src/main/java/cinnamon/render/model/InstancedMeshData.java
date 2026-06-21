@@ -4,6 +4,10 @@ import cinnamon.math.collision.AABB;
 import cinnamon.model.Vertex;
 import cinnamon.model.material.Material;
 import cinnamon.render.MatrixStack;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -17,11 +21,6 @@ import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
 import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 public class InstancedMeshData extends MeshData {
-
-    public static final int VEC4_SIZE_BYTES = 4 * Float.BYTES;
-    public static final int MAT4_SIZE_BYTES = VEC4_SIZE_BYTES * 4;
-    public static final int VEC3_SIZE_BYTES = 3 * Float.BYTES;
-    public static final int MAT3_SIZE_BYTES = VEC3_SIZE_BYTES * 3;
 
     protected final int instanceVBO;
     protected int count;
@@ -40,7 +39,7 @@ public class InstancedMeshData extends MeshData {
         int vbo = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-        int stride = MAT4_SIZE_BYTES + MAT3_SIZE_BYTES;
+        int stride = Matrix4f.BYTES + Matrix3f.BYTES;
         int location = startLoaction;
         long offset = 0;
 
@@ -53,7 +52,7 @@ public class InstancedMeshData extends MeshData {
 
             //next attribute
             location++;
-            offset += VEC4_SIZE_BYTES;
+            offset += Vector4f.BYTES;
         }
 
         //create and set attribute pointer for normal matrix (3 vec3)
@@ -65,7 +64,7 @@ public class InstancedMeshData extends MeshData {
 
             //next attribute
             location++;
-            offset += VEC3_SIZE_BYTES;
+            offset += Vector3f.BYTES;
         }
 
         glBindVertexArray(0);

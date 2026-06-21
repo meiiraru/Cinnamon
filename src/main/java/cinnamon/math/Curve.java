@@ -66,7 +66,7 @@ public abstract class Curve {
     private static Vector3f rotatePoint(Vector3f a, Vector3f b, float len, float angle) {
         Vector2f temp = new Vector2f(b.x, b.z).sub(a.x, a.z);
         temp.normalize(len);
-        Maths.rotate(temp, angle);
+        temp.rotate(Math.toRadians(angle));
 
         return new Vector3f(a.x + temp.x, a.y, a.z + temp.y);
     }
@@ -77,7 +77,7 @@ public abstract class Curve {
 
         ab.add(bc);
         ab.normalize(len);
-        Maths.rotate(ab, angle);
+        ab.rotate(Math.toRadians(angle));
 
         return new Vector3f(b.x + ab.x, b.y, b.z + ab.y);
     }

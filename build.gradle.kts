@@ -10,8 +10,8 @@ val mainClass = "cinnamon.Cinnamon"
 
 //dependencies
 val lwjglVersion = "3.4.1"
-val jomlVersion = "1.10.8"
-val gsonVersion = "2.13.2"
+val jomlVersion = "1.10.9"
+val gsonVersion = "2.14.0"
 
 val lwjglModules = arrayOf(
     "lwjgl",
@@ -78,9 +78,7 @@ dependencies {
     }
 
     //extra libraries
-    api("org.joml:joml:$jomlVersion") {
-        exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib")
-    }
+    api("org.joml:joml:$jomlVersion")
     api("com.google.code.gson:gson:$gsonVersion")
 }
 
