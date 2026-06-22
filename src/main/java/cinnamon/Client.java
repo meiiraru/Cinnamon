@@ -107,6 +107,8 @@ public class Client {
         if (screen != null) screen.removed();
         SoundManager.free();
         events.runEvents(EventType.RESOURCE_FREE);
+        events.runEvents(EventType.CLIENT_EXIT);
+        initialized = false;
     }
 
     public static Client getInstance() {

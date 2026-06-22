@@ -2,6 +2,7 @@ package cinnamon.events;
 
 public enum EventType {
     CLIENT_INIT,
+    CLIENT_EXIT,
 
     TICK_BEFORE_WORLD,
     TICK_BEFORE_GUI,
