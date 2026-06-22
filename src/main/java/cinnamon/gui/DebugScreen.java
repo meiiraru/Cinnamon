@@ -10,6 +10,7 @@ import cinnamon.logger.LoggerConfig;
 import cinnamon.math.Direction;
 import cinnamon.math.Maths;
 import cinnamon.math.collision.Hit;
+import cinnamon.messages.MessageCategory;
 import cinnamon.messages.MessageManager;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.MaterialRegistry;
@@ -150,7 +151,21 @@ public class DebugScreen {
                     };
                     crashTask[0].run();
                 }
-                default -> {return false;}
+                case GLFW_KEY_H -> MessageManager.addMessage(Text.of("""
+                                [Debug Help]
+                                &eF3 + &aX&r: Initialize XR system
+                                &eF3 + &aL&r: Test all loggers level
+                                &eF3 + &aR&r: Rebuild the current screen
+                                &eF3 + &aT&r: Reload all assets
+                                &eF3 + &aQ&r: Return to original main menu
+                                &eF3 + &aD&r: Clear all chat messages
+                                &eF3 + &aC&r: Crash the game (10 second countdown)
+                                &eF3 + &aH&r: Show this help message""").withStyle(Style.EMPTY.italic(false).color(0xFFFFFFFF)),
+                        MessageCategory.SYSTEM, null
+                );
+                default -> {
+                    return false;
+                }
             }
 
             f3Voided = true;

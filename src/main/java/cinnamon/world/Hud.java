@@ -419,8 +419,9 @@ public class Hud {
         //starting coordinates
         int x = 4 + 2;
         int y = client.window.getGUIHeight() - 20 - (int) GUIStyle.getDefault().getFont().lineHeight - 4 - 4;
+        int maxLines = MessageManager.RECENT_MESSAGES;
 
-        for (int i = messages.size() - 1; i >= start; i--) {
+        for (int i = messages.size() - 1; i >= start && maxLines > 0; i--) {
             Message msg = messages.get(i);
             float age = timeNow - msg.addedTime() + delta;
 
@@ -456,7 +457,7 @@ public class Hud {
             }
 
             //render warped lines bottom-to-top
-            for (int j = warped.size() - 1; j >= 0; j--) {
+            for (int j = warped.size() - 1; j >= 0 && maxLines > 0; j--) {
                 Text warpedMessage = warped.get(j);
                 int messageHeight = TextUtils.getHeight(warpedMessage) + 2;
 
@@ -465,6 +466,7 @@ public class Hud {
 
                 //move up for the next message
                 y -= messageHeight;
+                maxLines--;
             }
         }
     }
