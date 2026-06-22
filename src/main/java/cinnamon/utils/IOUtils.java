@@ -366,6 +366,27 @@ public class IOUtils {
         }
     }
 
+    public static void deleteDir(Path path) {
+        try {
+            if (!Files.exists(path))
+                return;
+
+            //delete subdirectories and files
+            try (Stream<Path> stream = Files.walk(path)) {
+                stream.sorted(Comparator.reverseOrder())
+                        .forEach(p -> {
+                            try {
+                                Files.delete(p);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static class FilenameComparator implements Comparator<String> {
 
         public static int compareTo(String o1, String o2) {
