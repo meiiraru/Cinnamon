@@ -235,7 +235,7 @@ public class WidgetTestScreen extends ParentedScreen {
 
         //confirmation
         Button popup = new Button(0, 0, 60, 12, Text.of("Confirmation"), button -> {
-            ConfirmPopup.YesNo popup1 = new ConfirmPopup.YesNo(Text.of("Are you sure?"), Toast::addToast);
+            ConfirmPopup popup1 = new ConfirmPopup.YesNo(Text.of("Mark\nAre you sure?"), Toast::addToast);
             UIHelper.setPopup(width / 2, height / 2, popup1);
             popup1.open();
         });
@@ -243,11 +243,19 @@ public class WidgetTestScreen extends ParentedScreen {
 
         //notice
         Button notice = new Button(0, 0, 60, 12, Text.of("Notice"), button -> {
-            ConfirmPopup.OK popup1 = new ConfirmPopup.OK(Text.of("This is a notice!"));
+            ConfirmPopup popup1 = new ConfirmPopup.OK(Text.of("This is a notice!"), () -> Toast.addToast("Notice closed!"));
             UIHelper.setPopup(width / 2, height / 2, popup1);
             popup1.open();
         });
         popups.addWidget(notice);
+
+        //input text
+        Button input = new Button(0, 0, 60, 12, Text.of("Input Text"), button -> {
+            ConfirmPopup popup1 = new ConfirmPopup.Input(Text.of("Enter your name:"), Text.of("Name"), (accepted, text) -> Toast.addToast(accepted ? text : "cancelled"));
+            UIHelper.setPopup(width / 2, height / 2, popup1);
+            popup1.open();
+        });
+        popups.addWidget(input);
 
         //right panel
         ContainerGrid grid2 = new ContainerGrid(width - 4, 4, 4);

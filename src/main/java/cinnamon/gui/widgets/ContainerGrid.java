@@ -113,6 +113,10 @@ public class ContainerGrid extends Container implements AlignedWidget {
         return spacing;
     }
 
+    public int getColumns() {
+        return columns;
+    }
+
     public void forceChildAlignment(boolean bool) {
         this.forceChildAlignment = bool;
     }

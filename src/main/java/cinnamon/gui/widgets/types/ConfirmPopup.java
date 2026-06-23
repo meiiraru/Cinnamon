@@ -3,12 +3,14 @@ package cinnamon.gui.widgets.types;
 import cinnamon.Client;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.PopupWidget;
+import cinnamon.gui.widgets.Widget;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class ConfirmPopup extends PopupWidget {
@@ -34,7 +36,22 @@ public class ConfirmPopup extends PopupWidget {
     }
 
     public ConfirmPopup setMessage(Text message) {
+        return this.setMessage(message, Alignment.CENTER);
+    }
+
+    public ConfirmPopup setMessage(Text message, Alignment alignment) {
         this.message.setText(message);
+        this.message.setAlignment(alignment);
+        return this;
+    }
+
+    public ConfirmPopup setMessageAlignment(Alignment alignment) {
+        this.message.setAlignment(alignment);
+        return this;
+    }
+
+    public ConfirmPopup addAction(Widget widget) {
+        this.actions.addWidget(widget);
         return this;
     }
 
@@ -62,11 +79,19 @@ public class ConfirmPopup extends PopupWidget {
         this.renderBackground = renderBackground;
     }
 
+    @Override
+    protected void updateDimensions(int width, int height) {
+        super.updateDimensions(Client.getInstance().window.getGUIWidth(), Client.getInstance().window.getGUIHeight());
+    }
+
     public static class OK extends ConfirmPopup {
-        public OK(Text message) {
+        public OK(Text message, Runnable callback) {
             super(0, 0, 12);
             setMessage(message);
-            addAction(Text.translated("gui.ok"), null, this::close);
+            addAction(Text.translated("gui.ok"), null, () -> {
+                callback.run();
+                close();
+            });
         }
     }
 
@@ -82,6 +107,32 @@ public class ConfirmPopup extends PopupWidget {
                 callback.accept(false);
                 close();
             });
+        }
+    }
+
+    public static class Input extends ConfirmPopup {
+
+        public Input(Text message, Text placeholder, BiConsumer<Boolean, String> callback) {
+            super(0, 0, 12);
+            setMessage(message);
+            TextField input = new TextField(0, 0, 60 + 12 + 60, 16);
+            input.setHintText(placeholder);
+            addAction(input);
+
+            ContainerGrid actionGrid = new ContainerGrid(0, 0, 12, 2);
+            addAction(actionGrid);
+
+            Button ok = new Button(0, 0, 60, 12, Text.translated("gui.ok"), b -> {
+                callback.accept(true, input.getText());
+                close();
+            });
+            actionGrid.addWidget(ok);
+
+            Button cancel = new Button(0, 0, 60, 12, Text.translated("gui.cancel"), b -> {
+                callback.accept(false, input.getText());
+                close();
+            });
+            actionGrid.addWidget(cancel);
         }
     }
 }
