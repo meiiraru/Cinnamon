@@ -177,6 +177,13 @@ public class WidgetTestScreen extends ParentedScreen {
         viewPassword.setTooltip(Text.of("Show Password"));
         password.addWidget(viewPassword);
 
+        //checkboxes
+        ContainerGrid checkboxes = new ContainerGrid(0, 0, 4, 2);
+        grid.addWidget(checkboxes);
+
+        Checkbox ckb = new Checkbox(0, 0, Text.of("Checkbox"));
+        checkboxes.addWidget(ckb);
+
         //tooltip test
         SelectableWidget empty = new SelectableWidget(0, 0, 10, 10) {
             @Override
@@ -191,7 +198,11 @@ public class WidgetTestScreen extends ParentedScreen {
                     text.render(VertexConsumer.MAIN, matrices, x, y + offset, Alignment.CENTER_LEFT);
                     x += TextUtils.getWidth(text);
                 }
+
+                UIHelper.outline(matrices, ckb, 1, 0xFFFF72AD);
+                UIHelper.highlight(matrices, ckb, true, 0xDD000000);
             }
+
             @Override
             public GUIListener mouseMove(int x, int y) {
                 super.mouseMove(x, y);
@@ -200,20 +211,18 @@ public class WidgetTestScreen extends ParentedScreen {
         };
         empty.setTooltip(Text.of("Tooltip!"));
 
-        //checkbox
-        Checkbox ckb = new Checkbox(0, 0, Text.of("Checkbox"));
         ckb.setAction(button -> {
             if (ckb.isToggled())
                 this.addWidget(empty);
             else
                 this.removeWidget(empty);
         });
-        grid.addWidget(ckb);
 
         Checkbox ckb2 = new Checkbox(0, 0, Text.of("No Checkbox :("));
         ckb2.setActive(false);
-        grid.addWidget(ckb2);
+        checkboxes.addWidget(ckb2);
 
+        //toasts
         ContainerGrid toasts = new ContainerGrid(0, 0, 4, 3);
         grid.addWidget(toasts);
 

@@ -39,7 +39,7 @@ public class TextField extends SelectableWidget implements Tickable {
     private Consumer<String> changeListener;
     private Predicate<Character> filter = Filter.ANY.predicate;
     private int charLimit = 1000;
-    private Consumer<TextField> enterListener;
+    private Consumer<TextField> returnListener;
     private int selectedIndex = -1;
 
     //mouse
@@ -327,8 +327,8 @@ public class TextField extends SelectableWidget implements Tickable {
         setText(currText);
     }
 
-    public void setEnterListener(Consumer<TextField> enterListener) {
-        this.enterListener = enterListener;
+    public void setReturnListener(Consumer<TextField> returnListener) {
+        this.returnListener = returnListener;
     }
 
     public void setSelectionColor(Colors color) {
@@ -625,10 +625,10 @@ public class TextField extends SelectableWidget implements Tickable {
                     return this;
                 }
             }
-            //enter
+            //return
             case GLFW_KEY_ENTER, GLFW_KEY_KP_ENTER -> {
-                if (enterListener != null) {
-                    enterListener.accept(this);
+                if (returnListener != null) {
+                    returnListener.accept(this);
                     return this;
                 }
             }

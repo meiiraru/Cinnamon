@@ -8,6 +8,7 @@ import cinnamon.gui.widgets.PopupWidget;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.Widget;
 import cinnamon.math.Maths;
+import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
@@ -62,6 +63,10 @@ public class UIHelper {
     }
 
     public static boolean isMouseOver(Widget w, int mouseX, int mouseY) {
+        return isMouseOver(w, mouseX, mouseY, 0);
+    }
+
+    public static boolean isMouseOver(Widget w, int mouseX, int mouseY, int margin) {
         Widget parent = w.getParent();
         if (parent != null && !(parent instanceof PopupWidget) && !isMouseOver(parent, mouseX, mouseY))
             return false;
@@ -75,7 +80,7 @@ public class UIHelper {
             y = w.getY();
         }
 
-        return isMouseOver(x, y, w.getWidth(), w.getHeight(), mouseX, mouseY);
+        return isMouseOver(x - margin, y - margin, w.getWidth() + margin * 2, w.getHeight() + margin * 2, mouseX, mouseY);
     }
 
     public static boolean isMouseOver(int x, int y, int width, int height, int mouseX, int mouseY) {
@@ -194,6 +199,69 @@ public class UIHelper {
         vertices[2] = quad(matrices, x, h.pos3, width, h.length3, u, h.uv3, regionWidth, h.length3, textureWidth, textureHeight);
 
         return vertices;
+    }
+
+    public static void outline(MatrixStack matrices, Widget w, int thickness, int color) {
+        int x, y;
+        if (w instanceof AlignedWidget aw) {
+            x = aw.getAlignedX();
+            y = aw.getAlignedY();
+        } else {
+            x = w.getX();
+            y = w.getY();
+        }
+
+        outline(matrices, x, y, w.getWidth(), w.getHeight(), thickness, color);
+    }
+
+    public static void outline(MatrixStack matrices, int x, int y, int width, int height, int thickness, int color) {
+        //top
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x, y, x + width, y + thickness, color));
+        //bottom
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x, y + height - thickness, x + width, y + height, color));
+        //left
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x, y + thickness, x + thickness, y + height - thickness, color));
+        //right
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x + width - thickness, y + thickness, x + width, y + height - thickness, color));
+    }
+
+    public static void highlight(MatrixStack matrices, Widget w, boolean invert, int color) {
+        int x, y;
+        if (w instanceof AlignedWidget aw) {
+            x = aw.getAlignedX();
+            y = aw.getAlignedY();
+        } else {
+            x = w.getX();
+            y = w.getY();
+        }
+
+        highlight(matrices, x, y, w.getWidth(), w.getHeight(), invert, color);
+    }
+
+    public static void highlight(MatrixStack matrices, int x, int y, int width, int height, boolean invert, int color) {
+        matrices.pushMatrix();
+        matrices.translate(0, 0, getDepthOffset() * 5);
+
+        if (!invert) {
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x, y, x + width, y + height, color));
+            matrices.popMatrix();
+            return;
+        }
+
+        Window window = Client.getInstance().window;
+        int w = window.getGUIWidth();
+        int h = window.getGUIHeight();
+
+        //top
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, 0, 0, w, y, color));
+        //bottom
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, 0, y + height, w, h, color));
+        //left
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, 0, y, x, y + height, color));
+        //right
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x + width, y, w, y + height, color));
+
+        matrices.popMatrix();
     }
 
     public static void renderTooltip(MatrixStack matrices, int x, int y, Text tooltip) {

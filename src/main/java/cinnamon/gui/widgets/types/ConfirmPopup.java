@@ -9,6 +9,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
+import cinnamon.utils.UIHelper;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -112,27 +113,41 @@ public class ConfirmPopup extends PopupWidget {
 
     public static class Input extends ConfirmPopup {
 
+        protected final TextField input;
+        protected final ContainerGrid actionGrid;
+        protected final Button ok, cancel;
+
         public Input(Text message, Text placeholder, BiConsumer<Boolean, String> callback) {
             super(0, 0, 12);
             setMessage(message);
-            TextField input = new TextField(0, 0, 60 + 12 + 60, 16);
+            input = new TextField(0, 0, 60 + 12 + 60, 16);
             input.setHintText(placeholder);
+            input.setReturnListener(field -> {
+                callback.accept(true, field.getText());
+                close();
+            });
             addAction(input);
 
-            ContainerGrid actionGrid = new ContainerGrid(0, 0, 12, 2);
+            actionGrid = new ContainerGrid(0, 0, 12, 2);
             addAction(actionGrid);
 
-            Button ok = new Button(0, 0, 60, 12, Text.translated("gui.ok"), b -> {
+            ok = new Button(0, 0, 60, 12, Text.translated("gui.ok"), b -> {
                 callback.accept(true, input.getText());
                 close();
             });
             actionGrid.addWidget(ok);
 
-            Button cancel = new Button(0, 0, 60, 12, Text.translated("gui.cancel"), b -> {
+            cancel = new Button(0, 0, 60, 12, Text.translated("gui.cancel"), b -> {
                 callback.accept(false, input.getText());
                 close();
             });
             actionGrid.addWidget(cancel);
+        }
+
+        @Override
+        public void open() {
+            super.open();
+            UIHelper.focusWidget(input);
         }
     }
 }

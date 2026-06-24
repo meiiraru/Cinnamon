@@ -72,6 +72,8 @@ public class WidgetList extends ContainerGrid {
     public void clear() {
         this.widgets.clear();
         this.listeners.clear();
+        if (this.showScrollbar)
+            this.listeners.add(this.scrollbar);
     }
 
     @Override

@@ -68,7 +68,7 @@ public class CPFScreen extends ParentedScreen {
             }
         });
         list.addWidget(button);
-        field.setEnterListener(tf -> button.onRun());
+        field.setReturnListener(tf -> button.onRun());
 
         super.init();
     }
