@@ -1,6 +1,6 @@
 package cinnamon.text;
 
-import cinnamon.gui.GUIStyle;
+import cinnamon.gui.GUISkin;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
 
@@ -30,7 +30,7 @@ public class Style {
             outlined;
 
     private Resource
-            guiStyle;
+            guiSkin;
 
     private Style() {}
 
@@ -50,7 +50,7 @@ public class Style {
         this.background      = o.background;
         this.shadow          = o.shadow;
         this.outlined        = o.outlined;
-        this.guiStyle        = o.guiStyle;
+        this.guiSkin         = o.guiSkin;
     }
 
     public Style applyParent(Style p) {
@@ -75,7 +75,7 @@ public class Style {
         if (background      != null) s.background      = background;
         if (shadow          != null) s.shadow          = shadow;
         if (outlined        != null) s.outlined        = outlined;
-        if (guiStyle        != null) s.guiStyle        = guiStyle;
+        if (guiSkin         != null) s.guiSkin         = guiSkin;
         return s;
     }
 
@@ -185,9 +185,9 @@ public class Style {
         return s;
     }
 
-    public Style guiStyle(Resource guiStyle) {
+    public Style guiSkin(Resource skin) {
         Style s = new Style(this);
-        s.guiStyle = guiStyle;
+        s.guiSkin = skin;
         return s;
     }
 
@@ -199,31 +199,31 @@ public class Style {
     }
 
     public int getColor() {
-        return color == null ? getGuiStyle().getInt("text_color") : color;
+        return color == null ? getGuiSkin().getInt("text_color") : color;
     }
 
     public int getBackgroundColor() {
-        return backgroundColor == null ? getGuiStyle().getInt("background_color") : backgroundColor;
+        return backgroundColor == null ? getGuiSkin().getInt("background_color") : backgroundColor;
     }
 
     public int getShadowColor() {
-        return shadowColor == null ? getGuiStyle().getInt("shadow_color") : shadowColor;
+        return shadowColor == null ? getGuiSkin().getInt("shadow_color") : shadowColor;
     }
 
     public int getOutlineColor() {
-        return outlineColor == null ? getGuiStyle().getInt("shadow_color") : outlineColor;
+        return outlineColor == null ? getGuiSkin().getInt("outline_color") : outlineColor;
     }
 
     public int getItalicOffset() {
-        return italicOffset == null ? getGuiStyle().getInt("italic_offset") : italicOffset;
+        return italicOffset == null ? getGuiSkin().getInt("italic_offset") : italicOffset;
     }
 
     public int getBoldOffset() {
-        return boldOffset == null ? getGuiStyle().getInt("bold_offset") : boldOffset;
+        return boldOffset == null ? getGuiSkin().getInt("bold_offset") : boldOffset;
     }
 
     public int getShadowOffset() {
-        return shadowOffset == null ? getGuiStyle().getInt("shadow_offset") : shadowOffset;
+        return shadowOffset == null ? getGuiSkin().getInt("shadow_offset") : shadowOffset;
     }
 
     public boolean isBold() {
@@ -258,7 +258,7 @@ public class Style {
         return outlined == Boolean.TRUE;
     }
 
-    public GUIStyle getGuiStyle() {
-        return guiStyle == null ? GUIStyle.getDefault() : GUIStyle.of(guiStyle);
+    public GUISkin getGuiSkin() {
+        return GUISkin.of(guiSkin == null ? GUISkin.getCurrentSkinRes() : guiSkin);
     }
 }

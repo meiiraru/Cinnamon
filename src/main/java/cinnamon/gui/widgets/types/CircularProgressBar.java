@@ -20,14 +20,14 @@ public class CircularProgressBar extends ProgressBar {
         int r = getWidth() / 2;
 
         //background
-        Resource tex = getStyle().getResource("circular_progress_tex");
+        Resource tex = getSkin().getResource("circular_progress_tex");
         VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, getX(), getY(), getWidth(), getHeight(), 2, 1), tex);
 
         //progress
         matrices.pushMatrix();
         matrices.translate(0, 0, UIHelper.getDepthOffset());
 
-        Vertex[] vertices = GeometryHelper.progressSquare(matrices, x, y, r, getProgress(), color == null ? getStyle().getInt("accent_color") : color);
+        Vertex[] vertices = GeometryHelper.progressSquare(matrices, x, y, r, getProgress(), color == null ? getSkin().getInt("accent_color") : color);
         for (Vertex vertex : vertices)
             vertex.uv(vertex.getUV().mul(0.5f, 1f).add(0.5f, 0f));
         VertexConsumer.MAIN.consume(vertices, tex);

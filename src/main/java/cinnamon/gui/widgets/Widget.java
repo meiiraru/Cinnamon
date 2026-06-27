@@ -1,6 +1,6 @@
 package cinnamon.gui.widgets;
 
-import cinnamon.gui.GUIStyle;
+import cinnamon.gui.GUISkin;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.Resource;
 
@@ -9,7 +9,7 @@ public abstract class Widget {
     private int x, y;
     private int width, height;
     private Widget parent;
-    private Resource style = GUIStyle.DEFAULT_STYLE;
+    private Resource skinOverride = null;
 
     public Widget(int x, int y, int width, int height) {
         this.x = x;
@@ -88,15 +88,15 @@ public abstract class Widget {
         return parent;
     }
 
-    public void setStyle(Resource style) {
-        this.style = style;
+    public void setSkin(Resource skin) {
+        this.skinOverride = skin;
     }
 
-    public Resource getStyleRes() {
-        return style;
+    public Resource getSkinRes() {
+        return skinOverride != null ? skinOverride : GUISkin.getCurrentSkinRes();
     }
 
-    public GUIStyle getStyle() {
-        return GUIStyle.of(style);
+    public GUISkin getSkin() {
+        return GUISkin.of(getSkinRes());
     }
 }

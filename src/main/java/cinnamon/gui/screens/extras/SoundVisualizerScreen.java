@@ -1,6 +1,6 @@
 package cinnamon.gui.screens.extras;
 
-import cinnamon.gui.GUIStyle;
+import cinnamon.gui.GUISkin;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
@@ -303,7 +303,7 @@ public class SoundVisualizerScreen extends ParentedScreen {
         int songCount = playlist.size();
         int playTime = soundData != null ? (int) soundData.getPlaybackTime() : slider.getValue();
 
-        float lineHeight = GUIStyle.getDefault().getFont().lineHeight;
+        float lineHeight = GUISkin.getCurrentSkin().getFont().lineHeight;
 
         //draw top text
         if (songCount == 0)

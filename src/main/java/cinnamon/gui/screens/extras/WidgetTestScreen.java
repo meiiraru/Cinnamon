@@ -1,5 +1,6 @@
 package cinnamon.gui.screens.extras;
 
+import cinnamon.gui.GUISkin;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
@@ -102,21 +103,30 @@ public class WidgetTestScreen extends ParentedScreen {
 
         //selection box
         ComboBox cb = new ComboBox(0, 0, 60, 12);
+        cb.allowScrollSelect(false);
         grid.addWidget(cb);
 
-        cb
-                .addEntry(Text.of("Entry 1"), Text.of("1"), button -> Toast.addToast("1"))
-                .addDivider()
-                .addEntry(Text.of("Entry 2"), Text.of("2"), button -> Toast.addToast("2"))
-                .addDivider()
-                .addEntry(Text.of("Entry 3"), Text.of("3"), button -> Toast.addToast("3"));
+        for (String resource : IOUtils.listResources(new Resource("data/gui_skins/"), false)) {
+            Resource res = new Resource("data/gui_skins/").resolve(resource);
+            cb.addEntry(Text.of(resource), Text.of(resource), button -> {
+                GUISkin.setCurrentSkin(res);
+                Settings.guiSkin.set(res.toString());
+                Settings.save();
+                this.rebuild();
+            });
+            if (res.toString().equals(Settings.guiSkin.get()))
+                cb.setSelected(cb.getEntryCount() - 1);
+        }
 
         //selection 2
         ComboBox cb2 = new ComboBox(0, 0, 60, 12);
         grid.addWidget(cb2);
 
-        for (int i = 0; i < 100; i++)
+        for (int i = 1; i < 100; i++) {
             cb2.addEntry(Text.of(i), Text.of(i), null);
+            if (i % 10 == 0)
+                cb2.addDivider();
+        }
 
         //selection 3
         ComboBox cb3 = new ComboBox(0, 0, 60, 12);
@@ -147,14 +157,14 @@ public class WidgetTestScreen extends ParentedScreen {
 
         tf1.setHintText(Text.of("Text Field"));
         tf1.setListener(s1 -> tf1.setTextStyle(tf1.getTextStyle().color(Colors.randomRainbow())));
-        tf1.setTextStyle(Style.EMPTY.guiStyle(Hud.HUD_STYLE));
+        tf1.setTextStyle(Style.EMPTY.guiSkin(Hud.SKIN));
 
         TextField tf2 = new TextField(0, 0, tfw, 16);
         grid.addWidget(tf2);
 
         tf2.setHintText(Text.of("Disabled Text Field"));
         tf2.setActive(false);
-        tf2.setTextStyle(Style.EMPTY.guiStyle(Hud.HUD_STYLE));
+        tf2.setTextStyle(Style.EMPTY.guiSkin(Hud.SKIN));
 
         ContainerGrid password = new ContainerGrid(0, 0, 4, 2);
         grid.addWidget(password);
@@ -227,15 +237,15 @@ public class WidgetTestScreen extends ParentedScreen {
         grid.addWidget(toasts);
 
         //toast 1
-        Button toast1 = new Button(0, 0, 60, 12, Text.of("Toast 1"), button -> Toast.addToast(Text.of("Toast 1")).style(button.getStyleRes()));
+        Button toast1 = new Button(0, 0, 60, 12, Text.of("Toast 1"), button -> Toast.addToast(Text.of("Toast 1")).skin(button.getSkinRes()));
         toasts.addWidget(toast1);
 
         //toast 2
-        Button toast2 = new Button(0, 0, 60, 12, Text.of("Toast 2"), button -> Toast.addToast(Text.of("Multi-line\nToast :3")).style(button.getStyleRes()).type(Toast.ToastType.WARN));
+        Button toast2 = new Button(0, 0, 60, 12, Text.of("Toast 2"), button -> Toast.addToast(Text.of("Multi-line\nToast :3")).skin(button.getSkinRes()).type(Toast.ToastType.WARN));
         toasts.addWidget(toast2);
 
         //toast 3
-        Button toast3 = new Button(0, 0, 60, 12, Text.of("Toast 3"), button -> Toast.addToast(Text.of("Oopsie daisy")).style(button.getStyleRes()).type(Toast.ToastType.ERROR).color(Colors.randomRainbow().argb));
+        Button toast3 = new Button(0, 0, 60, 12, Text.of("Toast 3"), button -> Toast.addToast(Text.of("Oopsie daisy")).skin(button.getSkinRes()).type(Toast.ToastType.ERROR).color(Colors.randomRainbow().argb));
         toasts.addWidget(toast3);
 
         //popup test

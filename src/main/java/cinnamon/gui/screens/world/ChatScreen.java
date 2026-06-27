@@ -1,7 +1,7 @@
 package cinnamon.gui.screens.world;
 
 import cinnamon.commands.CommandParser;
-import cinnamon.gui.GUIStyle;
+import cinnamon.gui.GUISkin;
 import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.types.TextField;
 import cinnamon.math.Maths;
@@ -50,7 +50,7 @@ public class ChatScreen extends Screen {
         super.init();
 
         //update field dimensions
-        int fh = (int) (GUIStyle.getDefault().getFont().lineHeight + 2);
+        int fh = (int) (GUISkin.getCurrentSkin().getFont().lineHeight + 2);
         field.setPos(0, height - fh - 20);
         field.setDimensions(width, fh);
 

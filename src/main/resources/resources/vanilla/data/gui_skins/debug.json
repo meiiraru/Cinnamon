@@ -1,5 +1,5 @@
 {
-  "parent": "data/gui_styles/default.json",
+  "parent": "data/gui_skins/default.json",
   "colors": {
     "background_color": "88000000"
   }

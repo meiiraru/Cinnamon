@@ -23,7 +23,7 @@ public class ProgressBar extends Widget {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         float d = UIHelper.tickDelta(0.4f);
         animationValue = Math.lerp(animationValue, getProgress(), d);
-        Resource tex = getStyle().getResource("progress_bar_tex");
+        Resource tex = getSkin().getResource("progress_bar_tex");
 
         //draw background
         UIHelper.nineQuad(
@@ -45,7 +45,7 @@ public class ProgressBar extends Widget {
                 16f, 0f,
                 16, 16,
                 32, 16,
-                color == null ? getStyle().getInt("accent_color") : color
+                color == null ? getSkin().getInt("accent_color") : color
         );
         matrices.popMatrix();
     }

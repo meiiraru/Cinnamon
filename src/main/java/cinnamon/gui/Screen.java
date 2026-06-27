@@ -225,7 +225,7 @@ public abstract class Screen {
     }
 
     protected void preRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        this.renderBackground(matrices, delta, 0x0F0805, 0x2E170F, 30f);
+        this.renderBackground(matrices, delta, GUISkin.getCurrentSkin().getInt("screen_color_1"), GUISkin.getCurrentSkin().getInt("screen_color_2"), 30f);
     }
 
     protected void renderChildren(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -256,10 +256,10 @@ public abstract class Screen {
         matrices.pushMatrix();
         matrices.translate(0f, 0f, 3f);
 
-        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, mouseX - 16, mouseY - 16, 32, 32), GUIStyle.getDefault().getResource("cursor"));
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, mouseX - 16, mouseY - 16, 32, 32), GUISkin.getCurrentSkin().getResource("cursor"));
         if (Settings.xrClickOnHover.get()) {
             matrices.translate(0, 0, UIHelper.getDepthOffset());
-            VertexConsumer.MAIN.consume(GeometryHelper.progressSquare(matrices, mouseX, mouseY, 16, (xrHoverTime + delta - 1f) / (Settings.xrClickOnHoverDelay.get() - 1f), 0xFFFFFFFF), GUIStyle.getDefault().getResource("cursor_hold"));
+            VertexConsumer.MAIN.consume(GeometryHelper.progressSquare(matrices, mouseX, mouseY, 16, (xrHoverTime + delta - 1f) / (Settings.xrClickOnHoverDelay.get() - 1f), 0xFFFFFFFF), GUISkin.getCurrentSkin().getResource("cursor_hold"));
         }
 
         matrices.popMatrix();

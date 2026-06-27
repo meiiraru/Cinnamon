@@ -2,7 +2,7 @@ package cinnamon.world;
 
 import cinnamon.Client;
 import cinnamon.gui.DebugScreen;
-import cinnamon.gui.GUIStyle;
+import cinnamon.gui.GUISkin;
 import cinnamon.gui.widgets.types.ProgressBar;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
@@ -45,7 +45,7 @@ public class Hud {
             HOTBAR = new Resource("textures/gui/hud/hotbar.png"),
             VIGNETTE = new Resource("textures/gui/hud/vignette.png"),
             HIT_DIRECTION = new Resource("textures/gui/hud/hit_direction.png"),
-            HUD_STYLE = new Resource("data/gui_styles/hud.json");
+            SKIN = new Resource("data/gui_skins/minimal_dark.json");
 
     protected ProgressBar health, itemCooldown;
 
@@ -58,11 +58,11 @@ public class Hud {
     public void init() {
         health = new ProgressBar(0, 0, 60, 8, 1f);
         health.setColor(Colors.RED);
-        health.setStyle(HUD_STYLE);
+        health.setSkin(SKIN);
 
         itemCooldown = new ProgressBar(0, 0, 60, 8, 0f);
         itemCooldown.setColor(Colors.WHITE);
-        itemCooldown.setStyle(HUD_STYLE);
+        itemCooldown.setSkin(SKIN);
     }
 
     public void free() {}
@@ -150,7 +150,7 @@ public class Hud {
         Window window = Client.getInstance().window;
 
         //health text
-        Text text = Text.of(player.getHealth() + " ").withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE))
+        Text text = Text.of(player.getHealth() + " ").withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN))
                 .append(Text.of("\u2764").withStyle(Style.EMPTY.color(Colors.RED)));
 
         //transform matrices
@@ -181,7 +181,7 @@ public class Hud {
         boolean onCooldown = item instanceof CooldownItem ci && ci.isOnCooldown();
 
         //item name
-        Text text = Text.translated(item.getId()).withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE)).append("\n");
+        Text text = Text.translated(item.getId()).withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN)).append("\n");
 
         //item count
         if (!onCooldown)
@@ -213,7 +213,7 @@ public class Hud {
         matrices.pushMatrix();
         matrices.translate(Client.getInstance().window.getGUIWidth() - 12, 12, 0f);
 
-        Text text = Text.empty().withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE));
+        Text text = Text.empty().withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN));
 
         for (Effect effect : player.getActiveEffects()) {
             //name
@@ -281,7 +281,7 @@ public class Hud {
                 if (item.getStackSize() > 1) {
                     matrices.pushMatrix();
                     matrices.translate(0f, 0f, Math.max(15f, UIHelper.getDepthOffset()));
-                    Text.of(item.getCount()).withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE))
+                    Text.of(item.getCount()).withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN))
                             .render(VertexConsumer.MAIN, matrices, x + 16, y + 16 + 2, Alignment.BOTTOM_RIGHT);
                     matrices.popMatrix();
                 }
@@ -365,7 +365,7 @@ public class Hud {
         //render name
         Text mat = Text.translated("material." + material.name().toLowerCase());
         Text ter = Text.translated("terrain." + registry.name().toLowerCase());
-        mat.append(" ").append(ter).withStyle(Style.EMPTY.shadow(true).guiStyle(HUD_STYLE)).render(VertexConsumer.MAIN, matrices, ww.getGUIWidth() * 0.5f, 16 + 4 + 4, Alignment.TOP_CENTER);
+        mat.append(" ").append(ter).withStyle(Style.EMPTY.shadow(true).guiSkin(SKIN)).render(VertexConsumer.MAIN, matrices, ww.getGUIWidth() * 0.5f, 16 + 4 + 4, Alignment.TOP_CENTER);
     }
 
     protected void drawFade(MatrixStack matrices, Client client, float delta) {
@@ -418,7 +418,7 @@ public class Hud {
 
         //starting coordinates
         int x = 4 + 2;
-        int y = client.window.getGUIHeight() - 20 - (int) GUIStyle.getDefault().getFont().lineHeight - 4 - 4;
+        int y = client.window.getGUIHeight() - 20 - (int) GUISkin.getCurrentSkin().getFont().lineHeight - 4 - 4;
         int maxLines = MessageManager.RECENT_MESSAGES;
 
         for (int i = messages.size() - 1; i >= start && maxLines > 0; i--) {

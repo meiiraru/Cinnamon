@@ -38,7 +38,7 @@ public class Label extends SelectableWidget implements AlignedWidget {
 
     protected void renderHover(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, getStyle().getResource("label_tex"),
+                VertexConsumer.MAIN, matrices, getSkin().getResource("label_tex"),
                 getAlignedX() - 1, getAlignedY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,
@@ -48,7 +48,7 @@ public class Label extends SelectableWidget implements AlignedWidget {
     }
 
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(text).render(VertexConsumer.MAIN, matrices, getX(), getY(), alignment);
+        Text.empty().withStyle(Style.EMPTY.guiSkin(getSkinRes())).append(text).render(VertexConsumer.MAIN, matrices, getX(), getY(), alignment);
     }
 
     public Text getText() {
@@ -62,7 +62,7 @@ public class Label extends SelectableWidget implements AlignedWidget {
 
     @Override
     protected void updateDimensions() {
-        Text text = Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(this.text);
+        Text text = Text.empty().withStyle(Style.EMPTY.guiSkin(getSkinRes())).append(this.text);
         setDimensions(TextUtils.getWidth(text), TextUtils.getHeight(text));
         super.updateDimensions();
     }
@@ -96,8 +96,8 @@ public class Label extends SelectableWidget implements AlignedWidget {
     }
 
     @Override
-    public void setStyle(Resource style) {
-        super.setStyle(style);
+    public void setSkin(Resource skin) {
+        super.setSkin(skin);
         updateDimensions();
     }
 

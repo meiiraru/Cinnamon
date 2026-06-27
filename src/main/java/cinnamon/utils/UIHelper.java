@@ -1,7 +1,7 @@
 package cinnamon.utils;
 
 import cinnamon.Client;
-import cinnamon.gui.GUIStyle;
+import cinnamon.gui.GUISkin;
 import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.AlignedWidget;
 import cinnamon.gui.widgets.PopupWidget;
@@ -13,6 +13,7 @@ import cinnamon.model.Vertex;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
@@ -276,10 +277,10 @@ public class UIHelper {
         if (yy + h > win.getGUIHeight())
             yy = y - 12 - h;
 
-        renderTooltip(matrices, xx, yy, w, h, xx, yy, (byte) -1, tooltip, tooltip.getStyle().getGuiStyle());
+        renderTooltip(matrices, xx, yy, w, h, xx, yy, (byte) -1, tooltip, tooltip.getStyle().getGuiSkin());
     }
 
-    public static void renderTooltip(MatrixStack matrices, int x, int y, int width, int height, int centerX, int centerY, byte arrowSide, Text tooltip, GUIStyle style) {
+    public static void renderTooltip(MatrixStack matrices, int x, int y, int width, int height, int centerX, int centerY, byte arrowSide, Text tooltip, GUISkin style) {
         matrices.pushMatrix();
         matrices.translate(x, y, 0);
 
@@ -311,7 +312,11 @@ public class UIHelper {
         //render text
         matrices.pushMatrix();
         matrices.translate(0, 0, getDepthOffset());
-        tooltip.render(VertexConsumer.MAIN, matrices, 0, 0);
+
+        Text.empty()
+                .withStyle(Style.EMPTY.color(style.getInt("tooltip_text_color")))
+                .append(tooltip)
+                .render(VertexConsumer.MAIN, matrices, 0, 0);
 
         matrices.popMatrix();
         matrices.popMatrix();

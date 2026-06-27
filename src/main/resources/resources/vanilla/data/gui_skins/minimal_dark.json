@@ -1,0 +1,26 @@
+{
+  "parent": "data/gui_skins/default.json",
+  "colors": {
+    "accent_color":        "FF72ADFF",
+    "disabled_color":      "FF161616",
+    "selected_text_color": "FF000000",
+    "hint_color":          "FF404040",
+    "disabled_hint_color": "FF202020",
+    "screen_color_1":      "FF161616",
+    "screen_color_2":      "FF323232"
+  },
+  "resources": {
+    "button_tex":               "textures/gui/widgets/minimal_dark/button.png",
+    "checkbox_tex":             "textures/gui/widgets/minimal_dark/checkbox.png",
+    "circular_progress_tex":    "textures/gui/widgets/minimal_dark/circular_progress_bar.png",
+    "color_picker_tex":         "textures/gui/widgets/minimal_dark/color_picker.png",
+    "context_menu_tex":         "textures/gui/widgets/minimal_dark/context_menu.png",
+    "progress_bar_tex":         "textures/gui/widgets/minimal_dark/progress_bar.png",
+    "scroll_bar_tex":           "textures/gui/widgets/minimal_dark/scrollbar.png",
+    "slider_tex":               "textures/gui/widgets/minimal_dark/slider.png",
+    "text_field_tex":           "textures/gui/widgets/minimal_dark/text_field.png"
+  },
+  "primitives": {
+    "pressed_y_offset": 0
+  }
+}

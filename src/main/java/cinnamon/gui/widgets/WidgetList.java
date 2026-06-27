@@ -59,7 +59,7 @@ public class WidgetList extends ContainerGrid {
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //render background
         UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, getStyle().getResource("container_background_tex"),
+                VertexConsumer.MAIN, matrices, getSkin().getResource("container_background_tex"),
                 getAlignedX() - 1, getAlignedY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,

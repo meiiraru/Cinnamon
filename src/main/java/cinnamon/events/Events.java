@@ -1,6 +1,6 @@
 package cinnamon.events;
 
-import cinnamon.gui.GUIStyle;
+import cinnamon.gui.GUISkin;
 import cinnamon.gui.screens.MainMenu;
 import cinnamon.lang.LangManager;
 import cinnamon.logger.Logger;
@@ -71,7 +71,7 @@ public class Events {
         registerEvent(RESOURCE_FREE, o -> MaterialManager.free());
         registerEvent(RESOURCE_FREE, o -> SkyBox.freeAll());
         registerEvent(RESOURCE_FREE, o -> VertexConsumer.freeBatches());
-        registerEvent(RESOURCE_FREE, o -> GUIStyle.free());
+        registerEvent(RESOURCE_FREE, o -> GUISkin.free());
         registerEvent(RESOURCE_FREE, o -> Font.freeAll());
     }
 }

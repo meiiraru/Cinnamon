@@ -79,7 +79,7 @@ public class ContextMenu extends PopupWidget {
     }
 
     public ContextMenu addDivider() {
-        addAction(new ContextDivider(totalWidth, getStyle().getInt("context_menu_divider_size"), widgets.size()));
+        addAction(new ContextDivider(totalWidth, getSkin().getInt("context_menu_divider_size"), widgets.size()));
         return this;
     }
 
@@ -153,7 +153,7 @@ public class ContextMenu extends PopupWidget {
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //render background
         UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, getStyle().getResource("context_menu_tex"),
+                VertexConsumer.MAIN, matrices, getSkin().getResource("context_menu_tex"),
                 getX() - 1, getY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,
@@ -202,7 +202,7 @@ public class ContextMenu extends PopupWidget {
 
         @Override
         protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), isHoveredOrFocused(), index, getStyle().getResource("context_menu_tex"));
+            ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), isHoveredOrFocused(), index, getSkin().getResource("context_menu_tex"));
         }
 
         @Override
@@ -239,7 +239,7 @@ public class ContextMenu extends PopupWidget {
 
         @Override
         public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            Resource tex = getStyle().getResource("context_menu_tex");
+            Resource tex = getSkin().getResource("context_menu_tex");
             ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), false, index, tex);
 
             matrices.pushMatrix();
@@ -298,7 +298,7 @@ public class ContextMenu extends PopupWidget {
             super.renderText(matrices, mouseX, mouseY, delta);
 
             //render arrow
-            Text arrow = Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(ARROW);
+            Text arrow = Text.empty().withStyle(Style.EMPTY.guiSkin(getSkinRes())).append(ARROW);
             int x = getX() + getWidth() - 2;
             int y = getCenterY();
 
@@ -325,9 +325,9 @@ public class ContextMenu extends PopupWidget {
         }
 
         @Override
-        public void setStyle(Resource style) {
-            super.setStyle(style);
-            subContext.setStyle(style);
+        public void setSkin(Resource skin) {
+            super.setSkin(skin);
+            subContext.setSkin(skin);
         }
     }
 }

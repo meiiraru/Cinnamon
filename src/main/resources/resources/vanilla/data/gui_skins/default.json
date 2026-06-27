@@ -1,0 +1,68 @@
+{
+  "font": {
+    "path": "fonts/minakaka.ttf",
+    "size": 8,
+    "line_spacing": 0,
+    "smooth": false,
+    "oversample": 1,
+    "fallback": {
+      "path": "fonts/mayonnaise.ttf",
+      "size": 8,
+      "line_spacing": 0,
+      "smooth": false,
+      "oversample": 1
+    }
+  },
+
+  "colors": {
+    "text_color":          "FFFFFFFF",
+    "shadow_color":        "FF161616",
+    "outline_color":       "FF161616",
+    "background_color":    "44000000",
+    "accent_color":        "FFD37F7A",
+    "disabled_color":      "FF666666",
+    "selected_text_color": "FF000000",
+    "hint_color":          "FFD37F7A",
+    "disabled_hint_color": "FF404040",
+    "toast_text_color":    "FFFFFFFF",
+    "tooltip_text_color":  "FFFFFFFF",
+    "xr_interact_color":   "FFFFFFFF",
+    "screen_color_1":      "FF0F0805",
+    "screen_color_2":      "FF2E170F",
+    "icon_color":          "FFFFFFFF"
+  },
+
+  "resources": {
+    "button_tex":               "textures/gui/widgets/base/button.png",
+    "checkbox_tex":             "textures/gui/widgets/base/checkbox.png",
+    "circular_progress_tex":    "textures/gui/widgets/base/circular_progress_bar.png",
+    "color_picker_tex":         "textures/gui/widgets/base/color_picker.png",
+    "container_background_tex": "textures/gui/widgets/base/container_background.png",
+    "context_menu_tex":         "textures/gui/widgets/base/context_menu.png",
+    "label_tex":                "textures/gui/widgets/base/label.png",
+    "loading_tex":              "textures/gui/widgets/base/loading.png",
+    "progress_bar_tex":         "textures/gui/widgets/base/progress_bar.png",
+    "scroll_bar_tex":           "textures/gui/widgets/base/scrollbar.png",
+    "slider_tex":               "textures/gui/widgets/base/slider.png",
+    "text_field_tex":           "textures/gui/widgets/base/text_field.png",
+    "toast_tex":                "textures/gui/widgets/base/toast.png",
+    "tooltip_tex":              "textures/gui/widgets/base/tooltip.png",
+    "cursor":                   "textures/gui/cursor.png",
+    "cursor_hold":              "textures/gui/cursor_hold.png"
+  },
+
+  "primitives": {
+    "pressed_y_offset": 2,
+    "shadow_offset": 1,
+    "bold_offset": 1,
+    "italic_offset": 3,
+
+    "password_char": "\u2022",
+    "cursor_width": 1,
+    "cursor_insert_width": 4,
+
+    "context_menu_divider_size": 5,
+
+    "tooltip_border": 4
+  }
+}

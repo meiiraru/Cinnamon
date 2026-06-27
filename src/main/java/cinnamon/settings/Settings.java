@@ -1,6 +1,7 @@
 package cinnamon.settings;
 
 import cinnamon.Client;
+import cinnamon.gui.GUISkin;
 import cinnamon.input.InputManager;
 import cinnamon.lang.LangManager;
 import cinnamon.registry.LivingModelRegistry;
@@ -38,9 +39,10 @@ public class Settings {
     //screen
     public static final Setting.Ints fov = new Setting.Ints("screen.fov", 70);
     public static final Setting.Floats guiScale = new Setting.Floats("screen.guiScale", 0f);
-    public static final Setting.Bools showFPS = new Setting.Bools("screen.show_fps", false);
-    public static final Setting.Bools vsync = new Setting.Bools("screen.vsync", false);
-    public static final Setting.Ints fpsLimit = new Setting.Ints("screen.fps_limit", 0);
+    public static final Setting.Bools showFPS   = new Setting.Bools("screen.show_fps", false);
+    public static final Setting.Bools vsync     = new Setting.Bools("screen.vsync", false);
+    public static final Setting.Ints fpsLimit   = new Setting.Ints("screen.fps_limit", 0);
+    public static final Setting.Strings guiSkin = new Setting.Strings("screen.gui_skin", "");
 
     //mouse
     public static final Setting.Floats sensibility = new Setting.Floats("mouse.sensibility", 0.27f);
@@ -66,39 +68,40 @@ public class Settings {
             xrSnapTurn       = new Setting.Bools("xr.snap_turn", true),
             xrClickOnHover   = new Setting.Bools("xr.click_on_hover", true);
     public static final Setting.Floats
-            xrTurningAngle = new Setting.Floats("xr.turning_angle", 3f),
+            xrTurningAngle     = new Setting.Floats("xr.turning_angle", 3f),
             xrSnapTurningAngle = new Setting.Floats("xr.snap_turning_angle", 30f);
     public static final Setting.Ints xrClickOnHoverDelay = new Setting.Ints("xr.click_on_hover_delay", 30);
 
     //rendering
     public static final Setting.IntRanges shadowQuality = new Setting.IntRanges("rendering.shadow_quality", 3, -1, 4);
-    public static final Setting.Ranges bloomStrength = new Setting.Ranges("rendering.bloom_strength", 1f, 0f, 5f);
+    public static final Setting.Ranges bloomStrength    = new Setting.Ranges("rendering.bloom_strength", 1f, 0f, 5f);
     public static final Setting.Bools lensFlare = new Setting.Bools("rendering.lens_flare", true);
     public static final Setting.IntRanges volumetricLights = new Setting.IntRanges("rendering.volumetric_lights", 3, -1, 4);
     public static final Setting.IntRanges ssaoLevel = new Setting.IntRanges("rendering.ssao_level", 3, -1, 4);
-    public static final Setting.IntRanges ssrLevel = new Setting.IntRanges("rendering.ssr_level", 3, -1, 4);
-    public static final Setting.Ranges renderScale = new Setting.Ranges("rendering.render_scale", 1f, 0.01f, 4f);
+    public static final Setting.IntRanges ssrLevel  = new Setting.IntRanges("rendering.ssr_level", 3, -1, 4);
+    public static final Setting.Ranges renderScale  = new Setting.Ranges("rendering.render_scale", 1f, 0.01f, 4f);
 
     //keybinds
     public static final Setting.Keybind
             //movement
-            forward = new Setting.Keybind("keybind.forward", GLFW_KEY_W, KEY),
+            forward  = new Setting.Keybind("keybind.forward", GLFW_KEY_W, KEY),
             backward = new Setting.Keybind("keybind.backward", GLFW_KEY_S, KEY),
-            left = new Setting.Keybind("keybind.left", GLFW_KEY_A, KEY),
-            right = new Setting.Keybind("keybind.right", GLFW_KEY_D, KEY),
+            left     = new Setting.Keybind("keybind.left", GLFW_KEY_A, KEY),
+            right    = new Setting.Keybind("keybind.right", GLFW_KEY_D, KEY),
 
-            jump = new Setting.Keybind("keybind.jump", GLFW_KEY_SPACE, KEY),
-            sneak = new Setting.Keybind("keybind.sneak", GLFW_KEY_LEFT_CONTROL, KEY),
+            jump   = new Setting.Keybind("keybind.jump", GLFW_KEY_SPACE, KEY),
+            sneak  = new Setting.Keybind("keybind.sneak", GLFW_KEY_LEFT_CONTROL, KEY),
             sprint = new Setting.Keybind("keybind.sprint", GLFW_KEY_LEFT_SHIFT, KEY),
 
             //item
             attack = new Setting.Keybind("keybind.attack", GLFW_MOUSE_BUTTON_1, MOUSE),
-            use = new Setting.Keybind("keybind.use", GLFW_MOUSE_BUTTON_2, MOUSE),
-            pick = new Setting.Keybind("keybind.pick", GLFW_MOUSE_BUTTON_3, MOUSE);
+            use    = new Setting.Keybind("keybind.use", GLFW_MOUSE_BUTTON_2, MOUSE),
+            pick   = new Setting.Keybind("keybind.pick", GLFW_MOUSE_BUTTON_3, MOUSE);
 
     static {
         //screen
         vsync.setListener(v -> Client.getInstance().window.toggleVsync(v));
+        guiSkin.setListener(str -> GUISkin.setCurrentSkin(str.isBlank() ? null : new Resource(str)));
 
         //raw mouse
         Setting.Bools rawMouse = new Setting.Bools("mouse.raw_mouse", true);

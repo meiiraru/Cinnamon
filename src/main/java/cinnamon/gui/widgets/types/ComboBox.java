@@ -27,6 +27,7 @@ public class ComboBox extends Button {
 
     protected Consumer<Integer> changeListener;
     protected boolean closeOnSelect = true;
+    protected boolean allowScrollSelect = true;
 
     private final ContextMenu contextMenu, emptyMenu;
 
@@ -60,12 +61,12 @@ public class ComboBox extends Button {
 
     @Override
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        Style style = Style.EMPTY.guiStyle(getStyleRes()).color(!isActive() ? getStyle().getInt("disabled_color") : null);
+        Style style = Style.EMPTY.guiSkin(getSkinRes()).color(!isActive() ? getSkin().getInt("disabled_color") : null);
 
         //render arrow
         Text text = Text.of(isExpanded() ? "\u23F6" : "\u23F7").withStyle(style);
         int x = getX() + getWidth() - 2;
-        int y = getCenterY() + (isHolding() ? getStyle().getInt("pressed_y_offset") : 0);
+        int y = getCenterY() + (isHolding() ? getSkin().getInt("pressed_y_offset") : 0);
         text.render(VertexConsumer.MAIN, matrices, x, y, Alignment.CENTER_RIGHT);
 
         //render selected text
@@ -181,7 +182,7 @@ public class ComboBox extends Button {
 
             //selected entry
             if (i == selected)
-                text = Text.empty().withStyle(Style.EMPTY.color(getStyle().getInt("accent_color"))).append(text);
+                text = Text.empty().withStyle(Style.EMPTY.color(getSkin().getInt("accent_color"))).append(text);
 
             //apply text
             contextMenu.getAction(i).setMessage(text);
@@ -190,15 +191,25 @@ public class ComboBox extends Button {
 
     @Override
     public GUIListener scroll(double x, double y) {
-        if (isActive() && UIHelper.isWidgetHovered(this)) {
+        if (allowScrollSelect() && isActive() && UIHelper.isWidgetHovered(this)) {
             int i = selected;
             i += (int) Math.signum(-y);
+            if (i < -1) i++; //back scroll when unselected
             i = Maths.modulo(i, indexes.size());
             contextMenu.getAction(i).onRun();
             return this;
         }
 
         return super.scroll(x, y);
+    }
+
+    public boolean allowScrollSelect() {
+        return allowScrollSelect;
+    }
+
+    public ComboBox allowScrollSelect(boolean allowScrollSelect) {
+        this.allowScrollSelect = allowScrollSelect;
+        return this;
     }
 
     private static class ComboContext extends ContextMenu {

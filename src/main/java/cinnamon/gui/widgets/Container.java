@@ -267,10 +267,10 @@ public class Container extends Widget implements Tickable, GUIListener {
     }
 
     @Override
-    public void setStyle(Resource style) {
-        super.setStyle(style);
+    public void setSkin(Resource skin) {
+        super.setSkin(skin);
         for (Widget widget : this.widgets)
-            widget.setStyle(style);
+            widget.setSkin(skin);
     }
 
     public void setActive(boolean active) {

@@ -1,0 +1,37 @@
+{
+  "parent": "data/gui_skins/default.json",
+  "colors": {
+    "text_color":          "FF000000",
+    "shadow_color":        "FFAAAAAA",
+    "outline_color":       "FFFFFFFF",
+    "background_color":    "FFFFFFFF",
+    "accent_color":        "FFAD72FF",
+    "disabled_color":      "FFAAAAAA",
+    "selected_text_color": "FFFFFFFF",
+    "hint_color":          "FF7F7F7F",
+    "disabled_hint_color": "FFAAAAAA",
+    "toast_text_color":    "FF000000",
+    "tooltip_text_color":  "FF000000",
+    "xr_interact_color":   "FF000000",
+    "screen_color_1":      "FFDEC6FF",
+    "screen_color_2":      "FFBAD7FF",
+    "icon_color":          "FF000000"
+  },
+  "resources": {
+    "button_tex":               "textures/gui/widgets/minimal_light/button.png",
+    "checkbox_tex":             "textures/gui/widgets/minimal_light/checkbox.png",
+    "circular_progress_tex":    "textures/gui/widgets/minimal_light/circular_progress_bar.png",
+    "color_picker_tex":         "textures/gui/widgets/minimal_light/color_picker.png",
+    "container_background_tex": "textures/gui/widgets/minimal_light/container_background.png",
+    "context_menu_tex":         "textures/gui/widgets/minimal_light/context_menu.png",
+    "progress_bar_tex":         "textures/gui/widgets/minimal_light/progress_bar.png",
+    "scroll_bar_tex":           "textures/gui/widgets/minimal_light/scrollbar.png",
+    "slider_tex":               "textures/gui/widgets/minimal_light/slider.png",
+    "text_field_tex":           "textures/gui/widgets/minimal_light/text_field.png",
+    "toast_tex":                "textures/gui/widgets/minimal_light/toast.png",
+    "tooltip_tex":              "textures/gui/widgets/minimal_light/tooltip.png"
+  },
+  "primitives": {
+    "pressed_y_offset": 0
+  }
+}

@@ -169,7 +169,7 @@ public class TextUtils {
             //text allowed to add
             StringBuilder current = new StringBuilder();
             boolean stop = false;
-            Font f = style.getGuiStyle().getFont();
+            Font f = style.getGuiSkin().getFont();
 
             //iterate over the text
             for (int i = 0; i < s.length(); ) {
@@ -218,7 +218,7 @@ public class TextUtils {
 
         //iterate text
         toVisit.visit((s, style) -> {
-            Font f = style.getGuiStyle().getFont();
+            Font f = style.getGuiSkin().getFont();
 
             String[] words = s.split("((?<= )|(?= ))");
             for (String word : words) {
@@ -398,7 +398,7 @@ public class TextUtils {
 
     public static int getWidth(List<Text> texts) {
         float width = 0f;
-        Font f = texts.getFirst().getStyle().getGuiStyle().getFont();
+        Font f = texts.getFirst().getStyle().getGuiSkin().getFont();
         for (Text t : texts)
             width = Math.max(width, f.width(t));
 
@@ -407,12 +407,12 @@ public class TextUtils {
 
     public static int getHeight(Text text) {
         String[] split = text.asString().split("\n", -1);
-        Font f = text.getStyle().getGuiStyle().getFont();
+        Font f = text.getStyle().getGuiSkin().getFont();
         return getHeight(f, split.length);
     }
 
     public static int getHeight(List<Text> texts) {
-        Font f = texts.getFirst().getStyle().getGuiStyle().getFont();
+        Font f = texts.getFirst().getStyle().getGuiSkin().getFont();
         return getHeight(f, texts.size());
     }
 

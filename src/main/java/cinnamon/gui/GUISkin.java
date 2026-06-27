@@ -14,14 +14,16 @@ import java.util.Map;
 
 import static cinnamon.events.Events.LOGGER;
 
-public class GUIStyle {
+public class GUISkin {
 
-    public static final Resource DEFAULT_STYLE = new Resource("data/gui_styles/default.json");
-    private static final Map<Resource, GUIStyle> STYLES_CACHE = new HashMap<>();
+    public static final Resource DEFAULT_SKIN = new Resource("data/gui_skins/default.json");
+    private static final Map<Resource, GUISkin> SKIN_CACHE = new HashMap<>();
+
+    private static Resource currentSkin = DEFAULT_SKIN;
 
     private final Map<String, Object> properties = new HashMap<>();
 
-    private GUIStyle parent;
+    private GUISkin parent;
     private Font font;
 
     public Object get(String key) {
@@ -63,35 +65,31 @@ public class GUIStyle {
     // -- constructor -- //
 
 
-    private GUIStyle() {}
+    private GUISkin() {}
 
 
     public static void free() {
-        STYLES_CACHE.clear();
+        SKIN_CACHE.clear();
     }
 
-    public static GUIStyle getDefault() {
-        return of(DEFAULT_STYLE);
+    public static GUISkin of(Resource res) {
+        GUISkin skin = SKIN_CACHE.get(res);
+        if (skin != null)
+            return skin;
+
+        skin = createSkin(res);
+        SKIN_CACHE.put(res, skin);
+        return skin;
     }
 
-    public static GUIStyle of(Resource res) {
-        GUIStyle style = STYLES_CACHE.get(res);
-        if (style != null)
-            return style;
-
-        style = createStyle(res);
-        STYLES_CACHE.put(res, style);
-        return style;
-    }
-
-    private static GUIStyle createStyle(Resource res) {
-        LOGGER.debug("Loading gui style \"%s\"", res);
-        GUIStyle style = new GUIStyle();
+    private static GUISkin createSkin(Resource res) {
+        LOGGER.debug("Loading gui skin \"%s\"", res);
+        GUISkin skin = new GUISkin();
 
         InputStream stream = IOUtils.getResource(res);
         if (stream == null) {
             LOGGER.error("Resource not found: %s", res);
-            return style;
+            return of(DEFAULT_SKIN);
         }
 
         try (stream; InputStreamReader reader = new InputStreamReader(stream)) {
@@ -99,7 +97,7 @@ public class GUIStyle {
 
             //parent
             if (json.has("parent"))
-                style.parent = of(new Resource(json.get("parent").getAsString()));
+                skin.parent = of(new Resource(json.get("parent").getAsString()));
 
             //font
             if (json.has("font")) {
@@ -122,7 +120,7 @@ public class GUIStyle {
                     if (parent != null)
                         parent.setFallback(font);
                     else
-                        style.font = font;
+                        skin.font = font;
 
                     parent = font;
                     fontJson = fontJson.has("fallback") ? fontJson.getAsJsonObject("fallback") : null;
@@ -133,14 +131,14 @@ public class GUIStyle {
             if (json.has("resources")) {
                 JsonObject resources = json.getAsJsonObject("resources");
                 for (Map.Entry<String, JsonElement> entry : resources.entrySet())
-                    style.properties.put(entry.getKey(), new Resource(entry.getValue().getAsString()));
+                    skin.properties.put(entry.getKey(), new Resource(entry.getValue().getAsString()));
             }
 
             //colors
             if (json.has("colors")) {
                 JsonObject colors = json.getAsJsonObject("colors");
                 for (Map.Entry<String, JsonElement> entry : colors.entrySet())
-                    style.properties.put(entry.getKey(), Integer.parseUnsignedInt(entry.getValue().getAsString(), 16));
+                    skin.properties.put(entry.getKey(), Integer.parseUnsignedInt(entry.getValue().getAsString(), 16));
             }
 
             //raw values
@@ -149,18 +147,30 @@ public class GUIStyle {
                 for (Map.Entry<String, JsonElement> entry : values.entrySet()) {
                     if (entry.getValue().isJsonPrimitive()) {
                         if (entry.getValue().getAsJsonPrimitive().isNumber())
-                            style.properties.put(entry.getKey(), entry.getValue().getAsNumber());
+                            skin.properties.put(entry.getKey(), entry.getValue().getAsNumber());
                         else if (entry.getValue().getAsJsonPrimitive().isBoolean())
-                            style.properties.put(entry.getKey(), entry.getValue().getAsBoolean());
+                            skin.properties.put(entry.getKey(), entry.getValue().getAsBoolean());
                         else
-                            style.properties.put(entry.getKey(), entry.getValue().getAsString());
+                            skin.properties.put(entry.getKey(), entry.getValue().getAsString());
                     }
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("Failed to load gui style \"%s\"", res, e);
+            LOGGER.error("Failed to load gui skin \"%s\"", res, e);
         }
 
-        return style;
+        return skin;
+    }
+
+    public static void setCurrentSkin(Resource res) {
+        currentSkin = res == null ? DEFAULT_SKIN : res;
+    }
+
+    public static Resource getCurrentSkinRes() {
+        return currentSkin;
+    }
+
+    public static GUISkin getCurrentSkin() {
+        return of(currentSkin);
     }
 }

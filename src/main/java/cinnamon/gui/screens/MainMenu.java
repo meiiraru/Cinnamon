@@ -29,7 +29,7 @@ public class MainMenu extends Screen {
         OVERLAY    = new Resource("textures/gui/main_menu/overlay.png"),
         BOTTOM     = new Resource("textures/gui/main_menu/bottom.png"),
         TITLE_ROOT = new Resource("textures/gui/main_menu/title"),
-        GUI_STYLE  = new Resource("data/gui_styles/main_menu.json");
+        GUI_SKIN   = new Resource("data/gui_skins/main_menu.json");
     private static final List<Resource> TITLE = new ArrayList<>();
 
     @Override
@@ -74,11 +74,11 @@ public class MainMenu extends Screen {
         //add grid to screen
         int y = (int) (height * 0.15f);
         grid.setPos((width - grid.getWidth()) / 2, y + (height - grid.getHeight() - y) / 2);
-        grid.setStyle(GUI_STYLE);
+        grid.setSkin(GUI_SKIN);
         this.addWidget(grid);
 
         //bottom texts
-        Style s = Style.EMPTY.italic(true).color(0x66FFFFFF).shadow(true).shadowColor(0x66161616).guiStyle(GUI_STYLE);
+        Style s = Style.EMPTY.italic(true).color(0x66FFFFFF).shadow(true).shadowColor(0x66161616).guiSkin(GUI_SKIN);
         Text bottomLeft = Text.of("Cinnamon v%s".formatted(Version.CLIENT_VERSION.toStringNoBuild())).withStyle(s);
         this.addWidget(new Label(4, height - 4, bottomLeft, Alignment.BOTTOM_LEFT));
 
@@ -183,7 +183,7 @@ public class MainMenu extends Screen {
         public MainButton(Text message, Consumer<Button> action) {
             super(0, 0, 148, 20, message, action);
             message.withStyle(Style.EMPTY.outlined(true));
-            setStyle(GUI_STYLE);
+            setSkin(GUI_SKIN);
         }
 
         @Override

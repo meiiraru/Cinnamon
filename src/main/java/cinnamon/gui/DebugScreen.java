@@ -45,8 +45,8 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class DebugScreen {
 
-    private static final Resource STYLE_PATH = new Resource("data/gui_styles/debug.json");
-    private static final Style STYLE = Style.EMPTY.background(true).shadow(true).guiStyle(STYLE_PATH);
+    private static final Resource GUI_SKIN = new Resource("data/gui_skins/debug.json");
+    private static final Style STYLE = Style.EMPTY.background(true).shadow(true).guiSkin(GUI_SKIN);
 
     private static final CircularQueue<String> LOG = new CircularQueue<>(20);
     public static final LogOutput LOG_OUTPUT = new LogOutput() {
@@ -253,7 +253,7 @@ public class DebugScreen {
                         .formatted(Version.CLIENT_VERSION, c.fps, c.ms))
                         .withStyle(STYLE.background(false)));
 
-        int bg = GUIStyle.of(STYLE_PATH).getInt("background_color");
+        int bg = GUISkin.of(GUI_SKIN).getInt("background_color");
         float x = 4;
         float y = 4;
         float w = TextUtils.getWidth(text);
@@ -322,7 +322,7 @@ public class DebugScreen {
                     .parseColorFormatting(Text.of(result))
                     .withStyle(STYLE.background(false));
 
-            int bg = GUIStyle.of(STYLE_PATH).getInt("background_color");
+            int bg = GUISkin.of(GUI_SKIN).getInt("background_color");
             float w = TextUtils.getWidth(text);
             float h = TextUtils.getHeight(text);
 

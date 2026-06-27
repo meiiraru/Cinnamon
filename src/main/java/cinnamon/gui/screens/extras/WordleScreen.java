@@ -170,7 +170,7 @@ public class WordleScreen extends ParentedScreen {
     @Override
     protected void addBackButton() {
         Button b = new Button(width - 60 - 4, height - 20 - 4, 60, 20, Text.translated("gui.back"), button -> close());
-        b.setStyle(Hud.HUD_STYLE);
+        b.setSkin(Hud.SKIN);
         this.addWidget(b);
     }
 
@@ -520,7 +520,7 @@ public class WordleScreen extends ParentedScreen {
 
                 triesBar[i] = new ProgressBar(0, 0, 40, 8, 0f);
                 triesBar[i].setColor(color);
-                triesBar[i].setStyle(Hud.HUD_STYLE);
+                triesBar[i].setSkin(Hud.SKIN);
                 bars.addWidget(triesBar[i]);
 
                 triesCount[i] = new Label(0, 0, Text.of(0));

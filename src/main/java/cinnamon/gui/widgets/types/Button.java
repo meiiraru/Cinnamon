@@ -3,6 +3,7 @@ package cinnamon.gui.widgets.types;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.model.GeometryHelper;
+import cinnamon.model.Vertex;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.sound.SoundCategory;
@@ -26,6 +27,7 @@ public class Button extends SelectableWidget {
     private boolean invisible;
     private boolean runOnHold;
     private boolean holding;
+    private boolean background = true;
 
     protected Text message;
     protected Consumer<Button> action;
@@ -42,9 +44,9 @@ public class Button extends SelectableWidget {
         if (invisible)
             return;
 
-        if (icon == null)
+        if (background)
             renderBackground(matrices, mouseX, mouseY, delta);
-        else
+        if (icon != null)
             renderIcon(matrices, mouseX, mouseY, delta);
         if (message != null) {
             matrices.pushMatrix();
@@ -56,7 +58,7 @@ public class Button extends SelectableWidget {
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, getStyle().getResource("button_tex"),
+                VertexConsumer.MAIN, matrices, getSkin().getResource("button_tex"),
                 getX(), getY(),
                 getWidth(), getHeight(),
                 getState() * 16f, 0f,
@@ -68,20 +70,25 @@ public class Button extends SelectableWidget {
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         Text text = getFormattedMessage();
         int x = getCenterX();
-        int y = getCenterY() + (isHolding() ? getStyle().getInt("pressed_y_offset") : 0);
+        int y = getCenterY() + (isHolding() ? getSkin().getInt("pressed_y_offset") : 0);
         text.render(VertexConsumer.MAIN, matrices, x, y, Alignment.CENTER);
     }
 
     protected void renderIcon(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        int color = getSkin().getInt(getState() == 0 ? "disabled_color" : "icon_color");
         int size = Math.min(getWidth(), getHeight());
-        VertexConsumer.MAIN.consume(GeometryHelper.quad(
+        int yOffset = getSkin().getInt("pressed_y_offset");
+
+        Vertex[] vertices = GeometryHelper.quad(
                 matrices,
-                getCenterX() - (int) (size / 2f), getCenterY() - (int) (size / 2f),
-                size, size,
-                getState(), 0f,
-                1f, 1f,
-                4, 1
-        ), icon);
+                getCenterX() - (int) (size / 2f), getCenterY() - (int) (size / 2f) - (int) (yOffset / 2f) + (isHolding() ? yOffset : 0),
+                size, size
+        );
+
+        for (Vertex vertex : vertices)
+            vertex.color(color);
+
+        VertexConsumer.MAIN.consume(vertices, icon);
     }
 
     @Override
@@ -182,10 +189,10 @@ public class Button extends SelectableWidget {
         if (message == null)
             return null;
 
-        Style style = Style.EMPTY.guiStyle(getStyleRes());
+        Style style = Style.EMPTY.guiSkin(getSkinRes());
 
         if (getState() == 0)
-            style = style.color(style.getGuiStyle().getInt("disabled_color"));
+            style = style.color(style.getGuiSkin().getInt("disabled_color"));
 
         return Text.empty().withStyle(style).append(message);
     }
@@ -236,5 +243,13 @@ public class Button extends SelectableWidget {
 
     public void setInvisible(boolean invisible) {
         this.invisible = invisible;
+    }
+
+    public boolean renderBackground() {
+        return background;
+    }
+
+    public void setRenderBackground(boolean background) {
+        this.background = background;
     }
 }

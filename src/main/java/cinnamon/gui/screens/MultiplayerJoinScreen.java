@@ -1,6 +1,6 @@
 package cinnamon.gui.screens;
 
-import cinnamon.gui.GUIStyle;
+import cinnamon.gui.GUISkin;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
@@ -30,7 +30,7 @@ public class MultiplayerJoinScreen extends ParentedScreen {
         int y = height / 2;
 
         //name field
-        nameField = new TextField(x - 50, y - 15 - 4 - (int) GUIStyle.getDefault().getFont().lineHeight - 4 - 15, 100, 15);
+        nameField = new TextField(x - 50, y - 15 - 4 - (int) GUISkin.getCurrentSkin().getFont().lineHeight - 4 - 15, 100, 15);
         nameField.setListener(string -> name = string);
         nameField.setHintText(Text.translated("gui.multiplayer.name_hint"));
         nameField.setText(name);
@@ -66,10 +66,10 @@ public class MultiplayerJoinScreen extends ParentedScreen {
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //name text
-        Text.translated("gui.multiplayer.name").render(VertexConsumer.MAIN, matrices, width / 2f,  nameField.getY() - 4 - GUIStyle.getDefault().getFont().lineHeight, Alignment.TOP_CENTER);
+        Text.translated("gui.multiplayer.name").render(VertexConsumer.MAIN, matrices, width / 2f,  nameField.getY() - 4 - GUISkin.getCurrentSkin().getFont().lineHeight, Alignment.TOP_CENTER);
 
         //ip text
-        Text.translated("gui.multiplayer.ip").render(VertexConsumer.MAIN, matrices, width / 2f, ipField.getY() - 4 - GUIStyle.getDefault().getFont().lineHeight, Alignment.TOP_CENTER);
+        Text.translated("gui.multiplayer.ip").render(VertexConsumer.MAIN, matrices, width / 2f, ipField.getY() - 4 - GUISkin.getCurrentSkin().getFont().lineHeight, Alignment.TOP_CENTER);
 
         super.render(matrices, mouseX, mouseY, delta);
     }

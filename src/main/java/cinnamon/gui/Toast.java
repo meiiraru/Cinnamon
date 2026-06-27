@@ -116,14 +116,14 @@ public class Toast {
     private int length;
     private ToastType type;
     private Integer color;
-    private Resource style;
+    private Resource skin;
     private boolean silent;
 
     protected Toast(Text text) {
         this.text = text;
         length(DEFAULT_LENGTH);
         type(ToastType.INFO);
-        style(GUIStyle.DEFAULT_STYLE);
+        skin(GUISkin.getCurrentSkinRes());
     }
 
     protected boolean render(MatrixStack matrices, int width, int height, float delta) {
@@ -149,9 +149,9 @@ public class Toast {
         int bgHeight = this.height + PADDING;
         int pos = Math.round(-bgWidth / 2f);
 
-        GUIStyle style = GUIStyle.of(this.style);
-        int color = this.color == null ? style.getInt("accent_color") : this.color;
-        Resource tex = style.getResource("toast_tex");
+        GUISkin skin = GUISkin.of(this.skin);
+        int color = this.color == null ? skin.getInt("accent_color") : this.color;
+        Resource tex = skin.getResource("toast_tex");
         UIHelper.nineQuad(
                 VertexConsumer.MAIN, matrices, tex,
                 pos, 0f, bgWidth, bgHeight,
@@ -170,7 +170,10 @@ public class Toast {
         //render text
         float d = UIHelper.getDepthOffset();
         matrices.translate(0f, 0f, d);
-        Text.empty().withStyle(Style.EMPTY.guiStyle(this.style)).append(text).render(VertexConsumer.MAIN, matrices, 0f, PADDING / 2f, Alignment.TOP_CENTER);
+        Text.empty()
+                .withStyle(Style.EMPTY.color(GUISkin.of(this.skin).getInt("toast_text_color")).guiSkin(this.skin))
+                .append(text)
+                .render(VertexConsumer.MAIN, matrices, 0f, PADDING / 2f, Alignment.TOP_CENTER);
 
         //return
         matrices.translate(0f, bgHeight, -d);
@@ -195,9 +198,9 @@ public class Toast {
         return this;
     }
 
-    public Toast style(Resource style) {
-        this.style = style;
-        Text t = Text.empty().withStyle(Style.EMPTY.guiStyle(style)).append(text);
+    public Toast skin(Resource skin) {
+        this.skin = skin;
+        Text t = Text.empty().withStyle(Style.EMPTY.guiSkin(skin)).append(text);
         this.width = TextUtils.getWidth(t);
         this.height = TextUtils.getHeight(t);
         return this;

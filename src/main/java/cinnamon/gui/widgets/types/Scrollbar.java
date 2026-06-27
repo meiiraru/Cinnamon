@@ -31,7 +31,7 @@ public class Scrollbar extends Slider {
         int w = getWidth();
         int h = getHeight();
         int s = 8 * getState();
-        Resource tex = getStyle().getResource("scroll_bar_tex");
+        Resource tex = getSkin().getResource("scroll_bar_tex");
 
         //background
         UIHelper.nineQuad(VertexConsumer.MAIN, matrices, tex,

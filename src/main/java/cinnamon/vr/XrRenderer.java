@@ -1,7 +1,7 @@
 package cinnamon.vr;
 
 import cinnamon.Client;
-import cinnamon.gui.GUIStyle;
+import cinnamon.gui.GUISkin;
 import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Ray;
@@ -212,7 +212,7 @@ public class XrRenderer {
             glFrontFace(GL_CW);
         }
 
-        int color = GUIStyle.getDefault().getInt("xr_interact_color");
+        int color = GUISkin.getCurrentSkin().getInt("xr_interact_color");
         Shader.activeShader.applyColorRGBA(color);
 
         //render

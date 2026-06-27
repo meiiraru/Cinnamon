@@ -96,7 +96,7 @@ public class Slider extends SelectableWidget {
 
         //progress
         matrices.translate(0, 0, d);
-        renderHorizontalBar(matrices, x, y, left, 0f, 12f, color == null ? getStyle().getInt("accent_color") : color);
+        renderHorizontalBar(matrices, x, y, left, 0f, 12f, color == null ? getSkin().getInt("accent_color") : color);
 
         //steps
         renderSteps(matrices, x, y, width, 3, 4, state * 3f + 9f, 12f);
@@ -107,7 +107,7 @@ public class Slider extends SelectableWidget {
     }
 
     protected void renderHorizontalBar(MatrixStack matrices, int x, int y, int width, float u, float v, int color) {
-        UIHelper.horizontalQuad(VertexConsumer.MAIN, matrices, getStyle().getResource("slider_tex"),
+        UIHelper.horizontalQuad(VertexConsumer.MAIN, matrices, getSkin().getResource("slider_tex"),
                 x, y, width, 4,
                 u, v,
                 9, 4,
@@ -138,7 +138,7 @@ public class Slider extends SelectableWidget {
 
         //progress
         matrices.translate(0, 0, d);
-        renderVerticalBar(matrices, x, y, up, 30f, 0f, color == null ? getStyle().getInt("accent_color") : color);
+        renderVerticalBar(matrices, x, y, up, 30f, 0f, color == null ? getSkin().getInt("accent_color") : color);
 
         //steps
         renderSteps(matrices, x, y, height, 4, 3, 30f, state * 3f + 9f);
@@ -149,7 +149,7 @@ public class Slider extends SelectableWidget {
     }
 
     protected void renderVerticalBar(MatrixStack matrices, int x, int y, int height, float u, float v, int color) {
-        UIHelper.verticalQuad(VertexConsumer.MAIN, matrices, getStyle().getResource("slider_tex"),
+        UIHelper.verticalQuad(VertexConsumer.MAIN, matrices, getSkin().getResource("slider_tex"),
                 x, y, 4, height,
                 u, v,
                 4, 9,
@@ -178,13 +178,13 @@ public class Slider extends SelectableWidget {
                     u, v,
                     width, height,
                     34, 26
-            ), getStyle().getResource("slider_tex"));
+            ), getSkin().getResource("slider_tex"));
         }
     }
 
     protected void renderButton(MatrixStack matrices, int x, int y, int state) {
         //button
-        Resource tex = getStyle().getResource("slider_tex");
+        Resource tex = getSkin().getResource("slider_tex");
         VertexConsumer.MAIN.consume(GeometryHelper.quad(
                 matrices, x, y, 8, 8,
                 state * 8, 18f,
@@ -200,7 +200,7 @@ public class Slider extends SelectableWidget {
                 8, 8,
                 34, 26
         );
-        int color = isActive() ? (this.color == null ? getStyle().getInt("accent_color") : this.color) : getStyle().getInt("disabled_color");
+        int color = isActive() ? (this.color == null ? getSkin().getInt("accent_color") : this.color) : getSkin().getInt("disabled_color");
         for (Vertex vertex : vertices)
             vertex.color(color);
 
@@ -522,7 +522,7 @@ public class Slider extends SelectableWidget {
             return;
 
         //style
-        tooltip = Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(tooltip);
+        tooltip = Text.empty().withStyle(Style.EMPTY.guiSkin(getSkinRes())).append(tooltip);
 
         //dimensions
         int w = TextUtils.getWidth(tooltip);
@@ -536,7 +536,7 @@ public class Slider extends SelectableWidget {
         int screenW = window.getGUIWidth();
         int screenH = window.getGUIHeight();
 
-        int b = getStyle().getInt("tooltip_border");
+        int b = getSkin().getInt("tooltip_border");
 
         if (isVertical()) {
             int animY = (int) ((getHeight() - handleSize) * value) + handleSize / 2;
@@ -553,7 +553,7 @@ public class Slider extends SelectableWidget {
             y = Maths.clamp(y, b, screenH - h - b);
 
             //render
-            UIHelper.renderTooltip(matrices, x, y, w, h, cx, wy + animY, (byte) (left ? 1 : 0), tooltip, getStyle());
+            UIHelper.renderTooltip(matrices, x, y, w, h, cx, wy + animY, (byte) (left ? 1 : 0), tooltip, getSkin());
         } else {
             int animX = (int) ((getWidth() - handleSize) * value) + handleSize / 2;
             boolean bottom = false;
@@ -562,14 +562,14 @@ public class Slider extends SelectableWidget {
 
             //boundaries test
             if (y < b && cy < screenH / 2) {
-                y = wy + (int) getStyle().getFont().lineHeight + b + 4;
+                y = wy + (int) getSkin().getFont().lineHeight + b + 4;
                 bottom = true;
             }
             x = Maths.clamp(x, b, screenW - w - b);
             y = Maths.clamp(y, b, screenH - h - b);
 
             //render
-            UIHelper.renderTooltip(matrices, x, y, w, h, wx + animX, cy, (byte) (bottom ? 3 : 2), tooltip, getStyle());
+            UIHelper.renderTooltip(matrices, x, y, w, h, wx + animX, cy, (byte) (bottom ? 3 : 2), tooltip, getSkin());
         }
     }
 }

@@ -34,7 +34,7 @@ public class ColorPicker extends Button {
             protected void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
                 super.renderWidget(matrices, mouseX, mouseY, delta);
                 //render background
-                UIHelper.nineQuad(VertexConsumer.MAIN, matrices, getStyle().getResource("color_picker_tex"), getAlignedX() - 2, getAlignedY() - 2, getWidth() + 4, getHeight() + 4, 32, 0, 16, 16, 48, 16);
+                UIHelper.nineQuad(VertexConsumer.MAIN, matrices, getSkin().getResource("color_picker_tex"), getAlignedX() - 2, getAlignedY() - 2, getWidth() + 4, getHeight() + 4, 32, 0, 16, 16, 48, 16);
             }
         };
         picker.closeOnSelect(false);
@@ -90,7 +90,7 @@ public class ColorPicker extends Button {
 
     @Override
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        Resource tex = getStyle().getResource("color_picker_tex");
+        Resource tex = getSkin().getResource("color_picker_tex");
         UIHelper.nineQuad(VertexConsumer.MAIN, matrices, tex, getX(), getY(), getWidth(), getHeight(), 16, 0, 16, 16, 48, 16, color);
         UIHelper.nineQuad(VertexConsumer.MAIN, matrices, tex, getX(), getY(), getWidth(), getHeight(), 0, 0, 16, 16, 48, 16);
     }

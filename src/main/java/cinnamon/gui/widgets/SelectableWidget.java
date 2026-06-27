@@ -149,7 +149,7 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
     public void setPopup(PopupWidget popup) {
         this.popup = popup;
         popup.setParent(this);
-        popup.setStyle(getStyleRes());
+        popup.setSkin(getSkinRes());
     }
 
     public boolean isSelectable() {
@@ -166,7 +166,7 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
         if (tooltip == null)
             return;
 
-        tooltip = Text.empty().withStyle(Style.EMPTY.guiStyle(getStyleRes())).append(tooltip);
+        tooltip = Text.empty().withStyle(Style.EMPTY.guiSkin(getSkinRes())).append(tooltip);
 
         //dimensions
         int w = TextUtils.getWidth(tooltip);
@@ -180,7 +180,7 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
         int screenW = window.getGUIWidth();
         int screenH = window.getGUIHeight();
 
-        int b = getStyle().getInt("tooltip_border");
+        int b = getSkin().getInt("tooltip_border");
         boolean left = false;
 
         int x = wx + getWidth() + b + 4;
@@ -195,13 +195,13 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
         y = Maths.clamp(y, b, screenH - h - b);
 
         //render
-        UIHelper.renderTooltip(matrices, x, y, w, h, cx, cy, (byte) (left ? 1 : 0), tooltip, getStyle());
+        UIHelper.renderTooltip(matrices, x, y, w, h, cx, cy, (byte) (left ? 1 : 0), tooltip, getSkin());
     }
 
     @Override
-    public void setStyle(Resource style) {
-        super.setStyle(style);
+    public void setSkin(Resource skin) {
+        super.setSkin(skin);
         if (this.popup != null)
-            this.popup.setStyle(style);
+            this.popup.setSkin(skin);
     }
 }

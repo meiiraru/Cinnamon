@@ -25,7 +25,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
-import static cinnamon.world.Hud.HUD_STYLE;
+import static cinnamon.world.Hud.SKIN;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class PrimitiveTestWorld extends WorldClient {
@@ -199,7 +199,7 @@ public class PrimitiveTestWorld extends WorldClient {
             camera.billboard(matrices);
 
             Text.of(labels.get(i))
-                    .withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE))
+                    .withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN))
                     .render(VertexConsumer.WORLD_MAIN_EMISSIVE, matrices, 0, 0, Alignment.CENTER, 48);
 
             matrices.popMatrix();
@@ -277,7 +277,7 @@ public class PrimitiveTestWorld extends WorldClient {
             Window w = Client.getInstance().window;
             matrices.translate(w.getGUIWidth() / 2f - 100, w.getGUIHeight() - 10f, 0);
 
-            Text.empty().withStyle(Style.EMPTY.outlined(true).guiStyle(HUD_STYLE))
+            Text.empty().withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN))
                     .append(Text.of("\u2764").withStyle(Style.EMPTY.color(Colors.RED)))
                     .append(" ")
                     .append(player.getHealth())

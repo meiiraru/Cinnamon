@@ -34,7 +34,7 @@ public class Checkbox extends Button {
                         getState() * 8f, toggled ? 9f : 0f,
                         8, 9,
                         32, 18
-                ), getStyle().getResource("checkbox_tex")
+                ), getSkin().getResource("checkbox_tex")
         );
     }
 
