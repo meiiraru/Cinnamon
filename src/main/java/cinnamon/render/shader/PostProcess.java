@@ -1,6 +1,7 @@
 package cinnamon.render.shader;
 
 import cinnamon.model.StaticGeometry;
+import cinnamon.render.Camera;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.texture.Texture;
@@ -173,6 +174,10 @@ public enum PostProcess {
         s.setFloat("factor", 10f);
         return COLOR_UNIFORM.apply(fb, s);
     }),
+    FXAA((fb, s) -> {
+        s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
+        return COLOR_UNIFORM.apply(fb, s);
+    }),
 
     //world only effects
     TOON_OUTLINE((fb, s) -> {
@@ -184,16 +189,24 @@ public enum PostProcess {
         s.setVec2("normalBias", 1f, 16f);
         s.setVec3("outlineColor", 0f, 0f, 0f);
         return i;
+    }),
+    BOKEH_DOF((fb, s) -> {
+        int i = COLOR_UNIFORM.apply(fb, s);
+        s.setTexture("depthTex", WorldRenderer.PBRFrameBuffer.getDepthBuffer(), i++);
+        s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
+        s.setFloat("near", Camera.NEAR_PLANE);
+        s.setFloat("far", Camera.FAR_PLANE);
+        return i;
     });
 
     public static final PostProcess[] EFFECTS = {
             INVERT, BLUR, BOX_BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE,
             SCAN_LINE, LENS, LENS2, MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY,
             KALEIDOSCOPE, BITS, POSTERIZE, BLOBS, PHOSPHOR, SPEED_LINES, DOT_GRID,
-            DITHER, DITHER_SQUARE_TEX, SHARPEN, VINTAGE, RED, TILT_SHIFT, SUBPIXEL
+            DITHER, DITHER_SQUARE_TEX, SHARPEN, VINTAGE, RED, TILT_SHIFT, SUBPIXEL, FXAA
     };
     public static final PostProcess[] WORLD_EFFECTS = {
-            TOON_OUTLINE
+            TOON_OUTLINE, BOKEH_DOF
     };
 
     public static boolean saveLastColor = false;

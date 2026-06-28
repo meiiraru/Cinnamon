@@ -58,8 +58,6 @@ public class ColorWheel extends SelectableWidget {
         float x = cx + Math.cos(angle) * r;
         float y = cy + Math.sin(angle) * r;
 
-        VertexConsumer.MAIN.consume(GeometryHelper.arc(matrices, x, y, 3, 0, 1, 1, 8, 0xFF000000));
-
         final int modColor = 0x44000000;
 
         //snap saturation line
@@ -70,8 +68,8 @@ public class ColorWheel extends SelectableWidget {
         } else {
             //snap lines
             if (shift) {
-                for (int i = 0; i < 16; i++) {
-                    float ang = i * Math.PI_f / 8;
+                for (int i = 0; i < 24; i++) {
+                    float ang = i * Math.PI_f / 12;
                     float x1 = cx + Math.cos(ang) * 3;
                     float y1 = cy + Math.sin(ang) * 3;
                     float x2 = cx + Math.cos(ang) * radius;
@@ -84,6 +82,9 @@ public class ColorWheel extends SelectableWidget {
             if (ctrl)
                 VertexConsumer.MAIN.consume(GeometryHelper.arc(matrices, cx, cy, r, 0, 1, 1, 24, modColor));
         }
+
+        VertexConsumer.MAIN.consume(GeometryHelper.circle(matrices, x, y, 5, 8, 0xFF000000));
+        VertexConsumer.MAIN.consume(GeometryHelper.circle(matrices, x, y, 4, 8, ColorUtils.rgbToInt(ColorUtils.hsvToRGB(hsv)) + (0xFF << 24)));
 
         matrices.popMatrix();
     }
@@ -151,7 +152,7 @@ public class ColorWheel extends SelectableWidget {
         int dx = x - getCenterX();
         int dy = y - getCenterY();
         float angle = Math.atan2(dy, -dx);
-        if (shift && !alt) angle = Math.round(angle / (Math.PI_f / 8)) * Math.PI_f / 8;
+        if (shift && !alt) angle = Math.round(angle / (Math.PI_f / 12)) * Math.PI_f / 12;
         float hue = alt ? altHue : 1f - (angle + Math.PI_f) / Math.PI_TIMES_2_f;
         float sat = calculateSaturation(dx, dy, x, y);
 
