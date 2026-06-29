@@ -60,6 +60,16 @@ public abstract class ThrowableItem extends Item {
         return Math.lerp(minForce, maxForce, Math.min(1f, heldTicks / (float) maxHeldTicks));
     }
 
+    protected Vector3f getThrowPosition(float delta) {
+        LivingEntity src = getSource();
+        return src.getHandPos(src.isLeftHanded(), delta);
+    }
+
+    protected Vector3f getThrowDirection(float delta) {
+        LivingEntity src = getSource();
+        return src.getAimDir(src.isLeftHanded(), delta, 20f);
+    }
+
     protected void shoot(float force) {
         if (getCount() <= 0)
             return;
@@ -81,8 +91,8 @@ public abstract class ThrowableItem extends Item {
         LivingEntity src = getSource();
         World world = src.getWorld();
 
-        Vector3f position = src.getHandPos(src.isLeftHanded(), delta);
-        Vector3f motion = src.getAimDir(src.isLeftHanded(), delta, 20f).mul(getCurrentForce());
+        Vector3f position = getThrowPosition(delta);
+        Vector3f motion = getThrowDirection(delta).mul(getCurrentForce());
         Vector3f next = new Vector3f();
 
         float size = 0.4f;

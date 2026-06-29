@@ -30,8 +30,8 @@ public class BrickItem extends ThrowableItem {
     protected void spawnItem(float force) {
         LivingEntity src = getSource();
         Brick brick = new Brick(UUID.randomUUID(), src.getUUID());
-        brick.setPos(src.getHandPos());
-        brick.setMotion(src.getAimDir(20f).mul(force));
+        brick.setPos(getThrowPosition(1f));
+        brick.setMotion(getThrowDirection(1f).mul(force));
         src.getWorld().addEntity(brick);
     }
 }
