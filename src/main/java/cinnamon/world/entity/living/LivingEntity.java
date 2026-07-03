@@ -206,7 +206,7 @@ public abstract class LivingEntity extends PhysEntity {
             return false;
 
         //apply critical
-        amount = (int) (amount * (crit ? 1.5f : 1f));
+        amount = crit ? Math.max((int) (amount * 1.5f), amount + 1) : amount;
 
         //damage
         this.health -= amount;

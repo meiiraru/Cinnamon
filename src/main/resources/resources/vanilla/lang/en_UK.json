@@ -387,6 +387,7 @@
   "item.rice_gun": "Rice Gun",
   "item.paint_gun": "Paint Gun",
   "item.hammer": "Hammer",
+  "item.nail_gun": "Nail Gun",
 
   "animation": "Animation",
   "entity": "Entity",
@@ -401,6 +402,7 @@
   "entity.shopping_cart": "Shopping Cart",
   "entity.firework": "Firework",
   "entity.paint_ball": "Paint Ball",
+  "entity.nail": "Nail",
 
   "living_entity": "Living Entity",
   "living_entity.pickle": "Pickle",

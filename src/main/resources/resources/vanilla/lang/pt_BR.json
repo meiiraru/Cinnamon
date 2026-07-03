@@ -357,6 +357,7 @@
   "item.rice_gun": "Pistola de Arroz",
   "item.paint_gun": "Pistola de Tinta",
   "item.hammer": "Martelo",
+  "item.nail_gun": "Pistola de Pregos",
 
   "animation": "Animação",
   "entity": "Entidade",
@@ -371,6 +372,7 @@
   "entity.shopping_cart": "Carrinho de Compras",
   "entity.firework": "Fogo de Artifício",
   "entity.paint_ball": "Bola de Tinta",
+  "entity.nail": "Prego",
 
   "living_entity": "Entidade Viva",
   "living_entity.pickle": "Pepino",

@@ -59,10 +59,7 @@ import cinnamon.world.entity.projectile.Brick;
 import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.entity.vehicle.ShoppingCart;
 import cinnamon.world.items.*;
-import cinnamon.world.items.weapons.CoilGun;
-import cinnamon.world.items.weapons.PotatoCannon;
-import cinnamon.world.items.weapons.RiceGun;
-import cinnamon.world.items.weapons.Weapon;
+import cinnamon.world.items.weapons.*;
 import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.PointLight;
@@ -960,6 +957,7 @@ public class WorldClient extends World {
                 new BubbleGun(),
                 new Flashlight(0xFFFFCC),
                 new MagicWand(),
+                new NailGun(50, 3, 60),
         };
 
         for (int i = 0; i < items.length; i++) {

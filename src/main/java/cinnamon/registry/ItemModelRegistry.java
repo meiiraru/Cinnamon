@@ -17,7 +17,8 @@ public enum ItemModelRegistry {
     //weapons
     COIL_GUN("item.coil_gun", "models/items/coil_gun/coil_gun.obj"),
     POTATO_CANNON("item.potato_cannon", "models/items/potato_cannon/potato_cannon.obj"),
-    RICE_GUN("item.rice_gun", "models/items/rice_gun/rice_gun.obj");
+    RICE_GUN("item.rice_gun", "models/items/rice_gun/rice_gun.obj"),
+    NAIL_GUN("item.nail_gun", "models/items/nail_gun/nail_gun.obj");
 
     public final String id;
     public final Resource resource;
