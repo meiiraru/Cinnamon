@@ -47,7 +47,7 @@ public abstract class SpriteParticle extends Particle {
     }
 
     public int getCurrentFrame() {
-        return Math.round(Math.lerp(0, getFrameCount() - 1, (float) getAge() / getLifetime()));
+        return Math.round(Math.lerp(0, getFrameCount() - 1, Math.clamp(0f, 1f, (float) getAge() / getLifetime())));
     }
 
     public void setColor(int color) {

@@ -19,6 +19,7 @@ public enum ParticlesRegistry {
     RAIN(new Resource("textures/particles/rain.png")),
     WATER_DROP(new Resource("textures/particles/water_drop.png")),
     SNOW(new Resource("textures/particles/snow.png")),
+    RIPPLE(new Resource("textures/particles/ripple.png")),
     OTHER(null);
 
     public final Resource texture;
