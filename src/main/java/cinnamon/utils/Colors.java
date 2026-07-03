@@ -17,6 +17,8 @@ public enum Colors {
     RED(0xFF7272),
     BROWN(0x8E625F),
     LILAC(0xC8A2C8),
+    LAVENDER(0xA155DA),
+    CHEESE(0xF8C53A),
 
     BLACK(0),
     LIGHT_BLACK(0x323232),

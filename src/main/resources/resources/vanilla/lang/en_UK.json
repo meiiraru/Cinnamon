@@ -113,6 +113,7 @@
   "gui.model_viewer_screen.toggle_bounds": "Toggle Bounds",
   "gui.model_viewer_screen.auto_rotate": "Auto Rotate",
   "gui.model_viewer_screen.ground_plane": "Ground Plane",
+  "gui.model_viewer_screen.animation_bones": "Animation Bones",
   "gui.model_viewer_screen.hide_model_list": "Hide Model List",
   "gui.model_viewer_screen.show_model_list": "Show Model List",
 

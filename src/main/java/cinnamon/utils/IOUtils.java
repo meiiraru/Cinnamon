@@ -33,6 +33,7 @@ import java.util.zip.GZIPOutputStream;
 public class IOUtils {
 
     public static final Path ROOT_FOLDER = Path.of(ArgsOptions.WORKING_DIR.getAsString()).resolve(Cinnamon.NAMESPACE);
+    public static final String INVALID_FILENAME_REGEX = "CON|PRN|AUX|NUL|COM\\d|LPT\\d|[\\\\/:*?\"<>|\u0000]|\\.$";
 
     private static String resolveResourcePath(Resource res) {
         return "resources/" + res.getNamespace() + "/" + res.getPath();

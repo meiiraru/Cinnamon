@@ -1,6 +1,7 @@
 package cinnamon.gui.screens.extras;
 
 import cinnamon.animation.Animation;
+import cinnamon.animation.Bone;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
@@ -14,6 +15,7 @@ import cinnamon.registry.*;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.render.model.AnimatedObjRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
@@ -26,9 +28,9 @@ import org.joml.Quaternionf;
 import java.util.List;
 import java.util.function.BiFunction;
 
-import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11C.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11C.glDepthMask;
+import static org.lwjgl.opengl.GL11C.glEnable;
 
 public class ModelViewerScreen extends ParentedScreen {
 
@@ -44,7 +46,8 @@ public class ModelViewerScreen extends ParentedScreen {
     private boolean
             showModelList = true,
             autoRotate = true,
-            renderGroundPlane = true;
+            renderGroundPlane = true,
+            renderAnimationBones = false;
 
     public ModelViewerScreen(Screen parentScreen) {
         super(parentScreen);
@@ -173,6 +176,13 @@ public class ModelViewerScreen extends ParentedScreen {
         groundPlane.setRightToLeft(true);
         properties.addWidget(groundPlane);
 
+        //animation bones
+        Checkbox animationBones = new Checkbox(skyboxes.getX(), groundPlane.getY() + groundPlane.getHeight() + 4, Text.translated("gui.model_viewer_screen.animation_bones").withStyle(togglesStyle));
+        animationBones.setToggled(this.renderAnimationBones);
+        animationBones.setAction(b -> this.renderAnimationBones = ((Checkbox) b).isToggled());
+        animationBones.setRightToLeft(true);
+        properties.addWidget(animationBones);
+
         super.init();
 
         //set initial model
@@ -197,7 +207,31 @@ public class ModelViewerScreen extends ParentedScreen {
                 glDepthMask(true);
                 glEnable(GL_CULL_FACE);
             }
+
+            //render model pivots
+            if (renderAnimationBones && modelViewer.getModel() instanceof AnimatedObjRenderer obj) {
+                glDisable(GL_DEPTH_TEST);
+                renderBone(matrices, obj.getBone(), 0.01f);
+                VertexConsumer.finishAllBatches(client.camera);
+                glEnable(GL_DEPTH_TEST);
+            }
         });
+    }
+
+    private static void renderBone(MatrixStack matrices, Bone bone, float size) {
+        matrices.pushMatrix();
+        bone.getTransform().applyTransform(matrices);
+
+        if (!bone.isModel()) {
+            matrices.pushMatrix();
+            matrices.translate(bone.getTransform().getPivot());
+            VertexConsumer.WORLD_MAIN.consume(GeometryHelper.box(matrices, -size, -size, -size, size, size, size, 0xAA00F0FF));
+            matrices.popMatrix();
+        }
+
+        for (Bone child : bone.getChildren())
+            renderBone(matrices, child, size);
+        matrices.popMatrix();
     }
 
     @Override
