@@ -46,7 +46,7 @@ public class Client {
 
     public static final int TPS = 20;
     public final Timer timer = new Timer(TPS);
-    public long ticks;
+    public long ticks, frames;
     public int fps, ms;
 
     public String name = ArgsOptions.PLAYERNAME.getAsString();
@@ -151,6 +151,7 @@ public class Client {
     }
 
     public void render() {
+        frames++;
         float delta = timer.partialTick;
 
         matrices.pushMatrix();

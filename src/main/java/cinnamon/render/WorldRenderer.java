@@ -40,8 +40,9 @@ public class WorldRenderer {
     public static final Framebuffer lastFrameFramebuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
 
     //rendering info
-    private static boolean outlineRendering = false;
-    private static boolean heldItemRendering = false;
+    private static boolean
+            outlineRendering  = false,
+            heldItemRendering = false;
     private static int
             renderedEntities,
             renderedTerrain,
@@ -264,7 +265,7 @@ public class WorldRenderer {
     }
 
 
-    // -- deferred rendering -- //
+    // -- main rendering -- //
 
 
     public static void initGBuffer(Camera camera) {
@@ -278,6 +279,7 @@ public class WorldRenderer {
         Shader s = Shaders.GBUFFER_WORLD_PBR.getShader().use();
         s.setup(camera);
         s.setVec3("camPos", camera.getPosition());
+        s.setInt("frameIndex", (int) Client.getInstance().frames);
     }
 
     public static void bakeDeferred(Camera camera, Sky sky) {

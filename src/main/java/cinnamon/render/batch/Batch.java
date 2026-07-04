@@ -179,6 +179,7 @@ public abstract class Batch { //vertex consumer
             Client c = Client.getInstance();
             if (c.world != null)
                 c.world.getSky().applyUniforms(shader, WorldRenderer.camera);
+            shader.setInt("frameIndex", (int) c.frames);
         }
     }
 

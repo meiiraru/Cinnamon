@@ -3,6 +3,7 @@
 
 #type fragment
 #version 330 core
+#include shaders/libs/transparent_dither.glsl
 
 flat in int texID;
 in vec2 texCoords;
@@ -24,10 +25,13 @@ void main() {
     if (texID >= 0) {
         //texture
         vec4 tex = texture(textures[texID], texCoords);
-        if (tex.a < 0.01f)
-            discard;
-
         col *= tex;
+    }
+
+    if (shouldDiscard(col, pos)) {
+        discard;
+    } else {
+        col.a = 1.0f;
     }
 
     //gBuffer outputs

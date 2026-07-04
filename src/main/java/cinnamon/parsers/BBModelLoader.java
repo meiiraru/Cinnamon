@@ -43,6 +43,12 @@ public class BBModelLoader {
             throw new RuntimeException("Invalid bbmodel file: missing meta.format_version");
 
         String version = meta.get("format_version").getAsString();
+
+        //make version match the semver pattern
+        String[] parts = version.split("\\.");
+        if (parts.length < 3)
+            version += ".0";
+
         Version ver = new Version(version);
         if (MIN_SUPPORTED_VERSION.compareTo(ver) > 0)
             throw new RuntimeException("Unsupported bbmodel version: " + version);
