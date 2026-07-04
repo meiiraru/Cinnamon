@@ -158,6 +158,14 @@ public class Font {
 
                 stbtt_PackEnd(spc);
 
+                //strip blurry edges for non-smooth fonts
+                if (!smooth) {
+                    for (int i = 0; i < texSize * texSize; i++) {
+                        int alpha = bitmap.get(i) & 0xFF;
+                        bitmap.put(i, (byte) (alpha > 0 ? 255 : 0));
+                    }
+                }
+
                 //success! create the texture
                 int texID = glGenTextures();
                 glBindTexture(GL_TEXTURE_2D, texID);
