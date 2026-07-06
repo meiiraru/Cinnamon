@@ -5,6 +5,7 @@ import cinnamon.logger.Logger;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.CircularQueue;
+import cinnamon.utils.MarkdownParser;
 import cinnamon.utils.TextUtils;
 import cinnamon.world.entity.Entity;
 
@@ -30,7 +31,7 @@ public class MessageManager {
         else
             LOGGER.info("[%s] [%s] %s", category.name(), source.getName(), msg.asString());
 
-        Text text = Text.empty().withStyle(category.getStyle()).append(TextUtils.parseSimpleMarkdown(TextUtils.parseColorFormatting(msg)));
+        Text text = Text.empty().withStyle(category.getStyle()).append(MarkdownParser.parseMarkdown(TextUtils.parseColorFormatting(msg)));
         messages.add(new Message(Client.getInstance().ticks, text, category, source));
     }
 

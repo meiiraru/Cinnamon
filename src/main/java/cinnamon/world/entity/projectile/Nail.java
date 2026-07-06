@@ -7,6 +7,8 @@ import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Resolution;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
+import cinnamon.render.Camera;
+import cinnamon.render.MatrixStack;
 import cinnamon.world.terrain.Terrain;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -15,10 +17,12 @@ import java.util.UUID;
 
 public class Nail extends Projectile {
 
-    boolean collided = false;
+    public static final int LIFETIME = 600;
+
+    protected boolean collided = false;
 
     public Nail(UUID uuid, UUID owner) {
-        super(uuid, EntityModelRegistry.NAIL.resource, 1, 3600, 3f, 0.1f, owner);
+        super(uuid, EntityModelRegistry.NAIL.resource, 1, LIFETIME, 3f, 0.1f, owner);
         this.setGravity(1f);
         this.setCanSelfDamage(true);
     }
@@ -48,8 +52,9 @@ public class Nail extends Projectile {
                 }
             }
 
-            setGravity(1f);
-            collided = false;
+            this.setGravity(1f);
+            this.collided = false;
+            this.lifetime = LIFETIME;
             return;
         }
 
@@ -66,6 +71,12 @@ public class Nail extends Projectile {
 
         collided = true;
         setGravity(0f);
+    }
+
+    @Override
+    protected void applyModelPose(Camera camera, MatrixStack matrices, float delta) {
+        super.applyModelPose(camera, matrices, delta);
+        matrices.scale(Maths.clamp((this.lifetime - delta) / 5f, 0, 1));
     }
 
     @Override

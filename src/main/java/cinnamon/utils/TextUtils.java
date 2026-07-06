@@ -8,6 +8,8 @@ import org.joml.Math;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TextUtils {
 
@@ -93,36 +95,61 @@ public class TextUtils {
         Text result = Text.empty();
 
         text.visit((string, style) -> {
-            String[] split = string.split(Formatting.FORMATTING_CHAR + "");
-            Text newText = Text.of(split[0]).withStyle(style);
+            StringBuilder currentText = new StringBuilder();
+            Style currentStyle = style;
 
-            if (split.length < 2) {
-                result.append(newText);
-                return;
-            }
+            for (int i = 0; i < string.length(); i++) {
+                char c = string.charAt(i);
 
-            for (int i = 1; i < split.length; i++) {
-                String s = split[i];
+                //check for a formatting character
+                if (c == Formatting.FORMATTING_CHAR && i + 1 < string.length()) {
+                    char next = string.charAt(i + 1);
 
-                if (s.isEmpty())
-                    continue;
+                    //escape double formatting
+                    if (next == Formatting.FORMATTING_CHAR) {
+                        currentText.append(next);
+                        i++; //skip the escaped formatting char
+                        continue;
+                    }
 
-                int sub = 1;
-                Formatting formatting = Formatting.byCode(s.charAt(0));
-                if (formatting != null) {
-                    if (formatting == Formatting.HEX) {
-                        sub = 7;
-                        int color = ColorUtils.rgbToInt(ColorUtils.hexStringToRGB(s.substring(1, sub)));
-                        style = style.color(color + 0xFF000000);
-                    } else {
-                        style = style.formatted(formatting);
+                    //try to parse it as a valid formatting
+                    Formatting formatting = Formatting.byCode(next);
+                    if (formatting != null) {
+                        //formatting changing - flush the current text
+                        if (!currentText.isEmpty()) {
+                            result.append(Text.of(currentText.toString()).withStyle(currentStyle));
+                            currentText.setLength(0);
+                        }
+
+                        if (formatting == Formatting.HEX) {
+                            //ensure there are 6 characters left for the hex code
+                            if (i + 7 < string.length()) {
+                                String hex = string.substring(i + 2, i + 8);
+                                int color = ColorUtils.rgbToInt(ColorUtils.hexStringToRGB(hex));
+                                currentStyle = currentStyle.color(color + 0xFF000000);
+                                i += 7; //skip the formatting char and the 6 hex digits
+                            } else {
+                                currentText.append(c); //not enough characters, treat as literal text
+                            }
+                        } else {
+                            //standard formatting
+                            currentStyle = currentStyle.formatted(formatting);
+                            i++; //skip the formatting code itself
+                        }
+
+                        continue;
                     }
                 }
 
-                newText.append(Text.of(s.substring(sub)).withStyle(style));
+                //appen on none or invalid formatting code
+                currentText.append(c);
             }
 
-            result.append(newText);
+            //flush leftovers
+            if (!currentText.isEmpty()) {
+                result.append(Text.of(currentText.toString()).withStyle(currentStyle));
+                currentText.setLength(0);
+            }
         }, Style.EMPTY);
 
         return result;
@@ -130,17 +157,17 @@ public class TextUtils {
 
     public static Text replaceAll(Text text, String regex, String replacement) {
         Text result = Text.empty();
+        Pattern pattern = Pattern.compile(regex);
 
         text.visit((string, style) -> {
-            String[] split = string.split(regex, -1);
-            Text newText = Text.of(split[0]).withStyle(style);
+            Matcher matcher = pattern.matcher(string);
+            StringBuilder sb = new StringBuilder();
 
-            for (int i = 1; i < split.length; i++) {
-                newText.append(replacement);
-                newText.append(split[i]);
-            }
+            while (matcher.find())
+                matcher.appendReplacement(sb, replacement);
+            matcher.appendTail(sb);
 
-            result.append(newText);
+            result.append(Text.of(sb).withStyle(style));
         }, Style.EMPTY);
 
         return result;
@@ -315,80 +342,6 @@ public class TextUtils {
             }
         }, Style.EMPTY);
         return list;
-    }
-
-    public static Text parseSimpleMarkdown(Text text) {
-        Text result = Text.empty();
-
-        //hold the current state of the formatting between text nodes
-        boolean[] bold = {false};
-        boolean[] italic = {false};
-        boolean[] underline = {false};
-        boolean[] strikethrough = {false};
-        boolean[] obfuscated = {false};
-
-        text.visit((string, style) -> {
-            StringBuilder currentText = new StringBuilder();
-
-            //helper to flush the accumulated string into a new text node with the current applied styles
-            Runnable flush = () -> {
-                if (!currentText.isEmpty()) {
-                    Style s = style;
-                    if (bold[0]) s = s.bold(true);
-                    if (italic[0]) s = s.italic(true);
-                    if (underline[0]) s = s.underlined(true);
-                    if (strikethrough[0]) s = s.strikethrough(true);
-                    if (obfuscated[0]) s = s.obfuscated(true);
-
-                    result.append(Text.of(currentText).withStyle(s));
-                    currentText.setLength(0);
-                }
-            };
-
-            for (int i = 0; i < string.length(); i++) {
-                char c = string.charAt(i);
-                char next = (i + 1 < string.length()) ? string.charAt(i + 1) : '\0';
-
-                //handle escaping
-                if (c == '\\' && (next == '*' || next == '_' || next == '~' || next == '|' || next == '\\')) {
-                    currentText.append(next);
-                    i++;
-                    continue;
-                }
-
-                //check for formatting tokens
-                if (c == '~' && next == '~') {
-                    flush.run();
-                    strikethrough[0] = !strikethrough[0];
-                    i++;
-                } else if (c == '*' && next == '*') {
-                    flush.run();
-                    bold[0] = !bold[0];
-                    i++;
-                } else if (c == '_' && next == '_') {
-                    flush.run();
-                    underline[0] = !underline[0];
-                    i++;
-                } else if (c == '|' && next == '|') {
-                    flush.run();
-                    obfuscated[0] = !obfuscated[0];
-                    i++;
-                } else if (c == '*') {
-                    flush.run();
-                    italic[0] = !italic[0];
-                } else if (c == '_') {
-                    flush.run();
-                    italic[0] = !italic[0];
-                } else {
-                    currentText.append(c);
-                }
-            }
-
-            //flush any remaining characters at the end of the current text node
-            flush.run();
-        }, Style.EMPTY);
-
-        return result;
     }
 
     public static int getWidth(Text text) {

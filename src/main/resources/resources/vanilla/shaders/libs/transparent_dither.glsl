@@ -9,11 +9,6 @@ const float ditherPattern[16] = float[16](
         15.0f / 16.0f,  7.0f / 16.0f, 13.0f / 16.0f,  5.0f / 16.0f
 );
 
-//random offset based on world position
-float random(vec3 pos) {
-    return fract(sin(dot(pos, vec3(12.9898f, 78.233f, 45.164f))) * 43758.5453f);
-}
-
 //TAA dithered transparency
 bool shouldDiscard(vec4 color, vec3 pos) {
     //not transparent
@@ -24,17 +19,14 @@ bool shouldDiscard(vec4 color, vec3 pos) {
     if (color.a < 0.01f)
         return true;
 
-    //generate a spatial offset so overlapping objects do not share the same grid
-    int spatialOffset = int(random(pos) * 16.0f);
+    //base bayer threshold
+    int x = int(gl_FragCoord.x) % 4;
+    int y = int(gl_FragCoord.y) % 4;
+    float baseThreshold = ditherPattern[y * 4 + x];
 
-    //add the frameIndex so the pattern shifts every frame for TAA
-    int offset = spatialOffset + frameIndex;
-
-    //calculate screen-space coordinates with the temporal offset
-    int x = (int(gl_FragCoord.x) + offset) % 4;
-    int y = (int(gl_FragCoord.y) + (offset / 4)) % 4;
-
-    float threshold = ditherPattern[y * 4 + x];
+    //temporal shift based on frame index and primitive id
+    float temporalShift = float((frameIndex % 4096) + (gl_PrimitiveID % 137)) * 0.61803398875f;
+    float threshold = fract(baseThreshold + temporalShift);
 
     //discard only if below the threshold
     return color.a < threshold;

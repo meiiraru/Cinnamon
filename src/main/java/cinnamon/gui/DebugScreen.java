@@ -462,6 +462,7 @@ public class DebugScreen {
                     [&bwindow&r]
                     &e%s&r x &e%s&r gui scale &e%s&r fullscreen &e%s&r
                     vsync &e%s&r FPS limit &e%s&r
+                    ticks &e%s&r frames &e%s&r
 
                     [&beffects&r]
                     post process &e%s&r
@@ -477,6 +478,7 @@ public class DebugScreen {
 
                     w.width, w.height, w.guiScale, w.isFullscreen() ? "on" : "off",
                     Settings.vsync.get() ? "on" : "off", Settings.fpsLimit.get() <= 0 ? "unlimited" : Settings.fpsLimit.get() + " fps",
+                    c.ticks, c.frames,
 
                     post == null ? "none" : post.name(),
                     c.anaglyph3D ? "on" : "off", XrManager.isInXR() ? "on" : "off",

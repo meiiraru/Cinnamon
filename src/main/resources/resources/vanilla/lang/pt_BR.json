@@ -146,6 +146,7 @@
   "gui.midi_screen.instrument": "Escolher Instrumento",
   "gui.midi_screen.sound_font": "Escolher Banco de Sons",
   "gui.midi_screen.sound_font_load_failed": "Falha ao carregar banco de sons",
+  "gui.midi_screen.reverb": "Reverb %1$s",
 
   "midi.instrument.0": "Piano",
   "midi.instrument.1": "Piano (agudo)",

@@ -8,6 +8,7 @@ import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.Tickable;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.ComboBox;
+import cinnamon.gui.widgets.types.Slider;
 import cinnamon.input.InputManager;
 import cinnamon.logger.Logger;
 import cinnamon.model.GeometryHelper;
@@ -15,11 +16,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.Alignment;
-import cinnamon.utils.FileDialog;
-import cinnamon.utils.Pair;
-import cinnamon.utils.Resource;
-import cinnamon.utils.UIHelper;
+import cinnamon.utils.*;
 import org.joml.Math;
 import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFW;
@@ -73,7 +70,7 @@ public class MIDIScreen extends ParentedScreen {
     private Receiver receiver = null;
 
     private Soundbank soundbank = null;
-    private int instrumentID = 0;
+    private int instrumentID = 0, reverb = 0;
 
     private Sequencer sequencer = null;
     private Receiver sequencerReceiver = null;
@@ -81,6 +78,7 @@ public class MIDIScreen extends ParentedScreen {
     private boolean log = false;
 
     private final ComboBox inBox, outBox, instrumentBox;
+    private final Slider reverbSlider;
     private final List<Key> keys = new ArrayList<>();
 
     public MIDIScreen(Screen parentScreen) {
@@ -136,6 +134,13 @@ public class MIDIScreen extends ParentedScreen {
         }
         instrumentBox.setChangeListener(i -> runTask(() -> swapInstrument(i)));
         instrumentBox.setSelected(instrumentID);
+
+        //reverb slider
+        reverbSlider = new Slider(0, 0, 100);
+        reverbSlider.setMin(0);
+        reverbSlider.setMax(127);
+        reverbSlider.setTooltipFunction((f, i) -> Text.translated("gui.midi_screen.reverb", "%.2f".formatted(f)));
+        reverbSlider.setChangeListener((f, i) -> runTask(() -> setReverb(i)));
 
         //default out to synthesizer (Gervill)
         runTask(() -> {
@@ -268,6 +273,9 @@ public class MIDIScreen extends ParentedScreen {
 
         //instruments
         grid.addWidget(instrumentBox);
+
+        //reverb
+        grid.addWidget(reverbSlider);
 
         //add grid
         addWidget(grid);
@@ -430,6 +438,20 @@ public class MIDIScreen extends ParentedScreen {
         }
     }
 
+    protected void setReverb(int value) {
+        if (receiver == null)
+            return;
+
+        try {
+            ShortMessage reverbChange = new ShortMessage();
+            reverbChange.setMessage(ShortMessage.CONTROL_CHANGE, 0, 91, value);
+            receiver.send(reverbChange, -1);
+            reverb = value;
+        } catch (Exception e) {
+            LOGGER.error("Failed to change reverb to %s", value, e);
+        }
+    }
+
     protected void update() {
         //reroute in -> out
         if (transmitter != null && receiver != null)
@@ -437,6 +459,9 @@ public class MIDIScreen extends ParentedScreen {
 
         //set instrument
         swapInstrument(instrumentID);
+
+        //reverb
+        setReverb(reverb);
     }
 
     protected void playNote(int note, int velocity) {
@@ -539,8 +564,11 @@ public class MIDIScreen extends ParentedScreen {
 
             //render presses
             float d = Math.lerp(NOTE_TICK_SPEED, 0, delta);
+            int color = getSkin().getInt("accent_color");
+            int color2 = ColorUtils.rgbToInt(ColorUtils.intToRGB(color).mul(0.65f)) + 0xFF000000;
+
             for (Vector2f press : new ArrayList<>(presses))
-                VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x + b, press.x + d, x + w - b, press.x + press.y + d, sharp ? 0xFFB55E5B : 0xFFD3AB7A));
+                VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x + b, press.x + d, x + w - b, press.x + press.y + d, sharp ? color2 : color));
 
             //render key
             matrices.pushMatrix();

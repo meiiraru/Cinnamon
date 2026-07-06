@@ -418,7 +418,7 @@ public class Hud {
 
         //starting coordinates
         int x = 4 + 2;
-        int y = client.window.getGUIHeight() - 20 - (int) GUISkin.getCurrentSkin().getFont().lineHeight - 4 - 4;
+        int y = client.window.getGUIHeight() - 24 - (int) GUISkin.getCurrentSkin().getFont().lineHeight - 4 - 4;
         int maxLines = MessageManager.RECENT_MESSAGES;
 
         for (int i = messages.size() - 1; i >= start && maxLines > 0; i--) {

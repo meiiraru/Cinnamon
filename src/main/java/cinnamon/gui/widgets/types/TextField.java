@@ -982,7 +982,7 @@ public class TextField extends SelectableWidget implements Tickable {
         return i;
     }
 
-    private void selectAll() {
+    public void selectAll() {
         setCursorPos(currText.length());
         selectedIndex = 0;
     }
@@ -1093,6 +1093,11 @@ public class TextField extends SelectableWidget implements Tickable {
         }
     }
 
+    @Override
+    public void setWidth(int width) {
+        super.setWidth(width);
+        fitCursorInWidth();
+    }
 
     // -- enums -- //
 

@@ -31,10 +31,11 @@ public class CoilGun extends Weapon {
     }
 
     @Override
-    protected void spawnBullet() {
-        super.spawnBullet();
+    protected Projectile spawnBullet() {
+        Projectile projectile = super.spawnBullet();
         World world = getSource().getWorld();
         if (!getSource().isSilent() && world.isClientside())
             ((WorldClient) world).playSound(SHOOT_SOUND, SoundCategory.ENTITY, getSource().getTransform().getPos()).pitch(Maths.range(0.8f, 1.2f));
+        return projectile;
     }
 }

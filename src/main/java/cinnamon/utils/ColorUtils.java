@@ -270,6 +270,15 @@ public class ColorUtils {
     }
 
     /**
+     * inverts an RGB (0 - 1) {@link org.joml.Vector3f} color
+     * @param color the RGB {@link org.joml.Vector3f} color
+     * @return an inverted RGB {@link org.joml.Vector3f} of that color
+     */
+    public static Vector3f invertColor(Vector3f color) {
+        return new Vector3f(1f - color.x, 1f - color.y, 1f - color.z);
+    }
+
+    /**
      * find the closest {@link Colors} to a given RGB integer color (0 - 255)
      * @param color the RGB integer color
      * @return the closest {@link Colors} to that color

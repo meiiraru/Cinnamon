@@ -146,6 +146,7 @@
   "gui.midi_screen.instrument": "Select Instrument",
   "gui.midi_screen.sound_font": "Select Sound Font",
   "gui.midi_screen.sound_font_load_failed": "Failed to load sound font",
+  "gui.midi_screen.reverb": "Reverb %1$s",
 
   "midi.instrument.0": "Acoustic Grand Piano",
   "midi.instrument.1": "Bright Acoustic Piano",

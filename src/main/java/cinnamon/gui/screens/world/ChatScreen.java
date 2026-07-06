@@ -12,11 +12,7 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
-import cinnamon.utils.Alignment;
-import cinnamon.utils.CircularQueue;
-import cinnamon.utils.Colors;
-import cinnamon.utils.TextUtils;
-import cinnamon.utils.UIHelper;
+import cinnamon.utils.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +23,7 @@ public class ChatScreen extends Screen {
 
     public static final int MAX_SENT_HISTORY = 100;
     protected static final List<String> sentMessages = new CircularQueue<>(MAX_SENT_HISTORY);
+    protected static String currentMessage = "";
 
     protected final List<Text> messagesToRender = new ArrayList<>();
     protected final TextField field;
@@ -36,6 +33,8 @@ public class ChatScreen extends Screen {
     protected float scroll = 1f;
     private Message lastMessage = null;
     protected MessageCategory selectedCategory = null;
+    protected Text previewText = Text.empty();
+    protected boolean showPreview;
 
     public ChatScreen() {
         //create text field
@@ -43,6 +42,26 @@ public class ChatScreen extends Screen {
         field.setHintText(Text.translated("gui.chat.type_message").withStyle(MessageManager.DEFAULT_STYLE.color(Colors.LIGHT_GRAY)));
         field.setTextStyle(MessageManager.DEFAULT_STYLE);
         field.setTextOnly(true);
+        field.setListener(str -> {
+            //current message
+            currentMessage = str;
+
+            //preview message
+            if (!str.startsWith("/")) {
+                previewText = Text.empty()
+                        .withStyle(MessageCategory.CHAT.getStyle())
+                        .append(MarkdownParser.parseMarkdown(TextUtils.parseColorFormatting(Text.of(field.getText()))));
+
+                showPreview = !str.equals(previewText.asString());
+            } else {
+                showPreview = false;
+            }
+        });
+
+        if (!currentMessage.isEmpty()) {
+            field.setText(currentMessage);
+            field.selectAll();
+        }
     }
 
     @Override
@@ -51,7 +70,7 @@ public class ChatScreen extends Screen {
 
         //update field dimensions
         int fh = (int) (GUISkin.getCurrentSkin().getFont().lineHeight + 2);
-        field.setPos(0, height - fh - 20);
+        field.setPos(0, height - fh - 24);
         field.setDimensions(width, fh);
 
         //add and focus field
@@ -116,6 +135,12 @@ public class ChatScreen extends Screen {
             int scrollX = chatX + maxChatWidth - 3;
             int scrollY = chatY + (int) (scroll * (maxChatHeight - scrollbarHeight)) + 2;
             VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, scrollX, scrollY, scrollX + 1, scrollY + scrollbarHeight - 4, -UIHelper.getDepthOffset(), 0x80FFFFFF));
+        }
+
+        //render preview message
+        if (showPreview) {
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, field.getX(), field.getY() + field.getHeight() + 2, field.getX() + field.getWidth(), field.getY() + field.getHeight() + 2 + field.getHeight(), -UIHelper.getDepthOffset(), 0x80000000));
+            previewText.render(VertexConsumer.MAIN, matrices, field.getX() + 2, field.getY() + field.getHeight() + 2 + field.getHeight() - 2, Alignment.BOTTOM_LEFT);
         }
 
         //render the super

@@ -64,7 +64,7 @@ public abstract class Weapon extends CooldownItem {
 
     protected abstract Projectile newProjectile(UUID entity);
 
-    protected void spawnBullet() {
+    protected Projectile spawnBullet() {
         LivingEntity source = getSource();
         World world = source.getWorld();
         Projectile projectile = newProjectile(source.getUUID());
@@ -74,6 +74,7 @@ public abstract class Weapon extends CooldownItem {
         projectile.impulse(0, 0, 1);
 
         world.addEntity(projectile);
+        return projectile;
     }
 
     protected void shoot() {

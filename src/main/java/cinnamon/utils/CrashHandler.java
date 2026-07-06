@@ -95,6 +95,8 @@ public class CrashHandler {
                 Client client = Client.getInstance();
                 if (client.isInitialized()) {
                     //render
+                    writer.println("\tTicks: "       + client.ticks);
+                    writer.println("\tFrames: "      + client.frames);
                     writer.println("\tWindow: "      + client.window.width + "x" + client.window.height);
                     writer.println("\tGUI scale: "   + client.window.guiScale + "/" + client.window.maxGuiScale);
                     writer.println("\tFullscreen: "  + client.window.isFullscreen());

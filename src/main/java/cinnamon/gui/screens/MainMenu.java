@@ -16,8 +16,6 @@ import cinnamon.vr.XrManager;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
 import static cinnamon.render.texture.Texture.TextureParams.SMOOTH_SAMPLING;
@@ -25,12 +23,12 @@ import static cinnamon.render.texture.Texture.TextureParams.SMOOTH_SAMPLING;
 public class MainMenu extends Screen {
 
     public static final Resource
-        BACKGROUND = new Resource("textures/gui/main_menu/background.png"),
-        OVERLAY    = new Resource("textures/gui/main_menu/overlay.png"),
-        BOTTOM     = new Resource("textures/gui/main_menu/bottom.png"),
-        TITLE_ROOT = new Resource("textures/gui/main_menu/title"),
-        GUI_SKIN   = new Resource("data/gui_skins/main_menu.json");
-    private static final List<Resource> TITLE = new ArrayList<>();
+        BACKGROUND1 = new Resource("textures/gui/main_menu/background1.png"),
+        BACKGROUND2 = new Resource("textures/gui/main_menu/background2.png"),
+        OVERLAY     = new Resource("textures/gui/main_menu/overlay.png"),
+        BOTTOM      = new Resource("textures/gui/main_menu/bottom.png"),
+        TITLE       = new Resource("textures/logo.png"),
+        GUI_SKIN    = new Resource("data/gui_skins/main_menu.json");
 
     @Override
     public void init() {
@@ -104,14 +102,23 @@ public class MainMenu extends Screen {
         float parallaxY = Maths.clamp((float) client.window.mouseY / client.window.getGUIHeight() * 2f - 1f, -1f, 1f);
 
         //background
-        Texture bg = Texture.of(BACKGROUND);
+        Texture bg = Texture.of(BACKGROUND1);
         float bgParallax = xr ? 0f : 10f;
         float bgOffset = (client.ticks + delta) * 0.002f;
         VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices,
                 -bgParallax + bgParallax * parallaxX, -bgParallax + bgParallax * parallaxY,
                 width + bgParallax * 2f, height + bgParallax * 2f, -d * 3f,
                 bgOffset, (float) width / bg.getWidth() + bgOffset, bgOffset, (float) height / bg.getHeight() + bgOffset
-        ), BACKGROUND, SMOOTH_SAMPLING);
+        ), BACKGROUND1, SMOOTH_SAMPLING);
+
+        Texture bg2 = Texture.of(BACKGROUND2);
+        float bg2Parallax = xr ? 0f : 20f;
+        float bg2Offset = (client.ticks + delta) * 0.004f;
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices,
+                -bg2Parallax + bg2Parallax * parallaxX, -bg2Parallax + bg2Parallax * parallaxY,
+                width + bg2Parallax * 2f, height + bg2Parallax * 2f, -d * 2f,
+                bg2Offset, (float) width / bg2.getWidth() + bg2Offset, bg2Offset, (float) height / bg2.getHeight() + bg2Offset
+        ), BACKGROUND2, SMOOTH_SAMPLING);
 
         //bottom
         Texture bottom = Texture.of(BOTTOM);
@@ -131,47 +138,14 @@ public class MainMenu extends Screen {
         matrices.popMatrix();
 
         //title
-        renderTitle(matrices, parallaxX, parallaxY, delta);
-    }
+        Texture title = Texture.of(TITLE);
 
-    protected void renderTitle(MatrixStack matrices, float parallaxX, float parallaxY, float delta) {
-        int width = 0;
-        for (Resource title : TITLE)
-            width += Texture.of(title).getWidth();
+        float titleParallax = xr ? 0f : 3f;
+        float x = this.width * 0.5f - title.getWidth() * 0.5f + parallaxX * titleParallax;
+        float y = this.height * 0.25f - title.getHeight() * 0.5f + parallaxY * titleParallax;
+        float y2 = Math.sin((client.ticks + delta) * 0.1f) * 2f;
 
-        float parallax = XrManager.isInXR() ? 0f : 3f;
-        float deltaTick = client.ticks + delta;
-        float x = this.width * 0.5f - width * 0.5f + parallaxX * parallax;
-        float y = this.height * 0.15f + parallaxY * parallax;
-
-        for (int i = 0; i < TITLE.size(); i++) {
-            Resource res = TITLE.get(i);
-            Texture texture = Texture.of(res);
-            int w = texture.getWidth();
-            int h = texture.getHeight();
-
-            float y2 = Math.sin(deltaTick * 0.1f + i % 2) * 2f - h * 0.5f;
-            VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, x, y + y2, w, h), res);
-            x += w + 1;
-        }
-    }
-
-    public static void initTextures() {
-        TITLE.clear();
-
-        List<String> titles = IOUtils.listResources(TITLE_ROOT, false);
-        if (titles == null)
-            return;
-
-        //1 in 10000 chance
-        boolean funny = Math.random() < 0.0001f; 
-
-        titles.sort(IOUtils.FilenameComparator::compareTo);
-        for (String title : titles) {
-            Resource res = TITLE_ROOT.resolve(title);
-            TITLE.add(res);
-            if (funny) TITLE.add(res);
-        }
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, x, y + y2, title.getWidth(), title.getHeight()), TITLE);
     }
 
     public static class MainButton extends Button {

@@ -13,10 +13,15 @@ import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
 import org.joml.Math;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Label extends SelectableWidget implements AlignedWidget {
 
-    private Text text;
-    private Alignment alignment;
+    protected Text text;
+    protected Text wrappedText;
+    protected Alignment alignment;
+    protected int maxWidth = -1;
 
     public Label(int x, int y, Text text) {
         this(x, y, text, Alignment.TOP_LEFT);
@@ -48,7 +53,8 @@ public class Label extends SelectableWidget implements AlignedWidget {
     }
 
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        Text.empty().withStyle(Style.EMPTY.guiSkin(getSkinRes())).append(text).render(VertexConsumer.MAIN, matrices, getX(), getY(), alignment);
+        if (wrappedText != null)
+            wrappedText.render(VertexConsumer.MAIN, matrices, getX(), getY(), alignment);
     }
 
     public Text getText() {
@@ -62,12 +68,31 @@ public class Label extends SelectableWidget implements AlignedWidget {
 
     @Override
     protected void updateDimensions() {
-        Text text = Text.empty().withStyle(Style.EMPTY.guiSkin(getSkinRes())).append(this.text);
-        setDimensions(TextUtils.getWidth(text), TextUtils.getHeight(text));
+        if (this.text == null) {
+            this.wrappedText = null;
+            setDimensions(0, 0);
+            return;
+        }
+
+        Text styledText = Text.empty().withStyle(Style.EMPTY.guiSkin(getSkinRes())).append(this.text);
+
+        if (this.maxWidth > 0) {
+            //split by newlines first, then wrap each line to maxWidth
+            List<Text> wrappedLines = new ArrayList<>();
+            for (Text line : TextUtils.split(styledText, "\n"))
+                wrappedLines.addAll(TextUtils.warpToWidth(line, this.maxWidth));
+
+            //join the lines back together with the newline
+            this.wrappedText = TextUtils.join(wrappedLines, Text.of("\n"));
+        } else {
+            this.wrappedText = styledText;
+        }
+
+        setDimensions(TextUtils.getWidth(this.wrappedText), TextUtils.getHeight(this.wrappedText));
         super.updateDimensions();
     }
 
-    private void updateSelectable() {
+    protected void updateSelectable() {
         setSelectable(getTooltip() != null || getPopup() != null);
     }
 
@@ -121,5 +146,16 @@ public class Label extends SelectableWidget implements AlignedWidget {
     @Override
     public int getCenterY() {
         return getAlignedY() + getHeight() / 2;
+    }
+
+    public void setMaxWidth(int maxWidth) {
+        if (this.maxWidth != maxWidth) {
+            this.maxWidth = maxWidth;
+            updateDimensions();
+        }
+    }
+
+    public int getMaxWidth() {
+        return maxWidth;
     }
 }

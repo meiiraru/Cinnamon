@@ -2,7 +2,7 @@
   "parent": "data/gui_skins/default.json",
   "colors": {
     "accent_color":        "FF72ADFF",
-    "disabled_color":      "FF161616",
+    "disabled_color":      "FF323232",
     "selected_text_color": "FF000000",
     "hint_color":          "FF404040",
     "disabled_hint_color": "FF202020",

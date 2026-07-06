@@ -56,7 +56,6 @@ public class Events {
         registerEvent(RESOURCE_INIT, o -> Shaders.loadAll());
         registerEvent(RESOURCE_INIT, o -> PostProcess.loadAllShaders());
         registerEvent(RESOURCE_INIT, o -> MaterialRegistry.loadAllMaterials());
-        registerEvent(RESOURCE_INIT, o -> MainMenu.initTextures());
         registerEvent(RESOURCE_INIT, o -> LangManager.init());
 
         registerEvent(RESOURCE_FREE, o -> Texture.freeAll());

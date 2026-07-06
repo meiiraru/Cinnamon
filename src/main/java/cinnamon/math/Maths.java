@@ -436,6 +436,20 @@ public class Maths {
         return start;
     }
 
+    public static float haltonSequence(int index, int base) {
+        float result = 0f;
+        float f = 1f / base;
+        int i = index;
+
+        while (i > 0) {
+            result += f * (i % base);
+            i = (int) Math.floor(i / (float) base);
+            f /= base;
+        }
+
+        return result;
+    }
+
     public static float hermite(float p0, float p3, float r0, float r3, float weight, float t) {
         float t2 = t * t;
         float t3 = t2 * t;
