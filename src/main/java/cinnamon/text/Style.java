@@ -29,8 +29,9 @@ public class Style {
             shadow,
             outlined;
 
-    private Resource
-            guiSkin;
+    private Resource guiSkin;
+    private ClickEvent clickEvent;
+    private HoverEvent hoverEvent;
 
     private Style() {}
 
@@ -51,6 +52,8 @@ public class Style {
         this.shadow          = o.shadow;
         this.outlined        = o.outlined;
         this.guiSkin         = o.guiSkin;
+        this.clickEvent      = o.clickEvent;
+        this.hoverEvent      = o.hoverEvent;
     }
 
     public Style applyParent(Style p) {
@@ -76,6 +79,8 @@ public class Style {
         if (shadow          != null) s.shadow          = shadow;
         if (outlined        != null) s.outlined        = outlined;
         if (guiSkin         != null) s.guiSkin         = guiSkin;
+        if (clickEvent      != null) s.clickEvent      = clickEvent;
+        if (hoverEvent      != null) s.hoverEvent      = hoverEvent;
         return s;
     }
 
@@ -191,6 +196,18 @@ public class Style {
         return s;
     }
 
+    public Style clickEvent(ClickEvent event) {
+        Style s = new Style(this);
+        s.clickEvent = event;
+        return s;
+    }
+
+    public Style hoverEvent(HoverEvent event) {
+        Style s = new Style(this);
+        s.hoverEvent = event;
+        return s;
+    }
+
     public Style formatted(Formatting... formats) {
         Style style = this;
         for (Formatting format : formats)
@@ -260,5 +277,13 @@ public class Style {
 
     public GUISkin getGuiSkin() {
         return GUISkin.of(guiSkin == null ? GUISkin.getCurrentSkinRes() : guiSkin);
+    }
+
+    public ClickEvent getClickEvent() {
+        return clickEvent;
+    }
+
+    public HoverEvent getHoverEvent() {
+        return hoverEvent;
     }
 }

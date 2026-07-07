@@ -110,7 +110,7 @@ public class Container extends Widget implements Tickable, GUIListener {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //int x = this instanceof AlignedWidget aw ? aw.getAlignedX() : getX();
         //int y = this instanceof AlignedWidget aw ? aw.getAlignedY() : getY();
-        //VertexConsumer.GUI.consume(GeometryHelper.rectangle(matrices, x, y, x + getWidth(), y + getHeight(), 0x88FF72AD));
+        //VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x, y, x + getWidth(), y + getHeight(), 0x88FF72AD));
 
         for (Widget widget : this.widgets)
             widget.render(matrices, mouseX, mouseY, delta);

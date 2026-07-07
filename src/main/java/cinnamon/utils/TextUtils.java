@@ -344,6 +344,29 @@ public class TextUtils {
         return list;
     }
 
+    public static Style getStyleAt(Text text, int localX, int localY, Alignment alignment) {
+        Font f = text.getStyle().getGuiSkin().getFont();
+        int lineHeight = (int) (f.lineHeight + f.lineGap);
+        int lineIndex = (int) Math.floor(localY / (float) lineHeight);
+
+        List<Text> lines = split(text, "\n");
+        if (lineIndex < 0 || lineIndex >= lines.size())
+            return null;
+
+        Text line = lines.get(lineIndex);
+        float currentX = -alignment.getWidthOffset(getWidth(text)) + alignment.getWidthOffset(getWidth(line));
+
+        for (Text t : splitToChars(line)) {
+            float charWidth = f.width(t);
+            if (currentX <= localX && localX < currentX + charWidth)
+                return t.getStyle();
+
+            currentX += charWidth;
+        }
+
+        return null;
+    }
+
     public static int getWidth(Text text) {
         List<Text> split = split(text, "\n");
         return getWidth(split);

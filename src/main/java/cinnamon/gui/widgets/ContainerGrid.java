@@ -59,8 +59,8 @@ public class ContainerGrid extends Container implements AlignedWidget {
             parent.updateDimensions();
 
         //set widget positions
-        int x = getAlignedX() - Math.round(alignment.getWidthOffset(getWidth() - totalWidth));
-        int y = getAlignedY() - Math.round(alignment.getHeightOffset(getHeight() - totalHeight));
+        int x = getAlignedX() - (int) Math.floor(alignment.getWidthOffset(getWidth() - totalWidth));
+        int y = getAlignedY() - (int) Math.floor(alignment.getHeightOffset(getHeight() - totalHeight));
 
         int xx = x;
         int yy = y;
@@ -73,9 +73,9 @@ public class ContainerGrid extends Container implements AlignedWidget {
             int ww = w.getWidth();
             int wh = w.getHeight();
 
-            w.setPos(xx - Math.round(alignment.getWidthOffset(widths[row] - ww)), yy - Math.round(alignment.getHeightOffset(heights[column] - wh)));
+            w.setPos(xx - (int) Math.floor(alignment.getWidthOffset(widths[row] - ww)), yy - (int) Math.floor(alignment.getHeightOffset(heights[column] - wh)));
             if (w instanceof AlignedWidget aw)
-                w.translate(Math.round(-aw.getAlignment().getWidthOffset(ww)), Math.round(-aw.getAlignment().getHeightOffset(wh)));
+                w.translate((int) Math.floor(-aw.getAlignment().getWidthOffset(ww)), (int) Math.floor(-aw.getAlignment().getHeightOffset(wh)));
 
             xx += widths[row] + spacing;
             if (row == columns - 1) {
@@ -101,12 +101,12 @@ public class ContainerGrid extends Container implements AlignedWidget {
 
     @Override
     public int getAlignedX() {
-        return getX() + Math.round(alignment.getWidthOffset(getWidth()));
+        return getX() + (int) Math.floor(alignment.getWidthOffset(getWidth()));
     }
 
     @Override
     public int getAlignedY() {
-        return getY() + Math.round(alignment.getHeightOffset(getHeight()));
+        return getY() + (int) Math.floor(alignment.getHeightOffset(getHeight()));
     }
 
     public int getSpacing() {

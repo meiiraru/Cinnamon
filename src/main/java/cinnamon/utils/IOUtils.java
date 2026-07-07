@@ -335,6 +335,12 @@ public class IOUtils {
         }
     }
 
+    public static Path getFolderOrParent(Path path) {
+        if (Files.isDirectory(path))
+            return path;
+        return path.getParent();
+    }
+
     public static void openFile(Path path) {
         try {
             Desktop.getDesktop().open(path.toFile());
@@ -344,9 +350,22 @@ public class IOUtils {
     }
 
     public static void openInExplorer(Path path) {
+        if (Desktop.getDesktop().isSupported(Desktop.Action.BROWSE_FILE_DIR)) {
+            Desktop.getDesktop().browseFileDirectory(path.toFile());
+            return;
+        }
+
         try {
-            Desktop.getDesktop().open(path.toFile().isDirectory() ? path.toFile() : path.getParent().toFile());
+            Desktop.getDesktop().open(getFolderOrParent(path).toFile());
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void openURL(String url) {
+        try {
+            Desktop.getDesktop().browse(new URI(url));
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
