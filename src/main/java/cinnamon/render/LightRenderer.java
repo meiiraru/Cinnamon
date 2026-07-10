@@ -343,6 +343,18 @@ public class LightRenderer {
             //bind the face
             cubeShadowBuffer.bindCubemap(face.GLTarget);
 
+            //check for the light mask
+            Boolean mask = light.testShadowCubemapMask(face);
+            if (mask != null) {
+                //clear the face to either black or white depending on the mask
+                PostProcess.COLOR_DEPTH
+                        .getShader()
+                        .use()
+                        .setFloat("depth", mask ? 1f : 0f);
+                StaticGeometry.QUAD.render();
+                continue;
+            }
+
             //calculate look at matrix
             Vector3f dir = face.direction;
             Vector3f up = face.up;

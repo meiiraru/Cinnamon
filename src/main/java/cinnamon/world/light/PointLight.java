@@ -1,12 +1,16 @@
 package cinnamon.world.light;
 
 import cinnamon.render.shader.Shader;
+import cinnamon.render.texture.CubeMap;
 import org.joml.Matrix4f;
 
 public class PointLight extends Light {
 
     private float falloffStart = 3f, falloffEnd = 5f;
     private float fov = 1.5707f; //90 degrees
+
+    private int shadowCubemapMask = 0; //based on CubeMap.Face order
+    private int shadowCubemapMaskFlags = -1;
 
     @Override
     protected void pushToShader(Shader shader, String prefix) {
@@ -55,6 +59,24 @@ public class PointLight extends Light {
 
     public float getFOV() {
         return fov;
+    }
+
+    public PointLight setShadowCubemapMask(CubeMap.Face face, Boolean enabled) {
+        int offset = 1 << face.ordinal();
+        if (enabled != null) {
+            shadowCubemapMask = shadowCubemapMask | offset;
+            shadowCubemapMaskFlags = enabled ? shadowCubemapMaskFlags | offset : shadowCubemapMaskFlags & ~offset;
+        } else {
+            shadowCubemapMask = shadowCubemapMask & ~offset;
+        }
+        return this;
+    }
+
+    public Boolean testShadowCubemapMask(CubeMap.Face face) {
+        int offset = 1 << face.ordinal();
+        if ((shadowCubemapMask & offset) == 0)
+            return null;
+        return (shadowCubemapMaskFlags & offset) != 0;
     }
 
     @Override

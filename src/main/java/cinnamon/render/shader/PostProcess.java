@@ -25,6 +25,10 @@ public enum PostProcess {
         s.applyColorRGBA(0xFFFF72AD);
         return 0;
     }),
+    COLOR_DEPTH((fb, s) -> {
+        s.setFloat("depth", 0.5f);
+        return 0;
+    }),
     KERNEL((fb, s) -> {
         s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
         return COLOR_UNIFORM.apply(fb, s);
