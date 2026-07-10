@@ -21,6 +21,10 @@ public enum PostProcess {
     BLIT_COLOR_DEPTH(COLOR_AND_DEPTH_UNIFORM),
     BLIT_GAMMA(COLOR_UNIFORM),
     BLIT_UV(COLOR_UNIFORM),
+    COLOR((fb, s) -> {
+        s.applyColorRGBA(0xFFFF72AD);
+        return 0;
+    }),
     KERNEL((fb, s) -> {
         s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
         return COLOR_UNIFORM.apply(fb, s);
@@ -178,6 +182,10 @@ public enum PostProcess {
         s.setVec2("texelSize", 1f / fb.getWidth(), 1f / fb.getHeight());
         return COLOR_UNIFORM.apply(fb, s);
     }),
+    TINT((fb, s) -> {
+        s.applyColorRGBA(0xFFFF00FF);
+        return COLOR_UNIFORM.apply(fb, s);
+    }),
 
     //world only effects
     TOON_OUTLINE((fb, s) -> {
@@ -201,9 +209,9 @@ public enum PostProcess {
 
     public static final PostProcess[] EFFECTS = {
             INVERT, BLUR, BOX_BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE,
-            SCAN_LINE, LENS, LENS2, MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY,
-            KALEIDOSCOPE, BITS, POSTERIZE, BLOBS, PHOSPHOR, SPEED_LINES, DOT_GRID,
-            DITHER, DITHER_SQUARE_TEX, SHARPEN, VINTAGE, RED, TILT_SHIFT, SUBPIXEL, FXAA
+            SCAN_LINE, LENS, LENS2, MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY, KALEIDOSCOPE,
+            BITS, POSTERIZE, BLOBS, PHOSPHOR, SPEED_LINES, DOT_GRID, DITHER,
+            DITHER_SQUARE_TEX, SHARPEN, VINTAGE, RED, TILT_SHIFT, SUBPIXEL, FXAA, TINT
     };
     public static final PostProcess[] WORLD_EFFECTS = {
             TOON_OUTLINE, BOKEH_DOF
