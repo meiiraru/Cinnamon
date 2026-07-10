@@ -31,7 +31,7 @@ public class ContextMenu extends PopupWidget {
     private int selected = -1;
 
     private int totalWidth;
-    private int totalHeight = 2;
+    private int totalHeight = 0;
 
     public ContextMenu() {
         this(0, 0);
@@ -103,7 +103,7 @@ public class ContextMenu extends PopupWidget {
         widgets.clear();
         actions.clear();
         totalWidth = minWidth;
-        totalHeight = 2;
+        totalHeight = 0;
     }
 
     private int getWidthForText(Text name) {
@@ -133,6 +133,7 @@ public class ContextMenu extends PopupWidget {
 
         //set list height
         list.setHeight(realHeight);
+        list.forceUpdate();
 
         //check for scrollbar
         int scroll = list.shouldRenderScrollbar() ? list.getScrollbarWidth() + 1 : 0;

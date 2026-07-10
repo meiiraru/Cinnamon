@@ -5,7 +5,7 @@ import org.joml.Math;
 
 public class ContainerGrid extends Container implements AlignedWidget {
 
-    private final int spacing, columns;
+    private int spacing, columns;
     protected Alignment alignment = Alignment.TOP_LEFT;
     protected boolean forceChildAlignment = false;
 
@@ -43,8 +43,8 @@ public class ContainerGrid extends Container implements AlignedWidget {
         }
 
         //calculate total sizes
-        int totalWidth = spacing * (widths.length - 1);
-        int totalHeight = spacing * (heights.length - 1);
+        int totalWidth  = widths.length  > 0 ? spacing * (widths.length  - 1) : 0;
+        int totalHeight = heights.length > 0 ? spacing * (heights.length - 1) : 0;
 
         for (int width : widths)
             totalWidth += width;
@@ -85,6 +85,10 @@ public class ContainerGrid extends Container implements AlignedWidget {
         }
     }
 
+    public void forceUpdate() {
+        this.updateDimensions();
+    }
+
     @Override
     public void setAlignment(Alignment alignment) {
         if (this.alignment == alignment)
@@ -113,8 +117,18 @@ public class ContainerGrid extends Container implements AlignedWidget {
         return spacing;
     }
 
+    public void setSpacing(int spacing) {
+        this.spacing = spacing;
+        updateDimensions();
+    }
+
     public int getColumns() {
         return columns;
+    }
+
+    public void setColumns(int columns) {
+        this.columns = columns;
+        updateDimensions();
     }
 
     public void forceChildAlignment(boolean bool) {

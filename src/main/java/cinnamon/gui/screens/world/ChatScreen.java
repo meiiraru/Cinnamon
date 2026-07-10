@@ -3,8 +3,9 @@ package cinnamon.gui.screens.world;
 import cinnamon.commands.CommandParser;
 import cinnamon.gui.GUISkin;
 import cinnamon.gui.Screen;
+import cinnamon.gui.widgets.WidgetList;
+import cinnamon.gui.widgets.types.Label;
 import cinnamon.gui.widgets.types.TextField;
-import cinnamon.math.Maths;
 import cinnamon.messages.Message;
 import cinnamon.messages.MessageCategory;
 import cinnamon.messages.MessageManager;
@@ -14,7 +15,6 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -25,12 +25,11 @@ public class ChatScreen extends Screen {
     protected static final List<String> sentMessages = new CircularQueue<>(MAX_SENT_HISTORY);
     protected static String currentMessage = "";
 
-    protected final List<Text> messagesToRender = new ArrayList<>();
+    protected final WidgetList messageList;
     protected final TextField field;
     protected int sentIndex = -1;
     protected String backupText = "";
-    protected int maxChatWidth, maxChatHeight, chatHeight, chatDiff, scrollMessages;
-    protected float scroll = 1f;
+    protected int maxChatWidth, maxChatHeight, chatHeight;
     private Message lastMessage = null;
     protected MessageCategory selectedCategory = null;
     protected Text previewText = Text.empty();
@@ -62,6 +61,14 @@ public class ChatScreen extends Screen {
             field.setText(currentMessage);
             field.selectAll();
         }
+
+        //create message list
+        messageList = new WidgetList(0, 0, 0, 0, 2);
+        messageList.setScrollPadding(0);
+        messageList.setShowScrollbar(false);
+        messageList.setIgnoreScrollbarOffset(true);
+        messageList.setAlignment(Alignment.BOTTOM_LEFT);
+        messageList.forceChildAlignment(true);
     }
 
     @Override
@@ -80,8 +87,13 @@ public class ChatScreen extends Screen {
         maxChatWidth = 350;
         maxChatHeight = field.getY() - 4 - 40;
 
+        //update messageList
+        messageList.setPos(4 + 2, field.getY() - 4 - 2);
+        messageList.setDimensions(maxChatWidth, 0);
+        messageList.scrollToBottom();
+        addWidget(messageList);
+
         lastMessage = null;
-        scroll = 1f;
     }
 
     @Override
@@ -104,37 +116,22 @@ public class ChatScreen extends Screen {
 
         int chatX = 4;
         int chatY = 40;
-        int x = chatX + 2;
-        int y = chatY + maxChatHeight + chatDiff - 2; //bottom border
-
-        float scroll = chatDiff <= 0 ? 1f : this.scroll;
-        y -= (int) (scroll * chatDiff);
 
         //chat background
         if (chatHeight > 0)
-            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, chatX, chatY + maxChatHeight - Math.min(chatHeight + 4, maxChatHeight), chatX + maxChatWidth, chatY + maxChatHeight, -UIHelper.getDepthOffset(), 0x80000000));
-
-        //render messages
-        UIHelper.pushStencil(matrices, chatX, chatY, maxChatWidth, maxChatHeight);
-
-        for (Text message : messagesToRender) {
-            int messageHeight = TextUtils.getHeight(message) + 2;
-
-            if (y - messageHeight < chatY + maxChatHeight)
-                message.render(VertexConsumer.MAIN, matrices, x, y, Alignment.BOTTOM_LEFT);
-
-            y -= messageHeight;
-            if (y < chatY) break;
-        }
-
-        UIHelper.popStencil();
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(
+                    matrices,
+                    messageList.getAlignedX() - 2, messageList.getAlignedY() - 2,
+                    messageList.getAlignedX() + messageList.getWidth() + 2, messageList.getAlignedY() + messageList.getHeight() + 2,
+                    -UIHelper.getDepthOffset(), 0x80000000
+            ));
 
         //render scrollbar
-        if (chatDiff > 0) {
+        if (messageList.isScrollbarNeeded()) {
             int scrollbarHeight = (int) ((float) maxChatHeight / chatHeight * maxChatHeight);
-            int scrollX = chatX + maxChatWidth - 3;
-            int scrollY = chatY + (int) (scroll * (maxChatHeight - scrollbarHeight)) + 2;
-            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, scrollX, scrollY, scrollX + 1, scrollY + scrollbarHeight - 4, -UIHelper.getDepthOffset(), 0x80FFFFFF));
+            int scrollX = chatX + maxChatWidth;
+            int scrollY = chatY + (int) (messageList.getScrollbar().getPercentage() * (maxChatHeight - scrollbarHeight));
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, scrollX + 1, scrollY, scrollX + 2, scrollY + scrollbarHeight - 4, -UIHelper.getDepthOffset(), 0x80FFFFFF));
         }
 
         //render preview message
@@ -181,8 +178,9 @@ public class ChatScreen extends Screen {
                         //store the message
                         if (sentMessages.isEmpty() || !sentMessages.getLast().equals(s))
                             sentMessages.add(s);
-                        return true;
                     }
+
+                    return true;
                 }
                 //suggest autocomplete for the current message
                 case GLFW_KEY_TAB -> {
@@ -228,17 +226,14 @@ public class ChatScreen extends Screen {
                     return true;
                 }
                 //scroll up/down
-                case GLFW_KEY_PAGE_UP,
-                     GLFW_KEY_PAGE_DOWN -> {
-                    int totalMessages = messagesToRender.size();
-                    int shownMessages = totalMessages - scrollMessages;
-                    float delta = (float) shownMessages / scrollMessages;
-                    this.scroll = Maths.clamp(this.scroll + delta * (key == GLFW_KEY_PAGE_UP ? -1 : 1), 0f, 1f);
+                case GLFW_KEY_PAGE_UP -> {
+                    messageList.getScrollbar().forceScroll(0f, 1f);
+                    return true;
                 }
-                //scroll home
-                case GLFW_KEY_HOME -> scroll = 0f;
-                //scroll end
-                case GLFW_KEY_END -> scroll = 1f;
+                case GLFW_KEY_PAGE_DOWN -> {
+                    messageList.getScrollbar().forceScroll(0f, -1f);
+                    return true;
+                }
             }
         }
 
@@ -256,44 +251,32 @@ public class ChatScreen extends Screen {
 
     @Override
     public boolean scroll(double x, double y) {
-        if (chatDiff <= 0) //no need to scroll
-            return true;
-
-        this.scroll = Maths.clamp(this.scroll + (float) -y * (1f / scrollMessages), 0f, 1f);
-        return true;
+        return messageList.getScrollbar().forceScroll(x, y) != null;
     }
 
     protected void forceUpdate(List<Message> messages) {
-        messagesToRender.clear();
-        chatHeight = -2; //offset for the last padding
+        messageList.clear();
+        int spacing = messageList.getSpacing();
+        chatHeight = -spacing; //offset for the last padding
 
-        for (int i = messages.size() - 1; i >= 0; i--) {
+        for (Message message : messages) {
             //filter by category
-            Message message = messages.get(i);
             if (selectedCategory != null && message.category() != selectedCategory)
                 continue;
 
             //warp text
-            float width = maxChatWidth - 4; //left and right borders
+            int width = maxChatWidth - 4; //left and right borders
             Text text = message.text();
-            List<Text> split = TextUtils.split(text, "\n");
-            List<Text> warped = new ArrayList<>();
 
-            for (Text t : split)
-                warped.addAll(TextUtils.warpToWidth(t, width));
+            Label l = new Label(0, 0, text);
+            l.setMaxWidth(width);
+            messageList.addWidget(l);
 
-            for (int j = warped.size() - 1; j >= 0; j--) {
-                Text warpedMessage = warped.get(j);
-                int messageHeight = TextUtils.getHeight(warpedMessage);
-                chatHeight += messageHeight + 2;
-                messagesToRender.add(warpedMessage);
-            }
+            chatHeight += l.getHeight() + spacing; //padding
         }
 
-        chatDiff = chatHeight - maxChatHeight + 4; //top and bottom borders
-
-        int totalMessages = messagesToRender.size();
-        scrollMessages = totalMessages - (int) (((float) maxChatHeight / chatHeight) * totalMessages);
+        messageList.setHeight(Math.min(chatHeight, maxChatHeight));
+        messageList.forceUpdate();
     }
 
     public void setFieldText(String text) {

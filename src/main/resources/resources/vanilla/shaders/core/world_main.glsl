@@ -3,7 +3,7 @@
 
 #type fragment
 #version 330 core
-#include shaders/libs/transparent_dither.glsl
+//#include shaders/libs/transparent_dither.glsl
 
 flat in int texID;
 in vec2 texCoords;
@@ -28,11 +28,14 @@ void main() {
         col *= tex;
     }
 
-    if (shouldDiscard(col, pos)) {
+    //if (shouldDiscard(col, pos)) {
+    //    discard;
+    //} else {
+    //    col.a = 1.0f;
+    //}
+
+    if (col.a < 0.01f)
         discard;
-    } else {
-        col.a = 1.0f;
-    }
 
     //gBuffer outputs
     gAlbedo = col;

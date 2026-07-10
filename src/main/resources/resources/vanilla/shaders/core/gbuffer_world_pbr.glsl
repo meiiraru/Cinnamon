@@ -30,7 +30,7 @@ void main() {
 #type fragment
 #version 330 core
 #include shaders/libs/parallax_mapping.glsl
-#include shaders/libs/transparent_dither.glsl
+//#include shaders/libs/transparent_dither.glsl
 
 layout (location = 0) out vec4 gAlbedo;
 layout (location = 1) out vec4 gNormal;
@@ -68,11 +68,14 @@ void main() {
     //sample textures
     vec4 albedo = texture(material.albedoTex, texCoords) * color;
 
-    if (shouldDiscard(albedo, pos)) {
+    //if (shouldDiscard(albedo, pos)) {
+    //    discard;
+    //} else {
+    //    albedo.a = 1.0f;
+    //}
+
+    if (albedo.a < 0.01f)
         discard;
-    } else {
-        albedo.a = 1.0f;
-    }
 
     float ao        = texture(material.aoTex, texCoords).r;
     float roughness = texture(material.roughnessTex, texCoords).r;

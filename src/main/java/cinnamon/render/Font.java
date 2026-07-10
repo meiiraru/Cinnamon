@@ -227,13 +227,13 @@ public class Font {
             GlyphPage page = owner.glyphPages.get(pageStart);
             if (page != null) {
                 //if the owner has the page, get the char data
-                stbtt_GetPackedQuad(page.charData, page.width, page.height, c - pageStart, xb, yb, q, true);
+                stbtt_GetPackedQuad(page.charData, page.width, page.height, c - pageStart, xb, yb, q, false);
                 return page.textureID;
             }
         }
 
         //no owner, use missing char data
-        stbtt_GetPackedQuad(missingCharPage.charData, missingCharPage.width, missingCharPage.height, 0, xb, yb, q, true);
+        stbtt_GetPackedQuad(missingCharPage.charData, missingCharPage.width, missingCharPage.height, 0, xb, yb, q, false);
         return missingCharPage.textureID;
     }
 
@@ -262,7 +262,7 @@ public class Font {
         //prepare vars
         boolean[] prevItalic = {false};
         xb.put(0, 0f); yb.put(0, 0f);
-        SEED = Client.getInstance().ticks;
+        SEED = Client.getInstance().ticks + Float.floatToIntBits(x * 31 + y);
 
         //iterate text and children
         text.visit((s, style) -> {
@@ -295,8 +295,7 @@ public class Font {
                 int c = s.codePointAt(i);
                 i += Character.charCount(c);
 
-                int renderC = (obf && !Character.isSpaceChar(c)) ? getRandomCodepoint(c) : c;
-                advance += width(renderC) + (bold ? boldOffset : 0f);
+                advance += width(c) + (bold ? boldOffset : 0f);
 
                 if (!obf && i < s.length())
                     advance += getKerning(c, s.codePointAt(i));
@@ -389,7 +388,7 @@ public class Font {
         //strikethrough
         if (strikethrough) {
             float rectY = y0 - (int) (ascent / 2);
-            consumer.consume(rectangle(matrices, x0, rectY, x0 + width, rectY + 1f, color));
+            consumer.consume(rectangle(matrices, x0, rectY, x0 + width, rectY + 1f, z, color));
         }
     }
 
@@ -442,7 +441,10 @@ public class Font {
     }
 
     public float getKerning(int codepoint, int next) {
-        return stbtt_GetCodepointKernAdvance(info, codepoint, next) * scale;
+        Font owner = findGlyphOwner(codepoint);
+        if (owner != null)
+            return stbtt_GetCodepointKernAdvance(owner.info, codepoint, next) * owner.scale;
+        return 0f;
     }
 
     public float width(int codepoint) {
@@ -478,15 +480,24 @@ public class Font {
     public float width(Text text) {
         //prepare vars
         boolean[] prevItalic = {false};
+        int[] lastItalicOffset = {0};
         float[] x = {0f};
 
         //iterate text
         text.visit((s, style) -> {
+            //skip empty strings
+            if (s.isEmpty())
+                return;
+
             //italic
             boolean italic = style.isItalic();
+            int italicOffset = style.getItalicOffset();
+
             if (prevItalic[0] && !italic)
-                x[0] += style.getItalicOffset();
+                x[0] += italicOffset;
+
             prevItalic[0] = italic;
+            lastItalicOffset[0] = italicOffset;
 
             //bold
             if (style.isBold())
@@ -495,6 +506,10 @@ public class Font {
             //add string width
             x[0] += width(s);
         }, Style.EMPTY);
+
+        //include the italic leftover
+        if (prevItalic[0])
+            x[0] += lastItalicOffset[0];
 
         return x[0];
     }

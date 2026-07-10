@@ -117,7 +117,7 @@ public class TextUtils {
                     if (formatting != null) {
                         //formatting changing - flush the current text
                         if (!currentText.isEmpty()) {
-                            result.append(Text.of(currentText.toString()).withStyle(currentStyle));
+                            result.append(Text.empty().withStyle(style).append(Text.of(currentText.toString()).withStyle(currentStyle)));
                             currentText.setLength(0);
                         }
 
@@ -147,7 +147,7 @@ public class TextUtils {
 
             //flush leftovers
             if (!currentText.isEmpty()) {
-                result.append(Text.of(currentText.toString()).withStyle(currentStyle));
+                result.append(Text.empty().withStyle(style).append(Text.of(currentText.toString()).withStyle(currentStyle)));
                 currentText.setLength(0);
             }
         }, Style.EMPTY);

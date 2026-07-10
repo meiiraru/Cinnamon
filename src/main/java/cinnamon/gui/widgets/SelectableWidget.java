@@ -160,7 +160,7 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
         this.selectable = selectable;
     }
 
-    public void renderTooltip(MatrixStack matrices) {
+    public void renderTooltip(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //grab text
         Text tooltip = getTooltip();
         if (tooltip == null)

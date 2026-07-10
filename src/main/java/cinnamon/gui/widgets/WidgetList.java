@@ -18,7 +18,7 @@ public class WidgetList extends ContainerGrid {
 
     private final Scrollbar scrollbar;
     private boolean showScrollbar = true;
-    private boolean hasBackground;
+    private int scrollPadding = 1, maxScrollAmount = 36; //px
     private boolean ignoreScrollbarOffset;
     private boolean allowTabNavigation = true;
     private int widgetsWidth, widgetsHeight;
@@ -39,10 +39,10 @@ public class WidgetList extends ContainerGrid {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        if (hasBackground)
+        if (hasBackground())
             renderBackground(matrices, mouseX, mouseY, delta);
 
-        boolean scroll = shouldRenderScrollbar();
+        boolean scroll = isScrollbarNeeded();
         if (scroll)
             UIHelper.pushStencil(matrices, getAlignedX(), getAlignedY(), getWidth(), getHeight());
 
@@ -50,18 +50,19 @@ public class WidgetList extends ContainerGrid {
             widget.render(matrices, mouseX, mouseY, delta);
 
         if (scroll) {
-            if (showScrollbar)
+            if (shouldRenderScrollbar())
                 scrollbar.render(matrices, mouseX, mouseY, delta);
             UIHelper.popStencil();
         }
     }
 
+    @Override
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         //render background
         UIHelper.nineQuad(
                 VertexConsumer.MAIN, matrices, getSkin().getResource("container_background_tex"),
-                getAlignedX() - 1, getAlignedY() - 1,
-                getWidth() + 2, getHeight() + 2,
+                getAlignedX(), getAlignedY(),
+                getWidth(), getHeight(),
                 0f, 0f,
                 16, 16,
                 16, 16
@@ -72,6 +73,7 @@ public class WidgetList extends ContainerGrid {
     public void clear() {
         this.widgets.clear();
         this.listeners.clear();
+        //width and height are not reset
         if (this.showScrollbar)
             this.listeners.add(this.scrollbar);
     }
@@ -81,26 +83,27 @@ public class WidgetList extends ContainerGrid {
         lastY = 0;
         super.updateDimensions();
 
-        //scrollbar limit
-        if (!ignoreScrollbarOffset && shouldRenderScrollbar()) {
+        //update scrollbar position first
+        updateScrollbar();
+
+        //scrollbar x offset
+        if (!ignoreScrollbarOffset() && shouldRenderScrollbar()) {
             //grab the widgets initial X point
             int x = getX() + widgetsWidth + Math.round(alignment.getWidthOffset(widgetsWidth));
             if (x > scrollbar.getX() - 1) {
                 x -= scrollbar.getX() - 1;
                 for (Widget widget : widgets)
-                    widget.translate(-x, 1);
+                    widget.translate(-x, 0);
             }
-        } else {
-            for (Widget widget : widgets)
-                widget.translate(0, 1);
         }
 
         //update scrollbar
         updateList();
-        scrollbar.setScrollAmount(3f / widgets.size()); //3 widgets per scroll
-        scrollbar.setHandleSize((int) (scrollbar.getHeight() * getHeight() / (float) getWidgetsHeight()));
 
-        updateScrollbar();
+        float scrollAmount = Math.min(getHeight(), maxScrollAmount);
+        scrollbar.setScrollAmount(Math.min(scrollAmount / (float) (getWidgetsHeight() - getHeight()), 1f));
+        if (getWidgetsHeight() > 0)
+            scrollbar.setHandleSize((int) (scrollbar.getHeight() * getHeight() / (float) getWidgetsHeight()));
     }
 
     @Override
@@ -112,15 +115,16 @@ public class WidgetList extends ContainerGrid {
 
     protected List<Widget> updateList() {
         //all widgets are allowed to render
-        if (getWidgetsHeight() <= getHeight())
+        if (!isScrollbarNeeded())
             return widgets;
 
         //clear render list
         widgetsToRender.clear();
 
         //grab height difference
-        int heightDiff = getWidgetsHeight() - getHeight();
-        int newY = Math.round(alignment.getHeightOffset(heightDiff) + heightDiff * scrollbar.getAnimationValue());
+        int paddingOffset = Math.round(alignment.getHeightOffset(scrollPadding * 2f) + scrollPadding);
+        int heightDiff = (getWidgetsHeight() + scrollPadding * 2) - getHeight();
+        int newY = Math.round(alignment.getHeightOffset(heightDiff) + heightDiff * (showScrollbar() ? scrollbar.getAnimationValue() : scrollbar.getPercentage())) - paddingOffset;
         int diff = lastY - newY;
         lastY = newY;
 
@@ -280,8 +284,8 @@ public class WidgetList extends ContainerGrid {
         }
     }
 
-    public void setBackground(boolean bool) {
-        this.hasBackground = bool;
+    public boolean showScrollbar() {
+        return showScrollbar;
     }
 
     public int getWidgetsWidth() {
@@ -289,7 +293,7 @@ public class WidgetList extends ContainerGrid {
     }
 
     public int getWidgetsHeight() {
-        return widgetsHeight + 2; //include spacing
+        return widgetsHeight;
     }
 
     public int getScrollbarWidth() {
@@ -305,18 +309,46 @@ public class WidgetList extends ContainerGrid {
     }
 
     public boolean shouldRenderScrollbar() {
-        return showScrollbar && getWidgetsHeight() > getHeight();
+        return showScrollbar && isScrollbarNeeded();
+    }
+
+    public boolean isScrollbarNeeded() {
+        return getWidgetsHeight() > getHeight();
     }
 
     public void setIgnoreScrollbarOffset(boolean bool) {
         this.ignoreScrollbarOffset = bool;
     }
 
+    public boolean ignoreScrollbarOffset() {
+        return ignoreScrollbarOffset;
+    }
+
     public void setAllowTabNavigation(boolean allowTabNavigation) {
         this.allowTabNavigation = allowTabNavigation;
     }
 
-    public boolean isAllowTabNavigation() {
+    public boolean allowTabNavigation() {
         return allowTabNavigation;
+    }
+
+    public int getScrollPadding() {
+        return scrollPadding;
+    }
+
+    public void setScrollPadding(int scrollPadding) {
+        this.scrollPadding = scrollPadding;
+    }
+
+    public int getMaxScrollAmount() {
+        return maxScrollAmount;
+    }
+
+    public void setMaxScrollAmount(int maxScrollAmount) {
+        this.maxScrollAmount = maxScrollAmount;
+    }
+
+    public Scrollbar getScrollbar() {
+        return scrollbar;
     }
 }

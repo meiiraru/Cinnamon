@@ -7,7 +7,6 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
-import org.joml.Math;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +20,7 @@ public class Text {
     private final boolean translatable;
     private final Object[] translationArgs;
     private Style style;
+    private String cachedTranslation;
 
     private Text(String text) {
         this(text, false, null, Style.EMPTY);
@@ -83,7 +83,9 @@ public class Text {
     }
 
     public String getTranslatedText() {
-        return !translatable ? text : LangManager.get(text, translationArgs);
+        if (!translatable)
+            return text;
+        return cachedTranslation != null ? cachedTranslation : LangManager.get(text, translationArgs);
     }
 
     public String asString() {
@@ -147,8 +149,8 @@ public class Text {
 
         for (int i = 0; i < size; i++) {
             Text t = list.get(i);
-            int x2 = Math.round(alignment.getWidthOffset(font.width(t)));
-            int y2 = Math.round(font.lineHeight * (i + 1) + font.descent + font.lineGap * i + yOffset);
+            float x2 = alignment.getWidthOffset(font.width(t));
+            float y2 = font.ascent + (font.lineHeight + font.lineGap) * i + yOffset;
             font.bake(consumer, matrices, t, x + x2, y + y2, indexScaling * UIHelper.getDepthOffset());
         }
     }

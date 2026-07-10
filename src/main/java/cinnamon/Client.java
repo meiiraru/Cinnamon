@@ -9,6 +9,8 @@ import cinnamon.gui.Toast;
 import cinnamon.gui.screens.MainMenu;
 import cinnamon.logger.Logger;
 import cinnamon.math.Timer;
+import cinnamon.messages.MessageCategory;
+import cinnamon.messages.MessageManager;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
@@ -19,6 +21,8 @@ import cinnamon.render.texture.AnimatedTexture;
 import cinnamon.settings.ArgsOptions;
 import cinnamon.settings.Settings;
 import cinnamon.sound.SoundManager;
+import cinnamon.text.ClickEvent;
+import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.TextureIO;
 import cinnamon.utils.Version;
@@ -27,6 +31,7 @@ import cinnamon.vr.XrRenderer;
 import cinnamon.world.world.WorldClient;
 import org.lwjgl.system.Platform;
 
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.UUID;
@@ -284,8 +289,17 @@ public class Client {
             switch (key) {
                 case GLFW_KEY_F1 -> hideHUD = !hideHUD;
                 case GLFW_KEY_F2 -> {
-                    TextureIO.screenshot(window.width, window.height);
-                    Toast.addToast(Text.of("Screenshot Taken!"));
+                    Path p = TextureIO.screenshot(window.width, window.height);
+                    if (p != null) {
+                        Toast.addToast(Text.of("Screenshot Taken!"));
+                        MessageManager.addMessage(
+                                Text.of("Screenshot saved to: ")
+                                        .withStyle(Style.EMPTY.color(0xFFFFFFFF).italic(false))
+                                        .append(Text.of(p.normalize().toAbsolutePath())
+                                                .withStyle(Style.EMPTY.underlined(true).clickEvent(new ClickEvent.OpenFile(p)))),
+                                MessageCategory.SYSTEM, null
+                        );
+                    }
                 }
                 case GLFW_KEY_F9 -> {
                     boolean shift = (mods & GLFW_MOD_SHIFT) != 0;

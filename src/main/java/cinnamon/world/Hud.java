@@ -3,6 +3,7 @@ package cinnamon.world;
 import cinnamon.Client;
 import cinnamon.gui.DebugScreen;
 import cinnamon.gui.GUISkin;
+import cinnamon.gui.screens.world.ChatScreen;
 import cinnamon.gui.widgets.types.ProgressBar;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
@@ -404,7 +405,7 @@ public class Hud {
     }
 
     protected void drawRecentChat(MatrixStack matrices, Client client, float delta) {
-        if (client.screen != null)
+        if (client.screen instanceof ChatScreen)
             return;
 
         int maxChatWidth = 350;
@@ -417,8 +418,8 @@ public class Hud {
         int start = Math.max(0, messages.size() - MessageManager.RECENT_MESSAGES);
 
         //starting coordinates
-        int x = 4 + 2;
-        int y = client.window.getGUIHeight() - 24 - (int) GUISkin.getCurrentSkin().getFont().lineHeight - 4 - 4;
+        float x = 4 + 2;
+        float y = client.window.getGUIHeight() - GUISkin.getCurrentSkin().getFont().lineHeight - 2 - 24 - 4 - 2;
         int maxLines = MessageManager.RECENT_MESSAGES;
 
         for (int i = messages.size() - 1; i >= start && maxLines > 0; i--) {
@@ -459,7 +460,7 @@ public class Hud {
             //render warped lines bottom-to-top
             for (int j = warped.size() - 1; j >= 0 && maxLines > 0; j--) {
                 Text warpedMessage = warped.get(j);
-                int messageHeight = TextUtils.getHeight(warpedMessage) + 2;
+                int messageHeight = TextUtils.getHeight(warpedMessage);
 
                 //render the message
                 warpedMessage.render(VertexConsumer.MAIN, matrices, x, y, Alignment.BOTTOM_LEFT);
@@ -468,6 +469,8 @@ public class Hud {
                 y -= messageHeight;
                 maxLines--;
             }
+
+            y -= 2; //spacing between messages
         }
     }
 }

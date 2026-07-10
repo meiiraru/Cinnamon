@@ -19,7 +19,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class TextureIO {
 
-    public static void screenshot(int width, int height) {
+    public static Path screenshot(int width, int height) {
         try {
             //allocate buffer
             ByteBuffer buffer = MemoryUtil.memAlloc(width * height * 4);
@@ -50,16 +50,20 @@ public class TextureIO {
 
             MemoryUtil.memFree(buffer);
             LOGGER.info("Saved screenshot as \"%s\"", path.getFileName());
+
+            return path;
         } catch (Exception e) {
             LOGGER.error("Failed to save screenshot!", e);
         }
+
+        return null;
     }
 
-    public static void saveTexture(Texture texture, Path outputPath) {
-        saveTexture(texture.getID(), outputPath, false, false);
+    public static boolean saveTexture(Texture texture, Path outputPath) {
+        return saveTexture(texture.getID(), outputPath, false, false);
     }
 
-    public static void saveTexture(int texture, Path outputPath, boolean flipX, boolean flipY) {
+    public static boolean saveTexture(int texture, Path outputPath, boolean flipX, boolean flipY) {
         try {
             //bind texture
             glBindTexture(GL_TEXTURE_2D, texture);
@@ -96,9 +100,13 @@ public class TextureIO {
 
             MemoryUtil.memFree(buffer);
             LOGGER.info("Exported texture to \"%s\"", outputPath.getFileName());
+
+            return true;
         } catch (Exception e) {
             LOGGER.error("Failed to save texture!", e);
         }
+
+        return false;
     }
 
     public static ImageData load(Resource resource) throws Exception {

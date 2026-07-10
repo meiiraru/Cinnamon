@@ -507,9 +507,9 @@ public class Slider extends SelectableWidget {
     }
 
     @Override
-    public void renderTooltip(MatrixStack matrices) {
+    public void renderTooltip(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         if (!showTooltip || !isHovered()) {
-            super.renderTooltip(matrices);
+            super.renderTooltip(matrices, mouseX, mouseY, delta);
             return;
         }
 

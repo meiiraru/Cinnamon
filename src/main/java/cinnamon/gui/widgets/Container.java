@@ -2,6 +2,7 @@ package cinnamon.gui.widgets;
 
 import cinnamon.math.Maths;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Resource;
 import cinnamon.utils.UIHelper;
 import org.joml.Math;
@@ -13,6 +14,8 @@ public class Container extends Widget implements Tickable, GUIListener {
 
     protected final List<Widget> widgets = new ArrayList<>();
     protected final List<GUIListener> listeners = new ArrayList<>();
+
+    private boolean hasBackground;
 
     public Container(int x, int y) {
         super(x, y, 0, 0);
@@ -108,12 +111,23 @@ public class Container extends Widget implements Tickable, GUIListener {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        //int x = this instanceof AlignedWidget aw ? aw.getAlignedX() : getX();
-        //int y = this instanceof AlignedWidget aw ? aw.getAlignedY() : getY();
-        //VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x, y, x + getWidth(), y + getHeight(), 0x88FF72AD));
+        if (hasBackground())
+            renderBackground(matrices, mouseX, mouseY, delta);
 
         for (Widget widget : this.widgets)
             widget.render(matrices, mouseX, mouseY, delta);
+    }
+
+    protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        //render background
+        UIHelper.nineQuad(
+                VertexConsumer.MAIN, matrices, getSkin().getResource("container_background_tex"),
+                getX(), getY(),
+                getWidth(), getHeight(),
+                0f, 0f,
+                16, 16,
+                16, 16
+        );
     }
 
     @Override
@@ -288,5 +302,13 @@ public class Container extends Widget implements Tickable, GUIListener {
 
     public List<GUIListener> getListeners() {
         return listeners;
+    }
+
+    public void setBackground(boolean bool) {
+        this.hasBackground = bool;
+    }
+
+    public boolean hasBackground() {
+        return hasBackground;
     }
 }

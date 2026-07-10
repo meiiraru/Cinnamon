@@ -7,6 +7,7 @@ import cinnamon.gui.widgets.PopupWidget;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.text.HoverEvent;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
@@ -26,6 +27,8 @@ public class Label extends SelectableWidget implements AlignedWidget {
     protected Alignment alignment;
     protected int maxWidth = -1;
     protected boolean renderBackground = true;
+    protected boolean forceBackground = false;
+    protected HoverEvent tooltipOverride;
 
     public Label(int x, int y, Text text) {
         this(x, y, text, Alignment.TOP_LEFT);
@@ -40,7 +43,7 @@ public class Label extends SelectableWidget implements AlignedWidget {
 
     @Override
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        if (renderBackground() && isSelectable() && isHoveredOrFocused())
+        if (renderBackground() && (forceBackground() || (isSelectable() && isHoveredOrFocused())))
             renderHover(matrices, mouseX, mouseY, delta);
 
         renderText(matrices, mouseX, mouseY, delta);
@@ -69,12 +72,16 @@ public class Label extends SelectableWidget implements AlignedWidget {
         if (wrappedText == null)
             return;
 
+        tooltipOverride = null;
+
         int localX = mouseX - getAlignedX();
         int localY = mouseY - getAlignedY();
         Style s = TextUtils.getStyleAt(wrappedText, localX, localY, alignment);
 
-        if (s != null && s.getHoverEvent() != null)
-            s.getHoverEvent().onHover(matrices, mouseX, mouseY, delta);
+        if (s != null && s.getHoverEvent() != null) {
+            tooltipOverride = s.getHoverEvent();
+            UIHelper.setTooltip(this);
+        }
     }
 
     public Text getText() {
@@ -129,6 +136,17 @@ public class Label extends SelectableWidget implements AlignedWidget {
         }
 
         return super.mousePress(button, action, mods);
+    }
+
+    @Override
+    public void renderTooltip(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        if (tooltipOverride != null) {
+            tooltipOverride.onHover(matrices, mouseX, mouseY, delta);
+            tooltipOverride = null;
+            return;
+        }
+
+        super.renderTooltip(matrices, mouseX, mouseY, delta);
     }
 
     @Override
@@ -200,5 +218,13 @@ public class Label extends SelectableWidget implements AlignedWidget {
 
     public void setRenderBackground(boolean renderBackground) {
         this.renderBackground = renderBackground;
+    }
+
+    public boolean forceBackground() {
+        return forceBackground;
+    }
+
+    public void setForceBackground(boolean forceBackground) {
+        this.forceBackground = forceBackground;
     }
 }

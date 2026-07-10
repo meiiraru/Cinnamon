@@ -1,33 +1,31 @@
 package cinnamon.utils;
 
-import java.util.function.Function;
-
 public enum Alignment {
-    TOP_LEFT(width -> 0f, height -> 0f),
-    TOP_CENTER(width -> -width / 2f, height -> 0f),
-    TOP_RIGHT(width -> -width, height -> 0f),
+    TOP_LEFT     ( 0f,    0f),
+    TOP_CENTER   (-0.5f,  0f),
+    TOP_RIGHT    (-1f,    0f),
 
-    CENTER_LEFT(width -> 0f, height -> -height / 2f),
-    CENTER(width -> -width / 2f, height -> -height / 2f),
-    CENTER_RIGHT(width -> -width, height -> -height / 2f),
+    CENTER_LEFT  ( 0f,   -0.5f),
+    CENTER       (-0.5f, -0.5f),
+    CENTER_RIGHT (-1f,   -0.5f),
 
-    BOTTOM_LEFT(width -> 0f, height -> -height),
-    BOTTOM_CENTER(width -> -width / 2f, height -> -height),
-    BOTTOM_RIGHT(width -> -width, height -> -height);
+    BOTTOM_LEFT  ( 0f,   -1f),
+    BOTTOM_CENTER(-0.5f, -1f),
+    BOTTOM_RIGHT (-1f,   -1f);
 
-    private final Function<Float, Float> widthFunc, heightFunc;
+    private final float widthMultiplier, heightMultiplier;
 
-    Alignment(Function<Float, Float> widthFunc, Function<Float, Float> heightFunc) {
-        this.widthFunc = widthFunc;
-        this.heightFunc = heightFunc;
+    Alignment(float widthMultiplier, float heightMultiplier) {
+        this.widthMultiplier = widthMultiplier;
+        this.heightMultiplier = heightMultiplier;
     }
 
     public float getWidthOffset(float width) {
-        return widthFunc.apply(width);
+        return width * widthMultiplier;
     }
 
     public float getHeightOffset(float height) {
-        return heightFunc.apply(height);
+        return height * heightMultiplier;
     }
 
     public Pair<Float, Float> getOffset(float width, float height) {

@@ -238,7 +238,7 @@ public abstract class Screen {
         if (tooltip != null) {
             matrices.pushMatrix();
             matrices.translate(0, 0, 5f);
-            tooltip.renderTooltip(matrices);
+            tooltip.renderTooltip(matrices, mouseX, mouseY, delta);
             tooltip = null;
             matrices.popMatrix();
         }
