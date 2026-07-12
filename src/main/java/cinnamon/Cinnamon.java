@@ -16,6 +16,8 @@ import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.Platform;
 
 import java.util.HashSet;
@@ -26,8 +28,7 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
-import static org.lwjgl.opengl.GL30.GL_NUM_EXTENSIONS;
-import static org.lwjgl.opengl.GL30.glGetStringi;
+import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -98,41 +99,25 @@ public class Cinnamon {
         //create window parameters
         int width = WIDTH;
         int height = HEIGHT;
-        long window = NULL;
 
-        boolean forceES = ArgsOptions.EXPERIMENTAL_OPENGL_ES.getAsBool();
+        //try to create the desired OpenGL 4.6 context
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        long window = glfwCreateWindow(width, height, TITLE, NULL, NULL);
 
-        //try to create the OpenGL 4.6 context
-        if (!forceES) {
-            glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-            if (PLATFORM == Platform.MACOSX)
-                glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-
-            window = glfwCreateWindow(width, height, TITLE, NULL, NULL);
-        }
-
-        //if forced or failed, try to create an OpenGL ES 3.2 context
+        //if failed, try to create the minimum supported OpenGL 4.3 context
         if (window == NULL) {
-            if (!forceES) {
-                LOGGER.warn("Failed to create OpenGL 4.6 context, using OpenGL ES 3.2 as fallback");
-                glfwDefaultWindowHints();
-            }
-
-            //setup GL ES 3.2
-            glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-
+            LOGGER.warn("Failed to create OpenGL 4.6 context, using OpenGL 4.3 context instead");
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
             window = glfwCreateWindow(width, height, TITLE, NULL, NULL);
         }
 
         //no window could be created - exit with error
         if (window == NULL)
-            throw new RuntimeException("Failed to create the GLFW window");
+            throw new RuntimeException("Failed to create the GLFW window, OpenGL 4.3 or higher is required");
 
         //make the OpenGL context current
         glfwMakeContextCurrent(window);
@@ -175,6 +160,11 @@ public class Cinnamon {
 
         //finishes the initialization process
         GL.createCapabilities();
+
+
+        int actualMajor = GL11.glGetInteger(GL30.GL_MAJOR_VERSION);
+        int actualMinor = GL11.glGetInteger(GL30.GL_MINOR_VERSION);
+        System.out.println("Driver Context Version: " + actualMajor + "." + actualMinor);
 
         //save detected extensions
         int numExt = glGetInteger(GL_NUM_EXTENSIONS);

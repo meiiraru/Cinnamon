@@ -17,7 +17,6 @@ public enum ArgsOptions {
     LOGGER_PATTERN("%6$s[%1$tT] [%2$s/%3$s] (%4$s) %5$s%7$s", "--logger-pattern"),
 
     //graphics
-    EXPERIMENTAL_OPENGL_ES(null, "--experimental-opengl-es"),
     FORCE_DISABLE_XR(null, "--force-disable-xr"),
     FORCE_GLFW_PLATFORM("", "--force-glfw-platform"),
 
@@ -158,7 +157,7 @@ public enum ArgsOptions {
                 String def = option.defaultValue instanceof Object[] arr ? Arrays.toString(arr) : option.defaultValue == null ? "false" : String.valueOf(option.defaultValue);
                 String spacing1 = " ".repeat(Math.max(24 - option.name().length(), 1));
                 String spacing2 = " ".repeat(Math.max(24 - aliases.length(), 1));
-
+                if (def.isEmpty()) def = "\"\"";
                 System.out.println(option.name() + spacing1 + aliases + spacing2 + "Default " + def);
             }
         }

@@ -7,6 +7,7 @@ import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
 import cinnamon.render.framebuffer.ShadowCascadeFramebuffer;
 import cinnamon.render.framebuffer.ShadowCubemapFramebuffer;
 import cinnamon.render.shader.PostProcess;
+import cinnamon.render.shader.SSBO;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.CubeMap;
@@ -14,11 +15,7 @@ import cinnamon.render.texture.Texture;
 import cinnamon.render.texture.TextureArray;
 import cinnamon.settings.Settings;
 import cinnamon.vr.XrManager;
-import cinnamon.world.light.CookieLight;
-import cinnamon.world.light.DirectionalLight;
-import cinnamon.world.light.Light;
-import cinnamon.world.light.PointLight;
-import cinnamon.world.light.Spotlight;
+import cinnamon.world.light.*;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -29,6 +26,7 @@ import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
+import static org.lwjgl.opengl.GL15.GL_DYNAMIC_COPY;
 
 public class LightRenderer {
 
@@ -40,6 +38,9 @@ public class LightRenderer {
 
     public static final ShadowCascadeFramebuffer cascadeShadowBuffer = new ShadowCascadeFramebuffer(CascadedShadow.NUM_CASCADES);
     public static final CascadedShadow cascadedShadow = new CascadedShadow();
+
+    private static final SSBO visibilitySSBO = new SSBO();
+    private static int allocatedVisibilitySize = 0;
 
     public static final float
             SHADOW_BIAS_FACTOR = 2f,
@@ -102,12 +103,19 @@ public class LightRenderer {
         resetLightState(camera);
     }
 
-    public static void renderLightsPost(Framebuffer target, List<Light> lights, Camera camera) {
+    public static void renderLightsPost(Framebuffer target, List<Light> lights, Camera camera, float deltaTime) {
         if (lights.isEmpty())
             return;
 
+        //bind the visibility SSBO to the shader, and allocate more space if needed
+        if (lights.size() > allocatedVisibilitySize) {
+            allocatedVisibilitySize = Math.max(allocatedVisibilitySize * 2, 1);
+            visibilitySSBO.allocate(allocatedVisibilitySize, GL_DYNAMIC_COPY);
+        }
+        visibilitySSBO.bind(0);
+
         boolean lensFlare = Settings.lensFlare.get();
-        List<DirectionalLight> directionalLights = new ArrayList<>();
+        List<Integer> directionalLights = new ArrayList<>();
 
         //prepare the glare buffer
         glDisable(GL_DEPTH_TEST);
@@ -130,22 +138,28 @@ public class LightRenderer {
         float xrScalar = XrManager.isInXR() ? 0.35f : 1f;
 
         //render the glares
-        for (Light light : lights) {
+        for (int i = 0; i < lights.size(); i++) {
+            Light light = lights.get(i);
             float intensity = light.getGlareIntensity();
             if (intensity <= 0f || light.getIntensity() <= 0f)
                 continue;
 
             if (light.getType() == Light.Type.DIRECTIONAL && lensFlare)
-                directionalLights.add((DirectionalLight) light);
+                directionalLights.add(i);
 
             s.applyColor(light.getColor());
             s.setFloat("intensity", intensity);
             s.setVec3("lightPosition", light.getTransform().getPos());
             s.setFloat("glareSize", light.getGlareSize() * xrScalar);
             s.setTexture("textureSampler", Texture.of(light.getGlareTexture()), 1);
+            s.setInt("lightIndex", i);
+            s.setFloat("deltaTime", deltaTime);
 
             StaticGeometry.QUAD.render();
         }
+
+        //ensure the SSBO read/write are complete before rendering the lens flare
+        SSBO.memoryBarrier();
 
         //render lens flare for directional lights
         if (!directionalLights.isEmpty()) {
@@ -156,11 +170,13 @@ public class LightRenderer {
             lensShader.setVec2("sampleRadius", texelX, texelY);
             lensShader.setTexture("gDepth", target.getDepthBuffer(), 0);
 
-            for (DirectionalLight light : directionalLights) {
+            for (Integer i : directionalLights) {
+                DirectionalLight light = (DirectionalLight) lights.get(i);
                 lensShader.applyColor(light.getColor());
                 lensShader.setVec3("direction", light.getDirection());
                 lensShader.setFloat("intensity", light.getGlareIntensity());
                 lensShader.setFloat("scale", xrScalar);
+                lensShader.setInt("lightIndex", i);
                 StaticGeometry.QUAD.render();
             }
         }

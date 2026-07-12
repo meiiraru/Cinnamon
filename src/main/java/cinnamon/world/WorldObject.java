@@ -8,9 +8,6 @@ import cinnamon.world.world.World;
 
 public abstract class WorldObject {
 
-    private static int GLOBAL_ID = 0;
-
-    protected final int ID = GLOBAL_ID++;
     protected final Transform transform;
     protected final AABB aabb;
     protected World world;
@@ -62,8 +59,4 @@ public abstract class WorldObject {
     }
 
     public abstract Enum<?> getType();
-
-    public int getID() {
-        return ID;
-    }
 }

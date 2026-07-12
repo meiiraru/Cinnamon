@@ -5,7 +5,6 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.Texture;
 import cinnamon.render.texture.TextureArray;
-import cinnamon.settings.ArgsOptions;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
@@ -87,9 +86,6 @@ public record Shader(int ID) {
         if (include.length > 1)
             src = processInclude(include);
 
-        //add GLES macro to the shader
-        src = appendMacros(src);
-
         //create shader
         int shader = glCreateShader(type.glBind);
         glShaderSource(shader, src);
@@ -121,27 +117,6 @@ public record Shader(int ID) {
         }
 
         return finalShader.toString();
-    }
-
-    private static String appendMacros(String src) {
-        //the macro
-        boolean GLES = ArgsOptions.EXPERIMENTAL_OPENGL_ES.getAsBool();
-        String macro = """
-            #define CINNAMON 1
-            #define GLES %d
-            """.formatted(GLES ? 1 : 0);
-
-        //find version line
-        int versionIndex = src.indexOf("#version");
-        if (versionIndex == -1)
-            return macro + src;
-
-        //append macro after the version line
-        int lineEnd = src.indexOf("\n", versionIndex);
-        if (lineEnd == -1)
-            return src + "\n" + macro;
-
-        return src.substring(0, lineEnd + 1) + "\n" + macro + src.substring(lineEnd + 1);
     }
 
     private static void checkCompileErrors(Resource res, int id) {

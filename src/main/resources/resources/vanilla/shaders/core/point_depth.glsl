@@ -20,10 +20,6 @@ void main() {
 #type fragment
 #version 330 core
 
-#ifdef GLES
-    #extension GL_OES_standard_derivatives : enable
-#endif
-
 in vec3 worldPos;
 in vec2 texCoords;
 

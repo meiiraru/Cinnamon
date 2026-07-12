@@ -80,6 +80,7 @@ public class WorldRenderer {
         //prepare for world rendering
         setupFramebuffer();
         Client client = Client.getInstance();
+        float dt = client.timer.deltaTime;
 
         Runnable[] renderFunc = {
                 () -> {
@@ -101,7 +102,7 @@ public class WorldRenderer {
 
         //3d anaglyph rendering
         if (client.anaglyph3D) {
-            renderAsAnaglyph(world, matrices, delta, renderFunc);
+            renderAsAnaglyph(world, matrices, delta, dt, renderFunc);
             return;
         }
 
@@ -142,7 +143,7 @@ public class WorldRenderer {
         applyBloom();
 
         //render light postprocessing
-        renderLightsPost(lights, camera);
+        renderLightsPost(lights, camera, dt);
 
         //render debug stuff
         if (renderDebug)
@@ -158,7 +159,7 @@ public class WorldRenderer {
         bake();
     }
 
-    private static void renderAsAnaglyph(WorldClient world, MatrixStack matrices, float delta, Runnable[] renderFunc) {
+    private static void renderAsAnaglyph(WorldClient world, MatrixStack matrices, float delta, float dt, Runnable[] renderFunc) {
         List<Light> lights = world.getLights(camera);
 
         camera.anaglyph3D(matrices, -1f / 64f, -1f, () -> {
@@ -190,7 +191,7 @@ public class WorldRenderer {
             //post bake renderer
             renderClouds(world, camera, delta);
             applyBloom();
-            renderLightsPost(lights, camera);
+            renderLightsPost(lights, camera, dt);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
         });
 
@@ -357,9 +358,9 @@ public class WorldRenderer {
         }
     }
 
-    public static void renderLightsPost(List<Light> lights, Camera camera) {
+    public static void renderLightsPost(List<Light> lights, Camera camera, float deltaTime) {
         if (renderLights)
-            LightRenderer.renderLightsPost(outputBuffer, lights, camera);
+            LightRenderer.renderLightsPost(outputBuffer, lights, camera, deltaTime);
     }
 
     public static void renderWater(WorldClient world, Camera camera, MatrixStack matrices, float delta) {

@@ -2,7 +2,7 @@
 #include shaders/libs/blit.vsh
 
 #type fragment
-#version 330 core
+#version 430 core
 
 in vec2 texCoords;
 out vec4 fragColor;
@@ -20,6 +20,11 @@ uniform vec2 sampleRadius;
 
 //for occlusion testing
 uniform sampler2D gDepth;
+
+uniform int lightIndex;
+layout(std430, binding = 0) buffer VisibilityBuffer {
+    float visibilities[];
+};
 
 //projects a 3D world point to 2D screen UVs [0, 1]
 vec3 projectToScreen(vec3 worldPos) {
@@ -49,21 +54,8 @@ void main() {
     if (lightScreen.z < 0.0f || lightScreen.z > 1.0f)
         discard; //clipped by near/far plane
 
-    //light pos occlusion test
-    float lightDepth = lightScreen.z;
-    float visibility = 0.0f;
-    for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
-            vec2 offset = vec2(float(x), float(y)) * sampleRadius;
-            vec2 samplePos = lightScreen.xy + offset;
-            if (samplePos.x < 0.0f || samplePos.y < 0.0f || samplePos.x > 1.0f || samplePos.y > 1.0f)
-                continue; //skip samples outside the screen
-
-            if (texture(gDepth, samplePos).r >= lightDepth)
-                visibility += 1.0f;
-        }
-    }
-    visibility /= 9.0f;
+    //read visibility from the ssbo
+    float visibility = visibilities[lightIndex];
 
     //pixel occlusion test
     float pixelDepth = texture(gDepth, texCoords).r;
@@ -133,7 +125,7 @@ void main() {
         ghostColor.g = pow(max(0.0f, size - length(uvGhost)), 1.0f) * color.g;
         ghostColor.b = pow(max(0.0f, size - length(uvGhost + vec2(0.003f, 0.0f) * aspectRatio)), 1.0f) * color.b;
 
-        finalFlare += ghostColor * 2.0f;
+        finalFlare += ghostColor * 2.0f * visibility;
     }
 
     fragColor = vec4(finalFlare, 0.0f);
