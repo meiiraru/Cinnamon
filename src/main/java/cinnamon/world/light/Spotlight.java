@@ -12,7 +12,6 @@ public class Spotlight extends PointLight {
 
     public Spotlight() {
         super();
-        castsShadows(true);
         angle(15f);
         volumetricStrength(1f);
     }
@@ -37,7 +36,7 @@ public class Spotlight extends PointLight {
         float radius = height * tanOuter;
 
         matrix
-                .translate(pos)
+                .translate(getTransform().getPos())
                 .rotate(Maths.dirToQuat(dir))
                 .rotateX(-Math.PI_OVER_2_f)
                 .scale(radius, height, radius);

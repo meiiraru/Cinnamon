@@ -3,6 +3,7 @@ package cinnamon.world.entity.projectile;
 import cinnamon.math.Maths;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Resolution;
+import cinnamon.model.ModelTransform;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
@@ -58,7 +59,7 @@ public class PaintBall extends Projectile {
         }
 
         Decal decal = new Decal(300, DECAL_RESOURCE);
-        decal.getTransform().setColor(ColorUtils.argbIntToRGBA(color));
+        ((ModelTransform) decal.getTransform()).setColor(ColorUtils.argbIntToRGBA(color));
 
         Vector3f pos = transform.getPos();
         decal.getTransform().setPos(pos.x + move.x, pos.y + move.y, pos.z + move.z);

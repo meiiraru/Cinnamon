@@ -5,11 +5,6 @@ import org.joml.Matrix4f;
 
 public class DirectionalLight extends Light {
 
-    public DirectionalLight() {
-        super();
-        castsShadows(true);
-    }
-
     @Override
     public void calculateLightSpaceMatrix() {
         super.calculateLightViewMatrix();
@@ -24,8 +19,8 @@ public class DirectionalLight extends Light {
     }
 
     @Override
-    protected void updateAABB() {
-        aabb.set(pos).inflate(0.5f);
+    public void calculateBounds() {
+        aabb.set(getTransform().getPos()).inflate(0.5f);
     }
 
     @Override

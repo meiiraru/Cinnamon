@@ -8,11 +8,23 @@ import cinnamon.world.world.World;
 
 public abstract class WorldObject {
 
-    protected final Transform transform = new Transform();
-    protected final AABB aabb = new AABB();
+    private static int GLOBAL_ID = 0;
+
+    protected final int ID = GLOBAL_ID++;
+    protected final Transform transform;
+    protected final AABB aabb;
     protected World world;
 
     protected boolean castShadows = true;
+
+    public WorldObject() {
+        this(new Transform());
+    }
+
+    public WorldObject(Transform transform) {
+        this.transform = transform;
+        this.aabb = new AABB();
+    }
 
     public void tick() {}
 
@@ -50,4 +62,8 @@ public abstract class WorldObject {
     }
 
     public abstract Enum<?> getType();
+
+    public int getID() {
+        return ID;
+    }
 }

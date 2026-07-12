@@ -100,7 +100,8 @@ public class PBRDeferredFramebuffer extends Framebuffer {
         }
 
         int[] attachments = new int[buffers.length];
-        System.arraycopy(ATTACHMENTS, 0, attachments, 0, buffers.length);
+        for (int i = 0; i < buffers.length; i++)
+            attachments[i] = ATTACHMENTS[buffers[i]];
 
         glDrawBuffers(attachments);
     }

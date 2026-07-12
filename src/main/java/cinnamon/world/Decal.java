@@ -2,29 +2,27 @@ package cinnamon.world;
 
 import cinnamon.math.collision.AABB;
 import cinnamon.model.ModelTransform;
-import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.Resource;
-import org.joml.Matrix4f;
 
-public class Decal {
+public class Decal extends WorldObject {
 
-    private final ModelTransform transform = new ModelTransform();
     private final Resource albedoTexture;
-    private final AABB aabb = new AABB().inflate(0.5f);
-
     private final int lifetime;
     private int age;
-
     private int fadeOutTime = 20;
 
     public Decal(int lifetime, Resource albedoTexture) {
+        super(new ModelTransform());
         this.lifetime = lifetime;
         this.albedoTexture = albedoTexture;
+        this.setCastShadows(false);
     }
 
+    @Override
     public void tick() {
+        super.tick();
         age++;
     }
 
@@ -40,20 +38,14 @@ public class Decal {
         matrices.popMatrix();
     }
 
+    @Override
+    public void calculateBounds() {
+        aabb.set(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f);
+        aabb.applyMatrix(getTransform().getMatrix().pos());
+    }
+
     public Resource getAlbedoTexture() {
         return albedoTexture;
-    }
-
-    public ModelTransform getTransform() {
-        return transform;
-    }
-
-    public Matrix4f getModelMatrix() {
-        return transform.getMatrix().pos();
-    }
-
-    public Matrix4f getInverseModelMatrix() {
-        return transform.getInverseMatrix().pos();
     }
 
     public boolean isRemoved() {
@@ -74,14 +66,21 @@ public class Decal {
         return 1f;
     }
 
+    @Override
     public AABB getAABB() {
-        if (!transform.isDirty())
-            return aabb;
-
-        return aabb.applyMatrix(getTransform().getMatrix().pos());
+        if (transform.isDirty())
+            calculateBounds();
+        return super.getAABB();
     }
 
-    public boolean shouldRender(Camera camera) {
-        return camera.isInsideFrustum(getAABB());
+    @Override
+    public DecalType getType() {
+        return DecalType.OTHER;
+    }
+
+    public enum DecalType {
+        BULLET_HOLE,
+        GRAFFITI,
+        OTHER
     }
 }

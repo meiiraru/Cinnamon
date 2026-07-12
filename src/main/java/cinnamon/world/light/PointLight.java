@@ -26,7 +26,7 @@ public class PointLight extends Light {
 
     @Override
     public void copyTransform(Matrix4f matrix) {
-        matrix.translate(pos).scale(falloffEnd);
+        matrix.translate(getTransform().getPos()).scale(falloffEnd);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class PointLight extends Light {
     public PointLight falloff(float falloffStart, float falloffEnd) {
         this.falloffStart = falloffStart;
         this.falloffEnd = falloffEnd;
-        updateAABB();
+        calculateBounds();
         return this;
     }
 
@@ -80,7 +80,7 @@ public class PointLight extends Light {
     }
 
     @Override
-    protected void updateAABB() {
-        aabb.set(pos).inflate(falloffEnd);
+    public void calculateBounds() {
+        aabb.set(getTransform().getPos()).inflate(falloffEnd);
     }
 }

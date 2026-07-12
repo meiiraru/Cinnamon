@@ -1,5 +1,6 @@
 package cinnamon.render;
 
+import cinnamon.model.ModelTransform;
 import cinnamon.model.StaticGeometry;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
 import cinnamon.render.shader.Shader;
@@ -26,14 +27,14 @@ public class DecalRenderer {
 
         //setup buffer
         glDisable(GL_DEPTH_TEST);
-        gBuffer.setWriteBuffers(0);
+        gBuffer.setWriteBuffers(0, 2, 3);
 
         //render decals
         for (Decal decal : decals) {
-            shader.setMat4("model", decal.getModelMatrix());
-            shader.setMat4("invModel", decal.getInverseModelMatrix());
+            shader.setMat4("model", decal.getTransform().getMatrix().pos());
+            shader.setMat4("invModel", decal.getTransform().getInverseMatrix().pos());
             shader.setTexture("textureSampler", Texture.of(decal.getAlbedoTexture()), 1);
-            shader.applyColor(decal.getTransform().getColor());
+            shader.applyColor(((ModelTransform) decal.getTransform()).getColor());
             shader.setFloat("opacity", decal.getOpacity());
             StaticGeometry.INV_CUBE.render();
         }

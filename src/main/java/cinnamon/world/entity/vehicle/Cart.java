@@ -21,12 +21,13 @@ public class Cart extends Car {
 
     private final Light
             headlight = new Spotlight().angle(40f, 60f).falloff(0f, 10f).intensity(10f).source(getUUID()),
-            taillight = new Spotlight().angle(40f, 60f).falloff(0f, 5f).intensity(10f).source(getUUID()).castsShadows(false).color(0xFF5555);
+            taillight = new Spotlight().angle(40f, 60f).falloff(0f,  5f).intensity(10f).source(getUUID()).color(0xFF5555);
 
     private boolean isRailed;
 
     public Cart(UUID uuid) {
         super(uuid, EntityModelRegistry.CART.resource, 1, 10f, 0.0003f, 0.008f, 0.003f, 0.9f);
+        taillight.setCastShadows(false);
     }
 
     @Override

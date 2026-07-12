@@ -140,7 +140,7 @@ public class LightRenderer {
 
             s.applyColor(light.getColor());
             s.setFloat("intensity", intensity);
-            s.setVec3("lightPosition", light.getPos());
+            s.setVec3("lightPosition", light.getTransform().getPos());
             s.setFloat("glareSize", light.getGlareSize() * xrScalar);
             s.setTexture("textureSampler", Texture.of(light.getGlareTexture()), 1);
 
@@ -288,7 +288,7 @@ public class LightRenderer {
         camera.updateFrustum(lightSpaceMatrix);
 
         //update camera
-        Vector3f p = light.getPos();
+        Vector3f p = light.getTransform().getPos();
         Vector3f dir = light.getDirection();
         camera.setPos(p.x, p.y, p.z);
         camera.lookAt(p.x + dir.x, p.y + dir.y, p.z + dir.z);
@@ -325,7 +325,7 @@ public class LightRenderer {
         //calculate light matrix
         light.calculateLightSpaceMatrix();
         Matrix4f lightSpaceMatrix = light.getLightSpaceMatrix();
-        Vector3f pos = light.getPos();
+        Vector3f pos = light.getTransform().getPos();
         float farPlane = light.getFalloffEnd();
 
         //setup the shaders
@@ -426,7 +426,7 @@ public class LightRenderer {
             s.setFloat("farPlane", p.getFalloffEnd());
 
         s.setInt("lightType", light.getType().ordinal());
-        s.setVec3("lightPos", light.getPos());
+        s.setVec3("lightPos", light.getTransform().getPos());
         s.setVec3("lightDir", light.getDirection());
         s.setFloat("strength", strength);
         s.setColor("color", light.getColor());

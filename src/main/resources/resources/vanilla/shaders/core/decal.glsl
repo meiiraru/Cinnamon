@@ -15,6 +15,8 @@ void main() {
 #version 330 core
 
 layout (location = 0) out vec4 gAlbedo;
+layout (location = 1) out vec4 gORM;
+layout (location = 2) out vec4 gEmissive;
 
 uniform sampler2D gDepth;
 uniform sampler2D textureSampler;
@@ -58,4 +60,6 @@ void main() {
 
     tex.a *= opacity; //apply overall opacity
     gAlbedo = tex * color;
+    gORM = vec4(1.0f, 1.0f, 0.0f, 1.0f);
+    gEmissive = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 }

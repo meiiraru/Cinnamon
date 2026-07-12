@@ -107,7 +107,7 @@ public class WorldClient extends World {
 
     //lights
     protected final List<Light> lights = new ArrayList<>();
-    protected final Light sunlight = new DirectionalLight().pos(0.5f, 5f, 0.5f).intensity(1f).castsShadows(true);
+    protected final Light sunlight = new DirectionalLight().pos(0.5f, 5f, 0.5f).intensity(1f);
 
     //particles and decals
     protected final List<Particle> particles = new ArrayList<>();
@@ -214,7 +214,7 @@ public class WorldClient extends World {
         //    for (int i = 0; i < 15; i++)
         //        addLight(new PointLight().pos(-5.5f + i * 3f, 3f, -5.5f + j * 3f).color(Colors.randomRainbow().rgb));
 
-        addLight(new PointLight().pos(32.5f, 3.5f, 0.5f).color(0xFFFF44).castsShadows(true).volumetricStrength(0.5f));
+        addLight(new PointLight().pos(32.5f, 3.5f, 0.5f).color(0xFFFF44).volumetricStrength(0.5f));
 
         //rgb spotlights
         TerrainGenerator.fill(this, 4, 1, 24, 9, 3, 24, MaterialRegistry.COBBLESTONE2.material);
@@ -633,7 +633,10 @@ public class WorldClient extends World {
     }
 
     public void addLight(Light light) {
-        scheduledTicks.add(() -> this.lights.add(light));
+        scheduledTicks.add(() -> {
+            this.lights.add(light);
+            light.onAdded(this);
+        });
     }
 
     public void removeLight(Light light) {
@@ -656,7 +659,10 @@ public class WorldClient extends World {
     }
 
     public void addDecal(Decal decal) {
-        scheduledTicks.add(() -> this.decals.add(decal));
+        scheduledTicks.add(() -> {
+            this.decals.add(decal);
+            decal.onAdded(this);
+        });
     }
 
     public List<Entity> getOutlines(Camera camera) {
@@ -670,7 +676,7 @@ public class WorldClient extends World {
     public List<Light> getLights(AABB region) {
         List<Light> list = new ArrayList<>();
         for (Light light : this.lights) {
-            if (region.containsPoint(light.getPos()))
+            if (region.intersectsAABB(light.getAABB()))
                 list.add(light);
         }
         return list;

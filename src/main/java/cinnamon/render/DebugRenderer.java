@@ -135,7 +135,7 @@ public class DebugRenderer {
     }
 
     public static void renderLight(Light light, Camera camera, MatrixStack matrices) {
-        Vector3f pos = light.getPos();
+        Vector3f pos = light.getTransform().getPos();
         if (camera.getPos().distanceSquared(pos) <= 0.1f)
             return;
 
@@ -166,7 +166,7 @@ public class DebugRenderer {
     }
 
     public static void renderLightMesh(Light light, MatrixStack matrices) {
-        Vector3f pos = light.getPos();
+        Vector3f pos = light.getTransform().getPos();
         int color = light.getColor();
 
         switch (light.getType()) {

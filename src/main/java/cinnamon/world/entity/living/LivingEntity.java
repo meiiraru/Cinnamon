@@ -393,6 +393,7 @@ public abstract class LivingEntity extends PhysEntity {
             i.setCount(count - 1);
         } else {
             inv.setItem(inv.getSelectedIndex(), null);
+            i.unselect();
         }
 
         return drop;
