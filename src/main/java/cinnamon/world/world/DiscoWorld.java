@@ -108,6 +108,9 @@ public class DiscoWorld extends WorldClient {
     public void tick() {
         super.tick();
 
+        if (isPaused())
+            return;
+
         float[] amplitudes = spectrum.getAmplitudes();
 
         for (Speaker speaker : speakers) {

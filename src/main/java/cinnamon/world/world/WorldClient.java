@@ -896,8 +896,10 @@ public class WorldClient extends World {
         super.setPaused(pause);
         if (pause) {
             SoundManager.pauseAll(c -> c != SoundCategory.GUI && c != SoundCategory.MASTER);
+            Animation.pauseAll();
         } else {
-            SoundManager.resumeAll(c -> c != SoundCategory.GUI && c != SoundCategory.MASTER);
+            SoundManager.resumePaused();
+            Animation.resumePaused();
         }
     }
 

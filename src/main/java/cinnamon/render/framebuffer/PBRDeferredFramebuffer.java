@@ -21,7 +21,7 @@ public class PBRDeferredFramebuffer extends Framebuffer {
     private static final float[][] clearColors = {
             {0f, 0f, 0f, 0f}, //gAlbedo
             {0f, 0f, 0f, 0f}, //gNormal
-            {0f, 1f, 0f, 0f}, //gORM
+            {1f, 1f, 0f, 0f}, //gORM
             {0f, 0f, 0f, 0f}, //gEmissive
     };
 

@@ -25,7 +25,10 @@ public class SoundManager {
     private static final Logger LOGGER = new Logger(Logger.ROOT_NAMESPACE + "/sound");
     public static final int MAX_SOUND_INSTANCES = 256;
 
-    private static final List<SoundInstance> sounds = new ArrayList<>();
+    private static final List<SoundInstance>
+            sounds = new ArrayList<>(),
+            pausedSounds = new ArrayList<>();
+
     private static final List<String> devices = new ArrayList<>();
     private static String currentDevice = "";
     private static boolean useDefaultDevice;
@@ -238,20 +241,17 @@ public class SoundManager {
 
     public static void pauseAll(Predicate<SoundCategory> categoryPredicate) {
         for (SoundInstance sound : sounds) {
-            if (categoryPredicate.test(sound.getCategory()))
+            if (categoryPredicate.test(sound.getCategory()) && sound.isPlaying()) {
                 sound.pause();
+                pausedSounds.add(sound);
+            }
         }
     }
 
-    public static void resumeAll() {
-        resumeAll(category -> true);
-    }
-
-    public static void resumeAll(Predicate<SoundCategory> categoryPredicate) {
-        for (SoundInstance sound : sounds) {
-            if (categoryPredicate.test(sound.getCategory()))
-                sound.play();
-        }
+    public static void resumePaused() {
+        for (SoundInstance sound : pausedSounds)
+            sound.play();
+        pausedSounds.clear();
     }
 
     public static List<SoundInstance> getSounds() {

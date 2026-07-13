@@ -11,6 +11,11 @@ import java.util.Map;
 
 public class Animation {
 
+    //global playing tracking
+    private static final List<Animation>
+            playingAnimations = new ArrayList<>(),
+            pausedAnimations = new ArrayList<>();
+
     //animation data
     private final String name;
     private final int duration;
@@ -140,9 +145,12 @@ public class Animation {
         if (state == this.state)
             return;
 
-        if (state == State.PLAYING)
+        playingAnimations.remove(this);
+
+        if (state == State.PLAYING) {
             initTime = System.currentTimeMillis() - time;
-        if (state == State.STOPPED) {
+            playingAnimations.add(this);
+        } else if (state == State.STOPPED) {
             clearAnimationPose();
             time = initTime = 0;
         }
@@ -193,6 +201,19 @@ public class Animation {
 
     public int getDuration() {
         return duration;
+    }
+
+    public static void pauseAll() {
+        for (Animation animation : new ArrayList<>(playingAnimations)) {
+            animation.pause();
+            pausedAnimations.add(animation);
+        }
+    }
+
+    public static void resumePaused() {
+        for (Animation animation : pausedAnimations)
+            animation.play();
+        pausedAnimations.clear();
     }
 
     public enum State {
