@@ -1,6 +1,5 @@
 package cinnamon.world.entity.collectable;
 
-import cinnamon.Client;
 import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Resolution;
@@ -21,6 +20,8 @@ public abstract class Collectable extends PhysEntity {
 
     protected final AABB entityAABB = new AABB();
 
+    protected int animY;
+
     public Collectable(UUID uuid, Resource model) {
         super(uuid, model);
     }
@@ -29,11 +30,12 @@ public abstract class Collectable extends PhysEntity {
     public void tick() {
         super.tick();
         this.rotate(0, 1, 0);
+        animY++;
     }
 
     @Override
     protected void applyModelPose(Camera camera, MatrixStack matrices, float delta) {
-        matrices.translate(0, Math.sin((Client.getInstance().ticks + delta) * 0.05f) * getAABB().getHeight() * 0.075f, 0);
+        matrices.translate(0, Math.sin((animY + delta) * 0.05f) * getAABB().getHeight() * 0.075f, 0);
         super.applyModelPose(camera, matrices, delta);
     }
 

@@ -64,6 +64,7 @@ public class MaterialLoader {
                     case "map_Pr", "roughness" -> material.setRoughness(parseTexture(split[1], res));
                     case "map_Pm", "metallic" -> material.setMetallic(parseTexture(split[1], res));
                     case "map_Ke", "emissive" -> material.setEmissive(parseTexture(split[1], res));
+                    case "d", "alpha_cutout" -> material.setAlphaCutout(Float.parseFloat(split[1]));
                 }
             }
 

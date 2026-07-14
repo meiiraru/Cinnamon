@@ -42,11 +42,11 @@ import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 public class Hud {
 
     public static final Resource
-            CROSSHAIR = new Resource("textures/gui/hud/crosshair.png"),
-            HOTBAR = new Resource("textures/gui/hud/hotbar.png"),
-            VIGNETTE = new Resource("textures/gui/hud/vignette.png"),
+            CROSSHAIR     = new Resource("textures/gui/hud/crosshair.png"),
+            HOTBAR        = new Resource("textures/gui/hud/hotbar.png"),
+            VIGNETTE      = new Resource("textures/gui/hud/vignette.png"),
             HIT_DIRECTION = new Resource("textures/gui/hud/hit_direction.png"),
-            SKIN = new Resource("data/gui_skins/minimal_dark.json");
+            SKIN          = new Resource("data/gui_skins/minimal_dark.json");
 
     protected ProgressBar health, itemCooldown;
 

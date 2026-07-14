@@ -1,6 +1,7 @@
 package cinnamon.render.texture;
 
 import cinnamon.Client;
+import cinnamon.render.WorldRenderer;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
@@ -30,7 +31,7 @@ public class AnimatedTexture extends Texture {
     protected final int totalWidth;
     protected final boolean mipmap;
 
-    protected boolean tick = false;
+    protected byte tick = 0;
     private int currentFrame;
 
     protected AnimatedTexture(int id, int width, int height, int totalWidth, boolean mipmap, ByteBuffer imgBuffer, ByteBuffer frameBuffer, AnimationData animationData) {
@@ -59,9 +60,9 @@ public class AnimatedTexture extends Texture {
         return new AnimatedTexture(id, anim.frameWidth, anim.frameHeight, image.width, MIPMAP.has(params), imgBuffer, buffer, anim);
     }
 
-    public static void tickAll() {
+    public static void tickAll(int level) {
         for (AnimatedTexture texture : ANIMATED_TEXTURES)
-            texture.tick();
+            texture.tick(level);
     }
 
     public static void freeAll() {
@@ -71,12 +72,14 @@ public class AnimatedTexture extends Texture {
     @Override
     public int getID() {
         //texture has been accessed, so it will be used somewhere
-        tick = true;
+        if (tick == 0)
+            tick = (byte) (WorldRenderer.isWorldRendering() ? 2 : 1);
         return super.getID();
     }
 
-    public void tick() {
-        if (!tick) return;
+    public void tick(int level) {
+        if (tick == 0 || tick > level)
+            return;
 
         int currentFrame = 0, nextFrame = 0;
         float delta = 0f;
@@ -100,7 +103,7 @@ public class AnimatedTexture extends Texture {
             applyFrame(currentFrame, nextFrame, delta);
 
         this.currentFrame = currentFrame;
-        this.tick = false;
+        this.tick = 0;
     }
 
     @Override

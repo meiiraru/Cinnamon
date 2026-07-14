@@ -145,6 +145,7 @@ public class ObjExporter {
         writeTexture(path, string, "map_Pr", material.getRoughness());
         writeTexture(path, string, "map_Pm", material.getMetallic());
         writeTexture(path, string, "map_Ke", material.getEmissive());
+        writeFloat(string, "d", material.getAlphaCutout());
     }
 
     private static void writeTexture(Path path, StringBuilder string, String key, MaterialTexture texture) throws IOException {
@@ -177,5 +178,9 @@ public class ObjExporter {
         string
                 .append(textureName)
                 .append("\n");
+    }
+
+    private static void writeFloat(StringBuilder string, String key, float value) {
+        string.append(key).append(" ").append(df.format(value)).append("\n");
     }
 }

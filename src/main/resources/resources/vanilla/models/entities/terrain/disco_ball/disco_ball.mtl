@@ -9,4 +9,5 @@ map_Pm Disco_Ball_001_metallic.png
 newmtl m_8042ea31-8749-5656-2e56-3d6000aa4f10
 map_Kd -smooth_mip lights.png
 map_Ke -smooth_mip lights_e.png
+d 0.1
 newmtl none

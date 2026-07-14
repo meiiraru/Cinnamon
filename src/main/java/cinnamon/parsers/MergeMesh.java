@@ -66,6 +66,7 @@ public class MergeMesh {
                 newMaterial.setMetallic(material.getMetallic());
                 newMaterial.setEmissive(material.getEmissive());
                 newMaterial.setHeightScale(material.getHeightScale());
+                newMaterial.setAlphaCutout(material.getAlphaCutout());
             }
 
             //update indexes

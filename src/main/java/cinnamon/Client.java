@@ -130,7 +130,7 @@ public class Client {
         Await.tick();
 
         SoundManager.tick(camera);
-        AnimatedTexture.tickAll();
+        AnimatedTexture.tickAll(world == null || world.isPaused() ? 1 : 2);
 
         events.runEvents(EventType.TICK_BEFORE_WORLD);
 

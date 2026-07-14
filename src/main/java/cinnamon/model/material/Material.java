@@ -2,7 +2,9 @@ package cinnamon.model.material;
 
 public class Material {
 
-    public static final float DEFAULT_HEIGHT = 0.1f;
+    public static final float
+            DEFAULT_HEIGHT = 0.1f,
+            DEFAULT_ALPHA_CUTOUT = 0.5f;
 
     private final String name;
 
@@ -16,7 +18,8 @@ public class Material {
             emissive;  //map_Ke / emissive
 
     private float
-            heightScale = DEFAULT_HEIGHT;
+            heightScale = DEFAULT_HEIGHT, //map_disp -dm
+            alphaCutout = DEFAULT_ALPHA_CUTOUT; //d / alpha_cutout
 
     public Material(String name) {
         this.name = name;
@@ -84,6 +87,14 @@ public class Material {
 
     public void setHeightScale(float heightScale) {
         this.heightScale = heightScale;
+    }
+
+    public float getAlphaCutout() {
+        return alphaCutout;
+    }
+
+    public void setAlphaCutout(float alphaCutout) {
+        this.alphaCutout = alphaCutout;
     }
 
     public String getName() {

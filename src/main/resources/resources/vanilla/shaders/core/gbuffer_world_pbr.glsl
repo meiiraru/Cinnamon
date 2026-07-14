@@ -46,6 +46,7 @@ struct Material {
     sampler2D metallicTex;
     sampler2D emissiveTex;
     float heightScale;
+    float alphaCutout;
 };
 
 in vec2 texCoords;
@@ -74,7 +75,7 @@ void main() {
     //    albedo.a = 1.0f;
     //}
 
-    if (albedo.a < 0.01f)
+    if (albedo.a < material.alphaCutout)
         discard;
 
     float ao        = texture(material.aoTex, texCoords).r;

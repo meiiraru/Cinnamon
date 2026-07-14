@@ -80,6 +80,7 @@ public class Settings {
     public static final Setting.IntRanges ssaoLevel = new Setting.IntRanges("rendering.ssao_level", 3, -1, 4);
     public static final Setting.IntRanges ssrLevel  = new Setting.IntRanges("rendering.ssr_level", 3, -1, 4);
     public static final Setting.Ranges renderScale  = new Setting.Ranges("rendering.render_scale", 1f, 0.01f, 4f);
+    public static final Setting.Bools fxaa = new Setting.Bools("rendering.fxaa", true);
 
     //keybinds
     public static final Setting.Keybind

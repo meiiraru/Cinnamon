@@ -30,6 +30,7 @@ public class MaterialApplier {
         bindTex(s, material.getEmissive(), i++, "material.emissiveTex", BLACK_TEX);
 
         s.setFloat("material.heightScale", material.getHeight() != null ? material.getHeightScale() : 0f);
+        s.setFloat("material.alphaCutout", material.getAlphaCutout());
 
         lastMaterial = material;
     }

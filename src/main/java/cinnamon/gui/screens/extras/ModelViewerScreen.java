@@ -196,11 +196,11 @@ public class ModelViewerScreen extends ParentedScreen {
                 glDisable(GL_CULL_FACE);
 
                 //ground plane
-                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, -10f, 0f, -10f, 10f, 10f, 1, 1, 0x80000000));
-                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, -0.5f, 0f, -0.5f, 0.5f, 0.5f, 1, 1, 0x80000000));
+                VertexConsumer.MAIN.consume(GeometryHelper.plane(matrices, -10f, 0f, -10f, 10f, 10f, 1, 1, 0x80000000));
+                VertexConsumer.MAIN.consume(GeometryHelper.plane(matrices, -0.5f, 0f, -0.5f, 0.5f, 0.5f, 1, 1, 0x80000000));
                 //axis lines
-                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, 0f, 0f, -0.005f, 0.5f, 0.005f, 1, 1, 0x80FF0000));
-                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.plane(matrices, -0.005f, 0f, 0f, 0.005f, 0.5f, 1, 1, 0x800000FF));
+                VertexConsumer.MAIN.consume(GeometryHelper.plane(matrices, 0f, 0f, -0.005f, 0.5f, 0.005f, 1, 1, 0x80FF0000));
+                VertexConsumer.MAIN.consume(GeometryHelper.plane(matrices, -0.005f, 0f, 0f, 0.005f, 0.5f, 1, 1, 0x800000FF));
 
                 //bake and restore renderer
                 VertexConsumer.finishAllBatches(client.camera);

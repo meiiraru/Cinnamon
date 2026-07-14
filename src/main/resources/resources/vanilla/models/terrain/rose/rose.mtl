@@ -1,10 +1,14 @@
 # Made in Blockbench 5.1.4
 newmtl red
 map_Kd -smooth_mip red.png
+d 0.9
 newmtl black
 map_Kd -smooth_mip black.png
+d 0.9
 newmtl pink
 map_Kd -smooth_mip pink.png
+d 0.9
 newmtl white
 map_Kd -smooth_mip white.png
+d 0.9
 newmtl none

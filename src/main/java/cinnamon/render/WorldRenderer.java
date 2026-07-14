@@ -41,6 +41,7 @@ public class WorldRenderer {
 
     //rendering info
     private static boolean
+            worldRendering    = false,
             outlineRendering  = false,
             heldItemRendering = false;
     private static int
@@ -72,12 +73,14 @@ public class WorldRenderer {
             renderSky      = true,
             renderBloom    = true,
             renderClouds   = true,
+            renderFXAA     = true,
             renderDebug    = true,
             renderOutlines = true,
             renderDecals   = true;
 
     public static void renderWorld(WorldClient world, MatrixStack matrices, float delta) {
         //prepare for world rendering
+        worldRendering = true;
         setupFramebuffer();
         Client client = Client.getInstance();
         float dt = client.timer.deltaTime;
@@ -103,6 +106,7 @@ public class WorldRenderer {
         //3d anaglyph rendering
         if (client.anaglyph3D) {
             renderAsAnaglyph(world, matrices, delta, dt, renderFunc);
+            worldRendering = false;
             return;
         }
 
@@ -155,8 +159,13 @@ public class WorldRenderer {
         //render outlines
         renderOutlines(world, camera, matrices, delta);
 
+        //fxaa
+        applyFXAA();
+
         //bake output buffer to the target buffer
         bake();
+
+        worldRendering = false;
     }
 
     private static void renderAsAnaglyph(WorldClient world, MatrixStack matrices, float delta, float dt, Runnable[] renderFunc) {
@@ -200,6 +209,8 @@ public class WorldRenderer {
 
         //render outlines
         renderOutlines(world, camera, matrices, delta);
+
+        applyFXAA();
 
         bake();
     }
@@ -428,6 +439,11 @@ public class WorldRenderer {
         return decals.size();
     }
 
+    public static void applyFXAA() {
+        if (renderFXAA && Settings.fxaa.get())
+            PostProcess.apply(PostProcess.FXAA);
+    }
+
 
     // -- other -- //
 
@@ -544,11 +560,16 @@ public class WorldRenderer {
         renderClouds   =
         renderDebug    =
         renderOutlines =
-        renderDecals   = true;
+        renderDecals   =
+        renderFXAA     = true;
     }
 
     public static boolean isShadowRendering() {
         return LightRenderer.getShadowLight() != null;
+    }
+
+    public static boolean isWorldRendering() {
+        return worldRendering;
     }
 
     public static boolean isOutlineRendering() {
