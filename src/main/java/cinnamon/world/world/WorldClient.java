@@ -39,10 +39,7 @@ import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
-import cinnamon.world.Abilities;
-import cinnamon.world.DamageType;
-import cinnamon.world.Decal;
-import cinnamon.world.Hud;
+import cinnamon.world.*;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.collectable.EffectBox;
 import cinnamon.world.entity.collectable.HealthPack;
@@ -841,6 +838,18 @@ public class WorldClient extends World {
                 );
                 f.setPos(0, 1.5f, 0);
                 addEntity(f);
+            }
+
+            case GLFW_KEY_V -> {
+                Pair<Hit, ? extends WorldObject> hit = player.getLookingObject(128f);
+                if (hit != null) {
+                    SoundManager.playSound(Marker.MARKER_SND, SoundCategory.GUI);
+                    if (hit.second() instanceof Entity e) {
+                        hud.addMarker(new Marker(e, null, 600, Colors.randomRainbow().argb));
+                    } else {
+                        hud.addMarker(new Marker(hit.first().position(), null, 600, Colors.randomRainbow().argb));
+                    }
+                }
             }
 
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());

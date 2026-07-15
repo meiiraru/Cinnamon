@@ -34,6 +34,7 @@ import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -56,6 +57,8 @@ public class Hud {
     protected int fadeTicks = 0, fadeDelay = 20;
     protected int fadeColor = 0xFFFFFF;
 
+    protected final List<Marker> markers = new ArrayList<>();
+
     public void init() {
         health = new ProgressBar(0, 0, 60, 8, 1f);
         health.setColor(Colors.RED);
@@ -69,6 +72,14 @@ public class Hud {
     public void free() {}
 
     public void tick() {
+        //tick markers
+        for (Iterator<Marker> iterator = markers.iterator(); iterator.hasNext(); ) {
+            Marker marker = iterator.next();
+            marker.tick();
+            if (marker.isRemoved())
+                iterator.remove();
+        }
+
         //tick fade
         if (fadeIn && fadeTicks < fadeDelay)
             fadeTicks++;
@@ -84,6 +95,9 @@ public class Hud {
 
         //draw player stats
         drawPlayerStats(matrices, c.world.player, delta);
+
+        //draw marker
+        drawMarkers(matrices, delta);
 
         //draw fade
         if (!XrManager.isInXR() && fadeTicks > 0)
@@ -472,5 +486,14 @@ public class Hud {
 
             y -= 2; //spacing between messages
         }
+    }
+
+    protected void drawMarkers(MatrixStack matrices, float delta) {
+        for (Marker marker : markers)
+            marker.render(matrices, delta);
+    }
+
+    public void addMarker(Marker marker) {
+        markers.add(marker);
     }
 }

@@ -10,7 +10,8 @@ public enum CommandRegistry {
     TIME(new Time(), "t"),
     WORLDRULE(new WorldRule(), "gamerule"),
     KILL(new Kill()),
-    HEALTH(new Health(), "hp");
+    HEALTH(new Health(), "hp"),
+    LOOKAT(new LookAt(), "look");
 
     public final Command command;
     public final String[] aliases;

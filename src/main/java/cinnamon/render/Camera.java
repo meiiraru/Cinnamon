@@ -237,7 +237,7 @@ public class Camera {
         perspMatrix.transform(projectiveCamSpace);
 
         float w = projectiveCamSpace.w();
-        return new Vector4f(projectiveCamSpace.x() / w, projectiveCamSpace.y() / w, projectiveCamSpace.z() / w, Math.sqrt(posDiff.dot(posDiff)));
+        return new Vector4f(projectiveCamSpace.x() / w, projectiveCamSpace.y() / w, w, Math.sqrt(posDiff.dot(posDiff)));
     }
 
     public void lookAt(float x, float y, float z) {
