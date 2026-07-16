@@ -1,4 +1,4 @@
-package cinnamon.world;
+package cinnamon.world.gui;
 
 import cinnamon.Client;
 import cinnamon.gui.DebugScreen;
@@ -20,8 +20,13 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shaders;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.*;
+import cinnamon.utils.Alignment;
+import cinnamon.utils.Colors;
+import cinnamon.utils.Resource;
+import cinnamon.utils.TextUtils;
+import cinnamon.utils.UIHelper;
 import cinnamon.vr.XrManager;
+import cinnamon.world.Abilities;
 import cinnamon.world.effects.Effect;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.items.CooldownItem;

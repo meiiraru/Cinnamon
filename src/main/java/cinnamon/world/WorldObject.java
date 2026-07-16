@@ -1,5 +1,6 @@
 package cinnamon.world;
 
+import cinnamon.math.Transform;
 import cinnamon.math.collision.AABB;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;

@@ -1,6 +1,6 @@
 package cinnamon.animation;
 
-import cinnamon.world.Transform;
+import cinnamon.math.Transform;
 import org.joml.Vector3f;
 
 import java.util.function.BiConsumer;

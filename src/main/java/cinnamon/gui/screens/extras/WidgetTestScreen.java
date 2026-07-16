@@ -15,7 +15,6 @@ import cinnamon.settings.Settings;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.*;
-import cinnamon.world.Hud;
 import org.joml.Math;
 
 public class WidgetTestScreen extends ParentedScreen {
@@ -157,14 +156,12 @@ public class WidgetTestScreen extends ParentedScreen {
 
         tf1.setHintText(Text.of("Text Field"));
         tf1.setListener(s1 -> tf1.setTextStyle(tf1.getTextStyle().color(Colors.randomRainbow())));
-        tf1.setTextStyle(Style.EMPTY.guiSkin(Hud.SKIN));
 
         TextField tf2 = new TextField(0, 0, tfw, 16);
         grid.addWidget(tf2);
 
         tf2.setHintText(Text.of("Disabled Text Field"));
         tf2.setActive(false);
-        tf2.setTextStyle(Style.EMPTY.guiSkin(Hud.SKIN));
 
         ContainerGrid password = new ContainerGrid(0, 0, 4, 2);
         grid.addWidget(password);

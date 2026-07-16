@@ -1,4 +1,4 @@
-package cinnamon.world;
+package cinnamon.world.gui;
 
 import cinnamon.Client;
 import cinnamon.math.Maths;

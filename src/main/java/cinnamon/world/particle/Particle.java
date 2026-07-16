@@ -7,7 +7,7 @@ import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
-import cinnamon.world.Mask;
+import cinnamon.utils.Mask;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;

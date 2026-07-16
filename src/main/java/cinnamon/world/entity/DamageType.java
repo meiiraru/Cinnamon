@@ -1,4 +1,4 @@
-package cinnamon.world;
+package cinnamon.world.entity;
 
 public enum DamageType {
     GOD,

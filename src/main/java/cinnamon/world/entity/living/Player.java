@@ -5,7 +5,7 @@ import cinnamon.math.collision.AABB;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.world.Abilities;
-import cinnamon.world.DamageType;
+import cinnamon.world.entity.DamageType;
 import cinnamon.world.entity.Entity;
 import org.joml.Math;
 import org.joml.Vector3f;

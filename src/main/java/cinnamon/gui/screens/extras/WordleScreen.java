@@ -18,7 +18,7 @@ import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
-import cinnamon.world.Hud;
+import cinnamon.world.gui.Hud;
 import org.joml.Math;
 
 import java.nio.charset.StandardCharsets;

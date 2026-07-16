@@ -1,4 +1,4 @@
-package cinnamon.world;
+package cinnamon.math;
 
 import cinnamon.render.MatrixStack;
 import org.joml.Math;

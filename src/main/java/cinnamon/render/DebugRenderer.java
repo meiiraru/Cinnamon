@@ -34,8 +34,15 @@ public class DebugRenderer {
     }
 
     public static void renderSphere(MatrixStack matrices, Sphere sphere, int color) {
-        Vector3f center = sphere.getCenter();
-        VertexConsumer.LINES.consume(GeometryHelper.sphere(matrices, center.x, center.y, center.z, sphere.getRadius(), 12, color));
+        matrices.pushMatrix();
+        matrices.translate(sphere.getCenter());
+        float radius = sphere.getRadius() + 0.01f;
+        VertexConsumer.LINES.consume(GeometryHelper.circle(matrices, 0, 0, radius, 24, color));
+        matrices.rotate(Rotation.X.rotationDeg(90f));
+        VertexConsumer.LINES.consume(GeometryHelper.circle(matrices, 0, 0, radius, 24, color));
+        matrices.rotate(Rotation.Y.rotationDeg(90f));
+        VertexConsumer.LINES.consume(GeometryHelper.circle(matrices, 0, 0, radius, 24, color));
+        matrices.popMatrix();
     }
 
     public static void renderAABB(MatrixStack matrices, AABB aabb, int color) {

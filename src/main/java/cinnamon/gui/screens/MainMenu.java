@@ -11,7 +11,11 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.texture.Texture;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.*;
+import cinnamon.utils.Alignment;
+import cinnamon.utils.Resource;
+import cinnamon.utils.TextUtils;
+import cinnamon.utils.UIHelper;
+import cinnamon.utils.Version;
 import cinnamon.vr.XrManager;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
@@ -57,7 +61,6 @@ public class MainMenu extends Screen {
 
         //settings
         Button settings = new MainButton(Text.translated("gui.main_menu.settings"), button -> client.setScreen(new SettingsScreen(this)));
-        settings.setActive(false);
         grid.addWidget(settings);
 
         //extra stuff

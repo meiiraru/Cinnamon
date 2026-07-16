@@ -14,8 +14,8 @@ import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
 import cinnamon.world.Abilities;
-import cinnamon.world.Hud;
 import cinnamon.world.entity.living.Player;
+import cinnamon.world.gui.Hud;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.Spotlight;
 import cinnamon.world.terrain.PrimitiveTerrain;
@@ -25,7 +25,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
-import static cinnamon.world.Hud.SKIN;
+import static cinnamon.world.gui.Hud.SKIN;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class PrimitiveTestWorld extends WorldClient {

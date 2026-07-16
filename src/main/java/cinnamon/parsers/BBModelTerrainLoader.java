@@ -1,8 +1,8 @@
 package cinnamon.parsers;
 
+import cinnamon.math.Transform;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
-import cinnamon.world.Transform;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

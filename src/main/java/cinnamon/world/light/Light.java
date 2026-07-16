@@ -2,8 +2,8 @@ package cinnamon.world.light;
 
 import cinnamon.render.Camera;
 import cinnamon.render.shader.Shader;
+import cinnamon.utils.Mask;
 import cinnamon.utils.Resource;
-import cinnamon.world.Mask;
 import cinnamon.world.WorldObject;
 import org.joml.Math;
 import org.joml.Matrix4f;

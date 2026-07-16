@@ -7,7 +7,7 @@ import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Resource;
-import cinnamon.world.DamageType;
+import cinnamon.world.entity.DamageType;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.LivingEntity;

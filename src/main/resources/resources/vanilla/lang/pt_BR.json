@@ -63,6 +63,7 @@
 
   "gui.pause_screen.paused": "Pausado...",
   "gui.pause_screen.resume": "Continuar",
+  "gui.pause_screen.settings": "Configurações",
   "gui.pause_screen.main_menu": "Menu Principal",
 
   "gui.chat.type_message": "Digite uma mensagem...",

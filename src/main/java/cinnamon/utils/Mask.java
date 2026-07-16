@@ -1,4 +1,4 @@
-package cinnamon.world;
+package cinnamon.utils;
 
 public class Mask {
     private int mask, excludeMask;

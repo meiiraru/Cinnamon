@@ -3,8 +3,8 @@ package cinnamon.world.entity.living;
 import cinnamon.math.collision.Hit;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
-import cinnamon.world.DamageType;
 import cinnamon.world.ai.AIBehaviour;
+import cinnamon.world.entity.DamageType;
 import cinnamon.world.entity.PhysEntity;
 import org.joml.Vector3f;
 

@@ -1,6 +1,7 @@
 package cinnamon.gui.screens.world;
 
 import cinnamon.gui.Screen;
+import cinnamon.gui.screens.SettingsScreen;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.render.MatrixStack;
@@ -17,15 +18,17 @@ public class PauseScreen extends Screen {
     public void init() {
         super.init();
 
-        ContainerGrid grid = new ContainerGrid(0, 0, 8, 2);
+        ContainerGrid grid = new ContainerGrid(0, 0, 8);
 
-        Button resume = new Button(0, 0, 120, 20, Text.translated("gui.pause_screen.resume"), button -> close());
-        Button menu = new Button(0, 0, 120, 20, Text.translated("gui.pause_screen.main_menu"), button -> client.disconnect());
+        Button resume = new Button(0, 0, 180, 20, Text.translated("gui.pause_screen.resume"), button -> close());
+        Button settings = new Button(0, 0, 180, 20, Text.translated("gui.pause_screen.settings"), button -> client.setScreen(new SettingsScreen(this, true)));
+        Button menu = new Button(0, 0, 180, 20, Text.translated("gui.pause_screen.main_menu"), button -> client.disconnect());
 
         grid.addWidget(resume);
+        grid.addWidget(settings);
         grid.addWidget(menu);
 
-        grid.setPos((width - grid.getWidth()) / 2, (height - grid.getHeight()) / 2);
+        grid.setPos((width - grid.getWidth()) / 2, (int) ((height - grid.getHeight()) * 0.75f));
 
         this.addWidget(grid);
     }
