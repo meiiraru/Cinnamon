@@ -110,7 +110,7 @@ public class MainMenu extends Screen {
         float bgOffset = (client.ticks + delta) * 0.002f;
         VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices,
                 -bgParallax + bgParallax * parallaxX, -bgParallax + bgParallax * parallaxY,
-                width + bgParallax * 2f, height + bgParallax * 2f, -d * 3f,
+                width + bgParallax * 2f, height + bgParallax * 2f, -d * 4f,
                 bgOffset, (float) width / bg.getWidth() + bgOffset, bgOffset, (float) height / bg.getHeight() + bgOffset
         ), BACKGROUND1, SMOOTH_SAMPLING);
 
@@ -119,7 +119,7 @@ public class MainMenu extends Screen {
         float bg2Offset = (client.ticks + delta) * 0.004f;
         VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices,
                 -bg2Parallax + bg2Parallax * parallaxX, -bg2Parallax + bg2Parallax * parallaxY,
-                width + bg2Parallax * 2f, height + bg2Parallax * 2f, -d * 2f,
+                width + bg2Parallax * 2f, height + bg2Parallax * 2f, -d * 3f,
                 bg2Offset, (float) width / bg2.getWidth() + bg2Offset, bg2Offset, (float) height / bg2.getHeight() + bg2Offset
         ), BACKGROUND2, SMOOTH_SAMPLING);
 

@@ -51,7 +51,9 @@ public class ColorWheel extends SelectableWidget {
 
         //cross-hair
         matrices.pushMatrix();
-        matrices.translate(0f, 0f, UIHelper.getDepthOffset());
+
+        float d = UIHelper.getDepthOffset();
+        matrices.translate(0f, 0f, d);
 
         float angle = Math.toRadians(hsv.x * 360f);
         float r = hsv.y * radius;
@@ -79,11 +81,15 @@ public class ColorWheel extends SelectableWidget {
                 VertexConsumer.MAIN.consume(GeometryHelper.arc(matrices, cx, cy, 3, 0, 1, 1, 24, modColor));
             }
             //snap hue circle
-            if (ctrl)
+            if (ctrl) {
+                matrices.translate(0, 0, d);
                 VertexConsumer.MAIN.consume(GeometryHelper.arc(matrices, cx, cy, r, 0, 1, 1, 24, modColor));
+            }
         }
 
+        matrices.translate(0, 0, d);
         VertexConsumer.MAIN.consume(GeometryHelper.circle(matrices, x, y, 5, 8, 0xFF000000));
+        matrices.translate(0, 0, d);
         VertexConsumer.MAIN.consume(GeometryHelper.circle(matrices, x, y, 4, 8, ColorUtils.rgbToInt(ColorUtils.hsvToRGB(hsv)) + (0xFF << 24)));
 
         matrices.popMatrix();

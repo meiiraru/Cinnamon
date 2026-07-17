@@ -133,7 +133,7 @@ public abstract class Screen {
     }
 
     public void xrWidgetHovered(SelectableWidget widget) {
-        if (xrHovered != null || !Settings.xrClickOnHover.get())
+        if (xrHovered != null || !Settings.xrClickOnHover.get() || !widget.isHovered())
             return;
 
         xrHovered = widget;
@@ -143,8 +143,7 @@ public abstract class Screen {
             oldXrHovered = xrHovered;
 
             //haptics
-            if (xrHovered != null)
-                XrInput.vibrate(XrInput.getActiveHand());
+            XrInput.vibrate(XrInput.getActiveHand());
         }
     }
 

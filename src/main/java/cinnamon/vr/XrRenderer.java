@@ -51,7 +51,7 @@ public class XrRenderer {
     private static int swapchainIndex = 0;
 
     private static boolean screenCollided = false;
-    private static float screenCollision = -1f;
+    private static final Vector3f screenCollision = new Vector3f();
 
     private static ModelRenderer handModel;
 
@@ -226,8 +226,8 @@ public class XrRenderer {
         //render the laser
         if (isScreenCollided()) {
             Vector3f pos = hand.pos();
-            Vector3f dir = new Vector3f(0, 0, -1).mul(screenCollision).rotate(hand.rot()).add(pos);
-            VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, pos.x, pos.y, pos.z, dir.x, dir.y, dir.z, 0.002f, color));
+            Vector3f tar = screenCollision;
+            VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, pos.x, pos.y, pos.z, tar.x, tar.y, tar.z, 0.002f, color));
         }
     }
 
@@ -259,7 +259,7 @@ public class XrRenderer {
 
         //we got a collision! so undo the collided position back to screen space
         if (result != null) {
-            screenCollision = result.tNear();
+            screenCollision.set(result.position());
             screenCollided = true;
 
             Vector3f screen = dir

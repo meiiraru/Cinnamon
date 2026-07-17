@@ -10,6 +10,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.UIHelper;
+import org.joml.Math;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -67,6 +68,7 @@ public class ConfirmPopup extends PopupWidget {
     protected void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         if (renderBackground)
             this.renderBackground(matrices, delta);
+        matrices.translate(0, 0, Math.max(50f, UIHelper.getDepthOffset()));
         super.renderWidget(matrices, mouseX, mouseY, delta);
     }
 
