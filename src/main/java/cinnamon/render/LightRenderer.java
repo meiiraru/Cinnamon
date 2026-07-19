@@ -22,7 +22,9 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
@@ -54,12 +56,17 @@ public class LightRenderer {
     private static final Quaternionf pointLightRotation = new Quaternionf();
     private static final Matrix4f lightModelMatrix = new Matrix4f();
 
+    private static final Set<Light> lightsToRender = new LinkedHashSet<>();
+
     private static int renderedLights, renderedShadows;
 
     public static void renderLights(PBRDeferredFramebuffer gBuffer, List<Light> lights, Camera camera, boolean renderShadows, Runnable renderFunction) {
         renderedLights = renderedShadows = 0;
 
-        if (lights.isEmpty())
+        lightsToRender.addAll(lights);
+        lightsToRender.removeIf(l -> !lights.contains(l));
+
+        if (lightsToRender.isEmpty())
             return;
 
         //init the light buffer
@@ -71,7 +78,7 @@ public class LightRenderer {
             initVolumetricBuffer(gBuffer);
 
         //render the lights
-        for (Light light : lights) {
+        for (Light light : lightsToRender) {
             if (light.getIntensity() <= 0f)
                 continue;
 
@@ -103,7 +110,8 @@ public class LightRenderer {
         resetLightState(camera);
     }
 
-    public static void renderLightsPost(Framebuffer target, List<Light> lights, Camera camera, float deltaTime) {
+    public static void renderLightsPost(Framebuffer target, Camera camera, float deltaTime) {
+        List<Light> lights = new ArrayList<>(lightsToRender);
         if (lights.isEmpty())
             return;
 
@@ -188,8 +196,10 @@ public class LightRenderer {
         blit.setTexture("colorTex", lightGlareBuffer.getColorBuffer(), 0);
         StaticGeometry.QUAD.render();
 
-        blit.setTexture("colorTex", volumetricBuffer.getColorBuffer(), 0);
-        StaticGeometry.QUAD.render();
+        if (Settings.volumetricLights.get() >= 0) {
+            blit.setTexture("colorTex", volumetricBuffer.getColorBuffer(), 0);
+            StaticGeometry.QUAD.render();
+        }
 
         //reset state
         glEnable(GL_DEPTH_TEST);

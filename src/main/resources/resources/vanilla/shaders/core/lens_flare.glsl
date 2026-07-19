@@ -22,7 +22,7 @@ uniform vec2 sampleRadius;
 uniform sampler2D gDepth;
 
 uniform int lightIndex;
-layout(std430, binding = 0) buffer VisibilityBuffer {
+layout(std430, binding = 0) coherent buffer VisibilityBuffer {
     float visibilities[];
 };
 

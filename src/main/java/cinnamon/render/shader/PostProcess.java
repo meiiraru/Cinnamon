@@ -96,11 +96,10 @@ public enum PostProcess {
     UPSIDE_DOWN(COLOR_UNIFORM),
     TRIPPY((fb, s) -> {
         s.setVec2("resolution", fb.getWidth(), fb.getHeight());
-        s.setFloat("count", 1f);
-        s.setFloat("time", (float) glfwGetTime() * 0.25f);
-        s.setFloat("waveSpeed", 10f);
-        s.setFloat("waveStrength", 0.005f);
-        s.setFloat("waveFrequency", 24f);
+        s.setFloat("count", 6f);
+        s.setFloat("time", (float) glfwGetTime());
+        s.setFloat("scale", 15f);
+        s.setFloat("distortion", 0.15f);
         return COLOR_UNIFORM.apply(fb, s);
     }),
     KALEIDOSCOPE((fb, s) -> {

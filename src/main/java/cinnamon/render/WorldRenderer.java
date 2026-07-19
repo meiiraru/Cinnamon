@@ -134,8 +134,7 @@ public class WorldRenderer {
         renderSSR(camera);
 
         //render the world lights
-        List<Light> lights = world.getLights(camera);
-        renderLights(lights, camera, renderFunc);
+        renderLights(world.getLights(camera), camera, renderFunc);
 
         //bake world
         bakeDeferred(camera, world.getSky());
@@ -147,7 +146,7 @@ public class WorldRenderer {
         applyBloom();
 
         //render light postprocessing
-        renderLightsPost(lights, camera, dt);
+        renderLightsPost(camera, dt);
 
         //render debug stuff
         if (renderDebug)
@@ -169,8 +168,6 @@ public class WorldRenderer {
     }
 
     private static void renderAsAnaglyph(WorldClient world, MatrixStack matrices, float delta, float dt, Runnable[] renderFunc) {
-        List<Light> lights = world.getLights(camera);
-
         camera.anaglyph3D(matrices, -1f / 64f, -1f, () -> {
             //render world
             initGBuffer(camera);
@@ -192,7 +189,7 @@ public class WorldRenderer {
             renderSSR(camera);
 
             //lights
-            renderLights(lights, camera, renderFunc);
+            renderLights(world.getLights(camera), camera, renderFunc);
         }, () -> {
             //bake world
             bakeDeferred(camera, world.getSky());
@@ -200,7 +197,7 @@ public class WorldRenderer {
             //post bake renderer
             renderClouds(world, camera, delta);
             applyBloom();
-            renderLightsPost(lights, camera, dt);
+            renderLightsPost(camera, dt);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
         });
 
@@ -369,9 +366,9 @@ public class WorldRenderer {
         }
     }
 
-    public static void renderLightsPost(List<Light> lights, Camera camera, float deltaTime) {
+    public static void renderLightsPost(Camera camera, float deltaTime) {
         if (renderLights)
-            LightRenderer.renderLightsPost(outputBuffer, lights, camera, deltaTime);
+            LightRenderer.renderLightsPost(outputBuffer, camera, deltaTime);
     }
 
     public static void renderWater(WorldClient world, Camera camera, MatrixStack matrices, float delta) {

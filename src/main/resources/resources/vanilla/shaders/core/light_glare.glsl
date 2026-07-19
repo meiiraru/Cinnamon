@@ -19,7 +19,7 @@ uniform vec2 sampleRadius;
 uniform int lightIndex;
 uniform float deltaTime;
 
-layout(std430, binding = 0) buffer VisibilityBuffer {
+layout(std430, binding = 0) coherent buffer VisibilityBuffer {
     float visibilities[];
 };
 
