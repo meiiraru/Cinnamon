@@ -149,6 +149,9 @@
   "gui.midi_screen.sound_font_load_failed": "Falha ao carregar banco de sons",
   "gui.midi_screen.reverb": "Reverb %1$s",
 
+  "gui.overlay.action_wheel.no_actions": "Nenhuma ação disponível",
+  "gui.overlay.action_wheel.cancel": "Cancelar",
+
   "midi.instrument.0": "Piano",
   "midi.instrument.1": "Piano (agudo)",
   "midi.instrument.2": "Piano eléctro-acústico",

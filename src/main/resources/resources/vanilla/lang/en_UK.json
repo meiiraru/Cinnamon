@@ -149,6 +149,9 @@
   "gui.midi_screen.sound_font_load_failed": "Failed to load sound font",
   "gui.midi_screen.reverb": "Reverb %1$s",
 
+  "gui.overlay.action_wheel.no_actions": "No actions available",
+  "gui.overlay.action_wheel.cancel": "Cancel",
+
   "midi.instrument.0": "Acoustic Grand Piano",
   "midi.instrument.1": "Bright Acoustic Piano",
   "midi.instrument.2": "Electric Grand Piano",

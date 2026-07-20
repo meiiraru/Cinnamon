@@ -275,7 +275,7 @@ public class Client {
             return;
         if (screen != null)
             screen.mousePress(button, action, mods);
-        else if (world != null && window.isMouseLocked())
+        else if (world != null)
             world.mousePress(button, action, mods);
 
         events.runEvents(EventType.MOUSE_PRESS, button, action, mods);

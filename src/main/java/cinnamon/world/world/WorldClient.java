@@ -60,6 +60,7 @@ import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.entity.vehicle.ShoppingCart;
 import cinnamon.world.gui.Hud;
 import cinnamon.world.gui.Marker;
+import cinnamon.world.gui.Overlay;
 import cinnamon.world.items.*;
 import cinnamon.world.items.weapons.CoilGun;
 import cinnamon.world.items.weapons.NailGun;
@@ -102,6 +103,7 @@ public class WorldClient extends World {
             deathScreen = DeathScreen::new;
 
     protected Hud hud = new Hud();
+    protected Overlay overlay;
     protected Movement movement = new Movement();
     protected Interaction interaction = new Interaction();
 
@@ -358,6 +360,11 @@ public class WorldClient extends World {
 
         //hud
         this.hud.tick();
+        if (this.overlay != null) {
+            this.overlay.tick();
+            if (client.screen != null || this.overlay.isClosed())
+                this.closeOverlay();
+        }
     }
 
     public void render(MatrixStack matrices, float delta) {
@@ -400,6 +407,8 @@ public class WorldClient extends World {
             else glClear(GL_DEPTH_BUFFER_BIT); //top of hand
 
             renderHUD(matrices, delta);
+            if (this.overlay != null)
+                overlay.render(matrices, delta);
             matrices.popMatrix();
         }
     }
@@ -730,14 +739,17 @@ public class WorldClient extends World {
     }
 
     protected void tickInput() {
-        if (!client.window.isMouseLocked())
-            return;
-
         this.movement.tick(player);
         this.interaction.tick(player);
     }
 
     public void mousePress(int button, int action, int mods) {
+        if (overlay != null && overlay.stealsMouse() && overlay.mousePress(button, action, mods))
+            return;
+
+        if (client.window.isMouseLocked())
+            return;
+
         Keybind.mousePress(button, action, mods);
         this.interaction.tick(player);
     }
@@ -1005,5 +1017,27 @@ public class WorldClient extends World {
     @Override
     public boolean isClientside() {
         return true;
+    }
+
+    public void openOverlay(Overlay overlay) {
+        if (this.overlay != null)
+            this.overlay.close();
+
+        this.overlay = overlay;
+        if (overlay.stealsMouse())
+            client.window.unlockMouse();
+        overlay.open();
+    }
+
+    public void closeOverlay() {
+        if (this.overlay == null)
+            return;
+
+        this.overlay.close();
+        if (this.overlay.stealsMouse()) {
+            client.window.lockMouse();
+            resetInput();
+        }
+        this.overlay = null;
     }
 }
