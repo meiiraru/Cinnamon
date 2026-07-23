@@ -13,7 +13,9 @@ import java.util.regex.Pattern;
 
 public class TextUtils {
 
-    private static final Text ELLIPSIS = Text.of("...");
+    private static final Text
+            ELLIPSIS = Text.of("..."),
+            NEW_LINE = Text.of("\n");
 
     public static List<Text> split(Text text, String regex) {
         List<Text> list = new ArrayList<>();
@@ -315,6 +317,10 @@ public class TextUtils {
         //append last line
         list.add(textBuffer[1]);
         return list;
+    }
+
+    public static Text join(List<Text> texts) {
+        return join(texts, NEW_LINE);
     }
 
     public static Text join(List<Text> texts, Text separator) {

@@ -110,7 +110,7 @@ public class Label extends SelectableWidget implements AlignedWidget {
                 wrappedLines.addAll(TextUtils.warpToWidth(line, this.maxWidth));
 
             //join the lines back together with the newline
-            this.wrappedText = TextUtils.join(wrappedLines, Text.of("\n"));
+            this.wrappedText = TextUtils.join(wrappedLines);
         } else {
             this.wrappedText = styledText;
         }

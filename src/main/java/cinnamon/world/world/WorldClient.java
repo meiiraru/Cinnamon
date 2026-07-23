@@ -58,6 +58,8 @@ import cinnamon.world.entity.misc.TriggerArea;
 import cinnamon.world.entity.projectile.Brick;
 import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.entity.vehicle.ShoppingCart;
+import cinnamon.world.gui.Action;
+import cinnamon.world.gui.ActionWheel;
 import cinnamon.world.gui.Hud;
 import cinnamon.world.gui.Marker;
 import cinnamon.world.gui.Overlay;
@@ -747,7 +749,7 @@ public class WorldClient extends World {
         if (overlay != null && overlay.stealsMouse() && overlay.mousePress(button, action, mods))
             return;
 
-        if (client.window.isMouseLocked())
+        if (!client.window.isMouseLocked())
             return;
 
         Keybind.mousePress(button, action, mods);
@@ -771,6 +773,12 @@ public class WorldClient extends World {
                 client.window.lockMouse();
                 resetInput();
             }
+        } else if (key == GLFW_KEY_B) {
+            if (action == GLFW_PRESS) {
+                openOverlay(genDebugActionWheel());
+            } else if (action == GLFW_RELEASE) {
+                closeOverlay();
+            }
         }
 
         Keybind.keyPress(key, scancode, action, mods);
@@ -788,11 +796,6 @@ public class WorldClient extends World {
         boolean ctrl  = (mods & GLFW_MOD_CONTROL) != 0;
 
         switch (key) {
-            case GLFW_KEY_N -> {
-                boolean value = !player.getAbilities().get(Abilities.Ability.NOCLIP);
-                player.getAbilities().set(Abilities.Ability.NOCLIP, value);
-                MessageManager.addMessage(Text.of("Noclip " + (value ? "enabled" : "disabled")), MessageCategory.SYSTEM, null);
-            }
             case GLFW_KEY_R -> {
                 Item i = player.getHoldingItem();
                 if (i instanceof Weapon weapon)
@@ -812,66 +815,6 @@ public class WorldClient extends World {
             case GLFW_KEY_PERIOD -> player.setSelectedMaterial(Maths.modulo((player.getSelectedMaterial() + (shift ? -1 : 1)), MaterialRegistry.values().length));
 
             case GLFW_KEY_Q -> player.dropItem(-1, ctrl);
-
-            case GLFW_KEY_T -> {
-                Pair<Hit, Terrain> hit = player.getLookingTerrain(player.getPickRange());
-                if (hit == null)
-                    return;
-
-                Vector3f normal = hit.first().normal();
-                Quaternionf rotation = Maths.dirToQuat(normal);
-                if (Math.abs(normal.y) > 0.5f)
-                    rotation.rotateZ(Math.toRadians(-Maths.getYaw(player.getTransform().getRot()) * Math.signum(normal.y)));
-
-                Resource folder = new Resource("textures/misc");
-                List<String> resources = IOUtils.listResources(folder, false);
-                resources.removeIf(s -> !s.endsWith(".png"));
-                String res = resources.get((int) (Math.random() * resources.size()));
-
-                Decal decal = new Decal(6000, folder.resolve(res));
-                decal.getTransform()
-                        .setPos(hit.first().position())
-                        .setRot(rotation)
-                        //.setRot(WorldRenderer.camera.getRotation())
-                        .setScale(1f, 1f, 0.5f);
-                addDecal(decal);
-            }
-
-            case GLFW_KEY_X -> {if (enableDebugKeys) spawnDebugWeapons();}
-
-            case GLFW_KEY_Z -> {
-                if (!enableDebugKeys)
-                    return;
-
-                Firework f = new Firework(UUID.randomUUID(), Maths.range(30, 60), Maths.spread(new Vector3f(0, 1f, 0), 30, 30).mul(2f),
-                        new FireworkStar(
-                                new Integer[]{0xFFa19f7f, 0xFFcfa959, 0xFF9b8136, 0xFF908264, 0xFFebc789, 0xFFb39b5b},
-                                null,
-                                true, true,
-                                FireworkStar.Shape.BALL
-                        ),
-                        new FireworkStar(
-                                new Integer[]{Colors.WHITE.argb},
-                                null,
-                                false, true,
-                                FireworkStar.Shape.STAR
-                        )
-                );
-                f.setPos(0, 1.5f, 0);
-                addEntity(f);
-            }
-
-            case GLFW_KEY_V -> {
-                Pair<Hit, ? extends WorldObject> hit = player.getLookingObject(128f);
-                if (hit != null) {
-                    SoundManager.playSound(Marker.MARKER_SND, SoundCategory.GUI);
-                    if (hit.second() instanceof Entity e) {
-                        hud.addMarker(new Marker(e, null, 600, Colors.randomRainbow().argb));
-                    } else {
-                        hud.addMarker(new Marker(hit.first().position(), null, 600, Colors.randomRainbow().argb));
-                    }
-                }
-            }
 
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
             //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));
@@ -1024,9 +967,11 @@ public class WorldClient extends World {
             this.overlay.close();
 
         this.overlay = overlay;
-        if (overlay.stealsMouse())
-            client.window.unlockMouse();
-        overlay.open();
+        if (overlay != null) {
+            if (overlay.stealsMouse())
+                client.window.unlockMouse();
+            overlay.open();
+        }
     }
 
     public void closeOverlay() {
@@ -1039,5 +984,90 @@ public class WorldClient extends World {
             resetInput();
         }
         this.overlay = null;
+    }
+
+    protected ActionWheel genDebugActionWheel() {
+        ActionWheel aw = new ActionWheel();
+        aw.setTitle(Text.of("Debug Actions"));
+
+        //noclip
+        Action noclip = new Action(Text.of("Toggle Noclip"), () -> {
+            boolean value = !player.getAbilities().get(Abilities.Ability.NOCLIP);
+            player.getAbilities().set(Abilities.Ability.NOCLIP, value);
+            MessageManager.addMessage(Text.of("Noclip " + (value ? "enabled" : "disabled")), MessageCategory.SYSTEM, null);
+        });
+        noclip.setIcon(new Resource("textures/gui/action_wheel/phase.png"));
+        aw.addAction(noclip);
+
+        //spray
+        Action spray = new Action(Text.of("Spray"), () -> {
+            Pair<Hit, Terrain> hit = player.getLookingTerrain(player.getPickRange());
+            if (hit == null)
+                return;
+
+            Vector3f normal = hit.first().normal();
+            Quaternionf rotation = Maths.dirToQuat(normal);
+            if (Math.abs(normal.y) > 0.5f)
+                rotation.rotateZ(Math.toRadians(-Maths.getYaw(player.getTransform().getRot()) * Math.signum(normal.y)));
+
+            Resource folder = new Resource("textures/misc");
+            List<String> resources = IOUtils.listResources(folder, false);
+            resources.removeIf(s -> !s.endsWith(".png"));
+            String res = resources.get((int) (Math.random() * resources.size()));
+
+            Decal decal = new Decal(6000, folder.resolve(res));
+            decal.getTransform()
+                    .setPos(hit.first().position())
+                    .setRot(rotation)
+                    //.setRot(WorldRenderer.camera.getRotation())
+                    .setScale(1f, 1f, 0.5f);
+            addDecal(decal);
+        });
+        spray.setIcon(new Resource("textures/gui/action_wheel/spray.png"));
+        aw.addAction(spray);
+
+        //spawn weapons
+        Action weapons = new Action(Text.of("Spawn Weapons"), this::spawnDebugWeapons);
+        weapons.setIcon(new Resource("textures/gui/action_wheel/gun.png"));
+        aw.addAction(weapons);
+
+        //firework
+        Action firework = new Action(Text.of("Spawn Firework"), () -> {
+            Firework f = new Firework(UUID.randomUUID(), Maths.range(30, 60), Maths.spread(new Vector3f(0, 1f, 0), 30, 30).mul(2f),
+                    new FireworkStar(
+                            new Integer[]{0xFFa19f7f, 0xFFcfa959, 0xFF9b8136, 0xFF908264, 0xFFebc789, 0xFFb39b5b},
+                            null,
+                            true, true,
+                            FireworkStar.Shape.BALL
+                    ),
+                    new FireworkStar(
+                            new Integer[]{Colors.WHITE.argb},
+                            null,
+                            false, true,
+                            FireworkStar.Shape.STAR
+                    )
+            );
+            f.setPos(0, 1.5f, 0);
+            addEntity(f);
+        });
+        firework.setIcon(new Resource("textures/gui/action_wheel/firework.png"));
+        aw.addAction(firework);
+
+        //marker
+        Action marker = new Action(Text.of("Add Marker"), () -> {
+            Pair<Hit, ? extends WorldObject> hit = player.getLookingObject(128f);
+            if (hit != null) {
+                SoundManager.playSound(Marker.MARKER_SND, SoundCategory.GUI);
+                if (hit.second() instanceof Entity e) {
+                    hud.addMarker(new Marker(e, null, 600, Colors.randomRainbow().argb));
+                } else {
+                    hud.addMarker(new Marker(hit.first().position(), null, 600, Colors.randomRainbow().argb));
+                }
+            }
+        });
+        marker.setIcon(new Resource("textures/gui/action_wheel/pin.png"));
+        aw.addAction(marker);
+
+        return aw;
     }
 }

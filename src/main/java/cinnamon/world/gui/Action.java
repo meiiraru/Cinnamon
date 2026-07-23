@@ -1,12 +1,11 @@
 package cinnamon.world.gui;
 
-import cinnamon.Client;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.OBB;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
+import cinnamon.model.material.Material;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Text;
@@ -18,6 +17,8 @@ import org.joml.Vector3f;
 
 public class Action {
 
+    public static final float ICON_SIZE = 8f;
+
     private final Runnable action;
 
     private int backgroundColor = 0x88000000;
@@ -27,6 +28,7 @@ public class Action {
     private Text formattedTitle, formattedDesc;
     private Resource icon, model;
     private ModelRenderer modelRenderer;
+    private Material modelMaterial;
 
     private boolean hovered = false;
 
@@ -35,60 +37,52 @@ public class Action {
         this.setTitle(title);
     }
 
-    public void render(MatrixStack matrices, float x, float y, float delta) {
-        float s = 8f;
-
-        matrices.pushMatrix();
-        matrices.translate(x, y, 0f);
-
-        if (formattedTitle != null) {
-            float ty = TextUtils.getHeight(formattedTitle);
-            matrices.translate(0f, -ty / 2f, 0f);
-            formattedTitle.render(VertexConsumer.MAIN, matrices, 0f, s + 2f, Alignment.TOP_CENTER);
-        }
+    public void render(MatrixStack matrices, float delta) {
+        if (formattedTitle != null)
+            renderTitle(matrices, delta);
 
         if (modelRenderer == null || icon != null)
-            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, -s, -s, s, s, 0xFFFFFFFF), icon);
+            renderIcon(matrices, delta);
 
-        if (modelRenderer != null) {
-            OBB bb = new OBB(modelRenderer.getAABB())
-                    .rotate(Rotation.X.rotationDeg(22.5f))
-                    .rotate(Rotation.Y.rotationDeg(135f));
+        if (modelRenderer != null)
+            renderModel(matrices, delta);
+    }
 
-            Vector3f center = bb.getCenter();
-            Vector3f dims = bb.getDimensions();
+    protected void renderTitle(MatrixStack matrices, float delta) {
+        float ty = TextUtils.getHeight(formattedTitle);
+        matrices.translate(0f, -ty / 2f, 0f);
+        matrices.pushMatrix();
+        matrices.translate(0f, 0f, ICON_SIZE * 4f);
+        formattedTitle.render(VertexConsumer.MAIN, matrices, 0f, ICON_SIZE + 2f, Alignment.TOP_CENTER);
+        matrices.popMatrix();
+    }
 
-            float maxDim = Math.max(Math.abs(dims.x), Math.max(Math.abs(dims.y), Math.abs(dims.z)));
-            float scale = s * 2f / maxDim;
+    protected void renderIcon(MatrixStack matrices, float delta) {
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, -ICON_SIZE, -ICON_SIZE, ICON_SIZE, ICON_SIZE, 0xFFFFFFFF), icon);
+    }
 
-            matrices.pushMatrix()
-                    .translate(0f, 0, scale)
-                    .scale(scale, -scale, scale)
-                    .rotate(Rotation.X.rotationDeg(22.5f))
-                    .rotate(Rotation.Y.rotationDeg(135f))
-                    .translate(-center.x, -center.y, -center.z);
+    protected void renderModel(MatrixStack matrices, float delta) {
+        OBB bb = new OBB(modelRenderer.getAABB())
+                .rotate(Rotation.X.rotationDeg(22.5f))
+                .rotate(Rotation.Y.rotationDeg(135f));
 
-            UIHelper.finishBatches();
-            modelRenderer.render(matrices);
+        Vector3f center = bb.getCenter();
+        Vector3f dims = bb.getDimensions();
 
-            matrices.popMatrix();
-        }
+        float maxDim = Math.max(Math.abs(dims.x), Math.max(Math.abs(dims.y), Math.abs(dims.z)));
+        float scale = ICON_SIZE * 2f / maxDim;
+
+        matrices.pushMatrix()
+                .translate(0f, 0, scale)
+                .scale(scale, -scale, scale)
+                .rotate(Rotation.X.rotationDeg(22.5f))
+                .rotate(Rotation.Y.rotationDeg(135f))
+                .translate(-center.x, -center.y, -center.z);
+
+        UIHelper.finishBatches();
+        modelRenderer.render(matrices, modelMaterial);
 
         matrices.popMatrix();
-
-        if (isHovered() && formattedDesc != null) {
-            Window window = Client.getInstance().window;
-            int w = window.getGUIWidth()  / 2;
-            int h = window.getGUIHeight() / 2;
-
-            int mouseX = window.mouseX;
-            int mouseY = window.mouseY;
-
-            matrices.pushMatrix();
-            matrices.translate(-w, -h, 100f);
-            UIHelper.renderTooltip(matrices, mouseX, mouseY, formattedDesc);
-            matrices.popMatrix();
-        }
     }
 
     public void run() {
@@ -128,7 +122,7 @@ public class Action {
 
     public Action setTitle(Text title) {
         this.title = title;
-        this.formattedTitle = title == null ? null : Text.empty().withStyle(ActionWheel.STYLE).append(title);
+        this.formattedTitle = title == null ? null : TextUtils.join(TextUtils.warpToWidth(Text.empty().withStyle(ActionWheel.STYLE).append(title), ActionWheel.INNER_RADIUS * 2));
         return this;
     }
 
@@ -142,7 +136,7 @@ public class Action {
 
     public Action setDescription(Text description) {
         this.description = description;
-        this.formattedDesc = description == null ? null : TextUtils.join(TextUtils.warpToWidth(description, 150), Text.of("\n"));
+        this.formattedDesc = description == null ? null : TextUtils.join(TextUtils.warpToWidth(description, 150));
         return this;
     }
 
@@ -164,8 +158,13 @@ public class Action {
     }
 
     public Action setModel(Resource model) {
+        return setModel(model, null);
+    }
+
+    public Action setModel(Resource model, Material material) {
         this.model = model;
         this.modelRenderer = ModelManager.load(model);
+        this.modelMaterial = material;
         return this;
     }
 

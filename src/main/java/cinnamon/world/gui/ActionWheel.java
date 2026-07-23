@@ -10,6 +10,7 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
+import cinnamon.utils.UIHelper;
 import org.joml.Math;
 import org.lwjgl.glfw.GLFW;
 
@@ -36,7 +37,8 @@ public class ActionWheel extends Overlay {
     protected List<Action> actions = new ArrayList<>();
     protected int selected = -1;
 
-    public boolean renderDebug = false;
+    protected Text title, formattedTitle;
+    protected boolean renderCursorLine = false;
 
     public ActionWheel() {
         this.stealMouse = true;
@@ -62,16 +64,19 @@ public class ActionWheel extends Overlay {
         matrices.pushMatrix();
         matrices.translate(w, h, 0);
 
-        //render action wheel background
-        VertexConsumer.MAIN.consume(GeometryHelper.arc(matrices, 0, 0, RADIUS, 0f, 1f, INNER_RADIUS, SIDES, 0x88000000));
+        //render cursor line
+        if (shouldRenderCursorLine())
+            renderCursorLine(matrices, mouseX, mouseY, delta);
 
-        //render debug mouse line
-        if (renderDebug)
-            VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, 0, 0, mouseX, mouseY, 0.5f, 0xFFFFFFFF));
+        //render title
+        Text title = getFormattedTitle();
+        if (title != null)
+            renderTitle(matrices, title, delta);
 
         //no actions...
         int len = this.actions.size();
         if (len == 0) {
+            renderBackground(matrices, 0x88000000, delta);
             NO_ACTIONS_TEXT.render(VertexConsumer.MAIN, matrices, 0, 0, Alignment.CENTER);
             matrices.popMatrix();
             selected = -1;
@@ -91,7 +96,48 @@ public class ActionWheel extends Overlay {
             selected = (int) Math.floor(angle / Math.PI_TIMES_2_f * len);
         }
 
+        //prepare stencil for the background
+        UIHelper.prepareStencil(true, true);
+
         //render each action
+        renderActions(matrices, selected, delta);
+
+        //pause stencil and render the background
+        UIHelper.finishBatches();
+        UIHelper.lockStencil(true);
+        renderBackground(matrices, 0xE0000000, delta);
+
+        //disable stencil and render texts
+        UIHelper.finishBatches();
+        UIHelper.disableStencil();
+
+        //selected text
+        Text selectedText = cancel ? CANCEL_TEXT : actions.get(selected).getFormattedTitle();
+        if (selectedText != null)
+            renderSelectedText(matrices, selectedText, delta);
+
+        matrices.popMatrix();
+
+        //description
+        Text description = cancel ? null : actions.get(selected).getFormattedDescription();
+        if (description != null)
+            renderDescription(matrices, description, mouseX + w, mouseY + h, delta);
+    }
+
+    protected void renderTitle(MatrixStack matrices, Text title, float delta) {
+        title.render(VertexConsumer.MAIN, matrices, 0, -RADIUS - 4f, Alignment.BOTTOM_CENTER);
+    }
+
+    protected void renderBackground(MatrixStack matrices, int color, float delta) {
+        VertexConsumer.MAIN.consume(GeometryHelper.arc(matrices, 0, 0, RADIUS, 0f, 1f, INNER_RADIUS, SIDES, color));
+    }
+
+    protected void renderCursorLine(MatrixStack matrices, int cursorX, int cursorY, float delta) {
+        VertexConsumer.MAIN.consume(GeometryHelper.line(matrices, 0, 0, cursorX, cursorY, 0.75f, 0xFFAD72FF));
+    }
+
+    protected void renderActions(MatrixStack matrices, int selected, float delta) {
+        int len = this.actions.size();
         float paddingW = len > 1 ? ActionWheel.PADDING_W : 0f;
         float anglePerAction = Math.toDegrees(Math.PI_TIMES_2_f / len);
 
@@ -111,16 +157,22 @@ public class ActionWheel extends Overlay {
             float y = Math.sin(midAngle) * (RADIUS + INNER_RADIUS) * 0.5f;
 
             //render the action
-            action.render(matrices, x, y, delta);
+            matrices.pushMatrix();
+            matrices.translate(x, y, 0f);
+            action.render(matrices, delta);
+            matrices.popMatrix();
         }
+    }
 
-        //text
-        if (cancel)
-            CANCEL_TEXT.render(VertexConsumer.MAIN, matrices, 0, 0, Alignment.CENTER);
-        else if (actions.get(selected).getFormattedTitle() != null)
-            actions.get(selected).getFormattedTitle().render(VertexConsumer.MAIN, matrices, 0, 0, Alignment.CENTER);
-
+    protected void renderDescription(MatrixStack matrices, Text description, int x, int y, float delta) {
+        matrices.pushMatrix();
+        matrices.translate(0f, 0f, 100f);
+        UIHelper.renderTooltip(matrices, x, y, description);
         matrices.popMatrix();
+    }
+
+    protected void renderSelectedText(MatrixStack matrices, Text selectedText, float delta) {
+        selectedText.render(VertexConsumer.MAIN, matrices, 0, 0, Alignment.CENTER);
     }
 
     public ActionWheel addAction(Action action) {
@@ -153,6 +205,29 @@ public class ActionWheel extends Overlay {
     public ActionWheel clear() {
         this.actions.clear();
         return this;
+    }
+
+    public ActionWheel setTitle(Text title) {
+        this.title = title;
+        this.formattedTitle = title == null ? null : Text.empty().withStyle(STYLE).append(title);
+        return this;
+    }
+
+    public Text getTitle() {
+        return title;
+    }
+
+    public Text getFormattedTitle() {
+        return formattedTitle;
+    }
+
+    public ActionWheel setRenderCursorLine(boolean renderCursorLine) {
+        this.renderCursorLine = renderCursorLine;
+        return this;
+    }
+
+    public boolean shouldRenderCursorLine() {
+        return renderCursorLine;
     }
 
     @Override

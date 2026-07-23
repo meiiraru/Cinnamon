@@ -350,10 +350,11 @@ public class WidgetTestScreen extends ParentedScreen {
                                 .append(Text.of("five ") .withStyle(Style.EMPTY.strikethrough(true)))
                                 .append(Text.of("six ")  .withStyle(Style.EMPTY.background(true)))
                                 .append(Text.of("seven ").withStyle(Style.EMPTY.shadow(true)))
-                                .append(Text.of("eight") .withStyle(Style.EMPTY.outlined(true))),
-                                96),
-                        Text.of("\n"))
-                )
+                                .append(Text.of("eight ").withStyle(Style.EMPTY.outlined(true)))
+                                .append(Text.of("nine ") .withStyle(Style.EMPTY.color(Colors.randomRainbow())))
+                                .append(Text.of("ten ")  .withStyle(Style.EMPTY.bold(true).italic(true).underlined(true).obfuscated(true).strikethrough(true).background(true).shadow(true).outlined(true).color(Colors.randomRainbow()))),
+                                96)
+                ))
         ));
 
         //color picker
