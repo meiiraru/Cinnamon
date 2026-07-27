@@ -1,13 +1,18 @@
 package cinnamon.input;
 
 import cinnamon.Client;
+import cinnamon.render.Window;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public class InputManager {
 
+    private static Window getWindow() {
+        return Client.getInstance().window;
+    }
+
     private static long getWindowHandle() {
-        return Client.getInstance().window.getHandle();
+        return getWindow().getHandle();
     }
 
     public static void setRawMouseInput(boolean raw) {
@@ -21,5 +26,17 @@ public class InputManager {
 
     public static boolean isKeyPressed(int key) {
         return glfwGetKey(getWindowHandle(), key) == GLFW_PRESS;
+    }
+
+    public static boolean isModsPressed(int modMask) {
+        return (getWindow().modsMask & modMask) == modMask;
+    }
+
+    public static int getMouseX() {
+        return getWindow().mouseX;
+    }
+
+    public static int getMouseY() {
+        return getWindow().mouseY;
     }
 }

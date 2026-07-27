@@ -239,10 +239,8 @@ public abstract class PhysEntity extends Entity {
 
     @Override
     public void impulse(float left, float up, float forwards) {
-        if (riding != null) {
-            riding.impulse(left, up, forwards);
+        if (riding != null)
             return;
-        }
 
         float l = Math.signum(left);
         float u = Math.signum(up);

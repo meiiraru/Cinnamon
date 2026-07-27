@@ -4,9 +4,12 @@ import cinnamon.math.Maths;
 import cinnamon.math.collision.AABB;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
+import cinnamon.settings.Settings;
 import cinnamon.world.Abilities;
 import cinnamon.world.entity.DamageType;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.particle.SmokeParticle;
+import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
 
@@ -17,6 +20,7 @@ public class Player extends LivingEntity {
     private static final int MAX_HEALTH = 100;
     private static final int INVULNERABILITY_TIME = 10;
     private static final int INVENTORY_SIZE = 9;
+    private static final int SPRINT_PARTICLE_DELAY = 3;
     private static final float EYE_HEIGHT = 1.6f;
     private static final Vector3f DIMENSIONS = new Vector3f(0.6f, 1.8f, 0.6f);
 
@@ -25,8 +29,11 @@ public class Player extends LivingEntity {
     private int invulnerability = 0;
     private Entity damageSource;
     private int damageSourceTicks = 0;
+    private int sprintParticle = 0;
 
     private boolean sprinting, sneaking, flying;
+    private boolean jumping, forwards;
+    private int flyKeyTicks = 0;
 
     public Player(String name, UUID uuid) {
         this(name, uuid, LivingModelRegistry.STRAWBERRY);
@@ -35,6 +42,29 @@ public class Player extends LivingEntity {
     public Player(String name, UUID uuid, LivingModelRegistry model) {
         super(uuid, model.resource, model.eyeHeight, MAX_HEALTH, INVENTORY_SIZE);
         this.setName(name);
+        this.getController().bindState(
+                "fly_toggle", Settings.jump.get(),
+                jumping -> {
+                    if (!this.jumping && Settings.jump.get().click()) {
+                        if (flyKeyTicks > 0) {
+                            updateMovementFlags(this.sneaking, this.sprinting, !this.flying);
+                            flyKeyTicks = 0;
+                        } else {
+                            flyKeyTicks = Settings.doubleKeypressTime.get();
+                        }
+                    }
+                    this.jumping = Settings.jump.get().isActuallyPressed();
+                }
+        ).bindState(
+                "sneak", Settings.sneak.get(),
+                sneaking -> updateMovementFlags(sneaking, this.sprinting, this.flying)
+        ).bindState(
+                "sprint", Settings.sprint.get(),
+                sprinting -> {
+                    forwards = Settings.forward.get().isPressed() && !Settings.backward.get().isPressed();
+                    updateMovementFlags(this.sneaking, sprinting, this.flying);
+                }
+        );
     }
 
     @Override
@@ -47,8 +77,19 @@ public class Player extends LivingEntity {
         if (damageSourceTicks > 0)
             damageSourceTicks--;
 
+        if (flyKeyTicks > 0)
+            flyKeyTicks--;
+
         if (flying && (onGround || isRiding()))
             flying = false;
+
+        if (this.isSprinting() && onGround && --sprintParticle <= 0) {
+            SmokeParticle particle = new SmokeParticle((int) (Math.random() * 15) + 10, 0xFFFFFFFF);
+            particle.setPos(getTransform().getPos());
+            particle.setScale(1.5f);
+            ((WorldClient) getWorld()).addParticle(particle);
+            sprintParticle = SPRINT_PARTICLE_DELAY;
+        }
     }
 
     @Override
@@ -124,7 +165,7 @@ public class Player extends LivingEntity {
 
     public void updateMovementFlags(boolean sneaking, boolean sprinting, boolean flying) {
         this.sneaking = sneaking;
-        this.sprinting = sprinting;
+        this.sprinting = (this.sprinting || sprinting) && !sneaking && forwards;
         this.flying = (flying && abilities.get(Abilities.Ability.CAN_FLY)) || abilities.get(Abilities.Ability.NOCLIP);
 
         if (this.isRiding() && sneaking)

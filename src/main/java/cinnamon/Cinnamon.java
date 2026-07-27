@@ -16,8 +16,6 @@ import org.lwjgl.glfw.GLFWDropCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.Platform;
 
 import java.util.HashSet;
@@ -140,6 +138,8 @@ public class Cinnamon {
         glfwShowWindow(window);
 
         //register input callbacks
+        glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
+        glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
         glfwSetKeyCallback(window, (win, key, scancode, action, mods) -> client.keyPress(key, scancode, action, mods));
         glfwSetCharModsCallback(window, (win, key, mods) -> {
             for (char c : Character.toChars(key))
@@ -160,11 +160,6 @@ public class Cinnamon {
 
         //finishes the initialization process
         GL.createCapabilities();
-
-
-        int actualMajor = GL11.glGetInteger(GL30.GL_MAJOR_VERSION);
-        int actualMinor = GL11.glGetInteger(GL30.GL_MINOR_VERSION);
-        System.out.println("Driver Context Version: " + actualMajor + "." + actualMinor);
 
         //save detected extensions
         int numExt = glGetInteger(GL_NUM_EXTENSIONS);

@@ -123,8 +123,17 @@ public class SoundManager {
 
     static void checkALError() {
         int err = alGetError();
-        if (err != AL_NO_ERROR)
-            throw new RuntimeException("(" + err + ") " + alGetString(err));
+        if (err != AL_NO_ERROR) {
+            String desc = switch (err) {
+                case AL_INVALID_NAME -> "Invalid name parameter";
+                case AL_INVALID_ENUM -> "Invalid parameter";
+                case AL_INVALID_VALUE -> "Invalid enum parameter value";
+                case AL_INVALID_OPERATION -> "Illegal call";
+                case AL_OUT_OF_MEMORY -> "Unable to allocate memory";
+                default -> "Unknown error code";
+            };
+            throw new RuntimeException("(" + err + ") " + alGetString(err) + " - " + desc);
+        }
     }
 
     private static void checkALCError(long device) {
@@ -160,8 +169,10 @@ public class SoundManager {
         Vector3f forward = camera.getForwards();
         Vector3f up = camera.getUp();
 
-        if (Maths.isNaN(pos) || Maths.isNaN(forward) || Maths.isNaN(up))
-            throw new RuntimeException("Camera properties contains a NaN value!");
+        if (Maths.isNaN(pos) || Maths.isNaN(forward) || Maths.isNaN(up)) {
+            LOGGER.error("Camera properties contains a NaN value!");
+            return;
+        }
 
         alListener3f(AL_POSITION, pos.x, pos.y, pos.z);
         alListenerfv(AL_ORIENTATION, new float[]{
@@ -210,6 +221,11 @@ public class SoundManager {
 
         if (!initialized) {
             LOGGER.debug("Sound engine is not initialized! Skipping sound \"%s\"", resource);
+            return new SoundInstance(category);
+        }
+
+        if (position != null && Maths.isNaN(position)) {
+            LOGGER.error("Sound position contains a NaN value! Skipping sound \"%s\"", resource);
             return new SoundInstance(category);
         }
 

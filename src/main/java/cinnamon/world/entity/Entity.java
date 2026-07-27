@@ -3,6 +3,7 @@ package cinnamon.world.entity;
 import cinnamon.Client;
 import cinnamon.animation.Animation;
 import cinnamon.gui.DebugScreen;
+import cinnamon.input.Controller;
 import cinnamon.math.Maths;
 import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Hit;
@@ -60,6 +61,8 @@ public abstract class Entity extends WorldObject {
     protected Mask renderMask = new Mask();
 
     private final List<FeatureRenderer> renderFeatures = new ArrayList<>();
+
+    protected final Controller controller = new Controller();
 
     public Entity(UUID uuid, Resource model) {
         this.model = ModelManager.load(model);
@@ -174,10 +177,8 @@ public abstract class Entity extends WorldObject {
     }
 
     public void impulse(float left, float up, float forwards) {
-        if (riding != null) {
-            riding.impulse(left, up, forwards);
+        if (riding != null)
             return;
-        }
 
         Vector3f move = new Vector3f(-left, up, -forwards);
         move.rotate(transform.getRot());
@@ -565,5 +566,19 @@ public abstract class Entity extends WorldObject {
 
     public Quaternionf getLastRot() {
         return oRot;
+    }
+
+    public Vector3f toLocalDir(Vector3f worldDir) {
+        return this.toLocalDir(worldDir.x, worldDir.y, worldDir.z);
+    }
+
+    public Vector3f toLocalDir(float x, float y, float z) {
+        Vector3f local = new Vector3f(x, y, z);
+        local.rotate(new Quaternionf(transform.getRot()).invert().rotateY(Math.PI_f));
+        return local;
+    }
+
+    public Controller getController() {
+        return controller;
     }
 }

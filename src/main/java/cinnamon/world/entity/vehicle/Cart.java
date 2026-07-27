@@ -5,8 +5,12 @@ import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.settings.Settings;
+import cinnamon.sound.SoundCategory;
 import cinnamon.utils.ColorUtils;
+import cinnamon.utils.Resource;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.items.Flashlight;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.StarParticle;
@@ -19,20 +23,48 @@ import java.util.UUID;
 
 public class Cart extends Car {
 
+    public static final Resource
+            ALARM_UNLOCK_SOUND = new Resource("sounds/entity/vehicle/car/car_alarm_unlock.png"),
+            HORN_PRESS_SOUND   = new Resource("sounds/entity/vehicle/car/car_horn_press.ogg"),
+            HORN_RELEASE_SOUND = new Resource("sounds/entity/vehicle/car/car_horn_release.ogg");
+
     private final Light
-            headlight = new Spotlight().angle(40f, 60f).falloff(0f, 10f).intensity(10f).source(getUUID()),
-            taillight = new Spotlight().angle(40f, 60f).falloff(0f,  5f).intensity(10f).source(getUUID()).color(0xFF5555);
+            headlight = new Spotlight().angle(40f, 60f).falloff(0f, 10f).intensity(0f).source(getUUID()),
+            taillight = new Spotlight().angle(40f, 60f).falloff(0f,  5f).intensity(0f).source(getUUID()).color(0xFF5555);
 
     private boolean isRailed;
+    private boolean lights = false;
+    private boolean shouldUpdateLights = true;
+    private boolean honking;
 
     public Cart(UUID uuid) {
         super(uuid, EntityModelRegistry.CART.resource, 1, 10f, 0.0003f, 0.008f, 0.003f, 0.9f);
         taillight.setCastShadows(false);
+        getController().bindState(
+                "honk", Settings.honk.get(),
+                honk -> {
+                    if (honk && !honking) {
+                        honking = true;
+                        ((WorldClient) getWorld()).playSound(HORN_PRESS_SOUND, SoundCategory.ENTITY, getTransform().getPos()).distance(16f).maxDistance(32f);
+                    } else if (!honk && honking) {
+                        honking = false;
+                        ((WorldClient) getWorld()).playSound(HORN_RELEASE_SOUND, SoundCategory.ENTITY, getTransform().getPos()).distance(16f).maxDistance(32f);
+                    }
+                }
+        ).bindClick("lights", Settings.lights.get(),
+                clicks -> {
+                    shouldUpdateLights = false;
+                    setLights(!lights);
+                }
+        );
     }
 
     @Override
     public void tick() {
         super.tick();
+
+        if (shouldUpdateLights)
+            checkLights();
 
         if (getWorld().isClientside() && motion.lengthSquared() > 0.01f) {
             float yaw = Maths.getYaw(getTransform().getRot());
@@ -47,6 +79,13 @@ public class Cart extends Car {
                 ((WorldClient) getWorld()).addParticle(star);
             }
         }
+    }
+
+    protected void checkLights() {
+        if (!lights && getWorld().isNight())
+            setLights(true);
+        else if (lights && !getWorld().isNight())
+            setLights(false);
     }
 
     @Override
@@ -128,6 +167,19 @@ public class Cart extends Car {
         if (riders.isEmpty() && world instanceof WorldClient w) {
             w.removeLight(headlight);
             w.removeLight(taillight);
+            setLights(false);
+            shouldUpdateLights = true;
         }
+    }
+
+    public void setLights(boolean lights) {
+        if (this.lights == lights)
+            return;
+
+        this.lights = lights;
+        headlight.intensity(lights ? 10f : 0f);
+        taillight.intensity(lights ? 10f : 0f);
+
+        ((WorldClient) getWorld()).playSound(lights ? Flashlight.ON_SOUND : Flashlight.OFF_SOUND, SoundCategory.ENTITY, getTransform().getPos()).volume(5f);
     }
 }

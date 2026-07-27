@@ -93,7 +93,7 @@ public class Movement {
             flyingToggle = true;
             flyTicks = 0;
         } else {
-            flyTicks = Settings.flyingToggleTime.get();
+            flyTicks = Settings.doubleKeypressTime.get();
         }
     }
 

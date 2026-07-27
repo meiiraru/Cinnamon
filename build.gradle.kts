@@ -9,7 +9,7 @@ version = "0.4.5"
 val mainClass = "cinnamon.Cinnamon"
 
 //dependencies
-val lwjglVersion = "3.4.1"
+val lwjglVersion = "3.4.2"
 val jomlVersion = "1.10.9"
 val gsonVersion = "2.14.0"
 

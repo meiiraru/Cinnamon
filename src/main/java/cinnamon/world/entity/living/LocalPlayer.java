@@ -38,6 +38,10 @@ public class LocalPlayer extends Player {
 
     public LocalPlayer(LivingModelRegistry model) {
         super(Client.getInstance().name, Client.getInstance().playerUUID, model);
+        this.getController().bindClick(
+                "pick", Settings.pick.get(),
+                clicks -> this.pick()
+        );
     }
 
     @Override

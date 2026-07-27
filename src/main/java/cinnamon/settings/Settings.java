@@ -8,7 +8,11 @@ import cinnamon.registry.LivingModelRegistry;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import static cinnamon.Client.LOGGER;
-import static cinnamon.input.Keybind.KeyType.*;
+import static cinnamon.input.Keybind.KeyType.KEY;
+import static cinnamon.input.Keybind.KeyType.MOUSE;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Settings {
@@ -51,9 +56,9 @@ public class Settings {
 
     //accessibility
     public static final Setting.Ints
-            flyingToggleTime = new Setting.Ints("accessibility.flying_toggle_time", 10),
-            doubleClickTime  = new Setting.Ints("accessibility.double_click_time", 10),
-            cursorBlinkDelay = new Setting.Ints("accessibility.cursor_blink_delay", 20);
+            doubleKeypressTime = new Setting.Ints("accessibility.double_keypress_time", 10),
+            doubleClickTime    = new Setting.Ints("accessibility.double_click_time", 10),
+            cursorBlinkDelay   = new Setting.Ints("accessibility.cursor_blink_delay", 20);
     public static final Setting.Floats viewBobbingStrength = new Setting.Floats("accessibility.view_bobbing_strength", 1f);
     public static final Setting.Bools actionWheelRunOnClose = new Setting.Bools("accessibility.action_wheel_run_on_close", false);
 
@@ -86,19 +91,35 @@ public class Settings {
     //keybinds
     public static final Setting.Keybind
             //movement
-            forward  = new Setting.Keybind("keybind.forward", GLFW_KEY_W, KEY),
-            backward = new Setting.Keybind("keybind.backward", GLFW_KEY_S, KEY),
-            left     = new Setting.Keybind("keybind.left", GLFW_KEY_A, KEY),
-            right    = new Setting.Keybind("keybind.right", GLFW_KEY_D, KEY),
+            forward  = new Setting.Keybind("keybind.movement.forward", GLFW_KEY_W, KEY),
+            backward = new Setting.Keybind("keybind.movement.backward", GLFW_KEY_S, KEY),
+            left     = new Setting.Keybind("keybind.movement.left", GLFW_KEY_A, KEY),
+            right    = new Setting.Keybind("keybind.movement.right", GLFW_KEY_D, KEY),
 
-            jump   = new Setting.Keybind("keybind.jump", GLFW_KEY_SPACE, KEY),
-            sneak  = new Setting.Keybind("keybind.sneak", GLFW_KEY_LEFT_CONTROL, KEY),
-            sprint = new Setting.Keybind("keybind.sprint", GLFW_KEY_LEFT_SHIFT, KEY),
+            jump   = new Setting.Keybind("keybind.movement.jump", GLFW_KEY_SPACE, KEY),
+            sneak  = new Setting.Keybind("keybind.movement.sneak", GLFW_KEY_LEFT_CONTROL, KEY),
+            sprint = new Setting.Keybind("keybind.movement.sprint", GLFW_KEY_LEFT_SHIFT, KEY),
 
             //item
-            attack = new Setting.Keybind("keybind.attack", GLFW_MOUSE_BUTTON_1, MOUSE),
-            use    = new Setting.Keybind("keybind.use", GLFW_MOUSE_BUTTON_2, MOUSE),
-            pick   = new Setting.Keybind("keybind.pick", GLFW_MOUSE_BUTTON_3, MOUSE);
+            attack = new Setting.Keybind("keybind.item.attack", GLFW_MOUSE_BUTTON_1, MOUSE),
+            use    = new Setting.Keybind("keybind.item.use", GLFW_MOUSE_BUTTON_2, MOUSE),
+            pick   = new Setting.Keybind("keybind.item.pick", GLFW_MOUSE_BUTTON_3, MOUSE),
+            drop   = new Setting.Keybind("keybind.item.drop", GLFW_KEY_Q, KEY),
+            reload = new Setting.Keybind("keybind.item.reload", GLFW_KEY_R, KEY),
+            inv1   = new Setting.Keybind("keybind.inv.inv1", GLFW_KEY_1, KEY),
+            inv2   = new Setting.Keybind("keybind.inv.inv2", GLFW_KEY_2, KEY),
+            inv3   = new Setting.Keybind("keybind.inv.inv3", GLFW_KEY_3, KEY),
+            inv4   = new Setting.Keybind("keybind.inv.inv4", GLFW_KEY_4, KEY),
+            inv5   = new Setting.Keybind("keybind.inv.inv5", GLFW_KEY_5, KEY),
+            inv6   = new Setting.Keybind("keybind.inv.inv6", GLFW_KEY_6, KEY),
+            inv7   = new Setting.Keybind("keybind.inv.inv7", GLFW_KEY_7, KEY),
+            inv8   = new Setting.Keybind("keybind.inv.inv8", GLFW_KEY_8, KEY),
+            inv9   = new Setting.Keybind("keybind.inv.inv9", GLFW_KEY_9, KEY),
+
+            //vehicle
+            honk   = new Setting.Keybind("keybind.car.honk", GLFW_KEY_F, KEY),
+            lights = new Setting.Keybind("keybind.car.lights", GLFW_KEY_H, KEY),
+            brake  = new Setting.Keybind("keybind.car.brake", GLFW_KEY_SPACE, KEY);
 
     static {
         //screen

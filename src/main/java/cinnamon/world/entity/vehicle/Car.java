@@ -4,6 +4,7 @@ import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Resolution;
+import cinnamon.settings.Settings;
 import cinnamon.utils.Resource;
 import cinnamon.utils.UIHelper;
 import cinnamon.world.entity.PhysEntity;
@@ -36,6 +37,15 @@ public abstract class Car extends Vehicle {
         this.maxAcceleration = maxAcceleration;
         this.maxReverseAcceleration = maxReverseAcceleration;
         this.brakeDamping = brakeDamping;
+        getController().bindVector2D(
+                "steering",
+                Settings.left.get(), Settings.right.get(),
+                Settings.forward.get(), Settings.backward.get(),
+                (x, y) -> impulse(x, 0f, y)
+        ).bindState(
+                "brake", Settings.brake.get(),
+                (pressed) -> breakInput = pressed
+        );
     }
 
     @Override
@@ -105,14 +115,11 @@ public abstract class Car extends Vehicle {
 
     @Override
     public void impulse(float left, float up, float forwards) {
-        if (riding != null) {
-            riding.impulse(left, up, forwards);
+        if (riding != null)
             return;
-        }
 
         this.steeringInput = left;
         this.accelerationInput = forwards;
-        this.breakInput = up > 0;
     }
 
     @Override

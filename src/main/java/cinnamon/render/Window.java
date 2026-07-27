@@ -41,6 +41,9 @@ public class Window {
     public int mouseX, mouseY;
     private boolean mouseLocked;
 
+    //keyboard properties
+    public int modsMask;
+
     /**
      * Create a new window
      * @param window the window's GLFW handle
@@ -220,6 +223,14 @@ public class Window {
     public void updateMosuePos(double x, double y) {
         this.mouseX = (int) (x / guiScale);
         this.mouseY = (int) (y / guiScale);
+    }
+
+    /**
+     * Update the window's modifier keys mask
+     * @param modsMask the new modifier keys mask
+     */
+    public void updateModsMask(int modsMask) {
+        this.modsMask = modsMask;
     }
 
     /**

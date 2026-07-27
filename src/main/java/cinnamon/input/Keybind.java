@@ -7,14 +7,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static cinnamon.Client.LOGGER;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Keybind {
 
     private static final Map<KeyType, List<Keybind>> KEYBINDS = Map.of(
-            KeyType.KEY, new ArrayList<>(),
+            KeyType.KEY,      new ArrayList<>(),
             KeyType.SCANCODE, new ArrayList<>(),
-            KeyType.MOUSE, new ArrayList<>()
+            KeyType.MOUSE,    new ArrayList<>()
     );
 
     private final String name;
@@ -25,6 +26,7 @@ public class Keybind {
     private KeyType type;
 
     private boolean pressed;
+    private boolean pollPressed;
     private int clicks;
 
     private Text text;
@@ -40,18 +42,19 @@ public class Keybind {
         this.defaultType = this.type = type;
         updateText();
         KEYBINDS.get(defaultType).add(this);
+        LOGGER.debug("Registered keybind: " + name + " (" + text.asString() + ")");
     }
 
     public static void mousePress(int button, int action, int mods) {
         if (button == -1)
             return;
 
+        boolean pressed = action != GLFW_RELEASE;
         for (Keybind keybind : KEYBINDS.get(KeyType.MOUSE)) {
             if (keybind.key == button) {
-                if (action != GLFW_RELEASE && (keybind.mods == 0 || mods == keybind.mods))
+                keybind.pressed = pressed;
+                if (pressed && (keybind.mods == 0 || mods == keybind.mods))
                     keybind.press();
-                else
-                    keybind.release();
             }
         }
     }
@@ -60,13 +63,15 @@ public class Keybind {
         if (key == -1 && scancode == -1)
             return;
 
+        boolean pressed = action != GLFW_RELEASE;
+
         if (key != -1) {
             for (Keybind keybind : KEYBINDS.get(KeyType.KEY)) {
                 if (keybind.key == key) {
                     if (action != GLFW_RELEASE && (keybind.mods == 0 || mods == keybind.mods))
                         keybind.press();
                     else
-                        keybind.release();
+                        keybind.pressed = false;
                 }
             }
         } else {
@@ -75,26 +80,49 @@ public class Keybind {
                     if (action != GLFW_RELEASE && (keybind.mods == 0 || mods == keybind.mods))
                         keybind.press();
                     else
-                        keybind.release();
+                        keybind.pressed = false;
                 }
             }
         }
     }
 
-    public static void releaseAll() {
-        for (List<Keybind> keybinds : KEYBINDS.values())
-            for (Keybind keybind : keybinds)
+    public static void releaseAll(boolean mouse, boolean keys) {
+        if (mouse) {
+            for (Keybind keybind : KEYBINDS.get(KeyType.MOUSE)) {
                 keybind.release();
+                keybind.pressed = false;
+            }
+        }
+        if (keys) {
+            for (Keybind keybind : KEYBINDS.get(KeyType.KEY)) {
+                keybind.release();
+                keybind.pressed = false;
+            }
+            for (Keybind keybind : KEYBINDS.get(KeyType.SCANCODE)) {
+                keybind.release();
+                keybind.pressed = false;
+            }
+        }
+    }
+
+    public static void flush() {
+        for (List<Keybind> value : KEYBINDS.values()) {
+            for (Keybind keybind : value) {
+                if (!keybind.pressed)
+                    keybind.release();
+            }
+        }
     }
 
     private void press() {
         clicks++;
         pressed = true;
+        pollPressed = true;
     }
 
     private void release() {
         clicks = 0;
-        pressed = false;
+        pollPressed = false;
     }
 
     private void updateText() {
@@ -124,7 +152,15 @@ public class Keybind {
         return false;
     }
 
+    public int getClicks() {
+        return clicks;
+    }
+
     public boolean isPressed() {
+        return pollPressed;
+    }
+
+    public boolean isActuallyPressed() {
         return pressed;
     }
 
@@ -166,14 +202,14 @@ public class Keybind {
 
     public enum KeyType {
         KEY(key -> {
-            String glfwName = glfwGetKeyName(key, -1);
-            return glfwName != null ? Text.of(glfwName.toUpperCase()) : Text.translated("key.keyboard", key);
+            String glfwName = glfwGetKeyName(key, glfwGetKeyScancode(key));
+            return glfwName != null ? Text.of(glfwName.toUpperCase()) : Text.translated("key.keyboard." + key);
         }),
         SCANCODE(scancode -> {
             String glfwName = glfwGetKeyName(-1, scancode);
-            return glfwName != null ? Text.of(glfwName.toUpperCase()) : Text.translated("key.scancode", scancode);
+            return glfwName != null ? Text.of(glfwName.toUpperCase()) : Text.translated("key.scancode." + scancode);
         }),
-        MOUSE(button -> Text.translated("key.mouse", button + 1));
+        MOUSE(button -> button < 3 ? Text.translated("key.mouse." + (button + 1)) : Text.translated("key.mouse", button + 1));
 
         private final Function<Integer, Text> textFunction;
 

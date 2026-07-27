@@ -7,9 +7,8 @@ import cinnamon.gui.Screen;
 import cinnamon.gui.screens.world.ChatScreen;
 import cinnamon.gui.screens.world.DeathScreen;
 import cinnamon.gui.screens.world.PauseScreen;
-import cinnamon.input.Interaction;
+import cinnamon.input.Controller;
 import cinnamon.input.Keybind;
-import cinnamon.input.Movement;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
@@ -68,7 +67,6 @@ import cinnamon.world.items.weapons.CoilGun;
 import cinnamon.world.items.weapons.NailGun;
 import cinnamon.world.items.weapons.PotatoCannon;
 import cinnamon.world.items.weapons.RiceGun;
-import cinnamon.world.items.weapons.Weapon;
 import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.PointLight;
@@ -106,8 +104,6 @@ public class WorldClient extends World {
 
     protected Hud hud = new Hud();
     protected Overlay overlay;
-    protected Movement movement = new Movement();
-    protected Interaction interaction = new Interaction();
 
     protected Client client;
     public LocalPlayer player;
@@ -741,8 +737,13 @@ public class WorldClient extends World {
     }
 
     protected void tickInput() {
-        this.movement.tick(player);
-        this.interaction.tick(player);
+        Entity e = player;
+        while (e != null) {
+            e.getController().tick();
+            e = e.isRiding() ? e.getRidingEntity() : null;
+        }
+        Controller.clearTick();
+        Keybind.flush();
     }
 
     public void mousePress(int button, int action, int mods) {
@@ -753,16 +754,15 @@ public class WorldClient extends World {
             return;
 
         Keybind.mousePress(button, action, mods);
-        this.interaction.tick(player);
     }
 
     public void mouseMove(double x, double y) {
         if (!XrManager.isInXR())
-            movement.mouseMove(x, y);
+            Controller.mouseMove(x, y);
     }
 
     public void scroll(double x, double y) {
-        this.interaction.scrollItem((int) Math.signum(-y));
+        Controller.mouseScroll(x, y);
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
@@ -773,7 +773,11 @@ public class WorldClient extends World {
                 client.window.lockMouse();
                 resetInput();
             }
-        } else if (key == GLFW_KEY_B) {
+        }
+
+        Keybind.keyPress(key, scancode, action, mods);
+
+        if (enableDebugKeys && key == GLFW_KEY_B) {
             if (action == GLFW_PRESS) {
                 openOverlay(genDebugActionWheel());
             } else if (action == GLFW_RELEASE) {
@@ -781,26 +785,12 @@ public class WorldClient extends World {
             }
         }
 
-        Keybind.keyPress(key, scancode, action, mods);
-
         if (action == GLFW_RELEASE)
             return;
 
-        if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9) {
-            int i = key - GLFW_KEY_1;
-            player.setSelectedItem(i);
-            //connection.sendUDP(new SelectItem().index(i));
-        }
-
         boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
-        boolean ctrl  = (mods & GLFW_MOD_CONTROL) != 0;
 
         switch (key) {
-            case GLFW_KEY_R -> {
-                Item i = player.getHoldingItem();
-                if (i instanceof Weapon weapon)
-                    weapon.reload();
-            }
             case GLFW_KEY_ESCAPE -> pause();
             case GLFW_KEY_ENTER, GLFW_KEY_KP_ENTER -> {
                 Screen chat = chatScreen.get();
@@ -808,13 +798,11 @@ public class WorldClient extends World {
                     client.setScreen(chat);
             }
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
-            case GLFW_KEY_F7 -> this.worldTime = Math.max(this.worldTime - 100, 0);
-            case GLFW_KEY_F8 -> this.worldTime += 100;
+            case GLFW_KEY_F7 -> {if (enableDebugKeys) this.worldTime = Math.max(this.worldTime - 100, 0);}
+            case GLFW_KEY_F8 -> {if (enableDebugKeys) this.worldTime += 100;}
 
             case GLFW_KEY_COMMA -> player.setSelectedTerrain((player.getSelectedTerrain() + 1) % (TerrainRegistry.values().length - 1));
             case GLFW_KEY_PERIOD -> player.setSelectedMaterial(Maths.modulo((player.getSelectedMaterial() + (shift ? -1 : 1)), MaterialRegistry.values().length));
-
-            case GLFW_KEY_Q -> player.dropItem(-1, ctrl);
 
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
             //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));
@@ -826,34 +814,33 @@ public class WorldClient extends World {
     }
 
     public void xrButtonPress(int button, boolean pressed, int hand) {
-        if (pressed && button == 1) {
-            if (hand == 0) {
-                player.dropItem(-1, false);
-            } else {
-                pause();
-            }
-            return;
-        }
+        //if (pressed && button == 1) {
+        //    if (hand == 0) {
+        //        player.dropItem(-1, 1);
+        //    } else {
+        //        pause();
+        //    }
+        //    return;
+        //}
 
-        movement.xrButtonPress(button, pressed, hand);
+        //movement.xrButtonPress(button, pressed, hand);
     }
 
     public void xrTriggerPress(int button, float value, int hand, float lastValue) {
-        interaction.xrTriggerPress(button, value, hand, lastValue);
+        //interaction.xrTriggerPress(button, value, hand, lastValue);
     }
 
     public void xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
-        movement.xrJoystickMove(x, y, hand, lastX, lastY);
+        //movement.xrJoystickMove(x, y, hand, lastX, lastY);
     }
 
     public void resetInput() {
-        this.movement.reset();
-        this.interaction.reset();
-        Keybind.releaseAll();
-        if (player != null) {
-            player.stopAttacking();
-            player.stopUsing();
-        }
+        resetInput(true, true);
+    }
+
+    public void resetInput(boolean mouse, boolean keys) {
+        Controller.reset();
+        Keybind.releaseAll(mouse, keys);
     }
 
     public int getCameraMode() {
@@ -968,8 +955,10 @@ public class WorldClient extends World {
 
         this.overlay = overlay;
         if (overlay != null) {
-            if (overlay.stealsMouse())
+            if (overlay.stealsMouse()) {
                 client.window.unlockMouse();
+                resetInput(true, false);
+            }
             overlay.open();
         }
     }
@@ -981,7 +970,7 @@ public class WorldClient extends World {
         this.overlay.close();
         if (this.overlay.stealsMouse()) {
             client.window.lockMouse();
-            resetInput();
+            resetInput(true, false);
         }
         this.overlay = null;
     }

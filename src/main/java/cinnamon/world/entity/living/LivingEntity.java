@@ -1,12 +1,14 @@
 package cinnamon.world.entity.living;
 
 import cinnamon.Client;
+import cinnamon.input.InputManager;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Hit;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.settings.Settings;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Colors;
@@ -21,6 +23,7 @@ import cinnamon.world.entity.collectable.ItemEntity;
 import cinnamon.world.items.Inventory;
 import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
+import cinnamon.world.items.weapons.Weapon;
 import cinnamon.world.particle.SmokeParticle;
 import cinnamon.world.particle.TextParticle;
 import cinnamon.world.terrain.Terrain;
@@ -28,6 +31,7 @@ import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,12 +48,86 @@ public abstract class LivingEntity extends PhysEntity {
     private int maxHealth;
     private boolean leftHanded = false;
 
+    private boolean wasAttacking, wasUsing;
+
     public LivingEntity(UUID uuid, Resource model, float eyeHeight, int maxHealth, int inventorySize) {
         super(uuid, model);
         this.health = this.maxHealth = maxHealth;
         this.eyeHeight = eyeHeight;
         this.inventory = new Inventory(inventorySize);
         this.addRenderFeature((source, camera, matrices, delta) -> renderHandItem(ItemRenderContext.THIRD_PERSON, matrices, delta));
+        this.getController().bindVector3D(
+                "movement",
+                Settings.left.get(), Settings.right.get(),
+                Settings.jump.get(), Settings.sneak.get(),
+                Settings.forward.get(), Settings.backward.get(),
+                this::impulse
+        ).bindMouseMove(
+                "look",
+                (x, y) -> this.rotate(y, x, 0f)
+        ).bindMouseScroll(
+                "item_scroll",
+                (x, y) -> this.setSelectedItem(this.getInventory().getSelectedIndex() - (int) Math.signum(y))
+        ).bindState(
+                "attack", Settings.attack.get(),
+                attacking -> {
+                    if (attacking) {
+                        this.attackAction();
+                        wasAttacking = true;
+                    } else if (wasAttacking) {
+                        this.stopAttacking();
+                        wasAttacking = false;
+                    }
+                }
+        ).bindState(
+                "use", Settings.use.get(),
+                using -> {
+                    if (using) {
+                        this.useAction();
+                        wasUsing = true;
+                    } else if (wasUsing) {
+                        this.stopUsing();
+                        wasUsing = false;
+                    }
+                }
+        ).bindClick(
+                "drop", Settings.drop.get(),
+                clicks -> dropItem(-1, InputManager.isModsPressed(GLFW.GLFW_MOD_CONTROL) ? -1 : clicks)
+        ).bindClick(
+                "reload", Settings.reload.get(),
+                clicks -> {
+                    Item item = getHoldingItem();
+                    if (item instanceof Weapon weapon)
+                        weapon.reload();
+                }
+        ).bindClick(
+                "inventory1", Settings.inv1.get(),
+                clicks -> setSelectedItem(0)
+        ).bindClick(
+                "inventory2", Settings.inv2.get(),
+                clicks -> setSelectedItem(1)
+        ).bindClick(
+                "inventory3", Settings.inv3.get(),
+                clicks -> setSelectedItem(2)
+        ).bindClick(
+                "inventory4", Settings.inv4.get(),
+                clicks -> setSelectedItem(3)
+        ).bindClick(
+                "inventory5", Settings.inv5.get(),
+                clicks -> setSelectedItem(4)
+        ).bindClick(
+                "inventory6", Settings.inv6.get(),
+                clicks -> setSelectedItem(5)
+        ).bindClick(
+                "inventory7", Settings.inv7.get(),
+                clicks -> setSelectedItem(6)
+        ).bindClick(
+                "inventory8", Settings.inv8.get(),
+                clicks -> setSelectedItem(7)
+        ).bindClick(
+                "inventory9", Settings.inv9.get(),
+                clicks -> setSelectedItem(8)
+        );
     }
 
     @Override
@@ -145,10 +223,8 @@ public abstract class LivingEntity extends PhysEntity {
 
     @Override
     public void impulse(float left, float up, float forwards) {
-        if (riding != null) {
-            riding.impulse(left, up, forwards);
+        if (riding != null)
             return;
-        }
 
         float l = Math.signum(left);
         float f = Math.signum(forwards);
@@ -378,7 +454,7 @@ public abstract class LivingEntity extends PhysEntity {
             getHoldingItem().select(this);
     }
 
-    protected Item getItemToDrop(int index, boolean fullStack) {
+    protected Item getItemToDrop(int index, int dropCount) {
         Inventory inv = getInventory();
         Item i = index < 0 ? inv.getSelectedItem() : index < inv.getSize() ? inv.getItem(index) : null;
         if (i == null)
@@ -386,11 +462,12 @@ public abstract class LivingEntity extends PhysEntity {
 
         Item drop = i.copy();
         int count = i.getCount();
-        drop.setCount(fullStack ? count : 1);
+        int droppedCount = dropCount < 0 ? count : Math.min(dropCount, count);
+        drop.setCount(droppedCount);
 
         //reduce stack size or remove from inventory
-        if (count > 1 && !fullStack) {
-            i.setCount(count - 1);
+        if (droppedCount != count) {
+            i.setCount(count - droppedCount);
         } else {
             inv.setItem(inv.getSelectedIndex(), null);
             i.unselect();
@@ -399,8 +476,8 @@ public abstract class LivingEntity extends PhysEntity {
         return drop;
     }
 
-    public ItemEntity dropItem(int index, boolean fullStack) {
-        Item drop = getItemToDrop(index, fullStack);
+    public ItemEntity dropItem(int index, int count) {
+        Item drop = getItemToDrop(index, count);
         if (drop == null || drop.getCount() <= 0)
             return null;
 

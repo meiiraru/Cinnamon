@@ -128,7 +128,7 @@ public class Maths {
     }
 
     public static Vector2f dirToRot(float x, float y, float z) {
-        float pitch = Math.toDegrees(Math.asin(clamp(-y, -1f, 1f)));
+        float pitch = Math.toDegrees(safeAsin(-y));
         float yaw = Math.toDegrees(Math.atan2(z, x));
         return new Vector2f(pitch, yaw + 90f);
     }
@@ -187,6 +187,10 @@ public class Maths {
         return (float) java.lang.Math.pow(a, b);
     }
 
+    public static float safeAsin(float x) {
+        return Math.asin(clamp(x, -1f, 1f));
+    }
+
     public static Vector3f reflect(Vector3f dir, Vector3f normal) {
         //r = d - 2 * (d dot n) * n
         float dot = dir.dot(normal) * 2;
@@ -241,7 +245,7 @@ public class Maths {
     }
 
     public static float getRoll(Quaternionf quat) {
-        return Math.toDegrees(Math.asin(-2f * quat.x * quat.y - 2f * quat.z * quat.w));
+        return Math.toDegrees(safeAsin(-2f * quat.x * quat.y - 2f * quat.z * quat.w));
     }
 
     public static Quaternionf dirToQuat(Vector3f dir) {
@@ -249,7 +253,7 @@ public class Maths {
     }
 
     public static Quaternionf dirToQuat(float x, float y, float z) {
-        float pitch = Math.asin(y);
+        float pitch = safeAsin(y);
         float yaw = Math.atan2(x, z);
         return new Quaternionf().rotationZYX(0f, yaw, -pitch);
     }
@@ -326,6 +330,10 @@ public class Maths {
 
     public static boolean isNaN(Vector2f vec) {
         return Float.isNaN(vec.x) || Float.isNaN(vec.y);
+    }
+
+    public static boolean isNaN(Quaternionf quat) {
+        return Float.isNaN(quat.x) || Float.isNaN(quat.y) || Float.isNaN(quat.z) || Float.isNaN(quat.w);
     }
 
     public static Matrix3f translateMat3(Matrix3f mat, float x, float y) {

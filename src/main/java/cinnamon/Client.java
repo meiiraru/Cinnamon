@@ -271,6 +271,8 @@ public class Client {
     // -- glfw events -- //
 
     public void mousePress(int button, int action, int mods) {
+        window.updateModsMask(mods);
+
         if (DebugScreen.isActive() && DebugScreen.mousePress(button, action, mods))
             return;
         if (screen != null)
@@ -282,6 +284,8 @@ public class Client {
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
+        window.updateModsMask(mods);
+
         if (DebugScreen.keyPress(key, scancode, action, mods))
             return;
 
@@ -326,6 +330,8 @@ public class Client {
     }
 
     public void charTyped(char c, int mods) {
+        window.updateModsMask(mods);
+
         if (DebugScreen.charTyped(c, mods))
             return;
 

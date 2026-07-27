@@ -18,7 +18,7 @@ public class BubbleParticle extends SpriteParticle {
 
     @Override
     public void tick() {
-        getMotion().mul(0.99f, 1f, 0.99f);
+        getMotion().mul(0.99f, 0.98f, 0.99f);
         super.tick();
 
         if (!collided) {
