@@ -51,11 +51,8 @@ public class Keybind {
 
         boolean pressed = action != GLFW_RELEASE;
         for (Keybind keybind : KEYBINDS.get(KeyType.MOUSE)) {
-            if (keybind.key == button) {
-                keybind.pressed = pressed;
-                if (pressed && (keybind.mods == 0 || mods == keybind.mods))
-                    keybind.press();
-            }
+            if (keybind.key == button)
+                processKeybind(keybind, pressed, mods);
         }
     }
 
@@ -67,41 +64,33 @@ public class Keybind {
 
         if (key != -1) {
             for (Keybind keybind : KEYBINDS.get(KeyType.KEY)) {
-                if (keybind.key == key) {
-                    if (action != GLFW_RELEASE && (keybind.mods == 0 || mods == keybind.mods))
-                        keybind.press();
-                    else
-                        keybind.pressed = false;
-                }
+                if (keybind.key == key)
+                    processKeybind(keybind, pressed, mods);
             }
         } else {
             for (Keybind keybind : KEYBINDS.get(KeyType.SCANCODE)) {
-                if (keybind.key == scancode) {
-                    if (action != GLFW_RELEASE && (keybind.mods == 0 || mods == keybind.mods))
-                        keybind.press();
-                    else
-                        keybind.pressed = false;
-                }
+                if (keybind.key == scancode)
+                    processKeybind(keybind, pressed, mods);
             }
         }
     }
 
+    private static void processKeybind(Keybind keybind, boolean pressed, int mods) {
+        keybind.pressed = pressed;
+        if (pressed && (keybind.mods == 0 || mods == keybind.mods))
+            keybind.press();
+    }
+
     public static void releaseAll(boolean mouse, boolean keys) {
         if (mouse) {
-            for (Keybind keybind : KEYBINDS.get(KeyType.MOUSE)) {
+            for (Keybind keybind : KEYBINDS.get(KeyType.MOUSE))
                 keybind.release();
-                keybind.pressed = false;
-            }
         }
         if (keys) {
-            for (Keybind keybind : KEYBINDS.get(KeyType.KEY)) {
+            for (Keybind keybind : KEYBINDS.get(KeyType.KEY))
                 keybind.release();
-                keybind.pressed = false;
-            }
-            for (Keybind keybind : KEYBINDS.get(KeyType.SCANCODE)) {
+            for (Keybind keybind : KEYBINDS.get(KeyType.SCANCODE))
                 keybind.release();
-                keybind.pressed = false;
-            }
         }
     }
 
@@ -122,6 +111,7 @@ public class Keybind {
 
     private void release() {
         clicks = 0;
+        pressed = false;
         pollPressed = false;
     }
 

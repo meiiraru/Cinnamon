@@ -717,8 +717,6 @@ public class WorldClient extends World {
     }
 
     @Override
-
-
     public void explode(Collider<?> explosionArea, float strength, Entity source, boolean invisible) {
         super.explode(explosionArea, strength, source, invisible);
 
@@ -759,12 +757,14 @@ public class WorldClient extends World {
     }
 
     public void mouseMove(double x, double y) {
-        if (!XrManager.isInXR())
-            Controller.mouseMove(x, y);
+        if (!client.window.isMouseLocked() || XrManager.isInXR())
+            return;
+        Controller.mouseMove(x, y);
     }
 
     public void scroll(double x, double y) {
-        Controller.mouseScroll(x, y);
+        if (client.window.isMouseLocked())
+            Controller.mouseScroll(x, y);
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
@@ -815,26 +815,15 @@ public class WorldClient extends World {
         resetInput();
     }
 
-    public void xrButtonPress(int button, boolean pressed, int hand) {
-        //if (pressed && button == 1) {
-        //    if (hand == 0) {
-        //        player.dropItem(-1, 1);
-        //    } else {
-        //        pause();
-        //    }
-        //    return;
-        //}
+    public void xrButtonPress(int button, boolean pressed, int hand) {}
+    public void xrTriggerPress(int button, float value, int hand, float lastValue) {}
+    public void xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {}
 
-        //movement.xrButtonPress(button, pressed, hand);
-    }
-
-    public void xrTriggerPress(int button, float value, int hand, float lastValue) {
-        //interaction.xrTriggerPress(button, value, hand, lastValue);
-    }
-
-    public void xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
-        //movement.xrJoystickMove(x, y, hand, lastX, lastY);
-    }
+    public void joystickButtonPress(int button, boolean pressed, int joystick) {}
+    public void joystickAxisMove(int axis, float value, int joystick, float lastValue) {}
+    public void joystickHatMove(int hat, byte hatState, int joystick, byte lastValue) {}
+    public void gamepadButtonPress(int button, boolean pressed, int joystick) {}
+    public void gamepadAxisMove(int axis, float value, int joystick, float lastValue) {}
 
     public void resetInput() {
         resetInput(true, true);

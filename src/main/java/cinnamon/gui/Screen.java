@@ -359,4 +359,24 @@ public abstract class Screen {
         xrScrollY = y >= f ? 1 : y <= -f ? -1 : 0;
         return xrScrollX != 0 || xrScrollY != 0;
     }
+
+    public boolean joystickButtonPress(int button, boolean pressed, int joystick) {
+        return false;
+    }
+
+    public boolean joystickAxisMove(int axis, float value, int joystick, float lastValue) {
+        return false;
+    }
+
+    public boolean joystickHatMove(int hat, byte hatState, int joystick, byte lastValue) {
+        return false;
+    }
+
+    public boolean gamepadButtonPress(int button, boolean pressed, int joystick) {
+        return false;
+    }
+
+    public boolean gamepadAxisMove(int axis, float value, int joystick, float lastValue) {
+        return false;
+    }
 }

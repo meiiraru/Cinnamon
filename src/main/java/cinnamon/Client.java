@@ -346,7 +346,7 @@ public class Client {
 
         if (screen != null) {
             screen.mouseMove(window.mouseX, window.mouseY);
-        } else if (world != null && window.isMouseLocked()) {
+        } else if (world != null) {
             world.mouseMove(x, y);
         }
 
@@ -356,7 +356,7 @@ public class Client {
     public void scroll(double x, double y) {
         if (screen != null)
             screen.scroll(x, y);
-        else if (world != null && window.isMouseLocked())
+        else if (world != null)
             world.scroll(x, y);
 
         events.runEvents(EventType.SCROLL, x, y);
@@ -410,7 +410,7 @@ public class Client {
     public void xrButtonPress(int button, boolean pressed, int hand) {
         if (screen != null) {
             screen.xrButtonPress(button, pressed, hand);
-        } else if (world != null && window.isMouseLocked()) {
+        } else if (world != null) {
             world.xrButtonPress(button, pressed, hand);
         }
 
@@ -422,7 +422,7 @@ public class Client {
             return;
         if (screen != null) {
             screen.xrTriggerPress(button, value, hand, lastValue);
-        } else if (world != null && window.isMouseLocked()) {
+        } else if (world != null) {
             world.xrTriggerPress(button, value, hand, lastValue);
         }
 
@@ -432,7 +432,7 @@ public class Client {
     public void xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
         if (screen != null) {
             screen.xrJoystickMove(x, y, hand, lastX, lastY);
-        } else if (world != null && window.isMouseLocked()) {
+        } else if (world != null) {
             world.xrJoystickMove(x, y, hand, lastX, lastY);
         }
 
@@ -440,14 +440,52 @@ public class Client {
     }
 
     public void joystickButtonPress(int button, boolean pressed, int joystick) {
+        if (screen != null) {
+            screen.joystickButtonPress(button, pressed, joystick);
+        } else if (world != null) {
+            world.joystickButtonPress(button, pressed, joystick);
+        }
 
+        events.runEvents(EventType.JOYSTICK_BUTTON_PRESS, button, pressed, joystick);
     }
 
     public void joystickAxisMove(int axis, float value, int joystick, float lastValue) {
+        if (screen != null) {
+            screen.joystickAxisMove(axis, value, joystick, lastValue);
+        } else if (world != null) {
+            world.joystickAxisMove(axis, value, joystick, lastValue);
+        }
 
+        events.runEvents(EventType.JOYSTICK_AXIS_MOVE, axis, value, joystick, lastValue);
     }
 
     public void joystickHatMove(int hat, byte hatState, int joystick, byte lastValue) {
+        if (screen != null) {
+            screen.joystickHatMove(hat, hatState, joystick, lastValue);
+        } else if (world != null) {
+            world.joystickHatMove(hat, hatState, joystick, lastValue);
+        }
 
+        events.runEvents(EventType.JOYSTICK_HAT_MOVE, hat, hatState, joystick, lastValue);
+    }
+
+    public void gamepadButtonPress(int button, boolean pressed, int joystick) {
+        if (screen != null) {
+            screen.gamepadButtonPress(button, pressed, joystick);
+        } else if (world != null) {
+            world.gamepadButtonPress(button, pressed, joystick);
+        }
+
+        events.runEvents(EventType.GAMEPAD_BUTTON_PRESS, button, pressed, joystick);
+    }
+
+    public void gamepadAxisMove(int axis, float value, int joystick, float lastValue) {
+        if (screen != null) {
+            screen.gamepadAxisMove(axis, value, joystick, lastValue);
+        } else if (world != null) {
+            world.gamepadAxisMove(axis, value, joystick, lastValue);
+        }
+
+        events.runEvents(EventType.GAMEPAD_AXIS_MOVE, axis, value, joystick, lastValue);
     }
 }

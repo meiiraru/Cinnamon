@@ -261,6 +261,9 @@ public class Cinnamon {
         //close xr
         XrManager.close();
 
+        //close joystick manager
+        JoystickManager.close();
+
         //close the file dialog
         FileDialog.close();
 
