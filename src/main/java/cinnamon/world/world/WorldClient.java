@@ -717,15 +717,17 @@ public class WorldClient extends World {
     }
 
     @Override
-    public void explode(AABB explosionArea, float strength, Entity source, boolean invisible) {
+
+
+    public void explode(Collider<?> explosionArea, float strength, Entity source, boolean invisible) {
         super.explode(explosionArea, strength, source, invisible);
 
         if (invisible)
             return;
 
         //particles
-        float volume = explosionArea.getDimensions().length();
-        for (int i = 0; i < 10 * volume; i++) {
+        float volume = explosionArea.getVolume();
+        for (int i = 0; i < volume; i++) {
             ExplosionParticle particle = new ExplosionParticle((int) (Math.random() * 10) + 15);
             particle.setPos(explosionArea.getRandomPoint());
             particle.setScale(Maths.range(3f, 7f));

@@ -6,6 +6,7 @@ import org.joml.Vector3f;
 public abstract class Collider<T extends Collider<T>> {
 
     public abstract T clone();
+    public abstract AABB toAABB();
 
     public abstract Vector3f getCenter();
 
@@ -13,6 +14,10 @@ public abstract class Collider<T extends Collider<T>> {
         return this.setCenter(center.x, center.y, center.z);
     }
     public abstract T setCenter(float x, float y, float z);
+
+    public abstract float getVolume();
+
+    public abstract Vector3f getRandomPoint();
 
     public T translate(Vector3f translation) {
         return this.translate(translation.x, translation.y, translation.z);

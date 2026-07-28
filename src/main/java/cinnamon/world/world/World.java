@@ -116,7 +116,7 @@ public abstract class World {
 
     public void entityRemoved(UUID uuid) {}
 
-    public List<Entity> getEntities(AABB region) {
+    public List<Entity> getEntities(Collider<?> region) {
         List<Entity> list = new ArrayList<>();
         for (Entity entity : entities.values()) {
             if (region.intersectsAABB(entity.getAABB()))
@@ -133,7 +133,7 @@ public abstract class World {
         return entities.get(uuid);
     }
 
-    public void explode(AABB explosionArea, float strength, Entity source, boolean invisible) {
+    public void explode(Collider<?> explosionArea, float strength, Entity source, boolean invisible) {
         int damage = (int) (4 * strength);
 
         for (Entity entity : getEntities(explosionArea)) {
@@ -151,6 +151,15 @@ public abstract class World {
             if (entity instanceof PhysEntity e) {
                 Vector3f dir = explosionArea.getCenter().sub(e.getAABB().getCenter(), new Vector3f()).normalize().mul(-1);
                 e.knockback(dir, 0.5f * strength);
+            }
+        }
+
+        for (Terrain terrain : getTerrains(explosionArea.toAABB())) {
+            for (Collider<?> collider : terrain.getPreciseCollider()) {
+                if (collider.intersects(explosionArea)) {
+                    removeTerrain(terrain);
+                    break;
+                }
             }
         }
     }

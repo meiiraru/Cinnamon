@@ -5,6 +5,7 @@ import cinnamon.math.Maths;
 import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Resolution;
+import cinnamon.math.collision.Sphere;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
@@ -108,7 +109,7 @@ public class Potato extends Projectile {
     public void remove() {
         super.remove();
         Vector3f pos = transform.getPos();
-        world.explode(new AABB(pos, pos).inflate(EXPLOSION_RANGE), EXPLOSION_STRENGTH, this, false);
+        world.explode(new Sphere(pos, EXPLOSION_RANGE), EXPLOSION_STRENGTH, this, false);
     }
 
     public void triggerExplosion() {

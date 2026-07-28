@@ -155,6 +155,17 @@ public class DebugScreen {
                     };
                     crashTask[0].run();
                 }
+                case GLFW_KEY_E -> {
+                    Client c = Client.getInstance();
+                    if (c.world != null) {
+                        Player p = c.world.player;
+                        if (p != null) {
+                            Pair<Hit, Entity> looking = p.getLookingEntity(p.getPickRange());
+                            if (looking != null)
+                                glfwSetClipboardString(-1, looking.second().getUUID().toString());
+                        }
+                    }
+                }
                 case GLFW_KEY_H -> MessageManager.addMessage(Text.of("""
                                 [Debug Help]
                                 &eF3 + &aX&r: Initialize XR system
@@ -164,6 +175,7 @@ public class DebugScreen {
                                 &eF3 + &aQ&r: Return to original main menu
                                 &eF3 + &aD&r: Clear all chat messages
                                 &eF3 + &aC&r: Crash the game (10 second countdown)
+                                &eF3 + &aE&r: Copies the player looking entity UUID to clipboard
                                 &eF3 + &aH&r: Show this help message""").withStyle(Style.EMPTY.italic(false).color(0xFFFFFFFF)),
                         MessageCategory.SYSTEM, null
                 );

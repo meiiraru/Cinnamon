@@ -110,6 +110,11 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
+    public AABB toAABB() {
+        return new AABB(this);
+    }
+
+    @Override
     public OBB setCenter(float x, float y, float z) {
         this.center.set(x, y, z);
         return this;
@@ -118,6 +123,24 @@ public class OBB extends Collider<OBB> {
     @Override
     public Vector3f getCenter() {
         return center;
+    }
+
+    @Override
+    public float getVolume() {
+        return halfExtents.x * halfExtents.y * halfExtents.z * 8f;
+    }
+
+    @Override
+    public Vector3f getRandomPoint() {
+        float rx = Maths.range(-halfExtents.x, halfExtents.x);
+        float ry = Maths.range(-halfExtents.y, halfExtents.y);
+        float rz = Maths.range(-halfExtents.z, halfExtents.z);
+
+        return new Vector3f(
+                axisX.x * rx + axisY.x * ry + axisZ.x * rz + center.x,
+                axisX.y * rx + axisY.y * ry + axisZ.y * rz + center.y,
+                axisX.z * rx + axisY.z * ry + axisZ.z * rz + center.z
+        );
     }
 
     public OBB setHalfExtents(Vector3f halfExtents) {

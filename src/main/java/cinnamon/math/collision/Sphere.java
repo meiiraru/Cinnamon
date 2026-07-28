@@ -82,13 +82,22 @@ public class Sphere extends Collider<Sphere> {
     }
 
     @Override
-    public Sphere setCenter(float x, float y, float z) {
-        this.center.set(x, y, z);
-        return this;
+    public AABB toAABB() {
+        return new AABB(this);
     }
 
     public Sphere setRadius(float radius) {
         this.radius = radius;
+        return this;
+    }
+
+    public float getRadius() {
+        return radius;
+    }
+
+    @Override
+    public Sphere setCenter(float x, float y, float z) {
+        this.center.set(x, y, z);
         return this;
     }
 
@@ -97,8 +106,29 @@ public class Sphere extends Collider<Sphere> {
         return center;
     }
 
-    public float getRadius() {
-        return radius;
+    @Override
+    public float getVolume() {
+        return (4f / 3f) * Math.PI_f * radius * radius * radius;
+    }
+
+    @Override
+    public Vector3f getRandomPoint() {
+        //random point on the unit sphere
+        float u = (float) Math.random();
+        float v = (float) Math.random();
+        float theta = 2f * Math.PI_f * u;
+        float phi = Math.acos(2f * v - 1f);
+        float sinPhi = Math.sin(phi);
+
+        //radius distribution using a cubic root
+        float r = radius * (float) java.lang.Math.cbrt(Math.random());
+
+        //scale by a random radius and translate to center
+        float x = center.x + r * sinPhi * Math.cos(theta);
+        float y = center.y + r * sinPhi * Math.sin(theta);
+        float z = center.z + r * Math.cos(phi);
+
+        return new Vector3f(x, y, z);
     }
 
     @Override

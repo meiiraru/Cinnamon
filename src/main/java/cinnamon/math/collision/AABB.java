@@ -109,6 +109,11 @@ public class AABB extends Collider<AABB> {
     }
 
     @Override
+    public AABB toAABB() {
+        return new AABB(this);
+    }
+
+    @Override
     public boolean containsPoint(float x, float y, float z) {
         return x >= minX && x <= maxX &&
                y >= minY && y <= maxY &&
@@ -457,6 +462,12 @@ public class AABB extends Collider<AABB> {
         return this.translate(dx, dy, dz);
     }
 
+    @Override
+    public float getVolume() {
+        return getWidth() * getHeight() * getDepth();
+    }
+
+    @Override
     public Vector3f getRandomPoint() {
         Vector3f dimensions = getDimensions();
         return new Vector3f(

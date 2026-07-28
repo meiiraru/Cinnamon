@@ -11,7 +11,9 @@ public enum CommandRegistry {
     WORLDRULE(new WorldRule(), "gamerule"),
     KILL(new Kill()),
     HEALTH(new Health(), "hp"),
-    LOOKAT(new LookAt(), "look");
+    LOOKAT(new LookAt(), "look"),
+    RIDE(new Ride(), "mount"),
+    EXPLODE(new Explode());
 
     public final Command command;
     public final String[] aliases;
