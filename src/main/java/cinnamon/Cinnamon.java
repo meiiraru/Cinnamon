@@ -1,5 +1,6 @@
 package cinnamon;
 
+import cinnamon.input.JoystickManager;
 import cinnamon.logger.LoggerConfig;
 import cinnamon.render.Window;
 import cinnamon.render.framebuffer.Framebuffer;
@@ -157,6 +158,7 @@ public class Cinnamon {
                 nameArray[i] = GLFWDropCallback.getName(names, i);
             client.filesDropped(nameArray);
         });
+        glfwSetJoystickCallback(JoystickManager::joystickConnectEvent);
 
         //finishes the initialization process
         GL.createCapabilities();
@@ -211,6 +213,7 @@ public class Cinnamon {
 
             //process input events
             glfwPollEvents();
+            JoystickManager.poll();
 
             //tick client
             int ticksToUpdate = client.timer.update();

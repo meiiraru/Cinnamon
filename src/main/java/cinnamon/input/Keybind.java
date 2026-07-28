@@ -42,7 +42,7 @@ public class Keybind {
         this.defaultType = this.type = type;
         updateText();
         KEYBINDS.get(defaultType).add(this);
-        LOGGER.debug("Registered keybind: " + name + " (" + text.asString() + ")");
+        LOGGER.debug("Registered keybind: %s (%s)", name, text.asString());
     }
 
     public static void mousePress(int button, int action, int mods) {

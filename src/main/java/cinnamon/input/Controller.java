@@ -35,9 +35,8 @@ public class Controller {
      */
     public Controller bindClick(String name, Keybind keybind, Consumer<Integer> action) {
         tickActions.put(name, () -> {
-            if (keybind.click()) {
+            if (keybind.click())
                 action.accept(keybind.getClicks() + 1);
-            }
         });
         return this;
     }
@@ -69,12 +68,12 @@ public class Controller {
     public Controller bindVector3D(String name, Keybind left, Keybind right, Keybind up, Keybind down, Keybind forward, Keybind backward, TriConsumer<Float, Float, Float> action) {
         tickActions.put(name, () -> {
             tempDir3.set(0);
-            if (left.isPressed())     tempDir3.x -= 1;
-            if (right.isPressed())    tempDir3.x += 1;
-            if (down.isPressed())     tempDir3.y -= 1;
-            if (up.isPressed())       tempDir3.y += 1;
-            if (backward.isPressed()) tempDir3.z -= 1;
-            if (forward.isPressed())  tempDir3.z += 1;
+            if (left     != null && left.isPressed())     tempDir3.x -= 1;
+            if (right    != null && right.isPressed())    tempDir3.x += 1;
+            if (down     != null && down.isPressed())     tempDir3.y -= 1;
+            if (up       != null && up.isPressed())       tempDir3.y += 1;
+            if (backward != null && backward.isPressed()) tempDir3.z -= 1;
+            if (forward  != null && forward.isPressed())  tempDir3.z += 1;
 
             if (tempDir3.lengthSquared() > 0)
                 action.accept(tempDir3.x, tempDir3.y, tempDir3.z);
@@ -95,10 +94,10 @@ public class Controller {
     public Controller bindVector2D(String name, Keybind left, Keybind right, Keybind up, Keybind down, BiConsumer<Float, Float> action) {
         tickActions.put(name, () -> {
             tempDir2.set(0);
-            if (left.isPressed())  tempDir2.x -= 1;
-            if (right.isPressed()) tempDir2.x += 1;
-            if (down.isPressed())  tempDir2.y -= 1;
-            if (up.isPressed())    tempDir2.y += 1;
+            if (left  != null && left.isPressed())  tempDir2.x -= 1;
+            if (right != null && right.isPressed()) tempDir2.x += 1;
+            if (down  != null && down.isPressed())  tempDir2.y -= 1;
+            if (up    != null && up.isPressed())    tempDir2.y += 1;
 
             if (tempDir2.lengthSquared() > 0)
                 action.accept(tempDir2.x, tempDir2.y);

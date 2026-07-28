@@ -438,4 +438,16 @@ public class Client {
 
         events.runEvents(EventType.XR_JOYSTICK_MOVE, x, y, hand, lastX, lastY);
     }
+
+    public void joystickButtonPress(int button, boolean pressed, int joystick) {
+
+    }
+
+    public void joystickAxisMove(int axis, float value, int joystick, float lastValue) {
+
+    }
+
+    public void joystickHatMove(int hat, byte hatState, int joystick, byte lastValue) {
+
+    }
 }
