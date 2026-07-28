@@ -42,7 +42,7 @@ public abstract class Screen {
     //xr
     protected SelectableWidget xrHovered, oldXrHovered;
     protected int xrHoverTime = 0;
-    protected int xrScrollX, xrScrollY;
+    protected int autoScrollX, autoScrollY;
 
 
     // -- screen functions -- //
@@ -156,16 +156,19 @@ public abstract class Screen {
 
     public void tick() {
         this.tickXr();
+        this.tickAutoScroll();
         this.mainContainer.tick();
+    }
+
+    protected void tickAutoScroll() {
+        //tick scroll
+        if (autoScrollX != 0 || autoScrollY != 0)
+            this.scroll(autoScrollX, autoScrollY);
     }
 
     protected void tickXr() {
         if (!XrManager.isInXR())
             return;
-
-        //tick scroll
-        if (xrScrollX != 0 || xrScrollY != 0)
-            this.scroll(xrScrollX, xrScrollY);
 
         //tick hover
         if (xrHovered == null || !(xrHovered instanceof Button b)) {
@@ -339,7 +342,7 @@ public abstract class Screen {
 
     public boolean xrButtonPress(int button, boolean pressed, int hand) {
         if (button == 1)
-            return this.keyPress(GLFW_KEY_ESCAPE, 1, pressed ? GLFW_PRESS : GLFW_RELEASE, 0);
+            return this.keyPress(GLFW_KEY_ESCAPE, -1, pressed ? GLFW_PRESS : GLFW_RELEASE, 0);
         return this.mousePress(button, pressed ? GLFW_PRESS : GLFW_RELEASE, 0);
     }
 
@@ -355,9 +358,9 @@ public abstract class Screen {
 
     public boolean xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
         float f = 0.5f; //dead zone
-        xrScrollX = x >= f ? 1 : x <= -f ? -1 : 0;
-        xrScrollY = y >= f ? 1 : y <= -f ? -1 : 0;
-        return xrScrollX != 0 || xrScrollY != 0;
+        autoScrollX = x >= f ? 1 : x <= -f ? -1 : 0;
+        autoScrollY = y >= f ? 1 : y <= -f ? -1 : 0;
+        return autoScrollX != 0 || autoScrollY != 0;
     }
 
     public boolean joystickButtonPress(int button, boolean pressed, int joystick) {
@@ -373,10 +376,39 @@ public abstract class Screen {
     }
 
     public boolean gamepadButtonPress(int button, boolean pressed, int joystick) {
+        PopupWidget activePopup = this.popup != null && this.popup.isOpen() ? this.popup : null;
+        Container navContainer = activePopup != null ? activePopup : this.mainContainer;
+
+        switch (button) {
+            case GLFW_GAMEPAD_BUTTON_A          -> {return this.keyPress(GLFW_KEY_SPACE,  -1, pressed ? GLFW_PRESS : GLFW_RELEASE, 0);}
+            case GLFW_GAMEPAD_BUTTON_BACK       -> {return this.keyPress(GLFW_KEY_MENU,   -1, pressed ? GLFW_PRESS : GLFW_RELEASE, 0);}
+            case GLFW_GAMEPAD_BUTTON_B          -> {return this.keyPress(GLFW_KEY_ESCAPE, -1, pressed ? GLFW_PRESS : GLFW_RELEASE, 0);}
+            case GLFW_GAMEPAD_BUTTON_DPAD_UP    -> {if (pressed) {focusWidget(navContainer.selectNext(focused, true, false)); return true;}}
+            case GLFW_GAMEPAD_BUTTON_DPAD_DOWN  -> {if (pressed) {focusWidget(navContainer.selectNext(focused, false, false)); return true;}}
+            case GLFW_GAMEPAD_BUTTON_DPAD_LEFT  -> {return this.keyPress(GLFW_KEY_LEFT,   -1, pressed ? GLFW_PRESS : GLFW_RELEASE, 0);}
+            case GLFW_GAMEPAD_BUTTON_DPAD_RIGHT -> {return this.keyPress(GLFW_KEY_RIGHT,  -1, pressed ? GLFW_PRESS : GLFW_RELEASE, 0);}
+        }
         return false;
     }
 
     public boolean gamepadAxisMove(int axis, float value, int joystick, float lastValue) {
+        float f = 0.5f; //dead zone
+        switch (axis) {
+            case GLFW_GAMEPAD_AXIS_LEFT_X -> {
+                if (lastValue <  -f && value >= -f) return this.keyPress(GLFW_KEY_LEFT,  -1, GLFW_RELEASE, 0);
+                if (lastValue >   f && value <=  f) return this.keyPress(GLFW_KEY_RIGHT, -1, GLFW_RELEASE, 0);
+                if (lastValue >= -f && value <  -f) return this.keyPress(GLFW_KEY_LEFT,  -1, GLFW_PRESS, 0);
+                if (lastValue <=  f && value >   f) return this.keyPress(GLFW_KEY_RIGHT, -1, GLFW_PRESS, 0);
+            }
+            case GLFW_GAMEPAD_AXIS_LEFT_Y -> {
+                if (lastValue <  -f && value >= -f) return this.keyPress(GLFW_KEY_UP,    -1, GLFW_RELEASE, 0);
+                if (lastValue >   f && value <=  f) return this.keyPress(GLFW_KEY_DOWN,  -1, GLFW_RELEASE, 0);
+                if (lastValue >= -f && value <  -f) return this.keyPress(GLFW_KEY_UP,    -1, GLFW_PRESS, 0);
+                if (lastValue <=  f && value >   f) return this.keyPress(GLFW_KEY_DOWN,  -1, GLFW_PRESS, 0);
+            }
+            case GLFW_GAMEPAD_AXIS_RIGHT_X -> {autoScrollX = value >= f ? -1 : value <= -f ? 1 : 0; return autoScrollX != 0;}
+            case GLFW_GAMEPAD_AXIS_RIGHT_Y -> {autoScrollY = value >= f ? -1 : value <= -f ? 1 : 0; return autoScrollY != 0;}
+        }
         return false;
     }
 }
