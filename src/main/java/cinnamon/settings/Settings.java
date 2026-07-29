@@ -23,8 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static cinnamon.Client.LOGGER;
-import static cinnamon.input.Keybind.KeyType.KEY;
-import static cinnamon.input.Keybind.KeyType.MOUSE;
+import static cinnamon.input.Keybind.KeyType.*;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Settings {
@@ -61,6 +60,7 @@ public class Settings {
             cursorBlinkDelay   = new Setting.Ints("accessibility.cursor_blink_delay", 20);
     public static final Setting.Floats viewBobbingStrength = new Setting.Floats("accessibility.view_bobbing_strength", 1f);
     public static final Setting.Bools actionWheelRunOnClose = new Setting.Bools("accessibility.action_wheel_run_on_close", false);
+    public static final Setting.Ranges gamepadDeadzone = new Setting.Ranges("accessibility.gamepad_deadzone", 0.33f, 0f, 1f);
 
     //player
     public static final Setting.Enums<LivingModelRegistry> playermodel = new Setting.Enums<>("player.player_model", LivingModelRegistry.STRAWBERRY);
@@ -119,7 +119,10 @@ public class Settings {
             //vehicle
             honk   = new Setting.Keybind("keybind.car.honk", GLFW_KEY_F, KEY),
             lights = new Setting.Keybind("keybind.car.lights", GLFW_KEY_H, KEY),
-            brake  = new Setting.Keybind("keybind.car.brake", GLFW_KEY_SPACE, KEY);
+            brake  = new Setting.Keybind("keybind.car.brake", GLFW_KEY_SPACE, KEY),
+
+            //gamepad
+            gamepadJump = new Setting.Keybind("keybind.gamepad.jump", GLFW_GAMEPAD_BUTTON_A, 0, GAMEPAD_BUTTON, 0);
 
     static {
         //screen

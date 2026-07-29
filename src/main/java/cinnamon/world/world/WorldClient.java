@@ -822,8 +822,14 @@ public class WorldClient extends World {
     public void joystickButtonPress(int button, boolean pressed, int joystick) {}
     public void joystickAxisMove(int axis, float value, int joystick, float lastValue) {}
     public void joystickHatMove(int hat, byte hatState, int joystick, byte lastValue) {}
-    public void gamepadButtonPress(int button, boolean pressed, int joystick) {}
-    public void gamepadAxisMove(int axis, float value, int joystick, float lastValue) {}
+    public void gamepadButtonPress(int button, boolean pressed, int joystick) {
+        if (client.window.isMouseLocked())
+            Keybind.gamepadButtonPress(button, pressed, joystick);
+    }
+    public void gamepadAxisMove(int axis, float value, int joystick, float lastValue) {
+        if (client.window.isMouseLocked())
+            Keybind.gamepadAxisMove(axis, value, joystick, lastValue);
+    }
 
     public void resetInput() {
         resetInput(true, true);
@@ -930,9 +936,11 @@ public class WorldClient extends World {
 
     public void pause() {
         setPaused(true);
-        Screen pause = pauseScreen.get();
-        if (pause != null)
-            client.setScreen(pause);
+        if (DebugScreen.pauseOnLostFocus) {
+            Screen pause = pauseScreen.get();
+            if (pause != null)
+                client.setScreen(pause);
+        }
     }
 
     @Override

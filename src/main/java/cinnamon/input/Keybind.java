@@ -1,8 +1,10 @@
 package cinnamon.input;
 
+import cinnamon.settings.Settings;
 import cinnamon.text.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -12,11 +14,13 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Keybind {
 
-    private static final Map<KeyType, List<Keybind>> KEYBINDS = Map.of(
-            KeyType.KEY,      new ArrayList<>(),
-            KeyType.SCANCODE, new ArrayList<>(),
-            KeyType.MOUSE,    new ArrayList<>()
-    );
+    private static final Map<KeyType, List<Keybind>> KEYBINDS;
+
+    static {
+        KEYBINDS = new HashMap<>();
+        for (KeyType type : KeyType.values())
+            KEYBINDS.put(type, new ArrayList<>());
+    }
 
     private final String name;
     private final int defaultKey, defaultMods;
@@ -25,24 +29,36 @@ public class Keybind {
     private int key, mods;
     private KeyType type;
 
+    private Text text;
+
+    //generic button
     private boolean pressed;
     private boolean pollPressed;
     private int clicks;
 
-    private Text text;
+    //joystick exclusive
+    private final int defaultJoystick;
+    private int joystick;
+    private float lastAxisValue;
+    private float axisValue;
 
     public Keybind(String name, int key, KeyType type) {
         this(name, key, 0, type);
     }
 
     public Keybind(String name, int key, int mods, KeyType type) {
+        this(name, key, mods, type, -1);
+    }
+
+    public Keybind(String name, int key, int mods, KeyType type, int joystick) {
         this.name = name;
         this.defaultKey = this.key = key;
         this.defaultMods = this.mods = mods;
         this.defaultType = this.type = type;
+        this.defaultJoystick = this.joystick = joystick;
         updateText();
         KEYBINDS.get(defaultType).add(this);
-        LOGGER.debug("Registered keybind: %s (%s)", name, text.asString());
+        LOGGER.debug("Registered %s keybind: %s (%s)", type.name(), name, text.asString());
     }
 
     public static void mousePress(int button, int action, int mods) {
@@ -74,6 +90,27 @@ public class Keybind {
             }
         }
     }
+
+    public static void gamepadButtonPress(int button, boolean pressed, int joystick) {
+        for (Keybind keybind : KEYBINDS.get(KeyType.GAMEPAD_BUTTON)) {
+            if (keybind.key == button && keybind.joystick == joystick)
+                processKeybind(keybind, pressed, 0);
+        }
+    }
+
+    public static void gamepadAxisMove(int axis, float value, int joystick, float lastValue) {
+        float deadzone = Settings.gamepadDeadzone.get();
+        for (Keybind keybind : KEYBINDS.get(KeyType.GAMEPAD_AXIS)) {
+            if (keybind.key == axis && keybind.joystick == joystick) {
+                keybind.axisValue = value;
+                keybind.lastAxisValue = lastValue;
+
+                boolean pressed = Math.abs(value) > deadzone;
+                processKeybind(keybind, pressed, 0);
+            }
+        }
+    }
+
 
     private static void processKeybind(Keybind keybind, boolean pressed, int mods) {
         keybind.pressed = pressed;
@@ -154,7 +191,7 @@ public class Keybind {
         return pressed;
     }
 
-    public void set(int key, int mods, KeyType type) {
+    public void set(int key, int mods, KeyType type, int joystick) {
         if (type != this.type) {
             KEYBINDS.get(this.type).remove(this);
             KEYBINDS.get(type).add(this);
@@ -163,11 +200,12 @@ public class Keybind {
         this.key = key;
         this.mods = mods;
         this.type = type;
+        this.joystick = joystick;
         updateText();
     }
 
     public boolean isDefault() {
-        return key == defaultKey && mods == defaultMods && type == defaultType;
+        return key == defaultKey && mods == defaultMods && type == defaultType && joystick == defaultJoystick;
     }
 
     public String getName() {
@@ -190,6 +228,18 @@ public class Keybind {
         return type;
     }
 
+    public int getJoystick() {
+        return joystick;
+    }
+
+    public float getAxisValue() {
+        return axisValue;
+    }
+
+    public float getLastAxisValue() {
+        return lastAxisValue;
+    }
+
     public enum KeyType {
         KEY(key -> {
             String glfwName = glfwGetKeyName(key, glfwGetKeyScancode(key));
@@ -199,7 +249,9 @@ public class Keybind {
             String glfwName = glfwGetKeyName(-1, scancode);
             return glfwName != null ? Text.of(glfwName.toUpperCase()) : Text.translated("key.scancode." + scancode);
         }),
-        MOUSE(button -> button < 3 ? Text.translated("key.mouse." + (button + 1)) : Text.translated("key.mouse", button + 1));
+        MOUSE(button -> button < 3 ? Text.translated("key.mouse." + (button + 1)) : Text.translated("key.mouse", button + 1)),
+        GAMEPAD_BUTTON(button -> Text.translated("key.gamepad.button." + button + 1)),
+        GAMEPAD_AXIS(axis -> Text.translated("key.gamepad.axis." + axis + 1));
 
         private final Function<Integer, Text> textFunction;
 

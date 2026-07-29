@@ -211,7 +211,11 @@ public abstract class Setting<T> {
         }
 
         public Keybind(String name, int key, int mods, KeyType type) {
-            super(name, new cinnamon.input.Keybind(name, key, mods, type));
+            this(name, key, mods, type, -1);
+        }
+
+        public Keybind(String name, int key, int mods, KeyType type, int joystick) {
+            super(name, new cinnamon.input.Keybind(name, key, mods, type, joystick));
         }
 
         @Override
@@ -220,7 +224,8 @@ public abstract class Setting<T> {
             int key = obj.get("key").getAsInt();
             int mods = obj.get("mods").getAsInt();
             String type = obj.get("type").getAsString();
-            get().set(key, mods, KeyType.valueOf(type.toUpperCase()));
+            int joystick = obj.get("joystick").getAsInt();
+            get().set(key, mods, KeyType.valueOf(type.toUpperCase()), joystick);
         }
 
         @Override
@@ -229,6 +234,7 @@ public abstract class Setting<T> {
             obj.addProperty("key", get().getKey());
             obj.addProperty("mods", get().getMods());
             obj.addProperty("type", get().getType().name().toLowerCase());
+            obj.addProperty("joystick", get().getJoystick());
             return obj;
         }
     }

@@ -85,6 +85,8 @@ public class DebugScreen {
     private static boolean f3Pressed, f3Voided;
     private static int crashCountdown = -1;
 
+    public static boolean pauseOnLostFocus = true;
+
     public static void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
 
@@ -166,6 +168,14 @@ public class DebugScreen {
                         }
                     }
                 }
+                case GLFW_KEY_P -> {
+                    pauseOnLostFocus = !pauseOnLostFocus;
+                    MessageManager.addMessage(
+                            Text.of("Pause on lost focus: " + (pauseOnLostFocus ? "&aON" : "&cOFF"))
+                                    .withStyle(Style.EMPTY.italic(false).color(0xFFFFFFFF)),
+                            MessageCategory.SYSTEM, null
+                    );
+                }
                 case GLFW_KEY_H -> MessageManager.addMessage(Text.of("""
                                 [Debug Help]
                                 &eF3 + &aX&r: Initialize XR system
@@ -176,6 +186,7 @@ public class DebugScreen {
                                 &eF3 + &aD&r: Clear all chat messages
                                 &eF3 + &aC&r: Crash the game (10 second countdown)
                                 &eF3 + &aE&r: Copies the player looking entity UUID to clipboard
+                                &eF3 + &aP&r: Toggle pause on lost focus
                                 &eF3 + &aH&r: Show this help message""").withStyle(Style.EMPTY.italic(false).color(0xFFFFFFFF)),
                         MessageCategory.SYSTEM, null
                 );
