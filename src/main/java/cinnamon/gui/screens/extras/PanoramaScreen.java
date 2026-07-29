@@ -163,7 +163,7 @@ public class PanoramaScreen extends ParentedScreen {
 
     @Override
     public boolean xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
-        float f2 = 0.7f;
+        float f2 = Settings.gamepadDeadzone.get();
         int dxx = lastX < f2 && x >= f2 ? 1 : lastX > -f2 && x <= -f2 ? -1 : 0;
         if (dxx != 0) xrRotY += dxx * Settings.xrSnapTurningAngle.get();
         return true;

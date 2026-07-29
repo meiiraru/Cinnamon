@@ -122,7 +122,8 @@ public class Settings {
             brake  = new Setting.Keybind("keybind.car.brake", GLFW_KEY_SPACE, KEY),
 
             //gamepad
-            gamepadJump = new Setting.Keybind("keybind.gamepad.jump", GLFW_GAMEPAD_BUTTON_A, 0, GAMEPAD_BUTTON, 0);
+            gamepadJump = new Setting.Keybind("keybind.gamepad.jump", GLFW_GAMEPAD_BUTTON_A, 0, GAMEPAD_BUTTON, 0),
+            gamepadLeftTrigger = new Setting.Keybind("keybind.gamepad.left_trigger", GLFW_GAMEPAD_AXIS_LEFT_X, 0, GAMEPAD_AXIS, 0);
 
     static {
         //screen

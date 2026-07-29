@@ -347,7 +347,7 @@ public abstract class Screen {
     }
 
     public boolean xrTriggerPress(int button, float value, int hand, float lastValue) {
-        float f = 0.5f;
+        float f = Settings.gamepadDeadzone.get();
         if (lastValue < f && value >= f) {
             return this.mousePress(button, GLFW_PRESS, 0);
         } else if (lastValue >= f && value < f) {
@@ -357,7 +357,7 @@ public abstract class Screen {
     }
 
     public boolean xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
-        float f = 0.5f; //dead zone
+        float f = Settings.gamepadDeadzone.get();
         autoScrollX = x >= f ? 1 : x <= -f ? -1 : 0;
         autoScrollY = y >= f ? 1 : y <= -f ? -1 : 0;
         return autoScrollX != 0 || autoScrollY != 0;
@@ -392,7 +392,7 @@ public abstract class Screen {
     }
 
     public boolean gamepadAxisMove(int axis, float value, int joystick, float lastValue) {
-        float f = 0.5f; //dead zone
+        float f = Settings.gamepadDeadzone.get();
         switch (axis) {
             case GLFW_GAMEPAD_AXIS_LEFT_X -> {
                 if (lastValue <  -f && value >= -f) return this.keyPress(GLFW_KEY_LEFT,  -1, GLFW_RELEASE, 0);

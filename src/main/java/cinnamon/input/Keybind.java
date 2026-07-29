@@ -106,11 +106,32 @@ public class Keybind {
                 keybind.lastAxisValue = lastValue;
 
                 boolean pressed = Math.abs(value) > deadzone;
-                processKeybind(keybind, pressed, 0);
+                if (!pressed || !keybind.isPressed())
+                    processKeybind(keybind, pressed, 0);
             }
         }
     }
 
+    public static void xrButtonPress(int button, boolean pressed, int hand) {
+        for (Keybind keybind : KEYBINDS.get(KeyType.XR_BUTTON)) {
+            if (keybind.key == button && keybind.joystick == hand)
+                processKeybind(keybind, pressed, 0);
+        }
+    }
+
+    public static void xrTriggerPress(int button, float value, int hand, float lastValue) {
+        float deadzone = Settings.gamepadDeadzone.get();
+        for (Keybind keybind : KEYBINDS.get(KeyType.XR_TRIGGER)) {
+            if (keybind.key == button && keybind.joystick == hand) {
+                keybind.axisValue = value;
+                keybind.lastAxisValue = lastValue;
+
+                boolean pressed = Math.abs(value) > deadzone;
+                if (!pressed || !keybind.isPressed())
+                    processKeybind(keybind, pressed, 0);
+            }
+        }
+    }
 
     private static void processKeybind(Keybind keybind, boolean pressed, int mods) {
         keybind.pressed = pressed;
@@ -119,14 +140,14 @@ public class Keybind {
     }
 
     public static void releaseAll(boolean mouse, boolean keys) {
-        if (mouse) {
-            for (Keybind keybind : KEYBINDS.get(KeyType.MOUSE))
-                keybind.release();
-        }
-        if (keys) {
-            for (Keybind keybind : KEYBINDS.get(KeyType.KEY))
-                keybind.release();
-            for (Keybind keybind : KEYBINDS.get(KeyType.SCANCODE))
+        for (Map.Entry<KeyType, List<Keybind>> entry : KEYBINDS.entrySet()) {
+            KeyType key = entry.getKey();
+            if (key == KeyType.MOUSE && !mouse)
+                continue;
+            if ((key == KeyType.KEY || key == KeyType.SCANCODE) && !keys)
+                continue;
+
+            for (Keybind keybind : entry.getValue())
                 keybind.release();
         }
     }
@@ -138,6 +159,12 @@ public class Keybind {
                     keybind.release();
             }
         }
+
+        //update last axis values to not retrigger axis keybinds
+        for (Keybind keybind : KEYBINDS.get(KeyType.GAMEPAD_AXIS))
+            keybind.lastAxisValue = keybind.axisValue;
+        for (Keybind keybind : KEYBINDS.get(KeyType.XR_TRIGGER))
+            keybind.lastAxisValue = keybind.axisValue;
     }
 
     private void press() {
@@ -150,6 +177,7 @@ public class Keybind {
         clicks = 0;
         pressed = false;
         pollPressed = false;
+        lastAxisValue = axisValue = 0;
     }
 
     private void updateText() {
@@ -251,7 +279,9 @@ public class Keybind {
         }),
         MOUSE(button -> button < 3 ? Text.translated("key.mouse." + (button + 1)) : Text.translated("key.mouse", button + 1)),
         GAMEPAD_BUTTON(button -> Text.translated("key.gamepad.button." + button + 1)),
-        GAMEPAD_AXIS(axis -> Text.translated("key.gamepad.axis." + axis + 1));
+        GAMEPAD_AXIS(axis -> Text.translated("key.gamepad.axis." + axis + 1)),
+        XR_BUTTON(button -> Text.translated("key.xr.button",button + 1)),
+        XR_TRIGGER(axis -> Text.translated("key.xr.trigger", axis + 1));
 
         private final Function<Integer, Text> textFunction;
 

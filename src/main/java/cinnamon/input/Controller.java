@@ -105,6 +105,16 @@ public class Controller {
         return this;
     }
 
+    public Controller bindFloat(String name, Keybind keybind, BiConsumer<Float, Float> action) {
+        tickActions.put(name, () -> {
+            float curr = keybind.getAxisValue();
+            float last = keybind.getLastAxisValue();
+            if (curr != last)
+                action.accept(curr, last);
+        });
+        return this;
+    }
+
     /**
      * registers a listener for mouse delta movements
      * @param name a unique name for this action

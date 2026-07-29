@@ -815,17 +815,27 @@ public class WorldClient extends World {
         resetInput();
     }
 
-    public void xrButtonPress(int button, boolean pressed, int hand) {}
-    public void xrTriggerPress(int button, float value, int hand, float lastValue) {}
+    public void xrButtonPress(int button, boolean pressed, int hand) {
+        if (client.window.isMouseLocked())
+            Keybind.xrButtonPress(button, pressed, hand);
+    }
+
+    public void xrTriggerPress(int button, float value, int hand, float lastValue) {
+        if (client.window.isMouseLocked())
+            Keybind.xrTriggerPress(button, value, hand, lastValue);
+    }
+
     public void xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {}
 
     public void joystickButtonPress(int button, boolean pressed, int joystick) {}
     public void joystickAxisMove(int axis, float value, int joystick, float lastValue) {}
     public void joystickHatMove(int hat, byte hatState, int joystick, byte lastValue) {}
+
     public void gamepadButtonPress(int button, boolean pressed, int joystick) {
         if (client.window.isMouseLocked())
             Keybind.gamepadButtonPress(button, pressed, joystick);
     }
+
     public void gamepadAxisMove(int axis, float value, int joystick, float lastValue) {
         if (client.window.isMouseLocked())
             Keybind.gamepadAxisMove(axis, value, joystick, lastValue);
