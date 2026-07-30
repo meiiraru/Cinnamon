@@ -31,8 +31,10 @@ public class Keybind {
 
     private Text text;
 
-    //generic button
+    private boolean polled;
     private boolean pressed;
+
+    //generic button
     private boolean pollPressed;
     private int clicks;
 
@@ -135,8 +137,13 @@ public class Keybind {
 
     private static void processKeybind(Keybind keybind, boolean pressed, int mods) {
         keybind.pressed = pressed;
-        if (pressed && (keybind.mods == 0 || mods == keybind.mods))
-            keybind.press();
+        if (pressed) {
+            if ((keybind.mods == 0 || mods == keybind.mods))
+                keybind.press();
+        } else {
+            if (keybind.polled)
+                keybind.release();
+        }
     }
 
     public static void releaseAll(boolean mouse, boolean keys) {
@@ -178,24 +185,7 @@ public class Keybind {
         pressed = false;
         pollPressed = false;
         lastAxisValue = axisValue = 0;
-    }
-
-    private void updateText() {
-        if (key == -1) {
-            text = Text.translated("key.none");
-            return;
-        }
-
-        text = Text.empty();
-        if (mods != 0) {
-            if ((mods & GLFW_MOD_CONTROL) != 0)
-                text.append("Ctrl + ");
-            if ((mods & GLFW_MOD_SHIFT) != 0)
-                text.append("Shift + ");
-            if ((mods & GLFW_MOD_ALT) != 0)
-                text.append("Alt + ");
-        }
-        text.append(type.textFunction.apply(key));
+        polled = false;
     }
 
     public boolean click() {
@@ -205,6 +195,10 @@ public class Keybind {
         }
 
         return false;
+    }
+
+    public void polled() {
+        polled = true;
     }
 
     public int getClicks() {
@@ -234,6 +228,24 @@ public class Keybind {
 
     public boolean isDefault() {
         return key == defaultKey && mods == defaultMods && type == defaultType && joystick == defaultJoystick;
+    }
+
+    private void updateText() {
+        if (key == -1) {
+            text = Text.translated("key.none");
+            return;
+        }
+
+        text = Text.empty();
+        if (mods != 0) {
+            if ((mods & GLFW_MOD_CONTROL) != 0)
+                text.append("Ctrl + ");
+            if ((mods & GLFW_MOD_SHIFT) != 0)
+                text.append("Shift + ");
+            if ((mods & GLFW_MOD_ALT) != 0)
+                text.append("Alt + ");
+        }
+        text.append(type.textFunction.apply(key));
     }
 
     public String getName() {

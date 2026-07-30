@@ -5,7 +5,9 @@ import cinnamon.utils.TriConsumer;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -26,6 +28,8 @@ public class Controller {
             mouseMoveActions = new HashMap<>(),
             mouseScrollActions = new HashMap<>();
 
+    private final List<Keybind> keybinds = new ArrayList<>();
+
     /**
      * triggers once when the keybind is clicked (pressed down)
      * @param name a unique name for this action
@@ -34,6 +38,7 @@ public class Controller {
      * @return this controller
      */
     public Controller bindClick(String name, Keybind keybind, Consumer<Integer> action) {
+        keybinds.add(keybind);
         tickActions.put(name, () -> {
             if (keybind.click())
                 action.accept(keybind.getClicks() + 1);
@@ -49,6 +54,7 @@ public class Controller {
      * @return this controller
      */
     public Controller bindState(String name, Keybind keybind, Consumer<Boolean> action) {
+        keybinds.add(keybind);
         tickActions.put(name, () -> action.accept(keybind.isPressed()));
         return this;
     }
@@ -66,6 +72,9 @@ public class Controller {
      * @return this controller
      */
     public Controller bindVector3D(String name, Keybind left, Keybind right, Keybind up, Keybind down, Keybind forward, Keybind backward, TriConsumer<Float, Float, Float> action) {
+        keybinds.add(left);    keybinds.add(right);
+        keybinds.add(up);      keybinds.add(down);
+        keybinds.add(forward); keybinds.add(backward);
         tickActions.put(name, () -> {
             tempDir3.set(0);
             if (left     != null && left.isPressed())     tempDir3.x -= 1;
@@ -92,6 +101,8 @@ public class Controller {
      * @return this controller
      */
     public Controller bindVector2D(String name, Keybind left, Keybind right, Keybind up, Keybind down, BiConsumer<Float, Float> action) {
+        keybinds.add(left); keybinds.add(right);
+        keybinds.add(up);   keybinds.add(down);
         tickActions.put(name, () -> {
             tempDir2.set(0);
             if (left  != null && left.isPressed())  tempDir2.x -= 1;
@@ -106,6 +117,7 @@ public class Controller {
     }
 
     public Controller bindFloat(String name, Keybind keybind, BiConsumer<Float, Float> action) {
+        keybinds.add(keybind);
         tickActions.put(name, () -> {
             float curr = keybind.getAxisValue();
             float last = keybind.getLastAxisValue();
@@ -154,6 +166,9 @@ public class Controller {
             for (BiConsumer<Float, Float> mouseScrollAction : mouseScrollActions.values())
                 mouseScrollAction.accept(tempMouseScroll.x, tempMouseScroll.y);
         }
+
+        for (Keybind keybind : keybinds)
+            keybind.polled();
     }
 
     /**
@@ -172,6 +187,7 @@ public class Controller {
         tickActions.clear();
         mouseMoveActions.clear();
         mouseScrollActions.clear();
+        keybinds.clear();
     }
 
     /**
