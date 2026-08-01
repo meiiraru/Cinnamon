@@ -8,6 +8,7 @@ public abstract class Widget {
 
     private int x, y;
     private int width, height;
+    private boolean visible = true;
     private Widget parent;
     private Resource skinOverride = null;
 
@@ -98,5 +99,13 @@ public abstract class Widget {
 
     public GUISkin getSkin() {
         return GUISkin.of(getSkinRes());
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 }

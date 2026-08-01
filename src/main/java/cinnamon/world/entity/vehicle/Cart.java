@@ -63,7 +63,7 @@ public class Cart extends Car {
     public void tick() {
         super.tick();
 
-        if (shouldUpdateLights)
+        if (shouldUpdateLights && !getRiders().isEmpty())
             checkLights();
 
         if (getWorld().isClientside() && motion.lengthSquared() > 0.01f) {

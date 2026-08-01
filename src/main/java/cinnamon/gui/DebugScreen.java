@@ -578,6 +578,7 @@ public class DebugScreen {
                     motion &c%.3f &a%.3f &b%.3f&r
                     eye x &c%.3f&r y &a%.3f&r z &b%.3f&r
                     facing &e%s&r on ground &e%s&r
+                    flying &e%s&r sprinting &e%s&r sneaking &e%s&r
                     noclip &e%s&r god mode &e%s&r
                     can fly &e%s&r can build &e%s&r
 
@@ -594,6 +595,7 @@ public class DebugScreen {
                     eye.x, eye.y, eye.z,
 
                     face, p.isOnGround() ? "yes" : "no",
+                    p.isFlying(), p.isSprinting(), p.isSneaking(),
                     abilities.get(Abilities.Ability.NOCLIP)    ? "on" : "off",
                     abilities.get(Abilities.Ability.GOD_MODE)  ? "on" : "off",
                     abilities.get(Abilities.Ability.CAN_FLY)   ? "on" : "off",

@@ -15,6 +15,7 @@ public class Container extends Widget implements Tickable, GUIListener {
     protected final List<Widget> widgets = new ArrayList<>();
     protected final List<GUIListener> listeners = new ArrayList<>();
 
+    private boolean active = true;
     private boolean hasBackground;
 
     public Container(int x, int y) {
@@ -111,6 +112,9 @@ public class Container extends Widget implements Tickable, GUIListener {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        if (!isVisible())
+            return;
+
         if (hasBackground())
             renderBackground(matrices, mouseX, mouseY, delta);
 
@@ -268,6 +272,9 @@ public class Container extends Widget implements Tickable, GUIListener {
     }
 
     protected List<SelectableWidget> getSelectableWidgets(boolean isTab) {
+        if (!isActive())
+            return List.of();
+
         List<SelectableWidget> list = new ArrayList<>();
 
         for (Widget widget : widgets) {
@@ -288,12 +295,17 @@ public class Container extends Widget implements Tickable, GUIListener {
     }
 
     public void setActive(boolean active) {
+        this.active = active;
         for (Widget widget : widgets) {
             if (widget instanceof SelectableWidget w)
                 w.setActive(active);
             else if (widget instanceof Container c)
                 c.setActive(active);
         }
+    }
+
+    public boolean isActive() {
+        return active;
     }
 
     public List<Widget> getWidgets() {

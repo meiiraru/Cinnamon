@@ -21,6 +21,9 @@ public class ProgressBar extends Widget {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        if (!isVisible())
+            return;
+
         float d = UIHelper.tickDelta(0.4f);
         animationValue = Math.lerp(animationValue, getProgress(), d);
         Resource tex = getSkin().getResource("progress_bar_tex");

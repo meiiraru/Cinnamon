@@ -126,6 +126,9 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        if (!isVisible())
+            return;
+
         if (this.isHoveredOrFocused() && tooltip != null && (popup == null || !popup.isOpen()))
             UIHelper.setTooltip(this);
 

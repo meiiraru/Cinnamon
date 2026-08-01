@@ -165,7 +165,7 @@ public class Player extends LivingEntity {
 
     public void updateMovementFlags(boolean sneaking, boolean sprinting, boolean flying) {
         this.sneaking = sneaking;
-        this.sprinting = (this.sprinting || sprinting) && !sneaking && forwards;
+        this.sprinting = (this.sprinting || sprinting) && !sneaking && forwards && !isRiding();
         this.flying = (flying && abilities.get(Abilities.Ability.CAN_FLY)) || abilities.get(Abilities.Ability.NOCLIP);
 
         if (this.isRiding() && sneaking)

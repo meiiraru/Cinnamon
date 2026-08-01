@@ -39,6 +39,9 @@ public class WidgetList extends ContainerGrid {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        if (!isVisible())
+            return;
+
         if (hasBackground())
             renderBackground(matrices, mouseX, mouseY, delta);
 
@@ -252,6 +255,9 @@ public class WidgetList extends ContainerGrid {
 
     @Override
     protected List<SelectableWidget> getSelectableWidgets(boolean isTab) {
+        if (!isActive())
+            return List.of();
+
         List<SelectableWidget> sup = super.getSelectableWidgets(isTab);
 
         //if tab navigation is not allowed, allow only the first widget to be selected, and do not allow to select any other widget by tabbing

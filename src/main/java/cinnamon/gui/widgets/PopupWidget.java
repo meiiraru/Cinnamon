@@ -83,7 +83,7 @@ public class PopupWidget extends ContainerGrid {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        if (!isOpen())
+        if (!isVisible() || !isOpen())
             return;
 
         matrices.pushMatrix();
@@ -181,7 +181,7 @@ public class PopupWidget extends ContainerGrid {
 
     @Override
     protected List<SelectableWidget> getSelectableWidgets(boolean isTab) {
-        if (!isOpen()) return List.of();
+        if (!isActive() || !isOpen()) return List.of();
         return super.getSelectableWidgets(isTab);
     }
 
