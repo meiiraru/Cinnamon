@@ -20,6 +20,7 @@ public class CubemapSky extends Sky {
     protected final Matrix3f skyRotation = new Matrix3f();
     protected Resource skyBox = SkyBoxRegistry.CLOUDS.resource;
     protected float rotationSpeed = Math.PI_OVER_2_f;
+    protected int tintColor = 0xFFFFFFFF;
 
     @Override
     protected void renderSky(Camera camera, MatrixStack matrices) {
@@ -29,6 +30,7 @@ public class CubemapSky extends Sky {
         s.setup(camera);
         s.setMat3("rotation", skyRotation);
         s.setInt("skybox", 0);
+        s.applyColor(tintColor);
         bindSkyboxTexture(0);
         StaticGeometry.INV_CUBE.render();
         CubeMap.unbindTex(0);
@@ -88,5 +90,13 @@ public class CubemapSky extends Sky {
 
     public Vector3f getRotatedSunDirection() {
         return getSkyRotation().transformTranspose(getSunDirection(), new Vector3f());
+    }
+
+    public void setColor(int color) {
+        this.tintColor = color;
+    }
+
+    public int getColor() {
+        return tintColor;
     }
 }

@@ -118,6 +118,10 @@ public class Cinnamon {
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window, OpenGL 4.3 or higher is required");
 
+        //store the window and set its icon
+        client.window = new Window(window, width, height);
+        client.window.setIcon(ICON);
+
         //make the OpenGL context current
         glfwMakeContextCurrent(window);
 
@@ -171,10 +175,7 @@ public class Cinnamon {
         GPU_DETAILS = glGetString(GL_RENDERER);
         OPENGL_VERSION = glGetString(GL_VERSION);
 
-        // -- client init -- //
-
-        client.window = new Window(window, width, height);
-        client.window.setIcon(ICON);
+        //init the client
         client.init();
     }
 

@@ -26,6 +26,19 @@ public class ColorUtils {
     }
 
     /**
+     * changes a color integer channel to a new value
+     * @param color the color integer to change
+     * @param index the channel index to change
+     * @param value the new channel value (0 - 255)
+     * @return the new color integer with the changed channel
+     */
+    public static int changeIntComponent(int color, int index, int value) {
+        int[] channels = split(color, 4);
+        channels[index] = value;
+        return (channels[0] << 24) + (channels[1] << 16) + (channels[2] << 8) + channels[3];
+    }
+
+    /**
      * converts an RGB integer color (0 - 255) to an RGB (0 - 1) {@link org.joml.Vector3f}
      * @param color the RGB integer color
      * @return an RGB {@link org.joml.Vector3f} of that color
@@ -39,24 +52,49 @@ public class ColorUtils {
      * converts an RGB (0 - 1) {@link org.joml.Vector3f} to an RGB integer color (0 - 255)
      * @param color the RGB {@link org.joml.Vector3f} color
      * @return an RGB integer of that color
+     * @see ColorUtils#rgbToInt(float, float, float)
      */
     public static int rgbToInt(Vector3f color) {
-        int hex = (int) (color.x * 0xFF);
-        hex = (hex << 8) + (int) (color.y * 0xFF);
-        hex = (hex << 8) + (int) (color.z * 0xFF);
-        return hex;
+        return rgbToInt(color.x, color.y, color.z);
+    }
+
+    /**
+     * converts an RGB (0 - 1) color to an RGB integer color (0 - 255)
+     * @param r the red channel
+     * @param g the green channel
+     * @param b the blue channel
+     * @return an RGB integer of that color
+     */
+    public static int rgbToInt(float r, float g, float b) {
+        int hex = (int) (r * 0xFF);
+        hex = (hex << 8) + (int) (g * 0xFF);
+        hex = (hex << 8) + (int) (b * 0xFF);
+        return hex | (0xFF << 24);
     }
 
     /**
      * converts an RGBA (0 - 1) {@link org.joml.Vector4f} to an ARGB integer color (0 - 255)
      * @param color the RGBA {@link org.joml.Vector4f} color
      * @return an ARGB integer of that color
+     * @see ColorUtils#rgbaToIntARGB(float, float, float, float)
      */
     public static int rgbaToIntARGB(Vector4f color) {
-        int hex = (int) (color.w * 0xFF);
-        hex = (hex << 8) + (int) (color.x * 0xFF);
-        hex = (hex << 8) + (int) (color.y * 0xFF);
-        hex = (hex << 8) + (int) (color.z * 0xFF);
+        return rgbaToIntARGB(color.x, color.y, color.z, color.w);
+    }
+
+    /**
+     * converts an RGBA (0 - 1) color to an ARGB integer color (0 - 255)
+     * @param r the red channel
+     * @param g the green channel
+     * @param b the blue channel
+     * @param a the alpha channel
+     * @return an ARGB integer of that color
+     */
+    public static int rgbaToIntARGB(float r, float g, float b, float a) {
+        int hex = (int) (a * 0xFF);
+        hex = (hex << 8) + (int) (r * 0xFF);
+        hex = (hex << 8) + (int) (g * 0xFF);
+        hex = (hex << 8) + (int) (b * 0xFF);
         return hex;
     }
 
@@ -64,6 +102,7 @@ public class ColorUtils {
      * converts an RGBA integer color (0 - 255) to an RGBA (0 - 1) {@link org.joml.Vector4f}
      * @param color the RGBA integer color
      * @return an RGBA {@link org.joml.Vector4f} of that color
+     * @see ColorUtils#argbIntToRGBA(int)
      */
     public static Vector4f intToRGBA(int color) {
         int[] rgba = split(color, 4);
@@ -74,6 +113,7 @@ public class ColorUtils {
      * converts an ARGB integer color (0 - 255) to an RGBA (0 - 1) {@link org.joml.Vector4f}
      * @param color the ARGB integer color
      * @return an RGBA {@link org.joml.Vector4f} of that color
+     * @see ColorUtils#intToRGBA(int)
      */
     public static Vector4f argbIntToRGBA(int color) {
         int[] argb = split(color, 4);
@@ -84,31 +124,116 @@ public class ColorUtils {
      * converts an HSV (0 - 1) {@link org.joml.Vector3f} to an RGB (0 - 1) {@link org.joml.Vector3f}
      * @param color the HSV {@link org.joml.Vector3f} color
      * @return an RGB {@link org.joml.Vector3f} of that color
+     * @see ColorUtils#hsvToRGB(float, float, float)
      */
     public static Vector3f hsvToRGB(Vector3f color) {
-        int hex = Color.HSBtoRGB(color.x, color.y, color.z);
-        return intToRGB(hex);
+        return hsvToRGB(color.x, color.y, color.z);
+    }
+
+    /**
+     * converts an HSV (0 - 1) color to an RGB (0 - 1) {@link org.joml.Vector3f}
+     * @param h the hue channel
+     * @param s the saturation channel
+     * @param v the value channel
+     * @return an RGB {@link org.joml.Vector3f} of that color
+     */
+    public static Vector3f hsvToRGB(float h, float s, float v) {
+        return intToRGB(hsvToInt(h, s, v));
+    }
+
+    /**
+     * converts an HSV (0 - 1) {@link org.joml.Vector3f} to an RGB integer color (0 - 255)
+     * @param color the HSV {@link org.joml.Vector3f} color
+     * @return an RGB integer of that color
+     * @see ColorUtils#hsvToInt(float, float, float)
+     */
+    public static int hsvToInt(Vector3f color) {
+        return hsvToInt(color.x, color.y, color.z);
+    }
+
+    /**
+     * converts an HSV (0 - 1) color to an RGB integer color (0 - 255)
+     * @param h the hue channel
+     * @param s the saturation channel
+     * @param v the value channel
+     * @return an RGB integer of that color
+     */
+    public static int hsvToInt(float h, float s, float v) {
+        return Color.HSBtoRGB(h, s, v);
     }
 
     /**
      * converts an RGB (0 - 1) {@link org.joml.Vector3f} to an HSV (0 - 1) {@link org.joml.Vector3f}
      * @param color the RGB {@link org.joml.Vector3f} color
      * @return an HSV {@link org.joml.Vector3f} of that color
+     * @see ColorUtils#rgbToHSV(float, float, float)
      */
     public static Vector3f rgbToHSV(Vector3f color) {
-        float[] hsv = Color.RGBtoHSB((int) (color.x * 255f), (int) (color.y * 255f), (int) (color.z * 255f), null);
+        return rgbToHSV(color.x, color.y, color.z);
+    }
+
+    /**
+     * converts an RGB (0 - 1) color to an HSV (0 - 1) {@link org.joml.Vector3f}
+     * @param r the red channel
+     * @param g the green channel
+     * @param b the blue channel
+     * @return an HSV {@link org.joml.Vector3f} of that color
+     */
+    public static Vector3f rgbToHSV(float r, float g, float b) {
+        float[] hsv = Color.RGBtoHSB((int) (r * 255f), (int) (g * 255f), (int) (b * 255f), null);
+        return new Vector3f(hsv[0], hsv[1], hsv[2]);
+    }
+
+    /**
+     * converts an RGB integer color (0 - 255) to an HSV (0 - 1) {@link org.joml.Vector3f}
+     * @param color the RGB integer color
+     * @return an HSV {@link org.joml.Vector3f} of that color
+     */
+    public static Vector3f intToHSV(int color) {
+        int[] rgb = split(color, 3);
+        float[] hsv = Color.RGBtoHSB(rgb[0], rgb[1], rgb[2], null);
         return new Vector3f(hsv[0], hsv[1], hsv[2]);
     }
 
     /**
      * converts an RGB (0 - 1) {@link org.joml.Vector3f} to a Hexadecimal (00 - FF) string
+     * <p>
      * the return string will always be 6 characters long without the "#" prefix
      * @param color the RGB {@link org.joml.Vector3f} color
      * @return a Hexadecimal string of that color
+     * @see ColorUtils#rgbToHex(float, float, float)
      */
     public static String rgbToHex(Vector3f color) {
-        String str = Integer.toHexString(ColorUtils.rgbToInt(color));
-        return "0".repeat(Math.max(6 - str.length(), 0)) + str;
+        return rgbToHex(color.x, color.y, color.z);
+    }
+
+    /**
+     * converts an RGB (0 - 1) color to a Hexadecimal (00 - FF) string
+     * <p>
+     * the return string will always be 8 characters long without the "#" prefix
+     * @param r the red channel
+     * @param g the green channel
+     * @param b the blue channel
+     * @return a Hexadecimal string of that color
+     * @see ColorUtils#intToHex(int)
+     */
+    public static String rgbToHex(float r, float g, float b) {
+        return intToHex(rgbToInt(r, g, b));
+    }
+
+    /**
+     * converts an RGB integer color (0 - 255) to a Hexadecimal (00 - FF) string
+     * <p>
+     * the return string will always be 8 characters long without the "#" prefix
+     * @param color the RGB integer color
+     * @return a Hexadecimal string of that color
+     */
+    public static String intToHex(int color) {
+        String str = Integer.toHexString(color).toUpperCase();
+        int len = str.length();
+        str = "0".repeat(Math.max(6 - len, 0)) + str;
+        str = "F".repeat(Math.max(8 - len, 0)) + str;
+        return str;
     }
 
     /**
@@ -149,6 +274,8 @@ public class ColorUtils {
         if (hex.length() == 3) {
             char[] bgChar = hex.toString().toCharArray();
             hex = new StringBuilder("" + bgChar[0] + bgChar[0] + bgChar[1] + bgChar[1] + bgChar[2] + bgChar[2]);
+        } else if (hex.length() > 6) {
+            hex = new StringBuilder(hex.substring(hex.length() - 6));
         } else {
             hex.append("0".repeat(Math.max(6 - hex.length(), 0)));
         }
@@ -165,21 +292,33 @@ public class ColorUtils {
      * converts an HSV (0 - 1) {@link org.joml.Vector3f} to an HSL (0 - 1) {@link org.joml.Vector3f}
      * @param color the HSV {@link org.joml.Vector3f} color
      * @return an HSL {@link org.joml.Vector3f} of that color
+     * @see ColorUtils#hsvToHSL(float, float, float)
      */
     public static Vector3f hsvToHSL(Vector3f color) {
-        float l = (2f - color.y) * color.z / 2f;
-        float s = color.y;
+        return hsvToHSL(color.x, color.y, color.z);
+    }
+
+    /**
+     * converts an HSV (0 - 1) color to an HSL (0 - 1) color
+     * @param h the hue channel
+     * @param s the saturation channel
+     * @param v the value channel
+     * @return an HSL {@link org.joml.Vector3f} of that color
+     */
+    public static Vector3f hsvToHSL(float h, float s, float v) {
+        float l = (2f - s) * v / 2f;
+        float newS = s;
 
         if (l > 0f) {
             if (l == 1f)
-                s = 0;
+                newS = 0;
             else if (l < 0.5f)
-                s = s * color.z / (l * 2);
+                newS = newS * v / (l * 2);
             else
-                s = s * color.z / (2 - l * 2);
+                newS = newS * v / (2 - l * 2);
         }
 
-        return new Vector3f(color.x, s, l);
+        return new Vector3f(h, newS, l);
     }
 
     /**
@@ -188,6 +327,7 @@ public class ColorUtils {
      * @param b the second ARGB integer color
      * @param t the interpolation value
      * @return the interpolated ARGB integer color
+     * @see ColorUtils#lerpRGBColor(int, int, float)
      */
     public static int lerpARGBColor(int a, int b, float t) {
         Vector4f cA = argbIntToRGBA(a);
@@ -202,6 +342,7 @@ public class ColorUtils {
      * @param b the second RGB integer color
      * @param t the interpolation value
      * @return the interpolated RGB integer color
+     * @see ColorUtils#lerpARGBColor(int, int, float)
      */
     public static int lerpRGBColor(int a, int b, float t) {
         Vector3f cA = intToRGB(a);
@@ -235,47 +376,73 @@ public class ColorUtils {
      * @return the interpolated RGB integer color
      */
     public static int lerpRGBColorThroughHSV(int a, int b, float t, boolean longAngle) {
-        Vector3f cA = rgbToHSV(intToRGB(a));
-        Vector3f cB = rgbToHSV(intToRGB(b));
+        Vector3f cA = intToHSV(a);
+        Vector3f cB = intToHSV(b);
+        return hsvToInt(lerpHSV(cA, cB, t, longAngle));
+    }
+
+    /**
+     * computes a linear interpolation between two HSV {@link org.joml.Vector3f} colors (0 - 1)
+     * <p>
+     * the interpolation can be set to keep the longest Hue between the two colors
+     * @param a the first HSV {@link org.joml.Vector3f} color
+     * @param b the second HSV {@link org.joml.Vector3f} color
+     * @param t the interpolation value
+     * @param longAngle if the interpolation should go through the longest Hue angle
+     * @return the interpolated HSV {@link org.joml.Vector3f} color
+     */
+    public static Vector3f lerpHSV(Vector3f a, Vector3f b, float t, boolean longAngle) {
         float h, s;
 
         //do not change hue (x) nor saturation (y) when black (brightness 0)
         //do not change hue (x) when gray (saturation 0)
-        if (cA.z == 0f) {
-            h = cB.x;
-            s = cB.y;
-        } else if (cB.z == 0f) {
-            h = cA.x;
-            s = cA.y;
+        if (a.z == 0f) {
+            h = b.x;
+            s = b.y;
+        } else if (b.z == 0f) {
+            h = a.x;
+            s = a.y;
         } else {
-            if (cA.y == 0f) {
-                h = cB.x;
-            } else if (cB.y == 0f) {
-                h = cA.x;
+            if (a.y == 0f) {
+                h = b.x;
+            } else if (b.y == 0f) {
+                h = a.x;
             } else if (longAngle) {
-                float xA = cA.x;
-                float xB = cB.x;
-                if (cA.x > cB.x) xB += 1f;
+                float xA = a.x;
+                float xB = b.x;
+                if (a.x > b.x) xB += 1f;
                 else xA += 1f;
                 h = Math.lerp(xA, xB, t) % 1f;
             } else {
-                float angle = Maths.shortAngle(cA.x * 360f, cB.x * 360f) / 360f;
-                h = Math.lerp(cA.x, cA.x + angle, t);
+                float angle = Maths.shortAngle(a.x * 360f, b.x * 360f) / 360f;
+                h = Math.lerp(a.x, a.x + angle, t);
             }
-            s = Math.lerp(cA.y, cB.y, t);
+            s = Math.lerp(a.y, b.y, t);
         }
 
-        float v = Math.lerp(cA.z, cB.z, t);
-        return rgbToInt(hsvToRGB(new Vector3f(h, s, v)));
+        float v = Math.lerp(a.z, b.z, t);
+        return new Vector3f(h, s, v);
     }
 
     /**
      * inverts an RGB (0 - 1) {@link org.joml.Vector3f} color
      * @param color the RGB {@link org.joml.Vector3f} color
      * @return an inverted RGB {@link org.joml.Vector3f} of that color
+     * @see ColorUtils#invertColor(float, float, float)
      */
     public static Vector3f invertColor(Vector3f color) {
-        return new Vector3f(1f - color.x, 1f - color.y, 1f - color.z);
+        return invertColor(color.x, color.y, color.z);
+    }
+
+    /**
+     * inverts an RGB (0 - 1) color
+     * @param r the red channel
+     * @param g the green channel
+     * @param b the blue channel
+     * @return an inverted RGB {@link org.joml.Vector3f} of that color
+     */
+    public static Vector3f invertColor(float r, float g, float b) {
+        return new Vector3f(1f - r, 1f - g, 1f - b);
     }
 
     /**

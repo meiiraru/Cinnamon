@@ -60,7 +60,7 @@ public class LightRenderer {
 
     private static int renderedLights, renderedShadows;
 
-    public static void renderLights(PBRDeferredFramebuffer gBuffer, List<Light> lights, Camera camera, boolean renderShadows, Runnable renderFunction) {
+    public static void renderLights(PBRDeferredFramebuffer gBuffer, List<Light> lights, Camera camera, boolean renderShadows, boolean volumetric, Runnable renderFunction) {
         renderedLights = renderedShadows = 0;
 
         lightsToRender.addAll(lights);
@@ -72,9 +72,9 @@ public class LightRenderer {
         //init the light buffer
         initLightBuffer(gBuffer, camera);
         boolean hasShadows = renderShadows && Settings.shadowQuality.get() >= 0;
-        boolean volumetric = Settings.volumetricLights.get() >= 0;
+        boolean hasVolumetric = volumetric && Settings.volumetricLights.get() >= 0;
 
-        if (volumetric)
+        if (hasVolumetric)
             initVolumetricBuffer(gBuffer);
 
         //render the lights
@@ -102,7 +102,7 @@ public class LightRenderer {
             renderedLights++;
 
             //render volumetric effect
-            if (volumetric && light.getType() != Light.Type.DIRECTIONAL)
+            if (hasVolumetric && light.getType() != Light.Type.DIRECTIONAL)
                 renderVolumetricLight(gBuffer, camera, light, shadow);
         }
 

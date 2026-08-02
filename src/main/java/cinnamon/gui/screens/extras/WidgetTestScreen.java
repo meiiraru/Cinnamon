@@ -267,7 +267,7 @@ public class WidgetTestScreen extends ParentedScreen {
 
         //input text
         Button input = new Button(0, 0, 60, 12, Text.of("Input Text"), button -> {
-            ConfirmPopup popup1 = new ConfirmPopup.Input(Text.of("Enter your name:"), Text.of("Name"), (accepted, text) -> Toast.addToast(accepted ? text : "cancelled"));
+            ConfirmPopup popup1 = new ConfirmPopup.Input(Text.of("Enter your name:"), Text.of("Name"), (accepted, text) -> Toast.addToast(accepted ? "hello " + text : "cancelled"));
             UIHelper.setPopup(width / 2, height / 2, popup1);
             popup1.open();
         });
@@ -357,10 +357,18 @@ public class WidgetTestScreen extends ParentedScreen {
                 ))
         ));
 
-        //color picker
-        ColorPicker cp = new ColorPicker(0, 0, 16, 16);
-        cp.setColor(Colors.randomRainbow());
-        grid2.addWidget(cp);
+        //color pickers
+        ContainerGrid colorPickers = new ContainerGrid(0, 0, 4, 2);
+        grid2.addWidget(colorPickers);
+
+        ColorPicker cp = new ColorPicker(0, 0, 48, 12);
+        cp.setColor(Colors.randomRainbow().argb & 0xFFFFFF | (0x7F << 24));
+        cp.setColorAcceptListener(color -> Toast.addToast(String.format("#%08X", color)));
+        colorPickers.addWidget(cp);
+
+        ColorPicker cp2 = new ColorPicker(0, 0, 48, 12, false);
+        cp2.setColor(Colors.randomRainbow());
+        colorPickers.addWidget(cp2);
 
         //add lists
         addWidget(grid);

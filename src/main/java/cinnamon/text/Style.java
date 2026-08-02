@@ -259,15 +259,15 @@ public class Style {
     }
 
     public int getBackgroundColor() {
-        return (mask & BG_COLOR_SET) != 0 ? backgroundColor : getGuiSkin().getInt("background_color");
+        return (mask & BG_COLOR_SET) != 0 ? backgroundColor : getGuiSkin().getInt("text_background_color");
     }
 
     public int getShadowColor() {
-        return (mask & SHADOW_COLOR_SET) != 0 ? shadowColor : getGuiSkin().getInt("shadow_color");
+        return (mask & SHADOW_COLOR_SET) != 0 ? shadowColor : getGuiSkin().getInt("text_shadow_color");
     }
 
     public int getOutlineColor() {
-        return (mask & OUTLINE_COLOR_SET) != 0 ? outlineColor : getGuiSkin().getInt("outline_color");
+        return (mask & OUTLINE_COLOR_SET) != 0 ? outlineColor : getGuiSkin().getInt("text_outline_color");
     }
 
     public int getItalicOffset() {

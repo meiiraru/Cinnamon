@@ -52,6 +52,7 @@ public class ModelViewerScreen extends ParentedScreen {
     public ModelViewerScreen(Screen parentScreen) {
         super(parentScreen);
         modelViewer.setSkybox(SkyBoxRegistry.PHOTO_STUDIO);
+        modelViewer.setSkyboxColor(0xFFFFFFFF);
         modelViewer.setRenderSkybox(true);
     }
 
@@ -123,7 +124,7 @@ public class ModelViewerScreen extends ParentedScreen {
         addWidget(properties);
 
         //add material list
-        ComboBox materials = new ComboBox(width - animationList.getWidth() - 4, 4, animationList.getWidth(), animationList.getHeight());
+        ComboBox materials = new ComboBox(0, 0, animationList.getWidth(), animationList.getHeight());
         for (MaterialRegistry value : MaterialRegistry.values())
             materials.addEntry(Text.translated("material." + value.name().toLowerCase()), null, b -> modelViewer.setMaterial(value));
         materials.setTooltip(Text.translated("material"));
@@ -131,56 +132,66 @@ public class ModelViewerScreen extends ParentedScreen {
         properties.addWidget(materials);
 
         //prepare animations list
-        animationList.setPos(materials.getX(), materials.getY() + materials.getHeight() + 4);
+        animationList.setPos(0, 0);
         animationList.setTooltip(Text.translated("animation"));
         properties.addWidget(animationList);
 
         //skyboxes
-        ComboBox skyboxes = new ComboBox(materials.getX(), animationList.getY() + animationList.getHeight() + 4, animationList.getWidth(), animationList.getHeight());
+        ContainerGrid skyboxGroup = new ContainerGrid(0, 0, 1);
+        properties.addWidget(skyboxGroup);
+
+        ComboBox skyboxes = new ComboBox(0, 0, animationList.getWidth(), animationList.getHeight());
         for (SkyBoxRegistry value : SkyBoxRegistry.values())
             skyboxes.addEntry(Text.translated("skybox." + value.name().toLowerCase()), null, b -> modelViewer.setSkybox(value));
         skyboxes.setTooltip(Text.translated("skybox"));
         skyboxes.setSelected(modelViewer.getSkybox().ordinal());
-        properties.addWidget(skyboxes);
+        skyboxGroup.addWidget(skyboxes);
+
+        //skybox color
+        ColorPicker skyboxColor = new ColorPicker(0, 0, animationList.getWidth(), animationList.getHeight() * 2/3, false);
+        skyboxColor.setColor(modelViewer.getSkyboxColor());
+        skyboxColor.setColorChangeListener(modelViewer::setSkyboxColor);
+        skyboxColor.setTooltip(Text.translated("gui.model_viewer_screen.skybox_color"));
+        skyboxGroup.addWidget(skyboxColor);
 
         //toggle skybox
         Style togglesStyle = Style.EMPTY.shadow(true);
-        Checkbox toggleSkybox = new Checkbox(skyboxes.getX(), skyboxes.getY() + skyboxes.getHeight() + 4, Text.translated("gui.model_viewer_screen.toggle_skybox").withStyle(togglesStyle));
+        Checkbox toggleSkybox = new Checkbox(0, 0, Text.translated("gui.model_viewer_screen.toggle_skybox").withStyle(togglesStyle));
         toggleSkybox.setToggled(modelViewer.shouldRenderSkybox());
         toggleSkybox.setAction(b -> modelViewer.setRenderSkybox(((Checkbox) b).isToggled()));
         toggleSkybox.setRightToLeft(true);
         properties.addWidget(toggleSkybox);
 
         //toggle wireframe
-        Checkbox toggleWireframe = new Checkbox(skyboxes.getX(), toggleSkybox.getY() + toggleSkybox.getHeight() + 4, Text.translated("gui.model_viewer_screen.toggle_wireframe").withStyle(togglesStyle));
+        Checkbox toggleWireframe = new Checkbox(0, 0, Text.translated("gui.model_viewer_screen.toggle_wireframe").withStyle(togglesStyle));
         toggleWireframe.setToggled(modelViewer.shouldRenderWireframe());
         toggleWireframe.setAction(b -> modelViewer.setRenderWireframe(((Checkbox) b).isToggled()));
         toggleWireframe.setRightToLeft(true);
         properties.addWidget(toggleWireframe);
 
         //toggle bounds
-        Checkbox toggleBounds = new Checkbox(skyboxes.getX(), toggleWireframe.getY() + toggleWireframe.getHeight() + 4, Text.translated("gui.model_viewer_screen.toggle_bounds").withStyle(togglesStyle));
+        Checkbox toggleBounds = new Checkbox(0, 0, Text.translated("gui.model_viewer_screen.toggle_bounds").withStyle(togglesStyle));
         toggleBounds.setToggled(modelViewer.shouldRenderBounds());
         toggleBounds.setAction(b -> modelViewer.setRenderBounds(((Checkbox) b).isToggled()));
         toggleBounds.setRightToLeft(true);
         properties.addWidget(toggleBounds);
 
         //auto rotate
-        Checkbox autoRotate = new Checkbox(skyboxes.getX(), toggleBounds.getY() + toggleBounds.getHeight() + 4, Text.translated("gui.model_viewer_screen.auto_rotate").withStyle(togglesStyle));
+        Checkbox autoRotate = new Checkbox(0, 0, Text.translated("gui.model_viewer_screen.auto_rotate").withStyle(togglesStyle));
         autoRotate.setToggled(this.autoRotate);
         autoRotate.setAction(b -> this.autoRotate = ((Checkbox) b).isToggled());
         autoRotate.setRightToLeft(true);
         properties.addWidget(autoRotate);
 
         //ground plane
-        Checkbox groundPlane = new Checkbox(skyboxes.getX(), autoRotate.getY() + autoRotate.getHeight() + 4, Text.translated("gui.model_viewer_screen.ground_plane").withStyle(togglesStyle));
+        Checkbox groundPlane = new Checkbox(0, 0, Text.translated("gui.model_viewer_screen.ground_plane").withStyle(togglesStyle));
         groundPlane.setToggled(this.renderGroundPlane);
         groundPlane.setAction(b -> this.renderGroundPlane = ((Checkbox) b).isToggled());
         groundPlane.setRightToLeft(true);
         properties.addWidget(groundPlane);
 
         //animation bones
-        Checkbox animationBones = new Checkbox(skyboxes.getX(), groundPlane.getY() + groundPlane.getHeight() + 4, Text.translated("gui.model_viewer_screen.animation_bones").withStyle(togglesStyle));
+        Checkbox animationBones = new Checkbox(0, 0, Text.translated("gui.model_viewer_screen.animation_bones").withStyle(togglesStyle));
         animationBones.setToggled(this.renderAnimationBones);
         animationBones.setAction(b -> this.renderAnimationBones = ((Checkbox) b).isToggled());
         animationBones.setRightToLeft(true);

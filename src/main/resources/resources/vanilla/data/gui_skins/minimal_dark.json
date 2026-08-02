@@ -7,7 +7,8 @@
     "hint_color":          "FF404040",
     "disabled_hint_color": "FF202020",
     "screen_color_1":      "FF161616",
-    "screen_color_2":      "FF323232"
+    "screen_color_2":      "FF323232",
+    "outline_color":       "FF404040"
   },
   "resources": {
     "button_tex":               "textures/gui/widgets/minimal_dark/button.png",

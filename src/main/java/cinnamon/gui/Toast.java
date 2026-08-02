@@ -21,7 +21,6 @@ public class Toast {
 
     // -- properties -- //
 
-    public static final Resource TOAST_IN_SOUND = new Resource("sounds/ui/toast.ogg");
     public static final int DEFAULT_LENGTH = 3 * Client.TPS;
     protected static final int
             ANIM = 5,
@@ -58,7 +57,7 @@ public class Toast {
                 toast.addedTime = Client.getInstance().ticks;
                 logToast(toast);
                 if (!toast.silent)
-                    SoundManager.playSound(TOAST_IN_SOUND, SoundCategory.GUI);
+                    SoundManager.playSound(GUISkin.of(toast.skin).getResource("toast_in_snd"), SoundCategory.GUI);
             }
 
             if (toast.render(matrices, width, height, delta))

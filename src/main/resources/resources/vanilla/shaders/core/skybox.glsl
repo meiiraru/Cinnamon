@@ -23,7 +23,8 @@ out vec4 fragColor;
 
 uniform samplerCube skybox;
 uniform mat3 rotation;
+uniform vec3 color = vec3(1.0f);
 
 void main() {
-    fragColor = texture(skybox, texCoords * rotation);
+    fragColor = texture(skybox, texCoords * rotation) * vec4(color, 1.0f);
 }

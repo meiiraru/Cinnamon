@@ -21,8 +21,6 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Button extends SelectableWidget {
 
-    private static final Resource CLICK_SOUND = new Resource("sounds/ui/click.ogg");
-
     private boolean silent;
     private boolean runOnHold;
     private boolean holding;
@@ -173,12 +171,16 @@ public class Button extends SelectableWidget {
             return;
         if (!isSilent())
             playClickSound();
+        executeAction();
+    }
+
+    public void executeAction() {
         if (action != null)
             action.accept(this);
     }
 
     public void playClickSound() {
-        SoundManager.playSound(CLICK_SOUND, SoundCategory.GUI);
+        SoundManager.playSound(getSkin().getResource("button_click_snd"), SoundCategory.GUI);
     }
 
     public Text getMessage() {

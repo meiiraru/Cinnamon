@@ -70,6 +70,7 @@ public class WorldRenderer {
             renderSSR      = true,
             renderLights   = true,
             renderShadows  = true,
+            renderVolLight = true,
             renderSky      = true,
             renderBloom    = true,
             renderClouds   = true,
@@ -357,7 +358,7 @@ public class WorldRenderer {
     public static void renderLights(List<Light> lights, Camera camera, Runnable[] renderFunc) {
         renderedLights = renderedShadows = 0;
         if (renderLights) {
-            LightRenderer.renderLights(PBRFrameBuffer, lights, camera, renderShadows, () -> {
+            LightRenderer.renderLights(PBRFrameBuffer, lights, camera, renderShadows, renderVolLight, () -> {
                 for (Runnable r : renderFunc)
                     r.run();
             });
@@ -479,7 +480,7 @@ public class WorldRenderer {
         int renderedLightsBak = renderedLights;
         int renderedShadowsBak = renderedShadows;
         renderedLights = renderedShadows = 0;
-        LightRenderer.renderLights(PBRFrameBuffer, world.getLights(camera), camera, renderShadows, renderFunc);
+        LightRenderer.renderLights(PBRFrameBuffer, world.getLights(camera), camera, renderShadows, false, renderFunc);
         renderedLights = renderedLightsBak;
         renderedShadows = renderedShadowsBak;
 
@@ -552,6 +553,7 @@ public class WorldRenderer {
         renderSSR      =
         renderLights   =
         renderShadows  =
+        renderVolLight =
         renderSky      =
         renderBloom    =
         renderClouds   =

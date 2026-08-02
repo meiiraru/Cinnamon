@@ -88,15 +88,12 @@ public class Slider extends SelectableWidget {
 
         float d = UIHelper.getDepthOffset();
 
-        //left
-        renderHorizontalBar(matrices, x, y, left, 0f, v, 0xFFFFFFFF);
-
-        //right
-        renderHorizontalBar(matrices, x + width + 8 - right, y, right, 9f, v, 0xFFFFFFFF);
+        //background
+        renderHorizontalBackground(matrices, x, y, width, left, right, v);
 
         //progress
         matrices.translate(0, 0, d);
-        renderHorizontalBar(matrices, x, y, left, 0f, 12f, color == null ? getSkin().getInt("accent_color") : color);
+        renderHorizontalProgress(matrices, x, y, width, left, right);
 
         //steps
         renderSteps(matrices, x, y, width, 3, 4, state * 3f + 9f, 12f);
@@ -104,6 +101,17 @@ public class Slider extends SelectableWidget {
         //button
         matrices.translate(0, 0, d);
         renderButton(matrices, x + left - 4, y - 2, state);
+    }
+
+    protected void renderHorizontalBackground(MatrixStack matrices, int x, int y, int width, int left, int right, float v) {
+        //left
+        renderHorizontalBar(matrices, x, y, left, 0f, v, 0xFFFFFFFF);
+        //right
+        renderHorizontalBar(matrices, x + width + 8 - right, y, right, 9f, v, 0xFFFFFFFF);
+    }
+
+    protected void renderHorizontalProgress(MatrixStack matrices, int x, int y, int width, int left, int right) {
+        renderHorizontalBar(matrices, x, y, left, 0f, 12f, color == null ? getSkin().getInt("accent_color") : color);
     }
 
     protected void renderHorizontalBar(MatrixStack matrices, int x, int y, int width, float u, float v, int color) {
@@ -130,15 +138,12 @@ public class Slider extends SelectableWidget {
 
         float d = UIHelper.getDepthOffset();
 
-        //up
-        renderVerticalBar(matrices, x, y, up, u, 0f, 0xFFFFFFFF);
-
-        //down
-        renderVerticalBar(matrices, x, y + height + 8 - down, down, u, 9f, 0xFFFFFFFF);
+        //background
+        renderVerticalBackground(matrices, x, y, height, up, down, u);
 
         //progress
         matrices.translate(0, 0, d);
-        renderVerticalBar(matrices, x, y, up, 30f, 0f, color == null ? getSkin().getInt("accent_color") : color);
+        renderVerticalProgress(matrices, x, y, height, up, down);
 
         //steps
         renderSteps(matrices, x, y, height, 4, 3, 30f, state * 3f + 9f);
@@ -146,6 +151,17 @@ public class Slider extends SelectableWidget {
         //button
         matrices.translate(0, 0, d);
         renderButton(matrices, x - 2, y + up - 4, state);
+    }
+
+    protected void renderVerticalBackground(MatrixStack matrices, int x, int y, int height, int up, int down, float u) {
+        //up
+        renderVerticalBar(matrices, x, y, up, u, 0f, 0xFFFFFFFF);
+        //down
+        renderVerticalBar(matrices, x, y + height + 8 - down, down, u, 9f, 0xFFFFFFFF);
+    }
+
+    protected void renderVerticalProgress(MatrixStack matrices, int x, int y, int height, int up, int down) {
+        renderVerticalBar(matrices, x, y, up, 30f, 0f, color == null ? getSkin().getInt("accent_color") : color);
     }
 
     protected void renderVerticalBar(MatrixStack matrices, int x, int y, int height, float u, float v, int color) {
@@ -345,6 +361,9 @@ public class Slider extends SelectableWidget {
         //update value
         value = snapToClosestStep(value);
         value = warp ? Maths.clampWarp(value, 0f, 1f) : Maths.clamp(value, 0f, 1f);
+
+        if (this.value == value)
+            return;
 
         this.value = value;
         this.intValue = Math.round(Math.lerp(min, max, value));

@@ -35,16 +35,19 @@
         "Textures.com",
         "Freesound",
         "Pixabay Sound Effects",
-        "ShaderToy"
+        "ShaderToy",
+        "Poly Haven"
       ]
     },
     {
       "title": "Inspirations",
       "content": [
         "Minecraft",
+        "Source Engine",
         "Godot Engine",
         "Unity Engine",
-        "Three.js"
+        "Three.js",
+        "vuetify"
       ]
     },
     "Thank you for using the Cinnamon Game Engine! ~\u2764"

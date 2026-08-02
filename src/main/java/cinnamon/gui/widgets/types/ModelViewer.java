@@ -23,7 +23,6 @@ import cinnamon.render.shader.Shader;
 import cinnamon.settings.Settings;
 import cinnamon.vr.XrManager;
 import cinnamon.world.sky.CubemapSky;
-import cinnamon.world.sky.Sky;
 import org.joml.Math;
 import org.joml.Vector3f;
 
@@ -37,7 +36,7 @@ import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 public class ModelViewer extends SelectableWidget {
 
     private static final Framebuffer modelBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
-    private static final Sky theSky = new CubemapSky();
+    private static final CubemapSky theSky = new CubemapSky();
     static {
         theSky.fogColor = 0x000000;
         theSky.fogStart = 4096f;
@@ -227,6 +226,14 @@ public class ModelViewer extends SelectableWidget {
 
     public void setSkybox(SkyBoxRegistry type) {
         skybox = type;
+    }
+
+    public void setSkyboxColor(int color) {
+        theSky.setColor(color);
+    }
+
+    public int getSkyboxColor() {
+        return theSky.getColor();
     }
 
     public MaterialRegistry getMaterial() {

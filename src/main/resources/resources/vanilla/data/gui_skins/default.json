@@ -15,21 +15,23 @@
   },
 
   "colors": {
-    "text_color":          "FFFFFFFF",
-    "shadow_color":        "FF161616",
-    "outline_color":       "FF161616",
-    "background_color":    "44000000",
-    "accent_color":        "FFD37F7A",
-    "disabled_color":      "FF666666",
-    "selected_text_color": "FF000000",
-    "hint_color":          "FFD37F7A",
-    "disabled_hint_color": "FF404040",
-    "toast_text_color":    "FFFFFFFF",
-    "tooltip_text_color":  "FFFFFFFF",
-    "xr_interact_color":   "FFFFFFFF",
-    "screen_color_1":      "FF0F0805",
-    "screen_color_2":      "FF2E170F",
-    "icon_color":          "FFFFFFFF"
+    "text_color":            "FFFFFFFF",
+    "text_shadow_color":     "FF161616",
+    "text_outline_color":    "FF161616",
+    "text_background_color": "44000000",
+    "accent_color":          "FFD37F7A",
+    "disabled_color":        "FF666666",
+    "selected_text_color":   "FF000000",
+    "hint_color":            "FFD37F7A",
+    "disabled_hint_color":   "FF404040",
+    "toast_text_color":      "FFFFFFFF",
+    "tooltip_text_color":    "FFFFFFFF",
+    "xr_interact_color":     "FFFFFFFF",
+    "screen_color_1":        "FF0F0805",
+    "screen_color_2":        "FF2E170F",
+    "icon_color":            "FFFFFFFF",
+    "outline_color":         "FFB58B5B",
+    "hovered_outline_color": "FFFFFFFF"
   },
 
   "resources": {
@@ -47,8 +49,13 @@
     "text_field_tex":           "textures/gui/widgets/base/text_field.png",
     "toast_tex":                "textures/gui/widgets/base/toast.png",
     "tooltip_tex":              "textures/gui/widgets/base/tooltip.png",
+
+    "alpha_checkerboard_tex":   "textures/gui/alpha_checkerboard.png",
     "cursor":                   "textures/gui/cursor.png",
-    "cursor_hold":              "textures/gui/cursor_hold.png"
+    "cursor_hold":              "textures/gui/cursor_hold.png",
+
+    "button_click_snd":         "sounds/ui/click.ogg",
+    "toast_in_snd":             "sounds/ui/toast.ogg"
   },
 
   "primitives": {

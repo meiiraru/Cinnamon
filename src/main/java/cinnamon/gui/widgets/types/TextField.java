@@ -717,17 +717,19 @@ public class TextField extends SelectableWidget implements Tickable {
     // -- text editing -- //
 
 
-    public void setText(String string) {
+    public boolean updateText(Object string) {
+        String str = String.valueOf(string);
+
         //trim the text to the char limit
-        if (string.length() > charLimit)
-            string = string.substring(0, charLimit);
+        if (str.length() > charLimit)
+            str = str.substring(0, charLimit);
 
         //do not update if the text is the same
-        if (currText.equals(string))
-            return;
+        if (currText.equals(str))
+            return false;
 
         //update the text
-        currText = string;
+        currText = str;
         updateFormatting();
 
         //unselect the text
@@ -737,9 +739,13 @@ public class TextField extends SelectableWidget implements Tickable {
         setCursorPos(cursor);
         fitCursorInWidth();
 
-        //then finally notify the listener about the change
-        if (changeListener != null)
-            changeListener.accept(string);
+        //success
+        return true;
+    }
+
+    public void setText(Object string) {
+        if (this.updateText(string) && changeListener != null)
+            changeListener.accept(currText);
     }
 
     private void copy() {
@@ -1106,6 +1112,7 @@ public class TextField extends SelectableWidget implements Tickable {
         ANY(c -> true),
         LETTERS(c -> c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z'),
         NUMBERS(c -> c >= '0' && c <= '9'),
+        HEXADECIMAL(c -> c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f'),
         ASCII(c -> c > 31 && c < 127);
 
         private final Predicate<Character> predicate;

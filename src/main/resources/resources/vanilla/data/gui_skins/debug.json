@@ -1,6 +1,6 @@
 {
   "parent": "data/gui_skins/default.json",
   "colors": {
-    "background_color": "88000000"
+    "text_background_color": "88000000"
   }
 }

@@ -69,6 +69,10 @@ public class PopupWidget extends ContainerGrid {
 
     protected void reset() {}
 
+    protected void closeFromEscape() {
+        this.close();
+    }
+
     public void setOpenListener(Consumer<PopupWidget> openListener) {
         this.openListener = openListener;
     }
@@ -154,7 +158,7 @@ public class PopupWidget extends ContainerGrid {
         Screen screen = Client.getInstance().screen;
         if (screen != null) {
             switch (key) {
-                case GLFW_KEY_ESCAPE -> {if (closeOnEscape) this.close();}
+                case GLFW_KEY_ESCAPE -> {if (closeOnEscape) this.closeFromEscape();}
                 case GLFW_KEY_TAB  -> screen.focusWidget(this.selectNext(screen.getFocusedWidget(), (mods & GLFW_MOD_SHIFT) != 0, true));
                 case GLFW_KEY_UP   -> screen.focusWidget(this.selectNext(screen.getFocusedWidget(), true, false));
                 case GLFW_KEY_DOWN -> screen.focusWidget(this.selectNext(screen.getFocusedWidget(), false, false));
