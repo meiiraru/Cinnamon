@@ -124,13 +124,13 @@ public class VecScreen extends ParentedScreen {
     }
 
     @Override
-    public boolean scroll(double x, double y) {
+    public boolean mouseScroll(double x, double y) {
         if (y != 0) {
             scale *= (y > 0 ? 1.1f : 0.9f);
             scale = Math.max(0.1f, scale);
             return true;
         }
 
-        return super.scroll(x, y);
+        return super.mouseScroll(x, y);
     }
 }

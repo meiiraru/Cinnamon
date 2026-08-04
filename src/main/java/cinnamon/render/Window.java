@@ -26,6 +26,7 @@ public class Window {
     //window properties
     public int x, y;
     public int width, height;
+    public boolean focused;
 
     //fullscreen stuff
     private int windowedX, windowedY;
@@ -198,6 +199,16 @@ public class Window {
     }
 
     /**
+     * Get the current monitor's refresh rate
+     * @return the refresh rate in Hz, or -1 if it couldn't be determined
+     */
+    public int getCurrentRefreshRate() {
+        long monitor = getCurrentMonitor();
+        GLFWVidMode mode = glfwGetVideoMode(monitor);
+        return mode != null ? mode.refreshRate() : -1;
+    }
+
+    /**
      * Set the window's title
      * @param title the new title
      */
@@ -241,6 +252,14 @@ public class Window {
     public void updatePos(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    /**
+     * Update the window's focus state
+     * @param focused true if the window is focused, false otherwise
+     */
+    public void updateFocus(boolean focused) {
+        this.focused = focused;
     }
 
     /**
@@ -429,6 +448,13 @@ public class Window {
      */
     public void toggleVsync(boolean enabled) {
         glfwSwapInterval(enabled ? 1 : 0);
+    }
+
+    /**
+     * Request the user's attention to the window
+     */
+    public void requestAttention() {
+        glfwRequestWindowAttention(window);
     }
 
     /**

@@ -280,7 +280,7 @@ public class DebugScreen {
                         .formatted(Version.CLIENT_VERSION, c.fps, c.ms))
                         .withStyle(STYLE.background(false)));
 
-        int bg = GUISkin.of(GUI_SKIN).getInt("background_color");
+        int bg = GUISkin.of(GUI_SKIN).getInt("text_background_color");
         float x = 4;
         float y = 4;
         float w = TextUtils.getWidth(text);
@@ -349,7 +349,7 @@ public class DebugScreen {
                     .parseColorFormatting(Text.of(result))
                     .withStyle(STYLE.background(false));
 
-            int bg = GUISkin.of(GUI_SKIN).getInt("background_color");
+            int bg = GUISkin.of(GUI_SKIN).getInt("text_background_color");
             float w = TextUtils.getWidth(text);
             float h = TextUtils.getHeight(text);
 
@@ -488,7 +488,7 @@ public class DebugScreen {
             return String.format("""
                     [&bwindow&r]
                     &e%s&r x &e%s&r gui scale &e%s&r fullscreen &e%s&r
-                    vsync &e%s&r FPS limit &e%s&r
+                    vsync &e%s&r FPS limit &e%s&r @ &e%s&rhz
                     ticks &e%s&r frames &e%s&r
 
                     [&beffects&r]
@@ -504,7 +504,7 @@ public class DebugScreen {
                     facing &e%s&r""",
 
                     w.width, w.height, w.guiScale, w.isFullscreen() ? "on" : "off",
-                    Settings.vsync.get() ? "on" : "off", Settings.fpsLimit.get() <= 0 ? "unlimited" : Settings.fpsLimit.get() + " fps",
+                    Settings.vsync.get() ? "on" : "off", Settings.fpsLimit.get() <= 0 ? "unlimited" : Settings.fpsLimit.get() + " fps", w.getCurrentRefreshRate(),
                     c.ticks, c.frames,
 
                     post == null ? "none" : post.name(),

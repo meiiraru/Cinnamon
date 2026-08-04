@@ -3,7 +3,7 @@ package cinnamon.sound;
 import cinnamon.math.Maths;
 
 public enum SoundCategory {
-    MASTER,
+    MASTER(0.5f),
     GUI,
 
     //world categories
@@ -14,7 +14,15 @@ public enum SoundCategory {
     TERRAIN,
     MISC;
 
-    private float volume = 1f;
+    private float volume;
+
+    SoundCategory() {
+        this(1f);
+    }
+
+    SoundCategory(float volume) {
+        this.volume = volume;
+    }
 
     public float getVolume() {
         return volume;

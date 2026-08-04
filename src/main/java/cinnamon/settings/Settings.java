@@ -41,12 +41,18 @@ public class Settings {
     public static final Setting.Strings lang = new Setting.Strings("lang.lang", LangManager.MAIN_LANG);
 
     //screen
-    public static final Setting.Ints fov = new Setting.Ints("screen.fov", 70);
-    public static final Setting.Floats guiScale = new Setting.Floats("screen.guiScale", 0f);
-    public static final Setting.Bools showFPS   = new Setting.Bools("screen.show_fps", false);
-    public static final Setting.Bools vsync     = new Setting.Bools("screen.vsync", false);
-    public static final Setting.Ints fpsLimit   = new Setting.Ints("screen.fps_limit", 0);
-    public static final Setting.Strings guiSkin = new Setting.Strings("screen.gui_skin", "");
+
+    public static final Setting.Bools
+            showFPS         = new Setting.Bools("screen.show_fps", false),
+            vsync           = new Setting.Bools("screen.vsync", false),
+            dynamicFpsLimit = new Setting.Bools("screen.dynamic_fps_limit", true);
+    public static final Setting.Floats
+            guiScale = new Setting.Floats("screen.gui_scale", 0f);
+    public static final Setting.Ints
+            fov      = new Setting.Ints("screen.fov", 70),
+            fpsLimit = new Setting.Ints("screen.fps_limit", 0);
+    public static final Setting.Strings
+            guiSkin = new Setting.Strings("screen.gui_skin", "");
 
     //mouse
     public static final Setting.Floats sensibility = new Setting.Floats("mouse.sensibility", 0.27f);
@@ -58,9 +64,9 @@ public class Settings {
             doubleKeypressTime = new Setting.Ints("accessibility.double_keypress_time", 10),
             doubleClickTime    = new Setting.Ints("accessibility.double_click_time", 10),
             cursorBlinkDelay   = new Setting.Ints("accessibility.cursor_blink_delay", 20);
-    public static final Setting.Floats viewBobbingStrength = new Setting.Floats("accessibility.view_bobbing_strength", 1f);
+    public static final Setting.Floats viewBobbingStrength  = new Setting.Floats("accessibility.view_bobbing_strength", 1f);
     public static final Setting.Bools actionWheelRunOnClose = new Setting.Bools("accessibility.action_wheel_run_on_close", false);
-    public static final Setting.Ranges gamepadDeadzone = new Setting.Ranges("accessibility.gamepad_deadzone", 0.33f, 0f, 1f);
+    public static final Setting.Ranges gamepadDeadzone      = new Setting.Ranges("accessibility.gamepad_deadzone", 0.33f, 0f, 1f);
 
     //player
     public static final Setting.Enums<LivingModelRegistry> playermodel = new Setting.Enums<>("player.player_model", LivingModelRegistry.STRAWBERRY);
@@ -76,17 +82,21 @@ public class Settings {
     public static final Setting.Floats
             xrTurningAngle     = new Setting.Floats("xr.turning_angle", 3f),
             xrSnapTurningAngle = new Setting.Floats("xr.snap_turning_angle", 30f);
-    public static final Setting.Ints xrClickOnHoverDelay = new Setting.Ints("xr.click_on_hover_delay", 30);
+    public static final Setting.Ints
+            xrClickOnHoverDelay = new Setting.Ints("xr.click_on_hover_delay", 30);
 
     //rendering
-    public static final Setting.IntRanges shadowQuality = new Setting.IntRanges("rendering.shadow_quality", 3, -1, 4);
-    public static final Setting.Ranges bloomStrength    = new Setting.Ranges("rendering.bloom_strength", 1f, 0f, 5f);
-    public static final Setting.Bools lensFlare = new Setting.Bools("rendering.lens_flare", true);
-    public static final Setting.IntRanges volumetricLights = new Setting.IntRanges("rendering.volumetric_lights", 3, -1, 4);
-    public static final Setting.IntRanges ssaoLevel = new Setting.IntRanges("rendering.ssao_level", 3, -1, 4);
-    public static final Setting.IntRanges ssrLevel  = new Setting.IntRanges("rendering.ssr_level", 3, -1, 4);
-    public static final Setting.Ranges renderScale  = new Setting.Ranges("rendering.render_scale", 1f, 0.01f, 4f);
-    public static final Setting.Bools fxaa = new Setting.Bools("rendering.fxaa", true);
+    public static final Setting.Bools
+            fxaa      = new Setting.Bools("rendering.fxaa", true),
+            lensFlare = new Setting.Bools("rendering.lens_flare", true);
+    public static final Setting.IntRanges
+            volumetricLights = new Setting.IntRanges("rendering.volumetric_lights", 3, -1, 4),
+            ssaoLevel        = new Setting.IntRanges("rendering.ssao_level", 3, -1, 4),
+            ssrLevel         = new Setting.IntRanges("rendering.ssr_level", 3, -1, 4),
+            shadowQuality    = new Setting.IntRanges("rendering.shadow_quality", 3, -1, 4);
+    public static final Setting.Ranges
+            renderScale   = new Setting.Ranges("rendering.render_scale", 1f, 0.01f, 4f),
+            bloomStrength = new Setting.Ranges("rendering.bloom_strength", 1f, 0f, 5f);
 
     //keybinds
     public static final Setting.Keybind
@@ -136,7 +146,7 @@ public class Settings {
 
         //wrapper for sound categories
         for (SoundCategory sound : SoundCategory.values()) {
-            Setting.Ranges setting = new Setting.Ranges("sound." + sound.name().toLowerCase(), 1f, 0f, 1f) {
+            Setting.Ranges setting = new Setting.Ranges("sound." + sound.name().toLowerCase(), sound == SoundCategory.MASTER ? 0.5f : 1f, 0f, 1f) {
                 @Override
                 public Float get() {
                     return sound.getVolume();
@@ -179,7 +189,7 @@ public class Settings {
         //versioning
         Map<Setting<?>, String> versionMap;
         try {
-            int v = json.get("_version").getAsInt();
+            int v = json.get("__version").getAsInt();
             if (v != VERSION) {
                 if (v > 0 && v <= VERSION_MAP.size()) {
                     versionMap = VERSION_MAP.get(v - 1);
@@ -245,7 +255,7 @@ public class Settings {
         JsonObject json = new JsonObject();
 
         //versioning
-        json.addProperty("_version", VERSION);
+        json.addProperty("__version", VERSION);
 
         //save settings
         for (Setting<?> setting : SETTINGS) {

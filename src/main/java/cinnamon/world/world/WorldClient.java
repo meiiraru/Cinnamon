@@ -762,7 +762,7 @@ public class WorldClient extends World {
         Controller.mouseMove(x, y);
     }
 
-    public void scroll(double x, double y) {
+    public void mouseScroll(double x, double y) {
         if (client.window.isMouseLocked())
             Controller.mouseScroll(x, y);
     }

@@ -53,6 +53,9 @@ public class Client {
     public final Timer timer = new Timer(TPS);
     public long ticks, frames;
     public int fps, ms;
+    public int fpsLimit = -1;
+    public static final int AFK_TIMEOUT = TPS * 600;
+    public int afkTimer = AFK_TIMEOUT;
 
     public String name = ArgsOptions.PLAYERNAME.getAsString();
     public UUID playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
@@ -124,6 +127,16 @@ public class Client {
 
     public void tick() {
         ticks++;
+
+        if (afkTimer > 0) {
+            afkTimer--;
+            if (Settings.dynamicFpsLimit.get()) {
+                if (afkTimer == AFK_TIMEOUT - TPS * 60)
+                    fpsLimit = 30;
+                else if (afkTimer == 0)
+                    fpsLimit = 10;
+            }
+        }
 
         runScheduledTicks();
         //ServerConnection.tick();
@@ -268,22 +281,67 @@ public class Client {
         return initialized;
     }
 
-    // -- glfw events -- //
-
-    public void mousePress(int button, int action, int mods) {
-        window.updateModsMask(mods);
-
-        if (DebugScreen.isActive() && DebugScreen.mousePress(button, action, mods))
-            return;
-        if (screen != null)
-            screen.mousePress(button, action, mods);
-        else if (world != null)
-            world.mousePress(button, action, mods);
-
-        events.runEvents(EventType.MOUSE_PRESS, button, action, mods);
+    public void resetAFKTimer() {
+        afkTimer = AFK_TIMEOUT;
+        fpsLimit = -1;
     }
 
+    // -- glfw events -- //
+
+    // -- window events -- //
+
+    public void windowMove(int x, int y) {
+        window.updatePos(x, y);
+        events.runEvents(EventType.WINDOW_MOVE, x, y);
+    }
+
+    public void windowResize(int width, int height) {
+        if (width <= 0 || height <= 0)
+            return;
+
+        window.updateSize(width, height, Settings.guiScale.get(), false);
+        Framebuffer.DEFAULT_FRAMEBUFFER.resize(window.width, window.height);
+
+        if (world != null)
+            world.onWindowResize(window.width, window.height);
+
+        queueTick(() -> {
+            if (camera != null)
+                camera.updateProjMatrix(window.scaledWidth, window.scaledHeight, Settings.fov.get());
+
+            if (screen != null)
+                screen.resize(window.scaledWidth, window.scaledHeight);
+        });
+
+        events.runEvents(EventType.WINDOW_RESIZE, window.width, window.height);
+    }
+
+    public void windowFocused(boolean focused) {
+        if (!focused && this.fpsLimit < 0 && Settings.dynamicFpsLimit.get())
+            this.fpsLimit = 30;
+
+        window.updateFocus(focused);
+
+        if (screen != null) {
+            screen.windowFocused(focused);
+        } else if (world != null && !focused && !XrManager.isInXR()) {
+            world.pause();
+        }
+
+        events.runEvents(EventType.WINDOW_FOCUSED, focused);
+    }
+
+    public void filesDropped(String[] files) {
+        if (screen != null)
+            screen.filesDropped(files);
+
+        events.runEvents(EventType.FILES_DROPPED, (Object) files);
+    }
+
+    // -- keyboard events -- //
+
     public void keyPress(int key, int scancode, int action, int mods) {
+        resetAFKTimer();
         window.updateModsMask(mods);
 
         if (DebugScreen.keyPress(key, scancode, action, mods))
@@ -341,7 +399,26 @@ public class Client {
         events.runEvents(EventType.CHAR_TYPED, c, mods);
     }
 
+    // -- mouse events -- //
+
+    public void mousePress(int button, int action, int mods) {
+        resetAFKTimer();
+        window.updateModsMask(mods);
+
+        if (DebugScreen.isActive() && DebugScreen.mousePress(button, action, mods))
+            return;
+        if (screen != null)
+            screen.mousePress(button, action, mods);
+        else if (world != null)
+            world.mousePress(button, action, mods);
+
+        events.runEvents(EventType.MOUSE_PRESS, button, action, mods);
+    }
+
     public void mouseMove(double x, double y) {
+        if (window.focused)
+            resetAFKTimer();
+
         window.updateMosuePos(x, y);
 
         if (screen != null) {
@@ -353,61 +430,22 @@ public class Client {
         events.runEvents(EventType.MOUSE_MOVE, x, y);
     }
 
-    public void scroll(double x, double y) {
+    public void mouseScroll(double x, double y) {
+        resetAFKTimer();
+
         if (screen != null)
-            screen.scroll(x, y);
+            screen.mouseScroll(x, y);
         else if (world != null)
-            world.scroll(x, y);
+            world.mouseScroll(x, y);
 
-        events.runEvents(EventType.SCROLL, x, y);
-    }
-
-    public void windowMove(int x, int y) {
-        window.updatePos(x, y);
-        events.runEvents(EventType.WINDOW_MOVE, x, y);
-    }
-
-    public void windowResize(int width, int height) {
-        if (width <= 0 || height <= 0)
-            return;
-
-        window.updateSize(width, height, Settings.guiScale.get(), false);
-        Framebuffer.DEFAULT_FRAMEBUFFER.resize(window.width, window.height);
-
-        if (world != null)
-            world.onWindowResize(window.width, window.height);
-
-        queueTick(() -> {
-            if (camera != null)
-                camera.updateProjMatrix(window.scaledWidth, window.scaledHeight, Settings.fov.get());
-
-            if (screen != null)
-                screen.resize(window.scaledWidth, window.scaledHeight);
-        });
-
-        events.runEvents(EventType.WINDOW_RESIZE, window.width, window.height);
-    }
-
-    public void windowFocused(boolean focused) {
-        if (screen != null) {
-            screen.windowFocused(focused);
-        } else if (world != null && !focused && !XrManager.isInXR()) {
-            world.pause();
-        }
-
-        events.runEvents(EventType.WINDOW_FOCUSED, focused);
-    }
-
-    public void filesDropped(String[] files) {
-        if (screen != null)
-            screen.filesDropped(files);
-
-        events.runEvents(EventType.FILES_DROPPED, (Object) files);
+        events.runEvents(EventType.MOUSE_SCROLL, x, y);
     }
 
     // -- xr events -- //
 
     public void xrButtonPress(int button, boolean pressed, int hand) {
+        resetAFKTimer();
+
         if (screen != null) {
             screen.xrButtonPress(button, pressed, hand);
         } else if (world != null) {
@@ -418,6 +456,8 @@ public class Client {
     }
 
     public void xrTriggerPress(int button, float value, int hand, float lastValue) {
+        resetAFKTimer();
+
         if (DebugScreen.isActive() && DebugScreen.xrTriggerPress(button, value, hand, lastValue))
             return;
         if (screen != null) {
@@ -430,6 +470,8 @@ public class Client {
     }
 
     public void xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
+        resetAFKTimer();
+
         if (screen != null) {
             screen.xrJoystickMove(x, y, hand, lastX, lastY);
         } else if (world != null) {
@@ -439,7 +481,11 @@ public class Client {
         events.runEvents(EventType.XR_JOYSTICK_MOVE, x, y, hand, lastX, lastY);
     }
 
+    // -- joystick/gamepad events -- //
+
     public void joystickButtonPress(int button, boolean pressed, int joystick) {
+        resetAFKTimer();
+
         if (screen != null) {
             screen.joystickButtonPress(button, pressed, joystick);
         } else if (world != null) {
@@ -450,6 +496,8 @@ public class Client {
     }
 
     public void joystickAxisMove(int axis, float value, int joystick, float lastValue) {
+        resetAFKTimer();
+
         if (screen != null) {
             screen.joystickAxisMove(axis, value, joystick, lastValue);
         } else if (world != null) {
@@ -460,6 +508,8 @@ public class Client {
     }
 
     public void joystickHatMove(int hat, byte hatState, int joystick, byte lastValue) {
+        resetAFKTimer();
+
         if (screen != null) {
             screen.joystickHatMove(hat, hatState, joystick, lastValue);
         } else if (world != null) {
@@ -470,6 +520,8 @@ public class Client {
     }
 
     public void gamepadButtonPress(int button, boolean pressed, int joystick) {
+        resetAFKTimer();
+
         if (screen != null) {
             screen.gamepadButtonPress(button, pressed, joystick);
         } else if (world != null) {
@@ -480,6 +532,8 @@ public class Client {
     }
 
     public void gamepadAxisMove(int axis, float value, int joystick, float lastValue) {
+        resetAFKTimer();
+
         if (screen != null) {
             screen.gamepadAxisMove(axis, value, joystick, lastValue);
         } else if (world != null) {

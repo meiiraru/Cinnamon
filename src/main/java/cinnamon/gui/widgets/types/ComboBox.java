@@ -190,7 +190,7 @@ public class ComboBox extends Button {
     }
 
     @Override
-    public GUIListener scroll(double x, double y) {
+    public GUIListener mouseScroll(double x, double y) {
         if (allowScrollSelect() && isActive() && UIHelper.isWidgetHovered(this)) {
             int i = selected;
             i += (int) Math.signum(-y);
@@ -200,7 +200,7 @@ public class ComboBox extends Button {
             return this;
         }
 
-        return super.scroll(x, y);
+        return super.mouseScroll(x, y);
     }
 
     public boolean allowScrollSelect() {

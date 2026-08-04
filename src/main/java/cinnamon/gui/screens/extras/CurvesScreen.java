@@ -253,8 +253,8 @@ public class CurvesScreen extends ParentedScreen {
     }
 
     @Override
-    public boolean scroll(double x, double y) {
-        boolean child = super.scroll(x, y);
+    public boolean mouseScroll(double x, double y) {
+        boolean child = super.mouseScroll(x, y);
         if (child) return true;
 
         curve.steps(Math.max(curve.getSteps() + (int) Math.signum(y), 1));

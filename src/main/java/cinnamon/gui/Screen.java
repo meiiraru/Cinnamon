@@ -163,7 +163,7 @@ public abstract class Screen {
     protected void tickAutoScroll() {
         //tick scroll
         if (autoScrollX != 0 || autoScrollY != 0)
-            this.scroll(autoScrollX, autoScrollY);
+            this.mouseScroll(autoScrollX, autoScrollY);
     }
 
     protected void tickXr() {
@@ -328,8 +328,8 @@ public abstract class Screen {
         return this.mainContainer.mouseMove(x, y) != null;
     }
 
-    public boolean scroll(double x, double y) {
-        return this.mainContainer.scroll(x, y) != null;
+    public boolean mouseScroll(double x, double y) {
+        return this.mainContainer.mouseScroll(x, y) != null;
     }
 
     public boolean windowFocused(boolean focused) {

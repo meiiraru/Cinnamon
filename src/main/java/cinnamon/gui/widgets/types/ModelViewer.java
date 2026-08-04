@@ -434,7 +434,7 @@ public class ModelViewer extends SelectableWidget {
     }
 
     @Override
-    public GUIListener scroll(double x, double y) {
+    public GUIListener mouseScroll(double x, double y) {
         if (model == null)
             return null;
 

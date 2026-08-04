@@ -199,10 +199,10 @@ public class Container extends Widget implements Tickable, GUIListener {
     }
 
     @Override
-    public GUIListener scroll(double x, double y) {
+    public GUIListener mouseScroll(double x, double y) {
         for (int i = this.listeners.size() - 1; i >= 0; i--) {
             GUIListener listener = this.listeners.get(i);
-            GUIListener result = listener.scroll(x, y);
+            GUIListener result = listener.mouseScroll(x, y);
             if (result != null)
                 return result;
         }

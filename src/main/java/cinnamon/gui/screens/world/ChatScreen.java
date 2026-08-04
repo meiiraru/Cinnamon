@@ -250,7 +250,7 @@ public class ChatScreen extends Screen {
     }
 
     @Override
-    public boolean scroll(double x, double y) {
+    public boolean mouseScroll(double x, double y) {
         return messageList.getScrollbar().forceScroll(x, y) != null;
     }
 

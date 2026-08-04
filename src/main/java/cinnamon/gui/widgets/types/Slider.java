@@ -275,11 +275,11 @@ public class Slider extends SelectableWidget {
     }
 
     @Override
-    public GUIListener scroll(double x, double y) {
+    public GUIListener mouseScroll(double x, double y) {
         if (isActive() && isHovered()) {
             return forceScroll(x, y);
         }
-        return super.scroll(x, y);
+        return super.mouseScroll(x, y);
     }
 
     public GUIListener forceScroll(double x, double y) {

@@ -170,12 +170,12 @@ public class PopupWidget extends ContainerGrid {
     }
 
     @Override
-    public GUIListener scroll(double x, double y) {
+    public GUIListener mouseScroll(double x, double y) {
         if (!isOpen())
             return null;
 
         //let children handle the scroll first
-        GUIListener sup = super.scroll(x, y);
+        GUIListener sup = super.mouseScroll(x, y);
         if (sup != null)
             return sup;
 

@@ -126,9 +126,11 @@ public class Cinnamon {
         glfwMakeContextCurrent(window);
 
         //vsync
-        glfwSwapInterval(GLFW_FALSE);
+        glfwSwapInterval(0);
 
         //set window size and position
+        glfwSetWindowSizeLimits(window, 320, 240, GLFW_DONT_CARE, GLFW_DONT_CARE);
+
         GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         if (vidMode != null) {
             int ww = vidMode.width();
@@ -141,6 +143,7 @@ public class Cinnamon {
 
         //and then show the window
         glfwShowWindow(window);
+        glfwRequestWindowAttention(window);
 
         //register input callbacks
         glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
@@ -152,7 +155,7 @@ public class Cinnamon {
         });
         glfwSetMouseButtonCallback(window, (win, button, action, mods) -> client.mousePress(button, action, mods));
         glfwSetCursorPosCallback(window, (win, x, y) -> client.mouseMove(x, y));
-        glfwSetScrollCallback(window, (win, x, y) -> client.scroll(x, y));
+        glfwSetScrollCallback(window, (win, x, y) -> client.mouseScroll(x, y));
         glfwSetWindowPosCallback(window, (win, x, y) -> client.windowMove(x, y));
         glfwSetWindowSizeCallback(window, (win, w, h) -> client.windowResize(w, h));
         glfwSetWindowFocusCallback(window, (win, focused) -> client.windowFocused(focused));
@@ -198,7 +201,7 @@ public class Cinnamon {
         //fps count
         double prevSecond = glfwGetTime();
         int fps = 0;
-        int ms = 0;
+        double ms = 0d;
 
         //render loop
         while (!glfwWindowShouldClose(window)) {
@@ -207,8 +210,9 @@ public class Cinnamon {
             //fps counter
             if (frameStartTime - prevSecond >= 1) {
                 client.fps = fps;
-                client.ms = ms / fps; //average ms per second
-                fps = ms = 0;
+                client.ms = fps > 0 ? (int) (ms / fps) : 0; //average ms per second
+                fps = 0;
+                ms = 0d;
                 prevSecond = frameStartTime;
             }
 
@@ -233,21 +237,38 @@ public class Cinnamon {
             Framebuffer.DEFAULT_FRAMEBUFFER.blit(0);
             glfwSwapBuffers(window);
 
+            //limit fps
+            int frameCap = Settings.fpsLimit.get();
+            int clientCap = client.fpsLimit;
+            if (frameCap > 0 || clientCap > 0) {
+                int cap = frameCap > 0 && clientCap > 0 ? Math.min(frameCap, clientCap) : Math.max(frameCap, clientCap);
+                double targetDuration = 1d / cap;
+                double currentDuration = glfwGetTime() - frameStartTime;
+
+                if (currentDuration < targetDuration) {
+                    double timeRemaining = targetDuration - currentDuration;
+                    //coarse sleep
+                    if (timeRemaining > 0.0015d) {
+                        try {
+                            long sleepMs = (long) ((timeRemaining - 0.001d) * 1000);
+                            if (sleepMs > 0)
+                                Thread.sleep(sleepMs);
+                        } catch (InterruptedException e) {
+                            LOGGER.warn("Thread interrupted during coarse sleep", e);
+                        }
+                    }
+
+                    //precise spin wait
+                    while (glfwGetTime() - frameStartTime < targetDuration)
+                        Thread.onSpinWait();
+                }
+            }
+
             //ms counter
             double frameEndTime = glfwGetTime();
             double frameDuration = frameEndTime - frameStartTime;
-            ms += (int) (frameDuration * 1000);
+            ms += frameDuration * 1000;
             fps++;
-
-            //limit fps
-            int frameCap = Settings.fpsLimit.get();
-            if (frameCap > 0 && frameDuration < 1d / frameCap) {
-                try {
-                    Thread.sleep((long) ((1d / frameCap - frameDuration) * 1000));
-                } catch (InterruptedException e) {
-                    LOGGER.warn("Thread interrupted while sleeping to limit FPS", e);
-                }
-            }
         }
     }
 
