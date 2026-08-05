@@ -1,6 +1,7 @@
 package cinnamon.gui.screens;
 
 import cinnamon.gui.Screen;
+import cinnamon.gui.Twinkle;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Label;
@@ -27,12 +28,14 @@ import static cinnamon.render.texture.Texture.TextureParams.SMOOTH_SAMPLING;
 public class MainMenu extends Screen {
 
     public static final Resource
-        BACKGROUND1 = new Resource("textures/gui/main_menu/background1.png"),
-        BACKGROUND2 = new Resource("textures/gui/main_menu/background2.png"),
-        OVERLAY     = new Resource("textures/gui/main_menu/overlay.png"),
-        BOTTOM      = new Resource("textures/gui/main_menu/bottom.png"),
-        TITLE       = new Resource("textures/logo.png"),
-        GUI_SKIN    = new Resource("data/gui_skins/main_menu.json");
+            BACKGROUND1 = new Resource("textures/gui/main_menu/background1.png"),
+            BACKGROUND2 = new Resource("textures/gui/main_menu/background2.png"),
+            OVERLAY     = new Resource("textures/gui/main_menu/overlay.png"),
+            BOTTOM      = new Resource("textures/gui/main_menu/bottom.png"),
+            TITLE       = new Resource("textures/logo.png"),
+            GUI_SKIN    = new Resource("data/gui_skins/main_menu.json");
+
+    protected final Twinkle twinkle = new Twinkle(100, 100, 5f);
 
     @Override
     public void init() {
@@ -92,6 +95,15 @@ public class MainMenu extends Screen {
         };
         credits.setTooltip(Text.translated("gui.main_menu.credits.tooltip"));
         this.addWidget(credits);
+
+        //reset twinkles
+        twinkle.killAll();
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        twinkle.tick();
     }
 
     @Override
@@ -133,13 +145,6 @@ public class MainMenu extends Screen {
                 uOffset, (float) width / bottom.getWidth() + uOffset, 0f, 1f
         ), BOTTOM, SMOOTH_SAMPLING);
 
-        //overlay
-        Texture overlay = Texture.of(OVERLAY);
-        matrices.pushMatrix();
-        matrices.translate(0, 0, -d);
-        UIHelper.nineQuad(VertexConsumer.MAIN, matrices, OVERLAY, 0, 0, width, height, 0f, 0f, overlay.getWidth(), overlay.getHeight(), overlay.getWidth(), overlay.getHeight());
-        matrices.popMatrix();
-
         //title
         Texture title = Texture.of(TITLE);
 
@@ -149,6 +154,16 @@ public class MainMenu extends Screen {
         float y2 = Math.sin((client.ticks + delta) * 0.1f) * 2f;
 
         VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, x, y + y2, title.getWidth(), title.getHeight()), TITLE);
+
+        //twinkles
+        twinkle.render(matrices);
+
+        //overlay
+        Texture overlay = Texture.of(OVERLAY);
+        matrices.pushMatrix();
+        matrices.translate(0, 0, -d);
+        UIHelper.nineQuad(VertexConsumer.MAIN, matrices, OVERLAY, 0, 0, width, height, 0f, 0f, overlay.getWidth(), overlay.getHeight(), overlay.getWidth(), overlay.getHeight());
+        matrices.popMatrix();
     }
 
     public static class MainButton extends Button {
