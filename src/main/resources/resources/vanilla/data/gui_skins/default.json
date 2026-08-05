@@ -45,6 +45,7 @@
     "loading_tex":              "textures/gui/widgets/base/loading.png",
     "progress_bar_tex":         "textures/gui/widgets/base/progress_bar.png",
     "scroll_bar_tex":           "textures/gui/widgets/base/scrollbar.png",
+    "selection_panel_tex":      "textures/gui/widgets/base/selection_panel.png",
     "slider_tex":               "textures/gui/widgets/base/slider.png",
     "text_field_tex":           "textures/gui/widgets/base/text_field.png",
     "toast_tex":                "textures/gui/widgets/base/toast.png",

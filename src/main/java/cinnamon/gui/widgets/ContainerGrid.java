@@ -1,6 +1,9 @@
 package cinnamon.gui.widgets;
 
+import cinnamon.render.MatrixStack;
+import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Alignment;
+import cinnamon.utils.UIHelper;
 import org.joml.Math;
 
 public class ContainerGrid extends Container implements AlignedWidget {
@@ -87,6 +90,19 @@ public class ContainerGrid extends Container implements AlignedWidget {
 
     public void forceUpdate() {
         this.updateDimensions();
+    }
+
+    @Override
+    protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        //render background
+        UIHelper.nineQuad(
+                VertexConsumer.MAIN, matrices, getSkin().getResource("container_background_tex"),
+                getAlignedX(), getAlignedY(),
+                getWidth(), getHeight(),
+                0f, 0f,
+                16, 16,
+                16, 16
+        );
     }
 
     @Override

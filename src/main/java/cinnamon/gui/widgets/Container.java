@@ -118,8 +118,7 @@ public class Container extends Widget implements Tickable, GUIListener {
         if (hasBackground())
             renderBackground(matrices, mouseX, mouseY, delta);
 
-        for (Widget widget : this.widgets)
-            widget.render(matrices, mouseX, mouseY, delta);
+        renderWidgets(matrices, mouseX, mouseY, delta);
     }
 
     protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -132,6 +131,11 @@ public class Container extends Widget implements Tickable, GUIListener {
                 16, 16,
                 16, 16
         );
+    }
+
+    protected void renderWidgets(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        for (Widget widget : this.widgets)
+            widget.render(matrices, mouseX, mouseY, delta);
     }
 
     @Override

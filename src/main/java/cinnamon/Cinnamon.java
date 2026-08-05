@@ -237,16 +237,21 @@ public class Cinnamon {
             Framebuffer.DEFAULT_FRAMEBUFFER.blit(0);
             glfwSwapBuffers(window);
 
+            //ms counter
+            double frameEndTime = glfwGetTime();
+            double frameDuration = frameEndTime - frameStartTime;
+            ms += frameDuration * 1000;
+            fps++;
+
             //limit fps
             int frameCap = Settings.fpsLimit.get();
             int clientCap = client.fpsLimit;
             if (frameCap > 0 || clientCap > 0) {
                 int cap = frameCap > 0 && clientCap > 0 ? Math.min(frameCap, clientCap) : Math.max(frameCap, clientCap);
                 double targetDuration = 1d / cap;
-                double currentDuration = glfwGetTime() - frameStartTime;
 
-                if (currentDuration < targetDuration) {
-                    double timeRemaining = targetDuration - currentDuration;
+                if (frameDuration < targetDuration) {
+                    double timeRemaining = targetDuration - frameDuration;
                     //coarse sleep
                     if (timeRemaining > 0.0015d) {
                         try {
@@ -263,12 +268,6 @@ public class Cinnamon {
                         Thread.onSpinWait();
                 }
             }
-
-            //ms counter
-            double frameEndTime = glfwGetTime();
-            double frameDuration = frameEndTime - frameStartTime;
-            ms += frameDuration * 1000;
-            fps++;
         }
     }
 

@@ -156,7 +156,7 @@ public class MainMenu extends Screen {
         VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, x, y + y2, title.getWidth(), title.getHeight()), TITLE);
 
         //twinkles
-        twinkle.render(matrices);
+        twinkle.render(matrices, delta);
 
         //overlay
         Texture overlay = Texture.of(OVERLAY);

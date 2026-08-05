@@ -40,9 +40,9 @@ public class Twinkle {
             particles[i].tick(i);
     }
 
-    public void render(MatrixStack matrices) {
+    public void render(MatrixStack matrices, float delta) {
         for (TwinkleParticle particle : particles)
-            particle.render(matrices);
+            particle.render(matrices, delta);
     }
 
     protected void addParticle() {
@@ -65,12 +65,12 @@ public class Twinkle {
             particle.kill();
     }
 
-    private static class TwinkleParticle {
+    protected static class TwinkleParticle {
         private final int initialLife;
         private final float size;
 
         private int life;
-        private float x, y;
+        private float x, y, ox, oy;
         private int v = 0;
 
         public TwinkleParticle(int initialLife, float size) {
@@ -82,6 +82,8 @@ public class Twinkle {
             if (isDead())
                 return;
 
+            ox = x;
+            oy = y;
             x += (index % 5f - 2f) / 5f; //horizontal drift
             y += 1f + (float) Math.random() * 3f; //gravity
 
@@ -97,12 +99,14 @@ public class Twinkle {
                 v++;
         }
 
-        public void render(MatrixStack matrices) {
+        public void render(MatrixStack matrices, float delta) {
             if (isDead())
                 return;
 
             float hs = size * 0.5f;
-            VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, Math.floor(x - hs), Math.floor(y - hs), size, size, 0f, v, 1f, 1f, 1, 3), TWINKLE_TEX);
+            float x = Math.floor(Math.lerp(this.ox, this.x, delta) - hs);
+            float y = Math.floor(Math.lerp(this.oy, this.y, delta) - hs);
+            VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, x, y, size, size, 0f, v, 1f, 1f, 1, 3), TWINKLE_TEX);
         }
 
         public boolean isDead() {
