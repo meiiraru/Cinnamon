@@ -139,7 +139,7 @@ public class UIHelper {
                 centerRegion,
                 uv2, uv3;
         public SplitQuad(float length, float regionLength, float pos, float uv) {
-            length1 = Math.ceil(Math.min(regionLength / 3f, length / 2f));
+            length1 = Math.round(Math.min(regionLength / 3f, length / 2f));
             length3 = Math.min(Math.max(length - length1, 0f), length1);
             length2 = Math.max(length - length1 - length3, 0f);
 

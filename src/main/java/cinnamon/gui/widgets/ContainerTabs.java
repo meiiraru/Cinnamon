@@ -15,19 +15,26 @@ import java.util.List;
 
 public class ContainerTabs extends ContainerGrid {
 
-    private final ContainerGrid buttons = new ContainerGrid(0, 0, 0) {
+    protected final ContainerGrid tabBar = new ContainerGrid(0, 0, 8, 3);
+    protected final ContainerGrid buttons = new ContainerGrid(0, 0, 0) {
         @Override
         public GUIListener mouseScroll(double x, double y) {
-            if (y != 0 && UIHelper.isMouseOver(this, InputManager.getMouseX(), InputManager.getMouseY()) && rollTabs(y < 0))
+            if (y != 0 && UIHelper.isMouseOver(this, InputManager.getMouseX(), InputManager.getMouseY())) {
+                if (y > 0) prevButton.onRun();
+                else       nextButton.onRun();
                 return this;
+            }
             return super.mouseScroll(x, y);
         }
     };
-    private final List<Container> pages = new ArrayList<>();
+    protected final Button prevButton, nextButton;
+    protected final List<TabButton> tabButtons = new ArrayList<>();
+    protected final List<Container> pages = new ArrayList<>();
 
-    private final int width;
+    protected final int width, maxTabs;
 
     protected int currentPage = -1;
+    protected int tabOffset = 0;
 
     public ContainerTabs(int x, int y, int width) {
         this(x, y, width, 4);
@@ -36,8 +43,18 @@ public class ContainerTabs extends ContainerGrid {
     public ContainerTabs(int x, int y, int width, int spacing) {
         super(x, y, spacing);
         this.width = width;
-        this.addWidget(buttons);
-        this.setBackground(true);
+        this.maxTabs = Math.max(1, (width - 40 - tabBar.getSpacing() * 2) / 60);
+        this.buttons.setColumns(maxTabs);
+        this.addWidget(tabBar);
+
+        this.tabBar.setAlignment(Alignment.TOP_CENTER);
+        this.tabBar.addWidget(buttons);
+
+        prevButton = new Button(0, 0, 20, 20, Text.of("\u25C2"), b -> rollTabs(false));
+        prevButton.setRenderBackground(false);
+        prevButton.setActive(false);
+        nextButton = new Button(0, 0, 20, 20, Text.of("\u25B8"), b -> rollTabs(true));
+        nextButton.setRenderBackground(false);
     }
 
     @Override
@@ -52,8 +69,8 @@ public class ContainerTabs extends ContainerGrid {
         int x = getAlignedX();
         int y = getAlignedY();
         float w = Math.ceil((getWidth() - buttons.getWidth()) / 2f);
-        UIHelper.horizontalQuad(VertexConsumer.MAIN, matrices, res, x, y, w, 20, 0f, 0f, 16, 16, 64, 16);
-        UIHelper.horizontalQuad(VertexConsumer.MAIN, matrices, res, x + getWidth() - w, y, w, 20, 0f, 0f, 16, 16, 64, 16);
+        UIHelper.nineQuad(VertexConsumer.MAIN, matrices, res, x, y, w, 20, 0f, 0f, 16, 16, 64, 16);
+        UIHelper.nineQuad(VertexConsumer.MAIN, matrices, res, x + getWidth() - w, y, w, 20, 0f, 0f, 16, 16, 64, 16);
 
         //render children
         UIHelper.pushStencil(matrices, getAlignedX(), getAlignedY(), getWidth(), getHeight());
@@ -66,8 +83,13 @@ public class ContainerTabs extends ContainerGrid {
         pages.add(page);
 
         TabButton button = new TabButton(label, index, this);
-        buttons.addWidget(button);
-        buttons.setColumns(index + 1);
+        tabButtons.add(button);
+        if (index < maxTabs)
+            buttons.addWidget(button);
+        else if (index == maxTabs) {
+            tabBar.insertWidgetBefore(prevButton, buttons);
+            tabBar.insertWidgetAfter(nextButton, buttons);
+        }
     }
 
     public void clearTabs() {
@@ -96,13 +118,48 @@ public class ContainerTabs extends ContainerGrid {
         return pages;
     }
 
-    public boolean rollTabs(boolean forward) {
-        return false;
+    public void rollTabs(boolean forward) {
+        //tried to roll backwards but already at the start
+        if (!forward && tabOffset == 0)
+            return;
+
+        //tried to roll forwards but already at the end
+        int max = tabButtons.size();
+        if (forward && tabOffset + maxTabs >= max)
+            return;
+
+        //apply offset
+        tabOffset += forward ? 1 : -1;
+
+        //enable the buttons
+        prevButton.setActive(tabOffset > 0);
+        nextButton.setActive(tabOffset + maxTabs < max);
+
+        //rebuild the buttons container
+        buttons.clear();
+        for (int i = tabOffset; i < Math.min(tabOffset + maxTabs, max); i++)
+            buttons.addWidget(tabButtons.get(i));
+    }
+
+    public int getTabOffset() {
+        return tabOffset;
+    }
+
+    public int getMaxTabs() {
+        return maxTabs;
+    }
+
+    public int getCurrentPage() {
+        return currentPage;
+    }
+
+    public int getTabsYOffset() {
+        return 20 + getSpacing();
     }
 
     protected static class TabButton extends Button {
-        private final int index;
-        private final ContainerTabs parent;
+        protected final int index;
+        protected final ContainerTabs parent;
 
         public TabButton(Text message, int index, ContainerTabs parent) {
             super(0, 0, 60, 20, message, b -> parent.setPage(index));
