@@ -34,7 +34,6 @@ import org.lwjgl.system.Platform;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -56,9 +55,6 @@ public class Client {
     public int fpsLimit = -1;
     public static final int AFK_TIMEOUT = TPS * 600;
     public int afkTimer = AFK_TIMEOUT;
-
-    public String name = ArgsOptions.PLAYERNAME.getAsString();
-    public UUID playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
 
     public int postProcess = -1;
     public boolean anaglyph3D = false;
@@ -270,11 +266,6 @@ public class Client {
             Toast.clearAll();
             Toast.addToast(Text.translated("debug.assets_reloaded"));
         });
-    }
-
-    public void setName(String name) {
-        this.name = name;
-        this.playerUUID = UUID.nameUUIDFromBytes(name.getBytes());
     }
 
     public boolean isInitialized() {

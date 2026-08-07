@@ -2,17 +2,19 @@ package cinnamon.settings;
 
 import cinnamon.input.Keybind.KeyType;
 import cinnamon.math.Maths;
+import cinnamon.utils.Pair;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public abstract class Setting<T> {
 
     private final String name;
     private final T defaultValue;
-    private T value;
+    private T value, tempValue;
 
     private Consumer<T> consumer;
 
@@ -39,10 +41,25 @@ public abstract class Setting<T> {
         return value;
     }
 
+    public T getTempValue() {
+        return tempValue;
+    }
+
     public void set(T value) {
         this.value = value;
         if (consumer != null)
             consumer.accept(value);
+    }
+
+    public void setTempValue(T tempValue) {
+        this.tempValue = tempValue;
+    }
+
+    public void applyTemp() {
+        if (tempValue != null) {
+            set(tempValue);
+            tempValue = null;
+        }
     }
 
     public void setListener(Consumer<T> consumer) {
@@ -51,8 +68,9 @@ public abstract class Setting<T> {
 
     @Override
     public String toString() {
-        return name + " = " + value;
+        return name + ": " + value;
     }
+
 
     // -- settings types -- //
 
@@ -236,6 +254,19 @@ public abstract class Setting<T> {
             obj.addProperty("type", get().getType().name().toLowerCase());
             obj.addProperty("joystick", get().getJoystick());
             return obj;
+        }
+    }
+
+    public static class List extends Strings {
+        private final Supplier<java.util.List<Pair<String, String>>> valuesSupplier;
+
+        public List(String name, String defaultValue, Supplier<java.util.List<Pair<String, String>>> valuesSupplier) {
+            super(name, defaultValue);
+            this.valuesSupplier = valuesSupplier;
+        }
+
+        public Supplier<java.util.List<Pair<String, String>>> getValuesSupplier() {
+            return valuesSupplier;
         }
     }
 }

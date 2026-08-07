@@ -26,18 +26,20 @@ import cinnamon.world.world.WorldClient;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.UUID;
+
 public class LocalPlayer extends Player {
 
     protected int lastMouseTime = 0;
     protected int selectedTerrain = TerrainRegistry.BOX.ordinal();
     protected int selectedMaterial = MaterialRegistry.GRASS.ordinal();
 
-    public LocalPlayer() {
-        this(Settings.playermodel.get());
+    public LocalPlayer(String name) {
+        this(name, LivingModelRegistry.random());
     }
 
-    public LocalPlayer(LivingModelRegistry model) {
-        super(Client.getInstance().name, Client.getInstance().playerUUID, model);
+    public LocalPlayer(String name, LivingModelRegistry model) {
+        super(name, UUID.nameUUIDFromBytes(name.getBytes()), model);
         this.getController().bindClick(
                 "pick", Settings.pick.get(),
                 clicks -> this.pick()

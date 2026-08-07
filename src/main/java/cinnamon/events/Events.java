@@ -1,7 +1,6 @@
 package cinnamon.events;
 
 import cinnamon.gui.GUISkin;
-import cinnamon.gui.screens.MainMenu;
 import cinnamon.lang.LangManager;
 import cinnamon.logger.Logger;
 import cinnamon.model.MaterialManager;
@@ -57,6 +56,7 @@ public class Events {
         registerEvent(RESOURCE_INIT, o -> PostProcess.loadAllShaders());
         registerEvent(RESOURCE_INIT, o -> MaterialRegistry.loadAllMaterials());
         registerEvent(RESOURCE_INIT, o -> LangManager.init());
+        registerEvent(RESOURCE_INIT, o -> GUISkin.init());
 
         registerEvent(RESOURCE_FREE, o -> Texture.freeAll());
         registerEvent(RESOURCE_FREE, o -> AnimatedTexture.freeAll());

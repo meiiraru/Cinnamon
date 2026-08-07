@@ -16,8 +16,12 @@ import static cinnamon.events.Events.LOGGER;
 
 public class GUISkin {
 
-    public static final Resource DEFAULT_SKIN = new Resource("data/gui_skins/default.json");
+    public static final Resource
+            WORK_DIR = new Resource("data/gui_skins"),
+            DEFAULT_SKIN = WORK_DIR.resolve("default.json");
+
     private static final Map<Resource, GUISkin> SKIN_CACHE = new HashMap<>();
+    private static final Map<String, String> THEMES = new HashMap<>();
 
     private static Resource currentSkin = DEFAULT_SKIN;
 
@@ -67,6 +71,9 @@ public class GUISkin {
 
     private GUISkin() {}
 
+    public static void init() {
+        loadThemesList();
+    }
 
     public static void free() {
         SKIN_CACHE.clear();
@@ -84,13 +91,16 @@ public class GUISkin {
 
     private static GUISkin createSkin(Resource res) {
         LOGGER.debug("Loading gui skin \"%s\"", res);
-        GUISkin skin = new GUISkin();
 
         InputStream stream = IOUtils.getResource(res);
         if (stream == null) {
             LOGGER.error("Resource not found: %s", res);
             return of(DEFAULT_SKIN);
         }
+
+        GUISkin skin = new GUISkin();
+        if (res != DEFAULT_SKIN)
+            skin.parent = of(DEFAULT_SKIN);
 
         try (stream; InputStreamReader reader = new InputStreamReader(stream)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
@@ -157,6 +167,8 @@ public class GUISkin {
             }
         } catch (Exception e) {
             LOGGER.error("Failed to load gui skin \"%s\"", res, e);
+            if (!res.equals(DEFAULT_SKIN))
+                return of(DEFAULT_SKIN);
         }
 
         return skin;
@@ -164,6 +176,12 @@ public class GUISkin {
 
     public static void setCurrentSkin(Resource res) {
         currentSkin = res == null ? DEFAULT_SKIN : res;
+        try {
+            of(currentSkin);
+        } catch (Exception e) {
+            LOGGER.error("Failed to set gui skin \"%s\"", res, e);
+            currentSkin = DEFAULT_SKIN;
+        }
     }
 
     public static Resource getCurrentSkinRes() {
@@ -172,5 +190,28 @@ public class GUISkin {
 
     public static GUISkin getCurrentSkin() {
         return of(currentSkin);
+    }
+
+    private static void loadThemesList() {
+        THEMES.clear();
+
+        //load the skins list
+        for (String s : IOUtils.listNamespacesVanillaFirst()) {
+            Resource res = new Resource(s, "data/gui_skins/themes.json");
+            if (!IOUtils.hasResource(res))
+                continue;
+
+            try (InputStream stream = IOUtils.getResource(res); InputStreamReader reader = new InputStreamReader(stream)) {
+                JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+                for (Map.Entry<String, JsonElement> entry : json.asMap().entrySet())
+                    THEMES.put(entry.getKey(), entry.getValue().getAsString());
+            } catch (Exception e) {
+                LOGGER.error("Failed to load themes data \"%s\"", res, e);
+            }
+        }
+    }
+
+    public static Map<String, String> getThemes() {
+        return THEMES;
     }
 }

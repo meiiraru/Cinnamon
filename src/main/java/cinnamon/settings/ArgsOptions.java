@@ -21,7 +21,6 @@ public enum ArgsOptions {
     FORCE_GLFW_PLATFORM("", "--force-glfw-platform"),
 
     //other
-    PLAYERNAME("Player%03d".formatted((int) (Math.random() * 456) + 1), "--player-name"),
     RENDER_DOC("", "--render-doc");
 
     private final String[] aliases;

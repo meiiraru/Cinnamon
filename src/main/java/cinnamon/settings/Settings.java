@@ -6,7 +6,9 @@ import cinnamon.input.InputManager;
 import cinnamon.lang.LangManager;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.sound.SoundCategory;
+import cinnamon.sound.SoundManager;
 import cinnamon.utils.IOUtils;
+import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,7 +31,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class Settings {
 
     //settings registry
-    static final List<Setting<?>> SETTINGS = new ArrayList<>();
+    public static final List<Setting<?>> SETTINGS = new ArrayList<>();
 
 
     // -- settings -- //
@@ -37,116 +39,152 @@ public class Settings {
 
     private static final int VERSION = 1;
 
+    // -- video -- //
+
     //lang
-    public static final Setting.Strings lang = new Setting.Strings("lang.lang", LangManager.MAIN_LANG);
+    public static final Setting.List lang = new Setting.List("video.lang.lang", LangManager.MAIN_LANG, () -> {
+        List<Pair<String, String>> list = new ArrayList<>();
+        for (Map.Entry<String, String> entry : LangManager.getLangList().entrySet())
+            list.add(new Pair<>(entry.getKey(), entry.getValue()));
+        return list;
+    });
 
-    //screen
-
+    //display
     public static final Setting.Bools
-            showFPS         = new Setting.Bools("screen.show_fps", false),
-            vsync           = new Setting.Bools("screen.vsync", false),
-            dynamicFpsLimit = new Setting.Bools("screen.dynamic_fps_limit", true);
+            showFPS         = new Setting.Bools("video.display.show_fps", false),
+            vsync           = new Setting.Bools("video.display.vsync", false),
+            dynamicFpsLimit = new Setting.Bools("video.display.dynamic_fps_limit", true);
     public static final Setting.Floats
-            guiScale = new Setting.Floats("screen.gui_scale", 0f);
+            guiScale = new Setting.Floats("video.display.gui_scale", 0f);
     public static final Setting.Ints
-            fov      = new Setting.Ints("screen.fov", 70),
-            fpsLimit = new Setting.Ints("screen.fps_limit", 0);
-    public static final Setting.Strings
-            guiSkin = new Setting.Strings("screen.gui_skin", "");
+            fov      = new Setting.Ints("video.display.fov", 70),
+            fpsLimit = new Setting.Ints("video.display.fps_limit", 0);
+    public static final Setting.List
+            guiSkin = new Setting.List("video.display.gui_skin", "", () -> {
+                List<Pair<String, String>> list = new ArrayList<>();
+                for (Map.Entry<String, String> entry : GUISkin.getThemes().entrySet())
+                    list.add(new Pair<>(entry.getKey(), entry.getValue()));
+                return list;
+            });
 
-    //mouse
-    public static final Setting.Floats sensibility = new Setting.Floats("mouse.sensibility", 0.27f);
-    public static final Setting.Bools invertX = new Setting.Bools("mouse.invert_mouse_x", false);
-    public static final Setting.Bools invertY = new Setting.Bools("mouse.invert_mouse_y", false);
+    //graphics
+    public static final Setting.Bools
+            fxaa      = new Setting.Bools("video.graphics.fxaa", true),
+            lensFlare = new Setting.Bools("video.graphics.lens_flare", true);
+    public static final Setting.IntRanges
+            volumetricLights = new Setting.IntRanges("video.graphics.volumetric_lights", 3, -1, 4),
+            ssaoLevel        = new Setting.IntRanges("video.graphics.ssao_level", 3, -1, 4),
+            ssrLevel         = new Setting.IntRanges("video.graphics.ssr_level", 3, -1, 4),
+            shadowQuality    = new Setting.IntRanges("video.graphics.shadow_quality", 3, -1, 4);
+    public static final Setting.Ranges
+            renderScale   = new Setting.Ranges("video.graphics.render_scale", 1f, 0.01f, 4f),
+            bloomStrength = new Setting.Ranges("video.graphics.bloom_strength", 1f, 0f, 5f);
 
-    //accessibility
-    public static final Setting.Ints
-            doubleKeypressTime = new Setting.Ints("accessibility.double_keypress_time", 10),
-            doubleClickTime    = new Setting.Ints("accessibility.double_click_time", 10),
-            cursorBlinkDelay   = new Setting.Ints("accessibility.cursor_blink_delay", 20);
-    public static final Setting.Floats viewBobbingStrength  = new Setting.Floats("accessibility.view_bobbing_strength", 1f);
-    public static final Setting.Bools actionWheelRunOnClose = new Setting.Bools("accessibility.action_wheel_run_on_close", false);
-    public static final Setting.Ranges gamepadDeadzone      = new Setting.Ranges("accessibility.gamepad_deadzone", 0.33f, 0f, 1f);
-
-    //player
-    public static final Setting.Enums<LivingModelRegistry> playermodel = new Setting.Enums<>("player.player_model", LivingModelRegistry.STRAWBERRY);
+    // -- sounds -- //
 
     //sound device
-    public static final Setting.Strings soundDevice = new Setting.Strings("sound.device", "");
+    public static final Setting.List soundDevice = new Setting.List("sound.device", "", () -> {
+        List<Pair<String, String>> list = new ArrayList<>();
+        list.add(new Pair<>("", "gui.default"));
+        for (String device : SoundManager.getDevices())
+            list.add(new Pair<>(device, device.replaceFirst("^OpenAL Soft on ", "")));
+        return list;
+    });
+
+    //categories added in static loop
+
+    // -- accessibility -- //
+
+    //general
+    public static final Setting.Ints
+            doubleKeypressTime = new Setting.Ints("accessibility.general.double_keypress_time", 10),
+            doubleClickTime    = new Setting.Ints("accessibility.general.double_click_time", 10),
+            cursorBlinkDelay   = new Setting.Ints("accessibility.general.cursor_blink_delay", 20);
+    public static final Setting.Floats viewBobbingStrength  = new Setting.Floats("accessibility.general.view_bobbing_strength", 1f);
+    public static final Setting.Bools actionWheelRunOnClose = new Setting.Bools("accessibility.general.action_wheel_run_on_close", false);
+    public static final Setting.Ranges gamepadDeadzone      = new Setting.Ranges("accessibility.general.gamepad_deadzone", 0.33f, 0f, 1f);
 
     //xr
     public static final Setting.Bools
-            xrHapticFeedback = new Setting.Bools("xr.haptic_feedback", true),
-            xrSnapTurn       = new Setting.Bools("xr.snap_turn", true),
-            xrClickOnHover   = new Setting.Bools("xr.click_on_hover", true);
+            xrHapticFeedback = new Setting.Bools("accessibility.xr.haptic_feedback", true),
+            xrSnapTurn       = new Setting.Bools("accessibility.xr.snap_turn", true),
+            xrClickOnHover   = new Setting.Bools("accessibility.xr.click_on_hover", true);
     public static final Setting.Floats
-            xrTurningAngle     = new Setting.Floats("xr.turning_angle", 3f),
-            xrSnapTurningAngle = new Setting.Floats("xr.snap_turning_angle", 30f);
+            xrTurningAngle     = new Setting.Floats("accessibility.xr.turning_angle", 3f),
+            xrSnapTurningAngle = new Setting.Floats("accessibility.xr.snap_turning_angle", 30f);
     public static final Setting.Ints
-            xrClickOnHoverDelay = new Setting.Ints("xr.click_on_hover_delay", 30);
+            xrClickOnHoverDelay = new Setting.Ints("accessibility.xr.click_on_hover_delay", 30);
 
-    //rendering
+    // -- controls -- //
+
+    //mouse
+    public static final Setting.Floats sensibility = new Setting.Floats("controls.mouse.sensibility", 0.27f);
     public static final Setting.Bools
-            fxaa      = new Setting.Bools("rendering.fxaa", true),
-            lensFlare = new Setting.Bools("rendering.lens_flare", true);
-    public static final Setting.IntRanges
-            volumetricLights = new Setting.IntRanges("rendering.volumetric_lights", 3, -1, 4),
-            ssaoLevel        = new Setting.IntRanges("rendering.ssao_level", 3, -1, 4),
-            ssrLevel         = new Setting.IntRanges("rendering.ssr_level", 3, -1, 4),
-            shadowQuality    = new Setting.IntRanges("rendering.shadow_quality", 3, -1, 4);
-    public static final Setting.Ranges
-            renderScale   = new Setting.Ranges("rendering.render_scale", 1f, 0.01f, 4f),
-            bloomStrength = new Setting.Ranges("rendering.bloom_strength", 1f, 0f, 5f);
+            invertX  = new Setting.Bools("controls.mouse.invert_mouse_x", false),
+            invertY  = new Setting.Bools("controls.mouse.invert_mouse_y", false),
+            rawMouse = new Setting.Bools("controls.mouse.raw_mouse", true);
 
     //keybinds
     public static final Setting.Keybind
             //movement
-            forward  = new Setting.Keybind("keybind.movement.forward", GLFW_KEY_W, KEY),
-            backward = new Setting.Keybind("keybind.movement.backward", GLFW_KEY_S, KEY),
-            left     = new Setting.Keybind("keybind.movement.left", GLFW_KEY_A, KEY),
-            right    = new Setting.Keybind("keybind.movement.right", GLFW_KEY_D, KEY),
+            forward  = new Setting.Keybind("controls.keybind.movement.forward", GLFW_KEY_W, KEY),
+            backward = new Setting.Keybind("controls.keybind.movement.backward", GLFW_KEY_S, KEY),
+            left     = new Setting.Keybind("controls.keybind.movement.left", GLFW_KEY_A, KEY),
+            right    = new Setting.Keybind("controls.keybind.movement.right", GLFW_KEY_D, KEY),
 
-            jump   = new Setting.Keybind("keybind.movement.jump", GLFW_KEY_SPACE, KEY),
-            sneak  = new Setting.Keybind("keybind.movement.sneak", GLFW_KEY_LEFT_CONTROL, KEY),
-            sprint = new Setting.Keybind("keybind.movement.sprint", GLFW_KEY_LEFT_SHIFT, KEY),
+            jump   = new Setting.Keybind("controls.keybind.movement.jump", GLFW_KEY_SPACE, KEY),
+            sneak  = new Setting.Keybind("controls.keybind.movement.sneak", GLFW_KEY_LEFT_CONTROL, KEY),
+            sprint = new Setting.Keybind("controls.keybind.movement.sprint", GLFW_KEY_LEFT_SHIFT, KEY),
 
             //item
-            attack = new Setting.Keybind("keybind.item.attack", GLFW_MOUSE_BUTTON_1, MOUSE),
-            use    = new Setting.Keybind("keybind.item.use", GLFW_MOUSE_BUTTON_2, MOUSE),
-            pick   = new Setting.Keybind("keybind.item.pick", GLFW_MOUSE_BUTTON_3, MOUSE),
-            drop   = new Setting.Keybind("keybind.item.drop", GLFW_KEY_Q, KEY),
-            reload = new Setting.Keybind("keybind.item.reload", GLFW_KEY_R, KEY),
-            inv1   = new Setting.Keybind("keybind.inv.inv1", GLFW_KEY_1, KEY),
-            inv2   = new Setting.Keybind("keybind.inv.inv2", GLFW_KEY_2, KEY),
-            inv3   = new Setting.Keybind("keybind.inv.inv3", GLFW_KEY_3, KEY),
-            inv4   = new Setting.Keybind("keybind.inv.inv4", GLFW_KEY_4, KEY),
-            inv5   = new Setting.Keybind("keybind.inv.inv5", GLFW_KEY_5, KEY),
-            inv6   = new Setting.Keybind("keybind.inv.inv6", GLFW_KEY_6, KEY),
-            inv7   = new Setting.Keybind("keybind.inv.inv7", GLFW_KEY_7, KEY),
-            inv8   = new Setting.Keybind("keybind.inv.inv8", GLFW_KEY_8, KEY),
-            inv9   = new Setting.Keybind("keybind.inv.inv9", GLFW_KEY_9, KEY),
+            attack = new Setting.Keybind("controls.keybind.item.attack", GLFW_MOUSE_BUTTON_1, MOUSE),
+            use    = new Setting.Keybind("controls.keybind.item.use", GLFW_MOUSE_BUTTON_2, MOUSE),
+            pick   = new Setting.Keybind("controls.keybind.item.pick", GLFW_MOUSE_BUTTON_3, MOUSE),
+            drop   = new Setting.Keybind("controls.keybind.item.drop", GLFW_KEY_Q, KEY),
+            reload = new Setting.Keybind("controls.keybind.item.reload", GLFW_KEY_R, KEY),
+            inv1   = new Setting.Keybind("controls.keybind.inv.inv1", GLFW_KEY_1, KEY),
+            inv2   = new Setting.Keybind("controls.keybind.inv.inv2", GLFW_KEY_2, KEY),
+            inv3   = new Setting.Keybind("controls.keybind.inv.inv3", GLFW_KEY_3, KEY),
+            inv4   = new Setting.Keybind("controls.keybind.inv.inv4", GLFW_KEY_4, KEY),
+            inv5   = new Setting.Keybind("controls.keybind.inv.inv5", GLFW_KEY_5, KEY),
+            inv6   = new Setting.Keybind("controls.keybind.inv.inv6", GLFW_KEY_6, KEY),
+            inv7   = new Setting.Keybind("controls.keybind.inv.inv7", GLFW_KEY_7, KEY),
+            inv8   = new Setting.Keybind("controls.keybind.inv.inv8", GLFW_KEY_8, KEY),
+            inv9   = new Setting.Keybind("controls.keybind.inv.inv9", GLFW_KEY_9, KEY),
 
             //vehicle
-            honk   = new Setting.Keybind("keybind.car.honk", GLFW_KEY_F, KEY),
-            lights = new Setting.Keybind("keybind.car.lights", GLFW_KEY_H, KEY),
-            brake  = new Setting.Keybind("keybind.car.brake", GLFW_KEY_SPACE, KEY),
+            honk   = new Setting.Keybind("controls.keybind.car.honk", GLFW_KEY_F, KEY),
+            lights = new Setting.Keybind("controls.keybind.car.lights", GLFW_KEY_H, KEY),
+            brake  = new Setting.Keybind("controls.keybind.car.brake", GLFW_KEY_SPACE, KEY),
 
             //gamepad
-            gamepadJump = new Setting.Keybind("keybind.gamepad.jump", GLFW_GAMEPAD_BUTTON_A, 0, GAMEPAD_BUTTON, 0),
-            gamepadLeftTrigger = new Setting.Keybind("keybind.gamepad.left_trigger", GLFW_GAMEPAD_AXIS_LEFT_X, 0, GAMEPAD_AXIS, 0);
+            gamepadJump        = new Setting.Keybind("controls.keybind.gamepad.jump", GLFW_GAMEPAD_BUTTON_A, 0, GAMEPAD_BUTTON, 0),
+            gamepadLeftTrigger = new Setting.Keybind("controls.keybind.gamepad.left_trigger", GLFW_GAMEPAD_AXIS_LEFT_X, 0, GAMEPAD_AXIS, 0);
+
+    // -- misc -- //
+
+    //player
+    public static final Setting.Enums<LivingModelRegistry> playerModel = new Setting.Enums<>("misc.player.player_model", LivingModelRegistry.STRAWBERRY);
+    public static final Setting.Strings playerName = new Setting.Strings("misc.player.player_name", "");
 
     static {
-        //screen
+        //display
+        lang.setListener(str -> LangManager.loadForLang(str.isBlank() ? null : str));
         vsync.setListener(v -> Client.getInstance().window.toggleVsync(v));
         guiSkin.setListener(str -> GUISkin.setCurrentSkin(str.isBlank() ? null : new Resource(str)));
 
+        //sound
+        soundDevice.setListener(str -> {
+            if (SoundManager.isInitialized())
+                SoundManager.swapDevice(str);
+        });
+
         //raw mouse
-        Setting.Bools rawMouse = new Setting.Bools("mouse.raw_mouse", true);
         rawMouse.setListener(InputManager::setRawMouseInput);
 
         //wrapper for sound categories
         for (SoundCategory sound : SoundCategory.values()) {
-            Setting.Ranges setting = new Setting.Ranges("sound." + sound.name().toLowerCase(), sound == SoundCategory.MASTER ? 0.5f : 1f, 0f, 1f) {
+            Setting.Ranges setting = new Setting.Ranges("sound.volume." + sound.name().toLowerCase(), sound == SoundCategory.MASTER ? 0.5f : 1f, 0f, 1f) {
                 @Override
                 public Float get() {
                     return sound.getVolume();

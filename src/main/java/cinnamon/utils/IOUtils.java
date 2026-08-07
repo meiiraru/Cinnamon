@@ -158,6 +158,18 @@ public class IOUtils {
         }
     }
 
+    public static List<String> listNamespacesVanillaFirst() {
+        List<String> namespaces = listNamespaces();
+        namespaces.sort((a, b) -> {
+            if (a.equals(Resource.VANILLA_NAMESPACE))
+                return -1;
+            if (b.equals(Resource.VANILLA_NAMESPACE))
+                return 1;
+            return 0;
+        });
+        return namespaces;
+    }
+
     //https://stackoverflow.com/a/49570879
     private static List<String> listResources(URL url, String pathStr, boolean includeDirectories) {
         if (url == null)

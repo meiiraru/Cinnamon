@@ -1,0 +1,5 @@
+{
+  "vanilla:data/gui_skins/default.json": "gui.default",
+  "vanilla:data/gui_skins/minimal_dark.json": "gui.themes.minimal_dark",
+  "vanilla:data/gui_skins/minimal_light.json": "gui.themes.minimal_light"
+}

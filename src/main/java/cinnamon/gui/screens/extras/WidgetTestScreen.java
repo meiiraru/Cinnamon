@@ -105,9 +105,9 @@ public class WidgetTestScreen extends ParentedScreen {
         cb.allowScrollSelect(false);
         grid.addWidget(cb);
 
-        for (String resource : IOUtils.listResources(new Resource("data/gui_skins/"), false)) {
-            Resource res = new Resource("data/gui_skins/").resolve(resource);
-            cb.addEntry(Text.of(resource), Text.of(resource), button -> {
+        for (Pair<String, String> entry : Settings.guiSkin.getValuesSupplier().get()) {
+            Resource res = new Resource(entry.first());
+            cb.addEntry(Text.translated(entry.second()), null, button -> {
                 GUISkin.setCurrentSkin(res);
                 Settings.guiSkin.set(res.toString());
                 Settings.save();

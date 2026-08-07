@@ -18,6 +18,7 @@
     "context_menu_tex":         "textures/gui/widgets/minimal_dark/context_menu.png",
     "progress_bar_tex":         "textures/gui/widgets/minimal_dark/progress_bar.png",
     "scroll_bar_tex":           "textures/gui/widgets/minimal_dark/scrollbar.png",
+    "selection_panel_tex":      "textures/gui/widgets/minimal_dark/selection_panel.png",
     "slider_tex":               "textures/gui/widgets/minimal_dark/slider.png",
     "text_field_tex":           "textures/gui/widgets/minimal_dark/text_field.png"
   },

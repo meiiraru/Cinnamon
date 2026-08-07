@@ -28,6 +28,7 @@ import cinnamon.render.WaterRenderer;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.PostProcess;
+import cinnamon.settings.Settings;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundInstance;
 import cinnamon.sound.SoundManager;
@@ -910,7 +911,8 @@ public class WorldClient extends World {
     }
 
     public void respawn(boolean init) {
-        player = new LocalPlayer();
+        String playerName = Settings.playerName.get();
+        player = new LocalPlayer(playerName.isBlank() ? "Player" : playerName, Settings.playerModel.get());
         player.setPos(0.5f, init ? 1.5f : 100f, 0.5f);
         player.getAbilities().set(Abilities.Ability.CAN_FLY, true);
         this.addEntity(player);

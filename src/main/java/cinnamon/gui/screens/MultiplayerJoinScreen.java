@@ -10,6 +10,7 @@ import cinnamon.gui.widgets.types.TextField;
 //import cinnamon.networking.ClientConnection;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.settings.Settings;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.world.world.WorldClient;
@@ -80,7 +81,7 @@ public class MultiplayerJoinScreen extends ParentedScreen {
             return;
         }
 
-        client.setName(name);
+        Settings.playerName.set(name);
 
         if (false) { //ClientConnection.connectToServer(ip, NetworkConstants.TCP_PORT, NetworkConstants.UDP_PORT, 10_000)) {
             WorldClient world = new WorldClient();
