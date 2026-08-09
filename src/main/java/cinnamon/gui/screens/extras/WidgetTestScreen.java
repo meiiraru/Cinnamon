@@ -227,7 +227,20 @@ public class WidgetTestScreen extends ParentedScreen {
 
         Checkbox ckb2 = new Checkbox(0, 0, Text.of("No Checkbox :("));
         ckb2.setActive(false);
+        ckb2.setRightToLeft(true);
         checkboxes.addWidget(ckb2);
+
+        //switches
+        ContainerGrid switches = new ContainerGrid(0, 0, 4, 2);
+        grid.addWidget(switches);
+
+        Switch sw = new Switch(0, 0, Text.of("Switch"));
+        switches.addWidget(sw);
+
+        Switch sw2 = new Switch(0, 0, Text.of("Disabled Switch"));
+        sw2.setActive(false);
+        sw2.setRightToLeft(true);
+        switches.addWidget(sw2);
 
         //toasts
         ContainerGrid toasts = new ContainerGrid(0, 0, 4, 3);

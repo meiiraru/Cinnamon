@@ -118,7 +118,7 @@ public class Settings {
     // -- controls -- //
 
     //mouse
-    public static final Setting.Floats sensibility = new Setting.Floats("controls.mouse.sensibility", 0.27f);
+    public static final Setting.Floats sensibility = new Setting.Floats("controls.mouse.sensibility", 0.5f);
     public static final Setting.Bools
             invertX  = new Setting.Bools("controls.mouse.invert_mouse_x", false),
             invertY  = new Setting.Bools("controls.mouse.invert_mouse_y", false),
@@ -155,16 +155,12 @@ public class Settings {
             //vehicle
             honk   = new Setting.Keybind("controls.keybind.car.honk", GLFW_KEY_F, KEY),
             lights = new Setting.Keybind("controls.keybind.car.lights", GLFW_KEY_H, KEY),
-            brake  = new Setting.Keybind("controls.keybind.car.brake", GLFW_KEY_SPACE, KEY),
-
-            //gamepad
-            gamepadJump        = new Setting.Keybind("controls.keybind.gamepad.jump", GLFW_GAMEPAD_BUTTON_A, 0, GAMEPAD_BUTTON, 0),
-            gamepadLeftTrigger = new Setting.Keybind("controls.keybind.gamepad.left_trigger", GLFW_GAMEPAD_AXIS_LEFT_X, 0, GAMEPAD_AXIS, 0);
+            brake  = new Setting.Keybind("controls.keybind.car.brake", GLFW_KEY_SPACE, KEY);
 
     // -- misc -- //
 
     //player
-    public static final Setting.Enums<LivingModelRegistry> playerModel = new Setting.Enums<>("misc.player.player_model", LivingModelRegistry.STRAWBERRY);
+    public static final Setting.Enums playerModel = new Setting.Enums("misc.player.player_model", LivingModelRegistry.STRAWBERRY.name(), LivingModelRegistry.class);
     public static final Setting.Strings playerName = new Setting.Strings("misc.player.player_name", "");
 
     static {
@@ -172,6 +168,16 @@ public class Settings {
         lang.setListener(str -> LangManager.loadForLang(str.isBlank() ? null : str));
         vsync.setListener(v -> Client.getInstance().window.toggleVsync(v));
         guiSkin.setListener(str -> GUISkin.setCurrentSkin(str.isBlank() ? null : new Resource(str)));
+        guiScale.setListener(f -> {
+            Client c = Client.getInstance();
+            if (c.isInitialized())
+                c.windowResize(c.window.width, c.window.height);
+        });
+        fov.setListener(f -> {
+            Client c = Client.getInstance();
+            if (c.isInitialized())
+                c.windowResize(c.window.width, c.window.height);
+        });
 
         //sound
         soundDevice.setListener(str -> {

@@ -23,8 +23,6 @@ public class Keybind {
     }
 
     private final String name;
-    private final int defaultKey, defaultMods;
-    private final KeyType defaultType;
 
     private int key, mods;
     private KeyType type;
@@ -39,7 +37,6 @@ public class Keybind {
     private int clicks;
 
     //joystick exclusive
-    private final int defaultJoystick;
     private int joystick;
     private float lastAxisValue;
     private float axisValue;
@@ -54,12 +51,12 @@ public class Keybind {
 
     public Keybind(String name, int key, int mods, KeyType type, int joystick) {
         this.name = name;
-        this.defaultKey = this.key = key;
-        this.defaultMods = this.mods = mods;
-        this.defaultType = this.type = type;
-        this.defaultJoystick = this.joystick = joystick;
-        updateText();
-        KEYBINDS.get(defaultType).add(this);
+        this.key  = key;
+        this.mods = mods;
+        this.type = type;
+        this.joystick = joystick;
+        this.text = type.getKeyText(key, mods);
+        KEYBINDS.get(type).add(this);
         LOGGER.debug("Registered %s keybind: %s (%s)", type.name(), name, text.asString());
     }
 
@@ -103,14 +100,8 @@ public class Keybind {
     public static void gamepadAxisMove(int axis, float value, int joystick, float lastValue) {
         float deadzone = Settings.gamepadDeadzone.get();
         for (Keybind keybind : KEYBINDS.get(KeyType.GAMEPAD_AXIS)) {
-            if (keybind.key == axis && keybind.joystick == joystick) {
-                keybind.axisValue = value;
-                keybind.lastAxisValue = lastValue;
-
-                boolean pressed = Math.abs(value) > deadzone;
-                if (!pressed || !keybind.isPressed())
-                    processKeybind(keybind, pressed, 0);
-            }
+            if (keybind.key == axis && keybind.joystick == joystick)
+                processAxis(keybind, value, lastValue, deadzone);
         }
     }
 
@@ -124,26 +115,29 @@ public class Keybind {
     public static void xrTriggerPress(int button, float value, int hand, float lastValue) {
         float deadzone = Settings.gamepadDeadzone.get();
         for (Keybind keybind : KEYBINDS.get(KeyType.XR_TRIGGER)) {
-            if (keybind.key == button && keybind.joystick == hand) {
-                keybind.axisValue = value;
-                keybind.lastAxisValue = lastValue;
-
-                boolean pressed = Math.abs(value) > deadzone;
-                if (!pressed || !keybind.isPressed())
-                    processKeybind(keybind, pressed, 0);
-            }
+            if (keybind.key == button && keybind.joystick == hand)
+                processAxis(keybind, value, lastValue, deadzone);
         }
     }
 
     private static void processKeybind(Keybind keybind, boolean pressed, int mods) {
         keybind.pressed = pressed;
         if (pressed) {
-            if ((keybind.mods == 0 || mods == keybind.mods))
+            if ((mods & keybind.mods) == keybind.mods)
                 keybind.press();
         } else {
             if (keybind.polled)
                 keybind.release();
         }
+    }
+
+    private static void processAxis(Keybind keybind, float value, float lastValue, float deadzone) {
+        keybind.axisValue = value;
+        keybind.lastAxisValue = lastValue;
+
+        boolean pressed = Math.abs(value) > deadzone;
+        if (!pressed || !keybind.isPressed())
+            processKeybind(keybind, pressed, 0);
     }
 
     public static void releaseAll(boolean mouse, boolean keys) {
@@ -223,29 +217,7 @@ public class Keybind {
         this.mods = mods;
         this.type = type;
         this.joystick = joystick;
-        updateText();
-    }
-
-    public boolean isDefault() {
-        return key == defaultKey && mods == defaultMods && type == defaultType && joystick == defaultJoystick;
-    }
-
-    private void updateText() {
-        if (key == -1) {
-            text = Text.translated("key.none");
-            return;
-        }
-
-        text = Text.empty();
-        if (mods != 0) {
-            if ((mods & GLFW_MOD_CONTROL) != 0)
-                text.append("Ctrl + ");
-            if ((mods & GLFW_MOD_SHIFT) != 0)
-                text.append("Shift + ");
-            if ((mods & GLFW_MOD_ALT) != 0)
-                text.append("Alt + ");
-        }
-        text.append(type.textFunction.apply(key));
+        this.text = type.getKeyText(key, mods);
     }
 
     public String getName() {
@@ -289,9 +261,9 @@ public class Keybind {
             String glfwName = glfwGetKeyName(-1, scancode);
             return glfwName != null ? Text.of(glfwName.toUpperCase()) : Text.translated("key.scancode." + scancode);
         }),
-        MOUSE(button -> button < 3 ? Text.translated("key.mouse." + (button + 1)) : Text.translated("key.mouse", button + 1)),
-        GAMEPAD_BUTTON(button -> Text.translated("key.gamepad.button." + button + 1)),
-        GAMEPAD_AXIS(axis -> Text.translated("key.gamepad.axis." + axis + 1)),
+        MOUSE(button -> button < 3 ? Text.translated("key.mouse." + button) : Text.translated("key.mouse", button + 1)),
+        GAMEPAD_BUTTON(button -> Text.translated("key.gamepad.button." + button)),
+        GAMEPAD_AXIS(axis -> Text.translated("key.gamepad.axis." + axis)),
         XR_BUTTON(button -> Text.translated("key.xr.button",button + 1)),
         XR_TRIGGER(axis -> Text.translated("key.xr.trigger", axis + 1));
 
@@ -299,6 +271,23 @@ public class Keybind {
 
         KeyType(Function<Integer, Text> textFunction) {
             this.textFunction = textFunction;
+        }
+
+        public Text getKeyText(int key, int mods) {
+            if (key == -1)
+                return Text.translated("key.none");
+
+            Text text = Text.empty();
+            if (mods != 0) {
+                if ((mods & GLFW_MOD_CONTROL) != 0)
+                    text.append("Ctrl + ");
+                if ((mods & GLFW_MOD_SHIFT) != 0)
+                    text.append("Shift + ");
+                if ((mods & GLFW_MOD_ALT) != 0)
+                    text.append("Alt + ");
+            }
+            text.append(textFunction.apply(key));
+            return text;
         }
     }
 }

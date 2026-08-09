@@ -54,6 +54,7 @@ public class ContainerTabs extends ContainerGrid {
         prevButton.setRenderBackground(false);
         prevButton.setActive(false);
         nextButton = new Button(0, 0, 20, 20, Text.of("\u25B8"), b -> rollTabs(true));
+        nextButton.setActive(false);
         nextButton.setRenderBackground(false);
     }
 
@@ -73,7 +74,7 @@ public class ContainerTabs extends ContainerGrid {
         UIHelper.nineQuad(VertexConsumer.MAIN, matrices, res, x + getWidth() - w, y, w, 20, 0f, 0f, 16, 16, 64, 16);
 
         //render children
-        UIHelper.pushStencil(matrices, getAlignedX(), getAlignedY(), getWidth(), getHeight());
+        UIHelper.pushStencil(getAlignedX(), getAlignedY(), getWidth(), getHeight());
         super.renderWidgets(matrices, mouseX, mouseY, delta);
         UIHelper.popStencil();
     }
@@ -89,6 +90,7 @@ public class ContainerTabs extends ContainerGrid {
         else if (index == maxTabs) {
             tabBar.insertWidgetBefore(prevButton, buttons);
             tabBar.insertWidgetAfter(nextButton, buttons);
+            nextButton.setActive(true);
         }
     }
 

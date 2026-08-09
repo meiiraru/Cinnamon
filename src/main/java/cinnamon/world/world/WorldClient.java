@@ -18,6 +18,7 @@ import cinnamon.messages.MessageCategory;
 import cinnamon.messages.MessageManager;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
+import cinnamon.registry.LivingModelRegistry;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
@@ -912,7 +913,7 @@ public class WorldClient extends World {
 
     public void respawn(boolean init) {
         String playerName = Settings.playerName.get();
-        player = new LocalPlayer(playerName.isBlank() ? "Player" : playerName, Settings.playerModel.get());
+        player = new LocalPlayer(playerName.isBlank() ? "Player" : playerName, LivingModelRegistry.valueOf(Settings.playerModel.get()));
         player.setPos(0.5f, init ? 1.5f : 100f, 0.5f);
         player.getAbilities().set(Abilities.Ability.CAN_FLY, true);
         this.addEntity(player);

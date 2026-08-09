@@ -15,6 +15,8 @@
   "gui.continue": "Continuar",
   "gui.done": "Concluído",
   "gui.exit": "Sair",
+  "gui.discard": "Descartar",
+  "gui.confirm": "Confirmar",
 
   "gui.themes.minimal_dark": "Minimalista Escuro",
   "gui.themes.minimal_light": "Minimalista Claro",
@@ -26,6 +28,12 @@
   "gui.main_menu.extras": "Extras",
   "gui.main_menu.exit.tooltip": "tchau~",
   "gui.main_menu.credits.tooltip": "Abrir créditos",
+
+  "gui.settings.save": "Salvar alterações nas configurações?",
+  "gui.settings.reset.tooltip": "Restaurar padrão",
+  "gui.settings.keybinds.conflict": "As seguintes teclas estão vinculadas à mesma tecla que esta:",
+  "gui.settings.keybinds.conflict.accept": "Continuar?",
+  "gui.settings.unknown_type": "Não é possível definir a configuração, tipo de configuração desconhecido",
 
   "gui.multiplayer.name": "Digite seu nome:",
   "gui.multiplayer.name_hint": "Nome...",

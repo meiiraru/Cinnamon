@@ -45,6 +45,8 @@ public class Slider extends SelectableWidget {
     private boolean previewHoverValue;
     private boolean invertY;
     private boolean warp;
+    private boolean allowScroll = true;
+    private boolean canRenderSteps = true;
 
     protected int handleSize = 8;
     protected int anchorX, anchorY;
@@ -96,7 +98,8 @@ public class Slider extends SelectableWidget {
         renderHorizontalProgress(matrices, x, y, width, left, right);
 
         //steps
-        renderSteps(matrices, x, y, width, 3, 4, state * 3f + 9f, 12f);
+        if (shouldRenderSteps())
+            renderSteps(matrices, x, y, width, 3, 4, state * 3f + 9f, 12f);
 
         //button
         matrices.translate(0, 0, d);
@@ -146,7 +149,8 @@ public class Slider extends SelectableWidget {
         renderVerticalProgress(matrices, x, y, height, up, down);
 
         //steps
-        renderSteps(matrices, x, y, height, 4, 3, 30f, state * 3f + 9f);
+        if (shouldRenderSteps())
+            renderSteps(matrices, x, y, height, 4, 3, 30f, state * 3f + 9f);
 
         //button
         matrices.translate(0, 0, d);
@@ -175,9 +179,6 @@ public class Slider extends SelectableWidget {
     }
 
     protected void renderSteps(MatrixStack matrices, int x, int y, int length, int width, int height, float u, float v) {
-        if (steps <= 1)
-            return;
-
         matrices.translate(0, 0, UIHelper.getDepthOffset());
 
         boolean vertical = isVertical();
@@ -276,7 +277,7 @@ public class Slider extends SelectableWidget {
 
     @Override
     public GUIListener mouseScroll(double x, double y) {
-        if (isActive() && isHovered()) {
+        if (isActive() && isHovered() && allowScroll()) {
             return forceScroll(x, y);
         }
         return super.mouseScroll(x, y);
@@ -523,6 +524,22 @@ public class Slider extends SelectableWidget {
 
     public void setWarp(boolean warp) {
         this.warp = warp;
+    }
+
+    public void setAllowScroll(boolean allowScroll) {
+        this.allowScroll = allowScroll;
+    }
+
+    public boolean allowScroll() {
+        return allowScroll;
+    }
+
+    public void setCanRenderSteps(boolean canRenderSteps) {
+        this.canRenderSteps = canRenderSteps;
+    }
+
+    public boolean shouldRenderSteps() {
+        return canRenderSteps && steps > 1;
     }
 
     @Override

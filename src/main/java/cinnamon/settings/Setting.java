@@ -62,8 +62,16 @@ public abstract class Setting<T> {
         }
     }
 
+    public void discardTemp() {
+        tempValue = null;
+    }
+
     public void setListener(Consumer<T> consumer) {
         this.consumer = consumer;
+    }
+
+    public boolean isDefault() {
+        return value.equals(defaultValue);
     }
 
     @Override
@@ -72,8 +80,40 @@ public abstract class Setting<T> {
     }
 
 
-    // -- settings types -- //
+    // -- types -- //
 
+
+    public static class Bools extends Setting<Boolean> {
+        public Bools(String name, Boolean defaultValue) {
+            super(name, defaultValue);
+        }
+
+        @Override
+        public void fromJson(JsonElement element) {
+            set(element.getAsBoolean());
+        }
+
+        @Override
+        public JsonElement toJson() {
+            return new JsonPrimitive(get());
+        }
+    }
+
+    public static class Strings extends Setting<String> {
+        public Strings(String name, String defaultValue) {
+            super(name, defaultValue);
+        }
+
+        @Override
+        public void fromJson(JsonElement element) {
+            set(element.getAsString());
+        }
+
+        @Override
+        public JsonElement toJson() {
+            return new JsonPrimitive(get());
+        }
+    }
 
     public static class Ints extends Setting<Integer> {
         public Ints(String name, Integer defaultValue) {
@@ -107,62 +147,20 @@ public abstract class Setting<T> {
         }
     }
 
-    public static class Strings extends Setting<String> {
-        public Strings(String name, String defaultValue) {
-            super(name, defaultValue);
-        }
-
-        @Override
-        public void fromJson(JsonElement element) {
-            set(element.getAsString());
-        }
-
-        @Override
-        public JsonElement toJson() {
-            return new JsonPrimitive(get());
-        }
-    }
-
-    public static class Bools extends Setting<Boolean> {
-        public Bools(String name, Boolean defaultValue) {
-            super(name, defaultValue);
-        }
-
-        @Override
-        public void fromJson(JsonElement element) {
-            set(element.getAsBoolean());
-        }
-
-        @Override
-        public JsonElement toJson() {
-            return new JsonPrimitive(get());
-        }
-    }
-
-    public static class Enums<T extends Enum<T>> extends Setting<T> {
-        public Enums(String name, T defaultValue) {
-            super(name, defaultValue);
-        }
-
-        @Override
-        public void fromJson(JsonElement element) {
-            set(T.valueOf(getDefault().getDeclaringClass(), element.getAsString().toUpperCase()));
-        }
-
-        @Override
-        public JsonElement toJson() {
-            return new JsonPrimitive(get().name().toLowerCase());
-        }
-    }
-
     public static class Ranges extends Setting<Float> {
         private final float min;
         private final float max;
+        private final float step;
 
         public Ranges(String name, Float defaultValue, float min, float max) {
+            this(name, defaultValue, min, max, 0.01f);
+        }
+
+        public Ranges(String name, Float defaultValue, float min, float max, float step) {
             super(name, Maths.clamp(defaultValue, min, max));
             this.min = min;
             this.max = max;
+            this.step = step;
         }
 
         @Override
@@ -187,16 +185,26 @@ public abstract class Setting<T> {
         public float getMax() {
             return max;
         }
+
+        public float getStep() {
+            return step;
+        }
     }
 
     public static class IntRanges extends Setting<Integer> {
         private final int min;
         private final int max;
+        private final int step;
 
         public IntRanges(String name, Integer defaultValue, int min, int max) {
+            this(name, defaultValue, min, max, 1);
+        }
+
+        public IntRanges(String name, Integer defaultValue, int min, int max, int step) {
             super(name, Maths.clamp(defaultValue, min, max));
             this.min = min;
             this.max = max;
+            this.step = step;
         }
 
         @Override
@@ -221,9 +229,59 @@ public abstract class Setting<T> {
         public int getMax() {
             return max;
         }
+
+        public int getStep() {
+            return step;
+        }
+    }
+
+    public static class Enums extends Strings {
+        private final Class<? extends Enum<?>> enumClass;
+
+        public Enums(String name, String defaultValue, Class<? extends Enum<?>> enumClass) {
+            super(name, defaultValue);
+            this.enumClass = enumClass;
+        }
+
+        @Override
+        public void fromJson(JsonElement element) {
+            String val = element.getAsString();
+            for (Enum<?> e : enumClass.getEnumConstants()) {
+                if (e.name().equals(val)) {
+                    set(val);
+                    return;
+                }
+            }
+            throw new IllegalArgumentException("Invalid enum value: " + val + " for enum class: " + enumClass.getName());
+        }
+
+        public Class<? extends Enum<?>> getEnumClass() {
+            return enumClass;
+        }
+    }
+
+    public static class List extends Strings {
+        private final Supplier<java.util.List<Pair<String, String>>> valuesSupplier;
+
+        public List(String name, String defaultValue, Supplier<java.util.List<Pair<String, String>>> valuesSupplier) {
+            super(name, defaultValue);
+            this.valuesSupplier = valuesSupplier;
+        }
+
+        public Supplier<java.util.List<Pair<String, String>>> getValuesSupplier() {
+            return valuesSupplier;
+        }
     }
 
     public static class Keybind extends Setting<cinnamon.input.Keybind> {
+        //defaults
+        private final int key, mods, joystick;
+        private final KeyType type;
+
+        //temp
+        private int tempKey, tempMods, tempJoystick;
+        private KeyType tempType;
+
         public Keybind(String name, int key, KeyType type) {
             this(name, key, 0, type);
         }
@@ -234,6 +292,10 @@ public abstract class Setting<T> {
 
         public Keybind(String name, int key, int mods, KeyType type, int joystick) {
             super(name, new cinnamon.input.Keybind(name, key, mods, type, joystick));
+            this.key = key;
+            this.mods = mods;
+            this.type = type;
+            this.joystick = joystick;
         }
 
         @Override
@@ -255,18 +317,63 @@ public abstract class Setting<T> {
             obj.addProperty("joystick", get().getJoystick());
             return obj;
         }
-    }
 
-    public static class List extends Strings {
-        private final Supplier<java.util.List<Pair<String, String>>> valuesSupplier;
-
-        public List(String name, String defaultValue, Supplier<java.util.List<Pair<String, String>>> valuesSupplier) {
-            super(name, defaultValue);
-            this.valuesSupplier = valuesSupplier;
+        @Override
+        public boolean isDefault() {
+            cinnamon.input.Keybind key = get();
+            return key.getKey() == this.key && key.getMods() == this.mods && key.getType() == this.type && key.getJoystick() == this.joystick;
         }
 
-        public Supplier<java.util.List<Pair<String, String>>> getValuesSupplier() {
-            return valuesSupplier;
+        @Override
+        public void applyTemp() {
+            super.applyTemp();
+            if (tempType != null)
+                get().set(tempKey, tempMods, tempType, tempJoystick);
+        }
+
+        @Override
+        public void discardTemp() {
+            super.discardTemp();
+            setTemp(0, 0, null, 0);
+        }
+
+        public void setTemp(int key, int mods, KeyType type, int joystick) {
+            this.tempKey = key;
+            this.tempMods = mods;
+            this.tempType = type;
+            this.tempJoystick = joystick;
+        }
+
+        public int getDefaultKey() {
+            return key;
+        }
+
+        public int getDefaultMods() {
+            return mods;
+        }
+
+        public KeyType getDefaultType() {
+            return type;
+        }
+
+        public int getDefaultJoystick() {
+            return joystick;
+        }
+
+        public int getTempKey() {
+            return tempKey;
+        }
+
+        public int getTempMods() {
+            return tempMods;
+        }
+
+        public KeyType getTempType() {
+            return tempType;
+        }
+
+        public int getTempJoystick() {
+            return tempJoystick;
         }
     }
 }

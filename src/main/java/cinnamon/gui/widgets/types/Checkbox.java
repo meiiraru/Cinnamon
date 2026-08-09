@@ -40,7 +40,7 @@ public class Checkbox extends Button {
 
     @Override
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        float x = rtl ? getX() : getX() + 8 + textSpacing;
+        float x = rtl ? getX() : getX() + getButtonWidth() + textSpacing;
         Text text = getFormattedMessage();
         text.render(VertexConsumer.MAIN, matrices, x, getCenterY(), Alignment.CENTER_LEFT);
     }
@@ -65,8 +65,8 @@ public class Checkbox extends Button {
     @Override
     protected void updateDimensions() {
         this.setDimensions(
-                Math.max(8, 8 + textSpacing + TextUtils.getWidth(message)),
-                Math.max(8, TextUtils.getHeight(message))
+                Math.max(getButtonWidth(), getButtonWidth() + (message != null ? textSpacing + TextUtils.getWidth(message) : 0)),
+                Math.max(getButtonHeight(), message != null ? TextUtils.getHeight(message) : 0)
         );
 
         super.updateDimensions();
@@ -78,6 +78,14 @@ public class Checkbox extends Button {
 
     public void setToggled(boolean toggled) {
         this.toggled = toggled;
+    }
+
+    protected int getButtonWidth() {
+        return 8;
+    }
+
+    protected int getButtonHeight() {
+        return 9;
     }
 
     public int getTextSpacing() {

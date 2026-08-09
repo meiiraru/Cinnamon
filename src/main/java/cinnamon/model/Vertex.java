@@ -146,4 +146,54 @@ public class Vertex {
     public int hashCode() {
         return Objects.hash(pos, uv, normal, tangent, color);
     }
+
+    public float x() {
+        return pos.x;
+    }
+    public float y() {
+        return pos.y;
+    }
+    public float z() {
+        return pos.z;
+    }
+
+    public float u() {
+        return uv.x;
+    }
+    public float v() {
+        return uv.y;
+    }
+
+    public float nx() {
+        return normal.x;
+    }
+    public float ny() {
+        return normal.y;
+    }
+    public float nz() {
+        return normal.z;
+    }
+
+    public float tx() {
+        return tangent.x;
+    }
+    public float ty() {
+        return tangent.y;
+    }
+    public float tz() {
+        return tangent.z;
+    }
+
+    public float r() {
+        return color.x;
+    }
+    public float g() {
+        return color.y;
+    }
+    public float b() {
+        return color.z;
+    }
+    public float a() {
+        return color.w;
+    }
 }

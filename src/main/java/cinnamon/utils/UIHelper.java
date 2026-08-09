@@ -18,6 +18,7 @@ import cinnamon.text.Text;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import org.joml.Math;
+import org.joml.Vector4f;
 
 import java.util.Stack;
 
@@ -27,7 +28,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class UIHelper {
 
     private static final float DEPTH_OFFSET = 0.01f;
-    private static final Stack<Vertex[]> STENCIL_STACK = new Stack<>();
+    private static final Stack<Vector4f> STENCIL_STACK = new Stack<>();
 
     public static void renderBackground(MatrixStack matrices, int width, int height, float delta, Resource... background) {
         Client c = Client.getInstance();
@@ -429,19 +430,27 @@ public class UIHelper {
         VertexConsumer.finishAllBatches(Client.getInstance().camera);
     }
 
-    public static void pushStencil(MatrixStack matrices, int x, int y, int width, int height) {
-        Vertex[] vertices = quad(matrices, x, y, width, height);
-        STENCIL_STACK.push(vertices);
-        pushStencil(vertices);
+    public static void pushStencil(int x, int y, int width, int height) {
+        Vector4f rect;
+        if (STENCIL_STACK.isEmpty()) {
+            rect = new Vector4f(x, y, x + width, y + height);
+        } else {
+            Vector4f last = STENCIL_STACK.peek();
+            rect = new Vector4f(Math.max(last.x, x), Math.max(last.y, y), Math.min(last.z, x + width), Math.min(last.w, y + height));
+        }
+
+        STENCIL_STACK.push(rect);
+        pushStencil(rect);
     }
 
-    private static void pushStencil(Vertex[] vertices) {
+    private static void pushStencil(Vector4f rect) {
         finishBatches();
 
         prepareStencil(false, true);
         glDisable(GL_DEPTH_TEST);
 
-        VertexConsumer.MAIN.consume(vertices);
+        Vertex[] quad = GeometryHelper.rectangle(Client.getInstance().matrices, rect.x, rect.y, rect.z, rect.w, 0xFFFFFFFF);
+        VertexConsumer.MAIN.consume(quad);
         VertexConsumer.MAIN.finishBatch(Client.getInstance().camera);
 
         glEnable(GL_DEPTH_TEST);

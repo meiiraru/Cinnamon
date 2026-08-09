@@ -47,6 +47,7 @@
     "scroll_bar_tex":           "textures/gui/widgets/base/scrollbar.png",
     "selection_panel_tex":      "textures/gui/widgets/base/selection_panel.png",
     "slider_tex":               "textures/gui/widgets/base/slider.png",
+    "switch_tex":               "textures/gui/widgets/base/switch.png",
     "text_field_tex":           "textures/gui/widgets/base/text_field.png",
     "toast_tex":                "textures/gui/widgets/base/toast.png",
     "tooltip_tex":              "textures/gui/widgets/base/tooltip.png",

@@ -47,7 +47,7 @@ public class WidgetList extends ContainerGrid {
 
         boolean scroll = isScrollbarNeeded();
         if (scroll)
-            UIHelper.pushStencil(matrices, getAlignedX(), getAlignedY(), getWidth(), getHeight());
+            UIHelper.pushStencil(getAlignedX(), getAlignedY(), getWidth(), getHeight());
 
         for (Widget widget : updateList())
             widget.render(matrices, mouseX, mouseY, delta);
