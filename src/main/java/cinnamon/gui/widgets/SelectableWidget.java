@@ -6,7 +6,6 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.Resource;
 import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
 import cinnamon.vr.XrManager;
@@ -152,7 +151,6 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
     public void setPopup(PopupWidget popup) {
         this.popup = popup;
         popup.setParent(this);
-        popup.setSkin(getSkinRes());
     }
 
     public boolean isSelectable() {
@@ -199,12 +197,5 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
 
         //render
         UIHelper.renderTooltip(matrices, x, y, w, h, cx, cy, (byte) (left ? 1 : 0), tooltip, getSkin());
-    }
-
-    @Override
-    public void setSkin(Resource skin) {
-        super.setSkin(skin);
-        if (this.popup != null)
-            this.popup.setSkin(skin);
     }
 }

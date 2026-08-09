@@ -324,11 +324,5 @@ public class ContextMenu extends PopupWidget {
         public GUIListener mousePress(int button, int action, int mods) {
             return null;
         }
-
-        @Override
-        public void setSkin(Resource skin) {
-            super.setSkin(skin);
-            subContext.setSkin(skin);
-        }
     }
 }

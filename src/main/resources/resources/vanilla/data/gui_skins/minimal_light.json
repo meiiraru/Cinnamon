@@ -17,7 +17,11 @@
     "screen_color_2":        "FFBAD7FF",
     "icon_color":            "FF000000",
     "outline_color":         "FFFFFFFF",
-    "hovered_outline_color": "FF000000"
+    "hovered_outline_color": "FF000000",
+    "world_screen_bg_color": "88FFFFFF",
+    "chat_background_color": "80FFFFFF",
+    "chat_scrollbar_color":  "80000000",
+    "chat_hint_color":       "FF555555"
   },
   "resources": {
     "button_tex":               "textures/gui/widgets/minimal_light/button.png",

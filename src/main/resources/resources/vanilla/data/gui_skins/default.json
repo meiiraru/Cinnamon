@@ -31,7 +31,11 @@
     "screen_color_2":        "FF2E170F",
     "icon_color":            "FFFFFFFF",
     "outline_color":         "FFB58B5B",
-    "hovered_outline_color": "FFFFFFFF"
+    "hovered_outline_color": "FFFFFFFF",
+    "world_screen_bg_color": "88000000",
+    "chat_background_color": "80000000",
+    "chat_scrollbar_color":  "80FFFFFF",
+    "chat_hint_color":       "FFBBBBBB"
   },
 
   "resources": {

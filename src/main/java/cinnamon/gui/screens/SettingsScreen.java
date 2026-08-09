@@ -1,5 +1,6 @@
 package cinnamon.gui.screens;
 
+import cinnamon.gui.GUISkin;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
@@ -29,11 +30,11 @@ public class SettingsScreen extends ParentedScreen {
 
     public static final Resource RESET_ICON = new Resource("textures/gui/icons/reload.png");
 
-    private final boolean fromWorld;
+    protected final boolean fromWorld;
 
-    private final List<Setting.Keybind> keybindList = new ArrayList<>();
-    private Setting.Keybind currentKeybind;
-    private Button keybindButton;
+    protected final List<Setting.Keybind> keybindList = new ArrayList<>();
+    protected Setting.Keybind currentKeybind;
+    protected Button keybindButton;
 
     public SettingsScreen(Screen parentScreen) {
         this(parentScreen, false);
@@ -108,7 +109,7 @@ public class SettingsScreen extends ParentedScreen {
     @Override
     protected void renderBackground(MatrixStack matrices, float delta, int color1, int color2, float size) {
         if (fromWorld)
-            renderSolidBackground(0x88 << 24);
+            renderSolidBackground(GUISkin.getCurrentSkin().getInt("world_screen_bg_color"));
         else
             super.renderBackground(matrices, delta, color1, color2, size);
     }

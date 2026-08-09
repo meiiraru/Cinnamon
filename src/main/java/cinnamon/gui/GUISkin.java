@@ -135,6 +135,9 @@ public class GUISkin {
                     parent = font;
                     fontJson = fontJson.has("fallback") ? fontJson.getAsJsonObject("fallback") : null;
                 }
+
+                if (parent != null && skin.parent != null)
+                    parent.setFallback(skin.parent.getFont());
             }
 
             //resources

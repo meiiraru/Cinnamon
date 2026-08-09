@@ -3,7 +3,6 @@ package cinnamon.gui.widgets;
 import cinnamon.math.Maths;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.utils.Resource;
 import cinnamon.utils.UIHelper;
 import org.joml.Math;
 
@@ -289,13 +288,6 @@ public class Container extends Widget implements Tickable, GUIListener {
         }
 
         return list;
-    }
-
-    @Override
-    public void setSkin(Resource skin) {
-        super.setSkin(skin);
-        for (Widget widget : this.widgets)
-            widget.setSkin(skin);
     }
 
     public void setActive(boolean active) {

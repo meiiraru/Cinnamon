@@ -94,7 +94,7 @@ public abstract class Widget {
     }
 
     public Resource getSkinRes() {
-        return skinOverride != null ? skinOverride : GUISkin.getCurrentSkinRes();
+        return skinOverride != null ? skinOverride : parent != null ? parent.getSkinRes() : GUISkin.getCurrentSkinRes();
     }
 
     public GUISkin getSkin() {

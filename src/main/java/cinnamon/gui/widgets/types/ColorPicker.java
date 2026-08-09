@@ -177,7 +177,6 @@ public class ColorPicker extends Button {
                 popup.removeWidget(fields);
             }
 
-            this.setSkin(getSkinRes());
             UIHelper.setPopup(getCenterX(), getCenterY(), popup);
         });
         hueGrid.addWidget(expand);
@@ -240,7 +239,6 @@ public class ColorPicker extends Button {
                 }
             }
             this.fieldMode = fieldMode;
-            this.setSkin(getSkinRes());
             this.updateFields();
         });
         fields.addWidget(swapMode);

@@ -38,7 +38,7 @@ public class ChatScreen extends Screen {
     public ChatScreen() {
         //create text field
         field = new TextField(0, 0, 0, 0);
-        field.setHintText(Text.translated("gui.chat.type_message").withStyle(MessageManager.DEFAULT_STYLE.color(Colors.LIGHT_GRAY)));
+        field.setHintText(Text.translated("gui.chat.type_message").withStyle(MessageManager.DEFAULT_STYLE.color(GUISkin.getCurrentSkin().getInt("chat_hint_color"))));
         field.setTextStyle(MessageManager.DEFAULT_STYLE);
         field.setTextOnly(true);
         field.setListener(str -> {
@@ -111,8 +111,10 @@ public class ChatScreen extends Screen {
 
     @Override
     protected void renderChildren(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        int backgroundColor = GUISkin.getCurrentSkin().getInt("chat_background_color");
+
         //field background
-        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, field.getX(), field.getY(), field.getX() + field.getWidth(), field.getY() + field.getHeight(), -UIHelper.getDepthOffset(), 0x80000000));
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, field.getX(), field.getY(), field.getX() + field.getWidth(), field.getY() + field.getHeight(), -UIHelper.getDepthOffset(), backgroundColor));
 
         int chatX = 4;
         int chatY = 40;
@@ -123,7 +125,7 @@ public class ChatScreen extends Screen {
                     matrices,
                     messageList.getAlignedX() - 2, messageList.getAlignedY() - 2,
                     messageList.getAlignedX() + messageList.getWidth() + 2, messageList.getAlignedY() + messageList.getHeight() + 2,
-                    -UIHelper.getDepthOffset(), 0x80000000
+                    -UIHelper.getDepthOffset(), backgroundColor
             ));
 
         //render scrollbar
@@ -131,12 +133,12 @@ public class ChatScreen extends Screen {
             int scrollbarHeight = (int) ((float) maxChatHeight / chatHeight * maxChatHeight);
             int scrollX = chatX + maxChatWidth;
             int scrollY = chatY + (int) (messageList.getScrollbar().getPercentage() * (maxChatHeight - scrollbarHeight));
-            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, scrollX + 1, scrollY, scrollX + 2, scrollY + scrollbarHeight - 4, -UIHelper.getDepthOffset(), 0x80FFFFFF));
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, scrollX + 1, scrollY, scrollX + 2, scrollY + scrollbarHeight - 4, -UIHelper.getDepthOffset(), GUISkin.getCurrentSkin().getInt("chat_scrollbar_color")));
         }
 
         //render preview message
         if (showPreview) {
-            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, field.getX(), field.getY() + field.getHeight() + 2, field.getX() + field.getWidth(), field.getY() + field.getHeight() + 2 + field.getHeight(), -UIHelper.getDepthOffset(), 0x80000000));
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, field.getX(), field.getY() + field.getHeight() + 2, field.getX() + field.getWidth(), field.getY() + field.getHeight() + 2 + field.getHeight(), -UIHelper.getDepthOffset(), backgroundColor));
             previewText.render(VertexConsumer.MAIN, matrices, field.getX() + 2, field.getY() + field.getHeight() + 2 + field.getHeight() - 2, Alignment.BOTTOM_LEFT);
         }
 

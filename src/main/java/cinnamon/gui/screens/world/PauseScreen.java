@@ -1,5 +1,6 @@
 package cinnamon.gui.screens.world;
 
+import cinnamon.gui.GUISkin;
 import cinnamon.gui.Screen;
 import cinnamon.gui.screens.SettingsScreen;
 import cinnamon.gui.widgets.ContainerGrid;
@@ -53,6 +54,6 @@ public class PauseScreen extends Screen {
 
     @Override
     protected void renderBackground(MatrixStack matrices, float delta, int color1, int color2, float size) {
-        renderSolidBackground(0x88 << 24);
+        renderSolidBackground(GUISkin.getCurrentSkin().getInt("world_screen_bg_color"));
     }
 }
