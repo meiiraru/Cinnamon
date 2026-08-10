@@ -17,6 +17,7 @@ public class LangManager {
 
     public static final String MAIN_LANG = "en_UK";
     private static String currentLang = MAIN_LANG;
+    private static boolean loaded = false;
 
     private static final Map<String, String>
             LANG = new HashMap<>(),
@@ -25,12 +26,16 @@ public class LangManager {
     public static void init() {
         //load lang list
         loadLangList();
+        //force load the current lang
+        if (!loaded)
+            loadForLang(currentLang);
     }
 
     public static void loadForLang(String lang) {
-        LANG.clear();
-
+        loaded = false;
         currentLang = lang == null ? MAIN_LANG : lang;
+
+        LANG.clear();
 
         //get the current lang
         LOGGER.info("Initializing lang for: %s", currentLang);
@@ -44,6 +49,8 @@ public class LangManager {
             if (!currentLang.equals(MAIN_LANG))
                 load(new Resource(s, "lang/" + currentLang + ".json"));
         }
+
+        loaded = true;
     }
 
     private static void load(Resource res) {

@@ -72,7 +72,7 @@ public class SettingsScreen extends ParentedScreen {
 
         buttonGrid.addWidget(new Button(0, 0, 96, 20, Text.translated("gui.close"), b -> {
             boolean hasChanges = false;
-            for (Setting<?> setting : Settings.SETTINGS) {
+            for (Setting<?> setting : getSettings()) {
                 if (setting.getTempValue() != null) {
                     hasChanges = true;
                     break;
@@ -114,11 +114,15 @@ public class SettingsScreen extends ParentedScreen {
             super.renderBackground(matrices, delta, color1, color2, size);
     }
 
+    protected List<Setting<?>> getSettings() {
+        return Settings.SETTINGS;
+    }
+
     protected void saveSettings() {
         boolean hasChanges = false;
 
         //apply temporary values to actual values
-        for (Setting<?> setting : Settings.SETTINGS) {
+        for (Setting<?> setting : getSettings()) {
             hasChanges |= setting.getTempValue() != null;
             setting.applyTemp();
         }
@@ -129,7 +133,7 @@ public class SettingsScreen extends ParentedScreen {
 
     protected void discardSettings() {
         //discard temporary values
-        for (Setting<?> setting : Settings.SETTINGS)
+        for (Setting<?> setting : getSettings())
             setting.discardTemp();
     }
 
@@ -137,7 +141,7 @@ public class SettingsScreen extends ParentedScreen {
         //major categories
         Category root = new Category();
 
-        for (Setting<?> setting : Settings.SETTINGS) {
+        for (Setting<?> setting : getSettings()) {
             String name = setting.getName();
             String[] split = name.split("\\.");
 
