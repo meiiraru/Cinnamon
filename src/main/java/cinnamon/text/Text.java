@@ -85,7 +85,7 @@ public class Text {
     public String getTranslatedText() {
         if (!translatable)
             return text;
-        return cachedTranslation != null ? cachedTranslation : LangManager.get(text, translationArgs);
+        return cachedTranslation != null ? cachedTranslation : (cachedTranslation = LangManager.get(text, translationArgs));
     }
 
     public String asString() {

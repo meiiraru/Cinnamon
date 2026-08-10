@@ -165,7 +165,12 @@ public class Settings {
 
     static {
         //display
-        lang.setListener(str -> LangManager.loadForLang(str.isBlank() ? null : str));
+        lang.setListener(str -> {
+            LangManager.loadForLang(str.isBlank() ? null : str);
+            Client c = Client.getInstance();
+            if (c.isInitialized() && c.screen != null)
+                c.screen.rebuild();
+        });
         vsync.setListener(v -> Client.getInstance().window.toggleVsync(v));
         guiSkin.setListener(str -> {
             GUISkin.setCurrentSkin(str.isBlank() ? null : new Resource(str));
