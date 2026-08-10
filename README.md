@@ -86,6 +86,8 @@ It can also be used as a library, allowing for easy integration into other proje
   * The resource is namespaced based, allowing for multiple resources with the same name to exist in different namespaces
   * The "vanilla" namespace is reserved for the engine resources
   * An empty resource tries to fetch the path from the machine file system
+  * Resources are loaded through their respective loaders
+  * Resources are cached and kept in memory until they are manually unloaded 
 * Settings System
     * Simple settings system that loads and saves the settings to a JSON file
     * Supports versioning and migration of settings files across different versions
@@ -150,7 +152,9 @@ It can also be used as a library, allowing for easy integration into other proje
 
 # Future considerations
 - [ ] Vulkan Rendering Pipeline
+- [ ] External Level Editor Application
 - [ ] Skeletal Animations
+- [ ] Component-Based Game Object 
 - [ ] [ODE physics](https://www.ode.org/)
 - [ ] Networking
 - [ ] Scripting System ([Lua](https://www.lua.org/))
