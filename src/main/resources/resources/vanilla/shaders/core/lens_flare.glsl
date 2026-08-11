@@ -16,6 +16,7 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 camPos;
 uniform float aspectRatio;
+uniform vec2 opticalCenter;
 uniform vec2 sampleRadius;
 
 //for occlusion testing
@@ -92,7 +93,7 @@ void main() {
     }
 
     //screen center
-    vec2 screenCenter = vec2(0.5f);
+    vec2 screenCenter = opticalCenter;
     vec2 axisVec = lightScreen.xy - screenCenter;
 
     //halos - reflections inside the lens

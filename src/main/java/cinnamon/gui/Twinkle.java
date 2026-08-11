@@ -6,6 +6,7 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Resource;
+import cinnamon.vr.XrManager;
 import org.joml.Math;
 
 public class Twinkle {
@@ -88,7 +89,7 @@ public class Twinkle {
             y += 1f + (float) Math.random() * 3f; //gravity
 
             //check if out of bounds
-            if (y - size > Client.getInstance().window.getGUIHeight()) {
+            if (!XrManager.isInXR() && y - size > Client.getInstance().window.getGUIHeight()) {
                 life = 0;
                 return;
             }

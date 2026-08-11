@@ -85,10 +85,12 @@ public class WorldRenderer {
         setupFramebuffer();
         Client client = Client.getInstance();
         float dt = client.timer.deltaTime;
+        boolean xr = XrManager.isInXR();
+        renderSSR &= !xr; //SSR is not supported in XR mode
 
         Runnable[] renderFunc = {
                 () -> {
-                    if (XrManager.isInXR() && client.screen == null)
+                    if (xr && client.screen == null)
                         renderXrHands(camera, matrices, delta);
                 },
                 () -> world.renderTerrain(camera, matrices, delta),

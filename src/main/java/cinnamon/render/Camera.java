@@ -23,6 +23,7 @@ public class Camera {
     private float fov = 90f;
     private float aspectRatio = 16f / 9f;
     private int width = 640, height = 360;
+    private float opticalCenterX = 0.5f, opticalCenterY = 0.5f;
 
     private final Frustum frustum = new Frustum();
 
@@ -147,6 +148,8 @@ public class Camera {
         this.aspectRatio = (float) width / height;
         this.width = width;
         this.height = height;
+        this.opticalCenterX = 0.5f;
+        this.opticalCenterY = 0.5f;
 
         perspMatrix.identity().perspective(Math.toRadians(fov), aspectRatio, NEAR_PLANE, FAR_PLANE);
         orthoMatrix.identity().ortho(0, width, height, 0, -1000, 1000);
@@ -158,10 +161,13 @@ public class Camera {
         this.width = width;
         this.height = height;
 
-        float left = Math.tan(angleLeft)   * NEAR_PLANE;
-        float right = Math.tan(angleRight) * NEAR_PLANE;
-        float bottom = Math.tan(angleDown) * NEAR_PLANE;
-        float top = Math.tan(angleUp)      * NEAR_PLANE;
+        float left   = Math.tan(angleLeft)  * NEAR_PLANE;
+        float right  = Math.tan(angleRight) * NEAR_PLANE;
+        float bottom = Math.tan(angleDown)  * NEAR_PLANE;
+        float top    = Math.tan(angleUp)    * NEAR_PLANE;
+
+        this.opticalCenterX = -left / (right - left);
+        this.opticalCenterY = -bottom / (top - bottom);
 
         this.fov = (float) Math.toDegrees(java.lang.Math.atan(right / NEAR_PLANE) - java.lang.Math.atan(left / NEAR_PLANE));
 
@@ -407,12 +413,22 @@ public class Camera {
         return height;
     }
 
+    public float getOpticalCenterX() {
+        return opticalCenterX;
+    }
+
+    public float getOpticalCenterY() {
+        return opticalCenterY;
+    }
+
     public void copyFrom(Camera camera, boolean includeView) {
         //copy properties
         this.fov = camera.fov;
         this.aspectRatio = camera.aspectRatio;
         this.width = camera.width;
         this.height = camera.height;
+        this.opticalCenterX = camera.opticalCenterX;
+        this.opticalCenterY = camera.opticalCenterY;
 
         //copy projection matrices
         this.perspMatrix.set(camera.perspMatrix);

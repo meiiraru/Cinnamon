@@ -175,6 +175,7 @@ public class LightRenderer {
             lensShader.setup(camera);
             lensShader.setVec3("camPos", camera.getPosition());
             lensShader.setFloat("aspectRatio", aspectRatio);
+            lensShader.setVec2("opticalCenter", camera.getOpticalCenterX(), camera.getOpticalCenterY());
             lensShader.setVec2("sampleRadius", texelX, texelY);
             lensShader.setTexture("gDepth", target.getDepthBuffer(), 0);
 
