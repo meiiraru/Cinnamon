@@ -82,12 +82,12 @@ It can also be used as a library, allowing for easy integration into other proje
     * Built-in support for lights and shadows (Directional Light, Point Light, Spotlight and Cookie Light)
     * Custom built-in effects for different rendering features, like, Bloom, SSAO, SSR, Outlines and more
 * Resource Loading System
-  * Simple resource loading system that loads resources from the classpath or from the filesystem
-  * The resource is namespaced based, allowing for multiple resources with the same name to exist in different namespaces
-  * The "vanilla" namespace is reserved for the engine resources
-  * An empty resource tries to fetch the path from the machine file system
-  * Resources are loaded through their respective loaders
-  * Resources are cached and kept in memory until they are manually unloaded 
+    * Simple resource loading system that loads resources from the classpath or from the filesystem
+    * The resource is namespaced based, allowing for multiple resources with the same name to exist in different namespaces
+    * The "vanilla" namespace is reserved for the engine resources
+    * An empty resource tries to fetch the path from the machine file system
+    * Resources are loaded through their respective loaders
+    * Resources are cached and kept in memory until they are manually unloaded 
 * Settings System
     * Simple settings system that loads and saves the settings to a JSON file
     * Supports versioning and migration of settings files across different versions
@@ -98,6 +98,7 @@ It can also be used as a library, allowing for easy integration into other proje
     * Supports spatial sound, alongside volume, pitch, looping, attenuation and distance
     * Full playback control of the sound
     * Sound category system, so different sounds can be grouped together and controlled by a single volume setting
+    * MIDI IO support
 * Text Object
     * Simple text wrapper that allows for customization of text
     * The text object can have more texts attached to it
@@ -158,6 +159,7 @@ It can also be used as a library, allowing for easy integration into other proje
 - [ ] [ODE physics](https://www.ode.org/)
 - [ ] Networking
 - [ ] Scripting System ([Lua](https://www.lua.org/))
+- [ ] Asynchronous Resource Loading
 - [ ] Entity AI/Behavior System
 - [ ] What else comes into my very flat brain (burgers)
 
