@@ -675,6 +675,10 @@
   "key.keyboard": "Key %s",
   "key.scancode": "Key %s",
   "key.mouse": "Mouse %s",
+  "key.gamepad.button": "Gamepad Button %s",
+  "key.gamepad.axis": "Gamepad Axis %s",
+  "key.xr.button": "XR Button %s",
+  "key.xr.trigger": "XR Trigger %s",
 
   "key.keyboard.32": "Space",
   "key.keyboard.115": "/",

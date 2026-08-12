@@ -18,16 +18,19 @@ public abstract class Sky {
             fogColor = 0xBFD3DE,
             skyColor = 0x4444D0,
             sunColor = 0xFF8822,
-            cloudsColor = 0x7F7F7F,
+            cloudsColor  = 0x7F7F7F,
             ambientLight = 0xBFD3DE;
 
     public float
             fogStart = 96,
-            fogEnd = 192;
+            fogEnd   = 192,
+            cloudHeight   = 64,
+            cloudCoverage = 0.85f,
+            cloudScale    = 1f;
 
     public float
-            fogIntensity = 1f,
-            sunIntensity = 1f,
+            fogIntensity   = 1f,
+            sunIntensity   = 1f,
             starsIntensity = 1f;
 
     protected final Vector3f sunDir = new Vector3f(1, 0, 0);

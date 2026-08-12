@@ -171,4 +171,8 @@ public class Terrain extends WorldObject {
     public boolean interact(Entity entity) {
         return false;
     }
+
+    public boolean explode(float explosionStrength) {
+        return true;
+    }
 }

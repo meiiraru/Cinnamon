@@ -14,6 +14,7 @@ import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.Sphere;
 import cinnamon.messages.MessageCategory;
 import cinnamon.messages.MessageManager;
 import cinnamon.model.GeometryHelper;
@@ -493,8 +494,10 @@ public class WorldClient extends World {
         return count;
     }
 
+    public void renderExtras(Camera camera, MatrixStack matrices, float delta) {}
+
     public void renderWater(Camera camera, MatrixStack matrices, float delta) {
-        WaterRenderer.renderDefaultWaterPlane(camera, matrices, 0.9f, getSky().fogEnd);
+        WaterRenderer.renderWaterPlane(camera, matrices, 0.9f, getSky().fogEnd);
     }
 
     public void renderItemExtra(LivingEntity entity, MatrixStack matrices, float delta) {
@@ -719,7 +722,7 @@ public class WorldClient extends World {
     }
 
     @Override
-    public void explode(Collider<?> explosionArea, float strength, Entity source, boolean invisible) {
+    public void explode(Sphere explosionArea, float strength, Entity source, boolean invisible) {
         super.explode(explosionArea, strength, source, invisible);
 
         if (invisible)

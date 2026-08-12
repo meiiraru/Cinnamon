@@ -57,7 +57,7 @@ public class WaterRenderer {
         return 1;
     }
 
-    public static void renderDefaultWaterPlane(Camera camera, MatrixStack matrices, float y, float size) {
+    public static void renderWaterPlane(Camera camera, MatrixStack matrices, float y, float size) {
         matrices.pushMatrix();
         Vector3f camPos = camera.getPosition();
         matrices.translate(camPos.x, y, camPos.z);

@@ -130,6 +130,9 @@ public class WorldRenderer {
         //water
         renderWater(world, camera, matrices, delta);
 
+        //extra world rendering
+        world.renderExtras(camera, matrices, delta);
+
         //render ssao
         renderSSAO(camera);
 
@@ -186,6 +189,9 @@ public class WorldRenderer {
 
             //water
             renderWater(world, camera, matrices, delta);
+
+            //extra world rendering
+            world.renderExtras(camera, matrices, delta);
 
             //effects
             renderSSAO(camera);
@@ -387,7 +393,7 @@ public class WorldRenderer {
 
     public static void renderClouds(WorldClient world, Camera camera, float delta) {
         if (renderClouds)
-            CloudRenderer.renderClouds(outputBuffer, camera, world.getTime() + delta, world.getSky(), 64f, 0.85f, 1f);
+            CloudRenderer.renderClouds(outputBuffer, camera, world.getTime() + delta, world.getSky());
     }
 
     public static void renderOutlines(WorldClient world, Camera camera, MatrixStack matrices, float delta) {

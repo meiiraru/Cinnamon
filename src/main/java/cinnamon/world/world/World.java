@@ -5,6 +5,7 @@ import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Ray;
+import cinnamon.math.collision.Sphere;
 import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
 import cinnamon.world.WorldRules;
@@ -133,16 +134,19 @@ public abstract class World {
         return entities.get(uuid);
     }
 
-    public void explode(Collider<?> explosionArea, float strength, Entity source, boolean invisible) {
-        int damage = (int) (4 * strength);
+    public void explode(Sphere explosionArea, float strength, Entity source, boolean invisible) {
+        Vector3f center = explosionArea.getCenter();
+        float radiusSqr = explosionArea.getRadius() * explosionArea.getRadius();
 
         for (Entity entity : getEntities(explosionArea)) {
             if (entity == source || entity.isRemoved())
                 continue;
 
+            float localStrength = Math.max(0f, 1f - (entity.getAABB().getCenter().distanceSquared(center) / radiusSqr)) * strength;
+
             //damage living entities
             if (entity instanceof LivingEntity living)
-                living.damage(source, DamageType.EXPLOSION, damage, false);
+                living.damage(source, DamageType.EXPLOSION, (int) Math.ceil(4f * localStrength), false);
             //explode potatoes
             else if (entity instanceof Potato potato)
                 potato.triggerExplosion();
@@ -150,13 +154,14 @@ public abstract class World {
             //knock back
             if (entity instanceof PhysEntity e) {
                 Vector3f dir = explosionArea.getCenter().sub(e.getAABB().getCenter(), new Vector3f()).normalize().mul(-1);
-                e.knockback(dir, 0.5f * strength);
+                e.knockback(dir, 0.5f * localStrength);
             }
         }
 
         for (Terrain terrain : getTerrains(explosionArea.toAABB())) {
+            float localStrength = Math.max(0f, 1f - (terrain.getAABB().getCenter().distanceSquared(center) / radiusSqr)) * strength;
             for (Collider<?> collider : terrain.getPreciseCollider()) {
-                if (collider.intersects(explosionArea)) {
+                if (collider.intersects(explosionArea) && terrain.explode(localStrength)) {
                     removeTerrain(terrain);
                     break;
                 }

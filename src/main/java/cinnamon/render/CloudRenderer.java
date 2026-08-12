@@ -59,8 +59,8 @@ public class CloudRenderer {
         return id;
     }
 
-    public static void renderClouds(Framebuffer targetBuffer, Camera camera, float deltaTime, Sky sky, float y, float coverage, float cloudScale) {
-        if (coverage <= 0f)
+    public static void renderClouds(Framebuffer targetBuffer, Camera camera, float deltaTime, Sky sky) {
+        if (sky.cloudCoverage <= 0f)
             return;
 
         cloudBuffer.resizeTo(targetBuffer);
@@ -84,11 +84,11 @@ public class CloudRenderer {
 
         s.setTexture("gDepth", targetBuffer.getDepthBuffer(), 2);
 
-        s.setFloat("noiseScale", cloudScale * 0.1f);
+        s.setFloat("noiseScale", sky.cloudScale * 0.1f);
         s.setFloat("cloudScale", 32f);
 
-        s.setVec3("cloudPos", camPos.x, y, camPos.z);
-        s.setFloat("cloudCoverage", coverage);
+        s.setVec3("cloudPos", camPos.x, sky.cloudHeight, camPos.z);
+        s.setFloat("cloudCoverage", sky.cloudCoverage);
 
         glDepthFunc(GL_ALWAYS);
         StaticGeometry.QUAD.render();

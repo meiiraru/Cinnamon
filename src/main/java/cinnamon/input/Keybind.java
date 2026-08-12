@@ -259,7 +259,7 @@ public class Keybind {
         }),
         SCANCODE(scancode -> {
             String glfwName = glfwGetKeyName(-1, scancode);
-            return glfwName != null ? Text.of(glfwName.toUpperCase()) : Text.translated("key.scancode." + scancode);
+            return glfwName != null ? Text.of(glfwName.toUpperCase()) : Text.translated("key.scancode", scancode + 1);
         }),
         MOUSE(button -> button < 3 ? Text.translated("key.mouse." + button) : Text.translated("key.mouse", button + 1)),
         GAMEPAD_BUTTON(button -> Text.translated("key.gamepad.button." + button)),

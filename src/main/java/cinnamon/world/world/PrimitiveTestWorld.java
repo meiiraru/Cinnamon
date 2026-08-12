@@ -223,7 +223,7 @@ public class PrimitiveTestWorld extends WorldClient {
 
     @Override
     public void renderWater(Camera camera, MatrixStack matrices, float delta) {
-        WaterRenderer.renderDefaultWaterPlane(camera, matrices, -0.02f, getSky().fogEnd);
+        WaterRenderer.renderWaterPlane(camera, matrices, -0.02f, getSky().fogEnd);
     }
 
     @Override
