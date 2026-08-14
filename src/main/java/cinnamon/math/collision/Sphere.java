@@ -201,6 +201,11 @@ public class Sphere extends Collider<Sphere> {
     }
 
     @Override
+    public boolean intersectsPlane(Plane plane) {
+        return plane.intersects(this);
+    }
+
+    @Override
     public Hit collideRay(Ray ray) {
         Vector3f dir = ray.getDirection();
         Vector3f origin = ray.getOrigin();
@@ -255,6 +260,12 @@ public class Sphere extends Collider<Sphere> {
     @Override
     public Collision collideOBB(OBB obb) {
         Collision col = obb.collideSphere(this);
+        return col != null ? col.invert() : null;
+    }
+
+    @Override
+    public Collision collidePlane(Plane plane) {
+        Collision col = plane.collide(this);
         return col != null ? col.invert() : null;
     }
 
@@ -473,6 +484,17 @@ public class Sphere extends Collider<Sphere> {
             normal.set(velocity).negate().normalize();
 
         return new Hit(hitPosition, normal, tHit, tMax, ray, obb);
+    }
+
+    @Override
+    public Hit sweepPlane(Plane plane, Vector3f velocity) {
+        Hit hit = plane.sweep(this, new Vector3f(velocity).negate());
+        if (hit == null) return null;
+
+        hit.normal().negate();
+        hit.ray().invert();
+        hit.position().add(velocity.x * hit.tNear(), velocity.y * hit.tNear(), velocity.z * hit.tNear());
+        return hit.setCollider(plane);
     }
 
     @Override

@@ -58,6 +58,10 @@ public class OBB extends Collider<OBB> {
         this.set(sphere);
     }
 
+    public OBB(Plane plane) {
+        this.set(plane);
+    }
+
     public OBB set(OBB obb) {
         this.setCenter(obb.center);
         this.setHalfExtents(obb.halfExtents);
@@ -81,6 +85,13 @@ public class OBB extends Collider<OBB> {
         Vector3f sCenter = sphere.getCenter();
         float r = sphere.getRadius();
         return this.set(sCenter.x, sCenter.y, sCenter.z, r, r, r);
+    }
+
+    public OBB set(Plane plane) {
+        Vector3f normal = plane.getNormal();
+        float d = plane.getDistance();
+        float ext = 1e3f / 2f;
+        return this.set(normal.x * d, normal.y * d, normal.z * d, ext, ext, ext);
     }
 
     public OBB set(Vector3f center, Vector3f halfExtents) {
@@ -483,6 +494,11 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
+    public boolean intersectsPlane(Plane plane) {
+        return plane.intersects(this);
+    }
+
+    @Override
     public Hit collideRay(Ray ray) {
         Vector3f dir = ray.getDirection();
         Vector3f origin = ray.getOrigin();
@@ -649,6 +665,12 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
+    public Collision collidePlane(Plane plane) {
+        Collision col = plane.collide(this);
+        return col != null ? col.invert() : null;
+    }
+
+    @Override
     public Hit sweepOBB(OBB obb, Vector3f velocity) {
         return SATHelper.SATSweep(this, obb,
                 new Vector3f[]{    getAxisX(),     getAxisY(),     getAxisZ()},
@@ -674,6 +696,17 @@ public class OBB extends Collider<OBB> {
         hit.ray().invert();
         hit.position().add(velocity.x * hit.tNear(), velocity.y * hit.tNear(), velocity.z * hit.tNear());
         return hit.setCollider(sphere);
+    }
+
+    @Override
+    public Hit sweepPlane(Plane plane, Vector3f velocity) {
+        Hit hit = plane.sweep(this, new Vector3f(velocity).negate());
+        if (hit == null) return null;
+
+        hit.normal().negate();
+        hit.ray().invert();
+        hit.position().add(velocity.x * hit.tNear(), velocity.y * hit.tNear(), velocity.z * hit.tNear());
+        return hit.setCollider(plane);
     }
 
     @Override

@@ -6,6 +6,7 @@ import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.OBB;
+import cinnamon.math.collision.Plane;
 import cinnamon.math.collision.Sphere;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
@@ -67,11 +68,26 @@ public class DebugRenderer {
         matrices.popMatrix();
     }
 
+    public static void renderPlane(MatrixStack matrices, Plane plane, int color) {
+        matrices.pushMatrix();
+
+        Vector3f normal = plane.getNormal();
+        Quaternionf rot = Maths.dirToQuat(normal);
+        matrices.rotate(rot);
+        matrices.rotate(Rotation.X.rotationDeg(90f));
+
+        float d = plane.getDistance();
+        VertexConsumer.LINES.consume(GeometryHelper.plane(matrices, -8, d, -8, 8, 8, 8, 8, color));
+
+        matrices.popMatrix();
+    }
+
     public static void renderShape(MatrixStack matrices, Collider<?> shape, int color) {
         switch (shape) {
             case Sphere sphere -> renderSphere(matrices, sphere, color);
             case AABB aabb -> renderAABB(matrices, aabb, color);
             case OBB obb -> renderOBB(matrices, obb, color);
+            case Plane plane -> renderPlane(matrices, plane, color);
             default -> {}
         }
     }

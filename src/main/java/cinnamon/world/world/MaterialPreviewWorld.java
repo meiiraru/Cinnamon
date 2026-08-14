@@ -14,6 +14,7 @@ import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.particle.TextParticle;
+import cinnamon.world.terrain.PlaneTerrain;
 import cinnamon.world.terrain.Terrain;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -61,6 +62,9 @@ public class MaterialPreviewWorld extends WorldClient {
             text.setMotion(0, 0, 0);
             addParticle(text);
         }
+
+        //ground plane
+        addTerrain(new PlaneTerrain(0, 1, 0, -3.25f));
     }
 
     @Override

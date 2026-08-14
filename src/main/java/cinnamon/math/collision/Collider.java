@@ -46,6 +46,7 @@ public abstract class Collider<T extends Collider<T>> {
             case Sphere sphere -> this.intersectsSphere(sphere);
             case AABB aabb -> this.intersectsAABB(aabb);
             case OBB obb -> this.intersectsOBB(obb);
+            case Plane plane -> this.intersectsPlane(plane);
             default -> throw new IllegalStateException();
         };
     }
@@ -53,6 +54,7 @@ public abstract class Collider<T extends Collider<T>> {
     public abstract boolean intersectsSphere(Sphere sphere);
     public abstract boolean intersectsAABB(AABB aabb);
     public abstract boolean intersectsOBB(OBB obb);
+    public abstract boolean intersectsPlane(Plane plane);
 
     public abstract Hit collideRay(Ray ray);
 
@@ -63,6 +65,7 @@ public abstract class Collider<T extends Collider<T>> {
             case Sphere sphere -> this.collideSphere(sphere);
             case AABB aabb -> this.collideAABB(aabb);
             case OBB obb -> this.collideOBB(obb);
+            case Plane plane -> this.collidePlane(plane);
             default -> throw new IllegalStateException();
         };
     }
@@ -70,12 +73,14 @@ public abstract class Collider<T extends Collider<T>> {
     public abstract Collision collideSphere(Sphere sphere);
     public abstract Collision collideAABB(AABB aabb);
     public abstract Collision collideOBB(OBB obb);
+    public abstract Collision collidePlane(Plane plane);
 
     public Hit sweep(Collider<?> other, Vector3f velocity) {
         return switch (other) {
             case Sphere sphere -> this.sweepSphere(sphere, velocity);
             case AABB aabb -> this.sweepAABB(aabb, velocity);
             case OBB obb -> this.sweepOBB(obb, velocity);
+            case Plane plane -> this.sweepPlane(plane, velocity);
             default -> throw new IllegalStateException();
         };
     }
@@ -83,4 +88,5 @@ public abstract class Collider<T extends Collider<T>> {
     public abstract Hit sweepSphere(Sphere sphere, Vector3f velocity);
     public abstract Hit sweepAABB(AABB aabb, Vector3f velocity);
     public abstract Hit sweepOBB(OBB obb, Vector3f velocity);
+    public abstract Hit sweepPlane(Plane plane, Vector3f velocity);
 }

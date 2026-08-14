@@ -82,6 +82,7 @@ import cinnamon.world.sky.Sky;
 import cinnamon.world.sky.SkyColors;
 import cinnamon.world.terrain.Button;
 import cinnamon.world.terrain.ConveyorBelt;
+import cinnamon.world.terrain.PlaneTerrain;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.Math;
@@ -322,6 +323,9 @@ public class WorldClient extends World {
             addEntity(b);
         });
         addTerrain(btn2);
+
+        //ground plane
+        addTerrain(new PlaneTerrain(0, 1, 0, 0.75f));
     }
 
     @Override

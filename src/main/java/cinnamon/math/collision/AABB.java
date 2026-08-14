@@ -49,6 +49,10 @@ public class AABB extends Collider<AABB> {
         this.set(sphere);
     }
 
+    public AABB(Plane plane) {
+        this.set(plane);
+    }
+
     public AABB set(AABB aabb) {
         return this.set(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
     }
@@ -72,6 +76,19 @@ public class AABB extends Collider<AABB> {
         Vector3f center = sphere.getCenter();
         float r = sphere.getRadius();
         return this.set(center.x - r, center.y - r, center.z - r, center.x + r, center.y + r, center.z + r);
+    }
+
+    public AABB set(Plane plane) {
+        Vector3f normal = plane.getNormal();
+        float distance = plane.getDistance();
+        float ext = 1e3f;
+        float minX = normal.x == 1 ? distance : normal.x == -1 ? -distance : -ext;
+        float maxX = normal.x == 1 ? distance : normal.x == -1 ? -distance :  ext;
+        float minY = normal.y == 1 ? distance : normal.y == -1 ? -distance : -ext;
+        float maxY = normal.y == 1 ? distance : normal.y == -1 ? -distance :  ext;
+        float minZ = normal.z == 1 ? distance : normal.z == -1 ? -distance : -ext;
+        float maxZ = normal.z == 1 ? distance : normal.z == -1 ? -distance :  ext;
+        return this.set(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
     public AABB set(Vector3f position) {
@@ -171,6 +188,11 @@ public class AABB extends Collider<AABB> {
     @Override
     public boolean intersectsOBB(OBB obb) {
         return obb.intersectsAABB(this);
+    }
+
+    @Override
+    public boolean intersectsPlane(Plane plane) {
+        return plane.intersects(this);
     }
 
     @Override
@@ -733,6 +755,12 @@ public class AABB extends Collider<AABB> {
     }
 
     @Override
+    public Collision collidePlane(Plane plane) {
+        Collision col = plane.collide(this);
+        return col != null ? col.invert() : null;
+    }
+
+    @Override
     public Hit sweepAABB(AABB aabb, Vector3f velocity) {
         if (velocity.lengthSquared() < Maths.SMALL_NUMBER)
             return null;
@@ -774,6 +802,18 @@ public class AABB extends Collider<AABB> {
         hit.ray().invert();
         hit.position().add(velocity.x * hit.tNear(), velocity.y * hit.tNear(), velocity.z * hit.tNear());
         return hit.setCollider(sphere);
+    }
+
+    @Override
+    public Hit sweepPlane(Plane plane, Vector3f velocity) {
+        Hit hit = plane.sweep(this, new Vector3f(velocity).negate());
+        if (hit == null)
+            return null;
+
+        hit.normal().negate();
+        hit.ray().invert();
+        hit.position().add(velocity.x * hit.tNear(), velocity.y * hit.tNear(), velocity.z * hit.tNear());
+        return hit.setCollider(plane);
     }
 
     @Override

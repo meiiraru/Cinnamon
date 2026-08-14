@@ -13,6 +13,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.terrain.PlaneTerrain;
 import cinnamon.world.terrain.PrimitiveTerrain;
 import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.Math;
@@ -33,8 +34,9 @@ public class CollisionWorld extends WorldClient {
     private final Sphere   sp = new Sphere(0, 9, 5, 1f);
     private final AABB     bb = new AABB(3, 3, 3, 7, 7, 7);
     private final OBB      ob = new OBB(5, 9.5f, 5, 0.5f, 0.5f, 0.5f).rotateZ(45f);
+    private final Plane    pl = new Plane(1, 0, 0, 2f);
 
-    private final Collider<?>[] shapes = new Collider[] {main, sp, bb, ob};
+    private final Collider<?>[] shapes = new Collider[] {main, sp, bb, ob, pl};
 
     @Override
     protected void levelLoad() {
@@ -102,6 +104,9 @@ public class CollisionWorld extends WorldClient {
         //wall
         TerrainGenerator.fill(this, 1, 1, 30, 18, 8, 30, debugMat);
         TerrainGenerator.fill(this, 1, 1, 22, 1, 8, 29, debugMat);
+
+        //ground plane
+        addTerrain(new PlaneTerrain(0, 1, 0, 0.75f));
     }
 
     @Override
@@ -124,6 +129,11 @@ public class CollisionWorld extends WorldClient {
         DebugRenderer.renderShape(matrices, sp, sp.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
         DebugRenderer.renderShape(matrices, bb, bb.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
         DebugRenderer.renderShape(matrices, ob, ob.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
+
+        matrices.pushMatrix();
+        matrices.translate(0, 5, 5);
+        DebugRenderer.renderShape(matrices, pl, pl.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
+        matrices.popMatrix();
 
         //raycast
         boolean hasHit = false;
