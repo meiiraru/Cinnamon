@@ -46,15 +46,15 @@ public class PrimitiveTestWorld extends WorldClient {
         float height = 5f;
 
         //floor
-        addTerrain(new PrimitiveTerrain(GeometryHelper.plane(client.matrices, 0f, 0f, 0f, width, len, 1, 1, Colors.DARK_GRAY.argb)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.plane(null, 0f, 0f, 0f, width, len, 1, 1, Colors.DARK_GRAY.argb)));
 
         //walls
         //back
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 0f, 0f, -0.5f, width, 1.5f, 0f, Colors.WHITE.argb)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, 0f, 0f, -0.5f, width, 1.5f, 0f, Colors.WHITE.argb)));
         //right
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, -0.5f, 0f, 0f, 0f, 1.5f, len, Colors.WHITE.argb)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -0.5f, 0f, 0f, 0f, 1.5f, len, Colors.WHITE.argb)));
         //end
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 0f, 0f, len, width, 1.5f, len + 0.5f, Colors.WHITE.argb)));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, 0f, 0f, len, width, 1.5f, len + 0.5f, Colors.WHITE.argb)));
 
         //pillars
         for (int i = 0; i <= len; i += 5) {
@@ -67,8 +67,8 @@ public class PrimitiveTestWorld extends WorldClient {
             }
 
             //upper pillars
-            addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 0f, 0f, z, 0.5f, y, z + 0.5f, Colors.WHITE.argb)));
-            addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, 0f, y, z, x, y + 0.5f, z + 0.5f, Colors.WHITE.argb)));
+            addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, 0f, 0f, z, 0.5f, y, z + 0.5f, Colors.WHITE.argb)));
+            addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, 0f, y, z, x, y + 0.5f, z + 0.5f, Colors.WHITE.argb)));
         }
 
         //rooms
@@ -78,16 +78,16 @@ public class PrimitiveTestWorld extends WorldClient {
         for (int i = 0; i < rooms; i++) {
             float z = i * roomSize;
             //left wall
-            addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, width * 0.8f, 0f, z, width, height, z + 1f, Colors.LIGHT_GRAY.argb)));
+            addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, width * 0.8f, 0f, z, width, height, z + 1f, Colors.LIGHT_GRAY.argb)));
             //right wall
-            addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, width * 0.8f, 0f, z + roomSize - 1f, width, height, z + roomSize, Colors.LIGHT_GRAY.argb)));
+            addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, width * 0.8f, 0f, z + roomSize - 1f, width, height, z + roomSize, Colors.LIGHT_GRAY.argb)));
             //back wall
-            addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, width, 0f, z, width + 1f, height, z + roomSize, Colors.LIGHT_GRAY.argb)));
+            addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, width, 0f, z, width + 1f, height, z + roomSize, Colors.LIGHT_GRAY.argb)));
             //ceiling
-            addTerrain(new PrimitiveTerrain(GeometryHelper.box(client.matrices, width / 2f, height, z, width, height + 0.5f, z + roomSize, Colors.LIGHT_GRAY.argb)));
+            addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, width / 2f, height, z, width, height + 0.5f, z + roomSize, Colors.LIGHT_GRAY.argb)));
 
             //carpet
-            PrimitiveTerrain carpet = new PrimitiveTerrain(GeometryHelper.plane(client.matrices, width / 2f, 0.01f, z + 1f, width, z + roomSize - 1f, 1, 1, Colors.RED.argb));
+            PrimitiveTerrain carpet = new PrimitiveTerrain(GeometryHelper.plane(null, width / 2f, 0.01f, z + 1f, width, z + roomSize - 1f, 1, 1, Colors.RED.argb));
             addTerrain(carpet);
             //carpet.getCollisionMask().setExcludeMask(0, true);
 
@@ -104,53 +104,53 @@ public class PrimitiveTestWorld extends WorldClient {
 
         //plane
         labels.add("Plane");
-        primitives.add(new PrimitiveTerrain(GeometryHelper.plane(client.matrices, cx - r, y, cz - r, cx + r, cz + r, 1, 1, Colors.WHITE.argb), false));
+        primitives.add(new PrimitiveTerrain(GeometryHelper.plane(null, cx - r, y, cz - r, cx + r, cz + r, 1, 1, Colors.WHITE.argb), false));
         cz += roomSize;
 
         //line
         labels.add("Line");
-        primitives.add(new PrimitiveTerrain(GeometryHelper.line(client.matrices, cx, y, cz - r - r, cx, y + r + r, cz + r + r, 0.1f, Colors.WHITE.argb), false));
-        primitives.add(new PrimitiveTerrain(GeometryHelper.line(client.matrices, cx - r - r, y + r + r, cz - r - r, cx + r + r, y + r * 3, cz + r + r, 0.1f, Colors.WHITE.argb), false));
+        primitives.add(new PrimitiveTerrain(GeometryHelper.line(null, cx, y, cz - r - r, cx, y + r + r, cz + r + r, 0.1f, Colors.WHITE.argb), false));
+        primitives.add(new PrimitiveTerrain(GeometryHelper.line(null, cx - r - r, y + r + r, cz - r - r, cx + r + r, y + r * 3, cz + r + r, 0.1f, Colors.WHITE.argb), false));
         cz += roomSize;
 
         //box
         labels.add("Box");
-        primitives.add(new PrimitiveTerrain(GeometryHelper.box(client.matrices, cx - r, y, cz - r, cx + r, y + r + r, cz + r, Colors.WHITE.argb), false));
+        primitives.add(new PrimitiveTerrain(GeometryHelper.box(null, cx - r, y, cz - r, cx + r, y + r + r, cz + r, Colors.WHITE.argb), false));
         cz += roomSize;
 
         //pyramid
         labels.add("Pyramid");
-        primitives.add(new PrimitiveTerrain(GeometryHelper.pyramid(client.matrices, cx - r, y, cz - r, cx + r, y + r + r, cz + r, c, Colors.WHITE.argb), false));
+        primitives.add(new PrimitiveTerrain(GeometryHelper.pyramid(null, cx - r, y, cz - r, cx + r, y + r + r, cz + r, c, Colors.WHITE.argb), false));
         cz += roomSize;
 
         //cone
         labels.add("Cone");
-        primitives.add(new PrimitiveTerrain(GeometryHelper.cone(client.matrices, cx, y, cz, r + r, r, q, p, c, Colors.WHITE.argb), false));
+        primitives.add(new PrimitiveTerrain(GeometryHelper.cone(null, cx, y, cz, r + r, r, q, p, c, Colors.WHITE.argb), false));
         cz += roomSize;
 
         //cylinder
         labels.add("Cylinder");
-        primitives.add(new PrimitiveTerrain(GeometryHelper.cylinder(client.matrices, cx, y, cz, r, r, r, q, p, c, Colors.WHITE.argb), false));
+        primitives.add(new PrimitiveTerrain(GeometryHelper.cylinder(null, cx, y, cz, r, r, r, q, p, c, Colors.WHITE.argb), false));
         cz += roomSize;
 
         //tube
         labels.add("Tube");
-        primitives.add(new PrimitiveTerrain(GeometryHelper.tube(client.matrices, cx, y, cz, r, r, r / 2f, q, p, c, Colors.WHITE.argb), false));
+        primitives.add(new PrimitiveTerrain(GeometryHelper.tube(null, cx, y, cz, r, r, r / 2f, q, p, c, Colors.WHITE.argb), false));
         cz += roomSize;
 
         //sphere
         labels.add("Sphere");
-        primitives.add(new PrimitiveTerrain(GeometryHelper.sphere(client.matrices, cx, y + r, cz, r, q, q, p, p, Colors.WHITE.argb), false));
+        primitives.add(new PrimitiveTerrain(GeometryHelper.sphere(null, cx, y + r, cz, r, q, q, p, p, Colors.WHITE.argb), false));
         cz += roomSize;
 
         //capsule
         labels.add("Capsule");
-        primitives.add(new PrimitiveTerrain(GeometryHelper.capsule(client.matrices, cx, y, cz, r * 3, r * 0.75f, q, q, p, Colors.WHITE.argb), false));
+        primitives.add(new PrimitiveTerrain(GeometryHelper.capsule(null, cx, y, cz, r * 3, r * 0.75f, q, q, p, Colors.WHITE.argb), false));
         cz += roomSize;
 
         //torus
         labels.add("Torus");
-        primitives.add(new PrimitiveTerrain(GeometryHelper.torus(client.matrices, cx, y + r / 2, cz, r * 1.5f, r / 2, q, q, p, p, Colors.WHITE.argb), false));
+        primitives.add(new PrimitiveTerrain(GeometryHelper.torus(null, cx, y + r / 2, cz, r * 1.5f, r / 2, q, q, p, p, Colors.WHITE.argb), false));
 
         //add primitives
         for (PrimitiveTerrain pt : primitives) {

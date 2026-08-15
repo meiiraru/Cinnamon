@@ -430,7 +430,7 @@ public class UIHelper {
         VertexConsumer.finishAllBatches(Client.getInstance().camera);
     }
 
-    public static void pushStencil(int x, int y, int width, int height) {
+    public static void pushStencil(float x, float y, float width, float height) {
         Vector4f rect;
         if (STENCIL_STACK.isEmpty()) {
             rect = new Vector4f(x, y, x + width, y + height);
@@ -449,7 +449,7 @@ public class UIHelper {
         prepareStencil(false, true);
         glDisable(GL_DEPTH_TEST);
 
-        Vertex[] quad = GeometryHelper.rectangle(Client.getInstance().matrices, rect.x, rect.y, rect.z, rect.w, 0xFFFFFFFF);
+        Vertex[] quad = GeometryHelper.rectangle(null, rect.x, rect.y, rect.z, rect.w, 0xFFFFFFFF);
         VertexConsumer.MAIN.consume(quad);
         VertexConsumer.MAIN.finishBatch(Client.getInstance().camera);
 

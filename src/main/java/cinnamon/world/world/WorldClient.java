@@ -299,7 +299,7 @@ public class WorldClient extends World {
             if (e instanceof LivingEntity living)
                 living.damage(null, DamageType.TERRAIN, 10, false);
         });
-        Vertex[][] spikes = GeometryHelper.cone(client.matrices, 32.5f, 1f, 0.5f, 1f, 0.5f, 12, 0xFFFF0000);
+        Vertex[][] spikes = GeometryHelper.cone(null, 32.5f, 1f, 0.5f, 1f, 0.5f, 12, 0xFFFF0000);
         trigger.addRenderFeature((src, camera, matrices, delta) -> VertexConsumer.WORLD_MAIN.consume(spikes));
         this.addEntity(trigger);
 

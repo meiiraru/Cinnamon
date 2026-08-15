@@ -87,6 +87,8 @@ public class Vertex {
     }
 
     public Vertex mul(MatrixStack matrices) {
+        if (matrices == null)
+            return this;
         MatrixStack.Pose mat = matrices.peek();
         return mulPosition(mat.pos()).mulNormal(mat.normal());
     }
@@ -98,6 +100,18 @@ public class Vertex {
 
     public Vertex mulNormal(Matrix3f mat) {
         normal.mul(mat);
+        return this;
+    }
+
+    public Vertex translate(float x, float y, float z) {
+        pos.add(x, y, z);
+        return this;
+    }
+
+    public Vertex rotate(Quaternionf rotation) {
+        pos.rotate(rotation);
+        normal.rotate(rotation);
+        tangent.rotate(rotation);
         return this;
     }
 

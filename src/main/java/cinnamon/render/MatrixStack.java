@@ -67,6 +67,11 @@ public class MatrixStack {
         return this;
     }
 
+    public MatrixStack set(Pose other) {
+        stack.peek().set(other);
+        return this;
+    }
+
     public MatrixStack mul(Matrix4f pos, Matrix3f normal) {
         stack.peek().mul(pos, normal);
         return this;

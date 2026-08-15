@@ -1,9 +1,9 @@
 package cinnamon.model;
 
 import cinnamon.math.Maths;
-import cinnamon.math.Rotation;
 import cinnamon.render.MatrixStack;
 import org.joml.Math;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class GeometryHelper {
@@ -161,30 +161,25 @@ public class GeometryHelper {
         return progressSquare(matrices, x, y, radius, 1f, color);
     }
 
+    //x, y, u, v
+    private static final float[] progressSquareMesh = new float[]{
+             0f, -1f, 0.5f, 0f  , //top center
+             1f, -1f, 1f  , 0f  , //top right
+             1f,  0f, 1f  , 0.5f, //center right
+             1f,  1f, 1f  , 1f  , //bottom right
+             0f,  1f, 0.5f, 1f  , //bottom center
+            -1f,  1f, 0f  , 1f  , //bottom left
+            -1f,  0f, 0f  , 0.5f, //center left
+            -1f, -1f, 0f  , 0f  , //top left
+    };
     public static Vertex[] progressSquare(MatrixStack matrices, float x, float y, float radius, float progress, int color) {
         //no progress, no vertices
         if (progress <= 0f)
             return new Vertex[0];
 
         //generate mesh
-        float x0 = x - radius;
-        float y0 = y - radius;
-        float x1 = x + radius;
-        float y1 = y + radius;
-
-        //x y u v
-        final float[][] mesh = new float[][]{
-                {x , y0, 0.5f, 0f  }, //top center
-                {x1, y0, 1f  , 0f  }, //top right
-                {x1, y , 1f  , 0.5f}, //center right
-                {x1, y1, 1f  , 1f  }, //bottom right
-                {x , y1, 0.5f, 1f  }, //bottom center
-                {x0, y1, 0f  , 1f  }, //bottom left
-                {x0, y , 0f  , 0.5f}, //center left
-                {x0, y0, 0f  , 0f  }, //top left
-        };
-
-        float max = mesh.length * progress;
+        int n = 8;
+        float max = n * progress;
 
         //top center and the actual center are always present
         int vertexCount = (int) Math.ceil(max) + 2;
@@ -193,7 +188,7 @@ public class GeometryHelper {
         //center vertices
         int j = vertexCount - 1;
         vertices[0] = new Vertex().pos(x, y, 0).uv(0.5f, 0.5f).color(color).mul(matrices);
-        vertices[j] = new Vertex().pos(x, y0, 0).uv(0.5f, 0f).color(color).mul(matrices);
+        vertices[j] = new Vertex().pos(x, y - radius, 0).uv(0.5f, 0f).color(color).mul(matrices);
 
         //generate the other vertices
         for (int i = 1; i < j; i++) {
@@ -201,17 +196,28 @@ public class GeometryHelper {
 
             //if were over the max, interpolate the position with the previous one
             if (i > max) {
-                float[] prev = mesh[(i - 1) % mesh.length];
-                float[] curr = mesh[i % mesh.length];
+                int prevNode = (i - 1) % n;
+                int currNode = i % n;
+                int prevIdx = prevNode * 4;
+                int currIdx = currNode * 4;
                 float t = max - (i - 1);
-                xx = Math.lerp(prev[0], curr[0], t);
-                yy = Math.lerp(prev[1], curr[1], t);
-                u  = Math.lerp(prev[2], curr[2], t);
-                v  = Math.lerp(prev[3], curr[3], t);
+
+                float prevX = x + radius * progressSquareMesh[prevIdx];
+                float prevY = y + radius * progressSquareMesh[prevIdx + 1];
+                float currX = x + radius * progressSquareMesh[currIdx];
+                float currY = y + radius * progressSquareMesh[currIdx + 1];
+
+                xx = Math.lerp(prevX, currX, t);
+                yy = Math.lerp(prevY, currY, t);
+                u  = Math.lerp(progressSquareMesh[prevIdx + 2], progressSquareMesh[currIdx + 2], t);
+                v  = Math.lerp(progressSquareMesh[prevIdx + 3], progressSquareMesh[currIdx + 3], t);
             } else {
                 //just grab the position as is
-                float[] pos = mesh[i % mesh.length];
-                xx = pos[0]; yy = pos[1]; u = pos[2]; v = pos[3];
+                int idx = (i % n) * 4;
+                xx = x + radius * progressSquareMesh[idx];
+                yy = y + radius * progressSquareMesh[idx + 1];
+                u  = progressSquareMesh[idx + 2];
+                v  = progressSquareMesh[idx + 3];
             }
 
             //backwards index
@@ -223,21 +229,23 @@ public class GeometryHelper {
     }
 
     public static Vertex[] line(MatrixStack matrices, float x0, float y0, float x1, float y1, float size, int color) {
-        matrices.pushMatrix();
-
         float dx = x1 - x0;
         float dy = y1 - y0;
         float len = Math.sqrt(dx * dx + dy * dy);
 
-        matrices.translate(x0, y0, 0);
-        matrices.rotate(Rotation.Z.rotationDeg(Maths.dirToRot(dx, dy)));
+        if (len <= 0f)
+            return new Vertex[0];
 
-        size *= 0.5f;
-        Vertex[] ret = rectangle(matrices, 0, -size, len, size, color);
+        float halfSize = size * 0.5f;
+        float nx = (-dy / len) * halfSize;
+        float ny = ( dx / len) * halfSize;
 
-        matrices.popMatrix();
-
-        return ret;
+        return new Vertex[]{
+                new Vertex().pos(x0 + nx, y0 + ny, 0).uv(0f, 1f).color(color).mul(matrices),
+                new Vertex().pos(x1 + nx, y1 + ny, 0).uv(1f, 1f).color(color).mul(matrices),
+                new Vertex().pos(x1 - nx, y1 - ny, 0).uv(1f, 0f).color(color).mul(matrices),
+                new Vertex().pos(x0 - nx, y0 - ny, 0).uv(0f, 0f).color(color).mul(matrices),
+        };
     }
 
     public static Vertex[] rectangle(MatrixStack matrices, float x0, float y0, float x1, float y1, int color) {
@@ -329,17 +337,18 @@ public class GeometryHelper {
         Vector3f diff = new Vector3f(x1 - x0, y1 - y0, z1 - z0);
         Vector3f dir = diff.normalize(new Vector3f());
 
-        //rotate matrices to align with direction
-        matrices.pushMatrix();
-        matrices.translate(x0, y0, z0);
-        matrices.rotate(Maths.dirToQuat(dir));
-
-        //create line as box
+        //create the line mesh aligned at the origin
         float w = width * 0.5f;
-        Vertex[][] line = box(matrices, -w, -w, 0, w, w, diff.length(), color);
+        Vertex[][] line = box(null, -w, -w, 0, w, w, diff.length(), color);
+
+        //apply the line transform to the mesh
+        Quaternionf rot = Maths.dirToQuat(dir);
+        for (Vertex[] face : line) {
+            for (Vertex v : face)
+                v.rotate(rot).translate(x0, y0, z0).mul(matrices);
+        }
 
         //return
-        matrices.popMatrix();
         return line;
     }
 

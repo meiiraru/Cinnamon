@@ -74,9 +74,12 @@ public class ContainerTabs extends ContainerGrid {
         UIHelper.nineQuad(VertexConsumer.MAIN, matrices, res, x + getWidth() - w, y, w, 20, 0f, 0f, 16, 16, 64, 16);
 
         //render children
-        UIHelper.pushStencil(getAlignedX(), getAlignedY(), getWidth(), getHeight());
+        boolean stencilNeeded = currentPage != -1 && pages.get(currentPage).getHeight() > getHeight() - getTabsYOffset();
+        if (stencilNeeded)
+            UIHelper.pushStencil(getAlignedX(), getAlignedY(), getWidth(), getHeight());
         super.renderWidgets(matrices, mouseX, mouseY, delta);
-        UIHelper.popStencil();
+        if (stencilNeeded)
+            UIHelper.popStencil();
     }
 
     public void addTab(Text label, Container page) {

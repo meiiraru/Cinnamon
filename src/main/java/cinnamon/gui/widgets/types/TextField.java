@@ -130,7 +130,6 @@ public class TextField extends SelectableWidget implements Tickable {
         if (!textOnly)
             renderBackground(matrices, mouseX, mouseY, delta);
 
-        UIHelper.pushStencil(getX() + 1, getY(), getWidth() - 2, getHeight());
         matrices.pushMatrix();
 
         //smooth and apply the offset
@@ -140,10 +139,9 @@ public class TextField extends SelectableWidget implements Tickable {
 
         if (!textOnly)
             matrices.translate(0, 0, UIHelper.getDepthOffset());
-        renderText(matrices, mouseX, mouseY, delta);
+        renderContent(matrices, mouseX, mouseY, delta);
 
         matrices.popMatrix();
-        UIHelper.popStencil();
 
         if (!textOnly)
             renderOverlay(matrices, mouseX, mouseY, delta);
@@ -178,7 +176,7 @@ public class TextField extends SelectableWidget implements Tickable {
         matrices.popMatrix();
     }
 
-    protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    protected void renderContent(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         int x = getX() + 2;
         int y = getCenterY() - Math.round(getSkin().getFont().lineHeight * 0.5f);
         int height = Math.round(getSkin().getFont().lineHeight) + 2;
@@ -213,20 +211,14 @@ public class TextField extends SelectableWidget implements Tickable {
             x0 += TextUtils.getWidth(index);
         }
 
-        //render cursor
-        renderCursor(matrices, x0, y - 1, height);
-
         //offset x1 based on the selected index
         //also generate the text with the style, but with inverted colors for the selection
-        if (selectedIndex != -1 && cursor != selectedIndex) {
+        boolean hasSelection = selectedIndex != -1 && cursor != selectedIndex;
+        if (hasSelection) {
             //x1 offset
             int extra = selectedIndex + getFormattingSkippedCharCount(selectedIndex);
             Text index = Text.of(str.substring(0, extra)).withStyle(textStyle);
             x1 += TextUtils.getWidth(index);
-
-            //render selection
-            renderSelection(matrices, x0, x1, y - 1, height);
-            matrices.translate(0, 0, UIHelper.getDepthOffset());
 
             //text
             int start = Math.min(skipped, extra);
@@ -242,8 +234,26 @@ public class TextField extends SelectableWidget implements Tickable {
             text = Text.of(str).withStyle(textStyle);
         }
 
+        //stencil test
+        boolean stencil = TextUtils.getWidth(text) > getWidth() - 2 || xAnim < -0.1f;
+        if (stencil)
+            UIHelper.pushStencil(getX() + 1, getY(), getWidth() - 2, getHeight());
+
+        //render cursor
+        renderCursor(matrices, x0, y - 1, height);
+
+        //render selection
+        if (hasSelection) {
+            renderSelection(matrices, x0, x1, y - 1, height);
+            matrices.translate(0, 0, UIHelper.getDepthOffset());
+        }
+
         //render text
-        text.render(VertexConsumer.MAIN, matrices, x, y);
+        renderText(matrices, text, x, y);
+
+        //pop stencil
+        if (stencil)
+            UIHelper.popStencil();
     }
 
     protected void renderCursor(MatrixStack matrices, float x, float y, float height) {
@@ -261,6 +271,10 @@ public class TextField extends SelectableWidget implements Tickable {
         x0 = Math.min(x0, x1);
         x1 = Math.max(t, x1);
         VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x0, y, x1, y + height, selectionColor == null ? getSkin().getInt("accent_color") : selectionColor));
+    }
+
+    protected void renderText(MatrixStack matrices, Text text, float x, float y) {
+        text.render(VertexConsumer.MAIN, matrices, x, y);
     }
 
 

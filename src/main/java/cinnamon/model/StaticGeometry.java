@@ -1,6 +1,5 @@
 package cinnamon.model;
 
-import cinnamon.Client;
 import cinnamon.render.shader.Attributes;
 import org.lwjgl.BufferUtils;
 
@@ -10,7 +9,9 @@ import java.util.List;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
+import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 public class StaticGeometry {
 
@@ -110,17 +111,17 @@ public class StaticGeometry {
 
 
     public static final StaticGeometry
-            QUAD = of(new Vertex[][]{GeometryHelper.invRectangle(Client.getInstance().matrices, -1f, -1f, 1f, 1f, 0f, 0xFFFFFFFF)},
+            QUAD = of(new Vertex[][]{GeometryHelper.invRectangle(null, -1f, -1f, 1f, 1f, 0f, 0xFFFFFFFF)},
                     Attributes.POS_XY, Attributes.UV, Attributes.NORMAL),
-            TRIANGLE = of(new Vertex[][]{GeometryHelper.invTriangle(Client.getInstance().matrices, -1f, -1f, 1f, 1f, 0f, 0xFFFFFFFF)},
+            TRIANGLE = of(new Vertex[][]{GeometryHelper.invTriangle(null, -1f, -1f, 1f, 1f, 0f, 0xFFFFFFFF)},
                     Attributes.POS_XY, Attributes.UV, Attributes.NORMAL),
-            CUBE = of(GeometryHelper.box(Client.getInstance().matrices, -1f, -1f, -1f, 1f, 1f, 1f, 0),
+            CUBE = of(GeometryHelper.box(null, -1f, -1f, -1f, 1f, 1f, 1f, 0),
                     Attributes.POS, Attributes.UV, Attributes.NORMAL),
-            INV_CUBE = of(GeometryHelper.box(Client.getInstance().matrices, 1f, 1f, 1f, -1f, -1f, -1f, 0),
+            INV_CUBE = of(GeometryHelper.box(null, 1f, 1f, 1f, -1f, -1f, -1f, 0),
                     Attributes.POS, Attributes.UV, Attributes.NORMAL),
-            SPHERE = of(GeometryHelper.sphere(Client.getInstance().matrices, 0f, 0f, 0f, 1f, 12, 0),
+            SPHERE = of(GeometryHelper.sphere(null, 0f, 0f, 0f, 1f, 12, 0),
                     Attributes.POS, Attributes.UV, Attributes.NORMAL),
-            CONE = of(GeometryHelper.cone(Client.getInstance().matrices, 0, -1f, 0, 1f, 1f, 12, 0),
+            CONE = of(GeometryHelper.cone(null, 0, -1f, 0, 1f, 1f, 12, 0),
                     Attributes.POS, Attributes.UV, Attributes.NORMAL);
 
     private static List<Vertex> unwarp(Vertex[] vertices) {
