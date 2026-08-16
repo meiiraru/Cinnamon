@@ -22,8 +22,8 @@ import org.joml.Vector3f;
 public class MaterialPreviewWorld extends WorldClient {
 
     private static final ModelRenderer
-            SPHERE = ModelManager.load(new Resource("models/terrain/sphere/sphere.obj")),
-            BOX = ModelManager.load(new Resource("models/terrain/box/box.obj"));
+            SPHERE = ModelManager.getRenderer(new Resource("models/terrain/sphere/sphere.obj")),
+            BOX = ModelManager.getRenderer(new Resource("models/terrain/box/box.obj"));
 
     @Override
     protected void levelLoad() {

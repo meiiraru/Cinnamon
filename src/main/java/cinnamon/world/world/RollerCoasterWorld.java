@@ -90,6 +90,8 @@ public class RollerCoasterWorld extends WorldClient {
 
     public void setCurve(Curve curve) throws Exception {
         //set model and path
+        if (model != null)
+            model.free();
         model = new ObjRenderer(CurveToMesh.generateMesh(curve, false, true));
         path = curve.getCurve().toArray(new Vector3f[0]);
 
@@ -113,7 +115,7 @@ public class RollerCoasterWorld extends WorldClient {
     public int renderTerrain(Camera camera, MatrixStack matrices, float delta) {
         int count = super.renderTerrain(camera, matrices, delta);
 
-        if (model != null) {
+        if (model != null && camera.isInsideFrustum(model.getAABB())) {
             model.render(matrices);
             count++;
         }

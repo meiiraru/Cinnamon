@@ -6,6 +6,7 @@ import cinnamon.model.obj.Group;
 import cinnamon.model.obj.Mesh;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
+import org.joml.Vector3f;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,6 +22,11 @@ import static java.lang.Integer.parseInt;
 
 public class ObjLoader {
 
+    private static final Vector3f bbMin = new Vector3f(Float.MAX_VALUE);
+    private static final Vector3f bbMax = new Vector3f(-Float.MAX_VALUE);
+    private static final Vector3f groupMin = new Vector3f(Float.MAX_VALUE);
+    private static final Vector3f groupMax = new Vector3f(-Float.MAX_VALUE);
+
     public static Mesh load(Resource res) throws IOException {
         LOGGER.debug("Loading model \"%s\"", res);
 
@@ -32,6 +38,11 @@ public class ObjLoader {
             Mesh theMesh = new Mesh();
             Group currentGroup = new Group("default");
             Material currentMaterial = null;
+
+            bbMin.set(Float.MAX_VALUE);
+            bbMax.set(-Float.MAX_VALUE);
+            groupMin.set(Float.MAX_VALUE);
+            groupMax.set(-Float.MAX_VALUE);
 
             for (String line; (line = br.readLine()) != null; ) {
                 //skip comments and empty lines
@@ -54,10 +65,7 @@ public class ObjLoader {
                     //group
                     case "g", "o" -> {
                         //add current group
-                        if (!currentGroup.isEmpty()) {
-                            currentGroup.setMaterial(currentMaterial);
-                            theMesh.getGroups().add(currentGroup);
-                        }
+                        addGroupToMesh(currentGroup, currentMaterial, theMesh);
 
                         //create new group
                         currentGroup = new Group(split[1]);
@@ -66,10 +74,7 @@ public class ObjLoader {
                     //group material
                     case "usemtl" -> {
                         //add current group
-                        if (!currentGroup.isEmpty()) {
-                            currentGroup.setMaterial(currentMaterial);
-                            theMesh.getGroups().add(currentGroup);
-                        }
+                        addGroupToMesh(currentGroup, currentMaterial, theMesh);
 
                         //new material
                         currentMaterial = theMesh.getMaterials().get(split[1]);
@@ -78,7 +83,15 @@ public class ObjLoader {
                     }
 
                     //vertex
-                    case "v" -> theMesh.getVertices().add(parseVec3(split[1], " +"));
+                    case "v" -> {
+                        Vector3f v = parseVec3(split[1], " +");
+                        theMesh.getVertices().add(v);
+
+                        bbMin.min(v);
+                        bbMax.max(v);
+                        groupMin.min(v);
+                        groupMax.max(v);
+                    }
 
                     //uv
                     case "vt" -> theMesh.getUVs().add(parseVec2(split[1], " +"));
@@ -92,14 +105,37 @@ public class ObjLoader {
             }
 
             //add last group to the mesh
-            if (!currentGroup.isEmpty()) {
-                currentGroup.setMaterial(currentMaterial);
-                theMesh.getGroups().add(currentGroup);
+            addGroupToMesh(currentGroup, currentMaterial, theMesh);
+
+            //set mesh bounding box
+            theMesh.getBounds().set(bbMin, bbMax);
+
+            //check for animations
+            Resource anim = res.resolveSibling("animations.json");
+            if (IOUtils.hasResource(anim)) {
+                try {
+                    theMesh.setAnimationData(AnimationLoader.load(anim));
+                } catch (Exception e) {
+                    LOGGER.error("Failed to load animations for model \"%s\"", res, e);
+                }
             }
 
             //return the mesh
             return theMesh;
         }
+    }
+
+    private static void addGroupToMesh(Group group, Material material, Mesh mesh) {
+        if (group.isEmpty())
+            return;
+
+        group.setMaterial(material);
+        group.getBounds().set(groupMin, groupMax);
+
+        mesh.getGroups().add(group);
+
+        groupMin.set(Float.MAX_VALUE);
+        groupMax.set(-Float.MAX_VALUE);
     }
 
     private static Face parseFace(String face, Mesh mesh) {

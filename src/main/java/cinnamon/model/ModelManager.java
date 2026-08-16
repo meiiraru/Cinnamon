@@ -1,71 +1,74 @@
 package cinnamon.model;
 
-import cinnamon.animation.Animation;
-import cinnamon.animation.Bone;
 import cinnamon.model.obj.Mesh;
-import cinnamon.parsers.AnimationLoader;
 import cinnamon.parsers.AssimpLoader;
 import cinnamon.parsers.ObjLoader;
 import cinnamon.render.model.AnimatedObjRenderer;
 import cinnamon.render.model.AssimpRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.model.ObjRenderer;
-import cinnamon.utils.IOUtils;
-import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static cinnamon.events.Events.LOGGER;
 
 public class ModelManager {
 
-    private static final Map<Resource, ModelRenderer> MODEL_MAP = new HashMap<>();
+    private static final Map<Resource, ModelRenderer> RENDERERS = new HashMap<>();
+    private static final Map<Resource, Mesh> MESHES = new HashMap<>();
 
-    public static ModelRenderer load(Resource resource) {
+    public static ModelRenderer getRenderer(Resource resource) {
         if (resource == null)
             return null;
 
-        ModelRenderer model = getCache(resource);
+        ModelRenderer model = getCachedRenderer(resource);
         if (model != null)
             return model instanceof AnimatedObjRenderer anim ? new AnimatedObjRenderer(anim) : model;
 
         //bake and cache
-        return cacheModel(resource, bakeModel(resource));
+        return cacheRenderer(resource, bakeModel(resource));
     }
 
-    public static ModelRenderer load(Resource resource, Mesh mesh) {
-        if (resource == null || mesh == null)
+    public static Mesh getMesh(Resource resource) {
+        if (resource == null)
             return null;
 
-        ModelRenderer model = getCache(resource);
-        if (model != null)
-            return model;
+        Mesh mesh = getCachedMesh(resource);
+        if (mesh != null)
+            return mesh;
 
-        //bake and cache
-        try {
-            model = new ObjRenderer(mesh);
-        } catch (Exception e) {
-            LOGGER.error("Failed to load model \"%s\"", resource, e);
-            return null;
-        }
-        return cacheModel(resource, model);
+        //cache and return
+        return cacheMesh(resource, loadMesh(resource));
+    }
+
+    public static boolean hasRenderer(Resource resource) {
+        return getCachedRenderer(resource) != null;
     }
 
     public static boolean hasModel(Resource resource) {
-        return getCache(resource) != null;
+        return getCachedMesh(resource) != null;
     }
 
-    private static ModelRenderer getCache(Resource resource) {
-        return resource == null ? null : MODEL_MAP.get(resource);
+    private static ModelRenderer getCachedRenderer(Resource resource) {
+        return resource == null ? null : RENDERERS.get(resource);
     }
 
-    private static ModelRenderer cacheModel(Resource resource, ModelRenderer model) {
+    private static Mesh getCachedMesh(Resource resource) {
+        return resource == null ? null : MESHES.get(resource);
+    }
+
+    private static ModelRenderer cacheRenderer(Resource resource, ModelRenderer model) {
         if (model != null)
-            MODEL_MAP.put(resource, model);
+            RENDERERS.put(resource, model);
         return model;
+    }
+
+    private static Mesh cacheMesh(Resource resource, Mesh mesh) {
+        if (mesh != null)
+            MESHES.put(resource, mesh);
+        return mesh;
     }
 
     private static ModelRenderer bakeModel(Resource resource) {
@@ -75,25 +78,13 @@ public class ModelManager {
             //check model type
             String extension = resource.getExtension();
             if (extension.equalsIgnoreCase("obj")) { //prefer built-in OBJ loader
-                Mesh mesh = ObjLoader.load(resource);
-                //load animations, if any
-                Resource anim = resource.resolveSibling("animations.json");
-                if (IOUtils.hasResource(anim)) {
-                    try {
-                        Pair<Bone, List<Animation>> animData = AnimationLoader.load(anim);
-                        model = new AnimatedObjRenderer(mesh, animData.first(), animData.second());
-                    } catch (Exception e) {
-                        LOGGER.error("Failed to load animations for model \"%s\"", resource, e);
-                        model = new ObjRenderer(mesh);
-                    }
-                } else {
-                    model = new ObjRenderer(mesh);
-                }
+                Mesh mesh = getMesh(resource);
+                model = mesh.getAnimationData() != null ? new AnimatedObjRenderer(mesh) : new ObjRenderer(mesh);
             //} else if (extension.equalsIgnoreCase("bbmodel")) { //blockbench model
             //    BBModelLoader.BBModelData modelData = BBModelLoader.load(resource);
             //    model = new AnimatedObjRenderer(modelData.mesh(), modelData.rootBone(), modelData.animations());
             } else { //otherwise use Assimp
-                model = new AssimpRenderer(AssimpLoader.load(resource));
+                model = new AssimpRenderer(AssimpLoader.load(resource)); //no cache for assimp models
             }
         } catch (Exception e) {
             LOGGER.error("Failed to load model \"%s\"", resource, e);
@@ -103,9 +94,19 @@ public class ModelManager {
         return model;
     }
 
+    private static Mesh loadMesh(Resource resource) {
+        try {
+            return ObjLoader.load(resource);
+        } catch (Exception e) {
+            LOGGER.error("Failed to load mesh \"%s\"", resource, e);
+            return null;
+        }
+    }
+
     public static void free() {
-        for (ModelRenderer value : MODEL_MAP.values())
+        for (ModelRenderer value : RENDERERS.values())
             value.free();
-        MODEL_MAP.clear();
+        RENDERERS.clear();
+        MESHES.clear();
     }
 }

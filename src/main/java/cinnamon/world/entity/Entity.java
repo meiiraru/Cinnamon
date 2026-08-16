@@ -65,7 +65,7 @@ public abstract class Entity extends WorldObject {
     protected final Controller controller = new Controller();
 
     public Entity(UUID uuid, Resource model) {
-        this.model = ModelManager.load(model);
+        this.model = ModelManager.getRenderer(model);
         this.uuid = uuid;
         this.addRenderFeature((source, camera, matrices, delta) -> {
             if (shouldRenderText(camera)) renderTexts(camera, matrices, delta);

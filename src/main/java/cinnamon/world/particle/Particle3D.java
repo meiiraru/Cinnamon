@@ -14,7 +14,7 @@ public class Particle3D extends Particle {
     public Particle3D(Resource model, int lifetime) {
         super(lifetime);
         this.billboard = false;
-        this.model = ModelManager.load(model);
+        this.model = ModelManager.getRenderer(model);
     }
 
     @Override

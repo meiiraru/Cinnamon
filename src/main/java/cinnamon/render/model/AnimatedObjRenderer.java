@@ -28,15 +28,11 @@ public class AnimatedObjRenderer extends ObjRenderer {
             this.animations.put(animation.getName(), new Animation(animation, boneMap));
     }
 
-    public AnimatedObjRenderer(Mesh mesh, Bone rootBone) {
-        this(mesh, rootBone, List.of());
-    }
-
-    public AnimatedObjRenderer(Mesh mesh, Bone rootBone, List<Animation> animations) {
+    public AnimatedObjRenderer(Mesh mesh) {
         super(mesh);
-        this.bone = rootBone;
+        this.bone = mesh.getAnimationData().first();
         this.animations = new HashMap<>();
-        for (Animation animation : animations)
+        for (Animation animation : mesh.getAnimationData().second())
             this.animations.put(animation.getName(), animation);
     }
 

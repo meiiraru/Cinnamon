@@ -143,7 +143,7 @@ public class XrRenderer {
         userPoses.clear();
         for (int i = 0; i < size; i++)
             userPoses.add(new XrHandTransform());
-        handModel = ModelManager.load(HAND_PATH);
+        handModel = ModelManager.getRenderer(HAND_PATH);
     }
 
     static void updateHand(int hand, XrHandTransform transform) {

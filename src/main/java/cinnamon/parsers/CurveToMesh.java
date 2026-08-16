@@ -61,6 +61,12 @@ public class CurveToMesh {
         boolean loop = curve.isLooping();
         int max = loop ? size - 1 : size;
 
+        if (max > 0) {
+            //add first bounding box point
+            mesh.getBounds().set(internal.getFirst());
+            group.getBounds().set(internal.getFirst());
+        }
+
         for (int i = 0; i < max; i++) {
             int j = (i + 1) % size;
 
@@ -90,6 +96,12 @@ public class CurveToMesh {
             int k = i * 2, l = j * 2, m = k + 1, n = l + 1;
             List<Integer> indexes = List.of(k, l, n, m);
             group.getFaces().add(new Face(indexes, indexes, indexes));
+
+            //bounding box
+            mesh.getBounds().include(a);
+            mesh.getBounds().include(b);
+            group.getBounds().include(a);
+            group.getBounds().include(b);
         }
 
         if (loop) {

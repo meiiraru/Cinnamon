@@ -1,6 +1,5 @@
 package cinnamon.render.model;
 
-import cinnamon.math.collision.AABB;
 import cinnamon.model.Vertex;
 import cinnamon.model.VertexHelper;
 import cinnamon.model.material.Material;
@@ -35,9 +34,6 @@ public class ObjRenderer extends ModelRenderer {
     }
 
     protected void bakeModel() {
-        Vector3f bbMin = new Vector3f(Integer.MAX_VALUE);
-        Vector3f bbMax = new Vector3f(Integer.MIN_VALUE);
-
         //grab mesh data
         List<Vector3f> vertices = mesh.getVertices();
         List<Vector2f> uvs = mesh.getUVs();
@@ -47,10 +43,6 @@ public class ObjRenderer extends ModelRenderer {
         for (Group group : mesh.getGroups()) {
             //vertex list and capacity
             List<Vertex> sortedVertices = new ArrayList<>();
-
-            //group min and max
-            Vector3f groupMin = new Vector3f(Integer.MAX_VALUE);
-            Vector3f groupMax = new Vector3f(Integer.MIN_VALUE);
 
             //iterate faces
             for (Face face : group.getFaces()) {
@@ -67,12 +59,6 @@ public class ObjRenderer extends ModelRenderer {
                     Vector3f a = vertices.get(v.get(i));
                     Vector2f b = !vt.isEmpty() ? uvs.get(vt.get(i)) : Vertex.DEFAULT_UV;
                     Vector3f c = !vn.isEmpty() ? normals.get(vn.get(i)) : Vertex.DEFAULT_NORMAL;
-
-                    //calculate min and max
-                    bbMin.min(a);
-                    bbMax.max(a);
-                    groupMin.min(a);
-                    groupMax.max(a);
 
                     //add to vertex list
                     data.add(new Vertex().pos(a).uv(b).normal(c));
@@ -102,7 +88,7 @@ public class ObjRenderer extends ModelRenderer {
             //generate uvs when missing
             if (uvs.isEmpty()) {
                 LOGGER.debug("Calculating uvs for group \"%s\"", group.getName());
-                VertexHelper.calculateUVs(groupMin, groupMax, sortedVertices);
+                VertexHelper.calculateUVs(group.getBounds().getMin(), group.getBounds().getMax(), sortedVertices);
             }
 
             //calculate tangents
@@ -112,7 +98,7 @@ public class ObjRenderer extends ModelRenderer {
             Pair<int[], List<Vertex>> indices = VertexHelper.stripIndices(sortedVertices);
 
             //create a new group with the OpenGL attributes
-            MeshData groupData = generateMesh(new AABB(groupMin, groupMax), indices.second(), indices.first(), group.getMaterial());
+            MeshData groupData = generateMesh(group.getBounds(), indices.second(), indices.first(), group.getMaterial());
 
             String groupName = group.getName();
             String newName = groupName;
@@ -122,7 +108,7 @@ public class ObjRenderer extends ModelRenderer {
             this.meshes.put(newName, groupData);
         }
 
-        this.aabb.set(bbMin, bbMax);
+        this.aabb.set(mesh.getBounds());
     }
 
     public Mesh getMesh() {

@@ -22,7 +22,7 @@ public abstract class Item {
         this.id = id;
         this.count = count;
         this.stackSize = stackSize;
-        this.model = ModelManager.load(model);
+        this.model = ModelManager.getRenderer(model);
     }
 
     public abstract Item copy();

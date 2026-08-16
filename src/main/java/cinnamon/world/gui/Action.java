@@ -163,7 +163,7 @@ public class Action {
 
     public Action setModel(Resource model, Material material) {
         this.model = model;
-        this.modelRenderer = ModelManager.load(model);
+        this.modelRenderer = ModelManager.getRenderer(model);
         this.modelMaterial = material;
         return this;
     }

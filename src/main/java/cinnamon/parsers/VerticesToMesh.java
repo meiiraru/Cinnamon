@@ -31,6 +31,11 @@ public class VerticesToMesh {
             group.setMaterial(material);
         }
 
+        if (vertices.length > 0 && vertices[0].length > 0) {
+            mesh.getBounds().set(vertices[0][0].getPos());
+            group.getBounds().set(vertices[0][0].getPos());
+        }
+
         List<Vector3f> positions = mesh.getVertices();
         List<Vector2f> uvs = mesh.getUVs();
         List<Vector3f> normals = mesh.getNormals();
@@ -55,6 +60,9 @@ public class VerticesToMesh {
                     normals.add(vertex.getNormal());
                     normIndices.add(normals.size() - 1);
                 }
+
+                mesh.getBounds().include(vertex.getPos());
+                group.getBounds().include(vertex.getPos());
             }
 
             Face face = new Face(posIndices, uvIndices, normIndices);

@@ -38,7 +38,7 @@ public class Terrain extends WorldObject {
 
     public Terrain(Resource model, TerrainRegistry type) {
         this.type = type;
-        this.model = ModelManager.load(model);
+        this.model = ModelManager.getRenderer(model);
     }
 
     @Override

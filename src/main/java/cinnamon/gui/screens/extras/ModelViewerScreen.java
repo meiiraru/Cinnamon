@@ -282,7 +282,7 @@ public class ModelViewerScreen extends ParentedScreen {
     }
 
     private boolean setModel(Resource model, String name) {
-        ModelRenderer renderer = ModelManager.load(model);
+        ModelRenderer renderer = ModelManager.getRenderer(model);
         if (renderer == null) {
             Toast.addToast(Text.translated("gui.model_viewer_screen.load_error")).type(Toast.ToastType.ERROR);
             return false;

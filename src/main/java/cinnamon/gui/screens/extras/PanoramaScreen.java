@@ -39,7 +39,7 @@ public class PanoramaScreen extends ParentedScreen {
 
     public PanoramaScreen(Screen parentScreen) {
         super(parentScreen);
-        sphere = ModelManager.load(MODEL);
+        sphere = ModelManager.getRenderer(MODEL);
     }
 
     @Override

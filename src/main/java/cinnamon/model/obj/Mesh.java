@@ -1,6 +1,10 @@
 package cinnamon.model.obj;
 
+import cinnamon.animation.Animation;
+import cinnamon.animation.Bone;
+import cinnamon.math.collision.AABB;
 import cinnamon.model.material.Material;
+import cinnamon.utils.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -26,6 +30,16 @@ public class Mesh {
     private final Map<String, Material>
             materials = new HashMap<>();
 
+    //bounding box
+    private final AABB bounds = new AABB();
+
+    //animations
+    private Pair<Bone, List<Animation>> animData;
+
+
+    // -- getters -- //
+
+
     public List<Vector3f> getVertices() {
         return vertices;
     }
@@ -44,5 +58,17 @@ public class Mesh {
 
     public Map<String, Material> getMaterials() {
         return materials;
+    }
+
+    public AABB getBounds() {
+        return bounds;
+    }
+
+    public Pair<Bone, List<Animation>> getAnimationData() {
+        return animData;
+    }
+
+    public void setAnimationData(Pair<Bone, List<Animation>> animData) {
+        this.animData = animData;
     }
 }

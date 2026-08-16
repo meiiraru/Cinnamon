@@ -1,5 +1,6 @@
 package cinnamon.model.obj;
 
+import cinnamon.math.collision.AABB;
 import cinnamon.model.material.Material;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ public class Group {
 
     private final String name;
     private final List<Face> faces = new ArrayList<>();
+    private final AABB bounds = new AABB();
 
     private Material material;
 
@@ -26,6 +28,10 @@ public class Group {
 
     public List<Face> getFaces() {
         return faces;
+    }
+
+    public AABB getBounds() {
+        return bounds;
     }
 
     public Material getMaterial() {
