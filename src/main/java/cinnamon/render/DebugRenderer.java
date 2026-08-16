@@ -3,11 +3,7 @@ package cinnamon.render;
 import cinnamon.Client;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
-import cinnamon.math.collision.AABB;
-import cinnamon.math.collision.Collider;
-import cinnamon.math.collision.OBB;
-import cinnamon.math.collision.Plane;
-import cinnamon.math.collision.Sphere;
+import cinnamon.math.collision.*;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.render.batch.VertexConsumer;
@@ -82,12 +78,35 @@ public class DebugRenderer {
         matrices.popMatrix();
     }
 
+    public static void renderMesh(MatrixStack matrices, MeshCollider mesh, int color) {
+        Vector3f[] vertices = mesh.getVertices();
+        for (int i = 0; i < vertices.length; i += 3) {
+            Vector3f a = vertices[i];
+            Vector3f b = vertices[i + 1];
+            Vector3f c = vertices[i + 2];
+
+            VertexConsumer.LINES.consume(new Vertex[]{
+                    new Vertex().pos(a.x, a.y, a.z).color(color).mul(matrices),
+                    new Vertex().pos(b.x, b.y, b.z).color(color).mul(matrices),
+                    new Vertex().pos(c.x, c.y, c.z).color(color).mul(matrices),
+            });
+        }
+
+        //Vector3f[] normals = mesh.getNormals();
+        //for (int i = 0; i < normals.length; i++) {
+        //    Vector3f n = normals[i];
+        //    Vector3f v = vertices[i * 3];
+        //    VertexConsumer.LINES.consume(GeometryHelper.line(matrices, v.x, v.y, v.z, v.x + n.x * 0.5f, v.y + n.y * 0.5f, v.z + n.z * 0.5f, 0.001f, color));
+        //}
+    }
+
     public static void renderShape(MatrixStack matrices, Collider<?> shape, int color) {
         switch (shape) {
             case Sphere sphere -> renderSphere(matrices, sphere, color);
             case AABB aabb -> renderAABB(matrices, aabb, color);
             case OBB obb -> renderOBB(matrices, obb, color);
             case Plane plane -> renderPlane(matrices, plane, color);
+            case MeshCollider mesh -> renderMesh(matrices, mesh, color);
             default -> {}
         }
     }

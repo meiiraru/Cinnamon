@@ -255,7 +255,7 @@ public class XrRenderer {
         //grab screen AABB in world space to raycast collision
         AABB screenAABB = new AABB(0, 0, -GUI_DISTANCE, 0, 0, -GUI_DISTANCE).inflate(GUI_WIDTH * 2f, GUI_HEIGHT * 2f, 0);
         Ray ray = new Ray(pos.x, pos.y, pos.z, dir.x, dir.y, dir.z, dir.length());
-        Hit result = screenAABB.collideRay(ray);
+        Hit result = ray.rayCast(screenAABB);
 
         //we got a collision! so undo the collided position back to screen space
         if (result != null) {

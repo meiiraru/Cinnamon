@@ -41,52 +41,76 @@ public abstract class Collider<T extends Collider<T>> {
     }
     public abstract Vector3f closestPoint(float x, float y, float z, Vector3f out);
 
+    public abstract void project(Vector3f axis, float[] minMax);
+
+
+    // -- tests -- //
+
+
+    public abstract Hit rayCast(Ray ray);
+
     public boolean intersects(Collider<?> other) {
         return switch (other) {
-            case Sphere sphere -> this.intersectsSphere(sphere);
-            case AABB aabb -> this.intersectsAABB(aabb);
-            case OBB obb -> this.intersectsOBB(obb);
-            case Plane plane -> this.intersectsPlane(plane);
-            default -> throw new IllegalStateException();
+            case Sphere sphere     -> this.intersects(sphere);
+            case AABB aabb         -> this.intersects(aabb);
+            case OBB obb           -> this.intersects(obb);
+            case Plane plane       -> this.intersects(plane);
+            case MeshCollider mesh -> this.intersects(mesh);
+            default -> throw new UnsupportedOperationException("Collider type not supported: " + other.getClass().getSimpleName());
         };
     }
 
-    public abstract boolean intersectsSphere(Sphere sphere);
-    public abstract boolean intersectsAABB(AABB aabb);
-    public abstract boolean intersectsOBB(OBB obb);
-    public abstract boolean intersectsPlane(Plane plane);
-
-    public abstract Hit collideRay(Ray ray);
-
-    public abstract void project(Vector3f axis, float[] minMax);
+    public abstract boolean intersects(Sphere sphere);
+    public abstract boolean intersects(AABB aabb);
+    public abstract boolean intersects(OBB obb);
+    public abstract boolean intersects(Plane plane);
+    public abstract boolean intersects(MeshCollider mesh);
 
     public Collision collide(Collider<?> other) {
         return switch (other) {
-            case Sphere sphere -> this.collideSphere(sphere);
-            case AABB aabb -> this.collideAABB(aabb);
-            case OBB obb -> this.collideOBB(obb);
-            case Plane plane -> this.collidePlane(plane);
-            default -> throw new IllegalStateException();
+            case Sphere sphere     -> this.collide(sphere);
+            case AABB aabb         -> this.collide(aabb);
+            case OBB obb           -> this.collide(obb);
+            case Plane plane       -> this.collide(plane);
+            case MeshCollider mesh -> this.collide(mesh);
+            default -> throw new UnsupportedOperationException("Collider type not supported: " + other.getClass().getSimpleName());
         };
     }
 
-    public abstract Collision collideSphere(Sphere sphere);
-    public abstract Collision collideAABB(AABB aabb);
-    public abstract Collision collideOBB(OBB obb);
-    public abstract Collision collidePlane(Plane plane);
+    public abstract Collision collide(Sphere sphere);
+    public abstract Collision collide(AABB aabb);
+    public abstract Collision collide(OBB obb);
+    public abstract Collision collide(Plane plane);
+    public abstract Collision collide(MeshCollider mesh);
+
+    protected Collision invertCollide(Collision result) {
+        return result != null ? result.invert() : null;
+    }
 
     public Hit sweep(Collider<?> other, Vector3f velocity) {
         return switch (other) {
-            case Sphere sphere -> this.sweepSphere(sphere, velocity);
-            case AABB aabb -> this.sweepAABB(aabb, velocity);
-            case OBB obb -> this.sweepOBB(obb, velocity);
-            case Plane plane -> this.sweepPlane(plane, velocity);
-            default -> throw new IllegalStateException();
+            case Sphere sphere     -> this.sweep(sphere, velocity);
+            case AABB aabb         -> this.sweep(aabb, velocity);
+            case OBB obb           -> this.sweep(obb, velocity);
+            case Plane plane       -> this.sweep(plane, velocity);
+            case MeshCollider mesh -> this.sweep(mesh, velocity);
+            default -> throw new UnsupportedOperationException("Collider type not supported: " + other.getClass().getSimpleName());
         };
     }
 
-    public abstract Hit sweepSphere(Sphere sphere, Vector3f velocity);
-    public abstract Hit sweepAABB(AABB aabb, Vector3f velocity);
-    public abstract Hit sweepOBB(OBB obb, Vector3f velocity);
-    public abstract Hit sweepPlane(Plane plane, Vector3f velocity);
+    public abstract Hit sweep(Sphere sphere, Vector3f velocity);
+    public abstract Hit sweep(AABB aabb, Vector3f velocity);
+    public abstract Hit sweep(OBB obb, Vector3f velocity);
+    public abstract Hit sweep(Plane plane, Vector3f velocity);
+    public abstract Hit sweep(MeshCollider mesh, Vector3f velocity);
+
+    protected Hit invertSweep(Hit result, Collider<?> collider, Vector3f velocity) {
+        if (result == null)
+            return null;
+
+        result.normal().negate();
+        result.ray().invert();
+        result.position().add(velocity.x * result.tNear(), velocity.y * result.tNear(), velocity.z * result.tNear());
+        return result.setCollider(collider);
+    }
 }

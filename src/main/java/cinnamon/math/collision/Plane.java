@@ -120,12 +120,12 @@ public class Plane extends Collider<Plane> {
     }
 
     @Override
-    public boolean intersectsSphere(Sphere sphere) {
+    public boolean intersects(Sphere sphere) {
         return normal.dot(sphere.getCenter()) - distance <= sphere.getRadius();
     }
 
     @Override
-    public boolean intersectsAABB(AABB aabb) {
+    public boolean intersects(AABB aabb) {
         float d = normal.dot(aabb.getCenter()) - distance;
         float r = aabb.getWidth()  * 0.5f * Math.abs(normal.x) +
                   aabb.getHeight() * 0.5f * Math.abs(normal.y) +
@@ -134,7 +134,7 @@ public class Plane extends Collider<Plane> {
     }
 
     @Override
-    public boolean intersectsOBB(OBB obb) {
+    public boolean intersects(OBB obb) {
         float d = normal.dot(obb.getCenter()) - distance;
         float r = obb.getHalfExtents().x * Math.abs(normal.dot(obb.getAxisX())) +
                   obb.getHalfExtents().y * Math.abs(normal.dot(obb.getAxisY())) +
@@ -143,7 +143,7 @@ public class Plane extends Collider<Plane> {
     }
 
     @Override
-    public boolean intersectsPlane(Plane plane) {
+    public boolean intersects(Plane plane) {
         float dot = normal.dot(plane.getNormal());
 
         //if the planes face opposite directions
@@ -157,7 +157,12 @@ public class Plane extends Collider<Plane> {
     }
 
     @Override
-    public Hit collideRay(Ray ray) {
+    public boolean intersects(MeshCollider mesh) {
+        return mesh.intersects(this);
+    }
+
+    @Override
+    public Hit rayCast(Ray ray) {
         float nd = normal.dot(ray.getDirection());
         if (nd >= -Maths.KINDA_SMALL_NUMBER)
             return null; //ray is parallel to the plane
@@ -187,7 +192,7 @@ public class Plane extends Collider<Plane> {
     }
 
     @Override
-    public Collision collideSphere(Sphere sphere) {
+    public Collision collide(Sphere sphere) {
         float d = normal.dot(sphere.getCenter()) - distance;
         if (d > sphere.getRadius())
             return null;
@@ -197,7 +202,7 @@ public class Plane extends Collider<Plane> {
     }
 
     @Override
-    public Collision collideAABB(AABB aabb) {
+    public Collision collide(AABB aabb) {
         float d = normal.dot(aabb.getCenter()) - distance;
         float r = aabb.getWidth()  * 0.5f * Math.abs(normal.x) +
                   aabb.getHeight() * 0.5f * Math.abs(normal.y) +
@@ -211,7 +216,7 @@ public class Plane extends Collider<Plane> {
     }
 
     @Override
-    public Collision collideOBB(OBB obb) {
+    public Collision collide(OBB obb) {
         float d = normal.dot(obb.getCenter()) - distance;
         float r = obb.getHalfExtents().x * Math.abs(normal.dot(obb.getAxisX())) +
                   obb.getHalfExtents().y * Math.abs(normal.dot(obb.getAxisY())) +
@@ -225,7 +230,7 @@ public class Plane extends Collider<Plane> {
     }
 
     @Override
-    public Collision collidePlane(Plane plane) {
+    public Collision collide(Plane plane) {
         float dot = normal.dot(plane.getNormal());
 
         if (dot < -0.999f) {
@@ -237,6 +242,11 @@ public class Plane extends Collider<Plane> {
 
         //infinite overlap for angled/same-direction planes
         return new Collision(new Vector3f(normal).negate(), Float.MAX_VALUE, this, plane);
+    }
+
+    @Override
+    public Collision collide(MeshCollider mesh) {
+        return invertCollide(mesh.collide(this));
     }
 
     private Hit sweepStaticPlane(Collider<?> shape, float r, Vector3f velocity) {
@@ -259,48 +269,33 @@ public class Plane extends Collider<Plane> {
     }
 
     @Override
-    public Hit sweepSphere(Sphere sphere, Vector3f velocity) {
+    public Hit sweep(Sphere sphere, Vector3f velocity) {
         Hit hit = sweepStaticPlane(sphere, sphere.getRadius(), new Vector3f(velocity).negate());
-        if (hit == null) return null;
-
-        hit.normal().negate();
-        hit.ray().invert();
-        hit.position().add(velocity.x * hit.tNear(), velocity.y * hit.tNear(), velocity.z * hit.tNear());
-        return hit.setCollider(sphere);
+        return invertSweep(hit, sphere, velocity);
     }
 
     @Override
-    public Hit sweepAABB(AABB aabb, Vector3f velocity) {
+    public Hit sweep(AABB aabb, Vector3f velocity) {
         float r = aabb.getWidth()  * 0.5f * Math.abs(normal.x) +
                   aabb.getHeight() * 0.5f * Math.abs(normal.y) +
                   aabb.getDepth()  * 0.5f * Math.abs(normal.z);
         Hit hit = sweepStaticPlane(aabb, r, new Vector3f(velocity).negate());
-        if (hit == null) return null;
-
-        hit.normal().negate();
-        hit.ray().invert();
-        hit.position().add(velocity.x * hit.tNear(), velocity.y * hit.tNear(), velocity.z * hit.tNear());
-        return hit.setCollider(aabb);
+        return invertSweep(hit, aabb, velocity);
     }
 
     @Override
-    public Hit sweepOBB(OBB obb, Vector3f velocity) {
+    public Hit sweep(OBB obb, Vector3f velocity) {
         float r = obb.getHalfExtents().x * Math.abs(normal.dot(obb.getAxisX())) +
                   obb.getHalfExtents().y * Math.abs(normal.dot(obb.getAxisY())) +
                   obb.getHalfExtents().z * Math.abs(normal.dot(obb.getAxisZ()));
         Hit hit = sweepStaticPlane(obb, r, new Vector3f(velocity).negate());
-        if (hit == null) return null;
-
-        hit.normal().negate();
-        hit.ray().invert();
-        hit.position().add(velocity.x * hit.tNear(), velocity.y * hit.tNear(), velocity.z * hit.tNear());
-        return hit.setCollider(obb);
+        return invertSweep(hit, obb, velocity);
     }
 
     @Override
-    public Hit sweepPlane(Plane plane, Vector3f velocity) {
+    public Hit sweep(Plane plane, Vector3f velocity) {
         //if they already intersect, a sweep does not trigger
-        if (intersectsPlane(plane))
+        if (intersects(plane))
             return null;
 
         //if they do not intersect, they must be opposite-facing with a gap
@@ -320,6 +315,12 @@ public class Plane extends Collider<Plane> {
         Vector3f hitPos = this.getCenter().fma(t, velocity, new Vector3f());
         Ray ray = new Ray(this.getCenter(), velocity, velocity.length());
         return new Hit(hitPos, hitNormal, t, t, ray, plane);
+    }
+
+    @Override
+    public Hit sweep(MeshCollider mesh, Vector3f velocity) {
+        Hit hit = mesh.sweep(this, new Vector3f(velocity).negate());
+        return invertSweep(hit, mesh, velocity);
     }
 
     @Override

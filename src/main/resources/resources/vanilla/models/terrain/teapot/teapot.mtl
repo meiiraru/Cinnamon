@@ -1,2 +1,4 @@
-newmtl teapot
+# Made in Blockbench 5.1.6
+newmtl m_20b528d0-e54d-ee22-b57a-857978418577
 map_Kd -smooth_mip teapot.png
+newmtl none

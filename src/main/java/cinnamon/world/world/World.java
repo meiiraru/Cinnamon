@@ -120,7 +120,7 @@ public abstract class World {
     public List<Entity> getEntities(Collider<?> region) {
         List<Entity> list = new ArrayList<>();
         for (Entity entity : entities.values()) {
-            if (region.intersectsAABB(entity.getAABB()))
+            if (region.intersects(entity.getAABB()))
                 list.add(entity);
         }
         return list;
@@ -184,7 +184,7 @@ public abstract class World {
             //loop through its groups AABBs
             for (Collider<?> collider : t.getPreciseCollider()) {
                 //check for collision
-                Hit result = collider.collideRay(ray);
+                Hit result = ray.rayCast(collider);
                 //store collision if it is closer than previous collision
                 if (result != null && (terrainColl == null || result.tNear() < terrainColl.tNear())) {
                     terrainColl = result;
@@ -210,7 +210,7 @@ public abstract class World {
                 continue;
 
             //check for collision
-            Hit result = e.getAABB().collideRay(ray);
+            Hit result = ray.rayCast(e.getAABB());
             //store collision if it is closer than previous collision
             if (result != null && (entityColl == null || result.tNear() < entityColl.tNear())) {
                 entityColl = result;

@@ -12,7 +12,6 @@ import cinnamon.input.Keybind;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.AABB;
-import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Sphere;
 import cinnamon.messages.MessageCategory;
@@ -328,6 +327,26 @@ public class WorldClient extends World {
         addTerrain(new PlaneTerrain(0, 1, 0, 0.75f));
     }
 
+    public void reconstructWorld() {
+        scheduledTicks.add(() -> {
+            //remove everything
+            for (Entity e : new ArrayList<>(entities.values())) {
+                if (e != player)
+                    e.remove();
+            }
+            entities.clear();
+            terrainManager.clear();
+            lights.clear();
+            particles.clear();
+            decals.clear();
+
+            //reload the level
+            addLight(sunlight);
+            addEntity(player);
+            levelLoad();
+        });
+    }
+
     @Override
     public void close() {
         SoundManager.stopAll(c -> c != SoundCategory.GUI && c != SoundCategory.MASTER);
@@ -564,8 +583,8 @@ public class WorldClient extends World {
 
         if (DebugScreen.isTabOpen(DebugScreen.Tab.TERRAIN)) {
             //octree
-            for (AABB aabb : terrainManager.getBounds())
-                DebugRenderer.renderAABB(matrices, aabb, 0xFF00FF00);
+            //for (AABB aabb : terrainManager.getBounds())
+            //    DebugRenderer.renderAABB(matrices, aabb, 0xFF00FF00);
 
             //terrain
             for (Terrain t : terrainManager.query(area))
@@ -645,9 +664,7 @@ public class WorldClient extends World {
             return;
 
         int alpha = (int) Math.lerp(0x32, 0xFF, (Math.sin((Client.getInstance().ticks + delta) * 0.15f) + 1f) * 0.5f);
-
-        for (Collider<?> collider : terrain.second().getPreciseCollider())
-            DebugRenderer.renderShape(matrices, collider, 0xFFFFFF + (alpha << 24));
+        terrain.second().renderTargeted(matrices, delta, 0xFFFFFF + (alpha << 24));
     }
 
     public Sky getSky() {
@@ -698,7 +715,7 @@ public class WorldClient extends World {
     public List<Light> getLights(AABB region) {
         List<Light> list = new ArrayList<>();
         for (Light light : this.lights) {
-            if (region.intersectsAABB(light.getAABB()))
+            if (region.intersects(light.getAABB()))
                 list.add(light);
         }
         return list;
@@ -707,7 +724,7 @@ public class WorldClient extends World {
     public List<Particle> getParticles(AABB region) {
         List<Particle> list = new ArrayList<>();
         for (Particle particle : this.particles) {
-            if (region.intersectsAABB(particle.getAABB()))
+            if (region.intersects(particle.getAABB()))
                 list.add(particle);
         }
         return list;

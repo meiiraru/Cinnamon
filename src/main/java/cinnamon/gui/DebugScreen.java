@@ -125,7 +125,7 @@ public class DebugScreen {
 
             switch (key) {
                 case GLFW_KEY_X -> XrManager.init();
-                case GLFW_KEY_L -> LoggerConfig.debugLogLevels(LOGGER);
+                case GLFW_KEY_K -> LoggerConfig.debugLogLevels(LOGGER);
                 case GLFW_KEY_R -> {
                     Client c = Client.getInstance();
                     c.queueTick(() -> {
@@ -176,10 +176,15 @@ public class DebugScreen {
                             MessageCategory.SYSTEM, null
                     );
                 }
+                case GLFW_KEY_L -> {
+                    Client c = Client.getInstance();
+                    if (c.world != null)
+                        c.world.reconstructWorld();
+                }
                 case GLFW_KEY_H -> MessageManager.addMessage(Text.of("""
                                 [Debug Help]
                                 &eF3 + &aX&r: Initialize XR system
-                                &eF3 + &aL&r: Test all loggers level
+                                &eF3 + &aK&r: Test all loggers level
                                 &eF3 + &aR&r: Rebuild the current screen
                                 &eF3 + &aT&r: Reload all assets
                                 &eF3 + &aQ&r: Return to original main menu
@@ -187,6 +192,7 @@ public class DebugScreen {
                                 &eF3 + &aC&r: Crash the game (10 second countdown)
                                 &eF3 + &aE&r: Copies the player looking entity UUID to clipboard
                                 &eF3 + &aP&r: Toggle pause on lost focus
+                                &eF3 + &aL&r: Reconstructs the current world
                                 &eF3 + &aH&r: Show this help message""").withStyle(Style.EMPTY.italic(false).color(0xFFFFFFFF)),
                         MessageCategory.SYSTEM, null
                 );

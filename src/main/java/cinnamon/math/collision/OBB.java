@@ -446,7 +446,7 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
-    public boolean intersectsSphere(Sphere sphere) {
+    public boolean intersects(Sphere sphere) {
         //move sphere center into OBB space
         Vector3f sphereCenter = sphere.getCenter();
         float dx = sphereCenter.x - center.x;
@@ -470,7 +470,7 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
-    public boolean intersectsAABB(AABB aabb) {
+    public boolean intersects(AABB aabb) {
         float hx = aabb.getWidth() * 0.5f;
         float hy = aabb.getHeight() * 0.5f;
         float hz = aabb.getDepth() * 0.5f;
@@ -486,7 +486,7 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
-    public boolean intersectsOBB(OBB obb) {
+    public boolean intersects(OBB obb) {
         return SATHelper.intersectsOBBSAT(
                     center,     halfExtents,     getAxisX(),     getAxisY(),     getAxisZ(),
                 obb.center, obb.halfExtents, obb.getAxisX(), obb.getAxisY(), obb.getAxisZ()
@@ -494,12 +494,17 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
-    public boolean intersectsPlane(Plane plane) {
+    public boolean intersects(Plane plane) {
         return plane.intersects(this);
     }
 
     @Override
-    public Hit collideRay(Ray ray) {
+    public boolean intersects(MeshCollider mesh) {
+        return mesh.intersects(this);
+    }
+
+    @Override
+    public Hit rayCast(Ray ray) {
         Vector3f dir = ray.getDirection();
         Vector3f origin = ray.getOrigin();
         Vector3f ax = getAxisX(), ay = getAxisY(), az = getAxisZ();
@@ -578,14 +583,12 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
-    public Collision collideAABB(AABB aabb) {
-        Collision col = aabb.collideOBB(this);
-        //reverse direction since calculation went from AABB to OBB
-        return col != null ? col.invert() : null;
+    public Collision collide(AABB aabb) {
+        return invertCollide(aabb.collide(this));
     }
 
     @Override
-    public Collision collideOBB(OBB obb) {
+    public Collision collide(OBB obb) {
         return SATHelper.SATCollide(this, obb,
                 new Vector3f[]{    getAxisX(),     getAxisY(),     getAxisZ()},
                 new Vector3f[]{obb.getAxisX(), obb.getAxisY(), obb.getAxisZ()}
@@ -593,7 +596,7 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
-    public Collision collideSphere(Sphere sphere) {
+    public Collision collide(Sphere sphere) {
         Vector3f sCenter = sphere.getCenter();
         float r = sphere.getRadius();
 
@@ -665,13 +668,17 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
-    public Collision collidePlane(Plane plane) {
-        Collision col = plane.collide(this);
-        return col != null ? col.invert() : null;
+    public Collision collide(Plane plane) {
+        return invertCollide(plane.collide(this));
     }
 
     @Override
-    public Hit sweepOBB(OBB obb, Vector3f velocity) {
+    public Collision collide(MeshCollider mesh) {
+        return invertCollide(mesh.collide(this));
+    }
+
+    @Override
+    public Hit sweep(OBB obb, Vector3f velocity) {
         return SATHelper.SATSweep(this, obb,
                 new Vector3f[]{    getAxisX(),     getAxisY(),     getAxisZ()},
                 new Vector3f[]{obb.getAxisX(), obb.getAxisY(), obb.getAxisZ()},
@@ -680,33 +687,26 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
-    public Hit sweepAABB(AABB aabb, Vector3f velocity) {
+    public Hit sweep(AABB aabb, Vector3f velocity) {
         return SATHelper.SATSweep(this, aabb, new Vector3f[]{getAxisX(), getAxisY(), getAxisZ()}, SATHelper.AABB_AXES, velocity);
     }
 
     @Override
-    public Hit sweepSphere(Sphere sphere, Vector3f velocity) {
-        //test the sphere against the OBB with inverted velocity
-        Hit hit = sphere.sweepOBB(this, new Vector3f(velocity).negate());
-        if (hit == null)
-            return null;
-
-        //invert the hit normal and collider then return
-        hit.normal().negate();
-        hit.ray().invert();
-        hit.position().add(velocity.x * hit.tNear(), velocity.y * hit.tNear(), velocity.z * hit.tNear());
-        return hit.setCollider(sphere);
+    public Hit sweep(Sphere sphere, Vector3f velocity) {
+        Hit hit = sphere.sweep(this, new Vector3f(velocity).negate());
+        return invertSweep(hit, sphere, velocity);
     }
 
     @Override
-    public Hit sweepPlane(Plane plane, Vector3f velocity) {
+    public Hit sweep(Plane plane, Vector3f velocity) {
         Hit hit = plane.sweep(this, new Vector3f(velocity).negate());
-        if (hit == null) return null;
+        return invertSweep(hit, plane, velocity);
+    }
 
-        hit.normal().negate();
-        hit.ray().invert();
-        hit.position().add(velocity.x * hit.tNear(), velocity.y * hit.tNear(), velocity.z * hit.tNear());
-        return hit.setCollider(plane);
+    @Override
+    public Hit sweep(MeshCollider mesh, Vector3f velocity) {
+        Hit hit = mesh.sweep(this, new Vector3f(velocity).negate());
+        return invertSweep(hit, mesh, velocity);
     }
 
     @Override

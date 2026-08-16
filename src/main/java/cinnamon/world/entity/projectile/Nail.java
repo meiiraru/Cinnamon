@@ -47,7 +47,7 @@ public class Nail extends Projectile {
             AABB bb = getAABB();
             for (Terrain terrain : getWorld().getTerrains(getAABB())) {
                 for (Collider<?> collider : terrain.getPreciseCollider()) {
-                    if (collider.intersectsAABB(bb))
+                    if (collider.intersects(bb))
                         return;
                 }
             }

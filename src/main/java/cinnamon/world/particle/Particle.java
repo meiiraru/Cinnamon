@@ -175,7 +175,7 @@ public abstract class Particle extends WorldObject {
     protected boolean collideEntities() {
         AABB aabb = getAABB();
         for (Entity entity : world.getEntities(aabb)) {
-            if (entity instanceof PhysEntity && aabb.intersectsAABB(entity.getAABB()))
+            if (entity instanceof PhysEntity && aabb.intersects(entity.getAABB()))
                 return true;
         }
 

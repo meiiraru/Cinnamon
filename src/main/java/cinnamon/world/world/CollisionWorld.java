@@ -4,17 +4,23 @@ import cinnamon.Client;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.*;
 import cinnamon.model.GeometryHelper;
+import cinnamon.model.ModelManager;
 import cinnamon.model.Vertex;
 import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
+import cinnamon.registry.TerrainModelRegistry;
+import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.terrain.Button;
+import cinnamon.world.terrain.MeshTerrain;
 import cinnamon.world.terrain.PlaneTerrain;
 import cinnamon.world.terrain.PrimitiveTerrain;
+import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.Math;
 import org.joml.Quaternionf;
@@ -35,8 +41,9 @@ public class CollisionWorld extends WorldClient {
     private final AABB     bb = new AABB(3, 3, 3, 7, 7, 7);
     private final OBB      ob = new OBB(5, 9.5f, 5, 0.5f, 0.5f, 0.5f).rotateZ(45f);
     private final Plane    pl = new Plane(1, 0, 0, 2f);
+    private final MeshCollider mc = new MeshCollider(ModelManager.getMesh(TerrainModelRegistry.TEAPOT.resource)).translate(3.15f, 8.75f, 5.5f).rotateY(45f);
 
-    private final Collider<?>[] shapes = new Collider[] {main, sp, bb, ob, pl};
+    private final Collider<?>[] shapes = new Collider[] {main, sp, bb, ob, pl, mc};
 
     @Override
     protected void levelLoad() {
@@ -105,6 +112,23 @@ public class CollisionWorld extends WorldClient {
         TerrainGenerator.fill(this, 1, 1, 30, 18, 8, 30, debugMat);
         TerrainGenerator.fill(this, 1, 1, 22, 1, 8, 29, debugMat);
 
+        //teapot
+        Terrain teapot = new MeshTerrain(TerrainModelRegistry.TEAPOT.resource, TerrainRegistry.CUSTOM);
+        teapot.setPos(-3, 1f, 3);
+        teapot.setRotation(0, 45, 0);
+        addTerrain(teapot);
+
+        //debug button
+        Terrain slab = TerrainRegistry.SLAB.getFactory().get();
+        slab.setPos(-6f, 1f, 23f);
+        addTerrain(slab);
+
+        Button btt = new Button();
+        btt.setPos(-6f, 1.5f, 23f);
+        btt.setOnPress(e -> showDebug = true);
+        btt.setOnRelease(e -> showDebug = false);
+        addTerrain(btt);
+
         //ground plane
         addTerrain(new PlaneTerrain(0, 1, 0, 0.75f));
     }
@@ -135,10 +159,12 @@ public class CollisionWorld extends WorldClient {
         DebugRenderer.renderShape(matrices, pl, pl.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
         matrices.popMatrix();
 
+        DebugRenderer.renderShape(matrices, mc, mc.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
+
         //raycast
         boolean hasHit = false;
         for (Collider<?> s : shapes) {
-            Hit hit = s.collideRay(ray);
+            Hit hit = ray.rayCast(s);
             if (hit != null) {
                 hasHit = true;
 
@@ -184,8 +210,6 @@ public class CollisionWorld extends WorldClient {
         if (action == GLFW.GLFW_PRESS) {
             if (key == GLFW.GLFW_KEY_F)
                 autoRay = !autoRay;
-            else if (key == GLFW.GLFW_KEY_G)
-                showDebug = !showDebug;
         }
     }
 
@@ -227,6 +251,7 @@ public class CollisionWorld extends WorldClient {
         public void calculateBounds() {
             if (this.obb != null)
                 this.aabb.set(obb);
+            updateTerrainInWorld();
         }
     }
 }

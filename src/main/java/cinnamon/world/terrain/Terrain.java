@@ -66,6 +66,11 @@ public class Terrain extends WorldObject {
             DebugRenderer.renderShape(matrices, collider, 0xFFFF00FF);
     }
 
+    public void renderTargeted(MatrixStack matrices, float delta, int color) {
+        for (Collider<?> collider : getPreciseCollider())
+            DebugRenderer.renderShape(matrices, collider, color);
+    }
+
     @Override
     public void calculateBounds() {
         Matrix4f mat = new Matrix4f().translate(0.5f, 0f, 0.5f).mul(transform.getMatrix().pos());

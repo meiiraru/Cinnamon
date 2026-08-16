@@ -53,6 +53,10 @@ public class AABB extends Collider<AABB> {
         this.set(plane);
     }
 
+    public AABB(Ray ray) {
+        this.set(ray);
+    }
+
     public AABB set(AABB aabb) {
         return this.set(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
     }
@@ -89,6 +93,18 @@ public class AABB extends Collider<AABB> {
         float minZ = normal.z == 1 ? distance : normal.z == -1 ? -distance : -ext;
         float maxZ = normal.z == 1 ? distance : normal.z == -1 ? -distance :  ext;
         return this.set(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
+    public AABB set(Ray ray) {
+        Vector3f origin = ray.getOrigin();
+        Vector3f dir = ray.getDirection();
+        float maxDist = ray.getMaxDistance();
+
+        float endX = origin.x + dir.x * maxDist;
+        float endY = origin.y + dir.y * maxDist;
+        float endZ = origin.z + dir.z * maxDist;
+
+        return this.set(origin.x, origin.y, origin.z, endX, endY, endZ);
     }
 
     public AABB set(Vector3f position) {
@@ -169,7 +185,7 @@ public class AABB extends Collider<AABB> {
     }
 
     @Override
-    public boolean intersectsSphere(Sphere sphere) {
+    public boolean intersects(Sphere sphere) {
         Vector3f center = sphere.getCenter();
         float radius = sphere.getRadius();
 
@@ -181,22 +197,27 @@ public class AABB extends Collider<AABB> {
     }
 
     @Override
-    public boolean intersectsAABB(AABB other) {
+    public boolean intersects(AABB other) {
         return intersectsX(other.minX, other.maxX) && intersectsY(other.minY, other.maxY) && intersectsZ(other.minZ, other.maxZ);
     }
 
     @Override
-    public boolean intersectsOBB(OBB obb) {
-        return obb.intersectsAABB(this);
+    public boolean intersects(OBB obb) {
+        return obb.intersects(this);
     }
 
     @Override
-    public boolean intersectsPlane(Plane plane) {
+    public boolean intersects(Plane plane) {
         return plane.intersects(this);
     }
 
     @Override
-    public Hit collideRay(Ray ray) {
+    public boolean intersects(MeshCollider mesh) {
+        return mesh.intersects(this);
+    }
+
+    @Override
+    public Hit rayCast(Ray ray) {
         Vector3f dir = ray.getDirection();
         Vector3f origin = ray.getOrigin();
 
@@ -675,7 +696,7 @@ public class AABB extends Collider<AABB> {
     }
 
     @Override
-    public Collision collideAABB(AABB aabb) {
+    public Collision collide(AABB aabb) {
         float dx = Math.min(this.maxX, aabb.maxX) - Math.max(this.minX, aabb.minX);
         float dy = Math.min(this.maxY, aabb.maxY) - Math.max(this.minY, aabb.minY);
         float dz = Math.min(this.maxZ, aabb.maxZ) - Math.max(this.minZ, aabb.minZ);
@@ -701,12 +722,12 @@ public class AABB extends Collider<AABB> {
     }
 
     @Override
-    public Collision collideOBB(OBB obb) {
+    public Collision collide(OBB obb) {
         return SATHelper.SATCollide(this, obb, SATHelper.AABB_AXES, new Vector3f[]{obb.getAxisX(), obb.getAxisY(), obb.getAxisZ()});
     }
 
     @Override
-    public Collision collideSphere(Sphere sphere) {
+    public Collision collide(Sphere sphere) {
         Vector3f sCenter = sphere.getCenter();
         float r = sphere.getRadius();
 
@@ -755,13 +776,17 @@ public class AABB extends Collider<AABB> {
     }
 
     @Override
-    public Collision collidePlane(Plane plane) {
-        Collision col = plane.collide(this);
-        return col != null ? col.invert() : null;
+    public Collision collide(Plane plane) {
+        return invertCollide(plane.collide(this));
     }
 
     @Override
-    public Hit sweepAABB(AABB aabb, Vector3f velocity) {
+    public Collision collide(MeshCollider mesh) {
+        return invertCollide(mesh.collide(this));
+    }
+
+    @Override
+    public Hit sweep(AABB aabb, Vector3f velocity) {
         if (velocity.lengthSquared() < Maths.SMALL_NUMBER)
             return null;
 
@@ -775,7 +800,7 @@ public class AABB extends Collider<AABB> {
 
         AABB sweep = new AABB(aabb).inflate(hx, hy, hz);
         Ray ray = new Ray(cx, cy, cz, velocity.x, velocity.y, velocity.z, velocity.length());
-        Hit hit = sweep.collideRay(ray);
+        Hit hit = sweep.rayCast(ray);
 
         if (hit == null) return null;
 
@@ -786,34 +811,26 @@ public class AABB extends Collider<AABB> {
     }
 
     @Override
-    public Hit sweepOBB(OBB obb, Vector3f velocity) {
+    public Hit sweep(OBB obb, Vector3f velocity) {
         return SATHelper.SATSweep(this, obb, SATHelper.AABB_AXES, new Vector3f[]{obb.getAxisX(), obb.getAxisY(), obb.getAxisZ()}, velocity);
     }
 
     @Override
-    public Hit sweepSphere(Sphere sphere, Vector3f velocity) {
-        //test the sphere against the AABB with inverted velocity
-        Hit hit = sphere.sweepAABB(this, new Vector3f(velocity).negate());
-        if (hit == null)
-            return null;
-
-        //invert the hit normal and collider then return
-        hit.normal().negate();
-        hit.ray().invert();
-        hit.position().add(velocity.x * hit.tNear(), velocity.y * hit.tNear(), velocity.z * hit.tNear());
-        return hit.setCollider(sphere);
+    public Hit sweep(Sphere sphere, Vector3f velocity) {
+        Hit hit = sphere.sweep(this, new Vector3f(velocity).negate());
+        return invertSweep(hit, sphere, velocity);
     }
 
     @Override
-    public Hit sweepPlane(Plane plane, Vector3f velocity) {
+    public Hit sweep(Plane plane, Vector3f velocity) {
         Hit hit = plane.sweep(this, new Vector3f(velocity).negate());
-        if (hit == null)
-            return null;
+        return invertSweep(hit, plane, velocity);
+    }
 
-        hit.normal().negate();
-        hit.ray().invert();
-        hit.position().add(velocity.x * hit.tNear(), velocity.y * hit.tNear(), velocity.z * hit.tNear());
-        return hit.setCollider(plane);
+    @Override
+    public Hit sweep(MeshCollider mesh, Vector3f velocity) {
+        Hit hit = mesh.sweep(this, new Vector3f(velocity).negate());
+        return invertSweep(hit, mesh, velocity);
     }
 
     @Override

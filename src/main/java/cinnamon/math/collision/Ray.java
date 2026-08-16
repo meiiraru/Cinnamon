@@ -71,7 +71,7 @@ public class Ray {
         return this;
     }
 
-    public static Hit collide(Ray ray, Collider<?> shape) {
-        return ray.maxDistance >= Maths.SMALL_NUMBER ? shape.collideRay(ray) : null;
+    public Hit rayCast(Collider<?> shape) {
+        return this.maxDistance >= Maths.SMALL_NUMBER ? shape.rayCast(this) : null;
     }
 }

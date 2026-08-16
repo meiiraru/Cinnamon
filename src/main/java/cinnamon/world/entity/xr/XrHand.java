@@ -30,7 +30,7 @@ public class XrHand extends PhysEntity {
     @Override
     public void preTick() {
         super.preTick();
-        if (!isGrabbing && targetEntity != null && !targetEntity.getAABB().intersectsAABB(getAABB()))
+        if (!isGrabbing && targetEntity != null && !targetEntity.getAABB().intersects(getAABB()))
             targetEntity = null;
     }
 

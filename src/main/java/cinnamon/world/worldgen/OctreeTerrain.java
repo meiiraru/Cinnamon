@@ -138,7 +138,7 @@ public class OctreeTerrain extends TerrainManager {
 
         public boolean insert(Terrain terrain) {
             //not inside bounds, skip
-            if (!bounds.intersectsAABB(terrain.getAABB()))
+            if (!bounds.intersects(terrain.getAABB()))
                 return false;
 
             //if we have no children, we can add the terrain directly
@@ -183,12 +183,12 @@ public class OctreeTerrain extends TerrainManager {
 
         public int clearRegion(AABB region) {
             //not in region, skip
-            if (!bounds.intersectsAABB(region))
+            if (!bounds.intersects(region))
                 return 0;
 
             //remove all terrain that intersects with the region
             int prev = contents.size();
-            contents.removeIf(terrain -> terrain.getAABB().intersectsAABB(region));
+            contents.removeIf(terrain -> terrain.getAABB().intersects(region));
             int removed = prev - contents.size();
 
             //including children
@@ -235,13 +235,13 @@ public class OctreeTerrain extends TerrainManager {
 
         public void query(AABB region, List<Terrain> result) {
             //failed the bounds check, skip
-            if (!bounds.intersectsAABB(region))
+            if (!bounds.intersects(region))
                 return;
 
             //try adding all terrain from this node
             //and check for the terrain bounds
             for (Terrain terrain : contents)
-                if (terrain.getAABB().intersectsAABB(region))
+                if (terrain.getAABB().intersects(region))
                     result.add(terrain);
 
             //add from children

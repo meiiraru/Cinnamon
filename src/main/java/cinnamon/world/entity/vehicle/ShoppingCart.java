@@ -26,7 +26,7 @@ public class ShoppingCart extends Car {
     @Override
     protected void collideEntity(PhysEntity entity, Hit result, Vector3f toMove) {
         if (entity instanceof ShoppingCart) {
-            if (this.getAABB().intersectsAABB(entity.getAABB()))
+            if (this.getAABB().intersects(entity.getAABB()))
                 return;
 
             if (!this.getRiders().isEmpty() && entity.getRiders().isEmpty()) {

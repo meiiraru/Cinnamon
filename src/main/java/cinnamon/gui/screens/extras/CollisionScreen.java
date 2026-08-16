@@ -218,7 +218,7 @@ public class CollisionScreen extends ParentedScreen {
 
         //collision
         Ray ray = new Ray(rayPos.x, rayPos.y, z, len.x, len.y, len.z, len.length());
-        Hit hit = player.collideRay(ray);
+        Hit hit = ray.rayCast(player);
         boolean collided = hit != null;
 
         //draw line

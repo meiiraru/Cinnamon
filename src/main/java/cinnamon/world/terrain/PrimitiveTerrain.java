@@ -69,6 +69,7 @@ public class PrimitiveTerrain extends Terrain {
         }
 
         this.aabb.set(minX, minY, minZ, maxX, maxY, maxZ);
+        updateTerrainInWorld();
     }
 
     public Vertex[][] getVertices() {

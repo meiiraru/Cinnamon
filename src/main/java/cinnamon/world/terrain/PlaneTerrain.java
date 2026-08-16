@@ -24,6 +24,7 @@ public class PlaneTerrain extends Terrain {
         aabb.set(plane.toAABB());
         preciseCollider.clear();
         preciseCollider.add(plane);
+        updateTerrainInWorld();
     }
 
     @Override
