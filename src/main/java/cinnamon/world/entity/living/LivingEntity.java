@@ -258,6 +258,16 @@ public abstract class LivingEntity extends PhysEntity {
         return 1f;
     }
 
+    @Override
+    protected float getClimbableSlopeAngle() {
+        return 45f;
+    }
+
+    @Override
+    protected float getWalkableSlopeAngle() {
+        return 30f;
+    }
+
     public boolean heal(int amount) {
         //cannot heal when full life
         if (this.health == this.maxHealth)

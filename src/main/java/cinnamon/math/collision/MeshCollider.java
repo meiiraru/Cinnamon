@@ -836,6 +836,10 @@ public class MeshCollider extends Collider<MeshCollider> {
 
         @Override
         public TriangleProxy translate(float x, float y, float z) {
+            v0.add(x, y, z);
+            v1.add(x, y, z);
+            v2.add(x, y, z);
+            center.add(x, y, z);
             return this;
         }
 

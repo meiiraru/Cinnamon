@@ -264,6 +264,14 @@ public abstract class PhysEntity extends Entity {
         return 0f;
     }
 
+    protected float getClimbableSlopeAngle() {
+        return 90f;
+    }
+
+    protected float getWalkableSlopeAngle() {
+        return 0f;
+    }
+
     public void setMotion(Vector3f vec) {
         this.setMotion(vec.x, vec.y, vec.z);
     }

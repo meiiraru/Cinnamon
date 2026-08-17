@@ -27,6 +27,9 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CollisionWorld extends WorldClient {
 
     private boolean showDebug = false;
@@ -128,6 +131,68 @@ public class CollisionWorld extends WorldClient {
         btt.setOnPress(e -> showDebug = true);
         btt.setOnRelease(e -> showDebug = false);
         addTerrain(btt);
+
+        //test uneven terrain
+        float x0 = -150f;
+        float z0 = -150f;
+        float x1 = -50f;
+        float z1 = -50f;
+        float y = 10f;
+        float heightVariance = 5f;
+
+        int segs = 50;
+        int chunks = 20;
+
+        float chunkWidth = (x1 - x0) / chunks;
+        float chunkDepth = (z1 - z0) / chunks;
+        int chunkSegs = segs / chunks;
+
+        float centerX = (x0 + x1) / 2f;
+        float centerZ = (z0 + z1) / 2f;
+
+        for (int cx = 0; cx < chunks; cx++) {
+            for (int cz = 0; cz < chunks; cz++) {
+                float startX = x0 + (cx * chunkWidth);
+                float endX = startX + chunkWidth;
+                float startZ = z0 + (cz * chunkDepth);
+                float endZ = startZ + chunkDepth;
+
+                Vertex[][] plane = GeometryHelper.plane(null, startX, 0f, startZ, endX, endZ, chunkSegs, chunkSegs, 0xFFFFFFFF);
+                for (Vertex[] faces : plane) {
+                    for (Vertex v : faces) {
+                        v.pos(v.x(), y + (Math.sin(v.x() * 0.1f) * Math.cos(v.z() * 0.1f)) * heightVariance, v.z());
+                    }
+                }
+
+                List<Vector3f> vertList = new ArrayList<>();
+                for (Vertex[] vertexArr : plane) {
+                    //since it is a quad, we must add the vertices in a specific order to form triangles
+                    vertList.add(vertexArr[0].getPos());
+                    vertList.add(vertexArr[1].getPos());
+                    vertList.add(vertexArr[2].getPos());
+                    vertList.add(vertexArr[2].getPos());
+                    vertList.add(vertexArr[3].getPos());
+                    vertList.add(vertexArr[0].getPos());
+                }
+
+                Vector3f[] verts = vertList.toArray(new Vector3f[0]);
+                MeshCollider meshColl = new MeshCollider(verts);
+
+                Terrain uneven = new PrimitiveTerrain(plane) {
+                    @Override
+                    public void calculateBounds() {
+                        aabb.set(meshColl.toAABB());
+                        preciseCollider.clear();
+                        preciseCollider.add(meshColl);
+                        updateTerrainInWorld();
+                    }
+                };
+
+                uneven.setPos(centerX, y, centerZ);
+                uneven.setMaterial(MaterialRegistry.GRASS.material);
+                addTerrain(uneven);
+            }
+        }
 
         //ground plane
         addTerrain(new PlaneTerrain(0, 1, 0, 0.75f));
