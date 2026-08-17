@@ -60,7 +60,7 @@ public class Settings {
             fov      = new Setting.Ints("video.display.fov", 70),
             fpsLimit = new Setting.Ints("video.display.fps_limit", 0);
     public static final Setting.List
-            guiSkin = new Setting.List("video.display.gui_skin", "", () -> {
+            guiSkin = new Setting.List("video.display.gui_skin", "vanilla:data/gui_skins/default.json", () -> {
                 List<Pair<String, String>> list = new ArrayList<>();
                 for (Map.Entry<String, String> entry : GUISkin.getThemes().entrySet())
                     list.add(new Pair<>(entry.getKey(), entry.getValue()));

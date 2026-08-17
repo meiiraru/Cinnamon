@@ -99,7 +99,7 @@ public class GUISkin {
         }
 
         GUISkin skin = new GUISkin();
-        if (res != DEFAULT_SKIN)
+        if (!res.equals(DEFAULT_SKIN))
             skin.parent = of(DEFAULT_SKIN);
 
         try (stream; InputStreamReader reader = new InputStreamReader(stream)) {

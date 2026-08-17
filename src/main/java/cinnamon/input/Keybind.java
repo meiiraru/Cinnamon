@@ -57,7 +57,7 @@ public class Keybind {
         this.joystick = joystick;
         this.text = type.getKeyText(key, mods);
         KEYBINDS.get(type).add(this);
-        LOGGER.debug("Registered %s keybind: %s (%s)", type.name(), name, text.asString());
+        LOGGER.debug("Registered %s keybind: %s %s", type.name(), key, name);
     }
 
     public static void mousePress(int button, int action, int mods) {

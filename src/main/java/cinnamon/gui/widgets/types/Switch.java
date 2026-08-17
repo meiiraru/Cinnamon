@@ -16,22 +16,22 @@ public class Switch extends Checkbox {
         VertexConsumer.MAIN.consume(
                 GeometryHelper.quad(
                         matrices,
-                        isRightToLeft() ? getX() + getWidth() - 16 : getX(), getCenterY() - 4,
-                        16, 8,
-                        toggled ? 16f : 0f, getState() * 8f,
-                        16, 8,
-                        32, 32
+                        isRightToLeft() ? getX() + getWidth() - 24 : getX(), getCenterY() - 6,
+                        24, 12,
+                        toggled ? 24f : 0f, getState() * 12f,
+                        24, 12,
+                        48, 48
                 ), getSkin().getResource("switch_tex")
         );
     }
 
     @Override
     protected int getButtonWidth() {
-        return 16;
+        return 24;
     }
 
     @Override
     protected int getButtonHeight() {
-        return 8;
+        return 12;
     }
 }
