@@ -1,6 +1,6 @@
 package cinnamon.world.terrain;
 
-import cinnamon.math.collision.Plane;
+import cinnamon.math.collision.shape.Plane;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.world.entity.Entity;
 import org.joml.Vector3f;

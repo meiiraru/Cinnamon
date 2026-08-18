@@ -2,10 +2,10 @@ package cinnamon.world.entity.projectile;
 
 import cinnamon.events.Await;
 import cinnamon.math.Maths;
-import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Resolution;
-import cinnamon.math.collision.Sphere;
+import cinnamon.math.collision.shape.AABB;
+import cinnamon.math.collision.shape.Sphere;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
@@ -73,7 +73,7 @@ public class Potato extends Projectile {
     protected void spawnSmokeParticle(int count) {
         for (int i = 0; i < count; i++) {
             DustParticle particle = new DustParticle(20, ColorUtils.lerpARGBColor(0xFFAAAAAA, 0xFFFFFFFF, (float) Math.random()));
-            particle.setPos(new AABB(getAABB()).scale(scale).getRandomPoint());
+            particle.setPos(new AABB(getAABB()).scale(scale).getRandomPoint(new Vector3f()));
             particle.setScale(scale);
             ((WorldClient) getWorld()).addParticle(particle);
         }

@@ -1,8 +1,8 @@
 package cinnamon.world.entity.collectable;
 
-import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Resolution;
+import cinnamon.math.collision.shape.AABB;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;

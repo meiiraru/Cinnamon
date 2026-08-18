@@ -1,9 +1,9 @@
 package cinnamon.world.terrain;
 
 import cinnamon.animation.Animation;
-import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Collider;
-import cinnamon.math.collision.OBB;
+import cinnamon.math.collision.shape.AABB;
+import cinnamon.math.collision.shape.OBB;
 import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
 import cinnamon.registry.TerrainRegistry;

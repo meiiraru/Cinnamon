@@ -1,6 +1,10 @@
-package cinnamon.math.collision;
+package cinnamon.math.collision.shape;
 
 import cinnamon.math.Maths;
+import cinnamon.math.collision.Collider;
+import cinnamon.math.collision.Collision;
+import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.Ray;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -71,18 +75,27 @@ public class Plane extends Collider<Plane> {
     }
 
     @Override
-    public Vector3f getRandomPoint() {
-        Vector3f tangent = new Vector3f();
+    public Vector3f getRandomPoint(Vector3f out) {
+        //get a tangent vector to the plane
         if (Math.abs(normal.x) > 0.5f) {
-            tangent.set(normal.y, -normal.x, 0f).normalize();
+            out.set(normal.y, -normal.x, 0f).normalize();
         } else {
-            tangent.set(0f, normal.z, -normal.y).normalize();
+            out.set(0f, normal.z, -normal.y).normalize();
         }
-        Vector3f bitangent = new Vector3f(normal).cross(tangent);
+
+        //bitangent = normal x tangent
+        float bix = normal.y * out.z - normal.z * out.y;
+        float biy = normal.z * out.x - normal.x * out.z;
+        float biz = normal.x * out.y - normal.y * out.x;
 
         float u = Maths.range(-100f, 100f);
         float v = Maths.range(-100f, 100f);
-        return getCenter().add(tangent.mul(u)).add(bitangent.mul(v));
+
+        Vector3f center = getCenter();
+
+        return out.set(center.x + out.x * u + bix * v,
+                       center.y + out.y * u + biy * v,
+                       center.z + out.z * u + biz * v);
     }
 
     @Override
@@ -154,6 +167,11 @@ public class Plane extends Collider<Plane> {
 
         //same direction or angled planes will always intersect at a 3D line
         return true;
+    }
+
+    @Override
+    public boolean intersects(Triangle triangle) {
+        return triangle.intersects(this);
     }
 
     @Override
@@ -245,6 +263,11 @@ public class Plane extends Collider<Plane> {
     }
 
     @Override
+    public Collision collide(Triangle triangle) {
+        return invertCollide(triangle.collide(this));
+    }
+
+    @Override
     public Collision collide(MeshCollider mesh) {
         return invertCollide(mesh.collide(this));
     }
@@ -315,6 +338,11 @@ public class Plane extends Collider<Plane> {
         Vector3f hitPos = this.getCenter().fma(t, velocity, new Vector3f());
         Ray ray = new Ray(this.getCenter(), velocity, velocity.length());
         return new Hit(hitPos, hitNormal, t, t, ray, plane);
+    }
+
+    @Override
+    public Hit sweep(Triangle triangle, Vector3f velocity) {
+        return invertSweep(triangle.sweep(this, new Vector3f(velocity).negate()), this, velocity);
     }
 
     @Override

@@ -67,7 +67,7 @@ public class Brick extends Projectile {
         //particles
         for (int i = 0; i < 5; i++) {
             SmokeParticle particle = new SmokeParticle((int) (Math.random() * 15) + 10, 0xFFA93931);
-            particle.setPos(aabb.getRandomPoint());
+            particle.setPos(aabb.getRandomPoint(new Vector3f()));
             ((WorldClient) getWorld()).addParticle(particle);
         }
     }

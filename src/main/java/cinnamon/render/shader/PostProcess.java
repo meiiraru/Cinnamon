@@ -9,7 +9,9 @@ import cinnamon.utils.Resource;
 
 import java.util.function.BiFunction;
 
-import static cinnamon.render.shader.PostProcess.FB.*;
+import static cinnamon.render.shader.PostProcess.FB.COLOR_AND_DEPTH_UNIFORM;
+import static cinnamon.render.shader.PostProcess.FB.COLOR_UNIFORM;
+import static cinnamon.render.shader.PostProcess.FB.DEPTH_UNIFORM;
 import static org.lwjgl.glfw.GLFW.glfwGetTime;
 import static org.lwjgl.opengl.GL11.*;
 

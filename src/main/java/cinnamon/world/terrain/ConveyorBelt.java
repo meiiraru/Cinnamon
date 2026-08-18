@@ -1,6 +1,6 @@
 package cinnamon.world.terrain;
 
-import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.shape.AABB;
 import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.world.entity.Entity;

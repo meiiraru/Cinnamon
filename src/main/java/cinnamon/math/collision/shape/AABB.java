@@ -1,6 +1,11 @@
-package cinnamon.math.collision;
+package cinnamon.math.collision.shape;
 
 import cinnamon.math.Maths;
+import cinnamon.math.collision.Collider;
+import cinnamon.math.collision.Collision;
+import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.Ray;
+import cinnamon.math.collision.SATHelper;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -209,6 +214,11 @@ public class AABB extends Collider<AABB> {
     @Override
     public boolean intersects(Plane plane) {
         return plane.intersects(this);
+    }
+
+    @Override
+    public boolean intersects(Triangle triangle) {
+        return triangle.intersects(this);
     }
 
     @Override
@@ -511,9 +521,9 @@ public class AABB extends Collider<AABB> {
     }
 
     @Override
-    public Vector3f getRandomPoint() {
+    public Vector3f getRandomPoint(Vector3f out) {
         Vector3f dimensions = getDimensions();
-        return new Vector3f(
+        return out.set(
                 minX + (float) (Math.random() * dimensions.x),
                 minY + (float) (Math.random() * dimensions.y),
                 minZ + (float) (Math.random() * dimensions.z)
@@ -696,37 +706,6 @@ public class AABB extends Collider<AABB> {
     }
 
     @Override
-    public Collision collide(AABB aabb) {
-        float dx = Math.min(this.maxX, aabb.maxX) - Math.max(this.minX, aabb.minX);
-        float dy = Math.min(this.maxY, aabb.maxY) - Math.max(this.minY, aabb.minY);
-        float dz = Math.min(this.maxZ, aabb.maxZ) - Math.max(this.minZ, aabb.minZ);
-
-        if (dx <= 0 || dy <= 0 || dz <= 0)
-            return null;
-
-        //find the axis of minimum penetration
-        Vector3f normal = new Vector3f();
-        float depth;
-        if (dx < dy && dx < dz) {
-            depth = dx;
-            normal.set(this.minX < aabb.minX ? 1 : -1, 0, 0);
-        } else if (dy < dz) {
-            depth = dy;
-            normal.set(0, this.minY < aabb.minY ? 1 : -1, 0);
-        } else {
-            depth = dz;
-            normal.set(0, 0, this.minZ < aabb.minZ ? 1 : -1);
-        }
-
-        return new Collision(normal, depth, this, aabb);
-    }
-
-    @Override
-    public Collision collide(OBB obb) {
-        return SATHelper.SATCollide(this, obb, SATHelper.AABB_AXES, new Vector3f[]{obb.getAxisX(), obb.getAxisY(), obb.getAxisZ()});
-    }
-
-    @Override
     public Collision collide(Sphere sphere) {
         Vector3f sCenter = sphere.getCenter();
         float r = sphere.getRadius();
@@ -776,13 +755,55 @@ public class AABB extends Collider<AABB> {
     }
 
     @Override
+    public Collision collide(AABB aabb) {
+        float dx = Math.min(this.maxX, aabb.maxX) - Math.max(this.minX, aabb.minX);
+        float dy = Math.min(this.maxY, aabb.maxY) - Math.max(this.minY, aabb.minY);
+        float dz = Math.min(this.maxZ, aabb.maxZ) - Math.max(this.minZ, aabb.minZ);
+
+        if (dx <= 0 || dy <= 0 || dz <= 0)
+            return null;
+
+        //find the axis of minimum penetration
+        Vector3f normal = new Vector3f();
+        float depth;
+        if (dx < dy && dx < dz) {
+            depth = dx;
+            normal.set(this.minX < aabb.minX ? 1 : -1, 0, 0);
+        } else if (dy < dz) {
+            depth = dy;
+            normal.set(0, this.minY < aabb.minY ? 1 : -1, 0);
+        } else {
+            depth = dz;
+            normal.set(0, 0, this.minZ < aabb.minZ ? 1 : -1);
+        }
+
+        return new Collision(normal, depth, this, aabb);
+    }
+
+    @Override
+    public Collision collide(OBB obb) {
+        return SATHelper.SATCollide(this, obb, SATHelper.AABB_AXES, obb.getAxes());
+    }
+
+    @Override
     public Collision collide(Plane plane) {
         return invertCollide(plane.collide(this));
     }
 
     @Override
+    public Collision collide(Triangle triangle) {
+        return invertCollide(triangle.collide(this));
+    }
+
+    @Override
     public Collision collide(MeshCollider mesh) {
         return invertCollide(mesh.collide(this));
+    }
+
+    @Override
+    public Hit sweep(Sphere sphere, Vector3f velocity) {
+        Hit hit = sphere.sweep(this, new Vector3f(velocity).negate());
+        return invertSweep(hit, sphere, velocity);
     }
 
     @Override
@@ -812,19 +833,18 @@ public class AABB extends Collider<AABB> {
 
     @Override
     public Hit sweep(OBB obb, Vector3f velocity) {
-        return SATHelper.SATSweep(this, obb, SATHelper.AABB_AXES, new Vector3f[]{obb.getAxisX(), obb.getAxisY(), obb.getAxisZ()}, velocity);
-    }
-
-    @Override
-    public Hit sweep(Sphere sphere, Vector3f velocity) {
-        Hit hit = sphere.sweep(this, new Vector3f(velocity).negate());
-        return invertSweep(hit, sphere, velocity);
+        return SATHelper.SATSweep(this, obb, SATHelper.AABB_AXES, obb.getAxes(), velocity);
     }
 
     @Override
     public Hit sweep(Plane plane, Vector3f velocity) {
         Hit hit = plane.sweep(this, new Vector3f(velocity).negate());
         return invertSweep(hit, plane, velocity);
+    }
+
+    @Override
+    public Hit sweep(Triangle triangle, Vector3f velocity) {
+        return invertSweep(triangle.sweep(this, new Vector3f(velocity).negate()), this, velocity);
     }
 
     @Override

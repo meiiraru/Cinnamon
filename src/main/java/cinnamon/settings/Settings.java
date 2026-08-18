@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 import static cinnamon.Client.LOGGER;
-import static cinnamon.input.Keybind.KeyType.*;
+import static cinnamon.input.Keybind.KeyType.KEY;
+import static cinnamon.input.Keybind.KeyType.MOUSE;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Settings {

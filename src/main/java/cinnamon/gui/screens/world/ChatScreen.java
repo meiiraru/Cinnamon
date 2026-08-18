@@ -13,7 +13,11 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
-import cinnamon.utils.*;
+import cinnamon.utils.Alignment;
+import cinnamon.utils.CircularQueue;
+import cinnamon.utils.MarkdownParser;
+import cinnamon.utils.TextUtils;
+import cinnamon.utils.UIHelper;
 
 import java.util.List;
 

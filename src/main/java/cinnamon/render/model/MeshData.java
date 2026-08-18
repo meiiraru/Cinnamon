@@ -1,6 +1,6 @@
 package cinnamon.render.model;
 
-import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.shape.AABB;
 import cinnamon.model.Vertex;
 import cinnamon.model.material.Material;
 import cinnamon.render.shader.Attributes;
@@ -11,7 +11,9 @@ import java.util.Collection;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
+import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 public class MeshData {
 

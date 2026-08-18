@@ -1,6 +1,6 @@
 package cinnamon.world.entity.terrain;
 
-import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.shape.AABB;
 import cinnamon.registry.TerrainEntityRegistry;
 import cinnamon.world.particle.FireParticle;
 import cinnamon.world.particle.SoapParticle;
@@ -38,7 +38,7 @@ public class ParticleSpawner extends TerrainEntity {
         if (fire > 0) {
             fire--;
             FireParticle p = new FireParticle(20);
-            p.setPos(getAABB().getRandomPoint());
+            p.setPos(getAABB().getRandomPoint(new Vector3f()));
             p.setMotion(0, (float) (Math.random() * 0.1f) + 0.1f, 0);
             wc.addParticle(p);
         }

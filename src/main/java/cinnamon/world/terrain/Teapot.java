@@ -5,6 +5,7 @@ import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.world.particle.LightParticle;
 import cinnamon.world.world.WorldClient;
+import org.joml.Vector3f;
 
 public class Teapot extends Terrain {
 
@@ -24,7 +25,7 @@ public class Teapot extends Terrain {
                     (int) (Math.random() * 0x88) + 0x77;
 
             LightParticle e = new LightParticle(50, color);
-            e.setPos(getAABB().getRandomPoint());
+            e.setPos(getAABB().getRandomPoint(new Vector3f()));
             ((WorldClient) getWorld()).addParticle(e);
         }
     }

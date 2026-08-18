@@ -1,6 +1,6 @@
 package cinnamon.model.obj;
 
-import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.shape.AABB;
 import cinnamon.model.material.Material;
 
 import java.util.ArrayList;

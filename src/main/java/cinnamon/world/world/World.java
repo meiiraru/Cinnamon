@@ -1,11 +1,11 @@
 package cinnamon.world.world;
 
 import cinnamon.Client;
-import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Ray;
-import cinnamon.math.collision.Sphere;
+import cinnamon.math.collision.shape.AABB;
+import cinnamon.math.collision.shape.Sphere;
 import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
 import cinnamon.world.WorldRules;

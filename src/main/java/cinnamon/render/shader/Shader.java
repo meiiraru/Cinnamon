@@ -8,7 +8,11 @@ import cinnamon.render.texture.TextureArray;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
-import org.joml.*;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.FloatBuffer;

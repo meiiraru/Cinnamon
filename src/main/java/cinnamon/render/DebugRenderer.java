@@ -3,7 +3,8 @@ package cinnamon.render;
 import cinnamon.Client;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
-import cinnamon.math.collision.*;
+import cinnamon.math.collision.Collider;
+import cinnamon.math.collision.shape.*;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.render.batch.VertexConsumer;
@@ -65,47 +66,50 @@ public class DebugRenderer {
     }
 
     public static void renderPlane(MatrixStack matrices, Plane plane, int color) {
-        matrices.pushMatrix();
+        Camera camera = Client.getInstance().world == null ? Client.getInstance().camera : WorldRenderer.camera;
 
+        Vector3f camPos = camera.getPosition();
+        Vector3f closestPoint = plane.closestPoint(camPos, new Vector3f());
         Vector3f normal = plane.getNormal();
         Quaternionf rot = Maths.dirToQuat(normal);
+
+        matrices.pushMatrix();
+        matrices.translate(closestPoint);
+
         matrices.rotate(rot);
         matrices.rotate(Rotation.X.rotationDeg(90f));
 
-        float d = plane.getDistance();
-        VertexConsumer.LINES.consume(GeometryHelper.plane(matrices, -8, d, -8, 8, 8, 8, 8, color));
+        float s = 24;
+        VertexConsumer.LINES.consume(GeometryHelper.plane(matrices, -s, 0f, -s, s, s, (int) s, (int) s, color));
 
         matrices.popMatrix();
     }
 
+    public static void renderTriangle(MatrixStack matrices, Triangle triangle, int color) {
+        VertexConsumer.LINES.consume(new Vertex[]{
+                new Vertex().pos(triangle.v0).color(color).mul(matrices),
+                new Vertex().pos(triangle.v1).color(color).mul(matrices),
+                new Vertex().pos(triangle.v2).color(color).mul(matrices),
+        });
+
+        //Vector3f n = triangle.getNormal();
+        //Vector3f c = triangle.getCenter();
+        //float s = 0.5f;
+        //VertexConsumer.LINES.consume(GeometryHelper.line(matrices, c.x, c.y, c.z, c.x + n.x * s, c.y + n.y * s, c.z + n.z * s, 0.001f, color));
+    }
+
     public static void renderMesh(MatrixStack matrices, MeshCollider mesh, int color) {
-        Vector3f[] vertices = mesh.getVertices();
-        for (int i = 0; i < vertices.length; i += 3) {
-            Vector3f a = vertices[i];
-            Vector3f b = vertices[i + 1];
-            Vector3f c = vertices[i + 2];
-
-            VertexConsumer.LINES.consume(new Vertex[]{
-                    new Vertex().pos(a.x, a.y, a.z).color(color).mul(matrices),
-                    new Vertex().pos(b.x, b.y, b.z).color(color).mul(matrices),
-                    new Vertex().pos(c.x, c.y, c.z).color(color).mul(matrices),
-            });
-        }
-
-        //Vector3f[] normals = mesh.getNormals();
-        //for (int i = 0; i < normals.length; i++) {
-        //    Vector3f n = normals[i];
-        //    Vector3f v = vertices[i * 3];
-        //    VertexConsumer.LINES.consume(GeometryHelper.line(matrices, v.x, v.y, v.z, v.x + n.x * 0.5f, v.y + n.y * 0.5f, v.z + n.z * 0.5f, 0.001f, color));
-        //}
+        for (Triangle triangle : mesh.getTriangles())
+            renderTriangle(matrices, triangle, color);
     }
 
     public static void renderShape(MatrixStack matrices, Collider<?> shape, int color) {
         switch (shape) {
-            case Sphere sphere -> renderSphere(matrices, sphere, color);
-            case AABB aabb -> renderAABB(matrices, aabb, color);
-            case OBB obb -> renderOBB(matrices, obb, color);
-            case Plane plane -> renderPlane(matrices, plane, color);
+            case Sphere sphere     -> renderSphere(matrices, sphere, color);
+            case AABB aabb         -> renderAABB(matrices, aabb, color);
+            case OBB obb           -> renderOBB(matrices, obb, color);
+            case Plane plane       -> renderPlane(matrices, plane, color);
+            case Triangle triangle -> renderTriangle(matrices, triangle, color);
             case MeshCollider mesh -> renderMesh(matrices, mesh, color);
             default -> {}
         }

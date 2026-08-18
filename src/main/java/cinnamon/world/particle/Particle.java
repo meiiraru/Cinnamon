@@ -1,8 +1,8 @@
 package cinnamon.world.particle;
 
 import cinnamon.math.Maths;
-import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Collider;
+import cinnamon.math.collision.shape.AABB;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;

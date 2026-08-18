@@ -2,7 +2,14 @@ package cinnamon.world.world;
 
 import cinnamon.Client;
 import cinnamon.math.Rotation;
-import cinnamon.math.collision.*;
+import cinnamon.math.collision.Collider;
+import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.Ray;
+import cinnamon.math.collision.shape.AABB;
+import cinnamon.math.collision.shape.MeshCollider;
+import cinnamon.math.collision.shape.OBB;
+import cinnamon.math.collision.shape.Plane;
+import cinnamon.math.collision.shape.Sphere;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.model.Vertex;
@@ -218,12 +225,7 @@ public class CollisionWorld extends WorldClient {
         DebugRenderer.renderShape(matrices, sp, sp.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
         DebugRenderer.renderShape(matrices, bb, bb.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
         DebugRenderer.renderShape(matrices, ob, ob.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
-
-        matrices.pushMatrix();
-        matrices.translate(0, 5, 5);
         DebugRenderer.renderShape(matrices, pl, pl.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
-        matrices.popMatrix();
-
         DebugRenderer.renderShape(matrices, mc, mc.intersects(main) ? 0xFFFFFF00 : 0xFFFFFFFF);
 
         //raycast

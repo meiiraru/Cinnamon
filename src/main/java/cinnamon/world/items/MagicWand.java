@@ -2,8 +2,8 @@ package cinnamon.world.items;
 
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
-import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.shape.AABB;
 import cinnamon.registry.ItemModelRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.ColorUtils;

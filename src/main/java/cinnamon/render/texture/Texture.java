@@ -11,7 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static cinnamon.events.Events.LOGGER;
-import static cinnamon.render.texture.Texture.TextureParams.*;
+import static cinnamon.render.texture.Texture.TextureParams.MIPMAP;
+import static cinnamon.render.texture.Texture.TextureParams.MIPMAP_SMOOTH;
+import static cinnamon.render.texture.Texture.TextureParams.SMOOTH_SAMPLING;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;

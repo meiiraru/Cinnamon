@@ -1,6 +1,6 @@
 package cinnamon.world;
 
-import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.shape.AABB;
 import cinnamon.model.ModelTransform;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;

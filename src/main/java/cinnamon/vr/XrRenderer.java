@@ -2,9 +2,9 @@ package cinnamon.vr;
 
 import cinnamon.Client;
 import cinnamon.gui.GUISkin;
-import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Ray;
+import cinnamon.math.collision.shape.AABB;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.model.StaticGeometry;

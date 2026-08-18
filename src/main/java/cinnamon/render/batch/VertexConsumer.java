@@ -2,7 +2,10 @@ package cinnamon.render.batch;
 
 import cinnamon.model.Vertex;
 import cinnamon.render.Camera;
-import cinnamon.render.batch.Batch.*;
+import cinnamon.render.batch.Batch.LinesBatch;
+import cinnamon.render.batch.Batch.MainBatch;
+import cinnamon.render.batch.Batch.MainFlatBatch;
+import cinnamon.render.batch.Batch.ScreenSpaceUVBatch;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;

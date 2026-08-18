@@ -18,7 +18,9 @@ import java.nio.IntBuffer;
 
 import static cinnamon.events.Events.LOGGER;
 import static org.lwjgl.assimp.Assimp.*;
-import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.system.MemoryUtil.memAddress;
+import static org.lwjgl.system.MemoryUtil.memCopy;
+import static org.lwjgl.system.MemoryUtil.memUTF8;
 
 public class AssimpLoader {
 

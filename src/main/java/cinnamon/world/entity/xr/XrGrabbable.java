@@ -7,7 +7,6 @@ import cinnamon.utils.Resource;
 import cinnamon.vr.XrHandTransform;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.entity.PhysEntity;
-import org.joml.Quaternionf;
 
 import java.util.UUID;
 

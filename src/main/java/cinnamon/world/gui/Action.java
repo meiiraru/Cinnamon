@@ -1,7 +1,7 @@
 package cinnamon.world.gui;
 
 import cinnamon.math.Rotation;
-import cinnamon.math.collision.OBB;
+import cinnamon.math.collision.shape.OBB;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;

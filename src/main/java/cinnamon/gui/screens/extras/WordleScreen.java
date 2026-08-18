@@ -32,7 +32,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static cinnamon.Client.LOGGER;
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ENTER;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_KP_ENTER;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public class WordleScreen extends ParentedScreen {
 

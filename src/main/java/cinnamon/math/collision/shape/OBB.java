@@ -1,6 +1,11 @@
-package cinnamon.math.collision;
+package cinnamon.math.collision.shape;
 
 import cinnamon.math.Maths;
+import cinnamon.math.collision.Collider;
+import cinnamon.math.collision.Collision;
+import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.Ray;
+import cinnamon.math.collision.SATHelper;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -13,6 +18,7 @@ public class OBB extends Collider<OBB> {
             axisX = new Vector3f(1f, 0f, 0f),
             axisY = new Vector3f(0f, 1f, 0f),
             axisZ = new Vector3f(0f, 0f, 1f);
+    private final Vector3f[] axes = new Vector3f[]{axisX, axisY, axisZ};
 
     public OBB() {
         this(0, 0, 0, 0, 0, 0);
@@ -142,12 +148,12 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
-    public Vector3f getRandomPoint() {
+    public Vector3f getRandomPoint(Vector3f out) {
         float rx = Maths.range(-halfExtents.x, halfExtents.x);
         float ry = Maths.range(-halfExtents.y, halfExtents.y);
         float rz = Maths.range(-halfExtents.z, halfExtents.z);
 
-        return new Vector3f(
+        return out.set(
                 axisX.x * rx + axisY.x * ry + axisZ.x * rz + center.x,
                 axisX.y * rx + axisY.y * ry + axisZ.y * rz + center.y,
                 axisX.z * rx + axisY.z * ry + axisZ.z * rz + center.z
@@ -347,6 +353,10 @@ public class OBB extends Collider<OBB> {
         return axisZ;
     }
 
+    public Vector3f[] getAxes() {
+        return axes;
+    }
+
     @Override
     public OBB applyMatrix(Matrix4f matrix) {
         int properties = matrix.properties();
@@ -499,6 +509,11 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
+    public boolean intersects(Triangle triangle) {
+        return triangle.intersects(this);
+    }
+
+    @Override
     public boolean intersects(MeshCollider mesh) {
         return mesh.intersects(this);
     }
@@ -583,19 +598,6 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
-    public Collision collide(AABB aabb) {
-        return invertCollide(aabb.collide(this));
-    }
-
-    @Override
-    public Collision collide(OBB obb) {
-        return SATHelper.SATCollide(this, obb,
-                new Vector3f[]{    getAxisX(),     getAxisY(),     getAxisZ()},
-                new Vector3f[]{obb.getAxisX(), obb.getAxisY(), obb.getAxisZ()}
-        );
-    }
-
-    @Override
     public Collision collide(Sphere sphere) {
         Vector3f sCenter = sphere.getCenter();
         float r = sphere.getRadius();
@@ -668,27 +670,28 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
+    public Collision collide(AABB aabb) {
+        return invertCollide(aabb.collide(this));
+    }
+
+    @Override
+    public Collision collide(OBB obb) {
+        return SATHelper.SATCollide(this, obb, getAxes(), obb.getAxes());
+    }
+
+    @Override
     public Collision collide(Plane plane) {
         return invertCollide(plane.collide(this));
     }
 
     @Override
+    public Collision collide(Triangle triangle) {
+        return invertCollide(triangle.collide(this));
+    }
+
+    @Override
     public Collision collide(MeshCollider mesh) {
         return invertCollide(mesh.collide(this));
-    }
-
-    @Override
-    public Hit sweep(OBB obb, Vector3f velocity) {
-        return SATHelper.SATSweep(this, obb,
-                new Vector3f[]{    getAxisX(),     getAxisY(),     getAxisZ()},
-                new Vector3f[]{obb.getAxisX(), obb.getAxisY(), obb.getAxisZ()},
-                velocity
-        );
-    }
-
-    @Override
-    public Hit sweep(AABB aabb, Vector3f velocity) {
-        return SATHelper.SATSweep(this, aabb, new Vector3f[]{getAxisX(), getAxisY(), getAxisZ()}, SATHelper.AABB_AXES, velocity);
     }
 
     @Override
@@ -698,9 +701,24 @@ public class OBB extends Collider<OBB> {
     }
 
     @Override
+    public Hit sweep(AABB aabb, Vector3f velocity) {
+        return SATHelper.SATSweep(this, aabb, getAxes(), SATHelper.AABB_AXES, velocity);
+    }
+
+    @Override
+    public Hit sweep(OBB obb, Vector3f velocity) {
+        return SATHelper.SATSweep(this, obb, getAxes(), obb.getAxes(), velocity);
+    }
+
+    @Override
     public Hit sweep(Plane plane, Vector3f velocity) {
         Hit hit = plane.sweep(this, new Vector3f(velocity).negate());
         return invertSweep(hit, plane, velocity);
+    }
+
+    @Override
+    public Hit sweep(Triangle triangle, Vector3f velocity) {
+        return invertSweep(triangle.sweep(this, new Vector3f(velocity).negate()), this, velocity);
     }
 
     @Override

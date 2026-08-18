@@ -11,9 +11,9 @@ import cinnamon.input.Controller;
 import cinnamon.input.Keybind;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
-import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Hit;
-import cinnamon.math.collision.Sphere;
+import cinnamon.math.collision.shape.AABB;
+import cinnamon.math.collision.shape.Sphere;
 import cinnamon.messages.MessageCategory;
 import cinnamon.messages.MessageManager;
 import cinnamon.model.GeometryHelper;
@@ -753,7 +753,7 @@ public class WorldClient extends World {
         float volume = explosionArea.getVolume();
         for (int i = 0; i < volume; i++) {
             ExplosionParticle particle = new ExplosionParticle((int) (Math.random() * 10) + 15);
-            particle.setPos(explosionArea.getRandomPoint());
+            particle.setPos(explosionArea.getRandomPoint(new Vector3f()));
             particle.setScale(Maths.range(3f, 7f));
             addParticle(particle);
         }

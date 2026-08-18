@@ -1,6 +1,6 @@
 package cinnamon.commands;
 
-import cinnamon.math.collision.Sphere;
+import cinnamon.math.collision.shape.Sphere;
 import cinnamon.text.Text;
 import cinnamon.world.entity.Entity;
 import org.joml.Vector3f;

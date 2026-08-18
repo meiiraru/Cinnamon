@@ -11,6 +11,7 @@ import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.UIHelper;
 import cinnamon.world.entity.Entity;
 import org.joml.Math;
+import org.joml.Vector3f;
 
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -51,7 +52,7 @@ public class Spawner<E extends Entity> extends Entity {
         if (checkRespawn() && time-- <= 0) {
             time = delay;
             entity = entitySupplier.get();
-            entity.setPos(aabb.getRandomPoint());
+            entity.setPos(aabb.getRandomPoint(new Vector3f()));
             entity.setRot(getTransform().getRot());
             getWorld().addEntity(entity);
         }

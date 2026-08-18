@@ -1,12 +1,7 @@
 package cinnamon.gui;
 
 import cinnamon.Client;
-import cinnamon.gui.widgets.Container;
-import cinnamon.gui.widgets.GUIListener;
-import cinnamon.gui.widgets.PopupWidget;
-import cinnamon.gui.widgets.SelectableWidget;
-import cinnamon.gui.widgets.Widget;
-import cinnamon.gui.widgets.WidgetList;
+import cinnamon.gui.widgets.*;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.StaticGeometry;

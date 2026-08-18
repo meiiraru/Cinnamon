@@ -159,7 +159,7 @@ public class ItemEntity extends Collectable {
     protected void spawnDespawnParticles() {
         for (int i = 0; i < 5; i++) {
             SmokeParticle particle = new SmokeParticle((int) (Math.random() * 15) + 10, 0xFFFFFFFF);
-            particle.setPos(aabb.getRandomPoint());
+            particle.setPos(aabb.getRandomPoint(new Vector3f()));
             ((WorldClient) getWorld()).addParticle(particle);
         }
     }

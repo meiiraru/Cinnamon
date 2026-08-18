@@ -26,7 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static cinnamon.world.gui.Hud.SKIN;
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_G;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_H;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public class PrimitiveTestWorld extends WorldClient {
 

@@ -1,6 +1,6 @@
 package cinnamon.world.terrain;
 
-import cinnamon.math.collision.MeshCollider;
+import cinnamon.math.collision.shape.MeshCollider;
 import cinnamon.model.ModelManager;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.utils.Resource;

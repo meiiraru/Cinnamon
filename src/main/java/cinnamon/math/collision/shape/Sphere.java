@@ -1,6 +1,10 @@
-package cinnamon.math.collision;
+package cinnamon.math.collision.shape;
 
 import cinnamon.math.Maths;
+import cinnamon.math.collision.Collider;
+import cinnamon.math.collision.Collision;
+import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.Ray;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -112,7 +116,7 @@ public class Sphere extends Collider<Sphere> {
     }
 
     @Override
-    public Vector3f getRandomPoint() {
+    public Vector3f getRandomPoint(Vector3f out) {
         //random point on the unit sphere
         float u = (float) Math.random();
         float v = (float) Math.random();
@@ -128,7 +132,7 @@ public class Sphere extends Collider<Sphere> {
         float y = center.y + r * sinPhi * Math.sin(theta);
         float z = center.z + r * Math.cos(phi);
 
-        return new Vector3f(x, y, z);
+        return out.set(x, y, z);
     }
 
     @Override
@@ -206,6 +210,11 @@ public class Sphere extends Collider<Sphere> {
     }
 
     @Override
+    public boolean intersects(Triangle triangle) {
+        return triangle.intersects(this);
+    }
+
+    @Override
     public boolean intersects(MeshCollider mesh) {
         return mesh.intersects(this);
     }
@@ -257,26 +266,6 @@ public class Sphere extends Collider<Sphere> {
     }
 
     @Override
-    public Collision collide(AABB aabb) {
-        return invertCollide(aabb.collide(this));
-    }
-
-    @Override
-    public Collision collide(OBB obb) {
-        return invertCollide(obb.collide(this));
-    }
-
-    @Override
-    public Collision collide(Plane plane) {
-        return invertCollide(plane.collide(this));
-    }
-
-    @Override
-    public Collision collide(MeshCollider mesh) {
-        return invertCollide(mesh.collide(this));
-    }
-
-    @Override
     public Collision collide(Sphere sphere) {
         float dx = sphere.center.x - this.center.x;
         float dy = sphere.center.y - this.center.y;
@@ -293,6 +282,31 @@ public class Sphere extends Collider<Sphere> {
         Vector3f normal = (dist > Maths.KINDA_SMALL_NUMBER) ? new Vector3f(dx / dist, dy / dist, dz / dist) : new Vector3f(1, 0, 0);
 
         return new Collision(normal, depth, this, sphere);
+    }
+
+    @Override
+    public Collision collide(AABB aabb) {
+        return invertCollide(aabb.collide(this));
+    }
+
+    @Override
+    public Collision collide(OBB obb) {
+        return invertCollide(obb.collide(this));
+    }
+
+    @Override
+    public Collision collide(Plane plane) {
+        return invertCollide(plane.collide(this));
+    }
+
+    @Override
+    public Collision collide(Triangle triangle) {
+        return invertCollide(triangle.collide(this));
+    }
+
+    @Override
+    public Collision collide(MeshCollider mesh) {
+        return invertCollide(mesh.collide(this));
     }
 
     @Override
@@ -497,6 +511,11 @@ public class Sphere extends Collider<Sphere> {
     public Hit sweep(Plane plane, Vector3f velocity) {
         Hit hit = plane.sweep(this, new Vector3f(velocity).negate());
         return invertSweep(hit, plane, velocity);
+    }
+
+    @Override
+    public Hit sweep(Triangle triangle, Vector3f velocity) {
+        return invertSweep(triangle.sweep(this, new Vector3f(velocity).negate()), this, velocity);
     }
 
     @Override

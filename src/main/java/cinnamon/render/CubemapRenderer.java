@@ -12,8 +12,6 @@ import org.joml.Matrix4f;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
-import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class CubemapRenderer {

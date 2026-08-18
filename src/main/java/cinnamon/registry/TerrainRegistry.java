@@ -1,7 +1,11 @@
 package cinnamon.registry;
 
 import cinnamon.utils.Resource;
-import cinnamon.world.terrain.*;
+import cinnamon.world.terrain.Barrier;
+import cinnamon.world.terrain.Rose;
+import cinnamon.world.terrain.Sphere;
+import cinnamon.world.terrain.Teapot;
+import cinnamon.world.terrain.Terrain;
 
 import java.util.function.Supplier;
 

@@ -4,8 +4,8 @@ import cinnamon.Client;
 import cinnamon.input.InputManager;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
-import cinnamon.math.collision.AABB;
 import cinnamon.math.collision.Hit;
+import cinnamon.math.collision.shape.AABB;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.settings.Settings;
@@ -345,7 +345,7 @@ public abstract class LivingEntity extends PhysEntity {
     protected void spawnDeathParticles() {
         for (int i = 0; i < 20; i++) {
             SmokeParticle particle = new SmokeParticle((int) (Math.random() * 15) + 10, 0xFFFFFFFF);
-            particle.setPos(aabb.getRandomPoint());
+            particle.setPos(aabb.getRandomPoint(new Vector3f()));
             ((WorldClient) getWorld()).addParticle(particle);
         }
     }
@@ -374,7 +374,7 @@ public abstract class LivingEntity extends PhysEntity {
             text += " \u2728";
 
         //spawn particle
-        TextParticle p = new TextParticle(Text.of(text).withStyle(Style.EMPTY.color(color).outlined(true)), 20, aabb.getRandomPoint());
+        TextParticle p = new TextParticle(Text.of(text).withStyle(Style.EMPTY.color(color).outlined(true)), 20, aabb.getRandomPoint(new Vector3f()));
         p.setEmissive(true);
         ((WorldClient) getWorld()).addParticle(p);
     }

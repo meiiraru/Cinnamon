@@ -1,6 +1,6 @@
 package cinnamon.world.entity.collectable;
 
-import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.shape.AABB;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.world.entity.PhysEntity;
@@ -30,7 +30,7 @@ public class HealthPack extends Collectable {
 
             AABB aabb = new AABB(this.aabb);
             aabb.inflate(-0.3f, 0, -0.3f);
-            Vector3f pos = aabb.getRandomPoint();
+            Vector3f pos = aabb.getRandomPoint(new Vector3f());
             pos.y = transform.getPos().y + aabb.getHeight();
 
             p.setPos(pos);

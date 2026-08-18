@@ -1,6 +1,6 @@
 package cinnamon.render.model;
 
-import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.shape.AABB;
 import cinnamon.model.Vertex;
 import cinnamon.model.material.Material;
 import cinnamon.model.obj.Mesh;

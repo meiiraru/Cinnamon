@@ -1,7 +1,6 @@
 package cinnamon.render.framebuffer;
 
 import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.opengl.GL30.glClearBufferfv;
 
 public class PBRDeferredFramebuffer extends Framebuffer {
 

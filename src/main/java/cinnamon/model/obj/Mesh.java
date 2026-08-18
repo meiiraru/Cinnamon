@@ -2,7 +2,7 @@ package cinnamon.model.obj;
 
 import cinnamon.animation.Animation;
 import cinnamon.animation.Bone;
-import cinnamon.math.collision.AABB;
+import cinnamon.math.collision.shape.AABB;
 import cinnamon.model.material.Material;
 import cinnamon.utils.Pair;
 import org.joml.Vector2f;

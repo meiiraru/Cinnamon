@@ -8,7 +8,11 @@ import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundManager;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
-import cinnamon.utils.*;
+import cinnamon.utils.Alignment;
+import cinnamon.utils.Colors;
+import cinnamon.utils.Resource;
+import cinnamon.utils.TextUtils;
+import cinnamon.utils.UIHelper;
 import org.joml.Math;
 
 import java.util.ArrayList;
