@@ -73,14 +73,26 @@ public class DebugRenderer {
         Vector3f normal = plane.getNormal();
         Quaternionf rot = Maths.dirToQuat(normal);
 
+        Vector3f localX = new Vector3f(1, 0, 0).rotate(rot);
+        Vector3f localY = new Vector3f(0, 1, 0).rotate(rot);
+
+        float localXCoord = closestPoint.dot(localX);
+        float localYCoord = closestPoint.dot(localY);
+        float snappedX = Math.round(localXCoord / 0.5f) * 0.5f;
+        float snappedY = Math.round(localYCoord / 0.5f) * 0.5f;
+
+        Vector3f snappedClosestPoint = new Vector3f(normal).mul(plane.getDistance());
+        snappedClosestPoint.add(localX.x * snappedX, localX.y * snappedX, localX.z * snappedX);
+        snappedClosestPoint.add(localY.x * snappedY, localY.y * snappedY, localY.z * snappedY);
+
         matrices.pushMatrix();
-        matrices.translate(closestPoint);
+        matrices.translate(snappedClosestPoint);
 
         matrices.rotate(rot);
         matrices.rotate(Rotation.X.rotationDeg(90f));
 
-        float s = 24;
-        VertexConsumer.LINES.consume(GeometryHelper.plane(matrices, -s, 0f, -s, s, s, (int) s, (int) s, color));
+        int s = 4;
+        VertexConsumer.LINES.consume(GeometryHelper.plane(matrices, -s, 0f, -s, s, s, s * 4, s * 4, color));
 
         matrices.popMatrix();
     }
