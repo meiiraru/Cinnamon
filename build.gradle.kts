@@ -4,6 +4,12 @@ plugins {
     `maven-publish`
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(25))
+    }
+}
+
 group = "com.github.meiiraru"
 version = "0.4.5"
 val mainClass = "cinnamon.Cinnamon"
@@ -80,6 +86,14 @@ dependencies {
     //extra libraries
     api("org.joml:joml:$jomlVersion")
     api("com.google.code.gson:gson:$gsonVersion")
+}
+
+tasks.withType<JavaExec> {
+    jvmArgs(
+        "--enable-native-access=ALL-UNNAMED",
+        "-Dorg.lwjgl.system.allocator=system",
+        "--sun-misc-unsafe-memory-access=allow"
+    )
 }
 
 tasks.register<Jar>("sourcesJar") {

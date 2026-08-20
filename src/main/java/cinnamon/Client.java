@@ -77,6 +77,7 @@ public class Client {
         //opengl debug info
         LOGGER.info("Welcome to Cinnamon! v%s", Version.CLIENT_VERSION);
         LOGGER.info("OS: %s %s", Cinnamon.PLATFORM.getName(), Platform.getArchitecture().name());
+        LOGGER.info("Java: %s %s", System.getProperty("java.version"), System.getProperty("java.vendor"));
         LOGGER.info("Renderer: %s", Cinnamon.GPU_DETAILS);
         LOGGER.info("OpenGL Version: %s", Cinnamon.OPENGL_VERSION);
         LOGGER.info("LWJGL Version: %s", org.lwjgl.Version.getVersion());
