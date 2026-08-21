@@ -1,0 +1,3 @@
+newmtl diamond
+map_Kd -smooth_mip albedo.png
+map_Ke -smooth_mip ior.png

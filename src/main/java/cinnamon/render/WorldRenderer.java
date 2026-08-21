@@ -77,7 +77,8 @@ public class WorldRenderer {
             renderFXAA     = true,
             renderDebug    = true,
             renderOutlines = true,
-            renderDecals   = true;
+            renderDecals   = true,
+            renderRefract  = true;
 
     public static void renderWorld(WorldClient world, MatrixStack matrices, float delta) {
         //prepare for world rendering
@@ -154,6 +155,9 @@ public class WorldRenderer {
         //render light postprocessing
         renderLightsPost(camera, dt);
 
+        //render refraction
+        renderRefractions(world, world.getSky(), camera, matrices, delta);
+
         //render debug stuff
         if (renderDebug)
             world.renderDebug(camera, matrices, delta);
@@ -207,6 +211,7 @@ public class WorldRenderer {
             renderClouds(world, camera, delta);
             applyBloom();
             renderLightsPost(camera, dt);
+            renderRefractions(world, world.getSky(), camera, matrices, delta);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
         });
 
@@ -450,6 +455,12 @@ public class WorldRenderer {
             PostProcess.apply(PostProcess.FXAA);
     }
 
+    public static void renderRefractions(WorldClient world, Sky sky, Camera camera, MatrixStack matrices, float delta) {
+        float refractStrength = Settings.refractStrength.get();
+        if (renderRefract && refractStrength > 0f)
+            RefractionRenderer.renderRefractions(world, refractStrength, PBRFrameBuffer, outputBuffer, renderLights, sky, camera, matrices, delta);
+    }
+
 
     // -- other -- //
 
@@ -568,7 +579,8 @@ public class WorldRenderer {
         renderDebug    =
         renderOutlines =
         renderDecals   =
-        renderFXAA     = true;
+        renderFXAA     =
+        renderRefract  = true;
     }
 
     public static boolean isShadowRendering() {

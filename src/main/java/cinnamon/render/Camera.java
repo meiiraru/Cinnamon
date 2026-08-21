@@ -130,7 +130,7 @@ public class Camera {
             area.set(rayStart).expand(direction);
 
             Pair<Hit, Terrain> hit = entity.getWorld().raycastTerrain(area, rayStart, direction, t ->
-                    t.isSelectable(entity) && (!(entity instanceof PhysEntity pe) || pe.getTerrainCollisionMask().test(t.getCollisionMask()))
+                    !t.isTransparent() && t.isSelectable(entity) && (!(entity instanceof PhysEntity pe) || pe.getTerrainCollisionMask().test(t.getCollisionMask()))
             );
 
             if (hit != null) {

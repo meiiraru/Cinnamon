@@ -24,6 +24,11 @@ public class Rose extends Terrain {
         super.renderModel(camera, material, matrices, delta);
     }
 
+    @Override
+    public boolean isTransparent() {
+        return true;
+    }
+
     public void setVariant(Variant variant) {
         if (model == null)
             return;
@@ -36,6 +41,6 @@ public class Rose extends Terrain {
     }
 
     public enum Variant {
-        RED, WHITE, PINK, BLACK
+        RED, WHITE, PINK, BLACK, BLUE
     }
 }

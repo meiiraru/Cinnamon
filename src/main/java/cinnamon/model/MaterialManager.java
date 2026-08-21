@@ -5,6 +5,7 @@ import cinnamon.parsers.MaterialLoader;
 import cinnamon.utils.Resource;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static cinnamon.events.Events.LOGGER;
@@ -13,21 +14,32 @@ public class MaterialManager {
 
     private static final Map<Resource, Map<String, Material>> MATERIAL_MAP = new HashMap<>();
 
-    public static Material load(Resource resource, String id) {
-        //check if the material is already loaded
-        //if not, load the material and add it to the map
-        //then return the material even if it is null
+    //return the cached material or load and cache a new one
+    private static Map<String, Material> getOrLoad(Resource resource) {
+        //try cache
         Map<String, Material> materialMap = MATERIAL_MAP.get(resource);
-        if (materialMap == null) {
-            try {
-                materialMap = MaterialLoader.load(resource);
-            } catch (Exception e) {
-                LOGGER.error("Failed to load material \"%s\"", resource, e);
-                materialMap = new HashMap<>();
-            }
-            MATERIAL_MAP.put(resource, materialMap);
+        if (materialMap != null)
+            return materialMap;
+
+        //try loading
+        try {
+            materialMap = MaterialLoader.load(resource);
+        } catch (Exception e) {
+            LOGGER.error("Failed to load material \"%s\"", resource, e);
+            materialMap = new HashMap<>();
         }
-        return materialMap.get(id);
+
+        //cache and return
+        MATERIAL_MAP.put(resource, materialMap);
+        return materialMap;
+    }
+
+    public static List<Material> get(Resource resource) {
+        return List.copyOf(getOrLoad(resource).values());
+    }
+
+    public static Material get(Resource resource, String id) {
+        return getOrLoad(resource).get(id);
     }
 
     public static void free() {

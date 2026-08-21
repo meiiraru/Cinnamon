@@ -98,6 +98,8 @@ public abstract class Entity extends WorldObject {
             renderFeature.render(this, camera, matrices, delta);
     }
 
+    public void renderTransparent(Camera camera, MatrixStack matrices, float delta) {}
+
     protected void renderModel(Camera camera, MatrixStack matrices, float delta) {
         if (model != null)
             model.render(matrices);

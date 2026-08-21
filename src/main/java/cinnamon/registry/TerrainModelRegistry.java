@@ -13,7 +13,8 @@ public enum TerrainModelRegistry {
 
     CONVEYOR_BELT("models/terrain/conveyor_belt/model.obj"),
     BUTTON("models/terrain/button/button.obj"),
-    TORII_GATE("models/terrain/torii/torii_gate.obj");
+    TORII_GATE("models/terrain/torii/torii_gate.obj"),
+    GLASS("models/terrain/glass/glass.obj");
 
     public final Resource resource;
 

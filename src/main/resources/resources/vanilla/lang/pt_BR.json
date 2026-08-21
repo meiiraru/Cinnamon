@@ -426,6 +426,7 @@
   "terrain.slab": "Laje",
   "terrain.teapot": "Bule",
   "terrain.rose": "Rosa",
+  "terrain.glass": "Vidro",
   "terrain.barrier": "Barreira",
 
   "material": "Material",
@@ -586,6 +587,7 @@
   "setting.video.graphics.shadow_quality": "Qualidade das Sombras",
   "setting.video.graphics.render_scale": "Escala de Renderização",
   "setting.video.graphics.bloom_strength": "Intensidade de Brilho",
+  "setting.video.graphics.refraction_strength": "Intensidade de Refração",
 
   "setting.sound.device": "Dispositivo de Som",
   "setting.sound.volume": "Volumes",

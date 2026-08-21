@@ -66,6 +66,8 @@ public abstract class Particle extends WorldObject {
         matrices.popMatrix();
     }
 
+    public void renderTransparent(Camera camera, MatrixStack matrices, float delta) {}
+
     @Override
     public boolean shouldRender(Camera camera) {
         return camera.getPos().distanceSquared(transform.getPos()) <= getRenderDistance() && super.shouldRender(camera);

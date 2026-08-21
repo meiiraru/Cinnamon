@@ -6,13 +6,23 @@ import cinnamon.registry.TerrainRegistry;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
 
+import java.util.function.Supplier;
+
 public class TerrainGenerator {
 
     public static void fill(World world, int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Material material) {
+        fill(world, minX, minY, minZ, maxX, maxY, maxZ, TerrainRegistry.BOX.getFactory(), material);
+    }
+
+    public static void fill(World world, int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Supplier<Terrain> terrainSupplier) {
+        fill(world, minX, minY, minZ, maxX, maxY, maxZ, terrainSupplier, null);
+    }
+
+    public static void fill(World world, int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Supplier<Terrain> terrainSupplier, Material material) {
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
-                    Terrain terrain = TerrainRegistry.BOX.getFactory().get();
+                    Terrain terrain = terrainSupplier.get();
                     terrain.setMaterial(material);
                     terrain.setPos(x, y, z);
                     world.addTerrain(terrain);
@@ -21,7 +31,15 @@ public class TerrainGenerator {
         }
     }
 
+    public static void generateMengerSponge(World world, int level, int xOffset, int yOffset, int zOffset, Supplier<Terrain> terrainSupplier) {
+        generateMengerSponge(world, level, xOffset, yOffset, zOffset, terrainSupplier, null);
+    }
+
     public static void generateMengerSponge(World world, int level, int xOffset, int yOffset, int zOffset, Material material) {
+        generateMengerSponge(world, level, xOffset, yOffset, zOffset, TerrainRegistry.BOX.getFactory(), material);
+    }
+
+    public static void generateMengerSponge(World world, int level, int xOffset, int yOffset, int zOffset, Supplier<Terrain> terrainSupplier, Material material) {
         int size = Maths.pow(3, level);
         boolean[][][] filled = new boolean[size][size][size];
         int[] mod = new int[size];
@@ -55,7 +73,7 @@ public class TerrainGenerator {
                     if (!filled[x][y][z])
                         continue;
 
-                    Terrain terr = TerrainRegistry.BOX.getFactory().get();
+                    Terrain terr = terrainSupplier.get();
                     terr.setMaterial(material);
                     terr.setPos(x + xOffset, y + yOffset, z + zOffset);
                     world.addTerrain(terr);

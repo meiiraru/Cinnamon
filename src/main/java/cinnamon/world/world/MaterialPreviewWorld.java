@@ -1,17 +1,14 @@
 package cinnamon.world.world;
 
-import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WaterRenderer;
-import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Colors;
-import cinnamon.utils.Resource;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.particle.TextParticle;
 import cinnamon.world.terrain.PlaneTerrain;
@@ -20,10 +17,6 @@ import org.joml.Math;
 import org.joml.Vector3f;
 
 public class MaterialPreviewWorld extends WorldClient {
-
-    private static final ModelRenderer
-            SPHERE = ModelManager.getRenderer(new Resource("models/terrain/sphere/sphere.obj")),
-            BOX = ModelManager.getRenderer(new Resource("models/terrain/box/box.obj"));
 
     @Override
     protected void levelLoad() {

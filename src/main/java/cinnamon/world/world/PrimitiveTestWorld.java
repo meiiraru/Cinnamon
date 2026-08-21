@@ -19,22 +19,17 @@ import cinnamon.world.gui.Hud;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.Spotlight;
 import cinnamon.world.terrain.PrimitiveTerrain;
-import cinnamon.world.terrain.Terrain;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static cinnamon.world.gui.Hud.SKIN;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_G;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_H;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public class PrimitiveTestWorld extends WorldClient {
 
     private final List<PrimitiveTerrain> primitives = new ArrayList<>();
     private final List<String> labels = new ArrayList<>();
-    private boolean renderNormals;
 
     @Override
     protected void levelLoad() {
@@ -103,6 +98,9 @@ public class PrimitiveTestWorld extends WorldClient {
         int q = 24;
         float p = 1f;
         boolean c = true;
+
+        labels.clear();
+        primitives.clear();
 
         //plane
         labels.add("Plane");
@@ -211,35 +209,8 @@ public class PrimitiveTestWorld extends WorldClient {
     }
 
     @Override
-    public void renderDebug(Camera camera, MatrixStack matrices, float delta) {
-        if (renderNormals) {
-            for (Terrain terrain : terrainManager.queryCustom(camera::isInsideFrustum)) {
-                if (terrain instanceof PrimitiveTerrain pt)
-                    TransparentWorld.renderNormals(matrices, pt.getVertices());
-            }
-            VertexConsumer.finishAllBatches(camera);
-        }
-
-        super.renderDebug(camera, matrices, delta);
-    }
-
-    @Override
     public void renderWater(Camera camera, MatrixStack matrices, float delta) {
         WaterRenderer.renderWaterPlane(camera, matrices, -0.02f, getSky().fogEnd);
-    }
-
-    @Override
-    public void keyPress(int key, int scancode, int action, int mods) {
-        if (action == GLFW_PRESS) {
-            switch (key) {
-                case GLFW_KEY_G -> renderNormals = !renderNormals;
-                case GLFW_KEY_H -> {
-                    this.close();
-                    new PrimitiveTestWorld().init();
-                }
-            }
-        }
-        super.keyPress(key, scancode, action, mods);
     }
 
     @Override

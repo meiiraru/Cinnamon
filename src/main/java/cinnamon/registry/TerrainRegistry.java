@@ -1,11 +1,7 @@
 package cinnamon.registry;
 
 import cinnamon.utils.Resource;
-import cinnamon.world.terrain.Barrier;
-import cinnamon.world.terrain.Rose;
-import cinnamon.world.terrain.Sphere;
-import cinnamon.world.terrain.Teapot;
-import cinnamon.world.terrain.Terrain;
+import cinnamon.world.terrain.*;
 
 import java.util.function.Supplier;
 
@@ -16,6 +12,7 @@ public enum TerrainRegistry {
     SLAB(TerrainModelRegistry.SLAB.resource),
     TEAPOT(Teapot::new),
     ROSE(Rose::new),
+    GLASS(Glass::new),
     BARRIER(Barrier::new),
     GLTF(TerrainModelRegistry.GLTF_TEST.resource),
     CUSTOM((Resource) null);

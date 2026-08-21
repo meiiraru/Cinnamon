@@ -1,33 +1,43 @@
 package cinnamon.world.world;
 
+import cinnamon.math.collision.shape.Sphere;
 import cinnamon.model.GeometryHelper;
-import cinnamon.model.Vertex;
+import cinnamon.model.MaterialManager;
+import cinnamon.model.ModelManager;
+import cinnamon.model.material.Material;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.render.model.ModelRenderer;
+import cinnamon.render.shader.Shader;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
+import cinnamon.world.light.PointLight;
 import org.joml.Math;
 import org.joml.Vector3f;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_F;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_G;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
 public class TransparentWorld extends WorldClient {
 
     private static final Resource IMAGE = new Resource("textures/misc/cat-jumping.png");
+    private static final Vector3f[] positions = new Vector3f[100];
+    private static final PointLight[] lights = new PointLight[20];
 
-    private final List<Vertex[][]> vertices = new ArrayList<>();
-    private boolean renderNormals;
+    static {
+        for (int i = 0; i < positions.length; i++)
+            positions[i] = new Vector3f();
+        for (int i = 0; i < lights.length; i++)
+            lights[i] = new PointLight();
+    }
 
     @Override
     protected void levelLoad() {
         //super.levelLoad();
+        for (PointLight light : lights)
+            addLight(light);
         player.updateMovementFlags(false, false, true);
         gen();
     }
@@ -41,25 +51,12 @@ public class TransparentWorld extends WorldClient {
 
     @Override
     public int renderTerrain(Camera camera, MatrixStack matrices, float delta) {
-        for (Vertex[][] v : vertices)
-            VertexConsumer.WORLD_MAIN.consume(v);
-
-        if (renderNormals)
-            for (Vertex[][] v : vertices)
-                renderNormals(matrices, v);
-
         matrices.pushMatrix();
-        matrices.translate(20, 20, 0);
         camera.billboard(matrices);
-        Vertex[] v = GeometryHelper.quad(matrices, -1, -1, 2, 2);
+        VertexConsumer.SCREEN_UV.consume(GeometryHelper.quad(matrices, -1, -1, 2, 2), IMAGE);
         matrices.popMatrix();
 
-        if (renderNormals)
-            renderNormals(matrices, v);
-
-        VertexConsumer.SCREEN_UV.consume(v, IMAGE);
-
-        return super.renderTerrain(camera, matrices, delta) + vertices.size();
+        return super.renderTerrain(camera, matrices, delta) + 1;
     }
 
     @Override
@@ -67,45 +64,53 @@ public class TransparentWorld extends WorldClient {
         //no water
     }
 
-    private void gen() {
-        vertices.clear();
-        int r = 10;
-        int r2 = r + r;
+    @Override
+    public void renderTransparent(Camera camera, MatrixStack matrices, float delta) {
+        ModelRenderer model = ModelManager.getRenderer(new Resource("models/terrain/sphere/sphere.obj"));
+        ModelRenderer diamond = ModelManager.getRenderer(new Resource("models/misc/diamond.obj"));
+        Material mat = MaterialManager.get(new Resource("materials/misc/diamond/diamond.mtl")).getFirst();
 
-        for (int i = 0; i < 100; i++) {
-            client.matrices.pushMatrix();
-            client.matrices.translate((float) (Math.random() * r2) - r, (float) (Math.random() * r2) - r, (float) (Math.random() * r2) - r);
-            vertices.add(GeometryHelper.box(client.matrices, -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, Colors.randomRainbow().rgb + (0xAA << 24)));
-            client.matrices.popMatrix();
+        for (int i = 0; i < positions.length; i++) {
+            Shader.activeShader.applyColorRGBA(Colors.RAINBOW[i % Colors.RAINBOW.length].argb);
+            matrices.pushMatrix();
+            matrices.translate(positions[i]);
+            model.render(matrices, mat);
+            matrices.popMatrix();
         }
+
+        int len = 8;
+        float angle = Math.PI_TIMES_2_f / len;
+        float dt = (getTime() + delta) * 0.5f;
+        float dt2 = dt * 0.01f;
+        float r = 16f;
+        for (int i = 0; i < len; i++) {
+            matrices.pushMatrix();
+            matrices.translate(Math.sin(i * angle + dt2) * r, 0f, Math.cos(i * angle + dt2) * r);
+            matrices.rotateY(dt);
+            Shader.activeShader.applyColorRGBA(Colors.RAINBOW[i % Colors.RAINBOW.length].argb);
+            diamond.render(matrices, mat);
+            matrices.popMatrix();
+        }
+
+        Shader.activeShader.applyColorRGBA(Colors.WHITE.argb);
+        super.renderTransparent(camera, matrices, delta);
     }
 
-    public static void renderNormals(MatrixStack matrices, Vertex[][] vertices) {
-        int c = 0;
-        for (Vertex[] v : vertices)
-            for (Vertex vertex : v)
-                renderNormal(matrices, vertex, c++);
-    }
-
-    public static void renderNormals(MatrixStack matrices, Vertex[] vertices) {
-        for (int i = 0; i < vertices.length; i++)
-            renderNormal(matrices, vertices[i], i);
-    }
-
-    private static void renderNormal(MatrixStack matrices, Vertex vertex, int i) {
-        Vector3f p0 = vertex.getPos();
-        Vector3f p1 = vertex.getNormal().mul(0.5f, new Vector3f()).add(p0);
-        VertexConsumer.WORLD_MAIN.consume(GeometryHelper.line(matrices, p0.x, p0.y, p0.z, p1.x, p1.y, p1.z, 0.05f, Colors.RAINBOW[i % Colors.RAINBOW.length].rgb + (0xFF << 24)));
+    private void gen() {
+        Sphere sphere = new Sphere(14f);
+        for (Vector3f position : positions)
+            sphere.getRandomPoint(position);
+        for (PointLight light : lights) {
+            light.pos(sphere.getRandomPoint(new Vector3f()));
+            light.setCastShadows(false);
+            light.color(0xFFEEEEAA);
+        }
     }
 
     @Override
     public void keyPress(int key, int scancode, int action, int mods) {
-        if (action == GLFW_PRESS) {
-            if (key == GLFW_KEY_F)
-                gen();
-            else if (key == GLFW_KEY_G)
-                renderNormals = !renderNormals;
-        }
+        if (action != GLFW_RELEASE && key == GLFW_KEY_F)
+            gen();
         super.keyPress(key, scancode, action, mods);
     }
 }

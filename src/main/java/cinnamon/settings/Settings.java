@@ -78,8 +78,9 @@ public class Settings {
             ssrLevel         = new Setting.IntRanges("video.graphics.ssr_level", 3, -1, 4),
             shadowQuality    = new Setting.IntRanges("video.graphics.shadow_quality", 3, -1, 4);
     public static final Setting.Ranges
-            renderScale   = new Setting.Ranges("video.graphics.render_scale", 1f, 0.01f, 4f),
-            bloomStrength = new Setting.Ranges("video.graphics.bloom_strength", 1f, 0f, 5f);
+            renderScale     = new Setting.Ranges("video.graphics.render_scale", 1f, 0.01f, 4f),
+            bloomStrength   = new Setting.Ranges("video.graphics.bloom_strength", 1f, 0f, 5f),
+            refractStrength = new Setting.Ranges("video.graphics.refraction_strength", 1f, 0f, 1f);
 
     // -- sounds -- //
 

@@ -47,6 +47,21 @@ public class MatrixStack {
         return this;
     }
 
+    public MatrixStack rotateX(float angle) {
+        stack.peek().rotateX(angle);
+        return this;
+    }
+
+    public MatrixStack rotateY(float angle) {
+        stack.peek().rotateY(angle);
+        return this;
+    }
+
+    public MatrixStack rotateZ(float angle) {
+        stack.peek().rotateZ(angle);
+        return this;
+    }
+
     public MatrixStack scale(float x, float y, float z) {
         stack.peek().scale(x, y, z);
         return this;
@@ -101,6 +116,27 @@ public class MatrixStack {
         public Pose rotate(Quaternionf quaternion) {
             pos.rotate(quaternion);
             normal.rotate(quaternion);
+            return this;
+        }
+
+        public Pose rotateX(float angle) {
+            float ang = Math.toRadians(angle);
+            pos.rotateX(ang);
+            normal.rotateX(ang);
+            return this;
+        }
+
+        public Pose rotateY(float angle) {
+            float ang = Math.toRadians(angle);
+            pos.rotateY(ang);
+            normal.rotateY(ang);
+            return this;
+        }
+
+        public Pose rotateZ(float angle) {
+            float ang = Math.toRadians(angle);
+            pos.rotateZ(ang);
+            normal.rotateZ(ang);
             return this;
         }
 

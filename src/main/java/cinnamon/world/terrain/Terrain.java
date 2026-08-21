@@ -46,12 +46,18 @@ public class Terrain extends WorldObject {
         super.render(camera, matrices, delta);
 
         matrices.pushMatrix();
-        matrices.translate(0.5f, 0f, 0.5f);
-        transform.applyTransform(matrices);
+        applyModelPose(matrices, delta);
 
         renderModel(camera, overrideMaterial, matrices, delta);
 
         matrices.popMatrix();
+    }
+
+    public void renderTransparent(Camera camera, MatrixStack matrices, float delta) {}
+
+    protected void applyModelPose(MatrixStack matrices, float delta) {
+        matrices.translate(0.5f, 0f, 0.5f);
+        transform.applyTransform(matrices);
     }
 
     protected void renderModel(Camera camera, Material material, MatrixStack matrices, float delta) {
@@ -179,5 +185,9 @@ public class Terrain extends WorldObject {
 
     public boolean explode(float explosionStrength) {
         return true;
+    }
+
+    public boolean isTransparent() {
+        return false;
     }
 }

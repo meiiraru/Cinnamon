@@ -1,0 +1,8 @@
+# Made in Blockbench 5.1.6
+newmtl frame
+map_Kd -smooth_mip frame.png
+newmtl glass
+map_Kd -smooth_mip glass.png
+map_Bump -smooth normal.png
+map_Ke -smooth_mip ior.png
+newmtl none

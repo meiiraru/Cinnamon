@@ -130,7 +130,7 @@ public enum MaterialRegistry {
 
     MaterialRegistry() {
         String name = name().toLowerCase();
-        this.resource = new Resource("materials/" + name + "/" + name + ".mtl");
+        this.resource = new Resource("materials/common/" + name + "/" + name + ".mtl");
     }
 
     MaterialRegistry(Resource resource) {
@@ -138,7 +138,7 @@ public enum MaterialRegistry {
     }
 
     private void loadMaterial() {
-        this.material = resource == null ? null : MaterialManager.load(this.resource, name().toLowerCase());
+        this.material = resource == null ? null : MaterialManager.get(this.resource).getFirst();
     }
 
     public static void loadAllMaterials() {

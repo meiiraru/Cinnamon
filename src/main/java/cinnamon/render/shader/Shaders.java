@@ -39,7 +39,9 @@ public enum Shaders {
     WATER,
     DECAL,
     CUBEMAP_SKYBOX,
-    CLOUDS;
+    CLOUDS,
+    GBUFFER_TRANSPARENT,
+    DEFERRED_TRANSPARENT;
 
     private final Resource resource;
     private Shader shader;

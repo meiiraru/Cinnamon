@@ -52,8 +52,16 @@ public class PBRDeferredFramebuffer extends Framebuffer {
 
     @Override
     public void clear() {
+        clearColors();
+        clearDepthStencil();
+    }
+
+    public void clearColors() {
         for (int i = 0; i < ATTACHMENTS.length; i++)
             glClearBufferfv(GL_COLOR, i, clearColors[i]);
+    }
+
+    public void clearDepthStencil() {
         glClearBufferfi(GL_DEPTH_STENCIL, 0, 1f, 1);
     }
 

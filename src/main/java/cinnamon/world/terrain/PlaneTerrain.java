@@ -36,4 +36,9 @@ public class PlaneTerrain extends Terrain {
     public boolean explode(float explosionStrength) {
         return false;
     }
+
+    @Override
+    public boolean isTransparent() {
+        return true;
+    }
 }

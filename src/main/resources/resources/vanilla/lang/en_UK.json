@@ -440,6 +440,7 @@
   "terrain.slab": "Slab",
   "terrain.teapot": "Teapot",
   "terrain.rose": "Rose",
+  "terrain.glass": "Glass",
   "terrain.barrier": "Barrier",
 
   "material": "Material",
@@ -600,6 +601,7 @@
   "setting.video.graphics.shadow_quality": "Shadow Quality",
   "setting.video.graphics.render_scale": "Render Scale",
   "setting.video.graphics.bloom_strength": "Bloom Strength",
+  "setting.video.graphics.refraction_strength": "Refraction Strength",
 
   "setting.sound.device": "Sound Device",
   "setting.sound.volume": "Volumes",

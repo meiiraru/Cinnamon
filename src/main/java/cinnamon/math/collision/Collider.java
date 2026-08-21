@@ -23,6 +23,9 @@ public abstract class Collider<T extends Collider<T>> {
     public T translate(Vector3f translation) {
         return this.translate(translation.x, translation.y, translation.z);
     }
+    public T translate(float translation) {
+        return this.translate(translation, translation, translation);
+    }
     public abstract T translate(float x, float y, float z);
 
     public abstract T applyMatrix(Matrix4f matrix);

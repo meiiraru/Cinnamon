@@ -81,6 +81,7 @@ import cinnamon.world.sky.Sky;
 import cinnamon.world.sky.SkyColors;
 import cinnamon.world.terrain.Button;
 import cinnamon.world.terrain.ConveyorBelt;
+import cinnamon.world.terrain.Glass;
 import cinnamon.world.terrain.PlaneTerrain;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.TerrainGenerator;
@@ -227,6 +228,11 @@ public class WorldClient extends World {
 
         //rgb spotlights
         TerrainGenerator.fill(this, 4, 1, 24, 9, 3, 24, MaterialRegistry.COBBLESTONE2.material);
+
+        TerrainGenerator.fill(this, -1, 1, 22, 14, 4, 22, MaterialRegistry.COBBLESTONE2.material);
+        removeTerrain(new AABB(0, 1, 22, 13, 3, 22).translate(0.5f));
+        TerrainGenerator.fill(this, 0, 1, 22, 13, 3, 22, Glass::new);
+
         float r = 0.75f;
         for (int i = 0; i < 3; i++) {
             float radi = Math.toRadians(120f) * i;
@@ -521,6 +527,24 @@ public class WorldClient extends World {
 
     public void renderWater(Camera camera, MatrixStack matrices, float delta) {
         WaterRenderer.renderWaterPlane(camera, matrices, 0.9f, getSky().fogEnd);
+    }
+
+    public void renderTransparent(Camera camera, MatrixStack matrices, float delta) {
+        List<Terrain> query = terrainManager.queryCustom(camera::isInsideFrustum);
+        for (Terrain terrain : query) {
+            if (terrain.shouldRender(camera))
+                terrain.renderTransparent(camera, matrices, delta);
+        }
+
+        for (Entity entity : entities.values()) {
+            if (entity.shouldRender(camera))
+                entity.renderTransparent(camera, matrices, delta);
+        }
+
+        for (Particle particle : particles) {
+            if (particle.shouldRender(camera))
+                particle.renderTransparent(camera, matrices, delta);
+        }
     }
 
     public void renderItemExtra(LivingEntity entity, MatrixStack matrices, float delta) {
