@@ -18,7 +18,8 @@ public class Mesh {
     //vertices data
     private final List<Vector3f>
             vertices = new ArrayList<>(),
-            normals = new ArrayList<>();
+            normals  = new ArrayList<>(),
+            tangents = new ArrayList<>();
     private final List<Vector2f>
             uvs = new ArrayList<>();
 
@@ -44,12 +45,16 @@ public class Mesh {
         return vertices;
     }
 
+    public List<Vector2f> getUVs() {
+        return uvs;
+    }
+
     public List<Vector3f> getNormals() {
         return normals;
     }
 
-    public List<Vector2f> getUVs() {
-        return uvs;
+    public List<Vector3f> getTangents() {
+        return tangents;
     }
 
     public List<Group> getGroups() {

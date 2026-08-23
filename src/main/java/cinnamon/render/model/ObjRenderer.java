@@ -38,9 +38,12 @@ public class ObjRenderer extends ModelRenderer {
         List<Vector3f> vertices = mesh.getVertices();
         List<Vector2f> uvs = mesh.getUVs();
         List<Vector3f> normals = mesh.getNormals();
+        List<Vector3f> tangents = mesh.getTangents();
 
         //iterate groups
         for (Group group : mesh.getGroups()) {
+            LOGGER.debug("Baking group \"%s\"", group.getName());
+
             //vertex list and capacity
             List<Vertex> sortedVertices = new ArrayList<>();
 
@@ -50,6 +53,7 @@ public class ObjRenderer extends ModelRenderer {
                 List<Integer> v = face.getVertices();
                 List<Integer> vt = face.getUVs();
                 List<Integer> vn = face.getNormals();
+                List<Integer> vtan = face.getTangents();
 
                 //vertex list
                 List<Vertex> data = new ArrayList<>();
@@ -59,9 +63,10 @@ public class ObjRenderer extends ModelRenderer {
                     Vector3f a = vertices.get(v.get(i));
                     Vector2f b = !vt.isEmpty() ? uvs.get(vt.get(i)) : Vertex.DEFAULT_UV;
                     Vector3f c = !vn.isEmpty() ? normals.get(vn.get(i)) : Vertex.DEFAULT_NORMAL;
+                    Vector3f d = !vtan.isEmpty() ? tangents.get(vtan.get(i)) : Vertex.DEFAULT_TANGENT;
 
                     //add to vertex list
-                    data.add(new Vertex().pos(a).uv(b).normal(c));
+                    data.add(new Vertex().pos(a).uv(b).normal(c).tangent(d));
                 }
 
                 //triangulate the faces using ear clipping
@@ -72,27 +77,32 @@ public class ObjRenderer extends ModelRenderer {
             }
 
             //skip empty groups
-            if (sortedVertices.isEmpty())
+            if (sortedVertices.isEmpty()) {
+                LOGGER.debug("Skipping empty group");
                 continue;
+            }
 
             //default angle threshold for smoothing
             float angleThreshold = 45f;
 
             //generate normals when missing
             if (normals.isEmpty()) {
-                LOGGER.debug("Calculating normals for group \"%s\"", group.getName());
+                LOGGER.debug("No normals data detected - generating normals");
                 VertexHelper.calculateFlatNormals(sortedVertices);
                 VertexHelper.smoothNormals(sortedVertices, angleThreshold);
             }
 
             //generate uvs when missing
             if (uvs.isEmpty()) {
-                LOGGER.debug("Calculating uvs for group \"%s\"", group.getName());
+                LOGGER.debug("No UV data detected - generating UVs");
                 VertexHelper.calculateUVs(group.getBounds().getMin(), group.getBounds().getMax(), sortedVertices);
             }
 
             //calculate tangents
-            VertexHelper.calculateTangents(sortedVertices, angleThreshold);
+            if (tangents.isEmpty()) {
+                LOGGER.debug("No tangents data detected - generating tangents");
+                VertexHelper.calculateTangents(sortedVertices, angleThreshold);
+            }
 
             //strip the unique indices from the vertex list
             Pair<int[], List<Vertex>> indices = VertexHelper.stripIndices(sortedVertices);

@@ -4,7 +4,6 @@ import cinnamon.model.obj.Mesh;
 import cinnamon.parsers.AssimpLoader;
 import cinnamon.parsers.ObjLoader;
 import cinnamon.render.model.AnimatedObjRenderer;
-import cinnamon.render.model.AssimpRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.model.ObjRenderer;
 import cinnamon.utils.Resource;
@@ -72,33 +71,27 @@ public class ModelManager {
     }
 
     private static ModelRenderer bakeModel(Resource resource) {
-        ModelRenderer model;
+        Mesh mesh = getMesh(resource);
+        if (mesh == null)
+            return null;
 
-        try {
-            //check model type
-            String extension = resource.getExtension();
-            if (extension.equalsIgnoreCase("obj")) { //prefer built-in OBJ loader
-                Mesh mesh = getMesh(resource);
-                model = mesh.getAnimationData() != null ? new AnimatedObjRenderer(mesh) : new ObjRenderer(mesh);
-            //} else if (extension.equalsIgnoreCase("bbmodel")) { //blockbench model
-            //    BBModelLoader.BBModelData modelData = BBModelLoader.load(resource);
-            //    model = new AnimatedObjRenderer(modelData.mesh(), modelData.rootBone(), modelData.animations());
-            } else { //otherwise use Assimp
-                model = new AssimpRenderer(AssimpLoader.load(resource)); //no cache for assimp models
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to load model \"%s\"", resource, e);
-            model = null;
-        }
-
-        return model;
+        return mesh.getAnimationData() != null ? new AnimatedObjRenderer(mesh) : new ObjRenderer(mesh);
     }
 
     private static Mesh loadMesh(Resource resource) {
         try {
-            return ObjLoader.load(resource);
+            //check model type
+            String extension = resource.getExtension();
+            if (extension.equalsIgnoreCase("obj")) {
+                return ObjLoader.load(resource);
+            //} else if (extension.equalsIgnoreCase("bbmodel")) { //blockbench model
+            //    BBModelLoader.BBModelData modelData = BBModelLoader.load(resource);
+            //    model = new AnimatedObjRenderer(modelData.mesh(), modelData.rootBone(), modelData.animations());
+            } else { //otherwise use Assimp
+                return AssimpLoader.load(resource);
+            }
         } catch (Exception e) {
-            LOGGER.error("Failed to load mesh \"%s\"", resource, e);
+            LOGGER.error("Failed to load model \"%s\"", resource, e);
             return null;
         }
     }

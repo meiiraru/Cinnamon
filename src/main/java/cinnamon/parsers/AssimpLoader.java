@@ -1,12 +1,14 @@
 package cinnamon.parsers;
 
-import cinnamon.model.assimp.Mesh;
-import cinnamon.model.assimp.Model;
+import cinnamon.model.obj.Face;
+import cinnamon.model.obj.Group;
+import cinnamon.model.obj.Mesh;
 import cinnamon.model.material.Material;
 import cinnamon.model.material.MaterialTexture;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -15,6 +17,8 @@ import org.lwjgl.assimp.*;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import static cinnamon.events.Events.LOGGER;
 import static org.lwjgl.assimp.Assimp.*;
@@ -37,14 +41,14 @@ public class AssimpLoader {
             aiProcess_OptimizeGraph |
             aiProcess_GenBoundingBoxes;
 
-    public static Model load(Resource res) throws Exception {
+    public static Mesh load(Resource res) throws Exception {
         LOGGER.debug("Loading model \"%s\"", res);        
 
         AIScene scene = getSceneFor(res);
         if (scene == null)
             throw new Exception(aiGetErrorString());
 
-        Model model = new Model();
+        Mesh mesh = new Mesh();
 
         PointerBuffer meshes = scene.mMeshes();
         int numMeshes = meshes == null ? 0 : meshes.limit();
@@ -52,30 +56,37 @@ public class AssimpLoader {
 
         if (numMeshes == 0) {
             aiReleaseImport(scene);
-            return model;
+            return mesh;
         }
 
         AINode root = scene.mRootNode();
         if (root == null) {
             LOGGER.debug("Model has no root node");
             aiReleaseImport(scene);
-            return model;
+            return mesh;
         }
 
-        //parse nodes and meshes
-        parseNode(root, meshes, new Matrix4f(), model);
-
         //parse materials
+        List<Material> materials = new ArrayList<>();
         PointerBuffer material = scene.mMaterials();
         int numMaterials = material == null ? 0 : material.limit();
         LOGGER.debug("Model has %s materials", numMaterials);
         for (int i = 0; i < numMaterials; i++) {
             AIMaterial aimaterial = AIMaterial.create(material.get(i));
-            parseMaterial(scene, aimaterial, model, res);
+            parseMaterial(scene, aimaterial, mesh, res, materials);
         }
 
+        //parse nodes and meshes
+        parseNode(root, meshes, new Matrix4f(), mesh, materials);
+
+        //calculate the entire model AABB
+        if (!mesh.getGroups().isEmpty())
+            mesh.getBounds().set(mesh.getGroups().getFirst().getBounds());
+        for (Group group : mesh.getGroups())
+            mesh.getBounds().merge(group.getBounds());
+
         aiReleaseImport(scene);
-        return model;
+        return mesh;
     }
 
     private static Vector3f parseVec3(AIVector3D vec) {
@@ -146,7 +157,7 @@ public class AssimpLoader {
         return scene;
     }
 
-    private static void parseNode(AINode node, PointerBuffer meshes, Matrix4f transform, Model model) {
+    private static void parseNode(AINode node, PointerBuffer meshes, Matrix4f transform, Mesh mesh, List<Material> materials) {
         LOGGER.debug("Parsing node \"%s\"", node.mName().dataString());
 
         //parse node transformation
@@ -158,7 +169,7 @@ public class AssimpLoader {
             for (int i = 0; i < meshIndexes.limit(); i++) {
                 int meshIndex = meshIndexes.get(i);
                 AIMesh aimesh = AIMesh.create(meshes.get(meshIndex));
-                processMesh(aimesh, model, matrix);
+                processMesh(aimesh, mesh, matrix, materials);
             }
         }
 
@@ -167,56 +178,67 @@ public class AssimpLoader {
         if (children != null) {
             for (int i = 0; i < children.limit(); i++) {
                 AINode childNode = AINode.create(children.get(i));
-                parseNode(childNode, meshes, matrix, model);
+                parseNode(childNode, meshes, matrix, mesh, materials);
             }
         }
     }
 
-    private static void processMesh(AIMesh aimesh, Model model, Matrix4f transform) {
+    private static void processMesh(AIMesh aimesh, Mesh mesh, Matrix4f transform, List<Material> materials) {
         //create group
-        Mesh mesh = new Mesh(aimesh.mName().dataString());
-        model.meshes.add(mesh);
+        Group group = new Group(aimesh.mName().dataString());
+        mesh.getGroups().add(group);
 
         //aabb
         AIAABB aabb = aimesh.mAABB();
-        mesh.aabb
+        group.getBounds()
                 .set(aabb.mMin().x(), aabb.mMin().y(), aabb.mMin().z(), aabb.mMax().x(), aabb.mMax().y(), aabb.mMax().z())
                 .applyMatrix(transform);
-        LOGGER.debug("Mesh \"%s\" AABB %s", mesh.name, mesh.aabb);
+        LOGGER.debug("Mesh \"%s\" AABB %s", group.getName(), group.getBounds());
+
+        //offsets of the vertex data
+        int vOffset = mesh.getVertices().size();
+        int uvOffset = mesh.getUVs().size();
+        int nOffset = mesh.getNormals().size();
+        int tOffset = mesh.getTangents().size();
 
         //vertex data
         AIVector3D.Buffer vertices = aimesh.mVertices();
         for (int i = 0; i < vertices.limit(); i++)
-            mesh.vertices.add(parseVec3(vertices.get(i)).mulPosition(transform));
+            mesh.getVertices().add(parseVec3(vertices.get(i)).mulPosition(transform));
 
+        boolean hasUVs = false;
         AIVector3D.Buffer uvs = aimesh.mTextureCoords(0);
         if (uvs != null) {
-            mesh.hasUVs = true;
+            hasUVs = true;
             for (int i = 0; i < uvs.limit(); i++)
-                mesh.uvs.add(parseVec2(uvs.get(i)));
+                mesh.getUVs().add(parseVec2(uvs.get(i)));
         }
 
+        boolean hasNormals = false;
         AIVector3D.Buffer normals = aimesh.mNormals();
         if (normals != null) {
-            mesh.hasNormals = true;
+            hasNormals = true;
+            Matrix3f normalMatrix = new Matrix3f(transform).invert().transpose();
             for (int i = 0; i < normals.limit(); i++)
-                mesh.normals.add(parseVec3(normals.get(i)));
+                mesh.getNormals().add(parseVec3(normals.get(i)).mul(normalMatrix).normalize());
         }
 
+        boolean hasTangents = false;
         AIVector3D.Buffer tangents = aimesh.mTangents();
         if (tangents != null) {
-            mesh.hasTangents = true;
+            hasTangents = true;
             for (int i = 0; i < tangents.limit(); i++)
-                mesh.tangents.add(parseVec3(tangents.get(i)));
+                mesh.getTangents().add(parseVec3(tangents.get(i)).mulDirection(transform).normalize());
         }
 
-        mesh.materialIndex = aimesh.mMaterialIndex();
+        int materialIndex = aimesh.mMaterialIndex();
+        group.setMaterial(materials.get(materialIndex));
 
         //faces
-        processFaces(aimesh, mesh);
+        processFaces(aimesh, group, vOffset, hasUVs ? uvOffset : -1, hasNormals ? nOffset : -1, hasTangents ? tOffset : -1);
     }
 
-    private static void processFaces(AIMesh aimesh, Mesh mesh) {
+    private static void processFaces(AIMesh aimesh, Group group, int vOffset, int uvOffset, int nOffset, int tOffset) {
         int skips = 0;
         AIFace.Buffer faces = aimesh.mFaces();
 
@@ -227,23 +249,37 @@ public class AssimpLoader {
                 continue;
             }
 
+            List<Integer> vIndices = new ArrayList<>();
+            List<Integer> uvIndices = new ArrayList<>();
+            List<Integer> nIndices = new ArrayList<>();
+            List<Integer> tIndices = new ArrayList<>();
+
             IntBuffer indices = aiface.mIndices();
             for (int j = 0; j < indices.limit(); j++) {
                 int index = indices.get(j);
-                mesh.indices.add(index);
+
+                vIndices.add(index + vOffset);
+                if (uvOffset != -1) uvIndices.add(index + uvOffset);
+                if (nOffset != -1) nIndices.add(index + nOffset);
+                if (tOffset != -1) tIndices.add(index + tOffset);
             }
+
+            Face face = new Face(vIndices, uvIndices, nIndices, tIndices);
+            group.getFaces().add(face);
         }
 
         if (skips > 0)
-            LOGGER.debug("Skipped %d faces for group \"%s\" with less than 3 indices", skips, mesh.name);
+            LOGGER.debug("Skipped %d faces for group \"%s\" with less than 3 indices", skips, group.getName());
     }
 
-    private static void parseMaterial(AIScene scene, AIMaterial aimaterial, Model model, Resource res) {
+    private static void parseMaterial(AIScene scene, AIMaterial aimaterial, Mesh mesh, Resource res, List<Material> materials) {
         AIString name = AIString.create();
         aiGetMaterialString(aimaterial, AI_MATKEY_NAME, 0, 0, name);
 
-        Material material = new Material(name.dataString());
-        model.materials.add(material);
+        String matName = name.dataString();
+        Material material = new Material(matName);
+        mesh.getMaterials().put(matName, material);
+        materials.add(material);
 
         //parse textures
         material.setAlbedo(parseTexture(scene, aimaterial, aiTextureType_DIFFUSE, res, Texture.TextureParams.MIPMAP_SMOOTH));
