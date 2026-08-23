@@ -3,9 +3,9 @@ package cinnamon.render.model;
 import cinnamon.model.Vertex;
 import cinnamon.model.VertexHelper;
 import cinnamon.model.material.Material;
-import cinnamon.model.obj.Face;
-import cinnamon.model.obj.Group;
-import cinnamon.model.obj.Mesh;
+import cinnamon.model.mesh.Face;
+import cinnamon.model.mesh.Group;
+import cinnamon.model.mesh.Mesh;
 import cinnamon.utils.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -17,17 +17,17 @@ import java.util.Map;
 
 import static cinnamon.events.Events.LOGGER;
 
-public class ObjRenderer extends ModelRenderer {
+public class MeshRenderer extends ModelRenderer {
 
     private final Mesh mesh;
 
-    public ObjRenderer(ObjRenderer other) {
+    public MeshRenderer(MeshRenderer other) {
         super(other.meshes);
         this.aabb.set(other.aabb);
         this.mesh = other.mesh;
     }
 
-    public ObjRenderer(Mesh mesh) {
+    public MeshRenderer(Mesh mesh) {
         super(new HashMap<>(mesh.getGroups().size(), 1f));
         this.mesh = mesh;
         bakeModel();

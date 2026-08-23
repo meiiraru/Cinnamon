@@ -3,7 +3,7 @@ package cinnamon.world.items;
 import cinnamon.animation.Animation;
 import cinnamon.model.ModelManager;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.model.AnimatedObjRenderer;
+import cinnamon.render.model.AnimatedMeshRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.living.LivingEntity;
@@ -39,7 +39,7 @@ public abstract class Item {
     }
 
     public Animation getAnimation(String animation) {
-        return model instanceof AnimatedObjRenderer anim ? anim.getAnimation(animation) : null;
+        return model instanceof AnimatedMeshRenderer anim ? anim.getAnimation(animation) : null;
     }
 
     public void worldRender(MatrixStack matrices, float delta) {}

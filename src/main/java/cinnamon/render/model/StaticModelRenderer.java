@@ -3,13 +3,13 @@ package cinnamon.render.model;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.model.Vertex;
 import cinnamon.model.material.Material;
-import cinnamon.model.obj.Mesh;
+import cinnamon.model.mesh.Mesh;
 import cinnamon.render.MatrixStack;
 
 import java.util.Collection;
 import java.util.List;
 
-public class StaticModelRenderer extends ObjRenderer {
+public class StaticModelRenderer extends MeshRenderer {
 
     public StaticModelRenderer(Mesh mesh) {
         this(mesh, null);

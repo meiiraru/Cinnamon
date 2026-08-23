@@ -15,7 +15,7 @@ import cinnamon.registry.*;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.model.AnimatedObjRenderer;
+import cinnamon.render.model.AnimatedMeshRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
@@ -225,7 +225,7 @@ public class ModelViewerScreen extends ParentedScreen {
             }
 
             //render model pivots
-            if (renderAnimationBones && modelViewer.getModel() instanceof AnimatedObjRenderer obj) {
+            if (renderAnimationBones && modelViewer.getModel() instanceof AnimatedMeshRenderer obj) {
                 glDisable(GL_DEPTH_TEST);
                 renderBone(matrices, obj.getBone(), 0.01f);
                 VertexConsumer.finishAllBatches(client.camera);

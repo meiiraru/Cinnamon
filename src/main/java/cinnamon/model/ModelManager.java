@@ -1,11 +1,11 @@
 package cinnamon.model;
 
-import cinnamon.model.obj.Mesh;
+import cinnamon.model.mesh.Mesh;
 import cinnamon.parsers.AssimpLoader;
 import cinnamon.parsers.ObjLoader;
-import cinnamon.render.model.AnimatedObjRenderer;
+import cinnamon.render.model.AnimatedMeshRenderer;
+import cinnamon.render.model.MeshRenderer;
 import cinnamon.render.model.ModelRenderer;
-import cinnamon.render.model.ObjRenderer;
 import cinnamon.utils.Resource;
 
 import java.util.HashMap;
@@ -24,7 +24,7 @@ public class ModelManager {
 
         ModelRenderer model = getCachedRenderer(resource);
         if (model != null)
-            return model instanceof AnimatedObjRenderer anim ? new AnimatedObjRenderer(anim) : model;
+            return model instanceof AnimatedMeshRenderer anim ? new AnimatedMeshRenderer(anim) : model;
 
         //bake and cache
         return cacheRenderer(resource, bakeModel(resource));
@@ -75,7 +75,7 @@ public class ModelManager {
         if (mesh == null)
             return null;
 
-        return mesh.getAnimationData() != null ? new AnimatedObjRenderer(mesh) : new ObjRenderer(mesh);
+        return mesh.getAnimationData() != null ? new AnimatedMeshRenderer(mesh) : new MeshRenderer(mesh);
     }
 
     private static Mesh loadMesh(Resource resource) {

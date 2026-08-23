@@ -1,4 +1,4 @@
-package cinnamon.model.obj;
+package cinnamon.model.mesh;
 
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.model.material.Material;

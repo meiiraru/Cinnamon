@@ -3,7 +3,7 @@ package cinnamon.render.model;
 import cinnamon.animation.Animation;
 import cinnamon.animation.Bone;
 import cinnamon.model.material.Material;
-import cinnamon.model.obj.Mesh;
+import cinnamon.model.mesh.Mesh;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.shader.Shader;
 
@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class AnimatedObjRenderer extends ObjRenderer {
+public class AnimatedMeshRenderer extends MeshRenderer {
 
     private final Bone bone;
     private final Map<String, Animation> animations;
 
-    public AnimatedObjRenderer(AnimatedObjRenderer other) {
+    public AnimatedMeshRenderer(AnimatedMeshRenderer other) {
         super(other);
         Map<Bone, Bone> boneMap = new HashMap<>();
         this.bone = new Bone(other.bone, boneMap);
@@ -28,7 +28,7 @@ public class AnimatedObjRenderer extends ObjRenderer {
             this.animations.put(animation.getName(), new Animation(animation, boneMap));
     }
 
-    public AnimatedObjRenderer(Mesh mesh) {
+    public AnimatedMeshRenderer(Mesh mesh) {
         super(mesh);
         this.bone = mesh.getAnimationData().first();
         this.animations = new HashMap<>();

@@ -1,9 +1,9 @@
 package cinnamon.parsers;
 
 import cinnamon.model.material.Material;
-import cinnamon.model.obj.Face;
-import cinnamon.model.obj.Group;
-import cinnamon.model.obj.Mesh;
+import cinnamon.model.mesh.Face;
+import cinnamon.model.mesh.Group;
+import cinnamon.model.mesh.Mesh;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 import org.joml.Vector3f;

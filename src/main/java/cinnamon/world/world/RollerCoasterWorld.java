@@ -6,7 +6,7 @@ import cinnamon.parsers.CurveToMesh;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.model.ModelRenderer;
-import cinnamon.render.model.ObjRenderer;
+import cinnamon.render.model.MeshRenderer;
 import cinnamon.world.entity.collectable.ItemEntity;
 import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.items.CurveMaker;
@@ -92,7 +92,7 @@ public class RollerCoasterWorld extends WorldClient {
         //set model and path
         if (model != null)
             model.free();
-        model = new ObjRenderer(CurveToMesh.generateMesh(curve, false, true));
+        model = new MeshRenderer(CurveToMesh.generateMesh(curve, false, true));
         path = curve.getCurve().toArray(new Vector3f[0]);
 
         //set cart

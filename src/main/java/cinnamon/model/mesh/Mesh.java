@@ -1,4 +1,4 @@
-package cinnamon.model.obj;
+package cinnamon.model.mesh;
 
 import cinnamon.animation.Animation;
 import cinnamon.animation.Bone;

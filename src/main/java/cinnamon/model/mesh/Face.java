@@ -1,4 +1,4 @@
-package cinnamon.model.obj;
+package cinnamon.model.mesh;
 
 import java.util.List;
 

@@ -11,7 +11,7 @@ import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
-import cinnamon.render.model.AnimatedObjRenderer;
+import cinnamon.render.model.AnimatedMeshRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.Mask;
 import cinnamon.utils.Resource;
@@ -115,7 +115,7 @@ public class Terrain extends WorldObject {
     }
 
     public Animation getAnimation(String name) {
-        return model instanceof AnimatedObjRenderer anim ? anim.getAnimation(name) : null;
+        return model instanceof AnimatedMeshRenderer anim ? anim.getAnimation(name) : null;
     }
 
     public void setPos(Vector3f pos) {

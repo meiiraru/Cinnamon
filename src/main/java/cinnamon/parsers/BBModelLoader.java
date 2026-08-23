@@ -2,7 +2,7 @@ package cinnamon.parsers;
 
 import cinnamon.animation.Animation;
 import cinnamon.animation.Bone;
-import cinnamon.model.obj.Mesh;
+import cinnamon.model.mesh.Mesh;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 import cinnamon.utils.Version;

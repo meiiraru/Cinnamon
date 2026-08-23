@@ -15,7 +15,7 @@ import cinnamon.render.LightRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.model.AnimatedObjRenderer;
+import cinnamon.render.model.AnimatedMeshRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
@@ -106,7 +106,7 @@ public abstract class Entity extends WorldObject {
     }
 
     public Animation getAnimation(String name) {
-        return model instanceof AnimatedObjRenderer anim ? anim.getAnimation(name) : null;
+        return model instanceof AnimatedMeshRenderer anim ? anim.getAnimation(name) : null;
     }
 
     protected void applyModelPose(Camera camera, MatrixStack matrices, float delta) {

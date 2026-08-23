@@ -16,7 +16,7 @@ import cinnamon.render.Window;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
-import cinnamon.render.model.AnimatedObjRenderer;
+import cinnamon.render.model.AnimatedMeshRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
@@ -357,18 +357,18 @@ public class ModelViewer extends SelectableWidget {
     }
 
     public List<String> getAnimations() {
-        if (model instanceof AnimatedObjRenderer animModel)
+        if (model instanceof AnimatedMeshRenderer animModel)
             return animModel.getAnimations();
         return List.of();
     }
 
     public void stopAllAnimations() {
-        if (model instanceof AnimatedObjRenderer animModel)
+        if (model instanceof AnimatedMeshRenderer animModel)
             animModel.stopAllAnimations();
     }
 
     public Animation getAnimation(String anim) {
-        if (model instanceof AnimatedObjRenderer animModel)
+        if (model instanceof AnimatedMeshRenderer animModel)
             return animModel.getAnimation(anim);
         return null;
     }
