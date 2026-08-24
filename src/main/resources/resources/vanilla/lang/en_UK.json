@@ -129,6 +129,9 @@
   "gui.model_viewer_screen.hide_model_list": "Hide Model List",
   "gui.model_viewer_screen.show_model_list": "Show Model List",
   "gui.model_viewer_screen.skybox_color": "Skybox Color",
+  "gui.model_viewer_screen.export_model": "Export Model",
+  "gui.model_viewer_screen.export_success": "Model exported!",
+  "gui.model_viewer_screen.export_failed": "Failed to export model!",
 
   "gui.wordle.success": "Congrats!",
   "gui.wordle.error.word_small": "Word too small",

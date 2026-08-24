@@ -155,6 +155,12 @@ public class Texture {
         return new Texture(id, 1, 1);
     }
 
+    public static Texture generateSolid(int ARGB, Resource res) {
+        Texture tex = generateSolid(ARGB);
+        cacheTexture(res, tex);
+        return tex;
+    }
+
     public static int getWidth(int id) {
         glBindTexture(GL_TEXTURE_2D, id);
         int width = glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH);

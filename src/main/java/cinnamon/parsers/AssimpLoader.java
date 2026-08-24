@@ -6,12 +6,14 @@ import cinnamon.model.mesh.Face;
 import cinnamon.model.mesh.Group;
 import cinnamon.model.mesh.Mesh;
 import cinnamon.render.texture.Texture;
+import cinnamon.utils.ColorUtils;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.*;
 
@@ -87,6 +89,10 @@ public class AssimpLoader {
 
         aiReleaseImport(scene);
         return mesh;
+    }
+
+    private static Vector4f parseColor(AIColor4D vec) {
+        return new Vector4f(vec.r(), vec.g(), vec.b(), vec.a());
     }
 
     private static Vector3f parseVec3(AIVector3D vec) {
@@ -289,6 +295,11 @@ public class AssimpLoader {
         material.setRoughness(parseTexture(scene, aimaterial, aiTextureType_SHININESS, res));
         material.setMetallic(parseTexture(scene, aimaterial, aiTextureType_METALNESS, res));
         material.setEmissive(parseTexture(scene, aimaterial, aiTextureType_EMISSIVE, res));
+
+        //parse color
+        AIColor4D color = AIColor4D.create();
+        if (aiGetMaterialColor(aimaterial, AI_MATKEY_COLOR_DIFFUSE, 0, 0, color) == aiReturn_SUCCESS)
+            material.setAlbedo(createTextureForColor(parseColor(color), res, matName + "_albedo"));
     }
 
     private static MaterialTexture parseTexture(AIScene scene, AIMaterial aimaterial, int type, Resource res, Texture.TextureParams... params) {
@@ -318,5 +329,14 @@ public class AssimpLoader {
 
         //create texture
         return new MaterialTexture(texture, params);
+    }
+
+    private static MaterialTexture createTextureForColor(Vector4f color, Resource res, String id) {
+        //create path
+        Resource path = new Resource("assimp/" + res + "/" + id + ".png");
+        //force creation and loading of the texture
+        Texture.generateSolid(ColorUtils.rgbaToIntARGB(color), path);
+        //create material texture
+        return new MaterialTexture(path);
     }
 }

@@ -9,6 +9,7 @@ import cinnamon.model.mesh.Mesh;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.IOUtils;
+import cinnamon.utils.TextureIO;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -140,12 +141,13 @@ public class ObjExporter {
         //textures
         writeTexture(path, string, "map_Kd", material.getAlbedo());
         writeTexture(path, string, "bump", material.getHeight());
-        writeTexture(path, string, "norm", material.getNormal(), "-bm " + material.getHeightScale() + " ");
+        writeTexture(path, string, "norm", material.getNormal(), material.getHeightScale() != Material.DEFAULT_HEIGHT ? "-bm " + material.getHeightScale() + " " : "");
         writeTexture(path, string, "map_ao", material.getAO());
         writeTexture(path, string, "map_Pr", material.getRoughness());
         writeTexture(path, string, "map_Pm", material.getMetallic());
         writeTexture(path, string, "map_Ke", material.getEmissive());
-        writeFloat(string, "d", material.getAlphaCutout());
+        if (material.getAlphaCutout() != Material.DEFAULT_ALPHA_CUTOUT)
+            writeFloat(string, "d", material.getAlphaCutout());
     }
 
     private static void writeTexture(Path path, StringBuilder string, String key, MaterialTexture texture) throws IOException {
@@ -157,15 +159,20 @@ public class ObjExporter {
             return;
 
         String textureName = texture.texture().getPath();
-        if (texture.texture().getNamespace().isEmpty()) {
+        String namespace = texture.texture().getNamespace();
+        if (namespace.isEmpty() || namespace.startsWith("assimp/")) {
             textureName = textureName.replaceAll("\\\\", "/");
             textureName = textureName.substring(textureName.lastIndexOf('/') + 1);
         }
 
         //write texture file
-        InputStream input = IOUtils.getResource(texture.texture());
-        IOUtils.writeFile(path.resolve(textureName), input.readAllBytes());
-        input.close();
+        if (namespace.startsWith("generated/") || namespace.startsWith("assimp/"))
+            TextureIO.saveTexture(Texture.of(texture.texture(), texture.params()), path.resolve(textureName));
+        else {
+            InputStream input = IOUtils.getResource(texture.texture());
+            IOUtils.writeFile(path.resolve(textureName), input.readAllBytes());
+            input.close();
+        }
 
         //write texture material
         string.append(key)

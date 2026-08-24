@@ -129,6 +129,9 @@
   "gui.model_viewer_screen.hide_model_list": "Esconder Lista de Modelos",
   "gui.model_viewer_screen.show_model_list": "Mostrar Lista de Modelos",
   "gui.model_viewer_screen.skybox_color": "Cor do Cenário",
+  "gui.model_viewer_screen.export_model": "Exportar Modelo",
+  "gui.model_viewer_screen.export_success": "Modelo exportado!",
+  "gui.model_viewer_screen.export_failed": "Falha ao exportar o modelo!",
 
   "gui.wordle.success": "Prabéns!",
   "gui.wordle.error.word_small": "Palavra muito pequena",

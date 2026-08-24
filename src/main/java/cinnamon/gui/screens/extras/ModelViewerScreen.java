@@ -11,23 +11,29 @@ import cinnamon.gui.widgets.types.*;
 import cinnamon.lang.LangManager;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
+import cinnamon.parsers.ObjExporter;
 import cinnamon.registry.*;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.AnimatedMeshRenderer;
+import cinnamon.render.model.MeshRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
+import cinnamon.utils.FileDialog;
+import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
 import org.joml.Math;
 import org.joml.Quaternionf;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import static cinnamon.Client.LOGGER;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.glDisable;
@@ -198,6 +204,23 @@ public class ModelViewerScreen extends ParentedScreen {
         animationBones.setAction(b -> this.renderAnimationBones = ((Checkbox) b).isToggled());
         animationBones.setRightToLeft(true);
         properties.addWidget(animationBones);
+
+        //export button
+        Button exportModel = new Button(0, 0, animationList.getWidth(), animationList.getHeight(), Text.translated("gui.model_viewer_screen.export_model"), b -> {
+            //open file dialog
+            String folder = FileDialog.openFolder();
+            if (folder != null && modelViewer.getModel() instanceof MeshRenderer mesh) {
+                try {
+                    Path p = ObjExporter.export("mesh", mesh.getMesh(), client.matrices, Path.of(folder));
+                    IOUtils.openInExplorer(p);
+                    Toast.addToast(Text.translated("gui.model_viewer_screen.export_success")).type(Toast.ToastType.SUCCESS);
+                } catch (Exception e) {
+                    Toast.addToast(Text.translated("gui.model_viewer_screen.export_failed")).type(Toast.ToastType.ERROR);
+                    LOGGER.error("Failed to export model", e);
+                }
+            }
+        });
+        properties.addWidget(exportModel);
 
         super.init();
 
