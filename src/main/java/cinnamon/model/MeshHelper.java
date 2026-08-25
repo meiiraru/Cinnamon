@@ -1,6 +1,5 @@
 package cinnamon.model;
 
-import cinnamon.math.collision.shape.AABB;
 import cinnamon.model.mesh.Face;
 import cinnamon.model.mesh.Group;
 import cinnamon.model.mesh.Mesh;
@@ -90,22 +89,8 @@ public class MeshHelper {
     }
 
     public static void centerMesh(Mesh mesh) {
-        AABB aabb = calculateAABB(mesh);
-        Vector3f center = aabb.getCenter();
-
+        Vector3f center = mesh.getBounds().getCenter();
         for (Vector3f vertex : mesh.getVertices())
             vertex.sub(center);
-    }
-
-    public static AABB calculateAABB(Mesh mesh) {
-        Vector3f bbMin = new Vector3f(Integer.MAX_VALUE);
-        Vector3f bbMax = new Vector3f(Integer.MIN_VALUE);
-
-        for (Vector3f vertex : mesh.getVertices()) {
-            bbMin.min(vertex);
-            bbMax.max(vertex);
-        }
-
-        return new AABB(bbMin, bbMax);
     }
 }
