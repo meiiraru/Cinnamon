@@ -83,7 +83,7 @@ public class MeshRenderer extends ModelRenderer {
             }
 
             //default angle threshold for smoothing
-            float angleThreshold = 45f;
+            float angleThreshold = VertexHelper.DEFAULT_ANGLE_THRESHOLD;
 
             //generate normals when missing
             if (normals.isEmpty()) {

@@ -10,6 +10,8 @@ import java.util.*;
 
 public class VertexHelper {
 
+    public static float DEFAULT_ANGLE_THRESHOLD = 45f;
+
     public static List<Vertex> triangulate(List<Vertex> data) {
         //list to return
         List<Vertex> triangles = new ArrayList<>();
