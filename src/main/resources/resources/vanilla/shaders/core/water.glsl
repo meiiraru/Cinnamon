@@ -26,7 +26,7 @@ layout (location = 1) out vec4 gNormal;
 layout (location = 2) out vec4 gORM;
 layout (location = 3) out vec4 gEmissive;
 
-uniform sampler2D noiseTex;
+uniform sampler2D noiseTex; //fbm
 
 uniform vec4 color = vec4(0.3f, 0.45f, 0.6f, 0.95f);
 uniform vec2 roughMetal = vec2(0.0f, 0.0f);
@@ -39,23 +39,8 @@ uniform vec2 waveDir2 = vec2(-0.28f, 0.7f);
 uniform float waveAmplitude = 0.1f;
 uniform float waveFrequency = 0.01f;
 
-float gradientNoise(vec2 p) {
+float sampleNoise(vec2 p) {
     return texture(noiseTex, p).r * 2.0f - 1.0f;
-}
-
-//fractal brownian motion
-float fbm(vec2 p) {
-    float value = 0.0f;
-    float amplitude = 0.5f;
-    float frequency = 1.0f;
-
-    //multiple octaves for detail at different scales
-    for (int i = 0; i < 5; i++) {
-        value += amplitude * gradientNoise(p * frequency);
-        frequency *= 2.0f;
-        amplitude *= 0.5f;
-    }
-    return value;
 }
 
 float waterHeight(vec2 p, float t) {
@@ -65,9 +50,9 @@ float waterHeight(vec2 p, float t) {
 
     //layer multiple noise patterns
     float height = 0.0f;
-    height += fbm(p * waveFrequency + move1) * 0.6f;
-    height += fbm(p * waveFrequency * 2.0f + move2) * 0.3f;
-    height += fbm(p * waveFrequency * 4.0f - move1 * 0.5f) * 0.1f;
+    height += sampleNoise(p * waveFrequency + move1) * 0.6f;
+    height += sampleNoise(p * waveFrequency * 2.0f + move2) * 0.3f;
+    height += sampleNoise(p * waveFrequency * 4.0f - move1 * 0.5f) * 0.1f;
 
     return height * waveAmplitude;
 }

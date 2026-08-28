@@ -1,6 +1,7 @@
 package cinnamon.render;
 
 import cinnamon.math.Rotation;
+import cinnamon.math.noise.FBMNoise;
 import cinnamon.math.noise.PerlinNoise2D;
 import cinnamon.model.StaticGeometry;
 import cinnamon.render.shader.Shader;
@@ -22,12 +23,13 @@ public class WaterRenderer {
         int cells = 64;
 
         //generate noise
-        PerlinNoise2D noise = new PerlinNoise2D(width, height, seed, cells);
+        PerlinNoise2D baseNoise = new PerlinNoise2D(width, height, seed, cells);
+        FBMNoise fbmNoise = new FBMNoise(baseNoise, 5, 2f, 0.5f, 0.5f, 1f);
 
         //create texture
         noiseTexture = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, noiseTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, noise.getBuffer());
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, fbmNoise.getBuffer());
 
         //linear filtering for smooth sampling
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -42,7 +44,8 @@ public class WaterRenderer {
 
         //free resources
         glBindTexture(GL_TEXTURE_2D, 0);
-        noise.free();
+        fbmNoise.free();
+        baseNoise.free();
     }
 
     public static int prepareWaterRenderer(Camera camera, float time) {

@@ -89,7 +89,12 @@ void main() {
 
     //combine
     vec3 finalColor = Lo + specular + transmission;
+    vec4 col = vec4(finalColor, albedo.a);
 
     //fog
-    fragColor = calculateFog(pos, camPos, vec4(finalColor, albedo.a));
+    col = calculateFog(pos, camPos, col);
+
+    //final color
+    col.a = clamp(col.a, 0.0f, 1.0f);
+    fragColor = col;
 }

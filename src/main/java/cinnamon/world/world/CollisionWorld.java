@@ -121,6 +121,8 @@ public class CollisionWorld extends WorldClient {
         //wall
         TerrainGenerator.fill(this, 1, 1, 30, 18, 8, 30, debugMat);
         TerrainGenerator.fill(this, 1, 1, 22, 1, 8, 29, debugMat);
+        TerrainGenerator.fill(this, 2, 1, 22, 6, 8, 22, debugMat);
+        TerrainGenerator.fill(this, 7, 1, 22, 7, 8, 26, debugMat);
 
         //teapot
         Terrain teapot = new MeshTerrain(TerrainModelRegistry.TEAPOT.resource, TerrainRegistry.CUSTOM);

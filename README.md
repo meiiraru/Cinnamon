@@ -3,7 +3,7 @@
 
 A simple and lightweight game and render engine built in Java on top of OpenGL and [LWJGL](https://www.lwjgl.org/), with a focus on simplicity and entire customization of its features.
 
-The engine is designed to be in use of fast prototyping and development of games, although, can also be used to build more complex games and desktop applications.
+The engine is designed to be in use of fast prototyping and development of games, therefore it lacks a lot of core optimizations, although, even with that, it can also be used to build more complex games and desktop applications.
 
 It is built with a modular approach, allowing for easy extension and modification of its features.
 
@@ -50,7 +50,7 @@ It can also be used as a library, allowing for easy integration into other proje
     * Includes a math module with various math functions that helps and extends the [joml](https://github.com/JOML-CI/JOML) library
     * Includes easing functions, timers (delta time), transforms matrices, FFT calculations, noise generations, parametric curves and more
 * Collision System
-    * AABB vs OBB vs Sphere collisions detection and resolution
+    * Plane, Sphere, AABB, OBB, Triangle and Mesh collisions detection and resolution
     * Separating Axis Theorem (SAT) based detection
     * Raycasting and ray intersection tests
     * Collider intersection and sweep tests
@@ -152,16 +152,25 @@ It can also be used as a library, allowing for easy integration into other proje
     * Initial window settings can be set before running the engine
 
 # Future considerations
+(in no specific order)
+
 - [ ] Vulkan Rendering Pipeline
 - [ ] External Level Editor Application
 - [ ] Skeletal Animations
-- [ ] Component-Based Game Object 
+- [ ] Component-Based World Objects
 - [ ] [ODE physics](https://www.ode.org/)
 - [ ] Networking
 - [ ] Scripting System ([Lua](https://www.lua.org/))
 - [ ] Asynchronous Resource Loading
 - [ ] Entity AI/Behavior System
 - [ ] What else comes into my very flat brain (burgers)
+
+***
+
+# System Requirements
+* Java 25 or higher
+* Support for OpenGL 4.3 or higher
+* Windows or Linux operating system (MacOS and FreeBSD support is not guaranteed)
 
 ***
 
@@ -189,3 +198,10 @@ dependencies {
 }
 ```
 **dont forgor to include the LWJGL modules (and natives) you're going to use!**
+
+***
+
+\
+\
+\
+Thanks for checking out the Cinnamon game engine! ❤

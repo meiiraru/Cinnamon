@@ -14,6 +14,8 @@ import java.util.function.Predicate;
 public class Maths {
 
     public static final float
+            METER               = 1f,
+            CENTIMETER          = 0.01f,
             EPSILON             = 1e-3f,
             KINDA_SMALL_NUMBER  = 1e-6f,
             SMALL_NUMBER        = 1e-9f,
