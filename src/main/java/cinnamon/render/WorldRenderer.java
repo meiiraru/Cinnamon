@@ -66,6 +66,7 @@ public class WorldRenderer {
 
     public static boolean
             renderWater    = true,
+            renderFire     = true,
             renderSSAO     = true,
             renderSSR      = true,
             renderLights   = true,
@@ -131,6 +132,9 @@ public class WorldRenderer {
         //water
         renderWater(world, camera, matrices, delta);
 
+        //fire
+        renderFire(world, camera, matrices, delta);
+
         //extra world rendering
         world.renderExtras(camera, matrices, delta);
 
@@ -193,6 +197,9 @@ public class WorldRenderer {
 
             //water
             renderWater(world, camera, matrices, delta);
+
+            //fire
+            renderFire(world, camera, matrices, delta);
 
             //extra world rendering
             world.renderExtras(camera, matrices, delta);
@@ -396,6 +403,17 @@ public class WorldRenderer {
         //glDepthMask(true);
     }
 
+    public static void renderFire(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
+        if (!renderFire)
+            return;
+
+        //glDepthMask(false);
+        int tex = FireRenderer.prepareFireRenderer(camera, world.getTime() + delta);
+        world.renderFire(camera, matrices, delta);
+        Texture.unbindAll(tex);
+        //glDepthMask(true);
+    }
+
     public static void renderClouds(WorldClient world, Camera camera, float delta) {
         if (renderClouds)
             CloudRenderer.renderClouds(outputBuffer, camera, world.getTime() + delta, world.getSky());
@@ -568,6 +586,7 @@ public class WorldRenderer {
 
     public static void resetFlags() {
         renderWater    =
+        renderFire     =
         renderSSAO     =
         renderSSR      =
         renderLights   =

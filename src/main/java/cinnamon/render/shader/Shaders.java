@@ -37,6 +37,7 @@ public enum Shaders {
     SSAO,
     SSR,
     WATER,
+    FIRE,
     DECAL,
     CUBEMAP_SKYBOX,
     CLOUDS,

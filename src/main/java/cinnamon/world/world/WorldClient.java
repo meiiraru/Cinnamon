@@ -529,6 +529,8 @@ public class WorldClient extends World {
         WaterRenderer.renderWaterPlane(camera, matrices, 0.9f, getSky().fogEnd);
     }
 
+    public void renderFire(Camera camera, MatrixStack matrices, float delta) {}
+
     public void renderTransparent(Camera camera, MatrixStack matrices, float delta) {
         List<Terrain> query = terrainManager.queryCustom(camera::isInsideFrustum);
         for (Terrain terrain : query) {

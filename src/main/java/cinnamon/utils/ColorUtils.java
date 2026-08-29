@@ -6,6 +6,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import java.awt.*;
+import java.util.function.Function;
 
 public class ColorUtils {
 
@@ -469,5 +470,18 @@ public class ColorUtils {
         }
 
         return closestColor;
+    }
+
+    /**
+     * computes a new ARGB integer color (0 - 255) by applying a transformation function to each channel
+     * @param argb the ARGB integer color
+     * @param transform the transformation function to apply to each channel
+     * @return the new ARGB integer color
+     */
+    public static int compute(int argb, Function<Integer, Integer> transform) {
+        int[] channels = split(argb, 4);
+        for (int i = 0; i < channels.length; i++)
+            channels[i] = transform.apply(channels[i]);
+        return (channels[0] << 24) + (channels[1] << 16) + (channels[2] << 8) + channels[3];
     }
 }
