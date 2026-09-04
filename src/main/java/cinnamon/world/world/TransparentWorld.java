@@ -7,7 +7,6 @@ import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.shader.Shader;
@@ -43,13 +42,6 @@ public class TransparentWorld extends WorldClient {
     }
 
     @Override
-    public void render(MatrixStack matrices, float delta) {
-        WorldRenderer.renderSky = false;
-        WorldRenderer.renderClouds = false;
-        super.render(matrices, delta);
-    }
-
-    @Override
     public int renderTerrain(Camera camera, MatrixStack matrices, float delta) {
         matrices.pushMatrix();
         camera.billboard(matrices);
@@ -57,11 +49,6 @@ public class TransparentWorld extends WorldClient {
         matrices.popMatrix();
 
         return super.renderTerrain(camera, matrices, delta) + 1;
-    }
-
-    @Override
-    public void renderWater(Camera camera, MatrixStack matrices, float delta) {
-        //no water
     }
 
     @Override

@@ -10,22 +10,16 @@ import cinnamon.gui.screens.world.PauseScreen;
 import cinnamon.input.Controller;
 import cinnamon.input.Keybind;
 import cinnamon.math.Maths;
-import cinnamon.math.Rotation;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.math.collision.shape.Sphere;
-import cinnamon.messages.MessageCategory;
-import cinnamon.messages.MessageManager;
 import cinnamon.model.GeometryHelper;
-import cinnamon.model.Vertex;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.registry.MaterialRegistry;
-import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.WaterRenderer;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.PostProcess;
@@ -33,66 +27,34 @@ import cinnamon.settings.Settings;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundInstance;
 import cinnamon.sound.SoundManager;
-import cinnamon.text.Text;
-import cinnamon.utils.Colors;
-import cinnamon.utils.IOUtils;
 import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.Abilities;
 import cinnamon.world.Decal;
-import cinnamon.world.WorldObject;
-import cinnamon.world.entity.DamageType;
 import cinnamon.world.entity.Entity;
-import cinnamon.world.entity.collectable.EffectBox;
-import cinnamon.world.entity.collectable.HealthPack;
-import cinnamon.world.entity.collectable.ItemEntity;
-import cinnamon.world.entity.living.Dummy;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.living.LocalPlayer;
 import cinnamon.world.entity.living.Player;
-import cinnamon.world.entity.misc.Firework;
-import cinnamon.world.entity.misc.FireworkStar;
-import cinnamon.world.entity.misc.Spawner;
-import cinnamon.world.entity.misc.TriggerArea;
-import cinnamon.world.entity.projectile.Brick;
-import cinnamon.world.entity.vehicle.Cart;
-import cinnamon.world.entity.vehicle.ShoppingCart;
-import cinnamon.world.gui.Action;
-import cinnamon.world.gui.ActionWheel;
 import cinnamon.world.gui.Hud;
-import cinnamon.world.gui.Marker;
 import cinnamon.world.gui.Overlay;
-import cinnamon.world.items.*;
-import cinnamon.world.items.weapons.CoilGun;
-import cinnamon.world.items.weapons.NailGun;
-import cinnamon.world.items.weapons.PotatoCannon;
-import cinnamon.world.items.weapons.RiceGun;
+import cinnamon.world.items.Item;
 import cinnamon.world.light.DirectionalLight;
 import cinnamon.world.light.Light;
-import cinnamon.world.light.PointLight;
-import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.ExplosionParticle;
 import cinnamon.world.particle.Particle;
-import cinnamon.world.particle.TextParticle;
 import cinnamon.world.sky.DynamicSky;
 import cinnamon.world.sky.Sky;
 import cinnamon.world.sky.SkyColors;
-import cinnamon.world.terrain.Button;
-import cinnamon.world.terrain.ConveyorBelt;
-import cinnamon.world.terrain.Glass;
-import cinnamon.world.terrain.PlaneTerrain;
+import cinnamon.world.terrain.PrimitiveTerrain;
 import cinnamon.world.terrain.Terrain;
-import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.Math;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -113,7 +75,7 @@ public class WorldClient extends World {
     public LocalPlayer player;
 
     protected int cameraMode = 0;
-    protected boolean enableDebugKeys = true;
+    protected boolean enableDebugKeys = false;
 
     //lights
     protected final List<Light> lights = new ArrayList<>();
@@ -126,6 +88,7 @@ public class WorldClient extends World {
     //skybox
     protected Sky sky = new DynamicSky();
     protected final SkyColors skyColors = new SkyColors();
+    private final SkyColors.SkyProperties renderSkyProps = new SkyColors.SkyProperties();
 
     @Override
     public void init() {
@@ -155,182 +118,10 @@ public class WorldClient extends World {
     }
 
     protected void levelLoad() {
-        //load level
-        int l = 32;
-        TerrainGenerator.fill(this, -l, 0, -l, l, 0, l, MaterialRegistry.GRASS.material);
-
-        //TerrainGenerator.fill(this, -l, 1, -l,  l, 1, -l, MaterialRegistry.BRICK_WALL);
-        //TerrainGenerator.fill(this, -l, 1,  l,  l, 1,  l, MaterialRegistry.BRICK_WALL);
-        //TerrainGenerator.fill(this, -l, 1, -l, -l, 1,  l, MaterialRegistry.BRICK_WALL);
-        //TerrainGenerator.fill(this,  l, 1, -l,  l, 1,  l, MaterialRegistry.BRICK_WALL);
-
-        //0, 0
-        Terrain t = TerrainRegistry.BOX.getFactory().get();
-        t.setMaterial(MaterialRegistry.COBBLESTONE.material);
-        removeTerrain(new AABB().translate(0.5f, 0.5f, 0.5f));
-        addTerrain(t);
-
-        //menger sponge
-        TerrainGenerator.generateMengerSponge(this, 2, -23, 1, -23, MaterialRegistry.GOLD.material);
-        TerrainGenerator.generateMengerSponge(this, 1, -11, 1, -17, MaterialRegistry.CHROME.material);
-
-        //conveyor belt
-        float beltSpeed = 0.15f;
-        ConveyorBelt cb1 = new ConveyorBelt(beltSpeed);
-        cb1.setPos(5, 1, 5);
-        addTerrain(cb1);
-        ConveyorBelt cb2 = new ConveyorBelt(beltSpeed);
-        cb2.setPos(5, 1, 10);
-        cb2.setRotation(Rotation.Y.rotationDeg(270f));
-        addTerrain(cb2);
-        ConveyorBelt cb3 = new ConveyorBelt(beltSpeed);
-        cb3.setPos(0, 1, 10);
-        cb3.setRotation(Rotation.Y.rotationDeg(180f));
-        addTerrain(cb3);
-        ConveyorBelt cb4 = new ConveyorBelt(beltSpeed);
-        cb4.setPos(0, 1, 5);
-        cb4.setRotation(Rotation.Y.rotationDeg(90f));
-        addTerrain(cb4);
-
-        //sphere
-        Terrain t2 = TerrainRegistry.SPHERE.getFactory().get();
-        t2.setMaterial(MaterialRegistry.GOLD.material);
-        t2.setPos(15, 1, -3);
-        addTerrain(t2);
-
-        //roses
-        for (float x = -29; x < -24; x += Maths.range(0.5f, 0.8f)) {
-            for (float z = -4; z < 3; z += Maths.range(0.5f, 0.8f)) {
-                Terrain rose = TerrainRegistry.ROSE.getFactory().get();
-                rose.setPos(x, 1, z);
-                rose.setRotation(Rotation.Y.rotationDeg((float) (Math.random() * 360)));
-                addTerrain(rose);
-            }
-        }
-
-        //torii gate
-        Terrain torii = new Terrain(TerrainModelRegistry.TORII_GATE.resource, TerrainRegistry.CUSTOM);
-        torii.setPos(38, 0.5f, -38);
-        torii.setRotation(0, 45, 0);
-        addTerrain(torii);
-
-        //playSound(new Resource("sounds/song.ogg"), SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
-
-        //lights
-        setTime(1000L);
-        //sunlight.castsShadows(false);
-
-        //for (int j = 0; j < 15; j++)
-        //    for (int i = 0; i < 15; i++)
-        //        addLight(new PointLight().pos(-5.5f + i * 3f, 3f, -5.5f + j * 3f).color(Colors.randomRainbow().rgb));
-
-        addLight(new PointLight().pos(32.5f, 3.5f, 0.5f).color(0xFFFF44).volumetricStrength(0.5f));
-
-        //rgb spotlights
-        TerrainGenerator.fill(this, 4, 1, 24, 9, 3, 24, MaterialRegistry.COBBLESTONE2.material);
-
-        TerrainGenerator.fill(this, -1, 1, 22, 14, 4, 22, MaterialRegistry.COBBLESTONE2.material);
-        removeTerrain(new AABB(0, 1, 22, 13, 3, 22).translate(0.5f));
-        TerrainGenerator.fill(this, 0, 1, 22, 13, 3, 22, Glass::new);
-
-        float r = 0.75f;
-        for (int i = 0; i < 3; i++) {
-            float radi = Math.toRadians(120f) * i;
-            float x = Math.sin(radi) * r;
-            float y = Math.cos(radi) * r;
-            addLight(new Spotlight().angle(15f).glareSize(1f).direction(0, 0, 1).pos(x + 7f, y + 2.5f, 21f).color(0xFF << (8 * i)));
-        }
-
-        //entities
-        Cart c = new Cart(UUID.randomUUID());
-        c.setPos(10, 2, 10);
-        this.addEntity(c);
-
-        Cart c2 = new Cart(UUID.randomUUID());
-        c2.setPos(10, 2, 8);
-        this.addEntity(c2);
-
-        ShoppingCart s = new ShoppingCart(UUID.randomUUID());
-        s.setPos(15, 2, 10);
-        this.addEntity(s);
-
-        ShoppingCart s2 = new ShoppingCart(UUID.randomUUID());
-        s2.setPos(15, 2, 8);
-        this.addEntity(s2);
-
-        ShoppingCart s3 = new ShoppingCart(UUID.randomUUID());
-        s3.setPos(15, 2, 6);
-        this.addEntity(s3);
-
-        Dummy d = new Dummy(UUID.randomUUID());
-        d.setPos(-10, 2, 10);
-        this.addEntity(d);
-
-        Dummy d2 = new Dummy(UUID.randomUUID());
-        d2.setPos(-15, 2, 10);
-        this.addEntity(d2);
-
-        Spawner<ItemEntity> brickSpawner = new Spawner<>(UUID.randomUUID(), 0f, 1, () -> {
-            ItemEntity e = new ItemEntity(UUID.randomUUID(), new BrickItem(1));
-            e.setPickUpDelay(0);
-            return e;
-        });
-        brickSpawner.setPos(7f, 4f, 27f);
-        brickSpawner.setRenderCooldown(true);
-        this.addEntity(brickSpawner);
-
-        Spawner<ItemEntity> potatoSpawner = new Spawner<>(UUID.randomUUID(), 0f, 1, () -> {
-            ItemEntity e = new ItemEntity(UUID.randomUUID(), new PotatoItem(1));
-            e.setPickUpDelay(0);
-            return e;
-        });
-        potatoSpawner.setPos(-5.5f, 4f, 10f);
-        potatoSpawner.setRenderCooldown(true);
-        this.addEntity(potatoSpawner);
-
-        Spawner<EffectBox> effectBox = new Spawner<>(UUID.randomUUID(), 0f, 100, () -> new EffectBox(UUID.randomUUID()));
-        effectBox.setPos(-1.5f, 4f, 10f);
-        effectBox.setRenderCooldown(true);
-        this.addEntity(effectBox);
-
-        Spawner<HealthPack> healthPack = new Spawner<>(UUID.randomUUID(), 0f, 100, () -> new HealthPack(UUID.randomUUID()));
-        healthPack.setPos(2.5f, 4f, 10f);
-        healthPack.setRenderCooldown(true);
-        this.addEntity(healthPack);
-
-        TriggerArea trigger = new TriggerArea(UUID.randomUUID(), 1f, 1f, 1f);
-        trigger.setPos(32.5f, 1f, 0.5f);
-        trigger.setStayTrigger(e -> {
-            if (e instanceof LivingEntity living)
-                living.damage(null, DamageType.TERRAIN, 10, false);
-        });
-        Vertex[][] spikes = GeometryHelper.cone(null, 32.5f, 1f, 0.5f, 1f, 0.5f, 12, 0xFFFF0000);
-        trigger.addRenderFeature((src, camera, matrices, delta) -> VertexConsumer.WORLD_MAIN.consume(spikes));
-        this.addEntity(trigger);
-
-        //debug weapons
-        spawnDebugWeapons();
-
-        //test buttons
-        Button btn1 = new Button();
-        btn1.setPos(-18f, 1f, -25f);
-        btn1.setOnPress(e -> addParticle(new TextParticle(Text.of("Beware..."), 60, btn1.getTransform().getPos())));
-        btn1.setOnRelease(e -> addParticle(new TextParticle(Text.of("Brick!"), 60, btn1.getTransform().getPos())));
-        addTerrain(btn1);
-
-        Button btn2 = new Button();
-        btn2.setPos(-20f, 1f, -25f);
-        btn2.setOnPress(e -> {
-            Brick b = new Brick(UUID.randomUUID(), null);
-            Vector3f pos = e.getTransform().getPos();
-            b.setPos(pos.x, pos.y + 3f, pos.z);
-            //e.lookAt(b.getTransform().getPos());
-            addEntity(b);
-        });
-        addTerrain(btn2);
-
-        //ground plane
-        addTerrain(new PlaneTerrain(0, 1, 0, 0.75f));
+        //simple platform
+        Terrain platform = new PrimitiveTerrain(GeometryHelper.box(null, -15, -1, -15, 15, 0, 15, 0xFFFFFFFF));
+        platform.setMaterial(MaterialRegistry.DEBUG.material);
+        addTerrain(platform);
     }
 
     public void reconstructWorld() {
@@ -470,7 +261,7 @@ public class WorldClient extends World {
     }
 
     protected void applySkyLights(float dayMinutes) {
-        SkyColors.SkyProperties props = skyColors.getPropertiesAtTime(dayMinutes);
+        SkyColors.SkyProperties props = skyColors.getPropertiesAtTime(dayMinutes, renderSkyProps);
         if (props == null)
             return;
 
@@ -481,6 +272,7 @@ public class WorldClient extends World {
         this.sky.ambientLight = props.ambientLight();
         this.sky.fogStart = props.fogStart();
         this.sky.fogEnd = props.fogEnd();
+        this.sky.fogIntensity = props.fogIntensity();
         this.sky.sunIntensity = props.sunIntensity();
         this.sky.starsIntensity = props.starsIntensity();
 
@@ -525,9 +317,7 @@ public class WorldClient extends World {
 
     public void renderExtras(Camera camera, MatrixStack matrices, float delta) {}
 
-    public void renderWater(Camera camera, MatrixStack matrices, float delta) {
-        WaterRenderer.renderWaterPlane(camera, matrices, 0.9f, getSky().fogEnd);
-    }
+    public void renderWater(Camera camera, MatrixStack matrices, float delta) {}
 
     public void renderFire(Camera camera, MatrixStack matrices, float delta) {}
 
@@ -831,14 +621,6 @@ public class WorldClient extends World {
 
         Keybind.keyPress(key, scancode, action, mods);
 
-        if (enableDebugKeys && key == GLFW_KEY_B) {
-            if (action == GLFW_PRESS) {
-                openOverlay(genDebugActionWheel());
-            } else if (action == GLFW_RELEASE) {
-                closeOverlay();
-            }
-        }
-
         if (action == GLFW_RELEASE)
             return;
 
@@ -924,47 +706,47 @@ public class WorldClient extends World {
 
     protected void setSkyColors() {
         //sunrise
-        skyColors.addProperty(6*60, new SkyColors.SkyProperties(
-                0xFF4400, 0x859090, 0x101020, 0xE57E4B, 0x7F7F7F,
-                64f, 80f, 1f, 1f, 0.5f,
-                0xFF4400, 3f, 0f
-        ));
+        skyColors.addProperty(6*60, new SkyColors.SkyProperties()
+                        .sunColor(0xFF4400).skyColor(0x859090).ambientLight(0x101020).fogColor(0xE57E4B).cloudsColor(0x7F7F7F)
+                        .fogStart(64f).fogEnd(80f).sunIntensity(1f).fogIntensity(1f).starsIntensity(0.5f)
+                        .sunlightColor(0xFF4400).sunlightIntensity(3f).sunlightShadowIntensity(0f)
+        );
         //day start
-        skyColors.addProperty(7*60, new SkyColors.SkyProperties(
-                0xFFEEDD, 0x446FD0, 0xBBCCDD, 0xBFD3DE, 0xB0D0FF,
-                96f, 192f, 0f, 1f, 0.05f,
-                0xFFEEDD, 5f, 1f
-        ));
+        skyColors.addProperty(7*60, new SkyColors.SkyProperties()
+                .sunColor(0xFFEEDD).skyColor(0x446FD0).ambientLight(0xBBCCDD).fogColor(0xBFD3DE).cloudsColor(0xB0D0FF)
+                .fogStart(96f).fogEnd(192f).sunIntensity(0f).fogIntensity(1f).starsIntensity(0.05f)
+                .sunlightColor(0xFFEEDD).sunlightIntensity(5f).sunlightShadowIntensity(1f)
+        );
         //day end
-        skyColors.addProperty(17*60, new SkyColors.SkyProperties(
-                0xFFEEDD, 0x446FD0, 0xBBCCDD, 0xBFD3DE, 0xB0D0FF,
-                96f, 192f, 0f, 1f, 0.05f,
-                0xFFEEDD, 5f, 1f
-        ));
+        skyColors.addProperty(17*60, new SkyColors.SkyProperties()
+                .sunColor(0xFFEEDD).skyColor(0x446FD0).ambientLight(0xBBCCDD).fogColor(0xBFD3DE).cloudsColor(0xB0D0FF)
+                .fogStart(96f).fogEnd(192f).sunIntensity(0f).fogIntensity(1f).starsIntensity(0.05f)
+                .sunlightColor(0xFFEEDD).sunlightIntensity(5f).sunlightShadowIntensity(1f)
+        );
         //sunset
-        skyColors.addProperty(18*60, new SkyColors.SkyProperties(
-                0xFF4400, 0x8844DD, 0x101020, 0xFF72AD, 0x90507F,
-                64f, 80f, 1f, 1f, 0.5f,
-                0xFF4400, 3f, 0f
-        ));
+        skyColors.addProperty(18*60, new SkyColors.SkyProperties()
+                .sunColor(0xFF4400).skyColor(0x8844DD).ambientLight(0x101020).fogColor(0xFF72AD).cloudsColor(0x90507F)
+                .fogStart(64f).fogEnd(80f).sunIntensity(1f).fogIntensity(1f).starsIntensity(0.5f)
+                .sunlightColor(0xFF4400).sunlightIntensity(3f).sunlightShadowIntensity(0f)
+        );
         //night start
-        skyColors.addProperty(19*60, new SkyColors.SkyProperties(
-                0x07070F, 0x0C0C18, 0x101020, 0x0C0C18, 0x0A0A14,
-                64f, 80f, 0f, 1f, 5f,
-                0x07070F, 0.1f, 0f
-        ));
+        skyColors.addProperty(19*60, new SkyColors.SkyProperties()
+                .sunColor(0x07070F).skyColor(0x0C0C18).ambientLight(0x101020).fogColor(0x0C0C18).cloudsColor(0x0A0A14)
+                .fogStart(64f).fogEnd(80f).sunIntensity(0f).fogIntensity(1f).starsIntensity(5f)
+                .sunlightColor(0x07070F).sunlightIntensity(0.1f).sunlightShadowIntensity(0f)
+        );
         //night end
-        skyColors.addProperty(5*60, new SkyColors.SkyProperties(
-                0x07070F, 0x0C0C18, 0x101020, 0x0C0C18, 0x0A0A14,
-                64f, 80f, 0f, 1f, 5f,
-                0x07070F, 0.1f, 0f
-        ));
+        skyColors.addProperty(5*60, new SkyColors.SkyProperties()
+                .sunColor(0x07070F).skyColor(0x0C0C18).ambientLight(0x101020).fogColor(0x0C0C18).cloudsColor(0x0A0A14)
+                .fogStart(64f).fogEnd(80f).sunIntensity(0f).fogIntensity(1f).starsIntensity(5f)
+                .sunlightColor(0x07070F).sunlightIntensity(0.1f).sunlightShadowIntensity(0f)
+        );
     }
 
     public void respawn(boolean init) {
         String playerName = Settings.playerName.get();
         player = new LocalPlayer(playerName.isBlank() ? "Player" : playerName, LivingModelRegistry.valueOf(Settings.playerModel.get()));
-        player.setPos(0.5f, init ? 1.5f : 100f, 0.5f);
+        player.setPos(0.5f, 0f, 0.5f);
         player.getAbilities().set(Abilities.Ability.CAN_FLY, true);
         this.addEntity(player);
 
@@ -974,27 +756,6 @@ public class WorldClient extends World {
 
         //if (!init)
         //    connection.sendTCP(new Respawn());
-    }
-
-    public void spawnDebugWeapons() {
-        Item[] items = {
-                new CoilGun(30, 3, 100),
-                new PotatoCannon(3, 60, 200),
-                new RiceGun(8, 40, 150),
-                new PaintGun(),
-                new BubbleGun(),
-                new Flashlight(0xFFFFCC),
-                new MagicWand(),
-                new NailGun(50, 3, 60),
-        };
-
-        for (int i = 0; i < items.length; i++) {
-            ItemEntity item = new ItemEntity(UUID.randomUUID(), items[i]);
-            item.setAge(-1);
-            item.setPos(i * 2f + 0.5f, 2f, -8.5f);
-            item.setPickUpDelay(0);
-            this.addEntity(item);
-        }
     }
 
     public void pause() {
@@ -1035,90 +796,5 @@ public class WorldClient extends World {
             resetInput(true, false);
         }
         this.overlay = null;
-    }
-
-    protected ActionWheel genDebugActionWheel() {
-        ActionWheel aw = new ActionWheel();
-        aw.setTitle(Text.of("Debug Actions"));
-
-        //noclip
-        Action noclip = new Action(Text.of("Toggle Noclip"), () -> {
-            boolean value = !player.getAbilities().get(Abilities.Ability.NOCLIP);
-            player.getAbilities().set(Abilities.Ability.NOCLIP, value);
-            MessageManager.addMessage(Text.of("Noclip " + (value ? "enabled" : "disabled")), MessageCategory.SYSTEM, null);
-        });
-        noclip.setIcon(new Resource("textures/gui/action_wheel/phase.png"));
-        aw.addAction(noclip);
-
-        //spray
-        Action spray = new Action(Text.of("Spray"), () -> {
-            Pair<Hit, Terrain> hit = player.getLookingTerrain(player.getPickRange());
-            if (hit == null)
-                return;
-
-            Vector3f normal = hit.first().normal();
-            Quaternionf rotation = Maths.dirToQuat(normal);
-            if (Math.abs(normal.y) > 0.5f)
-                rotation.rotateZ(Math.toRadians(-Maths.getYaw(player.getTransform().getRot()) * Math.signum(normal.y)));
-
-            Resource folder = new Resource("textures/misc");
-            List<String> resources = IOUtils.listResources(folder, false);
-            resources.removeIf(s -> !s.endsWith(".png"));
-            String res = resources.get((int) (Math.random() * resources.size()));
-
-            Decal decal = new Decal(6000, folder.resolve(res));
-            decal.getTransform()
-                    .setPos(hit.first().position())
-                    .setRot(rotation)
-                    //.setRot(WorldRenderer.camera.getRotation())
-                    .setScale(1f, 1f, 0.5f);
-            addDecal(decal);
-        });
-        spray.setIcon(new Resource("textures/gui/action_wheel/spray.png"));
-        aw.addAction(spray);
-
-        //spawn weapons
-        Action weapons = new Action(Text.of("Spawn Weapons"), this::spawnDebugWeapons);
-        weapons.setIcon(new Resource("textures/gui/action_wheel/gun.png"));
-        aw.addAction(weapons);
-
-        //firework
-        Action firework = new Action(Text.of("Spawn Firework"), () -> {
-            Firework f = new Firework(UUID.randomUUID(), Maths.range(30, 60), Maths.spread(new Vector3f(0, 1f, 0), 30, 30).mul(2f),
-                    new FireworkStar(
-                            new Integer[]{0xFFa19f7f, 0xFFcfa959, 0xFF9b8136, 0xFF908264, 0xFFebc789, 0xFFb39b5b},
-                            null,
-                            true, true,
-                            FireworkStar.Shape.BALL
-                    ),
-                    new FireworkStar(
-                            new Integer[]{Colors.WHITE.argb},
-                            null,
-                            false, true,
-                            FireworkStar.Shape.STAR
-                    )
-            );
-            f.setPos(0, 1.5f, 0);
-            addEntity(f);
-        });
-        firework.setIcon(new Resource("textures/gui/action_wheel/firework.png"));
-        aw.addAction(firework);
-
-        //marker
-        Action marker = new Action(Text.of("Add Marker"), () -> {
-            Pair<Hit, ? extends WorldObject> hit = player.getLookingObject(128f);
-            if (hit != null) {
-                SoundManager.playSound(Marker.MARKER_SND, SoundCategory.GUI);
-                if (hit.second() instanceof Entity e) {
-                    hud.addMarker(new Marker(e, null, 600, Colors.randomRainbow().argb));
-                } else {
-                    hud.addMarker(new Marker(hit.first().position(), null, 600, Colors.randomRainbow().argb));
-                }
-            }
-        });
-        marker.setIcon(new Resource("textures/gui/action_wheel/pin.png"));
-        aw.addAction(marker);
-
-        return aw;
     }
 }

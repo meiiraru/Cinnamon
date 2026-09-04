@@ -6,15 +6,12 @@ import cinnamon.math.noise.PerlinNoise2D;
 import cinnamon.model.StaticGeometry;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
+import cinnamon.render.texture.NoiseTexture;
 import org.joml.Vector3f;
-
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL30.glGenerateMipmap;
-import static org.lwjgl.opengl.GL33.GL_TEXTURE_SWIZZLE_RGBA;
 
 public class WaterRenderer {
 
-    private static final int noiseTexture;
+    private static final NoiseTexture noiseTexture;
 
     static {
         int width = 512;
@@ -27,23 +24,9 @@ public class WaterRenderer {
         FBMNoise fbmNoise = new FBMNoise(baseNoise, 5, 2f, 0.5f, 0.5f, 1f);
 
         //create texture
-        noiseTexture = glGenTextures();
-        glBindTexture(GL_TEXTURE_2D, noiseTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, fbmNoise.getBuffer());
-
-        //linear filtering for smooth sampling
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        //swizzle red channel to all rgb channels
-        int[] swizzleMask = {GL_RED, GL_RED, GL_RED, GL_ALPHA};
-        glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+        noiseTexture = new NoiseTexture(fbmNoise);
 
         //free resources
-        glBindTexture(GL_TEXTURE_2D, 0);
         fbmNoise.free();
         baseNoise.free();
     }
@@ -73,7 +56,7 @@ public class WaterRenderer {
         matrices.popMatrix();
     }
 
-    public static int getNoiseTexture() {
+    public static NoiseTexture getNoiseTexture() {
         return noiseTexture;
     }
 }

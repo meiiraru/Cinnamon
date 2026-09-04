@@ -2,6 +2,7 @@ package cinnamon.world.world;
 
 import cinnamon.animation.Animation;
 import cinnamon.model.GeometryHelper;
+import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
@@ -16,6 +17,9 @@ import cinnamon.world.entity.terrain.DiscoFloor;
 import cinnamon.world.entity.terrain.FloorLight;
 import cinnamon.world.entity.terrain.ParticleSpawner;
 import cinnamon.world.entity.terrain.Speaker;
+import cinnamon.world.light.Light;
+import cinnamon.world.light.Spotlight;
+import cinnamon.world.terrain.PrimitiveTerrain;
 import org.joml.Math;
 import org.joml.Vector3f;
 
@@ -42,56 +46,65 @@ public class DiscoWorld extends WorldClient {
     private final List<ParticleSpawner> spawners = new ArrayList<>();
     private final List<FloorLight> lights = new ArrayList<>();
 
+    private final Light[] spotlights = new Light[9];
+
     @Override
     protected void levelLoad() {
-        super.levelLoad();
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, -1, -10, 10, 0, 10, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.material));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 8, -10, 10, 9, 10, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.material));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 0, -10, 10, 8, -9, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.material));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 0, 9, 10, 8, 10, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.material));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 0, -9, -9, 8, 9, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.material));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, 9, 0, -9, 10, 8, 9, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.material));
 
         Resource soundRes = new Resource("sounds/song.ogg");
         sound = Sound.of(soundRes);
         soundData = playSound(soundRes, SoundCategory.MUSIC, new Vector3f(0, 0, 0)).loop(true);
 
-        DiscoFloor floor = new DiscoFloor(UUID.randomUUID());
-        floor.setPos(0f, 1.001f, 0f);
-        addEntity(floor);
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                DiscoFloor floor = new DiscoFloor(UUID.randomUUID());
+                floor.setPos(-3f + i * 3f, 0.001f, -3f + j * 3f);
+                addEntity(floor);
+            }
+        }
 
         DiscoBall discoBall = new DiscoBall(UUID.randomUUID());
-        discoBall.setPos(0f, 3f, 0f);
+        discoBall.setPos(0f, 4f, 0f);
         addEntity(discoBall);
         discoBall.getAnimation("animation1").setLoop(LOOP).play();
         discoBall.getAnimation("animation2").setLoop(LOOP).play();
         discoBall.getAnimation("animation3").setLoop(LOOP).play();
         discoBall.getAnimation("animation4").setLoop(LOOP).play();
 
-        Speaker speaker1 = new Speaker(UUID.randomUUID());
-        speaker1.setPos(-1f, 1f, -2f);
-        speaker1.setRot(0, 180, 0);
-        addEntity(speaker1);
-        speakers.add(speaker1);
-
-        Speaker speaker2 = new Speaker(UUID.randomUUID());
-        speaker2.setPos(1f, 1f, -2f);
-        speaker2.setRot(0, 180, 0);
-        addEntity(speaker2);
-        speakers.add(speaker2);
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 4; j++) {
+                Speaker speaker = new Speaker(UUID.randomUUID());
+                speaker.setPos(-3f + j * 0.6f + i * 4, 0f, -8.5f);
+                speaker.setRot(0, 180, 0);
+                addEntity(speaker);
+                speakers.add(speaker);
+            }
+        }
 
         ParticleSpawner spawner1 = new ParticleSpawner(UUID.randomUUID());
-        spawner1.setPos(-3f, 1f, -1.5f);
+        spawner1.setPos(-3f, 0f, -1.5f);
         addEntity(spawner1);
         spawners.add(spawner1);
 
         ParticleSpawner spawner2 = new ParticleSpawner(UUID.randomUUID());
-        spawner2.setPos(3f, 1f, -1.5f);
+        spawner2.setPos(3f, 0f, -1.5f);
         addEntity(spawner2);
         spawners.add(spawner2);
 
         FloorLight light1 = new FloorLight(UUID.randomUUID());
-        light1.setPos(-4f, 1.001f, 2f);
+        light1.setPos(-5f, 0.001f, 2f);
         light1.setRot(0, 90, 0);
         addEntity(light1);
         lights.add(light1);
 
         FloorLight light2 = new FloorLight(UUID.randomUUID());
-        light2.setPos(4f, 1.001f, 2f);
+        light2.setPos(5f, 0.001f, 2f);
         light2.setRot(0, -90, 0);
         addEntity(light2);
         lights.add(light2);
@@ -102,6 +115,22 @@ public class DiscoWorld extends WorldClient {
             Animation anim = light.getAnimation("look_around");
             anim.setLoop(LOOP).setTime(i % 2 == 1 ? anim.getDuration() / 2 : 0).play();
         }
+
+        //3x3 spotlights pointing down
+        float r = 4f;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                Light s = new Spotlight().angle(45f).falloff(8f, 9f).direction(0, -1, 0).pos(-r + i * r, 8f, -r + j * r).color(0xFF0000FF);
+                spotlights[i * 3 + j] = s;
+                addLight(s);
+            }
+        }
+    }
+
+    @Override
+    public void reconstructWorld() {
+        scheduledTicks.add(() -> soundData.stop());
+        super.reconstructWorld();
     }
 
     @Override
@@ -137,6 +166,15 @@ public class DiscoWorld extends WorldClient {
     }
 
     @Override
+    public void render(MatrixStack matrices, float delta) {
+        float t = getTime() + (isPaused ? 1f : delta);
+        int color = ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f(t * 0.005f, 1f, 0.5f)));
+        for (Light s : spotlights)
+            s.color(color);
+        super.render(matrices, delta);
+    }
+
+    @Override
     public int renderParticles(Camera camera, MatrixStack matrices, float delta) {
         int count = super.renderParticles(camera, matrices, delta);
 
@@ -146,7 +184,8 @@ public class DiscoWorld extends WorldClient {
 
         //draw bars
         matrices.pushMatrix();
-        matrices.translate(0, 2f, -2f);
+        matrices.translate(0, 2f, -9f);
+        matrices.scale(3f);
         int bars = amplitudes.length;
         for (int i = 0; i < bars; i++)
             drawBar(matrices, i, bars, amplitudes[i] * BOOST * WEIGHTING_FUNCTION.apply((float) i / bars * spectrum.getMaxFrequency()));
@@ -161,5 +200,14 @@ public class DiscoWorld extends WorldClient {
 
         int color = ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f(index / (float) bars, 0.6f, 1f)));
         VertexConsumer.WORLD_MAIN_EMISSIVE.consume(GeometryHelper.box(matrices, x, 0, 0, x + 0.1f, y, 0.1f, color + (0xFF << 24)));
+    }
+
+    @Override
+    protected void applySkyLights(float dayMinutes) {
+        super.applySkyLights(dayMinutes);
+        this.sunlight.intensity(0f);
+        this.sky.fogIntensity = 0f;
+        this.sky.skyColor = 0xFF070710;
+        this.sky.ambientLight = 0xFF202020;
     }
 }

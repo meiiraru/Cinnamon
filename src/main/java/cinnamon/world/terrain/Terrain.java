@@ -158,8 +158,9 @@ public class Terrain extends WorldObject {
         this.calculateBounds();
     }
 
-    public void setMaterial(Material material) {
+    public Terrain setMaterial(Material material) {
         this.overrideMaterial = material;
+        return this;
     }
 
     public Material getMaterial() {

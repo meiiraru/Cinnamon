@@ -20,7 +20,11 @@ public class SkyColors {
         propertiesMap.put(timeMinutes, properties);
     }
 
-    public SkyProperties getPropertiesAtTime(float dayMinutes) {
+    public SkyProperties getProperty(int timeMinutes) {
+        return propertiesMap.get(timeMinutes);
+    }
+
+    public SkyProperties getPropertiesAtTime(float dayMinutes, SkyProperties out) {
         if (propertiesMap.isEmpty())
             return null;
 
@@ -47,46 +51,151 @@ public class SkyColors {
 
         float dt = (dayMinutes - time1) / (float) (time2 - time1);
 
-        return properties1.lerp(properties2, dt);
+        return properties1.lerp(properties2, dt, out);
     }
 
-    public record SkyProperties(
-            int sunColor,
-            int skyColor,
-            int ambientLight,
-            int fogColor,
-            int cloudsColor,
+    public static class SkyProperties {
+        private int sunColor, skyColor, ambientLight, fogColor, cloudsColor;
+        private float fogStart, fogEnd;
+        private float sunIntensity, fogIntensity, starsIntensity;
+        private int sunlightColor;
+        private float sunlightIntensity, sunlightShadowIntensity;
 
-            float fogStart,
-            float fogEnd,
+        public int sunColor() {
+            return sunColor;
+        }
 
-            float sunIntensity,
-            float fogIntensity,
-            float starsIntensity,
+        public int skyColor() {
+            return skyColor;
+        }
 
-            int sunlightColor,
-            float sunlightIntensity,
-            float sunlightShadowIntensity
-    ) {
-        public SkyProperties lerp(SkyProperties other, float t) {
-            return new SkyProperties(
-                    ColorUtils.lerpRGBColor(sunColor, other.sunColor, t),
-                    ColorUtils.lerpRGBColor(skyColor, other.skyColor, t),
-                    ColorUtils.lerpRGBColor(ambientLight, other.ambientLight, t),
-                    ColorUtils.lerpRGBColor(fogColor, other.fogColor, t),
-                    ColorUtils.lerpRGBColor(cloudsColor, other.cloudsColor, t),
+        public int ambientLight() {
+            return ambientLight;
+        }
 
-                    Math.lerp(fogStart, other.fogStart, t),
-                    Math.lerp(fogEnd, other.fogEnd, t),
+        public int fogColor() {
+            return fogColor;
+        }
 
-                    Math.lerp(sunIntensity, other.sunIntensity, t),
-                    Math.lerp(fogIntensity, other.fogIntensity, t),
-                    Math.lerp(starsIntensity, other.starsIntensity, t),
+        public int cloudsColor() {
+            return cloudsColor;
+        }
 
-                    ColorUtils.lerpRGBColor(sunlightColor, other.sunlightColor, t),
-                    Math.lerp(sunlightIntensity, other.sunlightIntensity, t),
-                    Math.lerp(sunlightShadowIntensity, other.sunlightShadowIntensity, t)
-            );
+        public float fogStart() {
+            return fogStart;
+        }
+
+        public float fogEnd() {
+            return fogEnd;
+        }
+
+        public float sunIntensity() {
+            return sunIntensity;
+        }
+
+        public float fogIntensity() {
+            return fogIntensity;
+        }
+
+        public float starsIntensity() {
+            return starsIntensity;
+        }
+
+        public int sunlightColor() {
+            return sunlightColor;
+        }
+
+        public float sunlightIntensity() {
+            return sunlightIntensity;
+        }
+
+        public float sunlightShadowIntensity() {
+            return sunlightShadowIntensity;
+        }
+
+        public SkyProperties sunColor(int sunColor) {
+            this.sunColor = sunColor;
+            return this;
+        }
+
+        public SkyProperties skyColor(int skyColor) {
+            this.skyColor = skyColor;
+            return this;
+        }
+
+        public SkyProperties ambientLight(int ambientLight) {
+            this.ambientLight = ambientLight;
+            return this;
+        }
+
+        public SkyProperties fogColor(int fogColor) {
+            this.fogColor = fogColor;
+            return this;
+        }
+
+        public SkyProperties cloudsColor(int cloudsColor) {
+            this.cloudsColor = cloudsColor;
+            return this;
+        }
+
+        public SkyProperties fogStart(float fogStart) {
+            this.fogStart = fogStart;
+            return this;
+        }
+
+        public SkyProperties fogEnd(float fogEnd) {
+            this.fogEnd = fogEnd;
+            return this;
+        }
+
+        public SkyProperties sunIntensity(float sunIntensity) {
+            this.sunIntensity = sunIntensity;
+            return this;
+        }
+
+        public SkyProperties fogIntensity(float fogIntensity) {
+            this.fogIntensity = fogIntensity;
+            return this;
+        }
+
+        public SkyProperties starsIntensity(float starsIntensity) {
+            this.starsIntensity = starsIntensity;
+            return this;
+        }
+
+        public SkyProperties sunlightColor(int sunlightColor) {
+            this.sunlightColor = sunlightColor;
+            return this;
+        }
+
+        public SkyProperties sunlightIntensity(float sunlightIntensity) {
+            this.sunlightIntensity = sunlightIntensity;
+            return this;
+        }
+
+        public SkyProperties sunlightShadowIntensity(float sunlightShadowIntensity) {
+            this.sunlightShadowIntensity = sunlightShadowIntensity;
+            return this;
+        }
+
+        public SkyProperties lerp(SkyProperties other, float t, SkyProperties out) {
+            return out
+                    .sunColor(ColorUtils.lerpRGBColor(sunColor, other.sunColor, t))
+                    .skyColor(ColorUtils.lerpRGBColor(skyColor, other.skyColor, t))
+                    .ambientLight(ColorUtils.lerpRGBColor(ambientLight, other.ambientLight, t))
+                    .fogColor(ColorUtils.lerpRGBColor(fogColor, other.fogColor, t))
+                    .cloudsColor(ColorUtils.lerpRGBColor(cloudsColor, other.cloudsColor, t))
+
+                    .fogStart(Math.lerp(fogStart, other.fogStart, t))
+                    .fogEnd(Math.lerp(fogEnd, other.fogEnd, t))
+
+                    .sunIntensity(Math.lerp(sunIntensity, other.sunIntensity, t))
+                    .fogIntensity(Math.lerp(fogIntensity, other.fogIntensity, t))
+                    .starsIntensity(Math.lerp(starsIntensity, other.starsIntensity, t))
+
+                    .sunlightColor(ColorUtils.lerpRGBColor(sunlightColor, other.sunlightColor, t))
+                    .sunlightIntensity(Math.lerp(sunlightIntensity, other.sunlightIntensity, t))
+                    .sunlightShadowIntensity(Math.lerp(sunlightShadowIntensity, other.sunlightShadowIntensity, t));
         }
     }
 }

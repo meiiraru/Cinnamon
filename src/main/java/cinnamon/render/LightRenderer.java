@@ -1,5 +1,6 @@
 package cinnamon.render;
 
+import cinnamon.math.noise.BlueNoise2D;
 import cinnamon.model.StaticGeometry;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
@@ -11,6 +12,7 @@ import cinnamon.render.shader.SSBO;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.CubeMap;
+import cinnamon.render.texture.NoiseTexture;
 import cinnamon.render.texture.Texture;
 import cinnamon.render.texture.TextureArray;
 import cinnamon.settings.Settings;
@@ -41,6 +43,7 @@ public class LightRenderer {
     public static final ShadowCubemapFramebuffer cubeShadowBuffer = new ShadowCubemapFramebuffer();
     public static final Framebuffer lightGlareBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
     public static final Framebuffer volumetricBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
+    public static final Framebuffer volumetricBlurBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
 
     public static final ShadowCascadeFramebuffer cascadeShadowBuffer = new ShadowCascadeFramebuffer(CascadedShadow.NUM_CASCADES);
     public static final CascadedShadow cascadedShadow = new CascadedShadow();
@@ -62,7 +65,15 @@ public class LightRenderer {
 
     private static final Set<Light> lightsToRender = new LinkedHashSet<>();
 
+    private static final NoiseTexture volumetricNoiseTex;
+
     private static int renderedLights, renderedShadows;
+
+    static {
+        BlueNoise2D blueNoise = new BlueNoise2D(256, 256, System.nanoTime());
+        volumetricNoiseTex = new NoiseTexture(blueNoise);
+        blueNoise.free();
+    }
 
     public static void renderLights(PBRDeferredFramebuffer gBuffer, List<Light> lights, Camera camera, boolean renderShadows, boolean volumetric, Runnable renderFunction) {
         renderedLights = renderedShadows = 0;
@@ -202,7 +213,9 @@ public class LightRenderer {
         StaticGeometry.QUAD.render();
 
         if (Settings.volumetricLights.get() >= 0) {
-            blit.setTexture("colorTex", volumetricBuffer.getColorBuffer(), 0);
+            int tex = Blur.boxBlur(volumetricBuffer.getColorBuffer(), target.getWidth(), target.getHeight(), 2, volumetricBlurBuffer);
+            blit.setTexture("colorTex", tex, 0);
+            glDisable(GL_DEPTH_TEST); //re-disable depth test because the blur enables it
             StaticGeometry.QUAD.render();
         }
 
@@ -420,11 +433,11 @@ public class LightRenderer {
 
     private static void initVolumetricBuffer(Framebuffer target) {
         int level = Settings.volumetricLights.get();
-        volumetricBuffer.resizeTo(target, level < 3 ? 0.5f : 1f);
+        volumetricBuffer.resizeTo(target, level <= 3 ? 0.25f : 0.5f);
         volumetricBuffer.useClear();
 
         Shader s = Shaders.VOLUMETRIC_LIGHT.getShader().use();
-        s.setInt("raySteps", 16 * (level + 1));
+        s.setInt("raySteps", 12 * (level + 1));
         s.setVec2("screenSize", volumetricBuffer.getWidth(), volumetricBuffer.getHeight());
     }
 
@@ -445,12 +458,13 @@ public class LightRenderer {
         s.setup(camera);
         s.setupInverse(camera);
         s.setVec3("camPos", camera.getPosition());
-        s.setTexture("gDepth", gBuffer.getDepthBuffer(), 0);
+        s.setTexture("noiseTex", volumetricNoiseTex, 0);
+        s.setTexture("gDepth", gBuffer.getDepthBuffer(), 1);
 
         //bind shadow maps
         s.setBool("castsShadows", hasShadow);
-        s.setTexture("shadowMap",     hasShadow ? shadowBuffer.getDepthBuffer() : 0, 1);
-        s.setCubeMap("shadowCubeMap", hasShadow ? cubeShadowBuffer.getCubemap() : 0, 2);
+        s.setTexture("shadowMap",     hasShadow ? shadowBuffer.getDepthBuffer() : 0, 2);
+        s.setCubeMap("shadowCubeMap", hasShadow ? cubeShadowBuffer.getCubemap() : 0, 3);
         s.setMat4("lightSpaceMatrix", light.getLightSpaceMatrix());
 
         if (light instanceof PointLight p)
@@ -481,8 +495,8 @@ public class LightRenderer {
             }
         }
 
-        Texture.unbindAll(2);
-        CubeMap.unbindTex(2);
+        Texture.unbindAll(3);
+        CubeMap.unbindTex(3);
     }
 
     private static void bakeLight(PBRDeferredFramebuffer gBuffer, Camera camera, Light light, boolean hasShadow) {
@@ -581,5 +595,9 @@ public class LightRenderer {
 
     public static Light getShadowLight() {
         return shadowLight;
+    }
+
+    public static NoiseTexture getVolumetricNoiseTex() {
+        return volumetricNoiseTex;
     }
 }

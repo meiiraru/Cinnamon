@@ -1,20 +1,20 @@
 package cinnamon.render;
 
 import cinnamon.math.noise.BlueNoise2D;
-import cinnamon.math.noise.Noise;
 import cinnamon.math.noise.WhiteNoise2D;
 import cinnamon.model.StaticGeometry;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.shader.Shaders;
+import cinnamon.render.texture.NoiseTexture;
 import cinnamon.render.texture.Texture;
 import cinnamon.world.sky.Sky;
 import org.joml.Vector3f;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL30.glGenerateMipmap;
-import static org.lwjgl.opengl.GL33.GL_TEXTURE_SWIZZLE_RGBA;
+import static org.lwjgl.opengl.GL11.GL_ALWAYS;
+import static org.lwjgl.opengl.GL11.GL_LEQUAL;
+import static org.lwjgl.opengl.GL11.glDepthFunc;
 
 public class CloudRenderer {
 
@@ -22,7 +22,7 @@ public class CloudRenderer {
             cloudBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER),
             blurBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
 
-    private final static int whiteNoise, blueNoise;
+    private final static NoiseTexture whiteNoise, blueNoise;
 
     static {
         //generate noises
@@ -31,32 +31,12 @@ public class CloudRenderer {
         BlueNoise2D bNoise = new BlueNoise2D(512, 512, seed);
 
         //create white noise texture
-        whiteNoise = genNoiseTexture(wNoise);
-        blueNoise = genNoiseTexture(bNoise);
+        whiteNoise = new NoiseTexture(wNoise);
+        blueNoise = new NoiseTexture(bNoise);
 
         //free resources
         wNoise.free();
         bNoise.free();
-    }
-
-    private static int genNoiseTexture(Noise noise) {
-        int id = glGenTextures();
-        glBindTexture(GL_TEXTURE_2D, id);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, noise.getWidth(), noise.getHeight(), 0, GL_RED, GL_UNSIGNED_BYTE, noise.getBuffer());
-
-        //enable mipmapping and wrapping
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        //swizzle red channel to all rgb channels
-        int[] swizzleMask = {GL_RED, GL_RED, GL_RED, GL_ALPHA};
-        glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-        return id;
     }
 
     public static void renderClouds(Framebuffer targetBuffer, Camera camera, float deltaTime, Sky sky) {
@@ -111,11 +91,11 @@ public class CloudRenderer {
         Texture.unbindAll(2);
     }
 
-    public static int getWhiteNoiseTexture() {
+    public static NoiseTexture getWhiteNoiseTexture() {
         return whiteNoise;
     }
 
-    public static int getBlueNoiseTexture() {
+    public static NoiseTexture getBlueNoiseTexture() {
         return blueNoise;
     }
 }

@@ -1,0 +1,6 @@
+newmtl grass2
+map_Kd -smooth_mip grass1-albedo3.png
+map_disp -smooth grass1-height.png
+map_Bump grass1-normal1-ogl.png
+map_ao grass1-ao.png
+map_Pr grass1-rough.png

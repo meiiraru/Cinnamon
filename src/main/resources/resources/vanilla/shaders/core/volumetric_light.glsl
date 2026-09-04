@@ -25,6 +25,8 @@ in vec3 worldPos;
 out vec4 fragColor;
 
 uniform sampler2D gDepth;
+uniform sampler2D noiseTex;
+
 uniform mat4 invView;
 uniform mat4 invProjection;
 uniform vec3 camPos;
@@ -45,7 +47,7 @@ uniform samplerCube shadowCubeMap;
 uniform mat4 lightSpaceMatrix;
 uniform float farPlane;
 
-uniform int raySteps = 64;
+uniform int raySteps = 32;
 
 vec3 getPosFromDepth(vec2 texCoords, float depth) {
     vec2 ndc = texCoords * 2.0f - 1.0f;
@@ -56,19 +58,17 @@ vec3 getPosFromDepth(vec2 texCoords, float depth) {
     return world.xyz;
 }
 
-float hash(vec2 p) {
-    return fract(sin(dot(p, vec2(12.9898f, 78.233f))) * 43758.5453f);
-}
-
 float getSphereDensity(vec3 pos) {
-    float dist = length(pos - lightPos);
+    vec3 diff = pos - lightPos;
+    float distSq = dot(diff, diff);
+    float radiusSq = radius * radius;
 
     //outside sphere
-    if (dist >= radius)
+    if (distSq >= radiusSq)
         return 0.0f;
 
     //normalize the distance within the sphere
-    float t = dist / radius;
+    float t = sqrt(distSq) / radius;
 
     //inner fade to create a halo effect at the center of the sphere
     float innerFade = smoothstep(0.0f, 1.0f, t);
@@ -187,7 +187,7 @@ void main() {
     float stepSize = maxDist / float(raySteps);
 
     //add some dithering to reduce artifacts from the ray marching
-    float dither = hash(gl_FragCoord.xy) * stepSize;
+    float dither = texture(noiseTex, gl_FragCoord.xy).r * stepSize;
 
     //ray march
     float totalDensity = 0.0f;

@@ -50,6 +50,7 @@ public enum MaterialRegistry {
     GORE,
     GRANITE,
     GRASS,
+    GRASS2,
     GRASS_MEADOW,
     HEART_PATTERN,
     HONEYCOMB,

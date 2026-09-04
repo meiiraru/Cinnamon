@@ -16,7 +16,7 @@ import org.joml.Vector3f;
 
 import java.util.UUID;
 
-public class RollerCoasterWorld extends WorldClient {
+public class RollerCoasterWorld extends PlaygroundWorld {
 
     private ModelRenderer model;
     private Vector3f[] path;
@@ -124,7 +124,7 @@ public class RollerCoasterWorld extends WorldClient {
     }
 
     @Override
-    public void spawnDebugWeapons() {
+    protected void spawnDebugWeapons() {
         ItemEntity i = new ItemEntity(UUID.randomUUID(), new CurveMaker(1));
         i.setAge(-1);
         i.setPos(0.5f, 2f, 0.5f);

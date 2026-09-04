@@ -20,6 +20,7 @@ import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.WaterRenderer;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.world.entity.Entity;
@@ -260,6 +261,11 @@ public class CollisionWorld extends WorldClient {
 
         VertexConsumer.finishAllBatches(camera);
         super.renderDebug(camera, matrices, delta);
+    }
+
+    public void renderWater(Camera camera, MatrixStack matrices, float delta) {
+        super.renderWater(camera, matrices, delta);
+        WaterRenderer.renderWaterPlane(camera, matrices, 0.9f, getSky().fogEnd);
     }
 
     @Override

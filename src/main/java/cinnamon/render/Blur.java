@@ -14,6 +14,8 @@ public class Blur {
 
     public static int gaussianBlur(int texture, int width, int height, int blurRadius, Framebuffer pingPongA, Framebuffer pingPongB) {
         Framebuffer prevFramebuffer = Framebuffer.activeFramebuffer;
+        Shader prevShader = Shader.activeShader;
+
         int w = width / blurRadius;
         int h = height / blurRadius;
 
@@ -51,11 +53,14 @@ public class Blur {
         prevFramebuffer.use();
         prevFramebuffer.adjustViewPort();
 
+        prevShader.use();
+
         return tex;
     }
 
     public static int boxBlur(int texture, int width, int height, int blurRadius, Framebuffer blurBuffer) {
         Framebuffer prevFramebuffer = Framebuffer.activeFramebuffer;
+        Shader prevShader = Shader.activeShader;
 
         blurBuffer.resize(width, height);
         blurBuffer.useClear();
@@ -74,6 +79,8 @@ public class Blur {
 
         prevFramebuffer.use();
         prevFramebuffer.adjustViewPort();
+
+        prevShader.use();
 
         return blurBuffer.getColorBuffer();
     }

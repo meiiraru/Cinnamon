@@ -18,7 +18,7 @@ import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
 import cinnamon.utils.Version;
 import cinnamon.vr.XrManager;
-import cinnamon.world.world.WorldClient;
+import cinnamon.world.world.PlaygroundWorld;
 import org.joml.Math;
 
 import java.util.function.Consumer;
@@ -48,7 +48,7 @@ public class MainMenu extends Screen {
         Button worldButton = new MainButton(Text.translated("gui.main_menu.playground"), button -> {
             //init client
             //if (ServerConnection.open()) {
-                WorldClient world = new WorldClient();
+                PlaygroundWorld world = new PlaygroundWorld();
                 world.init();
             //} else {
             //    Toast.addToast(Text.of("Unable to create the internal server"), client.font);
