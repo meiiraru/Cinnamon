@@ -19,6 +19,7 @@ public abstract class Sky {
             skyColor = 0x4444D0,
             sunColor = 0xFF8822,
             cloudsColor  = 0x7F7F7F,
+            starsColor   = 0xFFFFFF,
             ambientLight = 0xBFD3DE;
 
     public float
@@ -36,6 +37,8 @@ public abstract class Sky {
     protected final Vector3f sunDir = new Vector3f(1, 0, 0);
     protected float sunAngle;
     protected float sunRoll = Math.toRadians(30f);
+
+    protected int tintColor = 0xFFFFFFFF;
 
     public boolean
             renderSky = true,
@@ -103,6 +106,14 @@ public abstract class Sky {
 
     public Vector3f getSunDirection() {
         return sunDir;
+    }
+
+    public void setTint(int color) {
+        this.tintColor = color;
+    }
+
+    public int getTint() {
+        return tintColor;
     }
 
     public abstract int bind(Shader shader, int index);

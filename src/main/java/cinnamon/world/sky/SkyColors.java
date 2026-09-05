@@ -55,7 +55,7 @@ public class SkyColors {
     }
 
     public static class SkyProperties {
-        private int sunColor, skyColor, ambientLight, fogColor, cloudsColor;
+        private int sunColor, skyColor, ambientLight, fogColor, cloudsColor, starsColor;
         private float fogStart, fogEnd;
         private float sunIntensity, fogIntensity, starsIntensity;
         private int sunlightColor;
@@ -79,6 +79,10 @@ public class SkyColors {
 
         public int cloudsColor() {
             return cloudsColor;
+        }
+
+        public int starsColor() {
+            return starsColor;
         }
 
         public float fogStart() {
@@ -138,6 +142,11 @@ public class SkyColors {
             return this;
         }
 
+        public SkyProperties starsColor(int starsColor) {
+            this.starsColor = starsColor;
+            return this;
+        }
+
         public SkyProperties fogStart(float fogStart) {
             this.fogStart = fogStart;
             return this;
@@ -185,6 +194,7 @@ public class SkyColors {
                     .ambientLight(ColorUtils.lerpRGBColor(ambientLight, other.ambientLight, t))
                     .fogColor(ColorUtils.lerpRGBColor(fogColor, other.fogColor, t))
                     .cloudsColor(ColorUtils.lerpRGBColor(cloudsColor, other.cloudsColor, t))
+                    .starsColor(ColorUtils.lerpRGBColor(starsColor, other.starsColor, t))
 
                     .fogStart(Math.lerp(fogStart, other.fogStart, t))
                     .fogEnd(Math.lerp(fogEnd, other.fogEnd, t))

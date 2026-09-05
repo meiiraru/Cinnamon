@@ -269,6 +269,7 @@ public class WorldClient extends World {
         this.sky.skyColor = props.skyColor();
         this.sky.fogColor = props.fogColor();
         this.sky.cloudsColor = props.cloudsColor();
+        this.sky.starsColor = props.starsColor();
         this.sky.ambientLight = props.ambientLight();
         this.sky.fogStart = props.fogStart();
         this.sky.fogEnd = props.fogEnd();
@@ -707,37 +708,37 @@ public class WorldClient extends World {
     protected void setSkyColors() {
         //sunrise
         skyColors.addProperty(6*60, new SkyColors.SkyProperties()
-                        .sunColor(0xFF4400).skyColor(0x859090).ambientLight(0x101020).fogColor(0xE57E4B).cloudsColor(0x7F7F7F)
+                        .sunColor(0xFF4400).skyColor(0x859090).ambientLight(0x101020).fogColor(0xE57E4B).cloudsColor(0x7F7F7F).starsColor(0xFFFFFF)
                         .fogStart(64f).fogEnd(80f).sunIntensity(1f).fogIntensity(1f).starsIntensity(0.5f)
                         .sunlightColor(0xFF4400).sunlightIntensity(3f).sunlightShadowIntensity(0f)
         );
         //day start
         skyColors.addProperty(7*60, new SkyColors.SkyProperties()
-                .sunColor(0xFFEEDD).skyColor(0x446FD0).ambientLight(0xBBCCDD).fogColor(0xBFD3DE).cloudsColor(0xB0D0FF)
-                .fogStart(96f).fogEnd(192f).sunIntensity(0f).fogIntensity(1f).starsIntensity(0.05f)
+                .sunColor(0xFFEEDD).skyColor(0x446FD0).ambientLight(0xBBCCDD).fogColor(0xBFD3DE).cloudsColor(0xB0D0FF).starsColor(0xFFFFFF)
+                .fogStart(96f).fogEnd(192f).sunIntensity(0f).fogIntensity(1f).starsIntensity(0.1f)
                 .sunlightColor(0xFFEEDD).sunlightIntensity(5f).sunlightShadowIntensity(1f)
         );
         //day end
         skyColors.addProperty(17*60, new SkyColors.SkyProperties()
-                .sunColor(0xFFEEDD).skyColor(0x446FD0).ambientLight(0xBBCCDD).fogColor(0xBFD3DE).cloudsColor(0xB0D0FF)
-                .fogStart(96f).fogEnd(192f).sunIntensity(0f).fogIntensity(1f).starsIntensity(0.05f)
+                .sunColor(0xFFEEDD).skyColor(0x446FD0).ambientLight(0xBBCCDD).fogColor(0xBFD3DE).cloudsColor(0xB0D0FF).starsColor(0xFFFFFF)
+                .fogStart(96f).fogEnd(192f).sunIntensity(0f).fogIntensity(1f).starsIntensity(0.1f)
                 .sunlightColor(0xFFEEDD).sunlightIntensity(5f).sunlightShadowIntensity(1f)
         );
         //sunset
         skyColors.addProperty(18*60, new SkyColors.SkyProperties()
-                .sunColor(0xFF4400).skyColor(0x8844DD).ambientLight(0x101020).fogColor(0xFF72AD).cloudsColor(0x90507F)
+                .sunColor(0xFF4400).skyColor(0x8844DD).ambientLight(0x101020).fogColor(0xFF72AD).cloudsColor(0x90507F).starsColor(0xFFFFFF)
                 .fogStart(64f).fogEnd(80f).sunIntensity(1f).fogIntensity(1f).starsIntensity(0.5f)
                 .sunlightColor(0xFF4400).sunlightIntensity(3f).sunlightShadowIntensity(0f)
         );
         //night start
         skyColors.addProperty(19*60, new SkyColors.SkyProperties()
-                .sunColor(0x07070F).skyColor(0x0C0C18).ambientLight(0x101020).fogColor(0x0C0C18).cloudsColor(0x0A0A14)
+                .sunColor(0x07070F).skyColor(0x0C0C18).ambientLight(0x101020).fogColor(0x0C0C18).cloudsColor(0x0A0A14).starsColor(0xFFFFFF)
                 .fogStart(64f).fogEnd(80f).sunIntensity(0f).fogIntensity(1f).starsIntensity(5f)
                 .sunlightColor(0x07070F).sunlightIntensity(0.1f).sunlightShadowIntensity(0f)
         );
         //night end
         skyColors.addProperty(5*60, new SkyColors.SkyProperties()
-                .sunColor(0x07070F).skyColor(0x0C0C18).ambientLight(0x101020).fogColor(0x0C0C18).cloudsColor(0x0A0A14)
+                .sunColor(0x07070F).skyColor(0x0C0C18).ambientLight(0x101020).fogColor(0x0C0C18).cloudsColor(0x0A0A14).starsColor(0xFFFFFF)
                 .fogStart(64f).fogEnd(80f).sunIntensity(0f).fogIntensity(1f).starsIntensity(5f)
                 .sunlightColor(0x07070F).sunlightIntensity(0.1f).sunlightShadowIntensity(0f)
         );

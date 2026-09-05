@@ -19,9 +19,12 @@ in vec3 pos;
 
 out vec4 fragColor;
 
+uniform vec3 color = vec3(1.0f);
+
 uniform vec3 skyColor;
 uniform vec3 fogColor;
 uniform vec3 sunColor;
+uniform vec3 starsColor;
 uniform vec3 sunDirection;
 
 uniform float fogIntensity = 1.0f;
@@ -58,13 +61,13 @@ void main() {
     //vertical fog gradient
     float horizon = 1.0f - max(dir.y, 0.0f);
     float horizonBlend = horizon * horizon * fogIntensity;
-    vec3 color = mix(skyColor, fogColor, horizonBlend);
+    vec3 col = mix(skyColor, fogColor, horizonBlend);
 
     //sun glow
     if (sunIntensity > 0.0f) {
         float sunDot = max(dot(dir, -sunDirection), 0.0f);
         float sunGlow = pow(sunDot, 8.0f) * 0.5f;
-        color += sunColor * sunGlow * sunIntensity;
+        col += sunColor * sunGlow * sunIntensity;
     }
 
     //stars
@@ -73,8 +76,8 @@ void main() {
         float skyFade = max(dir.y, 0.0f);
         float sunMask = 1.0f - smoothstep(0.0f, 1.0f, max(dot(dir, -sunDirection), 0.0f));
         float starBrightness = stars(dir) * skyFade * sunMask * starsIntensity;
-        color += starBrightness;
+        col = mix(col, starsColor, starBrightness);
     }
 
-    fragColor = vec4(color, 1.0f);
+    fragColor = vec4(col * color, 1.0f);
 }

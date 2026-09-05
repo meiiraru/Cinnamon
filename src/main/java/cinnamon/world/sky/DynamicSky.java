@@ -28,10 +28,12 @@ public class DynamicSky extends CubemapSky {
     protected void update() {
         Shader prevShader = Shader.activeShader;
         Shader s = Shaders.CUBEMAP_SKYBOX.getShader().use();
+        s.applyColor(getTint());
         s.setVec3("sunDirection", getRotatedSunDirection());
         s.setColor("skyColor", skyColor);
         s.setColor("sunColor", sunColor);
         s.setColor("fogColor", fogColor);
+        s.setColor("starsColor", starsColor);
         s.setFloat("sunIntensity", sunIntensity);
         s.setFloat("fogIntensity", fogIntensity);
         s.setFloat("starsIntensity", starsIntensity);

@@ -26,6 +26,7 @@ uniform mat4 invProjection;
 //IBL
 const int MAX_REFLECTION_LOD = 8;
 uniform mat3 cubemapRotation;
+uniform vec3 cubemapTint;
 uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
 
@@ -77,7 +78,7 @@ void main() {
     //IBL specular
     float NdotV = max(dot(N, V), 0.0f);
     vec3 F = fresnelSchlickRoughness(NdotV, F0, roughness);
-    vec3 prefilteredColor = textureLod(prefilterMap, R * cubemapRotation, roughness * (MAX_REFLECTION_LOD - 1)).rgb;
+    vec3 prefilteredColor = textureLod(prefilterMap, R * cubemapRotation, roughness * (MAX_REFLECTION_LOD - 1)).rgb * cubemapTint;
     vec2 brdf = texture(brdfLUT, vec2(NdotV, roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 

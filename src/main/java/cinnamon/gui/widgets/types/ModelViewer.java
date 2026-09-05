@@ -229,11 +229,11 @@ public class ModelViewer extends SelectableWidget {
     }
 
     public void setSkyboxColor(int color) {
-        theSky.setColor(color);
+        theSky.setTint(color);
     }
 
     public int getSkyboxColor() {
-        return theSky.getColor();
+        return theSky.getTint();
     }
 
     public MaterialRegistry getMaterial() {

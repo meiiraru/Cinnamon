@@ -33,6 +33,7 @@ uniform vec3 ambientLight;
 //IBL
 const int MAX_REFLECTION_LOD = 8;
 uniform mat3 cubemapRotation;
+uniform vec3 cubemapTint;
 //uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
@@ -95,7 +96,7 @@ vec4 applyLighting(vec3 pos) {
     vec3 diffuse = ambientLight * albedo;
 
     //sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part
-    vec3 prefilteredColor = textureLod(prefilterMap, R * cubemapRotation, roughness * (MAX_REFLECTION_LOD - 1)).rgb;
+    vec3 prefilteredColor = textureLod(prefilterMap, R * cubemapRotation, roughness * (MAX_REFLECTION_LOD - 1)).rgb * cubemapTint;
 
     //ssr
     vec4 ssr = texture(ssrTex, texCoords) * ssrFactor;
