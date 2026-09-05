@@ -7,7 +7,7 @@ import cinnamon.math.collision.shape.AABB;
 import cinnamon.messages.MessageCategory;
 import cinnamon.messages.MessageManager;
 import cinnamon.model.GeometryHelper;
-import cinnamon.model.StaticGeometry;
+import cinnamon.model.ModelManager;
 import cinnamon.model.Vertex;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainModelRegistry;
@@ -16,6 +16,7 @@ import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WaterRenderer;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.shader.Shader;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundManager;
@@ -265,33 +266,27 @@ public class PlaygroundWorld extends WorldClient {
 
         matrices.pushMatrix();
         matrices.translate(0.5f, 2f, -16.5f);
+        matrices.scale(2f);
 
         float time = getTime() + delta;
 
+        ModelRenderer fire = ModelManager.getRenderer(new Resource("models/misc/cross.obj"));
+
         int len = 16;
-        float r = 2.25f;
+        float r = 1.5f;
         for (int i = 0; i < len; i++) {
             float angle = Math.PI_TIMES_2_f / len * i;
 
             matrices.pushMatrix();
             matrices.translate(Math.sin(angle) * r, 0f, Math.cos(angle) * r);
-            camera.billboard(matrices, (byte) 2);
-            matrices.rotateZ(180f);
-            matrices.rotateY(180f);
 
             Shader.activeShader.setFloat("time", time * 0.03f + i);
-            Shader.activeShader.applyMatrixStack(matrices);
-            StaticGeometry.QUAD.render();
+            fire.renderWithoutMaterial(matrices);
 
             matrices.popMatrix();
         }
 
-        camera.billboard(matrices, (byte) 2);
-        matrices.rotateZ(180f);
-        matrices.rotateY(180f);
-        Shader.activeShader.applyMatrixStack(matrices);
-        StaticGeometry.QUAD.render();
-
+        fire.renderWithoutMaterial(matrices);
         matrices.popMatrix();
     }
 

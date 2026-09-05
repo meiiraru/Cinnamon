@@ -103,14 +103,63 @@ public class Maths {
         return lerp(array[prev], array[next], indexDelta);
     }
 
-    public static Vector3f parseVec3(String vec3, String split) {
-        String[] s = vec3.split(split);
-        return new Vector3f(Float.parseFloat(s[0]), Float.parseFloat(s[1]), Float.parseFloat(s[2]));
+    public static Vector3f parseVec3(String data, char delimiter) {
+        float x = 0f, y = 0f, z = 0f;
+
+        int count = 0;
+        int len = data.length();
+        int i = 0;
+
+        while (i < len && count < 3) {
+            if (data.charAt(i) == delimiter) {
+                i++;
+                continue;
+            }
+
+            //find the end of the current number
+            int start = i;
+            while (i < len && data.charAt(i) != delimiter)
+                i++;
+
+            //parse the float from the substring
+            float val = Float.parseFloat(data.substring(start, i));
+            if      (count == 0) x = val;
+            else if (count == 1) y = val;
+            else if (count == 2) z = val;
+
+            count++;
+        }
+
+        return new Vector3f(x, y, z);
     }
 
-    public static Vector2f parseVec2(String vec2, String split) {
-        String[] s = vec2.split(split);
-        return new Vector2f(Float.parseFloat(s[0]), Float.parseFloat(s[1]));
+    public static Vector2f parseVec2(String data, char delimiter) {
+        float x = 0f, y = 0f;
+
+        int count = 0;
+        int len = data.length();
+        int i = 0;
+
+        while (i < len && count < 2) {
+            if (data.charAt(i) == delimiter) {
+                i++;
+                continue;
+            }
+
+            //find the end of the current number
+            int start = i;
+            while (i < len && data.charAt(i) != delimiter)
+                i++;
+
+            //parse the float from the substring
+            float val = Float.parseFloat(data.substring(start, i));
+            if      (count == 0) x = val;
+            else if (count == 1) y = val;
+
+            count++;
+        }
+
+        return new Vector2f(x, y);
     }
 
     public static Vector3f rotToDir(float pitch, float yaw) {

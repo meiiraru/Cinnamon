@@ -8,7 +8,6 @@ import cinnamon.model.mesh.Mesh;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class VerticesToMesh {
@@ -18,10 +17,10 @@ public class VerticesToMesh {
     }
 
     public static Mesh fromVertices(Vertex[][] vertices, Material material) {
-        return fromVertices(vertices, material, true, true, "default");
+        return fromVertices(vertices, material, true, true, false, "default");
     }
 
-    public static Mesh fromVertices(Vertex[][] vertices, Material material, boolean includeUVs, boolean includeNormals, String name) {
+    public static Mesh fromVertices(Vertex[][] vertices, Material material, boolean includeUVs, boolean includeNormals, boolean includeTangents, String name) {
         Mesh mesh = new Mesh();
         Group group = new Group(name);
         mesh.getGroups().add(group);
@@ -39,33 +38,42 @@ public class VerticesToMesh {
         List<Vector3f> positions = mesh.getVertices();
         List<Vector2f> uvs = mesh.getUVs();
         List<Vector3f> normals = mesh.getNormals();
+        List<Vector3f> tangents = mesh.getTangents();
 
         //faces
         for (Vertex[] f : vertices) {
-            List<Integer> posIndices = new ArrayList<>();
-            List<Integer> uvIndices = new ArrayList<>();
-            List<Integer> normIndices = new ArrayList<>();
+            int[] posIndices  = new int[f.length];
+            int[] uvIndices   = includeUVs ? new int[f.length] : null;
+            int[] normIndices = includeNormals ? new int[f.length] : null;
+            int[] tanIndices  = includeTangents ? new int[f.length] : null;
 
             //vertex
-            for (Vertex vertex : f) {
+            for (int i = 0; i < f.length; i++) {
+                Vertex vertex = f[i];
+
                 positions.add(vertex.getPos());
-                posIndices.add(positions.size() - 1);
+                posIndices[i] = positions.size() - 1;
 
                 if (includeUVs) {
                     uvs.add(vertex.getUV());
-                    uvIndices.add(uvs.size() - 1);
+                    uvIndices[i] = uvs.size() - 1;
                 }
 
                 if (includeNormals) {
                     normals.add(vertex.getNormal());
-                    normIndices.add(normals.size() - 1);
+                    normIndices[i] = normals.size() - 1;
+                }
+
+                if (includeTangents) {
+                    tangents.add(vertex.getTangent());
+                    tanIndices[i] = tangents.size() - 1;
                 }
 
                 mesh.getBounds().include(vertex.getPos());
                 group.getBounds().include(vertex.getPos());
             }
 
-            Face face = new Face(posIndices, uvIndices, normIndices);
+            Face face = new Face(posIndices, uvIndices, normIndices, tanIndices);
             group.getFaces().add(face);
         }
 

@@ -22,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.List;
 import java.util.Locale;
 
 public class ObjExporter {
@@ -104,29 +103,29 @@ public class ObjExporter {
             string.append("usemtl %s\n".formatted(material.getName()));
 
         for (Face face : group.getFaces()) {
-            List<Integer>
-                    v = face.getVertices(),
+            int[]
+                    v  = face.getVertices(),
                     vt = face.getUVs(),
                     vn = face.getNormals();
 
             string.append("f ");
 
-            for (int i = 0; i < v.size(); i++) {
-                int j = invert ? v.size() - 1 - i : i;
+            for (int i = 0; i < v.length; i++) {
+                int j = invert ? v.length - 1 - i : i;
 
                 //v always present
-                string.append("%s".formatted(v.get(j) + 1));
+                string.append("%s".formatted(v[j] + 1));
 
                 //append vt v/vt
-                if (!vt.isEmpty())
-                    string.append("/%s".formatted(vt.get(j) + 1));
+                if (face.hasUVs())
+                    string.append("/%s".formatted(vt[j] + 1));
                 //if vt is not present, but we have vn, add '/' v//vn
-                else if (!vn.isEmpty())
+                else if (face.hasNormals())
                     string.append("/");
 
                 //append vn
-                if (!vn.isEmpty())
-                    string.append("/%s".formatted(vn.get(j) + 1));
+                if (face.hasNormals())
+                    string.append("/%s".formatted(vn[j] + 1));
 
                 //spacing
                 string.append(" ");

@@ -12,8 +12,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 import static cinnamon.events.Events.LOGGER;
 import static cinnamon.math.Maths.parseVec2;
@@ -21,11 +19,6 @@ import static cinnamon.math.Maths.parseVec3;
 import static java.lang.Integer.parseInt;
 
 public class ObjLoader {
-
-    private static final Vector3f bbMin = new Vector3f(Float.MAX_VALUE);
-    private static final Vector3f bbMax = new Vector3f(-Float.MAX_VALUE);
-    private static final Vector3f groupMin = new Vector3f(Float.MAX_VALUE);
-    private static final Vector3f groupMax = new Vector3f(-Float.MAX_VALUE);
 
     public static Mesh load(Resource res) throws IOException {
         LOGGER.debug("Loading model \"%s\"", res);
@@ -39,22 +32,26 @@ public class ObjLoader {
             Group currentGroup = new Group("default");
             Material currentMaterial = null;
 
-            bbMin.set(Float.MAX_VALUE);
-            bbMax.set(-Float.MAX_VALUE);
-            groupMin.set(Float.MAX_VALUE);
-            groupMax.set(-Float.MAX_VALUE);
+            Vector3f bbMin = new Vector3f(Float.MAX_VALUE);
+            Vector3f bbMax = new Vector3f(-Float.MAX_VALUE);
+            Vector3f groupMin = new Vector3f(Float.MAX_VALUE);
+            Vector3f groupMax = new Vector3f(-Float.MAX_VALUE);
 
             for (String line; (line = br.readLine()) != null; ) {
                 //skip comments and empty lines
+                line = line.trim();
                 if (line.isBlank() || line.startsWith("#"))
                     continue;
 
                 //grab first word on the line
-                String[] split = line.split(" +", 2);
-                switch (split[0]) {
+                int firstSpace = line.indexOf(' ');
+                String type = firstSpace == -1 ? line : line.substring(0, firstSpace);
+                String data = firstSpace == -1 ? "" : line.substring(firstSpace + 1).trim();
+
+                switch (type) {
                     //material file
                     case "mtllib" -> {
-                        Resource material = res.resolveSibling(split[1]);
+                        Resource material = res.resolveSibling(data);
                         try {
                             theMesh.getMaterials().putAll(MaterialLoader.load(material));
                         } catch (Exception e) {
@@ -65,26 +62,26 @@ public class ObjLoader {
                     //group
                     case "g", "o" -> {
                         //add current group
-                        addGroupToMesh(currentGroup, currentMaterial, theMesh);
+                        addGroupToMesh(currentGroup, currentMaterial, theMesh, groupMin, groupMax);
 
                         //create new group
-                        currentGroup = new Group(split[1]);
+                        currentGroup = new Group(data);
                     }
 
                     //group material
                     case "usemtl" -> {
                         //add current group
-                        addGroupToMesh(currentGroup, currentMaterial, theMesh);
+                        addGroupToMesh(currentGroup, currentMaterial, theMesh, groupMin, groupMax);
 
                         //new material
-                        currentMaterial = theMesh.getMaterials().get(split[1]);
+                        currentMaterial = theMesh.getMaterials().get(data);
                         //create a new group with same name
                         currentGroup = new Group(currentGroup.getName());
                     }
 
                     //vertex
                     case "v" -> {
-                        Vector3f v = parseVec3(split[1], " +");
+                        Vector3f v = parseVec3(data, ' ');
                         theMesh.getVertices().add(v);
 
                         bbMin.min(v);
@@ -94,18 +91,18 @@ public class ObjLoader {
                     }
 
                     //uv
-                    case "vt" -> theMesh.getUVs().add(parseVec2(split[1], " +"));
+                    case "vt" -> theMesh.getUVs().add(parseVec2(data, ' '));
 
                     //normal
-                    case "vn" -> theMesh.getNormals().add(parseVec3(split[1], " +"));
+                    case "vn" -> theMesh.getNormals().add(parseVec3(data, ' '));
 
                     //faces
-                    case "f" -> currentGroup.getFaces().add(parseFace(split[1], theMesh));
+                    case "f" -> currentGroup.getFaces().add(parseFace(data, theMesh));
                 }
             }
 
             //add last group to the mesh
-            addGroupToMesh(currentGroup, currentMaterial, theMesh);
+            addGroupToMesh(currentGroup, currentMaterial, theMesh, groupMin, groupMax);
 
             //set mesh bounding box
             theMesh.getBounds().set(bbMin, bbMax);
@@ -125,7 +122,7 @@ public class ObjLoader {
         }
     }
 
-    private static void addGroupToMesh(Group group, Material material, Mesh mesh) {
+    private static void addGroupToMesh(Group group, Material material, Mesh mesh, Vector3f groupMin, Vector3f groupMax) {
         if (group.isEmpty())
             return;
 
@@ -139,33 +136,58 @@ public class ObjLoader {
     }
 
     private static Face parseFace(String face, Mesh mesh) {
-        String[] split = face.split(" +");
+        String[] tokens = face.split(" ");
+
+        int vertexCount = 0;
+        for (String token : tokens) {
+            if (!token.isBlank())
+                vertexCount++;
+        }
 
         //prepare arrays
-        List<Integer>
-                v = new ArrayList<>(),
-                vt = new ArrayList<>(),
-                vn = new ArrayList<>();
+        int[]
+                v = new int[vertexCount],
+                vt = null,
+                vn = null;
 
         //fill arrays
-        for (String s : split) {
-            String[] vtx = s.split("/");
+        int i = 0;
+        for (String s : tokens) {
+            if (s.isBlank())
+                continue;
+
+            int firstSlash = s.indexOf('/');
+            if (firstSlash == -1) {
+                //v only
+                v[i++] = parseIndex(s, mesh.getVertices().size());
+                i++;
+                continue;
+            }
+
+            int secondSlash = s.indexOf('/', firstSlash + 1);
 
             //v is always present
-            v.add(parseIndex(vtx[0], mesh.getVertices().size()));
+            v[i] = parseIndex(s.substring(0, firstSlash), mesh.getVertices().size());
 
-            //try v/vt/vn
-            if (vtx.length == 3) {
-                //vn present
-                vn.add(parseIndex(vtx[2], mesh.getNormals().size()));
-
-                //test for vt (v//vn)
-                if (!vtx[1].isBlank())
-                    vt.add(parseIndex(vtx[1], mesh.getUVs().size()));
+            if (secondSlash == -1) {
+                //missing a second slash, meaning its v/vt
+                if (vt == null)
+                    vt = new int[vertexCount];
+                vt[i] = parseIndex(s.substring(firstSlash + 1), mesh.getUVs().size());
+            } else {
+                //v//vn or v/vt/vn
+                //check if second slash is not immediately after first slash, meaning we have vt
+                if (secondSlash > firstSlash + 1) {
+                    if (vt == null)
+                        vt = new int[vertexCount];
+                    vt[i] = parseIndex(s.substring(firstSlash + 1, secondSlash), mesh.getUVs().size());
+                }
+                //add remaining part as vn
+                if (vn == null) vn = new int[vertexCount];
+                vn[i] = parseIndex(s.substring(secondSlash + 1), mesh.getNormals().size());
             }
-            //then try v/vt
-            else if (vtx.length == 2)
-                vt.add(parseIndex(vtx[1], mesh.getUVs().size()));
+
+            i++;
         }
 
         return new Face(v, vt, vn);
@@ -173,10 +195,6 @@ public class ObjLoader {
 
     private static int parseIndex(String index, int size) {
         int idx = parseInt(index);
-        if (idx < 0)
-            idx = size + idx;
-        else
-            idx = idx - 1;
-        return idx;
+        return idx < 0 ? size + idx : idx - 1;
     }
 }

@@ -50,20 +50,20 @@ public class MeshRenderer extends ModelRenderer {
             //iterate faces
             for (Face face : group.getFaces()) {
                 //indexes
-                List<Integer> v = face.getVertices();
-                List<Integer> vt = face.getUVs();
-                List<Integer> vn = face.getNormals();
-                List<Integer> vtan = face.getTangents();
+                int[] v = face.getVertices();
+                int[] vt = face.getUVs();
+                int[] vn = face.getNormals();
+                int[] vtan = face.getTangents();
 
                 //vertex list
                 List<Vertex> data = new ArrayList<>();
 
-                for (int i = 0; i < v.size(); i++) {
+                for (int i = 0; i < v.length; i++) {
                     //parse indexes to their actual values
-                    Vector3f a = vertices.get(v.get(i));
-                    Vector2f b = !vt.isEmpty() ? uvs.get(vt.get(i)) : Vertex.DEFAULT_UV;
-                    Vector3f c = !vn.isEmpty() ? normals.get(vn.get(i)) : Vertex.DEFAULT_NORMAL;
-                    Vector3f d = !vtan.isEmpty() ? tangents.get(vtan.get(i)) : Vertex.DEFAULT_TANGENT;
+                    Vector3f a = vertices.get(v[i]);
+                    Vector2f b = face.hasUVs() ? uvs.get(vt[i]) : Vertex.DEFAULT_UV;
+                    Vector3f c = face.hasNormals() ? normals.get(vn[i]) : Vertex.DEFAULT_NORMAL;
+                    Vector3f d = face.hasTangents() ? tangents.get(vtan[i]) : Vertex.DEFAULT_TANGENT;
 
                     //add to vertex list
                     data.add(new Vertex().pos(a).uv(b).normal(c).tangent(d));

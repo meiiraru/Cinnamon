@@ -1,35 +1,48 @@
 package cinnamon.model.mesh;
 
-import java.util.List;
-
 public class Face {
 
-    private final List<Integer> vertices, uvs, normals, tangents;
+    private final int[] vertices;
+    private final int[] uvs;
+    private final int[] normals;
+    private final int[] tangents;
 
-    public Face(List<Integer> vertices, List<Integer> uvs, List<Integer> normals) {
-        this(vertices, uvs, normals, List.of());
+    public Face(int[] vertices, int[] uvs, int[] normals) {
+        this(vertices, uvs, normals, null);
     }
 
-    public Face(List<Integer> vertices, List<Integer> uvs, List<Integer> normals, List<Integer> tangents) {
+    public Face(int[] vertices, int[] uvs, int[] normals, int[] tangents) {
         this.vertices = vertices;
         this.uvs = uvs;
         this.normals = normals;
         this.tangents = tangents;
     }
 
-    public List<Integer> getVertices() {
+    public int[] getVertices() {
         return vertices;
     }
 
-    public List<Integer> getUVs() {
+    public int[] getUVs() {
         return uvs;
     }
 
-    public List<Integer> getNormals() {
+    public int[] getNormals() {
         return normals;
     }
 
-    public List<Integer> getTangents() {
+    public int[] getTangents() {
         return tangents;
+    }
+
+    public boolean hasUVs() {
+        return uvs != null && uvs.length > 0;
+    }
+
+    public boolean hasNormals() {
+        return normals != null && normals.length > 0;
+    }
+
+    public boolean hasTangents() {
+        return tangents != null && tangents.length > 0;
     }
 }

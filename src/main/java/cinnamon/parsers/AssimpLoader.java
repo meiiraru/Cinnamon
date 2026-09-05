@@ -255,19 +255,21 @@ public class AssimpLoader {
                 continue;
             }
 
-            List<Integer> vIndices = new ArrayList<>();
-            List<Integer> uvIndices = new ArrayList<>();
-            List<Integer> nIndices = new ArrayList<>();
-            List<Integer> tIndices = new ArrayList<>();
-
             IntBuffer indices = aiface.mIndices();
-            for (int j = 0; j < indices.limit(); j++) {
+            int len = indices.limit();
+
+            int[] vIndices  = new int[len];
+            int[] uvIndices = uvOffset != -1 ? new int[len] : null;
+            int[] nIndices  = nOffset  != -1 ? new int[len] : null;
+            int[] tIndices  = tOffset  != -1 ? new int[len] : null;
+
+            for (int j = 0; j < len; j++) {
                 int index = indices.get(j);
 
-                vIndices.add(index + vOffset);
-                if (uvOffset != -1) uvIndices.add(index + uvOffset);
-                if (nOffset != -1) nIndices.add(index + nOffset);
-                if (tOffset != -1) tIndices.add(index + tOffset);
+                vIndices[j] = index + vOffset;
+                if (uvOffset != -1) uvIndices[j] = index + uvOffset;
+                if (nOffset  != -1) nIndices[j]  = index + nOffset;
+                if (tOffset  != -1) tIndices[j]  = index + tOffset;
             }
 
             Face face = new Face(vIndices, uvIndices, nIndices, tIndices);
@@ -297,9 +299,11 @@ public class AssimpLoader {
         material.setEmissive(parseTexture(scene, aimaterial, aiTextureType_EMISSIVE, res));
 
         //parse color
-        AIColor4D color = AIColor4D.create();
-        if (aiGetMaterialColor(aimaterial, AI_MATKEY_COLOR_DIFFUSE, 0, 0, color) == aiReturn_SUCCESS)
-            material.setAlbedo(createTextureForColor(parseColor(color), res, matName + "_albedo"));
+        if (material.getAlbedo() == null) {
+            AIColor4D color = AIColor4D.create();
+            if (aiGetMaterialColor(aimaterial, AI_MATKEY_COLOR_DIFFUSE, 0, 0, color) == aiReturn_SUCCESS)
+                material.setAlbedo(createTextureForColor(parseColor(color), res, matName + "_albedo"));
+        }
     }
 
     private static MaterialTexture parseTexture(AIScene scene, AIMaterial aimaterial, int type, Resource res, Texture.TextureParams... params) {
@@ -332,6 +336,8 @@ public class AssimpLoader {
     }
 
     private static MaterialTexture createTextureForColor(Vector4f color, Resource res, String id) {
+        LOGGER.debug("Creating texture for color %s with id \"%s\"", color, id);
+
         //create path
         Resource path = new Resource("assimp/" + res + "/" + id + ".png");
         //force creation and loading of the texture

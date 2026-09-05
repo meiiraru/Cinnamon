@@ -9,8 +9,6 @@ import cinnamon.render.MatrixStack;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import java.util.ArrayList;
-
 public class MergeMesh {
 
     public static void merge(Mesh src, Mesh other) {
@@ -21,12 +19,14 @@ public class MergeMesh {
         int vertOffset = src.getVertices().size();
         int normOffset = src.getNormals().size();
         int texOffset = src.getUVs().size();
+        int tanOffset = src.getTangents().size();
 
         //merge vertex data
         if (transform == null) {
             src.getVertices().addAll(other.getVertices());
             src.getNormals().addAll(other.getNormals());
             src.getUVs().addAll(other.getUVs());
+            src.getTangents().addAll(other.getTangents());
         } else {
             MatrixStack.Pose matrix = transform.getMatrix();
 
@@ -38,11 +38,15 @@ public class MergeMesh {
 
             for (Vector2f uv : other.getUVs())
                 src.getUVs().add(uv.add(transform.getUV(), new Vector2f()));
+
+            for (Vector3f t : other.getTangents())
+                src.getTangents().add(t.mul(matrix.normal(), new Vector3f()));
         }
 
         //merge groups
         for (Group group : other.getGroups()) {
             Group newGroup = new Group(group.getName());
+            newGroup.getBounds().set(group.getBounds());
             src.getGroups().add(newGroup);
 
             //append materials
@@ -71,16 +75,38 @@ public class MergeMesh {
 
             //update indexes
             for (Face face : group.getFaces()) {
-                Face newFace = new Face(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-                newGroup.getFaces().add(newFace);
+                int[] vertices = new int[face.getVertices().length];
+                int[] uvs = null;
+                int[] normals = null;
+                int[] tangents = null;
 
-                for (Integer vertex : face.getVertices())
-                    newFace.getVertices().add(vertex + vertOffset);
-                for (Integer uv : face.getUVs())
-                    newFace.getUVs().add(uv + texOffset);
-                for (Integer normal : face.getNormals())
-                    newFace.getNormals().add(normal + normOffset);
+                for (int i = 0; i < face.getVertices().length; i++)
+                    vertices[i] = face.getVertices()[i] + vertOffset;
+
+                if (face.hasUVs()) {
+                    uvs = new int[face.getUVs().length];
+                    for (int i = 0; i < face.getUVs().length; i++)
+                        uvs[i] = face.getUVs()[i] + texOffset;
+                }
+
+                if (face.hasNormals()) {
+                    normals = new int[face.getNormals().length];
+                    for (int i = 0; i < face.getNormals().length; i++)
+                        normals[i] = face.getNormals()[i] + normOffset;
+                }
+
+                if (face.hasTangents()) {
+                    tangents = new int[face.getTangents().length];
+                    for (int i = 0; i < face.getTangents().length; i++)
+                        tangents[i] = face.getTangents()[i] + tanOffset;
+                }
+
+                Face newFace = new Face(vertices, uvs, normals, tangents);
+                newGroup.getFaces().add(newFace);
             }
         }
+
+        //merge bounds
+        src.getBounds().merge(other.getBounds());
     }
 }

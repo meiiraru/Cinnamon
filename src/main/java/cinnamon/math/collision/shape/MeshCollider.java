@@ -29,13 +29,13 @@ public class MeshCollider extends Collider<MeshCollider> {
         //bake the mesh into a triangle list for collision detection
         for (Group group : mesh.getGroups()) {
             for (Face face : group.getFaces()) {
-                List<Integer> vIdx = face.getVertices();
-                if (vIdx.size() < 3)
+                int[] vIdx = face.getVertices();
+                if (vIdx.length < 3)
                     continue;
 
                 //create the vertex data for the triangulation
                 List<Vertex> data = new ArrayList<>();
-                for (Integer idx : vIdx)
+                for (int idx : vIdx)
                     data.add(new Vertex().pos(meshVerts.get(idx)));
 
                 //triangulate the face

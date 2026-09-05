@@ -94,7 +94,7 @@ public class CurveToMesh {
 
             //add quad
             int k = i * 2, l = j * 2, m = k + 1, n = l + 1;
-            List<Integer> indexes = List.of(k, l, n, m);
+            int[] indexes = new int[]{k, l, n, m};
             group.getFaces().add(new Face(indexes, indexes, indexes));
 
             //bounding box
@@ -110,8 +110,8 @@ public class CurveToMesh {
             mesh.getUVs().add(new Vector2f(0f, uv));
 
             int len = mesh.getVertices().size();
-            List<Integer> uvIndexes = List.of(len - 2, len, len + 1, len - 1);
-            List<Integer> indexes = List.of(len - 2, 0, 1, len - 1);
+            int[] uvIndexes = new int[]{len - 2, len, len + 1, len - 1};
+            int[] indexes = new int[]{len - 2, 0, 1, len - 1};
 
             group.getFaces().add(new Face(indexes, uvIndexes, indexes));
         }
@@ -136,14 +136,14 @@ public class CurveToMesh {
 
             //add inverted faces
             for (Face face : group.getFaces()) {
-                List<Integer> vertices = face.getVertices();
-                List<Integer> uvs = face.getUVs();
-                List<Integer> normals = face.getNormals();
+                int[] vertices = face.getVertices();
+                int[] uvs = face.getUVs();
+                int[] normals = face.getNormals();
 
                 bottom.getFaces().add(new Face(
-                        List.of(vertices.get(3), vertices.get(2), vertices.get(1), vertices.get(0)),
-                        List.of(uvs.get(3), uvs.get(2), uvs.get(1), uvs.get(0)),
-                        List.of(normals.get(3) + normalSize, normals.get(2) + normalSize, normals.get(1) + normalSize, normals.get(0) + normalSize)
+                        new int[]{vertices[3], vertices[2], vertices[1], vertices[0]},
+                        new int[]{uvs[3], uvs[2], uvs[1], uvs[0]},
+                        new int[]{normals[3] + normalSize, normals[2] + normalSize, normals[1] + normalSize, normals[0] + normalSize}
                 ));
             }
         }

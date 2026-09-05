@@ -6,7 +6,6 @@ import cinnamon.model.mesh.Mesh;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,14 +14,16 @@ public class MeshHelper {
 
     public static void stripDuplicateVertices(Mesh mesh) {
         //store unique vertices
-        Map<Vector3f, Integer> vertexMap = new LinkedHashMap<>();
-        Map<Vector2f, Integer> uvMap     = new LinkedHashMap<>();
-        Map<Vector3f, Integer> normalMap = new LinkedHashMap<>();
+        Map<Vector3f, Integer> vertexMap  = new LinkedHashMap<>();
+        Map<Vector2f, Integer> uvMap      = new LinkedHashMap<>();
+        Map<Vector3f, Integer> normalMap  = new LinkedHashMap<>();
+        Map<Vector3f, Integer> tangentMap = new LinkedHashMap<>();
 
         //original mesh data
         List<Vector3f> vertices = mesh.getVertices();
         List<Vector2f> uvs      = mesh.getUVs();
         List<Vector3f> normals  = mesh.getNormals();
+        List<Vector3f> tangents = mesh.getTangents();
 
         //build set of unique vertices
         int i = 0;
@@ -40,42 +41,46 @@ public class MeshHelper {
             if (!normalMap.containsKey(normal))
                 normalMap.put(normal, i++);
 
+        i = 0;
+        for (Vector3f tangent : tangents)
+            if (!tangentMap.containsKey(tangent))
+                tangentMap.put(tangent, i++);
+
         //update indexes on the faces
         for (Group group : mesh.getGroups()) {
             for (Face face : group.getFaces()) {
-                //new face indexes
-                List<Integer> newFaceVertices = new ArrayList<>();
-                List<Integer> newFaceUVs      = new ArrayList<>();
-                List<Integer> newFaceNormals  = new ArrayList<>();
+                //face indexes
+                int[] faceVertices = face.getVertices();
+                int[] faceUVs      = face.getUVs();
+                int[] faceNormals  = face.getNormals();
+                int[] faceTangents = face.getTangents();
 
-                //new face indexes
-                List<Integer> faceVertices = face.getVertices();
-                List<Integer> faceUVs      = face.getUVs();
-                List<Integer> faceNormals  = face.getNormals();
-
-                //find the new indexes
-                for (Integer vertex : faceVertices) {
-                    Vector3f v = vertices.get(vertex);
-                    newFaceVertices.add(vertexMap.get(v));
+                //remap the new indexes
+                for (int j = 0; j < faceVertices.length; j++) {
+                    Vector3f v = vertices.get(faceVertices[j]);
+                    faceVertices[j] = vertexMap.get(v);
                 }
 
-                for (Integer uv : faceUVs) {
-                    Vector2f u = uvs.get(uv);
-                    newFaceUVs.add(uvMap.get(u));
+                if (face.hasUVs()) {
+                    for (int j = 0; j < faceUVs.length; j++) {
+                        Vector2f uv = uvs.get(faceUVs[j]);
+                        faceUVs[j] = uvMap.get(uv);
+                    }
                 }
 
-                for (Integer normal : faceNormals) {
-                    Vector3f n = normals.get(normal);
-                    newFaceNormals.add(normalMap.get(n));
+                if (face.hasNormals()) {
+                    for (int j = 0; j < faceNormals.length; j++) {
+                        Vector3f n = normals.get(faceNormals[j]);
+                        faceNormals[j] = normalMap.get(n);
+                    }
                 }
 
-                //remap indexes
-                faceVertices.clear();
-                faceVertices.addAll(newFaceVertices);
-                faceUVs.clear();
-                faceUVs.addAll(newFaceUVs);
-                faceNormals.clear();
-                faceNormals.addAll(newFaceNormals);
+                if (face.hasTangents()) {
+                    for (int j = 0; j < faceTangents.length; j++) {
+                        Vector3f t = tangents.get(faceTangents[j]);
+                        faceTangents[j] = tangentMap.get(t);
+                    }
+                }
             }
         }
 
@@ -86,6 +91,8 @@ public class MeshHelper {
         uvs.addAll(uvMap.keySet());
         normals.clear();
         normals.addAll(normalMap.keySet());
+        tangents.clear();
+        tangents.addAll(tangentMap.keySet());
     }
 
     public static void centerMesh(Mesh mesh) {
