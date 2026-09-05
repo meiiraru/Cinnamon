@@ -8,7 +8,7 @@ public abstract class Widget {
 
     private int x, y;
     private int width, height;
-    private boolean visible = true;
+    private boolean visible = true, active = true;
     private Widget parent;
     private Resource skinOverride = null;
 
@@ -107,5 +107,13 @@ public abstract class Widget {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
+    }
+
+    public boolean isActive() {
+        return active && (getParent() == null || getParent().isActive());
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

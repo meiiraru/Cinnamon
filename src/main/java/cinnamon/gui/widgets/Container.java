@@ -14,7 +14,6 @@ public class Container extends Widget implements Tickable, GUIListener {
     protected final List<Widget> widgets = new ArrayList<>();
     protected final List<GUIListener> listeners = new ArrayList<>();
 
-    private boolean active = true;
     private boolean hasBackground;
 
     public Container(int x, int y) {
@@ -288,20 +287,6 @@ public class Container extends Widget implements Tickable, GUIListener {
         }
 
         return list;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-        for (Widget widget : widgets) {
-            if (widget instanceof SelectableWidget w)
-                w.setActive(active);
-            else if (widget instanceof Container c)
-                c.setActive(active);
-        }
-    }
-
-    public boolean isActive() {
-        return active;
     }
 
     public List<Widget> getWidgets() {

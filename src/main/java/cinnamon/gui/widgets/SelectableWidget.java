@@ -15,7 +15,6 @@ import static org.lwjgl.glfw.GLFW.*;
 public abstract class SelectableWidget extends Widget implements GUIListener {
 
     private boolean
-            active = true,
             hovered = false,
             focused = false,
             selectable = true;
@@ -24,14 +23,6 @@ public abstract class SelectableWidget extends Widget implements GUIListener {
 
     public SelectableWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     public boolean isHovered() {
