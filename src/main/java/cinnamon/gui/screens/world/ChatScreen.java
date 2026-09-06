@@ -176,10 +176,10 @@ public class ChatScreen extends Screen {
                     if (!s.isBlank()) {
                         //try to send a command
                         if (s.startsWith("/"))
-                            MessageManager.addMessage(CommandParser.runCommand(client.world.player, s.substring(1)), MessageCategory.SYSTEM, null);
+                            MessageManager.addMessage(CommandParser.runCommand(client.world.playerEntity, s.substring(1)), MessageCategory.SYSTEM, null);
                         //otherwise send as a chat message
                         else
-                            MessageManager.addMessage(s, MessageCategory.CHAT, client.world.player);
+                            MessageManager.addMessage(s, MessageCategory.CHAT, client.world.playerEntity);
 
                         //store the message
                         if (sentMessages.isEmpty() || !sentMessages.getLast().equals(s))

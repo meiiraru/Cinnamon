@@ -9,6 +9,7 @@ import cinnamon.render.WaterRenderer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Colors;
+import cinnamon.world.entity.living.Player;
 import cinnamon.world.particle.Particle;
 import cinnamon.world.particle.TextParticle;
 import cinnamon.world.terrain.PlaneTerrain;
@@ -21,9 +22,6 @@ public class MaterialPreviewWorld extends WorldClient {
     @Override
     protected void levelLoad() {
         //super.levelLoad();
-        player.updateMovementFlags(false, false, true);
-        player.setPos(-2f, 2f, -2f);
-        player.rotate(0f, 135f, 0f);
 
         MaterialRegistry[] values = MaterialRegistry.values();
         int grid = (int) Math.ceil(Math.sqrt(values.length));
@@ -63,5 +61,14 @@ public class MaterialPreviewWorld extends WorldClient {
     @Override
     public void renderWater(Camera camera, MatrixStack matrices, float delta) {
         WaterRenderer.renderWaterPlane(camera, matrices, -3f, getSky().fogEnd);
+    }
+
+    @Override
+    public void respawn(boolean init) {
+        super.respawn(init);
+        Player player = (Player) playerEntity;
+        player.updateMovementFlags(false, false, true);
+        player.setPos(-2f, 2f, -2f);
+        player.rotate(0f, 135f, 0f);
     }
 }

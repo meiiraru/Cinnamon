@@ -8,7 +8,7 @@ import cinnamon.render.WorldRenderer;
 import cinnamon.settings.Settings;
 import cinnamon.sound.SoundManager;
 import cinnamon.vr.XrManager;
-import cinnamon.world.entity.living.Player;
+import cinnamon.world.entity.Entity;
 import cinnamon.world.world.WorldClient;
 import org.lwjgl.glfw.GLFW;
 
@@ -118,10 +118,10 @@ public class CrashHandler {
 
                         //world and player
                         writer.println("\tWorld Time: " + world.getTime());
-                        if (world.player != null) {
-                            Player player = world.player;
-                            writer.println("\tPlayer Name: " + player.getName());
-                            writer.println("\tPlayer UUID: " + player.getUUID());
+                        if (world.playerEntity != null) {
+                            Entity controlledEntity = world.playerEntity;
+                            writer.println("\tControlled Entity Name: " + controlledEntity.getName());
+                            writer.println("\tControlled Entity UUID: " + controlledEntity.getUUID());
                         } else {
                             writer.println("\tNo player entity");
                         }

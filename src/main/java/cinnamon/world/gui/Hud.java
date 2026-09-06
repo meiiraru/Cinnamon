@@ -28,13 +28,14 @@ import cinnamon.utils.UIHelper;
 import cinnamon.vr.XrManager;
 import cinnamon.world.Abilities;
 import cinnamon.world.effects.Effect;
+import cinnamon.world.entity.living.LivingEntity;
+import cinnamon.world.entity.living.LocalPlayer;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.items.CooldownItem;
 import cinnamon.world.items.Inventory;
 import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
 import cinnamon.world.terrain.Terrain;
-import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
 
@@ -99,7 +100,8 @@ public class Hud {
         drawRecentChat(matrices, c, delta);
 
         //draw player stats
-        drawPlayerStats(matrices, c.world.player, delta);
+        if (c.world != null && c.world.playerEntity instanceof LivingEntity entity)
+            drawEntityStats(matrices, entity, delta);
 
         //draw marker
         drawMarkers(matrices, delta);
@@ -116,36 +118,38 @@ public class Hud {
             drawCrosshair(matrices);
     }
 
-    protected void drawPlayerStats(MatrixStack matrices, Player player, float delta) {
-        if (player == null)
+    protected void drawEntityStats(MatrixStack matrices, LivingEntity entity, float delta) {
+        if (entity == null)
             return;
 
         //draw vignette
-        drawVignette(matrices, player, delta);
+        drawVignette(matrices, entity, delta);
 
         //hotbar
-        drawHotbar(matrices, player, delta);
+        drawHotbar(matrices, entity, delta);
 
         //hit direction
-        drawHitDirection(matrices, player, delta);
+        if (entity instanceof Player player)
+            drawHitDirection(matrices, player, delta);
 
         //draw hp and other stuff
-        drawHealth(matrices, player, delta);
+        drawHealth(matrices, entity, delta);
 
         //draw item stats
-        drawItemStats(matrices, player.getHoldingItem(), delta);
+        drawItemStats(matrices, entity.getHoldingItem(), delta);
 
         //effects
-        drawEffects(matrices, player, delta);
+        drawEffects(matrices, entity, delta);
 
         //selected terrain
-        drawSelectedTerrain(matrices, delta);
+        if (entity instanceof LocalPlayer player)
+            drawSelectedTerrain(matrices, player, delta);
     }
 
-    protected void drawVignette(MatrixStack matrices, Player player, float delta) {
+    protected void drawVignette(MatrixStack matrices, LivingEntity entity, float delta) {
         Client c = Client.getInstance();
 
-        float vignette = 1 - Math.min(player.getHealthProgress(), 0.3f) / 0.3f;
+        float vignette = 1 - Math.min(entity.getHealthProgress(), 0.3f) / 0.3f;
         int color = ((int) (vignette * 0xFF) << 24) + 0xFF0000;
 
         matrices.pushMatrix();
@@ -166,11 +170,11 @@ public class Hud {
         glDepthMask(true);
     }
 
-    protected void drawHealth(MatrixStack matrices, Player player, float delta) {
+    protected void drawHealth(MatrixStack matrices, LivingEntity entity, float delta) {
         Window window = Client.getInstance().window;
 
         //health text
-        Text text = Text.of(player.getHealth() + " ").withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN))
+        Text text = Text.of(entity.getHealth() + " ").withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN))
                 .append(Text.of("\u2764").withStyle(Style.EMPTY.color(Colors.RED)));
 
         //transform matrices
@@ -185,7 +189,7 @@ public class Hud {
         text.render(VertexConsumer.MAIN, matrices, 0f, 0f, Alignment.BOTTOM_LEFT);
 
         //health progress bar
-        float hp = player.getHealthProgress();
+        float hp = entity.getHealthProgress();
         health.setProgress(hp);
         health.render(matrices, 0, 0, delta);
 
@@ -228,14 +232,14 @@ public class Hud {
         matrices.popMatrix();
     }
 
-    protected void drawEffects(MatrixStack matrices, Player player, float delta) {
+    protected void drawEffects(MatrixStack matrices, LivingEntity entity, float delta) {
         //transform matrices
         matrices.pushMatrix();
         matrices.translate(Client.getInstance().window.getGUIWidth() - 12, 12, 0f);
 
         Text text = Text.empty().withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN));
 
-        for (Effect effect : player.getActiveEffects()) {
+        for (Effect effect : entity.getActiveEffects()) {
             //name
             text.append(Text.translated("effect." + effect.getType().name().toLowerCase()));
 
@@ -260,13 +264,13 @@ public class Hud {
         matrices.popMatrix();
     }
 
-    protected void drawHotbar(MatrixStack matrices, Player player, float delta) {
+    protected void drawHotbar(MatrixStack matrices, LivingEntity entity, float delta) {
         //set shader
         Shaders.MODEL.getShader().use().setup(Client.getInstance().camera);
 
         //prepare variables
         Window window = Client.getInstance().window;
-        Inventory inventory = player.getInventory();
+        Inventory inventory = entity.getInventory();
         int count = inventory.getSize();
         int selected = inventory.getSelectedIndex();
 
@@ -341,14 +345,13 @@ public class Hud {
         matrices.popMatrix();
     }
 
-    protected void drawSelectedTerrain(MatrixStack matrices, float delta) {
+    protected void drawSelectedTerrain(MatrixStack matrices, LocalPlayer player, float delta) {
         Client c = Client.getInstance();
-        WorldClient w = c.world;
-        if (!w.player.getAbilities().get(Abilities.Ability.CAN_BUILD))
+        if (!player.getAbilities().get(Abilities.Ability.CAN_BUILD))
             return;
 
-        int t = w.player.getSelectedTerrain();
-        int m = w.player.getSelectedMaterial();
+        int t = player.getSelectedTerrain();
+        int m = player.getSelectedMaterial();
 
         TerrainRegistry registry = TerrainRegistry.values()[t];
         if (terrain == null || terrain.getType() != registry) {
@@ -395,6 +398,17 @@ public class Hud {
         VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, 0, 0, client.window.getGUIWidth(), client.window.getGUIHeight(), color));
     }
 
+    public void setFade(boolean fadeIn) {
+        this.fadeIn = fadeIn;
+        this.fadeTicks = fadeIn ? 0 : this.fadeDelay;
+    }
+
+    public void setFade(boolean fadeIn, int delay, int color) {
+        this.fadeDelay = delay;
+        this.fadeColor = color;
+        this.setFade(fadeIn);
+    }
+
     protected void drawCrosshair(MatrixStack matrices) {
         Client c = Client.getInstance();
 
@@ -410,17 +424,6 @@ public class Hud {
         VertexConsumer.MAIN.finishBatch(c.camera);
 
         glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    }
-
-    public void setFade(boolean fadeIn) {
-        this.fadeIn = fadeIn;
-        this.fadeTicks = fadeIn ? 0 : this.fadeDelay;
-    }
-
-    public void setFade(boolean fadeIn, int delay, int color) {
-        this.fadeDelay = delay;
-        this.fadeColor = color;
-        this.setFade(fadeIn);
     }
 
     protected void drawRecentChat(MatrixStack matrices, Client client, float delta) {

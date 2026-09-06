@@ -33,6 +33,7 @@ import cinnamon.vr.XrManager;
 import cinnamon.world.Abilities;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
@@ -160,7 +161,7 @@ public class DebugScreen {
                 case GLFW_KEY_E -> {
                     Client c = Client.getInstance();
                     if (c.world != null) {
-                        Player p = c.world.player;
+                        Entity p = c.world.playerEntity;
                         if (p != null) {
                             Pair<Hit, Entity> looking = p.getLookingEntity(p.getPickRange());
                             if (looking != null)
@@ -555,9 +556,12 @@ public class DebugScreen {
             if (w == null)
                 return "&cNo world loaded&r";
 
-            Player p = w.player;
-            Abilities abilities = p.getAbilities();
-            Transform t = p.getTransform();
+            Entity     e  = w.playerEntity;
+            PhysEntity py = e instanceof PhysEntity ? (PhysEntity) e : null;
+            Player     pl = e instanceof Player     ? (Player)     e : null;
+
+            Abilities abilities = pl != null ? pl.getAbilities() : null;
+            Transform t = e.getTransform();
 
             Vector3f epos = t.getPos();
             Quaternionf rot = t.getRot();
@@ -565,13 +569,13 @@ public class DebugScreen {
             float yaw = Maths.getYaw(rot);
             float roll = Maths.getRoll(rot);
             Vector3f scale = t.getScale();
-            Vector3f emot = p.getMotion();
-            Vector3f eye = p.getEyePos();
+            Vector3f emot = py != null ? py.getMotion() : new Vector3f();
+            Vector3f eye = e.getEyePos();
 
             String face = Direction.fromRotation(yaw).name;
 
-            float range = p.getPickRange();
-            String object = getTargetedObjString(p.getLookingObject(range));
+            float range = e.getPickRange();
+            String object = getTargetedObjString(e.getLookingObject(range));
 
             return String.format("""
                     [&bentity&r]
@@ -591,7 +595,7 @@ public class DebugScreen {
                     [&btargeted object&r]
                     %s""",
 
-                    p.getName(), p.getUUID(),
+                    e.getName(), e.getUUID(),
                     epos.x, epos.y, epos.z,
                     pitch, yaw, roll,
                     rot.x, rot.y, rot.z, rot.w,
@@ -600,12 +604,12 @@ public class DebugScreen {
                     emot.x, emot.y, emot.z,
                     eye.x, eye.y, eye.z,
 
-                    face, p.isOnGround() ? "yes" : "no",
-                    p.isFlying(), p.isSprinting(), p.isSneaking(),
-                    abilities.get(Abilities.Ability.NOCLIP)    ? "on" : "off",
-                    abilities.get(Abilities.Ability.GOD_MODE)  ? "on" : "off",
-                    abilities.get(Abilities.Ability.CAN_FLY)   ? "on" : "off",
-                    abilities.get(Abilities.Ability.CAN_BUILD) ? "on" : "off",
+                    face, py != null && py.isOnGround() ? "yes" : "no",
+                    pl != null && pl.isFlying(), pl != null && pl.isSprinting(), pl != null && pl.isSneaking(),
+                    abilities != null && abilities.get(Abilities.Ability.NOCLIP)    ? "on" : "off",
+                    abilities != null && abilities.get(Abilities.Ability.GOD_MODE)  ? "on" : "off",
+                    abilities != null && abilities.get(Abilities.Ability.CAN_FLY)   ? "on" : "off",
+                    abilities != null && abilities.get(Abilities.Ability.CAN_BUILD) ? "on" : "off",
 
                     object
             );

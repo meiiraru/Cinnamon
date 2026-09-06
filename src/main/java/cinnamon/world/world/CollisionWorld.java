@@ -291,8 +291,8 @@ public class CollisionWorld extends WorldClient {
     @Override
     public void respawn(boolean init) {
         super.respawn(init);
-        player.setPos(-11, 6, 17);
-        player.setRot(0, 45f, 0);
+        playerEntity.setPos(-11, 6, 17);
+        playerEntity.setRot(0, 45f, 0);
     }
 
     private static class SlopeTerrain extends PrimitiveTerrain {

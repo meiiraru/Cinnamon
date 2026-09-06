@@ -35,6 +35,7 @@ import cinnamon.world.entity.collectable.HealthPack;
 import cinnamon.world.entity.collectable.ItemEntity;
 import cinnamon.world.entity.living.Dummy;
 import cinnamon.world.entity.living.LivingEntity;
+import cinnamon.world.entity.living.Player;
 import cinnamon.world.entity.misc.Firework;
 import cinnamon.world.entity.misc.FireworkStar;
 import cinnamon.world.entity.misc.Spawner;
@@ -139,11 +140,6 @@ public class PlaygroundWorld extends WorldClient {
 
         //lights
         setTime(1000L);
-        //sunlight.castsShadows(false);
-
-        //for (int j = 0; j < 15; j++)
-        //    for (int i = 0; i < 15; i++)
-        //        addLight(new PointLight().pos(-5.5f + i * 3f, 3f, -5.5f + j * 3f).color(Colors.randomRainbow().rgb));
 
         addLight(new PointLight().pos(32.5f, 3.5f, 0.5f).color(0xFFFF44).volumetricStrength(0.5f));
 
@@ -306,7 +302,7 @@ public class PlaygroundWorld extends WorldClient {
     @Override
     public void respawn(boolean init) {
         super.respawn(init);
-        player.setPos(0.5f, init ? 1.5f : 100f, 0.5f);
+        playerEntity.setPos(0.5f, init ? 1.5f : 100f, 0.5f);
     }
 
     protected void spawnDebugWeapons() {
@@ -336,23 +332,25 @@ public class PlaygroundWorld extends WorldClient {
 
         //noclip
         Action noclip = new Action(Text.of("Toggle Noclip"), () -> {
-            boolean value = !player.getAbilities().get(Abilities.Ability.NOCLIP);
-            player.getAbilities().set(Abilities.Ability.NOCLIP, value);
-            MessageManager.addMessage(Text.of("Noclip " + (value ? "enabled" : "disabled")), MessageCategory.SYSTEM, null);
+            if (playerEntity instanceof Player player) {
+                boolean value = !player.getAbilities().get(Abilities.Ability.NOCLIP);
+                player.getAbilities().set(Abilities.Ability.NOCLIP, value);
+                MessageManager.addMessage(Text.of("Noclip " + (value ? "enabled" : "disabled")), MessageCategory.SYSTEM, null);
+            }
         });
         noclip.setIcon(new Resource("textures/gui/action_wheel/phase.png"));
         aw.addAction(noclip);
 
         //spray
         Action spray = new Action(Text.of("Spray"), () -> {
-            Pair<Hit, Terrain> hit = player.getLookingTerrain(player.getPickRange());
+            Pair<Hit, Terrain> hit = playerEntity.getLookingTerrain(playerEntity.getPickRange());
             if (hit == null)
                 return;
 
             Vector3f normal = hit.first().normal();
             Quaternionf rotation = Maths.dirToQuat(normal);
             if (Math.abs(normal.y) > 0.5f)
-                rotation.rotateZ(Math.toRadians(-Maths.getYaw(player.getTransform().getRot()) * Math.signum(normal.y)));
+                rotation.rotateZ(Math.toRadians(-Maths.getYaw(playerEntity.getTransform().getRot()) * Math.signum(normal.y)));
 
             Resource folder = new Resource("textures/misc");
             List<String> resources = IOUtils.listResources(folder, false);
@@ -399,7 +397,7 @@ public class PlaygroundWorld extends WorldClient {
 
         //marker
         Action marker = new Action(Text.of("Add Marker"), () -> {
-            Pair<Hit, ? extends WorldObject> hit = player.getLookingObject(128f);
+            Pair<Hit, ? extends WorldObject> hit = playerEntity.getLookingObject(128f);
             if (hit != null) {
                 SoundManager.playSound(Marker.MARKER_SND, SoundCategory.GUI);
                 if (hit.second() instanceof Entity e) {

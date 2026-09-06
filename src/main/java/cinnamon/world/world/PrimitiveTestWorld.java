@@ -14,6 +14,7 @@ import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
 import cinnamon.world.Abilities;
+import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.gui.Hud;
 import cinnamon.world.light.Light;
@@ -168,7 +169,7 @@ public class PrimitiveTestWorld extends WorldClient {
         if (isPaused())
             return;
 
-        Vector3f playerPos = player.getTransform().getPos();
+        Vector3f playerPos = playerEntity.getTransform().getPos();
         for (Light light : lights) {
             if (light.getType() != Light.Type.DIRECTIONAL) {
                 //grab player distance to light
@@ -217,6 +218,7 @@ public class PrimitiveTestWorld extends WorldClient {
     public void respawn(boolean init) {
         super.respawn(init);
 
+        Player player = (Player) playerEntity;
         player.setVisible(false);
         player.addRenderFeature((source, camera, matrices, delta) -> {
             Vector3f playerPos = source.getPos(delta);
@@ -239,12 +241,15 @@ public class PrimitiveTestWorld extends WorldClient {
         @Override
         public void render(MatrixStack matrices, float delta) {
             Client c = Client.getInstance();
-            drawHealth(matrices, c.world.player, delta);
+            if (c.world == null || !(c.world.playerEntity instanceof LivingEntity entity))
+                return;
+
+            drawHealth(matrices, entity, delta);
             VertexConsumer.finishAllBatches(c.camera);
         }
 
         @Override
-        protected void drawHealth(MatrixStack matrices, Player player, float delta) {
+        protected void drawHealth(MatrixStack matrices, LivingEntity entity, float delta) {
             matrices.pushMatrix();
 
             Window w = Client.getInstance().window;
@@ -253,10 +258,10 @@ public class PrimitiveTestWorld extends WorldClient {
             Text.empty().withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN))
                     .append(Text.of("\u2764").withStyle(Style.EMPTY.color(Colors.RED)))
                     .append(" ")
-                    .append(player.getHealth())
+                    .append(entity.getHealth())
                     .render(VertexConsumer.MAIN, matrices, 0, -1, Alignment.BOTTOM_LEFT);
 
-            float hp = player.getHealthProgress();
+            float hp = entity.getHealthProgress();
             health.setProgress(hp);
             health.render(matrices, w.mouseX, w.mouseY, delta);
 

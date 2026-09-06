@@ -12,6 +12,7 @@ import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
+import cinnamon.world.entity.living.Player;
 import cinnamon.world.light.PointLight;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -37,7 +38,6 @@ public class TransparentWorld extends WorldClient {
         //super.levelLoad();
         for (PointLight light : lights)
             addLight(light);
-        player.updateMovementFlags(false, false, true);
         gen();
     }
 
@@ -99,5 +99,11 @@ public class TransparentWorld extends WorldClient {
         if (action != GLFW_RELEASE && key == GLFW_KEY_F)
             gen();
         super.keyPress(key, scancode, action, mods);
+    }
+
+    @Override
+    public void respawn(boolean init) {
+        super.respawn(init);
+        ((Player) playerEntity).updateMovementFlags(false, false, true);
     }
 }

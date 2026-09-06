@@ -72,7 +72,7 @@ public class WorldClient extends World {
     protected Overlay overlay;
 
     protected Client client;
-    public LocalPlayer player;
+    public Entity playerEntity;
 
     protected int cameraMode = 0;
     protected boolean enableDebugKeys = false;
@@ -128,7 +128,7 @@ public class WorldClient extends World {
         scheduledTicks.add(() -> {
             //remove everything
             for (Entity e : new ArrayList<>(entities.values())) {
-                if (e != player)
+                if (e != playerEntity)
                     e.remove();
             }
             entities.clear();
@@ -139,7 +139,7 @@ public class WorldClient extends World {
 
             //reload the level
             addLight(sunlight);
-            addEntity(player);
+            addEntity(playerEntity);
             levelLoad();
         });
     }
@@ -189,7 +189,7 @@ public class WorldClient extends World {
     }
 
     public void render(MatrixStack matrices, float delta) {
-        if (player.getWorld() == null)
+        if (playerEntity.getWorld() == null)
             return;
 
         float d = isPaused() ? 1f : delta;
@@ -197,7 +197,7 @@ public class WorldClient extends World {
         boolean xr = XrManager.isInXR();
 
         //set camera
-        updateCamera(client.camera, player, cameraMode, d);
+        updateCamera(client.camera, playerEntity, cameraMode, d);
 
         //view bobbing
         if (!xr) WorldRenderer.viewBobbing(WorldRenderer.camera, dt);
@@ -235,7 +235,7 @@ public class WorldClient extends World {
     }
 
     protected void postWorldRender(MatrixStack matrices, float delta) {
-        if (player.isDead())
+        if (playerEntity instanceof LivingEntity le && le.isDead())
             PostProcess.apply(PostProcess.GRAYSCALE);
     }
 
@@ -580,7 +580,7 @@ public class WorldClient extends World {
     }
 
     protected void tickInput() {
-        Entity e = player;
+        Entity e = playerEntity;
         while (e != null) {
             e.getController().tick();
             e = e.isRiding() ? e.getRidingEntity() : null;
@@ -638,8 +638,14 @@ public class WorldClient extends World {
             case GLFW_KEY_F7 -> {if (enableDebugKeys) this.worldTime = Math.max(this.worldTime - 100, 0);}
             case GLFW_KEY_F8 -> {if (enableDebugKeys) this.worldTime += 100;}
 
-            case GLFW_KEY_COMMA -> player.setSelectedTerrain((player.getSelectedTerrain() + 1) % (TerrainRegistry.values().length - 1));
-            case GLFW_KEY_PERIOD -> player.setSelectedMaterial(Maths.modulo((player.getSelectedMaterial() + (shift ? -1 : 1)), MaterialRegistry.values().length));
+            case GLFW_KEY_COMMA -> {
+                if (playerEntity instanceof LocalPlayer player)
+                    player.setSelectedTerrain(Maths.modulo((player.getSelectedTerrain() + (shift ? -1 : 1)), TerrainRegistry.values().length));
+            }
+            case GLFW_KEY_PERIOD -> {
+                if (playerEntity instanceof LocalPlayer player)
+                    player.setSelectedMaterial(Maths.modulo((player.getSelectedMaterial() + (shift ? -1 : 1)), MaterialRegistry.values().length));
+            }
 
             //case GLFW_KEY_F9 -> connection.sendTCP(new Handshake());
             //case GLFW_KEY_F10 -> connection.sendUDP(new Message().msg("meow"));
@@ -746,14 +752,16 @@ public class WorldClient extends World {
 
     public void respawn(boolean init) {
         String playerName = Settings.playerName.get();
-        player = new LocalPlayer(playerName.isBlank() ? "Player" : playerName, LivingModelRegistry.valueOf(Settings.playerModel.get()));
+        LocalPlayer player = new LocalPlayer(playerName.isBlank() ? "Player" : playerName, LivingModelRegistry.valueOf(Settings.playerModel.get()));
         player.setPos(0.5f, 0f, 0.5f);
         player.getAbilities().set(Abilities.Ability.CAN_FLY, true);
-        this.addEntity(player);
 
         Animation anim = player.getAnimation("blink");
         if (anim != null)
             anim.setLoop(Animation.Loop.LOOP).play();
+
+        this.playerEntity = player;
+        this.addEntity(player);
 
         //if (!init)
         //    connection.sendTCP(new Respawn());
