@@ -41,7 +41,7 @@ import java.util.UUID;
 public abstract class LivingEntity extends PhysEntity {
 
     private final Map<Effect.Type, Effect> activeEffects = new HashMap<>();
-    private final float eyeHeight;
+    protected final float eyeHeight;
     private final Inventory inventory;
 
     private int health;
@@ -436,6 +436,11 @@ public abstract class LivingEntity extends PhysEntity {
 
         //return if the item was entirely consumed
         return added;
+    }
+
+    @Override
+    public float getEyeHeight(float delta) {
+        return this.eyeHeight * getScale(delta).y;
     }
 
     @Override

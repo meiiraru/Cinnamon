@@ -23,7 +23,7 @@ import static cinnamon.Client.LOGGER;
 
 public class CurveMaker extends Item {
 
-    private final Curve curve = new Curve.BSpline().loop(true).steps(10);
+    private final Curve curve = new Curve.BSpline().loop(true).steps(4);
 
     public CurveMaker(int count) {
         super(ItemModelRegistry.CURVE_MAKER.id, count, 1, ItemModelRegistry.CURVE_MAKER.resource);

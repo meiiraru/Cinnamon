@@ -357,17 +357,29 @@ public abstract class Entity extends WorldObject {
         this.moveTo(transform.getPos());
     }
 
+    public float getEyeHeight(float delta) {
+        return getEyeHeight();
+    }
+
     public float getEyeHeight() {
         return aabb.getHeight() * 0.5f;
     }
 
     public Vector3f getEyePos(float delta) {
-        return getPos(delta).add(0, getEyeHeight(), 0);
+        return getPos(delta).add(0, getEyeHeight(delta), 0);
     }
 
     public Vector3f getEyePos() {
         Vector3f pos = transform.getPos();
         return new Vector3f(pos.x, pos.y + getEyeHeight(), pos.z);
+    }
+
+    public float getEyeY(float delta) {
+        return getPos(delta).y + getEyeHeight(delta);
+    }
+
+    public float getEyeY() {
+        return transform.getPos().y + getEyeHeight();
     }
 
     public Vector3f getLookDir() {

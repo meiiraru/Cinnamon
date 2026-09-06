@@ -21,7 +21,6 @@ public class Player extends LivingEntity {
     private static final int INVULNERABILITY_TIME = 10;
     private static final int INVENTORY_SIZE = 9;
     private static final int SPRINT_PARTICLE_DELAY = 3;
-    private static final float EYE_HEIGHT = 1.6f;
     private static final Vector3f DIMENSIONS = new Vector3f(0.6f, 1.8f, 0.6f);
 
     private final Abilities abilities = new Abilities();
@@ -32,6 +31,7 @@ public class Player extends LivingEntity {
     private int sprintParticle = 0;
 
     private boolean sprinting, sneaking, flying;
+    private boolean checkSneak;
     private boolean jumping, forwards;
     private int flyKeyTicks = 0;
 
@@ -90,6 +90,8 @@ public class Player extends LivingEntity {
             ((WorldClient) getWorld()).addParticle(particle);
             sprintParticle = SPRINT_PARTICLE_DELAY;
         }
+
+        this.scaleTo(1f, isSneaking() ? 0.75f : 1f, 1f);
     }
 
     @Override
@@ -168,6 +170,8 @@ public class Player extends LivingEntity {
         this.sprinting = (this.sprinting || sprinting) && !sneaking && forwards && !isRiding();
         this.flying = (flying && abilities.get(Abilities.Ability.CAN_FLY)) || abilities.get(Abilities.Ability.NOCLIP);
 
+        this.checkSneak |= sneaking;
+
         if (this.isRiding() && sneaking)
             this.stopRiding();
     }
@@ -220,7 +224,7 @@ public class Player extends LivingEntity {
     }
 
     public boolean isSneaking() {
-        return sneaking;
+        return sneaking || (checkSneak && cannotUnsneak());
     }
 
     public boolean isSprinting() {
@@ -242,5 +246,25 @@ public class Player extends LivingEntity {
         float y = model.getAABB().getHeight(); //Math.min(, DIMENSIONS.y);
         aabb.inflate(w, 0, w, w, y, w);
         aabb.scaleAnchorBottom(transform.getScale());
+    }
+
+    protected boolean cannotUnsneak() {
+        //were riding, sneaking is not allowed
+        if (isRiding()) {
+            checkSneak = false;
+            return false;
+        }
+
+        //prepare bounds for terrain check
+        Vector3f pos = getTransform().getPos();
+        float w = Math.max(DIMENSIONS.x, DIMENSIONS.z) * 0.5f;
+        float h = model.getAABB().getHeight();
+        AABB bb = new AABB(pos.x - w, pos.y, pos.z - w, pos.x + w, pos.y + h, pos.z + w);
+
+        //check if there is terrain in the bounds
+        boolean hasTerrain = !getWorld().getTerrains(bb).isEmpty();
+        checkSneak = hasTerrain;
+
+        return hasTerrain;
     }
 }

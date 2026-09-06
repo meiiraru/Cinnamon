@@ -49,7 +49,7 @@ public class Brick extends Projectile {
         if (!sup) return false;
 
         //crit if the hit position is above the entity eye height
-        if (result.position().y >= entity.getTransform().getPos().y + entity.getEyeHeight())
+        if (result.position().y >= entity.getEyeY())
             this.crit = true;
 
         return true;

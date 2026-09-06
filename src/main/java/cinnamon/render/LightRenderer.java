@@ -101,6 +101,7 @@ public class LightRenderer {
             if (shadow) {
                 //init the shadow buffer
                 initShadowBuffer();
+                glEnable(GL_CULL_FACE);
 
                 //render the light shadow
                 switch (light.getType()) {
@@ -109,6 +110,7 @@ public class LightRenderer {
                     default -> renderSpotLightShadow(light, camera, renderFunction);
                 }
 
+                glDisable(GL_CULL_FACE);
                 renderedShadows++;
             }
 

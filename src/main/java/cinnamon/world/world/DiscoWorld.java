@@ -120,7 +120,7 @@ public class DiscoWorld extends WorldClient {
         float r = 4f;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                Light s = new Spotlight().angle(45f).falloff(8f, 9f).direction(0, -1, 0).pos(-r + i * r, 8f, -r + j * r).color(0xFF0000FF);
+                Light s = new Spotlight().angle(30f).falloff(8f, 9f).direction(0, -1, 0).pos(-r + i * r, 8f, -r + j * r).color(0xFF0000FF);
                 spotlights[i * 3 + j] = s;
                 addLight(s);
             }

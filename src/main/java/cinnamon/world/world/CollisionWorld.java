@@ -199,7 +199,7 @@ public class CollisionWorld extends WorldClient {
                 };
 
                 uneven.setPos(centerX, y, centerZ);
-                uneven.setMaterial(MaterialRegistry.GRASS.material);
+                uneven.setMaterial(MaterialRegistry.GRASS2.material);
                 addTerrain(uneven);
             }
         }
