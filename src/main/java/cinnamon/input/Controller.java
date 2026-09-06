@@ -20,7 +20,7 @@ public class Controller {
             tempMouseDelta = new Vector2f(),
             tempMouseScroll = new Vector2f();
 
-    private static double mouseX, mouseY, offsetX, offsetY;
+    private static double mouseX, mouseY;
     private static boolean firstMouse = true;
 
     private final Map<String, Runnable> tickActions = new HashMap<>();
@@ -212,18 +212,14 @@ public class Controller {
             firstMouse = false;
         }
 
-        offsetX += (x - mouseX) * (Settings.invertX.get() ? -1 : 1);
-        offsetY += (y - mouseY) * (Settings.invertY.get() ? -1 : 1);
+        double dx = (x - mouseX) * (Settings.invertX.get() ? -1 : 1);
+        double dy = (y - mouseY) * (Settings.invertY.get() ? -1 : 1);
         mouseX = x;
         mouseY = y;
 
-        double sensi = Settings.sensibility.get() * 0.6f + 0.2f;
-        double spd = sensi * sensi * sensi * 8;
-        double dx = offsetX * spd * 0.15f;
-        double dy = offsetY * spd * 0.15f;
-
-        offsetX = 0;
-        offsetY = 0;
+        double sensi = InputManager.getSensiMultiplier();
+        dx *= sensi;
+        dy *= sensi;
 
         if (dx != 0 || dy != 0)
             tempMouseDelta.add((float) dx, (float) dy);

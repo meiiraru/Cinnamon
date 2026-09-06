@@ -205,6 +205,20 @@ public class ModelViewerScreen extends ParentedScreen {
         animationBones.setRightToLeft(true);
         properties.addWidget(animationBones);
 
+        //toggle backface culling
+        Checkbox backfaceCulling = new Checkbox(0, 0, Text.translated("gui.model_viewer_screen.backface_culling").withStyle(togglesStyle));
+        backfaceCulling.setToggled(modelViewer.shouldCullBackFaces());
+        backfaceCulling.setAction(b -> modelViewer.setCullBackFaces(((Checkbox) b).isToggled()));
+        backfaceCulling.setRightToLeft(true);
+        properties.addWidget(backfaceCulling);
+
+        //toggle flycam or orbit camera
+        Checkbox flyCam = new Checkbox(0, 0, Text.translated("gui.model_viewer_screen.flycam").withStyle(togglesStyle));
+        flyCam.setToggled(modelViewer.isUsingFlyCam());
+        flyCam.setAction(b -> modelViewer.setFlyCam(((Checkbox) b).isToggled()));
+        flyCam.setRightToLeft(true);
+        properties.addWidget(flyCam);
+
         //export button
         Button exportModel = new Button(0, 0, animationList.getWidth(), animationList.getHeight(), Text.translated("gui.model_viewer_screen.export_model"), b -> {
             //open file dialog
@@ -242,7 +256,7 @@ public class ModelViewerScreen extends ParentedScreen {
                 VertexConsumer.MAIN.consume(GeometryHelper.plane(matrices, -0.005f, 0f, 0f, 0.005f, 0.5f, 1, 1, 0x800000FF));
 
                 //bake and restore renderer
-                VertexConsumer.finishAllBatches(client.camera);
+                VertexConsumer.finishAllBatches(ModelViewer.getCamera());
                 glDepthMask(true);
                 glEnable(GL_CULL_FACE);
             }
@@ -251,7 +265,7 @@ public class ModelViewerScreen extends ParentedScreen {
             if (renderAnimationBones && modelViewer.getModel() instanceof AnimatedMeshRenderer obj) {
                 glDisable(GL_DEPTH_TEST);
                 renderBone(matrices, obj.getBone(), 0.01f);
-                VertexConsumer.finishAllBatches(client.camera);
+                VertexConsumer.finishAllBatches(ModelViewer.getCamera());
                 glEnable(GL_DEPTH_TEST);
             }
         });
@@ -264,7 +278,7 @@ public class ModelViewerScreen extends ParentedScreen {
         if (!bone.isModel()) {
             matrices.pushMatrix();
             matrices.translate(bone.getTransform().getPivot());
-            VertexConsumer.WORLD_MAIN.consume(GeometryHelper.box(matrices, -size, -size, -size, size, size, size, 0xAA00F0FF));
+            VertexConsumer.LINES.consume(GeometryHelper.box(matrices, -size, -size, -size, size, size, size, 0xAA00F0FF));
             matrices.popMatrix();
         }
 
@@ -283,25 +297,21 @@ public class ModelViewerScreen extends ParentedScreen {
                 4, Alignment.TOP_CENTER);
 
         //auto rotate
-        if (autoRotate && modelViewer.getDragged() != 0)
-            modelViewer.setRotY(modelViewer.getRotY() + client.timer.deltaTime * 15f);
+        if (autoRotate && modelViewer.getDragged() != 0 && !modelViewer.isUsingFlyCam())
+            modelViewer.setYaw(modelViewer.getYaw() + client.timer.deltaTime * 15f);
 
         //gizmo
-        float pitch = modelViewer.getRotX();
-        float yaw   = modelViewer.getRotY();
-        Quaternionf rot = new Quaternionf().rotateZYX(0f, Math.toRadians(yaw), Math.toRadians(pitch)).invert();
-
         float len = 20f, scale = 50f;
 
         matrices.pushMatrix();
         matrices.translate((showModelList ? (listWidth + 4) : 4) + len + 4, height - len - 4 - 4, 0);
         matrices.scale(scale, -scale, scale);
-        matrices.rotate(rot);
+        matrices.rotate(ModelViewer.getCamera().getRot().invert(new Quaternionf()));
 
         float invLen = len / scale;
-        DebugRenderer.renderArrow(matrices, -1, 0,  0, invLen, 0xFFFF0000);
-        DebugRenderer.renderArrow(matrices,  0, 1,  0, invLen, 0xFF00FF00);
-        DebugRenderer.renderArrow(matrices,  0, 0, -1, invLen, 0xFF0000FF);
+        DebugRenderer.renderArrow(matrices, 1, 0, 0, invLen, 0xFFFF0000);
+        DebugRenderer.renderArrow(matrices, 0, 1, 0, invLen, 0xFF00FF00);
+        DebugRenderer.renderArrow(matrices, 0, 0, 1, invLen, 0xFF0000FF);
 
         matrices.popMatrix();
     }

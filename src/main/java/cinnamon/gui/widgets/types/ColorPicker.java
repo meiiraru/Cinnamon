@@ -65,6 +65,11 @@ public class ColorPicker extends Button {
                 alpha = prevAlpha;
                 super.closeFromEscape();
             }
+
+            @Override
+            public boolean isHovered() {
+                return super.isHovered() || picker.pressed;
+            }
         };
         popup.closeOnSelect(false);
         popup.setAlignment(Alignment.CENTER);

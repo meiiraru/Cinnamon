@@ -2,6 +2,7 @@ package cinnamon.input;
 
 import cinnamon.Client;
 import cinnamon.render.Window;
+import cinnamon.settings.Settings;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -38,5 +39,10 @@ public class InputManager {
 
     public static int getMouseY() {
         return getWindow().mouseY;
+    }
+
+    public static double getSensiMultiplier() {
+        double sensi = Settings.sensibility.get() * 0.6f + 0.2f;
+        return sensi * sensi * sensi * 8 * 0.15f;
     }
 }
