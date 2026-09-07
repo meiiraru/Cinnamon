@@ -13,7 +13,8 @@ public enum CommandRegistry {
     HEALTH(new Health(), "hp"),
     LOOKAT(new LookAt(), "look"),
     RIDE(new Ride(), "mount"),
-    EXPLODE(new Explode());
+    EXPLODE(new Explode()),
+    SPECTATE(new Spectate(), "spec");
 
     public final Command command;
     public final String[] aliases;

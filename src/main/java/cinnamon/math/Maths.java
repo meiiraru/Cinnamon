@@ -472,8 +472,8 @@ public class Maths {
     }
 
     public static Vector3f spread(Vector3f dir, float pitch, float yaw) {
-        float r1 = Math.toRadians((float) Math.random() * 2f - 1f) * yaw;
-        float r2 = Math.toRadians((float) Math.random() * 2f - 1f) * pitch;
+        float r1 = Math.toRadians(((float) Math.random() * 2f - 1f) * yaw);
+        float r2 = Math.toRadians(((float) Math.random() * 2f - 1f) * pitch);
 
         Vector3f rotVec = new Vector3f(
                 Math.sin(r1) * Math.cos(r2),

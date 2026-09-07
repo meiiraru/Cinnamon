@@ -9,6 +9,7 @@ import cinnamon.messages.MessageManager;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.model.Vertex;
+import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
@@ -20,6 +21,7 @@ import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.shader.Shader;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundManager;
+import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Colors;
 import cinnamon.utils.IOUtils;
@@ -30,6 +32,7 @@ import cinnamon.world.Decal;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.DamageType;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.collectable.EffectBox;
 import cinnamon.world.entity.collectable.HealthPack;
 import cinnamon.world.entity.collectable.ItemEntity;
@@ -248,6 +251,58 @@ public class PlaygroundWorld extends WorldClient {
 
         //ground plane
         addTerrain(new PlaneTerrain(0, 1, 0, 0.75f));
+
+        //frog custom entity
+        Entity frog = new PhysEntity(UUID.randomUUID(), null) {
+            private static final String[] msg = {"purr...", "mrrr...", "ibbit!"};
+            private static final Resource tex = new Resource("textures/misc/frog.png");
+            private int petted = 0;
+            private int jump = -1;
+
+            @Override
+            public void tick() {
+                super.tick();
+                if (petted > 0)
+                    petted--;
+
+                if (jump > 0)
+                    jump--;
+                if (jump <= 0) {
+                    if (jump == 0) {
+                        float pitch = -30 + Maths.range(-15, 15);
+                        float yaw = Maths.range(0, 360);
+                        rotateTo(0, yaw, 0);
+                        getImpulse().add(Maths.rotToDir(pitch, yaw));
+                    }
+                    jump = Maths.range(60, 100);
+                }
+
+                scaleTo(1f, petted > 0 ? 0.8f : 1f, 1f);
+            }
+
+            @Override
+            protected void renderModel(Camera camera, MatrixStack matrices, float delta) {
+                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.quad(matrices,  0.5f, 1f, -1f, -1f, 0f, 0f, 1f, 1f, 2, 1), tex);
+                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.quad(matrices, -0.5f, 1f,  1f, -1f, 1f, 0f, 1f, 1f, 2, 1), tex);
+            }
+
+            @Override
+            public boolean onUse(LivingEntity source) {
+                if (petted == 0) {
+                    petted = 5;
+                    TextParticle tp = new TextParticle(Text.of(Maths.randomArr(msg)).withStyle(Style.EMPTY.outlined(true)), 60, getAABB().getRandomPoint(new Vector3f()));
+                    ((WorldClient) getWorld()).addParticle(tp);
+                }
+                return true;
+            }
+
+            @Override
+            public EntityRegistry getType() {
+                return EntityRegistry.UNKNOWN;
+            }
+        };
+        frog.setPos(-5, 1, -5);
+        addEntity(frog);
     }
 
     @Override

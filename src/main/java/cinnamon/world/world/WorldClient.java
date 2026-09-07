@@ -72,7 +72,7 @@ public class WorldClient extends World {
     protected Overlay overlay;
 
     protected Client client;
-    public Entity playerEntity;
+    public Entity playerEntity, cameraEntity;
 
     protected int cameraMode = 0;
     protected boolean enableDebugKeys = false;
@@ -197,7 +197,9 @@ public class WorldClient extends World {
         boolean xr = XrManager.isInXR();
 
         //set camera
-        updateCamera(client.camera, playerEntity, cameraMode, d);
+        if (cameraEntity == null || cameraEntity.isRemoved())
+            cameraEntity = playerEntity;
+        updateCamera(client.camera, cameraEntity, cameraMode, d);
 
         //view bobbing
         if (!xr) WorldRenderer.viewBobbing(WorldRenderer.camera, dt);
@@ -761,6 +763,7 @@ public class WorldClient extends World {
             anim.setLoop(Animation.Loop.LOOP).play();
 
         this.playerEntity = player;
+        this.cameraEntity = player;
         this.addEntity(player);
 
         //if (!init)
