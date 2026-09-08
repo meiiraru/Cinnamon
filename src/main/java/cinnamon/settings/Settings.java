@@ -171,14 +171,14 @@ public class Settings {
             LangManager.loadForLang(str.isBlank() ? null : str);
             Client c = Client.getInstance();
             if (c.isInitialized() && c.screen != null)
-                c.screen.rebuild();
+                c.queueTick(() -> c.screen.rebuild());
         });
         vsync.setListener(v -> Client.getInstance().window.toggleVsync(v));
         guiSkin.setListener(str -> {
             GUISkin.setCurrentSkin(str.isBlank() ? null : new Resource(str));
             Client c = Client.getInstance();
             if (c.isInitialized() && c.screen != null)
-                c.screen.rebuild();
+                c.queueTick(() -> c.screen.rebuild());
         });
         guiScale.setListener(f -> {
             Client c = Client.getInstance();

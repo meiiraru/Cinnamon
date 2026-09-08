@@ -42,7 +42,7 @@ public class ModelViewer extends SelectableWidget implements Tickable {
     private static final CubemapSky theSky = new CubemapSky();
     static {
         theSky.fogColor = 0x000000;
-        theSky.fogStart = 750f;
+        theSky.fogStart = 950f;
         theSky.fogEnd   = 1000f;
     }
 
@@ -71,7 +71,7 @@ public class ModelViewer extends SelectableWidget implements Tickable {
     //flycam controls
     private boolean useFlyCam, flyCamActive;
     private float flyCamAnchX, flyCamAnchY, flyCamPitch, flyCamYaw = 180f;
-    private float flyCamX, flyCamY, flyCamZ = -2f, flyCamLastX, flyCamLastY, flyCamLastZ = -2f;
+    private float flyCamX, flyCamY, flyCamZ = -2f * (1f / scale), flyCamLastX, flyCamLastY, flyCamLastZ = flyCamZ;
     private float flyCamSpeed = 0.2f;
 
     public ModelViewer(int x, int y, int width, int height) {
@@ -477,7 +477,7 @@ public class ModelViewer extends SelectableWidget implements Tickable {
         pitch = defaultPitch;
         yaw = defaultYaw;
         flyCamX = flyCamY = 0f;
-        flyCamZ = -2f;
+        flyCamZ = -2f * (1f / scale);
         flyCamPitch = 0f;
         flyCamYaw = 180f;
         flyCamSpeed = 0.2f;
@@ -630,7 +630,7 @@ public class ModelViewer extends SelectableWidget implements Tickable {
                 anchorPitch = pitch + dy;
             }
         } else if (dragged == GLFW_MOUSE_BUTTON_2) {
-            float s = defaultScale * 0.01f;
+            float s = 1f / scale * 0.012f;
             posX = anchorPosX + dx * s;
             posY = anchorPosY + dy * s;
         }
