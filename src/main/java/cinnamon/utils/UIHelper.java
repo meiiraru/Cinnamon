@@ -449,7 +449,7 @@ public class UIHelper {
         prepareStencil(false, true);
         glDisable(GL_DEPTH_TEST);
 
-        Vertex[] quad = GeometryHelper.rectangle(null, rect.x, rect.y, rect.z, rect.w, 0xFFFFFFFF);
+        Vertex[] quad = GeometryHelper.rectangle(Client.getInstance().matrices, rect.x, rect.y, rect.z, rect.w, 0xFFFFFFFF);
         VertexConsumer.MAIN.consume(quad);
         VertexConsumer.MAIN.finishBatch(Client.getInstance().camera);
 

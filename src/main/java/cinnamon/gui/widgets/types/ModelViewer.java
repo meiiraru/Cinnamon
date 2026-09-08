@@ -152,20 +152,28 @@ public class ModelViewer extends SelectableWidget implements Tickable {
         WorldRenderer.renderSSAO = !xr && cullBackFaces;
         WorldRenderer.setupFramebuffer();
 
-        camera.copyFrom(client.camera, false);
+        camera.copyFrom(client.camera, true);
         camera.useOrtho(false);
 
-        if (useFlyCam) {
-            camera.setPos(
-                    Math.lerp(flyCamLastX, flyCamX, delta),
-                    Math.lerp(flyCamLastY, flyCamY, delta),
-                    Math.lerp(flyCamLastZ, flyCamZ, delta)
-            );
-            camera.setRot(flyCamPitch, flyCamYaw, 0f);
+        if (!xr) {
+            if (useFlyCam) {
+                camera.setPos(
+                        Math.lerp(flyCamLastX, flyCamX, delta),
+                        Math.lerp(flyCamLastY, flyCamY, delta),
+                        Math.lerp(flyCamLastZ, flyCamZ, delta)
+                );
+                camera.setRot(flyCamPitch, flyCamYaw, 0f);
+            } else {
+                camera.setPos(0, 0, 0);
+                camera.setRot(-pitch, -yaw, 0f);
+                camera.move(-posX, posY, 2f * (1f / scale), true);
+            }
         } else {
-            camera.setPos(0, 0, 0);
-            camera.setRot(-pitch, -yaw, 0f);
-            camera.move(-posX, posY, 2f * (1f / scale), true);
+            camera.reset();
+            matrices.translate(getCenterX() + posX, getCenterY() + posY, 0f);
+            matrices.scale(scale, -scale, scale);
+            matrices.rotateX(-pitch);
+            matrices.rotateY(-yaw - 180);
         }
 
         //skybox
@@ -630,7 +638,7 @@ public class ModelViewer extends SelectableWidget implements Tickable {
                 anchorPitch = pitch + dy;
             }
         } else if (dragged == GLFW_MOUSE_BUTTON_2) {
-            float s = 1f / scale * 0.012f;
+            float s = XrManager.isInXR() ? scale * 0.01f : 1f / scale * 0.012f;
             posX = anchorPosX + dx * s;
             posY = anchorPosY + dy * s;
         }

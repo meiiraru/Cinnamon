@@ -125,7 +125,7 @@ public class Client {
     public void tick() {
         ticks++;
 
-        if (afkTimer > 0) {
+        if (!XrManager.isInXR() && afkTimer > 0) {
             afkTimer--;
             if (Settings.dynamicFpsLimit.get()) {
                 if (afkTimer == AFK_TIMEOUT - TPS * 60)
@@ -309,7 +309,7 @@ public class Client {
     }
 
     public void windowFocused(boolean focused) {
-        if (!focused && this.fpsLimit < 0 && Settings.dynamicFpsLimit.get())
+        if (!focused && this.fpsLimit < 0 && Settings.dynamicFpsLimit.get() && !XrManager.isInXR())
             this.fpsLimit = 30;
 
         window.updateFocus(focused);
