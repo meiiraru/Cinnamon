@@ -42,5 +42,5 @@ void main() {
 
     float outline = normalDiff + depthDiff;
     //fragColor = vec4(vec3(outline), 1.0f);
-    fragColor = vec4(mix(texture(colorTex, texCoords), vec4(outlineColor, 1.0f), outline));
+    fragColor = mix(texture(colorTex, texCoords), vec4(outlineColor, 1.0f), outline);
 }

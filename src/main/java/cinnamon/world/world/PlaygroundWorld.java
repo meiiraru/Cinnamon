@@ -18,6 +18,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.WaterRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.ModelRenderer;
+import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundManager;
@@ -306,6 +307,13 @@ public class PlaygroundWorld extends WorldClient {
     }
 
     @Override
+    protected void postWorldRender(MatrixStack matrices, float delta) {
+        super.postWorldRender(matrices, delta);
+        if (playerEntity instanceof LivingEntity le && le.isDead())
+            PostProcess.apply(PostProcess.GRAYSCALE);
+    }
+
+    @Override
     public void renderWater(Camera camera, MatrixStack matrices, float delta) {
         super.renderWater(camera, matrices, delta);
         WaterRenderer.renderWaterPlane(camera, matrices, 0.9f, getSky().fogEnd);
@@ -314,6 +322,9 @@ public class PlaygroundWorld extends WorldClient {
     @Override
     public void renderFire(Camera camera, MatrixStack matrices, float delta) {
         super.renderFire(camera, matrices, delta);
+
+        if (camera.getPos().distanceSquared(0.5f, 2f, -16.5f) > 96f * 96f)
+            return;
 
         matrices.pushMatrix();
         matrices.translate(0.5f, 2f, -16.5f);

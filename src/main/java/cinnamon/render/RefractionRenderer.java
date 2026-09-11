@@ -1,6 +1,5 @@
 package cinnamon.render;
 
-import cinnamon.Client;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
 import cinnamon.render.shader.Shader;
@@ -34,7 +33,6 @@ public class RefractionRenderer {
         Shader sh = Shaders.GBUFFER_TRANSPARENT.getShader().use();
         sh.setup(camera);
         sh.setVec3("camPos", camera.getPosition());
-        sh.setInt("frameIndex", (int) Client.getInstance().frames);
         sh.setTexture("opaqueSceneTex", opaqueLitBuffer.getColorBuffer(), 7);
         sh.setFloat("strength", strength);
 
