@@ -191,6 +191,11 @@ public enum PostProcess {
         s.applyColorRGBA(0xFFFF00FF);
         return COLOR_UNIFORM.apply(fb, s);
     }),
+    VHS((fb, s) -> {
+        s.setFloat("time", (float) glfwGetTime());
+        s.setVec2("resolution", fb.getWidth(), fb.getHeight());
+        return COLOR_UNIFORM.apply(fb, s);
+    }),
 
     //world only effects
     TOON_OUTLINE((fb, s) -> {
@@ -216,7 +221,7 @@ public enum PostProcess {
             INVERT, BLUR, BOX_BLUR, EDGES, CHROMATIC_ABERRATION, PIXELATE, GRAYSCALE,
             SCAN_LINE, LENS, LENS2, MICROWAVE_SCREEN, UPSIDE_DOWN, TRIPPY, KALEIDOSCOPE,
             BITS, POSTERIZE, BLOBS, PHOSPHOR, SPEED_LINES, DOT_GRID, DITHER,
-            DITHER_SQUARE_TEX, SHARPEN, VINTAGE, RED, TILT_SHIFT, SUBPIXEL, FXAA, TINT
+            DITHER_SQUARE_TEX, SHARPEN, VINTAGE, RED, TILT_SHIFT, SUBPIXEL, FXAA, TINT, VHS
     };
     public static final PostProcess[] WORLD_EFFECTS = {
             TOON_OUTLINE, BOKEH_DOF
