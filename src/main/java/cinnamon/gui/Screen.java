@@ -192,7 +192,7 @@ public abstract class Screen {
 
         float speed = 0.05f;
         float time = (client.ticks + delta) * speed;
-        s.setFloat("time", time);
+        s.setFloat("time", time % 1000f);
         s.setVec2("resolution", width, height);
         s.setVec2("framebufferOffset", Framebuffer.activeFramebuffer.getX(), Framebuffer.activeFramebuffer.getY());
 
