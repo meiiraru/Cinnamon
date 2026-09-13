@@ -29,6 +29,7 @@ public class Label extends SelectableWidget implements AlignedWidget {
     protected boolean renderBackground = true;
     protected boolean forceBackground = false;
     protected HoverEvent tooltipOverride;
+    protected float textScale = 1f;
 
     public Label(int x, int y, Text text) {
         this(x, y, text, Alignment.TOP_LEFT);
@@ -64,8 +65,13 @@ public class Label extends SelectableWidget implements AlignedWidget {
     }
 
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        if (wrappedText != null)
-            wrappedText.render(VertexConsumer.MAIN, matrices, getX(), getY(), alignment);
+        if (wrappedText != null) {
+            matrices.pushMatrix();
+            matrices.translate(getX(), getY(), 0);
+            matrices.scale(textScale, textScale, 1f);
+            wrappedText.render(VertexConsumer.MAIN, matrices, 0, 0, alignment);
+            matrices.popMatrix();
+        }
     }
 
     protected void renderTextHover(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -74,8 +80,9 @@ public class Label extends SelectableWidget implements AlignedWidget {
 
         tooltipOverride = null;
 
-        int localX = mouseX - getAlignedX();
-        int localY = mouseY - getAlignedY();
+        //scale the local mouse coordinates to match the unscaled text layout
+        int localX = (int) ((mouseX - getAlignedX()) / textScale);
+        int localY = (int) ((mouseY - getAlignedY()) / textScale);
         Style s = TextUtils.getStyleAt(wrappedText, localX, localY, alignment);
 
         if (s != null && s.getHoverEvent() != null) {
@@ -88,9 +95,22 @@ public class Label extends SelectableWidget implements AlignedWidget {
         return text;
     }
 
-    public void setText(Text text) {
+    public Label setText(Text text) {
         this.text = text;
         updateDimensions();
+        return this;
+    }
+
+    public float getTextScale() {
+        return textScale;
+    }
+
+    public Label setTextScale(float textScale) {
+        if (this.textScale != textScale) {
+            this.textScale = textScale;
+            updateDimensions();
+        }
+        return this;
     }
 
     @Override
@@ -104,10 +124,10 @@ public class Label extends SelectableWidget implements AlignedWidget {
         Text styledText = Text.empty().withStyle(Style.EMPTY.guiSkin(getSkinRes())).append(this.text);
 
         if (this.maxWidth > 0) {
-            //split by newlines first, then wrap each line to maxWidth
+            int scaledMaxWidth = Math.max(1, (int) Math.floor(this.maxWidth / this.textScale));
             List<Text> wrappedLines = new ArrayList<>();
             for (Text line : TextUtils.split(styledText, "\n"))
-                wrappedLines.addAll(TextUtils.warpToWidth(line, this.maxWidth));
+                wrappedLines.addAll(TextUtils.warpToWidth(line, scaledMaxWidth));
 
             //join the lines back together with the newline
             this.wrappedText = TextUtils.join(wrappedLines);
@@ -115,7 +135,7 @@ public class Label extends SelectableWidget implements AlignedWidget {
             this.wrappedText = styledText;
         }
 
-        setDimensions(TextUtils.getWidth(this.wrappedText), TextUtils.getHeight(this.wrappedText));
+        setDimensions((int) Math.floor(TextUtils.getWidth(this.wrappedText) * textScale), (int) Math.floor(TextUtils.getHeight(this.wrappedText) * textScale));
         super.updateDimensions();
     }
 
@@ -126,8 +146,8 @@ public class Label extends SelectableWidget implements AlignedWidget {
     @Override
     public GUIListener mousePress(int button, int action, int mods) {
         if (isActive() && isHoveredOrFocused() && button == GLFW.GLFW_MOUSE_BUTTON_1 && action == GLFW.GLFW_RELEASE) {
-            int localX = Client.getInstance().window.mouseX - getAlignedX();
-            int localY = Client.getInstance().window.mouseY - getAlignedY();
+            int localX = (int) ((Client.getInstance().window.mouseX - getAlignedX()) / textScale);
+            int localY = (int) ((Client.getInstance().window.mouseY - getAlignedY()) / textScale);
             Style s = TextUtils.getStyleAt(wrappedText, localX, localY, alignment);
             if (s != null && s.getClickEvent() != null) {
                 s.getClickEvent().onClick();
@@ -201,11 +221,12 @@ public class Label extends SelectableWidget implements AlignedWidget {
         return getAlignedY() + getHeight() / 2;
     }
 
-    public void setMaxWidth(int maxWidth) {
+    public Label setMaxWidth(int maxWidth) {
         if (this.maxWidth != maxWidth) {
             this.maxWidth = maxWidth;
             updateDimensions();
         }
+        return this;
     }
 
     public int getMaxWidth() {
@@ -216,15 +237,17 @@ public class Label extends SelectableWidget implements AlignedWidget {
         return renderBackground;
     }
 
-    public void setRenderBackground(boolean renderBackground) {
+    public Label setRenderBackground(boolean renderBackground) {
         this.renderBackground = renderBackground;
+        return this;
     }
 
     public boolean forceBackground() {
         return forceBackground;
     }
 
-    public void setForceBackground(boolean forceBackground) {
+    public Label setForceBackground(boolean forceBackground) {
         this.forceBackground = forceBackground;
+        return this;
     }
 }
