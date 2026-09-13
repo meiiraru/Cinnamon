@@ -203,6 +203,7 @@ public class Cinnamon {
         double prevSecond = glfwGetTime();
         int fps = 0;
         double ms = 0d;
+        boolean showInWindow = ArgsOptions.WINDOW_TITLE_FPS.getAsBool();
 
         //render loop
         while (!glfwWindowShouldClose(window)) {
@@ -215,6 +216,8 @@ public class Cinnamon {
                 fps = 0;
                 ms = 0d;
                 prevSecond = frameStartTime;
+                if (showInWindow)
+                    client.window.setTitle(TITLE + " | " + client.fps + " fps @ " + client.ms + " ms");
             }
 
             //process input events

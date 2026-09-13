@@ -21,7 +21,8 @@ public enum ArgsOptions {
     FORCE_GLFW_PLATFORM("", "--force-glfw-platform"),
 
     //other
-    RENDER_DOC("", "--render-doc");
+    RENDER_DOC("", "--render-doc"),
+    WINDOW_TITLE_FPS(null, "--window-title-fps");
 
     private final String[] aliases;
     private final int argCount;
