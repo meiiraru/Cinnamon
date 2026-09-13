@@ -191,7 +191,7 @@ public class PlaygroundWorld extends WorldClient {
         d2.setPos(-15, 2, 10);
         this.addEntity(d2);
 
-        Spawner<ItemEntity> brickSpawner = new Spawner<>(UUID.randomUUID(), 0f, 1, () -> {
+        Spawner<ItemEntity> brickSpawner = new Spawner<>(UUID.randomUUID(), 1, () -> {
             ItemEntity e = new ItemEntity(UUID.randomUUID(), new BrickItem(1));
             e.setPickUpDelay(0);
             return e;
@@ -200,7 +200,7 @@ public class PlaygroundWorld extends WorldClient {
         brickSpawner.setRenderCooldown(true);
         this.addEntity(brickSpawner);
 
-        Spawner<ItemEntity> potatoSpawner = new Spawner<>(UUID.randomUUID(), 0f, 1, () -> {
+        Spawner<ItemEntity> potatoSpawner = new Spawner<>(UUID.randomUUID(), 1, () -> {
             ItemEntity e = new ItemEntity(UUID.randomUUID(), new PotatoItem(1));
             e.setPickUpDelay(0);
             return e;
@@ -209,12 +209,12 @@ public class PlaygroundWorld extends WorldClient {
         potatoSpawner.setRenderCooldown(true);
         this.addEntity(potatoSpawner);
 
-        Spawner<EffectBox> effectBox = new Spawner<>(UUID.randomUUID(), 0f, 100, () -> new EffectBox(UUID.randomUUID()));
+        Spawner<EffectBox> effectBox = new Spawner<>(UUID.randomUUID(), 100, () -> new EffectBox(UUID.randomUUID()));
         effectBox.setPos(-1.5f, 4f, 10f);
         effectBox.setRenderCooldown(true);
         this.addEntity(effectBox);
 
-        Spawner<HealthPack> healthPack = new Spawner<>(UUID.randomUUID(), 0f, 100, () -> new HealthPack(UUID.randomUUID()));
+        Spawner<HealthPack> healthPack = new Spawner<>(UUID.randomUUID(), 100, () -> new HealthPack(UUID.randomUUID()));
         healthPack.setPos(2.5f, 4f, 10f);
         healthPack.setRenderCooldown(true);
         this.addEntity(healthPack);
@@ -273,7 +273,7 @@ public class PlaygroundWorld extends WorldClient {
                         float pitch = -30 + Maths.range(-15, 15);
                         float yaw = Maths.range(0, 360);
                         rotateTo(0, yaw, 0);
-                        getImpulse().add(Maths.rotToDir(pitch, yaw));
+                        getImpulse().add(Maths.rotToDir(pitch, yaw).mul(petted > 0 && Math.random() < 0.3f ? 3f : 1f));
                     }
                     jump = Maths.range(60, 100);
                 }

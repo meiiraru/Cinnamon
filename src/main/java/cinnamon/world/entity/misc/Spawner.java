@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 
 public class Spawner<E extends Entity> extends Entity {
 
-    private final float radius;
+    private final Vector3f extents = new Vector3f();
     private final int delay;
     private final Supplier<E> entitySupplier;
     private final Predicate<E> respawnPredicate;
@@ -29,13 +29,12 @@ public class Spawner<E extends Entity> extends Entity {
 
     private boolean renderCooldown = false;
 
-    public Spawner(UUID uuid, float radius, int delay, Supplier<E> entitySupplier) {
-        this(uuid, radius, delay, entitySupplier, Entity::isRemoved);
+    public Spawner(UUID uuid, int delay, Supplier<E> entitySupplier) {
+        this(uuid, delay, entitySupplier, Entity::isRemoved);
     }
 
-    public Spawner(UUID uuid, float radius, int delay, Supplier<E> entitySupplier, Predicate<E> respawnPredicate) {
+    public Spawner(UUID uuid, int delay, Supplier<E> entitySupplier, Predicate<E> respawnPredicate) {
         super(uuid, null);
-        this.radius = Math.max(radius, 0f);
         this.delay = Math.max(delay, 1);
         this.entitySupplier = entitySupplier;
         this.respawnPredicate = respawnPredicate;
@@ -78,7 +77,7 @@ public class Spawner<E extends Entity> extends Entity {
 
     @Override
     public void calculateBounds() {
-        this.aabb.set(transform.getPos()).inflate(radius);
+        this.aabb.set(transform.getPos()).inflate(extents);
     }
 
     @Override
@@ -94,5 +93,18 @@ public class Spawner<E extends Entity> extends Entity {
         boolean predicate = entity == null || respawnPredicate.test(entity);
         if (predicate) entity = null;
         return predicate;
+    }
+
+    public void setExtents(Vector3f extents) {
+        this.setExtents(extents.x, extents.y, extents.z);
+    }
+
+    public void setExtents(float x, float y, float z) {
+        this.extents.set(x, y, z);
+        calculateBounds();
+    }
+
+    public Vector3f getExtents() {
+        return extents;
     }
 }
