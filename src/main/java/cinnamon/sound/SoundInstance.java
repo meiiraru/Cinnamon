@@ -1,8 +1,11 @@
 package cinnamon.sound;
 
+import cinnamon.utils.Resource;
 import org.joml.Vector3f;
 
 public class SoundInstance {
+
+    private final Sound sound;
 
     private final SoundCategory category;
     private final Vector3f pos = new Vector3f();
@@ -12,7 +15,8 @@ public class SoundInstance {
     private float distance, maxDistance;
     private boolean removeOnStop = true;
 
-    public SoundInstance(SoundCategory category) {
+    public SoundInstance(Resource resource, SoundCategory category) {
+        this.sound = Sound.of(resource);
         this.category = category;
     }
 
@@ -117,5 +121,9 @@ public class SoundInstance {
     public SoundInstance removeOnStop(boolean removeOnStop) {
         this.removeOnStop = removeOnStop;
         return this;
+    }
+
+    public Sound getSound() {
+        return sound;
     }
 }

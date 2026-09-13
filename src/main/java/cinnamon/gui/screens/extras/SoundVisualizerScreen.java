@@ -437,9 +437,9 @@ public class SoundVisualizerScreen extends ParentedScreen {
     private boolean loadTracks(String[] files) {
         List<Track> newPlaylist = new ArrayList<>();
 
-        //go through all .ogg files
+        //go through all .ogg and .wav files
         for (String file : files) {
-            if (!file.toLowerCase().endsWith(".ogg"))
+            if (!file.toLowerCase().endsWith(".ogg") && !file.toLowerCase().endsWith(".wav"))
                 continue;
 
             //load songs as Resources

@@ -12,12 +12,10 @@ public class SoundSource extends SoundInstance {
     private boolean removed;
 
     private SoundSource(Resource resource, SoundCategory category) {
-        super(category);
+        super(resource, category);
         this.source = alGenSources();
 
-        int buffer = Sound.of(resource).id;
-        alSourcei(source, AL_BUFFER, buffer);
-
+        alSourcei(source, AL_BUFFER, getSound().id);
         SoundManager.checkALError();
 
         //update volume to apply the category modifier

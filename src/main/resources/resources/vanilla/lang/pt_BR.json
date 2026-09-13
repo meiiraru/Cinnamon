@@ -114,7 +114,7 @@
   "gui.music_screen.repeat_one": "Repetir Uma",
   "gui.music_screen.repeat_all": "Repetir Tudo",
   "gui.music_screen.repeat_off": "Repetir Desligado",
-  "gui.music_screen.help": "Clique à esquerda para abrir arquivos de música\nou arraste arquivos Ogg aqui para tocar!",
+  "gui.music_screen.help": "Clique à esquerda para abrir arquivos de música\nou arraste arquivos Ogg/Wav aqui para tocar!",
   "gui.music_screen.now_playing": "Tocando: %1$s",
   "gui.music_screen.load_end": "Carregada %1$s música!",
   "gui.music_screen.load_end_plural": "Carregada %1$s músicas!",

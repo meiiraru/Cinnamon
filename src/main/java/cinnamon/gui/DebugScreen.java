@@ -539,13 +539,13 @@ public class DebugScreen {
 
             return String.format("""
                     [&bcategories&r]
-                    &e%s&r total sounds
+                    &e%s&r / &e%s&r sounds playing
 
                     %s
                     [&bdevice&r]
                     %s
                     OpenAL &e%s&r""",
-                    SoundManager.getSoundCount(),
+                    SoundManager.getSoundCount(), SoundManager.MAX_SOUND_INSTANCES,
                     buffer,
                     SoundManager.getCurrentDevice().replaceFirst("^OpenAL Soft on ", ""),
                     SoundManager.getALVersion()

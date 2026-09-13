@@ -216,17 +216,17 @@ public class SoundManager {
     public static SoundInstance playSound(Resource resource, SoundCategory category, Vector3f position) {
         if (sounds.size() >= MAX_SOUND_INSTANCES) {
             LOGGER.debug("Reached %s sound instances! Skipping sound \"%s\"", MAX_SOUND_INSTANCES, resource);
-            return new SoundInstance(category);
+            return new SoundInstance(resource, category);
         }
 
         if (!initialized) {
             LOGGER.debug("Sound engine is not initialized! Skipping sound \"%s\"", resource);
-            return new SoundInstance(category);
+            return new SoundInstance(resource, category);
         }
 
         if (position != null && Maths.isNaN(position)) {
             LOGGER.error("Sound position contains a NaN value! Skipping sound \"%s\"", resource);
-            return new SoundInstance(category);
+            return new SoundInstance(resource, category);
         }
 
         LOGGER.debug("Playing sound \"%s\"", resource);
