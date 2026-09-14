@@ -58,6 +58,7 @@ public class Font {
             ascent,
             descent,
             scale;
+    public final boolean smooth;
 
     private final Map<Float, List<Integer>> charsByWidth = new HashMap<>();
 
@@ -78,6 +79,7 @@ public class Font {
         this.ttf = memAlloc(buffer.capacity()).put(buffer).flip();
         this.lineHeight = height;
         this.lineGap = lineSpacing;
+        this.smooth = smooth;
 
         //font data
         stbtt_InitFont(info, ttf);
@@ -227,13 +229,13 @@ public class Font {
             GlyphPage page = owner.glyphPages.get(pageStart);
             if (page != null) {
                 //if the owner has the page, get the char data
-                stbtt_GetPackedQuad(page.charData, page.width, page.height, c - pageStart, xb, yb, q, false);
+                stbtt_GetPackedQuad(page.charData, page.width, page.height, c - pageStart, xb, yb, q, !owner.smooth);
                 return page.textureID;
             }
         }
 
         //no owner, use missing char data
-        stbtt_GetPackedQuad(missingCharPage.charData, missingCharPage.width, missingCharPage.height, 0, xb, yb, q, false);
+        stbtt_GetPackedQuad(missingCharPage.charData, missingCharPage.width, missingCharPage.height, 0, xb, yb, q, !smooth);
         return missingCharPage.textureID;
     }
 
@@ -406,12 +408,15 @@ public class Font {
 
         float i0 = 0f, i1 = 0f;
         if (italic) {
-            i0 = ((y0 + descent) / lineHeight) * -italicOffset;
-            i1 = ((y1 + descent) / lineHeight) * -italicOffset;
+            i0 = Math.round(((y0 + descent) / lineHeight) * -italicOffset);
+            i1 = Math.round(((y1 + descent) / lineHeight) * -italicOffset);
         }
 
         x0 += x; x1 += x;
         y0 += y; y1 += y;
+
+        x0 = Math.round(x0); x1 = Math.round(x1);
+        y0 = Math.round(y0); y1 = Math.round(y1);
 
         consumer.consume(bakeQuad(matrices, x0, x1, i0, i1, y0, y1, z, u0, u1, v0, v1, color), glyphTexture);
 
