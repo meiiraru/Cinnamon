@@ -243,6 +243,7 @@ public class WidgetList extends ContainerGrid {
 
     @Override
     public GUIListener mouseScroll(double x, double y) {
+        if (!isActive()) return null;
         GUIListener sup = super.mouseScroll(x, y);
         if (sup != null)
             return sup;
