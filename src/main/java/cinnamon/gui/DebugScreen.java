@@ -88,6 +88,9 @@ public class DebugScreen {
 
     public static boolean pauseOnLostFocus = true;
 
+    private static final CircularQueue<Integer> fpsBar = new CircularQueue<>(30);
+    private static long lastFpsTime = 0;
+
     public static void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
 
@@ -107,10 +110,16 @@ public class DebugScreen {
             return;
         }
 
+        if (c.ticks - lastFpsTime >= Client.TPS) {
+            fpsBar.add(c.fps);
+            lastFpsTime = c.ticks;
+        }
+
         renderDebugCrosshair(matrices, c);
         renderHeader(matrices, c);
         renderTabs(matrices, c);
         renderContent(matrices, c);
+        renderFPSGraph(matrices, c);
 
         matrices.popMatrix();
     }
@@ -281,6 +290,42 @@ public class DebugScreen {
         matrices.popMatrix();
     }
 
+    private static void renderFPSGraph(MatrixStack matrices, Client c) {
+        int w = 100;
+        int h = 50;
+        int x = c.window.getGUIWidth() - w - 4;
+        int y = c.window.getGUIHeight() - h - 4;
+
+        int bg = GUISkin.of(GUI_SKIN).getInt("text_background_color");
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x, y, x + w, y + h, bg));
+
+        int higher = 0;
+        int average = 0;
+        int last = fpsBar.getLast();
+        for (int fps : fpsBar) {
+            higher = Math.max(higher, fps);
+            average += fps;
+        }
+        average /= fpsBar.size();
+
+        int green = 0xFF00FF00;
+        int red   = 0xFFFF0000;
+
+        float barWidth = (float) w / fpsBar.getCapacity();
+        for (int i = 0; i < fpsBar.size(); i++) {
+            int fps = fpsBar.get(i);
+            float barHeight = (float) fps / higher * h;
+            float barX = x + i * barWidth;
+            float barY = y + h - barHeight;
+            int color = ColorUtils.lerpRGBColorThroughHSV(red, green, Maths.clamp(fps / 60f, 0f, 1f));
+            VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, barX, barY, barX + barWidth, y + h, color));
+        }
+
+        Text text = Text.of("hi: " + higher + " | avg: " + average + " | curr: " + last).withStyle(Style.EMPTY.shadow(true));
+        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x + w - TextUtils.getWidth(text), y - 2 - TextUtils.getHeight(text), x + w, y - 2, bg));
+        text.render(VertexConsumer.MAIN, matrices, x + w, y - 2, Alignment.BOTTOM_RIGHT);
+    }
+
     private static void renderHeader(MatrixStack matrices, Client c) {
         Text text = TextUtils.parseColorFormatting(
                 Text.of("Cinnamon v&e%s&r\n&e%s&r fps @ &e%s&r ms"
@@ -355,6 +400,12 @@ public class DebugScreen {
             Text text = TextUtils
                     .parseColorFormatting(Text.of(result))
                     .withStyle(STYLE.background(false));
+
+            //List<Text> out = new ArrayList<>();
+            //float maxWidth = c.window.getGUIWidth() - x - 8;
+            //for (Text split : TextUtils.split(text, "\n"))
+            //    out.addAll(TextUtils.warpToWidth(split, maxWidth));
+            //text = TextUtils.join(out);
 
             int bg = GUISkin.of(GUI_SKIN).getInt("text_background_color");
             float w = TextUtils.getWidth(text);
