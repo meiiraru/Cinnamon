@@ -172,9 +172,19 @@ public class DebugScreen {
                     if (c.world != null) {
                         Entity p = c.world.playerEntity;
                         if (p != null) {
-                            Pair<Hit, Entity> looking = p.getLookingEntity(p.getPickRange());
-                            if (looking != null)
-                                glfwSetClipboardString(-1, looking.second().getUUID().toString());
+                            Pair<Hit, ? extends WorldObject> looking = p.getLookingObject(p.getPickRange());
+                            if (looking != null) {
+                                String str;
+                                if (looking.second() instanceof Entity e) {
+                                    str = e.getUUID().toString();
+                                } else {
+                                    Vector3f pos = looking.first().position();
+                                    str = String.format("%.3f %.3f %.3f", pos.x, pos.y, pos.z);
+                                }
+
+                                if (str != null)
+                                    glfwSetClipboardString(-1, str);
+                            }
                         }
                     }
                 }
@@ -200,7 +210,7 @@ public class DebugScreen {
                                 &eF3 + &aQ&r: Return to original main menu
                                 &eF3 + &aD&r: Clear all chat messages
                                 &eF3 + &aC&r: Crash the game (10 second countdown)
-                                &eF3 + &aE&r: Copies the player looking entity UUID to clipboard
+                                &eF3 + &aE&r: Copies to clipboard the player looking entity UUID or terrain position
                                 &eF3 + &aP&r: Toggle pause on lost focus
                                 &eF3 + &aL&r: Reconstructs the current world
                                 &eF3 + &aH&r: Show this help message""").withStyle(Style.EMPTY.italic(false).color(0xFFFFFFFF)),

@@ -361,12 +361,12 @@ public abstract class Entity extends WorldObject {
     }
 
     public Vector3f getEyePos(float delta) {
-        return new Vector3f(0, getEyeHeight(delta), 0).rotate(getRot(delta)).add(getPos(delta));
+        return getPos(delta).add(0, getEyeHeight(delta), 0);
     }
 
     public Vector3f getEyePos() {
         Vector3f pos = transform.getPos();
-        return new Vector3f(0, getEyeHeight(), 0).rotate(transform.getRot()).add(pos);
+        return new Vector3f(pos.x, pos.y + getEyeHeight(), pos.z);
     }
 
     public float getEyeY(float delta) {
@@ -508,6 +508,16 @@ public abstract class Entity extends WorldObject {
 
     public String getName() {
         return this.name;
+    }
+
+    public String getNameRepresentation() {
+        String name = getName();
+        if (name != null) return name;
+
+        EntityRegistry type = getType();
+        if (type != EntityRegistry.UNKNOWN) return type.name();
+
+        return getUUID().toString();
     }
 
     public boolean onUse(LivingEntity source) {

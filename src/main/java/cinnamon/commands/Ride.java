@@ -26,7 +26,7 @@ public class Ride implements Command {
             return Text.of("Target not found").withStyle(ERROR_STYLE);
         } else {
             target.addRider(source);
-            return Text.of("Now riding ").append(target.getName() == null ? target.getUUID() : target.getName());
+            return Text.of("Now riding ").append(target.getNameRepresentation());
         }
     }
 

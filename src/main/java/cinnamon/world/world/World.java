@@ -134,6 +134,10 @@ public abstract class World {
         return entities.get(uuid);
     }
 
+    public Collection<Entity> getAllEntities() {
+        return entities.values();
+    }
+
     public void explode(Sphere explosionArea, float strength, Entity source, boolean invisible) {
         Vector3f center = explosionArea.getCenter();
         float radiusSqr = explosionArea.getRadius() * explosionArea.getRadius();

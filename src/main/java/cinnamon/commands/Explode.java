@@ -59,6 +59,6 @@ public class Explode implements Command {
     public Text getHelpCommand() {
         return Text.of("Usage: /explode [<x y z>] [<radius>] [<power>]")
                 .append("\n")
-                .append("Creates an explosion at the specified coordinates (optional) with the specified radius and power (optional)");
+                .append("Creates an explosion optional at specified coordinates and optionally with a specified radius and/or power");
     }
 }

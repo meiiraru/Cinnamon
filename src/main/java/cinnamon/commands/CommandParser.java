@@ -2,17 +2,21 @@ package cinnamon.commands;
 
 import cinnamon.logger.Logger;
 import cinnamon.math.Maths;
+import cinnamon.math.collision.Hit;
 import cinnamon.registry.CommandRegistry;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Colors;
+import cinnamon.utils.Pair;
 import cinnamon.utils.Trie;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.living.Player;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import java.util.Collection;
 import java.util.Stack;
 import java.util.UUID;
 
@@ -141,6 +145,47 @@ public class CommandParser {
     }
 
     static Entity parseEntity(Entity source, String arg) {
+        //parse entity selector
+        if (arg.charAt(0) == '@') {
+            char selector = arg.charAt(1);
+            return switch (selector) {
+                //self
+                case 's' -> source;
+                //looking
+                case 'l' -> {
+                    Pair<Hit, Entity> looking = source.getLookingEntity(source.getPickRange());
+                    yield looking != null ? looking.second() : null;
+                }
+                //nearest player
+                case 'p' -> {
+                    Entity closest = null;
+                    float closestDist = Float.MAX_VALUE;
+                    for (Entity entity : source.getWorld().getAllEntities()) {
+                        if (entity instanceof Player) {
+                            float dist = source.getTransform().getPos().distance(entity.getTransform().getPos());
+                            if (dist < closestDist) {
+                                closestDist = dist;
+                                closest = entity;
+                            }
+                        }
+                    }
+                    yield closest;
+                }
+                //random entity
+                case 'r' -> {
+                    Collection<Entity> entities = source.getWorld().getAllEntities();
+                    yield entities.stream()
+                            .skip((int) (Math.random() * entities.size()))
+                            .findFirst()
+                            .orElse(null);
+                }
+                //case 'a' -> all players
+                //case 'e' -> all entities
+                default -> null;
+            };
+        }
+
+        //try to parse as UUID
         try {
             return source.getWorld().getEntityByUUID(UUID.fromString(arg));
         } catch (Exception ignored) {

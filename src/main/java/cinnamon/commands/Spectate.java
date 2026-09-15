@@ -19,8 +19,7 @@ public class Spectate implements Command {
 
         ((WorldClient) source.getWorld()).cameraEntity = target;
 
-        String name = target.getName();
-        return Text.of("Now spectating ").append(name == null || name.isBlank() ? target.getUUID() : name);
+        return Text.of("Now spectating ").append(target.getNameRepresentation());
     }
 
     @Override

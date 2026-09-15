@@ -13,6 +13,14 @@ public class Teleport implements Command {
 
     @Override
     public Text execute(Entity source, Stack<String> args) {
+        //parse target
+        if (args.isEmpty())
+            return Text.of("Failed to execute command, missing arguments").withStyle(ERROR_STYLE);
+
+        Entity target = CommandParser.parseEntity(source, args.pop());
+        if (target == null)
+            return Text.of("Target not found").withStyle(ERROR_STYLE);
+
         //parse position
         if (args.size() < 3)
             return Text.of("Failed to execute command, missing arguments").withStyle(ERROR_STYLE);
@@ -31,22 +39,22 @@ public class Teleport implements Command {
                 return Text.of("Failed to execute command, invalid argument: " + args.peek()).withStyle(ERROR_STYLE);
 
             //apply position
-            source.moveTo(pos);
+            target.moveTo(pos);
 
             //apply rotation
-            source.rotateTo(rot.x, rot.y, 0);
+            target.rotateTo(rot.x, rot.y, 0);
             return Text.of("Teleported to %.3f %.3f %.3f rotated %.3f %.3f".formatted(pos.x, pos.y, pos.z, rot.x, rot.y));
         }
 
         //apply only position
-        source.moveTo(pos);
+        target.moveTo(pos);
         return Text.of("Teleported to %.3f %.3f %.3f".formatted(pos.x, pos.y, pos.z));
     }
 
     @Override
     public Text getHelpCommand() {
-        return Text.of("Usage: /teleport <x> <y> <z> [<yaw> <pitch>]")
+        return Text.of("Usage: /teleport <target> <x> <y> <z> [<pitch> <yaw>]")
                 .append("\n")
-                .append("Teleports the player to the specified coordinates with optional rotation");
+                .append("Teleports the target entity to the specified coordinates with optional rotation");
     }
 }
