@@ -23,6 +23,7 @@ public enum PostProcess {
     BLIT_COLOR_DEPTH(COLOR_AND_DEPTH_UNIFORM),
     BLIT_GAMMA(COLOR_UNIFORM),
     BLIT_UV(COLOR_UNIFORM),
+    BLIT_UPSAMPLE_DEPTH(COLOR_AND_DEPTH_UNIFORM),
     COLOR((fb, s) -> {
         s.applyColorRGBA(0xFFFF72AD);
         return 0;

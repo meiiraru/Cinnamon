@@ -42,7 +42,7 @@ public class LightRenderer {
     public static final Framebuffer shadowBuffer = new Framebuffer(Framebuffer.DEPTH_BUFFER);
     public static final ShadowCubemapFramebuffer cubeShadowBuffer = new ShadowCubemapFramebuffer();
     public static final Framebuffer lightGlareBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
-    public static final Framebuffer volumetricBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
+    public static final Framebuffer volumetricBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
     public static final Framebuffer volumetricBlurBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
 
     public static final ShadowCascadeFramebuffer cascadeShadowBuffer = new ShadowCascadeFramebuffer(CascadedShadow.NUM_CASCADES);
@@ -215,8 +215,14 @@ public class LightRenderer {
         StaticGeometry.QUAD.render();
 
         if (Settings.volumetricLights.get() >= 0) {
-            int tex = Blur.boxBlur(volumetricBuffer.getColorBuffer(), target.getWidth(), target.getHeight(), 2, volumetricBlurBuffer);
-            blit.setTexture("colorTex", tex, 0);
+            Shader blitUpsample = PostProcess.BLIT_UPSAMPLE_DEPTH.getShader().use();
+            blitUpsample.setTexture("colorTex", volumetricBuffer.getColorBuffer(), 0);
+            blitUpsample.setTexture("depthTex", volumetricBuffer.getDepthBuffer(), 1);
+            blitUpsample.setTexture("fullResDepth", target.getDepthBuffer(), 2);
+            blitUpsample.setVec2("lowResTexelSize", 1f / volumetricBuffer.getWidth(), 1f / volumetricBuffer.getHeight());
+            blitUpsample.setFloat("nearPlane", Camera.NEAR_PLANE);
+            blitUpsample.setFloat("farPlane", Camera.FAR_PLANE);
+
             glDisable(GL_DEPTH_TEST); //re-disable depth test because the blur enables it
             StaticGeometry.QUAD.render();
         }
@@ -224,7 +230,7 @@ public class LightRenderer {
         //reset state
         glEnable(GL_DEPTH_TEST);
         glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-        Texture.unbindAll(2);
+        Texture.unbindAll(3);
     }
 
 
@@ -437,6 +443,7 @@ public class LightRenderer {
         int level = Settings.volumetricLights.get();
         volumetricBuffer.resizeTo(target, level <= 3 ? 0.25f : 0.5f);
         volumetricBuffer.useClear();
+        target.blit(volumetricBuffer, false, true, false);
 
         Shader s = Shaders.VOLUMETRIC_LIGHT.getShader().use();
         s.setInt("raySteps", 12 * (level + 1));
@@ -455,6 +462,7 @@ public class LightRenderer {
         //render into the volumetric buffer
         volumetricBuffer.use();
         volumetricBuffer.adjustViewPort();
+        glDisable(GL_DEPTH_TEST);
 
         Shader s = Shaders.VOLUMETRIC_LIGHT.getShader().use();
         s.setup(camera);
@@ -497,6 +505,7 @@ public class LightRenderer {
             }
         }
 
+        glEnable(GL_DEPTH_TEST);
         Texture.unbindAll(3);
         CubeMap.unbindTex(3);
     }
