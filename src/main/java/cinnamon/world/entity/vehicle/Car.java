@@ -123,11 +123,6 @@ public abstract class Car extends Vehicle {
     }
 
     @Override
-    public void rotate(float pitch, float yaw, float roll) {
-        //super.rotate(pitch, yaw, roll);
-    }
-
-    @Override
     protected void collideEntity(PhysEntity entity, Hit result, Vector3f toMove) {
         if (entity instanceof Car)
             Resolution.slide(result, getMotion(), toMove);

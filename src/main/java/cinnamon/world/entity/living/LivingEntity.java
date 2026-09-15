@@ -588,9 +588,6 @@ public abstract class LivingEntity extends PhysEntity {
 
     @Override
     public void rotate(float pitch, float yaw, float roll) {
-        if (riding != null)
-            riding.rotate(pitch, yaw, roll);
-
         Quaternionf rotation = this.getTransform().getRot();
         this.rotateTo(Maths.getPitch(rotation) + pitch, Maths.getYaw(rotation) + yaw, 0f);
     }

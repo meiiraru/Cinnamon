@@ -206,15 +206,10 @@ public abstract class Entity extends WorldObject {
     }
 
     public void rotate(Quaternionf quat) {
-        if (riding != null)
-            riding.rotate(quat);
         rotateTo(transform.getRot().mul(quat));
     }
 
     public void rotate(float pitch, float yaw, float roll) {
-        if (riding != null)
-            riding.rotate(pitch, yaw, roll);
-
         Quaternionf rotation = transform.getRot();
         rotation.rotateZYX(Math.toRadians(roll), Math.toRadians(-yaw), Math.toRadians(-pitch));
         rotateTo(rotation);
@@ -366,12 +361,12 @@ public abstract class Entity extends WorldObject {
     }
 
     public Vector3f getEyePos(float delta) {
-        return getPos(delta).add(0, getEyeHeight(delta), 0);
+        return new Vector3f(0, getEyeHeight(delta), 0).rotate(getRot(delta)).add(getPos(delta));
     }
 
     public Vector3f getEyePos() {
         Vector3f pos = transform.getPos();
-        return new Vector3f(pos.x, pos.y + getEyeHeight(), pos.z);
+        return new Vector3f(0, getEyeHeight(), 0).rotate(transform.getRot()).add(pos);
     }
 
     public float getEyeY(float delta) {
