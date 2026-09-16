@@ -24,6 +24,8 @@ public class Ride implements Command {
 
         if (target == null) {
             return Text.of("Target not found").withStyle(ERROR_STYLE);
+        } else if (target == source) {
+            return Text.of("Cannot ride yourself").withStyle(ERROR_STYLE);
         } else {
             target.addRider(source);
             return Text.of("Now riding ").append(target.getNameRepresentation());
