@@ -70,7 +70,7 @@ public class ModelViewer extends SelectableWidget implements Tickable {
 
     //flycam controls
     private boolean useFlyCam, flyCamActive;
-    private float flyCamAnchX, flyCamAnchY, flyCamPitch, flyCamYaw = 180f;
+    private float flyCamAnchX, flyCamAnchY, flyCamPitch, flyCamYaw = 180f, flyCamRoll, flyCamLastRoll;
     private float flyCamX, flyCamY, flyCamZ = -2f * (1f / scale), flyCamLastX, flyCamLastY, flyCamLastZ = flyCamZ;
     private float flyCamSpeed = 0.2f;
 
@@ -106,12 +106,22 @@ public class ModelViewer extends SelectableWidget implements Tickable {
             if (InputManager.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) impulseY -= 1f;
 
             //update flycam position
+            Vector3f up      = camera.getUp();
             Vector3f forward = camera.getForwards();
             Vector3f left    = camera.getLeft();
 
             flyCamX += (forward.x * impulseZ + left.x * impulseX) * flyCamSpeed;
-            flyCamY += (forward.y * impulseZ + left.y * impulseX + impulseY) * flyCamSpeed;
+            flyCamY += (forward.y * impulseZ + left.y * impulseX) * flyCamSpeed;
             flyCamZ += (forward.z * impulseZ + left.z * impulseX) * flyCamSpeed;
+
+            flyCamX += up.x * impulseY * flyCamSpeed;
+            flyCamY += up.y * impulseY * flyCamSpeed;
+            flyCamZ += up.z * impulseY * flyCamSpeed;
+
+            //update flycam roll rotation
+            flyCamLastRoll = flyCamRoll;
+            if (InputManager.isKeyPressed(GLFW_KEY_Q)) flyCamRoll += 3f;
+            if (InputManager.isKeyPressed(GLFW_KEY_E)) flyCamRoll -= 3f;
         }
     }
 
@@ -162,7 +172,7 @@ public class ModelViewer extends SelectableWidget implements Tickable {
                         Math.lerp(flyCamLastY, flyCamY, delta),
                         Math.lerp(flyCamLastZ, flyCamZ, delta)
                 );
-                camera.setRot(flyCamPitch, flyCamYaw, 0f);
+                camera.setRot(flyCamPitch, flyCamYaw, Math.lerp(flyCamLastRoll, flyCamRoll, delta));
             } else {
                 camera.setPos(0, 0, 0);
                 camera.setRot(-pitch, -yaw, 0f);
@@ -471,6 +481,14 @@ public class ModelViewer extends SelectableWidget implements Tickable {
         this.flyCamYaw = flyCamYaw;
     }
 
+    public float getFlyCamRoll() {
+        return flyCamRoll;
+    }
+
+    public void setFlyCamRoll(float flyCamRoll) {
+        this.flyCamRoll = flyCamRoll;
+    }
+
     public float getFlyCamSpeed() {
         return flyCamSpeed;
     }
@@ -486,7 +504,7 @@ public class ModelViewer extends SelectableWidget implements Tickable {
         yaw = defaultYaw;
         flyCamX = flyCamY = 0f;
         flyCamZ = -2f * (1f / scale);
-        flyCamPitch = 0f;
+        flyCamPitch = flyCamRoll = 0f;
         flyCamYaw = 180f;
         flyCamSpeed = 0.2f;
     }
