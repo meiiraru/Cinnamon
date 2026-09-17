@@ -35,6 +35,8 @@ public abstract class Batch { //vertex consumer
     //rendering data
     protected final int vaoID, vboID;
 
+    private boolean locked = false;
+
     static {
         TEXTURE_SLOTS = new int[Texture.MAX_TEXTURES];
         for (int i = 0; i < TEXTURE_SLOTS.length; i++)
@@ -110,6 +112,7 @@ public abstract class Batch { //vertex consumer
             textures.clear();
             buffer.clear();
             faceCount = 0;
+            locked = false;
         }
     }
 
@@ -120,15 +123,28 @@ public abstract class Batch { //vertex consumer
     }
 
     public boolean pushFace(Vertex[] vertices, int textureID) {
-        //cant add
-        if (isFull(getUnwrappedVertexCount(vertices)))
+        //locked
+        if (isLocked())
             return false;
+
+        //empty vertices
+        int vertexCount = getUnwrappedVertexCount(vertices);
+        if (vertexCount <= 0)
+            return false;
+
+        //cant add
+        if (isFull(vertexCount)) {
+            locked = true;
+            return false;
+        }
 
         //add texture
         if (textureID != -1 && !textures.contains(textureID)) {
             //cannot add texture
-            if (textures.size() >= TEXTURE_SLOTS.length)
+            if (textures.size() >= TEXTURE_SLOTS.length) {
+                locked = true;
                 return false;
+            }
             textures.add(textureID);
         }
         int texID = textures.indexOf(textureID);
@@ -158,6 +174,10 @@ public abstract class Batch { //vertex consumer
 
     public boolean hasFace() {
         return faceCount > 0;
+    }
+
+    public boolean isLocked() {
+        return locked;
     }
 
 

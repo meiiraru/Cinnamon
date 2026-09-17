@@ -1,5 +1,8 @@
 {
   "parent": "data/gui_skins/default.json",
+  "font": {
+    "path": "fonts/mayonnaise.ttf"
+  },
   "colors": {
     "text_background_color": "88000000"
   }

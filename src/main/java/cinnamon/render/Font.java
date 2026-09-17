@@ -271,6 +271,14 @@ public class Font {
             if (s.isEmpty())
                 return;
 
+            //different font
+            Font font = style.getGuiSkin().getFont();
+            if (font != this) {
+                font.bake(consumer, matrices, Text.of(s).withStyle(style), xb.get(0) + x, yb.get(0) + y, zOffset);
+                xb.put(0, xb.get(0) + font.width(s));
+                return;
+            }
+
             //style flags
             boolean italic   = style.isItalic();
             boolean bold     = style.isBold();
@@ -493,6 +501,13 @@ public class Font {
             //skip empty strings
             if (s.isEmpty())
                 return;
+
+            //different font
+            Font font = style.getGuiSkin().getFont();
+            if (font != this) {
+                x[0] += font.width(Text.of(s).withStyle(style));
+                return;
+            }
 
             //italic
             boolean italic = style.isItalic();

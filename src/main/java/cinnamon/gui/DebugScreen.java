@@ -324,15 +324,14 @@ public class DebugScreen {
         float barWidth = (float) w / fpsBar.getCapacity();
         for (int i = 0; i < fpsBar.size(); i++) {
             int fps = fpsBar.get(i);
-            float barHeight = (float) fps / higher * h;
+            float barHeight = Math.max(Math.min(fps / 100f, 1f) * h, 1f);
             float barX = x + i * barWidth;
             float barY = y + h - barHeight;
             int color = ColorUtils.lerpRGBColorThroughHSV(red, green, Maths.clamp(fps / 60f, 0f, 1f));
             VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, barX, barY, barX + barWidth, y + h, color));
         }
 
-        Text text = Text.of("hi: " + higher + " | avg: " + average + " | curr: " + last).withStyle(Style.EMPTY.shadow(true));
-        VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x + w - TextUtils.getWidth(text), y - 2 - TextUtils.getHeight(text), x + w, y - 2, bg));
+        Text text = Text.of("hi: " + higher + " | avg: " + average + " | curr: " + last).withStyle(STYLE);
         text.render(VertexConsumer.MAIN, matrices, x + w, y - 2, Alignment.BOTTOM_RIGHT);
     }
 

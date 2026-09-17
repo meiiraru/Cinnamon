@@ -284,7 +284,10 @@ public class PlaygroundWorld extends WorldClient {
             @Override
             protected void renderModel(Camera camera, MatrixStack matrices, float delta) {
                 VertexConsumer.WORLD_MAIN.consume(GeometryHelper.quad(matrices,  0.5f, 1f, -1f, -1f, 0f, 0f, 1f, 1f, 2, 1), tex);
-                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.quad(matrices, -0.5f, 1f,  1f, -1f, 1f, 0f, 1f, 1f, 2, 1), tex);
+                matrices.pushMatrix();
+                matrices.rotateY(180f);
+                VertexConsumer.WORLD_MAIN.consume(GeometryHelper.quad(matrices,  0.5f, 1f, -1f, -1f, 1f, 0f, 1f, 1f, 2, 1), tex);
+                matrices.popMatrix();
             }
 
             @Override
