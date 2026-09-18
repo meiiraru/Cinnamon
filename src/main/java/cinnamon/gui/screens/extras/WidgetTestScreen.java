@@ -6,6 +6,7 @@ import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.GUIListener;
+import cinnamon.gui.widgets.MenuBar;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.types.*;
 import cinnamon.model.GeometryHelper;
@@ -37,7 +38,40 @@ public class WidgetTestScreen extends ParentedScreen {
                 .addAction(Text.of("Meow"), Text.of("~ :3"), button -> Toast.addToast("meow"))
         );
 
-        ContainerGrid grid = new ContainerGrid(4, 4, 4);
+        MenuBar menuBar = new MenuBar(0, 6, width, 12, 4)
+                .addTab(Text.of("File"), new ContextMenu()
+                        .addAction(Text.of("New"), null, _ -> Toast.addToast("New"))
+                        .addAction(Text.of("Open"), null, _ -> Toast.addToast("Open"))
+                        .addAction(Text.of("Save"), null, _ -> Toast.addToast("Save"))
+                        .addDivider()
+                        .addAction(Text.of("Exit"), Text.of("Actually exit this screen"), _ -> close())
+                )
+                .addSpacing()
+                .addTab(Text.of("Wawa"), new ContextMenu()
+                        .addAction(Text.of("Meow"), null, _ -> Toast.addToast("Meow"))
+                        .addAction(Text.of("Woof"), null, _ -> Toast.addToast("Woof"))
+                        .addAction(Text.of("Waaa"), null, _ -> Toast.addToast("Waaa"))
+                        .addAction(Text.of("Ribbit"), null, _ -> Toast.addToast("Ribbit"))
+                )
+                .addTab(Text.of("Help"), new ContextMenu()
+                        .addAction(Text.of("About"), null, _ -> Toast.addToast("About"))
+                        .addAction(Text.of("Support"), null, _ -> Toast.addToast("Support"))
+                        .addAction(Text.of("Contact"), null, _ -> Toast.addToast("Contact"))
+                )
+                .addTab(Text.of("Settings"), new ContextMenu()
+                        .addAction(Text.of("Graphics"), null, _ -> Toast.addToast("Graphics"))
+                        .addAction(Text.of("Audio"), null, _ -> Toast.addToast("Audio"))
+                        .addAction(Text.of("Controls"), null, _ -> Toast.addToast("Controls"))
+                )
+                .addSpacing()
+                .addTab(Text.of("ABC"), new ContextMenu()
+                        .addAction(Text.of("A"), null, _ -> Toast.addToast("A"))
+                        .addAction(Text.of("B"), null, _ -> Toast.addToast("B"))
+                        .addAction(Text.of("C"), null, _ -> Toast.addToast("C"))
+                );
+        addWidget(menuBar);
+
+        ContainerGrid grid = new ContainerGrid(4, 4 + menuBar.getBarHeight(), 4);
 
         //button
         ContainerGrid buttons = new ContainerGrid(0, 0, 4, 2);
@@ -287,7 +321,7 @@ public class WidgetTestScreen extends ParentedScreen {
         popups.addWidget(input);
 
         //right panel
-        ContainerGrid grid2 = new ContainerGrid(width - 4, 4, 4);
+        ContainerGrid grid2 = new ContainerGrid(width - 4, 4 + menuBar.getBarHeight(), 4);
         grid2.setAlignment(Alignment.TOP_RIGHT);
 
         //button grid

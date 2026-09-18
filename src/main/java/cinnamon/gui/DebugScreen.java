@@ -301,8 +301,8 @@ public class DebugScreen {
     }
 
     private static void renderFPSGraph(MatrixStack matrices, Client c) {
-        int w = 100;
-        int h = 50;
+        int w = 120;
+        int h = 60;
         int x = c.window.getGUIWidth() - w - 4;
         int y = c.window.getGUIHeight() - h - 4;
 
@@ -318,13 +318,15 @@ public class DebugScreen {
         }
         average /= fpsBar.size();
 
+        int max = c.window.getCurrentRefreshRate();
+
         int green = 0xFF00FF00;
         int red   = 0xFFFF0000;
 
         float barWidth = (float) w / fpsBar.getCapacity();
         for (int i = 0; i < fpsBar.size(); i++) {
             int fps = fpsBar.get(i);
-            float barHeight = Math.max(Math.min(fps / 100f, 1f) * h, 1f);
+            float barHeight = Math.max(Math.min(fps / (float) max, 1f) * h, 1f);
             float barX = x + i * barWidth;
             float barY = y + h - barHeight;
             int color = ColorUtils.lerpRGBColorThroughHSV(red, green, Maths.clamp(fps / 60f, 0f, 1f));

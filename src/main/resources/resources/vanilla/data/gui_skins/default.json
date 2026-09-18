@@ -47,6 +47,7 @@
     "context_menu_tex":         "textures/gui/widgets/base/context_menu.png",
     "label_tex":                "textures/gui/widgets/base/label.png",
     "loading_tex":              "textures/gui/widgets/base/loading.png",
+    "menu_bar_tex":             "textures/gui/widgets/base/menu_bar.png",
     "progress_bar_tex":         "textures/gui/widgets/base/progress_bar.png",
     "scroll_bar_tex":           "textures/gui/widgets/base/scrollbar.png",
     "selection_panel_tex":      "textures/gui/widgets/base/selection_panel.png",
