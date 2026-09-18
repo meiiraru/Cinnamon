@@ -1,8 +1,9 @@
-package cinnamon.gui.widgets;
+package cinnamon.gui.widgets.types;
 
 import cinnamon.Client;
-import cinnamon.gui.widgets.types.Button;
-import cinnamon.gui.widgets.types.ContextMenu;
+import cinnamon.gui.widgets.ContainerGrid;
+import cinnamon.gui.widgets.PopupWidget;
+import cinnamon.gui.widgets.Widget;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
@@ -47,8 +48,8 @@ public class MenuBar extends ContainerGrid {
         super.updateDimensions(getBarWidth(), getBarHeight());
     }
 
-    public MenuBar addTab(Text text, ContextMenu menu) {
-        Button tab = new MenuButton(TextUtils.getWidth(text) + 4, getBarHeight() - getSpacing(), text, menu, this);
+    public MenuBar addTab(Text text, PopupWidget menu) {
+        Button tab = new MenuButton(TextUtils.getWidth(text) + 4, getBarHeight(), text, menu, this);
         tab.setSilent(true);
         tab.setRenderBackground(false);
 
@@ -98,18 +99,19 @@ public class MenuBar extends ContainerGrid {
 
         private final MenuBar parent;
 
-        public MenuButton(int width, int height, Text message, ContextMenu menu, MenuBar parent) {
+        public MenuButton(int width, int height, Text message, PopupWidget menu, MenuBar parent) {
             super(0, 0, width, height, message, b -> {
-                PopupWidget theMenu = parent.currentMenu == b.getPopup() && parent.currentMenu.isOpen() ? null : b.getPopup();
-                if (theMenu == null) {
-                    UIHelper.setPopup(0, 0, null);
+                boolean isOpen = parent.currentMenu == b.getPopup() && parent.currentMenu.isOpen();
+                if (isOpen) {
+                    parent.currentMenu.close();
                     parent.currentMenu = null;
                 } else {
-                    b.openPopup(0, 0);
+                    ((MenuButton) b).openPopup(0, 0);
                 }
             });
             this.parent = parent;
             this.setPopup(menu);
+            menu.setParentButton(this);
         }
 
         @Override
@@ -145,18 +147,17 @@ public class MenuBar extends ContainerGrid {
 
     private static class Spacing extends Widget {
 
-        private final boolean renderSpacer;
         private final int spacing;
 
         public Spacing(int height, int spacing, boolean renderSpacer) {
             super(0, 0, 0, height);
-            this.renderSpacer = renderSpacer;
             this.spacing = spacing;
+            this.setVisible(renderSpacer);
         }
 
         @Override
         public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            if (!renderSpacer)
+            if (!isVisible())
                 return;
 
             //render background

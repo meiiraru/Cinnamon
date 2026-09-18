@@ -1,6 +1,8 @@
-package cinnamon.gui.widgets;
+package cinnamon.gui.widgets.types;
 
-import cinnamon.gui.widgets.types.Button;
+import cinnamon.gui.widgets.Container;
+import cinnamon.gui.widgets.ContainerGrid;
+import cinnamon.gui.widgets.GUIListener;
 import cinnamon.input.InputManager;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;

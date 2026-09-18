@@ -185,12 +185,22 @@ public class Label extends SelectableWidget implements AlignedWidget {
 
     @Override
     public int getAlignedX() {
-        return getX() + Math.round(alignment.getWidthOffset(getWidth()));
+        return getX() + getAlignedWidth();
     }
 
     @Override
     public int getAlignedY() {
-        return getY() + Math.round(alignment.getHeightOffset(getHeight()));
+        return getY() + getAlignedHeight();
+    }
+
+    @Override
+    public int getAlignedWidth() {
+        return Math.round(alignment.getWidthOffset(getWidth()));
+    }
+
+    @Override
+    public int getAlignedHeight() {
+        return Math.round(alignment.getHeightOffset(getHeight()));
     }
 
     @Override

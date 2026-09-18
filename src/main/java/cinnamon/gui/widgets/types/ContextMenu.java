@@ -22,7 +22,6 @@ import java.util.function.Consumer;
 public class ContextMenu extends PopupWidget {
 
     private final WidgetList list = new WidgetList(0, 0, 0, 0, 0);
-    private final List<ContextButton> actions = new ArrayList<>();
     private final List<Widget> widgets = new ArrayList<>();
 
     private final int minWidth;
@@ -40,7 +39,7 @@ public class ContextMenu extends PopupWidget {
     public ContextMenu(int minWidth, int elementHeight) {
         super(0, 0, 0);
         this.minWidth = this.totalWidth = Math.max(minWidth, 22);
-        this.elementHeight = Math.max(elementHeight, 12);
+        this.elementHeight = Math.max(12, elementHeight);
         list.setDimensions(this.minWidth, this.elementHeight);
         list.setAlignment(Alignment.TOP_LEFT);
         list.setIgnoreScrollbarOffset(true);
@@ -57,8 +56,8 @@ public class ContextMenu extends PopupWidget {
     }
 
     protected boolean isHoldingChild() {
-        for (ContextButton action : actions) {
-            if (action.isHolding())
+        for (Widget widget : widgets) {
+            if (widget instanceof Button && ((Button) widget).isHolding())
                 return true;
         }
         return false;
@@ -72,36 +71,36 @@ public class ContextMenu extends PopupWidget {
     }
 
     public ContextMenu addAction(Text name, Text tooltip, Consumer<Button> action) {
-        ContextButton button = new ContextButton(getWidthForText(name), elementHeight, name, tooltip, action, widgets.size(), this);
-        this.actions.add(button);
-        addAction(button);
-        return this;
+        return addAction(new ContextButton(getWidthForText(name), elementHeight, name, tooltip, action, widgets.size(), this));
     }
 
     public ContextMenu addDivider() {
-        addAction(new ContextDivider(totalWidth, getSkin().getInt("context_menu_divider_size"), widgets.size()));
-        return this;
+        return addDivider(false);
+    }
+
+    public ContextMenu addDivider(boolean hidden) {
+        return addAction(new ContextDivider(totalWidth, hidden, getSkin().getInt("context_menu_divider_size")));
     }
 
     public ContextMenu addSubMenu(Text name, ContextMenu subContext) {
-        addAction(new ContextSubMenu(getWidthForText(name), elementHeight, name, subContext, widgets.size(), this));
-        return this;
+        return addAction(new ContextSubMenu(getWidthForText(name), elementHeight, name, subContext, widgets.size(), this));
     }
 
-    private void addAction(Widget widget) {
+    public ContextMenu addAction(Widget widget) {
         list.addWidget(widget);
         widgets.add(widget);
 
         totalHeight += widget.getHeight();
         totalWidth = Math.max(totalWidth, widget.getWidth());
         setDimensions(totalWidth, totalHeight);
+
+        return this;
     }
 
     public void clearActions() {
-        for (ContextButton action : actions)
-            list.removeWidget(action);
+        for (Widget widget : widgets)
+            list.removeWidget(widget);
         widgets.clear();
-        actions.clear();
         totalWidth = minWidth;
         totalHeight = 0;
     }
@@ -110,13 +109,13 @@ public class ContextMenu extends PopupWidget {
         return Math.max(TextUtils.getWidth(name) + 4, minWidth - 2);
     }
 
-    public Button getAction(int i) {
-        return actions.get(i);
+    public Widget getAction(int i) {
+        return widgets.get(i);
     }
 
     public void scrollToAction(int i) {
-        if (i >= 0 && i < actions.size())
-            list.scrollToWidget(actions.get(i));
+        if (i >= 0 && i < widgets.size())
+            list.scrollToWidget(widgets.get(i));
     }
 
     @Override
@@ -139,7 +138,7 @@ public class ContextMenu extends PopupWidget {
         int scroll = list.shouldRenderScrollbar() ? list.getScrollbarWidth() + 1 : 0;
 
         //get new width
-        int w = Math.min(realWidth + scroll, width);
+        int w = Math.min(width, realWidth + scroll);
 
         //set new width
         list.setWidth(w);
@@ -163,24 +162,21 @@ public class ContextMenu extends PopupWidget {
         );
     }
 
-    private static void renderBackground(MatrixStack matrices, int x, int y, int width, int height, boolean hover, int index, Resource texture) {
+    @Override
+    protected void renderWidgets(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        Resource background = getSkin().getResource("context_menu_tex");
+
+        List<Widget> widgetList = this.widgets;
+        for (int i = 0; i < widgetList.size(); i++) {
+            Widget widget = widgetList.get(i);
+            ContextMenu.renderBackground(matrices, widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), i, background);
+            widget.render(matrices, mouseX, mouseY, delta);
+        }
+    }
+
+    private static void renderBackground(MatrixStack matrices, int x, int y, int width, int height, int index, Resource texture) {
         //bg
         VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, x, y, width, height, (index % 2) * 16, 16f, 16, 16, 32, 35), texture);
-
-        //hover
-        if (hover) {
-            matrices.pushMatrix();
-            matrices.translate(0f, 0f, UIHelper.getDepthOffset());
-            UIHelper.nineQuad(
-                    VertexConsumer.MAIN, matrices, texture,
-                    x, y,
-                    width, height,
-                    16f, 0f,
-                    16, 16,
-                    32, 35
-            );
-            matrices.popMatrix();
-        }
     }
 
     public static class ContextButton extends Button {
@@ -203,7 +199,20 @@ public class ContextMenu extends PopupWidget {
 
         @Override
         protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), isHoveredOrFocused(), index, getSkin().getResource("context_menu_tex"));
+            //hover
+            if (isHoveredOrFocused()) {
+                matrices.pushMatrix();
+                matrices.translate(0f, 0f, UIHelper.getDepthOffset());
+                UIHelper.nineQuad(
+                        VertexConsumer.MAIN, matrices, getSkin().getResource("context_menu_tex"),
+                        getX(), getY(),
+                        getWidth(), getHeight(),
+                        16f, 0f,
+                        16, 16,
+                        32, 35
+                );
+                matrices.popMatrix();
+            }
         }
 
         @Override
@@ -232,21 +241,20 @@ public class ContextMenu extends PopupWidget {
     }
 
     private static class ContextDivider extends Widget {
-        private final int index;
-        public ContextDivider(int width, int height, int index) {
+        public ContextDivider(int width, boolean hidden, int height) {
             super(0, 0, width, height);
-            this.index = index;
+            this.setVisible(!hidden);
         }
 
         @Override
         public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-            Resource tex = getSkin().getResource("context_menu_tex");
-            ContextMenu.renderBackground(matrices, getX(), getY(), getWidth(), getHeight(), false, index, tex);
+            if (!isVisible())
+                return;
 
             matrices.pushMatrix();
             matrices.translate(0f, 0f, UIHelper.getDepthOffset());
             UIHelper.horizontalQuad(
-                    VertexConsumer.MAIN, matrices, tex,
+                    VertexConsumer.MAIN, matrices, getSkin().getResource("context_menu_tex"),
                     getX() + 1, Math.round(getCenterY() - 1.5f),
                     getWidth() - 2, 3,
                     0f, 32f,

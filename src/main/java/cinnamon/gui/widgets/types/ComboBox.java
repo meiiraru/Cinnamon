@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-
 public class ComboBox extends Button {
 
     private final List<Text> indexes = new ArrayList<>();
@@ -41,8 +39,10 @@ public class ComboBox extends Button {
             }
         });
 
-        contextMenu = new ComboContext(width, height, this);
-        emptyMenu = new ComboContext(width, height, this);
+        contextMenu = new ContextMenu(width, height);
+        contextMenu.setParentButton(this);
+        emptyMenu = new ContextMenu(width, height);
+        emptyMenu.setParentButton(this);
         emptyMenu.addAction(Text.of("-"), null, null);
 
         super.setPopup(emptyMenu);
@@ -85,7 +85,7 @@ public class ComboBox extends Button {
 
     public void select(int index) {
         if (index >= 0 && index < indexes.size()) {
-            Button b = contextMenu.getAction(index);
+            Button b = (Button) contextMenu.getAction(index);
             boolean wasSilent = b.isSilent();
             b.setSilent(true);
             b.onRun();
@@ -185,7 +185,7 @@ public class ComboBox extends Button {
                 text = Text.empty().withStyle(Style.EMPTY.color(getSkin().getInt("accent_color"))).append(text);
 
             //apply text
-            contextMenu.getAction(i).setMessage(text);
+            ((Button) contextMenu.getAction(i)).setMessage(text);
         }
     }
 
@@ -196,7 +196,7 @@ public class ComboBox extends Button {
             i += (int) Math.signum(-y);
             if (i < -1) i++; //back scroll when unselected
             i = Maths.modulo(i, indexes.size());
-            contextMenu.getAction(i).onRun();
+            ((Button) contextMenu.getAction(i)).onRun();
             return this;
         }
 
@@ -210,21 +210,5 @@ public class ComboBox extends Button {
     public ComboBox allowScrollSelect(boolean allowScrollSelect) {
         this.allowScrollSelect = allowScrollSelect;
         return this;
-    }
-
-    private static class ComboContext extends ContextMenu {
-        private final ComboBox parent;
-
-        public ComboContext(int width, int height, ComboBox parent) {
-            super(width, height);
-            this.parent = parent;
-        }
-
-        @Override
-        public GUIListener mousePress(int button, int action, int mods) {
-            if (parent.isHolding() || (!UIHelper.isWidgetHovered(this) && UIHelper.isWidgetHovered(parent) && this.isOpen() && action == GLFW_PRESS))
-                return null;
-            return super.mousePress(button, action, mods);
-        }
     }
 }

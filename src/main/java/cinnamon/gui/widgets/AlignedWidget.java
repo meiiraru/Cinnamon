@@ -7,4 +7,6 @@ public interface AlignedWidget {
     Alignment getAlignment();
     int getAlignedX();
     int getAlignedY();
+    int getAlignedWidth();
+    int getAlignedHeight();
 }

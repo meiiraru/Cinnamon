@@ -121,12 +121,22 @@ public class ContainerGrid extends Container implements AlignedWidget {
 
     @Override
     public int getAlignedX() {
-        return getX() + (int) Math.floor(alignment.getWidthOffset(getWidth()));
+        return getX() + getAlignedWidth();
     }
 
     @Override
     public int getAlignedY() {
-        return getY() + (int) Math.floor(alignment.getHeightOffset(getHeight()));
+        return getY() + getAlignedHeight();
+    }
+
+    @Override
+    public int getAlignedWidth() {
+        return (int) Math.floor(alignment.getWidthOffset(getWidth()));
+    }
+
+    @Override
+    public int getAlignedHeight() {
+        return (int) Math.floor(alignment.getHeightOffset(getHeight()));
     }
 
     public int getSpacing() {

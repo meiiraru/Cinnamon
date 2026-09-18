@@ -6,7 +6,6 @@ import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.GUIListener;
-import cinnamon.gui.widgets.MenuBar;
 import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.gui.widgets.types.*;
 import cinnamon.model.GeometryHelper;
@@ -68,6 +67,15 @@ public class WidgetTestScreen extends ParentedScreen {
                         .addAction(Text.of("A"), null, _ -> Toast.addToast("A"))
                         .addAction(Text.of("B"), null, _ -> Toast.addToast("B"))
                         .addAction(Text.of("C"), null, _ -> Toast.addToast("C"))
+                )
+                .addTab(Text.of("Extras").withStyle(Style.EMPTY.shadow(true).shadowColor(Colors.BLUE)), new ContextMenu()
+                        .addAction(new Checkbox(0, 0, Text.of("Checkbox 1")))
+                        .addAction(new Checkbox(0, 0, Text.of("Checkbox 2")))
+                        .addAction(new Checkbox(0, 0, Text.of("Checkbox 3")))
+                        .addAction(new Slider(0, 0, 60))
+                        .addAction(new Slider(0, 0, 60))
+                        .addAction(new ColorPicker(0, 0, 48, 12))
+                        .closeOnSelect(false)
                 );
         addWidget(menuBar);
 

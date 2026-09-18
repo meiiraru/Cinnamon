@@ -2,6 +2,7 @@ package cinnamon.gui.widgets;
 
 import cinnamon.Client;
 import cinnamon.gui.Screen;
+import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Scrollbar;
 import cinnamon.render.MatrixStack;
 import cinnamon.utils.UIHelper;
@@ -23,6 +24,7 @@ public class PopupWidget extends ContainerGrid {
     private boolean forceFocusParent;
     private boolean voidOutsideClicks = true;
     private boolean closeOnEscape = true;
+    private Button parentButton;
 
     public PopupWidget(int x, int y, int spacing) {
         super(x, y, spacing);
@@ -85,6 +87,14 @@ public class PopupWidget extends ContainerGrid {
         this.forceFocusParent = bool;
     }
 
+    public void setParentButton(Button parentButton) {
+        this.parentButton = parentButton;
+    }
+
+    protected Button getParentButton() {
+        return parentButton;
+    }
+
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         if (!isVisible() || !isOpen())
@@ -111,6 +121,10 @@ public class PopupWidget extends ContainerGrid {
     @Override
     public GUIListener mousePress(int button, int action, int mods) {
         if (!isOpen())
+            return null;
+
+        //void click when clicked on the parent button
+        if (parentButton != null && (parentButton.isHolding() || (!UIHelper.isWidgetHovered(this) && UIHelper.isWidgetHovered(parentButton) && action == GLFW_PRESS)))
             return null;
 
         //check if a child is being pressed first

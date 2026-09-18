@@ -182,7 +182,7 @@ public class ColorPicker extends Button {
                 popup.removeWidget(fields);
             }
 
-            UIHelper.setPopup(getCenterX(), getCenterY(), popup);
+            UIHelper.setPopup(ColorPicker.this.getX() - popup.getAlignedWidth(), ColorPicker.this.getY() + ColorPicker.this.getHeight() - popup.getAlignedHeight(), popup);
         });
         hueGrid.addWidget(expand);
 
@@ -254,7 +254,7 @@ public class ColorPicker extends Button {
     }
 
     protected void openPicker() {
-        UIHelper.setPopup(getCenterX(), getCenterY(), popup);
+        UIHelper.setPopup(getX() - popup.getAlignedWidth(), getY() + getHeight() - popup.getAlignedHeight(), popup);
         this.setColor(color);
         this.prevColor.set(color);
         this.prevAlpha = this.alpha;

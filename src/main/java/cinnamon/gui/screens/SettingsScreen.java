@@ -6,7 +6,6 @@ import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
 import cinnamon.gui.widgets.Container;
 import cinnamon.gui.widgets.ContainerGrid;
-import cinnamon.gui.widgets.ContainerTabs;
 import cinnamon.gui.widgets.WidgetList;
 import cinnamon.gui.widgets.types.*;
 import cinnamon.input.Keybind;
