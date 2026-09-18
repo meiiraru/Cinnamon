@@ -139,7 +139,7 @@ public class MIDIScreen extends ParentedScreen {
         reverbSlider = new Slider(0, 0, 100);
         reverbSlider.setMin(0);
         reverbSlider.setMax(127);
-        reverbSlider.setTooltipFunction((f, i) -> Text.translated("gui.midi_screen.reverb", "%.2f".formatted(f)));
+        reverbSlider.setTooltipFunction((f, i) -> Text.translated("gui.midi_screen.reverb", Math.round(f * 100f) + "%"));
         reverbSlider.setChangeListener((f, i) -> runTask(() -> setReverb(i)));
 
         //default out to synthesizer (Gervill)

@@ -79,7 +79,7 @@ public class ContextMenu extends PopupWidget {
     }
 
     public ContextMenu addDivider(boolean hidden) {
-        return addAction(new ContextDivider(totalWidth, hidden, getSkin().getInt("context_menu_divider_size")));
+        return addAction(new ContextDivider(totalWidth, hidden, getSkin().getInt("context_menu_divider_size")), true);
     }
 
     public ContextMenu addSubMenu(Text name, ContextMenu subContext) {
@@ -87,8 +87,13 @@ public class ContextMenu extends PopupWidget {
     }
 
     public ContextMenu addAction(Widget widget) {
+        return addAction(widget, false);
+    }
+
+    public ContextMenu addAction(Widget widget, boolean divider) {
         list.addWidget(widget);
-        widgets.add(widget);
+        if (!divider)
+            widgets.add(widget);
 
         totalHeight += widget.getHeight();
         totalWidth = Math.max(totalWidth, widget.getWidth());
@@ -151,26 +156,25 @@ public class ContextMenu extends PopupWidget {
 
     @Override
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        Resource background = getSkin().getResource("context_menu_tex");
+
         //render background
+        matrices.pushMatrix();
+        matrices.translate(0f, 0f, -UIHelper.getDepthOffset());
         UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, getSkin().getResource("context_menu_tex"),
+                VertexConsumer.MAIN, matrices, background,
                 getX() - 1, getY() - 1,
                 getWidth() + 2, getHeight() + 2,
                 0f, 0f,
                 16, 16,
                 32, 35
         );
-    }
-
-    @Override
-    protected void renderWidgets(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        Resource background = getSkin().getResource("context_menu_tex");
+        matrices.popMatrix();
 
         List<Widget> widgetList = this.widgets;
         for (int i = 0; i < widgetList.size(); i++) {
             Widget widget = widgetList.get(i);
             ContextMenu.renderBackground(matrices, widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), i, background);
-            widget.render(matrices, mouseX, mouseY, delta);
         }
     }
 

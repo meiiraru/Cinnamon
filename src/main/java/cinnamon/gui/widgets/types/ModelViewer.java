@@ -544,8 +544,10 @@ public class ModelViewer extends SelectableWidget implements Tickable {
                 }
                 case GLFW_KEY_R -> resetView();
             }
+            return this;
         }
-        return this;
+
+        return null;
     }
 
     @Override

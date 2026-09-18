@@ -147,8 +147,6 @@ public class Cinnamon {
         glfwRequestWindowAttention(window);
 
         //register input callbacks
-        glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
-        glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
         glfwSetKeyCallback(window, (win, key, scancode, action, mods) -> client.keyPress(key, scancode, action, mods));
         glfwSetCharModsCallback(window, (win, key, mods) -> {
             for (char c : Character.toChars(key))
