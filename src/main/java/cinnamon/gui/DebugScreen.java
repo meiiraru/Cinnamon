@@ -572,7 +572,7 @@ public class DebugScreen {
                     up x &c%.3f&r y &a%.3f&r z &b%.3f&r
                     facing &e%s&r""",
 
-                    w.width, w.height, w.guiScale, w.isFullscreen() ? "on" : "off",
+                    w.width, w.height, w.guiScale, w.isFullscreen() ? (w.borderlessFullscreen ? "borderless" : "on") : "off",
                     Settings.vsync.get() ? "on" : "off", Settings.fpsLimit.get() <= 0 ? "unlimited" : Settings.fpsLimit.get() + " fps", w.getCurrentRefreshRate(),
                     c.ticks, c.frames,
 

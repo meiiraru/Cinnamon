@@ -31,8 +31,8 @@ public class Window {
     //fullscreen stuff
     private int windowedX, windowedY;
     private int windowedWidth, windowedHeight;
-    private boolean fullscreen;
-    public boolean allowFullscreen = true;
+    private boolean fullscreen, windowedDecorated;
+    public boolean allowFullscreen = true, borderlessFullscreen = true;
 
     //gui properties
     public int scaledWidth = width, scaledHeight = height;
@@ -122,36 +122,54 @@ public class Window {
      * Toggle the window's fullscreen state
      */
     public void toggleFullScreen() {
-        if (!fullscreen && !allowFullscreen)
+        if (!this.fullscreen && !this.allowFullscreen)
             return;
 
-        fullscreen = !fullscreen;
+        this.fullscreen = !this.fullscreen;
+
+        int x, y, width, height;
 
         //set fullscreen
-        if (fullscreen) {
+        if (this.fullscreen) {
             this.windowedX = this.x;
             this.windowedY = this.y;
             this.windowedWidth = this.width;
             this.windowedHeight = this.height;
+            this.windowedDecorated = glfwGetWindowAttrib(window, GLFW_DECORATED) == GLFW_TRUE;
 
             long monitor = getCurrentMonitor();
             GLFWVidMode vidMode = glfwGetVideoMode(monitor);
 
-            this.x = this.y = 0;
-            this.width = vidMode.width();
-            this.height = vidMode.height();
+            int[] monitorX = new int[1], monitorY = new int[1];
+            glfwGetMonitorPos(monitor, monitorX, monitorY);
 
-            glfwSetWindowMonitor(window, monitor, x, y, width, height, vidMode.refreshRate());
+            x = monitorX[0];
+            y = monitorY[0];
+            width = vidMode.width();
+            height = vidMode.height();
+
+            if (this.borderlessFullscreen) {
+                glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
+                glfwSetWindowMonitor(window, NULL, x, y, width, height, GLFW_DONT_CARE);
+            } else {
+                glfwSetWindowMonitor(window, monitor, x, y, width, height, vidMode.refreshRate());
+            }
         }
         //set windowed
         else {
-            this.x = this.windowedX;
-            this.y = this.windowedY;
-            this.width = this.windowedWidth;
-            this.height = this.windowedHeight;
+            x = this.windowedX;
+            y = this.windowedY;
+            width = this.windowedWidth;
+            height = this.windowedHeight;
 
+            glfwSetWindowAttrib(window, GLFW_DECORATED, windowedDecorated ? GLFW_TRUE : GLFW_FALSE);
             glfwSetWindowMonitor(window, NULL, x, y, width, height, GLFW_DONT_CARE);
         }
+
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
     }
 
     /**
@@ -206,6 +224,28 @@ public class Window {
         long monitor = getCurrentMonitor();
         GLFWVidMode mode = glfwGetVideoMode(monitor);
         return mode != null ? mode.refreshRate() : -1;
+    }
+
+    /**
+     * Get all supported video modes for the current monitor
+     * @return a 2D array of video modes, where each row is a video mode and each column is [width, height, refreshRate]
+     */
+    public int[][] getCurrentSupportedVideoModes() {
+        long monitor = getCurrentMonitor();
+        GLFWVidMode.Buffer modes = glfwGetVideoModes(monitor);
+
+        if (modes == null)
+            return new int[0][0];
+
+        int[][] result = new int[modes.limit()][3];
+        for (int i = 0; i < modes.limit(); i++) {
+            GLFWVidMode mode = modes.get(i);
+            result[i][0] = mode.width();
+            result[i][1] = mode.height();
+            result[i][2] = mode.refreshRate();
+        }
+
+        return result;
     }
 
     /**

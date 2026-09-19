@@ -579,6 +579,8 @@
   "setting.video.display.show_fps": "Mostrar FPS",
   "setting.video.display.vsync": "Sincronização Vertical (VSync)",
   "setting.video.display.dynamic_fps_limit": "Limite de FPS Dinâmico",
+  "setting.video.display.fullscreen": "Modo Tela Cheia",
+  "setting.video.display.borderless": "Tela Cheia Sem Bordas",
   "setting.video.display.gui_scale": "Escala da Interface",
   "setting.video.display.fov": "Campo de Visão (FOV)",
   "setting.video.display.fps_limit": "Limite de FPS",

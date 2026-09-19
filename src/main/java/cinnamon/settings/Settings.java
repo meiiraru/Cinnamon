@@ -54,7 +54,9 @@ public class Settings {
     public static final Setting.Bools
             showFPS         = new Setting.Bools("video.display.show_fps", false),
             vsync           = new Setting.Bools("video.display.vsync", false),
-            dynamicFpsLimit = new Setting.Bools("video.display.dynamic_fps_limit", true);
+            dynamicFpsLimit = new Setting.Bools("video.display.dynamic_fps_limit", true),
+            fullscreen      = new Setting.Bools("video.display.fullscreen", false),
+            borderless      = new Setting.Bools("video.display.borderless", true);
     public static final Setting.Floats
             guiScale = new Setting.Floats("video.display.gui_scale", 0f);
     public static final Setting.Ints
@@ -174,6 +176,23 @@ public class Settings {
                 c.queueTick(() -> c.screen.rebuild());
         });
         vsync.setListener(v -> Client.getInstance().window.toggleVsync(v));
+        fullscreen.setListener(v -> {
+            Client c = Client.getInstance();
+            if (v != c.window.isFullscreen())
+                c.queueTick(() -> c.window.toggleFullScreen());
+        });
+        borderless.setListener(v -> {
+            Client c = Client.getInstance();
+            if (v != c.window.borderlessFullscreen) {
+                c.window.borderlessFullscreen = v;
+                if (c.window.isFullscreen()) {
+                    c.queueTick(() -> {
+                        c.window.toggleFullScreen();
+                        c.window.toggleFullScreen();
+                    });
+                }
+            }
+        });
         guiSkin.setListener(str -> {
             GUISkin.setCurrentSkin(str.isBlank() ? null : new Resource(str));
             Client c = Client.getInstance();

@@ -510,6 +510,7 @@ public class WordleScreen extends ParentedScreen {
             addWidget(triesLabel);
 
             ContainerGrid bars = new ContainerGrid(0, 0, spacing, 3);
+            bars.setAlignment(Alignment.TOP_CENTER);
 
             int length = tries + 1;
             triesBar = new ProgressBar[length];
