@@ -62,6 +62,8 @@ import static org.lwjgl.opengl.GL11.glClear;
 
 public class WorldClient extends World {
 
+    public static final Resource EXPLOSION_SOUND = new Resource("sounds/world/explosion.ogg");
+
     public Supplier<Screen>
             chatScreen = ChatScreen::new,
             pauseScreen = PauseScreen::new,

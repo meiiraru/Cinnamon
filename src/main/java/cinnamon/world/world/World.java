@@ -7,7 +7,6 @@ import cinnamon.math.collision.Ray;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.math.collision.shape.Sphere;
 import cinnamon.utils.Pair;
-import cinnamon.utils.Resource;
 import cinnamon.world.WorldRules;
 import cinnamon.world.entity.DamageType;
 import cinnamon.world.entity.Entity;
@@ -24,8 +23,6 @@ import java.util.*;
 import java.util.function.Predicate;
 
 public abstract class World {
-
-    protected static final Resource EXPLOSION_SOUND = new Resource("sounds/world/explosion.ogg");
 
     protected final Queue<Runnable> scheduledTicks = new LinkedList<>();
 

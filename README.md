@@ -11,6 +11,12 @@ It can also be used as a library, allowing for easy integration into other proje
 
 ***
 
+# Getting Started
+
+You can find out more about the Cinnamon engine and how to use it in the following [wiki](https://github.com/meiiraru/Cinnamon/wiki).
+
+***
+
 # Features
 * [Blockbench](https://www.blockbench.net/) animations
     * Model part based (no bones, no mesh deformation)
