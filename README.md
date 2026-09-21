@@ -180,6 +180,14 @@ You can find out more about the Cinnamon engine and how to use it in the followi
 
 ***
 
+# Funni prototypes created using Cinnamon
+
+[<img width="230" height="140" src="https://img.itch.zone/aW1nLzE4MjM5MzYzLnBuZw==/original/wdxasY.png" alt="yeddi"/>](https://allyeeen.itch.io/yeddi)
+[<img width="230" height="140" src="https://img.itch.zone/aW1nLzI0MjUyODk0LnBuZw==/original/H1G2VC.png" alt="candy-belt"/>](https://meiiraru.itch.io/candy-belt)
+[<img width="230" height="140" src="https://img.itch.zone/aW1hZ2UvNDczMjA4My8yODIxMjQ4OS5wbmc=/original/NhamNa.png" alt="wild-whispers"/>](https://meiiraru.itch.io/wild-whispers)
+
+***
+
 # How to compile
 Using a Gradle setup, import the dependencies and run the main class `Cinnamon.java`
 
