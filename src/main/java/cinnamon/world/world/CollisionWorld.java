@@ -24,6 +24,7 @@ import cinnamon.render.WaterRenderer;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.vehicle.Cart;
 import cinnamon.world.terrain.Button;
 import cinnamon.world.terrain.MeshTerrain;
 import cinnamon.world.terrain.PlaneTerrain;
@@ -37,6 +38,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class CollisionWorld extends WorldClient {
 
@@ -203,6 +205,11 @@ public class CollisionWorld extends WorldClient {
                 addTerrain(uneven);
             }
         }
+
+        //uneven terrain cart
+        Cart cart = new Cart(UUID.randomUUID());
+        cart.setPos(centerX, y + 5f, centerZ);
+        addEntity(cart);
 
         //ground plane
         addTerrain(new PlaneTerrain(0, 1, 0, 0.75f));
