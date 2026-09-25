@@ -1,7 +1,6 @@
 package cinnamon;
 
 import cinnamon.events.Await;
-import cinnamon.events.EventType;
 import cinnamon.events.Events;
 import cinnamon.gui.DebugScreen;
 import cinnamon.gui.Screen;
@@ -36,6 +35,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.function.Supplier;
 
+import static cinnamon.events.CoreEvents.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;
@@ -48,6 +48,7 @@ public class Client {
 
     private final Queue<Runnable> scheduledTicks = new LinkedList<>();
 
+    private boolean initialized = false;
     public static final int TPS = 20;
     public final Timer timer = new Timer(TPS);
     public long ticks, frames;
@@ -59,10 +60,6 @@ public class Client {
     public int postProcess = -1;
     public boolean anaglyph3D = false;
     public boolean hideHUD;
-
-    //events
-    public Events events = new Events();
-    private boolean initialized = false;
 
     //objects
     public MatrixStack matrices = new MatrixStack();
@@ -98,9 +95,9 @@ public class Client {
             XrManager.init();
 
         //register and run init events
-        events.registerClientEvents();
-        events.runEvents(EventType.RESOURCE_INIT);
-        events.runEvents(EventType.CLIENT_INIT);
+        Events.registerClientEvents();
+        RESOURCE_INIT.invoker().run();
+        CLIENT_INIT.invoker().run();
         initialized = true;
 
         //open the main menu
@@ -111,8 +108,8 @@ public class Client {
         //disconnect();
         if (screen != null) screen.removed();
         SoundManager.free();
-        events.runEvents(EventType.RESOURCE_FREE);
-        events.runEvents(EventType.CLIENT_EXIT);
+        RESOURCE_FREE.invoker().run();
+        CLIENT_EXIT.invoker().run();
         initialized = false;
     }
 
@@ -142,17 +139,17 @@ public class Client {
         SoundManager.tick(camera);
         AnimatedTexture.tickAll(world != null && world.isPaused() ? 1 : 2);
 
-        events.runEvents(EventType.TICK_BEFORE_WORLD);
+        TICK_BEFORE_WORLD.invoker().run();
 
         if (world != null)
             world.tick();
 
-        events.runEvents(EventType.TICK_BEFORE_GUI);
+        TICK_BEFORE_GUI.invoker().run();
 
         if (screen != null)
             screen.tick();
 
-        events.runEvents(EventType.TICK_END);
+        TICK_END.invoker().run();
     }
 
     private void runScheduledTicks() {
@@ -172,7 +169,7 @@ public class Client {
         matrices.pushMatrix();
 
         //run render events
-        events.runEvents(EventType.RENDER_BEFORE_WORLD);
+        RENDER_BEFORE_WORLD.invoker().run();
 
         //render world
         if (world != null)
@@ -186,7 +183,7 @@ public class Client {
             XrRenderer.applyGUITransform(matrices);
 
         //run gui events
-        events.runEvents(EventType.RENDER_BEFORE_GUI);
+        RENDER_BEFORE_GUI.invoker().run();
 
         //render screen
         if (this.screen != null)
@@ -204,7 +201,7 @@ public class Client {
             PostProcess.apply(PostProcess.EFFECTS[postProcess]);
 
         //run post-render events
-        events.runEvents(EventType.RENDER_END);
+        RENDER_END.invoker().run();
 
         //debug hud always on top
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -262,8 +259,8 @@ public class Client {
 
     public void reloadAssets() {
         queueTick(() -> {
-            events.runEvents(EventType.RESOURCE_FREE);
-            events.runEvents(EventType.RESOURCE_INIT);
+            RESOURCE_FREE.invoker().run();
+            RESOURCE_INIT.invoker().run();
             Toast.clearAll();
             Toast.addToast(Text.translated("debug.assets_reloaded"));
         });
@@ -284,7 +281,7 @@ public class Client {
 
     public void windowMove(int x, int y) {
         window.updatePos(x, y);
-        events.runEvents(EventType.WINDOW_MOVE, x, y);
+        WINDOW_MOVE.invoker().run(x, y);
     }
 
     public void windowResize(int width, int height) {
@@ -305,7 +302,7 @@ public class Client {
                 screen.resize(window.scaledWidth, window.scaledHeight);
         });
 
-        events.runEvents(EventType.WINDOW_RESIZE, window.width, window.height);
+        WINDOW_RESIZE.invoker().run(window.width, window.height);
     }
 
     public void windowFocused(boolean focused) {
@@ -320,14 +317,14 @@ public class Client {
             world.pause();
         }
 
-        events.runEvents(EventType.WINDOW_FOCUSED, focused);
+        WINDOW_FOCUSED.invoker().run(focused);
     }
 
     public void filesDropped(String[] files) {
         if (screen != null)
             screen.filesDropped(files);
 
-        events.runEvents(EventType.FILES_DROPPED, (Object) files);
+        FILES_DROPPED.invoker().run(files);
     }
 
     // -- keyboard events -- //
@@ -376,7 +373,7 @@ public class Client {
             world.keyPress(key, scancode, action, mods);
         }
 
-        events.runEvents(EventType.KEY_PRESS, key, scancode, action, mods);
+        KEY_PRESS.invoker().run(key, scancode, action, mods);
     }
 
     public void charTyped(char c, int mods) {
@@ -388,7 +385,7 @@ public class Client {
         if (screen != null)
             screen.charTyped(c, mods);
 
-        events.runEvents(EventType.CHAR_TYPED, c, mods);
+        CHAR_TYPED.invoker().run(c, mods);
     }
 
     // -- mouse events -- //
@@ -404,7 +401,7 @@ public class Client {
         else if (world != null)
             world.mousePress(button, action, mods);
 
-        events.runEvents(EventType.MOUSE_PRESS, button, action, mods);
+        MOUSE_PRESS.invoker().run(button, action, mods);
     }
 
     public void mouseMove(double x, double y) {
@@ -419,7 +416,7 @@ public class Client {
             world.mouseMove(x, y);
         }
 
-        events.runEvents(EventType.MOUSE_MOVE, x, y);
+        MOUSE_MOVE.invoker().run(x, y);
     }
 
     public void mouseScroll(double x, double y) {
@@ -430,7 +427,7 @@ public class Client {
         else if (world != null)
             world.mouseScroll(x, y);
 
-        events.runEvents(EventType.MOUSE_SCROLL, x, y);
+        MOUSE_SCROLL.invoker().run(x, y);
     }
 
     // -- xr events -- //
@@ -444,7 +441,7 @@ public class Client {
             world.xrButtonPress(button, pressed, hand);
         }
 
-        events.runEvents(EventType.XR_BUTTON_PRESS, button, pressed, hand);
+        XR_BUTTON_PRESS.invoker().run(button, pressed, hand);
     }
 
     public void xrTriggerPress(int button, float value, int hand, float lastValue) {
@@ -458,7 +455,7 @@ public class Client {
             world.xrTriggerPress(button, value, hand, lastValue);
         }
 
-        events.runEvents(EventType.XR_TRIGGER_PRESS, button, value, hand, lastValue);
+        XR_TRIGGER_PRESS.invoker().run(button, value, hand, lastValue);
     }
 
     public void xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
@@ -470,7 +467,7 @@ public class Client {
             world.xrJoystickMove(x, y, hand, lastX, lastY);
         }
 
-        events.runEvents(EventType.XR_JOYSTICK_MOVE, x, y, hand, lastX, lastY);
+        XR_JOYSTICK_MOVE.invoker().run(x, y, hand, lastX, lastY);
     }
 
     // -- joystick/gamepad events -- //
@@ -484,7 +481,7 @@ public class Client {
             world.joystickButtonPress(button, pressed, joystick);
         }
 
-        events.runEvents(EventType.JOYSTICK_BUTTON_PRESS, button, pressed, joystick);
+        JOYSTICK_BUTTON_PRESS.invoker().run(button, pressed, joystick);
     }
 
     public void joystickAxisMove(int axis, float value, int joystick, float lastValue) {
@@ -496,7 +493,7 @@ public class Client {
             world.joystickAxisMove(axis, value, joystick, lastValue);
         }
 
-        events.runEvents(EventType.JOYSTICK_AXIS_MOVE, axis, value, joystick, lastValue);
+        JOYSTICK_AXIS_MOVE.invoker().run(axis, value, joystick, lastValue);
     }
 
     public void joystickHatMove(int hat, byte hatState, int joystick, byte lastValue) {
@@ -508,7 +505,7 @@ public class Client {
             world.joystickHatMove(hat, hatState, joystick, lastValue);
         }
 
-        events.runEvents(EventType.JOYSTICK_HAT_MOVE, hat, hatState, joystick, lastValue);
+        JOYSTICK_HAT_MOVE.invoker().run(hat, hatState, joystick, lastValue);
     }
 
     public void gamepadButtonPress(int button, boolean pressed, int joystick) {
@@ -520,7 +517,7 @@ public class Client {
             world.gamepadButtonPress(button, pressed, joystick);
         }
 
-        events.runEvents(EventType.GAMEPAD_BUTTON_PRESS, button, pressed, joystick);
+        GAMEPAD_BUTTON_PRESS.invoker().run(button, pressed, joystick);
     }
 
     public void gamepadAxisMove(int axis, float value, int joystick, float lastValue) {
@@ -532,6 +529,6 @@ public class Client {
             world.gamepadAxisMove(axis, value, joystick, lastValue);
         }
 
-        events.runEvents(EventType.GAMEPAD_AXIS_MOVE, axis, value, joystick, lastValue);
+        GAMEPAD_AXIS_MOVE.invoker().run(axis, value, joystick, lastValue);
     }
 }
