@@ -104,7 +104,7 @@ public class Flashlight extends Item {
 
         Client c = Client.getInstance();
 
-        float delta = source.getWorld().isPaused() ? 1f : c.timer.partialTick;
+        float delta = source.getWorld().isPaused() ? 1f : c.timer.partialTick();
         boolean lefty = source.isLeftHanded();
         Vector3f pos = source.getHandPos(lefty, delta);
         Vector3f dir = source.getHandDir(lefty, delta);

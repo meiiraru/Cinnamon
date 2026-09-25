@@ -164,12 +164,12 @@ public class Client {
 
     public void render() {
         frames++;
-        float delta = timer.partialTick;
+        float delta = timer.partialTick();
 
         matrices.pushMatrix();
 
         //run render events
-        RENDER_BEFORE_WORLD.invoker().run();
+        RENDER_BEFORE_WORLD.invoker().run(matrices, delta);
 
         //render world
         if (world != null)
@@ -183,7 +183,7 @@ public class Client {
             XrRenderer.applyGUITransform(matrices);
 
         //run gui events
-        RENDER_BEFORE_GUI.invoker().run();
+        RENDER_BEFORE_GUI.invoker().run(matrices, delta);
 
         //render screen
         if (this.screen != null)
@@ -201,7 +201,7 @@ public class Client {
             PostProcess.apply(PostProcess.EFFECTS[postProcess]);
 
         //run post-render events
-        RENDER_END.invoker().run();
+        RENDER_END.invoker().run(matrices, delta);
 
         //debug hud always on top
         glClear(GL_DEPTH_BUFFER_BIT);

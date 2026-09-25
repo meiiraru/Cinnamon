@@ -1,5 +1,7 @@
 package cinnamon.events;
 
+import cinnamon.render.MatrixStack;
+
 public class CoreEvents {
 
     //lifecycle events
@@ -8,9 +10,9 @@ public class CoreEvents {
     public static final Event<Empty> TICK_BEFORE_WORLD   = Empty.create();
     public static final Event<Empty> TICK_BEFORE_GUI     = Empty.create();
     public static final Event<Empty> TICK_END            = Empty.create();
-    public static final Event<Empty> RENDER_BEFORE_WORLD = Empty.create();
-    public static final Event<Empty> RENDER_BEFORE_GUI   = Empty.create();
-    public static final Event<Empty> RENDER_END          = Empty.create();
+    public static final Event<Render> RENDER_BEFORE_WORLD = Render.create();
+    public static final Event<Render> RENDER_BEFORE_GUI   = Render.create();
+    public static final Event<Render> RENDER_END          = Render.create();
     public static final Event<Empty> RESOURCE_INIT       = Empty.create();
     public static final Event<Empty> RESOURCE_FREE       = Empty.create();
 
@@ -46,6 +48,11 @@ public class CoreEvents {
     public interface Empty {
         void run();
         static Event<Empty> create() { return new Event<>(l -> () -> { for (Empty listener : l) listener.run(); }); }
+    }
+
+    public interface Render {
+        void run(MatrixStack matrices, float tickDelta);
+        static Event<Render> create() { return new Event<>(l -> (m, d) -> { for (Render listener : l) listener.run(m, d); }); }
     }
 
     public interface WindowMove {

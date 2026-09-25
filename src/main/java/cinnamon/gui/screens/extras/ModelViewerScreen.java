@@ -298,7 +298,7 @@ public class ModelViewerScreen extends ParentedScreen {
 
         //auto rotate
         if (autoRotate && modelViewer.getDragged() != 0 && !modelViewer.isUsingFlyCam())
-            modelViewer.setYaw(modelViewer.getYaw() + client.timer.deltaTime * 15f);
+            modelViewer.setYaw(modelViewer.getYaw() + client.timer.deltaTime() * 15f);
 
         //gizmo
         float len = 20f, scale = 50f;

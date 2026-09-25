@@ -423,7 +423,7 @@ public class UIHelper {
     }
 
     public static float tickDelta(float speed) {
-        return 1f - Maths.pow(speed, Client.getInstance().timer.tickDelta);
+        return 1f - Maths.pow(speed, Client.getInstance().timer.tickDelta());
     }
 
     public static void finishBatches() {

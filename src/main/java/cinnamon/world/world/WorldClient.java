@@ -194,7 +194,7 @@ public class WorldClient extends World {
             return;
 
         float d = isPaused() ? 1f : delta;
-        float dt = isPaused() ? 0f : client.timer.deltaTime;
+        float dt = isPaused() ? 0f : client.timer.deltaTime();
         boolean xr = XrManager.isInXR();
 
         //set camera

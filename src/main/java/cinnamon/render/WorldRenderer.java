@@ -86,7 +86,7 @@ public class WorldRenderer {
         worldRendering = true;
         setupFramebuffer();
         Client client = Client.getInstance();
-        float dt = client.timer.deltaTime;
+        float dt = client.timer.deltaTime();
         boolean xr = XrManager.isInXR();
         renderSSR &= !xr; //SSR is not supported in XR mode
 
