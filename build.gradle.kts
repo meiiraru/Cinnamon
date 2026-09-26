@@ -11,11 +11,11 @@ java {
 }
 
 group = "com.github.meiiraru"
-version = "0.5.1"
+version = "0.5.2"
 val mainClass = "cinnamon.Cinnamon"
 
 //dependencies
-val lwjglVersion = "3.4.2"
+val lwjglVersion = "3.4.3"
 val jomlVersion = "1.10.9"
 val gsonVersion = "2.14.0"
 
