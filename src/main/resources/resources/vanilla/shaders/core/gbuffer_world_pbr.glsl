@@ -81,7 +81,7 @@ void main() {
     float ao        = texture(material.aoTex, texCoords).r;
     float roughness = texture(material.roughnessTex, texCoords).r;
     float metallic  = texture(material.metallicTex, texCoords).r;
-    vec3 emissive   = texture(material.emissiveTex, texCoords).rgb;
+    vec3 emissive   = texture(material.emissiveTex, texCoords).rgb * color.rgb;
 
     //sample normal
     vec3 normal = texture(material.normalTex, texCoords).rgb;
