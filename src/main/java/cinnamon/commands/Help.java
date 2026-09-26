@@ -6,6 +6,7 @@ import cinnamon.text.Text;
 import cinnamon.utils.Colors;
 import cinnamon.world.entity.Entity;
 
+import java.util.Collection;
 import java.util.Stack;
 
 import static cinnamon.commands.CommandParser.ERROR_STYLE;
@@ -32,14 +33,18 @@ public class Help implements Command {
     private Text getCommandList() {
         StringBuilder str = new StringBuilder();
 
+        //get and sort commands by name
+        Collection<CommandRegistry.CommandEntry> commands = CommandRegistry.getRegisteredCommands();
+        commands = commands.stream().sorted((a, b) -> a.name().compareToIgnoreCase(b.name())).toList();
+
         //add commands and its aliases
-        for (CommandRegistry command : CommandRegistry.values()) {
+        for (CommandRegistry.CommandEntry command : commands) {
             //add the command itself
             str.append("/");
             str.append(command.name().toLowerCase());
 
             //if we have aliases, add them
-            String[] aliases = command.aliases;
+            String[] aliases = command.aliases();
             if (aliases.length > 0) {
                 str.append(", ");
                 str.append(String.join(", ", aliases));

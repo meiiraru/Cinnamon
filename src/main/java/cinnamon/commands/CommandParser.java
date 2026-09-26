@@ -27,11 +27,18 @@ public class CommandParser {
     static final Trie<Command> commandTrie = new Trie<>();
 
     static {
-        for (CommandRegistry command : CommandRegistry.values()) {
-            commandTrie.insert(command.name().toLowerCase(), command.command);
-            for (String alias : command.aliases)
-                commandTrie.insert(alias.toLowerCase(), command.command);
+        for (CommandRegistry.CommandEntry command : CommandRegistry.getRegisteredCommands()) {
+            addCommand(command.name(), command.command());
+            for (String alias : command.aliases())
+                addCommand(alias, command.command());
         }
+    }
+
+    private static void addCommand(String name, Command command) {
+        String nam = name.toLowerCase();
+        if (commandTrie.contains(nam))
+            LOGGER.warn("Duplicate command \"%s\" found! Overwriting with instance \"%s\"!", nam, command.getClass().getName());
+        commandTrie.insert(nam, command);
     }
 
     public static Text runCommand(Entity source, String input) {
