@@ -1,22 +1,32 @@
 package cinnamon.events;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Event<T> {
 
-    private final List<T> listeners = new ArrayList<>();
+    private final Map<String, T> listeners = new HashMap<>();
     private final InvokerFactory<T> factory;
     private T invoker;
 
     public Event(InvokerFactory<T> factory) {
         this.factory = factory;
-        this.invoker = factory.build(listeners);
+        this.invoker = factory.build(listeners.values());
     }
 
-    public void register(T listener) {
-        listeners.add(listener);
-        this.invoker = factory.build(listeners);
+    public void register(String id, T listener) {
+        if (listeners.containsKey(id))
+            Events.LOGGER.warn("Overwriting event listener with id: " + id);
+        listeners.put(id, listener);
+        this.invoker = factory.build(listeners.values());
+    }
+
+    public void removeEvent(String id) {
+        if (!listeners.containsKey(id))
+            return;
+        listeners.remove(id);
+        this.invoker = factory.build(listeners.values());
     }
 
     public T invoker() {
@@ -24,6 +34,6 @@ public class Event<T> {
     }
 
     public interface InvokerFactory<T> {
-        T build(List<T> listeners);
+        T build(Collection<T> listeners);
     }
 }

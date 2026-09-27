@@ -35,7 +35,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.function.Supplier;
 
-import static cinnamon.events.CoreEvents.*;
+import static cinnamon.events.Events.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;
