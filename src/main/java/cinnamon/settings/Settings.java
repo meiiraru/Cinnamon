@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -96,6 +97,7 @@ public class Settings {
     });
 
     //categories added in static loop
+    public static final Map<SoundCategory, Setting.Ranges> soundCategories = new HashMap<>(SoundCategory.values().length, 1f);
 
     // -- accessibility -- //
 
@@ -228,6 +230,7 @@ public class Settings {
                 }
             };
             setting.setListener(sound::setVolume);
+            soundCategories.put(sound, setting);
         }
     }
 
