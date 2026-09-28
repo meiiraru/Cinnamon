@@ -27,6 +27,7 @@ import org.joml.Math;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class CurvesScreen extends ParentedScreen {
     private boolean renderPointsText = true, renderLines = true;
     private int lastSelected = 3;
 
-    private boolean exported;
+    private Path exported;
     private Button openFolder;
 
     public CurvesScreen(Screen parentScreen) {
@@ -108,12 +109,11 @@ public class CurvesScreen extends ParentedScreen {
         //export button
         Button exportCurve = new Button(0, 0, 60, 12, Text.translated("gui.curves_screen.export"), button -> {
             try {
-                ObjExporter.export("curve", CurveToMesh.generateMesh(curve, true, false));
+                Path out = ObjExporter.export("curve", CurveToMesh.generateMesh(curve, true, false));
                 Toast.addToast(Text.translated("gui.curves_screen.export_success"));
-                if (!exported) {
-                    exported = true;
+                if (exported == null)
                     grid.insertWidgetAfter(openFolder, button);
-                }
+                exported = out;
             } catch (Exception e) {
                 LOGGER.error("Failed to export curve", e);
                 Toast.addToast(Text.of(e.getMessage())).type(Toast.ToastType.ERROR);
@@ -121,17 +121,17 @@ public class CurvesScreen extends ParentedScreen {
         });
         grid.addWidget(exportCurve);
 
-        //
+        //open folder button
         openFolder = new Button(0, 0, 60, 12, Text.translated("gui.curves_screen.open_export_folder"), button -> {
             try {
-                IOUtils.openInExplorer(ObjExporter.EXPORT_FOLDER.resolve("curve"));
+                IOUtils.openInExplorer(exported);
             } catch (Exception e) {
                 LOGGER.error("Failed to open folder", e);
                 Toast.addToast(Text.of(e.getMessage())).type(Toast.ToastType.ERROR);
             }
         });
 
-        if (exported)
+        if (exported != null)
             grid.addWidget(openFolder);
 
         //add grid to screen
