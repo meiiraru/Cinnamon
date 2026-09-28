@@ -3,112 +3,105 @@ package cinnamon.settings;
 import cinnamon.utils.Version;
 import org.joml.Math;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.function.Predicate;
+import java.util.List;
 
-public enum ArgsOptions {
+public class ArgsOptions {
+
+    //central registry for all options
+    private static final List<CliOption<?>> OPTIONS = new ArrayList<>();
+    public static String cliArgs = "";
+
+    /**
+     * Registers a generic command line option
+     */
+    public static <T> CliOption<T> register(CliOption<T> option) {
+        OPTIONS.add(option);
+        return option;
+    }
+
     //special case for help and version
-    HELP(null, "-h", "--help"),
-    VERSION(null, "-v", "--version"),
+    public static final CliOption<Boolean>
+            HELP    = register(CliOption.flagOption("HELP", "Displays this help message", "-h", "--help")),
+            VERSION = register(CliOption.flagOption("VERSION", "Displays the current version", "-v", "--version"));
 
     //general options
-    WORKING_DIR("./", "-d", "--working-dir"),
-    LOGGER_LEVEL("INFO", "-l", "--logger-level"),
-    LOGGER_PATTERN("%6$s[%1$tT] [%2$s/%3$s] (%4$s) %5$s%7$s", "--logger-pattern"),
+    public static final CliOption<String>
+            WORKING_DIR    = register(CliOption.stringOption("WORKING_DIR", "Sets the root working directory for the engine", "./", "-d", "--working-dir")),
+            LOGGER_LEVEL   = register(CliOption.stringOption("LOGGER_LEVEL", "Sets the default lowest logging level", "INFO", "-l", "--logger-level")),
+            LOGGER_PATTERN = register(CliOption.stringOption("LOGGER_PATTERN", "Defines the string pattern for the log messages", "%6$s[%1$tT] [%2$s/%3$s] (%4$s) %5$s%7$s", "--logger-pattern"));
 
     //graphics
-    FORCE_DISABLE_XR(null, "--force-disable-xr"),
-    FORCE_GLFW_PLATFORM("", "--force-glfw-platform"),
+    public static final CliOption<Boolean>
+            FORCE_DISABLE_XR = register(CliOption.flagOption("FORCE_DISABLE_XR", "Forces the engine to disable XR support", "--force-disable-xr"));
+    public static final CliOption<String>
+            FORCE_GLFW_PLATFORM = register(CliOption.stringOption("FORCE_GLFW_PLATFORM", "Force the engine to use a specific GLFW platform", "", "--force-glfw-platform"));
 
     //other
-    RENDER_DOC("", "--render-doc"),
-    WINDOW_TITLE_FPS(null, "--window-title-fps");
+    public static final CliOption<String>
+            RENDER_DOC = register(CliOption.stringOption("RENDER_DOC", "Path to a RenderDoc library to be injected during rendering", "", "--render-doc"));
+    public static final CliOption<Boolean>
+            WINDOW_TITLE_FPS = register(CliOption.flagOption("WINDOW_TITLE_FPS", "Set the current FPS to display in the window title", "--window-title-fps"));
 
-    private final String[] aliases;
-    private final int argCount;
-    private final Predicate<String> predicate;
-    private final Object defaultValue;
-    private Object value;
-
-    ArgsOptions(Object defaultValue, String... aliases) {
-        this(defaultValue, obj -> true, aliases);
-    }
-
-    ArgsOptions(Object defaultValue, Predicate<String> predicate, String... aliases) {
-        this.aliases = aliases;
-        this.argCount = defaultValue == null ? 0 : (defaultValue instanceof Object[] arr ? arr.length : 1);
-        this.predicate = predicate;
-        this.defaultValue = defaultValue;
-        this.value = defaultValue instanceof Object[] arr ? Arrays.copyOf(arr, arr.length) : defaultValue;
-    }
-
-    public boolean getAsBool() {
-        return Boolean.parseBoolean(String.valueOf(value));
-    }
-
-    public boolean getAsBool(int i) {
-        return Boolean.parseBoolean(String.valueOf(((Object[]) value)[i]));
-    }
-
-    public int getAsInt() {
-        return Integer.parseInt(String.valueOf(value));
-    }
-
-    public int getAsInt(int i) {
-        return Integer.parseInt(String.valueOf(((Object[]) value)[i]));
-    }
-
-    public float getAsFloat() {
-        return Float.parseFloat(String.valueOf(value));
-    }
-
-    public float getAsFloat(int i) {
-        return Float.parseFloat(String.valueOf(((Object[]) value)[i]));
-    }
-
-    public String getAsString() {
-        return String.valueOf(value);
-    }
-
-    public String getAsString(int i) {
-        return String.valueOf(((Object[]) value)[i]);
-    }
-
-    public static ArgsOptions forAlias(String alias) {
-        for (ArgsOptions option : ArgsOptions.values())
-            for (String optionAlias : option.aliases)
-                if (optionAlias.equals(alias))
+    /**
+     * Finds the {@link CliOption} corresponding to a given command line flag
+     * @param cliFlag The command line flag to search for
+     * @return The corresponding {@link CliOption} if found, otherwise null
+     */
+    public static CliOption<?> forCLIFlag(String cliFlag) {
+        for (CliOption<?> option : OPTIONS) {
+            for (String optionAlias : option.getCliFlags()) {
+                if (optionAlias.equals(cliFlag))
                     return option;
-
+            }
+        }
         return null;
+    }
+
+    private static void warn(String message) {
+        System.err.println("Warning: " + message);
     }
 
     private static void error(String message) {
         throw new IllegalArgumentException(message);
     }
 
+    /**
+     * Parses the provided command line arguments and sets the corresponding {@link CliOption} values<br>
+     * If an option is not provided, its default value will be used<br>
+     * If an unknown option is provided, a warning will be printed<br>
+     * If an option is provided but fails to parse, an error will be thrown<br>
+     * If an option is provided but missing required arguments, an error will be thrown<br>
+     * Built-in options like HELP and VERSION will be processed after parsing all arguments
+     * @param args The command line arguments to parse
+     */
     public static void parse(String... args) {
-        ArgsOptions currentOption = null;
+        cliArgs = String.join(" ", args);
+
+        CliOption<?> currentOption = null;
         int argsRemaining = 0;
 
+        String[] currentOptionArgs = null;
         for (String arg : args) {
+            //if we are currently collecting arguments for an option
             if (argsRemaining > 0) {
-                if (!currentOption.predicate.test(arg)) {
-                    error("Invalid argument for option " + currentOption.name() + ": " + arg);
-                } else {
-                    if (currentOption.argCount == 1) {
-                        currentOption.value = arg;
-                    } else {
-                        ((Object[]) currentOption.value)[currentOption.argCount - argsRemaining] = arg;
-                    }
-                }
-
+                currentOptionArgs[currentOption.getArgCount() - argsRemaining] = arg;
                 argsRemaining--;
-                if (argsRemaining == 0)
+
+                //once collected all required args, attempt to parse them
+                if (argsRemaining == 0) {
+                    try {
+                        currentOption.set(currentOptionArgs);
+                    } catch (Exception e) {
+                        error("Failed to parse arguments for option " + currentOption.getName() + ": " + e.getMessage());
+                    }
                     currentOption = null;
+                    currentOptionArgs = null;
+                }
             }
 
-            //check for arg
+            //check for new option flag
             else if (arg.startsWith("-")) {
                 String[] argsFound;
 
@@ -123,43 +116,81 @@ public enum ArgsOptions {
                         argsFound[i - 1] = "-" + arg.charAt(i);
                 }
 
-                //apply the found aliases
+                //apply the found args
                 boolean packed = argsFound.length > 1;
                 for (String alias : argsFound) {
-                    ArgsOptions option = forAlias(alias);
+                    CliOption<?> option = forCLIFlag(alias);
                     if (option == null) {
-                        error("Unknown command line option: " + alias);
-                    } else if (packed && option.argCount > 0) {
+                        warn("Unknown command line option: " + alias);
+                    } else if (packed && option.getArgCount() > 0) {
                         error("Option " + alias + " requires arguments and cannot be used in packed form");
-                    } else if (option.argCount == 0) {
-                        option.value = "true";
+                    } else if (option.getArgCount() == 0) {
+                        option.set(new String[0]); //option takes 0 arguments (like a boolean flag), parse immediately
                     } else {
+                        //option needs arguments, prep the tracker variables
                         currentOption = option;
-                        argsRemaining = option.argCount;
+                        argsRemaining = option.getArgCount();
+                        currentOptionArgs = new String[argsRemaining];
                     }
                 }
             }
 
             //could not find option
-            else error("Unexpected command line argument: " + arg);
+            else {
+                warn("Unexpected command line argument: " + arg);
+            }
         }
 
+        //if iteration ended but an option was still expecting arguments
         if (argsRemaining > 0)
-            error("Missing " + argsRemaining + " arguments for option " + currentOption.name());
+            error("Missing " + argsRemaining + " arguments for option " + currentOption.getName());
 
-        if (VERSION.getAsBool())
+        //process final built-in flags
+        if (VERSION.get())
             System.out.println("Cinnamon version " + Version.CLIENT_VERSION);
+        if (HELP.get())
+            printHelp();
+    }
 
-        if (HELP.getAsBool()) {
-            System.out.println("Command Line Options:");
-            for (ArgsOptions option : ArgsOptions.values()) {
-                String aliases = String.join(", ", option.aliases);
-                String def = option.defaultValue instanceof Object[] arr ? Arrays.toString(arr) : option.defaultValue == null ? "false" : String.valueOf(option.defaultValue);
-                String spacing1 = " ".repeat(Math.max(24 - option.name().length(), 1));
-                String spacing2 = " ".repeat(Math.max(24 - aliases.length(), 1));
-                if (def.isEmpty()) def = "\"\"";
-                System.out.println(option.name() + spacing1 + aliases + spacing2 + "Default " + def);
-            }
+    private static void printHelp() {
+        //title
+        System.out.println("Command Line Options:");
+
+        //calculate max widths for column alignment
+        int maxNameLen = 4;
+        int maxDescLen = 11;
+        int maxFlagsLen = 7;
+
+        for (CliOption<?> option : OPTIONS) {
+            maxNameLen = Math.max(maxNameLen, option.getName().length());
+            maxDescLen = Math.max(maxDescLen, option.getDescription().length());
+            String flags = String.join(", ", option.getCliFlags());
+            maxFlagsLen = Math.max(maxFlagsLen, flags.length());
+        }
+
+        //build the format string dynamically
+        //the negative sign (-) in %-##s means "left-justify"
+        String format = "  %-" + (maxNameLen + 2) + "s   %-" + (maxDescLen + 2) + "s   %-" + (maxFlagsLen + 2) + "s   %s%n";
+
+        //print the header
+        System.out.printf(format, "NAME", "DESCRIPTION", "CLI FLAGS", "DEFAULT");
+
+        //dividing line
+        int totalWidth = maxNameLen + maxDescLen + maxFlagsLen + 35;
+        System.out.println("-".repeat(Math.max(totalWidth, 75)));
+
+        //settings rows
+        for (CliOption<?> option : OPTIONS) {
+            String flags = String.join(", ", option.getCliFlags());
+            Object defaultValue = option.getDefaultValue();
+
+            //format default value
+            String def = defaultValue instanceof Object[] arr ? Arrays.toString(arr) : (defaultValue == null ? "false" : String.valueOf(defaultValue));
+            if (def.isEmpty())
+                def = "\"\"";
+
+            //print the setting
+            System.out.printf(format, option.getName(), option.getDescription(), flags, "[default: " + def + "]");
         }
     }
 }

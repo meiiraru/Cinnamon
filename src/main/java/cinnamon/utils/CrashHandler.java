@@ -5,6 +5,7 @@ import cinnamon.Client;
 import cinnamon.logger.Logger;
 import cinnamon.render.Camera;
 import cinnamon.render.WorldRenderer;
+import cinnamon.settings.ArgsOptions;
 import cinnamon.settings.Settings;
 import cinnamon.sound.SoundManager;
 import cinnamon.vr.XrManager;
@@ -91,6 +92,7 @@ public class CrashHandler {
 
                 writer.println("-- Cinnamon --");
                 writer.println("\tVersion: " + Version.CLIENT_VERSION);
+                writer.println("\tCLI Args: " + ArgsOptions.cliArgs);
 
                 Client client = Client.getInstance();
                 if (client.isInitialized()) {

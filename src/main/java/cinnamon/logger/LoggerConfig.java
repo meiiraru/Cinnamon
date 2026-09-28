@@ -21,9 +21,9 @@ public class LoggerConfig {
 
         //variables
         Level level;
-        String pattern = ArgsOptions.LOGGER_PATTERN.getAsString() + "\n";
+        String pattern = ArgsOptions.LOGGER_PATTERN.get() + "\n";
         try {
-            level = Level.valueOf(ArgsOptions.LOGGER_LEVEL.getAsString());
+            level = Level.valueOf(ArgsOptions.LOGGER_LEVEL.get());
         } catch (Exception ignored) {
             level = Level.INFO; //default level
         }

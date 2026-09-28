@@ -62,7 +62,7 @@ public class Cinnamon {
         LoggerConfig.initialize();
 
         //render doc
-        String doc = ArgsOptions.RENDER_DOC.getAsString();
+        String doc = ArgsOptions.RENDER_DOC.get();
         if (!doc.isBlank())
             System.load(doc);
     }
@@ -85,7 +85,7 @@ public class Cinnamon {
         GLFWErrorCallback.createPrint(System.err).set();
 
         //glfw platform
-        String glfwPlatform = ArgsOptions.FORCE_GLFW_PLATFORM.getAsString();
+        String glfwPlatform = ArgsOptions.FORCE_GLFW_PLATFORM.get();
         if (!glfwPlatform.isBlank()) {
             try {
                 glfwInitHint(GLFW_PLATFORM, GLFW.class.getField("GLFW_PLATFORM_" + glfwPlatform.toUpperCase()).getInt(null));
@@ -201,7 +201,7 @@ public class Cinnamon {
         double prevSecond = glfwGetTime();
         int fps = 0;
         double ms = 0d;
-        boolean showInWindow = ArgsOptions.WINDOW_TITLE_FPS.getAsBool();
+        boolean showInWindow = ArgsOptions.WINDOW_TITLE_FPS.get();
 
         //render loop
         while (!glfwWindowShouldClose(window)) {

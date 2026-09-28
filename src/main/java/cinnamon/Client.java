@@ -91,7 +91,7 @@ public class Client {
         this.windowResize(window.width, window.height);
 
         //init open xr
-        if (Cinnamon.ENABLE_XR && !ArgsOptions.FORCE_DISABLE_XR.getAsBool())
+        if (Cinnamon.ENABLE_XR && !ArgsOptions.FORCE_DISABLE_XR.get())
             XrManager.init();
 
         //register and run init events
