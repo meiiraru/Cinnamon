@@ -125,6 +125,14 @@ public class CliOption<T> {
     }
 
     /**
+     * Sets the value of this option directly
+     * @param value The value to set
+     */
+    public void set(T value) {
+        this.value = value;
+    }
+
+    /**
      * Sets the value of this option by parsing the provided arguments
      * @param args The arguments to parse into the option value
      */

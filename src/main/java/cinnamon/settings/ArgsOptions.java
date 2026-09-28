@@ -23,38 +23,51 @@ public class ArgsOptions {
 
     //special case for help and version
     public static final CliOption<Boolean>
-            HELP    = register(CliOption.flagOption("HELP", "Displays this help message", "-h", "--help")),
-            VERSION = register(CliOption.flagOption("VERSION", "Displays the current version", "-v", "--version"));
+            HELP    = register(CliOption.flagOption("help", "Displays this help message", "-h", "--help")),
+            VERSION = register(CliOption.flagOption("version", "Displays the current version", "-v", "--version"));
 
     //general options
     public static final CliOption<String>
-            WORKING_DIR    = register(CliOption.stringOption("WORKING_DIR", "Sets the root working directory for the engine", "./", "-d", "--working-dir")),
-            LOGGER_LEVEL   = register(CliOption.stringOption("LOGGER_LEVEL", "Sets the default lowest logging level", "INFO", "-l", "--logger-level")),
-            LOGGER_PATTERN = register(CliOption.stringOption("LOGGER_PATTERN", "Defines the string pattern for the log messages", "%6$s[%1$tT] [%2$s/%3$s] (%4$s) %5$s%7$s", "--logger-pattern"));
+            WORKING_DIR    = register(CliOption.stringOption("working_dir", "Sets the root working directory for the engine", "./", "-d", "--working-dir")),
+            LOGGER_LEVEL   = register(CliOption.stringOption("logger_level", "Sets the default lowest logging level", "INFO", "-l", "--logger-level")),
+            LOGGER_PATTERN = register(CliOption.stringOption("logger_pattern", "Defines the string pattern for the log messages", "%6$s[%1$tT] [%2$s/%3$s] (%4$s) %5$s%7$s", "--logger-pattern"));
 
     //graphics
     public static final CliOption<Boolean>
-            FORCE_DISABLE_XR = register(CliOption.flagOption("FORCE_DISABLE_XR", "Forces the engine to disable XR support", "--force-disable-xr"));
+            FORCE_DISABLE_XR = register(CliOption.flagOption("force_disable_xr", "Forces the engine to disable XR support", "--force-disable-xr"));
     public static final CliOption<String>
-            FORCE_GLFW_PLATFORM = register(CliOption.stringOption("FORCE_GLFW_PLATFORM", "Force the engine to use a specific GLFW platform", "", "--force-glfw-platform"));
+            FORCE_GLFW_PLATFORM = register(CliOption.stringOption("force_glfw_platform", "Force the engine to use a specific GLFW platform", "", "--force-glfw-platform"));
 
     //other
     public static final CliOption<String>
-            RENDER_DOC = register(CliOption.stringOption("RENDER_DOC", "Path to a RenderDoc library to be injected during rendering", "", "--render-doc"));
+            RENDER_DOC = register(CliOption.stringOption("render_doc", "Path to a RenderDoc library to be injected during rendering", "", "--render-doc"));
     public static final CliOption<Boolean>
-            WINDOW_TITLE_FPS = register(CliOption.flagOption("WINDOW_TITLE_FPS", "Set the current FPS to display in the window title", "--window-title-fps"));
+            WINDOW_TITLE_FPS = register(CliOption.flagOption("window_title_fps", "Set the current FPS to display in the window title", "--window-title-fps"));
 
     /**
      * Finds the {@link CliOption} corresponding to a given command line flag
      * @param cliFlag The command line flag to search for
      * @return The corresponding {@link CliOption} if found, otherwise null
      */
-    public static CliOption<?> forCLIFlag(String cliFlag) {
+    public static CliOption<?> getByCLIFlag(String cliFlag) {
         for (CliOption<?> option : OPTIONS) {
             for (String optionAlias : option.getCliFlags()) {
                 if (optionAlias.equals(cliFlag))
                     return option;
             }
+        }
+        return null;
+    }
+
+    /**
+     * Finds the {@link CliOption} corresponding to a given option name
+     * @param name The name of the option to search for
+     * @return The corresponding {@link CliOption} if found, otherwise null
+     */
+    public static CliOption<?> getByName(String name) {
+        for (CliOption<?> option : OPTIONS) {
+            if (option.getName().equals(name))
+                return option;
         }
         return null;
     }
@@ -119,7 +132,7 @@ public class ArgsOptions {
                 //apply the found args
                 boolean packed = argsFound.length > 1;
                 for (String alias : argsFound) {
-                    CliOption<?> option = forCLIFlag(alias);
+                    CliOption<?> option = getByCLIFlag(alias);
                     if (option == null) {
                         warn("Unknown command line option: " + alias);
                     } else if (packed && option.getArgCount() > 0) {
@@ -180,7 +193,7 @@ public class ArgsOptions {
         System.out.println("-".repeat(Math.max(totalWidth, 75)));
 
         //settings rows
-        for (CliOption<?> option : OPTIONS) {
+        for (CliOption<?> option : OPTIONS.stream().sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName())).toList()) {
             String flags = String.join(", ", option.getCliFlags());
             Object defaultValue = option.getDefaultValue();
 
@@ -190,7 +203,7 @@ public class ArgsOptions {
                 def = "\"\"";
 
             //print the setting
-            System.out.printf(format, option.getName(), option.getDescription(), flags, "[default: " + def + "]");
+            System.out.printf(format, option.getName(), option.getDescription(), flags, def);
         }
     }
 }
