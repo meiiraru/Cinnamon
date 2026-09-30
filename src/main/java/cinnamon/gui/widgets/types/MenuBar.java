@@ -16,15 +16,21 @@ import java.util.List;
 
 public class MenuBar extends ContainerGrid {
 
-    private final int barWidth, barHeight;
+    private final int barWidth, barHeight, buttonPadding, tabWidth;
     private PopupWidget currentMenu = null;
 
     protected final List<Button> tabs = new ArrayList<>();
 
     public MenuBar(int x, int y, int barWidth, int barHeight, int spacing) {
+        this(x, y, barWidth, barHeight, spacing, 4, 0);
+    }
+
+    public MenuBar(int x, int y, int barWidth, int barHeight, int spacing, int buttonPadding, int tabWidth) {
         super(x, y, spacing, 1);
         this.barWidth = barWidth;
         this.barHeight = barHeight;
+        this.buttonPadding = buttonPadding;
+        this.tabWidth = tabWidth;
         setAlignment(Alignment.CENTER_LEFT);
         setBackground(true);
         addSpacing(true);
@@ -49,7 +55,8 @@ public class MenuBar extends ContainerGrid {
     }
 
     public MenuBar addTab(Text text, PopupWidget menu) {
-        Button tab = new MenuButton(TextUtils.getWidth(text) + 4, getBarHeight(), text, menu, this);
+        int width = tabWidth > 0 ? tabWidth : TextUtils.getWidth(text) + buttonPadding;
+        Button tab = new MenuButton(width, getBarHeight(), text, menu, this);
         tab.setSilent(true);
         tab.setRenderBackground(false);
 
@@ -91,6 +98,13 @@ public class MenuBar extends ContainerGrid {
         return barHeight;
     }
 
+    public int getButtonPadding() {
+        return buttonPadding;
+    }
+
+    public int getTabWidth() {
+        return tabWidth;
+    }
 
     // -- children objects -- //
 

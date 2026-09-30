@@ -67,7 +67,6 @@ public class ContextMenu extends PopupWidget {
     protected void reset() {
         super.reset();
         this.selected = -1;
-        list.scrollToTop();
     }
 
     public ContextMenu addAction(Text name, Text tooltip, Consumer<Button> action) {
@@ -118,6 +117,10 @@ public class ContextMenu extends PopupWidget {
         return widgets.get(i);
     }
 
+    public List<Widget> getActions() {
+        return widgets;
+    }
+
     public void scrollToAction(int i) {
         if (i >= 0 && i < widgets.size())
             list.scrollToWidget(widgets.get(i));
@@ -149,9 +152,12 @@ public class ContextMenu extends PopupWidget {
         list.setWidth(w);
         setWidth(w);
 
-        //apply new width to all widgets, without the scroll
-        for (Widget widget : widgets)
+        //apply new width to all widgets
+        for (Widget widget : list.getWidgets())
             widget.setWidth(w - scroll);
+
+        //force an update on the list to recalculate the widgets positions
+        list.forceUpdate();
     }
 
     @Override
@@ -172,9 +178,13 @@ public class ContextMenu extends PopupWidget {
         matrices.popMatrix();
 
         List<Widget> widgetList = this.widgets;
+        int x = getX(), y = getY();
+        int w = getWidth() - (list.shouldRenderScrollbar() ? list.getScrollbarWidth() + list.getScrollPadding() : 0);
         for (int i = 0; i < widgetList.size(); i++) {
             Widget widget = widgetList.get(i);
-            ContextMenu.renderBackground(matrices, widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), i, background);
+            int y2 = widget.getY() + widget.getHeight();
+            ContextMenu.renderBackground(matrices, x, y, w, y2 - y, i, background);
+            y = y2;
         }
     }
 

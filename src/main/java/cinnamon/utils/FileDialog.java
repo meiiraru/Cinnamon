@@ -222,9 +222,11 @@ public class FileDialog {
 
     public static class Filter {
         public static final Filter
+                MOON_FILES = new Filter("Moon files", "moon"),
                 TEXT_FILES = new Filter("Text files", "txt"),
                 IMAGE_FILES = new Filter("Image files", "png,jpg,jpeg,bmp,gif,hdr"),
-                AUDIO_FILES = new Filter("Audio files", "ogg");
+                AUDIO_FILES = new Filter("Audio files", "ogg,wav"),
+                MODEL_FILES = new Filter("Model files", "obj,bbmodel,fbx,gltf,glb,ply,stl");
 
         private final String description, fileTypes;
 

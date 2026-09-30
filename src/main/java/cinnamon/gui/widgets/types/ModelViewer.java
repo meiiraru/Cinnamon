@@ -26,6 +26,7 @@ import cinnamon.settings.Settings;
 import cinnamon.vr.XrManager;
 import cinnamon.world.sky.CubemapSky;
 import org.joml.Math;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.List;
@@ -106,17 +107,12 @@ public class ModelViewer extends SelectableWidget implements Tickable {
             if (InputManager.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) impulseY -= 1f;
 
             //update flycam position
-            Vector3f up      = camera.getUp();
             Vector3f forward = camera.getForwards();
             Vector3f left    = camera.getLeft();
 
             flyCamX += (forward.x * impulseZ + left.x * impulseX) * flyCamSpeed;
-            flyCamY += (forward.y * impulseZ + left.y * impulseX) * flyCamSpeed;
+            flyCamY += (forward.y * impulseZ + left.y * impulseX + impulseY) * flyCamSpeed;
             flyCamZ += (forward.z * impulseZ + left.z * impulseX) * flyCamSpeed;
-
-            flyCamX += up.x * impulseY * flyCamSpeed;
-            flyCamY += up.y * impulseY * flyCamSpeed;
-            flyCamZ += up.z * impulseY * flyCamSpeed;
 
             //update flycam roll rotation
             flyCamLastRoll = flyCamRoll;
@@ -172,7 +168,11 @@ public class ModelViewer extends SelectableWidget implements Tickable {
                         Math.lerp(flyCamLastY, flyCamY, delta),
                         Math.lerp(flyCamLastZ, flyCamZ, delta)
                 );
-                camera.setRot(flyCamPitch, flyCamYaw, Math.lerp(flyCamLastRoll, flyCamRoll, delta));
+                Quaternionf quat = new Quaternionf();
+                quat.rotateY(Math.toRadians(-flyCamYaw));
+                quat.rotateX(Math.toRadians(-flyCamPitch));
+                quat.rotateZ(Math.toRadians(Math.lerp(flyCamLastRoll, flyCamRoll, delta)));
+                camera.setRot(quat);
             } else {
                 camera.setPos(0, 0, 0);
                 camera.setRot(-pitch, -yaw, 0f);
