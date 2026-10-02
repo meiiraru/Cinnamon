@@ -161,7 +161,7 @@ public class Cinnamon {
         glfwSetDropCallback(window, (win, count, names) -> {
             String[] nameArray = new String[count];
             for (int i = 0; i < count; i++)
-                nameArray[i] = GLFWDropCallback.getName(names, i);
+                nameArray[i] = GLFWDropCallback.getName(names, i).replaceAll("\\\\", "/");
             client.filesDropped(nameArray);
         });
         glfwSetJoystickCallback(JoystickManager::joystickConnectEvent);

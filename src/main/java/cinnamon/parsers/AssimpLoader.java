@@ -317,7 +317,7 @@ public class AssimpLoader {
             return null;
         }
 
-        String path = aipath.dataString();
+        String path = aipath.dataString().replaceAll("\\\\", "/");
         Resource texture;
         AITexture embedded = aiGetEmbeddedTexture(scene, path);
 

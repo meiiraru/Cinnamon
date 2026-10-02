@@ -34,12 +34,19 @@ public class ModelManager {
         if (resource == null)
             return null;
 
+        //find from cache
         Mesh mesh = getCachedMesh(resource);
         if (mesh != null)
             return mesh;
 
-        //cache and return
-        return cacheMesh(resource, loadMesh(resource));
+        //otherwise load and cache
+        Mesh newMesh = loadMesh(resource);
+
+        //optimize mesh by removing duplicate vertices
+        if (newMesh != null)
+            MeshHelper.stripDuplicateVertices(newMesh);
+
+        return cacheMesh(resource, newMesh);
     }
 
     public static boolean hasRenderer(Resource resource) {

@@ -74,7 +74,7 @@ public class ModelViewerScreen extends ParentedScreen {
                 .addAction(Text.translated("gui.open"), null, _ -> {
                     String file = FileDialog.openFile(FileDialog.Filter.MODEL_FILES);
                     if (file != null)
-                        setModel(new Resource("", file.replaceAll("\\\\", "/")), file);
+                        setModel(new Resource("", file), file);
                 })
                 .addSubMenu(Text.translated("gui.model_viewer_screen.open_vanilla"), modelList)
                 .addDivider()
@@ -83,7 +83,11 @@ public class ModelViewerScreen extends ParentedScreen {
                     String folder = FileDialog.openFolder();
                     if (folder != null && modelViewer.getModel() instanceof MeshRenderer mesh) {
                         try {
-                            Path p = ObjExporter.export("mesh", mesh.getMesh(), client.matrices, Path.of(folder));
+                            String name = IOUtils.getFilenameWithoutExtension(modelName);
+                            if (name.isBlank())
+                                name = "model";
+
+                            Path p = ObjExporter.export(name, mesh.getMesh(), client.matrices, Path.of(folder));
                             IOUtils.openInExplorer(p);
                             Toast.addToast(Text.translated("gui.model_viewer_screen.export_success")).type(Toast.ToastType.SUCCESS);
                         } catch (Exception e) {
@@ -353,8 +357,6 @@ public class ModelViewerScreen extends ParentedScreen {
     public boolean filesDropped(String[] files) {
         if (files.length == 0)
             return false;
-
-        String file = files[0].replaceAll("\\\\", "/");
-        return setModel(new Resource("", file), file);
+        return setModel(new Resource("", files[0]), files[0]);
     }
 }

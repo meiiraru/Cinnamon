@@ -187,7 +187,7 @@ public class FileDialog {
     private static String parseSingleResult(int result, PointerBuffer outPath) {
         return switch (result) {
             case NFD_OKAY -> {
-                String path = outPath.getStringUTF8(0);
+                String path = outPath.getStringUTF8(0).replaceAll("\\\\", "/");
                 NFD_FreePath(outPath.get(0));
                 yield path;
             }
@@ -206,7 +206,7 @@ public class FileDialog {
                 NFD_PathSet_GetEnum(pathSet, psEnum);
 
                 while (NFD_PathSet_EnumNext(psEnum, outPath) == NFD_OKAY && outPath.get(0) != 0) {
-                    paths.add(outPath.getStringUTF8(0));
+                    paths.add(outPath.getStringUTF8(0).replaceAll("\\\\", "/"));
                     NFD_PathSet_FreePath(outPath.get(0));
                 }
 

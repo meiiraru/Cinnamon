@@ -1,6 +1,5 @@
 package cinnamon.parsers;
 
-import cinnamon.Client;
 import cinnamon.model.material.Material;
 import cinnamon.model.material.MaterialTexture;
 import cinnamon.model.mesh.Face;
@@ -30,7 +29,7 @@ public class ObjExporter {
     private static final DecimalFormat df = new DecimalFormat("#.######", DecimalFormatSymbols.getInstance(Locale.US));
 
     public static Path export(String meshName, Mesh mesh) throws IOException {
-        return export(meshName, mesh, Client.getInstance().matrices, EXPORT_FOLDER);
+        return export(meshName, mesh, null, EXPORT_FOLDER);
     }
 
     public static Path export(String meshName, Mesh mesh, MatrixStack matrices, Path exportTarget) throws IOException {
@@ -40,6 +39,9 @@ public class ObjExporter {
         StringBuilder
                 string = new StringBuilder(),
                 mtlString = new StringBuilder();
+
+        //header
+        string.append("# Cinnamon model exporter\n\n");
 
         //materials
         boolean hasMaterials = !mesh.getMaterials().isEmpty();
@@ -55,8 +57,9 @@ public class ObjExporter {
             }
         }
 
-        Matrix4f poseMat = matrices.peek().pos();
-        Matrix3f normalMat = matrices.peek().normal();
+        //grab matrices
+        Matrix4f poseMat = matrices == null ? new Matrix4f() : matrices.peek().pos();
+        Matrix3f normalMat = matrices == null ? new Matrix3f() : matrices.peek().normal();
 
         //write vertices
         for (Vector3f vertex : mesh.getVertices()) {
@@ -157,19 +160,27 @@ public class ObjExporter {
         if (texture == null)
             return;
 
-        String textureName = texture.texture().getPath();
+        String texturePath = texture.texture().getPath();
         String namespace = texture.texture().getNamespace();
-        if (namespace.isEmpty() || namespace.startsWith("assimp/")) {
-            textureName = textureName.replaceAll("\\\\", "/");
-            textureName = textureName.substring(textureName.lastIndexOf('/') + 1);
-        }
+        if (namespace.isEmpty() || namespace.startsWith("assimp/"))
+            texturePath = IOUtils.getFilename(texturePath);
+
+        //fix texture name if it is invalid
+        String textureName = IOUtils.getFilename(texturePath);
+        texturePath = IOUtils.getParent(texturePath);
+
+        if (!IOUtils.isValidFilename(textureName))
+            textureName = "texture.png";
 
         //write texture file
+        texturePath = IOUtils.resolve(texturePath, textureName);
+        Path file = IOUtils.parseNonDuplicatePath(path.resolve(texturePath));
+
         if (namespace.startsWith("generated/") || namespace.startsWith("assimp/"))
-            TextureIO.saveTexture(Texture.of(texture.texture(), texture.params()), path.resolve(textureName));
+            TextureIO.saveTexture(Texture.of(texture.texture(), texture.params()), file);
         else {
             InputStream input = IOUtils.getResource(texture.texture());
-            IOUtils.writeFile(path.resolve(textureName), input.readAllBytes());
+            IOUtils.writeFile(file, input.readAllBytes());
             input.close();
         }
 
@@ -182,7 +193,7 @@ public class ObjExporter {
             string.append("-").append(param.aliases[0]).append(" ");
 
         string
-                .append(textureName)
+                .append(texturePath)
                 .append("\n");
     }
 
