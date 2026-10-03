@@ -505,6 +505,11 @@ public class Font {
             //different font
             Font font = style.getGuiSkin().getFont();
             if (font != this) {
+                if (prevItalic[0]) {
+                    x[0] += lastItalicOffset[0];
+                    prevItalic[0] = false;
+                }
+
                 x[0] += font.width(Text.of(s).withStyle(style));
                 return;
             }
@@ -514,7 +519,7 @@ public class Font {
             int italicOffset = style.getItalicOffset();
 
             if (prevItalic[0] && !italic)
-                x[0] += italicOffset;
+                x[0] += lastItalicOffset[0];
 
             prevItalic[0] = italic;
             lastItalicOffset[0] = italicOffset;

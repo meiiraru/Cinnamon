@@ -64,8 +64,10 @@ public class Checkbox extends Button {
 
     @Override
     protected void updateDimensions() {
+        Text message = getFormattedMessage();
+
         this.setDimensions(
-                Math.max(getButtonWidth(), getButtonWidth() + (message != null ? textSpacing + TextUtils.getWidth(message) : 0)),
+                getButtonWidth() + (message != null ? getTextSpacing() + TextUtils.getWidth(message) : 0),
                 Math.max(getButtonHeight(), message != null ? TextUtils.getHeight(message) : 0)
         );
 

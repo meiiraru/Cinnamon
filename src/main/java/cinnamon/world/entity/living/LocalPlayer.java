@@ -122,7 +122,7 @@ public class LocalPlayer extends Player {
         if (lastMouseTime > 0)
             return false;
 
-        if (super.useAction()) {
+        if (!pressingSneak && super.useAction()) {
             lastMouseTime = getInteractionDelay();
             return true;
         }
@@ -144,7 +144,7 @@ public class LocalPlayer extends Player {
 
             Terrain tt = TerrainRegistry.values()[selectedTerrain].getFactory().get();
             tt.setMaterial(MaterialRegistry.values()[selectedMaterial].material);
-            tt.setRotation(Rotation.Y.rotationDeg(-Direction.fromRotation(Maths.getYaw(getTransform().getRot())).yaw));
+            tt.setRotation(Rotation.Y.rotationDeg(180 - Direction.fromRotation(Maths.getYaw(getTransform().getRot())).yaw));
             tt.setPos(tpos.x, tpos.y, tpos.z);
             getWorld().addTerrain(tt);
 

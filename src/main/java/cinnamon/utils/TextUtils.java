@@ -11,12 +11,23 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TextUtils {
+/**
+ * Utility class for manipulation and formatting of {@link Text} objects
+ */
+public final class TextUtils {
 
     private static final Text
             ELLIPSIS = Text.of("..."),
             NEW_LINE = Text.of("\n");
 
+    private TextUtils() {}
+
+    /**
+     * Splits a {@link Text} object into a list of {@link Text} objects based on the provided {@code regex}
+     * @param text The {@link Text} object to split
+     * @param regex The {@code regex} to split the text by
+     * @return A list of {@link Text} objects resulting from the split operation
+     */
     public static List<Text> split(Text text, String regex) {
         List<Text> list = new ArrayList<>();
         Text[] currentText = {Text.empty()};
@@ -38,6 +49,11 @@ public class TextUtils {
         return list;
     }
 
+    /**
+     * Reverses the order of characters in a {@link Text} object
+     * @param text The {@link Text} object to reverse
+     * @return A new {@link Text} object with the characters in reverse order
+     */
     public static Text reverse(Text text) {
         Text[] builder = {Text.empty()};
         text.visit((string, style) -> {
@@ -47,6 +63,13 @@ public class TextUtils {
         return builder[0];
     }
 
+    /**
+     * Returns a substring of the given {@link Text} object, starting from {@code beginIndex} (inclusive) and ending at {@code endIndex} (exclusive)
+     * @param text The {@link Text} object to extract the substring from
+     * @param beginIndex The starting index (inclusive) of the substring
+     * @param endIndex The ending index (exclusive) of the substring
+     * @return A new {@link Text} object representing the substring of the original text
+     */
     public static Text substring(Text text, int beginIndex, int endIndex) {
         StringBuilder counter = new StringBuilder();
         Text builder = Text.empty();
@@ -66,6 +89,11 @@ public class TextUtils {
         return builder;
     }
 
+    /**
+     * Trims leading and trailing whitespace from the given {@link Text} object
+     * @param text The {@link Text} object to trim
+     * @return A new {@link Text} object with leading and trailing whitespace removed
+     */
     public static Text trim(Text text) {
         String string = text.asString();
         int start = 0;
@@ -81,18 +109,30 @@ public class TextUtils {
         return substring(text, start, end);
     }
 
+    /**
+     * Adds an ellipsis {@code "..."} to the end of the given {@link Text} object if its width exceeds the specified {@code width}
+     * @param text The {@link Text} object to potentially add an ellipsis to
+     * @param width The maximum width allowed for the text before adding an ellipsis
+     * @return A new {@link Text} object with an ellipsis added if the original text exceeds the specified width, otherwise returns the original text
+     */
     public static Text addEllipsis(Text text, float width) {
         if (getWidth(text) <= width)
             return text;
 
-        int ellipsisWidth = getWidth(ELLIPSIS);
+        Text ellipsis = Text.empty().withStyle(text.getStyle()).append(ELLIPSIS);
+        int ellipsisWidth = getWidth(ellipsis);
 
         Text clamped = clampToWidth(text, width - ellipsisWidth);
-        clamped.append(ELLIPSIS);
+        clamped.append(ellipsis);
 
         return clamped;
     }
 
+    /**
+     * Parses {@link Formatting} codes in the given {@link Text} object and applies the corresponding styles to the text segments
+     * @param text The {@link Text} object containing formatting codes to parse
+     * @return A new {@link Text} object with the formatting codes applied as styles to the text segments
+     */
     public static Text parseColorFormatting(Text text) {
         Text result = Text.empty();
 
@@ -157,6 +197,13 @@ public class TextUtils {
         return result;
     }
 
+    /**
+     * Replaces all occurrences of the specified {@code regex} in the given {@link Text} object with the provided {@code replacement} string
+     * @param text The {@link Text} object in which to perform the replacement
+     * @param regex The regular expression to match occurrences for replacement
+     * @param replacement The string to replace each matched occurrence with
+     * @return A new {@link Text} object with all occurrences of the specified regex replaced by the replacement string
+     */
     public static Text replaceAll(Text text, String regex, String replacement) {
         Text result = Text.empty();
         Pattern pattern = Pattern.compile(regex);
@@ -175,10 +222,26 @@ public class TextUtils {
         return result;
     }
 
+    /**
+     * Clamps the given {@link Text} object to fit within the specified {@code width}, truncating any text that exceeds the width
+     * @param text The {@link Text} object to clamp
+     * @param width The maximum width allowed for the text
+     * @return A new {@link Text} object that fits within the specified width, with any excess text truncated
+     * @see #clampToWidth(Text, float, boolean)
+     */
     public static Text clampToWidth(Text text, float width) {
         return clampToWidth(text, width, false);
     }
 
+    /**
+     * Clamps the given {@link Text} object to fit within the specified {@code width}, truncating any text that exceeds the width<br>
+     * If {@code roundToClosest} is true, the method will include the last character that exceeds the width if it is closer to the width than the previous character
+     * @param text The {@link Text} object to clamp
+     * @param width The maximum width allowed for the text
+     * @param roundToClosest Whether to include the last character that exceeds the width if it is closer to the width than the previous character
+     * @return A new {@link Text} object that fits within the specified width, with any excess text truncated
+     * @see #clampToWidth(Text, float)
+     */
     public static Text clampToWidth(Text text, float width, boolean roundToClosest) {
         //prepare vars
         Text builder = Text.empty();
@@ -237,6 +300,13 @@ public class TextUtils {
         return builder;
     }
 
+    /**
+     * Wraps the given {@link Text} object into multiple lines based on the specified {@code width}, ensuring that each line does not exceed the width<br>
+     * The method will split the text at spaces and, if necessary, break words that exceed the width into multiple lines
+     * @param text The {@link Text} object to wrap into multiple lines
+     * @param width The maximum width allowed for each line of text
+     * @return A list of {@link Text} objects, each representing a line of text that fits within the specified width
+     */
     public static List<Text> warpToWidth(Text text, float width) {
         List<Text> list = new ArrayList<>();
         Text toVisit = Text.empty().append(text).append(" ");
@@ -319,10 +389,23 @@ public class TextUtils {
         return list;
     }
 
+    /**
+     * Joins a list of {@link Text} objects into a single {@link Text} object, separating each element with a newline character
+     * @param texts The list of {@link Text} objects to join
+     * @return A new {@link Text} object containing the joined text elements, separated by newline characters
+     * @see #join(List, Text)
+     */
     public static Text join(List<Text> texts) {
         return join(texts, NEW_LINE);
     }
 
+    /**
+     * Joins a list of {@link Text} objects into a single {@link Text} object, separating each element with the specified {@code separator}
+     * @param texts The list of {@link Text} objects to join
+     * @param separator The {@link Text} object to use as a separator between each element in the joined text
+     * @return A new {@link Text} object containing the joined text elements, separated by the specified separator
+     * @see #join(List)
+     */
     public static Text join(List<Text> texts, Text separator) {
         if (texts.isEmpty())
             return Text.empty();
@@ -337,6 +420,11 @@ public class TextUtils {
         return result;
     }
 
+    /**
+     * Splits a {@link Text} object into a list of individual characters, preserving the styles of each character
+     * @param text The {@link Text} object to split into characters
+     * @return A list of {@link Text} objects, each representing a single character from the original text
+     */
     public static List<Text> splitToChars(Text text) {
         List<Text> list = new ArrayList<>();
         text.visit((string, style) -> {
@@ -350,6 +438,15 @@ public class TextUtils {
         return list;
     }
 
+    /**
+     * Returns the {@link Style} of the character at the specified local coordinates ({@code localX}, {@code localY}) within the given {@link Text} object,
+     * taking into account the specified {@link Alignment}
+     * @param text The {@link Text} object to check for the character style
+     * @param localX The local X coordinate within the text area
+     * @param localY The local Y coordinate within the text area
+     * @param alignment The {@link Alignment} to consider when determining the character style
+     * @return The {@link Style} of the character at the specified coordinates, or {@code null} if the coordinates are outside the bounds of the text
+     */
     public static Style getStyleAt(Text text, int localX, int localY, Alignment alignment) {
         Font f = text.getStyle().getGuiSkin().getFont();
         int lineHeight = (int) (f.lineHeight + f.lineGap);
@@ -373,32 +470,63 @@ public class TextUtils {
         return null;
     }
 
+    /**
+     * Calculates the width of the given {@link Text} object, taking into account line breaks and the maximum width of each line
+     * @param text The {@link Text} object for which to calculate the width
+     * @return The width of the text in pixels, based on the maximum width of its lines
+     * @see #getWidth(List)
+     */
     public static int getWidth(Text text) {
         List<Text> split = split(text, "\n");
         return getWidth(split);
     }
 
+    /**
+     * Calculates the maximum width of a list of {@link Text} objects, taking into account the width of each individual text element
+     * @param texts The list of {@link Text} objects for which to calculate the maximum width
+     * @return The maximum width of the text elements in pixels
+     * @see #getWidth(Text)
+     */
     public static int getWidth(List<Text> texts) {
         float width = 0f;
-        Font f = texts.getFirst().getStyle().getGuiSkin().getFont();
         for (Text t : texts)
-            width = Math.max(width, f.width(t));
+            width = Math.max(width, t.getStyle().getGuiSkin().getFont().width(t));
 
         return (int) width;
     }
 
+    /**
+     * Calculates the total height of the given {@link Text} object, taking into account the line height and line gap of the text font
+     * @param text The {@link Text} object for which to calculate the height
+     * @return The total height of the text in pixels, based on the number of lines and the line height and line gap of the font
+     * @see #getHeight(List)
+     */
     public static int getHeight(Text text) {
         String[] split = text.asString().split("\n", -1);
         Font f = text.getStyle().getGuiSkin().getFont();
-        return getHeight(f, split.length);
-    }
-
-    public static int getHeight(List<Text> texts) {
-        Font f = texts.getFirst().getStyle().getGuiSkin().getFont();
-        return getHeight(f, texts.size());
-    }
-
-    private static int getHeight(Font f, int lines) {
+        int lines = split.length;
         return (int) (f.lineHeight * lines + f.lineGap * (lines - 1));
+    }
+
+    /**
+     * Calculates the total height of a list of {@link Text} objects, taking into account the line height and line gap of the text font
+     * @param texts The list of {@link Text} objects for which to calculate the total height
+     * @return The total height of the text elements in pixels, based on the sum of their line heights and line gaps
+     * @see #getHeight(Text)
+     */
+    public static int getHeight(List<Text> texts) {
+        float height = 0f;
+        Font f = null;
+
+        for (Text text : texts) {
+            f = text.getStyle().getGuiSkin().getFont();
+            height += f.lineHeight + f.lineGap;
+        }
+
+        //remove the last line gap
+        if (f != null)
+            height -= f.lineGap;
+
+        return (int) height;
     }
 }
