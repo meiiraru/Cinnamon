@@ -11,6 +11,7 @@ import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.text.Text;
+import cinnamon.world.WorldRules;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.world.WorldClient;
 
@@ -33,7 +34,7 @@ public class Terminal extends Terrain  {
     public void tick() {
         super.tick();
 
-        if (isActive() && isCommandValid(getCommandString()))
+        if (isActive() && (boolean) getWorld().getRules().get(WorldRules.Rule.ENABLE_TERMINAL) && isCommandValid(getCommandString()))
             processCommand();
     }
 

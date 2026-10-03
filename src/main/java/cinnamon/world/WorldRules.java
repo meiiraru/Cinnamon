@@ -21,7 +21,9 @@ public class WorldRules {
     }
 
     public enum Rule {
-        DAY_CYCLE(Type.BOOL, true);
+        DAY_CYCLE(Type.BOOL, true),
+        ENABLE_TERMINAL(Type.BOOL, true),
+        TERRAIN_EXPLOSION(Type.BOOL, true);
 
         public final Type type;
         public final Object initialState;
