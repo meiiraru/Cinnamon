@@ -313,6 +313,11 @@ public class PlaygroundWorld extends WorldClient {
         treeGround.setMaterial(MaterialRegistry.GRASS2.material);
         treeGround.setPos(25, 0, -35);
         addTerrain(treeGround);
+
+        //terminal
+        Terrain terminal = new Terminal();
+        terminal.setPos(-19, 1, -24);
+        addTerrain(terminal);
     }
 
     @Override

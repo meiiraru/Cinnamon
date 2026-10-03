@@ -15,6 +15,7 @@ public enum TerrainRegistry {
     GLASS(Glass::new),
     BARRIER(Barrier::new),
     GLTF(TerrainModelRegistry.GLTF_TEST.resource),
+    TERMINAL(Terminal::new),
     CUSTOM((Resource) null);
 
     private final Supplier<Terrain> factory;

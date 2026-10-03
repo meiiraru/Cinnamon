@@ -10,6 +10,7 @@ public enum TerrainModelRegistry {
     TEAPOT("models/terrain/teapot/teapot.obj"),
     ROSE("models/terrain/rose/rose.obj"),
     GLASS("models/terrain/glass/glass.obj"),
+    TERMINAL("models/terrain/terminal/terminal.obj"),
 
     CONVEYOR_BELT("models/terrain/conveyor_belt/model.obj"),
     BUTTON("models/terrain/button/button.obj"),

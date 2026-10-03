@@ -1,0 +1,10 @@
+{
+  "parent": "data/gui_skins/minimal_dark.json",
+  "font": {
+    "path": "fonts/monodream.ttf"
+  },
+  "colors": {
+    "accent_color": "FF8BEB60",
+    "text_color": "FF8BEB60"
+  }
+}

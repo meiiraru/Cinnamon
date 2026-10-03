@@ -79,6 +79,14 @@
 
   "gui.chat.type_message": "Digite uma mensagem...",
 
+  "gui.terminal": "Terminal",
+  "gui.terminal.command": "Comando:",
+  "gui.terminal.type_command": "Digite um comando aqui...",
+  "gui.terminal.enable_terminal": "Habilitar Terminal",
+  "gui.terminal.chat_output": "Resultado no Chat",
+  "gui.terminal.clear_output": "Limpar Resultado",
+  "gui.terminal.last_output": "Último Resultado:",
+
   "gui.text_field.cut": "Recortar",
   "gui.text_field.copy": "Copiar",
   "gui.text_field.paste": "Colar",

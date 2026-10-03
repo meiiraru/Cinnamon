@@ -1,0 +1,6 @@
+# Made in Blockbench 5.2.1
+newmtl terminal_on
+map_Kd -smooth_mip terminal_on.png
+map_Ke -mip terminal_on_e.png
+newmtl terminal_off
+map_Kd -smooth_mip terminal_off.png
