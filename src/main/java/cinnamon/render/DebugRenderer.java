@@ -43,6 +43,12 @@ public class DebugRenderer {
         matrices.popMatrix();
     }
 
+    public static void renderUVSphere(MatrixStack matrices, Sphere sphere, int color) {
+        Vector3f pos = sphere.getCenter();
+        float radius = sphere.getRadius() + 0.01f;
+        VertexConsumer.LINES.consume(GeometryHelper.sphere(matrices, pos.x, pos.y, pos.z, radius, 24, color));
+    }
+
     public static void renderAABB(MatrixStack matrices, AABB aabb, int color) {
         VertexConsumer.LINES.consume(GeometryHelper.box(matrices, aabb.minX(), aabb.minY(), aabb.minZ(), aabb.maxX(), aabb.maxY(), aabb.maxZ(), color));
     }

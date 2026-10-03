@@ -257,9 +257,17 @@ public class Player extends LivingEntity {
         AABB bb = new AABB(pos.x - w, pos.y, pos.z - w, pos.x + w, pos.y + h, pos.z + w);
 
         //check if there is terrain in the bounds
-        boolean hasTerrain = !getWorld().getTerrains(bb).isEmpty();
-        checkSneak = hasTerrain;
+        boolean hasTerrain = false;
+        for (Terrain terrain : getWorld().getTerrains(bb)) {
+            for (Collider<?> collider : terrain.getPreciseCollider()) {
+                if (collider.intersects(bb)) {
+                    hasTerrain = true;
+                    break;
+                }
+            }
+        }
 
+        checkSneak = hasTerrain;
         return hasTerrain;
     }
 }

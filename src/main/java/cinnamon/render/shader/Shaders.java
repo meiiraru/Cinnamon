@@ -67,5 +67,6 @@ public enum Shaders {
     public static void loadAll() {
         for (Shaders shader : values())
             shader.loadShader();
+        Shaders.MAIN.getShader().use();
     }
 }

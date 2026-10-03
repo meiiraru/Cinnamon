@@ -32,11 +32,6 @@ public class ObjLoader {
             Group currentGroup = new Group("default");
             Material currentMaterial = null;
 
-            Vector3f bbMin = new Vector3f(Float.MAX_VALUE);
-            Vector3f bbMax = new Vector3f(-Float.MAX_VALUE);
-            Vector3f groupMin = new Vector3f(Float.MAX_VALUE);
-            Vector3f groupMax = new Vector3f(-Float.MAX_VALUE);
-
             for (String line; (line = br.readLine()) != null; ) {
                 //skip comments and empty lines
                 line = line.trim();
@@ -62,7 +57,7 @@ public class ObjLoader {
                     //group
                     case "g", "o" -> {
                         //add current group
-                        addGroupToMesh(currentGroup, currentMaterial, theMesh, groupMin, groupMax);
+                        addGroupToMesh(currentGroup, currentMaterial, theMesh);
 
                         //create new group
                         currentGroup = new Group(data);
@@ -71,7 +66,7 @@ public class ObjLoader {
                     //group material
                     case "usemtl" -> {
                         //add current group
-                        addGroupToMesh(currentGroup, currentMaterial, theMesh, groupMin, groupMax);
+                        addGroupToMesh(currentGroup, currentMaterial, theMesh);
 
                         //new material
                         currentMaterial = theMesh.getMaterials().get(data);
@@ -80,15 +75,7 @@ public class ObjLoader {
                     }
 
                     //vertex
-                    case "v" -> {
-                        Vector3f v = parseVec3(data, ' ');
-                        theMesh.getVertices().add(v);
-
-                        bbMin.min(v);
-                        bbMax.max(v);
-                        groupMin.min(v);
-                        groupMax.max(v);
-                    }
+                    case "v" -> theMesh.getVertices().add(parseVec3(data, ' '));
 
                     //uv
                     case "vt" -> theMesh.getUVs().add(parseVec2(data, ' '));
@@ -102,9 +89,29 @@ public class ObjLoader {
             }
 
             //add last group to the mesh
-            addGroupToMesh(currentGroup, currentMaterial, theMesh, groupMin, groupMax);
+            addGroupToMesh(currentGroup, currentMaterial, theMesh);
 
-            //set mesh bounding box
+            //calculate bounding boxes
+            Vector3f bbMin = new Vector3f(Float.MAX_VALUE);
+            Vector3f bbMax = new Vector3f(-Float.MAX_VALUE);
+
+            for (Group group : theMesh.getGroups()) {
+                Vector3f groupMin = new Vector3f(Float.MAX_VALUE);
+                Vector3f groupMax = new Vector3f(-Float.MAX_VALUE);
+
+                for (Face face : group.getFaces()) {
+                    for (int vertex : face.getVertices()) {
+                        Vector3f v = theMesh.getVertices().get(vertex);
+                        groupMin.min(v);
+                        groupMax.max(v);
+                    }
+                }
+
+                group.getBounds().set(groupMin, groupMax);
+                bbMin.min(groupMin);
+                bbMax.max(groupMax);
+            }
+
             theMesh.getBounds().set(bbMin, bbMax);
 
             //check for animations
@@ -122,17 +129,12 @@ public class ObjLoader {
         }
     }
 
-    private static void addGroupToMesh(Group group, Material material, Mesh mesh, Vector3f groupMin, Vector3f groupMax) {
+    private static void addGroupToMesh(Group group, Material material, Mesh mesh) {
         if (group.isEmpty())
             return;
 
         group.setMaterial(material);
-        group.getBounds().set(groupMin, groupMax);
-
         mesh.getGroups().add(group);
-
-        groupMin.set(Float.MAX_VALUE);
-        groupMax.set(-Float.MAX_VALUE);
     }
 
     private static Face parseFace(String face, Mesh mesh) {
@@ -160,7 +162,6 @@ public class ObjLoader {
             if (firstSlash == -1) {
                 //v only
                 v[i++] = parseIndex(s, mesh.getVertices().size());
-                i++;
                 continue;
             }
 

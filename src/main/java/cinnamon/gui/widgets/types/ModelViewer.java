@@ -8,14 +8,9 @@ import cinnamon.gui.widgets.Tickable;
 import cinnamon.input.InputManager;
 import cinnamon.math.Maths;
 import cinnamon.math.collision.shape.AABB;
-import cinnamon.model.GeometryHelper;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.SkyBoxRegistry;
-import cinnamon.render.BloomRenderer;
-import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
-import cinnamon.render.Window;
-import cinnamon.render.WorldRenderer;
+import cinnamon.render.*;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.model.AnimatedMeshRenderer;
@@ -219,9 +214,9 @@ public class ModelViewer extends SelectableWidget implements Tickable {
 
         //draw bounding box
         if (renderBounds) {
-            Vector3f min = aabb.getMin();
-            Vector3f max = aabb.getMax();
-            VertexConsumer.LINES.consume(GeometryHelper.box(matrices, min.x, min.y, min.z, max.x, max.y, max.z, 0xFFFFFFFF));
+            DebugRenderer.renderAABB(matrices, aabb, 0xFFFFFFFF);
+            for (AABB bb : model.getGroupsAABB())
+                DebugRenderer.renderAABB(matrices, bb, 0xFFFF00FF);
             VertexConsumer.LINES.finishBatch(camera);
         }
 
