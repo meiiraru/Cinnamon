@@ -12,6 +12,9 @@ public class LookAt implements Command {
 
     @Override
     public Text execute(Entity source, Stack<String> args) {
+        if (args.isEmpty())
+            return Text.of("Failed to execute command, missing arguments").withStyle(ERROR_STYLE);
+
         Vector3f pos;
 
         //get position

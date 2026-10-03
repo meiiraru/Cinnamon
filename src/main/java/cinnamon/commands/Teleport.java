@@ -22,12 +22,23 @@ public class Teleport implements Command {
             return Text.of("Target not found").withStyle(ERROR_STYLE);
 
         //parse position
-        if (args.size() < 3)
-            return Text.of("Failed to execute command, missing arguments").withStyle(ERROR_STYLE);
+        Vector3f pos;
 
-        Vector3f pos = CommandParser.parseCoordinate(source, args);
-        if (pos == null)
-            return Text.of("Failed to execute command, invalid argument: " + args.peek()).withStyle(ERROR_STYLE);
+        //try to parse as target
+        Entity targetPos = CommandParser.parseEntity(source, args.peek());
+        if (targetPos != null) {
+            pos = targetPos.getTransform().getPos();
+            args.pop();
+        }
+        //then try to parse as coordinates
+        else {
+            if (args.size() < 3)
+                return Text.of("Failed to execute command, missing arguments").withStyle(ERROR_STYLE);
+
+            pos = CommandParser.parseCoordinate(source, args);
+            if (pos == null)
+                return Text.of("Failed to execute command, invalid argument: " + args.peek()).withStyle(ERROR_STYLE);
+        }
 
         //parse rotation (optional)
         if (!args.isEmpty()) {
@@ -43,17 +54,17 @@ public class Teleport implements Command {
 
             //apply rotation
             target.rotateTo(rot.x, rot.y, 0);
-            return Text.of("Teleported to %.3f %.3f %.3f rotated %.3f %.3f".formatted(pos.x, pos.y, pos.z, rot.x, rot.y));
+            return Text.of("Teleported %s to %.3f %.3f %.3f rotated %.3f %.3f".formatted(target.getNameRepresentation(), pos.x, pos.y, pos.z, rot.x, rot.y));
         }
 
         //apply only position
         target.moveTo(pos);
-        return Text.of("Teleported to %.3f %.3f %.3f".formatted(pos.x, pos.y, pos.z));
+        return Text.of("Teleported %s to %.3f %.3f %.3f".formatted(target.getNameRepresentation(), pos.x, pos.y, pos.z));
     }
 
     @Override
     public Text getHelpCommand() {
-        return Text.of("Usage: /teleport <target> <x> <y> <z> [<pitch> <yaw>]")
+        return Text.of("Usage: /teleport <target> (<target>|<x> <y> <z>) [<pitch> <yaw>]")
                 .append("\n")
                 .append("Teleports the target entity to the specified coordinates with optional rotation");
     }

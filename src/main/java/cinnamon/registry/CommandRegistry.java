@@ -30,6 +30,7 @@ public class CommandRegistry {
         register("explode", new Explode());
         register("spectate", new Spectate(), "spec", "sp");
         register("stopsound", new StopSound());
+        register("say", new Say(), "speak", "chat");
     }
 
     /**
