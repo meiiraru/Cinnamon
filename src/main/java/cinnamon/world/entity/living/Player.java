@@ -1,6 +1,7 @@
 package cinnamon.world.entity.living;
 
 import cinnamon.math.Maths;
+import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
@@ -9,6 +10,7 @@ import cinnamon.world.Abilities;
 import cinnamon.world.entity.DamageType;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.particle.SmokeParticle;
+import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -17,23 +19,23 @@ import java.util.UUID;
 
 public class Player extends LivingEntity {
 
-    private static final int MAX_HEALTH = 100;
-    private static final int INVULNERABILITY_TIME = 10;
-    private static final int INVENTORY_SIZE = 9;
-    private static final int SPRINT_PARTICLE_DELAY = 3;
-    private static final Vector3f DIMENSIONS = new Vector3f(0.6f, 1.8f, 0.6f);
+    public static final int MAX_HEALTH = 100;
+    public static final int INVULNERABILITY_TIME = 10;
+    public static final int INVENTORY_SIZE = 9;
+    public static final int SPRINT_PARTICLE_DELAY = 3;
+    public static final Vector3f DIMENSIONS = new Vector3f(0.6f, 1.8f, 0.6f);
 
     private final Abilities abilities = new Abilities();
 
-    private int invulnerability = 0;
-    private Entity damageSource;
-    private int damageSourceTicks = 0;
+    protected int invulnerability = 0;
+    protected int damageSourceTicks = 0;
+    protected Entity damageSource;
+
     private int sprintParticle = 0;
 
-    private boolean sprinting, sneaking, flying;
-    private boolean checkSneak;
-    private boolean jumping, forwards;
-    private int flyKeyTicks = 0;
+    protected boolean sprinting, sneaking, flying;
+    protected boolean checkSneak;
+    protected boolean pressingSneak, pressingForwards;
 
     public Player(String name, UUID uuid) {
         this(name, uuid, LivingModelRegistry.STRAWBERRY);
@@ -42,26 +44,22 @@ public class Player extends LivingEntity {
     public Player(String name, UUID uuid, LivingModelRegistry model) {
         super(uuid, model.resource, model.eyeHeight, MAX_HEALTH, INVENTORY_SIZE);
         this.setName(name);
-        this.getController().bindState(
+        this.getController().bindDoubleClick(
                 "fly_toggle", Settings.jump.get(),
-                jumping -> {
-                    if (!this.jumping && Settings.jump.get().click()) {
-                        if (flyKeyTicks > 0) {
-                            updateMovementFlags(this.sneaking, this.sprinting, !this.flying);
-                            flyKeyTicks = 0;
-                        } else {
-                            flyKeyTicks = Settings.doubleKeypressTime.get();
-                        }
-                    }
-                    this.jumping = Settings.jump.get().isActuallyPressed();
+                click -> {
+                    if (click)
+                        updateMovementFlags(this.sneaking, this.sprinting, !this.flying);
                 }
         ).bindState(
                 "sneak", Settings.sneak.get(),
-                sneaking -> updateMovementFlags(sneaking, this.sprinting, this.flying)
+                sneaking -> {
+                    pressingSneak = sneaking;
+                    updateMovementFlags(sneaking, this.sprinting, this.flying);
+                }
         ).bindState(
                 "sprint", Settings.sprint.get(),
                 sprinting -> {
-                    forwards = Settings.forward.get().isPressed() && !Settings.backward.get().isPressed();
+                    pressingForwards = Settings.forward.get().isPressed() && !Settings.backward.get().isPressed();
                     updateMovementFlags(this.sneaking, sprinting, this.flying);
                 }
         );
@@ -77,13 +75,10 @@ public class Player extends LivingEntity {
         if (damageSourceTicks > 0)
             damageSourceTicks--;
 
-        if (flyKeyTicks > 0)
-            flyKeyTicks--;
-
-        if (flying && (onGround || isRiding()))
+        if (isFlying() && (isOnGround() || isRiding()))
             flying = false;
 
-        if (this.isSprinting() && onGround && --sprintParticle <= 0) {
+        if (this.isSprinting() && isOnGround() && --sprintParticle <= 0) {
             SmokeParticle particle = new SmokeParticle((int) (Math.random() * 15) + 10, 0xFFFFFFFF);
             particle.setPos(getTransform().getPos());
             particle.setScale(1.5f);
@@ -96,12 +91,12 @@ public class Player extends LivingEntity {
 
     @Override
     protected void applyForces() {
-        if (!flying) super.applyForces();
+        if (!isFlying()) super.applyForces();
     }
 
     @Override
     protected void applyImpulse() {
-        if (flying) {
+        if (isFlying()) {
             this.motion.add(impulse);
             this.impulse.set(0);
         } else {
@@ -111,7 +106,7 @@ public class Player extends LivingEntity {
 
     @Override
     protected void motionFallout() {
-        if (flying) {
+        if (isFlying()) {
             this.motion.mul(0.6f);
         } else {
             super.motionFallout();
@@ -120,7 +115,7 @@ public class Player extends LivingEntity {
 
     @Override
     protected Vector3f tickTerrainCollisions(AABB aabb, Vector3f motion) {
-        if (abilities.get(Abilities.Ability.NOCLIP)) {
+        if (getAbilities().get(Abilities.Ability.NOCLIP)) {
             this.onGround = false;
             return new Vector3f(motion);
         }
@@ -130,7 +125,7 @@ public class Player extends LivingEntity {
 
     @Override
     protected void tickEntityCollisions(AABB aabb, Vector3f toMove) {
-        if (!abilities.get(Abilities.Ability.NOCLIP))
+        if (!getAbilities().get(Abilities.Ability.NOCLIP))
             super.tickEntityCollisions(aabb, toMove);
     }
 
@@ -167,8 +162,8 @@ public class Player extends LivingEntity {
 
     public void updateMovementFlags(boolean sneaking, boolean sprinting, boolean flying) {
         this.sneaking = sneaking;
-        this.sprinting = (this.sprinting || sprinting) && !sneaking && forwards && !isRiding();
-        this.flying = (flying && abilities.get(Abilities.Ability.CAN_FLY)) || abilities.get(Abilities.Ability.NOCLIP);
+        this.sprinting = (this.isSprinting() || sprinting) && !sneaking && pressingForwards && !isRiding();
+        this.flying = (flying && getAbilities().get(Abilities.Ability.CAN_FLY)) || getAbilities().get(Abilities.Ability.NOCLIP);
 
         this.checkSneak |= sneaking;
 
@@ -180,7 +175,7 @@ public class Player extends LivingEntity {
     public void impulse(float left, float up, float forwards) {
         super.impulse(left, up, forwards);
 
-        if (flying)
+        if (isFlying())
             impulse.y = Math.signum(up) * 0.15f;
     }
 
@@ -188,9 +183,9 @@ public class Player extends LivingEntity {
     protected float getMoveSpeed() {
         float speed = super.getMoveSpeed();
 
-        if (sneaking)
+        if (isSneaking())
             speed *= getSneakingMultiplier();
-        if (sprinting)
+        if (isSprinting())
             speed *= flying ? getFlyingSprintMultiplier() : getSprintMultiplier();
 
         return speed;
@@ -215,7 +210,7 @@ public class Player extends LivingEntity {
 
     @Override
     public float getPickRange() {
-        return abilities.get(Abilities.Ability.CAN_FLY) ? super.getPickRange() : 3.5f;
+        return getAbilities().get(Abilities.Ability.CAN_FLY) ? super.getPickRange() : 3.5f;
     }
 
     @Override
@@ -241,11 +236,11 @@ public class Player extends LivingEntity {
 
     @Override
     public void calculateBounds() {
-        aabb.set(transform.getPos());
+        AABB bb = getAABB().set(getTransform().getPos());
         float w = Math.max(DIMENSIONS.x, DIMENSIONS.z) * 0.5f;
         float y = model.getAABB().getHeight(); //Math.min(, DIMENSIONS.y);
-        aabb.inflate(w, 0, w, w, y, w);
-        aabb.scaleAnchorBottom(transform.getScale());
+        bb.inflate(w, 0, w, w, y, w);
+        bb.scaleAnchorBottom(getTransform().getScale());
     }
 
     protected boolean cannotUnsneak() {
