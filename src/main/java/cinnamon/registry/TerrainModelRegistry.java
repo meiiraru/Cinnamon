@@ -9,12 +9,15 @@ public enum TerrainModelRegistry {
     SLAB("models/terrain/slab/slab.obj"),
     TEAPOT("models/terrain/teapot/teapot.obj"),
     ROSE("models/terrain/rose/rose.obj"),
-    GLTF_TEST("models/terrain/gltf_test/gltf_test.gltf"),
+    GLASS("models/terrain/glass/glass.obj"),
 
     CONVEYOR_BELT("models/terrain/conveyor_belt/model.obj"),
     BUTTON("models/terrain/button/button.obj"),
     TORII_GATE("models/terrain/torii/torii_gate.obj"),
-    GLASS("models/terrain/glass/glass.obj");
+    TREE("models/terrain/tree/deer_tree.obj"),
+    TREE_HITBOX("models/terrain/tree/deer_tree_hitbox.obj"),
+
+    GLTF_TEST("models/terrain/gltf_test/gltf_test.gltf");
 
     public final Resource resource;
 

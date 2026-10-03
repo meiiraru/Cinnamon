@@ -81,7 +81,8 @@ public class Terrain extends WorldObject {
     public void calculateBounds() {
         Matrix4f mat = new Matrix4f().translate(0.5f, 0f, 0.5f).mul(transform.getMatrix().pos());
 
-        if (model == null) {
+        AABB modelBounds = getModelBounds();
+        if (modelBounds == null) {
             aabb.set(-0.5f, 0f, -0.5f, 0.5f, 1f, 0.5f).applyMatrix(mat);
             preciseCollider.clear();
             preciseCollider.add(aabb);
@@ -89,13 +90,27 @@ public class Terrain extends WorldObject {
             return;
         }
 
-        this.aabb.set(this.model.getAABB()).applyMatrix(mat);
+        this.aabb.set(modelBounds).applyMatrix(mat);
 
         this.preciseCollider.clear();
-        for (AABB group : this.model.getPreciseAABB())
-            preciseCollider.add(new OBB(group).applyMatrix(mat));
+        for (Collider<?> collider : getModelPreciseCollider())
+            preciseCollider.add(collider.applyMatrix(mat));
 
         updateTerrainInWorld();
+    }
+
+    protected AABB getModelBounds() {
+        return model == null ? null : model.getAABB();
+    }
+
+    protected List<Collider<?>> getModelPreciseCollider() {
+        if (model == null)
+            return null;
+
+        List<Collider<?>> colliders = new ArrayList<>();
+        for (AABB bounds : model.getGroupsAABB())
+            colliders.add(new OBB(bounds));
+        return colliders;
     }
 
     protected void updateTerrainInWorld() {

@@ -69,6 +69,13 @@ public class Mesh {
         return bounds;
     }
 
+    public List<AABB> getGroupBounds() {
+        List<AABB> groupBounds = new ArrayList<>();
+        for (Group group : groups)
+            groupBounds.add(group.getBounds());
+        return groupBounds;
+    }
+
     public Pair<Bone, List<Animation>> getAnimationData() {
         return animData;
     }

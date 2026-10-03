@@ -58,11 +58,7 @@ import cinnamon.world.items.weapons.RiceGun;
 import cinnamon.world.light.PointLight;
 import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.TextParticle;
-import cinnamon.world.terrain.Button;
-import cinnamon.world.terrain.ConveyorBelt;
-import cinnamon.world.terrain.Glass;
-import cinnamon.world.terrain.PlaneTerrain;
-import cinnamon.world.terrain.Terrain;
+import cinnamon.world.terrain.*;
 import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.Math;
 import org.joml.Quaternionf;
@@ -307,6 +303,16 @@ public class PlaygroundWorld extends WorldClient {
         };
         frog.setPos(-5, 1, -5);
         addEntity(frog);
+
+        //sakura
+        Terrain tree = new Tree();
+        tree.setPos(25, 1, -35);
+        addTerrain(tree);
+
+        Terrain treeGround = TerrainRegistry.BOX.getFactory().get();
+        treeGround.setMaterial(MaterialRegistry.GRASS2.material);
+        treeGround.setPos(25, 0, -35);
+        addTerrain(treeGround);
     }
 
     @Override
