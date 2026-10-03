@@ -226,7 +226,7 @@ public class PlaygroundWorld extends WorldClient {
         this.addEntity(trigger);
 
         //debug weapons
-        spawnDebugWeapons();
+        spawnDebugWeapons(this);
 
         //test buttons
         Button btn1 = new Button();
@@ -367,7 +367,7 @@ public class PlaygroundWorld extends WorldClient {
 
         if (enableDebugKeys && key == GLFW_KEY_B) {
             if (action == GLFW_PRESS) {
-                openOverlay(genDebugActionWheel());
+                openOverlay(genDebugActionWheel(this));
             } else if (action == GLFW_RELEASE) {
                 closeOverlay();
             }
@@ -380,7 +380,7 @@ public class PlaygroundWorld extends WorldClient {
         playerEntity.setPos(0.5f, init ? 1.5f : 100f, 0.5f);
     }
 
-    protected void spawnDebugWeapons() {
+    public static void spawnDebugWeapons(World world) {
         Item[] items = {
                 new CoilGun(30, 3, 100),
                 new PotatoCannon(3, 60, 200),
@@ -397,17 +397,17 @@ public class PlaygroundWorld extends WorldClient {
             item.setAge(-1);
             item.setPos(i * 2f + 0.5f, 2f, -8.5f);
             item.setPickUpDelay(0);
-            this.addEntity(item);
+            world.addEntity(item);
         }
     }
 
-    protected ActionWheel genDebugActionWheel() {
+    public static ActionWheel genDebugActionWheel(WorldClient world) {
         ActionWheel aw = new ActionWheel();
         aw.setTitle(Text.of("Debug Actions"));
 
         //noclip
         Action noclip = new Action(Text.of("Toggle Noclip"), () -> {
-            if (playerEntity instanceof Player player) {
+            if (world.playerEntity instanceof Player player) {
                 boolean value = !player.getAbilities().get(Abilities.Ability.NOCLIP);
                 player.getAbilities().set(Abilities.Ability.NOCLIP, value);
                 MessageManager.addMessage(Text.of("Noclip " + (value ? "enabled" : "disabled")), MessageCategory.SYSTEM, null);
@@ -418,14 +418,14 @@ public class PlaygroundWorld extends WorldClient {
 
         //spray
         Action spray = new Action(Text.of("Spray"), () -> {
-            Pair<Hit, Terrain> hit = playerEntity.getLookingTerrain(playerEntity.getPickRange());
+            Pair<Hit, Terrain> hit = world.playerEntity.getLookingTerrain(world.playerEntity.getPickRange());
             if (hit == null)
                 return;
 
             Vector3f normal = hit.first().normal();
             Quaternionf rotation = Maths.dirToQuat(normal);
             if (Math.abs(normal.y) > 0.5f)
-                rotation.rotateZ(Math.toRadians(-Maths.getYaw(playerEntity.getTransform().getRot()) * Math.signum(normal.y)));
+                rotation.rotateZ(Math.toRadians(-Maths.getYaw(world.playerEntity.getTransform().getRot()) * Math.signum(normal.y)));
 
             Resource folder = new Resource("textures/misc");
             List<String> resources = IOUtils.listResources(folder, false);
@@ -438,13 +438,13 @@ public class PlaygroundWorld extends WorldClient {
                     .setRot(rotation)
                     //.setRot(WorldRenderer.camera.getRotation())
                     .setScale(1f, 1f, 0.5f);
-            addDecal(decal);
+            world.addDecal(decal);
         });
         spray.setIcon(new Resource("textures/gui/action_wheel/spray.png"));
         aw.addAction(spray);
 
         //spawn weapons
-        Action weapons = new Action(Text.of("Spawn Weapons"), this::spawnDebugWeapons);
+        Action weapons = new Action(Text.of("Spawn Weapons"), () -> PlaygroundWorld.spawnDebugWeapons(world));
         weapons.setIcon(new Resource("textures/gui/action_wheel/gun.png"));
         aw.addAction(weapons);
 
@@ -465,20 +465,20 @@ public class PlaygroundWorld extends WorldClient {
                     )
             );
             f.setPos(0, 1.5f, 0);
-            addEntity(f);
+            world.addEntity(f);
         });
         firework.setIcon(new Resource("textures/gui/action_wheel/firework.png"));
         aw.addAction(firework);
 
         //marker
         Action marker = new Action(Text.of("Add Marker"), () -> {
-            Pair<Hit, ? extends WorldObject> hit = playerEntity.getLookingObject(128f);
+            Pair<Hit, ? extends WorldObject> hit = world.playerEntity.getLookingObject(128f);
             if (hit != null) {
                 SoundManager.playSound(Marker.MARKER_SND, SoundCategory.GUI);
                 if (hit.second() instanceof Entity e) {
-                    hud.addMarker(new Marker(e, null, 600, Colors.randomRainbow().argb));
+                    world.hud.addMarker(new Marker(e, null, 600, Colors.randomRainbow().argb));
                 } else {
-                    hud.addMarker(new Marker(hit.first().position(), null, 600, Colors.randomRainbow().argb));
+                    world.hud.addMarker(new Marker(hit.first().position(), null, 600, Colors.randomRainbow().argb));
                 }
             }
         });

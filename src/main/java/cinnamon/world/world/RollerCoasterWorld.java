@@ -30,7 +30,14 @@ public class RollerCoasterWorld extends PlaygroundWorld {
     @Override
     protected void levelLoad() {
         super.levelLoad();
+
         addLight(new Spotlight().pos(0f, 5f, 0f).color(0xAD72FF));
+
+        ItemEntity i = new ItemEntity(UUID.randomUUID(), new CurveMaker(1));
+        i.setAge(-1);
+        i.setPos(0.5f, 2f, 0.5f);
+        i.setPickUpDelay(0);
+        addEntity(i);
     }
 
     @Override
@@ -121,15 +128,5 @@ public class RollerCoasterWorld extends PlaygroundWorld {
         }
 
         return count;
-    }
-
-    @Override
-    protected void spawnDebugWeapons() {
-        ItemEntity i = new ItemEntity(UUID.randomUUID(), new CurveMaker(1));
-        i.setAge(-1);
-        i.setPos(0.5f, 2f, 0.5f);
-        i.setPickUpDelay(0);
-        addEntity(i);
-        super.spawnDebugWeapons();
     }
 }
