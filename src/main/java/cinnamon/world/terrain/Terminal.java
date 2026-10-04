@@ -34,7 +34,7 @@ public class Terminal extends Terrain  {
     public void tick() {
         super.tick();
 
-        if (isActive() && (boolean) getWorld().getRules().get(WorldRules.Rule.ENABLE_TERMINAL) && isCommandValid(getCommandString()))
+        if (isActive() && getWorld().getRules().get(WorldRules.ENABLE_TERMINAL) && isCommandValid(getCommandString()))
             processCommand();
     }
 

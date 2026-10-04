@@ -52,7 +52,7 @@ public class Explode implements Command {
 
         //explode!
         source.getWorld().explode(new Sphere(pos, radius), strength, null, false);
-        return Text.of("Exploded");
+        return Text.of("Exploded at %.3f, %.3f, %.3f [r=%.2f] [str=%.2f]".formatted(pos.x, pos.y, pos.z, radius, strength));
     }
 
     @Override

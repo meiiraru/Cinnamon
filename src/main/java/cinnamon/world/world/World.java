@@ -46,7 +46,7 @@ public abstract class World {
         if (isPaused())
             return;
 
-        if ((boolean) getRules().get(WorldRules.Rule.DAY_CYCLE))
+        if (getRules().get(WorldRules.DAY_CYCLE))
             worldTime++;
 
         //run scheduled ticks
@@ -159,7 +159,7 @@ public abstract class World {
             }
         }
 
-        if ((boolean) getRules().get(WorldRules.Rule.TERRAIN_EXPLOSION)) {
+        if (getRules().get(WorldRules.TERRAIN_EXPLOSION)) {
             for (Terrain terrain : getTerrains(explosionArea.toAABB())) {
                 float localStrength = Math.max(0f, 1f - (terrain.getAABB().getCenter().distanceSquared(center) / radiusSqr)) * strength;
                 for (Collider<?> collider : terrain.getPreciseCollider()) {

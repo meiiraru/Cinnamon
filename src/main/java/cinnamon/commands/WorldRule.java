@@ -13,22 +13,18 @@ public class WorldRule implements Command {
     @Override
     public Text execute(Entity source, Stack<String> args) {
         if (args.isEmpty()) {
-            WorldRules.Rule[] rules = WorldRules.Rule.values();
             Text text = Text.of("Available world rules: ");
-            for (WorldRules.Rule rule : rules)
-                text.append(rule.name().toLowerCase()).append(" ");
+            for (WorldRules.Rule<?> rule : WorldRules.getRegisteredRules())
+                text.append(rule.getName().toLowerCase()).append(" ");
             return text;
         }
 
-        String ruleStr = args.pop();
-        WorldRules.Rule rule;
-
         //find the world rule
-        try {
-            rule = WorldRules.Rule.valueOf(ruleStr.toUpperCase());
-        } catch (Exception e) {
+        String ruleStr = args.pop();
+        WorldRules.Rule<?> rule = WorldRules.getRule(ruleStr);
+
+        if (rule == null)
             return Text.of("Failed to execute command, invalid rule name: " + ruleStr).withStyle(ERROR_STYLE);
-        }
 
         //get value
         if (args.isEmpty())
@@ -37,19 +33,9 @@ public class WorldRule implements Command {
         //set value
         String valueStr = args.pop();
         try {
-            Object value;
-
-            //parse the value by type
-            switch (rule.type) {
-                case INT   -> value = Integer.parseInt(valueStr);
-                case FLOAT -> value = Float.parseFloat(valueStr);
-                case BOOL  -> value = CommandParser.parseBoolean(valueStr);
-                default    -> value = valueStr;
-            }
-
-            //set the rule
-            source.getWorld().getRules().set(rule, value);
-            return Text.of("Set world rule " + ruleStr + " to " + value);
+            source.getWorld().getRules().parseAndSet(rule, valueStr);
+            Object newValue = source.getWorld().getRules().get(rule);
+            return Text.of("Set world rule " + rule.getName() + " to " + newValue);
         } catch (Exception e) {
             return Text.of("Failed to execute command, invalid argument: " + valueStr).withStyle(ERROR_STYLE);
         }
