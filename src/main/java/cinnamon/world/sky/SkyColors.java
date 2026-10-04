@@ -26,7 +26,7 @@ public class SkyColors {
 
     public SkyProperties getPropertiesAtTime(float dayMinutes, SkyProperties out) {
         if (propertiesMap.isEmpty())
-            return null;
+            return SkyProperties.EMPTY;
 
         int time1 = propertiesMap.lastKey();
         int time2 = propertiesMap.firstKey();
@@ -55,6 +55,9 @@ public class SkyColors {
     }
 
     public static class SkyProperties {
+
+        private static final SkyProperties EMPTY = new SkyProperties();
+
         private int sunColor, skyColor, ambientLight, fogColor, cloudsColor, starsColor;
         private float fogStart, fogEnd;
         private float sunIntensity, fogIntensity, starsIntensity;

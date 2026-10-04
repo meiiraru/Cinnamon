@@ -19,6 +19,7 @@ import cinnamon.world.entity.terrain.ParticleSpawner;
 import cinnamon.world.entity.terrain.Speaker;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.Spotlight;
+import cinnamon.world.sky.SkyColors;
 import cinnamon.world.terrain.PrimitiveTerrain;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -203,8 +204,8 @@ public class DiscoWorld extends WorldClient {
     }
 
     @Override
-    protected void applySkyLights(float dayMinutes) {
-        super.applySkyLights(dayMinutes);
+    protected void applySkyLights(SkyColors.SkyProperties props) {
+        super.applySkyLights(props);
         this.sunlight.intensity(0f);
         this.sky.fogIntensity = 0f;
         this.sky.skyColor = 0xFF070710;

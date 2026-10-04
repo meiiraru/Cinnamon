@@ -90,6 +90,8 @@ public class WorldClient extends World {
     protected Sky sky = new DynamicSky();
     protected final SkyColors skyColors = new SkyColors();
     private final SkyColors.SkyProperties renderSkyProps = new SkyColors.SkyProperties();
+    protected final SkyColors.SkyProperties spaceSkyProps = new SkyColors.SkyProperties();
+    protected float worldSkyHeight = 192f, worldSpaceHeight = 320f;
 
     @Override
     public void init() {
@@ -256,15 +258,26 @@ public class WorldClient extends World {
         sunlight.direction(dir);
         sunlight.pos(pos.x - dir.x * dist, pos.y - dir.y * dist, pos.z - dir.z * dist);
 
-        //apply light
-        applySkyLights(getDayMinutes(delta));
+        //apply lights
+        float dayMinutes = getDayMinutes(delta);
+        SkyColors.SkyProperties props = getSkyLights(camera, dayMinutes);
+        applySkyLights(props);
     }
 
-    protected void applySkyLights(float dayMinutes) {
-        SkyColors.SkyProperties props = skyColors.getPropertiesAtTime(dayMinutes, renderSkyProps);
-        if (props == null)
-            return;
+    protected SkyColors.SkyProperties getSkyLights(Camera camera, float dayMinutes) {
+        //base sky color
+        SkyColors.SkyProperties sky = skyColors.getPropertiesAtTime(dayMinutes, renderSkyProps);
 
+        float y = camera.getPos().y;
+        if (y < worldSkyHeight)
+            return sky;
+
+        //blend between sky and space based on height
+        float t = Math.min((y - worldSkyHeight) / (worldSpaceHeight - worldSkyHeight), 1f);
+        return sky.lerp(spaceSkyProps, t, renderSkyProps);
+    }
+
+    protected void applySkyLights(SkyColors.SkyProperties props) {
         this.sky.sunColor = props.sunColor();
         this.sky.skyColor = props.skyColor();
         this.sky.fogColor = props.fogColor();
@@ -748,6 +761,12 @@ public class WorldClient extends World {
                 .fogStart(64f).fogEnd(80f).sunIntensity(0f).fogIntensity(1f).starsIntensity(5f)
                 .sunlightColor(0x07070F).sunlightIntensity(0.1f).sunlightShadowIntensity(0f)
         );
+
+        //space
+        spaceSkyProps
+                .sunColor(0x00000).skyColor(0x000000).ambientLight(0x101020).fogColor(0x000000).cloudsColor(0x000000).starsColor(0xFFFFFF)
+                .fogStart(64f).fogEnd(80f).sunIntensity(0f).fogIntensity(1f).starsIntensity(5f)
+                .sunlightColor(0xFFFFFF).sunlightIntensity(5f).sunlightShadowIntensity(1f);
     }
 
     public void respawn(boolean init) {
