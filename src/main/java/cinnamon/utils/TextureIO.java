@@ -17,8 +17,29 @@ import java.util.Date;
 import static cinnamon.Client.LOGGER;
 import static org.lwjgl.opengl.GL11.*;
 
-public class TextureIO {
+/**
+ * Utility class for I/O operations related to textures
+ */
+public final class TextureIO {
 
+    private TextureIO() {}
+
+    /**
+     * Returns the path to the animation file corresponding to the given resource
+     * @param resource The {@link Resource} for which to find the animation file
+     * @return The {@link Resource} representing the animation file, or {@code null} if no animation file exists
+     */
+    public static Resource getAnimationPath(Resource resource) {
+        Resource anim = resource.resolveSibling(resource.getFileName() + ".json");
+        return IOUtils.hasResource(anim) ? anim : null;
+    }
+
+    /**
+     * Takes a screenshot of the current OpenGL frame and saves it as a PNG file in the "screenshots" folder
+     * @param width The width of the screenshot in pixels
+     * @param height The height of the screenshot in pixels
+     * @return The {@link Path} to the saved screenshot file, or {@code null} if the screenshot could not be saved
+     */
     public static Path screenshot(int width, int height) {
         try {
             //allocate buffer
@@ -59,10 +80,26 @@ public class TextureIO {
         return null;
     }
 
+    /**
+     * Saves the given {@link Texture} to the specified output path as a PNG file
+     * @param texture The {@link Texture} to save
+     * @param outputPath The {@link Path} where the texture should be saved
+     * @return {@code true} if the texture was saved successfully, {@code false} otherwise
+     * @see #saveTexture(int, Path, boolean, boolean)
+     */
     public static boolean saveTexture(Texture texture, Path outputPath) {
         return saveTexture(texture.getID(), outputPath, false, false);
     }
 
+    /**
+     * Saves the given OpenGL texture to the specified output path as a PNG file
+     * @param texture The OpenGL texture ID to save
+     * @param outputPath The {@link Path} where the texture should be saved
+     * @param flipX Whether to flip the texture horizontally
+     * @param flipY Whether to flip the texture vertically
+     * @return {@code true} if the texture was saved successfully, {@code false} otherwise
+     * @see #saveTexture(Texture, Path)
+     */
     public static boolean saveTexture(int texture, Path outputPath, boolean flipX, boolean flipY) {
         try {
             //bind texture
@@ -109,10 +146,30 @@ public class TextureIO {
         return false;
     }
 
+    /**
+     * Loads an image from the given {@link Resource} and returns an {@link ImageData} object containing the image data
+     * @param resource The {@link Resource} to load the image from
+     * @return An {@link ImageData} object containing the image data
+     * @throws Exception if the image could not be loaded
+     * @see #load(Resource, boolean, int)
+     * @see #load(AITexture)
+     * @see #load(AITexture, boolean, int)
+     */
     public static ImageData load(Resource resource) throws Exception {
         return load(resource, false, 4);
     }
 
+    /**
+     * Loads an image from the given {@link Resource} and returns an {@link ImageData} object containing the image data
+     * @param resource The {@link Resource} to load the image from
+     * @param flip Whether to flip the image vertically
+     * @param desiredChannels The desired number of channels in the loaded image (1 for grayscale, 2 for grayscale + alpha, 3 for RGB, 4 for RGBA)
+     * @return An {@link ImageData} object containing the image data
+     * @throws Exception if the image could not be loaded
+     * @see #load(Resource)
+     * @see #load(AITexture)
+     * @see #load(AITexture, boolean, int)
+     */
     public static ImageData load(Resource resource, boolean flip, int desiredChannels) throws Exception {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer w = stack.mallocInt(1);
@@ -131,10 +188,30 @@ public class TextureIO {
         }
     }
 
+    /**
+     * Loads an image from the given Assimp {@link AITexture} and returns an {@link ImageData} object containing the image data
+     * @param texture The Assimp {@link AITexture} to load the image from
+     * @return An {@link ImageData} object containing the image data
+     * @throws Exception if the image could not be loaded
+     * @see #load(AITexture, boolean, int)
+     * @see #load(Resource)
+     * @see #load(Resource, boolean, int)
+     */
     public static ImageData load(AITexture texture) throws Exception {
         return load(texture, false, 4);
     }
 
+    /**
+     * Loads an image from the given Assimp {@link AITexture} and returns an {@link ImageData} object containing the image data
+     * @param texture The Assimp {@link AITexture} to load the image from
+     * @param flip Whether to flip the image vertically
+     * @param desiredChannels The desired number of channels in the loaded image (1 for grayscale, 2 for grayscale + alpha, 3 for RGB, 4 for RGBA)
+     * @return An {@link ImageData} object containing the image data
+     * @throws Exception if the image could not be loaded
+     * @see #load(AITexture)
+     * @see #load(Resource)
+     * @see #load(Resource, boolean, int)
+     */
     public static ImageData load(AITexture texture, boolean flip, int desiredChannels) throws Exception {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer w = stack.mallocInt(1);
@@ -156,6 +233,10 @@ public class TextureIO {
         }
     }
 
+    /**
+     * A simple data class that holds the {@link #width}, {@link #height}, and {@link #buffer} of a loaded image<br>
+     * Implements {@link AutoCloseable} to free the image buffer when done
+     */
     public static class ImageData implements AutoCloseable {
 
         public final int width, height;

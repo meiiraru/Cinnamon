@@ -8,6 +8,7 @@ import cinnamon.model.mesh.Mesh;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.IOUtils;
+import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -47,6 +48,9 @@ public class ObjExporter {
         boolean hasMaterials = !mesh.getMaterials().isEmpty();
         if (hasMaterials) {
             string.append("mtllib %s.%s\n".formatted(meshName, "mtl"));
+
+            //write material file header
+            mtlString.append("# Cinnamon model exporter\n\n");
 
             for (Material material : mesh.getMaterials().values()) {
                 //material name
@@ -182,6 +186,15 @@ public class ObjExporter {
             InputStream input = IOUtils.getResource(texture.texture());
             IOUtils.writeFile(file, input.readAllBytes());
             input.close();
+
+            //find for animation json
+            Resource anim = TextureIO.getAnimationPath(texture.texture());
+            if (anim != null) {
+                InputStream animInput = IOUtils.getResource(anim);
+                Path animFile = file.resolveSibling(textureName + ".json");
+                IOUtils.writeFile(animFile, animInput.readAllBytes());
+                animInput.close();
+            }
         }
 
         //write texture material

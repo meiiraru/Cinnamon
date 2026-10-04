@@ -110,6 +110,7 @@ public class AnimatedTexture extends Texture {
     public void free() {
         MemoryUtil.memFree(imgBuffer);
         MemoryUtil.memFree(frameBuffer);
+        ANIMATED_TEXTURES.remove(this);
         super.free();
     }
 

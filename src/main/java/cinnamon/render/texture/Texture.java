@@ -1,6 +1,5 @@
 package cinnamon.render.texture;
 
-import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
 import org.lwjgl.assimp.AITexture;
@@ -72,8 +71,8 @@ public class Texture {
         LOGGER.debug("Loading texture \"%s\" with params %s", res, params);
 
         try (TextureIO.ImageData image = TextureIO.load(res)) {
-            Resource anim = res.resolveSibling(res.getFileName() + ".json");
-            if (IOUtils.hasResource(anim)) {
+            Resource anim = TextureIO.getAnimationPath(res);
+            if (anim != null) {
                 Texture animTex = AnimatedTexture.loadTexture(image, anim, params);
                 if (animTex != null)
                     return animTex;
