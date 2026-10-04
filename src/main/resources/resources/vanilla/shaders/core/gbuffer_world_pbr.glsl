@@ -46,6 +46,7 @@ struct Material {
     sampler2D metallicTex;
     sampler2D emissiveTex;
     float heightScale;
+    float normalScale;
     float alphaCutout;
 };
 
@@ -86,6 +87,7 @@ void main() {
     //sample normal
     vec3 normal = texture(material.normalTex, texCoords).rgb;
     normal = normal * 2.0f - 1.0f;
+    normal.xy *= material.normalScale;
     normal = normalize(TBN * normal);
 
     //write to gBuffer

@@ -1,5 +1,5 @@
 newmtl leaves
 map_Kd -smooth_mip leaves.png
-d 0.9
+alpha_cutout 0.9
 newmtl tree
 map_Kd tree.png

@@ -4,6 +4,7 @@ public class Material {
 
     public static final float
             DEFAULT_HEIGHT = 0.1f,
+            DEFAULT_NORMAL = 1.0f,
             DEFAULT_ALPHA_CUTOUT = 0.5f;
 
     private final String name;
@@ -19,6 +20,7 @@ public class Material {
 
     private float
             heightScale = DEFAULT_HEIGHT, //map_disp -dm
+            normalScale = DEFAULT_NORMAL, //map_Bump -bm
             alphaCutout = DEFAULT_ALPHA_CUTOUT; //d / alpha_cutout
 
     public Material(String name) {
@@ -87,6 +89,14 @@ public class Material {
 
     public void setHeightScale(float heightScale) {
         this.heightScale = heightScale;
+    }
+
+    public float getNormalScale() {
+        return normalScale;
+    }
+
+    public void setNormalScale(float normalScale) {
+        this.normalScale = normalScale;
     }
 
     public float getAlphaCutout() {

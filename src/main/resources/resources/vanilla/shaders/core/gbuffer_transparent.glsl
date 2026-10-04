@@ -41,6 +41,7 @@ struct Material {
     sampler2D roughnessTex;
     sampler2D metallicTex;
     sampler2D emissiveTex;
+    float normalScale;
 };
 
 in vec2 texCoords;
@@ -81,6 +82,7 @@ void main() {
     //calculate world normal
     vec3 normalMap = texture(material.normalTex, texCoords).rgb;
     normalMap = normalMap * 2.0f - 1.0f;
+    normalMap.xy *= material.normalScale;
     vec3 normal = normalize(TBN * normalMap);
 
     //fetch material properties

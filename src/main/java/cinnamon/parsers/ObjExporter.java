@@ -146,14 +146,14 @@ public class ObjExporter {
     private static void writeMaterial(Path path, StringBuilder string, Material material) throws IOException {
         //textures
         writeTexture(path, string, "map_Kd", material.getAlbedo());
-        writeTexture(path, string, "bump", material.getHeight());
-        writeTexture(path, string, "norm", material.getNormal(), material.getHeightScale() != Material.DEFAULT_HEIGHT ? "-bm " + material.getHeightScale() + " " : "");
+        writeTexture(path, string, "disp", material.getHeight(), material.getHeightScale() != Material.DEFAULT_HEIGHT ? "-dm " + material.getHeightScale() + " " : "");
+        writeTexture(path, string, "map_Bump", material.getNormal(), material.getNormalScale() != Material.DEFAULT_NORMAL ? "-bm " + material.getNormalScale() + " " : "");
         writeTexture(path, string, "map_ao", material.getAO());
         writeTexture(path, string, "map_Pr", material.getRoughness());
         writeTexture(path, string, "map_Pm", material.getMetallic());
         writeTexture(path, string, "map_Ke", material.getEmissive());
         if (material.getAlphaCutout() != Material.DEFAULT_ALPHA_CUTOUT)
-            writeFloat(string, "d", material.getAlphaCutout());
+            writeFloat(string, "alpha_cutout", material.getAlphaCutout());
     }
 
     private static void writeTexture(Path path, StringBuilder string, String key, MaterialTexture texture) throws IOException {

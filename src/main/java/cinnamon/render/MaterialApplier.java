@@ -5,11 +5,13 @@ import cinnamon.model.material.MaterialTexture;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
 
+import static cinnamon.render.texture.Texture.MISSING;
+
 public class MaterialApplier {
 
     private static final Texture
-            WHITE_TEX = Texture.generateSolid(0xFFFFFFFF),
-            BLACK_TEX = Texture.generateSolid(0xFF000000),
+            WHITE_TEX  = Texture.generateSolid(0xFFFFFFFF),
+            BLACK_TEX  = Texture.generateSolid(0xFF000000),
             NORMAL_TEX = Texture.generateSolid(0xFF8080FF);
 
     private static Material lastMaterial;
@@ -21,15 +23,16 @@ public class MaterialApplier {
         Shader s = Shader.activeShader;
         int i = offset;
 
-        bindTex(s, material.getAlbedo(), i++, "material.albedoTex", Texture.MISSING);
-        bindTex(s, material.getHeight(), i++, "material.heightTex", BLACK_TEX);
-        bindTex(s, material.getNormal(), i++, "material.normalTex", NORMAL_TEX);
-        bindTex(s, material.getAO(), i++, "material.aoTex", WHITE_TEX);
+        bindTex(s, material.getAlbedo(),    i++, "material.albedoTex",    MISSING);
+        bindTex(s, material.getHeight(),    i++, "material.heightTex",    BLACK_TEX);
+        bindTex(s, material.getNormal(),    i++, "material.normalTex",    NORMAL_TEX);
+        bindTex(s, material.getAO(),        i++, "material.aoTex",        WHITE_TEX);
         bindTex(s, material.getRoughness(), i++, "material.roughnessTex", WHITE_TEX);
-        bindTex(s, material.getMetallic(), i++, "material.metallicTex", BLACK_TEX);
-        bindTex(s, material.getEmissive(), i++, "material.emissiveTex", BLACK_TEX);
+        bindTex(s, material.getMetallic(),  i++, "material.metallicTex",  BLACK_TEX);
+        bindTex(s, material.getEmissive(),  i++, "material.emissiveTex",  BLACK_TEX);
 
         s.setFloat("material.heightScale", material.getHeight() != null ? material.getHeightScale() : 0f);
+        s.setFloat("material.normalScale", material.getNormal() != null ? material.getNormalScale() : 1f);
         s.setFloat("material.alphaCutout", material.getAlphaCutout());
 
         lastMaterial = material;
