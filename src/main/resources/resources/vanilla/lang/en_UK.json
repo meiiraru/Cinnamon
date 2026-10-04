@@ -131,6 +131,8 @@
   "gui.model_viewer_screen.file_tab": "File",
   "gui.model_viewer_screen.viewer_tab": "Viewer",
   "gui.model_viewer_screen.open_vanilla": "Open Vanilla",
+  "gui.model_viewer_screen.open_location": "Open File Location",
+  "gui.model_viewer_screen.reload_model": "Reload Model",
   "gui.model_viewer_screen.toggle_skybox": "Toggle Skybox",
   "gui.model_viewer_screen.toggle_wireframe": "Toggle Wireframe",
   "gui.model_viewer_screen.toggle_bounds": "Toggle Bounds",

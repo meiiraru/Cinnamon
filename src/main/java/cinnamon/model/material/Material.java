@@ -100,4 +100,8 @@ public class Material {
     public String getName() {
         return name;
     }
+
+    public MaterialTexture[] getTextures() {
+        return new MaterialTexture[]{albedo, height, normal, ao, roughness, metallic, emissive};
+    }
 }

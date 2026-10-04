@@ -43,6 +43,7 @@ public class ModelViewerScreen extends ParentedScreen {
 
     //current opened model
     private String modelName = "";
+    private Resource modelRes = null;
     private final ContextMenu animationList = new ContextMenu();
     private final ModelViewer modelViewer = new ModelViewer(0, 0, 1, 1);
 
@@ -77,6 +78,20 @@ public class ModelViewerScreen extends ParentedScreen {
                         setModel(new Resource("", file), file);
                 })
                 .addSubMenu(Text.translated("gui.model_viewer_screen.open_vanilla"), modelList)
+                .addDivider()
+                .addAction(Text.translated("gui.model_viewer_screen.open_location"), null, _ -> {
+                    if (modelRes != null && modelRes.getNamespace().isEmpty()) {
+                        Path path = Path.of(modelRes.getPath());
+                        if (path.toFile().exists())
+                            IOUtils.openInExplorer(path);
+                    }
+                })
+                .addAction(Text.translated("gui.model_viewer_screen.reload_model"), null, _ -> {
+                    if (modelRes != null) {
+                        ModelManager.free(modelRes);
+                        setModel(modelRes, modelName);
+                    }
+                })
                 .addDivider()
                 .addAction(Text.translated("gui.model_viewer_screen.export_model"), null, _ -> {
                     //open file dialog
@@ -252,6 +267,15 @@ public class ModelViewerScreen extends ParentedScreen {
     }
 
     @Override
+    public void close() {
+        //free previous model
+        if (modelRes != null)
+            ModelManager.free(modelRes);
+
+        super.close();
+    }
+
+    @Override
     protected void addBackButton() {
         //super.addBackButton();
     }
@@ -311,15 +335,23 @@ public class ModelViewerScreen extends ParentedScreen {
     }
 
     private boolean setModel(Resource model, String name) {
+        //try loading new model
         ModelRenderer renderer = ModelManager.getRenderer(model);
         if (renderer == null) {
             Toast.addToast(Text.translated("gui.model_viewer_screen.load_error")).type(Toast.ToastType.ERROR);
             return false;
         }
 
+        //free previous model
+        if (!model.equals(modelRes))
+            ModelManager.free(modelRes);
+
+        //set new model properties
         modelViewer.setModel(renderer);
         modelName = name;
+        modelRes = model;
 
+        //load animations
         animationList.clearActions();
         List<String> animations = modelViewer.getAnimations();
         if (!animations.isEmpty()) {

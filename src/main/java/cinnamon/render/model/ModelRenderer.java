@@ -3,10 +3,12 @@ package cinnamon.render.model;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.model.Vertex;
 import cinnamon.model.material.Material;
+import cinnamon.model.material.MaterialTexture;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.MaterialApplier;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.shader.Shader;
+import cinnamon.render.texture.Texture;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +29,13 @@ public abstract class ModelRenderer {
         free = true;
         for (MeshData mesh : meshes.values())
             mesh.free();
+
+        for (Material material : getMaterials().values()) {
+            for (MaterialTexture texture : material.getTextures()) {
+                if (texture != null)
+                    Texture.free(texture.texture());
+            }
+        }
     }
 
     public boolean isFreed() {

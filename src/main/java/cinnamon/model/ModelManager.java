@@ -109,4 +109,11 @@ public class ModelManager {
         RENDERERS.clear();
         MESHES.clear();
     }
+
+    public static void free(Resource resource) {
+        ModelRenderer renderer = RENDERERS.remove(resource);
+        if (renderer != null)
+            renderer.free();
+        MESHES.remove(resource);
+    }
 }

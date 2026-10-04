@@ -201,6 +201,12 @@ public class Texture {
         TEXTURE_MAP.clear();
     }
 
+    public static void free(Resource res) {
+        Texture texture = TEXTURE_MAP.remove(res);
+        if (texture != null)
+            texture.free();
+    }
+
     public void free() {
         glDeleteTextures(this.ID);
     }

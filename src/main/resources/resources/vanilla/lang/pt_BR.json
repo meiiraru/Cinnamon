@@ -131,6 +131,8 @@
   "gui.model_viewer_screen.file_tab": "Arquivo",
   "gui.model_viewer_screen.viewer_tab": "Visualizador",
   "gui.model_viewer_screen.open_vanilla": "Abrir Padrão",
+  "gui.model_viewer_screen.open_location": "Abrir Local do Arquivo",
+  "gui.model_viewer_screen.reload_model": "Recarregar Modelo",
   "gui.model_viewer_screen.toggle_skybox": "Mostrar Cenário",
   "gui.model_viewer_screen.toggle_wireframe": "Mostrar Arestas",
   "gui.model_viewer_screen.toggle_bounds": "Mostrar Limites",
