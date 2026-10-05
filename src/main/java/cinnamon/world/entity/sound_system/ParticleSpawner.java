@@ -1,7 +1,7 @@
-package cinnamon.world.entity.terrain;
+package cinnamon.world.entity.sound_system;
 
 import cinnamon.math.collision.shape.AABB;
-import cinnamon.registry.TerrainEntityRegistry;
+import cinnamon.registry.SoundSystemEntityRegistry;
 import cinnamon.world.particle.FireParticle;
 import cinnamon.world.particle.SoapParticle;
 import cinnamon.world.world.WorldClient;
@@ -10,13 +10,13 @@ import org.joml.Vector3f;
 
 import java.util.UUID;
 
-public class ParticleSpawner extends TerrainEntity {
+public class ParticleSpawner extends SoundSystemEntity {
 
     private int bubbles = 0;
     private int fire = 0;
 
     public ParticleSpawner(UUID uuid) {
-        super(uuid, TerrainEntityRegistry.PARTICLE_SPAWNER.resource);
+        super(uuid, SoundSystemEntityRegistry.PARTICLE_SPAWNER.resource);
     }
 
     @Override

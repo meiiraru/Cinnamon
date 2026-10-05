@@ -1,4 +1,4 @@
-package cinnamon.world.entity.terrain;
+package cinnamon.world.entity.sound_system;
 
 import cinnamon.registry.EntityRegistry;
 import cinnamon.utils.Resource;
@@ -6,14 +6,14 @@ import cinnamon.world.entity.Entity;
 
 import java.util.UUID;
 
-public abstract class TerrainEntity extends Entity {
+public abstract class SoundSystemEntity extends Entity {
 
-    public TerrainEntity(UUID uuid, Resource model) {
+    public SoundSystemEntity(UUID uuid, Resource model) {
         super(uuid, model);
     }
 
     @Override
     public EntityRegistry getType() {
-        return EntityRegistry.TERRAIN;
+        return EntityRegistry.SOUND_SYSTEM;
     }
 }

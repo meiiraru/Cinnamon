@@ -8,6 +8,7 @@ import cinnamon.math.collision.shape.AABB;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.model.StaticGeometry;
+import cinnamon.registry.MiscModelRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.OutlineRenderer;
@@ -17,7 +18,6 @@ import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
-import cinnamon.utils.Resource;
 import org.joml.Math;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -30,8 +30,6 @@ import static cinnamon.vr.XrManager.swapchains;
 import static org.lwjgl.opengl.GL11.*;
 
 public class XrRenderer {
-
-    public static final Resource HAND_PATH = new Resource("models/xr/hands/paw.obj");
 
     //rendering
     public static final float DEPTH_OFFSET = 0.01f;
@@ -143,7 +141,7 @@ public class XrRenderer {
         userPoses.clear();
         for (int i = 0; i < size; i++)
             userPoses.add(new XrHandTransform());
-        handModel = ModelManager.getRenderer(HAND_PATH);
+        handModel = ModelManager.getRenderer(MiscModelRegistry.XR_HAND.resource);
     }
 
     static void updateHand(int hand, XrHandTransform transform) {

@@ -26,7 +26,7 @@ public enum EntityRegistry {
 
     //other
     SPAWNER,
-    TERRAIN,
+    SOUND_SYSTEM,
     XR_HAND,
     FIREWORK,
     TRIGGER_AREA,
