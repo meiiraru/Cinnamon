@@ -52,8 +52,10 @@ import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -79,12 +81,12 @@ public class WorldClient extends World {
     protected boolean enableDebugKeys = false;
 
     //lights
-    protected final List<Light> lights = new ArrayList<>();
+    protected final Set<Light> lights = new HashSet<>();
     protected final Light sunlight = new DirectionalLight().pos(0.5f, 5f, 0.5f).intensity(1f);
 
     //particles and decals
-    protected final List<Particle> particles = new ArrayList<>();
-    protected final List<Decal> decals = new ArrayList<>();
+    protected final Set<Particle> particles = new HashSet<>();
+    protected final Set<Decal> decals = new HashSet<>();
 
     //skybox
     protected Sky sky = new DynamicSky();
@@ -129,13 +131,26 @@ public class WorldClient extends World {
 
     public void reconstructWorld() {
         scheduledTicks.add(() -> {
-            //remove everything
+            //remove everything except the sun and player
             for (Entity e : new ArrayList<>(entities.values())) {
-                if (e != playerEntity)
+                if (e != playerEntity) {
                     e.remove();
+                    e.onRemoved();
+                }
             }
-            entities.clear();
+            for (Light l : new ArrayList<>(lights)) {
+                if (l != sunlight)
+                    l.onRemoved();
+            }
+            for (Particle p : new ArrayList<>(particles)) {
+                p.onRemoved();
+            }
+            for (Decal d : new ArrayList<>(decals)) {
+                d.onRemoved();
+            }
+
             terrainManager.clear();
+            entities.clear();
             lights.clear();
             particles.clear();
             decals.clear();
@@ -163,19 +178,23 @@ public class WorldClient extends World {
             //particles
             for (Iterator<Particle> iterator = particles.iterator(); iterator.hasNext(); ) {
                 Particle p = iterator.next();
-                if (p.isRemoved())
+                if (p.isRemoved()) {
                     iterator.remove();
-                else
+                    p.onRemoved();
+                } else {
                     p.tick();
+                }
             }
 
             //decals
             for (Iterator<Decal> iterator = decals.iterator(); iterator.hasNext(); ) {
                 Decal d = iterator.next();
-                if (d.isRemoved())
+                if (d.isRemoved()) {
                     iterator.remove();
-                else
+                    d.onRemoved();
+                } else {
                     d.tick();
+                }
             }
         }
 
@@ -509,7 +528,10 @@ public class WorldClient extends World {
     }
 
     public void removeLight(Light light) {
-        scheduledTicks.add(() -> this.lights.remove(light));
+        scheduledTicks.add(() -> {
+            this.lights.remove(light);
+            light.onRemoved();
+        });
     }
 
     public List<Light> getLights(Camera camera) {

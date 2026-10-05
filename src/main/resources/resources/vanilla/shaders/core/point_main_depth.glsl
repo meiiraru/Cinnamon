@@ -6,17 +6,39 @@ layout (location = 1) in float aTexID;
 layout (location = 2) in vec2 aTexCoords;
 
 flat out int texID;
-out vec3 worldPos;
-out vec2 texCoords;
-
-uniform mat4 lightSpaceMatrix;
+out vec3 v_worldPos;
+out vec2 v_texCoords;
 
 void main() {
     vec4 pos = vec4(aPosition, 1.0f);
-    gl_Position = lightSpaceMatrix * pos;
+    gl_Position = pos;
     texID = int(aTexID);
-    worldPos = pos.xyz;
-    texCoords = aTexCoords;
+    v_worldPos = pos.xyz;
+    v_texCoords = aTexCoords;
+}
+
+#type geometry
+#version 400 core
+
+layout(triangles, invocations = 6) in;
+layout(triangle_strip, max_vertices = 3) out;
+
+in vec3 v_worldPos[];
+in vec2 v_texCoords[];
+
+out vec3 worldPos;
+out vec2 texCoords;
+uniform mat4 shadowMatrices[6];
+
+void main() {
+    for (int i = 0; i < 3; i++) {
+        gl_Position = shadowMatrices[gl_InvocationID] * gl_in[i].gl_Position;
+        worldPos = v_worldPos[i];
+        texCoords = v_texCoords[i];
+        gl_Layer = gl_InvocationID;
+        EmitVertex();
+    }
+    EndPrimitive();
 }
 
 #type fragment

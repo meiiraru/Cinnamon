@@ -166,8 +166,10 @@ public class OctreeTerrain extends TerrainManager {
         }
 
         public boolean removeElement(Terrain terrain) {
-            if (contents.remove(terrain))
+            if (contents.remove(terrain)) {
+                terrain.onRemoved();
                 return true;
+            }
 
             boolean removed = false;
             if (children != null)
@@ -188,7 +190,11 @@ public class OctreeTerrain extends TerrainManager {
 
             //remove all terrain that intersects with the region
             int prev = contents.size();
-            contents.removeIf(terrain -> terrain.getAABB().intersects(region));
+            contents.removeIf(terrain -> {
+                boolean intersects = terrain.getAABB().intersects(region);
+                if (intersects) terrain.onRemoved();
+                return intersects;
+            });
             int removed = prev - contents.size();
 
             //including children
@@ -223,6 +229,8 @@ public class OctreeTerrain extends TerrainManager {
 
         public void clear() {
             //wipe contents
+            for (Terrain terrain : contents)
+                terrain.onRemoved();
             contents.clear();
 
             //wipe children

@@ -65,6 +65,7 @@ public abstract class World {
             if (e.isRemoved()) {
                 iterator.remove();
                 entityRemoved(e.getUUID());
+                e.onRemoved();
             } else {
                 e.tick();
             }
@@ -108,7 +109,8 @@ public abstract class World {
     public void updateTerrain(Terrain terrain) {
         scheduledTicks.add(() -> {
             if (terrainManager.remove(terrain))
-                terrainManager.insert(terrain);
+                if (terrainManager.insert(terrain))
+                    terrain.onUpdated();
         });
     }
 

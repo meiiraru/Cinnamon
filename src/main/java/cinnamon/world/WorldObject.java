@@ -33,6 +33,8 @@ public abstract class WorldObject {
         this.calculateBounds();
     }
 
+    public void onRemoved() {}
+
     public Transform getTransform() {
         return transform;
     }

@@ -309,10 +309,15 @@ public class PlaygroundWorld extends WorldClient {
         tree.setPos(25, 1, -35);
         addTerrain(tree);
 
-        Terrain treeGround = TerrainRegistry.BOX.getFactory().get();
-        treeGround.setMaterial(MaterialRegistry.GRASS2.material);
-        treeGround.setPos(25, 0, -35);
-        addTerrain(treeGround);
+        //sakura ground
+        TerrainGenerator.fill(this, 24, 0, -36, 26, 0, -33, MaterialRegistry.GRASS2.material);
+
+        //lamps
+        for (int i = 0; i < 5; i++) {
+            Lamp lamp = new Lamp();
+            lamp.setPos(32 - i * 3, 1, -32);
+            addTerrain(lamp);
+        }
 
         //terminal
         Terrain terminal = new Terminal();

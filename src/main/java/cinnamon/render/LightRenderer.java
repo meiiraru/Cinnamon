@@ -35,6 +35,9 @@ import java.util.Set;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 import static org.lwjgl.opengl.GL15.GL_DYNAMIC_COPY;
+import static org.lwjgl.opengl.GL30.GL_DEPTH_ATTACHMENT;
+import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
+import static org.lwjgl.opengl.GL32.glFramebufferTexture;
 
 public class LightRenderer {
 
@@ -43,7 +46,6 @@ public class LightRenderer {
     public static final ShadowCubemapFramebuffer cubeShadowBuffer = new ShadowCubemapFramebuffer();
     public static final Framebuffer lightGlareBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
     public static final Framebuffer volumetricBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
-    public static final Framebuffer volumetricBlurBuffer = new Framebuffer(Framebuffer.COLOR_BUFFER);
 
     public static final ShadowCascadeFramebuffer cascadeShadowBuffer = new ShadowCascadeFramebuffer(CascadedShadow.NUM_CASCADES);
     public static final CascadedShadow cascadedShadow = new CascadedShadow();
@@ -62,6 +64,11 @@ public class LightRenderer {
     private static final Matrix4f pointLightMatrix = new Matrix4f();
     private static final Quaternionf pointLightRotation = new Quaternionf();
     private static final Matrix4f lightModelMatrix = new Matrix4f();
+
+    private static final Matrix4f[] pointShadowMatrices = new Matrix4f[6];
+    static {
+        for (int i = 0; i < 6; i++) pointShadowMatrices[i] = new Matrix4f();
+    }
 
     private static final Set<Light> lightsToRender = new LinkedHashSet<>();
 
@@ -376,63 +383,61 @@ public class LightRenderer {
 
         //calculate light matrix
         light.calculateLightSpaceMatrix();
-        Matrix4f lightSpaceMatrix = light.getLightSpaceMatrix();
+        Matrix4f projMatrix = light.getLightSpaceMatrix();
         Vector3f pos = light.getTransform().getPos();
         float farPlane = light.getFalloffEnd();
 
-        //setup the shaders
+        //calculate all 6 face matrices in advance
+        int i = 0;
+        for (CubeMap.Face face : CubeMap.Face.values()) {
+            pointLightMatrix.setLookAt(
+                    pos.x, pos.y, pos.z,
+                    pos.x + face.direction.x, pos.y + face.direction.y, pos.z + face.direction.z,
+                    face.up.x, face.up.y, face.up.z
+            );
+            projMatrix.mul(pointLightMatrix, pointShadowMatrices[i]);
+            i++;
+        }
+
+        //setup shaders
         Shader s = Shaders.POINT_DEPTH.getShader().use();
         s.setVec3("lightPos", pos);
         s.setFloat("farPlane", farPlane);
+        s.setMat4Array("shadowMatrices", pointShadowMatrices);
 
         Shader sh = Shaders.POINT_MAIN_DEPTH.getShader().use();
         sh.setVec3("lightPos", pos);
         sh.setFloat("farPlane", farPlane);
+        sh.setMat4Array("shadowMatrices", pointShadowMatrices);
 
-        //render the scene for each cube map face
+        //bind the entire cubemap to the framebuffer
         cubeShadowBuffer.use();
-        for (CubeMap.Face face : CubeMap.Face.values()) {
-            //bind the face
-            cubeShadowBuffer.bindCubemap(face.GLTarget);
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, cubeShadowBuffer.getCubemap(), 0);
+        glClear(GL_DEPTH_BUFFER_BIT);
 
-            //check for the light mask
-            Boolean mask = light.testShadowCubemapMask(face);
-            if (mask != null) {
-                //clear the face to either black or white depending on the mask
-                PostProcess.COLOR_DEPTH
-                        .getShader()
-                        .use()
-                        .setFloat("depth", mask ? 1f : 0f);
-                StaticGeometry.QUAD.render();
-                continue;
-            }
+        //update frustum for culling
+        pointLightMatrix
+                .setOrtho(-farPlane, farPlane, -farPlane, farPlane, -farPlane, farPlane)
+                .translate(-pos.x, -pos.y, -pos.z);
 
-            //calculate look at matrix
-            Vector3f dir = face.direction;
-            Vector3f up = face.up;
-            pointLightMatrix.setLookAt(pos.x, pos.y, pos.z, pos.x + dir.x, pos.y + dir.y, pos.z + dir.z, up.x, up.y, up.z);
-            lightSpaceMatrix.mul(pointLightMatrix, pointLightMatrix);
+        camera.setPos(pos.x, pos.y, pos.z);
+        camera.setRot(90, 0, 0);
+        camera.updateFrustum(pointLightMatrix);
 
-            //update the camera
-            camera.setPos(pos.x, pos.y, pos.z);
-            camera.setRot(pointLightRotation.identity().lookAlong(dir, up));
-            camera.updateFrustum(pointLightMatrix);
+        //render the world
+        s.use();
+        renderFunction.run();
+        MaterialApplier.cleanup();
 
-            //render the world
-            s.use();
-            s.setMat4("lightSpaceMatrix", pointLightMatrix);
-            renderFunction.run();
-            MaterialApplier.cleanup();
-
-            //render vertex consumer
-            sh.use();
-            sh.setMat4("lightSpaceMatrix", pointLightMatrix);
-            VertexConsumer.finishAllBatches(sh, camera);
-        }
+        //render vertex consumer
+        glDisable(GL_CULL_FACE);
+        sh.use();
+        VertexConsumer.finishAllBatches(sh, camera);
 
         //reset state
         shadowLight = null;
         WorldRenderer.activeMask = WorldRenderer.passMask;
+        glEnable(GL_CULL_FACE);
     }
 
 

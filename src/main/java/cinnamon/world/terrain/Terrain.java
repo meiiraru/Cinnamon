@@ -119,6 +119,8 @@ public class Terrain extends WorldObject {
             w.updateTerrain(this);
     }
 
+    public void onUpdated() {}
+
     @Override
     public boolean shouldRender(Camera camera) {
         return camera.getPos().distanceSquared(transform.getPos()) <= getRenderDistance() && super.shouldRender(camera);
