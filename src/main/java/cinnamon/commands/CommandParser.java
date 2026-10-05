@@ -192,6 +192,12 @@ public class CommandParser {
             };
         }
 
+        //try player names
+        for (Entity entity : source.getWorld().getAllEntities()) {
+            if (entity instanceof Player && entity.getName().equalsIgnoreCase(arg))
+                return entity;
+        }
+
         //try to parse as UUID
         try {
             return source.getWorld().getEntityByUUID(UUID.fromString(arg));
