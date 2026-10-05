@@ -287,7 +287,7 @@ public class PlaygroundWorld extends WorldClient {
             }
 
             @Override
-            public boolean onUse(LivingEntity source) {
+            public boolean onUse(Entity source, Hit hit) {
                 if (petted == 0) {
                     petted = 5;
                     TextParticle tp = new TextParticle(Text.of(Maths.randomArr(msg)).withStyle(Style.EMPTY.outlined(true)), 60, getAABB().getRandomPoint(new Vector3f()));

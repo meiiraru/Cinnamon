@@ -1,6 +1,7 @@
 package cinnamon.world.entity.vehicle;
 
 import cinnamon.math.Rotation;
+import cinnamon.math.collision.Hit;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
@@ -37,8 +38,8 @@ public abstract class Vehicle extends PhysEntity {
     }
 
     @Override
-    public boolean onUse(LivingEntity source) {
-        return this.addRider(source) || super.onUse(source);
+    public boolean onUse(Entity source, Hit hit) {
+        return this.addRider(source) || super.onUse(source, hit);
     }
 
     @Override

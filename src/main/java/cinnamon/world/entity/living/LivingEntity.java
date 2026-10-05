@@ -322,8 +322,10 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     @Override
-    public boolean onAttacked(LivingEntity source) {
-        return damage(source, DamageType.MELEE, source.getMeleeDamage(), false);
+    public boolean onAttacked(Entity source, Hit hit) {
+        if (source instanceof LivingEntity le)
+            return damage(source, DamageType.MELEE, le.getMeleeDamage(), false);
+        return super.onAttacked(source, hit);
     }
 
     public void kill() {
@@ -391,7 +393,7 @@ public abstract class LivingEntity extends PhysEntity {
 
         //attack entity
         Pair<Hit, ? extends WorldObject> facingObject = getLookingObject(getMeleeRange());
-        return facingObject != null && facingObject.second() instanceof Entity e && e.onAttacked(this);
+        return facingObject != null && facingObject.second() instanceof Entity e && e.onAttacked(this, facingObject.first());
     }
 
     public void stopAttacking() {
@@ -412,7 +414,7 @@ public abstract class LivingEntity extends PhysEntity {
             return false;
 
         //use entity
-        if (facingObject.second() instanceof Entity e && e.onUse(this))
+        if (facingObject.second() instanceof Entity e && e.onUse(this, facingObject.first()))
             return true;
 
         //interact terrain

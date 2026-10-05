@@ -520,11 +520,11 @@ public abstract class Entity extends WorldObject {
         return getUUID().toString();
     }
 
-    public boolean onUse(LivingEntity source) {
+    public boolean onUse(Entity source, Hit hit) {
         return false;
     }
 
-    public boolean onAttacked(LivingEntity source) {
+    public boolean onAttacked(Entity source, Hit hit) {
         return false;
     }
 
