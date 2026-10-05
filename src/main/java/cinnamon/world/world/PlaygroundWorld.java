@@ -11,7 +11,6 @@ import cinnamon.model.ModelManager;
 import cinnamon.model.Vertex;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.MaterialRegistry;
-import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -131,7 +130,7 @@ public class PlaygroundWorld extends WorldClient {
         }
 
         //torii gate
-        Terrain torii = new Terrain(TerrainModelRegistry.TORII_GATE.resource, TerrainRegistry.CUSTOM);
+        Terrain torii = TerrainRegistry.TORII.getFactory().get();
         torii.setPos(38, 0.5f, -38);
         torii.setRotation(0, 45, 0);
         addTerrain(torii);
@@ -238,6 +237,7 @@ public class PlaygroundWorld extends WorldClient {
         Button btn2 = new Button();
         btn2.setPos(-20f, 1f, -25f);
         btn2.setOnPress(e -> {
+            addParticle(new TextParticle(Text.of("Look out!"), 60, btn2.getTransform().getPos()));
             Brick b = new Brick(UUID.randomUUID(), null);
             Vector3f pos = e.getTransform().getPos();
             b.setPos(pos.x, pos.y + 3f, pos.z);
@@ -310,7 +310,7 @@ public class PlaygroundWorld extends WorldClient {
         addTerrain(tree);
 
         //sakura ground
-        TerrainGenerator.fill(this, 24, 0, -36, 26, 0, -33, MaterialRegistry.GRASS2.material);
+        TerrainGenerator.fill(this, 23, 0, -36, 26, 0, -33, MaterialRegistry.GRASS2.material);
 
         //lamps
         for (int i = 0; i < 5; i++) {
@@ -318,6 +318,17 @@ public class PlaygroundWorld extends WorldClient {
             lamp.setPos(32 - i * 3, 1, -32);
             addTerrain(lamp);
         }
+
+        //bench lamp
+        Lamp lamp = new Lamp();
+        lamp.setPos(23, 1, -36);
+        addTerrain(lamp);
+
+        //bench
+        Bench bench = new Bench();
+        bench.setPos(23, 1, -34);
+        bench.setRotation(0, 90, 0);
+        addTerrain(bench);
 
         //terminal
         Terrain terminal = new Terminal();

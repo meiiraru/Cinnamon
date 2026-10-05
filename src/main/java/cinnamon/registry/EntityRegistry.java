@@ -30,5 +30,6 @@ public enum EntityRegistry {
     XR_HAND,
     FIREWORK,
     TRIGGER_AREA,
+    SEAT,
     UNKNOWN
 }

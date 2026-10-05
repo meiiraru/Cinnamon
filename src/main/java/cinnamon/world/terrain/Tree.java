@@ -21,7 +21,7 @@ public class Tree extends Terrain {
     protected int lastLeafTime = 0;
 
     public Tree() {
-        super(TerrainModelRegistry.TREE.resource, TerrainRegistry.CUSTOM);
+        super(TerrainModelRegistry.TREE.resource, TerrainRegistry.TREE);
         this.hitbox = ModelManager.getMesh(TerrainModelRegistry.TREE_HITBOX.resource);
         getCollisionMask().setMask(1, true);
     }

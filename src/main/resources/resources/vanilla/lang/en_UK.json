@@ -467,6 +467,7 @@
   "terrain.rose": "Rose",
   "terrain.glass": "Glass",
   "terrain.terminal": "Terminal",
+  "terrain.bench": "Bench",
   "terrain.lamp": "Lamp",
   "terrain.conveyor_belt": "Conveyor Belt",
   "terrain.button": "Button",

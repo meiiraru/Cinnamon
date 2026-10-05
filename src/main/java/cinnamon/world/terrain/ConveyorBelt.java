@@ -21,7 +21,7 @@ public class ConveyorBelt extends Terrain {
     }
 
     public ConveyorBelt(float beltSpeed) {
-        super(TerrainModelRegistry.CONVEYOR_BELT.resource, TerrainRegistry.CUSTOM);
+        super(TerrainModelRegistry.CONVEYOR_BELT.resource, TerrainRegistry.CONVEYOR_BELT);
         this.beltSpeed = beltSpeed;
     }
 

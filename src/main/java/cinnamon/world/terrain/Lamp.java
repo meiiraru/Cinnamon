@@ -39,4 +39,8 @@ public class Lamp extends Terrain {
         super.setScale(x, y, z);
         ((PointLight) light).falloff(1.5f * x, 3f * x);
     }
+
+    public Light getLight() {
+        return light;
+    }
 }

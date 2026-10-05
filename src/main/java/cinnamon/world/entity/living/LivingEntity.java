@@ -416,7 +416,7 @@ public abstract class LivingEntity extends PhysEntity {
             return true;
 
         //interact terrain
-        return facingObject.second() instanceof Terrain t && t.interact(this);
+        return facingObject.second() instanceof Terrain t && t.interact(this, facingObject.first());
     }
 
     public void stopUsing() {

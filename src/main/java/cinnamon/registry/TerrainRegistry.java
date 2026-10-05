@@ -15,7 +15,11 @@ public enum TerrainRegistry {
     GLASS(Glass::new),
     BARRIER(Barrier::new),
     GLTF(TerrainModelRegistry.GLTF_TEST.resource),
+    CONVEYOR_BELT(ConveyorBelt::new),
+    TORII(TerrainModelRegistry.TORII_GATE.resource),
+    TREE(Tree::new),
     TERMINAL(Terminal::new),
+    BENCH(Bench::new),
     LAMP(Lamp::new),
     CUSTOM((Resource) null);
 

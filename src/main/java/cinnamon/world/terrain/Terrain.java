@@ -2,6 +2,7 @@ package cinnamon.world.terrain;
 
 import cinnamon.animation.Animation;
 import cinnamon.math.collision.Collider;
+import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.math.collision.shape.OBB;
 import cinnamon.model.ModelManager;
@@ -197,7 +198,7 @@ public class Terrain extends WorldObject {
         return collisionMask;
     }
 
-    public boolean interact(Entity entity) {
+    public boolean interact(Entity entity, Hit hit) {
         return false;
     }
 

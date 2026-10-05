@@ -1,6 +1,7 @@
 package cinnamon.world.terrain;
 
 import cinnamon.animation.Animation;
+import cinnamon.math.collision.Hit;
 import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.sound.SoundCategory;
@@ -38,12 +39,12 @@ public class Button extends Terrain {
     }
 
     @Override
-    public boolean interact(Entity entity) {
+    public boolean interact(Entity entity, Hit hit) {
         //button press
         if (!isPressed()) {
             //no press function
             if (onPress == null)
-                return super.interact(entity);
+                return super.interact(entity, hit);
 
             //run press function
             onPress.accept(entity);

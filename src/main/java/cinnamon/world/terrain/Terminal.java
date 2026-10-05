@@ -3,6 +3,7 @@ package cinnamon.world.terrain;
 import cinnamon.Client;
 import cinnamon.commands.CommandParser;
 import cinnamon.gui.screens.world.TerminalScreen;
+import cinnamon.math.collision.Hit;
 import cinnamon.messages.MessageCategory;
 import cinnamon.messages.MessageManager;
 import cinnamon.model.material.Material;
@@ -62,7 +63,7 @@ public class Terminal extends Terrain  {
     }
 
     @Override
-    public boolean interact(Entity entity) {
+    public boolean interact(Entity entity, Hit hit) {
         Client.getInstance().setScreen(screen);
         return true;
     }
