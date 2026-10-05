@@ -49,7 +49,7 @@ public class Bench extends Terrain {
                 else rightSeatOccupied = false;
             }
         };
-        seatEntity.setPos(localHitPos.set(left ? 0.5f : -0.5f, -0.1f, 0f).rotate(benchRot).add(benchCenter));
+        seatEntity.setPos(localHitPos.set(left ? 0.5f : -0.5f, -0.1f, -0.1f).rotate(benchRot).add(benchCenter));
         seatEntity.setRot(benchRot);
         getWorld().addEntity(seatEntity);
         seatEntity.addRider(entity);
