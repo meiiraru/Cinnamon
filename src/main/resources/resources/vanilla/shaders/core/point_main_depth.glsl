@@ -2,7 +2,7 @@
 #version 330 core
 
 layout (location = 0) in vec3 aPosition;
-layout (location = 1) in float aTexID;
+layout (location = 1) in int aTexID;
 layout (location = 2) in vec2 aTexCoords;
 
 flat out int texID;
@@ -12,7 +12,7 @@ out vec2 v_texCoords;
 void main() {
     vec4 pos = vec4(aPosition, 1.0f);
     gl_Position = pos;
-    texID = int(aTexID);
+    texID = aTexID;
     v_worldPos = pos.xyz;
     v_texCoords = aTexCoords;
 }

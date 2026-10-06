@@ -9,7 +9,9 @@ import java.nio.FloatBuffer;
 import java.util.function.BiConsumer;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
+import static org.lwjgl.opengl.GL11.GL_INT;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL30.glVertexAttribIPointer;
 
 public enum Attributes {
 
@@ -30,7 +32,7 @@ public enum Attributes {
         b.put(pos.x);
         b.put(pos.y);
     }),
-    TEXTURE_ID(1, null, true),
+    TEXTURE_ID(1, null, false, true),
     UV(2, (v, b) -> {
         Vector2f uv = v.getUV();
         b.put(uv.x);
@@ -71,16 +73,22 @@ public enum Attributes {
     private final int sizeInBytes;
     private final BiConsumer<Vertex, FloatBuffer> consumer;
     private final boolean normalized;
+    private final boolean isInteger;
 
     Attributes(int size, BiConsumer<Vertex, FloatBuffer> consumer) {
         this(size, consumer, false);
     }
 
     Attributes(int size, BiConsumer<Vertex, FloatBuffer> consumer, boolean normalized) {
+        this(size, consumer, normalized, false);
+    }
+
+    Attributes(int size, BiConsumer<Vertex, FloatBuffer> consumer, boolean normalized, boolean isInteger) {
         this.size = size;
         this.sizeInBytes = size * Float.BYTES;
         this.consumer = consumer;
         this.normalized = normalized;
+        this.isInteger = isInteger;
     }
 
     public static int getVertexSize(Attributes... flags) {
@@ -98,7 +106,11 @@ public enum Attributes {
 
         //create attributes
         for (Attributes flag : flags) {
-            glVertexAttribPointer(index++, flag.size, GL_FLOAT, flag.normalized, stride, pointer);
+            if (flag.isInteger) {
+                glVertexAttribIPointer(index++, flag.size, GL_INT, stride, pointer);
+            } else {
+                glVertexAttribPointer(index++, flag.size, GL_FLOAT, flag.normalized, stride, pointer);
+            }
             pointer += flag.sizeInBytes;
         }
     }
@@ -108,7 +120,7 @@ public enum Attributes {
             if (flag.consumer != null)
                 flag.consumer.accept(vertex, buffer);
             else if (flag == TEXTURE_ID)
-                buffer.put(textureID);
+                buffer.put(Float.intBitsToFloat(textureID));
         }
     }
 }
