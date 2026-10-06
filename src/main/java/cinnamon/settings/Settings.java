@@ -124,7 +124,7 @@ public class Settings {
     // -- controls -- //
 
     //mouse
-    public static final Setting.Floats sensibility = new Setting.Floats("controls.mouse.sensibility", 0.5f);
+    public static final Setting.Floats sensitivity = new Setting.Floats("controls.mouse.sensitivity", 0.5f);
     public static final Setting.Bools
             invertX  = new Setting.Bools("controls.mouse.invert_mouse_x", false),
             invertY  = new Setting.Bools("controls.mouse.invert_mouse_y", false),

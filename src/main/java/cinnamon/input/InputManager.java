@@ -42,7 +42,7 @@ public class InputManager {
     }
 
     public static double getSensiMultiplier() {
-        double sensi = Settings.sensibility.get() * 0.6f + 0.2f;
+        double sensi = Settings.sensitivity.get() * 0.6f + 0.2f;
         return sensi * sensi * sensi * 8 * 0.15f;
     }
 }

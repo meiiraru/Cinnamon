@@ -471,7 +471,7 @@
   "terrain.lamp": "Lamp",
   "terrain.conveyor_belt": "Conveyor Belt",
   "terrain.button": "Button",
-  "terrain.torii_gate": "Torii Gate",
+  "terrain.torii": "Torii Gate",
   "terrain.tree": "Tree",
   "terrain.tree_hitbox": "Tree Hitbox",
   "terrain.gltf_test": "GLTF Test",
@@ -668,7 +668,7 @@
   "setting.accessibility.xr.click_on_hover_delay": "Click On Hover Delay",
 
   "setting.controls.mouse": "Mouse",
-  "setting.controls.mouse.sensibility": "Sensibility",
+  "setting.controls.mouse.sensitivity": "Sensitivity",
   "setting.controls.mouse.invert_mouse_x": "Invert X",
   "setting.controls.mouse.invert_mouse_y": "Invert Y",
   "setting.controls.mouse.raw_mouse": "Raw Mouse Input",

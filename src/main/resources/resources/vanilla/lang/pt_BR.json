@@ -457,7 +457,7 @@
   "terrain.lamp": "Luminária",
   "terrain.conveyor_belt": "Esteira",
   "terrain.button": "Botão",
-  "terrain.torii_gate": "Portão Torii",
+  "terrain.torii": "Portão Torii",
   "terrain.tree": "Árvore",
   "terrain.tree_hitbox": "Árvore (Caixa de Colisão)",
   "terrain.barrier": "Barreira",
@@ -653,7 +653,7 @@
   "setting.accessibility.xr.click_on_hover_delay": "Tempo do Clique ao Passar o Cursor",
 
   "setting.controls.mouse": "Mouse",
-  "setting.controls.mouse.sensibility": "Sensibilidade",
+  "setting.controls.mouse.sensitivity": "Sensibilidade",
   "setting.controls.mouse.invert_mouse_x": "Inverter X",
   "setting.controls.mouse.invert_mouse_y": "Inverter Y",
   "setting.controls.mouse.raw_mouse": "Raw Mouse Input",
