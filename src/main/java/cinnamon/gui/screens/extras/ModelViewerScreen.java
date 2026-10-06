@@ -206,6 +206,12 @@ public class ModelViewerScreen extends ParentedScreen {
         flyCam.setAction(b -> modelViewer.setFlyCam(((Switch) b).isToggled()));
         viewerOptions.addAction(flyCam);
 
+        //toggle antialiasing
+        Switch antiAliasing = new Switch(0, 0, Text.translated("gui.model_viewer_screen.anti_aliasing"));
+        antiAliasing.setToggled(modelViewer.shouldEnableAA());
+        antiAliasing.setAction(b -> modelViewer.setEnableAA(((Switch) b).isToggled()));
+        viewerOptions.addAction(antiAliasing);
+
         //materials
         ContextMenu materialMenu = new ContextMenu();
         materialMenu.closeOnSelect(false);

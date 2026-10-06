@@ -46,7 +46,7 @@ public class ModelViewer extends SelectableWidget implements Tickable {
     private MaterialRegistry selectedMaterial = MaterialRegistry.DEFAULT;
     private SkyBoxRegistry skybox = SkyBoxRegistry.WHITE;
 
-    private boolean renderBounds, renderSkybox, renderWireframe, cullBackFaces = true;
+    private boolean renderBounds, renderSkybox, renderWireframe, cullBackFaces = true, enableAA = true;
     private Consumer<MatrixStack> extraRendering;
 
     private float defaultScale = 1f, scaleFactor = 0.1f;
@@ -225,6 +225,10 @@ public class ModelViewer extends SelectableWidget implements Tickable {
             extraRendering.accept(matrices);
         VertexConsumer.finishAllBatches(camera);
 
+        //AA
+        if (enableAA)
+            WorldRenderer.applyFXAA();
+
         //finish world render
         WorldRenderer.bake();
 
@@ -352,6 +356,14 @@ public class ModelViewer extends SelectableWidget implements Tickable {
 
     public void setCullBackFaces(boolean cullBackFaces) {
         this.cullBackFaces = cullBackFaces;
+    }
+
+    public boolean shouldEnableAA() {
+        return enableAA;
+    }
+
+    public void setEnableAA(boolean enableAA) {
+        this.enableAA = enableAA;
     }
 
     public void setExtraRendering(Consumer<MatrixStack> extraRendering) {

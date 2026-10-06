@@ -142,6 +142,7 @@
   "gui.model_viewer_screen.skybox_color": "Skybox Colour",
   "gui.model_viewer_screen.backface_culling": "Backface Culling",
   "gui.model_viewer_screen.flycam": "Flycam Mode",
+  "gui.model_viewer_screen.anti_aliasing": "Anti-Aliasing",
   "gui.model_viewer_screen.export_model": "Export Model",
   "gui.model_viewer_screen.export_success": "Model exported!",
   "gui.model_viewer_screen.export_failed": "Failed to export model!",

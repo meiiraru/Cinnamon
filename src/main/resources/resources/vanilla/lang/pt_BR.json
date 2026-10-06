@@ -142,6 +142,7 @@
   "gui.model_viewer_screen.skybox_color": "Cor do Cenário",
   "gui.model_viewer_screen.backface_culling": "Remover Faces Traseiras",
   "gui.model_viewer_screen.flycam": "Modo Flycam",
+  "gui.model_viewer_screen.anti_aliasing": "Anti-Aliasing",
   "gui.model_viewer_screen.export_model": "Exportar Modelo",
   "gui.model_viewer_screen.export_success": "Modelo exportado!",
   "gui.model_viewer_screen.export_failed": "Falha ao exportar o modelo!",
