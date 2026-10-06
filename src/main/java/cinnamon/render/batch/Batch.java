@@ -3,15 +3,16 @@ package cinnamon.render.batch;
 import cinnamon.Client;
 import cinnamon.model.Vertex;
 import cinnamon.render.WorldRenderer;
-import cinnamon.render.shader.Attributes;
 import cinnamon.render.shader.Shader;
+import cinnamon.render.shader.VertexAttribute;
 import cinnamon.render.texture.Texture;
 import org.lwjgl.BufferUtils;
 
-import java.nio.FloatBuffer;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import static cinnamon.render.shader.VertexAttribute.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
@@ -26,10 +27,10 @@ public abstract class Batch { //vertex consumer
 
     //buffer
     protected final List<Integer> textures;
-    protected final FloatBuffer buffer;
+    protected final ByteBuffer buffer;
     protected final int vertexSize;
     protected final int verticesPerFace;
-    protected final Attributes[] attributes;
+    protected final VertexAttribute[] attributes;
     protected int faceCount = 0;
 
     //rendering data
@@ -43,15 +44,15 @@ public abstract class Batch { //vertex consumer
             TEXTURE_SLOTS[i] = i;
     }
 
-    public Batch(int verticesPerFace, Attributes... attributes) {
+    public Batch(int verticesPerFace, VertexAttribute... attributes) {
         this.textures = new ArrayList<>();
         this.verticesPerFace = verticesPerFace;
         this.attributes = attributes;
 
-        this.vertexSize = Attributes.getVertexSize(attributes);
+        this.vertexSize = VertexAttribute.getStrideInBytes(attributes);
         //each face have 6 vertices, times the amount of vertex data
         int capacity = BUFFER_SIZE * verticesPerFace * vertexSize;
-        buffer = BufferUtils.createFloatBuffer(capacity);
+        buffer = BufferUtils.createByteBuffer(capacity);
 
         //generate vao
         this.vaoID = glGenVertexArrays();
@@ -60,10 +61,10 @@ public abstract class Batch { //vertex consumer
         //generate vbo
         this.vboID = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vboID);
-        glBufferData(GL_ARRAY_BUFFER, (long) capacity * Float.BYTES, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, capacity, GL_DYNAMIC_DRAW);
 
         //enable the shader attributes
-        Attributes.load(attributes, vertexSize);
+        VertexAttribute.load(attributes);
         for (int i = 0; i < attributes.length; i++)
             glEnableVertexAttribArray(i);
 
@@ -158,9 +159,9 @@ public abstract class Batch { //vertex consumer
 
     protected void unwrapVertices(Vertex[] vertices, int texID) {
         for (int i = 1; i <= vertices.length - 2; i++) {
-            Attributes.pushVertex(buffer, vertices[0], texID, attributes);
-            Attributes.pushVertex(buffer, vertices[i], texID, attributes);
-            Attributes.pushVertex(buffer, vertices[i + 1], texID, attributes);
+            VertexAttribute.pushVertex(buffer, vertices[0],     texID, attributes);
+            VertexAttribute.pushVertex(buffer, vertices[i],     texID, attributes);
+            VertexAttribute.pushVertex(buffer, vertices[i + 1], texID, attributes);
         }
     }
 
@@ -186,13 +187,13 @@ public abstract class Batch { //vertex consumer
 
     public static class MainFlatBatch extends Batch {
         public MainFlatBatch() {
-            super(6, Attributes.POS, Attributes.TEXTURE_ID, Attributes.UV, Attributes.COLOR_RGBA);
+            super(6, POS, TEXTURE_ID, UV, COLOR_RGBA);
         }
     }
 
     public static class MainBatch extends Batch {
         public MainBatch() {
-            super(6, Attributes.POS, Attributes.TEXTURE_ID, Attributes.UV, Attributes.COLOR_RGBA, Attributes.NORMAL);
+            super(6, POS, TEXTURE_ID, UV, COLOR_RGBA, NORMAL);
         }
 
         @Override
@@ -207,7 +208,7 @@ public abstract class Batch { //vertex consumer
 
     public static class LinesBatch extends Batch {
         public LinesBatch() {
-            super(8, Attributes.POS, Attributes.COLOR_RGBA);
+            super(8, POS, COLOR_RGBA);
         }
 
         @Override
@@ -221,13 +222,13 @@ public abstract class Batch { //vertex consumer
 
             //loop through vertices
             for (int i = 1; i < len; i++) {
-                Attributes.pushVertex(buffer, vertices[i - 1], texID, attributes);
-                Attributes.pushVertex(buffer, vertices[i], texID, attributes);
+                VertexAttribute.pushVertex(buffer, vertices[i - 1], texID, attributes);
+                VertexAttribute.pushVertex(buffer, vertices[i],     texID, attributes);
             }
 
             //last pair
-            Attributes.pushVertex(buffer, vertices[0], texID, attributes);
-            Attributes.pushVertex(buffer, vertices[len - 1], texID, attributes);
+            VertexAttribute.pushVertex(buffer, vertices[0],       texID, attributes);
+            VertexAttribute.pushVertex(buffer, vertices[len - 1], texID, attributes);
         }
 
         @Override
@@ -238,7 +239,7 @@ public abstract class Batch { //vertex consumer
 
     public static class ScreenSpaceUVBatch extends Batch {
         public ScreenSpaceUVBatch() {
-            super(6, Attributes.POS, Attributes.TEXTURE_ID, Attributes.COLOR_RGBA, Attributes.NORMAL);
+            super(6, POS, TEXTURE_ID, COLOR_RGBA, NORMAL);
         }
     }
 }

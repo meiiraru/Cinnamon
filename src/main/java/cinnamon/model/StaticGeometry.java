@@ -1,12 +1,13 @@
 package cinnamon.model;
 
-import cinnamon.render.shader.Attributes;
+import cinnamon.render.shader.VertexAttribute;
 import org.lwjgl.BufferUtils;
 
-import java.nio.FloatBuffer;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import static cinnamon.render.shader.VertexAttribute.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
@@ -18,17 +19,17 @@ public class StaticGeometry {
     protected final int vao, vbo;
     protected final int vertexCount;
 
-    private StaticGeometry(Vertex[] vertices, Attributes... attributes) {
+    private StaticGeometry(Vertex[] vertices, VertexAttribute... attributes) {
         this.vertexCount = vertices.length;
 
         //load vertex attributes
         int elements = attributes.length;
-        int vertexSize = Attributes.getVertexSize(attributes);
+        int vertexSize = VertexAttribute.getStrideInBytes(attributes);
 
         //prepare vertex buffer
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(vertices.length * vertexSize);
+        ByteBuffer buffer = BufferUtils.createByteBuffer(vertices.length * vertexSize);
         for (Vertex vertex : vertices)
-            Attributes.pushVertex(buffer, vertex, -1, attributes);
+            VertexAttribute.pushVertex(buffer, vertex, -1, attributes);
         buffer.rewind();
 
         //generate vao
@@ -41,7 +42,7 @@ public class StaticGeometry {
         glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
 
         //enable the shader attributes
-        Attributes.load(attributes, vertexSize);
+        VertexAttribute.load(attributes);
         for (int i = 0; i < elements; i++)
             glEnableVertexAttribArray(i);
 
@@ -49,15 +50,15 @@ public class StaticGeometry {
         glBindVertexArray(0);
     }
 
-    public static StaticGeometry of(Vertex[] vertices, Attributes... attributes) {
+    public static StaticGeometry of(Vertex[] vertices, VertexAttribute... attributes) {
         return new StaticGeometry(vertices, attributes);
     }
 
-    public static StaticGeometry of(Vertex[][] vertices, Attributes... attributes) {
+    public static StaticGeometry of(Vertex[][] vertices, VertexAttribute... attributes) {
         return of(unwarp(vertices), attributes);
     }
 
-    public static StaticGeometry of(Vertex[] vertices, int[] indices, Attributes... attributes) {
+    public static StaticGeometry of(Vertex[] vertices, int[] indices, VertexAttribute... attributes) {
         return new EBOGeometry(vertices, indices, attributes);
     }
 
@@ -76,7 +77,7 @@ public class StaticGeometry {
         protected final int ebo;
         protected final int indexCount;
 
-        private EBOGeometry(Vertex[] vertices, int[] indices, Attributes... attributes) {
+        private EBOGeometry(Vertex[] vertices, int[] indices, VertexAttribute... attributes) {
             super(vertices, attributes);
             this.indexCount = indices.length;
 
@@ -112,17 +113,17 @@ public class StaticGeometry {
 
     public static final StaticGeometry
             QUAD = of(new Vertex[][]{GeometryHelper.invRectangle(null, -1f, -1f, 1f, 1f, 0f, 0xFFFFFFFF)},
-                    Attributes.POS_XY, Attributes.UV, Attributes.NORMAL),
+                    POS_XY, UV, NORMAL),
             TRIANGLE = of(new Vertex[][]{GeometryHelper.invTriangle(null, -1f, -1f, 1f, 1f, 0f, 0xFFFFFFFF)},
-                    Attributes.POS_XY, Attributes.UV, Attributes.NORMAL),
+                    POS_XY, UV, NORMAL),
             CUBE = of(GeometryHelper.box(null, -1f, -1f, -1f, 1f, 1f, 1f, 0),
-                    Attributes.POS, Attributes.UV, Attributes.NORMAL),
+                    POS, UV, NORMAL),
             INV_CUBE = of(GeometryHelper.box(null, 1f, 1f, 1f, -1f, -1f, -1f, 0),
-                    Attributes.POS, Attributes.UV, Attributes.NORMAL),
+                    POS, UV, NORMAL),
             SPHERE = of(GeometryHelper.sphere(null, 0f, 0f, 0f, 1f, 12, 0),
-                    Attributes.POS, Attributes.UV, Attributes.NORMAL),
+                    POS, UV, NORMAL),
             CONE = of(GeometryHelper.cone(null, 0, -1f, 0, 1f, 1f, 12, 0),
-                    Attributes.POS, Attributes.UV, Attributes.NORMAL);
+                    POS, UV, NORMAL);
 
     private static List<Vertex> unwarp(Vertex[] vertices) {
         List<Vertex> result = new ArrayList<>();
