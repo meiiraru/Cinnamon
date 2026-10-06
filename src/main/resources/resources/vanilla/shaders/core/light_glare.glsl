@@ -75,7 +75,7 @@ uniform vec3 color = vec3(1.0f);
 uniform float intensity = 1.0f;
 
 uniform int lightIndex;
-layout(std430, binding = 0) buffer VisibilityBuffer {
+layout(std430, binding = 0) coherent buffer VisibilityBuffer {
     float visibilities[];
 };
 

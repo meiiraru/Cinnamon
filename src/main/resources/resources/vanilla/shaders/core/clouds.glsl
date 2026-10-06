@@ -5,8 +5,8 @@
 #version 330 core
 
 in vec2 texCoords;
+
 out vec4 fragColor;
-out highp float gl_FragDepth;
 
 uniform vec2 resolution;
 uniform vec3 camPos;

@@ -48,8 +48,6 @@ flat in int texID;
 in vec3 worldPos;
 in vec2 texCoords;
 
-out highp float gl_FragDepth;
-
 uniform sampler2D textures[16];
 uniform vec3 lightPos;
 uniform float farPlane;

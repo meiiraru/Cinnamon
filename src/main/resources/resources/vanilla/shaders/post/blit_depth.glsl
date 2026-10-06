@@ -6,8 +6,6 @@
 
 in vec2 texCoords;
 
-out highp float gl_FragDepth;
-
 uniform sampler2D depthTex;
 
 void main() {

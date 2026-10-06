@@ -40,7 +40,7 @@ void main() {
     vec2 id = floor(uv);
 
     float mindist = 1e9f;
-    vec2 vorv;
+    vec2 vorv = vec2(0.0f);
     for (float i = -1.0f; i <= 1.0f; i++) {
         for (float j= -1.0f; j <= 1.0f; j++) {
             vec2 offv = vec2(i, j);

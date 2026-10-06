@@ -46,8 +46,6 @@ void main() {
 in vec3 worldPos;
 in vec2 texCoords;
 
-out highp float gl_FragDepth;
-
 uniform sampler2D textureSampler;
 uniform vec3 lightPos;
 uniform float farPlane;

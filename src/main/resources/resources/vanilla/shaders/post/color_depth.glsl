@@ -9,8 +9,6 @@ void main() {
 #type fragment
 #version 330 core
 
-out highp float gl_FragDepth;
-
 uniform float depth;
 
 void main() {
