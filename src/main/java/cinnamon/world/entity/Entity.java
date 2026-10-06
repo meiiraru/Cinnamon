@@ -24,7 +24,6 @@ import cinnamon.utils.Mask;
 import cinnamon.utils.Pair;
 import cinnamon.utils.Resource;
 import cinnamon.world.WorldObject;
-import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.world.World;
 import cinnamon.world.world.WorldClient;
@@ -401,6 +400,10 @@ public abstract class Entity extends WorldObject {
         return 1f;
     }
 
+    public float getAttackRange() {
+        return getPickRange();
+    }
+
     public Pair<Hit, Terrain> getLookingTerrain(float distance) {
         //prepare positions
         Vector3f pos = getEyePos();
@@ -519,6 +522,30 @@ public abstract class Entity extends WorldObject {
 
         return getUUID().toString();
     }
+
+    public boolean attackAction() {
+        //attack entity
+        Pair<Hit, ? extends WorldObject> facingObject = getLookingObject(getAttackRange());
+        return facingObject != null && facingObject.second() instanceof Entity e && e.onAttacked(this, facingObject.first());
+    }
+
+    public void stopAttacking() {}
+
+    public boolean useAction() {
+        //interact with object
+        Pair<Hit, ? extends WorldObject> facingObject = getLookingObject(getPickRange());
+        if (facingObject == null)
+            return false;
+
+        //use entity
+        if (facingObject.second() instanceof Entity e && e.onUse(this, facingObject.first()))
+            return true;
+
+        //interact terrain
+        return facingObject.second() instanceof Terrain t && t.interact(this, facingObject.first());
+    }
+
+    public void stopUsing() {}
 
     public boolean onUse(Entity source, Hit hit) {
         return false;

@@ -317,7 +317,8 @@ public abstract class LivingEntity extends PhysEntity {
         return 1;
     }
 
-    public float getMeleeRange() {
+    @Override
+    public float getAttackRange() {
         return 1.5f;
     }
 
@@ -386,45 +387,41 @@ public abstract class LivingEntity extends PhysEntity {
         //    ServerConnection.connection.sendToAllUDP(new SyncHealth().entity(getUUID()).health(health));
     }
 
+    @Override
     public boolean attackAction() {
         //attack using holding item
         if (getHoldingItem() != null && getHoldingItem().fire())
             return true;
 
-        //attack entity
-        Pair<Hit, ? extends WorldObject> facingObject = getLookingObject(getMeleeRange());
-        return facingObject != null && facingObject.second() instanceof Entity e && e.onAttacked(this, facingObject.first());
+        return super.attackAction();
     }
 
+    @Override
     public void stopAttacking() {
         Item i = getHoldingItem();
         if (i != null)
             i.stopFiring();
+
+        super.stopAttacking();
     }
 
+    @Override
     public boolean useAction() {
         //use holding item
         Item i = getHoldingItem();
         if (i != null && i.use())
             return true;
 
-        //interact with object
-        Pair<Hit, ? extends WorldObject> facingObject = getLookingObject(getPickRange());
-        if (facingObject == null)
-            return false;
-
-        //use entity
-        if (facingObject.second() instanceof Entity e && e.onUse(this, facingObject.first()))
-            return true;
-
-        //interact terrain
-        return facingObject.second() instanceof Terrain t && t.interact(this, facingObject.first());
+        return super.useAction();
     }
 
+    @Override
     public void stopUsing() {
         Item i = getHoldingItem();
         if (i != null)
             i.stopUsing();
+
+        super.stopUsing();
     }
 
     public int giveItem(Item item) {
