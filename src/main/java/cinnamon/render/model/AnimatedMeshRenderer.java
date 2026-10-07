@@ -76,11 +76,14 @@ public class AnimatedMeshRenderer extends MeshRenderer {
             return;
         }
 
-        if (bone.getChildren().isEmpty())
-            return;
-
         matrices.pushMatrix();
         bone.getTransform().applyTransform(matrices);
+
+        if (bone.getChildren().isEmpty()) {
+            matrices.popMatrix();
+            return;
+        }
+
         Shader.activeShader.applyMatrixStack(matrices);
 
         for (Bone child : bone.getChildren())

@@ -67,6 +67,7 @@ public class AnimationLoader {
 
                 Bone child = new Bone(newName, true);
                 bone.getChildren().add(child);
+                child.setParent(bone);
                 boneMap.put(child.getName(), child);
                 continue;
             }
@@ -76,6 +77,7 @@ public class AnimationLoader {
 
             Bone child = new Bone("bone:" + object.get("name").getAsString());
             bone.getChildren().add(child);
+            child.setParent(bone);
             boneMap.put(child.getName(), child);
 
             child.getTransform().setPivot(parseVec3(object.getAsJsonArray("origin"), POS_RATIO, false));

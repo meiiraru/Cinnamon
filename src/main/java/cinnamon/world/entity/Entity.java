@@ -2,6 +2,7 @@ package cinnamon.world.entity;
 
 import cinnamon.Client;
 import cinnamon.animation.Animation;
+import cinnamon.animation.Bone;
 import cinnamon.gui.DebugScreen;
 import cinnamon.input.Controller;
 import cinnamon.math.Maths;
@@ -147,7 +148,7 @@ public abstract class Entity extends WorldObject {
                 camera.getPos().distanceSquared(transform.getPos()) <= 1024;
     }
 
-    public void renderDebugHitbox(MatrixStack matrices, float delta) {
+    public void renderDebugHitbox(Camera camera, MatrixStack matrices, float delta) {
         //bounding box
         DebugRenderer.renderAABB(matrices, aabb, 0xFFFFFFFF);
 
@@ -156,6 +157,19 @@ public abstract class Entity extends WorldObject {
         matrices.translate(getEyePos());
         DebugRenderer.renderArrow(matrices, getLookDir(), 1f, 0xFF0000FF);
         matrices.popMatrix();
+
+        if (model instanceof AnimatedMeshRenderer obj) {
+            matrices.pushMatrix();
+            matrices.translate(getPos(delta));
+            applyModelPose(camera, matrices, delta);
+            DebugRenderer.renderAnimationBones(matrices, obj.getBone(), 0.03f, 0xAA00F0FF);
+            matrices.popMatrix();
+        }
+    }
+
+    public Vector3f getBonePosition(String bone, Vector3f out) {
+        Bone b = model instanceof AnimatedMeshRenderer obj ? obj.getBone().findBone(bone) : null;
+        return out.set(b != null ? b.getTransform().getLastPosition() : this.getTransform().getPos());
     }
 
     public boolean shouldRenderOutline() {

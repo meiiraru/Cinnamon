@@ -21,6 +21,7 @@ public enum ParticlesRegistry {
     SNOW(new Resource("textures/particles/snow.png")),
     RIPPLE(new Resource("textures/particles/ripple.png")),
     LEAF(new Resource("textures/particles/leaf.png")),
+    SPARKLE(new Resource("textures/particles/sparkle.png")),
     OTHER(null);
 
     public final Resource texture;

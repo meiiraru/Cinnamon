@@ -1,7 +1,6 @@
 package cinnamon.gui.screens.extras;
 
 import cinnamon.animation.Animation;
-import cinnamon.animation.Bone;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
@@ -271,7 +270,7 @@ public class ModelViewerScreen extends ParentedScreen {
             //render model pivots
             if (renderAnimationBones && modelViewer.getModel() instanceof AnimatedMeshRenderer obj) {
                 glDisable(GL_DEPTH_TEST);
-                renderBone(matrices, obj.getBone(), 0.01f);
+                DebugRenderer.renderAnimationBones(matrices, obj.getBone(), 0.02f, 0xAA00F0FF);
                 VertexConsumer.finishAllBatches(ModelViewer.getCamera());
                 glEnable(GL_DEPTH_TEST);
             }
@@ -290,22 +289,6 @@ public class ModelViewerScreen extends ParentedScreen {
     @Override
     protected void addBackButton() {
         //super.addBackButton();
-    }
-
-    private static void renderBone(MatrixStack matrices, Bone bone, float size) {
-        matrices.pushMatrix();
-        bone.getTransform().applyTransform(matrices);
-
-        if (!bone.isModel()) {
-            matrices.pushMatrix();
-            matrices.translate(bone.getTransform().getPivot());
-            VertexConsumer.LINES.consume(GeometryHelper.box(matrices, -size, -size, -size, size, size, size, 0xAA00F0FF));
-            matrices.popMatrix();
-        }
-
-        for (Bone child : bone.getChildren())
-            renderBone(matrices, child, size);
-        matrices.popMatrix();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package cinnamon.render;
 
 import cinnamon.Client;
+import cinnamon.animation.Bone;
 import cinnamon.math.Maths;
 import cinnamon.math.Rotation;
 import cinnamon.math.collision.Collider;
@@ -275,6 +276,22 @@ public class DebugRenderer {
 
         VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, -0.25f, -0.25f, 0.5f, 0.5f), SPEAKER);
 
+        matrices.popMatrix();
+    }
+
+    public static void renderAnimationBones(MatrixStack matrices, Bone rootBone, float size, int color) {
+        matrices.pushMatrix();
+        rootBone.getTransform().applyTransform(matrices);
+
+        if (!rootBone.isModel()) {
+            matrices.pushMatrix();
+            matrices.translate(rootBone.getTransform().getPivot());
+            VertexConsumer.LINES.consume(GeometryHelper.box(matrices, -size, -size, -size, size, size, size, color));
+            matrices.popMatrix();
+        }
+
+        for (Bone child : rootBone.getChildren())
+            renderAnimationBones(matrices, child, size, color);
         matrices.popMatrix();
     }
 }

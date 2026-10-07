@@ -14,6 +14,8 @@ public class Bone {
     private final List<Bone> children = new ArrayList<>();
     private final ModelTransform transform = new ModelTransform();
 
+    private Bone parent;
+
     public Bone(String name) {
         this(name, false);
     }
@@ -31,8 +33,11 @@ public class Bone {
 
         boneMap.put(other, this);
 
-        for (Bone child : other.children)
-            children.add(new Bone(child, boneMap));
+        for (Bone child : other.children) {
+            Bone newChild = new Bone(child, boneMap);
+            children.add(newChild);
+            newChild.setParent(this);
+        }
     }
 
     public String getName() {
@@ -47,7 +52,28 @@ public class Bone {
         return children;
     }
 
+    public Bone getParent() {
+        return parent;
+    }
+
+    public void setParent(Bone parent) {
+        this.parent = parent;
+    }
+
     public ModelTransform getTransform() {
         return transform;
+    }
+
+    public Bone findBone(String name) {
+        if (this.name.equals(name))
+            return this;
+
+        for (Bone child : children) {
+            Bone found = child.findBone(name);
+            if (found != null)
+                return found;
+        }
+
+        return null;
     }
 }

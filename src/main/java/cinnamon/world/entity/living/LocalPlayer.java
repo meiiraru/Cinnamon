@@ -14,6 +14,7 @@ import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.WorldRenderer;
 import cinnamon.settings.Settings;
 import cinnamon.utils.Pair;
+import cinnamon.utils.Resource;
 import cinnamon.vr.XrHandTransform;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
@@ -39,7 +40,11 @@ public class LocalPlayer extends Player {
     }
 
     public LocalPlayer(String name, LivingModelRegistry model) {
-        super(name, UUID.nameUUIDFromBytes(name.getBytes()), model);
+        this(name, model.resource, model.eyeHeight);
+    }
+
+    public LocalPlayer(String name, Resource model, float eyeHeight) {
+        super(name, UUID.nameUUIDFromBytes(name.getBytes()), model, eyeHeight);
         this.getController().bindClick(
                 "pick", Settings.pick.get(),
                 clicks -> this.pick()

@@ -15,6 +15,14 @@ public class ModelTransform extends Transform {
     protected final Vector4f color = new Vector4f(1f, 1f, 1f, 1f);
     protected final Vector2f uv = new Vector2f();
 
+    protected final Vector3f lastPosition = new Vector3f();
+
+    @Override
+    public void applyTransform(MatrixStack target) {
+        super.applyTransform(target);
+        lastPosition.set(pivot).mulPosition(target.peek().pos());
+    }
+
     @Override
     protected void recalculatePose(MatrixStack.Pose mat) {
         mat.translate(pivot.x + pos.x, pivot.y + pos.y, pivot.z + pos.z);
@@ -66,6 +74,10 @@ public class ModelTransform extends Transform {
 
     public Vector2f getUV() {
         return uv;
+    }
+
+    public Vector3f getLastPosition() {
+        return lastPosition;
     }
 
     public Transform setPivot(Vector3f vec) {

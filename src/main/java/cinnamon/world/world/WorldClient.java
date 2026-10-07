@@ -455,7 +455,7 @@ public class WorldClient extends World {
             //entities
             for (Entity e : getEntities(area)) {
                 if (e != cameraEntity || isThirdPerson())
-                    e.renderDebugHitbox(matrices, delta);
+                    e.renderDebugHitbox(camera, matrices, delta);
             }
         }
     }

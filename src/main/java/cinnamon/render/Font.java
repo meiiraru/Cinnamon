@@ -393,7 +393,7 @@ public class Font {
 
         //underline
         if (underlined)
-            consumer.consume(rectangle(matrices, x0, y0, x0 + width, y0 + 1, z, color));
+            consumer.consume(rectangle(matrices, x0, y0 + 1f, x0 + width, y0 + 2f, z, color));
 
         //strikethrough
         if (strikethrough) {

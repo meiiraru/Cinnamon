@@ -40,8 +40,8 @@ public abstract class Collectable extends PhysEntity {
     }
 
     @Override
-    public void renderDebugHitbox(MatrixStack matrices, float delta) {
-        super.renderDebugHitbox(matrices, delta);
+    public void renderDebugHitbox(Camera camera, MatrixStack matrices, float delta) {
+        super.renderDebugHitbox(camera, matrices, delta);
         //entity bounding box
         DebugRenderer.renderAABB(matrices, entityAABB, 0xFF00FF00);
     }

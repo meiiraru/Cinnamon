@@ -6,6 +6,7 @@ import cinnamon.math.collision.shape.AABB;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.settings.Settings;
+import cinnamon.utils.Resource;
 import cinnamon.world.Abilities;
 import cinnamon.world.entity.DamageType;
 import cinnamon.world.entity.Entity;
@@ -42,7 +43,11 @@ public class Player extends LivingEntity {
     }
 
     public Player(String name, UUID uuid, LivingModelRegistry model) {
-        super(uuid, model.resource, model.eyeHeight, MAX_HEALTH, INVENTORY_SIZE);
+        this(name, uuid, model.resource, model.eyeHeight);
+    }
+
+    public Player(String name, UUID uuid, Resource model, float eyeHeight) {
+        super(uuid, model, eyeHeight, MAX_HEALTH, INVENTORY_SIZE);
         this.setName(name);
         this.getController().bindDoubleClick(
                 "fly_toggle", Settings.jump.get(),
