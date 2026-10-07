@@ -24,6 +24,13 @@ public class SeatEntity extends Entity {
     }
 
     @Override
+    public boolean addRider(Entity e) {
+        boolean bool = super.addRider(e);
+        if (bool) e.rotateTo(this.getTransform().getRot());
+        return bool;
+    }
+
+    @Override
     public EntityRegistry getType() {
         return EntityRegistry.SEAT;
     }

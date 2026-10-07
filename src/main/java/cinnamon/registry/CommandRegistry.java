@@ -33,6 +33,7 @@ public class CommandRegistry {
         register("say", new Say(), "speak", "chat");
         register("runas", new RunAs(), "run", "do", "execute");
         register("interact", new Interact());
+        register("sit", new Sit(), "seat");
     }
 
     /**
