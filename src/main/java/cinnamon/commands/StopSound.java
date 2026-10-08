@@ -3,6 +3,7 @@ package cinnamon.commands;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundManager;
 import cinnamon.text.Text;
+import cinnamon.world.world.WorldClient;
 
 import java.util.Stack;
 
@@ -12,6 +13,8 @@ public class StopSound implements Command {
 
     @Override
     public Text execute(CommandSource source, Stack<String> args) {
+        boolean isThePlayer = source.entity() == ((WorldClient) source.world()).playerEntity;
+
         //parse category
         if (args.isEmpty())
             return Text.of("Failed to execute command, missing arguments").withStyle(ERROR_STYLE);
@@ -20,14 +23,16 @@ public class StopSound implements Command {
 
         //stop all sounds
         if (categoryStr.equalsIgnoreCase("all")) {
-            SoundManager.stopAll();
+            if (isThePlayer)
+                SoundManager.stopAll();
             return Text.of("Stopped all sounds");
         }
 
         //stop by the specified category
         try {
             SoundCategory category = SoundCategory.valueOf(categoryStr.toUpperCase());
-            SoundManager.stopAll(cat -> cat == category);
+            if (isThePlayer)
+                SoundManager.stopAll(cat -> cat == category);
             return Text.of("Stopped all sounds in category: " + categoryStr);
         } catch (IllegalArgumentException e) {
             return Text.of("Invalid sound category: " + categoryStr).withStyle(ERROR_STYLE);
