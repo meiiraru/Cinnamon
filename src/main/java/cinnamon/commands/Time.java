@@ -1,7 +1,6 @@
 package cinnamon.commands;
 
 import cinnamon.text.Text;
-import cinnamon.world.entity.Entity;
 import cinnamon.world.world.World;
 
 import java.util.Stack;
@@ -11,8 +10,8 @@ import static cinnamon.commands.CommandParser.ERROR_STYLE;
 public class Time implements Command {
 
     @Override
-    public Text execute(Entity source, Stack<String> args) {
-        World world = source.getWorld();
+    public Text execute(CommandSource source, Stack<String> args) {
+        World world = source.world();
 
         if (args.isEmpty())
             return Text.of(world.getTime());

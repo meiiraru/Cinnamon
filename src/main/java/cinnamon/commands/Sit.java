@@ -13,17 +13,22 @@ import static cinnamon.commands.CommandParser.ERROR_STYLE;
 public class Sit implements Command {
 
     @Override
-    public Text execute(Entity source, Stack<String> args) {
-        if (source.isRiding()) {
-            source.stopRiding();
+    public Text execute(CommandSource source, Stack<String> args) {
+        //check for entity
+        Entity self = source.entity();
+        if (self == null)
+            return Text.of("Target not found").withStyle(ERROR_STYLE);
+
+        if (self.isRiding()) {
+            self.stopRiding();
             return Text.of("Stopped sitting");
         }
 
         SeatEntity seatEntity = new SeatEntity(UUID.randomUUID());
-        seatEntity.setPos(source.getTransform().getPos());
-        seatEntity.setRot(0f, Maths.getYaw(source.getTransform().getRot()), 0f);
-        source.getWorld().addEntity(seatEntity);
-        seatEntity.addRider(source);
+        seatEntity.setPos(source.position());
+        seatEntity.setRot(0f, Maths.getYaw(source.rotation()), 0f);
+        source.world().addEntity(seatEntity);
+        seatEntity.addRider(self);
 
         return Text.of("Sat down");
     }

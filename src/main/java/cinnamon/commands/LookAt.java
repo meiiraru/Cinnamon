@@ -11,7 +11,13 @@ import static cinnamon.commands.CommandParser.ERROR_STYLE;
 public class LookAt implements Command {
 
     @Override
-    public Text execute(Entity source, Stack<String> args) {
+    public Text execute(CommandSource source, Stack<String> args) {
+        //check for entity
+        Entity self = source.entity();
+        if (self == null)
+            return Text.of("Target not found").withStyle(ERROR_STYLE);
+
+        //check for arguments
         if (args.isEmpty())
             return Text.of("Failed to execute command, missing arguments").withStyle(ERROR_STYLE);
 
@@ -45,7 +51,7 @@ public class LookAt implements Command {
         }
 
         //apply rotation to look at the position
-        source.lookAt(pos);
+        self.lookAt(pos);
         return Text.of("Looking at %.3f %.3f %.3f".formatted(pos.x, pos.y, pos.z));
     }
 

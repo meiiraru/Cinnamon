@@ -11,7 +11,7 @@ import static cinnamon.commands.CommandParser.ERROR_STYLE;
 public class Health implements Command {
 
     @Override
-    public Text execute(Entity source, Stack<String> args) {
+    public Text execute(CommandSource source, Stack<String> args) {
         //parse target entity
         if (args.isEmpty())
             return Text.of("Failed to execute command, missing arguments").withStyle(ERROR_STYLE);

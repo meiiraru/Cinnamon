@@ -3,7 +3,6 @@ package cinnamon.commands;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundManager;
 import cinnamon.text.Text;
-import cinnamon.world.entity.Entity;
 
 import java.util.Stack;
 
@@ -12,7 +11,7 @@ import static cinnamon.commands.CommandParser.ERROR_STYLE;
 public class StopSound implements Command {
 
     @Override
-    public Text execute(Entity source, Stack<String> args) {
+    public Text execute(CommandSource source, Stack<String> args) {
         //parse category
         if (args.isEmpty())
             return Text.of("Failed to execute command, missing arguments").withStyle(ERROR_STYLE);

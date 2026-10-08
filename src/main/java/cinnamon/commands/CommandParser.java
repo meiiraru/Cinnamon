@@ -12,7 +12,6 @@ import cinnamon.utils.Pair;
 import cinnamon.utils.Trie;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.Player;
-import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -41,7 +40,7 @@ public class CommandParser {
         commandTrie.insert(nam, command);
     }
 
-    public static Text runCommand(Entity source, String input) {
+    public static Text runCommand(CommandSource source, String input) {
         String[] parts = input.trim().split("\\s+");
         if (parts.length == 0)
             return Text.of("Unknown command").withStyle(ERROR_STYLE);
@@ -82,12 +81,13 @@ public class CommandParser {
         }
     }
 
-    static Vector3f parseCoordinate(Entity source, Stack<String> args) {
+    static Vector3f parseCoordinate(CommandSource source, Stack<String> args) {
         if (args.size() < 3)
             return null;
 
         Vector3f result = new Vector3f();
-        Vector3f relativePos = source.getTransform().getPos();
+        Vector3f relativePos = new Vector3f(source.position());
+        Vector3f lookDir = new Vector3f(source.direction());
 
         try {
             //check for directional coordinates "^left ^up ^forward"
@@ -97,7 +97,7 @@ public class CommandParser {
                     args.pop();
                 }
 
-                result.rotate(Maths.dirToQuat(source.getLookDir()));
+                result.rotate(Maths.dirToQuat(lookDir));
                 result.add(relativePos);
             }
 
@@ -115,13 +115,12 @@ public class CommandParser {
         }
     }
 
-    static Vector2f parseRotation(Entity source, Stack<String> args) {
+    static Vector2f parseRotation(CommandSource source, Stack<String> args) {
         if (args.size() < 2)
             return null;
 
-        Quaternionf rot = source.getTransform().getRot();
         Vector2f result = new Vector2f();
-        Vector2f relativeRot = new Vector2f(Maths.getPitch(rot), Maths.getYaw(rot));
+        Vector2f relativeRot = new Vector2f(Maths.getPitch(source.rotation()), Maths.getYaw(source.rotation()));
 
         try {
             for (int i = 0; i < 2; i++) {
@@ -151,25 +150,26 @@ public class CommandParser {
         }
     }
 
-    static Entity parseEntity(Entity source, String arg) {
+    static Entity parseEntity(CommandSource source, String arg) {
         //parse entity selector
         if (arg.charAt(0) == '@') {
             char selector = arg.charAt(1);
             return switch (selector) {
                 //self
-                case 's' -> source;
+                case 's' -> source.entity();
                 //looking
                 case 'l' -> {
-                    Pair<Hit, Entity> looking = source.getLookingEntity(source.getPickRange());
+                    if (source.entity() == null) yield null;
+                    Pair<Hit, Entity> looking = source.entity().getLookingEntity(source.entity().getPickRange());
                     yield looking != null ? looking.second() : null;
                 }
                 //nearest player
                 case 'p' -> {
                     Entity closest = null;
                     float closestDist = Float.MAX_VALUE;
-                    for (Entity entity : source.getWorld().getAllEntities()) {
+                    for (Entity entity : source.world().getAllEntities()) {
                         if (entity instanceof Player) {
-                            float dist = source.getTransform().getPos().distance(entity.getTransform().getPos());
+                            float dist = source.position().distance(entity.getTransform().getPos());
                             if (dist < closestDist) {
                                 closestDist = dist;
                                 closest = entity;
@@ -180,7 +180,7 @@ public class CommandParser {
                 }
                 //random entity
                 case 'r' -> {
-                    Collection<Entity> entities = source.getWorld().getAllEntities();
+                    Collection<Entity> entities = source.world().getAllEntities();
                     yield entities.stream()
                             .skip((int) (Math.random() * entities.size()))
                             .findFirst()
@@ -193,14 +193,14 @@ public class CommandParser {
         }
 
         //try player names
-        for (Entity entity : source.getWorld().getAllEntities()) {
+        for (Entity entity : source.world().getAllEntities()) {
             if (entity instanceof Player && entity.getName().equalsIgnoreCase(arg))
                 return entity;
         }
 
         //try to parse as UUID
         try {
-            return source.getWorld().getEntityByUUID(UUID.fromString(arg));
+            return source.world().getEntityByUUID(UUID.fromString(arg));
         } catch (Exception ignored) {
             return null;
         }

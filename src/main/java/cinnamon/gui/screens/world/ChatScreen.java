@@ -1,6 +1,7 @@
 package cinnamon.gui.screens.world;
 
 import cinnamon.commands.CommandParser;
+import cinnamon.commands.CommandSource;
 import cinnamon.gui.GUISkin;
 import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.WidgetList;
@@ -175,11 +176,23 @@ public class ChatScreen extends Screen {
 
                     if (!s.isBlank()) {
                         //try to send a command
-                        if (s.startsWith("/"))
-                            MessageManager.addMessage(CommandParser.runCommand(client.world.playerEntity, s.substring(1)), MessageCategory.SYSTEM, null);
+                        if (s.startsWith("/")) {
+                            CommandSource source = new CommandSource(
+                                    client.world.playerEntity,
+                                    client.world.playerEntity.getNameRepresentation(),
+                                    client.world,
+                                    client.world.playerEntity.getTransform().getPos(),
+                                    client.world.playerEntity.getTransform().getRot(),
+                                    client.world.playerEntity.getLookDir()
+                            );
+
+                            MessageManager.addMessage(CommandParser.runCommand(source, s.substring(1)), MessageCategory.SYSTEM, null);
+
+                        }
                         //otherwise send as a chat message
-                        else
+                        else {
                             MessageManager.addMessage(s, MessageCategory.CHAT, client.world.playerEntity);
+                        }
 
                         //store the message
                         if (sentMessages.isEmpty() || !sentMessages.getLast().equals(s))

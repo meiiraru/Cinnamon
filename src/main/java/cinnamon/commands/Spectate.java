@@ -11,13 +11,13 @@ import static cinnamon.commands.CommandParser.ERROR_STYLE;
 public class Spectate implements Command {
 
     @Override
-    public Text execute(Entity source, Stack<String> args) {
-        Entity target = args.isEmpty() ? source : CommandParser.parseEntity(source, args.pop());
+    public Text execute(CommandSource source, Stack<String> args) {
+        Entity target = args.isEmpty() ? source.entity() : CommandParser.parseEntity(source, args.pop());
 
         if (target == null)
             return Text.of("Target not found").withStyle(ERROR_STYLE);
 
-        ((WorldClient) source.getWorld()).cameraEntity = target;
+        ((WorldClient) source.world()).cameraEntity = target;
 
         return Text.of("Now spectating ").append(target.getNameRepresentation());
     }

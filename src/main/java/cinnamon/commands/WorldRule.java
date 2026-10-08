@@ -2,7 +2,6 @@ package cinnamon.commands;
 
 import cinnamon.text.Text;
 import cinnamon.world.WorldRules;
-import cinnamon.world.entity.Entity;
 
 import java.util.Stack;
 
@@ -11,7 +10,7 @@ import static cinnamon.commands.CommandParser.ERROR_STYLE;
 public class WorldRule implements Command {
 
     @Override
-    public Text execute(Entity source, Stack<String> args) {
+    public Text execute(CommandSource source, Stack<String> args) {
         if (args.isEmpty()) {
             Text text = Text.of("Available world rules: ");
             for (WorldRules.Rule<?> rule : WorldRules.getRegisteredRules())
@@ -28,13 +27,13 @@ public class WorldRule implements Command {
 
         //get value
         if (args.isEmpty())
-            return Text.of(source.getWorld().getRules().get(rule));
+            return Text.of(source.world().getRules().get(rule));
 
         //set value
         String valueStr = args.pop();
         try {
-            source.getWorld().getRules().parseAndSet(rule, valueStr);
-            Object newValue = source.getWorld().getRules().get(rule);
+            source.world().getRules().parseAndSet(rule, valueStr);
+            Object newValue = source.world().getRules().get(rule);
             return Text.of("Set world rule " + rule.getName() + " to " + newValue);
         } catch (Exception e) {
             return Text.of("Failed to execute command, invalid argument: " + valueStr).withStyle(ERROR_STYLE);

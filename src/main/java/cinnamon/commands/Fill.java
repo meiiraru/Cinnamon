@@ -5,7 +5,6 @@ import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.text.Text;
-import cinnamon.world.entity.Entity;
 import cinnamon.world.terrain.Terrain;
 import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.RoundingMode;
@@ -20,7 +19,7 @@ import static cinnamon.commands.CommandParser.ERROR_STYLE;
 public class Fill implements Command {
 
     @Override
-    public Text execute(Entity source, Stack<String> args) {
+    public Text execute(CommandSource source, Stack<String> args) {
         //parse position A
         if (args.size() < 3)
             return Text.of("Failed to execute command, missing arguments").withStyle(ERROR_STYLE);
@@ -87,14 +86,14 @@ public class Fill implements Command {
         Vector3i max = a.max(b, new Vector3i());
 
         //clear previous terrain at the position
-        source.getWorld().removeTerrain(new AABB(min.x, min.y, min.z, max.x, max.y, max.z).translate(0.5f, 0.5f, 0.5f));
+        source.world().removeTerrain(new AABB(min.x, min.y, min.z, max.x, max.y, max.z).translate(0.5f, 0.5f, 0.5f));
 
         //fill with air just removes the terrain
         if (remove)
             return Text.of("Filled from %d %d %d to %d %d %d with %s".formatted(min.x, min.y, min.z, max.x, max.y, max.z, matName));
 
         //otherwise actually fill with something
-        TerrainGenerator.fill(source.getWorld(), min.x, min.y, min.z, max.x, max.y, max.z, terrainSupplier, material);
+        TerrainGenerator.fill(source.world(), min.x, min.y, min.z, max.x, max.y, max.z, terrainSupplier, material);
         return Text.of("Filled from %d %d %d to %d %d %d with %s %s".formatted(min.x, min.y, min.z, max.x, max.y, max.z, matName, terrain));
     }
 

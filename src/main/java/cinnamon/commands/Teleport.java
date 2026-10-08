@@ -12,7 +12,7 @@ import static cinnamon.commands.CommandParser.ERROR_STYLE;
 public class Teleport implements Command {
 
     @Override
-    public Text execute(Entity source, Stack<String> args) {
+    public Text execute(CommandSource source, Stack<String> args) {
         //parse target
         if (args.isEmpty())
             return Text.of("Failed to execute command, missing arguments").withStyle(ERROR_STYLE);

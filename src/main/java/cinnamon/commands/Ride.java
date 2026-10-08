@@ -10,13 +10,18 @@ import static cinnamon.commands.CommandParser.ERROR_STYLE;
 public class Ride implements Command {
 
     @Override
-    public Text execute(Entity source, Stack<String> args) {
+    public Text execute(CommandSource source, Stack<String> args) {
+        //check for entity
+        Entity self = source.entity();
+        if (self == null)
+            return Text.of("Target not found").withStyle(ERROR_STYLE);
+
         //try to stop riding
         if (args.isEmpty()) {
-            if (!source.isRiding())
+            if (!self.isRiding())
                 return Text.of("Nothing to ride");
 
-            source.stopRiding();
+            self.stopRiding();
             return Text.of("Stopped riding");
         }
 
@@ -24,10 +29,10 @@ public class Ride implements Command {
 
         if (target == null) {
             return Text.of("Target not found").withStyle(ERROR_STYLE);
-        } else if (target == source) {
+        } else if (target == self) {
             return Text.of("Cannot ride yourself").withStyle(ERROR_STYLE);
         } else {
-            target.addRider(source);
+            target.addRider(self);
             return Text.of("Now riding ").append(target.getNameRepresentation());
         }
     }

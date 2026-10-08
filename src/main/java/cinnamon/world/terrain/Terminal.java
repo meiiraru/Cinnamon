@@ -2,7 +2,9 @@ package cinnamon.world.terrain;
 
 import cinnamon.Client;
 import cinnamon.commands.CommandParser;
+import cinnamon.commands.CommandSource;
 import cinnamon.gui.screens.world.TerminalScreen;
+import cinnamon.math.Maths;
 import cinnamon.math.collision.Hit;
 import cinnamon.messages.MessageCategory;
 import cinnamon.messages.MessageManager;
@@ -43,7 +45,16 @@ public class Terminal extends Terrain  {
         String s = getCommandString().trim();
         s = s.startsWith("/") ? s.substring(1) : s;
 
-        this.output = CommandParser.runCommand(((WorldClient) getWorld()).playerEntity, s);
+        WorldClient world = (WorldClient) getWorld();
+        CommandSource source = new CommandSource(
+                null,
+                "@",
+                world,
+                this.getTransform().getPos(),
+                this.getTransform().getRot(),
+                Maths.quatToDir(this.getTransform().getRot())
+        );
+        this.output = CommandParser.runCommand(source, s);
 
         if (this.output != null) {
             this.screen.addOutputEntry(this.output);

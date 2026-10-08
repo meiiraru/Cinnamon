@@ -2,7 +2,6 @@ package cinnamon.commands;
 
 import cinnamon.math.collision.shape.Sphere;
 import cinnamon.text.Text;
-import cinnamon.world.entity.Entity;
 import org.joml.Vector3f;
 
 import java.util.Stack;
@@ -12,14 +11,14 @@ import static cinnamon.commands.CommandParser.ERROR_STYLE;
 public class Explode implements Command {
 
     @Override
-    public Text execute(Entity source, Stack<String> args) {
-        Vector3f pos = source.getTransform().getPos();
+    public Text execute(CommandSource source, Stack<String> args) {
+        Vector3f pos = source.position();
         float radius = 2f;
         float strength = 1f;
 
         //self explode
         if (args.isEmpty()) {
-            source.getWorld().explode(new Sphere(pos, radius), strength, null, false);
+            source.world().explode(new Sphere(pos, radius), strength, null, false);
             return Text.of("Exploded");
         }
 
@@ -51,7 +50,7 @@ public class Explode implements Command {
         }
 
         //explode!
-        source.getWorld().explode(new Sphere(pos, radius), strength, null, false);
+        source.world().explode(new Sphere(pos, radius), strength, null, false);
         return Text.of("Exploded at %.3f, %.3f, %.3f [r=%.2f] [str=%.2f]".formatted(pos.x, pos.y, pos.z, radius, strength));
     }
 

@@ -4,7 +4,6 @@ import cinnamon.registry.CommandRegistry;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Colors;
-import cinnamon.world.entity.Entity;
 
 import java.util.Collection;
 import java.util.Stack;
@@ -16,7 +15,7 @@ public class Help implements Command {
     public static final Style HELP_STYLE = Style.EMPTY.italic(false).color(Colors.WHITE);
 
     @Override
-    public Text execute(Entity source, Stack<String> args) {
+    public Text execute(CommandSource source, Stack<String> args) {
         if (args.isEmpty())
             return getHelpCommand().append("\n").append(getCommandList()).withStyle(HELP_STYLE);
 
