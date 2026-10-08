@@ -14,8 +14,10 @@ public class Sit implements Command {
 
     @Override
     public Text execute(Entity source, Stack<String> args) {
-        if (source.isRiding())
-            return Text.of("Unable to sit while sitting or riding something").withStyle(ERROR_STYLE);
+        if (source.isRiding()) {
+            source.stopRiding();
+            return Text.of("Stopped sitting");
+        }
 
         SeatEntity seatEntity = new SeatEntity(UUID.randomUUID());
         seatEntity.setPos(source.getTransform().getPos());
