@@ -39,6 +39,7 @@ public abstract class PhysEntity extends Entity {
         if (!this.isRiding()) {
             tickPhysics();
         } else {
+            setImpulse(0, 0, 0);
             setMotion(0, 0, 0);
         }
     }

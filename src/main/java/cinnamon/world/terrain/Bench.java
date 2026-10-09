@@ -12,10 +12,17 @@ import java.util.UUID;
 
 public class Bench extends Terrain {
 
-    protected boolean leftSeatOccupied, rightSeatOccupied;
+    protected SeatEntity leftSeat, rightSeat;
 
     public Bench() {
         super(TerrainModelRegistry.BENCH.resource, TerrainRegistry.BENCH);
+    }
+
+    @Override
+    public void onRemoved() {
+        super.onRemoved();
+        if (leftSeat != null) leftSeat.remove();
+        if (rightSeat != null) rightSeat.remove();
     }
 
     @Override
@@ -30,23 +37,23 @@ public class Bench extends Terrain {
         boolean left = localHitPos.x >= 0f;
 
         //try to swap the seat if the seat is occupied
-        if (left && leftSeatOccupied)
+        if (left && leftSeat != null)
             left = false;
-        else if (!left && rightSeatOccupied)
+        else if (!left && rightSeat != null)
             left = true;
 
         //check if the seat is occupied
-        if (left && leftSeatOccupied || !left && rightSeatOccupied)
+        if (left && leftSeat != null || !left && rightSeat != null)
             return true; //void interaction regardless
 
         //seat the entity
-        final boolean leftSeat = left;
+        final boolean isLeftSeat = left;
         SeatEntity seatEntity = new SeatEntity(UUID.randomUUID()) {
             @Override
             public void remove() {
                 super.remove();
-                if (leftSeat) leftSeatOccupied = false;
-                else rightSeatOccupied = false;
+                if (isLeftSeat) leftSeat = null;
+                else rightSeat = null;
             }
         };
         seatEntity.setPos(localHitPos.set(left ? 0.5f : -0.5f, -0.1f, -0.1f).rotate(benchRot).add(benchCenter));
@@ -54,8 +61,8 @@ public class Bench extends Terrain {
         getWorld().addEntity(seatEntity);
         seatEntity.addRider(entity);
 
-        if (left) leftSeatOccupied = true;
-        else rightSeatOccupied = true;
+        if (left) leftSeat = seatEntity;
+        else rightSeat = seatEntity;
 
         return true;
     }
