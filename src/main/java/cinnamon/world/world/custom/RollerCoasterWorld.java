@@ -1,4 +1,4 @@
-package cinnamon.world.world;
+package cinnamon.world.world.custom;
 
 import cinnamon.math.Curve;
 import cinnamon.math.Maths;

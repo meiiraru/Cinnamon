@@ -1,4 +1,4 @@
-package cinnamon.world.world;
+package cinnamon.world.world.custom;
 
 import cinnamon.Client;
 import cinnamon.math.collision.Collider;
@@ -29,6 +29,7 @@ import cinnamon.world.terrain.MeshTerrain;
 import cinnamon.world.terrain.PlaneTerrain;
 import cinnamon.world.terrain.PrimitiveTerrain;
 import cinnamon.world.terrain.Terrain;
+import cinnamon.world.world.WorldClient;
 import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.Math;
 import org.joml.Quaternionf;

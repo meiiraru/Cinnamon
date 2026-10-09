@@ -18,7 +18,7 @@ import cinnamon.utils.TextUtils;
 import cinnamon.utils.UIHelper;
 import cinnamon.utils.Version;
 import cinnamon.vr.XrManager;
-import cinnamon.world.world.PlaygroundWorld;
+import cinnamon.world.world.custom.PlaygroundWorld;
 import org.joml.Math;
 
 import java.util.function.Consumer;

@@ -1,4 +1,4 @@
-package cinnamon.world.world;
+package cinnamon.world.world.custom;
 
 import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
@@ -14,6 +14,7 @@ import cinnamon.world.particle.Particle;
 import cinnamon.world.particle.TextParticle;
 import cinnamon.world.terrain.PlaneTerrain;
 import cinnamon.world.terrain.Terrain;
+import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
 

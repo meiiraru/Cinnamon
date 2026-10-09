@@ -1,4 +1,4 @@
-package cinnamon.world.world;
+package cinnamon.world.world.custom;
 
 import cinnamon.math.collision.shape.Sphere;
 import cinnamon.model.GeometryHelper;
@@ -14,6 +14,7 @@ import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.light.PointLight;
+import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
 

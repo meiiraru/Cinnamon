@@ -848,4 +848,8 @@ public class WorldClient extends World {
         }
         this.overlay = null;
     }
+
+    public Hud getHud() {
+        return hud;
+    }
 }

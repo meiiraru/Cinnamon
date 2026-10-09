@@ -1,4 +1,4 @@
-package cinnamon.world.world;
+package cinnamon.world.world.custom;
 
 import cinnamon.animation.Animation;
 import cinnamon.model.GeometryHelper;
@@ -21,6 +21,7 @@ import cinnamon.world.light.Light;
 import cinnamon.world.light.Spotlight;
 import cinnamon.world.sky.SkyColors;
 import cinnamon.world.terrain.PrimitiveTerrain;
+import cinnamon.world.world.WorldClient;
 import org.joml.Math;
 import org.joml.Vector3f;
 

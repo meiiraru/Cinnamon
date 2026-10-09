@@ -13,7 +13,7 @@ import cinnamon.vr.XrManager;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.living.LocalPlayer;
 import cinnamon.world.terrain.Terrain;
-import cinnamon.world.world.RollerCoasterWorld;
+import cinnamon.world.world.custom.RollerCoasterWorld;
 import org.joml.Vector3f;
 
 import java.util.List;

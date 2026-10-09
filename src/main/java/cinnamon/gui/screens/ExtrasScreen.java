@@ -8,7 +8,7 @@ import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Label;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
-import cinnamon.world.world.*;
+import cinnamon.world.world.custom.*;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;

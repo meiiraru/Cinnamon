@@ -1,4 +1,4 @@
-package cinnamon.world.world;
+package cinnamon.world.world.custom;
 
 import cinnamon.Client;
 import cinnamon.math.Maths;
@@ -20,6 +20,7 @@ import cinnamon.world.gui.Hud;
 import cinnamon.world.light.Light;
 import cinnamon.world.light.Spotlight;
 import cinnamon.world.terrain.PrimitiveTerrain;
+import cinnamon.world.world.WorldClient;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package cinnamon.world.world;
+package cinnamon.world.world.custom;
 
 import cinnamon.math.Maths;
 import cinnamon.math.collision.Hit;
@@ -57,6 +57,8 @@ import cinnamon.world.light.PointLight;
 import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.TextParticle;
 import cinnamon.world.terrain.*;
+import cinnamon.world.world.World;
+import cinnamon.world.world.WorldClient;
 import cinnamon.world.worldgen.TerrainGenerator;
 import org.joml.Math;
 import org.joml.Quaternionf;
@@ -501,9 +503,9 @@ public class PlaygroundWorld extends WorldClient {
             if (hit != null) {
                 SoundManager.playSound(Marker.MARKER_SND, SoundCategory.GUI);
                 if (hit.second() instanceof Entity e) {
-                    world.hud.addMarker(new Marker(e, null, 600, Colors.randomRainbow().argb));
+                    world.getHud().addMarker(new Marker(e, null, 600, Colors.randomRainbow().argb));
                 } else {
-                    world.hud.addMarker(new Marker(hit.first().position(), null, 600, Colors.randomRainbow().argb));
+                    world.getHud().addMarker(new Marker(hit.first().position(), null, 600, Colors.randomRainbow().argb));
                 }
             }
         });
