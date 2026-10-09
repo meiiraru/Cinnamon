@@ -640,7 +640,7 @@ public abstract class LivingEntity extends PhysEntity {
     }
 
     public Vector3f getHandDir(boolean lefty, float delta) {
-        return new Vector3f(0, 0, -1).rotate(getHandRot(lefty, delta));
+        return Maths.quatToDir(getHandRot(lefty, delta));
     }
 
     public Vector3f getAimDir(float distance) {

@@ -305,8 +305,8 @@ public class Maths {
 
     public static Quaternionf dirToQuat(float x, float y, float z) {
         float pitch = safeAsin(y);
-        float yaw = Math.atan2(x, z);
-        return new Quaternionf().rotationZYX(0f, yaw, -pitch);
+        float yaw = -Math.atan2(x, z);
+        return new Quaternionf().rotationZYX(0f, -yaw, -pitch);
     }
 
     public static Quaternionf rotToQuat(Vector2f rot) {
@@ -314,11 +314,19 @@ public class Maths {
     }
 
     public static Quaternionf rotToQuat(float pitch, float yaw) {
-        return new Quaternionf().rotationZYX(0f, Math.PI_f - Math.toRadians(yaw), Math.toRadians(pitch));
+        return new Quaternionf().rotationZYX(0f, Math.toRadians(-yaw), Math.toRadians(-pitch));
+    }
+
+    public static Quaternionf rotToQuat(Vector3f rot) {
+        return rotToQuat(rot.x, rot.y, 0f);
+    }
+
+    public static Quaternionf rotToQuat(float pitch, float yaw, float roll) {
+        return new Quaternionf().rotationZYX(Math.toRadians(roll), Math.toRadians(-yaw), Math.toRadians(-pitch));
     }
 
     public static Vector3f quatToDir(Quaternionf quat) {
-        return new Vector3f(0f, 0f, 1f).rotate(quat);
+        return new Vector3f(0f, 0f, -1f).rotate(quat);
     }
 
     public static Vector3f normal(Vector3f p1, Vector3f p2, Vector3f p3) {

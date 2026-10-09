@@ -391,11 +391,11 @@ public abstract class Entity extends WorldObject {
     }
 
     public Vector3f getLookDir() {
-        return new Vector3f(0f, 0f, -1f).rotate(transform.getRot());
+        return Maths.quatToDir(transform.getRot());
     }
 
     public Vector3f getLookDir(float delta) {
-        return new Vector3f(0f, 0f, -1f).rotate(getRot(delta));
+        return Maths.quatToDir(getRot(delta));
     }
 
     public World getWorld() {

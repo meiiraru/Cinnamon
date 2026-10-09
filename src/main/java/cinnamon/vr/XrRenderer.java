@@ -2,6 +2,7 @@ package cinnamon.vr;
 
 import cinnamon.Client;
 import cinnamon.gui.GUISkin;
+import cinnamon.math.Maths;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Ray;
 import cinnamon.math.collision.shape.AABB;
@@ -248,7 +249,7 @@ public class XrRenderer {
         }
 
         Quaternionf rot = transform.rot();
-        Vector3f dir = new Vector3f(0, 0, -1).rotate(rot).mul(RAYCAST_DISTANCE);
+        Vector3f dir = Maths.quatToDir(rot).mul(RAYCAST_DISTANCE);
 
         //grab screen AABB in world space to raycast collision
         AABB screenAABB = new AABB(0, 0, -GUI_DISTANCE, 0, 0, -GUI_DISTANCE).inflate(GUI_WIDTH * 2f, GUI_HEIGHT * 2f, 0);
