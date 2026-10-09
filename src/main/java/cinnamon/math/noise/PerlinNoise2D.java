@@ -14,10 +14,22 @@ public class PerlinNoise2D extends Noise {
 
     protected final int cells;
 
+    /**
+     * Constructs a 2D Perlin noise texture with default size, random seed, and default number of cells
+     * @see #PerlinNoise2D(int, int, long, int)
+     */
     public PerlinNoise2D() {
         this(DEFAULT_SIZE, DEFAULT_SIZE, System.nanoTime(), DEFAULT_CELLS);
     }
 
+    /**
+     * Constructs a 2D Perlin noise texture with the given width, height, random seed, and default number of cells
+     * @param width The width of the noise texture
+     * @param height The height of the noise texture
+     * @param seed The seed for the noise generation
+     * @param cells The number of grid cells in the noise texture
+     * @see #PerlinNoise2D()
+     */
     public PerlinNoise2D(int width, int height, long seed, int cells) {
         super(width, height, seed);
         this.cells = cells;
@@ -98,14 +110,31 @@ public class PerlinNoise2D extends Noise {
         return Math.lerp(nx0, nx1, v);
     }
 
+    /**
+     * Quintic interpolation function for smooth transitions
+     * @param t The input value in the range {@code [0, 1]}
+     * @return The interpolated value in the range {@code [0, 1]}
+     */
     public static float quintic(float t) {
         return t * t * t * (t * (t * 6f - 15f) + 10f);
     }
 
+    /**
+     * Computes the dot product of the gradient vector (gx, gy) and the distance vector (x, y)
+     * @param gx The x component of the gradient vector
+     * @param gy The y component of the gradient vector
+     * @param x The x component of the distance vector
+     * @param y The y component of the distance vector
+     * @return The dot product of the two vectors
+     */
     public static float dot(float gx, float gy, float x, float y) {
         return gx * x + gy * y;
     }
 
+    /**
+     * Gets the number of grid cells used in the noise texture
+     * @return The number of grid cells
+     */
     public int getCells() {
         return cells;
     }

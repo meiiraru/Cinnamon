@@ -17,14 +17,35 @@ public class BlueNoise2D extends Noise {
     protected final int tileSize;
     protected final float sigma;
 
+    /**
+     * Creates a new 2D tileable Blue Noise generator with default size, seed, tile size and sigma
+     * @see #BlueNoise2D(int, int, long)
+     * @see #BlueNoise2D(int, int, long, int, float)
+     */
     public BlueNoise2D() {
         this(DEFAULT_SIZE, DEFAULT_SIZE, System.nanoTime(), DEFAULT_TILE_SIZE, DEFAULT_SIGMA);
     }
 
+    /**
+     * Creates a new 2D tileable Blue Noise generator with default tile size and sigma
+     * @param width The width of the noise texture
+     * @param height The height of the noise texture
+     * @param seed The seed for the random number generator
+     * @see #BlueNoise2D(int, int, long, int, float)
+     */
     public BlueNoise2D(int width, int height, long seed) {
         this(width, height, seed, DEFAULT_TILE_SIZE, DEFAULT_SIGMA);
     }
 
+    /**
+     * Creates a new 2D tileable Blue Noise generator
+     * @param width The width of the noise texture
+     * @param height The height of the noise texture
+     * @param seed The seed for the random number generator
+     * @param tileSize The size of the tiles to use for generating the blue noise
+     * @param sigma The sigma value for the Gaussian kernel used to calculate the energy field
+     * @see #BlueNoise2D(int, int, long)
+     */
     public BlueNoise2D(int width, int height, long seed, int tileSize, float sigma) {
         super(width, height, seed);
         this.tileSize = tileSize;
@@ -130,10 +151,18 @@ public class BlueNoise2D extends Noise {
         }
     }
 
+    /**
+     * Gets the tile size used for generating the blue noise
+     * @return The tile size
+     */
     public int getTileSize() {
         return tileSize;
     }
 
+    /**
+     * Gets the sigma value used for generating the blue noise
+     * @return The sigma value
+     */
     public float getSigma() {
         return sigma;
     }

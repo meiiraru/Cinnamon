@@ -2,12 +2,20 @@ package cinnamon.math;
 
 import org.joml.Math;
 
+/**
+ * A simple implementation of the Fast Fourier Transform (FFT) algorithm for real-valued input data
+ */
 public class FFT {
 
     private final int n;
     private final float[] cosTable, sinTable;
     private final float[] real, imag;
 
+    /**
+     * Constructs an FFT instance with the specified size<br>
+     * The size must be a power of 2
+     * @param size the size of the FFT
+     */
     public FFT(int size) {
         if (size <= 0 || (size & (size - 1)) != 0)
             throw new IllegalArgumentException("FFT size must be a power of 2");
@@ -25,6 +33,13 @@ public class FFT {
         this.imag = new float[n];
     }
 
+    /**
+     * Performs the FFT on the given real-valued data array<br>
+     * The input array must have a length equal to the FFT size<br>
+     * The output will be stored in the same array, with the real and imaginary parts interleaved<br>
+     * {@code {real[0], imag[0], real[1], imag[1], ..., real[n/2-1], imag[n/2-1]}}
+     * @param data the input data array
+     */
     public void realForward(float[] data) {
         if (data == null || data.length != n)
             throw new IllegalArgumentException("Data length must match FFT size");
@@ -70,6 +85,10 @@ public class FFT {
         }
     }
 
+    /**
+     * Gets the size of the FFT
+     * @return the size of the FFT
+     */
     public int size() {
         return n;
     }

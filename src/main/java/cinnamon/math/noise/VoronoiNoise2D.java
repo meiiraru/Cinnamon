@@ -16,14 +16,34 @@ public class VoronoiNoise2D extends Noise {
     protected final int cells;
     protected final float jitter;
 
+    /**
+     * Creates a new Voronoi noise with the default size, random seed, default number of cells, and default jitter
+     * @see #VoronoiNoise2D(int, int, long, int, float)
+     */
     public VoronoiNoise2D() {
         this(DEFAULT_SIZE, DEFAULT_SIZE, System.nanoTime(), DEFAULT_CELLS, DEFAULT_JITTER);
     }
 
+    /**
+     * Creates a new Voronoi noise with the default number of cells, and default jitter
+     * @param width The width of the noise texture
+     * @param height The height of the noise texture
+     * @param seed The seed for the noise generation
+     * @see #VoronoiNoise2D(int, int, long, int, float)
+     */
     public VoronoiNoise2D(int width, int height, long seed) {
         this(width, height, seed, DEFAULT_CELLS, DEFAULT_JITTER);
     }
 
+    /**
+     * Creates a new Voronoi noise
+     * @param width The width of the noise texture
+     * @param height The height of the noise texture
+     * @param seed The seed for the noise generation
+     * @param cells The number of grid cells in the noise texture
+     * @param jitter The amount of jitter to apply to the feature points in each cell, in the range {@code [0, 1]}
+     * @see #VoronoiNoise2D(int, int, long)
+     */
     public VoronoiNoise2D(int width, int height, long seed, int cells, float jitter) {
         super(width, height, seed);
         this.cells = Math.max(1, cells);
@@ -96,10 +116,18 @@ public class VoronoiNoise2D extends Noise {
         buffer.flip();
     }
 
+    /**
+     * Gets the number of grid cells in the noise texture
+     * @return The number of grid cells
+     */
     public int getCells() {
         return cells;
     }
 
+    /**
+     * Gets the amount of jitter applied to the feature points in each cell
+     * @return The amount of jitter in the range {@code [0, 1]}
+     */
     public float getJitter() {
         return jitter;
     }

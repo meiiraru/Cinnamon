@@ -2,6 +2,9 @@ package cinnamon.math.noise;
 
 import cinnamon.math.Maths;
 
+/**
+ * Fractal Brownian Motion noise generator
+ */
 public class FBMNoise extends Noise {
 
     public static final float
@@ -14,10 +17,26 @@ public class FBMNoise extends Noise {
     private final int octaves;
     private final float lacunarity, gain, amplitude, frequency;
 
+    /**
+     * Creates a new Fractal Brownian Motion noise with default lacunarity, gain, amplitude and frequency
+     * @param other The base noise to use for generating the FBM noise
+     * @param octaves The number of the samples to take from the base noise
+     * @see #FBMNoise(Noise, int, float, float, float, float)
+     */
     public FBMNoise(Noise other, int octaves) {
         this(other, octaves, DEFAULT_LACUNARITY, DEFAULT_GAIN, DEFAULT_AMPLITUDE, DEFAULT_FREQUENCY);
     }
 
+    /**
+     * Creates a new Fractal Brownian Motion noise
+     * @param other The base noise to use for generating the FBM noise
+     * @param octaves The number of the samples to take from the base noise
+     * @param lacunarity The frequency multiplier for each octave
+     * @param gain The amplitude multiplier for each octave
+     * @param amplitude The initial amplitude of the noise
+     * @param frequency The initial frequency of the noise
+     * @see #FBMNoise(Noise, int)
+     */
     public FBMNoise(Noise other, int octaves, float lacunarity, float gain, float amplitude, float frequency) {
         super(other.getWidth(), other.getHeight(), other.getDepth(), other.getSeed());
         this.baseNoise = other;
@@ -71,22 +90,42 @@ public class FBMNoise extends Noise {
         buffer.flip();
     }
 
+    /**
+     * Returns the number of octaves used in this FBM noise
+     * @return The number of octaves
+     */
     public int getOctaves() {
         return octaves;
     }
 
+    /**
+     * Returns the lacunarity used in this FBM noise
+     * @return The lacunarity
+     */
     public float getLacunarity() {
         return lacunarity;
     }
 
+    /**
+     * Returns the gain used in this FBM noise
+     * @return The gain
+     */
     public float getGain() {
         return gain;
     }
 
+    /**
+     * Returns the amplitude used in this FBM noise
+     * @return The amplitude
+     */
     public float getAmplitude() {
         return amplitude;
     }
 
+    /**
+     * Returns the frequency used in this FBM noise
+     * @return The frequency
+     */
     public float getFrequency() {
         return frequency;
     }

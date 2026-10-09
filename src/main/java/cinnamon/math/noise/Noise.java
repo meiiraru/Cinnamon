@@ -6,6 +6,9 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Abstract class for generating and sampling noise textures
+ */
 public abstract class Noise {
 
     public static int DEFAULT_SIZE = 256;
@@ -14,10 +17,25 @@ public abstract class Noise {
     protected final long seed;
     protected final ByteBuffer buffer;
 
+    /**
+     * Constructs a 2D noise texture with the given width, height, and seed
+     * @param width The width of the noise texture
+     * @param height The height of the noise texture
+     * @param seed The seed for the noise generation
+     * @see #Noise(int, int, int, long)
+     */
     public Noise(int width, int height, long seed) {
         this(width, height, 1, seed);
     }
 
+    /**
+     * Constructs a 3D noise texture with the given width, height, depth, and seed
+     * @param width The width of the noise texture
+     * @param height The height of the noise texture
+     * @param depth The depth of the noise texture
+     * @param seed The seed for the noise generation
+     * @see #Noise(int, int, long)
+     */
     public Noise(int width, int height, int depth, long seed) {
         this.width = width;
         this.height = height;
@@ -28,10 +46,22 @@ public abstract class Noise {
 
     protected abstract void build();
 
+    /**
+     * Frees the memory allocated for the noise texture buffer<br>
+     * This method should be called only when the noise texture is no longer accessed and needed to avoid any memory leaks
+     */
     public void free() {
         MemoryUtil.memFree(buffer);
     }
 
+    /**
+     * Samples the noise texture at the given integer coordinates {@code x, y} and returns a normalized float value in the range {@code [0, 1]}<br>
+     * The coordinates are wrapped around the texture dimensions to allow for seamless tiling
+     * @param x The x coordinate to sample
+     * @param y The y coordinate to sample
+     * @return A normalized float value in the range {@code [0, 1]} representing the noise value at the given coordinates
+     * @see #sample(float, float)
+     */
     public float sample(int x, int y) {
         //wrap coordinates
         int px = Maths.modulo(x, width);
@@ -42,6 +72,15 @@ public abstract class Noise {
         return value / 255f;
     }
 
+    /**
+     * Samples the noise texture at the given integer coordinates {@code x, y, z} and returns a normalized float value in the range {@code [0, 1]}<br>
+     * The coordinates are wrapped around the texture dimensions to allow for seamless tiling
+     * @param x The x coordinate to sample
+     * @param y The y coordinate to sample
+     * @param z The z coordinate to sample
+     * @return A normalized float value in the range {@code [0, 1]} representing the noise value at the given coordinates
+     * @see #sample(float, float, float)
+     */
     public float sample(int x, int y, int z) {
         int px = Maths.modulo(x, width);
         int py = Maths.modulo(y, height);
@@ -51,6 +90,15 @@ public abstract class Noise {
         return value / 255f;
     }
 
+    /**
+     * Samples the noise texture at the given floating-point coordinates {@code x, y} and returns a normalized float value in the range {@code [0, 1]}<br>
+     * The coordinates are wrapped around the texture dimensions to allow for seamless tiling<br>
+     * The value is computed using bilinear interpolation of the four nearest integer samples
+     * @param x The x coordinate to sample
+     * @param y The y coordinate to sample
+     * @return A normalized float value in the range {@code [0, 1]} representing the noise value at the given coordinates
+     * @see #sample(int, int)
+     */
     public float sample(float x, float y) {
         int x0 = (int) Math.floor(x);
         int y0 = (int) Math.floor(y);
@@ -68,6 +116,16 @@ public abstract class Noise {
         return Math.lerp(nx0, nx1, fy);
     }
 
+    /**
+     * Samples the noise texture at the given floating-point coordinates {@code x, y, z} and returns a normalized float value in the range {@code [0, 1]}<br>
+     * The coordinates are wrapped around the texture dimensions to allow for seamless tiling<br>
+     * The value is computed using trilinear interpolation of the eight nearest integer samples
+     * @param x The x coordinate to sample
+     * @param y The y coordinate to sample
+     * @param z The z coordinate to sample
+     * @return A normalized float value in the range {@code [0, 1]} representing the noise value at the given coordinates
+     * @see #sample(int, int, int)
+     */
     public float sample(float x, float y, float z) {
         int x0 = (int) Math.floor(x);
         int y0 = (int) Math.floor(y);
@@ -97,22 +155,42 @@ public abstract class Noise {
         return Math.lerp(nxy0, nxy1, fz);
     }
 
+    /**
+     * Get the width of the noise texture
+     * @return The width of the noise texture
+     */
     public int getWidth() {
         return width;
     }
 
+    /**
+     * Get the height of the noise texture
+     * @return The height of the noise texture
+     */
     public int getHeight() {
         return height;
     }
 
+    /**
+     * Get the depth of the noise texture
+     * @return The depth of the noise texture
+     */
     public int getDepth() {
         return depth;
     }
 
+    /**
+     * Get the seed used for generating the noise texture
+     * @return The seed used for generating the noise texture
+     */
     public long getSeed() {
         return seed;
     }
 
+    /**
+     * Get the {@link ByteBuffer} containing the noise texture data
+     * @return The {@link ByteBuffer} containing the noise texture data
+     */
     public ByteBuffer getBuffer() {
         return buffer;
     }

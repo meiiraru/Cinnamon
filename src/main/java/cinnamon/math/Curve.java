@@ -7,6 +7,9 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A representation of a curve in 3D space, defined by control points and various interpolation methods
+ */
 public abstract class Curve {
 
     protected final List<Vector3f>
@@ -22,6 +25,10 @@ public abstract class Curve {
 
     public Curve() {}
 
+    /**
+     * Creates a new curve by copying the properties of another curve
+     * @param other the curve to copy
+     */
     public Curve(Curve other) {
         this.controlPoints.addAll(other.controlPoints);
         this.loop = other.loop;
@@ -30,24 +37,51 @@ public abstract class Curve {
         this.dirty = true;
     }
 
+    /**
+     * Adds a new control point to the curve at the specified coordinates
+     * @param x The x coordinate of the control point
+     * @param y The y coordinate of the control point
+     * @param z The z coordinate of the control point
+     * @return The current curve instance, allowing for method chaining
+     */
     public Curve addPoint(float x, float y, float z) {
         controlPoints.add(new Vector3f(x, y, z));
         dirty = true;
         return this;
     }
 
+    /**
+     * Sets the coordinates of an existing control point at the specified index
+     * @param index The index of the control point to set
+     * @param x The new x coordinate of the control point
+     * @param y The new y coordinate of the control point
+     * @param z The new z coordinate of the control point
+     * @return The current curve instance, allowing for method chaining
+     */
     public Curve setPoint(int index, float x, float y, float z) {
         controlPoints.get(index).set(x, y, z);
         dirty = true;
         return this;
     }
 
+    /**
+     * Removes the control point at the specified index from the curve
+     * @param index The index of the control point to remove
+     * @return The current curve instance, allowing for method chaining
+     */
     public Curve removePoint(int index) {
         controlPoints.remove(index);
         dirty = true;
         return this;
     }
 
+    /**
+     * Offsets all control points of the curve by the specified amounts in each direction
+     * @param x The amount to offset in the x direction
+     * @param y The amount to offset in the y direction
+     * @param z The amount to offset in the z direction
+     * @return The current curve instance, allowing for method chaining
+     */
     public Curve offset(float x, float y, float z) {
         for (Vector3f vec : controlPoints)
             vec.add(x, y, z);
@@ -55,6 +89,10 @@ public abstract class Curve {
         return this;
     }
 
+    /**
+     * Clears all control points from the curve, effectively resetting it
+     * @return The current curve instance, allowing for method chaining
+     */
     public Curve clear() {
         controlPoints.clear();
         dirty = true;
@@ -142,6 +180,10 @@ public abstract class Curve {
         dirty = false;
     }
 
+    /**
+     * Calculates and returns the center point of the curve based on its control points
+     * @return A {@link Vector3f} representing the center point of the curve
+     */
     public Vector3f getCenter() {
         //min-max vectors
         Vector3f min = new Vector3f(Integer.MAX_VALUE);
@@ -161,51 +203,96 @@ public abstract class Curve {
     // -- getters and setters -- //
 
 
+    /**
+     * Sets whether the curve should loop back to its starting point or not
+     * @param loop {@code true} if the curve should loop, {@code false} otherwise
+     * @return The current curve instance, allowing for method chaining
+     */
     public Curve loop(boolean loop) {
         this.loop = loop;
         this.dirty = true;
         return this;
     }
 
+    /**
+     * Gets if the curve is set to loop back to its starting point
+     * @return {@code true} if the curve is set to loop, {@code false} otherwise
+     */
     public boolean isLooping() {
         return loop;
     }
 
+    /**
+     * Sets the number of steps used to calculate the curve, affecting its smoothness
+     * @param steps The number of steps to use for curve calculation
+     * @return The current curve instance, allowing for method chaining
+     */
     public Curve steps(int steps) {
         this.steps = steps;
         this.dirty = true;
         return this;
     }
 
+    /**
+     * Gets the number of steps used to calculate the curve
+     * @return The number of steps used for curve calculation
+     */
     public int getSteps() {
         return steps;
     }
 
+    /**
+     * Sets the width of the curve, which affects the distance of the internal and external curves from the main curve
+     * @param width The width of the curve
+     * @return The current curve instance, allowing for method chaining
+     */
     public Curve width(float width) {
         this.width = width;
         this.dirty = true;
         return this;
     }
 
+    /**
+     * Gets the width of the curve
+     * @return The width of the curve
+     */
     public float getWidth() {
         return width;
     }
 
+    /**
+     * Calculates and returns the main curve based on the control points and interpolation method
+     * @return A {@link List} of {@link Vector3f} representing the points of the main curve
+     */
     public List<Vector3f> getCurve() {
         this.recalculate();
         return curve;
     }
 
+    /**
+     * Calculates and returns the internal curve, which is offset from the main curve by half the width
+     * @return A {@link List} of {@link Vector3f} representing the points of the internal curve
+     * @see #getExternalCurve()
+     */
     public List<Vector3f> getInternalCurve() {
         this.recalculate();
         return internalCurve;
     }
 
+    /**
+     * Calculates and returns the external curve, which is offset from the main curve by half the width
+     * @return A {@link List} of {@link Vector3f} representing the points of the external curve
+     * @see #getInternalCurve()
+     */
     public List<Vector3f> getExternalCurve() {
         this.recalculate();
         return externalCurve;
     }
 
+    /**
+     * Gets the list of control points that define the shape of the curve
+     * @return A {@link List} of {@link Vector3f} representing the control points of the curve
+     */
     public List<Vector3f> getControlPoints() {
         return controlPoints;
     }
@@ -235,6 +322,9 @@ public abstract class Curve {
     // -- types -- //
 
 
+    /**
+     * A linear interpolation curve that connects control points with straight lines
+     */
     public static class Linear extends Curve {
         public Linear() {
             super();
@@ -255,6 +345,9 @@ public abstract class Curve {
         }
     }
 
+    /**
+     * A Hermite interpolation curve that uses control points and tangents to create a smooth curve
+     */
     public static class Hermite extends Curve {
         protected float weight = 5f;
 
@@ -268,10 +361,19 @@ public abstract class Curve {
                 this.weight = h.weight;
         }
 
+        /**
+         * Gets the weight used in the Hermite interpolation, which affects the tension of the curve
+         * @return The weight used in the Hermite interpolation
+         */
         public float getWeight() {
             return weight;
         }
 
+        /**
+         * Sets the weight used in the Hermite interpolation, which affects the tension of the curve
+         * @param weight The weight to use in the Hermite interpolation
+         * @return The current Hermite curve instance, allowing for method chaining
+         */
         public Hermite weight(float weight) {
             this.weight = weight;
             this.dirty = true;
@@ -312,6 +414,9 @@ public abstract class Curve {
         }
     }
 
+    /**
+     * A Bezier interpolation curve that uses control points to create a smooth curve
+     */
     public static class Bezier extends Curve {
         public Bezier() {
             super();
@@ -355,6 +460,9 @@ public abstract class Curve {
         }
     }
 
+    /**
+     * A B-Spline interpolation curve that uses control points to create a smooth curve with local control
+     */
     public static class BSpline extends Curve {
         public BSpline() {
             super();
@@ -395,6 +503,9 @@ public abstract class Curve {
         }
     }
 
+    /**
+     * A Bezier interpolation curve that uses De Casteljau's algorithm to create a smooth curve from control points
+     */
     public static class BezierDeCasteljau extends Curve {
         public BezierDeCasteljau() {
             super();
@@ -443,6 +554,9 @@ public abstract class Curve {
         }
     }
 
+    /**
+     * A Catmull-Rom interpolation curve that uses control points to create a smooth curve that passes through the control points
+     */
     public static class CatmullRom extends Curve {
         public CatmullRom() {
             super();

@@ -3,6 +3,9 @@ package cinnamon.math;
 import org.joml.Math;
 import org.joml.Vector3f;
 
+/**
+ * Signed Distance Function (SDF) interface for 3D shapes
+ */
 public interface SDF {
     default float distance(Vector3f p) {
         return distance(p.x(), p.y(), p.z());
