@@ -62,7 +62,7 @@ public class ObjExporter {
         }
 
         //grab matrices
-        Matrix4f poseMat = matrices == null ? new Matrix4f() : matrices.peek().pos();
+        Matrix4f poseMat   = matrices == null ? new Matrix4f() : matrices.peek().pos();
         Matrix3f normalMat = matrices == null ? new Matrix3f() : matrices.peek().normal();
 
         //write vertices
@@ -115,10 +115,13 @@ public class ObjExporter {
                     vt = face.getUVs(),
                     vn = face.getNormals();
 
-            string.append("f ");
+            string.append("f");
 
             for (int i = 0; i < v.length; i++) {
                 int j = invert ? v.length - 1 - i : i;
+
+                //spacing
+                string.append(" ");
 
                 //v always present
                 string.append("%s".formatted(v[j] + 1));
@@ -133,9 +136,6 @@ public class ObjExporter {
                 //append vn
                 if (face.hasNormals())
                     string.append("/%s".formatted(vn[j] + 1));
-
-                //spacing
-                string.append(" ");
             }
 
             //new line

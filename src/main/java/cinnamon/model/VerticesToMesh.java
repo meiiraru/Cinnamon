@@ -1,6 +1,5 @@
-package cinnamon.parsers;
+package cinnamon.model;
 
-import cinnamon.model.Vertex;
 import cinnamon.model.material.Material;
 import cinnamon.model.mesh.Face;
 import cinnamon.model.mesh.Group;

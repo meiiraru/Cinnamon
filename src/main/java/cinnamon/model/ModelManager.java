@@ -13,24 +13,52 @@ import java.util.Map;
 
 import static cinnamon.events.Events.LOGGER;
 
-public class ModelManager {
+/**
+ * Manages loading and caching of {@link ModelRenderer} and {@link Mesh} instances
+ */
+public final class ModelManager {
+
+    private ModelManager() {}
 
     private static final Map<Resource, ModelRenderer> RENDERERS = new HashMap<>();
     private static final Map<Resource, Mesh> MESHES = new HashMap<>();
 
+    /**
+     * Gets a {@link ModelRenderer} for the given resource, loading and caching it if necessary
+     * @param resource The {@link Resource} of the model to get
+     * @return The {@link ModelRenderer} for the given resource, or {@code null} if it could not be loaded
+     */
     public static ModelRenderer getRenderer(Resource resource) {
         if (resource == null)
             return null;
 
-        ModelRenderer model = getCachedRenderer(resource);
-        if (model != null)
-            return model instanceof AnimatedMeshRenderer anim ? new AnimatedMeshRenderer(anim) : model;
+        ModelRenderer renderer = getCachedRenderer(resource);
+        if (renderer != null)
+            return renderer instanceof AnimatedMeshRenderer anim ? new AnimatedMeshRenderer(anim) : renderer;
 
         //bake and cache
-        return cacheRenderer(resource, bakeModel(resource));
+        ModelRenderer newRenderer = bakeModel(resource);
+        return cacheRenderer(resource, newRenderer);
     }
 
+    /**
+     * Gets a {@link Mesh} for the given resource, loading and caching it if necessary
+     * @param resource The {@link Resource} of the model to get
+     * @return The {@link Mesh} for the given resource, or {@code null} if it could not be loaded
+     * @see #getMesh(Resource, boolean)
+     */
     public static Mesh getMesh(Resource resource) {
+        return getMesh(resource, true);
+    }
+
+    /**
+     * Gets a {@link Mesh} for the given resource, loading and caching it if necessary<br>
+     * The mesh may also be optimized during loading, which can reduce the number of vertices and improve performance
+     * @param resource The {@link Resource} of the model to get
+     * @param optimizeMesh Whether to optimize the mesh during loading
+     * @return The {@link Mesh} for the given resource, or {@code null} if it could not be loaded
+     */
+    public static Mesh getMesh(Resource resource, boolean optimizeMesh) {
         if (resource == null)
             return null;
 
@@ -42,17 +70,29 @@ public class ModelManager {
         //otherwise load and cache
         Mesh newMesh = loadMesh(resource);
 
-        //optimize mesh by removing duplicate vertices
-        if (newMesh != null)
+        //optimize loaded mesh
+        if (optimizeMesh && newMesh != null) {
+            MeshHelper.clearUnusedVertices(newMesh);
             MeshHelper.stripDuplicateVertices(newMesh);
+        }
 
         return cacheMesh(resource, newMesh);
     }
 
+    /**
+     * Checks if a {@link ModelRenderer} has been loaded and cached for the given resource
+     * @param resource The {@link Resource} of the model to check
+     * @return {@code true} if the model has a loaded and cached renderer, {@code false} otherwise
+     */
     public static boolean hasRenderer(Resource resource) {
         return getCachedRenderer(resource) != null;
     }
 
+    /**
+     * Checks if a {@link Mesh} has been loaded and cached for the given resource
+     * @param resource The {@link Resource} of the model to check
+     * @return {@code true} if the model has been loaded and cached, {@code false} otherwise
+     */
     public static boolean hasModel(Resource resource) {
         return getCachedMesh(resource) != null;
     }
@@ -103,6 +143,9 @@ public class ModelManager {
         }
     }
 
+    /**
+     * Frees all cached {@link ModelRenderer} and {@link Mesh}
+     */
     public static void free() {
         for (ModelRenderer value : RENDERERS.values())
             value.free();
@@ -110,6 +153,10 @@ public class ModelManager {
         MESHES.clear();
     }
 
+    /**
+     * Frees a specific {@link ModelRenderer} and {@link Mesh} from the cache
+     * @param resource The {@link Resource} of the model to free
+     */
     public static void free(Resource resource) {
         ModelRenderer renderer = RENDERERS.remove(resource);
         if (renderer != null)
