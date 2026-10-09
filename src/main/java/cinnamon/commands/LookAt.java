@@ -32,13 +32,14 @@ public class LookAt implements Command {
 
             //check if we should look at feet or eyes
             if (!args.isEmpty()) {
-                String arg = args.pop();
-                if (arg.equalsIgnoreCase("feet"))
-                    pos = target.getTransform().getPos();
-                else if (arg.equalsIgnoreCase("eyes"))
-                    pos = target.getEyePos();
-                else
-                    return Text.of("Invalid argument: " + arg).withStyle(ERROR_STYLE);
+                String arg = args.pop().toLowerCase();
+                switch (arg) {
+                    case "feet" -> pos = target.getTransform().getPos();
+                    case "eyes" -> pos = target.getEyePos();
+                    default -> {
+                        return Text.of("Invalid argument: " + arg).withStyle(ERROR_STYLE);
+                    }
+                }
             } else {
                 //default to feet if no argument is provided
                 pos = target.getTransform().getPos();

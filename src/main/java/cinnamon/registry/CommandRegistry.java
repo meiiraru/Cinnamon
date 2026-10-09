@@ -31,7 +31,7 @@ public class CommandRegistry {
         register("spectate", new Spectate(), "spec", "sp");
         register("stopsound", new StopSound());
         register("say", new Say(), "speak", "chat");
-        register("runas", new RunAs(), "run", "do", "execute");
+        register("run", new Run(), "do", "execute");
         register("interact", new Interact());
         register("sit", new Sit(), "seat");
     }

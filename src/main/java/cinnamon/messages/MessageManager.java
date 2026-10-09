@@ -29,7 +29,7 @@ public class MessageManager {
         if (source == null)
             LOGGER.info("[%s] %s", category.name(), msg.asString());
         else
-            LOGGER.info("[%s] [%s] %s", category.name(), source.getName(), msg.asString());
+            LOGGER.info("[%s] [%s] %s", category.name(), source.getNameRepresentation(), msg.asString());
 
         Text text = Text.empty().withStyle(category.getStyle()).append(MarkdownParser.parseMarkdown(TextUtils.parseColorFormatting(msg)));
         messages.add(new Message(Client.getInstance().ticks, text, category, source));

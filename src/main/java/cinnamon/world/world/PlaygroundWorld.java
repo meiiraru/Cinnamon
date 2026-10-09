@@ -297,6 +297,11 @@ public class PlaygroundWorld extends WorldClient {
             }
 
             @Override
+            public String getNameRepresentation() {
+                return "fr\u00F6g";
+            }
+
+            @Override
             public EntityRegistry getType() {
                 return EntityRegistry.UNKNOWN;
             }

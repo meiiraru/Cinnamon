@@ -80,8 +80,8 @@ public class Fill implements Command {
         }
 
         //apply the fill
-        Vector3i a = new Vector3i(pos1, RoundingMode.TRUNCATE);
-        Vector3i b = new Vector3i(pos2, RoundingMode.TRUNCATE);
+        Vector3i a = new Vector3i(pos1, RoundingMode.FLOOR);
+        Vector3i b = new Vector3i(pos2, RoundingMode.FLOOR);
         Vector3i min = a.min(b, new Vector3i());
         Vector3i max = a.max(b, new Vector3i());
 
