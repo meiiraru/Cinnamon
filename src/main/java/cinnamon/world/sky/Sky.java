@@ -1,6 +1,5 @@
 package cinnamon.world.sky;
 
-import cinnamon.math.Rotation;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -36,7 +35,7 @@ public abstract class Sky {
 
     protected final Vector3f sunDir = new Vector3f(1, 0, 0);
     protected float sunAngle;
-    protected float sunRoll = Math.toRadians(30f);
+    protected float sunRoll = 30f;
 
     protected int tintColor = 0xFFFFFFFF;
 
@@ -62,9 +61,9 @@ public abstract class Sky {
         matrices.translate(camera.getPos());
 
         //translate sun
-        matrices.rotate(Rotation.Y.rotationDeg(90f));
-        matrices.rotate(Rotation.Z.rotation(sunRoll));
-        matrices.rotate(Rotation.X.rotationDeg(-sunAngle));
+        matrices.rotateY(90f);
+        matrices.rotateZ(sunRoll);
+        matrices.rotateX(-sunAngle);
         matrices.translate(0, 0, 512);
 
         //render sun
@@ -91,7 +90,7 @@ public abstract class Sky {
     protected void updateSunDir() {
         this.sunDir.set(-1, 0, 0);
         this.sunDir.rotateZ(Math.toRadians(sunAngle));
-        this.sunDir.rotateX(sunRoll);
+        this.sunDir.rotateX(Math.toRadians(sunRoll));
     }
 
     public void setSunAngle(float angle) {
@@ -100,7 +99,7 @@ public abstract class Sky {
     }
 
     public void setSunRoll(float roll) {
-        this.sunRoll = Math.toRadians(roll);
+        this.sunRoll = roll;
         updateSunDir();
     }
 

@@ -3,7 +3,6 @@ package cinnamon.world.entity.living;
 import cinnamon.Client;
 import cinnamon.input.InputManager;
 import cinnamon.math.Maths;
-import cinnamon.math.Rotation;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.render.Camera;
@@ -159,12 +158,12 @@ public abstract class LivingEntity extends PhysEntity {
             Quaternionf ridingRot = riding.getRot(delta);
             float ridingYaw = Maths.getYaw(ridingRot);
             float ridingPitch = Maths.getPitch(ridingRot);
-            matrices.rotate(Rotation.Y.rotationDeg(-ridingYaw));
-            matrices.rotate(Rotation.X.rotationDeg(-ridingPitch));
-            matrices.rotate(Rotation.Y.rotationDeg(ridingYaw));
+            matrices.rotateY(-ridingYaw);
+            matrices.rotateX(-ridingPitch);
+            matrices.rotateY(ridingYaw);
         }
 
-        matrices.rotate(Rotation.Y.rotationDeg(-Maths.getYaw(getRot(delta))));
+        matrices.rotateY(-Maths.getYaw(getRot(delta)));
         matrices.scale(getScale(delta));
     }
 

@@ -2,7 +2,6 @@ package cinnamon.world.items;
 
 import cinnamon.gui.Toast;
 import cinnamon.math.Curve;
-import cinnamon.math.Rotation;
 import cinnamon.math.collision.Hit;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.ItemModelRegistry;
@@ -45,8 +44,8 @@ public class CurveMaker extends Item {
 
         if (changed) {
             matrices.pushMatrix();
-            matrices.rotate(Rotation.X.rotationDeg(-35));
-            matrices.rotate(Rotation.Y.rotationDeg(90));
+            matrices.rotateX(-35);
+            matrices.rotateY(90);
         }
 
         super.render(context, matrices, delta);

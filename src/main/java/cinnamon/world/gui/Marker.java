@@ -2,7 +2,6 @@ package cinnamon.world.gui;
 
 import cinnamon.Client;
 import cinnamon.math.Maths;
-import cinnamon.math.Rotation;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.render.MatrixStack;
@@ -136,7 +135,7 @@ public class Marker {
 
         //rotate when off-screen
         if (isOffScreen)
-            matrices.rotate(Rotation.Z.rotation(rotationAngle));
+            matrices.rotateZ(Math.toDegrees(rotationAngle));
 
         //draw marker
         Vertex[] vertices = GeometryHelper.quad(matrices,

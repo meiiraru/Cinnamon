@@ -1,11 +1,10 @@
 package cinnamon.world.entity.vehicle;
 
-import cinnamon.math.Rotation;
 import cinnamon.math.collision.Hit;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
-import cinnamon.world.entity.living.LivingEntity;
+import org.joml.Math;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -57,7 +56,7 @@ public abstract class Vehicle extends PhysEntity {
         super.removeRider(e);
 
         Vector3f pos = transform.getPos();
-        Vector3f dir = getLookDir().rotate(Rotation.Y.rotationDeg(90));
+        Vector3f dir = getLookDir().rotateY(Math.toRadians(90));
         dir.mul(getAABB().getWidth() * 0.5f + e.getAABB().getWidth() * 0.5f + 0.1f);
         e.moveTo(pos.x + dir.x, pos.y + 0.5f, pos.z + dir.z);
     }

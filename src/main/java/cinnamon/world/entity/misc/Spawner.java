@@ -1,7 +1,6 @@
 package cinnamon.world.entity.misc;
 
 import cinnamon.gui.DebugScreen;
-import cinnamon.math.Rotation;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.registry.EntityRegistry;
@@ -61,7 +60,7 @@ public class Spawner<E extends Entity> extends Entity {
         matrices.pushMatrix();
         matrices.translate(getPos(delta));
         matrices.scale(1f, -1f, 1f);
-        matrices.rotate(Rotation.Y.rotationDeg(180f));
+        matrices.rotateY(180f);
         camera.billboard(matrices);
 
         Vertex[] vertices = GeometryHelper.circle(matrices, 0, 0, 0.15f, 1, 16, 0x88000000);

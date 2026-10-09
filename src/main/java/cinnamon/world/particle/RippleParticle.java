@@ -1,6 +1,5 @@
 package cinnamon.world.particle;
 
-import cinnamon.math.Rotation;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
@@ -15,7 +14,7 @@ public class RippleParticle extends SpriteParticle {
     @Override
     protected void renderParticle(Camera camera, MatrixStack matrices, float delta) {
         matrices.pushMatrix();
-        matrices.rotate(Rotation.X.rotationDeg(90));
+        matrices.rotateX(90f);
         super.renderParticle(camera, matrices, delta);
         matrices.popMatrix();
     }

@@ -1,7 +1,6 @@
 package cinnamon.world.entity.vehicle;
 
 import cinnamon.math.Maths;
-import cinnamon.math.Rotation;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Resolution;
 import cinnamon.settings.Settings;
@@ -83,7 +82,7 @@ public abstract class Car extends Vehicle {
         if (speed > 0.001f) {
             //rotate the acceleration vector based on the steering input
             float steeringAngle = steering * speed * steeringFactor * (isMovingForwards ? 1 : -1);
-            this.motion.rotate(Rotation.Y.rotationDeg(-steeringAngle));
+            this.motion.rotateY(Math.toRadians(-steeringAngle));
             Quaternionf rot = this.getTransform().getRot();
             rotateToWithRiders(Maths.getPitch(rot), Maths.getYaw(rot) + steeringAngle, Maths.getRoll(rot));
         } else {

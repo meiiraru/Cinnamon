@@ -3,7 +3,6 @@ package cinnamon.render;
 import cinnamon.Client;
 import cinnamon.animation.Bone;
 import cinnamon.math.Maths;
-import cinnamon.math.Rotation;
 import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.shape.*;
 import cinnamon.model.GeometryHelper;
@@ -37,9 +36,9 @@ public class DebugRenderer {
         matrices.translate(sphere.getCenter());
         float radius = sphere.getRadius() + 0.01f;
         VertexConsumer.LINES.consume(GeometryHelper.circle(matrices, 0, 0, radius, 24, color));
-        matrices.rotate(Rotation.X.rotationDeg(90f));
+        matrices.rotateX(90f);
         VertexConsumer.LINES.consume(GeometryHelper.circle(matrices, 0, 0, radius, 24, color));
-        matrices.rotate(Rotation.Y.rotationDeg(90f));
+        matrices.rotateY(90f);
         VertexConsumer.LINES.consume(GeometryHelper.circle(matrices, 0, 0, radius, 24, color));
         matrices.popMatrix();
     }
@@ -96,7 +95,7 @@ public class DebugRenderer {
         matrices.translate(snappedClosestPoint);
 
         matrices.rotate(rot);
-        matrices.rotate(Rotation.X.rotationDeg(90f));
+        matrices.rotateX(90f);
 
         int s = 4;
         VertexConsumer.LINES.consume(GeometryHelper.plane(matrices, -s, 0f, -s, s, s, s * 4, s * 4, color));
@@ -146,7 +145,7 @@ public class DebugRenderer {
         VertexConsumer.LINES.consume(GeometryHelper.line(matrices, 0f, 0f, 0f, 0f, 0f, l1, 0.001f, color));
 
         matrices.translate(0f, 0f, l1);
-        matrices.rotate(Rotation.X.rotationDeg(90f));
+        matrices.rotateX(90f);
         VertexConsumer.LINES.consume(GeometryHelper.cone(matrices, 0f, 0f, 0f, 0.05f, 0.025f, 5, 1f, false, color));
         matrices.popMatrix();
     }
@@ -213,7 +212,7 @@ public class DebugRenderer {
             renderArrow(matrices, light.getDirection(), 0.5f, c);
 
         camera.billboard(matrices);
-        matrices.rotate(Rotation.Z.rotationDeg(180f));
+        matrices.rotateZ(180f);
 
         Vertex[] v = GeometryHelper.quad(matrices, -0.25f, -0.25f, 0.5f, 0.5f);
         VertexConsumer.MAIN.consume(v, LAMP);
@@ -254,7 +253,7 @@ public class DebugRenderer {
                 matrices
                         .translate(pos)
                         .rotate(Maths.dirToQuat(light.getDirection()))
-                        .rotate(Rotation.X.rotation(-Math.PI_OVER_2_f))
+                        .rotateX(-90f)
                         .scale(radius, height, radius);
                 VertexConsumer.LINES.consume(GeometryHelper.cone(matrices, 0, -1, 0, 1f, 1f, 12, color | 0xFF000000));
 
@@ -272,7 +271,7 @@ public class DebugRenderer {
         matrices.translate(pos);
 
         camera.billboard(matrices);
-        matrices.rotate(Rotation.Z.rotationDeg(180f));
+        matrices.rotateZ(180f);
 
         VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, -0.25f, -0.25f, 0.5f, 0.5f), SPEAKER);
 

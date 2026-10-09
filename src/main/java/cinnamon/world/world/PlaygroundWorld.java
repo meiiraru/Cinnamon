@@ -1,7 +1,6 @@
 package cinnamon.world.world;
 
 import cinnamon.math.Maths;
-import cinnamon.math.Rotation;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.messages.MessageCategory;
@@ -102,15 +101,15 @@ public class PlaygroundWorld extends WorldClient {
         addTerrain(cb1);
         ConveyorBelt cb2 = new ConveyorBelt(beltSpeed);
         cb2.setPos(5, 1, 10);
-        cb2.setRotation(Rotation.Y.rotationDeg(270f));
+        cb2.setRotation(0f, 90f, 0f);
         addTerrain(cb2);
         ConveyorBelt cb3 = new ConveyorBelt(beltSpeed);
         cb3.setPos(0, 1, 10);
-        cb3.setRotation(Rotation.Y.rotationDeg(180f));
+        cb3.setRotation(0f, 180f, 0f);
         addTerrain(cb3);
         ConveyorBelt cb4 = new ConveyorBelt(beltSpeed);
         cb4.setPos(0, 1, 5);
-        cb4.setRotation(Rotation.Y.rotationDeg(90f));
+        cb4.setRotation(0f, 270f, 0f);
         addTerrain(cb4);
 
         //sphere
@@ -124,7 +123,7 @@ public class PlaygroundWorld extends WorldClient {
             for (float z = -4; z < 3; z += Maths.range(0.5f, 0.8f)) {
                 Terrain rose = TerrainRegistry.ROSE.getFactory().get();
                 rose.setPos(x, 1, z);
-                rose.setRotation(Rotation.Y.rotationDeg((float) (Math.random() * 360)));
+                rose.setRotation(0f, (float) (Math.random() * 360), 0f);
                 addTerrain(rose);
             }
         }

@@ -1,7 +1,6 @@
 package cinnamon.render;
 
 import cinnamon.math.Maths;
-import cinnamon.math.Rotation;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.utils.Pair;
@@ -217,11 +216,11 @@ public class Camera {
     public void billboard(MatrixStack matrices, byte rotationMask) {
         Quaternionf rot = getRotation();
         if ((rotationMask & 0x2) != 0)
-            matrices.rotate(Rotation.Y.rotationDeg(-Maths.getYaw(rot) + 180f));
+            matrices.rotateY(-Maths.getYaw(rot) + 180f);
         if ((rotationMask & 0x4) != 0)
-            matrices.rotate(Rotation.Z.rotationDeg(Maths.getRoll(rot)));
+            matrices.rotateZ(Maths.getRoll(rot));
         if ((rotationMask & 0x1) != 0)
-            matrices.rotate(Rotation.X.rotationDeg(Maths.getPitch(rot)));
+            matrices.rotateX(Maths.getPitch(rot));
     }
 
     public boolean isInsideFrustum(AABB aabb) {

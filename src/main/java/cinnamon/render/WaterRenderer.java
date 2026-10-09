@@ -1,6 +1,5 @@
 package cinnamon.render;
 
-import cinnamon.math.Rotation;
 import cinnamon.math.noise.FBMNoise;
 import cinnamon.math.noise.PerlinNoise2D;
 import cinnamon.model.StaticGeometry;
@@ -48,7 +47,7 @@ public class WaterRenderer {
         Vector3f camPos = camera.getPosition();
         matrices.translate(camPos.x, y, camPos.z);
 
-        matrices.rotate(Rotation.X.rotationDeg(-90f));
+        matrices.rotateX(-90f);
         matrices.scale(size);
 
         Shader.activeShader.applyMatrixStack(matrices);

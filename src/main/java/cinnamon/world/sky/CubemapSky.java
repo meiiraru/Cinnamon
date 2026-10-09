@@ -1,6 +1,5 @@
 package cinnamon.world.sky;
 
-import cinnamon.math.Rotation;
 import cinnamon.model.StaticGeometry;
 import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.render.Camera;
@@ -43,7 +42,7 @@ public class CubemapSky extends Sky {
     @Override
     protected void updateSunDir() {
         super.updateSunDir();
-        Rotation.Y.rotationDeg(sunAngle * rotationSpeed).get(skyRotation);
+        skyRotation.identity().rotateY(Math.toRadians(sunAngle * rotationSpeed));
     }
 
     public Matrix3f getSkyRotation() {

@@ -1,7 +1,6 @@
 package cinnamon.world.items;
 
 import cinnamon.math.Maths;
-import cinnamon.math.Rotation;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.registry.ItemModelRegistry;
@@ -80,7 +79,7 @@ public class MagicWand extends Item {
 
         if (change) {
             matrices.pushMatrix();
-            matrices.rotate(Rotation.X.rotationDeg(50));
+            matrices.rotateX(50);
         }
 
         super.render(context, matrices, delta);

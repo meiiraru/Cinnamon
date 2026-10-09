@@ -1,6 +1,5 @@
 package cinnamon.world.gui;
 
-import cinnamon.math.Rotation;
 import cinnamon.math.collision.shape.OBB;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
@@ -63,8 +62,8 @@ public class Action {
 
     protected void renderModel(MatrixStack matrices, float delta) {
         OBB bb = new OBB(modelRenderer.getAABB())
-                .rotate(Rotation.X.rotationDeg(22.5f))
-                .rotate(Rotation.Y.rotationDeg(135f));
+                .rotateX(22.5f)
+                .rotateY(135f);
 
         Vector3f center = bb.getCenter();
         Vector3f dims = bb.getDimensions();
@@ -75,8 +74,8 @@ public class Action {
         matrices.pushMatrix()
                 .translate(0f, 0, scale)
                 .scale(scale, -scale, scale)
-                .rotate(Rotation.X.rotationDeg(22.5f))
-                .rotate(Rotation.Y.rotationDeg(135f))
+                .rotateX(22.5f)
+                .rotateY(135f)
                 .translate(-center.x, -center.y, -center.z);
 
         UIHelper.finishBatches();

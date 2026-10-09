@@ -4,7 +4,6 @@ import cinnamon.Client;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.math.Maths;
-import cinnamon.math.Rotation;
 import cinnamon.model.ModelManager;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
@@ -74,10 +73,10 @@ public class PanoramaScreen extends ParentedScreen {
 
         boolean xr = XrManager.isInXR();
         if (!xr) {
-            matrices.rotate(Rotation.X.rotationDeg(rotX));
-            matrices.rotate(Rotation.Y.rotationDeg(rotY));
+            matrices.rotateX(rotX);
+            matrices.rotateY(rotY);
         } else {
-            matrices.rotate(Rotation.Y.rotationDeg(xrRotY));
+            matrices.rotateY(xrRotY);
         }
 
         Matrix3f uv = new Matrix3f();

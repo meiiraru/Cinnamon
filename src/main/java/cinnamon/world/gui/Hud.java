@@ -6,7 +6,6 @@ import cinnamon.gui.GUISkin;
 import cinnamon.gui.screens.world.ChatScreen;
 import cinnamon.gui.widgets.types.ProgressBar;
 import cinnamon.math.Maths;
-import cinnamon.math.Rotation;
 import cinnamon.messages.Message;
 import cinnamon.messages.MessageManager;
 import cinnamon.model.GeometryHelper;
@@ -182,8 +181,8 @@ public class Hud {
         matrices.translate(12, window.getGUIHeight() - 12, 0f);
         matrices.pushMatrix();
 
-        matrices.rotate(Rotation.Y.rotationDeg(20f));
-        matrices.rotate(Rotation.Z.rotationDeg(-10f));
+        matrices.rotateY(20f);
+        matrices.rotateZ(-10f);
 
         //draw text
         text.render(VertexConsumer.MAIN, matrices, 0f, 0f, Alignment.BOTTOM_LEFT);
@@ -215,8 +214,8 @@ public class Hud {
         matrices.pushMatrix();
         matrices.translate(window.getGUIWidth() - 12, window.getGUIHeight() - 12, 0f);
         matrices.pushMatrix();
-        matrices.rotate(Rotation.Y.rotationDeg(-20f));
-        matrices.rotate(Rotation.Z.rotationDeg(10f));
+        matrices.rotateY(-20f);
+        matrices.rotateZ(10f);
 
         //draw text
         text.render(VertexConsumer.MAIN, matrices, 0f, 0f, Alignment.CENTER_RIGHT);
@@ -294,8 +293,8 @@ public class Hud {
             if (item != null) {
                 matrices.pushMatrix();
                 matrices.translate(x + 8, y + 8, 5f);
-                matrices.rotate(Rotation.Y.rotationDeg(-90));
-                matrices.rotate(Rotation.X.rotationDeg(35));
+                matrices.rotateY(-90);
+                matrices.rotateX(35);
                 matrices.scale(-8);
 
                 item.render(ItemRenderContext.HUD, matrices, delta);
@@ -330,7 +329,7 @@ public class Hud {
         //rotate
         matrices.pushMatrix();
         matrices.translate(Math.round(w / 2f), Math.round(h / 2f), 0f);
-        matrices.rotate(Rotation.Z.rotationDeg(angle));
+        matrices.rotateZ(angle);
 
         //draw
         Vertex[] vertices = GeometryHelper.quad(matrices, -16f, -16f, 32, 32);
@@ -375,8 +374,8 @@ public class Hud {
         matrices.scale(s, -s, s);
 
         //apply rotation for a better view angle of the model
-        matrices.rotate(Rotation.X.rotationDeg(20));
-        matrices.rotate(Rotation.Y.rotationDeg(-c.ticks - delta));
+        matrices.rotateX(20);
+        matrices.rotateY(-c.ticks - delta);
 
         //offset to center of the model
         matrices.translate(-center.x, -center.y, -center.z);

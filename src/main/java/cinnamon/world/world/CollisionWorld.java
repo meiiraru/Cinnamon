@@ -1,7 +1,6 @@
 package cinnamon.world.world;
 
 import cinnamon.Client;
-import cinnamon.math.Rotation;
 import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Ray;
@@ -84,15 +83,15 @@ public class CollisionWorld extends WorldClient {
 
         //ramps
         for (int i = 1; i <= 6; i++)
-            this.addTerrain(new SlopeTerrain((i - 1) * 5, -5f, -15, 1.5f, 15f, 15f, Rotation.X.rotationDeg(15f * i), debugMat));
+            this.addTerrain(new SlopeTerrain((i - 1) * 5, -5f, -15, 1.5f, 15f, 15f, new Quaternionf().rotateX(Math.toRadians(15f * i)), debugMat));
 
         //floating ramps
         for (int i = 1; i <= 6; i++)
-            this.addTerrain(new SlopeTerrain((i - 1) * 5, 3f, 15, 1.5f, 3f, 3f, Rotation.X.rotationDeg(15f * i), debugMat));
+            this.addTerrain(new SlopeTerrain((i - 1) * 5, 3f, 15, 1.5f, 3f, 3f, new Quaternionf().rotateX(Math.toRadians(15f * i)), debugMat));
 
         //rotated pillars
         for (int i = 0; i < 3; i++)
-            this.addTerrain(new SlopeTerrain(-25, 3, 10 + 5 * i, 2f, 4f, 2f, Rotation.Y.rotationDeg(15f * (i + 1)), debugMat));
+            this.addTerrain(new SlopeTerrain(-25, 3, 10 + 5 * i, 2f, 4f, 2f, new Quaternionf().rotateY(Math.toRadians(15f * (i + 1))), debugMat));
 
         //exclamation mark
         TerrainGenerator.fill(this, -15, 1, 5, -15, 1, 5, debugMat);
