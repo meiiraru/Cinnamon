@@ -6,18 +6,67 @@ import org.joml.Math;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class GeometryHelper {
+/**
+ * Utility class for generating 2D and 3D geometry shapes and meshes
+ */
+public final class GeometryHelper {
+
+    private GeometryHelper() {}
 
     // * 2D shapes * //
 
+    /**
+     * Generates a 2D quad (rectangle) mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the quad
+     * @param y The y position of the quad
+     * @param width The width of the quad
+     * @param height The height of the quad
+     * @return An array of {@link Vertex} representing the quad mesh
+     * @see #quad(MatrixStack, float, float, float, float, int, int)
+     * @see #quad(MatrixStack, float, float, float, float, float, float, float, float, int, int)
+     * @see #quad(MatrixStack, float, float, float, float, float, float, float, float, float)
+     */
     public static Vertex[] quad(MatrixStack matrices, float x, float y, float width, float height) {
         return quad(matrices, x, y, width, height, 1, 1);
     }
 
+    /**
+     * Generates a 2D quad (rectangle) mesh for the first frame of a sprite texture
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the quad
+     * @param y The y position of the quad
+     * @param width The width of the quad
+     * @param height The height of the quad
+     * @param hFrames The number of horizontal frames in the sprite texture
+     * @param vFrames The number of vertical frames in the sprite texture
+     * @return An array of {@link Vertex} representing the quad mesh
+     * @see #quad(MatrixStack, float, float, float, float)
+     * @see #quad(MatrixStack, float, float, float, float, float, float, float, float, int, int)
+     * @see #quad(MatrixStack, float, float, float, float, float, float, float, float, float)
+     */
     public static Vertex[] quad(MatrixStack matrices, float x, float y, float width, float height, int hFrames, int vFrames) {
         return quad(matrices, x, y, width, height, 0, 0, 1f, 1f, hFrames, vFrames);
     }
 
+    /**
+     * Generates a 2D quad (rectangle) mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the quad
+     * @param y The y position of the quad
+     * @param width The width of the quad
+     * @param height The height of the quad
+     * @param u The u coordinate of the texture region
+     * @param v The v coordinate of the texture region
+     * @param regionW The width of the texture region
+     * @param regionH The height of the texture region
+     * @param textureW The width of the texture
+     * @param textureH The height of the texture
+     * @return An array of {@link Vertex} representing the quad mesh
+     * @see #quad(MatrixStack, float, float, float, float)
+     * @see #quad(MatrixStack, float, float, float, float, int, int)
+     * @see #quad(MatrixStack, float, float, float, float, float, float, float, float, float)
+     */
     public static Vertex[] quad(MatrixStack matrices, float x, float y, float width, float height, float u, float v, float regionW, float regionH, int textureW, int textureH) {
         float u0 = u / textureW;
         float v0 = v / textureH;
@@ -27,6 +76,23 @@ public class GeometryHelper {
         return quad(matrices, x, y, width, height, 0f, u0, u1, v0, v1);
     }
 
+    /**
+     * Generates a 2D quad (rectangle) mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x0 The x position of the quad
+     * @param y0 The y position of the quad
+     * @param width The width of the quad
+     * @param height The height of the quad
+     * @param z The z position of the quad
+     * @param u0 The u coordinate of the left corner of the texture region
+     * @param u1 The u coordinate of the right corner of the texture region
+     * @param v0 The v coordinate of the bottom corner of the texture region
+     * @param v1 The v coordinate of the top corner of the texture region
+     * @return An array of {@link Vertex} representing the quad mesh
+     * @see #quad(MatrixStack, float, float, float, float)
+     * @see #quad(MatrixStack, float, float, float, float, int, int)
+     * @see #quad(MatrixStack, float, float, float, float, float, float, float, float, int, int)
+     */
     public static Vertex[] quad(MatrixStack matrices, float x0, float y0, float width, float height, float z, float u0, float u1, float v0, float v1) {
         float x1 = x0 + width;
         float y1 = y0 + height;
@@ -39,10 +105,33 @@ public class GeometryHelper {
         };
     }
 
+    /**
+     * Generates a 2D circle mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the circle
+     * @param y The y position of the circle
+     * @param radius The radius of the circle
+     * @param sides The number of sides (segments) of the circle (minimum 3)
+     * @param color The color of the circle in {@code ARGB} format
+     * @return An array of {@link Vertex} representing the circle mesh
+     * @see #circle(MatrixStack, float, float, float, float, int, int)
+     */
     public static Vertex[] circle(MatrixStack matrices, float x, float y, float radius, int sides, int color) {
         return circle(matrices, x, y, radius, 1f, sides, color);
     }
 
+    /**
+     * Generates a 2D circle mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the circle
+     * @param y The y position of the circle
+     * @param radius The radius of the circle
+     * @param progress The progress of the circle {@code [0, 1]} ({@code 0.5f} half circle, {@code 1f} full circle)
+     * @param sides The number of sides (segments) of the circle (minimum 3)
+     * @param color The color of the circle in {@code ARGB} format
+     * @return An array of {@link Vertex} representing the circle mesh
+     * @see #circle(MatrixStack, float, float, float, int, int)
+     */
     public static Vertex[] circle(MatrixStack matrices, float x, float y, float radius, float progress, int sides, int color) {
         if (progress <= 0)
             return new Vertex[0];
@@ -80,6 +169,19 @@ public class GeometryHelper {
         return vertices;
     }
 
+    /**
+     * Generates a 2D arc mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the arc
+     * @param y The y position of the arc
+     * @param radius The radius of the arc
+     * @param start The start angle percentage of the arc, starting from the top of the circle
+     * @param end The end angle percentage of the arc, starting from the top of the circle
+     * @param thickness The thickness of the arc
+     * @param sides The number of sides (segments) of the arc (minimum 3)
+     * @param color The color of the arc in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the arc mesh, where each inner array represents a quad of the arc
+     */
     public static Vertex[][] arc(MatrixStack matrices, float x, float y, float radius, float start, float end, float thickness, int sides, int color) {
         if (start >= end)
             return new Vertex[0][];
@@ -157,6 +259,16 @@ public class GeometryHelper {
         return vertices;
     }
 
+    /**
+     * Generates a 2D square progress mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the square
+     * @param y The y position of the square
+     * @param radius The radius of the square
+     * @param color The color of the square in {@code ARGB} format
+     * @return An array of {@link Vertex} representing the square progress mesh
+     * @see #progressSquare(MatrixStack, float, float, float, float, int)
+     */
     public static Vertex[] progressSquare(MatrixStack matrices, float x, float y, float radius, int color) {
         return progressSquare(matrices, x, y, radius, 1f, color);
     }
@@ -172,6 +284,18 @@ public class GeometryHelper {
             -1f,  0f, 0f  , 0.5f, //center left
             -1f, -1f, 0f  , 0f  , //top left
     };
+
+    /**
+     * Generates a 2D square progress mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the square
+     * @param y The y position of the square
+     * @param radius The radius of the square
+     * @param progress The progress of the square {@code [0, 1]} ({@code 0.5f} half square, {@code 1f} full square)
+     * @param color The color of the square in {@code ARGB} format
+     * @return An array of {@link Vertex} representing the square progress mesh
+     * @see #progressSquare(MatrixStack, float, float, float, int)
+     */
     public static Vertex[] progressSquare(MatrixStack matrices, float x, float y, float radius, float progress, int color) {
         //no progress, no vertices
         if (progress <= 0f)
@@ -228,6 +352,17 @@ public class GeometryHelper {
         return vertices;
     }
 
+    /**
+     * Generates a 2D line mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x0 The starting x position of the line
+     * @param y0 The starting y position of the line
+     * @param x1 The ending x position of the line
+     * @param y1 The ending y position of the line
+     * @param size The thickness of the line
+     * @param color The color of the line in {@code ARGB} format
+     * @return An array of {@link Vertex} representing the line mesh
+     */
     public static Vertex[] line(MatrixStack matrices, float x0, float y0, float x1, float y1, float size, int color) {
         float dx = x1 - x0;
         float dy = y1 - y0;
@@ -248,10 +383,33 @@ public class GeometryHelper {
         };
     }
 
+    /**
+     * Generates a 2D rectangle mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x0 The starting x position of the rectangle
+     * @param y0 The starting y position of the rectangle
+     * @param x1 The ending x position of the rectangle
+     * @param y1 The ending y position of the rectangle
+     * @param color The color of the rectangle in {@code ARGB} format
+     * @return An array of {@link Vertex} representing the rectangle mesh
+     * @see #rectangle(MatrixStack, float, float, float, float, float, int)
+     */
     public static Vertex[] rectangle(MatrixStack matrices, float x0, float y0, float x1, float y1, int color) {
         return rectangle(matrices, x0, y0, x1, y1, 0, color);
     }
 
+    /**
+     * Generates a 2D rectangle mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x0 The starting x position of the rectangle
+     * @param y0 The starting y position of the rectangle
+     * @param x1 The ending x position of the rectangle
+     * @param y1 The ending y position of the rectangle
+     * @param z The z position of the rectangle
+     * @param color The color of the rectangle in {@code ARGB} format
+     * @return An array of {@link Vertex} representing the rectangle mesh
+     * @see #rectangle(MatrixStack, float, float, float, float, int)
+     */
     public static Vertex[] rectangle(MatrixStack matrices, float x0, float y0, float x1, float y1, float z, int color) {
         return new Vertex[]{
                 new Vertex().pos(x0, y1, z).uv(0f, 1f).color(color).mul(matrices),
@@ -261,6 +419,17 @@ public class GeometryHelper {
         };
     }
 
+    /**
+     * Generates a 2D rectangle mesh with inverted (counter-clockwise) winding order
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x0 The starting x position of the rectangle
+     * @param y0 The starting y position of the rectangle
+     * @param x1 The ending x position of the rectangle
+     * @param y1 The ending y position of the rectangle
+     * @param z The z position of the rectangle
+     * @param color The color of the rectangle in {@code ARGB} format
+     * @return An array of {@link Vertex} representing the rectangle mesh with inverted winding order
+     */
     public static Vertex[] invRectangle(MatrixStack matrices, float x0, float y0, float x1, float y1, float z, int color) {
         return new Vertex[]{
                 new Vertex().pos(x0, y1, z).uv(0f, 1f).color(color).mul(matrices),
@@ -270,7 +439,17 @@ public class GeometryHelper {
         };
     }
 
-
+    /**
+     * Generates a 2D triangle mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x0 The starting x position of the triangle
+     * @param y0 The starting y position of the triangle
+     * @param x1 The ending x position of the triangle
+     * @param y1 The ending y position of the triangle
+     * @param z The z position of the triangle
+     * @param color The color of the triangle in {@code ARGB} format
+     * @return An array of {@link Vertex} representing the triangle mesh
+     */
     public static Vertex[] triangle(MatrixStack matrices, float x0, float y0, float x1, float y1, float z, int color) {
         float x = (x0 + x1) * 0.5f;
         return new Vertex[]{
@@ -280,6 +459,17 @@ public class GeometryHelper {
         };
     }
 
+    /**
+     * Generates a 2D triangle mesh with inverted (counter-clockwise) winding order
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x0 The starting x position of the triangle
+     * @param y0 The starting y position of the triangle
+     * @param x1 The ending x position of the triangle
+     * @param y1 The ending y position of the triangle
+     * @param z The z position of the triangle
+     * @param color The color of the triangle in {@code ARGB} format
+     * @return An array of {@link Vertex} representing the triangle mesh with inverted winding order
+     */
     public static Vertex[] invTriangle(MatrixStack matrices, float x0, float y0, float x1, float y1, float z, int color) {
         float x = (x0 + x1) * 0.5f;
         return new Vertex[]{
@@ -293,6 +483,19 @@ public class GeometryHelper {
     // * 3D shapes * //
 
 
+    /**
+     * Generates a 3D segmented plane mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x0 The starting x position of the plane
+     * @param y The y position of the plane
+     * @param z0 The starting z position of the plane
+     * @param x1 The ending x position of the plane
+     * @param z1 The ending z position of the plane
+     * @param cellsX The number of cells (segments) in the x axis
+     * @param cellsZ The number of cells (segments) in the z axis
+     * @param color The color of the plane in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the plane mesh, where each inner array represents a quad of the plane
+     */
     public static Vertex[][] plane(MatrixStack matrices, float x0, float y, float z0, float x1, float z1, int cellsX, int cellsZ, int color) {
         //invalid cells
         if (cellsX <= 0 || cellsZ <= 0)
@@ -332,6 +535,19 @@ public class GeometryHelper {
         return quads;
     }
 
+    /**
+     * Generates a 3D line mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x0 The starting x position of the line
+     * @param y0 The starting y position of the line
+     * @param z0 The starting z position of the line
+     * @param x1 The ending x position of the line
+     * @param y1 The ending y position of the line
+     * @param z1 The ending z position of the line
+     * @param width The thickness of the line
+     * @param color The color of the line in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the line mesh, where each inner array represents a quad of the line
+     */
     public static Vertex[][] line(MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, float width, int color) {
         //grab direction
         Vector3f diff = new Vector3f(x1 - x0, y1 - y0, z1 - z0);
@@ -352,6 +568,18 @@ public class GeometryHelper {
         return line;
     }
 
+    /**
+     * Generates a 3D box mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x0 The starting x position of the box
+     * @param y0 The starting y position of the box
+     * @param z0 The starting z position of the box
+     * @param x1 The ending x position of the box
+     * @param y1 The ending y position of the box
+     * @param z1 The ending z position of the box
+     * @param color The color of the box in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the box mesh, where each inner array represents a face of the box
+     */
     public static Vertex[][] box(MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, int color) {
         float w = x1 - x0; float h = y1 - y0; float d = z1 - z0;
 
@@ -403,10 +631,37 @@ public class GeometryHelper {
         return box;
     }
 
+    /**
+     * Generates a 3D pyramid mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x0 The starting x position of the pyramid
+     * @param y0 The starting y position of the pyramid
+     * @param z0 The starting z position of the pyramid
+     * @param x1 The ending x position of the pyramid
+     * @param y1 The ending y position of the pyramid
+     * @param z1 The ending z position of the pyramid
+     * @param color The color of the pyramid in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the pyramid mesh, where each inner array represents a face of the pyramid
+     * @see #pyramid(MatrixStack, float, float, float, float, float, float, boolean, int)
+     */
     public static Vertex[][] pyramid(MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, int color) {
         return pyramid(matrices, x0, y0, z0, x1, y1, z1, true, color);
     }
 
+    /**
+     * Generates a 3D pyramid mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x0 The starting x position of the pyramid
+     * @param y0 The starting y position of the pyramid
+     * @param z0 The starting z position of the pyramid
+     * @param x1 The ending x position of the pyramid
+     * @param y1 The ending y position of the pyramid
+     * @param z1 The ending z position of the pyramid
+     * @param base Whether to include the base face of the pyramid
+     * @param color The color of the pyramid in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the pyramid mesh, where each inner array represents a face of the pyramid
+     * @see #pyramid(MatrixStack, float, float, float, float, float, float, int)
+     */
     public static Vertex[][] pyramid(MatrixStack matrices, float x0, float y0, float z0, float x1, float y1, float z1, boolean base, int color) {
         float w = x1 - x0; float h = y1 - y0; float d = z1 - z0;
 
@@ -457,10 +712,38 @@ public class GeometryHelper {
         return pyramid;
     }
 
+    /**
+     * Generates a 3D cone mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the cone
+     * @param y The y position of the cone
+     * @param z The z position of the cone
+     * @param height The height of the cone
+     * @param radius The radius of the base of the cone
+     * @param sides The number of sides (segments) of the cone
+     * @param color The color of the cone in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the cone mesh, where each inner array represents a face of the cone
+     * @see #cone(MatrixStack, float, float, float, float, float, int, float, boolean, int)
+     */
     public static Vertex[][] cone(MatrixStack matrices, float x, float y, float z, float height, float radius, int sides, int color) {
         return cone(matrices, x, y, z, height, radius, sides, 1f, true, color);
     }
 
+    /**
+     * Generates a 3D cone mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the cone
+     * @param y The y position of the cone
+     * @param z The z position of the cone
+     * @param height The height of the cone
+     * @param radius The radius of the base of the cone
+     * @param sides The number of sides (segments) of the cone
+     * @param progress The progress of the cone {@code [0, 1]} ({@code 0.5f} half cone, {@code 1f} full cone)
+     * @param base Whether to include the base face of the cone
+     * @param color The color of the cone in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the cone mesh, where each inner array represents a face of the cone
+     * @see #cone(MatrixStack, float, float, float, float, float, int, int)
+     */
     public static Vertex[][] cone(MatrixStack matrices, float x, float y, float z, float height, float radius, int sides, float progress, boolean base, int color) {
         if (sides < 3)
             return new Vertex[0][];
@@ -525,10 +808,39 @@ public class GeometryHelper {
         return cone;
     }
 
+    /**
+     * Generates a 3D cylinder mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the cylinder
+     * @param y The y position of the cylinder
+     * @param z The z position of the cylinder
+     * @param height The height of the cylinder
+     * @param radius The radius of the cylinder
+     * @param sides The number of sides (segments) of the cylinder
+     * @param color The color of the cylinder in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the cylinder mesh, where each inner array represents a face of the cylinder
+     * @see #cylinder(MatrixStack, float, float, float, float, float, float, int, float, boolean, int)
+     */
     public static Vertex[][] cylinder(MatrixStack matrices, float x, float y, float z, float height, float radius, int sides, int color) {
         return cylinder(matrices, x, y, z, height, radius, radius, sides, 1f, true, color);
     }
 
+    /**
+     * Generates a 3D cylinder mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the cylinder
+     * @param y The y position of the cylinder
+     * @param z The z position of the cylinder
+     * @param height The height of the cylinder
+     * @param radiusTop The radius of the top face of the cylinder
+     * @param radiusBottom The radius of the bottom face of the cylinder
+     * @param sides The number of sides (segments) of the cylinder
+     * @param progress The progress of the cylinder {@code [0, 1]} ({@code 0.5f} half cylinder, {@code 1f} full cylinder)
+     * @param cap Whether to include the top and bottom faces of the cylinder
+     * @param color The color of the cylinder in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the cylinder mesh, where each inner array represents a face of the cylinder
+     * @see #cylinder(MatrixStack, float, float, float, float, float, int, int)
+     */
     public static Vertex[][] cylinder(MatrixStack matrices, float x, float y, float z, float height, float radiusTop, float radiusBottom, int sides, float progress, boolean cap, int color) {
         if (sides < 3)
             return new Vertex[0][];
@@ -601,10 +913,40 @@ public class GeometryHelper {
         return cylinder;
     }
 
+    /**
+     * Generates a 3D tube mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the tube
+     * @param y The y position of the tube
+     * @param z The z position of the tube
+     * @param height The height of the tube
+     * @param radius The outer radius of the tube
+     * @param innerRadius The inner radius of the tube
+     * @param sides The number of sides (segments) of the tube
+     * @param color The color of the tube in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the tube mesh, where each inner array represents a face of the tube
+     * @see #tube(MatrixStack, float, float, float, float, float, float, int, float, boolean, int)
+     */
     public static Vertex[][] tube(MatrixStack matrices, float x, float y, float z, float height, float radius, float innerRadius, int sides, int color) {
         return tube(matrices, x, y, z, height, radius, innerRadius, sides, 1f, true, color);
     }
 
+    /**
+     * Generates a 3D tube mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the tube
+     * @param y The y position of the tube
+     * @param z The z position of the tube
+     * @param height The height of the tube
+     * @param radius The outer radius of the tube
+     * @param innerRadius The inner radius of the tube
+     * @param sides The number of sides (segments) of the tube
+     * @param progress The progress of the tube {@code [0, 1]} ({@code 0.5f} half tube, {@code 1f} full tube)
+     * @param cap Whether to include the top and bottom faces of the tube
+     * @param color The color of the tube in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the tube mesh, where each inner array represents a face of the tube
+     * @see #tube(MatrixStack, float, float, float, float, float, float, int, int)
+     */
     public static Vertex[][] tube(MatrixStack matrices, float x, float y, float z, float height, float radius, float innerRadius, int sides, float progress, boolean cap, int color) {
         if (sides < 3)
             return new Vertex[0][];
@@ -686,10 +1028,37 @@ public class GeometryHelper {
         return tube;
     }
 
+    /**
+     * Generates a 3D sphere mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the sphere
+     * @param y The y position of the sphere
+     * @param z The z position of the sphere
+     * @param radius The radius of the sphere
+     * @param sides The number of sides (segments) of the sphere
+     * @param color The color of the sphere in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the sphere mesh, where each inner array represents a face of the sphere
+     * @see #sphere(MatrixStack, float, float, float, float, int, int, float, float, int)
+     */
     public static Vertex[][] sphere(MatrixStack matrices, float x, float y, float z, float radius, int sides, int color) {
         return sphere(matrices, x, y, z, radius, sides, sides, 1f, 1f, color);
     }
 
+    /**
+     * Generates a 3D sphere mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the sphere
+     * @param y The y position of the sphere
+     * @param z The z position of the sphere
+     * @param radius The radius of the sphere
+     * @param hSides The number of horizontal sides (segments) of the sphere
+     * @param vSides The number of vertical sides (segments) of the sphere
+     * @param hProgress The horizontal progress of the sphere {@code [0, 1]} ({@code 0.5f} half sphere, {@code 1f} full sphere)
+     * @param vProgress The vertical progress of the sphere {@code [0, 1]} ({@code 0.5f} half sphere, {@code 1f} full sphere)
+     * @param color The color of the sphere in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the sphere mesh, where each inner array represents a face of the sphere
+     * @see #sphere(MatrixStack, float, float, float, float, int, int)
+     */
     public static Vertex[][] sphere(MatrixStack matrices, float x, float y, float z, float radius, int hSides, int vSides, float hProgress, float vProgress, int color) {
         if (hSides < 3 || vSides < 2)
             return new Vertex[0][];
@@ -738,10 +1107,38 @@ public class GeometryHelper {
         return sphere;
     }
 
+    /**
+     * Generates a 3D capsule mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the capsule
+     * @param y The y position of the capsule
+     * @param z The z position of the capsule
+     * @param height The height of the capsule
+     * @param radius The radius of the capsule
+     * @param sides The number of sides (segments) of the capsule
+     * @param color The color of the capsule in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the capsule mesh, where each inner array represents a face of the capsule
+     * @see #capsule(MatrixStack, float, float, float, float, float, int, int, float, int)
+     */
     public static Vertex[][] capsule(MatrixStack matrices, float x, float y, float z, float height, float radius, int sides, int color) {
         return capsule(matrices, x, y, z, height, radius, sides, sides, 1f, color);
     }
 
+    /**
+     * Generates a 3D capsule mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the capsule
+     * @param y The y position of the capsule
+     * @param z The z position of the capsule
+     * @param height The height of the capsule
+     * @param radius The radius of the capsule
+     * @param hSides The number of horizontal sides (segments) of the capsule
+     * @param vSides The number of vertical sides (segments) of the capsule
+     * @param progress The progress of the capsule {@code [0, 1]} ({@code 0.5f} half capsule, {@code 1f} full capsule)
+     * @param color The color of the capsule in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the capsule mesh, where each inner array represents a face of the capsule
+     * @see #capsule(MatrixStack, float, float, float, float, float, int, int)
+     */
     public static Vertex[][] capsule(MatrixStack matrices, float x, float y, float z, float height, float radius, int hSides, int vSides, float progress, int color) {
         if (hSides < 3 || vSides < 1)
             return new Vertex[0][];
@@ -806,10 +1203,39 @@ public class GeometryHelper {
         return capsule;
     }
 
+    /**
+     * Generates a 3D torus mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the torus
+     * @param y The y position of the torus
+     * @param z The z position of the torus
+     * @param radius The radius of the torus
+     * @param tubeRadius The radius of the tube of the torus
+     * @param sides The number of sides (segments) of the torus
+     * @param color The color of the torus in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the torus mesh, where each inner array represents a face of the torus
+     * @see #torus(MatrixStack, float, float, float, float, float, int, int, float, float, int)
+     */
     public static Vertex[][] torus(MatrixStack matrices, float x, float y, float z, float radius, float tubeRadius, int sides, int color) {
         return torus(matrices, x, y, z, radius, tubeRadius, sides, sides, 1f, 1f, color);
     }
 
+    /**
+     * Generates a 3D torus mesh
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param x The x position of the torus
+     * @param y The y position of the torus
+     * @param z The z position of the torus
+     * @param radius The radius of the torus
+     * @param tubeRadius The radius of the tube of the torus
+     * @param sides The number of sides (segments) of the torus
+     * @param tubeSides The number of tube sides (segments) of the torus
+     * @param progress The progress of the torus {@code [0, 1]} ({@code 0.5f} half torus, {@code 1f} full torus)
+     * @param tubeProgress The progress of the tube {@code [0, 1]} ({@code 0.5f} half tube, {@code 1f} full tube)
+     * @param color The color of the torus in {@code ARGB} format
+     * @return A 2D array of {@link Vertex} representing the torus mesh, where each inner array represents a face of the torus
+     * @see #torus(MatrixStack, float, float, float, float, float, int, int)
+     */
     public static Vertex[][] torus(MatrixStack matrices, float x, float y, float z, float radius, float tubeRadius, int sides, int tubeSides, float progress, float tubeProgress, int color) {
         if (sides < 3 || tubeSides < 3)
             return new Vertex[0][];
