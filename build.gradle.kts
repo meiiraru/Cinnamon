@@ -11,7 +11,7 @@ java {
 }
 
 group = "com.github.meiiraru"
-version = "0.5.3"
+version = "0.5.4"
 val mainClass = "cinnamon.Cinnamon"
 
 //dependencies
