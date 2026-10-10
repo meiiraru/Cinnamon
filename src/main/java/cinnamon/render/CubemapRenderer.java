@@ -2,8 +2,8 @@ package cinnamon.render;
 
 import cinnamon.model.StaticGeometry;
 import cinnamon.render.framebuffer.Framebuffer;
+import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.Shader;
-import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.Texture;
 import org.joml.Math;
@@ -41,7 +41,7 @@ public class CubemapRenderer {
         CubeMap cubemap = generateEmptyMap(512, 512, false, false);
 
         Shader old = Shader.activeShader;
-        Shader s = Shaders.EQUIRECTANGULAR_TO_CUBEMAP.getShader().use();
+        Shader s = CoreShaders.EQUIRECTANGULAR_TO_CUBEMAP.getShader().use();
         s.setTexture("equirectangularMap", texture, 0);
         s.setBool("hdr", hdr);
 
@@ -55,7 +55,7 @@ public class CubemapRenderer {
         CubeMap irradiance = generateEmptyMap(32, 32, false, false);
 
         Shader old = Shader.activeShader;
-        Shader s = Shaders.IRRADIANCE.getShader().use();
+        Shader s = CoreShaders.IRRADIANCE.getShader().use();
         s.setTexture("environmentMap", cubemap, 0);
 
         renderInvertedCube(irradiance, s);
@@ -68,7 +68,7 @@ public class CubemapRenderer {
         CubeMap prefilter = generateEmptyMap(1024, 1024, false, true);
 
         Shader old = Shader.activeShader;
-        Shader s = Shaders.PREFILTER.getShader().use();
+        Shader s = CoreShaders.PREFILTER.getShader().use();
         s.setTexture("environmentMap", cubemap, 0);
         s.setMat4("projection", CAPTURE_PROJECTION);
 
@@ -119,7 +119,7 @@ public class CubemapRenderer {
 
         //keep the old shader and render a quad to generate the LUT
         Shader prevShader = Shader.activeShader;
-        Shaders.BRDF_LUT.getShader().use();
+        CoreShaders.BRDF_LUT.getShader().use();
         StaticGeometry.QUAD.render();
 
         //restore the previous render state

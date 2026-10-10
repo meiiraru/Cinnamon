@@ -2,7 +2,7 @@ package cinnamon.render.shader;
 
 import cinnamon.utils.Resource;
 
-public enum Shaders {
+public enum CoreShaders {
     MODEL,
     WORLD_MAIN_EMISSIVE,
     WORLD_MAIN,
@@ -42,17 +42,18 @@ public enum Shaders {
     CUBEMAP_SKYBOX,
     CLOUDS,
     GBUFFER_TRANSPARENT,
-    DEFERRED_TRANSPARENT;
+    DEFERRED_TRANSPARENT,
+    GBUFFER_WORLD_PBR_WAVE;
 
     private final Resource resource;
     private Shader shader;
 
-    Shaders() {
+    CoreShaders() {
         this.resource = new Resource("shaders/core/" + this.name().toLowerCase() + ".glsl");
     }
 
     private void loadShader() {
-        this.shader = new Shader(this.resource);
+        this.shader = Shader.of(this.resource);
     }
 
     public Shader getShader() {
@@ -60,13 +61,13 @@ public enum Shaders {
     }
 
     public static void freeAll() {
-        for (Shaders shader : values())
+        for (CoreShaders shader : values())
             shader.getShader().free();
     }
 
     public static void loadAll() {
-        for (Shaders shader : values())
+        for (CoreShaders shader : values())
             shader.loadShader();
-        Shaders.MAIN.getShader().use();
+        CoreShaders.MAIN.getShader().use();
     }
 }

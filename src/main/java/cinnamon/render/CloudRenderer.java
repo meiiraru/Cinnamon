@@ -4,9 +4,9 @@ import cinnamon.math.noise.BlueNoise2D;
 import cinnamon.math.noise.WhiteNoise2D;
 import cinnamon.model.StaticGeometry;
 import cinnamon.render.framebuffer.Framebuffer;
+import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
-import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.NoiseTexture;
 import cinnamon.render.texture.Texture;
 import cinnamon.world.sky.Sky;
@@ -49,7 +49,7 @@ public class CloudRenderer {
 
         Vector3f camPos = camera.getPos();
 
-        Shader s = Shaders.CLOUDS.getShader().use();
+        Shader s = CoreShaders.CLOUDS.getShader().use();
         s.setup(camera);
         s.setupInverse(camera);
 

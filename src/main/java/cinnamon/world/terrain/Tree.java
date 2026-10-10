@@ -4,9 +4,16 @@ import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.math.collision.shape.OBB;
 import cinnamon.model.ModelManager;
+import cinnamon.model.material.Material;
 import cinnamon.model.mesh.Mesh;
 import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
+import cinnamon.render.Camera;
+import cinnamon.render.MatrixStack;
+import cinnamon.render.WorldRenderer;
+import cinnamon.render.model.ModelRenderer;
+import cinnamon.render.shader.CoreShaders;
+import cinnamon.render.shader.Shader;
 import cinnamon.world.particle.LeafParticle;
 import cinnamon.world.world.WorldClient;
 import org.joml.Vector3f;
@@ -17,13 +24,36 @@ import java.util.List;
 public class Tree extends Terrain {
 
     public static final int[] LEAF_COLORS = {0xFFE5858C, 0xFFBD516D, 0xFF80436B};
+    protected final ModelRenderer leavesModel;
     protected final Mesh hitbox;
     protected int lastLeafTime = 0;
 
     public Tree() {
         super(TerrainModelRegistry.TREE.resource, TerrainRegistry.TREE);
         this.hitbox = ModelManager.getMesh(TerrainModelRegistry.TREE_HITBOX.resource);
+        this.leavesModel = ModelManager.getRenderer(TerrainModelRegistry.TREE_LEAVES.resource);
         getCollisionMask().setMask(1, true);
+    }
+
+    @Override
+    protected void renderModel(Camera camera, Material material, MatrixStack matrices, float delta) {
+        super.renderModel(camera, material, matrices, delta);
+
+        if (leavesModel != null) {
+            if (WorldRenderer.isWorldRendering() && !WorldRenderer.isShadowRendering()) {
+                Shader currSh = Shader.activeShader;
+                Shader s = CoreShaders.GBUFFER_WORLD_PBR_WAVE.getShader().use();
+                s.setup(camera);
+                s.setVec3("camPos", camera.getPosition());
+                s.setFloat("time", (getWorld().getTime() + delta) * 0.1f);
+                s.setFloat("waveHeight", 0.1f);
+                s.setFloat("waveFrequency", 2.0f);
+                leavesModel.render(matrices, material);
+                currSh.use();
+            } else {
+                leavesModel.render(matrices, material);
+            }
+        }
     }
 
     @Override

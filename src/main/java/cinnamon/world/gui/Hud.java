@@ -16,7 +16,7 @@ import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.shader.Shaders;
+import cinnamon.render.shader.CoreShaders;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
@@ -265,7 +265,7 @@ public class Hud {
 
     protected void drawHotbar(MatrixStack matrices, LivingEntity entity, float delta) {
         //set shader
-        Shaders.MODEL.getShader().use().setup(Client.getInstance().camera);
+        CoreShaders.MODEL.getShader().use().setup(Client.getInstance().camera);
 
         //prepare variables
         Window window = Client.getInstance().window;

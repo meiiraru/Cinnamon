@@ -1,0 +1,68 @@
+#version 330 core
+#include shaders/libs/parallax_mapping.glsl
+//#include shaders/libs/transparent_dither.glsl
+
+layout (location = 0) out vec4 gAlbedo;
+layout (location = 1) out vec4 gNormal;
+layout (location = 2) out vec4 gORM;
+layout (location = 3) out vec4 gEmissive;
+
+struct Material {
+    sampler2D albedoTex;
+    sampler2D heightTex;
+    sampler2D normalTex;
+    sampler2D aoTex;
+    sampler2D roughnessTex;
+    sampler2D metallicTex;
+    sampler2D emissiveTex;
+    float heightScale;
+    float normalScale;
+    float alphaCutout;
+};
+
+in vec2 texCoords;
+in vec3 pos;
+in mat3 TBN;
+
+uniform vec4 color = vec4(1.0f);
+uniform vec3 camPos;
+uniform Material material;
+
+void main() {
+    //parallax mapping
+    vec3 viewDir = normalize(transpose(TBN) * (camPos - pos));
+    viewDir.y = -viewDir.y; //flip y for opengl coordinate system
+    vec2 texCoords = parallaxMapping(texCoords, viewDir, material.heightTex, material.heightScale);
+
+    //if (texCoords.x > 1.0f || texCoords.y > 1.0f || texCoords.x < 0.0f || texCoords.y < 0.0f)
+    //    discard;
+
+    //sample textures
+    vec4 albedo = texture(material.albedoTex, texCoords) * color;
+
+    //if (shouldDiscard(albedo, pos)) {
+    //    discard;
+    //} else {
+    //    albedo.a = 1.0f;
+    //}
+
+    if (albedo.a < material.alphaCutout)
+        discard;
+
+    float ao        = texture(material.aoTex, texCoords).r;
+    float roughness = texture(material.roughnessTex, texCoords).r;
+    float metallic  = texture(material.metallicTex, texCoords).r;
+    vec3 emissive   = texture(material.emissiveTex, texCoords).rgb * color.rgb;
+
+    //sample normal
+    vec3 normal = texture(material.normalTex, texCoords).rgb;
+    normal = normal * 2.0f - 1.0f;
+    normal.xy *= material.normalScale;
+    normal = normalize(TBN * normal);
+
+    //write to gBuffer
+    gAlbedo = albedo;
+    gNormal = vec4(normal, 1.0f);
+    gORM = vec4(ao, roughness, metallic, 1.0f);
+    gEmissive = vec4(emissive, 1.0f);
+}

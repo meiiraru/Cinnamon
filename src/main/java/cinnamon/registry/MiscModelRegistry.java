@@ -7,6 +7,7 @@ public enum MiscModelRegistry {
     //unused stuff
     COIN("models/entities/collectable/coin/coin.obj"),
     MYSTERY_BOX("models/entities/collectable/mystery_box/mystery_box.obj"),
+    HEART("models/entities/collectable/heart/crystal_heart.obj"),
     BUBBLE_TOY("models/items/bubble_toy/bubble_toy.obj"),
 
     //misc

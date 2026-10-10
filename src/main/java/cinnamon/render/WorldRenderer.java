@@ -6,9 +6,9 @@ import cinnamon.model.StaticGeometry;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
+import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
-import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.settings.Settings;
 import cinnamon.utils.Mask;
@@ -306,7 +306,7 @@ public class WorldRenderer {
         targetBuffer.blit(PBRFrameBuffer, false, true, true);
 
         //setup gbuffer shader
-        Shader s = Shaders.GBUFFER_WORLD_PBR.getShader().use();
+        Shader s = CoreShaders.GBUFFER_WORLD_PBR.getShader().use();
         s.setup(camera);
         s.setVec3("camPos", camera.getPosition());
         s.setInt("frameIndex", (int) Client.getInstance().frames);
@@ -316,7 +316,7 @@ public class WorldRenderer {
         //world uniforms
         outputBuffer.use();
         outputBuffer.adjustViewPort();
-        Shader s = Shaders.DEFERRED_WORLD_PBR.getShader().use();
+        Shader s = CoreShaders.DEFERRED_WORLD_PBR.getShader().use();
 
         //camera
         s.setupInverse(camera);
@@ -431,8 +431,8 @@ public class WorldRenderer {
         outlineRendering = true;
         OutlineRenderer.prepareRenderer(outputBuffer, camera);
 
-        Shader main = Shaders.MAIN_PASS.getShader();
-        Shader model = Shaders.MODEL_PASS.getShader();
+        Shader main = CoreShaders.MAIN_PASS.getShader();
+        Shader model = CoreShaders.MODEL_PASS.getShader();
 
         //render entities
         for (Entity entity : entitiesToOutline) {

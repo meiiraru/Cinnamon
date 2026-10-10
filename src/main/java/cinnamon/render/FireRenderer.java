@@ -2,8 +2,8 @@ package cinnamon.render;
 
 import cinnamon.math.noise.FBMNoise;
 import cinnamon.math.noise.VoronoiNoise2D;
+import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.Shader;
-import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.NoiseTexture;
 
 public class FireRenderer {
@@ -29,7 +29,7 @@ public class FireRenderer {
 
     public static int prepareFireRenderer(Camera camera, float time) {
         //setup shader
-        Shader s = Shaders.FIRE.getShader().use();
+        Shader s = CoreShaders.FIRE.getShader().use();
 
         s.setup(camera);
         s.setFloat("time", time * 0.03f);

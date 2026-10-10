@@ -4,8 +4,8 @@ import cinnamon.model.StaticGeometry;
 import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.Shader;
-import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.SkyBox;
 import cinnamon.render.texture.Texture;
@@ -24,7 +24,7 @@ public class CubemapSky extends Sky {
     protected void renderSky(Camera camera, MatrixStack matrices) {
         //render model
         Shader o = Shader.activeShader;
-        Shader s = Shaders.SKYBOX.getShader().use();
+        Shader s = CoreShaders.SKYBOX.getShader().use();
         s.setup(camera);
         s.setMat3("rotation", skyRotation);
         s.setInt("skybox", 0);

@@ -18,6 +18,7 @@ public enum TerrainModelRegistry {
     BUTTON("models/terrain/button/button.obj"),
     TORII_GATE("models/terrain/torii/torii_gate.obj"),
     TREE("models/terrain/tree/deer_tree.obj"),
+    TREE_LEAVES("models/terrain/tree/deer_tree_leaves.obj"),
     TREE_HITBOX("models/terrain/tree/deer_tree_hitbox.obj"),
 
     GLTF_TEST("models/terrain/gltf_test/gltf_test.gltf");

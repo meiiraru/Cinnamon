@@ -2,8 +2,8 @@ package cinnamon.render;
 
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
+import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.Shader;
-import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.world.sky.Sky;
 import cinnamon.world.world.WorldClient;
@@ -30,7 +30,7 @@ public class RefractionRenderer {
         refractionGBuffer.clearColors();
 
         //render the transparent stuff to the gBuffer
-        Shader sh = Shaders.GBUFFER_TRANSPARENT.getShader().use();
+        Shader sh = CoreShaders.GBUFFER_TRANSPARENT.getShader().use();
         sh.setup(camera);
         sh.setVec3("camPos", camera.getPosition());
         sh.setTexture("opaqueSceneTex", opaqueLitBuffer.getColorBuffer(), 7);
@@ -48,7 +48,7 @@ public class RefractionRenderer {
         outputBuffer.adjustViewPort();
 
         //bake the refraction
-        Shader s = Shaders.DEFERRED_TRANSPARENT.getShader().use();
+        Shader s = CoreShaders.DEFERRED_TRANSPARENT.getShader().use();
         s.setupInverse(camera);
 
         int i = 0;

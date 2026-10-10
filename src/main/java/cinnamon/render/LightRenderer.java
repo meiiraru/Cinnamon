@@ -7,10 +7,10 @@ import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
 import cinnamon.render.framebuffer.ShadowCascadeFramebuffer;
 import cinnamon.render.framebuffer.ShadowCubemapFramebuffer;
+import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.SSBO;
 import cinnamon.render.shader.Shader;
-import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.NoiseTexture;
 import cinnamon.render.texture.Texture;
@@ -158,7 +158,7 @@ public class LightRenderer {
         lightGlareBuffer.useClear();
         lightGlareBuffer.adjustViewPort();
 
-        Shader s = Shaders.LIGHT_GLARE.getShader().use();
+        Shader s = CoreShaders.LIGHT_GLARE.getShader().use();
         s.setup(camera);
         s.setTexture("gDepth", target.getDepthBuffer(), 0);
 
@@ -195,7 +195,7 @@ public class LightRenderer {
 
         //render lens flare for directional lights
         if (!directionalLights.isEmpty()) {
-            Shader lensShader = Shaders.LENS_FLARE.getShader().use();
+            Shader lensShader = CoreShaders.LENS_FLARE.getShader().use();
             lensShader.setup(camera);
             lensShader.setVec3("camPos", camera.getPosition());
             lensShader.setFloat("aspectRatio", aspectRatio);
@@ -253,7 +253,7 @@ public class LightRenderer {
         cameraRot.set(camera.getRot());
 
         //init light pass
-        Shader s = Shaders.LIGHT_PASS.getShader().use();
+        Shader s = CoreShaders.LIGHT_PASS.getShader().use();
         s.setVec3("camPos", camera.getPosition());
         s.setup(camera);
         s.setupInverse(camera);
@@ -315,7 +315,7 @@ public class LightRenderer {
         glPolygonOffset(SHADOW_BIAS_FACTOR, SHADOW_BIAS_UNITS);
 
         //prepare shader
-        Shader s = Shaders.DEPTH_DIR.getShader().use();
+        Shader s = CoreShaders.DEPTH_DIR.getShader().use();
         s.setMat4Array("cascadeMatrices", cascadeMatrices);
 
         //render world
@@ -324,7 +324,7 @@ public class LightRenderer {
 
         //render vertex consumer
         cascadeShadowBuffer.use();
-        Shader main = Shaders.MAIN_DEPTH_DIR.getShader().use();
+        Shader main = CoreShaders.MAIN_DEPTH_DIR.getShader().use();
         main.setMat4Array("cascadeMatrices", cascadeMatrices);
         VertexConsumer.finishAllBatches(main, camera);
 
@@ -359,12 +359,12 @@ public class LightRenderer {
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(SHADOW_BIAS_FACTOR, SHADOW_BIAS_UNITS);
 
-        Shaders.DEPTH.getShader().use().setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        CoreShaders.DEPTH.getShader().use().setMat4("lightSpaceMatrix", lightSpaceMatrix);
         renderFunction.run();
         MaterialApplier.cleanup();
 
         //render vertex consumer
-        Shader main = Shaders.MAIN_DEPTH.getShader().use();
+        Shader main = CoreShaders.MAIN_DEPTH.getShader().use();
         main.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         VertexConsumer.finishAllBatches(main, camera);
 
@@ -400,12 +400,12 @@ public class LightRenderer {
         }
 
         //setup shaders
-        Shader s = Shaders.POINT_DEPTH.getShader().use();
+        Shader s = CoreShaders.POINT_DEPTH.getShader().use();
         s.setVec3("lightPos", pos);
         s.setFloat("farPlane", farPlane);
         s.setMat4Array("shadowMatrices", pointShadowMatrices);
 
-        Shader sh = Shaders.POINT_MAIN_DEPTH.getShader().use();
+        Shader sh = CoreShaders.POINT_MAIN_DEPTH.getShader().use();
         sh.setVec3("lightPos", pos);
         sh.setFloat("farPlane", farPlane);
         sh.setMat4Array("shadowMatrices", pointShadowMatrices);
@@ -450,7 +450,7 @@ public class LightRenderer {
         volumetricBuffer.useClear();
         target.blit(volumetricBuffer, false, true, false);
 
-        Shader s = Shaders.VOLUMETRIC_LIGHT.getShader().use();
+        Shader s = CoreShaders.VOLUMETRIC_LIGHT.getShader().use();
         s.setInt("raySteps", 12 * (level + 1));
         s.setVec2("screenSize", volumetricBuffer.getWidth(), volumetricBuffer.getHeight());
     }
@@ -469,7 +469,7 @@ public class LightRenderer {
         volumetricBuffer.adjustViewPort();
         glDisable(GL_DEPTH_TEST);
 
-        Shader s = Shaders.VOLUMETRIC_LIGHT.getShader().use();
+        Shader s = CoreShaders.VOLUMETRIC_LIGHT.getShader().use();
         s.setup(camera);
         s.setupInverse(camera);
         s.setVec3("camPos", camera.getPosition());
@@ -521,7 +521,7 @@ public class LightRenderer {
         lightingMultiPassBuffer.adjustViewPort();
 
         //bind the shadow map and gbuffer textures to the light shader
-        Shader s = Shaders.LIGHT_PASS.getShader().use();
+        Shader s = CoreShaders.LIGHT_PASS.getShader().use();
         s.setTexture("gAlbedo", gBuffer.getAlbedo(),      0);
         s.setTexture("gNormal", gBuffer.getNormal(),      1);
         s.setTexture("gORM",    gBuffer.getORM(),         2);

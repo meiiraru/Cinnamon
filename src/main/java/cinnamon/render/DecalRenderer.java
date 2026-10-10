@@ -3,8 +3,8 @@ package cinnamon.render;
 import cinnamon.model.ModelTransform;
 import cinnamon.model.StaticGeometry;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
+import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.Shader;
-import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.world.Decal;
 
@@ -22,7 +22,7 @@ public class DecalRenderer {
 
         //setup shader
         Shader prev = Shader.activeShader;
-        Shader shader = Shaders.DECAL.getShader().use();
+        Shader shader = CoreShaders.DECAL.getShader().use();
         shader.setup(camera);
         shader.setupInverse(camera);
         shader.setTexture("gDepth", gBuffer.getDepthBuffer(), 0);

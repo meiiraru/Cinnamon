@@ -8,8 +8,8 @@ import cinnamon.model.ModelManager;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.ModelRenderer;
+import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.Shader;
-import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 import cinnamon.settings.Settings;
 import cinnamon.text.Style;
@@ -91,7 +91,7 @@ public class PanoramaScreen extends ParentedScreen {
 
         //prepare shaders
         Shader oldS = Shader.activeShader;
-        Shader s = Shaders.MODEL_UV.getShader().use();
+        Shader s = CoreShaders.MODEL_UV.getShader().use();
         client.camera.useOrtho(false);
         s.setup(client.camera);
         s.setMat3("uvMatrix", uv);

@@ -315,6 +315,22 @@ public class PlaygroundWorld extends WorldClient {
         tree.setPos(25, 1, -35);
         addTerrain(tree);
 
+        float cellWidth = 3.5f; //(30 - 9) / 3 / 2
+        float cellDepth = 3.25f; //(-17 - -30) / 2 / 2
+        float jitterScale = 0.7f;
+
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 3; j++) {
+                float x =   9f + (j * cellWidth * 2) + cellWidth + Maths.range(-1f, 1f) * cellWidth * jitterScale;
+                float z = -30f + (i * cellDepth * 2) + cellDepth + Maths.range(-1f, 1f) * cellDepth * jitterScale;
+
+                Terrain t1 = new Tree();
+                t1.setPos(x, 1, z);
+                t1.setRotation(0, Maths.range(0, 360), 0);
+                addTerrain(t1);
+            }
+        }
+
         //sakura ground
         TerrainGenerator.fill(this, 23, 0, -36, 26, 0, -33, MaterialRegistry.GRASS2.material);
 

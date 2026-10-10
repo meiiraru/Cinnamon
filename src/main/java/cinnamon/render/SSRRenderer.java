@@ -2,8 +2,8 @@ package cinnamon.render;
 
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
+import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.Shader;
-import cinnamon.render.shader.Shaders;
 import cinnamon.render.texture.Texture;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
@@ -18,7 +18,7 @@ public class SSRRenderer {
         ssrFramebuffer.resizeTo(gBuffer);
         ssrFramebuffer.useClear();
 
-        Shader s = Shaders.SSR.getShader().use();
+        Shader s = CoreShaders.SSR.getShader().use();
         s.setTexture("previousTex", prevFrame.getColorBuffer(), 0);
         s.setTexture("gNormal", gBuffer.getNormal(), 1);
         s.setTexture("gORM", gBuffer.getORM(), 2);

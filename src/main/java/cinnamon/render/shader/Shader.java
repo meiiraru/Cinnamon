@@ -26,15 +26,26 @@ import static org.lwjgl.opengl.GL32.GL_GEOMETRY_SHADER;
 
 public record Shader(int ID) {
 
+    private static final Map<Resource, Shader> SHADER_MAP = new HashMap<>();
     private static final Map<String, String> INCLUDE_CACHE = new HashMap<>();
 
     public static Shader activeShader;
 
-    public Shader(Resource ID) {
-        this(loadShader(ID));
+    public static Shader of(Resource res) {
+        Shader shader = SHADER_MAP.get(res);
+        if (shader != null)
+            return shader;
+
+        //otherwise load a new shader and cache it
+        return cacheShader(res, loadShader(res));
     }
 
-    private static int loadShader(Resource res) {
+    private static Shader cacheShader(Resource res, Shader shader) {
+        SHADER_MAP.put(res, shader);
+        return shader;
+    }
+
+    private static Shader loadShader(Resource res) {
         LOGGER.debug("Loading shader \"%s\"", res);
         String src = IOUtils.readString(res);
         String[] split = src.split("#type ");
@@ -67,7 +78,7 @@ public record Shader(int ID) {
             glDeleteShader(geometryShader);
         }
 
-        return program;
+        return new Shader(program);
     }
 
     private static int readShader(Resource res, String[] split, Type type) {
@@ -120,7 +131,14 @@ public record Shader(int ID) {
             finalShader.append(s.substring(index));
         }
 
-        return finalShader.toString();
+        String src = finalShader.toString();
+
+        //check for nested includes
+        String[] include = src.split("#include ");
+        if (include.length > 1)
+            src = processInclude(include);
+
+        return src;
     }
 
     private static void checkCompileErrors(Resource res, int id) {

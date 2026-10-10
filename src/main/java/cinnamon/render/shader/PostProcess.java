@@ -264,7 +264,7 @@ public enum PostProcess {
     }
 
     private void loadShader() {
-        this.shader = new Shader(this.resource);
+        this.shader = Shader.of(this.resource);
     }
 
     public Shader getShader() {
