@@ -301,7 +301,8 @@ public enum PostProcess {
             StaticGeometry.QUAD.render();
             Texture.unbindAll(tex);
 
-            PostProcess.saveLastColor |= postProcess.usesPrevColor;
+            if (postProcess.usesPrevColor)
+                flagSaveLastColor();
 
             //ping pong
             source = destination;
@@ -314,6 +315,41 @@ public enum PostProcess {
         //restore state
         glEnable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
+    }
+
+    public static void apply(Shader postProcess, BiFunction<Framebuffer, Shader, Integer> uniformFunction, boolean usesPrevColor) {
+        if (postProcess == null)
+            return;
+
+        //disable alpha blending and depth test
+        glDisable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
+
+        //prepare framebuffers
+        Framebuffer originalFb = Framebuffer.activeFramebuffer;
+        FB.PING.resizeTo(originalFb);
+
+        //render post effect
+        FB.PING.useClear();
+        int tex = uniformFunction.apply(originalFb, postProcess.use());
+        StaticGeometry.QUAD.render();
+        Texture.unbindAll(tex);
+
+        //save last color if needed
+        if (usesPrevColor)
+            flagSaveLastColor();
+
+        //blit back to original framebuffer
+        FB.PING.blit(originalFb);
+        originalFb.use();
+
+        //restore state
+        glEnable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+    }
+
+    public static void flagSaveLastColor() {
+        saveLastColor = true;
     }
 
     public static void finishFrame() {

@@ -65,8 +65,6 @@ public class WorldRenderer {
     public static int entityRenderDistance = 144;
 
     public static boolean
-            renderWater    = true,
-            renderFire     = true,
             renderSSAO     = true,
             renderSSR      = true,
             renderLights   = true,
@@ -116,6 +114,7 @@ public class WorldRenderer {
         }
 
         //prepare world renderer
+        initExtraRenderers(camera, world.getTime() + delta);
         initGBuffer(camera);
 
         //render world
@@ -126,17 +125,12 @@ public class WorldRenderer {
         renderedParticles = world.renderParticles(camera, matrices, delta);
         renderFunc[4].run(); //item extra
 
-        //world vertex consumer
-        finishMaterials(camera);
-
-        //water
-        renderWater(world, camera, matrices, delta);
-
-        //fire
-        renderFire(world, camera, matrices, delta);
-
         //extra world rendering
         world.renderExtras(camera, matrices, delta);
+        Texture.unbindAll();
+
+        //world vertex consumer
+        finishMaterials(camera);
 
         //render ssao
         renderSSAO(camera);
@@ -184,7 +178,9 @@ public class WorldRenderer {
     private static void renderAsAnaglyph(WorldClient world, MatrixStack matrices, float delta, float dt, Runnable[] renderFunc) {
         camera.anaglyph3D(matrices, -1f / 64f, -1f, () -> {
             //render world
+            initExtraRenderers(camera, world.getTime() + delta);
             initGBuffer(camera);
+
             renderFunc[0].run(); //xr hands
             renderedTerrain   = world.renderTerrain(camera, matrices, delta);
             renderedDecals    = renderDecals(world, camera);
@@ -192,17 +188,12 @@ public class WorldRenderer {
             renderedParticles = world.renderParticles(camera, matrices, delta);
             renderFunc[4].run(); //item extra
 
-            //vertex consumer
-            finishMaterials(camera);
-
-            //water
-            renderWater(world, camera, matrices, delta);
-
-            //fire
-            renderFire(world, camera, matrices, delta);
-
             //extra world rendering
             world.renderExtras(camera, matrices, delta);
+            Texture.unbindAll();
+
+            //vertex consumer
+            finishMaterials(camera);
 
             //effects
             renderSSAO(camera);
@@ -354,6 +345,20 @@ public class WorldRenderer {
     // -- effects -- //
 
 
+    public static void initExtraRenderers(Camera camera, float time) {
+        //init wave shader
+        Shader waveSh = CoreShaders.GBUFFER_WORLD_PBR_WAVE.getShader().use();
+        waveSh.setup(camera);
+        waveSh.setVec3("camPos", camera.getPosition());
+        waveSh.setFloat("time", time * 0.1f);
+
+        //init water
+        WaterRenderer.initWaterRenderer(camera, time);
+
+        //init fire
+        FireRenderer.initFireRenderer(camera, time);
+    }
+
     public static void renderSSAO(Camera camera) {
         int ssaoLevel = Settings.ssaoLevel.get();
         if (renderSSAO && ssaoLevel >= 0) {
@@ -390,28 +395,6 @@ public class WorldRenderer {
     public static void renderLightsPost(Camera camera, float deltaTime) {
         if (renderLights)
             LightRenderer.renderLightsPost(outputBuffer, camera, deltaTime);
-    }
-
-    public static void renderWater(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
-        if (!renderWater)
-            return;
-
-        //glDepthMask(false);
-        int tex = WaterRenderer.prepareWaterRenderer(camera, world.getTime() + delta);
-        world.renderWater(camera, matrices, delta);
-        Texture.unbindAll(tex);
-        //glDepthMask(true);
-    }
-
-    public static void renderFire(WorldClient world, Camera camera, MatrixStack matrices, float delta) {
-        if (!renderFire)
-            return;
-
-        //glDepthMask(false);
-        int tex = FireRenderer.prepareFireRenderer(camera, world.getTime() + delta);
-        world.renderFire(camera, matrices, delta);
-        Texture.unbindAll(tex);
-        //glDepthMask(true);
     }
 
     public static void renderClouds(WorldClient world, Camera camera, float delta) {
@@ -585,8 +568,6 @@ public class WorldRenderer {
 
 
     public static void resetFlags() {
-        renderWater    =
-        renderFire     =
         renderSSAO     =
         renderSSR      =
         renderLights   =

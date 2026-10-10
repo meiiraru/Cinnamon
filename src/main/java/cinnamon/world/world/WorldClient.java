@@ -233,6 +233,9 @@ public class WorldClient extends World {
         //prepare sun
         updateSky(WorldRenderer.camera, d);
 
+        //pre render world
+        preWorldRender(matrices, d);
+
         //render our stuff
         WorldRenderer.renderWorld(this, matrices, d);
 
@@ -257,6 +260,8 @@ public class WorldClient extends World {
             matrices.popMatrix();
         }
     }
+
+    protected void preWorldRender(MatrixStack matrices, float delta) {}
 
     protected void postWorldRender(MatrixStack matrices, float delta) {}
 
@@ -349,10 +354,6 @@ public class WorldClient extends World {
     }
 
     public void renderExtras(Camera camera, MatrixStack matrices, float delta) {}
-
-    public void renderWater(Camera camera, MatrixStack matrices, float delta) {}
-
-    public void renderFire(Camera camera, MatrixStack matrices, float delta) {}
 
     public void renderTransparent(Camera camera, MatrixStack matrices, float delta) {
         List<Terrain> query = terrainManager.queryCustom(camera::isInsideFrustum);

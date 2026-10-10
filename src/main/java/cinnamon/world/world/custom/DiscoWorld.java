@@ -5,6 +5,7 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.sound.Sound;
 import cinnamon.sound.SoundCategory;
@@ -173,6 +174,8 @@ public class DiscoWorld extends WorldClient {
         int color = ColorUtils.rgbToInt(ColorUtils.hsvToRGB(new Vector3f(t * 0.005f, 1f, 0.5f)));
         for (Light s : spotlights)
             s.color(color);
+        WorldRenderer.renderClouds = false;
+        WorldRenderer.renderSky = false;
         super.render(matrices, delta);
     }
 

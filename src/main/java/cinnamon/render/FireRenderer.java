@@ -27,12 +27,15 @@ public class FireRenderer {
         baseNoise.free();
     }
 
-    public static int prepareFireRenderer(Camera camera, float time) {
+    public static void initFireRenderer(Camera camera, float time) {
         //setup shader
         Shader s = CoreShaders.FIRE.getShader().use();
-
         s.setup(camera);
         s.setFloat("time", time * 0.03f);
+    }
+
+    public static int bindRenderer() {
+        Shader s = CoreShaders.FIRE.getShader().use();
         s.setTexture("noiseTex", noiseTexture, 0);
 
         //return number of textures used

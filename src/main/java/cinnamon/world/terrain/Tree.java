@@ -41,15 +41,10 @@ public class Tree extends Terrain {
 
         if (leavesModel != null) {
             if (WorldRenderer.isWorldRendering() && !WorldRenderer.isShadowRendering()) {
-                Shader currSh = Shader.activeShader;
-                Shader s = CoreShaders.GBUFFER_WORLD_PBR_WAVE.getShader().use();
-                s.setup(camera);
-                s.setVec3("camPos", camera.getPosition());
-                s.setFloat("time", (getWorld().getTime() + delta) * 0.1f);
-                s.setFloat("waveHeight", 0.1f);
-                s.setFloat("waveFrequency", 2.0f);
+                Shader prevSh = Shader.activeShader;
+                CoreShaders.GBUFFER_WORLD_PBR_WAVE.getShader().use();
                 leavesModel.render(matrices, material);
-                currSh.use();
+                prevSh.use();
             } else {
                 leavesModel.render(matrices, material);
             }

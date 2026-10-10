@@ -12,6 +12,7 @@ import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
+import cinnamon.render.FireRenderer;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WaterRenderer;
 import cinnamon.render.batch.VertexConsumer;
@@ -366,17 +367,18 @@ public class PlaygroundWorld extends WorldClient {
     }
 
     @Override
-    public void renderWater(Camera camera, MatrixStack matrices, float delta) {
-        super.renderWater(camera, matrices, delta);
+    public void renderExtras(Camera camera, MatrixStack matrices, float delta) {
+        super.renderExtras(camera, matrices, delta);
+
+        //water plane
+        WaterRenderer.bindRenderer();
         WaterRenderer.renderWaterPlane(camera, matrices, 0.9f, getSky().fogEnd);
-    }
 
-    @Override
-    public void renderFire(Camera camera, MatrixStack matrices, float delta) {
-        super.renderFire(camera, matrices, delta);
-
+        //fire ring
         if (camera.getPos().distanceSquared(0.5f, 2f, -16.5f) > 96f * 96f)
             return;
+
+        FireRenderer.bindRenderer();
 
         matrices.pushMatrix();
         matrices.translate(0.5f, 2f, -16.5f);
