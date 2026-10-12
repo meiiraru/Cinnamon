@@ -463,7 +463,7 @@
   "terrain.lamp": "Luminária",
   "terrain.conveyor_belt": "Esteira",
   "terrain.button": "Botão",
-  "terrain.torii": "Portão Torii",
+  "terrain.torii_gate": "Portão Torii",
   "terrain.tree": "Árvore da Deer",
   "terrain.tree_leaves": "Folhas da Árvore da Deer",
   "terrain.tree_hitbox": "Caixa de Colisão da Árvore da Deer",

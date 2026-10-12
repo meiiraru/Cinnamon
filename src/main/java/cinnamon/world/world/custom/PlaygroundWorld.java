@@ -132,7 +132,7 @@ public class PlaygroundWorld extends WorldClient {
         }
 
         //torii gate
-        Terrain torii = TerrainRegistry.TORII.getFactory().get();
+        Terrain torii = TerrainRegistry.TORII_GATE.getFactory().get();
         torii.setPos(38, 0.5f, -38);
         torii.setRotation(0, 45, 0);
         addTerrain(torii);
