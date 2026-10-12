@@ -99,7 +99,7 @@ public class Slider extends SelectableWidget {
 
         //steps
         if (shouldRenderSteps())
-            renderSteps(matrices, x, y, width, 3, 4, state * 3f + 9f, 12f);
+            renderSteps(matrices, x, y - 2, width, 4, 8, state * 4f, 16f, state == 1);
 
         //button
         matrices.translate(0, 0, d);
@@ -110,7 +110,7 @@ public class Slider extends SelectableWidget {
         //left
         renderHorizontalBar(matrices, x, y, left, 0f, v, 0xFFFFFFFF);
         //right
-        renderHorizontalBar(matrices, x + width + 8 - right, y, right, 9f, v, 0xFFFFFFFF);
+        renderHorizontalBar(matrices, x + width + 8 - right, y, right, 8f, v, 0xFFFFFFFF);
     }
 
     protected void renderHorizontalProgress(MatrixStack matrices, int x, int y, int width, int left, int right) {
@@ -121,8 +121,8 @@ public class Slider extends SelectableWidget {
         UIHelper.horizontalQuad(VertexConsumer.MAIN, matrices, getSkin().getResource("slider_tex"),
                 x, y, width, 4,
                 u, v,
-                9, 4,
-                34, 26,
+                8, 4,
+                32, 32,
                 color
         );
     }
@@ -137,7 +137,7 @@ public class Slider extends SelectableWidget {
         int up = Math.round((height * val) + 4);
         int down = Math.round((height * (1 - val)) + 4);
 
-        int u = state * 4 + 18;
+        int u = state * 4 + 16;
 
         float d = UIHelper.getDepthOffset();
 
@@ -150,7 +150,7 @@ public class Slider extends SelectableWidget {
 
         //steps
         if (shouldRenderSteps())
-            renderSteps(matrices, x, y, height, 4, 3, 30f, state * 3f + 9f);
+            renderSteps(matrices, x - 2, y, height, 8, 4, 24f, state * 4f + 16f, state == 1);
 
         //button
         matrices.translate(0, 0, d);
@@ -161,67 +161,89 @@ public class Slider extends SelectableWidget {
         //up
         renderVerticalBar(matrices, x, y, up, u, 0f, 0xFFFFFFFF);
         //down
-        renderVerticalBar(matrices, x, y + height + 8 - down, down, u, 9f, 0xFFFFFFFF);
+        renderVerticalBar(matrices, x, y + height + 8 - down, down, u, 8f, 0xFFFFFFFF);
     }
 
     protected void renderVerticalProgress(MatrixStack matrices, int x, int y, int height, int up, int down) {
-        renderVerticalBar(matrices, x, y, up, 30f, 0f, color == null ? getSkin().getInt("accent_color") : color);
+        renderVerticalBar(matrices, x, y, up, 28f, 0f, color == null ? getSkin().getInt("accent_color") : color);
     }
 
     protected void renderVerticalBar(MatrixStack matrices, int x, int y, int height, float u, float v, int color) {
         UIHelper.verticalQuad(VertexConsumer.MAIN, matrices, getSkin().getResource("slider_tex"),
                 x, y, 4, height,
                 u, v,
-                4, 9,
-                34, 26,
+                4, 8,
+                32, 32,
                 color
         );
     }
 
-    protected void renderSteps(MatrixStack matrices, int x, int y, int length, int width, int height, float u, float v) {
+    protected void renderSteps(MatrixStack matrices, int x, int y, int length, int width, int height, float u, float v, boolean customColor) {
         matrices.translate(0, 0, UIHelper.getDepthOffset());
 
         boolean vertical = isVertical();
+        int color = this.color != null ? this.color : getSkin().getInt("accent_color");
         int x2 = x;
         int y2 = y;
 
         for (int i = 0; i < steps; i++) {
-            int pos = Math.round(length * (stepValue * i) + 4 - 1.5f);
+            int pos = Math.round(length * (stepValue * i) + 4 - 2f);
             if (vertical) y2 = y + pos;
             else x2 = x + pos;
 
-            VertexConsumer.MAIN.consume(GeometryHelper.quad(
+            float u2 = u;
+            float v2 = v;
+            boolean applyColor = customColor && i <= getStepIndex();
+
+            if (applyColor) {
+                if (vertical) v2 = 28f;
+                else u2 = 12f;
+            }
+
+            Vertex[] vertices = GeometryHelper.quad(
                     matrices, x2, y2, width, height,
-                    u, v,
+                    u2, v2,
                     width, height,
-                    34, 26
-            ), getSkin().getResource("slider_tex"));
+                    32, 32
+            );
+
+            if (applyColor) {
+                for (Vertex vertex : vertices)
+                    vertex.color(color);
+            }
+
+            VertexConsumer.MAIN.consume(vertices, getSkin().getResource("slider_tex"));
         }
     }
 
     protected void renderButton(MatrixStack matrices, int x, int y, int state) {
         //button
         Resource tex = getSkin().getResource("slider_tex");
-        VertexConsumer.MAIN.consume(GeometryHelper.quad(
-                matrices, x, y, 8, 8,
-                state * 8, 18f,
-                8, 8,
-                34, 26
-        ), tex);
-
-        //color
-        matrices.translate(0, 0, UIHelper.getDepthOffset());
         Vertex[] vertices = GeometryHelper.quad(
                 matrices, x, y, 8, 8,
-                24f, 18f,
+                Math.min(state, 1) * 8, 24f,
                 8, 8,
-                34, 26
+                32, 32
         );
-        int color = isActive() ? (this.color == null ? getSkin().getInt("accent_color") : this.color) : getSkin().getInt("disabled_color");
-        for (Vertex vertex : vertices)
-            vertex.color(color);
+
+        if (isActive()) {
+            int color = this.color != null ? this.color : getSkin().getInt("accent_color");
+            for (Vertex vertex : vertices)
+                vertex.color(color);
+        }
 
         VertexConsumer.MAIN.consume(vertices, tex);
+
+        //hover overlay
+        if (state == 2) {
+            matrices.translate(0, 0, UIHelper.getDepthOffset());
+            VertexConsumer.MAIN.consume(GeometryHelper.quad(
+                    matrices, x, y, 8, 8,
+                    16f, 24f,
+                    8, 8,
+                    32, 32
+            ), tex);
+        }
     }
 
     @Override
@@ -575,7 +597,7 @@ public class Slider extends SelectableWidget {
         int b = getSkin().getInt("tooltip_border");
 
         if (isVertical()) {
-            int animY = (int) ((getHeight() - handleSize) * value) + handleSize / 2;
+            int animY = Math.round((getHeight() - handleSize) * value) + handleSize / 2;
             boolean left = false;
             int x = wx + getWidth() + b + 4;
             int y = wy - h / 2 + animY;
@@ -591,7 +613,7 @@ public class Slider extends SelectableWidget {
             //render
             UIHelper.renderTooltip(matrices, x, y, w, h, cx, wy + animY, (byte) (left ? 1 : 0), tooltip, getSkin());
         } else {
-            int animX = (int) ((getWidth() - handleSize) * value) + handleSize / 2;
+            int animX = Math.round((getWidth() - handleSize) * value) + handleSize / 2;
             boolean bottom = false;
             int x = wx - w / 2 + animX;
             int y = wy - h - b - 4;

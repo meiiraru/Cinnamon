@@ -71,15 +71,15 @@ public class TextField extends SelectableWidget implements Tickable {
         super(x, y, width, height);
 
         contextMenu = new ContextMenu()
-                .addAction(Text.translated("gui.text_field.cut"), null, b -> cut())
-                .addAction(Text.translated("gui.text_field.copy"), null, b -> copy())
-                .addAction(Text.translated("gui.text_field.paste"), null, b -> paste())
+                .addAction(Text.of("\u2702 ").append(Text.translated("gui.text_field.cut")), null, _ -> cut())
+                .addAction(Text.of("\u2BBA ").append(Text.translated("gui.text_field.copy")), null, _ -> copy())
+                .addAction(Text.of("\u2BBB ").append(Text.translated("gui.text_field.paste")), null, _ -> paste())
                 .addDivider()
-                .addAction(Text.translated("gui.text_field.select_all"), null, b -> selectAll())
+                .addAction(Text.of("\u2B1A ").append(Text.translated("gui.text_field.select_all")), null, _ -> selectAll())
                 .addDivider()
-                .addAction(Text.translated("gui.text_field.undo"), null, b -> undo())
-                .addAction(Text.translated("gui.text_field.redo"), null, b -> redo());
-        contextMenu.setOpenListener(ctx -> updateContext());
+                .addAction(Text.of("\u2BA8 ").append(Text.translated("gui.text_field.undo")), null, _ -> undo())
+                .addAction(Text.of("\u2BA9 ").append(Text.translated("gui.text_field.redo")), null, _ -> redo());
+        contextMenu.setOpenListener(_ -> updateContext());
         contextMenu.setForceFocusParent(true);
         this.setPopup(contextMenu);
     }

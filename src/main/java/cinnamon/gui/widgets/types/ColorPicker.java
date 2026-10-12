@@ -162,7 +162,13 @@ public class ColorPicker extends Button {
         alphaSlider.setMin(0);
         alphaSlider.setMax(255);
         alphaSlider.showValueTooltip(false);
-        alphaSlider.setUpdateListener((f, i) -> {alpha = i; updateFields(); acceptColor();});
+        alphaSlider.setUpdateListener((f, i) -> {
+            alpha = i;
+            updateFields();
+            acceptColor();
+            int alphaColor = ColorUtils.lerpRGBColor(0xFFFFFFFF, colorInt, alpha / 255f);
+            this.alphaSlider.setColor(alphaColor + (0xFF << 24));
+        });
 
         //input fields
         ContainerGrid fields = new ContainerGrid(0, 0, 4, 2);
@@ -304,14 +310,14 @@ public class ColorPicker extends Button {
     }
 
     public void setColor(Vector3f hsv) {
-        int pureHue = ColorUtils.hsvToInt(hsv.x, 1f, 1f);
         this.colorInt = ColorUtils.hsvToInt(hsv);
+        int alphaColor = ColorUtils.lerpRGBColor(0xFFFFFFFF, colorInt, alpha / 255f);
         this.color.set(hsv);
         this.picker.setColor(hsv);
         this.hueSlider.setPercentage(hsv.x);
-        this.hueSlider.setColor(pureHue);
+        this.hueSlider.setColor(colorInt);
         this.alphaSlider.setValue(alpha);
-        this.alphaSlider.setColor(pureHue);
+        this.alphaSlider.setColor(alphaColor + (0xFF << 24));
         this.updateFields();
         this.acceptColor();
     }

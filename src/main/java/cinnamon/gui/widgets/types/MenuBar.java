@@ -74,7 +74,7 @@ public class MenuBar extends ContainerGrid {
     }
 
     public MenuBar addSpacing(boolean hidden) {
-        addWidget(new Spacing(getBarHeight() - getSpacing() * 2, getSpacing(), !hidden));
+        addWidget(new Spacing(getBarHeight() - 2, getSpacing(), !hidden));
 
         int column = getWidgets().size();
         setColumns(column);

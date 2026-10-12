@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 
 public class ExtrasScreen extends ParentedScreen {
 
-    private static final BiFunction<String, Consumer<Button>, Button> BUTTON_FACTORY = (s, a) -> new Button(0, 0, 180, 20, Text.translated(s), a);
+    private static final BiFunction<String, Consumer<Button>, Button> BUTTON_FACTORY = (s, a) -> new Button(0, 0, 180, 16, Text.translated(s), a);
 
     public ExtrasScreen(Screen parentScreen) {
         super(parentScreen);
