@@ -177,6 +177,10 @@
   "gui.midi_screen.sound_font": "Select Sound Font",
   "gui.midi_screen.sound_font_load_failed": "Failed to load sound font",
   "gui.midi_screen.reverb": "Reverb %1$s",
+  "gui.midi_screen.play_midi_file": "Play MIDI File",
+  "gui.midi_screen.play": "Play",
+  "gui.midi_screen.pause": "Pause",
+  "gui.midi_screen.reset": "Reset MIDI State",
 
   "gui.overlay.action_wheel.no_actions": "No actions available",
   "gui.overlay.action_wheel.cancel": "Cancel",
@@ -616,7 +620,7 @@
   "settings.category.sound": "Sound",
   "settings.category.accessibility": "Accessibility",
   "settings.category.controls": "Controls",
-  "settings.category.misc": "Miscellaneous",
+  "settings.category.misc": "Misc",
 
   "setting.video.lang": "Language",
   "setting.video.lang.lang": "Language",

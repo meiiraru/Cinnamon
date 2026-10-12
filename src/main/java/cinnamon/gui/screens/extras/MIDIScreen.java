@@ -1,5 +1,6 @@
 package cinnamon.gui.screens.extras;
 
+import cinnamon.Client;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
@@ -8,6 +9,7 @@ import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.Tickable;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.ComboBox;
+import cinnamon.gui.widgets.types.Label;
 import cinnamon.gui.widgets.types.Slider;
 import cinnamon.input.InputManager;
 import cinnamon.logger.Logger;
@@ -35,28 +37,32 @@ import static javax.sound.midi.ShortMessage.NOTE_ON;
 
 public class MIDIScreen extends ParentedScreen {
 
+    public static final Resource
+            PLAY_ICON = new Resource("textures/gui/icons/play.png"),
+            PAUSE_ICON = new Resource("textures/gui/icons/pause.png");
+
     public static Logger LOGGER = new Logger(Logger.ROOT_NAMESPACE + "/MIDI");
 
     private static final Map<Integer, Integer> keyMap = new HashMap<>();
     static {
-        keyMap.put(90, 53); //Z -> F3
-        keyMap.put(83, 54); //S -> F#3
-        keyMap.put(88, 55); //X -> G3
-        keyMap.put(68, 56); //D -> G#3
-        keyMap.put(67, 57); //C -> A3
-        keyMap.put(70, 58); //F -> A#3
-        keyMap.put(86, 59); //V -> B3
-        keyMap.put(66, 60); //B -> C4
-        keyMap.put(72, 61); //H -> C#4
-        keyMap.put(78, 62); //N -> D4
-        keyMap.put(74, 63); //J -> D#4
-        keyMap.put(77, 64); //M -> E4
-        keyMap.put(44, 65); //, -> F4
-        keyMap.put(76, 66); //L -> F#4
-        keyMap.put(46, 67); //. -> G4
-        keyMap.put(59, 68); //; -> G#4
-        keyMap.put(47, 69); /// -> A4
-        keyMap.put(39, 70); //' -> A#4
+        keyMap.put(90, 53); // Z -> F3
+        keyMap.put(83, 54); // S -> F#3
+        keyMap.put(88, 55); // X -> G3
+        keyMap.put(68, 56); // D -> G#3
+        keyMap.put(67, 57); // C -> A3
+        keyMap.put(70, 58); // F -> A#3
+        keyMap.put(86, 59); // V -> B3
+        keyMap.put(66, 60); // B -> C4
+        keyMap.put(72, 61); // H -> C#4
+        keyMap.put(78, 62); // N -> D4
+        keyMap.put(74, 63); // J -> D#4
+        keyMap.put(77, 64); // M -> E4
+        keyMap.put(44, 65); // , -> F4
+        keyMap.put(76, 66); // L -> F#4
+        keyMap.put(46, 67); // . -> G4
+        keyMap.put(59, 68); // ; -> G#4
+        keyMap.put(47, 69); // / -> A4
+        keyMap.put(39, 70); // ' -> A#4
     }
 
     private CompletableFuture<Void> tasks;
@@ -75,10 +81,14 @@ public class MIDIScreen extends ParentedScreen {
     private Sequencer sequencer = null;
     private Receiver sequencerReceiver = null;
 
-    private boolean log = false;
+    private final boolean log = false;
 
     private final ComboBox inBox, outBox, instrumentBox;
     private final Slider reverbSlider;
+    private final Button playPauseButton;
+    private final Slider playbackSlider;
+    private final Label playbackLabel, endTimeLabel;
+
     private final List<Key> keys = new ArrayList<>();
 
     public MIDIScreen(Screen parentScreen) {
@@ -124,6 +134,18 @@ public class MIDIScreen extends ParentedScreen {
             }
         }));
 
+        //default out to synthesizer (Gervill)
+        runTask(() -> {
+            try {
+                MidiDevice synth = MidiSystem.getSynthesizer();
+                outDevices.addFirst(new Pair<>("Synthesizer", synth));
+                outBox.addEntry(Text.of("Synthesizer"));
+                outBox.select(0);
+            } catch (Exception e) {
+                LOGGER.error("Failed to get Synthesizer", e);
+            }
+        }).join();
+
         //instruments
         instrumentBox = new ComboBox(0, 0, 100, 16);
         instrumentBox.setTooltip(Text.translated("gui.midi_screen.instrument"));
@@ -142,45 +164,36 @@ public class MIDIScreen extends ParentedScreen {
         reverbSlider.setTooltipFunction((f, i) -> Text.translated("gui.midi_screen.reverb", Math.round(f * 100f) + "%"));
         reverbSlider.setChangeListener((f, i) -> runTask(() -> setReverb(i)));
 
-        //default out to synthesizer (Gervill)
-        runTask(() -> {
-            try {
-                MidiDevice synth = MidiSystem.getSynthesizer();
-                outDevices.addFirst(new Pair<>("Synthesizer", synth));
-                outBox.addEntry(Text.of("Synthesizer"));
-                outBox.select(0);
-            } catch (Exception e) {
-                LOGGER.error("Failed to get Synthesizer", e);
+        //play/pause button
+        playPauseButton = new Button(0, 0, 16, 16, null, button -> runTask(() -> {
+            if (sequencer != null && sequencer.isOpen()) {
+                if (sequencer.isRunning()) {
+                    sequencer.stop();
+                    button.setIcon(PLAY_ICON);
+                    button.setTooltip(Text.translated("gui.midi_screen.play"));
+                } else {
+                    sequencer.start();
+                    button.setIcon(PAUSE_ICON);
+                    button.setTooltip(Text.translated("gui.midi_screen.pause"));
+                }
             }
-        }).join();
+        }));
+        playPauseButton.setIcon(PLAY_ICON);
+        playPauseButton.setTooltip(Text.translated("gui.midi_screen.play"));
 
-        /*
-        new Await(40, () -> {
-           //play sound file
-            String file = FileDialog.openFile(new FileDialog.Filter("MIDI files", "mid, midi"));
-            if (file != null) {
-                runTask(() -> {
-                    closeSequencer();
-                    try {
-                        Sequence sequence = MidiSystem.getSequence(new File(file));
-                        Sequencer sequencer = MidiSystem.getSequencer();
-                        sequencer.setSequence(sequence);
-                        if (out != null && out.isOpen()) {
-                            this.sequencerReceiver = createReceiver(out);
-                            sequencer.getTransmitter().setReceiver(sequencerReceiver);
-                        }
-                        sequencer.open();
-                        sequencer.start();
-                        this.sequencer = sequencer;
-                        LOGGER.info("Playing MIDI file: %s", file);
-                    } catch (Exception e) {
-                        Toast.addToast(Text.translated("gui.midi_screen.midi_file_play_failed"));
-                        LOGGER.error("Failed to play MIDI file: %s", file, e);
-                    }
-                });
-            }
-        });
-         */
+        //playback labels
+        playbackLabel = new Label(0, 0, Text.of("0:00"));
+        endTimeLabel = new Label(0, 0, Text.of("0:00"));
+
+        //playback slider
+        playbackSlider = new Slider(0, 0, 100);
+        playbackSlider.setTooltipFunction((f, i) -> Text.of("%d:%02d".formatted(i / 1000 / 60, (i / 1000) % 60)));
+        playbackSlider.setChangeListener((f, i) -> runTask(() -> {
+            if (sequencer != null && sequencer.isOpen())
+                sequencer.setMicrosecondPosition(i * 1_000L);
+            playbackLabel.setText(Text.of("%d:%02d".formatted(i / 1000 / 60, (i / 1000) % 60)));
+        }));
+        playbackSlider.setPreviewHoverValueTooltip(true);
     }
 
     @Override
@@ -233,25 +246,69 @@ public class MIDIScreen extends ParentedScreen {
         ContainerGrid grid = new ContainerGrid(4, 4, 4);
 
         //open sound font
-        Button openButton = new Button(0, 0, 16, 16, null, button -> {
+        ContainerGrid topButtons = new ContainerGrid(0, 0, 4, 999);
+        grid.addWidget(topButtons);
+
+        Button openButton = new Button(0, 0, 16, 16, null, _ -> {
             String file = FileDialog.openFile(new FileDialog.Filter("sound fonts", "sf2,sfz"));
-            if (file != null) {
-                runTask(() -> {
-                    closeInstruments();
-                    try {
-                        soundbank = MidiSystem.getSoundbank(new File(file));
-                        LOGGER.info("Loaded sound font: %s", file);
-                        update();
-                    } catch (Exception e) {
-                        Toast.addToast(Text.translated("gui.midi_screen.sound_font_load_failed"));
-                        LOGGER.error("Failed to load sound font: %s", file, e);
-                    }
-                });
-            }
+            if (file == null)
+                return;
+
+            runTask(() -> {
+                closeInstruments();
+                try {
+                    soundbank = MidiSystem.getSoundbank(new File(file));
+                    LOGGER.info("Loaded sound font: %s", file);
+                    update();
+                } catch (Exception e) {
+                    Toast.addToast(Text.translated("gui.midi_screen.sound_font_load_failed"));
+                    LOGGER.error("Failed to load sound font: %s", file, e);
+                }
+            });
         });
         openButton.setIcon(new Resource("textures/gui/icons/settings.png"));
         openButton.setTooltip(Text.translated("gui.midi_screen.sound_font"));
-        grid.addWidget(openButton);
+        topButtons.addWidget(openButton);
+
+        Button openFileButton = new Button(0, 0, 16, 16, null, _ -> {
+            String file = FileDialog.openFile(new FileDialog.Filter("MIDI files", "mid, midi"));
+            if (file == null)
+                return;
+
+            runTask(() -> {
+                closeSequencer();
+                try {
+                    Sequence sequence = MidiSystem.getSequence(new File(file));
+                    Sequencer sequencer = MidiSystem.getSequencer();
+                    sequencer.setSequence(sequence);
+                    if (out != null && out.isOpen()) {
+                        this.sequencerReceiver = createReceiver(out);
+                        sequencer.getTransmitter().setReceiver(sequencerReceiver);
+                    }
+                    sequencer.open();
+                    this.sequencer = sequencer;
+
+                    int len = (int) (sequencer.getMicrosecondLength() / 1_000);
+                    playbackSlider.setMax(len);
+                    endTimeLabel.setText(Text.of("%d:%02d".formatted(len / 1000 / 60, (len / 1000) % 60)));
+
+                    playPauseButton.executeAction();
+                    LOGGER.info("Playing MIDI file: %s", file);
+                } catch (Exception e) {
+                    Toast.addToast(Text.translated("gui.midi_screen.midi_file_play_failed"));
+                    LOGGER.error("Failed to play MIDI file: %s", file, e);
+                }
+            });
+        });
+        openFileButton.setIcon(new Resource("textures/gui/icons/open.png"));
+        openFileButton.setTooltip(Text.translated("gui.midi_screen.play_midi_file"));
+        topButtons.addWidget(openFileButton);
+
+        //reset all state
+        Button resetButton = new Button(0, 0, 16, 16, null, _ -> runTask(this::resetAll));
+        resetButton.setIcon(new Resource("textures/gui/icons/reload.png"));
+        resetButton.setTooltip(Text.translated("gui.midi_screen.reset"));
+        topButtons.addWidget(resetButton);
 
         //input devices
         inBox.clearEntries();
@@ -279,6 +336,20 @@ public class MIDIScreen extends ParentedScreen {
 
         //add grid
         addWidget(grid);
+
+        //player controls
+        ContainerGrid playerControls = new ContainerGrid(width / 2, 4, 4, 999);
+        playerControls.setAlignment(Alignment.TOP_CENTER);
+        addWidget(playerControls);
+
+        ContainerGrid playback = new ContainerGrid(0, 0, 4, 999);
+        playback.setAlignment(Alignment.CENTER);
+        playerControls.addWidget(playback);
+
+        playback.addWidget(playPauseButton);
+        playback.addWidget(playbackLabel);
+        playback.addWidget(playbackSlider);
+        playback.addWidget(endTimeLabel);
     }
 
     @Override
@@ -307,6 +378,20 @@ public class MIDIScreen extends ParentedScreen {
             runTask(this::closeIn);
         if (out != null && !out.isOpen())
             runTask(this::closeOut);
+
+        //update playback slider and label
+        runTask(() -> {
+            if (sequencer != null && sequencer.isOpen() && sequencer.isRunning()) {
+                int pos = (int) (sequencer.getMicrosecondPosition() / 1_000);
+                if (!playbackSlider.isDragged())
+                    playbackSlider.updateValue(pos);
+                playbackLabel.setText(Text.of("%d:%02d".formatted(pos / 1000 / 60, (pos / 1000) % 60)));
+            } else if (!playPauseButton.getIcon().equals(PLAY_ICON)) {
+                playPauseButton.setIcon(PLAY_ICON);
+                playPauseButton.setTooltip(Text.translated("gui.midi_screen.play"));
+                playbackSlider.setPercentage(0f);
+            }
+        });
     }
 
     protected CompletableFuture<Void> runTask(Runnable toRun) {
@@ -405,13 +490,13 @@ public class MIDIScreen extends ParentedScreen {
     }
 
     protected void closeSequencer() {
-        if (sequencerReceiver != null)
-            sequencerReceiver.close();
-        sequencerReceiver = null;
-
         if (sequencer != null && sequencer.isOpen())
             sequencer.close();
         sequencer = null;
+
+        if (sequencerReceiver != null)
+            sequencerReceiver.close();
+        sequencerReceiver = null;
     }
 
     protected void swapInstrument(int id) {
@@ -449,6 +534,37 @@ public class MIDIScreen extends ParentedScreen {
             reverb = value;
         } catch (Exception e) {
             LOGGER.error("Failed to change reverb to %s", value, e);
+        }
+    }
+
+    protected void resetAll() {
+        //send reset message sequence to all 16 channels
+        if (receiver != null) {
+            try {
+                for (int i = 0; i < 16; i++) {
+                    ShortMessage reset = new ShortMessage();
+
+                    reset.setMessage(ShortMessage.CONTROL_CHANGE, i, 120, 0); //all sound off
+                    receiver.send(reset, -1);
+                    reset.setMessage(ShortMessage.CONTROL_CHANGE, i, 123, 0); //all notes off
+                    receiver.send(reset, -1);
+                    reset.setMessage(ShortMessage.CONTROL_CHANGE, i, 121, 0); //reset all controllers
+                    receiver.send(reset, -1);
+                    reset.setMessage(ShortMessage.CONTROL_CHANGE, i, 7, 127); //reset volume to 127
+                    receiver.send(reset, -1);
+                    reset.setMessage(ShortMessage.CONTROL_CHANGE, i, 10, 64); //reset pan to center
+                    receiver.send(reset, -1);
+                    reset.setMessage(ShortMessage.PITCH_BEND, i, 0, 64); //reset pitch bend to center
+                    receiver.send(reset, -1);
+                    reverbSlider.setValue(0); //reset reverb to 0
+                }
+
+                //release all notes
+                for (Key key : keys)
+                    key.setVirtuallyPressed(false);
+            } catch (Exception e) {
+                LOGGER.error("Failed to reset all MIDI settings", e);
+            }
         }
     }
 
@@ -660,7 +776,7 @@ public class MIDIScreen extends ParentedScreen {
         }
 
         protected void addPress() {
-            presses.add(new Vector2f(getY() + 3, 1));
+            Client.getInstance().queueTick(() -> presses.add(new Vector2f(getY() + 3, 1)));
         }
     }
 }

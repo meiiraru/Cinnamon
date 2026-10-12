@@ -177,6 +177,10 @@
   "gui.midi_screen.sound_font": "Escolher Banco de Sons",
   "gui.midi_screen.sound_font_load_failed": "Falha ao carregar banco de sons",
   "gui.midi_screen.reverb": "Reverb %1$s",
+  "gui.midi_screen.play_midi_file": "Reproduzir Arquivo MIDI",
+  "gui.midi_screen.play": "Reproduzir",
+  "gui.midi_screen.pause": "Pausar",
+  "gui.midi_screen.reset": "Resetar Estado MIDI",
 
   "gui.overlay.action_wheel.no_actions": "Nenhuma ação disponível",
   "gui.overlay.action_wheel.cancel": "Cancelar",
@@ -601,7 +605,7 @@
   "settings.category.sound": "Som",
   "settings.category.accessibility": "Acessibilidade",
   "settings.category.controls": "Controles",
-  "settings.category.misc": "Diversos",
+  "settings.category.misc": "Outros",
 
   "setting.video.lang": "Idioma",
   "setting.video.lang.lang": "Idioma",
