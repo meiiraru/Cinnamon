@@ -111,9 +111,7 @@ public class Keybind {
 
         for (Keybind keybind : KEYBINDS.get(KeyType.MOUSE_MOVE)) {
             float delta = (keybind.key == 0) ? dx : dy;
-            keybind.axisValue += delta;
-            keybind.pressed = Math.abs(keybind.axisValue) > 0;
-            keybind.pollPressed = keybind.pressed;
+            processAxis(keybind, keybind.axisValue + delta, keybind.axisValue, 0);
         }
     }
 
@@ -126,12 +124,8 @@ public class Keybind {
         float delta = Math.abs((key < 2) ? x : y);
 
         for (Keybind keybind : KEYBINDS.get(KeyType.MOUSE_SCROLL)) {
-            if (keybind.key != key)
-                continue;
-
-            keybind.axisValue += delta;
-            keybind.pressed = Math.abs(keybind.axisValue) > 0;
-            keybind.pollPressed = keybind.pressed;
+            if (keybind.key == key)
+                processAxis(keybind, keybind.axisValue + delta, keybind.axisValue, 0);
         }
     }
 
@@ -247,16 +241,17 @@ public class Keybind {
     public static void flush() {
         for (List<Keybind> value : KEYBINDS.values()) {
             for (Keybind keybind : value) {
-                if (!keybind.pressed) {
-                    keybind.release();
-                } else {
-                    keybind.lastAxisValue = keybind.axisValue;
-                }
-
-                //reset delta-based inputs
+                //always reset delta-based inputs
                 if (keybind.type == KeyType.MOUSE_MOVE || keybind.type == KeyType.MOUSE_SCROLL) {
-                    keybind.axisValue = 0;
-                    keybind.pressed = false;
+                    keybind.release();
+                }
+                //release any keybinds that are no longer pressed
+                else if (!keybind.pressed) {
+                    keybind.release();
+                }
+                //update last axis value for any keybinds that are still pressed
+                else {
+                    keybind.lastAxisValue = keybind.axisValue;
                 }
             }
         }

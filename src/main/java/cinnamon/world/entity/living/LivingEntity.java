@@ -67,12 +67,10 @@ public abstract class LivingEntity extends PhysEntity {
         ).bindVector2D(
                 "look_2d", Settings.lookLeft.get(), Settings.lookRight.get(), Settings.lookUp.get(), Settings.lookDown.get(),
                 (x, y) -> this.rotate(-y, x, 0f)
-        ).bindVector2D(
-                "prev_item_slot", null, Settings.prevSlot.get(),
-                (x, y) -> this.setSelectedItem(this.getInventory().getSelectedIndex() - (int) Math.signum(y))
-        ).bindVector2D(
-                "next_item_slot", null, Settings.nextSlot.get(),
-                (x, y) -> this.setSelectedItem(this.getInventory().getSelectedIndex() + (int) Math.signum(y))
+        ).bindClick(
+                "prev_item_slot", Settings.prevSlot.get(), i -> this.setSelectedItem(this.getInventory().getSelectedIndex() - Math.signum(i))
+        ).bindClick(
+                "next_item_slot", Settings.nextSlot.get(), i -> this.setSelectedItem(this.getInventory().getSelectedIndex() + Math.signum(i))
         ).bindState(
                 "attack", Settings.attack.get(),
                 attacking -> {
