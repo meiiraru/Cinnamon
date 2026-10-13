@@ -35,6 +35,8 @@ public class PrimitiveTestWorld extends WorldClient {
 
     @Override
     protected void levelLoad() {
+        this.enableDebugKeys = true;
+
         this.hud = new PrimitiveWorldHud();
         this.hud.init();
 

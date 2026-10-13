@@ -7,7 +7,6 @@ import cinnamon.gui.Screen;
 import cinnamon.gui.screens.world.ChatScreen;
 import cinnamon.gui.screens.world.DeathScreen;
 import cinnamon.gui.screens.world.PauseScreen;
-import cinnamon.input.Controller;
 import cinnamon.input.Keybind;
 import cinnamon.math.Maths;
 import cinnamon.math.collision.Hit;
@@ -621,7 +620,6 @@ public class WorldClient extends World {
             e.getController().tick();
             e = e.isRiding() ? e.getRidingEntity() : null;
         }
-        Controller.clearTick();
         Keybind.flush();
     }
 
@@ -638,12 +636,13 @@ public class WorldClient extends World {
     public void mouseMove(double x, double y) {
         if (!client.window.isMouseLocked() || XrManager.isInXR())
             return;
-        Controller.mouseMove(x, y);
+        Keybind.mouseMove((float) x, (float) y);
     }
 
     public void mouseScroll(double x, double y) {
         if (client.window.isMouseLocked())
-            Controller.mouseScroll(x, y);
+            if (x != 0 || y != 0)
+                Keybind.mouseScroll((float) x, (float) y);
     }
 
     public void keyPress(int key, int scancode, int action, int mods) {
@@ -702,11 +701,25 @@ public class WorldClient extends World {
             Keybind.xrTriggerPress(button, value, hand, lastValue);
     }
 
-    public void xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {}
+    public void xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
+        if (client.window.isMouseLocked())
+            Keybind.xrJoystickMove(x, y, hand, lastX, lastY);
+    }
 
-    public void joystickButtonPress(int button, boolean pressed, int joystick) {}
-    public void joystickAxisMove(int axis, float value, int joystick, float lastValue) {}
-    public void joystickHatMove(int hat, byte hatState, int joystick, byte lastValue) {}
+    public void joystickButtonPress(int button, boolean pressed, int joystick) {
+        if (client.window.isMouseLocked())
+            Keybind.joystickButtonPress(button, pressed, joystick);
+    }
+
+    public void joystickAxisMove(int axis, float value, int joystick, float lastValue) {
+        if (client.window.isMouseLocked())
+            Keybind.joystickAxisMove(axis, value, joystick, lastValue);
+    }
+
+    public void joystickHatMove(int hat, byte hatState, int joystick, byte lastValue) {
+        if (client.window.isMouseLocked())
+            Keybind.joystickHatMove(hat, hatState, joystick, lastValue);
+    }
 
     public void gamepadButtonPress(int button, boolean pressed, int joystick) {
         if (client.window.isMouseLocked())
@@ -723,7 +736,6 @@ public class WorldClient extends World {
     }
 
     public void resetInput(boolean mouse, boolean keys) {
-        Controller.reset();
         Keybind.releaseAll(mouse, keys);
     }
 

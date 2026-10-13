@@ -17,20 +17,7 @@ import java.util.function.Consumer;
  */
 public class Controller {
 
-    protected static final Vector3f tempDir3 = new Vector3f();
-    protected static final Vector2f
-            tempDir2 = new Vector2f(),
-            tempMouseDelta = new Vector2f(),
-            tempMouseScroll = new Vector2f();
-
-    protected static double mouseX, mouseY;
-    protected static boolean firstMouse = true;
-
     protected final Map<String, Runnable> tickActions = new HashMap<>();
-    protected final Map<String, BiConsumer<Float, Float>>
-            mouseMoveActions = new HashMap<>(),
-            mouseScrollActions = new HashMap<>();
-
     protected final List<Keybind> keybinds = new ArrayList<>();
 
     /**
@@ -99,7 +86,7 @@ public class Controller {
 
     /**
      * Triggers every tick, checking if the {@link Keybind} is pressed<br>
-     * Takes up to 6 directional {@link Keybind} and process as an directional {@link org.joml.Vector3f} split into {@code x, y, z} components<br>
+     * Takes up to 6 directional {@link Keybind} and process as a directional {@link org.joml.Vector3f} split into {@code x, y, z} components<br>
      * @param name A unique name for this action
      * @param left The {@link Keybind} for left movement
      * @param right The {@link Keybind} for right movement
@@ -109,23 +96,48 @@ public class Controller {
      * @param backward The {@link Keybind} for backward movement
      * @param action The action to run every tick with the directional vector
      * @return This controller
-     * @see #bindVector2D(String, Keybind, Keybind, Keybind, Keybind, BiConsumer)
+     * @see #bindVector3D(String, Keybind, Keybind, Keybind, TriConsumer)
      */
     public Controller bindVector3D(String name, Keybind left, Keybind right, Keybind up, Keybind down, Keybind forward, Keybind backward, TriConsumer<Float, Float, Float> action) {
         if (left    != null) keybinds.add(left);     if (right    != null) keybinds.add(right);
         if (up      != null) keybinds.add(up);       if (down     != null) keybinds.add(down);
         if (forward != null) keybinds.add(forward);  if (backward != null) keybinds.add(backward);
         tickActions.put(name, () -> {
-            tempDir3.set(0);
-            if (left     != null && left.isPressed())     tempDir3.x -= 1;
-            if (right    != null && right.isPressed())    tempDir3.x += 1;
-            if (down     != null && down.isPressed())     tempDir3.y -= 1;
-            if (up       != null && up.isPressed())       tempDir3.y += 1;
-            if (backward != null && backward.isPressed()) tempDir3.z -= 1;
-            if (forward  != null && forward.isPressed())  tempDir3.z += 1;
+            float x = 0, y = 0, z = 0;
+            if (left     != null && left.isPressed())     x -= left.getAxisValue();
+            if (right    != null && right.isPressed())    x += right.getAxisValue();
+            if (down     != null && down.isPressed())     y -= down.getAxisValue();
+            if (up       != null && up.isPressed())       y += up.getAxisValue();
+            if (backward != null && backward.isPressed()) z -= backward.getAxisValue();
+            if (forward  != null && forward.isPressed())  z += forward.getAxisValue();
 
-            if (tempDir3.lengthSquared() > 0)
-                action.accept(tempDir3.x, tempDir3.y, tempDir3.z);
+            if (Vector3f.lengthSquared(x, y, z) > 0)
+                action.accept(x, y, z);
+        });
+        return this;
+    }
+
+    /**
+     * Triggers every tick, reading from three analog joystick axes to create a 3D vector
+     * @param name A unique name for this action
+     * @param axisX The {@link Keybind} for the X axis
+     * @param axisY The {@link Keybind} for the Y axis
+     * @param axisZ The {@link Keybind} for the Z axis
+     * @param action The action to run every tick with the axis vector
+     * @return This controller
+     * @see #bindVector3D(String, Keybind, Keybind, Keybind, Keybind, Keybind, Keybind, TriConsumer)
+     */
+    public Controller bindVector3D(String name, Keybind axisX, Keybind axisY, Keybind axisZ, TriConsumer<Float, Float, Float> action) {
+        if (axisX != null) keybinds.add(axisX);
+        if (axisY != null) keybinds.add(axisY);
+        if (axisZ != null) keybinds.add(axisZ);
+        tickActions.put(name, () -> {
+            float x = axisX != null ? axisX.getAxisValue() : 0;
+            float y = axisY != null ? axisY.getAxisValue() : 0;
+            float z = axisZ != null ? axisZ.getAxisValue() : 0;
+
+            if (x != 0 || y != 0 || z != 0)
+                action.accept(x, y, z);
         });
         return this;
     }
@@ -140,20 +152,42 @@ public class Controller {
      * @param down The {@link Keybind} for down movement
      * @param action The action to run every tick with the directional vector
      * @return This controller
-     * @see #bindVector3D(String, Keybind, Keybind, Keybind, Keybind, Keybind, Keybind, TriConsumer)
+     * @see #bindVector2D(String, Keybind, Keybind, BiConsumer)
      */
     public Controller bindVector2D(String name, Keybind left, Keybind right, Keybind up, Keybind down, BiConsumer<Float, Float> action) {
         if (left != null) keybinds.add(left); if (right != null) keybinds.add(right);
         if (up   != null) keybinds.add(up);   if (down  != null) keybinds.add(down);
         tickActions.put(name, () -> {
-            tempDir2.set(0);
-            if (left  != null && left.isPressed())  tempDir2.x -= 1;
-            if (right != null && right.isPressed()) tempDir2.x += 1;
-            if (down  != null && down.isPressed())  tempDir2.y -= 1;
-            if (up    != null && up.isPressed())    tempDir2.y += 1;
+            float x = 0, y = 0;
+            if (left  != null && left.isPressed())  x -= left.getAxisValue();
+            if (right != null && right.isPressed()) x += right.getAxisValue();
+            if (down  != null && down.isPressed())  y -= down.getAxisValue();
+            if (up    != null && up.isPressed())    y += up.getAxisValue();
 
-            if (tempDir2.lengthSquared() > 0)
-                action.accept(tempDir2.x, tempDir2.y);
+            if (Vector2f.lengthSquared(x, y) > 0)
+                action.accept(x, y);
+        });
+        return this;
+    }
+
+    /**
+     * Triggers every tick, reading from two analog joystick axes to create a 2D vector
+     * @param name A unique name for this action
+     * @param axisX The {@link Keybind} for the X axis
+     * @param axisY The {@link Keybind} for the Y axis
+     * @param action The action to run every tick with the axis vector
+     * @return This controller
+     * @see #bindVector2D(String, Keybind, Keybind, Keybind, Keybind, BiConsumer)
+     */
+    public Controller bindVector2D(String name, Keybind axisX, Keybind axisY, BiConsumer<Float, Float> action) {
+        if (axisX != null) keybinds.add(axisX);
+        if (axisY != null) keybinds.add(axisY);
+        tickActions.put(name, () -> {
+            float x = axisX != null ? axisX.getAxisValue() : 0;
+            float y = axisY != null ? axisY.getAxisValue() : 0;
+
+            if (x != 0 || y != 0)
+                action.accept(x, y);
         });
         return this;
     }
@@ -178,28 +212,6 @@ public class Controller {
     }
 
     /**
-     * Registers a listener for mouse delta movements
-     * @param name A unique name for this action
-     * @param action The action to run every tick with the mouse delta
-     * @return This controller
-     */
-    public Controller bindMouseMove(String name, BiConsumer<Float, Float> action) {
-        mouseMoveActions.put(name, action);
-        return this;
-    }
-
-    /**
-     * Registers a listener for mouse scroll movements
-     * @param name A unique name for this action
-     * @param action The action to run every tick with the mouse scroll delta
-     * @return This controller
-     */
-    public Controller bindMouseScroll(String name, BiConsumer<Float, Float> action) {
-        mouseScrollActions.put(name, action);
-        return this;
-    }
-
-    /**
      * Processes all registered actions and calls them with the appropriate values<br>
      * <br>
      * Call this every tick to process input
@@ -208,28 +220,8 @@ public class Controller {
         for (Runnable action : tickActions.values())
             action.run();
 
-        if (tempMouseDelta.lengthSquared() > 0) {
-            for (BiConsumer<Float, Float> mouseMoveAction : mouseMoveActions.values())
-                mouseMoveAction.accept(tempMouseDelta.x, tempMouseDelta.y);
-        }
-
-        if (tempMouseScroll.lengthSquared() > 0) {
-            for (BiConsumer<Float, Float> mouseScrollAction : mouseScrollActions.values())
-                mouseScrollAction.accept(tempMouseScroll.x, tempMouseScroll.y);
-        }
-
         for (Keybind keybind : keybinds)
             keybind.polled();
-    }
-
-    /**
-     * Clears the mouse delta and scroll values<br>
-     * <br>
-     * Call after every tick to avoid accumulating values over multiple ticks
-     */
-    public static void clearTick() {
-        tempMouseDelta.set(0);
-        tempMouseScroll.set(0);
     }
 
     /**
@@ -237,8 +229,6 @@ public class Controller {
      */
     public void clearActions() {
         tickActions.clear();
-        mouseMoveActions.clear();
-        mouseScrollActions.clear();
         keybinds.clear();
     }
 
@@ -248,51 +238,5 @@ public class Controller {
      */
     public void removeAction(String name) {
         tickActions.remove(name);
-        mouseMoveActions.remove(name);
-        mouseScrollActions.remove(name);
-    }
-
-    /**
-     * Hook for mouse movement callback
-     * @param x The current mouse {@code x} position
-     * @param y The current mouse {@code y} position
-     */
-    public static void mouseMove(double x, double y) {
-        if (firstMouse) {
-            mouseX = x;
-            mouseY = y;
-            firstMouse = false;
-        }
-
-        double dx = (x - mouseX) * (Settings.invertX.get() ? -1 : 1);
-        double dy = (y - mouseY) * (Settings.invertY.get() ? -1 : 1);
-        mouseX = x;
-        mouseY = y;
-
-        double sensi = InputManager.getSensiMultiplier();
-        dx *= sensi;
-        dy *= sensi;
-
-        if (dx != 0 || dy != 0)
-            tempMouseDelta.add((float) dx, (float) dy);
-    }
-
-    /**
-     * Hook for mouse scroll callback
-     * @param x the scroll amount in the {@code x} direction
-     * @param y the scroll amount in the {@code y} direction
-     */
-    public static void mouseScroll(double x, double y) {
-        if (x != 0 || y != 0)
-            tempMouseScroll.add((float) x, (float) y);
-    }
-
-    /**
-     * Reset state
-     */
-    public static void reset() {
-        firstMouse = true;
-        tempMouseDelta.set(0);
-        tempMouseScroll.set(0);
     }
 }

@@ -37,6 +37,7 @@ public class TransparentWorld extends WorldClient {
     @Override
     protected void levelLoad() {
         //super.levelLoad();
+        this.enableDebugKeys = true;
         for (PointLight light : lights)
             addLight(light);
         gen();

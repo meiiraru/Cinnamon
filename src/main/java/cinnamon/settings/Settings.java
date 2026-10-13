@@ -26,8 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import static cinnamon.Client.LOGGER;
-import static cinnamon.input.Keybind.KeyType.KEY;
-import static cinnamon.input.Keybind.KeyType.MOUSE;
+import static cinnamon.input.Keybind.KeyType.*;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Settings {
@@ -142,26 +141,55 @@ public class Settings {
             sneak  = new Setting.Keybind("controls.keybind.movement.sneak", GLFW_KEY_LEFT_CONTROL, KEY),
             sprint = new Setting.Keybind("controls.keybind.movement.sprint", GLFW_KEY_LEFT_SHIFT, KEY),
 
+            //camera
+            lookHorizontal = new Setting.Keybind("controls.keybind.camera.look_horizontal", 0, MOUSE_MOVE),
+            lookVertical   = new Setting.Keybind("controls.keybind.camera.look_vertical", 1, MOUSE_MOVE),
+            lookLeft  = new Setting.Keybind("controls.keybind.camera.look_left", GLFW_KEY_LEFT, KEY),
+            lookRight = new Setting.Keybind("controls.keybind.camera.look_right", GLFW_KEY_RIGHT, KEY),
+            lookUp    = new Setting.Keybind("controls.keybind.camera.look_up", GLFW_KEY_UP, KEY),
+            lookDown  = new Setting.Keybind("controls.keybind.camera.look_down", GLFW_KEY_DOWN, KEY),
+
             //item
             attack = new Setting.Keybind("controls.keybind.item.attack", GLFW_MOUSE_BUTTON_1, MOUSE),
             use    = new Setting.Keybind("controls.keybind.item.use", GLFW_MOUSE_BUTTON_2, MOUSE),
             pick   = new Setting.Keybind("controls.keybind.item.pick", GLFW_MOUSE_BUTTON_3, MOUSE),
             drop   = new Setting.Keybind("controls.keybind.item.drop", GLFW_KEY_Q, KEY),
             reload = new Setting.Keybind("controls.keybind.item.reload", GLFW_KEY_R, KEY),
-            inv1   = new Setting.Keybind("controls.keybind.inv.inv1", GLFW_KEY_1, KEY),
-            inv2   = new Setting.Keybind("controls.keybind.inv.inv2", GLFW_KEY_2, KEY),
-            inv3   = new Setting.Keybind("controls.keybind.inv.inv3", GLFW_KEY_3, KEY),
-            inv4   = new Setting.Keybind("controls.keybind.inv.inv4", GLFW_KEY_4, KEY),
-            inv5   = new Setting.Keybind("controls.keybind.inv.inv5", GLFW_KEY_5, KEY),
-            inv6   = new Setting.Keybind("controls.keybind.inv.inv6", GLFW_KEY_6, KEY),
-            inv7   = new Setting.Keybind("controls.keybind.inv.inv7", GLFW_KEY_7, KEY),
-            inv8   = new Setting.Keybind("controls.keybind.inv.inv8", GLFW_KEY_8, KEY),
-            inv9   = new Setting.Keybind("controls.keybind.inv.inv9", GLFW_KEY_9, KEY),
+
+            //inventory
+            prevSlot = new Setting.Keybind("controls.keybind.inv.prev_slot", 2, MOUSE_SCROLL),
+            nextSlot = new Setting.Keybind("controls.keybind.inv.next_slot", 3, MOUSE_SCROLL),
+            inv1 = new Setting.Keybind("controls.keybind.inv.inv1", GLFW_KEY_1, KEY),
+            inv2 = new Setting.Keybind("controls.keybind.inv.inv2", GLFW_KEY_2, KEY),
+            inv3 = new Setting.Keybind("controls.keybind.inv.inv3", GLFW_KEY_3, KEY),
+            inv4 = new Setting.Keybind("controls.keybind.inv.inv4", GLFW_KEY_4, KEY),
+            inv5 = new Setting.Keybind("controls.keybind.inv.inv5", GLFW_KEY_5, KEY),
+            inv6 = new Setting.Keybind("controls.keybind.inv.inv6", GLFW_KEY_6, KEY),
+            inv7 = new Setting.Keybind("controls.keybind.inv.inv7", GLFW_KEY_7, KEY),
+            inv8 = new Setting.Keybind("controls.keybind.inv.inv8", GLFW_KEY_8, KEY),
+            inv9 = new Setting.Keybind("controls.keybind.inv.inv9", GLFW_KEY_9, KEY),
 
             //vehicle
             honk   = new Setting.Keybind("controls.keybind.car.honk", GLFW_KEY_F, KEY),
             lights = new Setting.Keybind("controls.keybind.car.lights", GLFW_KEY_H, KEY),
-            brake  = new Setting.Keybind("controls.keybind.car.brake", GLFW_KEY_SPACE, KEY);
+            brake  = new Setting.Keybind("controls.keybind.car.brake", GLFW_KEY_SPACE, KEY),
+
+            //world
+            hideHud     = new Setting.Keybind("controls.keybind.world.hide_hud", GLFW_KEY_F1, KEY),
+            openChat    = new Setting.Keybind("controls.keybind.world.open_chat", GLFW_KEY_ENTER, KEY),
+            thirdPerson = new Setting.Keybind("controls.keybind.world.third_person", GLFW_KEY_F5, KEY),
+            anaglyph    = new Setting.Keybind("controls.keybind.world.anaglyph", -1, KEY),
+
+            //misc
+            screenshot       = new Setting.Keybind("controls.keybind.misc.screenshot", GLFW_KEY_F2, KEY),
+            postProcess      = new Setting.Keybind("controls.keybind.misc.post_process", GLFW_KEY_F9, KEY),
+            toggleFullscreen = new Setting.Keybind("controls.keybind.misc.toggle_fullscreen", GLFW_KEY_F11, KEY),
+
+            //debug
+            debugScreen  = new Setting.Keybind("controls.keybind.debug.debug_screen", GLFW_KEY_F3, KEY),
+            freeMouse    = new Setting.Keybind("controls.keybind.debug.free_mouse", GLFW_KEY_LEFT_ALT, KEY),
+            increaseTime = new Setting.Keybind("controls.keybind.debug.increase_time", -1, KEY),
+            decreaseTime = new Setting.Keybind("controls.keybind.debug.decrease_time", -1, KEY);
 
     // -- misc -- //
 

@@ -690,6 +690,14 @@
   "setting.controls.keybind.movement.sneak": "Sneak",
   "setting.controls.keybind.movement.sprint": "Sprint",
 
+  "setting.controls.keybind.camera": "Camera",
+  "setting.controls.keybind.camera.look_horizontal": "Look Horizontal",
+  "setting.controls.keybind.camera.look_vertical": "Look Vertical",
+  "setting.controls.keybind.camera.look_left": "Look Left",
+  "setting.controls.keybind.camera.look_right": "Look Right",
+  "setting.controls.keybind.camera.look_up": "Look Up",
+  "setting.controls.keybind.camera.look_down": "Look Down",
+
   "setting.controls.keybind.item": "Item",
   "setting.controls.keybind.item.attack": "Attack",
   "setting.controls.keybind.item.use": "Use",
@@ -698,6 +706,8 @@
   "setting.controls.keybind.item.reload": "Reload",
 
   "setting.controls.keybind.inv": "Inventory",
+  "setting.controls.keybind.inv.prev_slot": "Previous Slot",
+  "setting.controls.keybind.inv.next_slot": "Next Slot",
   "setting.controls.keybind.inv.inv1": "Inventory 1",
   "setting.controls.keybind.inv.inv2": "Inventory 2",
   "setting.controls.keybind.inv.inv3": "Inventory 3",
@@ -713,6 +723,23 @@
   "setting.controls.keybind.car.lights": "Toggle Lights",
   "setting.controls.keybind.car.brake": "Brake",
 
+  "setting.controls.keybind.world": "World",
+  "setting.controls.keybind.world.hide_hud": "Hide HUD",
+  "setting.controls.keybind.world.open_chat": "Open Chat",
+  "setting.controls.keybind.world.third_person": "Third Person",
+  "setting.controls.keybind.world.anaglyph": "3D Anaglyph",
+
+  "setting.controls.keybind.misc": "Misc",
+  "setting.controls.keybind.misc.screenshot": "Take Screenshot",
+  "setting.controls.keybind.misc.post_process": "Change Post-Processing",
+  "setting.controls.keybind.misc.toggle_fullscreen": "Toggle Fullscreen",
+
+  "setting.controls.keybind.debug": "Debug",
+  "setting.controls.keybind.debug.debug_screen": "Debug Overlay",
+  "setting.controls.keybind.debug.free_mouse": "Unlock Mouse",
+  "setting.controls.keybind.debug.increase_time": "Increase World Daytime",
+  "setting.controls.keybind.debug.decrease_time": "Decrease World Daytime",
+
   "setting.misc.player": "Player",
   "setting.misc.player.player_model": "Preferred Player Model",
   "setting.misc.player.player_name": "Player Name",
@@ -725,6 +752,8 @@
   "key.gamepad.axis": "Gamepad Axis %s",
   "key.xr.button": "XR Button %s",
   "key.xr.trigger": "XR Trigger %s",
+  "key.joystick.button": "Joystick Button %s",
+  "key.joystick.axis": "Joystick Axis %s",
 
   "key.keyboard.32": "Space",
   "key.keyboard.115": "/",
@@ -803,6 +832,17 @@
   "key.mouse.1": "Mouse Right",
   "key.mouse.2": "Mouse Middle",
 
+  "key.mouse.move.x": "Mouse Move X",
+  "key.mouse.move.y": "Mouse Move Y",
+
+  "key.mouse.scroll.0": "Mouse Scroll Left",
+  "key.mouse.scroll.1": "Mouse Scroll Right",
+  "key.mouse.scroll.2": "Mouse Scroll Up",
+  "key.mouse.scroll.3": "Mouse Scroll Down",
+
+  "key.xr.joystick.x": "XR Joystick X",
+  "key.xr.joystick.y": "XR Joystick Y",
+
   "key.gamepad.button.0": "Gamepad A",
   "key.gamepad.button.1": "Gamepad B",
   "key.gamepad.button.2": "Gamepad X",
@@ -824,5 +864,10 @@
   "key.gamepad.axis.2": "Gamepad RS X",
   "key.gamepad.axis.3": "Gamepad RS Y",
   "key.gamepad.axis.4": "Gamepad LT",
-  "key.gamepad.axis.5": "Gamepad RT"
+  "key.gamepad.axis.5": "Gamepad RT",
+
+  "key.joystick.hat.1": "Joystick Hat %s Up",
+  "key.joystick.hat.2": "Joystick Hat %s Right",
+  "key.joystick.hat.4": "Joystick Hat %s Down",
+  "key.joystick.hat.8": "Joystick Hat %s Left"
 }

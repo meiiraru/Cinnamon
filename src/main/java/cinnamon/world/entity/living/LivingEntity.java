@@ -61,12 +61,18 @@ public abstract class LivingEntity extends PhysEntity {
                 Settings.jump.get(), Settings.sneak.get(),
                 Settings.forward.get(), Settings.backward.get(),
                 this::impulse
-        ).bindMouseMove(
-                "look",
+        ).bindVector2D(
+                "look", Settings.lookHorizontal.get(), Settings.lookVertical.get(),
                 (x, y) -> this.rotate(y, x, 0f)
-        ).bindMouseScroll(
-                "item_scroll",
+        ).bindVector2D(
+                "look_2d", Settings.lookLeft.get(), Settings.lookRight.get(), Settings.lookUp.get(), Settings.lookDown.get(),
+                (x, y) -> this.rotate(-y, x, 0f)
+        ).bindVector2D(
+                "prev_item_slot", null, Settings.prevSlot.get(),
                 (x, y) -> this.setSelectedItem(this.getInventory().getSelectedIndex() - (int) Math.signum(y))
+        ).bindVector2D(
+                "next_item_slot", null, Settings.nextSlot.get(),
+                (x, y) -> this.setSelectedItem(this.getInventory().getSelectedIndex() + (int) Math.signum(y))
         ).bindState(
                 "attack", Settings.attack.get(),
                 attacking -> {

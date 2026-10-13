@@ -60,6 +60,7 @@ public class Client {
     public int postProcess = -1;
     public boolean anaglyph3D = false;
     public boolean hideHUD;
+    public boolean lockBindings = false;
 
     //objects
     public MatrixStack matrices = new MatrixStack();
@@ -333,10 +334,10 @@ public class Client {
         resetAFKTimer();
         window.updateModsMask(mods);
 
-        if (DebugScreen.keyPress(key, scancode, action, mods))
+        if (!lockBindings && DebugScreen.keyPress(key, scancode, action, mods))
             return;
 
-        if (action == GLFW_PRESS) {
+        if (!lockBindings && action == GLFW_PRESS) {
             switch (key) {
                 case GLFW_KEY_F1 -> hideHUD = !hideHUD;
                 case GLFW_KEY_F2 -> {

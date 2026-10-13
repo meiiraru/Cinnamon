@@ -60,6 +60,8 @@ public class CollisionWorld extends WorldClient {
 
     @Override
     protected void levelLoad() {
+        this.enableDebugKeys = true;
+
         //floor
         int r = 32;
         TerrainGenerator.fill(this, -r, 0, -r, r, 0, r, MaterialRegistry.DEFAULT.material);

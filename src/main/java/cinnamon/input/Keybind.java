@@ -22,6 +22,9 @@ public class Keybind {
             KEYBINDS.put(type, new ArrayList<>());
     }
 
+    private static float mouseX, mouseY;
+    private static boolean firstMouse = true;
+
     private final String name;
 
     private int key, mods;
@@ -60,17 +63,6 @@ public class Keybind {
         LOGGER.debug("Registered %s keybind: %s %s", type.name(), key, name);
     }
 
-    public static void mousePress(int button, int action, int mods) {
-        if (button == -1)
-            return;
-
-        boolean pressed = action != GLFW_RELEASE;
-        for (Keybind keybind : KEYBINDS.get(KeyType.MOUSE)) {
-            if (keybind.key == button)
-                processKeybind(keybind, pressed, mods);
-        }
-    }
-
     public static void keyPress(int key, int scancode, int action, int mods) {
         if (key == -1 && scancode == -1)
             return;
@@ -87,6 +79,59 @@ public class Keybind {
                 if (keybind.key == scancode)
                     processKeybind(keybind, pressed, mods);
             }
+        }
+    }
+
+    public static void mousePress(int button, int action, int mods) {
+        if (button == -1)
+            return;
+
+        boolean pressed = action != GLFW_RELEASE;
+        for (Keybind keybind : KEYBINDS.get(KeyType.MOUSE)) {
+            if (keybind.key == button)
+                processKeybind(keybind, pressed, mods);
+        }
+    }
+
+    public static void mouseMove(float x, float y) {
+        if (firstMouse) {
+            mouseX = x;
+            mouseY = y;
+            firstMouse = false;
+        }
+
+        float dx = (x - mouseX) * (Settings.invertX.get() ? -1 : 1);
+        float dy = (y - mouseY) * (Settings.invertY.get() ? -1 : 1);
+        mouseX = x;
+        mouseY = y;
+
+        float sensi = (float) InputManager.getSensiMultiplier();
+        dx *= sensi;
+        dy *= sensi;
+
+        for (Keybind keybind : KEYBINDS.get(KeyType.MOUSE_MOVE)) {
+            float delta = (keybind.key == 0) ? dx : dy;
+            keybind.axisValue += delta;
+            keybind.pressed = Math.abs(keybind.axisValue) > 0;
+            keybind.pollPressed = keybind.pressed;
+        }
+    }
+
+    public static void mouseScroll(float x, float y) {
+        //key: 0 -> left, 1 -> right, 2 -> up, 3 -> down
+        int key = (x < 0) ? 1 : (x > 0) ? 0 : (y < 0) ? 3 : (y > 0) ? 2 : -1;
+        if (key == -1)
+            return;
+
+        float delta = Math.abs((key < 2) ? x : y);
+
+        for (Keybind keybind : KEYBINDS.get(KeyType.MOUSE_SCROLL)) {
+            if (keybind.key != key)
+                continue;
+
+            keybind.axisValue += delta;
+            keybind.pressed = Math.abs(keybind.axisValue) > 0;
+            keybind.pollPressed = keybind.pressed;
         }
     }
 
@@ -120,11 +165,55 @@ public class Keybind {
         }
     }
 
+    public static void xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
+        float deadzone = Settings.gamepadDeadzone.get();
+        for (Keybind keybind : KEYBINDS.get(KeyType.XR_JOYSTICK)) {
+            if (keybind.joystick == hand) {
+                if (keybind.key == 0) //x = axis 0
+                    processAxis(keybind, x, lastX, deadzone);
+                else if (keybind.key == 1) //y = axis 1
+                    processAxis(keybind, y, lastY, deadzone);
+            }
+        }
+    }
+
+    public static void joystickButtonPress(int button, boolean pressed, int joystick) {
+        for (Keybind keybind : KEYBINDS.get(KeyType.JOYSTICK_BUTTON)) {
+            if (keybind.key == button && keybind.joystick == joystick)
+                processKeybind(keybind, pressed, 0);
+        }
+    }
+
+    public static void joystickAxisMove(int axis, float value, int joystick, float lastValue) {
+        float deadzone = Settings.gamepadDeadzone.get();
+        for (Keybind keybind : KEYBINDS.get(KeyType.JOYSTICK_AXIS)) {
+            if (keybind.key == axis && keybind.joystick == joystick)
+                processAxis(keybind, value, lastValue, deadzone);
+        }
+    }
+
+    public static void joystickHatMove(int hat, byte hatState, int joystick, byte lastValue) {
+        for (Keybind keybind : KEYBINDS.get(KeyType.JOYSTICK_HAT)) {
+            //unpack encoded key - upper bits = hat ID, lower 4 bits = direction flag (1, 2, 4, 8)
+            if ((keybind.key >> 4) == hat && keybind.joystick == joystick) {
+                int direction = keybind.key & 0xF;
+                boolean pressed = (hatState & direction) != 0;
+
+                //only trigger if state changed to prevent multiple press events while sweeping
+                if (pressed != keybind.pressed)
+                    processKeybind(keybind, pressed, 0);
+            }
+        }
+    }
+
     private static void processKeybind(Keybind keybind, boolean pressed, int mods) {
         keybind.pressed = pressed;
         if (pressed) {
-            if ((mods & keybind.mods) == keybind.mods)
+            if ((mods & keybind.mods) == keybind.mods) {
                 keybind.press();
+                if (keybind.axisValue == 0)
+                    keybind.axisValue = 1f;
+            }
         } else {
             if (keybind.polled)
                 keybind.release();
@@ -151,21 +240,26 @@ public class Keybind {
             for (Keybind keybind : entry.getValue())
                 keybind.release();
         }
+
+        if (mouse) firstMouse = true;
     }
 
     public static void flush() {
         for (List<Keybind> value : KEYBINDS.values()) {
             for (Keybind keybind : value) {
-                if (!keybind.pressed)
+                if (!keybind.pressed) {
                     keybind.release();
+                } else {
+                    keybind.lastAxisValue = keybind.axisValue;
+                }
+
+                //reset delta-based inputs
+                if (keybind.type == KeyType.MOUSE_MOVE || keybind.type == KeyType.MOUSE_SCROLL) {
+                    keybind.axisValue = 0;
+                    keybind.pressed = false;
+                }
             }
         }
-
-        //update last axis values to not retrigger axis keybinds
-        for (Keybind keybind : KEYBINDS.get(KeyType.GAMEPAD_AXIS))
-            keybind.lastAxisValue = keybind.axisValue;
-        for (Keybind keybind : KEYBINDS.get(KeyType.XR_TRIGGER))
-            keybind.lastAxisValue = keybind.axisValue;
     }
 
     private void press() {
@@ -262,10 +356,20 @@ public class Keybind {
             return glfwName != null ? Text.of(glfwName.toUpperCase()) : Text.translated("key.scancode", scancode + 1);
         }),
         MOUSE(button -> button < 3 ? Text.translated("key.mouse." + button) : Text.translated("key.mouse", button + 1)),
+        MOUSE_MOVE(axis -> Text.translated("key.mouse.move." + (axis == 0 ? "x" : "y"))),
+        MOUSE_SCROLL(axis -> Text.translated("key.mouse.scroll." + axis)),
         GAMEPAD_BUTTON(button -> Text.translated("key.gamepad.button." + button)),
         GAMEPAD_AXIS(axis -> Text.translated("key.gamepad.axis." + axis)),
         XR_BUTTON(button -> Text.translated("key.xr.button",button + 1)),
-        XR_TRIGGER(axis -> Text.translated("key.xr.trigger", axis + 1));
+        XR_TRIGGER(axis -> Text.translated("key.xr.trigger", axis + 1)),
+        XR_JOYSTICK(axis -> Text.translated("key.xr.joystick." + (axis == 0 ? "x" : "y"))),
+        JOYSTICK_BUTTON(button -> Text.translated("key.joystick.button", button + 1)),
+        JOYSTICK_AXIS(axis -> Text.translated("key.joystick.axis", axis + 1)),
+        JOYSTICK_HAT(hat -> {
+            int hatId = hat >> 4;
+            int dir = hat & 0xF;
+            return Text.translated("key.joystick.hat." + dir, hatId + 1);
+        });
 
         private final Function<Integer, Text> textFunction;
 

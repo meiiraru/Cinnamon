@@ -35,6 +35,9 @@ public class SettingsScreen extends ParentedScreen {
     protected Setting.Keybind currentKeybind;
     protected Button keybindButton;
 
+    protected int bindMouseStartX = -1;
+    protected int bindMouseStartY = -1;
+
     public SettingsScreen(Screen parentScreen) {
         this(parentScreen, false);
     }
@@ -387,6 +390,7 @@ public class SettingsScreen extends ParentedScreen {
                 Button butt = new Button(x, 0, widgetW, widgetH, keybindSetting.get().getKeyText(), b -> {
                     currentKeybind = keybindSetting;
                     keybindButton = b;
+                    client.lockBindings = true;
                     Keybind.KeyType keytype = currentKeybind.getTempType();
                     b.setMessage(Text.of("[ ").append(keytype == null ? keybindSetting.get().getKeyText() : keytype.getKeyText(keybindSetting.getTempKey(), keybindSetting.getTempMods())).append(" ]"));
                     keybindSetting.setTempValue(keybindSetting.get());
@@ -414,6 +418,7 @@ public class SettingsScreen extends ParentedScreen {
             currentKeybind.setTempValue(null);
         currentKeybind = null;
         keybindButton = null;
+        client.lockBindings = false;
     }
 
     protected void checkKeybindConflict(int key, int mods, Keybind.KeyType type, int joystick) {
@@ -488,6 +493,37 @@ public class SettingsScreen extends ParentedScreen {
     }
 
     @Override
+    public boolean mouseMove(int x, int y) {
+        if (currentKeybind == null || (popup != null && popup.isOpen())) {
+            bindMouseStartX = x;
+            bindMouseStartY = y;
+            return super.mouseMove(x, y);
+        }
+
+        int dx = x - bindMouseStartX;
+        int dy = y - bindMouseStartY;
+
+        //require a 50 pixel movement to register as a bind
+        if (Math.abs(dx) > 50 || Math.abs(dy) > 50) {
+            int axis = Math.abs(dx) > Math.abs(dy) ? 0 : 1; //0 -> X, 1 -> Y
+            checkKeybindConflict(axis, 0, Keybind.KeyType.MOUSE_MOVE, -1);
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean mouseScroll(double x, double y) {
+        if (currentKeybind == null || (popup != null && popup.isOpen()))
+            return super.mouseScroll(x, y);
+
+        //key: 0 -> left, 1 -> right, 2 -> up, 3 -> down
+        int key = (x < 0) ? 1 : (x > 0) ? 0 : (y < 0) ? 3 : (y > 0) ? 2 : -1;
+        checkKeybindConflict(key, 0, Keybind.KeyType.MOUSE_SCROLL, -1);
+        return true;
+    }
+
+    @Override
     public boolean gamepadButtonPress(int button, boolean pressed, int joystick) {
         if (currentKeybind == null || (popup != null && popup.isOpen()))
             return super.gamepadButtonPress(button, pressed, joystick);
@@ -513,6 +549,54 @@ public class SettingsScreen extends ParentedScreen {
     }
 
     @Override
+    public boolean joystickButtonPress(int button, boolean pressed, int joystick) {
+        if (currentKeybind == null || (popup != null && popup.isOpen()))
+            return super.joystickButtonPress(button, pressed, joystick);
+
+        if (!pressed)
+            return true;
+
+        checkKeybindConflict(button, 0, Keybind.KeyType.JOYSTICK_BUTTON, joystick);
+        return true;
+    }
+
+    @Override
+    public boolean joystickAxisMove(int axis, float value, int joystick, float lastValue) {
+        if (currentKeybind == null || (popup != null && popup.isOpen()))
+            return super.joystickAxisMove(axis, value, joystick, lastValue);
+
+        float deadzone = Settings.gamepadDeadzone.get();
+        if (Math.abs(value) <= deadzone || Math.abs(lastValue) > deadzone)
+            return true;
+
+        checkKeybindConflict(axis, 0, Keybind.KeyType.JOYSTICK_AXIS, joystick);
+        return true;
+    }
+
+    @Override
+    public boolean joystickHatMove(int hat, byte hatState, int joystick, byte lastValue) {
+        if (currentKeybind == null || (popup != null && popup.isOpen()))
+            return super.joystickHatMove(hat, hatState, joystick, lastValue);
+
+        //find which direction was pressed
+        int direction = -1;
+        for (int i = 1; i <= 8; i <<= 1) {
+            if ((hatState & i) != 0 && (lastValue & i) == 0) {
+                direction = i;
+                break;
+            }
+        }
+
+        if (direction == -1)
+            return true;
+
+        //encode hat id and direction together
+        int key = (hat << 4) | direction;
+        checkKeybindConflict(key, 0, Keybind.KeyType.JOYSTICK_HAT, joystick);
+        return true;
+    }
+
+    @Override
     public boolean xrButtonPress(int button, boolean pressed, int hand) {
         if (currentKeybind == null || (popup != null && popup.isOpen()))
             return super.xrButtonPress(button, pressed, hand);
@@ -534,6 +618,25 @@ public class SettingsScreen extends ParentedScreen {
             return true;
 
         checkKeybindConflict(button, 0, Keybind.KeyType.XR_TRIGGER, hand);
+        return true;
+    }
+
+    @Override
+    public boolean xrJoystickMove(float x, float y, int hand, float lastX, float lastY) {
+        if (currentKeybind == null || (popup != null && popup.isOpen()))
+            return super.xrJoystickMove(x, y, hand, lastX, lastY);
+
+        float deadzone = Settings.gamepadDeadzone.get();
+
+        //check if an axis just crossed the deadzone threshold
+        boolean xMoved = Math.abs(x) > deadzone && Math.abs(lastX) <= deadzone;
+        boolean yMoved = Math.abs(y) > deadzone && Math.abs(lastY) <= deadzone;
+        if (!xMoved && !yMoved)
+            return true;
+
+        //pick the one being pushed further
+        int axis = Math.abs(x) > Math.abs(y) ? 0 : 1;
+        checkKeybindConflict(axis, 0, Keybind.KeyType.XR_JOYSTICK, hand);
         return true;
     }
 

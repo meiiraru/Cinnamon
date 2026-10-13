@@ -23,6 +23,7 @@ public class MaterialPreviewWorld extends WorldClient {
     @Override
     protected void levelLoad() {
         //super.levelLoad();
+        this.enableDebugKeys = true;
 
         MaterialRegistry[] values = MaterialRegistry.values();
         int grid = (int) Math.ceil(Math.sqrt(values.length));

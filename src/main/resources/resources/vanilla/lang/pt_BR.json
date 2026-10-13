@@ -675,6 +675,14 @@
   "setting.controls.keybind.movement.sneak": "Agachar",
   "setting.controls.keybind.movement.sprint": "Correr",
 
+  "setting.controls.keybind.camera": "Câmera",
+  "setting.controls.keybind.camera.look_horizontal": "Olhar Horizontal",
+  "setting.controls.keybind.camera.look_vertical": "Olhar Vertical",
+  "setting.controls.keybind.camera.look_left": "Olhar para a Esquerda",
+  "setting.controls.keybind.camera.look_right": "Olhar para a Direita",
+  "setting.controls.keybind.camera.look_up": "Olhar para Cima",
+  "setting.controls.keybind.camera.look_down": "Olhar para Baixo",
+
   "setting.controls.keybind.item": "Item",
   "setting.controls.keybind.item.attack": "Atacar",
   "setting.controls.keybind.item.use": "Usar",
@@ -683,6 +691,8 @@
   "setting.controls.keybind.item.reload": "Recarregar",
 
   "setting.controls.keybind.inv": "Inventário",
+  "setting.controls.keybind.inv.prev_slot": "Selecionar Anterior",
+  "setting.controls.keybind.inv.next_slot": "Selecionar Próximo",
   "setting.controls.keybind.inv.inv1": "Inventário 1",
   "setting.controls.keybind.inv.inv2": "Inventário 2",
   "setting.controls.keybind.inv.inv3": "Inventário 3",
@@ -697,6 +707,23 @@
   "setting.controls.keybind.car.honk": "Buzina",
   "setting.controls.keybind.car.lights": "Alternar Luzes",
   "setting.controls.keybind.car.brake": "Freio",
+
+  "setting.controls.keybind.world": "Mundo",
+  "setting.controls.keybind.world.hide_hud": "Esconder Interface",
+  "setting.controls.keybind.world.open_chat": "Abrir Chat",
+  "setting.controls.keybind.world.third_person": "Terceira Pessoa",
+  "setting.controls.keybind.world.anaglyph": "Anaglifo 3D",
+
+  "setting.controls.keybind.misc": "Outros",
+  "setting.controls.keybind.misc.screenshot": "Capturar Tela",
+  "setting.controls.keybind.misc.post_process": "Mudar Efeito de Pós-Processamento",
+  "setting.controls.keybind.misc.toggle_fullscreen": "Alternar Tela Cheia",
+
+  "setting.controls.keybind.debug": "Debug",
+  "setting.controls.keybind.debug.debug_screen": "Tela de Debug",
+  "setting.controls.keybind.debug.free_mouse": "Desbloquear Mouse",
+  "setting.controls.keybind.debug.increase_time": "Aumentar Horário do Mundo",
+  "setting.controls.keybind.debug.decrease_time": "Diminuir Horário do Mundo",
 
   "setting.misc.player": "Jogador",
   "setting.misc.player.player_model": "Modelo do Jogador",
