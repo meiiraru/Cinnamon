@@ -127,7 +127,6 @@ public enum MaterialRegistry {
     public static final Material MISSING = new Material("missing");
 
     public final Resource resource;
-    public Material material;
 
     MaterialRegistry() {
         String name = name().toLowerCase();
@@ -138,13 +137,14 @@ public enum MaterialRegistry {
         this.resource = resource;
     }
 
-    private void loadMaterial() {
-        this.material = resource == null ? null : MaterialManager.get(this.resource).getFirst();
-    }
+    public Material getMaterial() {
+        if (resource == null)
+            return null;
 
-    public static void loadAllMaterials() {
-        for (MaterialRegistry material : values())
-            material.loadMaterial();
+        for (Material value : MaterialManager.get(this.resource).values())
+            return value;
+
+        return null;
     }
 
     public static MaterialRegistry findByMaterial(Material material) {
@@ -152,7 +152,7 @@ public enum MaterialRegistry {
             return DEFAULT;
 
         for (MaterialRegistry m : values()) {
-            if (m.material == material)
+            if (m.getMaterial() == material)
                 return m;
         }
         return null;

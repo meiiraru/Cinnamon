@@ -1,7 +1,7 @@
 package cinnamon.render;
 
+import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.render.framebuffer.Framebuffer;
-import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
 
@@ -21,8 +21,8 @@ public class OutlineRenderer {
         outlineFramebuffer.resizeTo(target);
         outlineFramebuffer.useClear();
 
-        Shader main = CoreShaders.MAIN_PASS.getShader();
-        Shader model = CoreShaders.MODEL_PASS.getShader();
+        Shader main = CoreShadersRegistry.MAIN_PASS.getShader();
+        Shader model = CoreShadersRegistry.MODEL_PASS.getShader();
         main.use().setup(camera);
         model.use().setup(camera);
     }
@@ -32,7 +32,7 @@ public class OutlineRenderer {
         target.use();
 
         //prepare shader
-        Shader s = CoreShaders.OUTLINE.getShader().use();
+        Shader s = CoreShadersRegistry.OUTLINE.getShader().use();
         s.setTexture("outlineTex", outlineFramebuffer.getColorBuffer(), 0);
         s.setVec2("texelSize", 1f / outlineFramebuffer.getWidth(), 1f / outlineFramebuffer.getHeight());
         s.setFloat("radius", 4f);

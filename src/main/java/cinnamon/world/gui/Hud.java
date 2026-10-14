@@ -10,13 +10,13 @@ import cinnamon.messages.Message;
 import cinnamon.messages.MessageManager;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
+import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.shader.CoreShaders;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
@@ -265,7 +265,7 @@ public class Hud {
 
     protected void drawHotbar(MatrixStack matrices, LivingEntity entity, float delta) {
         //set shader
-        CoreShaders.MODEL.getShader().use().setup(Client.getInstance().camera);
+        CoreShadersRegistry.MODEL.getShader().use().setup(Client.getInstance().camera);
 
         //prepare variables
         Window window = Client.getInstance().window;
@@ -359,7 +359,7 @@ public class Hud {
         }
 
         MaterialRegistry material = MaterialRegistry.values()[m];
-        terrain.setMaterial(material.material);
+        terrain.setMaterial(material.getMaterial());
 
         Vector3f bounds = terrain.getAABB().getDimensions();
         Vector3f center = terrain.getAABB().getCenter();

@@ -176,10 +176,6 @@ public class ModelViewer extends SelectableWidget implements Tickable {
             matrices.rotateY(-yaw - 180);
         }
 
-        //skybox
-        if (renderSkybox)
-            theSky.render(camera, matrices);
-
         //center model
         matrices.translate(aabb.getCenter().mul(-1f));
 
@@ -189,9 +185,12 @@ public class ModelViewer extends SelectableWidget implements Tickable {
         if (!cullBackFaces)
             glDisable(GL_CULL_FACE);
 
+        //update sky
+        theSky.update();
+
         //draw model
         WorldRenderer.initGBuffer(camera);
-        model.render(matrices, selectedMaterial.material);
+        model.render(matrices, selectedMaterial.getMaterial());
 
         //restore model-only render state
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -206,6 +205,10 @@ public class ModelViewer extends SelectableWidget implements Tickable {
         //bake the model renderer
         theSky.setSkyBox(skybox.resource);
         WorldRenderer.bakeDeferred(camera, theSky);
+
+        //skybox
+        if (renderSkybox)
+            theSky.render(camera, matrices);
 
         //bloom
         float bloom = Settings.bloomStrength.get();

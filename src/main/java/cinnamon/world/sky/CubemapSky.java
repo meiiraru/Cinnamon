@@ -1,10 +1,10 @@
 package cinnamon.world.sky;
 
 import cinnamon.model.StaticGeometry;
+import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
-import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.SkyBox;
@@ -13,6 +13,8 @@ import cinnamon.utils.Resource;
 import org.joml.Math;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
+
+import static org.lwjgl.opengl.GL11.glDepthMask;
 
 public class CubemapSky extends Sky {
 
@@ -24,13 +26,15 @@ public class CubemapSky extends Sky {
     protected void renderSky(Camera camera, MatrixStack matrices) {
         //render model
         Shader o = Shader.activeShader;
-        Shader s = CoreShaders.SKYBOX.getShader().use();
+        Shader s = CoreShadersRegistry.SKYBOX.getShader().use();
         s.setup(camera);
         s.setMat3("rotation", skyRotation);
         s.setInt("skybox", 0);
         s.applyColor(getTint());
         bindSkyboxTexture(0);
+        glDepthMask(false);
         StaticGeometry.INV_CUBE.render();
+        glDepthMask(true);
         CubeMap.unbindTex(0);
         o.use();
     }

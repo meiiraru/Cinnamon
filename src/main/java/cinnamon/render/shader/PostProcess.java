@@ -233,7 +233,6 @@ public enum PostProcess {
     private final Resource resource;
     private final BiFunction<Framebuffer, Shader, Integer> uniformFunction;
     private final boolean usesPrevColor;
-    private Shader shader;
 
     PostProcess(BiFunction<Framebuffer, Shader, Integer> uniformFunction) {
         this(uniformFunction, false);
@@ -253,22 +252,8 @@ public enum PostProcess {
         this.usesPrevColor = usesPrevColor;
     }
 
-    public static void free() {
-        for (PostProcess postProcess : values())
-            postProcess.shader.free();
-    }
-
-    public static void loadAllShaders() {
-        for (PostProcess postProcess : values())
-            postProcess.loadShader();
-    }
-
-    private void loadShader() {
-        this.shader = Shader.of(this.resource);
-    }
-
     public Shader getShader() {
-        return shader;
+        return Shader.of(this.resource);
     }
 
     public BiFunction<Framebuffer, Shader, Integer> uniformFunction() {
@@ -297,7 +282,7 @@ public enum PostProcess {
 
             //render post effect
             destination.useClear();
-            int tex = postProcess.uniformFunction.apply(source, postProcess.shader.use());
+            int tex = postProcess.uniformFunction.apply(source, postProcess.getShader().use());
             StaticGeometry.QUAD.render();
             Texture.unbindAll(tex);
 

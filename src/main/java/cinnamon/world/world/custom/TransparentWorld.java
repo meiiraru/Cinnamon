@@ -57,7 +57,12 @@ public class TransparentWorld extends WorldClient {
     public void renderTransparent(Camera camera, MatrixStack matrices, float delta) {
         ModelRenderer model = ModelManager.getRenderer(new Resource("models/terrain/sphere/sphere.obj"));
         ModelRenderer diamond = ModelManager.getRenderer(new Resource("models/misc/diamond.obj"));
-        Material mat = MaterialManager.get(new Resource("materials/misc/diamond/diamond.mtl")).getFirst();
+
+        Material mat = null;
+        for (Material value : MaterialManager.get(new Resource("materials/misc/diamond/diamond.mtl")).values()) {
+            mat = value;
+            break;
+        }
 
         for (int i = 0; i < positions.length; i++) {
             Shader.activeShader.applyColorRGBA(Colors.RAINBOW[i % Colors.RAINBOW.length].argb);

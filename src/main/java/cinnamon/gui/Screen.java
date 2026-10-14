@@ -5,11 +5,11 @@ import cinnamon.gui.widgets.*;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.StaticGeometry;
+import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.render.MaterialApplier;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
-import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.Shader;
 import cinnamon.settings.Settings;
 import cinnamon.utils.UIHelper;
@@ -188,7 +188,7 @@ public abstract class Screen {
 
     protected void renderBackground(MatrixStack matrices, float delta, int color1, int color2, float size) {
         Shader oldShader = Shader.activeShader;
-        Shader s = CoreShaders.BACKGROUND_MENU.getShader().use();
+        Shader s = CoreShadersRegistry.BACKGROUND_MENU.getShader().use();
 
         float speed = 0.05f;
         float time = (client.ticks + delta) * speed;
@@ -210,7 +210,7 @@ public abstract class Screen {
 
     protected static void renderSolidBackground(int color) {
         Shader oldShader = Shader.activeShader;
-        Shader s = CoreShaders.BACKGROUND_COLOR.getShader().use();
+        Shader s = CoreShadersRegistry.BACKGROUND_COLOR.getShader().use();
         s.setColorRGBA("color", color);
 
         glDepthMask(false);
@@ -264,13 +264,13 @@ public abstract class Screen {
 
     protected void renderXrHands(MatrixStack matrices, float delta) {
         Shader old = Shader.activeShader;
-        CoreShaders.MODEL.getShader().use().setup(client.camera);
+        CoreShadersRegistry.MODEL.getShader().use().setup(client.camera);
         matrices.pushMatrix();
 
         XrRenderer.removeGUITransform(matrices);
         XrRenderer.renderHands(matrices);
 
-        CoreShaders.OUTLINE.getShader().use();
+        CoreShadersRegistry.OUTLINE.getShader().use();
         XrRenderer.renderHandLaser(client.camera, matrices);
 
         MaterialApplier.cleanup();

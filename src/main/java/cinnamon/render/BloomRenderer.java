@@ -1,7 +1,7 @@
 package cinnamon.render;
 
+import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.render.framebuffer.Framebuffer;
-import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
@@ -22,7 +22,7 @@ public class BloomRenderer {
         brightPass.resizeTo(targetBuffer);
         brightPass.useClear();
 
-        Shader s = CoreShaders.BRIGHT_PASS.getShader().use();
+        Shader s = CoreShadersRegistry.BRIGHT_PASS.getShader().use();
         s.setTexture("colorTex", targetBuffer.getColorBuffer(), 0);
         s.setTexture("emissiveTex", emissiveTex, 1);
         s.setFloat("threshold", threshold);
@@ -35,7 +35,7 @@ public class BloomRenderer {
         brightPass.useClear();
         brightPass.adjustViewPort();
 
-        Shader sc = CoreShaders.BLOOM_COMPOSITE.getShader().use();
+        Shader sc = CoreShadersRegistry.BLOOM_COMPOSITE.getShader().use();
         sc.setTexture("sceneTex", targetBuffer.getColorBuffer(), 0);
         sc.setTexture("bloomTex", blurTex, 1);
         sc.setFloat("bloomStrength", strength);

@@ -1,12 +1,12 @@
 package cinnamon.render.batch;
 
 import cinnamon.model.Vertex;
+import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.batch.Batch.LinesBatch;
 import cinnamon.render.batch.Batch.MainBatch;
 import cinnamon.render.batch.Batch.MainFlatBatch;
 import cinnamon.render.batch.Batch.ScreenSpaceUVBatch;
-import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.Resource;
@@ -14,16 +14,16 @@ import cinnamon.utils.Resource;
 import java.util.function.Supplier;
 
 public enum VertexConsumer {
-    MAIN(MainFlatBatch::new, CoreShaders.MAIN),
-    WORLD_MAIN(MainBatch::new, CoreShaders.WORLD_MAIN),
-    WORLD_MAIN_EMISSIVE(MainBatch::new, CoreShaders.WORLD_MAIN_EMISSIVE),
-    LINES(LinesBatch::new, CoreShaders.LINES),
-    SCREEN_UV(ScreenSpaceUVBatch::new, CoreShaders.SCREEN_SPACE_UV);
+    MAIN(MainFlatBatch::new, CoreShadersRegistry.MAIN),
+    WORLD_MAIN(MainBatch::new, CoreShadersRegistry.WORLD_MAIN),
+    WORLD_MAIN_EMISSIVE(MainBatch::new, CoreShadersRegistry.WORLD_MAIN_EMISSIVE),
+    LINES(LinesBatch::new, CoreShadersRegistry.LINES),
+    SCREEN_UV(ScreenSpaceUVBatch::new, CoreShadersRegistry.SCREEN_SPACE_UV);
 
     private final BatchRenderer<Batch> renderer;
-    private final CoreShaders shader;
+    private final CoreShadersRegistry shader;
 
-    VertexConsumer(Supplier<Batch> factory, CoreShaders shader) {
+    VertexConsumer(Supplier<Batch> factory, CoreShadersRegistry shader) {
         this.renderer = new BatchRenderer<>(factory);
         this.shader = shader;
     }

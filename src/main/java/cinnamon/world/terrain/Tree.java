@@ -6,13 +6,13 @@ import cinnamon.math.collision.shape.OBB;
 import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
 import cinnamon.model.mesh.Mesh;
+import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.model.ModelRenderer;
-import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.Shader;
 import cinnamon.world.particle.LeafParticle;
 import cinnamon.world.world.WorldClient;
@@ -42,7 +42,7 @@ public class Tree extends Terrain {
         if (leavesModel != null) {
             if (WorldRenderer.isWorldRendering() && !WorldRenderer.isShadowRendering()) {
                 Shader prevSh = Shader.activeShader;
-                CoreShaders.GBUFFER_WORLD_PBR_WAVE.getShader().use();
+                CoreShadersRegistry.GBUFFER_WORLD_PBR_WAVE.getShader().use();
                 leavesModel.render(matrices, material);
                 prevSh.use();
             } else {

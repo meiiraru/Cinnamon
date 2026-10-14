@@ -5,12 +5,10 @@ import cinnamon.lang.LangManager;
 import cinnamon.logger.Logger;
 import cinnamon.model.MaterialManager;
 import cinnamon.model.ModelManager;
-import cinnamon.registry.MaterialRegistry;
+import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.render.Font;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
-import cinnamon.render.shader.CoreShaders;
-import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.AnimatedTexture;
 import cinnamon.render.texture.CubeMap;
@@ -29,11 +27,9 @@ public class Events {
 
         RESOURCE_INIT.register("vanilla:resource_init", () -> {
             SoundManager.swapDevice(Settings.soundDevice.get());
-            CoreShaders.loadAll();
-            PostProcess.loadAllShaders();
-            MaterialRegistry.loadAllMaterials();
             LangManager.init();
             GUISkin.init();
+            CoreShadersRegistry.MAIN.getShader().use();
         });
 
         RESOURCE_FREE.register("vanilla:resource_free", () -> {
@@ -42,9 +38,7 @@ public class Events {
             CubeMap.freeAll();
             SoundManager.stopAll();
             Sound.freeAllSounds();
-            Shader.freeCache();
-            CoreShaders.freeAll();
-            PostProcess.free();
+            Shader.freeAll();
             ModelManager.free();
             MaterialManager.free();
             SkyBox.freeAll();

@@ -3,12 +3,13 @@ package cinnamon.render;
 import cinnamon.Client;
 import cinnamon.math.Maths;
 import cinnamon.model.StaticGeometry;
+import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
-import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
+import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.Texture;
 import cinnamon.settings.Settings;
 import cinnamon.utils.Mask;
@@ -102,10 +103,6 @@ public class WorldRenderer {
                 }
         };
 
-        //render the sky before all
-        if (renderSky)
-            world.getSky().render(camera, matrices);
-
         //3d anaglyph rendering
         if (client.anaglyph3D) {
             renderAsAnaglyph(world, matrices, delta, dt, renderFunc);
@@ -144,6 +141,10 @@ public class WorldRenderer {
         //bake world
         bakeDeferred(camera, world.getSky());
 
+        //render the sky
+        if (renderSky)
+            world.getSky().render(camera, matrices);
+
         //render clouds
         renderClouds(world, camera, delta);
 
@@ -176,6 +177,10 @@ public class WorldRenderer {
     }
 
     private static void renderAsAnaglyph(WorldClient world, MatrixStack matrices, float delta, float dt, Runnable[] renderFunc) {
+        //render the sky before all
+        if (renderSky)
+            world.getSky().render(camera, matrices);
+
         camera.anaglyph3D(matrices, -1f / 64f, -1f, () -> {
             //render world
             initExtraRenderers(camera, world.getTime() + delta);
@@ -297,7 +302,7 @@ public class WorldRenderer {
         targetBuffer.blit(PBRFrameBuffer, false, true, true);
 
         //setup gbuffer shader
-        Shader s = CoreShaders.GBUFFER_WORLD_PBR.getShader().use();
+        Shader s = CoreShadersRegistry.GBUFFER_WORLD_PBR.getShader().use();
         s.setup(camera);
         s.setVec3("camPos", camera.getPosition());
         s.setInt("frameIndex", (int) Client.getInstance().frames);
@@ -307,7 +312,7 @@ public class WorldRenderer {
         //world uniforms
         outputBuffer.use();
         outputBuffer.adjustViewPort();
-        Shader s = CoreShaders.DEFERRED_WORLD_PBR.getShader().use();
+        Shader s = CoreShadersRegistry.DEFERRED_WORLD_PBR.getShader().use();
 
         //camera
         s.setupInverse(camera);
@@ -347,7 +352,7 @@ public class WorldRenderer {
 
     public static void initExtraRenderers(Camera camera, float time) {
         //init wave shader
-        Shader waveSh = CoreShaders.GBUFFER_WORLD_PBR_WAVE.getShader().use();
+        Shader waveSh = CoreShadersRegistry.GBUFFER_WORLD_PBR_WAVE.getShader().use();
         waveSh.setup(camera);
         waveSh.setVec3("camPos", camera.getPosition());
         waveSh.setFloat("time", time * 0.1f);
@@ -414,8 +419,8 @@ public class WorldRenderer {
         outlineRendering = true;
         OutlineRenderer.prepareRenderer(outputBuffer, camera);
 
-        Shader main = CoreShaders.MAIN_PASS.getShader();
-        Shader model = CoreShaders.MODEL_PASS.getShader();
+        Shader main = CoreShadersRegistry.MAIN_PASS.getShader();
+        Shader model = CoreShadersRegistry.MODEL_PASS.getShader();
 
         //render entities
         for (Entity entity : entitiesToOutline) {

@@ -1,9 +1,7 @@
 package cinnamon.world.sky;
 
-import cinnamon.render.Camera;
+import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.render.CubemapRenderer;
-import cinnamon.render.MatrixStack;
-import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.SkyBox;
@@ -20,14 +18,9 @@ public class DynamicSky extends CubemapSky {
     }
 
     @Override
-    protected void renderSky(Camera camera, MatrixStack matrices) {
-        this.update();
-        super.renderSky(camera, matrices);
-    }
-
-    protected void update() {
+    public void update() {
         Shader prevShader = Shader.activeShader;
-        Shader s = CoreShaders.CUBEMAP_SKYBOX.getShader().use();
+        Shader s = CoreShadersRegistry.CUBEMAP_SKYBOX.getShader().use();
         s.applyColor(getTint());
         s.setVec3("sunDirection", getRotatedSunDirection());
         s.setColor("skyColor", skyColor);

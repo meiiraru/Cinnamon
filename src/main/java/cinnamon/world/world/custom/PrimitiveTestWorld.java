@@ -158,7 +158,7 @@ public class PrimitiveTestWorld extends WorldClient {
 
         //add primitives
         for (PrimitiveTerrain pt : primitives) {
-            pt.setMaterial(MaterialRegistry.DEBUG_UV.material);
+            pt.setMaterial(MaterialRegistry.DEBUG_UV.getMaterial());
             pt.getCollisionMask().setExcludeMask(0, true);
             //pt.setColor(Colors.randomRainbow().argb);
             addTerrain(pt);

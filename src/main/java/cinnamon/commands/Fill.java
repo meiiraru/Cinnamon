@@ -73,7 +73,7 @@ public class Fill implements Command {
                 remove = true;
             } else {
                 MaterialRegistry matReg = MaterialRegistry.values()[matID];
-                material = matReg.material;
+                material = matReg.getMaterial();
                 matName = matReg.name();
                 remove = false;
             }

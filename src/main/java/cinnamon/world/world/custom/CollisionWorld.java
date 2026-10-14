@@ -64,10 +64,10 @@ public class CollisionWorld extends WorldClient {
 
         //floor
         int r = 32;
-        TerrainGenerator.fill(this, -r, 0, -r, r, 0, r, MaterialRegistry.DEFAULT.material);
+        TerrainGenerator.fill(this, -r, 0, -r, r, 0, r, MaterialRegistry.DEFAULT.getMaterial());
 
         //spawn platform
-        Material debugMat = MaterialRegistry.DEBUG.material;
+        Material debugMat = MaterialRegistry.DEBUG.getMaterial();
         TerrainGenerator.fill(this, -12, 1, 16, -11, 5, 17, debugMat);
 
         //spheres
@@ -203,7 +203,7 @@ public class CollisionWorld extends WorldClient {
                 };
 
                 uneven.setPos(centerX, y, centerZ);
-                uneven.setMaterial(MaterialRegistry.GRASS2.material);
+                uneven.setMaterial(MaterialRegistry.GRASS2.getMaterial());
                 addTerrain(uneven);
             }
         }

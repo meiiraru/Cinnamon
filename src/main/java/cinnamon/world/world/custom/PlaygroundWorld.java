@@ -80,7 +80,7 @@ public class PlaygroundWorld extends WorldClient {
 
         //load level
         int l = 32;
-        TerrainGenerator.fill(this, -l, 0, -l, l, 0, l, MaterialRegistry.GRASS2.material);
+        TerrainGenerator.fill(this, -l, 0, -l, l, 0, l, MaterialRegistry.GRASS2.getMaterial());
 
         //TerrainGenerator.fill(this, -l, 1, -l,  l, 1, -l, MaterialRegistry.BRICK_WALL);
         //TerrainGenerator.fill(this, -l, 1,  l,  l, 1,  l, MaterialRegistry.BRICK_WALL);
@@ -89,13 +89,13 @@ public class PlaygroundWorld extends WorldClient {
 
         //0, 0
         Terrain t = TerrainRegistry.BOX.getFactory().get();
-        t.setMaterial(MaterialRegistry.COBBLESTONE.material);
+        t.setMaterial(MaterialRegistry.COBBLESTONE.getMaterial());
         removeTerrain(new AABB().translate(0.5f, 0.5f, 0.5f));
         addTerrain(t);
 
         //menger sponge
-        TerrainGenerator.generateMengerSponge(this, 2, -23, 1, -23, MaterialRegistry.GOLD.material);
-        TerrainGenerator.generateMengerSponge(this, 1, -11, 1, -17, MaterialRegistry.CHROME.material);
+        TerrainGenerator.generateMengerSponge(this, 2, -23, 1, -23, MaterialRegistry.GOLD.getMaterial());
+        TerrainGenerator.generateMengerSponge(this, 1, -11, 1, -17, MaterialRegistry.CHROME.getMaterial());
 
         //conveyor belt
         float beltSpeed = 0.15f;
@@ -117,7 +117,7 @@ public class PlaygroundWorld extends WorldClient {
 
         //sphere
         Terrain t2 = TerrainRegistry.SPHERE.getFactory().get();
-        t2.setMaterial(MaterialRegistry.GOLD.material);
+        t2.setMaterial(MaterialRegistry.GOLD.getMaterial());
         t2.setPos(15, 1, -3);
         addTerrain(t2);
 
@@ -145,9 +145,9 @@ public class PlaygroundWorld extends WorldClient {
         addLight(new PointLight().pos(32.5f, 3.5f, 0.5f).color(0xFFFF44).volumetricStrength(0.5f));
 
         //rgb spotlights
-        TerrainGenerator.fill(this, 4, 1, 24, 9, 3, 24, MaterialRegistry.COBBLESTONE2.material);
+        TerrainGenerator.fill(this, 4, 1, 24, 9, 3, 24, MaterialRegistry.COBBLESTONE2.getMaterial());
 
-        TerrainGenerator.fill(this, -1, 1, 22, 14, 4, 22, MaterialRegistry.COBBLESTONE2.material);
+        TerrainGenerator.fill(this, -1, 1, 22, 14, 4, 22, MaterialRegistry.COBBLESTONE2.getMaterial());
         removeTerrain(new AABB(0, 1, 22, 13, 3, 22).translate(0.5f));
         TerrainGenerator.fill(this, 0, 1, 22, 13, 3, 22, Glass::new);
 
@@ -333,7 +333,7 @@ public class PlaygroundWorld extends WorldClient {
         }
 
         //sakura ground
-        TerrainGenerator.fill(this, 23, 0, -36, 26, 0, -33, MaterialRegistry.GRASS2.material);
+        TerrainGenerator.fill(this, 23, 0, -36, 26, 0, -33, MaterialRegistry.GRASS2.getMaterial());
 
         //lamps
         for (int i = 0; i < 5; i++) {

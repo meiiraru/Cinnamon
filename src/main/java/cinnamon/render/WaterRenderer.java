@@ -3,7 +3,7 @@ package cinnamon.render;
 import cinnamon.math.noise.FBMNoise;
 import cinnamon.math.noise.PerlinNoise2D;
 import cinnamon.model.StaticGeometry;
-import cinnamon.render.shader.CoreShaders;
+import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.NoiseTexture;
 import org.joml.Vector3f;
@@ -32,13 +32,13 @@ public class WaterRenderer {
 
     public static void initWaterRenderer(Camera camera, float time) {
         //setup shader
-        Shader s = CoreShaders.WATER.getShader().use();
+        Shader s = CoreShadersRegistry.WATER.getShader().use();
         s.setup(camera);
         s.setFloat("time", time * 0.0003f);
     }
 
     public static int bindRenderer() {
-        Shader s = CoreShaders.WATER.getShader().use();
+        Shader s = CoreShadersRegistry.WATER.getShader().use();
         s.setTexture("noiseTex", noiseTexture, 0);
 
         //return number of textures used

@@ -43,6 +43,8 @@ public abstract class Sky {
             renderSky = true,
             renderSun = false;
 
+    public void update() {}
+
     public void render(Camera camera, MatrixStack matrices) {
         //render sky
         if (renderSky)

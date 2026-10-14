@@ -5,7 +5,6 @@ import cinnamon.parsers.MaterialLoader;
 import cinnamon.utils.Resource;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static cinnamon.events.Events.LOGGER;
@@ -34,8 +33,8 @@ public class MaterialManager {
         return materialMap;
     }
 
-    public static List<Material> get(Resource resource) {
-        return List.copyOf(getOrLoad(resource).values());
+    public static Map<String, Material> get(Resource resource) {
+        return getOrLoad(resource);
     }
 
     public static Material get(Resource resource, String id) {

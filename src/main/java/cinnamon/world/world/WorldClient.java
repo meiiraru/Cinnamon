@@ -124,7 +124,7 @@ public class WorldClient extends World {
     protected void levelLoad() {
         //simple platform
         Terrain platform = new PrimitiveTerrain(GeometryHelper.box(null, -15, -1, -15, 15, 0, 15, 0xFFFFFFFF));
-        platform.setMaterial(MaterialRegistry.DEBUG.material);
+        platform.setMaterial(MaterialRegistry.DEBUG.getMaterial());
         addTerrain(platform);
     }
 
@@ -285,6 +285,8 @@ public class WorldClient extends World {
         float dayMinutes = getDayMinutes(delta);
         SkyColors.SkyProperties props = getSkyLights(camera, dayMinutes);
         applySkyLights(props);
+
+        sky.update();
     }
 
     protected SkyColors.SkyProperties getSkyLights(Camera camera, float dayMinutes) {

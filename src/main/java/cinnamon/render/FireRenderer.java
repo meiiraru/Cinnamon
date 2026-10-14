@@ -2,7 +2,7 @@ package cinnamon.render;
 
 import cinnamon.math.noise.FBMNoise;
 import cinnamon.math.noise.VoronoiNoise2D;
-import cinnamon.render.shader.CoreShaders;
+import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.NoiseTexture;
 
@@ -29,13 +29,13 @@ public class FireRenderer {
 
     public static void initFireRenderer(Camera camera, float time) {
         //setup shader
-        Shader s = CoreShaders.FIRE.getShader().use();
+        Shader s = CoreShadersRegistry.FIRE.getShader().use();
         s.setup(camera);
         s.setFloat("time", time * 0.03f);
     }
 
     public static int bindRenderer() {
-        Shader s = CoreShaders.FIRE.getShader().use();
+        Shader s = CoreShadersRegistry.FIRE.getShader().use();
         s.setTexture("noiseTex", noiseTexture, 0);
 
         //return number of textures used

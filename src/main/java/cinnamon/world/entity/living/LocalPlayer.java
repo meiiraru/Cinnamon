@@ -147,7 +147,7 @@ public class LocalPlayer extends Player {
             }
 
             Terrain tt = TerrainRegistry.values()[selectedTerrain].getFactory().get();
-            tt.setMaterial(MaterialRegistry.values()[selectedMaterial].material);
+            tt.setMaterial(MaterialRegistry.values()[selectedMaterial].getMaterial());
             tt.setRotation(0f, Direction.fromRotation(Maths.getYaw(getTransform().getRot())).yaw + 180, 0f);
             tt.setPos(tpos.x, tpos.y, tpos.z);
             getWorld().addTerrain(tt);

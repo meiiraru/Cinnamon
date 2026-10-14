@@ -30,7 +30,7 @@ public class MaterialPreviewWorld extends WorldClient {
         Vector3f position = new Vector3f();
 
         for (int i = 0; i < values.length; i++) {
-            Material mat = values[i].material;
+            Material mat = values[i].getMaterial();
             position.set(i % grid * 6f, 0f, (float) (i / grid * 3));
 
             Terrain sphere = TerrainRegistry.SPHERE.getFactory().get();

@@ -53,12 +53,12 @@ public class DiscoWorld extends WorldClient {
 
     @Override
     protected void levelLoad() {
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, -1, -10, 10, 0, 10, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.material));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 8, -10, 10, 9, 10, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.material));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 0, -10, 10, 8, -9, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.material));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 0, 9, 10, 8, 10, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.material));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 0, -9, -9, 8, 9, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.material));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, 9, 0, -9, 10, 8, 9, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.material));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, -1, -10, 10, 0, 10, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.getMaterial()));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 8, -10, 10, 9, 10, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.getMaterial()));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 0, -10, 10, 8, -9, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.getMaterial()));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 0, 9, 10, 8, 10, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.getMaterial()));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 0, -9, -9, 8, 9, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.getMaterial()));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, 9, 0, -9, 10, 8, 9, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.getMaterial()));
 
         Resource soundRes = new Resource("sounds/song.ogg");
         sound = Sound.of(soundRes);

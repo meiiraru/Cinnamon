@@ -1,9 +1,9 @@
 package cinnamon.render;
 
+import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
 import cinnamon.render.framebuffer.SSAOFramebuffer;
-import cinnamon.render.shader.CoreShaders;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
 
@@ -21,7 +21,7 @@ public class SSAORenderer {
         ssaoFramebuffer.useClear();
 
         //set textures
-        Shader s = CoreShaders.SSAO.getShader().use();
+        Shader s = CoreShadersRegistry.SSAO.getShader().use();
         s.setTexture("gNormal", gBuffer.getNormal(), 0);
         s.setTexture("gDepth", gBuffer.getDepthBuffer(), 1);
         s.setTexture("texKernel", SSAOFramebuffer.getKernelTexture(), 2);

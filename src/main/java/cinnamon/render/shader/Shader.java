@@ -169,8 +169,11 @@ public record Shader(int ID) {
         }
     }
 
-    public static void freeCache() {
+    public static void freeAll() {
         INCLUDE_CACHE.clear();
+        for (Shader shader : SHADER_MAP.values())
+            shader.free();
+        SHADER_MAP.clear();
     }
 
     public Shader use() {

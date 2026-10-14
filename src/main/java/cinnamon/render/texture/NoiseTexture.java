@@ -23,10 +23,14 @@ import static org.lwjgl.opengl.GL33.GL_TEXTURE_SWIZZLE_RGBA;
 public class NoiseTexture extends Texture {
 
     public NoiseTexture(Noise noise) {
-        super(genNoiseTexture(noise), noise.getWidth(), noise.getHeight());
+        this(noise, true);
     }
 
-    protected static int genNoiseTexture(Noise noise) {
+    public NoiseTexture(Noise noise, boolean mipmap) {
+        super(genNoiseTexture(noise, mipmap), noise.getWidth(), noise.getHeight());
+    }
+
+    protected static int genNoiseTexture(Noise noise, boolean mipmap) {
         int id = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, id);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, noise.getWidth(), noise.getHeight(), 0, GL_RED, GL_UNSIGNED_BYTE, noise.getBuffer());
@@ -34,9 +38,10 @@ public class NoiseTexture extends Texture {
         //enable mipmapping and wrapping
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        if (mipmap)
+            glGenerateMipmap(GL_TEXTURE_2D);
 
         //swizzle red channel to all rgb channels
         int[] swizzleMask = {GL_RED, GL_RED, GL_RED, GL_ALPHA};
