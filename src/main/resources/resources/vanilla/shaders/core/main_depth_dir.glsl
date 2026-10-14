@@ -49,7 +49,26 @@ uniform sampler2D textures[16];
 
 void main() {
     if (g_texID >= 0) {
-        vec4 tex = texture(textures[g_texID], g_texCoords);
+        vec4 tex = vec4(0.0f);
+        switch(int(g_texID)) {
+            case  0: tex = texture(textures[0],  g_texCoords); break;
+            case  1: tex = texture(textures[1],  g_texCoords); break;
+            case  2: tex = texture(textures[2],  g_texCoords); break;
+            case  3: tex = texture(textures[3],  g_texCoords); break;
+            case  4: tex = texture(textures[4],  g_texCoords); break;
+            case  5: tex = texture(textures[5],  g_texCoords); break;
+            case  6: tex = texture(textures[6],  g_texCoords); break;
+            case  7: tex = texture(textures[7],  g_texCoords); break;
+            case  8: tex = texture(textures[8],  g_texCoords); break;
+            case  9: tex = texture(textures[9],  g_texCoords); break;
+            case 10: tex = texture(textures[10], g_texCoords); break;
+            case 11: tex = texture(textures[11], g_texCoords); break;
+            case 12: tex = texture(textures[12], g_texCoords); break;
+            case 13: tex = texture(textures[13], g_texCoords); break;
+            case 14: tex = texture(textures[14], g_texCoords); break;
+            case 15: tex = texture(textures[15], g_texCoords); break;
+        }
+
         if (tex.a < 0.01f)
             discard;
     }

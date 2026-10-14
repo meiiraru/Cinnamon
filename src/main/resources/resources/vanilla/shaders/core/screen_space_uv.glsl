@@ -49,7 +49,26 @@ void main() {
     vec4 col = color;
     
     if (texID >= 0) {
-        vec4 tex = textureProj(textures[texID], texProj);
+        vec4 tex = vec4(0.0f);
+        switch(int(texID)) {
+            case  0: tex = textureProj(textures[0],  texProj); break;
+            case  1: tex = textureProj(textures[1],  texProj); break;
+            case  2: tex = textureProj(textures[2],  texProj); break;
+            case  3: tex = textureProj(textures[3],  texProj); break;
+            case  4: tex = textureProj(textures[4],  texProj); break;
+            case  5: tex = textureProj(textures[5],  texProj); break;
+            case  6: tex = textureProj(textures[6],  texProj); break;
+            case  7: tex = textureProj(textures[7],  texProj); break;
+            case  8: tex = textureProj(textures[8],  texProj); break;
+            case  9: tex = textureProj(textures[9],  texProj); break;
+            case 10: tex = textureProj(textures[10], texProj); break;
+            case 11: tex = textureProj(textures[11], texProj); break;
+            case 12: tex = textureProj(textures[12], texProj); break;
+            case 13: tex = textureProj(textures[13], texProj); break;
+            case 14: tex = textureProj(textures[14], texProj); break;
+            case 15: tex = textureProj(textures[15], texProj); break;
+        }
+
         if (tex.a < 0.01f)
             discard;
 
