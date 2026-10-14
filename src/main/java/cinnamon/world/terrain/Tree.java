@@ -1,5 +1,6 @@
 package cinnamon.world.terrain;
 
+import cinnamon.math.Maths;
 import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.math.collision.shape.OBB;
@@ -62,6 +63,8 @@ public class Tree extends Terrain {
             pos.y = getAABB().minY() + getAABB().getHeight() * 0.75f;
             leaf.setPos(pos);
             leaf.setMotion((float) Math.random() * 0.2f - 0.1f, -0.1f, (float) Math.random() * 0.2f - 0.1f);
+            leaf.setScale(0.75f);
+            leaf.setRotSpeed(Maths.range(-7, 7));
             leaf.getCollisionMask().setExcludeMask(1, true);
             ((WorldClient) getWorld()).addParticle(leaf);
         }

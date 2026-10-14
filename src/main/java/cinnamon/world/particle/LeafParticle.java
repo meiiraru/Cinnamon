@@ -7,6 +7,9 @@ import org.joml.Math;
 
 public class LeafParticle extends SpriteParticle {
 
+    private int rotSpeed = 5;
+    protected int oRot, rot = 0;
+
     public LeafParticle(int lifetime, int color) {
         super(ParticlesRegistry.LEAF.texture, lifetime, color);
         this.setMotion(0.1f, -0.1f, 0.1f);
@@ -17,6 +20,10 @@ public class LeafParticle extends SpriteParticle {
         super.tick();
         if (collideTerrain())
             getMotion().zero();
+
+        oRot = rot;
+        if (getMotion().lengthSquared() > 0.0001f)
+            rot += rotSpeed;
     }
 
     @Override
@@ -29,11 +36,21 @@ public class LeafParticle extends SpriteParticle {
             setScale(Math.lerp(getScale(), 0, d));
         }
 
+        matrices.rotateZ(Math.lerp(oRot, rot, delta));
+
         super.renderParticle(camera, matrices, delta);
     }
 
     @Override
     public ParticlesRegistry getType() {
         return ParticlesRegistry.LEAF;
+    }
+
+    public void setRotSpeed(int rotSpeed) {
+        this.rotSpeed = rotSpeed;
+    }
+
+    public int getRotSpeed() {
+        return rotSpeed;
     }
 }

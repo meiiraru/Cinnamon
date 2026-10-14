@@ -9,7 +9,6 @@ import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;
 import cinnamon.render.shader.PostProcess;
 import cinnamon.render.shader.Shader;
-import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.Texture;
 import cinnamon.settings.Settings;
 import cinnamon.utils.Mask;
