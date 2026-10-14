@@ -18,7 +18,6 @@ import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
-import cinnamon.world.gui.Hud;
 import org.joml.Math;
 
 import java.nio.charset.StandardCharsets;
@@ -38,13 +37,14 @@ import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public class WordleScreen extends ParentedScreen {
 
-    private static final Resource
+    public static final Resource
+            SKIN = new Resource("data/gui_skins/minimal_dark.json"),
             ANSWER_WORDS_PATH = new Resource("data/wordle/wordle_answers.moon"),
-            GUESS_WORDS_PATH = new Resource("data/wordle/wordle_guesses.moon");
-    private static final int
+            GUESS_WORDS_PATH  = new Resource("data/wordle/wordle_guesses.moon");
+    public static final int
             TRIES = 6,
             WORD_LENGTH = 5;
-    private static final Colors[] COLORS = {
+    public static final Colors[] COLORS = {
             Colors.DARK_GRAY,   //0
             Colors.BLACK,       //1
             Colors.LIGHT_BLACK, //2
@@ -53,7 +53,7 @@ public class WordleScreen extends ParentedScreen {
             Colors.RED,         //5
             Colors.WHITE        //6
     };
-    private static final Path SAVE_FILE = IOUtils.ROOT_FOLDER.resolve("wordle.moon");
+    public static final Path SAVE_FILE = IOUtils.ROOT_FOLDER.resolve("wordle.moon");
 
 
     //word list
@@ -91,7 +91,7 @@ public class WordleScreen extends ParentedScreen {
             String[] lines = string.split("\n");
 
             for (int i = 0; i < lines.length; i++) {
-                String word = lines[i].trim().replaceAll(" ", "");
+                String word = lines[i].trim().replace(" ", "");
                 if (word.startsWith("#"))
                     continue;
 
@@ -172,7 +172,7 @@ public class WordleScreen extends ParentedScreen {
     @Override
     protected void addBackButton() {
         Button b = new Button(width - 60 - 4, height - 20 - 4, 60, 20, Text.translated("gui.back"), button -> close());
-        b.setSkin(Hud.SKIN);
+        b.setSkin(SKIN);
         this.addWidget(b);
     }
 
@@ -523,7 +523,7 @@ public class WordleScreen extends ParentedScreen {
 
                 triesBar[i] = new ProgressBar(0, 0, 40, 8, 0f);
                 triesBar[i].setColor(color);
-                triesBar[i].setSkin(Hud.SKIN);
+                triesBar[i].setSkin(SKIN);
                 bars.addWidget(triesBar[i]);
 
                 triesCount[i] = new Label(0, 0, Text.of(0));

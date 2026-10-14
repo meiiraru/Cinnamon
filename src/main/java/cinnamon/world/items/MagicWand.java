@@ -164,6 +164,6 @@ public class MagicWand extends Item {
     }
 
     public Object getCountText() {
-        return "";
+        return "\u2728";
     }
 }

@@ -74,6 +74,6 @@ public class BubbleGun extends Item {
     }
 
     public Object getCountText() {
-        return "";
+        return ".\u25CB\u00B0\u2022\u3002\u25CC";
     }
 }

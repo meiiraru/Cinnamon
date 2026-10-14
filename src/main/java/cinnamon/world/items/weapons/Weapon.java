@@ -136,6 +136,6 @@ public abstract class Weapon extends CooldownItem {
 
     @Override
     public Object getCountText() {
-        return ammo;
+        return ammo + "/" + maxAmmo;
     }
 }

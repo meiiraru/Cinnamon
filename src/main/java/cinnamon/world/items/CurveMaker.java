@@ -121,6 +121,6 @@ public class CurveMaker extends Item {
     }
 
     public Object getCountText() {
-        return "";
+        return "\u256C";
     }
 }

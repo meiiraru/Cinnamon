@@ -67,6 +67,6 @@ public class PaintGun extends CooldownItem {
     }
 
     public Object getCountText() {
-        return "";
+        return "\u221E";
     }
 }

@@ -4,6 +4,7 @@ import cinnamon.Client;
 import cinnamon.gui.DebugScreen;
 import cinnamon.gui.GUISkin;
 import cinnamon.gui.screens.world.ChatScreen;
+import cinnamon.gui.widgets.types.OverlayProgressBar;
 import cinnamon.gui.widgets.types.ProgressBar;
 import cinnamon.math.Maths;
 import cinnamon.messages.Message;
@@ -48,13 +49,19 @@ import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 public class Hud {
 
     public static final Resource
-            CROSSHAIR     = new Resource("textures/gui/hud/crosshair.png"),
-            HOTBAR        = new Resource("textures/gui/hud/hotbar.png"),
+            SKIN          = new Resource("data/gui_skins/hud.json"),
             VIGNETTE      = new Resource("textures/gui/hud/vignette.png"),
+            CROSSHAIR     = new Resource("textures/gui/hud/crosshair.png"),
             HIT_DIRECTION = new Resource("textures/gui/hud/hit_direction.png"),
-            SKIN          = new Resource("data/gui_skins/minimal_dark.json");
+            BACKGROUND    = new Resource("textures/gui/hud/panel.png"),
+            HEALTH_HEART  = new Resource("textures/gui/hud/heart_bar.png"),
+            HEALTH_SEG    = new Resource("textures/gui/hud/health_segment.png"),
+            HOTBAR_BG     = new Resource("textures/gui/hud/hotbar_panel.png"),
+            HOTBAR        = new Resource("textures/gui/hud/hotbar.png");
 
-    protected ProgressBar health, itemCooldown;
+    protected ProgressBar health;
+    protected ProgressBar[] healthSegs = new OverlayProgressBar[10];
+    protected ProgressBar itemCooldown;
 
     protected Terrain terrain;
 
@@ -65,9 +72,17 @@ public class Hud {
     protected final List<Marker> markers = new ArrayList<>();
 
     public void init() {
-        health = new ProgressBar(0, 0, 60, 8, 1f);
-        health.setColor(Colors.RED);
+        health = new OverlayProgressBar(0, 0, 8, 8, 1f);
         health.setSkin(SKIN);
+        ((OverlayProgressBar) health).setIcon(HEALTH_HEART);
+        ((OverlayProgressBar) health).setVertical(true);
+        ((OverlayProgressBar) health).setInverted(true);
+
+        for (int i = 0; i < healthSegs.length; i++) {
+            healthSegs[i] = new OverlayProgressBar(0, 0, 8, 8, 1f);
+            healthSegs[i].setSkin(SKIN);
+            ((OverlayProgressBar) healthSegs[i]).setIcon(HEALTH_SEG);
+        }
 
         itemCooldown = new ProgressBar(0, 0, 60, 8, 0f);
         itemCooldown.setColor(Colors.WHITE);
@@ -95,15 +110,15 @@ public class Hud {
     public void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
 
-        //draw chat first
-        drawRecentChat(matrices, c, delta);
-
         //draw player stats
         if (c.world != null && c.world.playerEntity instanceof LivingEntity entity)
             drawEntityStats(matrices, entity, delta);
 
         //draw marker
         drawMarkers(matrices, delta);
+
+        //draw chat last
+        drawRecentChat(matrices, c, delta);
 
         //draw fade
         if (!XrManager.isInXR() && fadeTicks > 0)
@@ -124,6 +139,10 @@ public class Hud {
         //draw vignette
         drawVignette(matrices, entity, delta);
 
+        //selected terrain
+        if (entity instanceof LocalPlayer player)
+            drawSelectedTerrain(matrices, player, delta);
+
         //hotbar
         drawHotbar(matrices, entity, delta);
 
@@ -139,10 +158,6 @@ public class Hud {
 
         //effects
         drawEffects(matrices, entity, delta);
-
-        //selected terrain
-        if (entity instanceof LocalPlayer player)
-            drawSelectedTerrain(matrices, player, delta);
     }
 
     protected void drawVignette(MatrixStack matrices, LivingEntity entity, float delta) {
@@ -170,29 +185,60 @@ public class Hud {
     }
 
     protected void drawHealth(MatrixStack matrices, LivingEntity entity, float delta) {
-        Window window = Client.getInstance().window;
+        if (entity instanceof Player player && player.getAbilities().get(Abilities.Ability.GOD_MODE))
+            return;
 
-        //health text
-        Text text = Text.of(entity.getHealth() + " ").withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN))
-                .append(Text.of("\u2764").withStyle(Style.EMPTY.color(Colors.RED)));
+        Window window = Client.getInstance().window;
+        Text text = Text.of(entity.getHealth()).withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN));
+        float hp = entity.getHealthProgress();
+        int segWidth = healthSegs[0].getWidth();
+        int segHeight = healthSegs[0].getHeight();
+        int segCount = healthSegs.length;
 
         //transform matrices
         matrices.pushMatrix();
-        matrices.translate(12, window.getGUIHeight() - 12, 0f);
+        matrices.translate(12, window.getGUIHeight() - 12 - segHeight, 0f);
+
+        //text background
+        UIHelper.nineQuad(
+                VertexConsumer.MAIN, matrices, BACKGROUND,
+                -4f, -4f - segHeight - 6f,
+                TextUtils.getWidth(text) + health.getWidth() + 10f, TextUtils.getHeight(text) + 8f,
+                0f, 0f,
+                16, 16,
+                16, 16
+        );
+
+        //background
+        UIHelper.nineQuad(
+                VertexConsumer.MAIN, matrices, BACKGROUND,
+                -4, health.getHeight() - segHeight - 4f,
+                (segCount * (segWidth + 1f) - 1f) + 8f, segHeight + 8f,
+                0f, 0f,
+                16, 16,
+                16, 16
+        );
+
+        //health segments
         matrices.pushMatrix();
-
-        matrices.rotateY(20f);
-        matrices.rotateZ(-10f);
-
-        //draw text
-        text.render(VertexConsumer.MAIN, matrices, 0f, 0f, Alignment.BOTTOM_LEFT);
+        for (int i = 0; i < segCount; i++) {
+            ProgressBar seg = healthSegs[i];
+            seg.setProgress(Math.min(Math.max(hp * segCount - i, 0f), 1f));
+            seg.render(matrices, 0, 0, delta);
+            matrices.translate(seg.getWidth() + 1, 0, 0);
+        }
+        matrices.popMatrix();
 
         //health progress bar
-        float hp = entity.getHealthProgress();
+        matrices.pushMatrix();
+        matrices.translate(0, -segHeight - health.getHeight() + 2f, 0f);
         health.setProgress(hp);
         health.render(matrices, 0, 0, delta);
-
         matrices.popMatrix();
+
+        //draw text
+        text.render(VertexConsumer.MAIN, matrices, health.getWidth() + 2f, -segHeight + 2f, Alignment.BOTTOM_LEFT);
+
         matrices.popMatrix();
     }
 
@@ -204,61 +250,88 @@ public class Hud {
         boolean onCooldown = item instanceof CooldownItem ci && ci.isOnCooldown();
 
         //item name
-        Text text = Text.translated(item.getId()).withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN)).append("\n");
+        Text text = Text.translated(item.getId()).withStyle(Style.EMPTY.shadow(true).guiSkin(SKIN)).append("\n");
 
         //item count
         if (!onCooldown)
-            text.append(Text.empty().append(item.getCountText()).withStyle(Style.EMPTY.color(Colors.RED)));
+            text.append(Text.empty().append(item.getCountText()).withStyle(Style.EMPTY.color(text.getStyle().getGuiSkin().getInt("accent_color"))));
+
+        int textWidth = TextUtils.getWidth(text);
+        int textHeight = TextUtils.getHeight(text);
+        itemCooldown.setWidth(textWidth);
 
         //transform matrices
         matrices.pushMatrix();
-        matrices.translate(window.getGUIWidth() - 12, window.getGUIHeight() - 12, 0f);
-        matrices.pushMatrix();
-        matrices.rotateY(-20f);
-        matrices.rotateZ(10f);
+        matrices.translate(window.getGUIWidth() - 12, window.getGUIHeight() - 12 - textHeight, 0f);
 
-        //draw text
-        text.render(VertexConsumer.MAIN, matrices, 0f, 0f, Alignment.CENTER_RIGHT);
+        //render background
+        UIHelper.nineQuad(
+                VertexConsumer.MAIN, matrices, BACKGROUND,
+                -textWidth - 4f, -4f,
+                textWidth + 8f, textHeight + 8f,
+                0f, 0f,
+                16, 16,
+                16, 16
+        );
 
         //draw progressbar
         if (onCooldown) {
+            matrices.pushMatrix();
+            matrices.translate(-textWidth, textHeight / 2f, 0f);
             itemCooldown.setProgressWithoutLerp(((CooldownItem) item).getCooldownProgress());
-            itemCooldown.setPos(-itemCooldown.getWidth(), 0);
             itemCooldown.render(matrices, 0, 0, delta);
+            matrices.popMatrix();
         }
 
-        matrices.popMatrix();
+        //draw text
+        text.render(VertexConsumer.MAIN, matrices, 0f, 0f, Alignment.TOP_RIGHT);
+
         matrices.popMatrix();
     }
 
     protected void drawEffects(MatrixStack matrices, LivingEntity entity, float delta) {
+        if (entity.getActiveEffects().isEmpty())
+            return;
+
         //transform matrices
         matrices.pushMatrix();
         matrices.translate(Client.getInstance().window.getGUIWidth() - 12, 12, 0f);
 
-        Text text = Text.empty().withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN));
 
         for (Effect effect : entity.getActiveEffects()) {
             //name
-            text.append(Text.translated("effect." + effect.getType().name().toLowerCase()));
+            Text text = Text.translated("effect." + effect.getType().name().toLowerCase()).withStyle(Style.EMPTY.shadow(true).guiSkin(SKIN));
 
             //amplitude
             int amplitude = effect.getAmplitude();
             if (amplitude != 1)
-                text.append(" " + amplitude);
+                text.append(" ").append(Text.translated("effect.amplitude", amplitude));
 
             //divider
-            text.append(" - ");
+            text.append(": ");
 
             //remaining time
-            text.append(Text.of((effect.getRemainingTime()) / 20).withStyle(Style.EMPTY.color(Colors.RED)));
+            text.append(Text.of((effect.getRemainingTime()) / 20).withStyle(Style.EMPTY.color(text.getStyle().getGuiSkin().getInt("accent_color"))));
 
-            text.append("\n");
-        }
+            //render
+            int width = TextUtils.getWidth(text);
+            int height = TextUtils.getHeight(text);
 
-        //render
-        if (!text.asString().equals("\n"))
+            //background
+            UIHelper.nineQuad(
+                    VertexConsumer.MAIN, matrices, BACKGROUND,
+                    -width - 4f, -4f,
+                    width + 8f, height + 8f,
+                    0f, 0f,
+                    16, 16,
+                    16, 16
+            );
+
+            //text
             text.render(VertexConsumer.MAIN, matrices, 0f, 0f, Alignment.TOP_RIGHT);
+
+            matrices.translate(0f, height + 8f - 2f, 0f);
+        }
 
         matrices.popMatrix();
     }
@@ -274,7 +347,17 @@ public class Hud {
         int selected = inventory.getSelectedIndex();
 
         float x = (window.getGUIWidth() - 16 * count) / 2f;
-        float y = window.getGUIHeight() - 16 - 4f;
+        float y = window.getGUIHeight() - 16 - 8f;
+
+        //render background
+        UIHelper.nineQuad(
+                VertexConsumer.MAIN, matrices, HOTBAR_BG,
+                x - 4f, y - 2f,
+                16 * count + 8f, 16 + 4f,
+                0f, 0f,
+                16, 16,
+                16, 16
+        );
 
         //render items
         for (int i = 0; i < count; i++, x += 16) {
@@ -361,19 +444,51 @@ public class Hud {
         MaterialRegistry material = MaterialRegistry.values()[m];
         terrain.setMaterial(material.getMaterial());
 
+        Text mat = Text.translated("material." + material.name().toLowerCase());
+        Text ter = Text.translated("terrain." + registry.name().toLowerCase());
+        mat.append(" ").append(ter).withStyle(Style.EMPTY.shadow(true).guiSkin(SKIN));
+
         Vector3f bounds = terrain.getAABB().getDimensions();
         Vector3f center = terrain.getAABB().getCenter();
         float maxDim = Math.max(bounds.x, Math.max(bounds.y, bounds.z));
-        float s = 16f / maxDim;
+
+        float modelSize = 8f;
+        float s = modelSize / maxDim;
+
+        float textWidth = TextUtils.getWidth(mat);
+        float textHeight = TextUtils.getHeight(mat);
+        float spacing = 4f;
+        float paddingX = 6f;
+        float paddingY = 4f;
+
+        float contentWidth = modelSize + spacing + textWidth;
+        float contentHeight = Math.max(modelSize, textHeight);
 
         matrices.pushMatrix();
         Window ww = c.window;
 
-        //translate to the top center of the screen
-        matrices.translate(ww.getGUIWidth() * 0.5f, 4 + maxDim * s * 0.5f, 0);
+        //translate matrices
+        matrices.translate(ww.getGUIWidth() * 0.5f, ww.getGUIHeight() - 32f, -modelSize);
+
+        //render background
+        UIHelper.nineQuad(
+                VertexConsumer.MAIN, matrices, BACKGROUND,
+                Math.round(-contentWidth / 2f - paddingX), Math.round(-contentHeight / 2f - paddingY),
+                Math.round(contentWidth + paddingX * 2f), Math.round(contentHeight + paddingY * 2f),
+                0f, 0f,
+                16, 16,
+                16, 16
+        );
+        matrices.translate(0f, 0f, modelSize);
+
+        //render model
+        matrices.pushMatrix();
+
+        //center model locally
+        matrices.translate(-contentWidth / 2f + modelSize / 2f, 0f, 0f);
         matrices.scale(s, -s, s);
 
-        //apply rotation for a better view angle of the model
+        //apply rotation animation
         matrices.rotateX(20);
         matrices.rotateY(-c.ticks - delta);
 
@@ -381,13 +496,15 @@ public class Hud {
         matrices.translate(-center.x, -center.y, -center.z);
 
         //render terrain
+        CoreShadersRegistry.MODEL.getShader().use().setup(c.camera);
         terrain.render(c.camera, matrices, delta);
         matrices.popMatrix();
 
         //render name
-        Text mat = Text.translated("material." + material.name().toLowerCase());
-        Text ter = Text.translated("terrain." + registry.name().toLowerCase());
-        mat.append(" ").append(ter).withStyle(Style.EMPTY.shadow(true).guiSkin(SKIN)).render(VertexConsumer.MAIN, matrices, ww.getGUIWidth() * 0.5f, 16 + 4 + 4, Alignment.TOP_CENTER);
+        float textCenterX = -contentWidth / 2f + modelSize + spacing + textWidth / 2f;
+        mat.render(VertexConsumer.MAIN, matrices, textCenterX, 0, Alignment.CENTER);
+
+        matrices.popMatrix();
     }
 
     protected void drawFade(MatrixStack matrices, Client client, float delta) {

@@ -1,6 +1,7 @@
 package cinnamon.world.world.custom;
 
 import cinnamon.Client;
+import cinnamon.gui.widgets.types.ProgressBar;
 import cinnamon.math.Maths;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.MaterialRegistry;
@@ -13,6 +14,7 @@ import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.Colors;
+import cinnamon.utils.Resource;
 import cinnamon.world.Abilities;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.living.Player;
@@ -25,8 +27,6 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static cinnamon.world.gui.Hud.SKIN;
 
 public class PrimitiveTestWorld extends WorldClient {
 
@@ -203,7 +203,7 @@ public class PrimitiveTestWorld extends WorldClient {
             camera.billboard(matrices);
 
             Text.of(labels.get(i))
-                    .withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN))
+                    .withStyle(Style.EMPTY.outlined(true))
                     .render(VertexConsumer.WORLD_MAIN_EMISSIVE, matrices, 0, 0, Alignment.CENTER, 48);
 
             matrices.popMatrix();
@@ -240,7 +240,9 @@ public class PrimitiveTestWorld extends WorldClient {
         @Override
         public void init() {
             super.init();
-            health.setWidth(200);
+            health = new ProgressBar(0, 0, 200, 8, 1f);
+            health.setSkin(new Resource("data/gui_skins/minimal_dark.json"));
+            health.setColor(Colors.RED);
         }
 
         @Override
@@ -260,7 +262,7 @@ public class PrimitiveTestWorld extends WorldClient {
             Window w = Client.getInstance().window;
             matrices.translate(w.getGUIWidth() / 2f - 100, w.getGUIHeight() - 10f, 0);
 
-            Text.empty().withStyle(Style.EMPTY.outlined(true).guiSkin(SKIN))
+            Text.empty().withStyle(Style.EMPTY.outlined(true))
                     .append(Text.of("\u2764").withStyle(Style.EMPTY.color(Colors.RED)))
                     .append(" ")
                     .append(entity.getHealth())

@@ -442,6 +442,7 @@
   "misc_entity.inverted_sphere": "Esfera Invertida",
   "misc_entity.xr_hand": "Mão XR",
 
+  "effect.amplitude": "%s",
   "effect.pacifist": "Pacifista",
   "effect.always_crit": "Sempre Crítico",
   "effect.never_crit": "Sem Crítico",

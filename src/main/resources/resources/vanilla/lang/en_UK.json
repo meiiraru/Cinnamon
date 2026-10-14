@@ -456,6 +456,7 @@
   "misc_entity.inverted_sphere": "Inverted Sphere",
   "misc_entity.xr_hand": "XR Hand",
 
+  "effect.amplitude": "%s",
   "effect.pacifist": "Pacifist",
   "effect.always_crit": "Always Crit",
   "effect.never_crit": "Never Crit",
