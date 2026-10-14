@@ -578,6 +578,14 @@ public abstract class LivingEntity extends PhysEntity {
         return activeEffects.values();
     }
 
+    public void removeEffect(Effect.Type type) {
+        activeEffects.remove(type);
+    }
+
+    public void removeAllEffects() {
+        activeEffects.clear();
+    }
+
     @Override
     protected void checkWorldVoid() {
         if (getWorld() != null && transform.getPos().y < getWorld().bottomOfTheWorld)
