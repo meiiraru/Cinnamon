@@ -45,6 +45,7 @@ import cinnamon.world.entity.misc.Spawner;
 import cinnamon.world.entity.misc.TriggerArea;
 import cinnamon.world.entity.projectile.Brick;
 import cinnamon.world.entity.vehicle.Cart;
+import cinnamon.world.entity.vehicle.FlyingSaucer;
 import cinnamon.world.entity.vehicle.ShoppingCart;
 import cinnamon.world.gui.Action;
 import cinnamon.world.gui.ActionWheel;
@@ -357,6 +358,11 @@ public class PlaygroundWorld extends WorldClient {
         Terrain terminal = new Terminal();
         terminal.setPos(-19, 1, -24);
         addTerrain(terminal);
+
+        //flying saucer
+        FlyingSaucer saucer = new FlyingSaucer(UUID.randomUUID());
+        saucer.setPos(12.5f, 2, 10);
+        addEntity(saucer);
     }
 
     @Override

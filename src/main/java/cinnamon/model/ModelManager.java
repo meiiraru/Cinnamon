@@ -24,6 +24,11 @@ public final class ModelManager {
     private static final Map<Resource, Mesh> MESHES = new HashMap<>();
 
     /**
+     * A default mesh to use when a model cannot be loaded
+     */
+    public static final Mesh MISSING_MODEL = genMissing();
+
+    /**
      * Gets a {@link ModelRenderer} for the given resource, loading and caching it if necessary
      * @param resource The {@link Resource} of the model to get
      * @return The {@link ModelRenderer} for the given resource, or {@code null} if it could not be loaded
@@ -139,8 +144,13 @@ public final class ModelManager {
             }
         } catch (Exception e) {
             LOGGER.error("Failed to load model \"%s\"", resource, e);
-            return null;
+            return MISSING_MODEL;
         }
+    }
+
+    private static Mesh genMissing() {
+        Vertex[][] vertices = GeometryHelper.pyramid(null, -0.5f, 0f, -0.5f, 0.5f, 1f, 0.5f, 0xFFFF72AD);
+        return VerticesToMesh.fromVertices(vertices);
     }
 
     /**

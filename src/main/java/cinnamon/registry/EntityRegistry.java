@@ -23,6 +23,7 @@ public enum EntityRegistry {
     //vehicles
     CART,
     SHOPPING_CART,
+    FLYING_SAUCER,
 
     //other
     SPAWNER,

@@ -1,0 +1,10 @@
+# Made in Blockbench 5.2.2
+newmtl m_d1a8d08b-fb1e-e7af-9330-4712e3e3edec
+map_Kd -smooth_mip texture.png
+map_Ke -mip texture_e.png
+newmtl m_35fa5301-91f3-6667-89d9-eaadd66f349b
+map_Kd -smooth_mip controls.png
+map_Ke -mip controls_e.png
+newmtl glass
+map_Kd -smooth_mip glass.png
+newmtl none
