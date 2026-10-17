@@ -18,8 +18,10 @@ public class LeafParticle extends SpriteParticle {
     @Override
     public void tick() {
         super.tick();
-        if (collideTerrain())
+        if (getMotion().lengthSquared() > 0.001f && collideTerrain()) {
             getMotion().zero();
+            setCastShadows(false);
+        }
 
         oRot = rot;
         if (getMotion().lengthSquared() > 0.0001f)

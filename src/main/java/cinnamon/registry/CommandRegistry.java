@@ -35,6 +35,7 @@ public class CommandRegistry {
         register("interact", new Interact());
         register("sit", new Sit(), "seat");
         register("effect", new Effect());
+        register("impulse", new Impulse(), "push", "knockback");
     }
 
     /**

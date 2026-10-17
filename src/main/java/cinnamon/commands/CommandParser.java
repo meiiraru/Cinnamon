@@ -134,6 +134,24 @@ public class CommandParser {
         }
     }
 
+    static Vector3f parseDirection(Stack<String> args) {
+        if (args.size() < 3)
+            return null;
+
+        Vector3f result = new Vector3f();
+
+        try {
+            for (int i = 0; i < 3; i++) {
+                result.setComponent(i, Float.parseFloat(args.peek()));
+                args.pop();
+            }
+
+            return result.normalize();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
     static Integer parseMaterial(String arg) {
         if (arg.equalsIgnoreCase("air"))
             return -1;
