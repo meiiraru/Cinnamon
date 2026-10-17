@@ -16,11 +16,14 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.*;
+import org.lwjgl.system.NativeResource;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static cinnamon.events.Events.LOGGER;
 import static org.lwjgl.assimp.Assimp.*;
@@ -113,52 +116,94 @@ public class AssimpLoader {
     }
 
     private static AIScene getSceneFor(Resource res) {
-        if (res.getNamespace().isEmpty())
-            return aiImportFileEx(res.getPath(), DEFAULT_FLAGS, null);
+        //cache files to avoid reading the same file multiple times
+        List<NativeResource> memoryRefs = new ArrayList<>();
+        Map<String, ByteBuffer> fileCache = new HashMap<>();
 
-        AIFileIO fileIO = AIFileIO.create()
-                .OpenProc((pFileIO, fileName, openMode) -> {
-                    ByteBuffer data;
-                    String file = memUTF8(fileName);
-                    try {
-                        Resource resource = new Resource(res.getNamespace(), file);
-                        LOGGER.debug("Opening file \"%s\"", resource);
-                        data = IOUtils.getResourceBuffer(resource);
-                    } catch (Exception e) {
-                        throw new RuntimeException("Could not open file: " + file);
-                    }
+        //create custom file callback to read files from the resource system instead of the filesystem
+        AIFileOpenProc openCallback = AIFileOpenProc.create((pFileIO, fileName, openMode) -> {
+            //open the file from the resource system and cache it in memory
+            String file = memUTF8(fileName);
+            ByteBuffer data = fileCache.computeIfAbsent(file, k -> {
+                try {
+                    Resource resource = new Resource(res.getNamespace(), k);
+                    LOGGER.debug("Opening file \"%s\"", resource);
+                    return IOUtils.getResourceBuffer(resource);
+                } catch (Exception e) {
+                    throw new RuntimeException("Could not open file: " + k);
+                }
+            });
 
-                    return AIFile.create()
-                            .ReadProc((pFile, pBuffer, size, count) -> {
-                                long bytesToRead = size * count;
-                                if (data.position() + bytesToRead > data.limit())
-                                    bytesToRead = data.limit() - data.position();
+            //use a duplicate to ensure that the original buffer position is not modified by assimp parallel reads
+            ByteBuffer instanceData = data.duplicate();
 
-                                memCopy(memAddress(data), pBuffer + data.position(), bytesToRead);
-                                data.position((int) (data.position() + bytesToRead));
-                                return bytesToRead / size;
-                            })
-                            .SeekProc((pFile, offset, origin) -> {
-                                switch (origin) {
-                                    case aiOrigin_SET -> data.position((int) offset);
-                                    case aiOrigin_CUR -> data.position((int) (data.position() + offset));
-                                    case aiOrigin_END -> data.position((int) (data.limit() + offset));
-                                }
-                                return data.position() > data.limit() ? aiReturn_FAILURE : aiReturn_SUCCESS;
-                            })
-                            .FileSizeProc(pFile -> data.limit())
-                            .address();
-                })
-                .CloseProc((pFileIO, pFile) -> {
-                    AIFile aiFile = AIFile.create(pFile);
-                    aiFile.ReadProc().free();
-                    aiFile.SeekProc().free();
-                    aiFile.FileSizeProc().free();
-                });
+            //file read callback - reads data from the file buffer into the assimp buffer
+            AIFileReadProc readProc = AIFileReadProc.create((pFile, pBuffer, size, count) -> {
+                //calculate the number of bytes to read, ensuring we do not exceed the buffer limit
+                long bytesToRead = size * count;
+                if (instanceData.position() + bytesToRead > instanceData.limit())
+                    bytesToRead = instanceData.limit() - instanceData.position();
 
-        AIScene scene = aiImportFileEx(res.getPath(), DEFAULT_FLAGS, fileIO);
-        fileIO.OpenProc().free();
-        fileIO.CloseProc().free();
+                //copy the data from the instance buffer to the provided buffer
+                memCopy(memAddress(instanceData), pBuffer, bytesToRead);
+                instanceData.position((int) (instanceData.position() + bytesToRead));
+                return bytesToRead / size;
+            });
+
+            //file seek callback - skips to a specific position in the file buffer
+            AIFileSeek seekProc = AIFileSeek.create((pFile, offset, origin) -> {
+                switch (origin) {
+                    case aiOrigin_SET -> instanceData.position((int) offset);
+                    case aiOrigin_CUR -> instanceData.position((int) (instanceData.position() + offset));
+                    case aiOrigin_END -> instanceData.position((int) (instanceData.limit() + offset));
+                }
+                return instanceData.position() > instanceData.limit() ? aiReturn_FAILURE : aiReturn_SUCCESS;
+            });
+
+            //file size callback - gets the total size of the file buffer
+            AIFileTellProc fileSizeProc = AIFileTellProc.create(pFile -> instanceData.limit());
+
+            //file tell callback - gets the current position in the file buffer
+            AIFileTellProc tellProc = AIFileTellProc.create(pFile -> instanceData.position());
+
+            //create the AIFile with the custom callbacks
+            AIFile aiFile = AIFile.calloc()
+                    .ReadProc(readProc)
+                    .SeekProc(seekProc)
+                    .FileSizeProc(fileSizeProc)
+                    .TellProc(tellProc);
+
+            //store the references to the callbacks and AIFile to ensure they are not garbage collected while in use
+            memoryRefs.add(readProc);
+            memoryRefs.add(seekProc);
+            memoryRefs.add(fileSizeProc);
+            memoryRefs.add(tellProc);
+            memoryRefs.add(aiFile);
+
+            return aiFile.address();
+        });
+
+        //close can be ignored as we are closing the files manually later
+        AIFileCloseProc closeCallback = AIFileCloseProc.create((pFileIO, pFile) -> {});
+
+        //create the AIFileIO with the custom open and close callbacks
+        AIFileIO fileIO = AIFileIO.calloc()
+                .OpenProc(openCallback)
+                .CloseProc(closeCallback);
+
+        //read the scene using the custom file IO
+        AIScene scene;
+        try {
+            scene = aiImportFileEx(res.getPath(), DEFAULT_FLAGS, fileIO);
+        } finally {
+            //free the allocated memory for the file IO and callbacks
+            fileIO.free();
+            openCallback.free();
+            closeCallback.free();
+
+            for (NativeResource ref : memoryRefs)
+                ref.free();
+        }
 
         return scene;
     }
