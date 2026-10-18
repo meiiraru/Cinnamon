@@ -106,6 +106,44 @@ public final class GeometryHelper {
     }
 
     /**
+     * Generates a 2D sprite mesh from a whole sprite sheet<br>
+     * The sprite is set to be centered at the origin
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param width The width of the sprite mesh
+     * @param height The height of the sprite mesh
+     * @return An array of {@link Vertex} representing the sprite mesh
+     * @see #sprite(MatrixStack, float, float, int, int, int, int)
+     */
+    public static Vertex[] sprite(MatrixStack matrices, float width, float height) {
+        return sprite(matrices, width, height, 0, 0, 1, 1);
+    }
+
+    /**
+     * Generates a 2D sprite mesh of a single frame of a sprite sheet<br>
+     * The sprite is set to be centered at the origin
+     * @param matrices The matrix stack to apply transformations to the vertices
+     * @param width The width of the sprite mesh
+     * @param height The height of the sprite mesh
+     * @param frameX The horizontal frame index of the sprite texture
+     * @param frameY The vertical frame index of the sprite texture
+     * @param hFrames The number of horizontal frames in the sprite texture
+     * @param vFrames The number of vertical frames in the sprite texture
+     * @return An array of {@link Vertex} representing the sprite mesh
+     * @see #sprite(MatrixStack, float, float)
+     */
+    public static Vertex[] sprite(MatrixStack matrices, float width, float height, int frameX, int frameY, int hFrames, int vFrames) {
+        float x0 = -width * 0.5f;
+        float y0 = -height * 0.5f;
+
+        float u0 = (float) frameX / hFrames;
+        float v0 = (frameY + 1f)  / vFrames;
+        float u1 = (frameX + 1f)  / hFrames;
+        float v1 = (float) frameY / vFrames;
+
+        return quad(matrices, x0, y0, width, height, 0f, u0, u1, v0, v1);
+    }
+
+    /**
      * Generates a 2D circle mesh
      * @param matrices The matrix stack to apply transformations to the vertices
      * @param x The x position of the circle
