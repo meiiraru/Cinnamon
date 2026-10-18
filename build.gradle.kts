@@ -8,6 +8,8 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(25))
     }
+    withSourcesJar()
+    withJavadocJar()
 }
 
 group = "com.github.meiiraru"
@@ -18,6 +20,7 @@ val mainClass = "cinnamon.Cinnamon"
 val lwjglVersion = "3.4.3"
 val jomlVersion = "1.10.9"
 val gsonVersion = "2.14.0"
+val junitVersion = "6.1.3"
 
 val lwjglModules = arrayOf(
     "lwjgl",
@@ -86,6 +89,39 @@ dependencies {
     //extra libraries
     api("org.joml:joml:$jomlVersion")
     api("com.google.code.gson:gson:$gsonVersion")
+
+    //testing
+    testImplementation(platform("org.junit:junit-bom:$junitVersion"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            groupId = project.group as String
+            artifactId = project.name
+            version = project.version as String
+        }
+    }
+}
+
+tasks.jar {
+    archiveClassifier.set("")
+    manifest.attributes["Main-Class"] = mainClass
+    from("LICENSE.md")
+}
+
+tasks.processResources {
+    dependsOn("updateVersionFile")
+}
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
 }
 
 tasks.withType<JavaExec> {
@@ -96,17 +132,8 @@ tasks.withType<JavaExec> {
     )
 }
 
-tasks.register<Jar>("sourcesJar") {
-    description = "Generates a JAR containing the sources of this project"
-    archiveClassifier.set("sources")
-    from(sourceSets.main.get().allSource)
+tasks.named<Jar>("sourcesJar") {
     dependsOn("updateVersionFile")
-}
-
-tasks.register<Jar>("javadocJar") {
-    description = "Generates a JAR containing the javadocs of this project"
-    archiveClassifier.set("javadoc")
-    from(tasks.javadoc)
 }
 
 tasks.register<Jar>("fatJar") {
@@ -120,26 +147,6 @@ tasks.register<Jar>("fatJar") {
     from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
 }
 
-tasks.jar {
-    archiveClassifier.set("")
-    manifest.attributes["Main-Class"] = mainClass
-    from("LICENSE.md")
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-            groupId = project.group as String
-            artifactId = project.name
-            version = project.version as String
-
-            artifact(tasks["sourcesJar"])
-            artifact(tasks["javadocJar"])
-        }
-    }
-}
-
 tasks.register<DefaultTask>("updateVersionFile") {
     description = "Updates the version file with the current project version"
     val projectVersion = project.provider { project.version.toString() }
@@ -149,10 +156,6 @@ tasks.register<DefaultTask>("updateVersionFile") {
     doLast {
         versionFile.writeText(projectVersion.get())
     }
-}
-
-tasks.processResources {
-    dependsOn("updateVersionFile")
 }
 
 tasks.register<Exec>("packageApp") {
