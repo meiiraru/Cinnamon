@@ -17,7 +17,7 @@ public class Sound {
     public final int id, channels, sampleRate, duration;
     public final ShortBuffer buffer;
 
-    protected Sound(int id, int channels, int sampleRate, int duration, ShortBuffer soundBuffer) {
+    public Sound(int id, int channels, int sampleRate, int duration, ShortBuffer soundBuffer) {
         this.id = id;
         this.channels = channels;
         this.sampleRate = sampleRate;
@@ -39,21 +39,33 @@ public class Sound {
     }
 
     protected static Sound loadSound(Resource resource) {
+        LOGGER.debug("Loading sound \"%s\"", resource);
+
         String ext = resource.getExtension().toLowerCase();
-        SoundIO.SoundData data = switch (ext) {
-            case "ogg" -> SoundIO.loadOgg(resource);
-            case "wav" -> SoundIO.loadWav(resource);
-            default -> throw new RuntimeException("Unsupported sound file format: \"" + ext + "\" for resource: " + resource);
-        };
+        try {
+            SoundIO.SoundData data = switch (ext) {
+                case "ogg" -> SoundIO.loadOgg(resource);
+                case "wav" -> SoundIO.loadWav(resource);
+                default -> throw new RuntimeException("Unsupported sound file format: \"" + ext + "\" for resource: " + resource);
+            };
 
-        //register the buffer
+            //register the buffer
+            int id = registerSound(data.channels(), data.sampleRate(), data.buffer());
+
+            //create the sound object
+            LOGGER.debug("Loaded sound: \"%s\" (id: %s, channels: %s, sampleRate: %s, duration: %sms)", resource, id, data.channels(), data.sampleRate(), data.duration());
+            return new Sound(id, data.channels(), data.sampleRate(), data.duration(), data.buffer().duplicate());
+        } catch (Exception e) {
+            LOGGER.error("Failed to load sound \"%s\"", resource, e);
+            return SoundManager.SILENCE;
+        }
+    }
+
+    protected static int registerSound(int channels, int sampleRate, ShortBuffer data) {
         int id = alGenBuffers();
-        alBufferData(id, data.channels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, data.buffer(), data.sampleRate());
+        alBufferData(id, channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, data, sampleRate);
         SoundManager.checkALError();
-
-        //create the sound object
-        LOGGER.debug("Loaded sound: \"%s\" (id: %s, channels: %s, sampleRate: %s, duration: %sms)", resource, id, data.channels(), data.sampleRate(), data.duration());
-        return new Sound(id, data.channels(), data.sampleRate(), data.duration(), data.buffer().duplicate());
+        return id;
     }
 
     public static void freeAllSounds() {

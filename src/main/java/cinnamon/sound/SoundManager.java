@@ -5,8 +5,10 @@ import cinnamon.math.Maths;
 import cinnamon.render.Camera;
 import cinnamon.utils.Resource;
 import org.joml.Vector3f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.*;
 
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +26,8 @@ public class SoundManager {
 
     private static final Logger LOGGER = new Logger(Logger.ROOT_NAMESPACE + "/sound");
     public static final int MAX_SOUND_INSTANCES = 256;
+
+    public static Sound SILENCE = null;
 
     private static final List<SoundInstance>
             sounds = new ArrayList<>(),
@@ -108,6 +112,10 @@ public class SoundManager {
         ALVersion = alcGetInteger(0, ALC_MAJOR_VERSION) + "." + alcGetInteger(0, ALC_MINOR_VERSION);
         LOGGER.info("OpenAL version: %s", ALVersion);
         LOGGER.info("OpenAL device: %s", currentDevice);
+
+        //load silence sound
+        LOGGER.debug("Generating silence sound...");
+        SILENCE = genEmptySound(1000, 8000, 1);
     }
 
     public static void free() {
@@ -118,6 +126,7 @@ public class SoundManager {
         alcCloseDevice(device);
         alcDestroyContext(context);
         Sound.freeAllSounds();
+        SILENCE = null;
         initialized = false;
     }
 
@@ -140,6 +149,17 @@ public class SoundManager {
         int err = alcGetError(device);
         if (err != ALC_NO_ERROR)
             throw new RuntimeException("(" + err + ") " + alcGetString(device, err));
+    }
+
+    private static Sound genEmptySound(int durationMillis, int sampleRate, int channels) {
+        int totalSamples = (int) ((durationMillis / 1000f) * sampleRate * channels);
+        ShortBuffer pcm = BufferUtils.createShortBuffer(totalSamples);
+        return new Sound(Sound.registerSound(channels, sampleRate, pcm), channels, sampleRate, durationMillis, pcm) {
+            @Override
+            public void free() {
+                //nuh-uh
+            }
+        };
     }
 
     public static void tick(Camera camera) {

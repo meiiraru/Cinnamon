@@ -96,7 +96,12 @@ public class CubeMap extends Texture {
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
         MemoryUtil.memFree(buffer);
-        return new CubeMap(id, width, height);
+        return new CubeMap(id, width, height) {
+            @Override
+            public void free() {
+                //nuh-uh
+            }
+        };
     }
 
     public static void freeAll() {

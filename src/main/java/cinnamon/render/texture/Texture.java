@@ -137,7 +137,12 @@ public class Texture {
         //return a new texture
         int id = registerTexture(w, h, pixels, MIPMAP_SMOOTH.id);
         MemoryUtil.memFree(pixels);
-        return new Texture(id, w, h);
+        return new Texture(id, w, h) {
+            @Override
+            public void free() {
+                //nuh-uh
+            }
+        };
     }
 
     //returns a 1x1 texture with a solid color
