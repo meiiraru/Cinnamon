@@ -82,6 +82,9 @@ public class ExtrasScreen extends ParentedScreen {
         //midi player
         list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.midi_player", button -> client.setScreen(new MIDIScreen(this))));
 
+        //joystick test
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.joystick_test", button -> client.setScreen(new JoystickTestScreen(this))));
+
         //title
         list.addWidget(new Label(0, 0, Text.of("\n").appendTranslated("gui.extras_screen.games").append("\n")));
 

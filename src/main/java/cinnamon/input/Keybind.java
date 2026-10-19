@@ -63,6 +63,10 @@ public class Keybind {
         LOGGER.debug("Registered %s keybind: %s %s", type.name(), key, name);
     }
 
+    public static void unregister(Keybind keybind) {
+        KEYBINDS.get(keybind.type).remove(keybind);
+    }
+
     public static void keyPress(int key, int scancode, int action, int mods) {
         if (key == -1 && scancode == -1)
             return;
