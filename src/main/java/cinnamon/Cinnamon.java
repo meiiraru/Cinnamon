@@ -46,6 +46,7 @@ public class Cinnamon {
     public static final Set<String> OPENGL_EXTENSIONS = new HashSet<>();
     public static String GPU_DETAILS = "";
     public static String OPENGL_VERSION = "";
+    public static boolean INITIALIZED = false;
 
     public static void main(String... args) {
         new Cinnamon(args).run();
@@ -178,6 +179,7 @@ public class Cinnamon {
         OPENGL_VERSION = glGetString(GL_VERSION);
 
         //init the client
+        INITIALIZED = true;
         client.init();
     }
 

@@ -58,7 +58,7 @@ public class Keybind {
         this.mods = mods;
         this.type = type;
         this.joystick = joystick;
-        this.text = type.getKeyText(key, mods);
+        this.text = null;
         KEYBINDS.get(type).add(this);
         LOGGER.debug("Registered %s keybind: %s %s", type.name(), key, name);
     }
@@ -306,7 +306,7 @@ public class Keybind {
         this.mods = mods;
         this.type = type;
         this.joystick = joystick;
-        this.text = type.getKeyText(key, mods);
+        this.text = null;
     }
 
     public String getName() {
@@ -314,7 +314,7 @@ public class Keybind {
     }
 
     public Text getKeyText() {
-        return text;
+        return text != null ? text : (text = type.getKeyText(key, mods));
     }
 
     public int getKey() {
