@@ -11,7 +11,9 @@ import org.joml.Vector3f;
 
 public abstract class Sky {
 
-    public static final Resource SUN = new Resource("textures/environment/sun.png");
+    public static final Resource
+            SUN  = new Resource("textures/environment/sun.png"),
+            MOON = new Resource("textures/environment/moon.png");
 
     public int
             fogColor = 0xBFD3DE,
@@ -19,6 +21,7 @@ public abstract class Sky {
             sunColor = 0xFF8822,
             cloudsColor  = 0x7F7F7F,
             starsColor   = 0xFFFFFF,
+            moonColor    = 0xFFF2CC,
             ambientLight = 0xBFD3DE;
 
     public float
@@ -37,11 +40,16 @@ public abstract class Sky {
     protected float sunAngle;
     protected float sunRoll = 30f;
 
+    protected final Vector3f moonDir = new Vector3f(1, 0, 0);
+    protected float moonAngle;
+    protected float moonRoll = -25f;
+
     protected int tintColor = 0xFFFFFFFF;
 
     public boolean
             renderSky = true,
-            renderSun = false;
+            renderSun = false,
+            renderMoon = false;
 
     public void update() {}
 
@@ -53,6 +61,10 @@ public abstract class Sky {
         //render sun
         if (renderSun)
             renderSun(camera, matrices);
+
+        //render moon
+        if (renderMoon)
+            renderMoon(camera, matrices);
     }
 
     protected abstract void renderSky(Camera camera, MatrixStack matrices);
@@ -74,6 +86,35 @@ public abstract class Sky {
 
         //cleanup rendering
         matrices.popMatrix();
+    }
+
+    protected void renderMoon(Camera camera, MatrixStack matrices) {
+        //move to camera position
+        matrices.pushMatrix();
+        matrices.translate(camera.getPos());
+
+        //translate moon
+        matrices.rotateY(90f);
+        matrices.rotateZ(moonRoll);
+        matrices.rotateX(-moonAngle);
+        matrices.translate(0, 0, 512);
+
+        //roll the moon so the crescent points toward the Sun
+        matrices.rotateZ(90f);
+
+        //render the moon
+        int phaseIndex = getMoonPhase();
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, -30, -30, 60, 60, phaseIndex, 0f, 1f, 1f, 8, 1), MOON);
+        VertexConsumer.MAIN.finishBatch(camera);
+
+        //cleanup rendering
+        matrices.popMatrix();
+    }
+
+    public int getMoonPhase() {
+        float shifted = (sunAngle - moonAngle + 22.5f) % 360f;
+        if (shifted < 0) shifted += 360f;
+        return (int) (shifted / 45f);
     }
 
     public void applyUniforms(Shader shader, Camera camera) {
@@ -98,6 +139,12 @@ public abstract class Sky {
         this.sunDir.rotateX(Math.toRadians(sunRoll));
     }
 
+    protected void updateMoonDir() {
+        this.moonDir.set(-1, 0, 0);
+        this.moonDir.rotateZ(Math.toRadians(moonAngle));
+        this.moonDir.rotateX(Math.toRadians(moonRoll));
+    }
+
     public void setSunAngle(float angle) {
         this.sunAngle = angle;
         updateSunDir();
@@ -110,6 +157,20 @@ public abstract class Sky {
 
     public Vector3f getSunDirection() {
         return sunDir;
+    }
+
+    public void setMoonAngle(float angle) {
+        this.moonAngle = angle;
+        updateMoonDir();
+    }
+
+    public void setMoonRoll(float roll) {
+        this.moonRoll = roll;
+        updateMoonDir();
+    }
+
+    public Vector3f getMoonDirection() {
+        return moonDir;
     }
 
     public void setTint(int color) {

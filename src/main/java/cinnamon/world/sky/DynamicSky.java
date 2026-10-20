@@ -8,7 +8,7 @@ import cinnamon.render.texture.SkyBox;
 
 public class DynamicSky extends CubemapSky {
 
-    public static final int CUBEMAP_SIZE = 512;
+    public static final int CUBEMAP_SIZE = 1024;
     protected final CubeMap cubeMap = CubemapRenderer.generateEmptyMap(CUBEMAP_SIZE, CUBEMAP_SIZE, false, false);
 
     @Override
@@ -23,10 +23,12 @@ public class DynamicSky extends CubemapSky {
         Shader s = CoreShadersRegistry.CUBEMAP_SKYBOX.getShader().use();
         s.applyColor(getTint());
         s.setVec3("sunDirection", getRotatedSunDirection());
+        s.setVec3("moonDirection", getRotatedMoonDirection());
         s.setColor("skyColor", skyColor);
         s.setColor("sunColor", sunColor);
         s.setColor("fogColor", fogColor);
         s.setColor("starsColor", starsColor);
+        s.setColor("moonColor", moonColor);
         s.setFloat("sunIntensity", sunIntensity);
         s.setFloat("fogIntensity", fogIntensity);
         s.setFloat("starsIntensity", starsIntensity);

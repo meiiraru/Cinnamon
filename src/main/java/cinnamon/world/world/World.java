@@ -36,6 +36,7 @@ public abstract class World {
     public float bottomOfTheWorld = -512f;
     protected long worldTime = 0;
     protected int dayLength = 24000, nightStart = 13000; //in ticks
+    protected int monthLength = dayLength * 8; //29.53 days in real life
     protected boolean isPaused;
 
     public abstract void init();
@@ -284,6 +285,10 @@ public abstract class World {
 
     public int getNightStart() {
         return nightStart;
+    }
+
+    public int getMonthLength() {
+        return monthLength;
     }
 
     public boolean isNight() {

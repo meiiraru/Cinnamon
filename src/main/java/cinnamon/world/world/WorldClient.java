@@ -272,7 +272,14 @@ public class WorldClient extends World {
     }
 
     protected void updateSky(Camera camera, float delta) {
-        sky.setSunAngle(Maths.map(worldTime + delta, 0, dayLength, 0, 360));
+        float totalTime = worldTime + delta;
+
+        float sunAngle = Maths.map(totalTime % dayLength, 0, dayLength, 0, 360);
+        sky.setSunAngle(sunAngle);
+
+        //moon angle lags behind the sun by the phase angle
+        float phaseAngle = Maths.map(totalTime % monthLength, 0, monthLength, 0, 360);
+        sky.setMoonAngle(sunAngle - phaseAngle + 180f); //offset to mid-month
 
         Vector3f dir = sky.getSunDirection();
         Vector3f pos = camera.getPos();

@@ -94,4 +94,8 @@ public class CubemapSky extends Sky {
     public Vector3f getRotatedSunDirection() {
         return getSkyRotation().transformTranspose(getSunDirection(), new Vector3f());
     }
+
+    public Vector3f getRotatedMoonDirection() {
+        return getSkyRotation().transformTranspose(getMoonDirection(), new Vector3f());
+    }
 }
