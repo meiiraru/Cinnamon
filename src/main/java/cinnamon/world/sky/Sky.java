@@ -84,6 +84,9 @@ public abstract class Sky {
         shader.setFloat("fogStart", fogStart);
         shader.setFloat("fogEnd", fogEnd);
         shader.setColor("fogColor", fogColor);
+        shader.setColor("sunColor", sunColor);
+        shader.setVec3("sunDir", sunDir);
+        shader.setFloat("sunIntensity", sunIntensity);
 
         //ambient light
         shader.setColor("ambientLight", ambientLight);

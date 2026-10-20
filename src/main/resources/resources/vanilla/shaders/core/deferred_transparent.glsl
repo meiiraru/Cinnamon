@@ -83,19 +83,18 @@ void main() {
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
     //the refracted scene
-    vec3 emissive = texture(gEmissive, texCoords).rgb;
+    vec4 emissive = texture(gEmissive, texCoords);
 
     //transmission
-    vec3 transmission = emissive * (vec3(1.0f) - F) * (1.0f - metallic);
+    vec3 transmission = emissive.rgb * (vec3(1.0f) - F) * (1.0f - metallic);
 
     //combine
     vec3 finalColor = Lo + specular + transmission;
-    vec4 col = vec4(finalColor, albedo.a);
+    vec4 col = vec4(finalColor, emissive.a);
 
     //fog
     col = calculateFog(pos, camPos, col);
 
     //final color
-    col.a = clamp(col.a, 0.0f, 1.0f);
     fragColor = col;
 }

@@ -56,6 +56,7 @@ public class RefractionRenderer {
         s.setTexture("gNormal",   refractionGBuffer.getNormal(),   i++);
         s.setTexture("gORM",      refractionGBuffer.getORM(),      i++);
         s.setTexture("gEmissive", refractionGBuffer.getEmissive(), i++);
+        s.setTexture("gDepth",    refractionGBuffer.getDepthBuffer(), i++);
         s.setTexture("lightTex",  LightRenderer.getTexture(), i++);
 
         s.setFloat("lightFactor", renderLights && LightRenderer.getRenderedLightsCount() > 0 ? 1f : 0f);
