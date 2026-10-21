@@ -1,10 +1,11 @@
 # Made in Blockbench 5.2.2
-newmtl m_d1a8d08b-fb1e-e7af-9330-4712e3e3edec
+newmtl m_1276a6a5-9411-ec56-2a2e-bf2b10be5ce6
 map_Kd -smooth_mip texture.png
 map_Ke -mip texture_e.png
-newmtl m_35fa5301-91f3-6667-89d9-eaadd66f349b
+newmtl m_736986fb-d845-15ff-77b4-ab333d109f24
 map_Kd -smooth_mip controls.png
 map_Ke -mip controls_e.png
 newmtl glass
 map_Kd -smooth_mip glass.png
+map_Ke -smooth_mip glass_ior.png
 newmtl none

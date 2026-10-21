@@ -46,7 +46,7 @@ public class FlyingSaucer extends Vehicle {
 
             //render model
             Material mat = model.getMaterials().get("glass");
-            model.render(matrices, mat);
+            model.renderGroup(matrices, "glass", mat);
 
             matrices.popMatrix();
         }

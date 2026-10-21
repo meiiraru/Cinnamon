@@ -58,6 +58,26 @@ public abstract class ModelRenderer {
             renderMeshWithoutMaterial(mesh);
     }
 
+    public void renderGroup(MatrixStack matrices, String groupName) {
+        renderGroup(matrices, groupName, null);
+    }
+
+    public void renderGroup(MatrixStack matrices, String groupName, Material material) {
+        MeshData mesh = meshes.get(groupName);
+        if (mesh != null) {
+            Shader.activeShader.applyMatrixStack(matrices);
+            renderMesh(mesh, material);
+        }
+    }
+
+    public void renderGroupWithoutMaterial(MatrixStack matrices, String groupName) {
+        MeshData mesh = meshes.get(groupName);
+        if (mesh != null) {
+            Shader.activeShader.applyMatrixStack(matrices);
+            renderMeshWithoutMaterial(mesh);
+        }
+    }
+
     protected void renderMesh(MeshData mesh, Material material) {
         if (isFreed())
             return;
