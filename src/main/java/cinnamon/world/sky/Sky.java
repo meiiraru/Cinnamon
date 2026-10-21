@@ -12,8 +12,9 @@ import org.joml.Vector3f;
 public abstract class Sky {
 
     public static final Resource
-            SUN  = new Resource("textures/environment/sun.png"),
-            MOON = new Resource("textures/environment/moon.png");
+            SUN         = new Resource("textures/environment/sun.png"),
+            MOON        = new Resource("textures/environment/moon.png"),
+            MOON_PHASES = new Resource("textures/environment/moon_phases.png");
 
     public int
             fogColor = 0xBFD3DE,
@@ -104,7 +105,7 @@ public abstract class Sky {
 
         //render the moon
         int phaseIndex = getMoonPhase();
-        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, -30, -30, 60, 60, phaseIndex, 0f, 1f, 1f, 8, 1), MOON);
+        VertexConsumer.MAIN.consume(GeometryHelper.quad(matrices, -30, -30, 60, 60, phaseIndex, 0f, 1f, 1f, 8, 1), MOON_PHASES);
         VertexConsumer.MAIN.finishBatch(camera);
 
         //cleanup rendering

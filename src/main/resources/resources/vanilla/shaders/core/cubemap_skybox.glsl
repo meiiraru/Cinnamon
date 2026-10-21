@@ -38,6 +38,8 @@ uniform float starsCutoff = 0.1f;
 uniform float moonSize = 0.03f;
 uniform float moonAmbient = 0.005f;
 
+uniform sampler2D moonTex;
+
 float hash(vec3 p) {
     p = fract(p * vec3(127.1f, 311.7f, 74.7f));
     p += dot(p, p.yzx + 19.19f);
@@ -61,6 +63,32 @@ float stars(vec3 dir) {
     return brightness * (h / starsCoverage);
 }
 
+vec3 moon(vec3 dir, float moonDist) {
+    //3D normal of the moon sphere based on the view ray
+    vec3 p = dir - moonDist * -moonDirection;
+    float p2 = dot(p, p);
+    float sin_r = sin(moonSize);
+    float z = sqrt(max(sin_r * sin_r - p2, 0.0f));
+    vec3 normal = normalize(p + z * moonDirection);
+
+    //moon texture coordinates
+    vec3 worldUp = vec3(0.0f, 1.0f, 0.0f);
+    vec3 moonRight = normalize(cross(worldUp, moonDirection));
+    vec3 moonUp    = cross(moonDirection, moonRight);
+
+    vec2 diskCoord = vec2(dot(p, moonRight), dot(p, -moonUp)) / sin_r;
+    vec2 uv = diskCoord * 0.5f + 0.5f;
+    vec3 albedo = texture(moonTex, uv).rgb * moonColor;
+
+    //diffuse lighting
+    float ndotl = max(dot(normal, -sunDirection), 0.0f);
+
+    //earthshine
+    float earthshine = max(dot(normal, moonDirection), 0.0f) * moonAmbient;
+
+    return albedo * min(ndotl + earthshine, 1.0f);
+}
+
 void main() {
     vec3 dir = normalize(pos);
 
@@ -72,25 +100,10 @@ void main() {
     //moon
     float moonCos = cos(moonSize);
     float moonDist = dot(dir, -moonDirection);
+
     bool hitMoon = moonDist > moonCos;
-
-    vec3 moonCol = vec3(0.0f);
-    if (hitMoon) {
-        //3D normal of the moon sphere based on the view ray
-        vec3 p = dir - moonDist * -moonDirection;
-        float p2 = dot(p, p);
-        float sin_r = sin(moonSize);
-        float z = sqrt(max(sin_r * sin_r - p2, 0.0f));
-        vec3 normal = normalize(p + z * moonDirection);
-
-        //diffuse lighting
-        float ndotl = max(dot(normal, -sunDirection), 0.0f);
-
-        //earthshine
-        float earthshine = max(dot(normal, moonDirection), 0.0f) * moonAmbient;
-
-        moonCol = moonColor * min(ndotl + earthshine, 1.0f);
-    }
+    if (hitMoon)
+        col += moon(dir, moonDist);
 
     //stars
     if (starsIntensity > 0.0f && !hitMoon) {
@@ -100,10 +113,6 @@ void main() {
         float starBrightness = stars(dir) * skyFade * sunMask * starsIntensity;
         col = mix(col, starsColor, starBrightness);
     }
-
-    //add moon
-    if (hitMoon)
-        col += moonCol;
 
     //sun glow
     if (sunIntensity > 0.0f) {

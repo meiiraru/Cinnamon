@@ -5,6 +5,7 @@ import cinnamon.render.CubemapRenderer;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.SkyBox;
+import cinnamon.render.texture.Texture;
 
 public class DynamicSky extends CubemapSky {
 
@@ -32,8 +33,10 @@ public class DynamicSky extends CubemapSky {
         s.setFloat("sunIntensity", sunIntensity);
         s.setFloat("fogIntensity", fogIntensity);
         s.setFloat("starsIntensity", starsIntensity);
+        s.setTexture("moonTex", Texture.of(MOON, Texture.TextureParams.SMOOTH_SAMPLING), 0);
 
         CubemapRenderer.renderInvertedCube(cubeMap, s);
+        Texture.unbindTex(0);
         prevShader.use();
     }
 
