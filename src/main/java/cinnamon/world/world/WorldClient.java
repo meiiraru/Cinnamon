@@ -771,7 +771,7 @@ public class WorldClient extends World {
     protected void setSkyColors() {
         //sunrise
         skyColors.addProperty(6*60, new SkyColors.SkyProperties()
-                        .sunColor(0xFF4400).skyColor(0x859090).ambientLight(0x101020).fogColor(0xE57E4B).cloudsColor(0x7F7F7F).starsColor(0xFFFFFF)
+                        .sunColor(0xFF4400).skyColor(0x859090).ambientLight(0x101020).fogColor(0xE57E4B).cloudsColor(0x6C3F22).starsColor(0xFFFFFF)
                         .fogStart(64f).fogEnd(80f).sunIntensity(1f).fogIntensity(1f).starsIntensity(0.5f)
                         .sunlightColor(0xFF4400).sunlightIntensity(3f).sunlightShadowIntensity(0f)
         );
@@ -789,7 +789,7 @@ public class WorldClient extends World {
         );
         //sunset
         skyColors.addProperty(18*60, new SkyColors.SkyProperties()
-                .sunColor(0xFF4400).skyColor(0x8844DD).ambientLight(0x101020).fogColor(0xFF72AD).cloudsColor(0x90507F).starsColor(0xFFFFFF)
+                .sunColor(0xFF4400).skyColor(0x8844DD).ambientLight(0x101020).fogColor(0xFF72AD).cloudsColor(0x67245C).starsColor(0xFFFFFF)
                 .fogStart(64f).fogEnd(80f).sunIntensity(1f).fogIntensity(1f).starsIntensity(0.5f)
                 .sunlightColor(0xFF4400).sunlightIntensity(3f).sunlightShadowIntensity(0f)
         );
