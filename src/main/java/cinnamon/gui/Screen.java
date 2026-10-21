@@ -195,10 +195,11 @@ public abstract class Screen {
         s.setFloat("time", time % 1000f);
         s.setVec2("resolution", width, height);
         s.setVec2("framebufferOffset", Framebuffer.activeFramebuffer.getX(), Framebuffer.activeFramebuffer.getY());
+        s.setFloat("guiScale", client.window.guiScale);
 
-        s.setColor("col1", color1);
-        s.setColor("col2", color2);
-        s.setFloat("size", size);
+        s.setColor("topColor",    color1);
+        s.setColor("bottomColor", color2);
+        s.setFloat("starSize",    size);
 
         glDepthMask(false);
         StaticGeometry.QUAD.render();
@@ -222,7 +223,7 @@ public abstract class Screen {
     }
 
     protected void preRender(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        this.renderBackground(matrices, delta, GUISkin.getCurrentSkin().getInt("screen_color_1"), GUISkin.getCurrentSkin().getInt("screen_color_2"), 30f);
+        this.renderBackground(matrices, delta, GUISkin.getCurrentSkin().getInt("screen_color_1"), GUISkin.getCurrentSkin().getInt("screen_color_2"), 0.15f);
     }
 
     protected void renderChildren(MatrixStack matrices, int mouseX, int mouseY, float delta) {

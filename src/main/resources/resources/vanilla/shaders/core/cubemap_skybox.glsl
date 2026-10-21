@@ -35,8 +35,8 @@ uniform float starsIntensity = 1.0f;
 uniform float starsCoverage = 0.02f;
 uniform float starsCutoff = 0.1f;
 
-uniform float moonSize = 0.015f;
-uniform float moonAmbient = 0.02f;
+uniform float moonSize = 0.03f;
+uniform float moonAmbient = 0.005f;
 
 float hash(vec3 p) {
     p = fract(p * vec3(127.1f, 311.7f, 74.7f));
@@ -72,7 +72,7 @@ void main() {
     //moon
     float moonCos = cos(moonSize);
     float moonDist = dot(dir, -moonDirection);
-    bool hitMoon = (moonDist > moonCos);
+    bool hitMoon = moonDist > moonCos;
 
     vec3 moonCol = vec3(0.0f);
     if (hitMoon) {
@@ -87,9 +87,9 @@ void main() {
         float ndotl = max(dot(normal, -sunDirection), 0.0f);
 
         //earthshine
-        float earthshine = max(dot(normal, moonDirection), 0.0f) * 0.02f;
+        float earthshine = max(dot(normal, moonDirection), 0.0f) * moonAmbient;
 
-        moonCol = moonColor * clamp(ndotl + earthshine, moonAmbient, 1.0f);
+        moonCol = moonColor * min(ndotl + earthshine, 1.0f);
     }
 
     //stars
@@ -106,7 +106,7 @@ void main() {
         col += moonCol;
 
     //sun glow
-    if (sunIntensity > 0.0f && !hitMoon) {
+    if (sunIntensity > 0.0f) {
         float sunDot = max(dot(dir, -sunDirection), 0.0f);
         float sunGlow = pow(sunDot, 8.0f) * 0.5f;
         col += sunColor * sunGlow * sunIntensity;
