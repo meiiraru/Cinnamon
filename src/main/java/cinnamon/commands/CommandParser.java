@@ -41,6 +41,19 @@ public class CommandParser {
     }
 
     public static Text runCommand(CommandSource source, String input) {
+        String[] commands = input.split(";");
+        Text result = Text.empty();
+
+        for (int i = 0; i < commands.length; i++) {
+            result.append(runSingleCommand(source, commands[i]));
+            if (i < commands.length - 1)
+                result.append(Text.of("\n"));
+        }
+
+        return result;
+    }
+
+    public static Text runSingleCommand(CommandSource source, String input) {
         String[] parts = input.trim().split("\\s+");
         if (parts.length == 0)
             return Text.of("Unknown command").withStyle(ERROR_STYLE);

@@ -26,6 +26,7 @@ public class Teleport implements Command {
 
         if (args.isEmpty()) {
             pos = source.position();
+            target.stopRiding();
             target.moveTo(pos);
             target.rotateTo(source.rotation());
             return Text.of("Teleported %s to %.3f %.3f %.3f".formatted(target.getNameRepresentation(), pos.x, pos.y, pos.z));
@@ -50,6 +51,7 @@ public class Teleport implements Command {
 
         if (args.isEmpty()) {
             //apply only position
+            target.stopRiding();
             target.moveTo(pos);
             return Text.of("Teleported %s to %.3f %.3f %.3f".formatted(target.getNameRepresentation(), pos.x, pos.y, pos.z));
         }
@@ -95,6 +97,7 @@ public class Teleport implements Command {
             }
 
             //apply position
+            target.stopRiding();
             target.moveTo(pos);
 
             //apply rotation
@@ -111,6 +114,7 @@ public class Teleport implements Command {
             return Text.of("Failed to execute command, invalid argument: " + args.peek()).withStyle(ERROR_STYLE);
 
         //apply position
+        target.stopRiding();
         target.moveTo(pos);
 
         //apply rotation
