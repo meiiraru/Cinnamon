@@ -50,22 +50,29 @@ float getDistanceAtDepth(vec2 ndc, float depth) {
     vec4 depthClip = vec4(ndc, depth * 2.0f - 1.0f, 1.0f);
     vec4 depthView = invProjection * depthClip;
     depthView /= depthView.w;
-    vec3 worldP = (invView * depthView).xyz;
 
-    //convert world space distance to local space distance
-    return length(worldP - camPos);
+    //convert ndc to view-space ray direction
+    vec4 rayClip = vec4(ndc, 1.0f, 1.0f);
+    vec4 rayView = invProjection * rayClip;
+    vec3 rayDirView = normalize(rayView.xyz / rayView.w);
+
+    //compute the distance along the ray direction to the depth point
+    return dot(depthView.xyz, rayDirView);
 }
 
-float getCloudDepth(float hitDepthLocal, vec3 rayOrigin, vec3 rayDir) {
-    //local cloud space
-    vec3 hitPosLocal = rayOrigin + hitDepthLocal * rayDir;
-    //world space position
-    vec3 hitWorld = hitPosLocal * cloudScale + cloudPos;
+float getCloudDepth(float hitDepthLocal, vec3 rayDir) {
+    //convert cloud space to world space
+    float hitDistance = hitDepthLocal * cloudScale;
+    vec3 hitWorld = camPos + rayDir * hitDistance;
 
-    //project to clip space to get the depth value
+    //then to clip space
     vec4 clip = projection * view * vec4(hitWorld, 1.0f);
-    float ndcZ = clip.z / clip.w;
-    return ndcZ * 0.5f + 0.5f;
+    if (clip.w <= 0.0001f)
+        return 0.0f;
+
+    //and convert ndc to depth buffer value
+    float depth = clip.z / clip.w;
+    return clamp(depth * 0.5f + 0.5f, 0.0f, 1.0f);
 }
 
 float sdBox(vec3 p, float width, float height, float depth) {
@@ -268,12 +275,12 @@ void main() {
     //raymarch in cloud space, and capture the hit depth
     float hitDepthLocal = -1.0f;
     float res = raymarch(rayOrigin, rayDir, offset, MARCH_SIZE, marchStart, marchEnd, hitDepthLocal);
-    if (res <= 0.0f)
+    if (res <= 0.0f || hitDepthLocal < 0.0f)
         discard;
 
-    //if we got a hit, convert the hit position to world space and write to depth buffer
+    //if we got a hit, write it to the depth buffer
     if (hitDepthLocal >= 0.0f)
-        gl_FragDepth = getCloudDepth(hitDepthLocal, rayOrigin, rayDir);
+        gl_FragDepth = getCloudDepth(hitDepthLocal, rayDir);
 
     fragColor = vec4(cloudsColor + sunColor * res, 1.0f);
 }
