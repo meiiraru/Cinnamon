@@ -21,7 +21,7 @@ import java.util.UUID;
 
 public class PaperLantern extends PhysEntity {
 
-    protected final Light light = new PointLight().falloff(2f, 2.5f).volumetricStrength(0f).color(0xFFAA55).intensity(1f).source(getUUID()).shadowIntensity(0f);
+    protected final Light light = new PointLight().falloff(2f, 5f).volumetricStrength(0f).color(0xFFAA55).intensity(1f).glareIntensity(0f).shadowIntensity(0f).source(getUUID());
     protected final int rotateDir;
 
     protected int animY;

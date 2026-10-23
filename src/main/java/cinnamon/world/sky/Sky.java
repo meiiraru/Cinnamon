@@ -30,7 +30,8 @@ public abstract class Sky {
             fogEnd   = 192,
             cloudHeight   = 64,
             cloudCoverage = 0.85f,
-            cloudScale    = 1f;
+            cloudScale    = 1f,
+            moonSize = 0.03f;
 
     public float
             fogIntensity   = 1f,

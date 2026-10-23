@@ -30,6 +30,7 @@ public class DynamicSky extends CubemapSky {
         s.setColor("fogColor", fogColor);
         s.setColor("starsColor", starsColor);
         s.setColor("moonColor", moonColor);
+        s.setFloat("moonSize", moonSize);
         s.setFloat("sunIntensity", sunIntensity);
         s.setFloat("fogIntensity", fogIntensity);
         s.setFloat("starsIntensity", starsIntensity);

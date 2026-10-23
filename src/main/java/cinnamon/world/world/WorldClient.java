@@ -31,6 +31,7 @@ import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.Abilities;
 import cinnamon.world.Decal;
+import cinnamon.world.WorldRules;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.living.LocalPlayer;
@@ -321,6 +322,7 @@ public class WorldClient extends World {
         this.sky.fogIntensity = props.fogIntensity();
         this.sky.sunIntensity = props.sunIntensity();
         this.sky.starsIntensity = props.starsIntensity();
+        this.sky.moonSize = worldRules.get(WorldRules.MOON_SIZE) / 100f;
 
         sunlight.color(props.sunlightColor());
         sunlight.intensity(Math.min(props.sunlightIntensity(), 1f));

@@ -9,7 +9,7 @@ import org.joml.Vector3f;
 
 public class Lamp extends Terrain {
 
-    protected final Light light = new PointLight().falloff(1.5f, 3f).intensity(2f).shadowIntensity(0f).volumetricStrength(0f).color(0xFFFFE6B3);
+    protected final Light light = new PointLight().falloff(1.5f, 3f).intensity(2f).shadowIntensity(0f).volumetricStrength(0f).glareIntensity(0f).color(0xFFFFE6B3);
 
     public Lamp() {
         super(TerrainModelRegistry.LAMP.resource, TerrainRegistry.LAMP);

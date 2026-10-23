@@ -1,5 +1,7 @@
 package cinnamon.world;
 
+import cinnamon.math.Maths;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +20,9 @@ public class WorldRules {
             DAY_CYCLE         = registerBool("day_cycle",         true),
             ENABLE_TERMINAL   = registerBool("enable_terminal",   true),
             TERRAIN_EXPLOSION = registerBool("terrain_explosion", true);
+
+    public static final Rule<Float>
+            MOON_SIZE = registerRange("moon_size", 3f, 0f, 100f);
 
     /**
      * Registers a new {@link Rule} with the given name, initial state, and parser function<br>
@@ -64,6 +69,20 @@ public class WorldRules {
      */
     public static Rule<Float> registerFloat(String name, float initialState) {
         return register(name, initialState, Float::parseFloat);
+    }
+
+    /**
+     * Shorthand register for {@code float} type {@link Rule} with a range constraint<br>
+     * The rule value will be clamped between the given minimum and maximum values when parsed from a string representation
+     * @param name The name of the rule
+     * @param initialState The initial state of the rule
+     * @param min The minimum value for the rule
+     * @param max The maximum value for the rule
+     * @return The newly registered rule
+     * @see #register(String, Object, Function)
+     */
+    public static Rule<Float> registerRange(String name, float initialState, float min, float max) {
+        return register(name, initialState, value -> Maths.clamp(Float.parseFloat(value), min, max));
     }
 
     /**

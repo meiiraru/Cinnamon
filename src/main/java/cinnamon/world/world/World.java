@@ -139,6 +139,9 @@ public abstract class World {
     }
 
     public void explode(Sphere explosionArea, float strength, Entity source, boolean invisible) {
+        if (strength <= 0f)
+            return;
+
         Vector3f center = explosionArea.getCenter();
         float radiusSqr = explosionArea.getRadius() * explosionArea.getRadius();
 
@@ -147,6 +150,8 @@ public abstract class World {
                 continue;
 
             float localStrength = Math.max(0f, 1f - (entity.getAABB().getCenter().distanceSquared(center) / radiusSqr)) * strength;
+            if (localStrength <= 0f)
+                continue;
 
             //damage living entities
             if (entity instanceof LivingEntity living)
@@ -165,6 +170,9 @@ public abstract class World {
         if (getRules().get(WorldRules.TERRAIN_EXPLOSION)) {
             for (Terrain terrain : getTerrains(explosionArea.toAABB())) {
                 float localStrength = Math.max(0f, 1f - (terrain.getAABB().getCenter().distanceSquared(center) / radiusSqr)) * strength;
+                if (localStrength <= 0f)
+                    continue;
+
                 for (Collider<?> collider : terrain.getPreciseCollider()) {
                     if (collider.intersects(explosionArea) && terrain.explode(localStrength)) {
                         removeTerrain(terrain);
