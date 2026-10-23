@@ -28,7 +28,6 @@ import cinnamon.utils.Version;
 import cinnamon.vr.XrManager;
 import cinnamon.vr.XrRenderer;
 import cinnamon.world.world.WorldClient;
-import org.lwjgl.system.Platform;
 
 import java.nio.file.Path;
 import java.util.LinkedList;
@@ -74,7 +73,7 @@ public class Client {
     public void init() {
         //opengl debug info
         LOGGER.info("Welcome to Cinnamon! v%s", Version.CLIENT_VERSION);
-        LOGGER.info("OS: %s %s", Cinnamon.PLATFORM.getName(), Platform.getArchitecture().name());
+        LOGGER.info("OS: %s %s %s", System.getProperty("os.name"), System.getProperty("os.version"), System.getProperty("os.arch"));
         LOGGER.info("Java: %s %s", System.getProperty("java.version"), System.getProperty("java.vendor"));
         LOGGER.info("Renderer: %s", Cinnamon.GPU_DETAILS);
         LOGGER.info("OpenGL Version: %s", Cinnamon.OPENGL_VERSION);

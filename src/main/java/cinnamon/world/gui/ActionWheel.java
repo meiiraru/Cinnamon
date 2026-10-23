@@ -3,6 +3,7 @@ package cinnamon.world.gui;
 import cinnamon.Client;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.StencilRenderer;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.settings.Settings;
@@ -97,19 +98,19 @@ public class ActionWheel extends Overlay {
         }
 
         //prepare stencil for the background
-        UIHelper.prepareStencil(true, true);
+        StencilRenderer.prepareStencil(true, true);
 
         //render each action
         renderActions(matrices, selected, delta);
 
         //pause stencil and render the background
         UIHelper.finishBatches();
-        UIHelper.lockStencil(true);
+        StencilRenderer.lockStencil(true);
         renderBackground(matrices, 0xE0000000, delta);
 
         //disable stencil and render texts
         UIHelper.finishBatches();
-        UIHelper.disableStencil();
+        StencilRenderer.disableStencil();
 
         //selected text
         Text selectedText = cancel ? CANCEL_TEXT : actions.get(selected).getFormattedTitle();

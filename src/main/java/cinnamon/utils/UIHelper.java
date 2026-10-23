@@ -11,6 +11,7 @@ import cinnamon.math.Maths;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.render.MatrixStack;
+import cinnamon.render.StencilRenderer;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
@@ -23,7 +24,6 @@ import org.joml.Vector4f;
 import java.util.Stack;
 
 import static cinnamon.model.GeometryHelper.quad;
-import static org.lwjgl.opengl.GL11.*;
 
 public class UIHelper {
 
@@ -446,50 +446,23 @@ public class UIHelper {
     private static void pushStencil(Vector4f rect) {
         finishBatches();
 
-        prepareStencil(false, true);
-        glDisable(GL_DEPTH_TEST);
+        StencilRenderer.prepareStencil(false, true);
 
         Vertex[] quad = GeometryHelper.rectangle(XrManager.isInXR() ? Client.getInstance().matrices : null, rect.x, rect.y, rect.z, rect.w, 0xFFFFFFFF);
         VertexConsumer.MAIN.consume(quad);
         VertexConsumer.MAIN.finishBatch(Client.getInstance().camera);
 
-        glEnable(GL_DEPTH_TEST);
-        lockStencil(false);
+        StencilRenderer.lockStencil(false);
     }
 
     public static void popStencil() {
         STENCIL_STACK.pop();
         if (STENCIL_STACK.isEmpty()) {
             finishBatches();
-            disableStencil();
+            StencilRenderer.disableStencil();
         } else {
             pushStencil(STENCIL_STACK.peek());
         }
-    }
-
-    public static void prepareStencil(boolean allowDrawing, boolean clear) {
-        if (!allowDrawing) {
-            glColorMask(false, false, false, false);
-            glDepthMask(false);
-        }
-        glStencilMask(0xFF);
-
-        glEnable(GL_STENCIL_TEST);
-        if (clear) glClear(GL_STENCIL_BUFFER_BIT);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    }
-
-    public static void lockStencil(boolean inverted) {
-        glColorMask(true, true, true, true);
-        glDepthMask(true);
-        glStencilMask(0x00);
-
-        glStencilFunc(inverted ? GL_NOTEQUAL : GL_EQUAL, 1, 0xFF);
-    }
-
-    public static void disableStencil() {
-        glDisable(GL_STENCIL_TEST);
     }
 
     public static float getDepthOffset() {

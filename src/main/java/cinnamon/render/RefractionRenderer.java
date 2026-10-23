@@ -13,17 +13,12 @@ import static org.lwjgl.opengl.GL14.glBlendFuncSeparate;
 
 public class RefractionRenderer {
 
-    public static final Framebuffer opaqueLitBuffer = new Framebuffer(Framebuffer.HDR_COLOR_BUFFER | Framebuffer.DEPTH_BUFFER);
     public static final PBRDeferredFramebuffer refractionGBuffer = new PBRDeferredFramebuffer();
 
     public static void renderRefractions(WorldClient world, float strength, PBRDeferredFramebuffer gBuffer, Framebuffer outputBuffer, boolean renderLights, Sky sky, Camera camera, MatrixStack matrices, float delta) {
-        //store gBuffer result in the opaqueLitBuffer
-        opaqueLitBuffer.resizeTo(outputBuffer);
-        opaqueLitBuffer.use();
-        outputBuffer.blit(opaqueLitBuffer, true, true, false);
-
         //clear only the color buffer of the gBuffer
-        gBuffer.blit(refractionGBuffer, false, true, true);
+        gBuffer.blit(refractionGBuffer, false, false, true);
+        outputBuffer.blit(refractionGBuffer, false, true, false);
         refractionGBuffer.resizeTo(gBuffer);
         refractionGBuffer.use();
         refractionGBuffer.adjustViewPort();
@@ -33,7 +28,7 @@ public class RefractionRenderer {
         Shader sh = CoreShadersRegistry.GBUFFER_TRANSPARENT.getShader().use();
         sh.setup(camera);
         sh.setVec3("camPos", camera.getPosition());
-        sh.setTexture("opaqueSceneTex", opaqueLitBuffer.getColorBuffer(), 7);
+        sh.setTexture("opaqueSceneTex", outputBuffer.getColorBuffer(), 7);
         sh.setFloat("strength", strength);
 
         world.renderTransparent(camera, matrices, delta);

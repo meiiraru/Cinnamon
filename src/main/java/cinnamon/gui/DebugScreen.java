@@ -524,8 +524,8 @@ public class DebugScreen {
 
                     [&bproperties&r]
                     date &e%tT %tF&r
-                    OS &e%s&r
-                    %s
+                    OS &e%s %s %s&r
+                    Renderer &e%s&r
                     LWJGL &e%s&r
                     OpenGL &e%s&r""",
 
@@ -534,7 +534,7 @@ public class DebugScreen {
                     total * 100 / max, Maths.prettyByteSize(total),
 
                     millis, millis,
-                    System.getProperty("os.name"),
+                    System.getProperty("os.name"), System.getProperty("os.version"), System.getProperty("os.arch"),
                     Cinnamon.GPU_DETAILS,
                     org.lwjgl.Version.getVersion(),
                     Cinnamon.OPENGL_VERSION
