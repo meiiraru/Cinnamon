@@ -229,12 +229,16 @@ public abstract class PhysEntity extends Entity {
                 continue;
 
             Hit result = aabb.sweep(physEntity.getAABB(), toMove.lengthSquared() < Maths.SMALL_NUMBER ? SMALL_IMPULSE : toMove);
-            if (result != null)
+            if (result != null) {
                 collideEntity(physEntity, result, toMove);
+                physEntity.collidedFromEntity(this, result, toMove);
+            }
         }
     }
 
     protected void collideEntity(PhysEntity entity, Hit result, Vector3f toMove) {}
+
+    protected void collidedFromEntity(PhysEntity entity, Hit result, Vector3f toMove) {}
 
     // -- movement logic -- //
 

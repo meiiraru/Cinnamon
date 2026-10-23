@@ -32,5 +32,6 @@ public enum EntityRegistry {
     FIREWORK,
     TRIGGER_AREA,
     SEAT,
+    PAPER_LANTERN,
     UNKNOWN
 }

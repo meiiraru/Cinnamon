@@ -19,10 +19,10 @@ public class Kill implements Command {
 
         if (target instanceof LivingEntity le && !le.isDead()) {
             le.kill();
-            return Text.of("Entity killed.");
+            return Text.of("Entity %s killed.".formatted(target.getNameRepresentation()));
         } else {
             target.remove();
-            return Text.of("Entity removed.");
+            return Text.of("Entity %s removed.".formatted(target.getNameRepresentation()));
         }
     }
 

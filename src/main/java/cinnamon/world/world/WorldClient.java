@@ -611,7 +611,7 @@ public class WorldClient extends World {
             return;
 
         //particles
-        float volume = explosionArea.getVolume();
+        int volume = (int) Math.ceil(explosionArea.getVolume());
         for (int i = 0; i < volume; i++) {
             ExplosionParticle particle = new ExplosionParticle((int) (Math.random() * 10) + 15);
             particle.setPos(explosionArea.getRandomPoint(new Vector3f()));

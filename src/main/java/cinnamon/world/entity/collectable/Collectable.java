@@ -1,5 +1,6 @@
 package cinnamon.world.entity.collectable;
 
+import cinnamon.math.Maths;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Resolution;
 import cinnamon.math.collision.shape.AABB;
@@ -24,6 +25,7 @@ public abstract class Collectable extends PhysEntity {
 
     public Collectable(UUID uuid, Resource model) {
         super(uuid, model);
+        this.animY = Maths.range(-100, 100);
     }
 
     @Override

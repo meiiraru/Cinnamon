@@ -23,7 +23,8 @@ public enum EntityModelRegistry {
     FLYING_SAUCER("models/entities/vehicle/flying_saucer/flying_saucer.obj"),
 
     //misc
-    FIREWORK("models/entities/misc/firework/firework.obj");
+    FIREWORK("models/entities/misc/firework/firework.obj"),
+    PAPER_LANTERN("models/entities/misc/paper_lantern/paper_lantern.obj");
 
     public final Resource resource;
 

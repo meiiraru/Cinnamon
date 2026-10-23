@@ -41,6 +41,7 @@ import cinnamon.world.entity.living.LivingEntity;
 import cinnamon.world.entity.living.Player;
 import cinnamon.world.entity.misc.Firework;
 import cinnamon.world.entity.misc.FireworkStar;
+import cinnamon.world.entity.misc.PaperLantern;
 import cinnamon.world.entity.misc.Spawner;
 import cinnamon.world.entity.misc.TriggerArea;
 import cinnamon.world.entity.projectile.Brick;
@@ -364,6 +365,13 @@ public class PlaygroundWorld extends WorldClient {
         FlyingSaucer saucer = new FlyingSaucer(UUID.randomUUID());
         saucer.setPos(12.5f, 2, 10);
         addEntity(saucer);
+
+        //paper lantern
+        for (int i = 0; i < 50; i++) {
+            PaperLantern lantern = new PaperLantern(UUID.randomUUID());
+            lantern.setPos(Maths.range(39f, 60f), Maths.range(2f, 12f), Maths.range(-50f, -16f));
+            addEntity(lantern);
+        }
     }
 
     @Override
