@@ -1,5 +1,6 @@
 package cinnamon.parsers;
 
+import cinnamon.model.MeshHelper;
 import cinnamon.model.material.Material;
 import cinnamon.model.mesh.Face;
 import cinnamon.model.mesh.Group;
@@ -91,28 +92,8 @@ public class ObjLoader {
             //add last group to the mesh
             addGroupToMesh(currentGroup, currentMaterial, theMesh);
 
-            //calculate bounding boxes
-            Vector3f bbMin = new Vector3f(Float.MAX_VALUE);
-            Vector3f bbMax = new Vector3f(-Float.MAX_VALUE);
-
-            for (Group group : theMesh.getGroups()) {
-                Vector3f groupMin = new Vector3f(Float.MAX_VALUE);
-                Vector3f groupMax = new Vector3f(-Float.MAX_VALUE);
-
-                for (Face face : group.getFaces()) {
-                    for (int vertex : face.getVertices()) {
-                        Vector3f v = theMesh.getVertices().get(vertex);
-                        groupMin.min(v);
-                        groupMax.max(v);
-                    }
-                }
-
-                group.getBounds().set(groupMin, groupMax);
-                bbMin.min(groupMin);
-                bbMax.max(groupMax);
-            }
-
-            theMesh.getBounds().set(bbMin, bbMax);
+            //calculate bounds
+            MeshHelper.recalculateBounds(theMesh);
 
             //check for animations
             Resource anim = res.resolveSibling("animations.json");

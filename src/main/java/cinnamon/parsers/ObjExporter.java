@@ -166,7 +166,7 @@ public class ObjExporter {
 
         String texturePath = texture.texture().getPath();
         String namespace = texture.texture().getNamespace();
-        if (namespace.isEmpty() || namespace.startsWith("assimp/"))
+        if (namespace.isEmpty() || namespace.startsWith("generated/"))
             texturePath = IOUtils.getFilename(texturePath);
 
         //fix texture name if it is invalid
@@ -180,7 +180,7 @@ public class ObjExporter {
         texturePath = IOUtils.resolve(texturePath, textureName);
         Path file = IOUtils.parseNonDuplicatePath(path.resolve(texturePath));
 
-        if (namespace.startsWith("generated/") || namespace.startsWith("assimp/"))
+        if (namespace.startsWith("generated/"))
             TextureIO.saveTexture(Texture.of(texture.texture(), texture.params()), file);
         else {
             InputStream input = IOUtils.getResource(texture.texture());

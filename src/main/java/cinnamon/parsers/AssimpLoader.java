@@ -369,9 +369,9 @@ public class AssimpLoader {
         LOGGER.debug("Found material (type %s) texture \"%s\"%s", type, path, embedded == null ? "" : " (embedded)");
 
         if (embedded != null) {
-            texture = new Resource("assimp/" + res + "/" + path);
+            texture = new Resource("generated/assimp/" + res + "/" + path);
             //force load of embedded texture to assign the resource path
-            Texture.of(texture, embedded, params);
+            Texture.of(texture, embedded.pcDataCompressed(), params);
         } else {
             texture = res.resolveSibling(path);
         }
@@ -384,7 +384,7 @@ public class AssimpLoader {
         LOGGER.debug("Creating texture for color %s with id \"%s\"", color, id);
 
         //create path
-        Resource path = new Resource("assimp/" + res + "/" + id + ".png");
+        Resource path = new Resource("generated/assimp/" + res + "/" + id + ".png");
         //force creation and loading of the texture
         Texture.generateSolid(ColorUtils.rgbaToIntARGB(color), path);
         //create material texture

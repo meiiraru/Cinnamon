@@ -101,6 +101,8 @@ public class ModelViewerScreen extends ParentedScreen {
                             if (name.isBlank())
                                 name = "model";
 
+                            name = name.toLowerCase().replace(" ", "_");
+
                             Path p = ObjExporter.export(name, mesh.getMesh(), client.matrices, Path.of(folder));
                             IOUtils.openInExplorer(p);
                             Toast.addToast(Text.translated("gui.model_viewer_screen.export_success")).type(Toast.ToastType.SUCCESS);

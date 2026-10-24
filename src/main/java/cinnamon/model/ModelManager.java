@@ -3,6 +3,7 @@ package cinnamon.model;
 import cinnamon.model.mesh.Mesh;
 import cinnamon.parsers.AssimpLoader;
 import cinnamon.parsers.ObjLoader;
+import cinnamon.parsers.VoxLoader;
 import cinnamon.render.model.AnimatedMeshRenderer;
 import cinnamon.render.model.MeshRenderer;
 import cinnamon.render.model.ModelRenderer;
@@ -139,6 +140,8 @@ public final class ModelManager {
             //} else if (extension.equalsIgnoreCase("bbmodel")) { //blockbench model
             //    BBModelLoader.BBModelData modelData = BBModelLoader.load(resource);
             //    model = new AnimatedObjRenderer(modelData.mesh(), modelData.rootBone(), modelData.animations());
+            } else if (extension.equalsIgnoreCase("vox")) { //magica voxel model
+                return VoxLoader.load(resource);
             } else { //otherwise use Assimp
                 return AssimpLoader.load(resource);
             }

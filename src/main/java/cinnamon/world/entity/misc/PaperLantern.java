@@ -87,7 +87,7 @@ public class PaperLantern extends PhysEntity {
 
     @Override
     protected void collidedFromEntity(PhysEntity entity, Hit result, Vector3f toMove) {
-        if (this.isRemoved())
+        if (this.isRemoved() || entity.isRemoved())
             return;
 
         if (!(entity instanceof Projectile proj)) {

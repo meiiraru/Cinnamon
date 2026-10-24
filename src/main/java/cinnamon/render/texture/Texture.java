@@ -2,7 +2,6 @@ package cinnamon.render.texture;
 
 import cinnamon.utils.Resource;
 import cinnamon.utils.TextureIO;
-import org.lwjgl.assimp.AITexture;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -50,12 +49,12 @@ public class Texture {
         return cacheTexture(res, loadTexture(res, TextureParams.bake(params)));
     }
 
-    public static Texture of(Resource res, AITexture assimpTexture, TextureParams... params) {
+    public static Texture of(Resource res, ByteBuffer texture, TextureParams... params) {
         Texture tex = getCachedTexture(res);
         if (tex != null)
             return tex;
 
-        return cacheTexture(res, loadTexture(res, assimpTexture, TextureParams.bake(params)));
+        return cacheTexture(res, loadTexture(res, texture, TextureParams.bake(params)));
     }
 
     private static Texture getCachedTexture(Resource res) {
@@ -85,7 +84,7 @@ public class Texture {
         }
     }
 
-    private static Texture loadTexture(Resource res, AITexture texture, int params) {
+    private static Texture loadTexture(Resource res, ByteBuffer texture, int params) {
         LOGGER.debug("Loading texture \"%s\" with params %s", res, params);
 
         try (TextureIO.ImageData image = TextureIO.load(texture)) {

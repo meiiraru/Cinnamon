@@ -389,4 +389,41 @@ public final class MeshHelper {
         //return the new mesh
         return newMesh;
     }
+
+    /**
+     * Recalculates the bounding boxes of the given {@link Mesh} and its {@link Group}s based on their vertex data
+     * @param mesh The {@link Mesh} to recalculate the bounding boxes for
+     */
+    public static void recalculateBounds(Mesh mesh) {
+        //calculate bounding boxes
+        Vector3f bbMin = new Vector3f(Float.MAX_VALUE);
+        Vector3f bbMax = new Vector3f(-Float.MAX_VALUE);
+
+        for (Group group : mesh.getGroups()) {
+            if (group.isEmpty()) {
+                group.getBounds().set(0, 0, 0, 0, 0, 0);
+                continue;
+            }
+
+            Vector3f groupMin = new Vector3f(Float.MAX_VALUE);
+            Vector3f groupMax = new Vector3f(-Float.MAX_VALUE);
+
+            for (Face face : group.getFaces()) {
+                for (int vertex : face.getVertices()) {
+                    Vector3f v = mesh.getVertices().get(vertex);
+                    groupMin.min(v);
+                    groupMax.max(v);
+                }
+            }
+
+            group.getBounds().set(groupMin, groupMax);
+            bbMin.min(groupMin);
+            bbMax.max(groupMax);
+        }
+
+        if (!mesh.getVertices().isEmpty())
+            mesh.getBounds().set(bbMin, bbMax);
+        else
+            mesh.getBounds().set(0, 0, 0, 0, 0, 0);
+    }
 }

@@ -1,9 +1,9 @@
 package cinnamon.utils;
 
 import cinnamon.render.texture.Texture;
-import org.lwjgl.assimp.AIString;
-import org.lwjgl.assimp.AITexture;
+import org.lwjgl.stb.STBIWriteCallback;
 import org.lwjgl.stb.STBImage;
+import org.lwjgl.stb.STBImageWrite;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
@@ -152,8 +152,8 @@ public final class TextureIO {
      * @return An {@link ImageData} object containing the image data
      * @throws Exception if the image could not be loaded
      * @see #load(Resource, boolean, int)
-     * @see #load(AITexture)
-     * @see #load(AITexture, boolean, int)
+     * @see #load(ByteBuffer)
+     * @see #load(ByteBuffer, boolean, int)
      */
     public static ImageData load(Resource resource) throws Exception {
         return load(resource, false, 4);
@@ -167,8 +167,8 @@ public final class TextureIO {
      * @return An {@link ImageData} object containing the image data
      * @throws Exception if the image could not be loaded
      * @see #load(Resource)
-     * @see #load(AITexture)
-     * @see #load(AITexture, boolean, int)
+     * @see #load(ByteBuffer)
+     * @see #load(ByteBuffer, boolean, int)
      */
     public static ImageData load(Resource resource, boolean flip, int desiredChannels) throws Exception {
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -189,48 +189,91 @@ public final class TextureIO {
     }
 
     /**
-     * Loads an image from the given Assimp {@link AITexture} and returns an {@link ImageData} object containing the image data
-     * @param texture The Assimp {@link AITexture} to load the image from
+     * Loads an image from the given {@link ByteBuffer} and returns an {@link ImageData} object containing the image data
+     * @param texture The {@link ByteBuffer} containing the image data
      * @return An {@link ImageData} object containing the image data
      * @throws Exception if the image could not be loaded
-     * @see #load(AITexture, boolean, int)
+     * @see #load(ByteBuffer, boolean, int)
      * @see #load(Resource)
      * @see #load(Resource, boolean, int)
      */
-    public static ImageData load(AITexture texture) throws Exception {
+    public static ImageData load(ByteBuffer texture) throws Exception {
         return load(texture, false, 4);
     }
 
     /**
-     * Loads an image from the given Assimp {@link AITexture} and returns an {@link ImageData} object containing the image data
-     * @param texture The Assimp {@link AITexture} to load the image from
+     * Loads an image from the given {@link ByteBuffer} and returns an {@link ImageData} object containing the image data
+     * @param texture The {@link ByteBuffer} containing the image data
      * @param flip Whether to flip the image vertically
      * @param desiredChannels The desired number of channels in the loaded image (1 for grayscale, 2 for grayscale + alpha, 3 for RGB, 4 for RGBA)
      * @return An {@link ImageData} object containing the image data
      * @throws Exception if the image could not be loaded
-     * @see #load(AITexture)
+     * @see #load(ByteBuffer)
      * @see #load(Resource)
      * @see #load(Resource, boolean, int)
      */
-    public static ImageData load(AITexture texture, boolean flip, int desiredChannels) throws Exception {
+    public static ImageData load(ByteBuffer texture, boolean flip, int desiredChannels) throws Exception {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer w = stack.mallocInt(1);
             IntBuffer h = stack.mallocInt(1);
             IntBuffer channels = stack.mallocInt(1);
 
             STBImage.stbi_set_flip_vertically_on_load(flip);
-            ByteBuffer imageBuffer = texture.pcDataCompressed();
-            ByteBuffer buffer = STBImage.stbi_load_from_memory(imageBuffer, w, h, channels, desiredChannels);
+            ByteBuffer buffer = STBImage.stbi_load_from_memory(texture, w, h, channels, desiredChannels);
             STBImage.stbi_set_flip_vertically_on_load(false);
 
             if (buffer == null) {
-                try (AIString name = texture.mFilename()) {
-                    throw new Exception("Failed to load image \"" + name.dataString() + "\", " + STBImage.stbi_failure_reason());
-                }
+                throw new Exception("Failed to load image from buffer, " + STBImage.stbi_failure_reason());
             }
 
             return new ImageData(w.get(), h.get(), buffer);
         }
+    }
+
+    /**
+     * Encodes the given raw RGBA image data to PNG format and returns a {@link ByteBuffer} containing the encoded PNG data<br>
+     * The returned buffer must be freed manually when done, with {@link MemoryUtil#memFree(ByteBuffer)}
+     * @param rgbaBuffer A {@link ByteBuffer} containing the raw RGBA image data to encode
+     * @param width The width of the image in pixels
+     * @param height The height of the image in pixels
+     * @return A {@link ByteBuffer} containing the encoded PNG data
+     */
+    public static ByteBuffer encodeRGBAtoPNG(ByteBuffer rgbaBuffer, int width, int height) {
+        //prepare the output buffer for the encoded PNG data
+        ByteBuffer[] outBuffer = new ByteBuffer[]{ MemoryUtil.memAlloc(1024) }; //start with 1kb
+
+        //callback to capture raw chunks from stb
+        STBIWriteCallback callback = new STBIWriteCallback() {
+            @Override
+            public void invoke(long context, long data, int size) {
+                //grow buffer to not overflow it
+                while (outBuffer[0].position() + size > outBuffer[0].capacity()) {
+                    ByteBuffer newBuffer = MemoryUtil.memAlloc(outBuffer[0].capacity() * 2);
+                    outBuffer[0].flip();
+                    newBuffer.put(outBuffer[0]);
+                    MemoryUtil.memFree(outBuffer[0]);
+                    outBuffer[0] = newBuffer;
+                }
+
+                //transfer the data from the native pointer to the output buffer
+                ByteBuffer chunk = STBIWriteCallback.getData(data, size);
+                outBuffer[0].put(chunk);
+            }
+        };
+
+        //encode the RGBA data to the PNG format
+        int strideInBytes = width * 4;
+        boolean success = STBImageWrite.stbi_write_png_to_func(callback, 0L, width, height, 4, rgbaBuffer, strideInBytes);
+
+        //free the native callback
+        callback.free();
+
+        if (!success)
+            throw new RuntimeException("Failed to encode the image to PNG");
+
+        //prepare the output buffer for reading
+        outBuffer[0].flip();
+        return outBuffer[0];
     }
 
     /**
