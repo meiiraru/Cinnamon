@@ -27,6 +27,16 @@ import static cinnamon.events.Events.LOGGER;
 
 public class VoxLoader {
 
+    //ccw vertices for each face
+    private static final int[][][] faceVerts = {
+            {{0, 0, 0}, {0, 0, 1}, {0, 1, 1}, {0, 1, 0}}, //-X
+            {{1, 0, 1}, {1, 0, 0}, {1, 1, 0}, {1, 1, 1}}, //+X
+            {{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}}, //-Y
+            {{0, 1, 1}, {1, 1, 1}, {1, 1, 0}, {0, 1, 0}}, //+Y
+            {{1, 0, 0}, {0, 0, 0}, {0, 1, 0}, {1, 1, 0}}, //-Z
+            {{0, 0, 1}, {1, 0, 1}, {1, 1, 1}, {0, 1, 1}}  //+Z
+    };
+
     //6 directions: -X, +X, -Y, +Y, -Z, +Z
     private static final int[][] dirs = {
             {-1,  0,  0}, {1, 0, 0},
@@ -34,30 +44,8 @@ public class VoxLoader {
             { 0,  0, -1}, {0, 0, 1}
     };
 
-    //ccw vertices for each face
-    private static final Vector3f[][] faceVertices = {
-            {new Vector3f(0, 0, 0), new Vector3f(0, 0, 1), new Vector3f(0, 1, 1), new Vector3f(0, 1, 0)}, //-X
-            {new Vector3f(1, 0, 1), new Vector3f(1, 0, 0), new Vector3f(1, 1, 0), new Vector3f(1, 1, 1)}, //+X
-            {new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(1, 0, 1), new Vector3f(0, 0, 1)}, //-Y
-            {new Vector3f(0, 1, 1), new Vector3f(1, 1, 1), new Vector3f(1, 1, 0), new Vector3f(0, 1, 0)}, //+Y
-            {new Vector3f(1, 0, 0), new Vector3f(0, 0, 0), new Vector3f(0, 1, 0), new Vector3f(1, 1, 0)}, //-Z
-            {new Vector3f(0, 0, 1), new Vector3f(1, 0, 1), new Vector3f(1, 1, 1), new Vector3f(0, 1, 1)}  //+Z
-    };
-
-    private static final Vector3f[] faceNormals = {
-            new Vector3f(-1,  0,  0),
-            new Vector3f( 1,  0,  0),
-            new Vector3f( 0, -1,  0),
-            new Vector3f( 0,  1,  0),
-            new Vector3f( 0,  0, -1),
-            new Vector3f( 0,  0,  1)
-    };
-
-    //padding (radius) of 1/64 from the uv center
-    private static final float padding = 1f / 64f;
-
-    //global model scaling factor
-    private static final float scale = 1f / 16f;
+    private static final float padding = 1f / 64f; //padding (radius) from the uv center
+    private static final float scale = 1f / 16f; //global model scaling factor
 
     public static Mesh load(Resource res) throws IOException {
         LOGGER.debug("Loading model \"%s\"", res);
@@ -216,9 +204,11 @@ public class VoxLoader {
 
                     //cycle through all voxel sides
                     for (int d = 0; d < 6; d++) {
-                        int nx = x + dirs[d][0];
-                        int ny = y + dirs[d][1];
-                        int nz = z + dirs[d][2];
+                        int[] dir = dirs[d];
+
+                        int nx = x + dir[0];
+                        int ny = y + dir[1];
+                        int nz = z + dir[2];
 
                         //if the neighboring voxel is solid (not 0), we can skip this face
                         if (model.get(nx, ny, nz) != 0)
@@ -226,7 +216,7 @@ public class VoxLoader {
 
                         //save the normal for this face
                         int normalIdx = normals.size();
-                        normals.add(new Vector3f(faceNormals[d]));
+                        normals.add(new Vector3f(dir[0], dir[1], dir[2]));
 
                         //add the uvs
                         int uvIdx = uvs.size();
@@ -238,8 +228,8 @@ public class VoxLoader {
                         //add this face vertices with this voxel offset
                         int vIdx = vertices.size();
                         for (int i = 0; i < 4; i++) {
-                            Vector3f v = faceVertices[d][i];
-                            vertices.add(new Vector3f(v.x + x + offsetX, v.y + y, v.z + z + offsetZ).mul(scale));
+                            int[] v = faceVerts[d][i];
+                            vertices.add(new Vector3f(v[0] + x + offsetX, v[1] + y, v[2] + z + offsetZ).mul(scale));
                         }
 
                         //create and add the face index data
