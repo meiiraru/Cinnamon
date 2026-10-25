@@ -692,6 +692,25 @@ public final class Maths {
     }
 
     /**
+     * Determines whether two points are on opposite sides of a line defined by two points in 3D space
+     * @param lineA The first point of the line
+     * @param lineB The second point of the line
+     * @param pointA The first point to be tested for its position relative to the line
+     * @param pointB The second point to be tested for its position relative to the line
+     * @return {@code true} if the two points are on opposite sides of the line, {@code false} otherwise
+     */
+    public static boolean testOppositeSides(Vector3f lineA, Vector3f lineB, Vector3f pointA, Vector3f pointB) {
+        Vector3f ab = new Vector3f(lineB).sub(lineA);
+        Vector3f ap = new Vector3f(pointA).sub(lineA);
+        Vector3f bp = new Vector3f(pointB).sub(lineA);
+
+        Vector3f cross1 = ab.cross(ap, new Vector3f());
+        Vector3f cross2 = ab.cross(bp, new Vector3f());
+
+        return cross1.dot(cross2) < 0;
+    }
+
+    /**
      * Generates a random float value within a specified range defined by {@code min} and {@code max}
      * @param min The minimum value of the range
      * @param max The maximum value of the range

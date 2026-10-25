@@ -2,6 +2,7 @@ package cinnamon.model;
 
 import cinnamon.model.mesh.Mesh;
 import cinnamon.parsers.AssimpLoader;
+import cinnamon.parsers.BBModelLoader;
 import cinnamon.parsers.ObjLoader;
 import cinnamon.parsers.VoxLoader;
 import cinnamon.render.model.AnimatedMeshRenderer;
@@ -134,17 +135,17 @@ public final class ModelManager {
     private static Mesh loadMesh(Resource resource) {
         try {
             //check model type
-            String extension = resource.getExtension();
-            if (extension.equalsIgnoreCase("obj")) {
-                return ObjLoader.load(resource);
-            //} else if (extension.equalsIgnoreCase("bbmodel")) { //blockbench model
-            //    BBModelLoader.BBModelData modelData = BBModelLoader.load(resource);
-            //    model = new AnimatedObjRenderer(modelData.mesh(), modelData.rootBone(), modelData.animations());
-            } else if (extension.equalsIgnoreCase("vox")) { //magica voxel model
-                return VoxLoader.load(resource);
-            } else { //otherwise use Assimp
-                return AssimpLoader.load(resource);
-            }
+            String extension = resource.getExtension().toLowerCase();
+            return switch (extension) {
+                //prefer engine-specific obj loader
+                case "obj" -> ObjLoader.load(resource);
+                //blockbench model
+                case "bbmodel" -> BBModelLoader.load(resource);
+                //magica voxel model
+                case "vox" -> VoxLoader.load(resource);
+                //default to assimp for other formats
+                default -> AssimpLoader.load(resource);
+            };
         } catch (Exception e) {
             LOGGER.error("Failed to load model \"%s\"", resource, e);
             return MISSING_MODEL;

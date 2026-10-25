@@ -37,8 +37,9 @@ public class AnimationLoader {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
 
             //root bone
-            Bone root = new Bone("root");
             HashMap<String, Bone> boneMap = new HashMap<>();
+            Bone root = new Bone("bone:_root");
+            boneMap.put(root.getName(), root);
 
             //parse outliner
             JsonArray bonesArray = json.getAsJsonArray("outliner");
