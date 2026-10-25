@@ -308,9 +308,8 @@ public class ModelViewer extends SelectableWidget implements Tickable {
 
     public void setModel(ModelRenderer model) {
         this.model = model;
-        float maxDimension = model == null ? 1f : Maths.max(model.getAABB().getDimensions());
-        scaleReset = defaultScale / maxDimension;
-        resetView();
+        float maxDimension = model == null ? -1f : Maths.max(model.getAABB().getDimensions());
+        scaleReset = maxDimension > 0f ? defaultScale / maxDimension : defaultScale;
     }
 
     public ModelRenderer getModel() {
@@ -385,6 +384,11 @@ public class ModelViewer extends SelectableWidget implements Tickable {
         }
     }
 
+    public void setPos(float posX, float posY) {
+        this.setPosX(posX);
+        this.setPosY(posY);
+    }
+
     public float getPosX() {
         return posX;
     }
@@ -399,6 +403,11 @@ public class ModelViewer extends SelectableWidget implements Tickable {
 
     public void setPosY(float posY) {
         this.posY = posY;
+    }
+
+    public void setRot(float pitch, float yaw) {
+        this.setPitch(pitch);
+        this.setYaw(yaw);
     }
 
     public float getPitch() {
@@ -430,6 +439,10 @@ public class ModelViewer extends SelectableWidget implements Tickable {
         return defaultYaw;
     }
 
+    public float getScale() {
+        return scale;
+    }
+
     public void setScale(float scale) {
         this.scale = scale;
     }
@@ -444,6 +457,12 @@ public class ModelViewer extends SelectableWidget implements Tickable {
 
     public void setScaleFactor(float scaleFactor) {
         this.scaleFactor = scaleFactor;
+    }
+
+    public void setFlyCamPos(float x, float y, float z) {
+        this.setFlyCamX(x);
+        this.setFlyCamY(y);
+        this.setFlyCamZ(z);
     }
 
     public float getFlyCamX() {
@@ -468,6 +487,12 @@ public class ModelViewer extends SelectableWidget implements Tickable {
 
     public void setFlyCamZ(float flyCamZ) {
         this.flyCamZ = flyCamZ;
+    }
+
+    public void setFlyCamRot(float pitch, float yaw, float roll) {
+        this.setFlyCamPitch(pitch);
+        this.setFlyCamYaw(yaw);
+        this.setFlyCamRoll(roll);
     }
 
     public float getFlyCamPitch() {
@@ -502,7 +527,7 @@ public class ModelViewer extends SelectableWidget implements Tickable {
         this.flyCamSpeed = flyCamSpeed;
     }
 
-    private void resetView() {
+    public void resetView() {
         posX = posY = 0f;
         scale = scaleReset;
         pitch = defaultPitch;

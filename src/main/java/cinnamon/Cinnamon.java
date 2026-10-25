@@ -139,8 +139,8 @@ public class Cinnamon {
             int wh = vidMode.height();
             width = Math.min(width, ww);
             height = Math.min(height, wh);
-            glfwSetWindowSize(window, width, height);
-            glfwSetWindowPos(window, (ww - width) / 2, (wh - height) / 2);
+            client.window.setSize(width, height);
+            client.window.setPos((ww - width) / 2, (wh - height) / 2);
         }
 
         //and then show the window

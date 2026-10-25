@@ -353,6 +353,7 @@ public class Window {
      */
     public void setSize(int width, int height) {
         glfwSetWindowSize(window, width, height);
+        updateSize(width, height, guiScale, true);
     }
 
     /**
@@ -362,6 +363,7 @@ public class Window {
      */
     public void setPos(int x, int y) {
         glfwSetWindowPos(window, x, y);
+        updatePos(x, y);
     }
 
     /**

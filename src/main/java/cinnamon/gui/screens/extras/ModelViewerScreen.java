@@ -47,7 +47,7 @@ public class ModelViewerScreen extends ParentedScreen {
     private final ModelViewer modelViewer = new ModelViewer(0, 0, 1, 1);
 
     private boolean
-            autoRotate = true,
+            autoRotate = false,
             renderGroundPlane = true,
             renderAnimationBones = false;
 
@@ -235,6 +235,18 @@ public class ModelViewerScreen extends ParentedScreen {
         for (SkyBoxRegistry value : SkyBoxRegistry.values())
             skyboxMenu.addAction(Text.translated("skybox." + value.name().toLowerCase()), null, _ -> modelViewer.setSkybox(value));
 
+        //camera
+        ContextMenu cameraMenu = new ContextMenu()
+                .addAction(Text.translated("gui.model_viewer_screen.reset_camera"), null, _ -> modelViewer.resetView())
+                .addDivider()
+                .addAction(Text.translated("gui.model_viewer_screen.view_front"), null, _ -> modelViewer.setRot(0, 180))
+                .addAction(Text.translated("gui.model_viewer_screen.view_back"),  null, _ -> modelViewer.setRot(0, 0))
+                .addAction(Text.translated("gui.model_viewer_screen.view_left"),  null, _ -> modelViewer.setRot(0, -90))
+                .addAction(Text.translated("gui.model_viewer_screen.view_right"), null, _ -> modelViewer.setRot(0, 90))
+                .addAction(Text.translated("gui.model_viewer_screen.view_up"),    null, _ -> modelViewer.setRot(-90, 180))
+                .addAction(Text.translated("gui.model_viewer_screen.view_down"),  null, _ -> modelViewer.setRot(90, 180));
+        cameraMenu.closeOnSelect(false);
+
         //create menu bar
         MenuBar menuBar = new MenuBar(0, 8, width, 16, 4, 12, 0);
         menuBar.addTab(Text.translated("gui.model_viewer_screen.file_tab"), fileMenu);
@@ -242,6 +254,7 @@ public class ModelViewerScreen extends ParentedScreen {
         menuBar.addTab(Text.translated("material"), materialMenu);
         menuBar.addTab(Text.translated("animation"), animationList);
         menuBar.addTab(Text.translated("skybox"), skyboxMenu);
+        menuBar.addTab(Text.translated("gui.model_viewer_screen.camera_tab"), cameraMenu);
         addWidget(menuBar);
 
         super.init();
@@ -340,11 +353,13 @@ public class ModelViewerScreen extends ParentedScreen {
         }
 
         //free previous model
-        if (!model.equals(modelRes))
+        boolean isNewModel = !model.equals(modelRes);
+        if (isNewModel)
             ModelManager.free(modelRes);
 
         //set new model properties
         modelViewer.setModel(renderer);
+        if (isNewModel) modelViewer.resetView();
         modelName = name;
         modelRes = model;
 

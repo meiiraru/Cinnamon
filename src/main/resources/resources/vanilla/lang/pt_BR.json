@@ -147,6 +147,13 @@
   "gui.model_viewer_screen.export_model": "Exportar Modelo",
   "gui.model_viewer_screen.export_success": "Modelo exportado!",
   "gui.model_viewer_screen.export_failed": "Falha ao exportar o modelo!",
+  "gui.model_viewer_screen.reset_camera": "Redefinir Camera",
+  "gui.model_viewer_screen.view_front":"Frente",
+  "gui.model_viewer_screen.view_back": "Trás",
+  "gui.model_viewer_screen.view_left":"Esquerda",
+  "gui.model_viewer_screen.view_right": "Direita",
+  "gui.model_viewer_screen.view_up":"Cima",
+  "gui.model_viewer_screen.view_down": "Baixo",
 
   "gui.wordle.success": "Prabéns!",
   "gui.wordle.error.word_small": "Palavra muito pequena",
