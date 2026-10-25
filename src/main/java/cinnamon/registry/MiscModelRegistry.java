@@ -8,7 +8,9 @@ public enum MiscModelRegistry {
     COIN("models/entities/collectable/coin/coin.obj"),
     MYSTERY_BOX("models/entities/collectable/mystery_box/mystery_box.obj"),
     HEART("models/entities/collectable/heart/crystal_heart.obj"),
+    EGG("models/entities/collectable/egg/egg.glb"),
     BUBBLE_TOY("models/items/bubble_toy/bubble_toy.obj"),
+    VENDING_MACHINE("models/terrain/vending_machine/model.bbmodel"),
 
     //misc
     CROSS("models/misc/cross.obj"),

@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public class NailGun extends Weapon {
 
-    public static final Resource SHOOT_SOUND = new Resource("sounds/item/weapon/nail_gun/shoot.ogg");
+    public static final Resource SHOOT_SOUND = new Resource("sounds/item/weapon/nail_gun/shoot.wav");
 
     public NailGun(int maxRounds, int fireCooldown, int reloadCooldown) {
         super(ItemModelRegistry.NAIL_GUN.id, ItemModelRegistry.NAIL_GUN.resource, maxRounds, fireCooldown, reloadCooldown);
@@ -35,7 +35,7 @@ public class NailGun extends Weapon {
         Projectile projectile = super.spawnBullet();
         World world = getSource().getWorld();
         if (!getSource().isSilent() && world.isClientside())
-            ((WorldClient) world).playSound(SHOOT_SOUND, SoundCategory.ENTITY, getSource().getTransform().getPos()).pitch(Maths.range(0.8f, 1.2f));
+            ((WorldClient) world).playSound(SHOOT_SOUND, SoundCategory.ENTITY, getSource().getTransform().getPos()).pitch(Maths.range(0.8f, 1.1f)).volume(0.15f);
         return projectile;
     }
 }

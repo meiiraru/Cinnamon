@@ -622,7 +622,8 @@ public class WorldClient extends World {
         }
 
         //sound
-        playSound(EXPLOSION_SOUND, SoundCategory.ENTITY, explosionArea.getCenter()).maxDistance(64f).volume(0.5f).pitch(Maths.range(0.8f, 1.2f));
+        float soundDist = Maths.clamp((explosionArea.getRadius() / 3f) * 64f, 16f, 96f);
+        playSound(EXPLOSION_SOUND, SoundCategory.ENTITY, explosionArea.getCenter()).maxDistance(soundDist).volume(0.5f).pitch(Maths.range(0.8f, 1.2f));
     }
 
     protected void tickInput() {

@@ -150,10 +150,10 @@ public class ModelViewerScreen extends ParentedScreen {
             addModel.accept(value.resource, "item." + value.name().toLowerCase());
 
         modelList.addDivider(true);
-        modelList.addAction(new Label(0, 0, Text.translated("misc_entity").withStyle(Style.EMPTY.outlined(true)), Alignment.TOP_CENTER));
+        modelList.addAction(new Label(0, 0, Text.translated("misc_model").withStyle(Style.EMPTY.outlined(true)), Alignment.TOP_CENTER));
         modelList.addDivider();
         for (MiscModelRegistry value : MiscModelRegistry.values())
-            addModel.accept(value.resource, "misc_entity." + value.name().toLowerCase());
+            addModel.accept(value.resource, "misc_model." + value.name().toLowerCase());
 
         //viewer options
         ContextMenu viewerOptions = new ContextMenu();
