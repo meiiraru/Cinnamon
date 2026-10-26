@@ -70,6 +70,10 @@ public class BBModelLoader {
             Bone rootBone = parseOutliner(json, groups, parts);
             mesh.setAnimationData(Pair.of(rootBone, List.of()));
 
+            //bake bones since we are not reading animations yet
+            MeshHelper.bakeBones(mesh);
+            mesh.setAnimationData(null);
+
             //calculate bounds
             MeshHelper.recalculateBounds(mesh);
         }

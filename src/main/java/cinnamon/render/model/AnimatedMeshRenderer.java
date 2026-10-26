@@ -145,7 +145,6 @@ public class AnimatedMeshRenderer extends MeshRenderer {
                     OBB obb = obbCache.get(key);
                     obb.set(mesh.getAABB());
                     obb.applyMatrix(matrices.peek().pos());
-                    obbCache.put(key, obb);
                 }
             } else {
                 updateOBBTransforms(child, matrices);

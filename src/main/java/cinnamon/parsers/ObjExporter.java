@@ -42,19 +42,19 @@ public class ObjExporter {
                 mtlString = new StringBuilder();
 
         //header
-        string.append("# Cinnamon model exporter\n\n");
+        string.append("# Cinnamon model exporter\n");
 
         //materials
         boolean hasMaterials = !mesh.getMaterials().isEmpty();
         if (hasMaterials) {
-            string.append("mtllib %s.%s\n".formatted(meshName, "mtl"));
+            string.append("\nmtllib %s.%s".formatted(meshName, "mtl"));
 
             //write material file header
-            mtlString.append("# Cinnamon model exporter\n\n");
+            mtlString.append("# Cinnamon material exporter\n");
 
             for (Material material : mesh.getMaterials().values()) {
                 //material name
-                mtlString.append("newmtl %s\n".formatted(material.getName()));
+                mtlString.append("\nnewmtl %s\n".formatted(material.getName()));
 
                 //material data
                 writeMaterial(folder, mtlString, material);
@@ -66,25 +66,29 @@ public class ObjExporter {
         Matrix3f normalMat = matrices == null ? new Matrix3f() : matrices.peek().normal();
 
         //write vertices
+        string.append("\n\n# %s vertices".formatted(mesh.getVertices().size()));
         for (Vector3f vertex : mesh.getVertices()) {
             Vector4f v = new Vector4f(vertex, 1f).mul(poseMat);
-            string.append("v %s %s %s\n".formatted(df.format(v.x), df.format(v.y), df.format(v.z)));
+            string.append("\nv %s %s %s".formatted(df.format(v.x), df.format(v.y), df.format(v.z)));
         }
 
         //uvs
+        string.append("\n\n# %s uvs".formatted(mesh.getUVs().size()));
         for (Vector2f uv : mesh.getUVs())
-            string.append("vt %s %s\n".formatted(df.format(uv.x), df.format(uv.y)));
+            string.append("\nvt %s %s".formatted(df.format(uv.x), df.format(uv.y)));
 
         //normals
+        string.append("\n\n# %s normals".formatted(mesh.getNormals().size()));
         for (Vector3f normal : mesh.getNormals()) {
             Vector3f n = new Vector3f(normal).mul(normalMat);
-            string.append("vn %s %s %s\n".formatted(df.format(n.x), df.format(n.y), df.format(n.z)));
+            string.append("\nvn %s %s %s".formatted(df.format(n.x), df.format(n.y), df.format(n.z)));
         }
 
         //check if the face should be inverted when the pose matrix scale is negative
         boolean invertFace = poseMat.determinant() < 0f;
 
         //groups
+        string.append("\n");
         for (Group group : mesh.getGroups())
             writeGroup(string, group, invertFace);
 
@@ -103,7 +107,7 @@ public class ObjExporter {
     }
 
     private static void writeGroup(StringBuilder string, Group group, boolean invert) {
-        string.append("g %s\n".formatted(group.getName()));
+        string.append("\no %s\n".formatted(group.getName()));
 
         Material material = group.getMaterial();
         if (material != null)

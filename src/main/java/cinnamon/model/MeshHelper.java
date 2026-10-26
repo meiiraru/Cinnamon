@@ -373,9 +373,8 @@ public final class MeshHelper {
         }
 
         //copy animation data
-        if (mesh.getAnimationData() != null) {
-            Pair<Bone, List<Animation>> animData = mesh.getAnimationData();
-
+        Pair<Bone, List<Animation>> animData = mesh.getAnimationData();
+        if (animData != null) {
             Map<Bone, Bone> boneMap = new HashMap<>();
             Bone bone = new Bone(animData.first(), boneMap);
 
@@ -425,5 +424,108 @@ public final class MeshHelper {
             mesh.getBounds().set(bbMin, bbMax);
         else
             mesh.getBounds().set(0, 0, 0, 0, 0, 0);
+    }
+
+    /**
+     * Bakes the static animation bone transforms (pivot position and rotation) directly into the mesh vertices<br>
+     * This functionally flattens the mesh geometry and clears out the skeleton/animation data
+     * @param mesh The {@link Mesh} to bake
+     */
+    public static void bakeBones(Mesh mesh) {
+        Pair<Bone, List<Animation>> animData = mesh.getAnimationData();
+        if (animData == null)
+            return;
+
+        //bake the bone transforms into the group matrices map
+        Bone root = animData.first();
+        Map<String, MatrixStack.Pose> groupMatrices = new HashMap<>();
+        bakeGroupTransforms(root, new MatrixStack(), groupMatrices);
+
+        //backup the existing mesh data arrays before repopulating
+        List<Vector3f> oldVertices = new ArrayList<>(mesh.getVertices());
+        List<Vector2f> oldUVs      = new ArrayList<>(mesh.getUVs());
+        List<Vector3f> oldNormals  = new ArrayList<>(mesh.getNormals());
+        List<Vector3f> oldTangents = new ArrayList<>(mesh.getTangents());
+
+        mesh.getVertices().clear();
+        mesh.getUVs().clear();
+        mesh.getNormals().clear();
+        mesh.getTangents().clear();
+
+        //bake the transforms into the mesh data
+        for (Group group : mesh.getGroups()) {
+            MatrixStack.Pose mat = groupMatrices.get(group.getName());
+
+            for (Face face : group.getFaces()) {
+                //vertices
+                int[] vIndices = face.getVertices();
+                for (int i = 0; i < vIndices.length; i++) {
+                    Vector3f v = new Vector3f(oldVertices.get(vIndices[i]));
+                    if (mat != null) v.mulPosition(mat.pos());
+
+                    vIndices[i] = mesh.getVertices().size();
+                    mesh.getVertices().add(v);
+                }
+
+                //uvs (no transform applied)
+                if (face.hasUVs()) {
+                    int[] uvIndices = face.getUVs();
+                    for (int i = 0; i < uvIndices.length; i++) {
+                        Vector2f uv = new Vector2f(oldUVs.get(uvIndices[i]));
+
+                        uvIndices[i] = mesh.getUVs().size();
+                        mesh.getUVs().add(uv);
+                    }
+                }
+
+                //normals
+                if (face.hasNormals()) {
+                    int[] nIndices = face.getNormals();
+                    for (int i = 0; i < nIndices.length; i++) {
+                        Vector3f n = new Vector3f(oldNormals.get(nIndices[i]));
+                        if (mat != null) n.mul(mat.normal());
+
+                        nIndices[i] = mesh.getNormals().size();
+                        mesh.getNormals().add(n);
+                    }
+                }
+
+                //tangents
+                if (face.hasTangents()) {
+                    int[] tIndices = face.getTangents();
+                    for (int i = 0; i < tIndices.length; i++) {
+                        Vector3f t = new Vector3f(oldTangents.get(tIndices[i]));
+                        if (mat != null) t.mul(mat.normal());
+
+                        tIndices[i] = mesh.getTangents().size();
+                        mesh.getTangents().add(t);
+                    }
+                }
+            }
+        }
+
+        //clean up any redundant vertices after baking
+        stripDuplicateVertices(mesh);
+    }
+
+    private static void bakeGroupTransforms(Bone bone, MatrixStack matrices, Map<String, MatrixStack.Pose> groupMatrices) {
+        //copy the transform to the matrix stack
+        matrices.pushMatrix();
+        bone.getTransform()
+                .clearAnimationPose()
+                .applyTransform(matrices);
+
+        for (Bone child : bone.getChildren()) {
+            if (child.isModel()) {
+                //store the current matrix for this group
+                groupMatrices.put(child.getName(), matrices.peek());
+            } else {
+                bakeGroupTransforms(child, matrices, groupMatrices);
+            }
+        }
+
+        //clear the transform after baking
+        bone.getTransform().identity();
+        matrices.popMatrix();
     }
 }
