@@ -2,6 +2,7 @@ package cinnamon.render.model;
 
 import cinnamon.animation.Animation;
 import cinnamon.animation.Bone;
+import cinnamon.math.collision.shape.OBB;
 import cinnamon.model.material.Material;
 import cinnamon.model.mesh.Mesh;
 import cinnamon.render.MatrixStack;
@@ -18,6 +19,9 @@ public class AnimatedMeshRenderer extends MeshRenderer {
     private final Bone bone;
     private final Map<String, Animation> animations;
 
+    private final Map<String, OBB> obbCache = new HashMap<>();
+    private boolean updateOBBCache = false;
+
     public AnimatedMeshRenderer(AnimatedMeshRenderer other) {
         super(other);
         Map<Bone, Bone> boneMap = new HashMap<>();
@@ -26,14 +30,22 @@ public class AnimatedMeshRenderer extends MeshRenderer {
         this.animations = new HashMap<>();
         for (Animation animation : other.animations.values())
             this.animations.put(animation.getName(), new Animation(animation, boneMap));
+
+        for (String meshName : other.meshes.keySet())
+            obbCache.put(meshName, new OBB(other.obbCache.get(meshName)));
+        this.updateOBBCache = other.updateOBBCache;
     }
 
     public AnimatedMeshRenderer(Mesh mesh) {
         super(mesh);
+
         this.bone = mesh.getAnimationData().first();
         this.animations = new HashMap<>();
         for (Animation animation : mesh.getAnimationData().second())
             this.animations.put(animation.getName(), animation);
+
+        for (String meshName : this.meshes.keySet())
+            obbCache.put(meshName, new OBB(this.meshes.get(meshName).getAABB()));
     }
 
     @Override
@@ -77,6 +89,8 @@ public class AnimatedMeshRenderer extends MeshRenderer {
         }
 
         matrices.pushMatrix();
+
+        this.updateOBBCache |= bone.getTransform().isDirty();
         bone.getTransform().applyTransform(matrices);
 
         if (bone.getChildren().isEmpty()) {
@@ -108,5 +122,36 @@ public class AnimatedMeshRenderer extends MeshRenderer {
 
     public Bone getBone() {
         return bone;
+    }
+
+    @Override
+    public List<OBB> getGroupsOBB() {
+        if (updateOBBCache) {
+            updateOBBTransforms(bone, new MatrixStack());
+            updateOBBCache = false;
+        }
+        return new ArrayList<>(obbCache.values());
+    }
+
+    protected void updateOBBTransforms(Bone bone, MatrixStack matrices) {
+        matrices.pushMatrix();
+        bone.getTransform().applyTransform(matrices);
+
+        for (Bone child : bone.getChildren()) {
+            if (child.isModel()) {
+                String key = child.getName();
+                MeshData mesh = meshes.get(key);
+                if (mesh != null) {
+                    OBB obb = obbCache.get(key);
+                    obb.set(mesh.getAABB());
+                    obb.applyMatrix(matrices.peek().pos());
+                    obbCache.put(key, obb);
+                }
+            } else {
+                updateOBBTransforms(child, matrices);
+            }
+        }
+
+        matrices.popMatrix();
     }
 }

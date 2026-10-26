@@ -4,7 +4,6 @@ import cinnamon.animation.Animation;
 import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.shape.AABB;
-import cinnamon.math.collision.shape.OBB;
 import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
 import cinnamon.registry.TerrainRegistry;
@@ -105,13 +104,7 @@ public class Terrain extends WorldObject {
     }
 
     protected List<Collider<?>> getModelPreciseCollider() {
-        if (model == null)
-            return null;
-
-        List<Collider<?>> colliders = new ArrayList<>();
-        for (AABB bounds : model.getGroupsAABB())
-            colliders.add(new OBB(bounds));
-        return colliders;
+        return model == null ? List.of() : new ArrayList<>(model.getGroupsOBB());
     }
 
     protected void updateTerrainInWorld() {

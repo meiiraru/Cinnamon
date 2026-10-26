@@ -97,7 +97,9 @@ public class OBB extends Collider<OBB> {
         Vector3f normal = plane.getNormal();
         float d = plane.getDistance();
         float ext = 1e3f / 2f;
-        return this.set(normal.x * d, normal.y * d, normal.z * d, ext, ext, ext);
+        this.set(normal.x * d, normal.y * d, normal.z * d, ext, ext, ext);
+        this.rotate(Maths.dirToQuat(normal));
+        return this;
     }
 
     public OBB set(Vector3f center, Vector3f halfExtents) {
@@ -111,6 +113,7 @@ public class OBB extends Collider<OBB> {
     public OBB set(float centerX, float centerY, float centerZ, float halfX, float halfY, float halfZ) {
         this.setCenter(centerX, centerY, centerZ);
         this.setHalfExtents(halfX, halfY, halfZ);
+        this.identityRotation();
         return this;
     }
 

@@ -8,6 +8,7 @@ import cinnamon.gui.widgets.Tickable;
 import cinnamon.input.InputManager;
 import cinnamon.math.Maths;
 import cinnamon.math.collision.shape.AABB;
+import cinnamon.math.collision.shape.OBB;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.render.*;
@@ -218,8 +219,8 @@ public class ModelViewer extends SelectableWidget implements Tickable {
         //draw bounding box
         if (renderBounds) {
             DebugRenderer.renderAABB(matrices, aabb, 0xFFFFFFFF);
-            for (AABB bb : model.getGroupsAABB())
-                DebugRenderer.renderAABB(matrices, bb, 0xFFFF00FF);
+            for (OBB bb : model.getGroupsOBB())
+                DebugRenderer.renderOBB(matrices, bb, 0xFFFF00FF);
             VertexConsumer.LINES.finishBatch(camera);
         }
 

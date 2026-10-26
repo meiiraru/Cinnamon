@@ -1,6 +1,7 @@
 package cinnamon.render.model;
 
 import cinnamon.math.collision.shape.AABB;
+import cinnamon.math.collision.shape.OBB;
 import cinnamon.model.Vertex;
 import cinnamon.model.material.Material;
 import cinnamon.model.material.MaterialTexture;
@@ -102,7 +103,14 @@ public abstract class ModelRenderer {
     public List<AABB> getGroupsAABB() {
         List<AABB> list = new ArrayList<>();
         for (MeshData mesh : meshes.values())
-            list.add(mesh.getAABB());
+            list.add(new AABB(mesh.getAABB()));
+        return list;
+    }
+
+    public List<OBB> getGroupsOBB() {
+        List<OBB> list = new ArrayList<>();
+        for (MeshData mesh : meshes.values())
+            list.add(new OBB(mesh.getAABB()));
         return list;
     }
 
