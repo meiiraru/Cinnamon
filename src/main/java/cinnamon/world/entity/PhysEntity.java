@@ -206,6 +206,7 @@ public abstract class PhysEntity extends Entity {
 
             //resolve the collision
             collideTerrain(collisionTerrain, collision, currentMotion, toMove);
+            collisionTerrain.collideEntity(this, collision, currentMotion, toMove);
 
             //stop if remaining movement is too small
             if (toMove.lengthSquared() < Maths.SMALL_NUMBER) {

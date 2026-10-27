@@ -100,22 +100,24 @@ public class PlaygroundWorld extends WorldClient {
         TerrainGenerator.generateMengerSponge(this, 1, -11, 1, -17, MaterialRegistry.CHROME.getMaterial());
 
         //conveyor belt
-        float beltSpeed = 0.15f;
-        ConveyorBelt cb1 = new ConveyorBelt(beltSpeed);
-        cb1.setPos(5, 1, 5);
-        addTerrain(cb1);
-        ConveyorBelt cb2 = new ConveyorBelt(beltSpeed);
-        cb2.setPos(5, 1, 10);
-        cb2.setRotation(0f, 90f, 0f);
-        addTerrain(cb2);
-        ConveyorBelt cb3 = new ConveyorBelt(beltSpeed);
-        cb3.setPos(0, 1, 10);
-        cb3.setRotation(0f, 180f, 0f);
-        addTerrain(cb3);
-        ConveyorBelt cb4 = new ConveyorBelt(beltSpeed);
-        cb4.setPos(0, 1, 5);
-        cb4.setRotation(0f, 270f, 0f);
-        addTerrain(cb4);
+        float beltSpeed = 0.3f;
+        for (int i = 0; i < 5; i++) {
+            ConveyorBelt cb1 = new ConveyorBelt(beltSpeed);
+            cb1.setPos(5, 1, 5 + i);
+            addTerrain(cb1);
+            ConveyorBelt cb2 = new ConveyorBelt(beltSpeed);
+            cb2.setPos(5 - i, 1, 10);
+            cb2.setRotation(0f, 90f, 0f);
+            addTerrain(cb2);
+            ConveyorBelt cb3 = new ConveyorBelt(beltSpeed);
+            cb3.setPos(0, 1, 10 - i);
+            cb3.setRotation(0f, 180f, 0f);
+            addTerrain(cb3);
+            ConveyorBelt cb4 = new ConveyorBelt(beltSpeed);
+            cb4.setPos(i, 1, 5);
+            cb4.setRotation(0f, 270f, 0f);
+            addTerrain(cb4);
+        }
 
         //sphere
         Terrain t2 = TerrainRegistry.SPHERE.getFactory().get();

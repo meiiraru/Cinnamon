@@ -17,6 +17,7 @@ import cinnamon.utils.Mask;
 import cinnamon.utils.Resource;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.world.World;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -106,6 +107,8 @@ public class Terrain extends WorldObject {
     protected List<Collider<?>> getModelPreciseCollider() {
         return model == null ? List.of() : new ArrayList<>(model.getGroupsOBB());
     }
+
+    public void collideEntity(PhysEntity entity, Hit collision, Vector3f entityMotion, Vector3f entityMove) {}
 
     protected void updateTerrainInWorld() {
         World w = getWorld();
