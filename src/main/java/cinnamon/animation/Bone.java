@@ -13,6 +13,7 @@ public class Bone {
 
     private final List<Bone> children = new ArrayList<>();
     private final ModelTransform transform = new ModelTransform();
+    private boolean visible = true;
 
     private Bone parent;
 
@@ -62,6 +63,14 @@ public class Bone {
 
     public ModelTransform getTransform() {
         return transform;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 
     public Bone findBone(String name) {

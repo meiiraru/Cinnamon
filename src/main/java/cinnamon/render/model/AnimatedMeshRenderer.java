@@ -83,28 +83,22 @@ public class AnimatedMeshRenderer extends MeshRenderer {
     }
 
     private void renderBone(Bone bone, MatrixStack matrices, Consumer<String> renderFunction) {
-        if (bone.isModel()) {
-            renderFunction.accept(bone.getName());
-            return;
-        }
-
         matrices.pushMatrix();
 
         this.updateOBBCache |= bone.getTransform().isDirty();
         bone.getTransform().applyTransform(matrices);
 
-        if (bone.getChildren().isEmpty()) {
-            matrices.popMatrix();
-            return;
+        if (bone.isModel()) {
+            if (bone.isVisible()) {
+                Shader.activeShader.applyMatrixStack(matrices);
+                renderFunction.accept(bone.getName());
+            }
         }
-
-        Shader.activeShader.applyMatrixStack(matrices);
 
         for (Bone child : bone.getChildren())
             renderBone(child, matrices, renderFunction);
 
         matrices.popMatrix();
-        Shader.activeShader.applyMatrixStack(matrices);
     }
 
     public Animation getAnimation(String name) {
@@ -137,19 +131,18 @@ public class AnimatedMeshRenderer extends MeshRenderer {
         matrices.pushMatrix();
         bone.getTransform().applyTransform(matrices);
 
-        for (Bone child : bone.getChildren()) {
-            if (child.isModel()) {
-                String key = child.getName();
-                MeshData mesh = meshes.get(key);
-                if (mesh != null) {
-                    OBB obb = obbCache.get(key);
-                    obb.set(mesh.getAABB());
-                    obb.applyMatrix(matrices.peek().pos());
-                }
-            } else {
-                updateOBBTransforms(child, matrices);
+        if (bone.isModel()) {
+            String key = bone.getName();
+            MeshData mesh = meshes.get(key);
+            if (mesh != null) {
+                OBB obb = obbCache.get(key);
+                obb.set(mesh.getAABB());
+                obb.applyMatrix(matrices.peek().pos());
             }
         }
+
+        for (Bone child : bone.getChildren())
+            updateOBBTransforms(child, matrices);
 
         matrices.popMatrix();
     }

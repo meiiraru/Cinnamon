@@ -57,7 +57,7 @@ public class BBModelLoader {
             LOGGER.debug("Parsed %d textures", materials.size());
 
             //parse elements
-            Map<String, Group> parts = new HashMap<>();
+            Map<String, Bone> parts = new HashMap<>();
             parseElements(json, mesh, parts, materials, versionBelowFive);
             LOGGER.debug("Parsed %d parts", parts.size());
 
@@ -89,17 +89,11 @@ public class BBModelLoader {
         return new Vector3f(array.get(0).getAsFloat(), array.get(1).getAsFloat(), array.get(2).getAsFloat());
     }
 
-    public static void applyTransform(Vector3f vec, Vector3f pivot, Quaternionf rot) {
-        if (pivot != null) vec.sub(pivot);
-        if (rot   != null) vec.rotate(rot);
-        if (pivot != null) vec.add(pivot);
-    }
-
 
     // -- version -- //
 
 
-    public static Version checkVersion(JsonObject root) {
+    static Version checkVersion(JsonObject root) {
         JsonObject meta = root.has("meta") ? root.getAsJsonObject("meta") : null;
         if (meta == null || !meta.has("format_version"))
             throw new RuntimeException("Invalid bbmodel file: missing meta.format_version");
@@ -123,7 +117,7 @@ public class BBModelLoader {
     // -- elements -- //
 
 
-    private static void parseElements(JsonObject root, Mesh mesh, Map<String, Group> parts, List<TextureData> materials, boolean versionBelowFive) {
+    private static void parseElements(JsonObject root, Mesh mesh, Map<String, Bone> parts, List<TextureData> materials, boolean versionBelowFive) {
         if (!root.has("elements"))
             return;
 
@@ -137,20 +131,18 @@ public class BBModelLoader {
             String type = obj.has("type") ? obj.get("type").getAsString() : "cube";
             String uuid = obj.get("uuid").getAsString();
 
-            Group part = switch (type) {
+            Bone part = switch (type) {
                 case "cube" -> parseCube(obj, mesh, materials, groupNames);
                 case "mesh" -> parseMesh(obj, mesh, materials, versionBelowFive, groupNames);
                 default -> null;
             };
 
-            if (part != null) {
+            if (part != null)
                 parts.put(uuid, part);
-                mesh.getGroups().add(part);
-            }
         }
     }
 
-    private static Group parseCube(JsonObject obj, Mesh mesh, List<TextureData> materials, Set<String> groupNames) {
+    private static Bone parseCube(JsonObject obj, Mesh mesh, List<TextureData> materials, Set<String> groupNames) {
         //create group
         String rawName = obj.has("name") ? obj.get("name").getAsString() : "cube";
         String name = rawName;
@@ -158,7 +150,11 @@ public class BBModelLoader {
             name = rawName + "_" + i;
 
         Group group = new Group(name);
-        groupNames.add(name);
+        Bone bone = new Bone(name, true);
+
+        //visibility
+        if (obj.has("visibility"))
+            bone.setVisible(obj.get("visibility").getAsBoolean());
 
         //coords
         Vector3f from = parseVec3(obj.getAsJsonArray("from")).mul(SCALE);
@@ -177,21 +173,31 @@ public class BBModelLoader {
         //transform
         Vector3f pivot    = obj.has("origin")   ? parseVec3(obj.getAsJsonArray("origin")).mul(SCALE) : null;
         Vector3f rotation = obj.has("rotation") ? parseVec3(obj.getAsJsonArray("rotation"))          : null;
-        Quaternionf rot = rotation != null ? new Quaternionf().rotationZYX(Math.toRadians(rotation.z), Math.toRadians(rotation.y), Math.toRadians(rotation.x)) : null;
+
+        if (pivot != null)
+            bone.getTransform().setPivot(pivot);
+        if (rotation != null)
+            bone.getTransform().setPivotRot(-rotation.x, -rotation.y, rotation.z);
 
         //map the faces to the cube vertices
         JsonObject facesObj = obj.getAsJsonObject("faces");
-        addCubeFace(mesh, materials, group, facesObj, "north", new Vector3f( 0,  0, -1), pivot, rot, new Vector3f(x2, y1, z1), new Vector3f(x1, y1, z1), new Vector3f(x1, y2, z1), new Vector3f(x2, y2, z1));
-        addCubeFace(mesh, materials, group, facesObj, "south", new Vector3f( 0,  0,  1), pivot, rot, new Vector3f(x1, y1, z2), new Vector3f(x2, y1, z2), new Vector3f(x2, y2, z2), new Vector3f(x1, y2, z2));
-        addCubeFace(mesh, materials, group, facesObj, "east",  new Vector3f( 1,  0,  0), pivot, rot, new Vector3f(x2, y1, z2), new Vector3f(x2, y1, z1), new Vector3f(x2, y2, z1), new Vector3f(x2, y2, z2));
-        addCubeFace(mesh, materials, group, facesObj, "west",  new Vector3f(-1,  0,  0), pivot, rot, new Vector3f(x1, y1, z1), new Vector3f(x1, y1, z2), new Vector3f(x1, y2, z2), new Vector3f(x1, y2, z1));
-        addCubeFace(mesh, materials, group, facesObj, "up",    new Vector3f( 0,  1,  0), pivot, rot, new Vector3f(x2, y2, z1), new Vector3f(x1, y2, z1), new Vector3f(x1, y2, z2), new Vector3f(x2, y2, z2));
-        addCubeFace(mesh, materials, group, facesObj, "down",  new Vector3f( 0, -1,  0), pivot, rot, new Vector3f(x1, y1, z1), new Vector3f(x2, y1, z1), new Vector3f(x2, y1, z2), new Vector3f(x1, y1, z2));
+        addCubeFace(mesh, materials, group, facesObj, "north", new Vector3f( 0,  0, -1), new Vector3f(x2, y1, z1), new Vector3f(x1, y1, z1), new Vector3f(x1, y2, z1), new Vector3f(x2, y2, z1));
+        addCubeFace(mesh, materials, group, facesObj, "south", new Vector3f( 0,  0,  1), new Vector3f(x1, y1, z2), new Vector3f(x2, y1, z2), new Vector3f(x2, y2, z2), new Vector3f(x1, y2, z2));
+        addCubeFace(mesh, materials, group, facesObj, "east",  new Vector3f( 1,  0,  0), new Vector3f(x2, y1, z2), new Vector3f(x2, y1, z1), new Vector3f(x2, y2, z1), new Vector3f(x2, y2, z2));
+        addCubeFace(mesh, materials, group, facesObj, "west",  new Vector3f(-1,  0,  0), new Vector3f(x1, y1, z1), new Vector3f(x1, y1, z2), new Vector3f(x1, y2, z2), new Vector3f(x1, y2, z1));
+        addCubeFace(mesh, materials, group, facesObj, "up",    new Vector3f( 0,  1,  0), new Vector3f(x2, y2, z1), new Vector3f(x1, y2, z1), new Vector3f(x1, y2, z2), new Vector3f(x2, y2, z2));
+        addCubeFace(mesh, materials, group, facesObj, "down",  new Vector3f( 0, -1,  0), new Vector3f(x1, y1, z1), new Vector3f(x2, y1, z1), new Vector3f(x2, y1, z2), new Vector3f(x1, y1, z2));
 
-        return group;
+        //return
+        if (group.isEmpty())
+            return null;
+
+        groupNames.add(name);
+        mesh.getGroups().add(group);
+        return bone;
     }
 
-    private static void addCubeFace(Mesh mesh, List<TextureData> materials, Group group, JsonObject facesObj, String faceName, Vector3f normal, Vector3f pivot, Quaternionf rot, Vector3f... corners) {
+    private static void addCubeFace(Mesh mesh, List<TextureData> materials, Group group, JsonObject facesObj, String faceName, Vector3f normal, Vector3f... corners) {
         if (!facesObj.has(faceName))
             return;
 
@@ -244,11 +250,8 @@ public class BBModelLoader {
         //add vertices and uvs to the mesh
         for (int i = 0; i < 4; i++) {
             //vertex
-            Vector3f pos = corners[i];
-            applyTransform(pos, pivot, rot);
-
             vIndices[i] = mesh.getVertices().size();
-            mesh.getVertices().add(pos);
+            mesh.getVertices().add(corners[i]);
 
             //uv
             uvIndices[i] = mesh.getUVs().size();
@@ -259,7 +262,7 @@ public class BBModelLoader {
         group.getFaces().add(new Face(vIndices, uvIndices, nIndices));
     }
 
-    private static Group parseMesh(JsonObject obj, Mesh mesh, List<TextureData> materials, boolean versionBelowFive, Set<String> groupNames) {
+    private static Bone parseMesh(JsonObject obj, Mesh mesh, List<TextureData> materials, boolean versionBelowFive, Set<String> groupNames) {
         //create group
         String rawName = obj.has("name") ? obj.get("name").getAsString() : "mesh";
         String name = rawName;
@@ -267,7 +270,11 @@ public class BBModelLoader {
             name = rawName + "_" + i;
 
         Group group = new Group(name);
-        groupNames.add(name);
+        Bone bone = new Bone(name, true);
+
+        //visibility
+        if (obj.has("visibility"))
+            bone.setVisible(obj.get("visibility").getAsBoolean());
 
         //read the vertices map
         Map<String, Vector3f> localVertices = new HashMap<>();
@@ -279,6 +286,11 @@ public class BBModelLoader {
         Vector3f pivot    = obj.has("origin")   ? parseVec3(obj.getAsJsonArray("origin")).mul(SCALE) : null;
         Vector3f rotation = obj.has("rotation") ? parseVec3(obj.getAsJsonArray("rotation"))          : null;
         Quaternionf rot = rotation != null ? new Quaternionf().rotationXYZ(Math.toRadians(rotation.x), Math.toRadians(rotation.y), Math.toRadians(rotation.z)) : null;
+
+        if (pivot != null)
+            bone.getTransform().setPivot(pivot);
+        if (rotation != null)
+            bone.getTransform().setPivotRot(rot);
 
         //read the faces map
         JsonObject facesObj = obj.getAsJsonObject("faces");
@@ -335,9 +347,6 @@ public class BBModelLoader {
             Vector3f v2 = localVertices.get(faceVerts.get(2).getAsString());
             Vector3f normal = Maths.normal(v0, v1, v2);
 
-            if (rotation != null)
-                normal.rotate(rot);
-
             int nIdx = mesh.getNormals().size();
             mesh.getNormals().add(normal);
 
@@ -349,7 +358,6 @@ public class BBModelLoader {
                 Vector3f pos = new Vector3f(localVertices.get(vId));
                 if (pivot != null)
                     pos.add(pivot);
-                applyTransform(pos, pivot, rot);
 
                 vIndices[i] = mesh.getVertices().size();
                 mesh.getVertices().add(pos);
@@ -368,7 +376,13 @@ public class BBModelLoader {
             group.getFaces().add(new Face(vIndices, uvIndices, nIndices));
         }
 
-        return group;
+        //return
+        if (group.isEmpty())
+            return null;
+
+        groupNames.add(name);
+        mesh.getGroups().add(group);
+        return bone;
     }
 
 
@@ -404,6 +418,10 @@ public class BBModelLoader {
                 bone.getTransform().setPivotRot(-rot.x, -rot.y, rot.z);
             }
 
+            //visibility
+            if (groupObj.has("visibility"))
+                bone.setVisible(groupObj.get("visibility").getAsBoolean());
+
             groups.put(uuid, bone);
 
             //children
@@ -416,7 +434,7 @@ public class BBModelLoader {
     // -- outliner -- //
 
 
-    private static Bone parseOutliner(JsonObject root, Map<String, Bone> groups, Map<String, Group> parts) {
+    private static Bone parseOutliner(JsonObject root, Map<String, Bone> groups, Map<String, Bone> parts) {
         Bone rootBone = new Bone("bone:_root");
         if (!root.has("outliner"))
             return rootBone;
@@ -425,22 +443,17 @@ public class BBModelLoader {
         return rootBone;
     }
 
-    private static void parseOutliner(Bone parent, JsonArray elements, Map<String, Bone> groups, Map<String, Group> parts) {
+    private static void parseOutliner(Bone parent, JsonArray elements, Map<String, Bone> groups, Map<String, Bone> parts) {
         for (JsonElement element : elements) {
             //string - raw part
             if (!element.isJsonObject()) {
                 //get part
                 String uuid = element.getAsString();
-                Group part = parts.get(uuid);
-
-                if (part == null)
-                    continue;
-
-                //update name
-                String name = part.getName();
+                Bone part = parts.get(uuid);
 
                 //add as a child
-                parent.getChildren().add(new Bone(name, true));
+                if (part != null)
+                    parent.getChildren().add(part);
             }
             //object - group
             else {

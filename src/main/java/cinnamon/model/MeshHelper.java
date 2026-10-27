@@ -439,7 +439,7 @@ public final class MeshHelper {
         //bake the bone transforms into the group matrices map
         Bone root = animData.first();
         Map<String, MatrixStack.Pose> groupMatrices = new HashMap<>();
-        bakeGroupTransforms(root, new MatrixStack(), groupMatrices);
+        bakeTransform(root, new MatrixStack(), groupMatrices);
 
         //backup the existing mesh data arrays before repopulating
         List<Vector3f> oldVertices = new ArrayList<>(mesh.getVertices());
@@ -508,21 +508,20 @@ public final class MeshHelper {
         stripDuplicateVertices(mesh);
     }
 
-    private static void bakeGroupTransforms(Bone bone, MatrixStack matrices, Map<String, MatrixStack.Pose> groupMatrices) {
+    private static void bakeTransform(Bone bone, MatrixStack matrices, Map<String, MatrixStack.Pose> groupMatrices) {
         //copy the transform to the matrix stack
         matrices.pushMatrix();
         bone.getTransform()
                 .clearAnimationPose()
                 .applyTransform(matrices);
 
-        for (Bone child : bone.getChildren()) {
-            if (child.isModel()) {
-                //store the current matrix for this group
-                groupMatrices.put(child.getName(), matrices.peek());
-            } else {
-                bakeGroupTransforms(child, matrices, groupMatrices);
-            }
-        }
+        //store the current matrix for this group
+        if (bone.isModel())
+            groupMatrices.put(bone.getName(), matrices.peek());
+
+        //bake the children
+        for (Bone child : bone.getChildren())
+            bakeTransform(child, matrices, groupMatrices);
 
         //clear the transform after baking
         bone.getTransform().identity();
