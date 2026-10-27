@@ -343,7 +343,7 @@ public class Hud {
         //prepare variables
         Window window = Client.getInstance().window;
         Inventory inventory = entity.getInventory();
-        int count = inventory.getSize();
+        int count = inventory.getHotbarSize();
         int selected = inventory.getSelectedIndex();
 
         float x = (window.getGUIWidth() - 16 * count) / 2f;
