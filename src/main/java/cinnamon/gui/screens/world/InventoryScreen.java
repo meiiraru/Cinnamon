@@ -282,7 +282,19 @@ public class InventoryScreen extends Screen {
                     //move hotbar-backpack
                     if ((mods & GLFW_MOD_SHIFT) != 0) {
                         if (slotItem != null) {
-                            //TODO
+                            int hotbar = entity.getInventory().getHotbarSize();
+                            int totalSize = entity.getInventory().getSize();
+
+                            //move from backpack to hotbar
+                            if (hoveredSlot >= hotbar) {
+                                if (entity.getInventory().putItem(slotItem, 0, hotbar, false) == 2)
+                                    entity.getInventory().setItem(hoveredSlot, null);
+                            }
+                            //move from hotbar to backpack
+                            else {
+                                if (entity.getInventory().putItem(slotItem, hotbar, totalSize, false) == 2)
+                                    entity.getInventory().setItem(hoveredSlot, null);
+                            }
                         }
                     }
 

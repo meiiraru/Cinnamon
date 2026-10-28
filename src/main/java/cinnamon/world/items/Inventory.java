@@ -59,8 +59,28 @@ public class Inventory {
      * @return 0 if the item was not added<br>
      * 1 if it was partially added<br>
      * 2 if it was fully added
+     * @see #putItem(Item, int, int, boolean)
      */
     public int putItem(Item item) {
+        return putItem(item, 0, size, true);
+    }
+
+    /**
+     * Adds an {@link Item} to the inventory, merging it with existing stacks if possible<br>
+     * If the item cannot be fully added, it will be partially added and the remaining count will be left in the item stack<br>
+     * The item will be added to the selected range of slots, optionally prioritizing the selected slot if possible<br>
+     * If the item cannot be added to any slot, it will be left in the item stack<br>
+     * The range of slots is inclusive of the minIndex and exclusive of the maxIndex
+     * @param item the item to add
+     * @param minIndex the minimum index of the range of slots to add the item to
+     * @param maxIndex the maximum index of the range of slots to add the item to
+     * @param prioritizeSelected whether to prioritize the selected slot if it is within the range of slots
+     * @return 0 if the item was not added<br>
+     * 1 if it was partially added<br>
+     * 2 if it was fully added
+     * @see #putItem(Item)
+     */
+    public int putItem(Item item, int minIndex, int maxIndex, boolean prioritizeSelected) {
         int state = 0;
         int freeIndex = -1;
         int initialCount = item.getCount();
@@ -70,15 +90,17 @@ public class Inventory {
             return 0;
 
         //try to merge with selected item first
-        Item selectedItem = getSelectedItem();
-        if (selectedItem != null) {
-            selectedItem.mergeItem(item);
-            if (item.getCount() == 0)
-                return 2;
+        if (prioritizeSelected && selected >= minIndex && selected < maxIndex) {
+            Item selectedItem = getSelectedItem();
+            if (selectedItem != null) {
+                selectedItem.mergeItem(item);
+                if (item.getCount() == 0)
+                    return 2;
+            }
         }
 
         //try to add to the inventory
-        for (int i = 0; i < size; i++) {
+        for (int i = minIndex; i < maxIndex; i++) {
             Item invItem = items[i];
 
             //no item
