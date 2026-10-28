@@ -87,6 +87,8 @@
   "gui.terminal.chat_output": "Chat Output",
   "gui.terminal.clear_output": "Clear Output",
   "gui.terminal.last_output": "Last Output:",
+  "gui.terminal.delay": "Command Delay:",
+  "gui.terminal.delay_hint": "Enter delay here...",
 
   "gui.text_field.cut": "Cut",
   "gui.text_field.copy": "Copy",

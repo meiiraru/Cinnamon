@@ -66,6 +66,15 @@ public class TerminalScreen extends Screen {
         });
         switches.addWidget(clearOutput);
 
+        Label delayLabel = new Label(0, 0, Text.translated("gui.terminal.delay").withStyle(Style.EMPTY.outlined(true)), Alignment.TOP_LEFT);
+        switches.addWidget(delayLabel);
+
+        TextField delayField = new TextField(0, 0, 85, 16);
+        delayField.setText(String.valueOf(terminal.getDelay()));
+        delayField.setHintText(Text.translated("gui.terminal.delay_hint"));
+        delayField.setFilter(TextField.Filter.NUMBERS);
+        switches.addWidget(delayField);
+
         switches.setX(width - 32 - switches.getWidth());
 
         maxOutputWidth = switches.getX() - 32 - 4;
@@ -89,6 +98,8 @@ public class TerminalScreen extends Screen {
             terminal.setCommandString(field.getText());
             terminal.setActive(enable.isToggled());
             terminal.setSendOutputToChat(chatOutput.isToggled());
+            if (!delayField.getText().isBlank())
+                terminal.setDelay(Integer.parseInt(delayField.getText()));
         });
         grid.addWidget(apply);
     }

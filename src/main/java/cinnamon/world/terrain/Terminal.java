@@ -27,6 +27,8 @@ public class Terminal extends Terrain  {
     private boolean active = false;
     private boolean sendOutputToChat = false;
     private Text output;
+    private int delay = 1;
+    private int delayTicks = delay;
 
     public Terminal() {
         super(TerrainModelRegistry.TERMINAL.resource, TerrainRegistry.TERMINAL);
@@ -37,7 +39,7 @@ public class Terminal extends Terrain  {
     public void tick() {
         super.tick();
 
-        if (isActive() && getWorld().getRules().get(WorldRules.ENABLE_TERMINAL) && isCommandValid(getCommandString()))
+        if (isActive() && getWorld().getRules().get(WorldRules.ENABLE_TERMINAL) && --delayTicks <= 0 && isCommandValid(getCommandString()))
             processCommand();
     }
 
@@ -62,6 +64,8 @@ public class Terminal extends Terrain  {
             if (isSendingOutputToChat())
                 MessageManager.addMessage(this.output, MessageCategory.SYSTEM, null);
         }
+
+        delayTicks = delay;
     }
 
     protected boolean isCommandValid(String cmd) {
@@ -111,6 +115,18 @@ public class Terminal extends Terrain  {
 
     public boolean isActive() {
         return active;
+    }
+
+    public int getDelayTicks() {
+        return delayTicks;
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = Math.max(delay, 1);
     }
 
     @Override

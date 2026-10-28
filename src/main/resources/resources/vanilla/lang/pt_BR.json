@@ -87,6 +87,8 @@
   "gui.terminal.chat_output": "Resultado no Chat",
   "gui.terminal.clear_output": "Limpar Resultado",
   "gui.terminal.last_output": "Último Resultado:",
+  "gui.terminal.delay": "Atraso do Comando:",
+  "gui.terminal.delay_hint": "Digite o atraso aqui...",
 
   "gui.text_field.cut": "Recortar",
   "gui.text_field.copy": "Copiar",

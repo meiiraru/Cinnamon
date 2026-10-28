@@ -42,7 +42,7 @@ public class Interact implements Command {
 
     @Override
     public Text getHelpCommand() {
-        return Text.of("Usage: /run <target> <command>")
+        return Text.of("Usage: /interact <target> [use|attack]")
                 .append("\n")
                 .append("Executes a command as the specified target entity");
     }
