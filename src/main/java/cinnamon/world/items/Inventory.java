@@ -127,7 +127,7 @@ public class Inventory {
      * @return the item in that slot, or {@code null} if there is no item
      */
     public Item getItem(int slot) {
-        return items[slot];
+        return slot >= 0 && slot < size ? items[slot] : null;
     }
 
     /**

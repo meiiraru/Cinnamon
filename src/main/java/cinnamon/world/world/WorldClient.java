@@ -6,6 +6,7 @@ import cinnamon.gui.DebugScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.screens.world.ChatScreen;
 import cinnamon.gui.screens.world.DeathScreen;
+import cinnamon.gui.screens.world.InventoryScreen;
 import cinnamon.gui.screens.world.PauseScreen;
 import cinnamon.input.Keybind;
 import cinnamon.math.Maths;
@@ -69,7 +70,8 @@ public class WorldClient extends World {
     public Supplier<Screen>
             chatScreen = ChatScreen::new,
             pauseScreen = PauseScreen::new,
-            deathScreen = DeathScreen::new;
+            deathScreen = DeathScreen::new,
+            inventoryScreen = InventoryScreen::new;
 
     protected Hud hud = new Hud();
     protected Overlay overlay;
@@ -680,6 +682,13 @@ public class WorldClient extends World {
                 Screen chat = chatScreen.get();
                 if (chat != null)
                     client.setScreen(chat);
+            }
+            case GLFW_KEY_TAB -> {
+                if (playerEntity instanceof LivingEntity) {
+                    Screen inventory = inventoryScreen.get();
+                    if (inventory != null)
+                        client.setScreen(inventory);
+                }
             }
             case GLFW_KEY_F5 -> this.cameraMode = (this.cameraMode + 1) % 3;
             case GLFW_KEY_F7 -> {if (enableDebugKeys) this.worldTime = Math.max(this.worldTime - 100, 0);}

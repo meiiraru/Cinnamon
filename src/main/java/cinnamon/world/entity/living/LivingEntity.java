@@ -473,7 +473,8 @@ public abstract class LivingEntity extends PhysEntity {
 
     protected Item getItemToDrop(int index, int dropCount) {
         Inventory inv = getInventory();
-        Item i = index < 0 ? inv.getSelectedItem() : index < inv.getSize() ? inv.getItem(index) : null;
+        int itemIndex = index < 0 ? inv.getSelectedIndex() : index;
+        Item i = inv.getItem(itemIndex);
         if (i == null)
             return null;
 
@@ -486,7 +487,7 @@ public abstract class LivingEntity extends PhysEntity {
         if (droppedCount != count) {
             i.setCount(count - droppedCount);
         } else {
-            inv.setItem(inv.getSelectedIndex(), null);
+            inv.setItem(itemIndex, null);
             i.unselect();
         }
 
@@ -495,6 +496,10 @@ public abstract class LivingEntity extends PhysEntity {
 
     public ItemEntity dropItem(int index, int count) {
         Item drop = getItemToDrop(index, count);
+        return dropItem(drop);
+    }
+
+    public ItemEntity dropItem(Item drop) {
         if (drop == null || drop.getCount() <= 0)
             return null;
 

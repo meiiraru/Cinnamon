@@ -90,6 +90,8 @@
   "gui.terminal.delay": "Command Delay:",
   "gui.terminal.delay_hint": "Enter delay here...",
 
+  "gui.inventory": "Inventory",
+
   "gui.text_field.cut": "Cut",
   "gui.text_field.copy": "Copy",
   "gui.text_field.paste": "Paste",
@@ -722,6 +724,7 @@
   "setting.controls.keybind.item.reload": "Reload",
 
   "setting.controls.keybind.inv": "Inventory",
+  "setting.controls.keybind.inv.open_inv": "Open Inventory",
   "setting.controls.keybind.inv.prev_slot": "Previous Slot",
   "setting.controls.keybind.inv.next_slot": "Next Slot",
   "setting.controls.keybind.inv.inv1": "Inventory 1",

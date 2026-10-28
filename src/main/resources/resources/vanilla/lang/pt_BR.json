@@ -90,6 +90,8 @@
   "gui.terminal.delay": "Atraso do Comando:",
   "gui.terminal.delay_hint": "Digite o atraso aqui...",
 
+  "gui.inventory": "Inventário",
+
   "gui.text_field.cut": "Recortar",
   "gui.text_field.copy": "Copiar",
   "gui.text_field.paste": "Colar",
@@ -706,6 +708,7 @@
   "setting.controls.keybind.item.reload": "Recarregar",
 
   "setting.controls.keybind.inv": "Inventário",
+  "setting.controls.keybind.inv.open_inv": "Abrir Inventário",
   "setting.controls.keybind.inv.prev_slot": "Selecionar Anterior",
   "setting.controls.keybind.inv.next_slot": "Selecionar Próximo",
   "setting.controls.keybind.inv.inv1": "Inventário 1",

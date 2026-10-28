@@ -168,6 +168,7 @@ public class Settings {
             inv7 = new Setting.Keybind("controls.keybind.inv.inv7", GLFW_KEY_7, KEY),
             inv8 = new Setting.Keybind("controls.keybind.inv.inv8", GLFW_KEY_8, KEY),
             inv9 = new Setting.Keybind("controls.keybind.inv.inv9", GLFW_KEY_9, KEY),
+            openInv = new Setting.Keybind("controls.keybind.inv.open_inv", GLFW_KEY_TAB, KEY),
 
             //vehicle
             honk   = new Setting.Keybind("controls.keybind.car.honk", GLFW_KEY_F, KEY),

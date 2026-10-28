@@ -22,7 +22,8 @@ public class Player extends LivingEntity {
 
     public static final int MAX_HEALTH = 100;
     public static final int INVULNERABILITY_TIME = 10;
-    public static final int INVENTORY_SIZE = 9;
+    public static final int HOTBAR_SIZE = 9;
+    public static final int BACKPACK_SIZE = 16;
     public static final int SPRINT_PARTICLE_DELAY = 3;
     public static final Vector3f DIMENSIONS = new Vector3f(0.6f, 1.8f, 0.6f);
 
@@ -47,8 +48,9 @@ public class Player extends LivingEntity {
     }
 
     public Player(String name, UUID uuid, Resource model, float eyeHeight) {
-        super(uuid, model, eyeHeight, MAX_HEALTH, INVENTORY_SIZE);
+        super(uuid, model, eyeHeight, MAX_HEALTH, HOTBAR_SIZE + BACKPACK_SIZE);
         this.setName(name);
+        this.getInventory().setHotbarSize(HOTBAR_SIZE);
         this.getController().bindDoubleClick(
                 "fly_toggle", Settings.jump.get(),
                 click -> {
