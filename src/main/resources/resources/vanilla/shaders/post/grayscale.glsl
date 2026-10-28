@@ -12,7 +12,6 @@ uniform sampler2D colorTex;
 
 void main() {
     vec4 colorTex = texture(colorTex, texCoords);
-    float brightness = dot(colorTex.rgb, vec3(0.2126f, 0.7152f, 0.0722f));
-    brightness = pow(brightness, 1.0f / 2.2f);
+    float brightness = dot(colorTex.rgb, vec3(0.2125f, 0.7154f, 0.0721f));
     fragColor = vec4(vec3(brightness), colorTex.a);
 }
