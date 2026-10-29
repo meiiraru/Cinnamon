@@ -7,6 +7,7 @@ import cinnamon.model.GeometryHelper;
 import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
+import cinnamon.settings.Settings;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
@@ -17,6 +18,10 @@ import cinnamon.world.items.Inventory;
 import cinnamon.world.items.Item;
 import cinnamon.world.items.ItemRenderContext;
 import org.joml.Math;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -29,6 +34,10 @@ public class InventoryScreen extends Screen {
     protected LivingEntity entity;
     protected int hoveredSlot = -1;
     protected Item cursorItem;
+
+    protected long lastClickTime = 0L;
+    protected int lastClickButton = -1;
+    protected int lastClickSlot = -1;
 
     @Override
     public void init() {
@@ -162,8 +171,12 @@ public class InventoryScreen extends Screen {
             renderItem(matrices, item, slotX, slotY, delta);
         }
 
-        if (cursorItem != null)
+        if (cursorItem != null) {
+            matrices.pushMatrix();
+            matrices.translate(0, 0, UIHelper.getDepthOffset() + 5f);
             renderItem(matrices, cursorItem, mouseX - 8, mouseY - 8, delta);
+            matrices.popMatrix();
+        }
 
         //render hovered tooltip
         Item hoveredItem = inventory.getItem(hoveredSlot);
@@ -251,7 +264,54 @@ public class InventoryScreen extends Screen {
 
     @Override
     public boolean mousePress(int button, int action, int mods) {
-        if (action == GLFW_PRESS && hoveredSlot != -2) {
+        if (hoveredSlot == -2)
+            return super.mousePress(button, action, mods);
+
+        if (action == GLFW_RELEASE) {
+            //double click detection
+            long time = client.ticks;
+            boolean doubleClick = time - lastClickTime < Settings.doubleClickTime.get() && lastClickButton == button && lastClickSlot == hoveredSlot;
+            lastClickTime = time;
+            lastClickButton = button;
+            lastClickSlot = hoveredSlot;
+
+            //pick all
+            if (doubleClick && button == GLFW_MOUSE_BUTTON_1 && hoveredSlot >= 0 && cursorItem != null) {
+                Inventory inventory = entity.getInventory();
+
+                //collect all valid slots containing matching items
+                List<Integer> matchingSlots = new ArrayList<>();
+                for (int i = 0; i < inventory.getSize(); i++) {
+                    Item invItem = inventory.getItem(i);
+                    if (invItem != null && invItem.stacksWith(cursorItem))
+                        matchingSlots.add(i);
+                }
+
+                //sort by item count ascending so we get the smallest stacks first
+                matchingSlots.sort(Comparator.comparingInt(slot -> inventory.getItem(slot).getCount()));
+
+                //gather items from the matching slots into the cursor item until it reaches its stack size
+                for (int slot : matchingSlots) {
+                    if (cursorItem.getCount() >= cursorItem.getStackSize())
+                        break;
+
+                    //take the stack from the inventory slot
+                    Item invItem = inventory.getItem(slot);
+                    int space = cursorItem.getStackSize() - cursorItem.getCount();
+                    int take = Math.min(space, invItem.getCount());
+
+                    cursorItem.setCount(cursorItem.getCount() + take);
+                    invItem.setCount(invItem.getCount() - take);
+
+                    //remove from the inventory if taken all
+                    if (invItem.getCount() <= 0)
+                        inventory.setItem(slot, null);
+                }
+
+                return true;
+            }
+
+            //out of inventory bounds, drop item
             if (hoveredSlot == -1 && cursorItem != null) {
                 switch (button) {
                     //drop whole stack
@@ -274,6 +334,7 @@ public class InventoryScreen extends Screen {
                 return true;
             }
 
+            //inside bounds, pickup item
             switch (button) {
                 //whole stack
                 case GLFW_MOUSE_BUTTON_1 -> {
@@ -352,6 +413,7 @@ public class InventoryScreen extends Screen {
                     }
                 }
             }
+
             return true;
         }
 

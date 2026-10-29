@@ -103,7 +103,7 @@ public class Settings {
     //general
     public static final Setting.Ints
             doubleKeypressTime = new Setting.Ints("accessibility.general.double_keypress_time", 10),
-            doubleClickTime    = new Setting.Ints("accessibility.general.double_click_time", 10),
+            doubleClickTime    = new Setting.Ints("accessibility.general.double_click_time", 5),
             cursorBlinkDelay   = new Setting.Ints("accessibility.general.cursor_blink_delay", 20);
     public static final Setting.Floats viewBobbingStrength  = new Setting.Floats("accessibility.general.view_bobbing_strength", 1f);
     public static final Setting.Bools actionWheelRunOnClose = new Setting.Bools("accessibility.general.action_wheel_run_on_close", false);
