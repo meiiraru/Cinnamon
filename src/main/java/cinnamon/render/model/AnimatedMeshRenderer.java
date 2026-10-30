@@ -124,7 +124,11 @@ public class AnimatedMeshRenderer extends MeshRenderer {
             updateOBBTransforms(bone, new MatrixStack());
             updateOBBCache = false;
         }
-        return new ArrayList<>(obbCache.values());
+
+        List<OBB> list = new ArrayList<>();
+        for (OBB obb : obbCache.values())
+            list.add(new OBB(obb));
+        return list;
     }
 
     protected void updateOBBTransforms(Bone bone, MatrixStack matrices) {
