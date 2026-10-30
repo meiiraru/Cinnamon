@@ -1,6 +1,10 @@
 package cinnamon.parsers;
 
+import cinnamon.animation.Animation;
 import cinnamon.animation.Bone;
+import cinnamon.animation.Channel;
+import cinnamon.animation.Interpolation;
+import cinnamon.animation.Keyframe;
 import cinnamon.math.Maths;
 import cinnamon.model.MeshHelper;
 import cinnamon.model.material.Material;
@@ -66,13 +70,17 @@ public class BBModelLoader {
             parseGroups(json, groups, versionBelowFive);
             LOGGER.debug("Parsed %d groups", groups.size());
 
-            //parse outliner
+            //parse outliner and animations
             Bone rootBone = parseOutliner(json, groups, parts);
-            mesh.setAnimationData(Pair.of(rootBone, List.of()));
+            List<Animation> animations = parseAnimations(json, groups, parts, versionBelowFive);
 
-            //bake bones since we are not reading animations yet
-            MeshHelper.bakeBones(mesh);
-            mesh.setAnimationData(null);
+            mesh.setAnimationData(Pair.of(rootBone, animations));
+
+            //if we do not have any animations, bake the bones into the mesh
+            if (animations.isEmpty()) {
+                MeshHelper.bakeBones(mesh);
+                mesh.setAnimationData(null);
+            }
 
             //calculate bounds
             MeshHelper.recalculateBounds(mesh);
@@ -87,6 +95,10 @@ public class BBModelLoader {
 
     public static Vector3f parseVec3(JsonArray array) {
         return new Vector3f(array.get(0).getAsFloat(), array.get(1).getAsFloat(), array.get(2).getAsFloat());
+    }
+
+    public static Vector3f parseVec3(JsonObject object) {
+        return new Vector3f(object.get("x").getAsFloat(), object.get("y").getAsFloat(), object.get("z").getAsFloat());
     }
 
 
@@ -473,6 +485,130 @@ public class BBModelLoader {
                     parseOutliner(bone, obj.getAsJsonArray("children"), groups, parts);
             }
         }
+    }
+
+
+    // -- animations -- //
+
+
+    private static List<Animation> parseAnimations(JsonObject root, Map<String, Bone> groups, Map<String, Bone> parts, boolean versionBelowFive) {
+        List<Animation> animations = new ArrayList<>();
+
+        //no animations data present
+        if (!root.has("animations"))
+            return animations;
+
+        //parse each animation
+        for (JsonElement element : root.getAsJsonArray("animations")) {
+            JsonObject animObj = element.getAsJsonObject();
+
+            //parse name and length
+            String name = animObj.get("name").getAsString();
+            int duration = animObj.has("length") ? (int) (animObj.get("length").getAsFloat() * 1000f) : 1;
+            duration = Math.max(duration, 1);
+
+            //create the animation
+            Animation animation = new Animation(name, duration);
+            animations.add(animation);
+
+            //loop mode
+            if (animObj.has("loop")) {
+                String loop = animObj.get("loop").getAsString();
+                if (loop.equals("true"))
+                    animation.setLoop(Animation.Loop.LOOP);
+                else if (loop.equals("hold"))
+                    animation.setLoop(Animation.Loop.HOLD);
+            }
+
+            //parse animators
+            parseAnimators(animation, animObj.getAsJsonObject("animators"), groups, parts, versionBelowFive);
+        }
+
+        return animations;
+    }
+
+    private static void parseAnimators(Animation animation, JsonObject animatorsObj, Map<String, Bone> groups, Map<String, Bone> parts, boolean versionBelowFive) {
+        for (Map.Entry<String, JsonElement> entry : animatorsObj.entrySet()) {
+            String uuid = entry.getKey();
+            JsonObject animatorObj = entry.getValue().getAsJsonObject();
+
+            //skip when no keyframes
+            if (!animatorObj.has("keyframes"))
+                continue;
+
+            //get bone
+            Bone bone = groups.get(uuid);
+            if (bone == null)
+                bone = parts.get(uuid);
+            if (bone == null)
+                continue;
+
+            //animator data
+            String type = animatorObj.has("type") ? animatorObj.get("type").getAsString() : "unknown";
+            if (!type.equals("bone"))
+                continue;
+
+            //parse keyframes
+            for (JsonElement keyframes : animatorObj.getAsJsonArray("keyframes"))
+                parseKeyframe(animation, bone, keyframes.getAsJsonObject(), versionBelowFive);
+        }
+    }
+
+    private static void parseKeyframe(Animation animation, Bone bone, JsonObject keyframeObj, boolean versionBelowFive) {
+        //parse channel
+        String channelName = keyframeObj.get("channel").getAsString();
+        Channel channel;
+        try {
+            channel = Channel.valueOf(channelName.toUpperCase());
+        } catch (Exception e) {
+            LOGGER.warn("Invalid channel \"%s\" for bone \"%s\" in animation \"%s\"", channelName, bone.getName(), animation.getName());
+            return;
+        }
+
+        //parse properties
+        int time = (int) (keyframeObj.get("time").getAsFloat() * 1000f);
+        String interpolationName = keyframeObj.has("interpolation") ? keyframeObj.get("interpolation").getAsString() : "linear";
+        Interpolation interpolation;
+        try {
+            interpolation = Interpolation.valueOf(interpolationName.toUpperCase());
+        } catch (Exception e) {
+            LOGGER.warn("Invalid interpolation \"%s\" for bone \"%s\" channel \"%s\" in animation \"%s\"", interpolationName, bone.getName(), channel, animation.getName());
+            return;
+        }
+
+        //parse data points
+        Vector3f pre = null, val;
+        JsonArray dataPoints = keyframeObj.getAsJsonArray("data_points");
+        try {
+            if (dataPoints.size() < 2) {
+                val = parseVec3(dataPoints.get(0).getAsJsonObject());
+            } else {
+                pre = parseVec3(dataPoints.get(0).getAsJsonObject());
+                val = parseVec3(dataPoints.get(1).getAsJsonObject());
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Invalid keyframe data for bone \"%s\" channel \"%s\" in animation \"%s\"", bone.getName(), channel, animation.getName());
+            return;
+        }
+
+        //fix different coordinate systems
+        switch (channel) {
+            case ROTATION -> {
+                if (!versionBelowFive) {
+                    val.mul(-1f, -1f, 1f);
+                    if (pre != null)
+                        pre.mul(-1f, -1f, 1f);
+                }
+            }
+            case POSITION -> {
+                val.mul(versionBelowFive ? -SCALE : SCALE, SCALE, SCALE);
+                if (pre != null)
+                    pre.mul(versionBelowFive ? -SCALE : SCALE, SCALE, SCALE);
+            }
+        }
+
+        //create the keyframe
+        animation.addKeyframe(bone, channel, new Keyframe(time, val, pre, interpolation));
     }
 
 

@@ -4,6 +4,7 @@ import cinnamon.animation.Animation;
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
 import cinnamon.gui.Toast;
+import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.Widget;
 import cinnamon.gui.widgets.types.*;
 import cinnamon.lang.LangManager;
@@ -39,6 +40,11 @@ import static org.lwjgl.opengl.GL11C.glDepthMask;
 import static org.lwjgl.opengl.GL11C.glEnable;
 
 public class ModelViewerScreen extends ParentedScreen {
+
+    public static final Resource
+            PLAY = new Resource("textures/gui/icons/play.png"),
+            PAUSE = new Resource("textures/gui/icons/pause.png"),
+            STOP = new Resource("textures/gui/icons/stop.png");
 
     //current opened model
     private String modelName = "";
@@ -369,13 +375,40 @@ public class ModelViewerScreen extends ParentedScreen {
         if (!animations.isEmpty()) {
             modelViewer.stopAllAnimations();
 
-            animationList.addAction(Text.translated("gui.none"), null, _ -> {
+            //animation controls
+            ContainerGrid controls = new ContainerGrid(0, 0, 4, 999);
+
+            Button stop = new Button(0, 0, 16, 16, null, _ -> {
                 modelViewer.stopAllAnimations();
                 for (Widget action : animationList.getActions()) {
                     if (action instanceof Switch toggle)
                         toggle.setToggled(false);
                 }
             });
+            stop.setIcon(STOP);
+            controls.addWidget(stop);
+
+            Button pause = new Button(0, 0, 16, 16, null, _ -> {
+                for (String animation : modelViewer.getAnimations()) {
+                    Animation anim = modelViewer.getAnimation(animation);
+                    if (anim.isPlaying())
+                        anim.pause();
+                }
+            });
+            pause.setIcon(PAUSE);
+            controls.addWidget(pause);
+
+            Button play = new Button(0, 0, 16, 16, null, _ -> {
+                for (String animation : modelViewer.getAnimations()) {
+                    Animation anim = modelViewer.getAnimation(animation);
+                    if (anim.isPaused())
+                        anim.play();
+                }
+            });
+            play.setIcon(PLAY);
+            controls.addWidget(play);
+
+            animationList.addAction(controls);
 
             animations.sort(String::compareTo);
             for (String animation : animations) {

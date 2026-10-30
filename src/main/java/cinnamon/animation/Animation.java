@@ -92,23 +92,8 @@ public class Animation {
                 float dt = current == next ? 0 : (time - current.getTime()) / (float) (next.getTime() - current.getTime());
                 dt = Maths.clamp(dt, 0f, 1f);
 
-                Vector3f a = current.getValue();
-                Vector3f b = next.getPreValue();
-
-                //interpolate the value
-                Vector3f value;
-                if (current.isCatmullrom()) {
-                    int len = keyframes.size();
-                    Vector3f aa = keyframes.get(Maths.modulo(i - 1, len)).getValue();
-                    Vector3f bb = keyframes.get(Maths.modulo(j + 1, len)).getPreValue();
-                    value = new Vector3f(
-                            Maths.catmullRom(aa.x, a.x, b.x, bb.x, dt),
-                            Maths.catmullRom(aa.y, a.y, b.y, bb.y, dt),
-                            Maths.catmullRom(aa.z, a.z, b.z, bb.z, dt)
-                    );
-                } else {
-                    value = Maths.lerp(a, b, dt);
-                }
+                Interpolation interpolation = next.getInterpolation() == Interpolation.BEZIER ? Interpolation.BEZIER : current.getInterpolation();
+                Vector3f value = interpolation.interpolate(keyframes, i, j, dt);
 
                 //apply the value to the bone
                 channel.apply(bone.getTransform(), value);

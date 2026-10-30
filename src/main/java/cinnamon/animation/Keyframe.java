@@ -6,17 +6,17 @@ public class Keyframe implements Comparable<Keyframe> {
 
     private final int time;
     private final Vector3f preValue, value;
-    private final boolean catmullrom;
+    private final Interpolation interpolation;
 
-    public Keyframe(int time, Vector3f value, boolean catmullrom) {
-        this(time, value, null, catmullrom);
+    public Keyframe(int time, Vector3f value, Interpolation interpolation) {
+        this(time, value, null, interpolation);
     }
 
-    public Keyframe(int time, Vector3f value, Vector3f preValue, boolean catmullrom) {
+    public Keyframe(int time, Vector3f value, Vector3f preValue, Interpolation interpolation) {
         this.time = time;
         this.value = value;
         this.preValue = preValue;
-        this.catmullrom = catmullrom;
+        this.interpolation = interpolation;
     }
 
     public int getTime() {
@@ -31,8 +31,8 @@ public class Keyframe implements Comparable<Keyframe> {
         return preValue == null ? value : preValue;
     }
 
-    public boolean isCatmullrom() {
-        return catmullrom;
+    public Interpolation getInterpolation() {
+        return interpolation;
     }
 
     @Override

@@ -3,6 +3,7 @@ package cinnamon.parsers;
 import cinnamon.animation.Animation;
 import cinnamon.animation.Bone;
 import cinnamon.animation.Channel;
+import cinnamon.animation.Interpolation;
 import cinnamon.animation.Keyframe;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Pair;
@@ -137,7 +138,7 @@ public class AnimationLoader {
                         } catch (Exception e) {
                             LOGGER.warn("Invalid keyframe data \"%s\" for bone \"%s\" channel \"%s\" in animation \"%s\"", animBoneEntry.getValue(), bone.getName(), channel, animation.getName());
                         }
-                        animation.addKeyframe(bone, channel, new Keyframe(1, vec, false));
+                        animation.addKeyframe(bone, channel, new Keyframe(1, vec, Interpolation.LINEAR));
                         continue;
                     }
 
@@ -149,18 +150,18 @@ public class AnimationLoader {
                         //array value - keyframe only contains the transform value
                         if (keyframeEntry.getValue().isJsonArray()) {
                             Vector3f vec = parseVec3(keyframeEntry.getValue().getAsJsonArray(), scale, isPosition);
-                            animation.addKeyframe(bone, channel, new Keyframe(time, vec, false));
+                            animation.addKeyframe(bone, channel, new Keyframe(time, vec, Interpolation.LINEAR));
                             continue;
                         }
 
                         //object value - keyframe contains extra data
                         JsonObject keyframeObject = keyframeEntry.getValue().getAsJsonObject();
 
-                        boolean catmullrom = keyframeObject.has("lerp_mode") && keyframeObject.get("lerp_mode").getAsString().equals("catmullrom");
+                        Interpolation interpolation = keyframeObject.has("lerp_mode") && keyframeObject.get("lerp_mode").getAsString().equals("catmullrom") ? Interpolation.CATMULLROM : Interpolation.LINEAR;
                         Vector3f pre = keyframeObject.has("pre") ? parseVec3(keyframeObject.getAsJsonArray("pre"), scale, isPosition) : null;
                         Vector3f post = parseVec3(keyframeObject.getAsJsonArray("post"), scale, isPosition);
 
-                        animation.addKeyframe(bone, channel, new Keyframe(time, post, pre, catmullrom));
+                        animation.addKeyframe(bone, channel, new Keyframe(time, post, pre, interpolation));
                     }
                 }
             }
