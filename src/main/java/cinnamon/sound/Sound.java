@@ -50,7 +50,7 @@ public class Sound {
             };
 
             //register the buffer
-            int id = registerSound(data.channels(), data.sampleRate(), data.buffer());
+            int id = SoundManager.isInitialized() ? registerSound(data.channels(), data.sampleRate(), data.buffer()) : -1;
 
             //create the sound object
             LOGGER.debug("Loaded sound: \"%s\" (id: %s, channels: %s, sampleRate: %s, duration: %sms)", resource, id, data.channels(), data.sampleRate(), data.duration());
@@ -75,7 +75,7 @@ public class Sound {
     }
 
     public void free() {
-        alDeleteBuffers(id);
+        if (id != -1) alDeleteBuffers(id);
         buffer.clear();
     }
 }

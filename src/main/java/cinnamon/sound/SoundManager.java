@@ -184,6 +184,9 @@ public class SoundManager {
     }
 
     public static void updateSoundPosition(Camera camera) {
+        if (!initialized)
+            return;
+
         //setup listener properties
         Vector3f pos = camera.getPosition();
         Vector3f forward = camera.getForwards();
