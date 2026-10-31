@@ -160,4 +160,8 @@ public class ContainerGrid extends Container implements AlignedWidget {
     public void forceChildAlignment(boolean bool) {
         this.forceChildAlignment = bool;
     }
+
+    public boolean isForceChildAlignment() {
+        return forceChildAlignment;
+    }
 }

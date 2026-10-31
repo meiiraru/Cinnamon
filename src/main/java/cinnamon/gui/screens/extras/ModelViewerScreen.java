@@ -376,7 +376,8 @@ public class ModelViewerScreen extends ParentedScreen {
             modelViewer.stopAllAnimations();
 
             //animation controls
-            ContainerGrid controls = new ContainerGrid(0, 0, 4, 999);
+            ContainerGrid controls = new ContainerGrid(0, 0, 8, 999);
+            controls.setAlignment(Alignment.TOP_CENTER);
 
             Button stop = new Button(0, 0, 16, 16, null, _ -> {
                 modelViewer.stopAllAnimations();
@@ -417,7 +418,7 @@ public class ModelViewerScreen extends ParentedScreen {
                 toggle.setAction(b -> {
                     if (((Switch) b).isToggled()) {
                         Animation anim = modelViewer.getAnimation(animation);
-                        anim.setLoop(Animation.Loop.LOOP).play();
+                        anim.play();
                     } else {
                         modelViewer.getAnimation(animation).stop();
                     }

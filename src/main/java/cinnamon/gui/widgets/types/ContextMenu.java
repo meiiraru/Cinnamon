@@ -128,6 +128,18 @@ public class ContextMenu extends PopupWidget {
 
     @Override
     public void fitToScreen(int width, int height) {
+        //update context menu width
+        for (Widget widget : list.getWidgets()) {
+            int w = widget.getWidth();
+            if (widget instanceof ContextButton cb) {
+                w = getWidthForText(cb.getFormattedMessage());
+                if (cb instanceof ContextSubMenu)
+                    w += TextUtils.getWidth(ContextSubMenu.ARROW) + 2;
+            }
+            totalWidth = Math.max(totalWidth, w);
+            widget.setWidth(w);
+        }
+
         //reset dimensions
         setDimensions(totalWidth, totalHeight);
 
