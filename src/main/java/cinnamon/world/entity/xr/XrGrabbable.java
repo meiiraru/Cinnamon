@@ -1,7 +1,7 @@
 package cinnamon.world.entity.xr;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrHandTransform;

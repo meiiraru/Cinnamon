@@ -4,7 +4,7 @@ import cinnamon.gui.widgets.Container;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.input.InputManager;
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;

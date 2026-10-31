@@ -1,6 +1,7 @@
 package cinnamon.world.world.custom;
 
 import cinnamon.Client;
+import cinnamon.math.MatrixStack;
 import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Ray;
@@ -18,7 +19,6 @@ import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.WaterRenderer;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;

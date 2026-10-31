@@ -1,10 +1,10 @@
 package cinnamon.world.world.custom;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.model.material.Material;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.WaterRenderer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;

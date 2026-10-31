@@ -2,10 +2,10 @@ package cinnamon.world.entity.collectable;
 
 import cinnamon.Client;
 import cinnamon.math.Maths;
+import cinnamon.math.MatrixStack;
 import cinnamon.math.collision.Hit;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import cinnamon.sound.SoundCategory;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.PhysEntity;

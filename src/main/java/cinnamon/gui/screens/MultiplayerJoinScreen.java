@@ -8,7 +8,7 @@ import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.TextField;
 //import cinnamon.networking.ClientConnection;
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.settings.Settings;
 import cinnamon.text.Text;

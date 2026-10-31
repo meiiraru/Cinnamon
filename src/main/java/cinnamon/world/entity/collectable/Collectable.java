@@ -1,12 +1,12 @@
 package cinnamon.world.entity.collectable;
 
 import cinnamon.math.Maths;
+import cinnamon.math.MatrixStack;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.Resolution;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
-import cinnamon.render.MatrixStack;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.terrain.Terrain;

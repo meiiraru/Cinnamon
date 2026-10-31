@@ -1,8 +1,8 @@
 package cinnamon.world.gui;
 
 import cinnamon.Client;
+import cinnamon.math.MatrixStack;
 import cinnamon.model.GeometryHelper;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.StencilRenderer;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;

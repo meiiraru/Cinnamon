@@ -2,10 +2,10 @@ package cinnamon.render.model;
 
 import cinnamon.animation.Animation;
 import cinnamon.animation.Bone;
+import cinnamon.math.MatrixStack;
 import cinnamon.math.collision.shape.OBB;
 import cinnamon.model.material.Material;
 import cinnamon.model.mesh.Mesh;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.shader.Shader;
 
 import java.util.ArrayList;

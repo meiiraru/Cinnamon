@@ -1,6 +1,6 @@
 package cinnamon.world.gui;
 
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 
 public abstract class Overlay {
 

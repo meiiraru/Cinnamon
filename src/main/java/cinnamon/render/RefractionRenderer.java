@@ -1,5 +1,6 @@
 package cinnamon.render;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.render.framebuffer.Framebuffer;
 import cinnamon.render.framebuffer.PBRDeferredFramebuffer;

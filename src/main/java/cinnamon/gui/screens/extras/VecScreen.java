@@ -2,8 +2,8 @@ package cinnamon.gui.screens.extras;
 
 import cinnamon.gui.ParentedScreen;
 import cinnamon.gui.Screen;
+import cinnamon.math.MatrixStack;
 import cinnamon.model.GeometryHelper;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;

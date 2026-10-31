@@ -1,8 +1,8 @@
 package cinnamon.world.particle;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import org.joml.Math;
 import org.joml.Vector3f;
 

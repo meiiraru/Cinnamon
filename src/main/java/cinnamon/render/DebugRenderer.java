@@ -3,6 +3,7 @@ package cinnamon.render;
 import cinnamon.Client;
 import cinnamon.animation.Bone;
 import cinnamon.math.Maths;
+import cinnamon.math.MatrixStack;
 import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.shape.*;
 import cinnamon.model.GeometryHelper;

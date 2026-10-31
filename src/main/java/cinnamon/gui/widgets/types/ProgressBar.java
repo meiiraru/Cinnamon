@@ -1,7 +1,7 @@
 package cinnamon.gui.widgets.types;
 
 import cinnamon.gui.widgets.Widget;
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Colors;
 import cinnamon.utils.Resource;

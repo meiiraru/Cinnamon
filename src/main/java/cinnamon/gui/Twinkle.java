@@ -2,8 +2,8 @@ package cinnamon.gui;
 
 import cinnamon.Client;
 import cinnamon.input.InputManager;
+import cinnamon.math.MatrixStack;
 import cinnamon.model.GeometryHelper;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Resource;
 import cinnamon.vr.XrManager;

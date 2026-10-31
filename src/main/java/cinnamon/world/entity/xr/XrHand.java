@@ -1,11 +1,11 @@
 package cinnamon.world.entity.xr;
 
 import cinnamon.math.Maths;
+import cinnamon.math.MatrixStack;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.vr.XrHandTransform;
 import cinnamon.vr.XrInput;

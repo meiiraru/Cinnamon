@@ -2,7 +2,7 @@ package cinnamon.gui;
 
 import cinnamon.Client;
 import cinnamon.logger.Logger;
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundManager;

@@ -4,7 +4,7 @@ import cinnamon.Client;
 import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Scrollbar;
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.utils.UIHelper;
 import org.joml.Math;
 

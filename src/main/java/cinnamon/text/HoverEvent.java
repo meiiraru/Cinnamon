@@ -1,6 +1,6 @@
 package cinnamon.text;
 
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.utils.UIHelper;
 
 public interface HoverEvent {

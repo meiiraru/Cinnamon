@@ -146,7 +146,10 @@ public class BBModelLoader {
             Bone part = switch (type) {
                 case "cube" -> parseCube(obj, mesh, materials, groupNames);
                 case "mesh" -> parseMesh(obj, mesh, materials, versionBelowFive, groupNames);
-                default -> null;
+                default -> {
+                    LOGGER.warn("Unknown element type \"%s\" for element with uuid \"%s\"", type, uuid);
+                    yield null;
+                }
             };
 
             if (part != null)
@@ -219,7 +222,7 @@ public class BBModelLoader {
         if (faceData.has("texture") && faceData.get("texture").isJsonNull())
             return;
 
-        int w = 1, h = 1;
+        int w = 16, h = 16;
 
         int texture = faceData.has("texture") ? faceData.get("texture").getAsInt() : -1;
         if (texture >= 0 && texture < materials.size()) {
@@ -320,7 +323,7 @@ public class BBModelLoader {
             if (faceObj.has("texture") && faceObj.get("texture").isJsonNull())
                 continue;
 
-            int w = 1, h = 1;
+            int w = 16, h = 16;
 
             int texture = faceObj.has("texture") ? faceObj.get("texture").getAsInt() : -1;
             if (texture >= 0 && texture < materials.size()) {
@@ -548,6 +551,10 @@ public class BBModelLoader {
             if (!type.equals("bone"))
                 continue;
 
+            //global rotation
+            if (animatorObj.has("rotation_global") && animatorObj.get("rotation_global").getAsBoolean())
+                bone.getTransform().setGlobalRot(true);
+
             //parse keyframes
             for (JsonElement keyframes : animatorObj.getAsJsonArray("keyframes"))
                 parseKeyframe(animation, bone, keyframes.getAsJsonObject(), versionBelowFive);
@@ -620,7 +627,7 @@ public class BBModelLoader {
             return;
 
         //grab resolution
-        int resW = 1, resH = 1;
+        int resW = 16, resH = 16;
         if (root.has("resolution")) {
             JsonObject resolution = root.get("resolution").getAsJsonObject();
             if (resolution.has("width"))

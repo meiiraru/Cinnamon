@@ -1,9 +1,9 @@
 package cinnamon.world;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.model.ModelTransform;
 import cinnamon.render.DebugRenderer;
-import cinnamon.render.MatrixStack;
 import cinnamon.utils.Resource;
 
 public class Decal extends WorldObject {

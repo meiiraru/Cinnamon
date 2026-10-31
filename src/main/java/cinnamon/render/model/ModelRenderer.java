@@ -1,5 +1,6 @@
 package cinnamon.render.model;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.math.collision.shape.OBB;
 import cinnamon.model.Vertex;
@@ -7,7 +8,6 @@ import cinnamon.model.material.Material;
 import cinnamon.model.material.MaterialTexture;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.MaterialApplier;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.Texture;
 

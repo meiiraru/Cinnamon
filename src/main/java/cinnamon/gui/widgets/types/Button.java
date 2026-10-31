@@ -2,9 +2,9 @@ package cinnamon.gui.widgets.types;
 
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.SelectableWidget;
+import cinnamon.math.MatrixStack;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.sound.SoundCategory;
 import cinnamon.sound.SoundManager;

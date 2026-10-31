@@ -2,10 +2,10 @@ package cinnamon.world.items;
 
 import cinnamon.gui.Toast;
 import cinnamon.math.Curve;
+import cinnamon.math.MatrixStack;
 import cinnamon.math.collision.Hit;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.ItemModelRegistry;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
 import cinnamon.utils.Pair;

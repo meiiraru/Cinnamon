@@ -5,7 +5,7 @@ import cinnamon.gui.Screen;
 import cinnamon.gui.screens.SettingsScreen;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.types.Button;
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;

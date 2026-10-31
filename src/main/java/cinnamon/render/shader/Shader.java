@@ -1,7 +1,7 @@
 package cinnamon.render.shader;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.Texture;
 import cinnamon.render.texture.TextureArray;

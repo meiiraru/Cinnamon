@@ -1,8 +1,8 @@
 package cinnamon.text;
 
 import cinnamon.lang.LangManager;
+import cinnamon.math.MatrixStack;
 import cinnamon.render.Font;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.TextUtils;

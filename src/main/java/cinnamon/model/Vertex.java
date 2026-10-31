@@ -1,6 +1,6 @@
 package cinnamon.model;
 
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.utils.ColorUtils;
 import org.joml.*;
 

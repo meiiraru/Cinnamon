@@ -2,7 +2,7 @@ package cinnamon.gui.widgets;
 
 import cinnamon.Client;
 import cinnamon.gui.widgets.types.Scrollbar;
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Alignment;
@@ -210,7 +210,7 @@ public class WidgetList extends ContainerGrid {
         //scroll up
         if (widgetY < thisY)
             scrollPercent += (widgetY - thisY) / scrollHeight;
-        //scroll down
+            //scroll down
         else if (widgetY2 > thisY2)
             scrollPercent += (widgetY2 - thisY2) / scrollHeight;
 

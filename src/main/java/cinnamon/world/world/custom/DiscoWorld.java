@@ -1,10 +1,10 @@
 package cinnamon.world.world.custom;
 
 import cinnamon.animation.Animation;
+import cinnamon.math.MatrixStack;
 import cinnamon.model.GeometryHelper;
 import cinnamon.registry.MaterialRegistry;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.sound.Sound;

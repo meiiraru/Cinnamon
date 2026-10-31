@@ -1,8 +1,8 @@
 package cinnamon.world.particle;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 
 public class VoxelParticle extends Particle3D {

@@ -1,10 +1,10 @@
 package cinnamon.world.sky;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.model.StaticGeometry;
 import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.registry.SkyBoxRegistry;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.shader.Shader;
 import cinnamon.render.texture.CubeMap;
 import cinnamon.render.texture.SkyBox;

@@ -1,8 +1,8 @@
 package cinnamon.world.particle;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 
 public class RippleParticle extends SpriteParticle {
 

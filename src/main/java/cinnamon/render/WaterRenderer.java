@@ -1,5 +1,6 @@
 package cinnamon.render;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.math.noise.FBMNoise;
 import cinnamon.math.noise.PerlinNoise2D;
 import cinnamon.model.StaticGeometry;

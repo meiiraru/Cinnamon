@@ -1,9 +1,9 @@
 package cinnamon.world;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.math.Transform;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.world.world.World;
 

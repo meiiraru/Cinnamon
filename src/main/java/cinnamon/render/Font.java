@@ -1,6 +1,7 @@
 package cinnamon.render;
 
 import cinnamon.Client;
+import cinnamon.math.MatrixStack;
 import cinnamon.model.Vertex;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;

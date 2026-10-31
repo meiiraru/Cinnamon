@@ -5,7 +5,7 @@ import cinnamon.gui.widgets.AlignedWidget;
 import cinnamon.gui.widgets.GUIListener;
 import cinnamon.gui.widgets.PopupWidget;
 import cinnamon.gui.widgets.SelectableWidget;
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.HoverEvent;
 import cinnamon.text.Style;

@@ -1,11 +1,11 @@
 package cinnamon.parsers;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.model.material.Material;
 import cinnamon.model.material.MaterialTexture;
 import cinnamon.model.mesh.Face;
 import cinnamon.model.mesh.Group;
 import cinnamon.model.mesh.Mesh;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;

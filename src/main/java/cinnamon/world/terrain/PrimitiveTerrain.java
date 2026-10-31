@@ -1,11 +1,11 @@
 package cinnamon.world.terrain;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.model.Vertex;
 import cinnamon.model.VertexHelper;
 import cinnamon.model.material.MaterialTexture;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import org.joml.Vector3f;
 

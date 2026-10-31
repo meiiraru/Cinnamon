@@ -1,7 +1,7 @@
 package cinnamon.gui.widgets;
 
 import cinnamon.math.Maths;
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.UIHelper;
 import org.joml.Math;

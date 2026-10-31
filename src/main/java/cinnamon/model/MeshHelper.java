@@ -2,11 +2,11 @@ package cinnamon.model;
 
 import cinnamon.animation.Animation;
 import cinnamon.animation.Bone;
+import cinnamon.math.MatrixStack;
 import cinnamon.model.material.Material;
 import cinnamon.model.mesh.Face;
 import cinnamon.model.mesh.Group;
 import cinnamon.model.mesh.Mesh;
-import cinnamon.render.MatrixStack;
 import cinnamon.utils.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector3f;

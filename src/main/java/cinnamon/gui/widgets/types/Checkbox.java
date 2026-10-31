@@ -1,7 +1,7 @@
 package cinnamon.gui.widgets.types;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.model.GeometryHelper;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;

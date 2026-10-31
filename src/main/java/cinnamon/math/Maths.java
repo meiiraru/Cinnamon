@@ -831,6 +831,42 @@ public final class Maths {
     }
 
     /**
+     * Removes the rotation component from a {@link Matrix4f} while preserving its scale and translation components, effectively converting it to a scale-translation matrix
+     * @param mat The {@link Matrix4f} from which the rotation component is to be removed
+     * @return The modified {@link Matrix4f}
+     */
+    public static Matrix4f removeRotation(Matrix4f mat) {
+        //extract the current scale from the matrix
+        Vector3f scale = new Vector3f();
+        mat.getScale(scale);
+
+        //set the rotation part of the matrix to identity alongside the scale
+        mat.m00(scale.x).m01(0f)     .m02(0f);
+        mat.m10(0f)     .m11(scale.y).m12(0f);
+        mat.m20(0f)     .m21(0f)     .m22(scale.z);
+
+        return mat;
+    }
+
+    /**
+     * Removes the rotation component from a {@link Matrix3f} while preserving its scale component, effectively converting it to a scale matrix
+     * @param mat The {@link Matrix3f} from which the rotation component is to be removed
+     * @return The modified {@link Matrix3f}
+     */
+    public static Matrix3f removeRotation(Matrix3f mat) {
+        //extract the current scale from the matrix
+        Vector3f scale = new Vector3f();
+        mat.getScale(scale);
+
+        //set the rotation part of the matrix to identity alongside the scale
+        mat.m00(scale.x).m01(0f)     .m02(0f);
+        mat.m10(0f)     .m11(scale.y).m12(0f);
+        mat.m20(0f)     .m21(0f)     .m22(scale.z);
+
+        return mat;
+    }
+
+    /**
      * Calculates the next power of two greater than or equal to a given float value {@code x}
      * @param x The float value for which the next power of two is to be calculated
      * @return The next power of two greater than or equal to {@code x}

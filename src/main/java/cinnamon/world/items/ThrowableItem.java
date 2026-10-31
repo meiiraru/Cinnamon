@@ -1,8 +1,8 @@
 package cinnamon.world.items;
 
 import cinnamon.Client;
+import cinnamon.math.MatrixStack;
 import cinnamon.model.GeometryHelper;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Resource;
 import cinnamon.world.entity.living.LivingEntity;

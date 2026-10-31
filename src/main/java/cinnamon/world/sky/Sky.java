@@ -1,8 +1,8 @@
 package cinnamon.world.sky;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.model.GeometryHelper;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.Resource;

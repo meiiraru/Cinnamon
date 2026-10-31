@@ -1,10 +1,10 @@
 package cinnamon.world.items;
 
 import cinnamon.math.Maths;
+import cinnamon.math.MatrixStack;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.registry.ItemModelRegistry;
-import cinnamon.render.MatrixStack;
 import cinnamon.utils.ColorUtils;
 import cinnamon.utils.Pair;
 import cinnamon.vr.XrManager;

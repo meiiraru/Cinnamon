@@ -1,10 +1,10 @@
 package cinnamon.world.gui;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.math.collision.shape.OBB;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.ModelManager;
 import cinnamon.model.material.Material;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.text.Text;

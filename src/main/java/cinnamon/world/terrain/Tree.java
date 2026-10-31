@@ -1,6 +1,7 @@
 package cinnamon.world.terrain;
 
 import cinnamon.math.Maths;
+import cinnamon.math.MatrixStack;
 import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.math.collision.shape.OBB;
@@ -11,7 +12,6 @@ import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.render.shader.Shader;

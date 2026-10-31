@@ -1,9 +1,9 @@
 package cinnamon.world.particle;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.render.texture.Texture;
 import cinnamon.utils.Resource;

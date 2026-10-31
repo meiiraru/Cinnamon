@@ -3,7 +3,7 @@ package cinnamon.gui.screens.world;
 import cinnamon.gui.GUISkin;
 import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.types.Button;
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;
 import cinnamon.text.Text;

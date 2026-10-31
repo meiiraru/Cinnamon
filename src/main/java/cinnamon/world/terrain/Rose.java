@@ -1,11 +1,11 @@
 package cinnamon.world.terrain;
 
 import cinnamon.math.Maths;
+import cinnamon.math.MatrixStack;
 import cinnamon.model.material.Material;
 import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 
 public class Rose extends Terrain {
 

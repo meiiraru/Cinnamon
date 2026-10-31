@@ -1,10 +1,10 @@
 package cinnamon.world.entity.vehicle;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.model.material.Material;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import cinnamon.settings.Settings;
 import cinnamon.world.entity.Entity;
 import org.joml.Math;

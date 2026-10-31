@@ -1,7 +1,7 @@
 package cinnamon.gui.widgets;
 
 import cinnamon.gui.GUISkin;
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.utils.Resource;
 
 public abstract class Widget {

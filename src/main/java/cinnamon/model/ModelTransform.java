@@ -1,7 +1,7 @@
 package cinnamon.model;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.math.Transform;
-import cinnamon.render.MatrixStack;
 import org.joml.Math;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
@@ -17,9 +17,21 @@ public class ModelTransform extends Transform {
 
     protected final Vector3f lastPosition = new Vector3f();
 
+    protected boolean globalRot = false;
+
     @Override
     public void applyTransform(MatrixStack target) {
-        super.applyTransform(target);
+        if (isGlobalRot()) {
+            target.translate(pivot.x + pos.x, pivot.y + pos.y, pivot.z + pos.z);
+            target.identityRotation();
+            target.rotate(rot);
+            target.rotate(pivotRot);
+            target.scale(scale);
+            target.translate(-pivot.x, -pivot.y, -pivot.z);
+        } else {
+            super.applyTransform(target);
+        }
+
         lastPosition.set(pivot).mulPosition(target.peek().pos());
     }
 
@@ -46,6 +58,7 @@ public class ModelTransform extends Transform {
         pivotRot.identity();
         color.set(1f);
         uv.set(0f);
+        globalRot = false;
         return super.identity();
     }
 
@@ -130,5 +143,14 @@ public class ModelTransform extends Transform {
     public Transform setUV(float x, float y) {
         this.uv.set(x, y);
         return this;
+    }
+
+    public Transform setGlobalRot(boolean bool) {
+        this.globalRot = bool;
+        return this;
+    }
+
+    public boolean isGlobalRot() {
+        return this.globalRot;
     }
 }

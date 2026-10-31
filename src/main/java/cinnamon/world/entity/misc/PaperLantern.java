@@ -1,12 +1,12 @@
 package cinnamon.world.entity.misc;
 
 import cinnamon.math.Maths;
+import cinnamon.math.MatrixStack;
 import cinnamon.math.collision.Hit;
 import cinnamon.math.collision.shape.Sphere;
 import cinnamon.registry.EntityModelRegistry;
 import cinnamon.registry.EntityRegistry;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
 import cinnamon.world.entity.projectile.Projectile;

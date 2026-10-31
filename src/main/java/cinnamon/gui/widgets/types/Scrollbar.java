@@ -1,6 +1,6 @@
 package cinnamon.gui.widgets.types;
 
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Resource;
 import cinnamon.utils.UIHelper;

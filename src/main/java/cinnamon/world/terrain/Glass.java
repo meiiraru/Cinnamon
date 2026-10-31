@@ -1,10 +1,10 @@
 package cinnamon.world.terrain;
 
+import cinnamon.math.MatrixStack;
 import cinnamon.model.material.Material;
 import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
-import cinnamon.render.MatrixStack;
 
 public class Glass extends Terrain {
 

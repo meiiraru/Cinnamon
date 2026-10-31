@@ -1,6 +1,5 @@
 package cinnamon.math;
 
-import cinnamon.render.MatrixStack;
 import org.joml.Math;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;

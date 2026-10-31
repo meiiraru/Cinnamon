@@ -2,6 +2,7 @@ package cinnamon.render;
 
 import cinnamon.Client;
 import cinnamon.math.Maths;
+import cinnamon.math.MatrixStack;
 import cinnamon.model.StaticGeometry;
 import cinnamon.registry.CoreShadersRegistry;
 import cinnamon.render.batch.VertexConsumer;

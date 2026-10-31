@@ -2,7 +2,7 @@ package cinnamon.gui.widgets;
 
 import cinnamon.Client;
 import cinnamon.math.Maths;
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.render.Window;
 import cinnamon.text.Style;
 import cinnamon.text.Text;

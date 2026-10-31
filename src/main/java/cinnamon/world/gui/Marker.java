@@ -2,9 +2,9 @@ package cinnamon.world.gui;
 
 import cinnamon.Client;
 import cinnamon.math.Maths;
+import cinnamon.math.MatrixStack;
 import cinnamon.model.GeometryHelper;
 import cinnamon.model.Vertex;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.WorldRenderer;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.Style;

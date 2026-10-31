@@ -1,12 +1,12 @@
 package cinnamon.world.particle;
 
 import cinnamon.math.Maths;
+import cinnamon.math.MatrixStack;
 import cinnamon.math.collision.Collider;
 import cinnamon.math.collision.shape.AABB;
 import cinnamon.registry.ParticlesRegistry;
 import cinnamon.render.Camera;
 import cinnamon.render.DebugRenderer;
-import cinnamon.render.MatrixStack;
 import cinnamon.utils.Mask;
 import cinnamon.world.WorldObject;
 import cinnamon.world.entity.Entity;

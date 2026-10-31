@@ -7,7 +7,7 @@ import cinnamon.gui.widgets.types.Button;
 import cinnamon.gui.widgets.types.Label;
 import cinnamon.gui.widgets.types.Switch;
 import cinnamon.gui.widgets.types.TextField;
-import cinnamon.render.MatrixStack;
+import cinnamon.math.MatrixStack;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;

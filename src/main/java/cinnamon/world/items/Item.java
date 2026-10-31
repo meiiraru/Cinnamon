@@ -1,8 +1,8 @@
 package cinnamon.world.items;
 
 import cinnamon.animation.Animation;
+import cinnamon.math.MatrixStack;
 import cinnamon.model.ModelManager;
-import cinnamon.render.MatrixStack;
 import cinnamon.render.model.AnimatedMeshRenderer;
 import cinnamon.render.model.ModelRenderer;
 import cinnamon.utils.Resource;
