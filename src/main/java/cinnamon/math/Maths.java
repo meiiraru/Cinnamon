@@ -733,6 +733,24 @@ public final class Maths {
     }
 
     /**
+     * Calculates the minimum component value of a {@link Vector4f}
+     * @param vec The {@link Vector4f} for which the minimum component value is to be calculated
+     * @return The minimum component value of the specified vector
+     */
+    public static float min(Vector4f vec) {
+        return Math.min(vec.x, Math.min(vec.y, Math.min(vec.z, vec.w)));
+    }
+
+    /**
+     * Calculates the maximum component value of a {@link Vector4f}
+     * @param vec The {@link Vector4f} for which the maximum component value is to be calculated
+     * @return The maximum component value of the specified vector
+     */
+    public static float max(Vector4f vec) {
+        return Math.max(vec.x, Math.max(vec.y, Math.max(vec.z, vec.w)));
+    }
+
+    /**
      * Calculates the minimum component value of a {@link Vector3f}
      * @param vec The {@link Vector3f} for which the minimum component value is to be calculated
      * @return The minimum component value of the specified vector
@@ -748,6 +766,44 @@ public final class Maths {
      */
     public static float max(Vector3f vec) {
         return Math.max(vec.x, Math.max(vec.y, vec.z));
+    }
+
+    /**
+     * Calculates the index of the maximum component value of a {@link Vector4f}
+     * @param vec The {@link Vector4f} for which the index of the maximum component value is to be calculated
+     * @return The index of the maximum component value of the specified vector,
+     * where {@code 0} corresponds to the x component, {@code 1} corresponds to the y component, {@code 2} corresponds to the z component, and {@code 3} corresponds to the w component
+     * @see #minIndex(Vector4f)
+     */
+    public static int maxIndex(Vector4f vec) {
+        if (vec.x >= vec.y && vec.x >= vec.z && vec.x >= vec.w) {
+            return 0;
+        } else if (vec.y >= vec.z && vec.y >= vec.w) {
+            return 1;
+        } else if (vec.z >= vec.w) {
+            return 2;
+        } else {
+            return 3;
+        }
+    }
+
+    /**
+     * Calculates the index of the minimum component value of a {@link Vector4f}
+     * @param vec The {@link Vector4f} for which the index of the minimum component value is to be calculated
+     * @return The index of the minimum component value of the specified vector,
+     * where {@code 0} corresponds to the x component, {@code 1} corresponds to the y component, {@code 2} corresponds to the z component, and {@code 3} corresponds to the w component
+     * @see #maxIndex(Vector4f)
+     */
+    public static int minIndex(Vector4f vec) {
+        if (vec.x < vec.y && vec.x < vec.z && vec.x < vec.w) {
+            return 0;
+        } else if (vec.y < vec.z && vec.y < vec.w) {
+            return 1;
+        } else if (vec.z < vec.w) {
+            return 2;
+        } else {
+            return 3;
+        }
     }
 
     /**
@@ -782,6 +838,15 @@ public final class Maths {
         } else {
             return 2;
         }
+    }
+
+    /**
+     * Checks if any component of a {@link Vector4f} is @{code NaN} (Not a Number)
+     * @param vec The {@link Vector4f} to be checked for @{code NaN} components
+     * @return {@code true} if any component of the vector is @{code NaN}, {@code false} otherwise
+     */
+    public static boolean isNaN(Vector4f vec) {
+        return Float.isNaN(vec.x) || Float.isNaN(vec.y) || Float.isNaN(vec.z) || Float.isNaN(vec.w);
     }
 
     /**

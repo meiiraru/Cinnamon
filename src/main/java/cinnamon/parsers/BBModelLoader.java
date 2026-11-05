@@ -517,7 +517,7 @@ public class BBModelLoader {
             //loop mode
             if (animObj.has("loop")) {
                 String loop = animObj.get("loop").getAsString();
-                if (loop.equals("true"))
+                if (loop.equals("loop"))
                     animation.setLoop(Animation.Loop.LOOP);
                 else if (loop.equals("hold"))
                     animation.setLoop(Animation.Loop.HOLD);

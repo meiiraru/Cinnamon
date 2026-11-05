@@ -193,8 +193,12 @@ public class Texture {
     }
 
     public static void unbindAll(int max) {
+        unbindAll(0, max);
+    }
+
+    public static void unbindAll(int min, int max) {
         //inverted so the last active texture is GL_TEXTURE0
-        for (int i = max - 1; i >= 0; i--)
+        for (int i = max - 1; i >= min; i--)
             unbindTex(i);
     }
 

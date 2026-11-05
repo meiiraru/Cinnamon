@@ -8,7 +8,7 @@ import org.joml.Matrix4f;
 public class Spotlight extends PointLight {
 
     private float innerAngle, outerAngle;
-    protected float cosInner, cosOuter, tanOuter;
+    protected float innerCutoff, outerCutoff, coneRadiusMult;
 
     public Spotlight() {
         super();
@@ -19,8 +19,8 @@ public class Spotlight extends PointLight {
     @Override
     protected void pushToShader(Shader shader, String prefix) {
         super.pushToShader(shader, prefix);
-        shader.setFloat(prefix + "innerAngle", cosInner);
-        shader.setFloat(prefix + "outerAngle", cosOuter);
+        shader.setFloat(prefix + "innerAngle", innerCutoff);
+        shader.setFloat(prefix + "outerAngle", outerCutoff);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class Spotlight extends PointLight {
     @Override
     public void copyTransform(Matrix4f matrix) {
         float height = getFalloffEnd();
-        float radius = height * tanOuter;
+        float radius = height * coneRadiusMult;
 
         matrix
                 .translate(getTransform().getPos())
@@ -56,9 +56,9 @@ public class Spotlight extends PointLight {
         this.outerAngle = outerAngle;
 
         float radiOuter = Math.toRadians(outerAngle);
-        this.cosInner = Math.cos(Math.toRadians(innerAngle));
-        this.cosOuter = Math.cos(radiOuter);
-        this.tanOuter = Math.tan(radiOuter);
+        this.innerCutoff = Math.cos(Math.toRadians(innerAngle));
+        this.outerCutoff = Math.cos(radiOuter);
+        this.coneRadiusMult = Math.tan(radiOuter);
         this.setFOV(radiOuter * 2f);
 
         return this;
@@ -70,5 +70,17 @@ public class Spotlight extends PointLight {
 
     public float getOuterAngle() {
         return outerAngle;
+    }
+
+    public float getInnerCutoff() {
+        return innerCutoff;
+    }
+
+    public float getOuterCutoff() {
+        return outerCutoff;
+    }
+
+    public float getConeRadiusMultiplier() {
+        return coneRadiusMult;
     }
 }

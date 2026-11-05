@@ -8,6 +8,7 @@ import java.util.Map;
 
 public class Bone {
 
+    private int id = -1;
     private final String name;
     private final boolean isModel;
 
@@ -27,6 +28,7 @@ public class Bone {
     }
 
     public Bone(Bone other, Map<Bone, Bone> boneMap) {
+        this.id = other.id;
         this.name = other.name;
         this.isModel = other.isModel;
         this.transform.setPivot(other.transform.getPivot());
@@ -39,6 +41,14 @@ public class Bone {
             children.add(newChild);
             newChild.setParent(this);
         }
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {

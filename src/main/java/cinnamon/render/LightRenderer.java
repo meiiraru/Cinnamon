@@ -503,7 +503,7 @@ public class LightRenderer {
             case SPOT, COOKIE -> {
                 Spotlight spotlight = (Spotlight) light;
                 float h = spotlight.getFalloffEnd();
-                float r = h * Math.tan(Math.toRadians(spotlight.getOuterAngle()));
+                float r = h * spotlight.getConeRadiusMultiplier();
                 s.setFloat("radius", r);
                 s.setFloat("height", h);
                 StaticGeometry.CONE.render();
