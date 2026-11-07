@@ -43,6 +43,7 @@ public enum PostProcess {
         return COLOR_UNIFORM.apply(fb, s);
     }),
     TONEMAPPING(COLOR_UNIFORM),
+    COLOR_CORRECTION(COLOR_UNIFORM),
 
     //effects
     INVERT(COLOR_UNIFORM),

@@ -38,6 +38,9 @@ public class SettingsScreen extends ParentedScreen {
     protected int bindMouseStartX = -1;
     protected int bindMouseStartY = -1;
 
+    protected boolean isInVideoTab = false;
+    protected Container selectedWidget = null;
+
     public SettingsScreen(Screen parentScreen) {
         this(parentScreen, false);
     }
@@ -109,11 +112,24 @@ public class SettingsScreen extends ParentedScreen {
     }
 
     @Override
+    protected void renderChildren(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        if (fromWorld && isInVideoTab && selectedWidget != null) {
+            //render only the selected widget
+            selectedWidget.setBackground(true);
+            selectedWidget.render(matrices, mouseX, mouseY, delta);
+        } else {
+            super.renderChildren(matrices, mouseX, mouseY, delta);
+        }
+    }
+
+    @Override
     protected void renderBackground(MatrixStack matrices, float delta, int color1, int color2, float size) {
-        if (fromWorld)
-            renderSolidBackground(GUISkin.getCurrentSkin().getInt("world_screen_bg_color"));
-        else
+        if (fromWorld) {
+            if (!isInVideoTab || selectedWidget == null)
+                renderSolidBackground(GUISkin.getCurrentSkin().getInt("world_screen_bg_color"));
+        } else {
             super.renderBackground(matrices, delta, color1, color2, size);
+        }
     }
 
     protected List<Setting<?>> getSettings() {
@@ -167,7 +183,7 @@ public class SettingsScreen extends ParentedScreen {
         for (Map.Entry<String, Category> entry : root.subcategories.entrySet()) {
             WidgetList list = new WidgetList(0, 0, width - 8, height - tabs.getTabsYOffset() - 4 - 4 - 20 - 12, 12);
             populateList(list, entry.getValue(), "setting." + entry.getKey());
-            tabs.addTab(Text.translated("settings.category." + entry.getKey()), list);
+            tabs.addTab(Text.translated("settings.category." + entry.getKey()), list, () -> isInVideoTab = entry.getKey().equals("video"));
         }
     }
 
@@ -347,6 +363,8 @@ public class SettingsScreen extends ParentedScreen {
                 float min = rangeSetting.getMin(), max = rangeSetting.getMax();
                 float range = max - min;
                 sl.setAllowScroll(false);
+                sl.setMin((int) (min * 100f));
+                sl.setMax((int) (max * 100f));
                 sl.setPercentage((rangeSetting.get() - min) / range);
                 sl.setUpdateListener((f, i) -> {
                     rangeSetting.setTempValue(Math.lerp(min, max, f));
@@ -358,6 +376,11 @@ public class SettingsScreen extends ParentedScreen {
                         return Text.of(String.format("%.0f%%", t * 100f));
                     else
                         return Text.of(String.format("%.2f", t));
+                });
+                sl.setDragStartListener(() -> selectedWidget = set);
+                sl.setDragEndListener(() -> {
+                    selectedWidget = null;
+                    set.setBackground(false);
                 });
                 reset.setAction(b -> {
                     rangeSetting.setTempValue(rangeSetting.getDefault());
@@ -377,6 +400,11 @@ public class SettingsScreen extends ParentedScreen {
                 sl.setUpdateListener((f, i) -> {
                     intRangeSetting.setTempValue(i);
                     reset.setActive(true);
+                });
+                sl.setDragStartListener(() -> selectedWidget = set);
+                sl.setDragEndListener(() -> {
+                    selectedWidget = null;
+                    set.setBackground(false);
                 });
                 reset.setAction(b -> {
                     intRangeSetting.setTempValue(intRangeSetting.getDefault());

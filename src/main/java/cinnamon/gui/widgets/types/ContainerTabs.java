@@ -32,6 +32,7 @@ public class ContainerTabs extends ContainerGrid {
     protected final Button prevButton, nextButton;
     protected final List<TabButton> tabButtons = new ArrayList<>();
     protected final List<Container> pages = new ArrayList<>();
+    protected final List<Runnable> customActions = new ArrayList<>();
 
     protected final int width, maxTabs;
 
@@ -85,8 +86,14 @@ public class ContainerTabs extends ContainerGrid {
     }
 
     public void addTab(Text label, Container page) {
+        this.addTab(label, page, null);
+    }
+
+    public void addTab(Text label, Container page, Runnable customAction) {
         int index = pages.size();
         pages.add(page);
+
+        customActions.add(customAction);
 
         TabButton button = new TabButton(label, index, this);
         tabButtons.add(button);
@@ -103,6 +110,9 @@ public class ContainerTabs extends ContainerGrid {
         buttons.clear();
         buttons.setColumns(1);
         pages.clear();
+        tabButtons.clear();
+        customActions.clear();
+        currentPage = -1;
         this.updateDimensions();
     }
 
@@ -115,6 +125,10 @@ public class ContainerTabs extends ContainerGrid {
 
         currentPage = index;
         addWidget(pages.get(currentPage));
+
+        Runnable customAction = customActions.get(currentPage);
+        if (customAction != null)
+            customAction.run();
     }
 
     public int getCurrentPageIndex() {

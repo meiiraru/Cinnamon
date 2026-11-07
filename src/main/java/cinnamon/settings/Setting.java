@@ -45,6 +45,10 @@ public abstract class Setting<T> {
         return tempValue;
     }
 
+    public T getTempOrValue() {
+        return tempValue != null ? tempValue : value;
+    }
+
     public void set(T value) {
         this.value = value;
         if (consumer != null)

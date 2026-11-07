@@ -664,6 +664,10 @@
   "setting.video.graphics.render_scale": "Render Scale",
   "setting.video.graphics.bloom_strength": "Bloom Strength",
   "setting.video.graphics.refraction_strength": "Refraction Strength",
+  "setting.video.graphics.brightness": "Brightness",
+  "setting.video.graphics.contrast": "Contrast",
+  "setting.video.graphics.gamma": "Gamma",
+  "setting.video.graphics.saturation": "Saturation",
 
   "setting.sound.device": "Sound Device",
   "setting.sound.volume": "Volumes",

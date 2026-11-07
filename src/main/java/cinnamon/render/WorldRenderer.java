@@ -170,6 +170,9 @@ public class WorldRenderer {
         //fxaa
         applyFXAA();
 
+        //color correction
+        applyColorCorrection();
+
         //bake output buffer to the target buffer
         bake();
 
@@ -225,6 +228,7 @@ public class WorldRenderer {
         renderOutlines(world, camera, matrices, delta);
 
         applyFXAA();
+        applyColorCorrection();
 
         bake();
     }
@@ -239,7 +243,7 @@ public class WorldRenderer {
 
     public static void setupFramebuffer(Framebuffer buffer) {
         targetBuffer = buffer;
-        outputBuffer.resizeTo(targetBuffer, Settings.renderScale.get());
+        outputBuffer.resizeTo(targetBuffer, Settings.renderScale.getTempOrValue());
         outputBuffer.useClear();
         outputBuffer.adjustViewPort();
     }
@@ -329,8 +333,8 @@ public class WorldRenderer {
         s.setTexture("ssrTex",    SSRRenderer.getTexture(),        i++);
 
         s.setFloat("lightFactor", renderLights && renderedLights > 0 ? 1f : 0f);
-        s.setFloat("ssaoFactor", renderSSAO && Settings.ssaoLevel.get() >= 0 ? 1f : 0f);
-        s.setFloat("ssrFactor", renderSSR && Settings.ssrLevel.get() >= 0 ? 1f : 0f);
+        s.setFloat("ssaoFactor", renderSSAO && Settings.ssaoLevel.getTempOrValue() >= 0 ? 1f : 0f);
+        s.setFloat("ssrFactor", renderSSR && Settings.ssrLevel.getTempOrValue() >= 0 ? 1f : 0f);
 
         //apply sky
         sky.applyUniforms(s, camera);
@@ -365,7 +369,7 @@ public class WorldRenderer {
     }
 
     public static void renderSSAO(Camera camera) {
-        int ssaoLevel = Settings.ssaoLevel.get();
+        int ssaoLevel = Settings.ssaoLevel.getTempOrValue();
         if (renderSSAO && ssaoLevel >= 0) {
             SSAORenderer.renderSSAO(PBRFrameBuffer, camera, ssaoLevel, 0.5f);
             if (ssaoLevel > 0)
@@ -374,13 +378,13 @@ public class WorldRenderer {
     }
 
     public static void renderSSR(Camera camera) {
-        int ssrLevel = Settings.ssrLevel.get();
+        int ssrLevel = Settings.ssrLevel.getTempOrValue();
         if (renderSSR && ssrLevel >= 0)
             SSRRenderer.render(PBRFrameBuffer, lastFrameFramebuffer, camera, ssrLevel);
     }
 
     public static void applyBloom() {
-        float bloom = Settings.bloomStrength.get();
+        float bloom = Settings.bloomStrength.getTempOrValue();
         if (renderBloom && bloom > 0f)
             BloomRenderer.applyBloom(outputBuffer, PBRFrameBuffer.getEmissive(), 1.5f, bloom);
     }
@@ -457,14 +461,24 @@ public class WorldRenderer {
     }
 
     public static void applyFXAA() {
-        if (renderFXAA && Settings.fxaa.get())
+        if (renderFXAA && Settings.fxaa.getTempOrValue())
             PostProcess.apply(PostProcess.FXAA);
     }
 
     public static void renderRefractions(WorldClient world, Sky sky, Camera camera, MatrixStack matrices, float delta) {
-        float refractStrength = Settings.refractStrength.get();
+        float refractStrength = Settings.refractStrength.getTempOrValue();
         if (renderRefract && refractStrength > 0f)
             RefractionRenderer.renderRefractions(world, refractStrength, PBRFrameBuffer, outputBuffer, renderLights, sky, camera, matrices, delta);
+    }
+
+    public static void applyColorCorrection() {
+        PostProcess.apply(PostProcess.COLOR_CORRECTION.getShader(), (fb, s) -> {
+            s.setFloat("brightness", Settings.brightness.getTempOrValue());
+            s.setFloat("contrast",   Settings.contrast.getTempOrValue());
+            s.setFloat("gamma",      Settings.gamma.getTempOrValue());
+            s.setFloat("saturation", Settings.saturation.getTempOrValue());
+            return PostProcess.COLOR_CORRECTION.uniformFunction().apply(fb, s);
+        }, false);
     }
 
 
@@ -523,7 +537,7 @@ public class WorldRenderer {
     }
 
     public static void viewBobbing(Camera camera, float deltaTime) {
-        float strength = Settings.viewBobbingStrength.get();
+        float strength = Settings.viewBobbingStrength.getTempOrValue();
         if (strength <= 0f)
             return;
 

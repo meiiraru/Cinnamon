@@ -93,8 +93,8 @@ public class LightRenderer {
 
         //init the light buffer
         initLightBuffer(gBuffer, camera);
-        boolean hasShadows = renderShadows && Settings.shadowQuality.get() >= 0;
-        boolean hasVolumetric = volumetric && Settings.volumetricLights.get() >= 0;
+        boolean hasShadows = renderShadows && Settings.shadowQuality.getTempOrValue() >= 0;
+        boolean hasVolumetric = volumetric && Settings.volumetricLights.getTempOrValue() >= 0;
 
         if (hasVolumetric)
             initVolumetricBuffer(gBuffer);
@@ -146,7 +146,7 @@ public class LightRenderer {
         }
         visibilitySSBO.bind(0);
 
-        boolean lensFlare = Settings.lensFlare.get();
+        boolean lensFlare = Settings.lensFlare.getTempOrValue();
         List<Integer> directionalLights = new ArrayList<>();
 
         //prepare the glare buffer
@@ -221,7 +221,7 @@ public class LightRenderer {
         blit.setTexture("colorTex", lightGlareBuffer.getColorBuffer(), 0);
         StaticGeometry.QUAD.render();
 
-        if (Settings.volumetricLights.get() >= 0) {
+        if (Settings.volumetricLights.getTempOrValue() >= 0) {
             Shader blitUpsample = PostProcess.BLIT_UPSAMPLE_DEPTH.getShader().use();
             blitUpsample.setTexture("colorTex", volumetricBuffer.getColorBuffer(), 0);
             blitUpsample.setTexture("depthTex", volumetricBuffer.getDepthBuffer(), 1);
@@ -280,7 +280,7 @@ public class LightRenderer {
 
     private static void initShadowBuffer() {
         //prepare the shadow buffer
-        int w = 256 << Settings.shadowQuality.get();
+        int w = 256 << Settings.shadowQuality.getTempOrValue();
         cascadeShadowBuffer.resize(w, w);
         cubeShadowBuffer.resize(w, w);
         shadowBuffer.resize(w, w);
@@ -445,7 +445,7 @@ public class LightRenderer {
 
 
     private static void initVolumetricBuffer(Framebuffer target) {
-        int level = Settings.volumetricLights.get();
+        int level = Settings.volumetricLights.getTempOrValue();
         volumetricBuffer.resizeTo(target, level <= 3 ? 0.25f : 0.5f);
         volumetricBuffer.useClear();
         target.blit(volumetricBuffer, false, true, false);

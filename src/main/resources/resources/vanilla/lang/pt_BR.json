@@ -648,6 +648,10 @@
   "setting.video.graphics.render_scale": "Escala de Renderização",
   "setting.video.graphics.bloom_strength": "Intensidade de Brilho",
   "setting.video.graphics.refraction_strength": "Intensidade de Refração",
+  "setting.video.graphics.brightness": "Brilho",
+  "setting.video.graphics.contrast": "Contraste",
+  "setting.video.graphics.gamma": "Gamma",
+  "setting.video.graphics.saturation": "Saturação",
 
   "setting.sound.device": "Dispositivo de Som",
   "setting.sound.volume": "Volumes",

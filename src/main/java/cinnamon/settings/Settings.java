@@ -82,7 +82,11 @@ public class Settings {
     public static final Setting.Ranges
             renderScale     = new Setting.Ranges("video.graphics.render_scale", 1f, 0.01f, 4f),
             bloomStrength   = new Setting.Ranges("video.graphics.bloom_strength", 1f, 0f, 5f),
-            refractStrength = new Setting.Ranges("video.graphics.refraction_strength", 1f, 0f, 1f);
+            refractStrength = new Setting.Ranges("video.graphics.refraction_strength", 1f, 0f, 1f),
+            brightness      = new Setting.Ranges("video.graphics.brightness", 1f, 0f, 3f),
+            contrast        = new Setting.Ranges("video.graphics.contrast", 1f, -10f, 10f),
+            gamma           = new Setting.Ranges("video.graphics.gamma", 1f, 0f, 10f),
+            saturation      = new Setting.Ranges("video.graphics.saturation", 1f, -10f, 10f);
 
     // -- sounds -- //
 

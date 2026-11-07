@@ -4,7 +4,6 @@ import cinnamon.Client;
 import cinnamon.gui.widgets.types.Scrollbar;
 import cinnamon.math.MatrixStack;
 import cinnamon.render.Window;
-import cinnamon.render.batch.VertexConsumer;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.UIHelper;
 import org.joml.Math;
@@ -57,19 +56,6 @@ public class WidgetList extends ContainerGrid {
                 scrollbar.render(matrices, mouseX, mouseY, delta);
             UIHelper.popStencil();
         }
-    }
-
-    @Override
-    protected void renderBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        //render background
-        UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, getSkin().getResource("container_background_tex"),
-                getAlignedX(), getAlignedY(),
-                getWidth(), getHeight(),
-                0f, 0f,
-                16, 16,
-                16, 16
-        );
     }
 
     @Override

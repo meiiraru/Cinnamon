@@ -39,6 +39,7 @@ public class Slider extends SelectableWidget {
     private boolean showTooltip = true;
     private BiFunction<Float, Integer, Text> tooltipFunction = DEFAULT_TOOLTIP;
     private BiConsumer<Float, Integer> changeListener, updateListener;
+    private Runnable dragStartListener, dragEndListener;
     private boolean mouseSelected;
     private float animationValue;
     private boolean showCurrentTooltip;
@@ -253,6 +254,9 @@ public class Slider extends SelectableWidget {
         Window w = Client.getInstance().window;
 
         if (mouseSelected) {
+            if (dragStartListener != null)
+                dragStartListener.run();
+
             clickValue = value;
 
             if (updateValueOnClick())
@@ -267,6 +271,8 @@ public class Slider extends SelectableWidget {
             updateHover(w.mouseX, w.mouseY);
             if (wasSelected) {
                 setPercentage(value); //just call the update to run the listeners
+                if (dragEndListener != null)
+                    dragEndListener.run();
                 return this;
             }
         }
@@ -328,6 +334,8 @@ public class Slider extends SelectableWidget {
                     if (mouseSelected) {
                         mouseSelected = false;
                         updatePercentage(clickValue);
+                        if (dragEndListener != null)
+                            dragEndListener.run();
                         return this;
                     }
                 }
@@ -483,6 +491,14 @@ public class Slider extends SelectableWidget {
 
     public void setUpdateListener(BiConsumer<Float, Integer> updateListener) {
         this.updateListener = updateListener;
+    }
+
+    public void setDragStartListener(Runnable dragStartListener) {
+        this.dragStartListener = dragStartListener;
+    }
+
+    public void setDragEndListener(Runnable dragEndListener) {
+        this.dragEndListener = dragEndListener;
     }
 
     public float getAnimationValue() {
