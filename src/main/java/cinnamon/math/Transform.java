@@ -202,6 +202,101 @@ public class Transform {
     }
 
     /**
+     * Translates this transformation by the given vector
+     * @param vec The {@link Vector3f} translation vector
+     * @return This {@link Transform} instance
+     * @see #translate(float, float, float)
+     */
+    public Transform translate(Vector3f vec) {
+        return this.translate(vec.x, vec.y, vec.z);
+    }
+
+    /**
+     * Translates this transformation by the given amounts along each axis
+     * @param x The translation amount along the x axis
+     * @param y The translation amount along the y axis
+     * @param z The translation amount along the z axis
+     * @return This {@link Transform} instance
+     * @see #translate(Vector3f)
+     */
+    public Transform translate(float x, float y, float z) {
+        this.pos.add(x, y, z);
+        this.dirty = true;
+        return this;
+    }
+
+    /**
+     * Rotates this transformation by the given quaternion
+     * @param rot The {@link Quaternionf} rotation
+     * @return This {@link Transform} instance
+     * @see #rotate(float, float, float)
+     */
+    public Transform rotate(Quaternionf rot) {
+        this.rot.mul(rot);
+        this.dirty = true;
+        return this;
+    }
+
+    /**
+     * Rotates this transformation by the given Euler angles {@code pitch, yaw, roll} in degrees
+     * @param vec The {@link Vector3f} containing the Euler angles in degrees
+     * @return This {@link Transform} instance
+     * @see #rotate(float, float, float)
+     */
+    public Transform rotate(Vector3f vec) {
+        return this.rotate(vec.x, vec.y, vec.z);
+    }
+
+    /**
+     * Rotates this transformation by the given Euler angles {@code pitch, yaw, roll} in degrees
+     * @param pitch The pitch angle in degrees
+     * @param yaw The yaw angle in degrees
+     * @param roll The roll angle in degrees
+     * @return This {@link Transform} instance
+     * @see #rotate(Vector3f)
+     */
+    public Transform rotate(float pitch, float yaw, float roll) {
+        this.rot.rotateZYX(Math.toRadians(roll), Math.toRadians(-yaw), Math.toRadians(-pitch));
+        this.dirty = true;
+        return this;
+    }
+
+    /**
+     * Scales this transformation uniformly in all directions
+     * @param scalar The uniform scale factor
+     * @return This {@link Transform} instance
+     * @see #scale(float, float, float)
+     */
+    public Transform scale(float scalar) {
+        return this.scale(scalar, scalar, scalar);
+    }
+
+    /**
+     * Scales this transformation by the given vector
+     * @param vec The {@link Vector3f} scale vector
+     * @return This {@link Transform} instance
+     * @see #scale(float, float, float)
+     */
+    public Transform scale(Vector3f vec) {
+        return this.scale(vec.x, vec.y, vec.z);
+    }
+
+    /**
+     * Scales this transformation by the given amounts along each axis
+     * @param x The scale factor along the x axis
+     * @param y The scale factor along the y axis
+     * @param z The scale factor along the z axis
+     * @return This {@link Transform} instance
+     * @see #scale(float)
+     * @see #scale(Vector3f)
+     */
+    public Transform scale(float x, float y, float z) {
+        this.scale.mul(x, y, z);
+        this.dirty = true;
+        return this;
+    }
+
+    /**
      * Flags this transformation as dirty, indicating that the transformation matrix needs to be recalculated
      */
     public void markDirty() {

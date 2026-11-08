@@ -6,9 +6,9 @@ import org.joml.Vector3f;
 import java.util.function.BiConsumer;
 
 public enum Channel {
-    POSITION(Transform::setPos),
-    ROTATION(Transform::setRot),
-    SCALE(Transform::setScale);
+    POSITION(Transform::translate),
+    ROTATION(Transform::rotate),
+    SCALE(Transform::scale);
 
     private final BiConsumer<Transform, Vector3f> consumer;
 

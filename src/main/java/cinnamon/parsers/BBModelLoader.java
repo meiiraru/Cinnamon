@@ -524,7 +524,8 @@ public class BBModelLoader {
             }
 
             //parse animators
-            parseAnimators(animation, animObj.getAsJsonObject("animators"), groups, parts, versionBelowFive);
+            if (animObj.has("animators"))
+                parseAnimators(animation, animObj.getAsJsonObject("animators"), groups, parts, versionBelowFive);
         }
 
         return animations;

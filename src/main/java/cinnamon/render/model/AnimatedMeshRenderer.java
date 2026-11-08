@@ -53,6 +53,9 @@ public class AnimatedMeshRenderer extends MeshRenderer {
         if (isFreed())
             return;
 
+        //cleanup the bone tree
+        cleanupBone(bone);
+
         //tick animations
         for (Animation animation : animations.values())
             animation.update();
@@ -70,6 +73,9 @@ public class AnimatedMeshRenderer extends MeshRenderer {
         if (isFreed())
             return;
 
+        //cleanup the bone tree
+        cleanupBone(bone);
+
         //tick animations
         for (Animation animation : animations.values())
             animation.update();
@@ -80,6 +86,12 @@ public class AnimatedMeshRenderer extends MeshRenderer {
             if (mesh != null)
                 renderMeshWithoutMaterial(mesh);
         });
+    }
+
+    private void cleanupBone(Bone bone) {
+        bone.getTransform().clearAnimationPose();
+        for (Bone child : bone.getChildren())
+            cleanupBone(child);
     }
 
     private void renderBone(Bone bone, MatrixStack matrices, Consumer<String> renderFunction) {
