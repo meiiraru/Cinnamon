@@ -52,6 +52,7 @@ public class ShadertoyScreen extends ParentedScreen {
                 
                 void main() {
                     mainImage(fragColor, texCoords * iResolution);
+                    fragColor.a = 1.0f;
                 }
                 """;
     protected Shader shader;
