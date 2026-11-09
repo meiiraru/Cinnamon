@@ -32,12 +32,16 @@ public record Shader(int ID) {
     public static Shader activeShader;
 
     public static Shader of(Resource res) {
+        return of(res, null);
+    }
+
+    public static Shader of(Resource res, String src) {
         Shader shader = SHADER_MAP.get(res);
         if (shader != null)
             return shader;
 
         //otherwise load a new shader and cache it
-        return cacheShader(res, loadShader(res));
+        return cacheShader(res, loadShader(res, src));
     }
 
     private static Shader cacheShader(Resource res, Shader shader) {
@@ -45,9 +49,9 @@ public record Shader(int ID) {
         return shader;
     }
 
-    private static Shader loadShader(Resource res) {
+    private static Shader loadShader(Resource res, String src) {
         LOGGER.debug("Loading shader \"%s\"", res);
-        String src = IOUtils.readString(res);
+        if (src == null) src = IOUtils.readString(res);
         String[] split = src.split("#type ");
 
         //create shaders
@@ -174,6 +178,12 @@ public record Shader(int ID) {
         for (Shader shader : SHADER_MAP.values())
             shader.free();
         SHADER_MAP.clear();
+    }
+
+    public static void free(Resource shader) {
+        Shader s = SHADER_MAP.remove(shader);
+        if (s != null)
+            s.free();
     }
 
     public Shader use() {

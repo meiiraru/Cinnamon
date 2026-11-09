@@ -85,6 +85,9 @@ public class ExtrasScreen extends ParentedScreen {
         //joystick test
         list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.joystick_test", button -> client.setScreen(new JoystickTestScreen(this))));
 
+        //shadertoy
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.tech_demos.shadertoy", button -> client.setScreen(new ShadertoyScreen(this))));
+
         //title
         list.addWidget(new Label(0, 0, Text.of("\n").appendTranslated("gui.extras_screen.games").append("\n")));
 
@@ -97,7 +100,7 @@ public class ExtrasScreen extends ParentedScreen {
         //title
         list.addWidget(new Label(0, 0, Text.of("\n").appendTranslated("gui.extras_screen.other").append("\n")));
 
-        //CPF validator
+        //hdr fix
         list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.other.hdr_fix", button -> client.setScreen(new HDRFixScreen(this))));
 
         //CPF validator

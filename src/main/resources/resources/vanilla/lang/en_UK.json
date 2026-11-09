@@ -62,6 +62,7 @@
   "gui.extras_screen.tech_demos.vec_sum": "Vector Sum",
   "gui.extras_screen.tech_demos.midi_player": "MIDI Player",
   "gui.extras_screen.tech_demos.joystick_test": "Joystick Test",
+  "gui.extras_screen.tech_demos.shadertoy": "Shadertoy",
   "gui.extras_screen.games": "Games",
   "gui.extras_screen.games.dvd_screensaver": "DVD Screensaver",
   "gui.extras_screen.games.wordle": "Wordle",
@@ -159,6 +160,10 @@
   "gui.model_viewer_screen.view_right": "Right",
   "gui.model_viewer_screen.view_up":"Up",
   "gui.model_viewer_screen.view_down": "Down",
+
+  "gui.shadertoy_screen.reload": "Reload Shader",
+  "gui.shadertoy_screen.edit": "Edit Shader",
+  "gui.shadertoy_screen.error": "Failed to compile shader!",
 
   "gui.wordle.success": "Congrats!",
   "gui.wordle.error.word_small": "Word too small",
