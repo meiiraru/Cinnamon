@@ -425,6 +425,12 @@ public class WidgetTestScreen extends ParentedScreen {
         cp2.setColor(Colors.randomRainbow());
         colorPickers.addWidget(cp2);
 
+        //text area
+        TextField ta = new TextField(cpb.getX() + cpb.getWidth() + 4, cpb.getY(), 100, 72);
+        ta.setMultiline(true);
+        ta.setText("[wip]\nmulti-line\ntext area");
+        addWidget(ta);
+
         //add lists
         addWidget(grid);
         addWidget(grid2);

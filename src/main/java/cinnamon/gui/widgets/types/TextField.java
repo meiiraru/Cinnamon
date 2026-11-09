@@ -33,39 +33,40 @@ public class TextField extends SelectableWidget implements Tickable {
     protected final ContextMenu contextMenu;
 
     //text
-    private String currText = "";
-    private int cursor;
-    private boolean insert;
-    private Consumer<String> changeListener;
-    private Predicate<Character> filter = Filter.ANY.predicate;
-    private int charLimit = 1000;
-    private Consumer<TextField> returnListener;
-    private int selectedIndex = -1;
+    protected String currText = "";
+    protected int cursor;
+    protected boolean insert;
+    protected Consumer<String> changeListener;
+    protected Predicate<Character> filter = Filter.ANY.predicate;
+    protected int charLimit = 1000;
+    protected Consumer<TextField> returnListener;
+    protected int selectedIndex = -1;
+    protected boolean multiline = false;
 
     //mouse
-    private long lastClickTime = -1;
-    private int lastClickIndex = -1;
-    private int clickCount;
-    private boolean dragging;
+    protected long lastClickTime = -1;
+    protected int lastClickIndex = -1;
+    protected int clickCount;
+    protected boolean dragging;
 
     //history
-    private final String[] history = new String[HISTORY_SIZE];
-    private int historyIndex;
-    private Action lastAction = null;
+    protected final String[] history = new String[HISTORY_SIZE];
+    protected int historyIndex;
+    protected Action lastAction = null;
 
     //rendering
-    private Text hintText = null;
-    private Style textStyle = Style.EMPTY;
-    private Integer borderColor;
-    private String formatting;
-    private String formattedText = "";
-    private boolean textOnly;
-    private boolean password;
-    private Integer selectionColor;
-    private Integer selectedColor;
-    private int xOffset;
-    private float xAnim;
-    private long blinkTime;
+    protected Text hintText = null;
+    protected Style textStyle = Style.EMPTY;
+    protected Integer borderColor;
+    protected String formatting;
+    protected String formattedText = "";
+    protected boolean textOnly;
+    protected boolean password;
+    protected Integer selectionColor;
+    protected Integer selectedColor;
+    protected int xOffset, yOffset;
+    protected float xAnim, yAnim;
+    protected long blinkTime;
 
     public TextField(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -374,15 +375,19 @@ public class TextField extends SelectableWidget implements Tickable {
         setCursorPos(0);
     }
 
-    public void unselectText() {
-        selectedIndex = -1;
+    public boolean isMultiline() {
+        return multiline;
+    }
+
+    public void setMultiline(boolean multiline) {
+        this.multiline = multiline;
     }
 
 
     // -- formatting -- //
 
 
-    private String applyFormatting(String s) {
+    protected String applyFormatting(String s) {
         boolean escaped = false;
         int length = s.length();
         int chars = 0;
@@ -419,7 +424,7 @@ public class TextField extends SelectableWidget implements Tickable {
         return build.toString();
     }
 
-    private int getFormattingSkippedCharCount(int cursor) {
+    protected int getFormattingSkippedCharCount(int cursor) {
         //no formatting, no skipped chars
         if (formatting == null)
             return 0;
@@ -452,7 +457,7 @@ public class TextField extends SelectableWidget implements Tickable {
         return count;
     }
 
-    private int getFormattingExtraCharCount(int cursor) {
+    protected int getFormattingExtraCharCount(int cursor) {
         //no formatting, no extra chars
         if (formatting == null)
             return 0;
@@ -476,7 +481,7 @@ public class TextField extends SelectableWidget implements Tickable {
         return count;
     }
 
-    private void updateFormatting() {
+    protected void updateFormatting() {
         if (formatting != null)
             formattedText = applyFormatting(currText);
         else if (password)
@@ -485,7 +490,7 @@ public class TextField extends SelectableWidget implements Tickable {
             formattedText = currText;
     }
 
-    private void updateContext() {
+    protected void updateContext() {
         //0, 1 - cut / copy
         boolean bool = selectedIndex != -1 && selectedIndex != cursor && !password;
         contextMenu.getAction(0).setActive(bool);
@@ -495,7 +500,7 @@ public class TextField extends SelectableWidget implements Tickable {
         contextMenu.getAction(5).setActive(historyIndex < history.length - 1 && history[historyIndex + 1] != null);
     }
 
-    private void fitCursorInWidth() {
+    protected void fitCursorInBounds() {
         String str = getFormattedText();
         int width = getWidth() - 4 * 2;
 
@@ -548,7 +553,7 @@ public class TextField extends SelectableWidget implements Tickable {
                     if (isSurrogate(cursor))
                         setCursorPos(cursor - 1);
                 }
-                fitCursorInWidth();
+                fitCursorInBounds();
                 return this;
             }
             case GLFW_KEY_RIGHT -> {
@@ -560,21 +565,21 @@ public class TextField extends SelectableWidget implements Tickable {
                     if (isSurrogate(cursor))
                         setCursorPos(cursor + 1);
                 }
-                fitCursorInWidth();
+                fitCursorInBounds();
                 return this;
             }
             case GLFW_KEY_HOME, GLFW_KEY_PAGE_UP -> {
                 markSelection(shift);
                 //no lines, so page up is the same as home
                 setCursorPos(0);
-                fitCursorInWidth();
+                fitCursorInBounds();
                 return this;
             }
             case GLFW_KEY_END, GLFW_KEY_PAGE_DOWN -> {
                 markSelection(shift);
                 //same for page down
                 setCursorPos(currText.length());
-                fitCursorInWidth();
+                fitCursorInBounds();
                 return this;
             }
             //editing
@@ -727,12 +732,17 @@ public class TextField extends SelectableWidget implements Tickable {
         return super.mouseMove(x, y);
     }
 
+    @Override
+    public GUIListener mouseScroll(double x, double y) {
+        return super.mouseScroll(x, y);
+    }
 
     // -- text editing -- //
 
 
     public boolean updateText(Object string) {
         String str = String.valueOf(string);
+        str = str.replaceAll("(\r\n)|\n", " "); //no new lines allowed
 
         //trim the text to the char limit
         if (str.length() > charLimit)
@@ -751,7 +761,7 @@ public class TextField extends SelectableWidget implements Tickable {
 
         //update the cursor
         setCursorPos(cursor);
-        fitCursorInWidth();
+        fitCursorInBounds();
 
         //success
         return true;
@@ -762,12 +772,12 @@ public class TextField extends SelectableWidget implements Tickable {
             changeListener.accept(currText);
     }
 
-    private void copy() {
+    protected void copy() {
         if (selectedIndex != -1 && !password)
             glfwSetClipboardString(-1, currText.substring(Math.min(cursor, selectedIndex), Math.max(cursor, selectedIndex)));
     }
 
-    private void paste() {
+    protected void paste() {
         String clipboard = glfwGetClipboardString(-1);
         if (clipboard != null) {
             //no new lines allowed
@@ -775,14 +785,14 @@ public class TextField extends SelectableWidget implements Tickable {
         }
     }
 
-    private void cut() {
+    protected void cut() {
         if (selectedIndex != -1 && !password) {
             glfwSetClipboardString(-1, currText.substring(Math.min(cursor, selectedIndex), Math.max(cursor, selectedIndex)));
             setText(removeSelected(Action.CUT));
         }
     }
 
-    private void insert(char c) {
+    protected void insert(char c) {
         //if the cursor is at the end, we can just append the char
         if (cursor == currText.length()) {
             append(String.valueOf(c), Action.INSERT);
@@ -807,11 +817,11 @@ public class TextField extends SelectableWidget implements Tickable {
             //set the new text and cursor pos
             setText(text.substring(0, cursor) + c + text.substring(i));
             setCursorPos(j);
-            fitCursorInWidth();
+            fitCursorInBounds();
         }
     }
 
-    private void append(String s, Action action) {
+    protected void append(String s, Action action) {
         StringBuilder build = new StringBuilder();
 
         //test each char and append it to the build
@@ -833,11 +843,11 @@ public class TextField extends SelectableWidget implements Tickable {
             appendToHistory(action);
             setText(text.substring(0, cursor) + build + text.substring(cursor));
             setCursorPos(cursor + s.length());
-            fitCursorInWidth();
+            fitCursorInBounds();
         }
     }
 
-    private void remove(int count) {
+    protected void remove(int count) {
         int len = currText.length();
         if (len == 0) //nothing to remove
             return;
@@ -872,16 +882,16 @@ public class TextField extends SelectableWidget implements Tickable {
                 setText(currText.substring(0, Math.max(i, 0)) + currText.substring(cursor));
                 //also set the new cursor position
                 setCursorPos(i);
-                fitCursorInWidth();
+                fitCursorInBounds();
             }
         }
     }
 
-    private boolean isSurrogate(int cursor) {
+    protected boolean isSurrogate(int cursor) {
         return cursor >= 0 && cursor < currText.length() && Character.isLowSurrogate(currText.charAt(cursor));
     }
 
-    private boolean isWhitespace(int cursor) {
+    protected boolean isWhitespace(int cursor) {
         //consider out of bounds as whitespace
         return cursor < 0 || cursor >= currText.length() || Character.isWhitespace(currText.charAt(cursor));
     }
@@ -890,7 +900,7 @@ public class TextField extends SelectableWidget implements Tickable {
     // -- history -- //
 
 
-    private void undo() {
+    protected void undo() {
         //cannot undo from here
         if (historyIndex <= 0)
             return;
@@ -905,7 +915,7 @@ public class TextField extends SelectableWidget implements Tickable {
         setFromHistory();
     }
 
-    private void redo() {
+    protected void redo() {
         //no redo available
         if (historyIndex >= history.length - 1 || history[historyIndex + 1] == null)
             return;
@@ -916,7 +926,7 @@ public class TextField extends SelectableWidget implements Tickable {
         setFromHistory();
     }
 
-    private void appendToHistory(Action action) {
+    protected void appendToHistory(Action action) {
         //if it is the same action, we do not want to save it, unless if it is a paste action
         if (lastAction == action && action != Action.PASTE)
             return;
@@ -937,7 +947,7 @@ public class TextField extends SelectableWidget implements Tickable {
         }
     }
 
-    private void setFromHistory() {
+    protected void setFromHistory() {
         //unwrap the text and cursor position
         String text = history[historyIndex];
         String[] split = text.split("\\|", 3);
@@ -946,14 +956,14 @@ public class TextField extends SelectableWidget implements Tickable {
         setText(split[2]);
         selectedIndex = Integer.parseInt(split[1]);
         setCursorPos(Integer.parseInt(split[0]));
-        fitCursorInWidth();
+        fitCursorInBounds();
     }
 
 
     // -- selection -- //
 
 
-    private int getPreviousWord(int i) {
+    protected int getPreviousWord(int i) {
         if (password) //for security, passwords do not have words
             return 0;
 
@@ -977,7 +987,7 @@ public class TextField extends SelectableWidget implements Tickable {
         return i;
     }
 
-    private int getNextWord(int i) {
+    protected int getNextWord(int i) {
         int len = currText.length();
         if (password) //for security, passwords do not have words
             return len;
@@ -1007,7 +1017,7 @@ public class TextField extends SelectableWidget implements Tickable {
         selectedIndex = 0;
     }
 
-    private void selectWhitespaces(int i) {
+    protected void selectWhitespaces(int i) {
         //no words in passwords
         if (password)
             return;
@@ -1024,7 +1034,7 @@ public class TextField extends SelectableWidget implements Tickable {
         setCursorPos(i);
     }
 
-    private void selectWord(int i) {
+    protected void selectWord(int i) {
         //no words in passwords
         if (password)
             return;
@@ -1034,14 +1044,14 @@ public class TextField extends SelectableWidget implements Tickable {
         setCursorPos(getNextWord(selectedIndex));
     }
 
-    private void markSelection(boolean shift) {
+    protected void markSelection(boolean shift) {
         if (!shift) //shift is not pressed, so reset the selection
             selectedIndex = -1;
         else if (selectedIndex == -1)
             selectedIndex = cursor;
     }
 
-    private void moveCursorToMouse() {
+    protected void moveCursorToMouse() {
         //rendering text offset
         int x = getX() + 2;
         //grab mouse pos
@@ -1056,7 +1066,7 @@ public class TextField extends SelectableWidget implements Tickable {
         setCursorPos(length - getFormattingExtraCharCount(length));
     }
 
-    private String removeSelected(Action context) {
+    protected String removeSelected(Action context) {
         //cannot remove if there is no selection, so return the current text
         if (selectedIndex == -1)
             return currText;
@@ -1074,7 +1084,7 @@ public class TextField extends SelectableWidget implements Tickable {
         return currText.substring(0, start) + currText.substring(end);
     }
 
-    private void selectOnMousePos() {
+    protected void selectOnMousePos() {
         //start selection
         if (selectedIndex == -1)
             selectedIndex = cursor;
@@ -1113,10 +1123,20 @@ public class TextField extends SelectableWidget implements Tickable {
         }
     }
 
+    public void unselectText() {
+        selectedIndex = -1;
+    }
+
     @Override
     public void setWidth(int width) {
         super.setWidth(width);
-        fitCursorInWidth();
+        fitCursorInBounds();
+    }
+
+    @Override
+    public void setHeight(int height) {
+        super.setHeight(height);
+        fitCursorInBounds();
     }
 
     // -- enums -- //
@@ -1136,7 +1156,7 @@ public class TextField extends SelectableWidget implements Tickable {
         }
     }
 
-    private enum Action {
+    protected enum Action {
         WRITE,
         INSERT,
         DELETE,
