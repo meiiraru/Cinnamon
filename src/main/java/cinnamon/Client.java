@@ -23,6 +23,7 @@ import cinnamon.sound.SoundManager;
 import cinnamon.text.ClickEvent;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
+import cinnamon.utils.SystemMonitor;
 import cinnamon.utils.TextureIO;
 import cinnamon.utils.Version;
 import cinnamon.vr.XrManager;
@@ -73,11 +74,11 @@ public class Client {
     public void init() {
         //opengl debug info
         LOGGER.info("Welcome to Cinnamon! v%s", Version.CLIENT_VERSION);
-        LOGGER.info("OS: %s %s %s", System.getProperty("os.name"), System.getProperty("os.version"), System.getProperty("os.arch"));
-        LOGGER.info("Java: %s %s", System.getProperty("java.version"), System.getProperty("java.vendor"));
+        LOGGER.info("OS: %s %s %s", SystemMonitor.OS_NAME, SystemMonitor.OS_VERSION, SystemMonitor.OS_ARCH);
+        LOGGER.info("Java: %s %s", SystemMonitor.JAVA_VERSION, SystemMonitor.JAVA_VENDOR);
         LOGGER.info("Renderer: %s", Cinnamon.GPU_DETAILS);
         LOGGER.info("OpenGL Version: %s", Cinnamon.OPENGL_VERSION);
-        LOGGER.info("LWJGL Version: %s", org.lwjgl.Version.getVersion());
+        LOGGER.info("LWJGL Version: %s", SystemMonitor.LWJGL_VERSION);
 
         //log supported OpenGL extensions
         LOGGER.debug("Supported OpenGL Extensions:");
@@ -149,6 +150,8 @@ public class Client {
 
         if (screen != null)
             screen.tick();
+
+        DebugScreen.tick();
 
         TICK_END.invoker().run();
     }

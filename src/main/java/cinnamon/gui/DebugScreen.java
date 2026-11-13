@@ -89,7 +89,22 @@ public class DebugScreen {
     public static boolean pauseOnLostFocus = true;
 
     private static final CircularQueue<Integer> fpsBar = new CircularQueue<>(30);
-    private static long lastFpsTime = 0;
+    private static long lastUpdateTime = 0;
+
+    public static void tick() {
+        if (!active)
+            return;
+
+        Client c = Client.getInstance();
+        if (c.ticks - lastUpdateTime >= Client.TPS) {
+            lastUpdateTime = c.ticks;
+
+            fpsBar.add(c.fps);
+
+            if (isTabOpen(Tab.SYSTEM))
+                SystemMonitor.updateAsync();
+        }
+    }
 
     public static void render(MatrixStack matrices, float delta) {
         Client c = Client.getInstance();
@@ -108,11 +123,6 @@ public class DebugScreen {
             Text.of(c.fps + " fps @ " + c.ms + " ms" + vsync).withStyle(STYLE).render(VertexConsumer.MAIN, matrices, 4, 4);
             matrices.popMatrix();
             return;
-        }
-
-        if (c.ticks - lastFpsTime >= Client.TPS) {
-            fpsBar.add(c.fps);
-            lastFpsTime = c.ticks;
         }
 
         renderDebugCrosshair(matrices, c);
@@ -308,6 +318,9 @@ public class DebugScreen {
 
         int bg = GUISkin.of(GUI_SKIN).getInt("text_background_color");
         VertexConsumer.MAIN.consume(GeometryHelper.rectangle(matrices, x, y, x + w, y + h, bg));
+
+        if (fpsBar.isEmpty())
+            return;
 
         int higher = 0;
         int average = 0;
@@ -507,39 +520,29 @@ public class DebugScreen {
     }
 
     public enum Tab {
-        SYSTEM(c -> {
-            long millis = System.currentTimeMillis();
+        SYSTEM(c -> String.format("""
+                [&bjava&r]
+                java version &e%s&r
+                mem &e%s&r%% &e%s&r/&e%s&r
+                allocated &e%s&r%% &e%s&r
 
-            Runtime r = Runtime.getRuntime();
-            long max = r.maxMemory();
-            long total = r.totalMemory();
-            long free = r.freeMemory();
-            long used = total - free;
+                [&bproperties&r]
+                date &e%tT %tF&r
+                OS &e%s %s %s&r
+                Renderer &e%s&r
+                LWJGL &e%s&r
+                OpenGL &e%s&r""",
 
-            return String.format("""
-                    [&bjava&r]
-                    java version &e%s&r
-                    mem &e%s&r%% &e%s&r/&e%s&r
-                    allocated &e%s&r%% &e%s&r
+                SystemMonitor.JAVA_VERSION,
+                SystemMonitor.memUsedPercent, Maths.prettyByteSize(SystemMonitor.memUsed), Maths.prettyByteSize(SystemMonitor.memMax),
+                SystemMonitor.memAllocatedPercent, Maths.prettyByteSize(SystemMonitor.memTotal),
 
-                    [&bproperties&r]
-                    date &e%tT %tF&r
-                    OS &e%s %s %s&r
-                    Renderer &e%s&r
-                    LWJGL &e%s&r
-                    OpenGL &e%s&r""",
-
-                    System.getProperty("java.version"),
-                    used * 100 / max, Maths.prettyByteSize(used), Maths.prettyByteSize(max),
-                    total * 100 / max, Maths.prettyByteSize(total),
-
-                    millis, millis,
-                    System.getProperty("os.name"), System.getProperty("os.version"), System.getProperty("os.arch"),
-                    Cinnamon.GPU_DETAILS,
-                    org.lwjgl.Version.getVersion(),
-                    Cinnamon.OPENGL_VERSION
-            );
-        }),
+                SystemMonitor.millis, SystemMonitor.millis,
+                SystemMonitor.OS_NAME, SystemMonitor.OS_VERSION, SystemMonitor.OS_ARCH,
+                Cinnamon.GPU_DETAILS,
+                SystemMonitor.LWJGL_VERSION,
+                Cinnamon.OPENGL_VERSION
+        )),
         RENDER(c -> {
             Window w = c.window;
             PostProcess post = c.postProcess == -1 ? null : PostProcess.EFFECTS[c.postProcess];

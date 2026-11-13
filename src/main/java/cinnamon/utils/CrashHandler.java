@@ -14,7 +14,6 @@ import cinnamon.world.world.WorldClient;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.PrintWriter;
-import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -70,24 +69,25 @@ public class CrashHandler {
                 throwable.printStackTrace(writer);
                 writer.println();
 
+                SystemMonitor.update();
+
                 writer.println("-- System Details --");
                 writer.println("\tTime: "      + new Date());
                 writer.println("\tThread: "    + thread.getName());
-                writer.println("\tOS: "        + System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") version " + System.getProperty("os.version"));
-                writer.println("\tJava: "      + System.getProperty("java.version") + ", " + System.getProperty("java.vendor"));
-                writer.println("\tJava VM: "   + System.getProperty("java.vm.name") + " (" + System.getProperty("java.vm.version") + ")");
-                writer.println("\tJVM: "       + System.getProperty("java.runtime.name") + " (" + System.getProperty("java.runtime.version") + ")");
-                writer.println("\tJVM Flags: " + String.join(" ", ManagementFactory.getRuntimeMXBean().getInputArguments()));
+                writer.println("\tOS: "        + SystemMonitor.OS_NAME + " (" + SystemMonitor.OS_ARCH + ") version " + SystemMonitor.OS_VERSION);
+                writer.println("\tJava: "      + SystemMonitor.JAVA_VERSION + ", " + SystemMonitor.JAVA_VENDOR);
+                writer.println("\tJava VM: "   + SystemMonitor.JAVA_VM_NAME + " (" + SystemMonitor.JAVA_VM_VERSION + ")");
+                writer.println("\tJVM: "       + SystemMonitor.JAVA_RUNTIME_NAME + " (" + SystemMonitor.JAVA_RUNTIME_VERSION + ")");
+                writer.println("\tJVM Flags: " + SystemMonitor.JVM_FLAGS);
 
-                Runtime runtime = Runtime.getRuntime();
-                writer.println("\tVM Memory Used: "      + ((runtime.totalMemory() - runtime.freeMemory()) / 1024 / 1024) + "MB");
-                writer.println("\tVM Memory Allocated: " + (runtime.totalMemory() / 1024 / 1024) + "MB");
-                writer.println("\tVM Memory Max: "       + (runtime.maxMemory() / 1024 / 1024) + "MB");
+                writer.println("\tVM Memory Used: "      + (SystemMonitor.memUsed  / 1024 / 1024) + "MB");
+                writer.println("\tVM Memory Allocated: " + (SystemMonitor.memTotal / 1024 / 1024) + "MB");
+                writer.println("\tVM Memory Max: "       + (SystemMonitor.memMax   / 1024 / 1024) + "MB");
 
-                writer.println("\tCPUs: "   + runtime.availableProcessors());
+                writer.println("\tCPUs: "   + SystemMonitor.CPUS);
                 writer.println("\tGPU: "    + Cinnamon.GPU_DETAILS);
                 writer.println("\tOpenGL: " + Cinnamon.OPENGL_VERSION);
-                writer.println("\tLWJGL: "  + org.lwjgl.Version.getVersion());
+                writer.println("\tLWJGL: "  + SystemMonitor.LWJGL_VERSION);
                 writer.println();
 
                 writer.println("-- Cinnamon --");
