@@ -567,6 +567,7 @@
   "setting.video.graphics": "Graphics",
   "setting.video.graphics.fxaa": "FXAA",
   "setting.video.graphics.lens_flare": "Lens Flare",
+  "setting.video.graphics.animated_textures": "Animated Textures",
   "setting.video.graphics.volumetric_lights": "Volumetric Lights",
   "setting.video.graphics.ssao_level": "SSAO Level",
   "setting.video.graphics.ssr_level": "SSR Level",

@@ -72,8 +72,9 @@ public class Settings {
 
     //graphics
     public static final Setting.Bools
-            fxaa      = new Setting.Bools("video.graphics.fxaa", true),
-            lensFlare = new Setting.Bools("video.graphics.lens_flare", true);
+            fxaa         = new Setting.Bools("video.graphics.fxaa", true),
+            lensFlare    = new Setting.Bools("video.graphics.lens_flare", true),
+            animTextures = new Setting.Bools("video.graphics.animated_textures", true);
     public static final Setting.IntRanges
             volumetricLights = new Setting.IntRanges("video.graphics.volumetric_lights", 3, -1, 4),
             ssaoLevel        = new Setting.IntRanges("video.graphics.ssao_level", 3, -1, 4),

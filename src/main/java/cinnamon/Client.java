@@ -137,7 +137,8 @@ public class Client {
         Await.tick();
 
         SoundManager.tick(camera);
-        AnimatedTexture.tickAll(world != null && world.isPaused() ? 1 : 2);
+        if (Settings.animTextures.get())
+            AnimatedTexture.tickAll(world != null && world.isPaused() ? 1 : 2);
 
         TICK_BEFORE_WORLD.invoker().run();
 

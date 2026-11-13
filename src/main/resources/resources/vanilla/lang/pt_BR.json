@@ -551,6 +551,7 @@
   "setting.video.graphics": "Gráficos",
   "setting.video.graphics.fxaa": "FXAA",
   "setting.video.graphics.lens_flare": "Efeito de Lente",
+  "setting.video.graphics.animated_textures": "Texturas Animadas",
   "setting.video.graphics.volumetric_lights": "Luzes Volumétricas",
   "setting.video.graphics.ssao_level": "Nível de SSAO",
   "setting.video.graphics.ssr_level": "Nível de SSR",
