@@ -473,13 +473,14 @@ public class LightRenderer {
         s.setup(camera);
         s.setupInverse(camera);
         s.setVec3("camPos", camera.getPosition());
-        s.setTexture("noiseTex", volumetricNoiseTex, 0);
+        s.setTexture("noiseTex", getVolumetricNoiseTex(), 0);
         s.setTexture("gDepth", gBuffer.getDepthBuffer(), 1);
 
         //bind shadow maps
         s.setBool("castsShadows", hasShadow);
-        s.setTexture("shadowMap",     hasShadow ? shadowBuffer.getDepthBuffer() : 0, 2);
-        s.setCubeMap("shadowCubeMap", hasShadow ? cubeShadowBuffer.getCubemap() : 0, 3);
+        s.setTexture("shadowMap", hasShadow ? shadowBuffer.getDepthBuffer() : 0, 2);
+        s.setTexture("cookieMap", light instanceof CookieLight cookie ? Texture.of(cookie.getCookieTexture()).getID() : 0, 3);
+        s.setCubeMap("shadowCubeMap", hasShadow ? cubeShadowBuffer.getCubemap() : 0, 4);
         s.setMat4("lightSpaceMatrix", light.getLightSpaceMatrix());
 
         if (light instanceof PointLight p)
@@ -511,8 +512,8 @@ public class LightRenderer {
         }
 
         glEnable(GL_DEPTH_TEST);
-        Texture.unbindAll(3);
-        CubeMap.unbindTex(3);
+        Texture.unbindAll(4);
+        CubeMap.unbindTex(4);
     }
 
     private static void bakeLight(PBRDeferredFramebuffer gBuffer, Camera camera, Light light, boolean hasShadow) {

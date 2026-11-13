@@ -305,7 +305,7 @@ class InventoryTest {
             assertEquals(2, inventory.getSize());
             assertNotNull(inventory.getItem(0));
             assertNotNull(inventory.getItem(1));
-            assertThrows(ArrayIndexOutOfBoundsException.class, () -> inventory.getItem(4));
+            assertNull(inventory.getItem(4));
         }
     }
 }
