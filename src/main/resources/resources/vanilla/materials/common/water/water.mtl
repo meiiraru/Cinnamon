@@ -1,6 +1,0 @@
-newmtl water
-map_Kd -smooth_mip Water_002_COLOR.png
-map_disp -smooth Water_002_DISP.png
-map_Bump Water_002_NORM.png
-map_ao Water_002_OCC.png
-map_Pr Water_002_ROUGH.png

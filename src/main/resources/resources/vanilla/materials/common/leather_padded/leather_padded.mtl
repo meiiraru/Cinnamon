@@ -1,0 +1,4 @@
+newmtl leather_padded
+map_Kd -smooth_mip leather_albedo.png
+map_Bump leather_normal.png
+map_Pr leather_roughness.png

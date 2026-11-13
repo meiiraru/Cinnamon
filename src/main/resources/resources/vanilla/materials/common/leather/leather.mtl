@@ -1,4 +1,4 @@
 newmtl leather
-map_Kd -smooth_mip leather.png
-map_Bump leather_n.png
-map_Pr leather_r.png
+map_Kd -smooth_mip leather_albedo.png
+map_Bump leather_normal.png
+map_Pr leather_roughness.png

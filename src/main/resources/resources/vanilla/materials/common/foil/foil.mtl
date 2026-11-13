@@ -1,7 +1,7 @@
 newmtl foil
-map_Kd -smooth_mip metal_0005_color_1k.png
-map_disp -smooth metal_0005_height_1k.png
-map_Bump metal_0005_normal_opengl_1k.png
-map_ao metal_0005_ao_1k.png
-map_Pr metal_0005_roughness_1k.png
-map_Pm metal_0005_metallic_1k.png
+map_Kd -smooth_mip foil_albedo.png
+map_disp -smooth foil_height.png
+map_Bump foil_normal.png
+map_ao foil_ao.png
+map_Pr foil_roughness.png
+map_Pm foil_metallic.png

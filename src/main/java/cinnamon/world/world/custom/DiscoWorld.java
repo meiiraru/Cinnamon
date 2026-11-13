@@ -53,12 +53,12 @@ public class DiscoWorld extends WorldClient {
 
     @Override
     protected void levelLoad() {
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, -1, -10, 10, 0, 10, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.getMaterial()));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 8, -10, 10, 9, 10, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.getMaterial()));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 0, -10, 10, 8, -9, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.getMaterial()));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 0, 9, 10, 8, 10, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.getMaterial()));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 0, -9, -9, 8, 9, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.getMaterial()));
-        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, 9, 0, -9, 10, 8, 9, 0xFFFFFFFF)).setMaterial(MaterialRegistry.ACOUSTIC_FOAM.getMaterial()));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, -1, -10, 10, 0, 10, 0xFFFFFFFF)).setMaterial(MaterialRegistry.BROWN_WOOD_PLANKS.getMaterial()));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 8, -10, 10, 9, 10, 0xFFFFFFFF)).setMaterial(MaterialRegistry.BLACK_TILES.getMaterial()));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 0, -10, 10, 8, -9, 0xFFFFFFFF)).setMaterial(MaterialRegistry.LEATHER_PADDED.getMaterial()));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 0, 9, 10, 8, 10, 0xFFFFFFFF)).setMaterial(MaterialRegistry.LEATHER_PADDED.getMaterial()));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, -10, 0, -9, -9, 8, 9, 0xFFFFFFFF)).setMaterial(MaterialRegistry.LEATHER_PADDED.getMaterial()));
+        addTerrain(new PrimitiveTerrain(GeometryHelper.box(null, 9, 0, -9, 10, 8, 9, 0xFFFFFFFF)).setMaterial(MaterialRegistry.LEATHER_PADDED.getMaterial()));
 
         Resource soundRes = new Resource("sounds/song.ogg");
         sound = Sound.of(soundRes);
@@ -83,7 +83,7 @@ public class DiscoWorld extends WorldClient {
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 4; j++) {
                 Speaker speaker = new Speaker(UUID.randomUUID());
-                speaker.setPos(-3f + j * 0.6f + i * 4, 0f, -8.5f);
+                speaker.setPos(-2.9f + j * 0.6f + i * 4, 0f, -8.5f);
                 speaker.setRot(0, 180, 0);
                 addEntity(speaker);
                 speakers.add(speaker);

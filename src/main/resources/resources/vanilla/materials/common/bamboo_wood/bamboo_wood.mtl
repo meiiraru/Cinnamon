@@ -1,6 +1,0 @@
-newmtl bamboo_wood
-map_Kd -smooth_mip bamboo-wood-semigloss-albedo.png
-map_Bump bamboo-wood-semigloss-normal.png
-map_ao bamboo-wood-semigloss-ao.png
-map_Pr bamboo-wood-semigloss-roughness.png
-map_Pm bamboo-wood-semigloss-metal.png

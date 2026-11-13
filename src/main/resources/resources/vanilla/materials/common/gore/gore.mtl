@@ -1,6 +1,0 @@
-newmtl gore
-map_Kd -smooth_mip TCom_Gore_512_albedo.png
-map_disp -smooth TCom_Gore_512_height.png
-map_Bump TCom_Gore_512_normal.png
-map_ao TCom_Gore_512_ao.png
-map_Pr TCom_Gore_512_roughness.png

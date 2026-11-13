@@ -1,5 +1,5 @@
 newmtl crate
-map_Kd -smooth_mip kd.png
-map_Pr roughness.png
-map_Pm ks.png
-map_disp roughness.png
+map_Kd -smooth_mip create_albedo.png
+map_Pr crate_height_roughness.png
+map_Pm crate_metallic.png
+map_disp crate_height_roughness.png

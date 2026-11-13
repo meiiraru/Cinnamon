@@ -1,7 +1,6 @@
 newmtl grass
-map_Kd -smooth_mip stylized-grass1_albedo.png
-map_disp -smooth stylized-grass1_height.png
-map_Bump stylized-grass1_normal-ogl.png
-map_ao stylized-grass1_ao.png
-map_Pr stylized-grass1_roughness.png
-map_Pm stylized-grass1_metallic.png
+map_Kd -smooth_mip grass_albedo.png
+map_disp -smooth grass_height.png
+map_Bump grass_normal.png
+map_ao grass_ao.png
+map_Pr grass_roughness.png
