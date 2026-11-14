@@ -157,16 +157,16 @@ float calculatePointShadow(vec3 fragPosWorld, vec3 normal) {
     return shadow;
 }
 
-vec3 getCookieColor(vec3 lightCoords) {
+vec4 getCookieColor(vec3 lightCoords) {
     //transform to UV coordinates
     vec2 cookieCoords = lightCoords.xy;
     cookieCoords.y = 1.0f - cookieCoords.y;
 
     //sample the cookie texture if inside the projection area
     if (cookieCoords.x >= 0.0f && cookieCoords.x <= 1.0f && cookieCoords.y >= 0.0f && cookieCoords.y <= 1.0f)
-        return texture(cookieMap, cookieCoords).rgb;
+        return texture(cookieMap, cookieCoords);
     else
-        return vec3(0.0f);
+        return vec4(0.0f);
 }
 
 float calculateDirectionalShadow(vec3 fragPosWorld, vec3 lightDir, vec3 normal) {
@@ -279,10 +279,10 @@ void main() {
 
     //cookie
     if (light.type == 3) {
-        vec3 cookieColor = getCookieColor(lightCoords);
-        if (cookieColor.r + cookieColor.g + cookieColor.b < 0.01f)
+        vec4 cookieColor = getCookieColor(lightCoords);
+        if (cookieColor.a < 0.01f || cookieColor.r + cookieColor.g + cookieColor.b < 0.01f)
             discard;
-        radiance *= cookieColor;
+        radiance *= cookieColor.rgb;
     }
 
     //normal

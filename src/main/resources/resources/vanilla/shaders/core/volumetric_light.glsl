@@ -289,7 +289,12 @@ void main() {
 
             if (cookieLight) {
                 vec2 cookieCoords = vec2(coords.x, 1.0f - coords.y);
-                sampleColor *= texture(cookieMap, cookieCoords).rgb;
+                vec4 cookieColor = texture(cookieMap, cookieCoords);
+
+                if (cookieColor.a < 0.01f || cookieColor.r + cookieColor.g + cookieColor.b < 0.01f)
+                    continue;
+
+                sampleColor *= cookieColor.rgb;
             }
         }
 
