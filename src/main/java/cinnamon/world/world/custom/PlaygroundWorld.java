@@ -258,7 +258,7 @@ public class PlaygroundWorld extends WorldClient {
         //frog custom entity
         Entity frog = new PhysEntity(UUID.randomUUID(), null) {
             private static final String[] msg = {"purr...", "mrrr...", "ibbit!"};
-            private static final Resource tex = new Resource("textures/misc/frog.png");
+            private static final Resource tex = new Resource("textures/misc/credits/frog.png");
             private int petted = 0;
             private int jump = -1;
 

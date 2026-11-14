@@ -5,12 +5,14 @@ import cinnamon.gui.Screen;
 import cinnamon.gui.widgets.ContainerGrid;
 import cinnamon.gui.widgets.WidgetList;
 import cinnamon.gui.widgets.types.Button;
+import cinnamon.gui.widgets.types.ImageWidget;
 import cinnamon.gui.widgets.types.Label;
 import cinnamon.text.Style;
 import cinnamon.text.Text;
 import cinnamon.utils.Alignment;
 import cinnamon.utils.IOUtils;
 import cinnamon.utils.Resource;
+import cinnamon.utils.TextUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -77,7 +79,7 @@ public class CreditsScreen extends ParentedScreen {
             //try to parse as a simple first
             if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
                 String line = element.getAsString();
-                list.addWidget(new Label(0, 0, Text.of(line).withStyle(BASE)));
+                list.addWidget(new Label(0, 0, TextUtils.parseColorFormatting(Text.of(line).withStyle(BASE))));
                 continue;
             }
 
@@ -87,7 +89,7 @@ public class CreditsScreen extends ParentedScreen {
             JsonArray content = section.getAsJsonArray("content");
 
             //add label for title
-            list.addWidget(new Label(0, 0, Text.of(title).withStyle(TITLE)));
+            list.addWidget(new Label(0, 0, TextUtils.parseColorFormatting(Text.of(title).withStyle(TITLE))));
 
             //add sub-list for content
             ContainerGrid grid = new ContainerGrid(0, 0, 4);
@@ -95,8 +97,30 @@ public class CreditsScreen extends ParentedScreen {
             list.addWidget(grid);
 
             for (JsonElement contentElement : content) {
-                String line = contentElement.getAsString();
-                grid.addWidget(new Label(0, 0, Text.of(line).withStyle(BASE)));
+                //check for custom objects
+                if (contentElement.isJsonObject()) {
+                    JsonObject contentObject = contentElement.getAsJsonObject();
+                    //image object
+                    if (contentObject.has("image")) {
+                        Resource resource = new Resource(contentObject.get("image").getAsString());
+                        ImageWidget img = new ImageWidget(0, 0, 32, 32, resource);
+                        grid.addWidget(img);
+
+                        if (contentObject.has("uv")) {
+                            JsonArray uv = contentObject.getAsJsonArray("uv");
+                            img.setUV(uv.get(0).getAsFloat(), uv.get(1).getAsFloat());
+                        }
+                        if (contentObject.has("region")) {
+                            JsonArray region = contentObject.getAsJsonArray("region");
+                            img.setRegion(region.get(0).getAsFloat(), region.get(1).getAsFloat());
+                        }
+                    }
+                }
+                //parse as a simple string
+                else {
+                    String line = contentElement.getAsString();
+                    grid.addWidget(new Label(0, 0, TextUtils.parseColorFormatting(Text.of(line).withStyle(BASE))));
+                }
             }
 
             first = false;

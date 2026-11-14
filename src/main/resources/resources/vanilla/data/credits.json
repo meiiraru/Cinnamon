@@ -3,19 +3,24 @@
     {
       "title": "Lead Developer",
       "content": [
+        {"image": "textures/misc/credits/meii.png"},
         "Meiiraru \"Pumpkin\" Akitsuki"
       ]
     },
     {
       "title": "Contributors",
       "content": [
+        {"image": "textures/misc/credits/luna.png"},
         "Luna \"LunaEatsTuna\" Rodrigues Ruiz"
       ]
     },
     {
       "title": "Special Thanks",
       "content": [
+        {"image": "textures/misc/credits/deer.png"},
         "Deer \"Cakeeh\"",
+
+        {"image": "textures/misc/credits/frog.png", "uv": [0, 0], "region": [0.5, 1]},
         "Frog \"TheFranticFrog\""
       ]
     },

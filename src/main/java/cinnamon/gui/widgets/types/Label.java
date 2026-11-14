@@ -3,8 +3,8 @@ package cinnamon.gui.widgets.types;
 import cinnamon.Client;
 import cinnamon.gui.widgets.AlignedWidget;
 import cinnamon.gui.widgets.GUIListener;
+import cinnamon.gui.widgets.HoverWidget;
 import cinnamon.gui.widgets.PopupWidget;
-import cinnamon.gui.widgets.SelectableWidget;
 import cinnamon.math.MatrixStack;
 import cinnamon.render.batch.VertexConsumer;
 import cinnamon.text.HoverEvent;
@@ -20,14 +20,12 @@ import org.lwjgl.glfw.GLFW;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Label extends SelectableWidget implements AlignedWidget {
+public class Label extends HoverWidget implements AlignedWidget {
 
     protected Text text;
     protected Text wrappedText;
     protected Alignment alignment;
     protected int maxWidth = -1;
-    protected boolean renderBackground = true;
-    protected boolean forceBackground = false;
     protected HoverEvent tooltipOverride;
     protected float textScale = 1f;
 
@@ -38,30 +36,17 @@ public class Label extends SelectableWidget implements AlignedWidget {
     public Label(int x, int y, Text text, Alignment alignment) {
         super(x, y, 0, 0);
         this.setText(text);
-        this.setSelectable(false);
         this.setAlignment(alignment);
     }
 
     @Override
     public void renderWidget(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        if (renderBackground() && (forceBackground() || (isSelectable() && isHoveredOrFocused())))
-            renderHover(matrices, mouseX, mouseY, delta);
+        super.renderWidget(matrices, mouseX, mouseY, delta);
 
         renderText(matrices, mouseX, mouseY, delta);
 
         if (isHovered())
             renderTextHover(matrices, mouseX, mouseY, delta);
-    }
-
-    protected void renderHover(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        UIHelper.nineQuad(
-                VertexConsumer.MAIN, matrices, getSkin().getResource("label_tex"),
-                getAlignedX() - 1, getAlignedY() - 1,
-                getWidth() + 2, getHeight() + 2,
-                0f, 0f,
-                15, 15,
-                15, 15
-        );
     }
 
     protected void renderText(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -139,10 +124,6 @@ public class Label extends SelectableWidget implements AlignedWidget {
         super.updateDimensions();
     }
 
-    protected void updateSelectable() {
-        setSelectable(getTooltip() != null || getPopup() != null);
-    }
-
     @Override
     public GUIListener mousePress(int button, int action, int mods) {
         if (isActive() && isHoveredOrFocused() && button == GLFW.GLFW_MOUSE_BUTTON_1 && action == GLFW.GLFW_RELEASE) {
@@ -210,18 +191,6 @@ public class Label extends SelectableWidget implements AlignedWidget {
     }
 
     @Override
-    public void setTooltip(Text tooltip) {
-        super.setTooltip(tooltip);
-        updateSelectable();
-    }
-
-    @Override
-    public void setPopup(PopupWidget popup) {
-        super.setPopup(popup);
-        updateSelectable();
-    }
-
-    @Override
     public int getCenterX() {
         return getAlignedX() + getWidth() / 2;
     }
@@ -241,23 +210,5 @@ public class Label extends SelectableWidget implements AlignedWidget {
 
     public int getMaxWidth() {
         return maxWidth;
-    }
-
-    public boolean renderBackground() {
-        return renderBackground;
-    }
-
-    public Label setRenderBackground(boolean renderBackground) {
-        this.renderBackground = renderBackground;
-        return this;
-    }
-
-    public boolean forceBackground() {
-        return forceBackground;
-    }
-
-    public Label setForceBackground(boolean forceBackground) {
-        this.forceBackground = forceBackground;
-        return this;
     }
 }
