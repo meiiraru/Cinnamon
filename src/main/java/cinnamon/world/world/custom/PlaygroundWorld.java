@@ -56,6 +56,7 @@ import cinnamon.world.items.weapons.CoilGun;
 import cinnamon.world.items.weapons.NailGun;
 import cinnamon.world.items.weapons.PotatoCannon;
 import cinnamon.world.items.weapons.RiceGun;
+import cinnamon.world.light.CookieLight;
 import cinnamon.world.light.PointLight;
 import cinnamon.world.light.Spotlight;
 import cinnamon.world.particle.TextParticle;
@@ -374,6 +375,9 @@ public class PlaygroundWorld extends WorldClient {
             lantern.setPos(Maths.range(39f, 60f), Maths.range(2f, 12f), Maths.range(-50f, -16f));
             addEntity(lantern);
         }
+
+        //ad astra
+        addLight(new CookieLight().cookieTexture(new Resource("textures/misc/ad_astra.png")).angle(40f).pos(12.5f, 5f, 10f).glareSize(1.5f));
     }
 
     @Override
