@@ -61,9 +61,11 @@ public class WorldRenderer {
     private static float bobPhase, bobX, bobY, bobPitch;
 
     //render properties
-    public static int shadowRenderDistance = 192;
-    public static int renderDistance = 192;
-    public static int entityRenderDistance = 144;
+    public static int
+            renderDistance       = 192,
+            entityRenderDistance = 144,
+            shadowRenderDistance = 192,
+            lightRenderDistance  = 96;
 
     public static boolean
             renderSSAO     = true,

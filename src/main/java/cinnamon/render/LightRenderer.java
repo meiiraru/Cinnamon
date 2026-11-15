@@ -62,7 +62,6 @@ public class LightRenderer {
     private static final Vector3f cameraPos = new Vector3f();
     private static final Quaternionf cameraRot = new Quaternionf();
     private static final Matrix4f pointLightMatrix = new Matrix4f();
-    private static final Quaternionf pointLightRotation = new Quaternionf();
     private static final Matrix4f lightModelMatrix = new Matrix4f();
 
     private static final Matrix4f[] pointShadowMatrices = new Matrix4f[6];
@@ -468,6 +467,8 @@ public class LightRenderer {
         volumetricBuffer.use();
         volumetricBuffer.adjustViewPort();
         glDisable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
 
         Shader s = CoreShadersRegistry.VOLUMETRIC_LIGHT.getShader().use();
         s.setup(camera);
@@ -512,6 +513,8 @@ public class LightRenderer {
         }
 
         glEnable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
         Texture.unbindAll(4);
         CubeMap.unbindTex(4);
     }

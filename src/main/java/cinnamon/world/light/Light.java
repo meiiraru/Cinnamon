@@ -1,6 +1,7 @@
 package cinnamon.world.light;
 
 import cinnamon.render.Camera;
+import cinnamon.render.WorldRenderer;
 import cinnamon.render.shader.Shader;
 import cinnamon.utils.Mask;
 import cinnamon.utils.Resource;
@@ -57,9 +58,14 @@ public abstract class Light extends WorldObject {
     @Override
     public abstract Type getType();
 
+    public int getRenderDistance() {
+        int dist = WorldRenderer.lightRenderDistance;
+        return dist * dist;
+    }
+
     @Override
     public boolean shouldRender(Camera camera) {
-        return intensity > 0f && camera.getPos().distanceSquared(getTransform().getPos()) <= 9216 && super.shouldRender(camera); //96 * 96
+        return intensity > 0f && camera.getPos().distanceSquared(getTransform().getPos()) <= getRenderDistance() && super.shouldRender(camera);
     }
 
     protected void calculateLightViewMatrix() {
