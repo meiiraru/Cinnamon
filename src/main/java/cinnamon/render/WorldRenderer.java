@@ -153,11 +153,11 @@ public class WorldRenderer {
         //apply bloom
         applyBloom();
 
-        //render light postprocessing
-        renderLightsPost(camera, dt);
-
         //render refraction
         renderRefractions(world, world.getSky(), camera, matrices, delta);
+
+        //render light postprocessing
+        renderLightsPost(camera, dt);
 
         //render debug stuff
         if (renderDebug)
@@ -218,8 +218,8 @@ public class WorldRenderer {
             //post bake renderer
             renderClouds(world, camera, delta);
             applyBloom();
-            renderLightsPost(camera, dt);
             renderRefractions(world, world.getSky(), camera, matrices, delta);
+            renderLightsPost(camera, dt);
             if (renderDebug) world.renderDebug(camera, matrices, delta);
         });
 
