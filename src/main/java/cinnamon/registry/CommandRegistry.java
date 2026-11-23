@@ -37,6 +37,7 @@ public class CommandRegistry {
         register("effect", new Effect());
         register("impulse", new Impulse(), "push", "knockback");
         register("inventory", new Inventory(), "inv");
+        register("ability", new Ability());
     }
 
     /**
