@@ -72,7 +72,7 @@ public abstract class Projectile extends PhysEntity {
 
         if (!hasLeftOwner() && getOwner() != null) {
             Entity owner = getWorld().getEntityByUUID(getOwner());
-            if (!owner.getAABB().intersects(this.getAABB()))
+            if (owner == null || !owner.getAABB().intersects(this.getAABB()))
                 leftOwner = true;
         }
     }

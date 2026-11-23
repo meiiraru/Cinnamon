@@ -1,23 +1,22 @@
 package cinnamon.world.ai;
 
+import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.living.LivingEntity;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public enum AIBehaviour {
-    WALK(entity -> {
-        entity.impulse(0, 0, 1);
-        entity.rotate(0, 0.1f, 0);
-    }),
-    SHOOT(LivingEntity::attackAction);
+    LOOK((src, target) -> src.lookAt(target.getTransform().getPos())),
+    MOVE((src, target) -> src.impulse(0, 0, 1)),
+    SHOOT((src, target) -> src.attackAction());
 
-    private final Consumer<LivingEntity> consumer;
+    private final BiConsumer<LivingEntity, Entity> consumer;
 
-    AIBehaviour(Consumer<LivingEntity> consumer) {
+    AIBehaviour(BiConsumer<LivingEntity, Entity> consumer) {
         this.consumer = consumer;
     }
 
-    public void apply(LivingEntity entity) {
-        this.consumer.accept(entity);
+    public void apply(LivingEntity src, Entity target) {
+        this.consumer.accept(src, target);
     }
 }

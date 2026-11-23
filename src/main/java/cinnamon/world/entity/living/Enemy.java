@@ -5,17 +5,21 @@ import cinnamon.registry.EntityRegistry;
 import cinnamon.registry.LivingModelRegistry;
 import cinnamon.world.ai.AIBehaviour;
 import cinnamon.world.entity.DamageType;
+import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.PhysEntity;
+import cinnamon.world.world.WorldClient;
 import org.joml.Vector3f;
 
 import java.util.UUID;
 
 public class Enemy extends LivingEntity {
 
-    private static final int MAX_HEALTH = 20;
-    private static final int MELEE_DAMAGE = 5;
-    private static final int INVENTORY_SIZE = 1;
-    private final AIBehaviour[] behaviours;
+    public static final int MAX_HEALTH = 20;
+    public static final int MELEE_DAMAGE = 5;
+    public static final int INVENTORY_SIZE = 1;
+    protected final AIBehaviour[] behaviours;
+
+    protected Entity target;
 
     public Enemy(UUID uuid, AIBehaviour... behaviours) {
         this(uuid, LivingModelRegistry.random(), behaviours);
@@ -30,9 +34,15 @@ public class Enemy extends LivingEntity {
     public void tick() {
         super.tick();
 
+        Entity target = getTarget();
+        if (target == null || target.isRemoved()) {
+            setTarget(((WorldClient) getWorld()).playerEntity);
+            return;
+        }
+
         for (AIBehaviour behaviour : behaviours) {
             if (behaviour != null)
-                behaviour.apply(this);
+                behaviour.apply(this, target);
         }
     }
 
@@ -51,5 +61,13 @@ public class Enemy extends LivingEntity {
     @Override
     public EntityRegistry getType() {
         return EntityRegistry.ENEMY;
+    }
+
+    public void setTarget(Entity target) {
+        this.target = target;
+    }
+
+    public Entity getTarget() {
+        return target;
     }
 }
