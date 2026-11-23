@@ -231,6 +231,10 @@ public class AABB extends Collider<AABB> {
         Vector3f dir = ray.getDirection();
         Vector3f origin = ray.getOrigin();
 
+        //check if the ray origin is inside the AABB
+        if (this.containsPoint(origin))
+            return new Hit(origin, dir.negate(new Vector3f()), 0f, 0f, ray, this);
+
         //calculate the inverse of the ray dir
         float invX = 1f / dir.x;
         float invY = 1f / dir.y;

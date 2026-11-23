@@ -527,6 +527,10 @@ public class OBB extends Collider<OBB> {
         Vector3f origin = ray.getOrigin();
         Vector3f ax = getAxisX(), ay = getAxisY(), az = getAxisZ();
 
+        //check if the ray origin is inside the OBB
+        if (this.containsPoint(origin))
+            return new Hit(origin, dir.negate(new Vector3f()), 0f, 0f, ray, this);
+
         //transform ray to OBB local space
         float dx = origin.x - center.x;
         float dy = origin.y - center.y;
