@@ -16,17 +16,16 @@ public class Enemy extends LivingEntity {
 
     public static final int MAX_HEALTH = 20;
     public static final int MELEE_DAMAGE = 5;
-    public static final int INVENTORY_SIZE = 1;
     protected final AIBehaviour[] behaviours;
 
     protected Entity target;
 
-    public Enemy(UUID uuid, AIBehaviour... behaviours) {
-        this(uuid, LivingModelRegistry.random(), behaviours);
+    public Enemy(UUID uuid, int inventorySize, AIBehaviour... behaviours) {
+        this(uuid, LivingModelRegistry.random(), inventorySize, behaviours);
     }
 
-    private Enemy(UUID uuid, LivingModelRegistry entityModel, AIBehaviour... behaviours) {
-        super(uuid, entityModel.resource, entityModel.eyeHeight, MAX_HEALTH, INVENTORY_SIZE);
+    private Enemy(UUID uuid, LivingModelRegistry entityModel, int inventorySize, AIBehaviour... behaviours) {
+        super(uuid, entityModel.resource, entityModel.eyeHeight, MAX_HEALTH, inventorySize);
         this.behaviours = behaviours;
     }
 

@@ -52,6 +52,7 @@ import cinnamon.world.gui.Action;
 import cinnamon.world.gui.ActionWheel;
 import cinnamon.world.gui.Marker;
 import cinnamon.world.items.*;
+import cinnamon.world.items.melee.Hammer;
 import cinnamon.world.items.weapons.CoilGun;
 import cinnamon.world.items.weapons.NailGun;
 import cinnamon.world.items.weapons.PotatoCannon;
@@ -456,6 +457,7 @@ public class PlaygroundWorld extends WorldClient {
                 new Flashlight(0xFFFFCC),
                 new MagicWand(),
                 new NailGun(50, 3, 60),
+                new Hammer(),
         };
 
         for (int i = 0; i < items.length; i++) {

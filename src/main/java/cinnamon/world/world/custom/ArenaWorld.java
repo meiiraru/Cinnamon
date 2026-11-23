@@ -10,7 +10,11 @@ import cinnamon.world.entity.Entity;
 import cinnamon.world.entity.collectable.ItemEntity;
 import cinnamon.world.entity.living.Enemy;
 import cinnamon.world.entity.misc.Spawner;
+import cinnamon.world.items.BubbleGun;
+import cinnamon.world.items.Flashlight;
 import cinnamon.world.items.Item;
+import cinnamon.world.items.PaintGun;
+import cinnamon.world.items.melee.Hammer;
 import cinnamon.world.items.weapons.CoilGun;
 import cinnamon.world.items.weapons.NailGun;
 import cinnamon.world.items.weapons.PotatoCannon;
@@ -48,7 +52,7 @@ public class ArenaWorld extends WorldClient {
 
         //zombie spawner
         l -= 4;
-        Spawner<Enemy> spawner = new Spawner<>(UUID.randomUUID(), 70, () -> new Enemy(UUID.randomUUID(), AIBehaviour.LOOK, AIBehaviour.MOVE, AIBehaviour.SHOOT), e -> true);
+        Spawner<Enemy> spawner = new Spawner<>(UUID.randomUUID(), 70, () -> new Enemy(UUID.randomUUID(), 0, AIBehaviour.LOOK, AIBehaviour.MOVE), e -> true);
         spawner.setExtents(l, 0.25f, l);
         spawner.setPos(0f, 5.25f, 0f);
         addEntity(spawner);
@@ -59,6 +63,10 @@ public class ArenaWorld extends WorldClient {
                 new PotatoCannon(3, 60, 200),
                 new RiceGun(8, 40, 150),
                 new NailGun(50, 3, 60),
+                new PaintGun(),
+                new BubbleGun(),
+                new Flashlight(0xFFFFCC),
+                new Hammer(),
         };
 
         float angle = 360f / items.length;
