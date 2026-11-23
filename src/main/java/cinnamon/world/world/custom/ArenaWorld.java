@@ -96,5 +96,10 @@ public class ArenaWorld extends WorldClient {
     public void respawn(boolean init) {
         super.respawn(init);
         playerEntity.setPos(0.5f, 1.5f, 0.5f);
+
+        for (Entity entity : entities.values()) {
+            if (entity instanceof Enemy)
+                entity.remove();
+        }
     }
 }
