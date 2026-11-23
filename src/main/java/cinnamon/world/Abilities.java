@@ -21,6 +21,7 @@ public class Abilities {
     }
 
     public enum Ability {
+        ADMIN(false),
         GOD_MODE(false),
         CAN_FLY(false),
         NOCLIP(false),

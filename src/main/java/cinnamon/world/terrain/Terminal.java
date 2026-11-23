@@ -14,8 +14,10 @@ import cinnamon.registry.TerrainModelRegistry;
 import cinnamon.registry.TerrainRegistry;
 import cinnamon.render.Camera;
 import cinnamon.text.Text;
+import cinnamon.world.Abilities;
 import cinnamon.world.WorldRules;
 import cinnamon.world.entity.Entity;
+import cinnamon.world.entity.living.Player;
 import cinnamon.world.world.WorldClient;
 
 public class Terminal extends Terrain  {
@@ -56,14 +58,12 @@ public class Terminal extends Terrain  {
                 this.getTransform().getRot(),
                 Maths.quatToDir(this.getTransform().getRot())
         );
+
         this.output = CommandParser.runCommand(source, s);
 
-        if (this.output != null) {
-            this.screen.addOutputEntry(this.output);
-
-            if (isSendingOutputToChat())
-                MessageManager.addMessage(this.output, MessageCategory.SYSTEM, null);
-        }
+        this.screen.addOutputEntry(this.output);
+        if (isSendingOutputToChat())
+            MessageManager.addMessage(this.output, MessageCategory.SYSTEM, null);
 
         delayTicks = delay;
     }
@@ -79,8 +79,12 @@ public class Terminal extends Terrain  {
 
     @Override
     public boolean interact(Entity entity, Hit hit) {
-        Client.getInstance().setScreen(screen);
-        return true;
+        if (entity instanceof Player p && p.getAbilities().get(Abilities.Ability.ADMIN)) {
+            Client.getInstance().setScreen(screen);
+            return true;
+        }
+
+        return false;
     }
 
     public void setCommandString(String command) {
@@ -127,6 +131,11 @@ public class Terminal extends Terrain  {
 
     public void setDelay(int delay) {
         this.delay = Math.max(delay, 1);
+    }
+
+    @Override
+    public boolean canBreak(Entity entity) {
+        return entity instanceof Player p && p.getAbilities().get(Abilities.Ability.ADMIN);
     }
 
     @Override

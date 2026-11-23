@@ -11,9 +11,18 @@ public class Barrier extends Terrain {
         super(null, TerrainRegistry.BARRIER);
     }
 
+    private boolean isGodMode(Entity entity) {
+        return entity instanceof Player p && p.getAbilities().get(Abilities.Ability.GOD_MODE);
+    }
+
+    @Override
+    public boolean canBreak(Entity entity) {
+        return isGodMode(entity) && super.canBreak(entity);
+    }
+
     @Override
     public boolean isSelectable(Entity entity) {
-        return entity instanceof Player p && p.getAbilities().get(Abilities.Ability.GOD_MODE) && super.isSelectable(entity);
+        return isGodMode(entity) && super.isSelectable(entity);
     }
 
     @Override

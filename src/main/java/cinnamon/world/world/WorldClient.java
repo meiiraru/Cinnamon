@@ -829,7 +829,9 @@ public class WorldClient extends World {
         String playerName = Settings.playerName.get();
         LocalPlayer player = new LocalPlayer(playerName.isBlank() ? "Player" : playerName, LivingModelRegistry.valueOf(Settings.playerModel.get()));
         player.setPos(0.5f, 0f, 0.5f);
-        player.getAbilities().set(Abilities.Ability.CAN_FLY, true);
+        player.getAbilities()
+                .set(Abilities.Ability.CAN_FLY, true)
+                .set(Abilities.Ability.ADMIN, true);
 
         Animation anim = player.getAnimation("blink");
         if (anim != null)

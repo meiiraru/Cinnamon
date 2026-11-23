@@ -186,6 +186,10 @@ public class Terrain extends WorldObject {
         return type;
     }
 
+    public boolean canBreak(Entity entity) {
+        return true;
+    }
+
     public boolean isSelectable(Entity entity) {
         return true;
     }

@@ -28,6 +28,11 @@ public class PlaneTerrain extends Terrain {
     }
 
     @Override
+    public boolean canBreak(Entity entity) {
+        return false;
+    }
+
+    @Override
     public boolean isSelectable(Entity entity) {
         return false;
     }
