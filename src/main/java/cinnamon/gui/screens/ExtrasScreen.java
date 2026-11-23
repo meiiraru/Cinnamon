@@ -49,6 +49,9 @@ public class ExtrasScreen extends ParentedScreen {
         //collisions debug world
         list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.custom_worlds.collision_test", button -> new CollisionWorld().init()));
 
+        //arena world
+        list.addWidget(BUTTON_FACTORY.apply("gui.extras_screen.custom_worlds.arena", button -> new ArenaWorld().init()));
+
         //title
         list.addWidget(new Label(0, 0, Text.of("\n").appendTranslated("gui.extras_screen.tech_demos").append("\n")));
 
