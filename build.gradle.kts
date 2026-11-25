@@ -13,7 +13,7 @@ java {
 }
 
 group = "com.github.meiiraru"
-version = "0.5.6"
+version = "0.5.7"
 val mainClass = "cinnamon.Cinnamon"
 
 //dependencies
