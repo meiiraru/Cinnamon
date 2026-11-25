@@ -684,7 +684,7 @@ public class WorldClient extends World {
                     client.setScreen(chat);
             }
             case GLFW_KEY_TAB -> {
-                if (playerEntity instanceof LivingEntity) {
+                if (action == GLFW_PRESS && playerEntity instanceof LivingEntity) {
                     Screen inventory = inventoryScreen.get();
                     if (inventory != null)
                         client.setScreen(inventory);

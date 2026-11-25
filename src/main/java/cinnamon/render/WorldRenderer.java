@@ -118,17 +118,14 @@ public class WorldRenderer {
 
         //render world
         renderFunc[0].run(); //xr hands
-        renderedTerrain   = world.renderTerrain(camera, matrices, delta);
-        renderedDecals    = renderDecals(world, camera);
-        renderedEntities  = world.renderEntities(camera, matrices, delta);
-        renderedParticles = world.renderParticles(camera, matrices, delta);
-        renderFunc[4].run(); //item extra
+        renderedTerrain   = world.renderTerrain(camera, matrices, delta);   finishMaterials(camera);
+        renderedDecals    = renderDecals(world, camera);                    finishMaterials(camera);
+        renderedEntities  = world.renderEntities(camera, matrices, delta);  finishMaterials(camera);
+        renderedParticles = world.renderParticles(camera, matrices, delta); finishMaterials(camera);
+        renderFunc[4].run(); finishMaterials(camera); //item extra
 
         //extra world rendering
         world.renderExtras(camera, matrices, delta);
-        Texture.unbindAll();
-
-        //world vertex consumer
         finishMaterials(camera);
 
         //render ssao
@@ -192,17 +189,14 @@ public class WorldRenderer {
             initGBuffer(camera);
 
             renderFunc[0].run(); //xr hands
-            renderedTerrain   = world.renderTerrain(camera, matrices, delta);
-            renderedDecals    = renderDecals(world, camera);
-            renderedEntities  = world.renderEntities(camera, matrices, delta);
-            renderedParticles = world.renderParticles(camera, matrices, delta);
-            renderFunc[4].run(); //item extra
+            renderedTerrain   = world.renderTerrain(camera, matrices, delta);   finishMaterials(camera);
+            renderedDecals    = renderDecals(world, camera);                    finishMaterials(camera);
+            renderedEntities  = world.renderEntities(camera, matrices, delta);  finishMaterials(camera);
+            renderedParticles = world.renderParticles(camera, matrices, delta); finishMaterials(camera);
+            renderFunc[4].run(); finishMaterials(camera); //item extra
 
             //extra world rendering
             world.renderExtras(camera, matrices, delta);
-            Texture.unbindAll();
-
-            //vertex consumer
             finishMaterials(camera);
 
             //effects

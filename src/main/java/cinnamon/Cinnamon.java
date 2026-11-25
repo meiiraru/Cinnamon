@@ -64,8 +64,10 @@ public class Cinnamon {
 
         //render doc
         String doc = ArgsOptions.RENDER_DOC.get();
-        if (!doc.isBlank())
+        if (!doc.isBlank()) {
+            LOGGER.info("Loading render doc: %s", doc);
             System.load(doc);
+        }
     }
 
     public void run() {

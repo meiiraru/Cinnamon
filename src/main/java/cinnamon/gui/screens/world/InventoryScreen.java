@@ -264,7 +264,7 @@ public class InventoryScreen extends Screen {
 
     @Override
     public boolean mousePress(int button, int action, int mods) {
-        if (hoveredSlot == -2)
+        if (hoveredSlot == -2 || entity == null)
             return super.mousePress(button, action, mods);
 
         if (action == GLFW_RELEASE) {
@@ -316,16 +316,14 @@ public class InventoryScreen extends Screen {
                 switch (button) {
                     //drop whole stack
                     case GLFW_MOUSE_BUTTON_1 -> {
-                        if (entity != null)
-                            entity.dropItem(cursorItem);
+                        entity.dropItem(cursorItem);
                         cursorItem = null;
                     }
                     //drop one item from the stack
                     case GLFW_MOUSE_BUTTON_2 -> {
                         Item item = cursorItem.copy();
                         item.setCount(1);
-                        if (entity != null)
-                            entity.dropItem(item);
+                        entity.dropItem(item);
                         cursorItem.setCount(cursorItem.getCount() - 1);
                         if (cursorItem.getCount() <= 0)
                             cursorItem = null;
@@ -425,7 +423,8 @@ public class InventoryScreen extends Screen {
         if (action != GLFW_RELEASE) {
             switch (key) {
                 case GLFW_KEY_TAB -> {
-                    this.close();
+                    if (action == GLFW_PRESS)
+                        this.close();
                     return true;
                 }
                 case GLFW_KEY_Q -> {
