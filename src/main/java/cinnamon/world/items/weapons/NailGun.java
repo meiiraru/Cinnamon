@@ -22,7 +22,9 @@ public class NailGun extends Weapon {
 
     @Override
     public Item copy() {
-        return new NailGun(getMaxAmmo(), getFireCooldown(), getCooldownTime());
+        NailGun gun = new NailGun(getMaxAmmo(), getFireCooldown(), getCooldownTime());
+        gun.setAmmo(getAmmo());
+        return gun;
     }
 
     @Override

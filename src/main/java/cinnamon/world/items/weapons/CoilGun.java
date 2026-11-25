@@ -22,7 +22,9 @@ public class CoilGun extends Weapon {
 
     @Override
     public Item copy() {
-        return new CoilGun(getMaxAmmo(), getFireCooldown(), getCooldownTime());
+        CoilGun gun = new CoilGun(getMaxAmmo(), getFireCooldown(), getCooldownTime());
+        gun.setAmmo(getAmmo());
+        return gun;
     }
 
     @Override

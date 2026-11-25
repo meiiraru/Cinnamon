@@ -15,7 +15,9 @@ public class RiceGun extends Weapon {
 
     @Override
     public Item copy() {
-        return new RiceGun(getMaxAmmo(), getFireCooldown(), getCooldownTime());
+        RiceGun gun = new RiceGun(getMaxAmmo(), getFireCooldown(), getCooldownTime());
+        gun.setAmmo(getAmmo());
+        return gun;
     }
 
     @Override

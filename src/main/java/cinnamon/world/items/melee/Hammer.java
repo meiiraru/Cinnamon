@@ -182,4 +182,8 @@ public class Hammer extends Item {
     public float getSpecialKnockback() {
         return specialKnockback;
     }
+
+    public Object getCountText() {
+        return "\u269E.*\u2606.*.\u269F";
+    }
 }

@@ -22,7 +22,9 @@ public class PotatoCannon extends Weapon {
 
     @Override
     public Item copy() {
-        return new PotatoCannon(getMaxAmmo(), getFireCooldown(), getCooldownTime());
+        PotatoCannon cannon = new PotatoCannon(getMaxAmmo(), getFireCooldown(), getCooldownTime());
+        cannon.setAmmo(getAmmo());
+        return cannon;
     }
 
     @Override
